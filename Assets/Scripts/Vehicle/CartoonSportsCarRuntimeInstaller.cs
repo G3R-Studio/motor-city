@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -27,30 +26,25 @@ namespace MotorCity.Vehicle
             runner.AddComponent<CartoonSportsCarRuntimeInstaller>();
         }
 
-        private IEnumerator Start()
+        private void Start()
         {
-            yield return null;
-            yield return null;
-
             ArcadeCarController car = Object.FindAnyObjectByType<ArcadeCarController>();
-            if (car == null)
-            {
-                Destroy(gameObject);
-                yield break;
-            }
-
-            GameObject prefab = Resources.Load<GameObject>("MotorCity/PlayerCarVisual");
-            if (prefab == null)
-            {
-                Destroy(gameObject);
-                yield break;
-            }
-
-            Install(car, prefab);
+            if (car != null) TryInstallNow(car);
             Destroy(gameObject);
         }
 
-        private static void Install(ArcadeCarController car, GameObject prefab)
+        public static bool TryInstallNow(ArcadeCarController car)
+        {
+            if (car == null) return false;
+            if (car.transform.Find("CartoonSportsCarVisual_Runtime") != null) return true;
+
+            GameObject prefab = Resources.Load<GameObject>("MotorCity/PlayerCarVisual");
+            if (prefab == null) return false;
+
+            return Install(car, prefab);
+        }
+
+        private static bool Install(ArcadeCarController car, GameObject prefab)
         {
             Transform carTransform = car.transform;
             GameObject visual = Instantiate(prefab, carTransform);
@@ -68,8 +62,8 @@ namespace MotorCity.Vehicle
             if (wheelAnchors.Count < 4)
             {
                 Debug.LogWarning("Motor City: CARRERA loaded, but four wheel anchors were not found. Keeping fallback vehicle visual.");
-                visual.SetActive(false);
-                return;
+                Object.Destroy(visual);
+                return false;
             }
 
             AlignBodyToWheelCenters(visual.transform, carTransform, wheelAnchors);
@@ -103,6 +97,7 @@ namespace MotorCity.Vehicle
             HideOnlyPrimitiveFallback(carTransform);
             car.ConfigureExternalWheelRig(spinRoots, brakeRoots, centerLocal, measuredRadius);
             Debug.Log("Motor City: CARRERA connected to PhysX WheelColliders with grouped wheel visuals and original texture atlas.");
+            return true;
         }
 
         private static Transform CreateWheelRoot(Transform car, string name, Vector3 worldPosition)
