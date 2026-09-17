@@ -14,21 +14,25 @@ namespace MotorCity.Vehicle
         [SerializeField] private float directionChangeBrake = 24f;
 
         [Header("Suspension")]
-        [SerializeField] private float suspensionRestLength = 0.82f;
+        [SerializeField] private float suspensionRestLength = 0.72f;
         [SerializeField] private float wheelRadius = 0.34f;
-        [SerializeField] private float springStrength = 30000f;
-        [SerializeField] private float damperStrength = 4200f;
+        [SerializeField] private float springStrength = 36000f;
+        [SerializeField] private float damperStrength = 5600f;
 
         [Header("Tires")]
-        [SerializeField] private float lateralGrip = 10.5f;
-        [SerializeField] private float handbrakeGrip = 2.15f;
+        [SerializeField] private float tireGrip = 1.25f;
+        [SerializeField] private float rearGrip = 1.12f;
+        [SerializeField] private float handbrakeGrip = 0.42f;
+        [SerializeField] private float lateralStiffness = 5.4f;
         [SerializeField] private float rollingResistance = 0.018f;
-        [SerializeField] private float steeringDegrees = 31f;
-        [SerializeField] private float highSpeedSteeringDegrees = 12f;
+        [SerializeField] private float steeringDegrees = 30f;
+        [SerializeField] private float highSpeedSteeringDegrees = 11f;
 
         [Header("Stability")]
         [SerializeField] private float downforce = 0.8f;
-        [SerializeField] private float antiRollStrength = 3800f;
+        [SerializeField] private float antiRollStrength = 2600f;
+        [SerializeField] private float rollDamping = 3.2f;
+        [SerializeField] private float pitchDamping = 1.5f;
 
         private readonly Vector3[] suspensionPoints =
         {
@@ -40,6 +44,7 @@ namespace MotorCity.Vehicle
 
         private readonly bool[] grounded = new bool[4];
         private readonly float[] compression = new float[4];
+        private readonly float[] suspensionLoad = new float[4];
         private readonly RaycastHit[] hits = new RaycastHit[4];
 
         private Rigidbody body;
@@ -67,10 +72,10 @@ namespace MotorCity.Vehicle
             body = GetComponent<Rigidbody>();
             body.mass = 1350f;
             body.linearDamping = 0.015f;
-            body.angularDamping = 1.6f;
+            body.angularDamping = 1.9f;
             body.interpolation = RigidbodyInterpolation.Interpolate;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            body.centerOfMass = new Vector3(0f, -0.38f, 0.08f);
+            body.centerOfMass = new Vector3(0f, -0.62f, 0.06f);
             body.maxLinearVelocity = maxForwardSpeedKph / 3.6f + 15f;
         }
 
@@ -93,6 +98,7 @@ namespace MotorCity.Vehicle
             ApplySuspension();
             ApplyTireForces();
             ApplyAntiRoll();
+            ApplyBodyDamping();
             ApplyDownforce();
         }
 
@@ -109,6 +115,7 @@ namespace MotorCity.Vehicle
                 if (!grounded[i])
                 {
                     compression[i] = 0f;
+                    suspensionLoad[i] = 0f;
                     continue;
                 }
 
@@ -129,8 +136,10 @@ namespace MotorCity.Vehicle
                 float verticalVelocity = Vector3.Dot(pointVelocity, transform.up);
                 float springCompressionMeters = compression[i] * suspensionRestLength;
                 float force = springCompressionMeters * springStrength - verticalVelocity * damperStrength;
+                force = Mathf.Clamp(force, 0f, body.mass * Physics.gravity.magnitude * 0.85f);
+                suspensionLoad[i] = force;
 
-                body.AddForceAtPosition(transform.up * Mathf.Max(0f, force), point, ForceMode.Force);
+                body.AddForceAtPosition(transform.up * force, point, ForceMode.Force);
             }
         }
 
@@ -155,11 +164,13 @@ namespace MotorCity.Vehicle
 
                 float longitudinalSpeed = Vector3.Dot(velocity, wheelForward);
                 float lateralSpeed = Vector3.Dot(velocity, wheelRight);
-                float grip = rearWheel && handbrakeInput ? handbrakeGrip : lateralGrip;
+                float gripCoefficient = frontWheel ? tireGrip : rearGrip;
+                if (rearWheel && handbrakeInput) gripCoefficient = handbrakeGrip;
 
-                float normalShare = body.mass * Physics.gravity.magnitude / Mathf.Max(1, GroundedWheels);
-                float maxLateralForce = normalShare * grip;
-                float lateralForce = Mathf.Clamp(-lateralSpeed * body.mass * 2.2f, -maxLateralForce, maxLateralForce);
+                float load = Mathf.Max(500f, suspensionLoad[i]);
+                float maxLateralForce = load * gripCoefficient;
+                float requestedLateralForce = -lateralSpeed * body.mass * lateralStiffness * 0.25f;
+                float lateralForce = Mathf.Clamp(requestedLateralForce, -maxLateralForce, maxLateralForce);
                 body.AddForceAtPosition(wheelRight * lateralForce, point, ForceMode.Force);
 
                 float driveAcceleration = 0f;
@@ -174,7 +185,6 @@ namespace MotorCity.Vehicle
                     else if (forwardSpeed > -maxReverseSpeedKph / 3.6f) driveAcceleration = reverseAcceleration * throttleInput;
                 }
 
-                // Rear-wheel drive gives the prototype more natural throttle-oversteer.
                 if (rearWheel && Mathf.Abs(driveAcceleration) > 0.01f)
                     body.AddForceAtPosition(wheelForward * (driveAcceleration * body.mass * 0.5f), point, ForceMode.Force);
 
@@ -194,13 +204,27 @@ namespace MotorCity.Vehicle
 
         private void ApplyAxleAntiRoll(int left, int right)
         {
-            if (!grounded[left] && !grounded[right]) return;
+            // Do not use the anti-roll bar as a lever when one wheel has already left
+            // the ground; that amplified the tipping seen in the first suspension build.
+            if (!grounded[left] || !grounded[right]) return;
 
             float travelDifference = compression[left] - compression[right];
             float force = travelDifference * antiRollStrength;
+            body.AddForceAtPosition(-transform.up * force, transform.TransformPoint(suspensionPoints[left]), ForceMode.Force);
+            body.AddForceAtPosition(transform.up * force, transform.TransformPoint(suspensionPoints[right]), ForceMode.Force);
+        }
 
-            if (grounded[left]) body.AddForceAtPosition(-transform.up * force, transform.TransformPoint(suspensionPoints[left]), ForceMode.Force);
-            if (grounded[right]) body.AddForceAtPosition(transform.up * force, transform.TransformPoint(suspensionPoints[right]), ForceMode.Force);
+        private void ApplyBodyDamping()
+        {
+            if (GroundedWheels < 2) return;
+
+            Vector3 localAngular = transform.InverseTransformDirection(body.angularVelocity);
+            Vector3 dampingTorqueLocal = new(
+                -localAngular.x * pitchDamping,
+                0f,
+                -localAngular.z * rollDamping
+            );
+            body.AddRelativeTorque(dampingTorqueLocal, ForceMode.Acceleration);
         }
 
         private void ApplyDownforce()
