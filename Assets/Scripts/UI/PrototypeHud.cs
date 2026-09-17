@@ -130,6 +130,9 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
+            if (garage != null && garage.IsNearGarage && !garage.IsOpen)
+                return garage.StatusText;
+
             if (activityManager != null && activityManager.IsBusy)
             {
                 return activityManager.ActiveId switch
@@ -141,9 +144,6 @@ namespace MotorCity.UI
                     _ => activityManager.ActiveName
                 };
             }
-
-            if (garage != null && garage.IsNearGarage)
-                return garage.StatusText;
 
             return "СИНИЙ — доставка   •   ОРАНЖЕВЫЙ — дрифт   •   ЗЕЛЁНЫЙ — спринт   •   ФИОЛЕТОВЫЙ — гараж";
         }
