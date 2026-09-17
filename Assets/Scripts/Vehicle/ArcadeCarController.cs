@@ -17,6 +17,8 @@ namespace MotorCity.Vehicle
         // were retained and adapted to Unity 6 WheelCollider APIs.
 
         [Header("Extreme Drift Drivetrain")]
+        [SerializeField] private bool frontWheelDrive = false;
+        [SerializeField] private bool rearWheelDrive = true;
         [SerializeField] private float carPower = 120f;
         [SerializeField] private float shiftPower = 150f;
         [SerializeField] private float brakePower = 8000f;
@@ -321,7 +323,7 @@ namespace MotorCity.Vehicle
             for (int i = 0; i < 4; i++)
             {
                 WheelCollider wheel = wheelColliders[i];
-                bool driven = i == RearLeft || i == RearRight;
+                bool driven = IsDrivenWheel(i);
                 bool rear = i >= RearLeft;
 
                 if (driven)
@@ -521,10 +523,21 @@ namespace MotorCity.Vehicle
             }
         }
 
+        private bool IsDrivenWheel(int index)
+        {
+            return index < RearLeft ? frontWheelDrive : rearWheelDrive;
+        }
+
         private void ApplyMotorTorque(float newTorque, float legacySpeed)
         {
-            for (int i = RearLeft; i <= RearRight; i++)
+            for (int i = 0; i < 4; i++)
             {
+                if (!IsDrivenWheel(i))
+                {
+                    wheelColliders[i].motorTorque = 0f;
+                    continue;
+                }
+
                 WheelCollider wheel = wheelColliders[i];
 
                 if (Mathf.Abs(wheel.rpm) > Mathf.Abs(wantedRpm))
