@@ -25,16 +25,22 @@ namespace MotorCity.Bootstrap
             CreatePrototypeCity();
 
             ArcadeCarController car = CreateCar();
+            CartoonSportsCarRuntimeInstaller.TryInstallNow(car);
             DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
 
             GameObject systems = new("Gameplay Systems");
             PlayerWallet wallet = systems.AddComponent<PlayerWallet>();
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
             delivery.Initialize(car, wallet);
+
+            DriftChallenge driftChallenge = systems.AddComponent<DriftChallenge>();
+            driftChallenge.Initialize(car, drift, wallet);
+
             CreateDeliveryMarker(delivery);
+            CreateDriftChallengeMarker(driftChallenge);
 
             CreateCamera(car.transform);
-            CreateHud(car, wallet, drift, delivery);
+            CreateHud(car, wallet, drift, delivery, driftChallenge);
         }
 
         private static void CreateLighting()
@@ -217,6 +223,21 @@ namespace MotorCity.Bootstrap
             visual.Bind(delivery);
         }
 
+        private static void CreateDriftChallengeMarker(DriftChallenge challenge)
+        {
+            Material markerMaterial = Material(new Color(1f, 0.48f, 0.06f), 0.02f, 0.7f);
+            Vector3 position = challenge.ZoneCenter + Vector3.up * 0.09f;
+            GameObject marker = CreateVisualSurface(
+                "Drift Challenge Zone",
+                PrimitiveType.Cylinder,
+                position,
+                new Vector3(5.8f, 0.055f, 5.8f),
+                markerMaterial);
+
+            DriftChallengeMarkerVisual visual = marker.AddComponent<DriftChallengeMarkerVisual>();
+            visual.Bind(challenge);
+        }
+
         private static void CreateCamera(Transform target)
         {
             GameObject cameraObject = new("Main Camera");
@@ -230,11 +251,16 @@ namespace MotorCity.Bootstrap
             chase.SetTarget(target);
         }
 
-        private static void CreateHud(ArcadeCarController car, PlayerWallet wallet, DriftTracker drift, DeliveryActivity delivery)
+        private static void CreateHud(
+            ArcadeCarController car,
+            PlayerWallet wallet,
+            DriftTracker drift,
+            DeliveryActivity delivery,
+            DriftChallenge driftChallenge)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
-            prototypeHud.Bind(car, wallet, drift, delivery);
+            prototypeHud.Bind(car, wallet, drift, delivery, driftChallenge);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
