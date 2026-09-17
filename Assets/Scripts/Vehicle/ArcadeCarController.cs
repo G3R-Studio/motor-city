@@ -38,9 +38,10 @@ namespace MotorCity.Vehicle
         [SerializeField] private float wheelDampingRate = 0.25f;
 
         [Header("Handbrake")]
-        [SerializeField] private float handbrakeRearTorque = 9000f;
-        [SerializeField] private float parkingBrakeTorque = 14000f;
-        [SerializeField] private float parkingBrakeSpeedKph = 6f;
+        [SerializeField] private float handbrakeRearTorque = 18000f;
+        [SerializeField] private float handbrakeDeceleration = 8.5f;
+        [SerializeField] private float parkingBrakeTorque = 30000f;
+        [SerializeField] private float parkingBrakeSpeedKph = 8f;
 
         [Header("Legacy Input.GetAxis Feel")]
         [SerializeField] private float inputSensitivity = 3f;
@@ -471,7 +472,20 @@ namespace MotorCity.Vehicle
                     : (rearWheel ? handbrakeRearTorque : 0f);
             }
 
-            if (handbrakeInput && parkingMode && body.linearVelocity.sqrMagnitude < 0.08f)
+            if (handbrakeInput)
+            {
+                Vector3 planarVelocity =
+                    Vector3.ProjectOnPlane(body.linearVelocity, transform.up);
+
+                if (planarVelocity.sqrMagnitude > 0.01f)
+                {
+                    body.AddForce(
+                        -planarVelocity.normalized * handbrakeDeceleration,
+                        ForceMode.Acceleration);
+                }
+            }
+
+            if (handbrakeInput && parkingMode && body.linearVelocity.sqrMagnitude < 0.36f)
             {
                 body.linearVelocity = Vector3.zero;
                 body.angularVelocity = Vector3.zero;
