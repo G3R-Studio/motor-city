@@ -13,7 +13,7 @@ The project currently includes:
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
 - an arcade vehicle controller with throttle, reverse, steering, grip and handbrake;
-- a smooth chase camera;
+- a smooth orbiting chase camera with mouse look and zoom;
 - a procedural prototype city grid with roads, buildings and a drift pad;
 - a speed HUD;
 - instant vehicle reset;
@@ -31,7 +31,9 @@ The current car and environment are built from simple primitives and are used as
 
 ## Controls
 
-- `W/S` or arrow keys — throttle / reverse;
+- `W/S` or arrow keys — throttle / brake and reverse;
 - `A/D` or arrow keys — steering;
 - `Space` — handbrake;
+- hold right mouse button and move the mouse — rotate the camera;
+- mouse wheel — camera zoom;
 - `R` — reset the vehicle.
