@@ -5,12 +5,15 @@ namespace MotorCity.Gameplay
 {
     public sealed class DeliveryActivity : MonoBehaviour
     {
+        private const string ActivityId = "delivery";
+
         [SerializeField] private int rewardCredits = 450;
         [SerializeField] private float checkpointRadius = 5f;
         [SerializeField] private float startRadius = 7f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
+        private ActivityManager activityManager;
         private Vector3[] route;
         private int checkpointIndex;
 
@@ -19,12 +22,13 @@ namespace MotorCity.Gameplay
         public int CheckpointCount => route?.Length ?? 0;
         public int RewardCredits => rewardCredits;
         public Vector3 CurrentTarget => route == null || route.Length == 0 ? Vector3.zero : route[Mathf.Clamp(checkpointIndex, 0, route.Length - 1)];
-        public string StatusText { get; private set; } = "Drive to the blue marker to start a delivery";
+        public string StatusText { get; private set; } = "Blue marker: delivery";
 
-        public void Initialize(ArcadeCarController targetCar, PlayerWallet targetWallet)
+        public void Initialize(ArcadeCarController targetCar, PlayerWallet targetWallet, ActivityManager manager)
         {
             car = targetCar;
             wallet = targetWallet;
+            activityManager = manager;
             route = new[]
             {
                 new Vector3(42f, 0f, -42f),
@@ -37,7 +41,7 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
-            if (car == null || wallet == null || route == null || route.Length == 0) return;
+            if (car == null || wallet == null || activityManager == null || route == null || route.Length == 0) return;
 
             float distance = Vector3.Distance(Flat(car.transform.position), Flat(CurrentTarget));
 
@@ -46,9 +50,19 @@ namespace MotorCity.Gameplay
                 checkpointIndex = 0;
                 if (distance <= startRadius)
                 {
+                    if (!activityManager.TryBegin(ActivityId, "Delivery"))
+                    {
+                        StatusText = $"Delivery unavailable during {activityManager.ActiveName}";
+                        return;
+                    }
+
                     IsActive = true;
                     checkpointIndex = 1;
-                    StatusText = $"Delivery: checkpoint {checkpointIndex + 1}/{route.Length}";
+                    StatusText = $"DELIVERY  CP {checkpointIndex + 1}/{route.Length}";
+                }
+                else
+                {
+                    StatusText = "Blue marker: delivery";
                 }
                 return;
             }
@@ -60,12 +74,13 @@ namespace MotorCity.Gameplay
             {
                 wallet.AddCredits(rewardCredits);
                 IsActive = false;
+                activityManager.End(ActivityId);
                 checkpointIndex = 0;
-                StatusText = $"Delivery complete +{rewardCredits} credits. Return to the blue marker.";
+                StatusText = $"Delivery complete +{rewardCredits} CR";
                 return;
             }
 
-            StatusText = $"Delivery: checkpoint {checkpointIndex + 1}/{route.Length}";
+            StatusText = $"DELIVERY  CP {checkpointIndex + 1}/{route.Length}";
         }
 
         private static Vector3 Flat(Vector3 value)
