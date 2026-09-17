@@ -11,56 +11,51 @@ namespace MotorCity.Vehicle
         private const int RearLeft = 2;
         private const int RearRight = 3;
 
-        [Header("Engine")]
-        [SerializeField] private float maxMotorTorque = 2600f;
-        [SerializeField] private float reverseTorqueFactor = 0.62f;
-        [SerializeField] private float maxForwardSpeedKph = 205f;
-        [SerializeField] private float maxReverseSpeedKph = 55f;
-        [SerializeField] private float serviceBrakeTorque = 3600f;
-        [SerializeField] private float handbrakeTorque = 4300f;
-        [SerializeField] private float coastBrakeTorque = 35f;
+        // Port of the vehicle dynamics from the user-supplied Extreme Drift
+        // VehicleControl.cs. Old Unity 5.5 input/UI/audio dependencies were
+        // removed, while the drivetrain, slip, steering, COM and drift behavior
+        // were retained and adapted to Unity 6 WheelCollider APIs.
 
-        [Header("Steering")]
-        [SerializeField] private float lowSpeedSteerAngle = 34f;
-        [SerializeField] private float highSpeedSteerAngle = 20f;
-        [SerializeField] private float steeringResponse = 190f;
-        [SerializeField] private float steeringReturnResponse = 170f;
+        [Header("Extreme Drift Drivetrain")]
+        [SerializeField] private float carPower = 120f;
+        [SerializeField] private float shiftPower = 150f;
+        [SerializeField] private float brakePower = 8000f;
+        [SerializeField] private float coastBrakeTorque = 1000f;
+        [SerializeField] private float idleRpm = 500f;
+        [SerializeField] private float shiftDownRpm = 1500f;
+        [SerializeField] private float shiftUpRpm = 2500f;
+        [SerializeField] private float forwardSpeedLimit = 220f;
+        [SerializeField] private float reverseSpeedLimit = 60f;
+        [SerializeField] private float[] gears = { -10f, 9f, 6f, 4.5f, 3f, 2.5f };
 
-        [Header("Wheel Collider Suspension")]
-        [SerializeField] private float wheelRadius = 0.34f;
-        [SerializeField] private float wheelMass = 27f;
-        [SerializeField] private float suspensionDistance = 0.18f;
-        [SerializeField] private float suspensionSpring = 36000f;
-        [SerializeField] private float suspensionDamper = 5200f;
-        [SerializeField, Range(0f, 1f)] private float suspensionTargetPosition = 0.5f;
-        [SerializeField] private float wheelDampingRate = 0.45f;
-        [SerializeField] private float forceAppPointDistance = 0.12f;
-        [SerializeField] private float antiRollForce = 4200f;
+        [Header("Extreme Drift Steering")]
+        [SerializeField] private float maxSteerAngle = 25f;
+        [SerializeField] private float yawAssistTorque = 10000f;
 
-        [Header("Tire Grip")]
-        [SerializeField] private float frontSidewaysStiffness = 1.52f;
-        [SerializeField] private float rearSidewaysStiffness = 1.40f;
-        [SerializeField] private float forwardStiffness = 1.52f;
-        [SerializeField] private float handbrakeRearGripMultiplier = 0.62f;
-        [SerializeField] private float rearGripResponse = 7.5f;
+        [Header("Extreme Drift Suspension")]
+        [SerializeField] private float wheelRadius = 0.4f;
+        [SerializeField] private float wheelMass = 1000f;
+        [SerializeField] private float suspensionDistance = 0.2f;
+        [SerializeField] private float suspensionSpring = 25000f;
+        [SerializeField] private float suspensionDamper = 1500f;
 
-        [Header("Traction Control")]
-        [SerializeField] private float launchSlipLimit = 0.32f;
-        [SerializeField] private float roadSlipLimit = 0.58f;
-        [SerializeField] private float driftSlipLimit = 0.92f;
-        [SerializeField] private float tractionCutRate = 7200f;
-        [SerializeField] private float tractionRecoverRate = 3600f;
-        [SerializeField, Range(0f, 1f)] private float minimumLaunchTorqueFactor = 0.30f;
-        [SerializeField, Range(0f, 1f)] private float minimumDriftTorqueFactor = 0.64f;
-
-        [Header("Handbrake")]
-        [SerializeField] private float handbrakeEngageRate = 8f;
-        [SerializeField] private float handbrakeReleaseRate = 5.5f;
+        [Header("Extreme Drift Tire Slip")]
+        [SerializeField] private float tireStiffness = 2f;
+        [SerializeField] private float minimumSlipDivisor = 0.35f;
+        [SerializeField] private float airborneDownforcePerWheel = 10000f;
 
         [Header("Chassis")]
         [SerializeField] private float vehicleMass = 1350f;
-        [SerializeField] private Vector3 centerOfMass = new(0f, 0.18f, 0.05f);
-        [SerializeField] private float aerodynamicDownforce = 1.35f;
+        [SerializeField] private Vector3 baseCenterOfMass = new(0f, -0.8f, 0f);
+
+        private readonly float[] efficiencyTable =
+        {
+            0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f, 1.00f,
+            1.00f, 0.95f, 0.80f, 0.70f, 0.60f, 0.50f, 0.45f, 0.40f,
+            0.36f, 0.33f, 0.30f, 0.20f, 0.10f, 0.05f
+        };
+
+        private const float EfficiencyTableStep = 250f;
 
         private readonly WheelCollider[] wheelColliders = new WheelCollider[4];
         private readonly Transform[] wheelVisualRoots = new Transform[4];
@@ -74,22 +69,51 @@ namespace MotorCity.Vehicle
             new( 0.94f, 0.18f,-1.34f)
         };
 
-        private readonly string[] fallbackWheelNames = { "Wheel_FL", "Wheel_FR", "Wheel_RL", "Wheel_RR" };
+        private readonly string[] fallbackWheelNames =
+        {
+            "Wheel_FL", "Wheel_FR", "Wheel_RL", "Wheel_RR"
+        };
+
         private Rigidbody body;
+
         private float throttleInput;
         private float steerInput;
         private bool handbrakeInput;
-        private float handbrakePressure;
-        private float currentSteerAngle;
-        private float currentRearGrip;
-        private float availableMotorTorque;
+        private bool powerShiftInput;
+
+        private float accel;
+        private float steer;
+        private bool brake;
+        private bool shift;
+
+        private float wantedRpm;
+        private float motorRpm;
+        private float curTorque = 100f;
+        private float powerShift = 100f;
+        private bool shiftMotor;
+        private bool shifting;
+
+        private int currentGear;
+        private bool neutralGear;
+        private bool backward;
+
+        private float shiftTime;
+        private float shiftDelay;
+
+        // Extreme Drift's central grip state. Low values produce very high grip;
+        // handbrake and collisions push it upward and reduce tire stiffness.
+        private float slip;
+        private float collisionSlip;
+        private float lastLegacySpeed = -10f;
 
         public float SpeedKph => body == null ? 0f : body.linearVelocity.magnitude * 3.6f;
         public float ForwardSpeedKph => body == null ? 0f : Vector3.Dot(body.linearVelocity, transform.forward) * 3.6f;
-        public bool IsHandbrake => handbrakePressure > 0.08f;
+        public bool IsHandbrake => brake;
         public float RearSidewaysSlip { get; private set; }
         public float RearForwardSlip { get; private set; }
         public int GroundedWheels { get; private set; }
+        public int CurrentGear => currentGear;
+        public float MotorRpm => motorRpm;
 
         public float SlipAngleDegrees
         {
@@ -105,18 +129,20 @@ namespace MotorCity.Vehicle
         {
             body = GetComponent<Rigidbody>();
             body.mass = vehicleMass;
-            body.linearDamping = 0.012f;
-            body.angularDamping = 0.32f;
+            body.linearDamping = 0f;
+            body.angularDamping = 0.05f;
             body.interpolation = RigidbodyInterpolation.Interpolate;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            body.centerOfMass = centerOfMass;
-            body.maxLinearVelocity = maxForwardSpeedKph / 3.6f + 15f;
-            body.maxAngularVelocity = 8f;
+            body.centerOfMass = baseCenterOfMass;
+            body.maxAngularVelocity = 12f;
+            body.maxLinearVelocity = 120f;
             body.solverIterations = 12;
             body.solverVelocityIterations = 12;
 
-            currentRearGrip = rearSidewaysStiffness;
-            availableMotorTorque = maxMotorTorque * 0.55f;
+            currentGear = 0;
+            neutralGear = false;
+            backward = false;
+            slip = 0f;
 
             SetupFallbackWheelVisuals();
             BuildOrReconfigureWheelColliders();
@@ -130,7 +156,7 @@ namespace MotorCity.Vehicle
         {
             if (visualRoots == null || centers == null || visualRoots.Length < 4 || centers.Length < 4) return;
 
-            wheelRadius = Mathf.Clamp(measuredWheelRadius, 0.29f, 0.40f);
+            wheelRadius = Mathf.Clamp(measuredWheelRadius, 0.29f, 0.42f);
             wheelCenters = new Vector3[4];
 
             for (int i = 0; i < 4; i++)
@@ -140,7 +166,6 @@ namespace MotorCity.Vehicle
                 wheelCenters[i] = centers[i];
             }
 
-            body.centerOfMass = centerOfMass;
             BuildOrReconfigureWheelColliders();
         }
 
@@ -179,53 +204,44 @@ namespace MotorCity.Vehicle
                 Transform wheelTransform = wheel.transform;
                 wheelTransform.localRotation = Quaternion.identity;
                 wheelTransform.localScale = Vector3.one;
-
-                Vector3 center = wheelCenters[i];
-                wheelTransform.localPosition = new Vector3(
-                    center.x,
-                    center.y + suspensionDistance * 0.5f,
-                    center.z);
+                wheelTransform.localPosition = wheelCenters[i];
 
                 wheel.center = Vector3.zero;
-                wheel.mass = wheelMass;
                 wheel.radius = wheelRadius;
-                wheel.wheelDampingRate = wheelDampingRate;
+                wheel.mass = wheelMass;
                 wheel.suspensionDistance = suspensionDistance;
-                wheel.forceAppPointDistance = forceAppPointDistance;
+                wheel.wheelDampingRate = 0.25f;
+                wheel.forceAppPointDistance = 0f;
 
                 JointSpring spring = wheel.suspensionSpring;
                 spring.spring = suspensionSpring;
                 spring.damper = suspensionDamper;
-                spring.targetPosition = suspensionTargetPosition;
+                spring.targetPosition = 0.5f;
                 wheel.suspensionSpring = spring;
 
-                ConfigureForwardFriction(wheel, forwardStiffness);
-                ConfigureSidewaysFriction(wheel, i < 2 ? frontSidewaysStiffness : rearSidewaysStiffness, i < 2);
+                ConfigureBaseFriction(wheel);
             }
 
             wheelColliders[FrontLeft].ConfigureVehicleSubsteps(5f, 8, 12);
         }
 
-        private static void ConfigureForwardFriction(WheelCollider wheel, float stiffness)
+        private void ConfigureBaseFriction(WheelCollider wheel)
         {
-            WheelFrictionCurve friction = wheel.forwardFriction;
-            friction.extremumSlip = 0.22f;
-            friction.extremumValue = 1f;
-            friction.asymptoteSlip = 0.68f;
-            friction.asymptoteValue = 0.80f;
-            friction.stiffness = stiffness;
-            wheel.forwardFriction = friction;
-        }
+            WheelFrictionCurve forward = wheel.forwardFriction;
+            forward.extremumSlip = 0.40f;
+            forward.extremumValue = 1f;
+            forward.asymptoteSlip = 1.4f;
+            forward.asymptoteValue = 0.75f;
+            forward.stiffness = tireStiffness;
+            wheel.forwardFriction = forward;
 
-        private static void ConfigureSidewaysFriction(WheelCollider wheel, float stiffness, bool front)
-        {
-            WheelFrictionCurve friction = wheel.sidewaysFriction;
-            friction.extremumSlip = front ? 0.24f : 0.20f;
-            friction.extremumValue = 1f;
-            friction.asymptoteSlip = front ? 0.58f : 0.50f;
-            friction.asymptoteValue = front ? 0.80f : 0.68f;
-            friction.stiffness = stiffness;
-            wheel.sidewaysFriction = friction;
+            WheelFrictionCurve sideways = wheel.sidewaysFriction;
+            sideways.extremumSlip = 0.3f;
+            sideways.extremumValue = 1f;
+            sideways.asymptoteSlip = 2f;
+            sideways.asymptoteValue = 0.72f;
+            sideways.stiffness = tireStiffness;
+            wheel.sidewaysFriction = sideways;
         }
 
         private void Update()
@@ -235,7 +251,8 @@ namespace MotorCity.Vehicle
 
             float keyboardThrottle = 0f;
             float keyboardSteer = 0f;
-            bool keyboardHandbrake = false;
+            bool keyboardBrake = false;
+            bool keyboardShift = false;
 
             if (keyboard != null)
             {
@@ -243,244 +260,348 @@ namespace MotorCity.Vehicle
                 if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed) keyboardThrottle -= 1f;
                 if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) keyboardSteer -= 1f;
                 if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) keyboardSteer += 1f;
-                keyboardHandbrake = keyboard.spaceKey.isPressed;
+                keyboardBrake = keyboard.spaceKey.isPressed;
+                keyboardShift = keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed;
             }
 
             float gamepadThrottle = 0f;
             float gamepadSteer = 0f;
-            bool gamepadHandbrake = false;
+            bool gamepadBrake = false;
+            bool gamepadShift = false;
+
             if (gamepad != null)
             {
                 gamepadThrottle = gamepad.rightTrigger.ReadValue() - gamepad.leftTrigger.ReadValue();
                 gamepadSteer = gamepad.leftStick.x.ReadValue();
-                gamepadHandbrake = gamepad.buttonSouth.isPressed;
+                gamepadBrake = gamepad.buttonSouth.isPressed;
+                gamepadShift = gamepad.rightShoulder.isPressed;
             }
 
             throttleInput = Mathf.Abs(keyboardThrottle) >= Mathf.Abs(gamepadThrottle) ? keyboardThrottle : gamepadThrottle;
             steerInput = Mathf.Abs(keyboardSteer) >= Mathf.Abs(gamepadSteer) ? keyboardSteer : gamepadSteer;
-            handbrakeInput = keyboardHandbrake || gamepadHandbrake;
+            handbrakeInput = keyboardBrake || gamepadBrake;
+            powerShiftInput = keyboardShift || gamepadShift;
         }
 
         private void FixedUpdate()
         {
             if (wheelColliders[0] == null) return;
 
-            UpdateGroundedState();
-            UpdateHandbrakePressure();
+            float legacySpeed = body.linearVelocity.magnitude * 2.7f;
 
-            float forwardSpeed = Vector3.Dot(body.linearVelocity, transform.forward);
-            float speedKph = Mathf.Abs(forwardSpeed) * 3.6f;
+            if (legacySpeed < lastLegacySpeed - 10f && slip < 10f)
+                slip = lastLegacySpeed / 15f;
 
-            UpdateTireTelemetry();
-            UpdateRearGrip();
-            UpdateAvailableMotorTorque(speedKph);
-            ApplySteering(speedKph);
-            ApplyDriveAndBrakes(forwardSpeed);
-            ApplyAntiRoll(FrontLeft, FrontRight);
-            ApplyAntiRoll(RearLeft, RearRight);
-            ApplyDownforce();
-        }
+            lastLegacySpeed = legacySpeed;
+            if (collisionSlip != 0f)
+                collisionSlip = Mathf.MoveTowards(collisionSlip, 0f, 0.1f);
 
-        private void UpdateGroundedState()
-        {
+            accel = throttleInput;
+            steer = steerInput;
+            brake = handbrakeInput;
+            shift = powerShiftInput;
+
+            HandleAutomaticGearbox(legacySpeed);
+            UpdateCenterOfMass(legacySpeed);
+            wantedRpm = 5500f * accel * 0.1f + wantedRpm * 0.9f;
+
+            float yawDirection = currentGear > 0 ? 1f : -1f;
+            if (GroundedWheels > 0)
+                body.AddRelativeTorque(0f, steer * yawAssistTorque * yawDirection, 0f, ForceMode.Force);
+
+            UpdatePowerShift(legacySpeed);
+
+            float rpm = 0f;
+            int drivenWheelCount = 0;
             GroundedWheels = 0;
-            for (int i = 0; i < 4; i++)
-                if (wheelColliders[i] != null && wheelColliders[i].isGrounded) GroundedWheels++;
-        }
-
-        private void UpdateHandbrakePressure()
-        {
-            float target = handbrakeInput ? 1f : 0f;
-            float rate = handbrakeInput ? handbrakeEngageRate : handbrakeReleaseRate;
-            handbrakePressure = Mathf.MoveTowards(handbrakePressure, target, rate * Time.fixedDeltaTime);
-        }
-
-        private void UpdateTireTelemetry()
-        {
-            float rearLateral = 0f;
-            float rearLongitudinal = 0f;
+            float rearSideways = 0f;
+            float rearForward = 0f;
             int rearGrounded = 0;
 
-            for (int i = RearLeft; i <= RearRight; i++)
+            for (int i = 0; i < 4; i++)
             {
                 WheelCollider wheel = wheelColliders[i];
-                if (!wheel.GetGroundHit(out WheelHit hit)) continue;
+                bool driven = i == RearLeft || i == RearRight;
+                bool rear = i >= RearLeft;
 
-                rearLateral += Mathf.Abs(hit.sidewaysSlip);
-                rearLongitudinal += Mathf.Abs(hit.forwardSlip);
-                rearGrounded++;
+                if (driven)
+                {
+                    if (!neutralGear && brake && currentGear < 2)
+                        rpm += accel * idleRpm;
+                    else if (!neutralGear)
+                        rpm += wheel.rpm;
+                    else
+                        rpm += idleRpm * accel;
+
+                    drivenWheelCount++;
+                }
+
+                UpdateBrakeAndSlip(wheel, rear, legacySpeed);
+                UpdateDynamicFriction(wheel);
+
+                if (wheel.GetGroundHit(out WheelHit hit))
+                {
+                    GroundedWheels++;
+
+                    if (rear)
+                    {
+                        rearSideways += Mathf.Abs(hit.sidewaysSlip);
+                        rearForward += Mathf.Abs(hit.forwardSlip);
+                        rearGrounded++;
+                    }
+                }
+                else
+                {
+                    body.AddForce(Vector3.down * airborneDownforcePerWheel, ForceMode.Force);
+                }
             }
 
-            RearSidewaysSlip = rearGrounded > 0 ? rearLateral / rearGrounded : 0f;
-            RearForwardSlip = rearGrounded > 0 ? rearLongitudinal / rearGrounded : 0f;
+            RearSidewaysSlip = rearGrounded > 0 ? rearSideways / rearGrounded : 0f;
+            RearForwardSlip = rearGrounded > 0 ? rearForward / rearGrounded : 0f;
+
+            if (drivenWheelCount > 1)
+                rpm /= drivenWheelCount;
+
+            motorRpm = 0.95f * motorRpm + 0.05f * Mathf.Abs(rpm * gears[Mathf.Clamp(currentGear, 0, gears.Length - 1)]);
+            if (motorRpm > 5500f) motorRpm = 5200f;
+
+            int efficiencyIndex = Mathf.Clamp((int)(motorRpm / EfficiencyTableStep), 0, efficiencyTable.Length - 1);
+            float newTorque = curTorque * gears[Mathf.Clamp(currentGear, 0, gears.Length - 1)] * efficiencyTable[efficiencyIndex];
+
+            ApplyMotorTorque(newTorque, legacySpeed);
+            ApplySteering(legacySpeed);
+
+            shiftTime = Mathf.MoveTowards(shiftTime, 0f, 0.1f);
         }
 
-        private void UpdateRearGrip()
+        private void HandleAutomaticGearbox(float legacySpeed)
         {
-            // Keep the normal tyre curve stable. Only the handbrake changes rear
-            // lateral stiffness, and even that change is smoothed. Normal drift
-            // initiation is therefore produced by actual WheelCollider slip.
-            float targetGrip = rearSidewaysStiffness *
-                               Mathf.Lerp(1f, handbrakeRearGripMultiplier, handbrakePressure);
-            float blend = 1f - Mathf.Exp(-rearGripResponse * Time.fixedDeltaTime);
-            currentRearGrip = Mathf.Lerp(currentRearGrip, targetGrip, blend);
-
-            SetSidewaysStiffness(wheelColliders[RearLeft], currentRearGrip);
-            SetSidewaysStiffness(wheelColliders[RearRight], currentRearGrip);
-        }
-
-        private void UpdateAvailableMotorTorque(float speedKph)
-        {
-            float speedBlend = Mathf.InverseLerp(0f, 70f, speedKph);
-            float slipLimit = Mathf.Lerp(launchSlipLimit, roadSlipLimit, speedBlend);
-
-            bool driftIntent =
-                speedKph > 35f &&
-                Mathf.Abs(SlipAngleDegrees) > 7f &&
-                Mathf.Abs(steerInput) > 0.15f;
-
-            if (driftIntent) slipLimit = driftSlipLimit;
-
-            float targetTorque = maxMotorTorque;
-            if (RearForwardSlip > slipLimit && handbrakePressure < 0.15f)
+            if (currentGear == 1 && accel < 0f)
             {
-                float excess = Mathf.InverseLerp(slipLimit, 1.45f, RearForwardSlip);
-                float minimumFactor = driftIntent ? minimumDriftTorqueFactor : minimumLaunchTorqueFactor;
-                float requestedFactor = Mathf.Lerp(0.78f, minimumFactor, excess);
-                targetTorque = maxMotorTorque * requestedFactor;
+                if (legacySpeed < 5f) ShiftDown();
+            }
+            else if (currentGear == 0 && accel > 0f)
+            {
+                if (legacySpeed < 5f) ShiftUp();
+            }
+            else if (motorRpm > shiftUpRpm && accel > 0f && legacySpeed > 10f && !brake)
+            {
+                ShiftUp();
+            }
+            else if (motorRpm < shiftDownRpm && currentGear > 1)
+            {
+                ShiftDown();
             }
 
-            float response = targetTorque < availableMotorTorque
-                ? tractionCutRate
-                : tractionRecoverRate;
+            if (legacySpeed < 1f)
+                backward = true;
 
-            availableMotorTorque = Mathf.MoveTowards(
-                availableMotorTorque,
-                targetTorque,
-                response * Time.fixedDeltaTime);
-        }
-
-        private void ApplySteering(float speedKph)
-        {
-            float speedFactor = Mathf.InverseLerp(55f, 200f, speedKph);
-            float steeringLimit = Mathf.Lerp(lowSpeedSteerAngle, highSpeedSteerAngle, speedFactor);
-            float desiredAngle = steerInput * steeringLimit;
-            float response = Mathf.Abs(steerInput) > 0.01f ? steeringResponse : steeringReturnResponse;
-            currentSteerAngle = Mathf.MoveTowards(currentSteerAngle, desiredAngle, response * Time.fixedDeltaTime);
-
-            float wheelbase = Mathf.Abs((wheelCenters[FrontLeft].z + wheelCenters[FrontRight].z) * 0.5f -
-                                        (wheelCenters[RearLeft].z + wheelCenters[RearRight].z) * 0.5f);
-            float track = Mathf.Abs(wheelCenters[FrontRight].x - wheelCenters[FrontLeft].x);
-
-            if (Mathf.Abs(currentSteerAngle) < 0.01f || wheelbase < 0.1f || track < 0.1f)
+            if (currentGear == 0 && backward)
             {
-                wheelColliders[FrontLeft].steerAngle = currentSteerAngle;
-                wheelColliders[FrontRight].steerAngle = currentSteerAngle;
-                return;
-            }
-
-            float absAngle = Mathf.Abs(currentSteerAngle) * Mathf.Deg2Rad;
-            float turnRadius = wheelbase / Mathf.Max(0.01f, Mathf.Tan(absAngle));
-            float innerRadius = Mathf.Max(0.2f, turnRadius - track * 0.5f);
-            float outerRadius = turnRadius + track * 0.5f;
-            float innerAngle = Mathf.Atan(wheelbase / innerRadius) * Mathf.Rad2Deg;
-            float outerAngle = Mathf.Atan(wheelbase / outerRadius) * Mathf.Rad2Deg;
-
-            if (currentSteerAngle > 0f)
-            {
-                wheelColliders[FrontLeft].steerAngle = outerAngle;
-                wheelColliders[FrontRight].steerAngle = innerAngle;
+                if (legacySpeed < gears[0] * -10f)
+                    accel = -accel;
             }
             else
             {
-                wheelColliders[FrontLeft].steerAngle = -innerAngle;
-                wheelColliders[FrontRight].steerAngle = -outerAngle;
+                backward = false;
             }
         }
 
-        private void ApplyDriveAndBrakes(float forwardSpeed)
+        private void ShiftUp()
         {
-            for (int i = 0; i < 4; i++)
+            float now = Time.timeSinceLevelLoad;
+            if (now < shiftDelay || currentGear >= gears.Length - 1) return;
+
+            currentGear++;
+            shiftDelay = now + 1f;
+            shiftTime = 1.5f;
+        }
+
+        private void ShiftDown()
+        {
+            float now = Time.timeSinceLevelLoad;
+            if (now < shiftDelay || currentGear <= 0) return;
+
+            currentGear--;
+            shiftDelay = now + 0.1f;
+            shiftTime = 2f;
+        }
+
+        private void UpdateCenterOfMass(float legacySpeed)
+        {
+            Vector3 center = baseCenterOfMass;
+
+            if (currentGear == 0 && backward)
+                center.z = -accel / -5f;
+            else if (currentGear > 0)
+                center.z = -(accel / currentGear) / -5f;
+
+            center.x = -Mathf.Clamp(steer * (legacySpeed / 100f), -0.03f, 0.03f);
+            body.centerOfMass = center;
+        }
+
+        private void UpdateBrakeAndSlip(WheelCollider wheel, bool rear, float legacySpeed)
+        {
+            if (brake || accel < 0f)
             {
-                wheelColliders[i].motorTorque = 0f;
-                wheelColliders[i].brakeTorque = Mathf.Abs(throttleInput) < 0.01f ? coastBrakeTorque : 0f;
+                if (accel < 0f || (brake && rear))
+                {
+                    if (brake && accel > 0f)
+                    {
+                        slip = Mathf.Lerp(slip, 5f, Mathf.Clamp01(accel * 0.01f));
+                    }
+                    else if (legacySpeed > 1f)
+                    {
+                        slip = Mathf.Lerp(slip, 1f, 0.002f);
+                    }
+                    else
+                    {
+                        slip = Mathf.Lerp(slip, 1f, 0.02f);
+                    }
+
+                    wantedRpm = 0f;
+                    wheel.brakeTorque = brakePower;
+                }
+                else
+                {
+                    wheel.brakeTorque = 0f;
+                }
             }
-
-            bool hasThrottle = Mathf.Abs(throttleInput) > 0.01f;
-            bool moving = Mathf.Abs(forwardSpeed) > 0.65f;
-            bool changingDirection = hasThrottle && moving && Mathf.Sign(throttleInput) != Mathf.Sign(forwardSpeed);
-
-            if (changingDirection)
+            else
             {
-                float brake = serviceBrakeTorque * Mathf.Abs(throttleInput);
-                wheelColliders[FrontLeft].brakeTorque = brake;
-                wheelColliders[FrontRight].brakeTorque = brake;
-                wheelColliders[RearLeft].brakeTorque = brake * 0.82f;
-                wheelColliders[RearRight].brakeTorque = brake * 0.82f;
+                wheel.brakeTorque = accel == 0f || neutralGear ? coastBrakeTorque : 0f;
+
+                if (legacySpeed > 0f)
+                {
+                    slip = legacySpeed > 100f
+                        ? Mathf.Lerp(slip, 1f + Mathf.Abs(steer), 0.02f)
+                        : Mathf.Lerp(slip, 1.5f, 0.02f);
+                }
+                else
+                {
+                    slip = Mathf.Lerp(slip, 0.01f, 0.02f);
+                }
             }
-            else if (hasThrottle && handbrakePressure < 0.08f)
+        }
+
+        private void UpdateDynamicFriction(WheelCollider wheel)
+        {
+            float divisor = Mathf.Max(minimumSlipDivisor, slip + collisionSlip);
+            float dynamicStiffness = tireStiffness / divisor;
+
+            WheelFrictionCurve forward = wheel.forwardFriction;
+            forward.stiffness = dynamicStiffness;
+            wheel.forwardFriction = forward;
+
+            WheelFrictionCurve sideways = wheel.sidewaysFriction;
+            sideways.stiffness = dynamicStiffness;
+            sideways.extremumSlip = 0.3f + Mathf.Abs(steer);
+            wheel.sidewaysFriction = sideways;
+        }
+
+        private void UpdatePowerShift(float legacySpeed)
+        {
+            if (shift && currentGear > 1 && legacySpeed > 50f && shiftMotor)
             {
-                float limit = throttleInput >= 0f ? maxForwardSpeedKph : maxReverseSpeedKph;
-                float speedRatio = Mathf.Clamp01(Mathf.Abs(forwardSpeed) * 3.6f / Mathf.Max(1f, limit));
-                float torqueFalloff = Mathf.Lerp(1f, 0.16f, Mathf.Pow(speedRatio, 2.05f));
-                float axleTorque = availableMotorTorque * throttleInput * torqueFalloff;
-                if (throttleInput < 0f) axleTorque *= reverseTorqueFactor;
+                if (powerShift == 0f)
+                    shiftMotor = false;
 
-                // maxMotorTorque is total axle torque, matching the common WheelCollider
-                // controller pattern: split available torque across the powered wheels.
-                float torquePerWheel = axleTorque * 0.5f;
-                wheelColliders[RearLeft].motorTorque = torquePerWheel;
-                wheelColliders[RearRight].motorTorque = torquePerWheel;
+                powerShift = Mathf.MoveTowards(powerShift, 0f, Time.fixedDeltaTime * 40f);
+                shifting = true;
+                curTorque = powerShift > 0f ? shiftPower : carPower;
             }
-
-            if (handbrakePressure > 0f)
+            else
             {
-                wheelColliders[RearLeft].motorTorque *= 1f - handbrakePressure;
-                wheelColliders[RearRight].motorTorque *= 1f - handbrakePressure;
+                if (powerShift > 20f)
+                    shiftMotor = true;
 
-                float rearBrake = handbrakeTorque * handbrakePressure;
-                wheelColliders[RearLeft].brakeTorque = Mathf.Max(wheelColliders[RearLeft].brakeTorque, rearBrake);
-                wheelColliders[RearRight].brakeTorque = Mathf.Max(wheelColliders[RearRight].brakeTorque, rearBrake);
+                shifting = false;
+                powerShift = Mathf.MoveTowards(powerShift, 100f, Time.fixedDeltaTime * 20f);
+                curTorque = carPower;
             }
         }
 
-        private static void SetSidewaysStiffness(WheelCollider wheel, float stiffness)
+        private void ApplyMotorTorque(float newTorque, float legacySpeed)
         {
-            WheelFrictionCurve friction = wheel.sidewaysFriction;
-            if (Mathf.Abs(friction.stiffness - stiffness) < 0.001f) return;
-            friction.stiffness = stiffness;
-            wheel.sidewaysFriction = friction;
+            for (int i = RearLeft; i <= RearRight; i++)
+            {
+                WheelCollider wheel = wheelColliders[i];
+
+                if (Mathf.Abs(wheel.rpm) > Mathf.Abs(wantedRpm))
+                {
+                    wheel.motorTorque = 0f;
+                    continue;
+                }
+
+                if (!brake && accel != 0f && !neutralGear)
+                {
+                    bool withinLimit =
+                        (legacySpeed < forwardSpeedLimit && currentGear > 0) ||
+                        (legacySpeed < reverseSpeedLimit && currentGear == 0);
+
+                    if (withinLimit)
+                    {
+                        float current = wheel.motorTorque;
+                        wheel.motorTorque = current * 0.9f + newTorque;
+                    }
+                    else
+                    {
+                        wheel.motorTorque = 0f;
+                        wheel.brakeTorque = 0f;
+                    }
+                }
+                else
+                {
+                    wheel.motorTorque = 0f;
+                }
+            }
         }
 
-        private void ApplyAntiRoll(int leftIndex, int rightIndex)
+        private void ApplySteering(float legacySpeed)
         {
-            WheelCollider left = wheelColliders[leftIndex];
-            WheelCollider right = wheelColliders[rightIndex];
+            for (int i = 0; i < 2; i++)
+            {
+                WheelCollider wheel = wheelColliders[i];
 
-            float leftCompression = SuspensionCompression(left, out bool leftGrounded);
-            float rightCompression = SuspensionCompression(right, out bool rightGrounded);
-            float force = (leftCompression - rightCompression) * antiRollForce;
+                if (brake || collisionSlip > 2f)
+                {
+                    wheel.steerAngle = Mathf.Lerp(wheel.steerAngle, steer * maxSteerAngle, 0.05f);
+                }
+                else
+                {
+                    float steerDivisor = Mathf.Clamp(
+                        legacySpeed / Mathf.Max(0.01f, maxSteerAngle),
+                        1f,
+                        maxSteerAngle);
 
-            if (leftGrounded)
-                body.AddForceAtPosition(left.transform.up * force, left.transform.position, ForceMode.Force);
-            if (rightGrounded)
-                body.AddForceAtPosition(-right.transform.up * force, right.transform.position, ForceMode.Force);
+                    wheel.steerAngle = steer * (maxSteerAngle / steerDivisor);
+                }
+            }
+
+            wheelColliders[RearLeft].steerAngle = 0f;
+            wheelColliders[RearRight].steerAngle = 0f;
         }
 
-        private static float SuspensionCompression(WheelCollider wheel, out bool grounded)
+        private void OnCollisionEnter(Collision collision)
         {
-            grounded = wheel.GetGroundHit(out WheelHit hit);
-            if (!grounded || wheel.suspensionDistance <= 0.001f) return 0f;
+            ArcadeCarController other = collision.transform.root.GetComponent<ArcadeCarController>();
+            if (other == null || other == this) return;
 
-            Vector3 localHit = wheel.transform.InverseTransformPoint(hit.point);
-            float suspensionLength = Mathf.Max(0f, -localHit.y - wheel.radius);
-            return 1f - Mathf.Clamp01(suspensionLength / wheel.suspensionDistance);
+            collisionSlip = Mathf.Clamp(collision.relativeVelocity.magnitude, 0f, 10f);
+            body.angularVelocity = new Vector3(
+                -body.angularVelocity.x * 0.5f,
+                 body.angularVelocity.y * 0.5f,
+                -body.angularVelocity.z * 0.5f);
+
+            Vector3 velocity = body.linearVelocity;
+            body.linearVelocity = new Vector3(velocity.x, velocity.y * 0.5f, velocity.z);
         }
 
-        private void ApplyDownforce()
+        private void OnCollisionStay(Collision collision)
         {
-            if (GroundedWheels == 0) return;
-            body.AddForce(-transform.up * body.linearVelocity.sqrMagnitude * aerodynamicDownforce, ForceMode.Force);
+            ArcadeCarController other = collision.transform.root.GetComponent<ArcadeCarController>();
+            if (other != null && other != this)
+                collisionSlip = 5f;
         }
 
         private void LateUpdate()
