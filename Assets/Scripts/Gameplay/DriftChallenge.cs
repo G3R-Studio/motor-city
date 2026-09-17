@@ -9,7 +9,8 @@ namespace MotorCity.Gameplay
 
         [SerializeField] private Vector3 zoneCenter = new(83f, 0f, -83f);
         [SerializeField] private float startRadius = 7f;
-        [SerializeField] private float activityRadius = 19f;
+        [SerializeField] private float activityHalfExtent = 20f;
+        [SerializeField] private float outsideGraceSeconds = 3.5f;
         [SerializeField] private float durationSeconds = 42f;
         [SerializeField] private int targetScore = 1800;
         [SerializeField] private int rewardCredits = 650;
@@ -20,6 +21,7 @@ namespace MotorCity.Gameplay
         private ActivityManager activityManager;
         private int scoreAtStart;
         private bool armed = true;
+        private float outsideTimer;
 
         public bool IsActive { get; private set; }
         public float TimeRemaining { get; private set; }
@@ -42,7 +44,8 @@ namespace MotorCity.Gameplay
         {
             if (car == null || drift == null || wallet == null || activityManager == null) return;
 
-            float distance = Vector3.Distance(Flat(car.transform.position), Flat(zoneCenter));
+            Vector3 flatPosition = Flat(car.transform.position);
+            float distance = Vector3.Distance(flatPosition, Flat(zoneCenter));
 
             if (!IsActive)
             {
@@ -83,11 +86,28 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (distance > activityRadius + 3f)
+            Vector3 local = flatPosition - Flat(zoneCenter);
+            bool insideChallengeArea =
+                Mathf.Abs(local.x) <= activityHalfExtent &&
+                Mathf.Abs(local.z) <= activityHalfExtent;
+
+            if (!insideChallengeArea)
             {
-                EndChallenge("Drift challenge failed: stay inside the parking lot");
+                outsideTimer += Time.deltaTime;
+                float remainingGrace = Mathf.Max(0f, outsideGraceSeconds - outsideTimer);
+
+                if (outsideTimer >= outsideGraceSeconds)
+                {
+                    EndChallenge("Drift challenge failed: stay near the parking lot");
+                    return;
+                }
+
+                StatusText =
+                    $"DRIFT CHALLENGE  {CurrentScore:N0}/{targetScore:N0}   {TimeRemaining:0.0}s   RETURN {remainingGrace:0.0}s";
                 return;
             }
+
+            outsideTimer = 0f;
 
             if (TimeRemaining <= 0f)
             {
@@ -106,6 +126,7 @@ namespace MotorCity.Gameplay
             armed = false;
             TimeRemaining = durationSeconds;
             scoreAtStart = drift.TotalScore;
+            outsideTimer = 0f;
             StatusText = $"DRIFT CHALLENGE  0/{targetScore:N0}   {TimeRemaining:0.0}s";
         }
 
@@ -114,6 +135,7 @@ namespace MotorCity.Gameplay
             IsActive = false;
             activityManager.End(ActivityId);
             TimeRemaining = 0f;
+            outsideTimer = 0f;
             StatusText = message + ". Leave the zone to retry.";
         }
 
