@@ -12,19 +12,20 @@ The project currently includes:
 
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
-- four-point raycast suspension with springs and dampers;
-- tire-based lateral grip, rear-wheel drive and speed-dependent steering;
+- PhysX WheelCollider-based four-wheel suspension with springs and dampers;
+- slip-based tire friction, rear-wheel drive, traction control and speed-dependent Ackermann steering;
+- synchronized visual wheels driven by WheelCollider world poses;
 - handbrake behavior and drift scoring with a combo multiplier;
+- the imported Cartoon Sports Car Carrera visual with its original texture atlas converted for URP at runtime;
 - a smooth orbiting chase camera with mouse look and zoom;
 - a procedural city district with road lanes, sidewalks, buildings, storefronts, parking areas and street lights;
-- an improved prototype car with body details, lights, bumpers, spoiler, tires and rims;
 - a delivery route with visible checkpoints and a credit reward;
 - a basic player wallet and credit counter;
 - a HUD with speed, credits, delivery state and drift score;
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
 
-The car and environment are still generated from lightweight primitive geometry and are not final game art.
+The city environment is still generated from lightweight prototype geometry and is not final game art.
 
 ## Run locally
 
