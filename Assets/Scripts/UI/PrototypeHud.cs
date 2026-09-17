@@ -78,7 +78,7 @@ namespace MotorCity.UI
 
             GUI.Label(new Rect(Screen.width - 300, Screen.height - 104, 260, 52), $"{speed:000} km/h", speedStyle);
             GUI.Label(new Rect(24, 18, 420, 34), $"MOTOR CITY    {credits:N0} CR", primaryStyle);
-            GUI.Label(new Rect(24, 52, 620, 86), "W/S — gas/reverse   A/D — steer   SPACE — handbrake   SHIFT — power shift\nR — reset   RMB — camera   Wheel — zoom", hintStyle);
+            GUI.Label(new Rect(24, 52, 620, 86), "W/S — gas/reverse   A/D — steer\nR — reset   RMB — camera   Wheel — zoom", hintStyle);
 
             if (streetSprint != null)
             {
