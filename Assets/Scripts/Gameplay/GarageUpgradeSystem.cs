@@ -226,7 +226,7 @@ namespace MotorCity.Gameplay
 
             DrawUpgrade(x, y + 108f, UpgradeType.Engine, EngineLevel, "+12% тяги и +10% отклика за уровень");
             DrawUpgrade(x, y + 158f, UpgradeType.Grip, GripLevel, "+10% бокового сцепления за уровень");
-            DrawUpgrade(x, y + 208f, UpgradeType.Stability, StabilityLevel, "+16% anti-roll и +12% демпфирования за уровень");
+            DrawUpgrade(x, y + 208f, UpgradeType.Stability, StabilityLevel, "+16% стабилизации крена и +12% демпфирования за уровень");
 
             GUI.Label(new Rect(x + 24f, y + 267f, width - 48f, 28f), "1 / 2 / 3 — купить     E или Esc — закрыть", hintStyle);
         }
