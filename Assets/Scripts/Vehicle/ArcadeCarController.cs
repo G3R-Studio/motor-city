@@ -19,16 +19,17 @@ namespace MotorCity.Vehicle
         [SerializeField] private float wheelMaxSpeed = 2000f;
 
         [Header("Prefab Rigidbody")]
-        [SerializeField] private float vehicleMass = 2000f;
-        [SerializeField] private float angularDrag = 0.05f;
+        [SerializeField] private float vehicleMass = 2400f;
+        [SerializeField] private float angularDrag = 0.32f;
         [SerializeField] private float reverseDrag = 0.3f;
+        [SerializeField] private Vector3 centerOfMass = new(0f, -0.62f, 0.08f);
 
         [Header("Prefab WheelCollider")]
         [SerializeField] private float wheelRadius = 0.5f;
         [SerializeField] private float wheelMass = 20f;
-        [SerializeField] private float suspensionDistance = 0.5f;
-        [SerializeField] private float suspensionSpring = 50000f;
-        [SerializeField] private float suspensionDamper = 2000f;
+        [SerializeField] private float suspensionDistance = 0.34f;
+        [SerializeField] private float suspensionSpring = 56000f;
+        [SerializeField] private float suspensionDamper = 3200f;
         [SerializeField] private float suspensionTargetPosition = 0.5f;
         [SerializeField] private float forceAppPointDistance = 0.02f;
         [SerializeField] private float wheelDampingRate = 0.25f;
@@ -88,8 +89,9 @@ namespace MotorCity.Vehicle
             body.linearDamping = 0f;
             body.angularDamping = angularDrag;
             body.useGravity = true;
-            body.interpolation = RigidbodyInterpolation.None;
-            body.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            body.centerOfMass = centerOfMass;
+            body.interpolation = RigidbodyInterpolation.Interpolate;
+            body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
             SetupFallbackWheelVisuals();
             BuildOrReconfigureWheelColliders();
@@ -196,12 +198,12 @@ namespace MotorCity.Vehicle
         private void Update()
         {
             ReadInput();
-            ApplySourceController();
-            UpdateVisualWheels();
         }
 
         private void FixedUpdate()
         {
+            ApplySourceController();
+
             GroundedWheels = 0;
             float rearSideways = 0f;
             float rearForward = 0f;
@@ -285,7 +287,7 @@ namespace MotorCity.Vehicle
                     Mathf.LerpAngle(
                         steeringAngles[i],
                         0f,
-                        Time.deltaTime * wheelRotateSpeed);
+                        Time.fixedDeltaTime * wheelRotateSpeed);
 
                 // Preserve WheelController.cs torque math in its original coordinate
                 // convention, then invert once for Motor City's +Z forward axis.
@@ -293,7 +295,7 @@ namespace MotorCity.Vehicle
                     -Mathf.Lerp(
                         sourceMotorTorque[i],
                         0f,
-                        Time.deltaTime * wheelAcceleration);
+                        Time.fixedDeltaTime * wheelAcceleration);
 
                 if (vertical > 0.1f)
                 {
@@ -301,7 +303,7 @@ namespace MotorCity.Vehicle
                         -Mathf.Lerp(
                             sourceMotorTorque[i],
                             wheelMaxSpeed,
-                            Time.deltaTime * wheelAcceleration);
+                            Time.fixedDeltaTime * wheelAcceleration);
                 }
 
                 if (vertical < -0.1f)
@@ -310,7 +312,7 @@ namespace MotorCity.Vehicle
                         Mathf.Lerp(
                             sourceMotorTorque[i],
                             wheelMaxSpeed,
-                            Time.deltaTime * wheelAcceleration * brakePower);
+                            Time.fixedDeltaTime * wheelAcceleration * brakePower);
                 }
 
                 wheel.motorTorque = -sourceMotorTorque[i];
@@ -321,7 +323,7 @@ namespace MotorCity.Vehicle
                         Mathf.LerpAngle(
                             steeringAngles[i],
                             -wheelSteeringAngle,
-                            Time.deltaTime * wheelRotateSpeed);
+                            Time.fixedDeltaTime * wheelRotateSpeed);
                 }
 
                 if (horizontal < -0.1f)
@@ -330,7 +332,7 @@ namespace MotorCity.Vehicle
                         Mathf.LerpAngle(
                             steeringAngles[i],
                             wheelSteeringAngle,
-                            Time.deltaTime * wheelRotateSpeed);
+                            Time.fixedDeltaTime * wheelRotateSpeed);
                 }
 
                 // In the source prefab all four wheels receive motor torque,
@@ -339,6 +341,11 @@ namespace MotorCity.Vehicle
             }
 
             body.linearDamping = vertical < -0.1f ? reverseDrag : 0f;
+        }
+
+        private void LateUpdate()
+        {
+            UpdateVisualWheels();
         }
 
         private void UpdateVisualWheels()
