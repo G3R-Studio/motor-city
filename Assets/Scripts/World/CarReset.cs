@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace MotorCity.World
 {
@@ -18,10 +19,11 @@ namespace MotorCity.World
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R) || transform.position.y < -10f)
-            {
+            Keyboard keyboard = Keyboard.current;
+            bool resetPressed = keyboard != null && keyboard.rKey.wasPressedThisFrame;
+
+            if (resetPressed || transform.position.y < -10f)
                 ResetVehicle();
-            }
         }
 
         public void ResetVehicle()
