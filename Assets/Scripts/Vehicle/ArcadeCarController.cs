@@ -6,17 +6,19 @@ namespace MotorCity.Vehicle
     public sealed class ArcadeCarController : MonoBehaviour
     {
         [Header("Power")]
-        [SerializeField] private float acceleration = 18f;
-        [SerializeField] private float reverseAcceleration = 9f;
-        [SerializeField] private float maxForwardSpeedKph = 165f;
-        [SerializeField] private float maxReverseSpeedKph = 45f;
-        [SerializeField] private float braking = 28f;
+        [SerializeField] private float acceleration = 32f;
+        [SerializeField] private float reverseAcceleration = 18f;
+        [SerializeField] private float maxForwardSpeedKph = 205f;
+        [SerializeField] private float maxReverseSpeedKph = 55f;
+        [SerializeField] private float braking = 42f;
+        [SerializeField] private float directionChangeBrake = 55f;
 
         [Header("Handling")]
-        [SerializeField] private float steeringDegreesPerSecond = 95f;
-        [SerializeField] private float lateralGrip = 7.5f;
+        [SerializeField] private float steeringDegreesPerSecond = 110f;
+        [SerializeField] private float lateralGrip = 8.5f;
         [SerializeField] private float handbrakeGrip = 1.8f;
-        [SerializeField] private float downforce = 1.5f;
+        [SerializeField] private float downforce = 1.35f;
+        [SerializeField] private float lowSpeedSteerAssist = 0.85f;
 
         private Rigidbody body;
         private float throttleInput;
@@ -30,8 +32,8 @@ namespace MotorCity.Vehicle
         {
             body = GetComponent<Rigidbody>();
             body.mass = 1350f;
-            body.linearDamping = 0.08f;
-            body.angularDamping = 2.5f;
+            body.linearDamping = 0.035f;
+            body.angularDamping = 2.2f;
             body.interpolation = RigidbodyInterpolation.Interpolate;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             body.centerOfMass = new Vector3(0f, -0.45f, 0.15f);
@@ -56,6 +58,7 @@ namespace MotorCity.Vehicle
             ApplySteering();
             ApplyGrip();
             ApplyBrakes();
+            StabilizeVeryLowSpeed();
             body.AddForce(-transform.up * body.linearVelocity.magnitude * downforce, ForceMode.Acceleration);
         }
 
@@ -65,24 +68,62 @@ namespace MotorCity.Vehicle
             float forwardLimit = maxForwardSpeedKph / 3.6f;
             float reverseLimit = maxReverseSpeedKph / 3.6f;
 
-            if (throttleInput > 0f && forwardSpeed < forwardLimit)
+            if (throttleInput > 0f)
             {
-                body.AddForce(transform.forward * (throttleInput * acceleration), ForceMode.Acceleration);
+                if (forwardSpeed < -0.8f)
+                {
+                    ApplyDirectionalBrake();
+                    return;
+                }
+
+                if (forwardSpeed < forwardLimit)
+                {
+                    float speedFactor = Mathf.Lerp(1f, 0.28f, Mathf.InverseLerp(0f, forwardLimit, Mathf.Max(0f, forwardSpeed)));
+                    body.AddForce(transform.forward * (acceleration * speedFactor), ForceMode.Acceleration);
+                }
             }
-            else if (throttleInput < 0f && forwardSpeed > -reverseLimit)
+            else if (throttleInput < 0f)
             {
-                body.AddForce(transform.forward * (throttleInput * reverseAcceleration), ForceMode.Acceleration);
+                if (forwardSpeed > 0.8f)
+                {
+                    ApplyDirectionalBrake();
+                    return;
+                }
+
+                if (forwardSpeed > -reverseLimit)
+                {
+                    float reverseSpeed = Mathf.Abs(Mathf.Min(0f, forwardSpeed));
+                    float speedFactor = Mathf.Lerp(1f, 0.35f, Mathf.InverseLerp(0f, reverseLimit, reverseSpeed));
+                    body.AddForce(-transform.forward * (reverseAcceleration * speedFactor), ForceMode.Acceleration);
+                }
             }
+        }
+
+        private void ApplyDirectionalBrake()
+        {
+            Vector3 forwardVelocity = transform.forward * Vector3.Dot(body.linearVelocity, transform.forward);
+            if (forwardVelocity.sqrMagnitude < 0.01f) return;
+            body.AddForce(-forwardVelocity.normalized * directionChangeBrake, ForceMode.Acceleration);
         }
 
         private void ApplySteering()
         {
-            float speed = Mathf.Abs(Vector3.Dot(body.linearVelocity, transform.forward));
-            if (speed < 0.25f) return;
+            float forwardSpeed = Vector3.Dot(body.linearVelocity, transform.forward);
+            float speed = Mathf.Abs(forwardSpeed);
 
-            float direction = Mathf.Sign(Vector3.Dot(body.linearVelocity, transform.forward));
-            float speedFactor = Mathf.Lerp(1f, 0.42f, Mathf.InverseLerp(0f, 42f, speed));
-            float yaw = steerInput * steeringDegreesPerSecond * speedFactor * direction * Time.fixedDeltaTime;
+            float steerStrength;
+            if (speed < 1.5f)
+            {
+                if (Mathf.Abs(throttleInput) < 0.01f) return;
+                steerStrength = lowSpeedSteerAssist;
+            }
+            else
+            {
+                steerStrength = Mathf.Lerp(1f, 0.42f, Mathf.InverseLerp(0f, 42f, speed));
+            }
+
+            float direction = forwardSpeed < -0.1f ? -1f : 1f;
+            float yaw = steerInput * steeringDegreesPerSecond * steerStrength * direction * Time.fixedDeltaTime;
             body.MoveRotation(body.rotation * Quaternion.Euler(0f, yaw, 0f));
         }
 
@@ -98,6 +139,16 @@ namespace MotorCity.Vehicle
         {
             if (!brakeInput || body.linearVelocity.sqrMagnitude < 0.05f) return;
             body.AddForce(-body.linearVelocity.normalized * braking, ForceMode.Acceleration);
+        }
+
+        private void StabilizeVeryLowSpeed()
+        {
+            if (Mathf.Abs(throttleInput) > 0.01f || brakeInput) return;
+
+            Vector3 localVelocity = transform.InverseTransformDirection(body.linearVelocity);
+            if (Mathf.Abs(localVelocity.z) < 0.12f) localVelocity.z = 0f;
+            if (Mathf.Abs(localVelocity.x) < 0.08f) localVelocity.x = 0f;
+            body.linearVelocity = transform.TransformDirection(localVelocity);
         }
     }
 }
