@@ -19,6 +19,10 @@ namespace MotorCity.Gameplay
         private ArcadeCarController car;
         private PlayerWallet wallet;
         private ActivityManager activityManager;
+        private DeliveryActivity delivery;
+        private DriftChallenge driftChallenge;
+        private StreetSprintActivity streetSprint;
+
         private GUIStyle titleStyle;
         private GUIStyle itemStyle;
         private GUIStyle hintStyle;
@@ -29,16 +33,22 @@ namespace MotorCity.Gameplay
         public bool IsOpen { get; private set; }
         public Vector3 GarageCenter => garageCenter;
         public bool IsNearGarage { get; private set; }
-        public string StatusText { get; private set; } = "Purple marker: garage";
+        public string StatusText { get; private set; } = "Фиолетовый маркер: гараж";
 
         public void Initialize(
             ArcadeCarController targetCar,
             PlayerWallet targetWallet,
-            ActivityManager manager)
+            ActivityManager manager,
+            DeliveryActivity deliveryActivity,
+            DriftChallenge challenge,
+            StreetSprintActivity sprint)
         {
             car = targetCar;
             wallet = targetWallet;
             activityManager = manager;
+            delivery = deliveryActivity;
+            driftChallenge = challenge;
+            streetSprint = sprint;
 
             EngineLevel = Mathf.Clamp(PlayerPrefs.GetInt(EngineKey, 0), 0, MaxLevel);
             GripLevel = Mathf.Clamp(PlayerPrefs.GetInt(GripKey, 0), 0, MaxLevel);
@@ -72,22 +82,17 @@ namespace MotorCity.Gameplay
                 }
                 else
                 {
-                    StatusText = "Garage: stop the car first";
+                    StatusText = "Гараж: сначала полностью останови машину";
                 }
             }
 
             if (!IsOpen)
             {
-                if (IsNearGarage)
-                {
-                    StatusText = activityManager.IsBusy
-                        ? $"Garage unavailable during {activityManager.ActiveName}"
-                        : "GARAGE — stop and press E";
-                }
-                else
-                {
-                    StatusText = "Purple marker: garage";
-                }
+                StatusText = IsNearGarage
+                    ? (activityManager.IsBusy
+                        ? $"E — открыть гараж и отменить «{activityManager.ActiveName}»"
+                        : "ГАРАЖ — остановись и нажми E")
+                    : "Фиолетовый маркер: гараж";
                 return;
             }
 
@@ -103,15 +108,21 @@ namespace MotorCity.Gameplay
 
         private void OpenGarage()
         {
-            if (!activityManager.TryBegin(ActivityId, "Garage"))
-            {
-                StatusText = $"Finish {activityManager.ActiveName} first";
+            CancelActiveMission();
+
+            if (!activityManager.TryBegin(ActivityId, "Гараж"))
                 return;
-            }
 
             IsOpen = true;
             car.SetDrivingEnabled(false);
-            StatusText = "GARAGE OPEN";
+            StatusText = "ГАРАЖ ОТКРЫТ";
+        }
+
+        private void CancelActiveMission()
+        {
+            delivery?.CancelActivity();
+            driftChallenge?.CancelActivity();
+            streetSprint?.CancelActivity();
         }
 
         private void CloseGarage()
@@ -119,7 +130,7 @@ namespace MotorCity.Gameplay
             IsOpen = false;
             car.SetDrivingEnabled(true);
             activityManager.End(ActivityId);
-            StatusText = IsNearGarage ? "GARAGE — press E" : "Purple marker: garage";
+            StatusText = IsNearGarage ? "ГАРАЖ — нажми E" : "Фиолетовый маркер: гараж";
         }
 
         private void TryBuy(UpgradeType type)
@@ -127,14 +138,14 @@ namespace MotorCity.Gameplay
             int level = GetLevel(type);
             if (level >= MaxLevel)
             {
-                StatusText = $"{Name(type)} already MAX";
+                StatusText = $"{Name(type)} уже улучшен до максимума";
                 return;
             }
 
             int price = Price(type, level);
             if (!wallet.TrySpendCredits(price))
             {
-                StatusText = $"{Name(type)} needs {price:N0} CR";
+                StatusText = $"Для «{Name(type)}» нужно {price:N0} CR";
                 return;
             }
 
@@ -142,7 +153,7 @@ namespace MotorCity.Gameplay
             SetLevel(type, level);
             Save();
             ApplyUpgrades();
-            StatusText = $"{Name(type)} upgraded to LVL {level}";
+            StatusText = $"{Name(type)} улучшен до уровня {level}";
         }
 
         private void ApplyUpgrades()
@@ -186,9 +197,9 @@ namespace MotorCity.Gameplay
         {
             return type switch
             {
-                UpgradeType.Engine => "ENGINE",
-                UpgradeType.Grip => "GRIP",
-                _ => "STABILITY"
+                UpgradeType.Engine => "Двигатель",
+                UpgradeType.Grip => "Сцепление",
+                _ => "Стабильность"
             };
         }
 
@@ -205,27 +216,27 @@ namespace MotorCity.Gameplay
             if (!IsOpen || wallet == null) return;
             EnsureStyles();
 
-            float width = Mathf.Min(620f, Screen.width - 40f);
+            float width = Mathf.Min(700f, Screen.width - 40f);
             float x = (Screen.width - width) * 0.5f;
             float y = Mathf.Max(30f, Screen.height * 0.17f);
 
             GUI.Box(new Rect(x, y, width, 310f), string.Empty);
-            GUI.Label(new Rect(x + 24f, y + 18f, width - 48f, 44f), "MOTOR CITY GARAGE", titleStyle);
+            GUI.Label(new Rect(x + 24f, y + 18f, width - 48f, 44f), "ГАРАЖ MOTOR CITY", titleStyle);
             GUI.Label(new Rect(x + 24f, y + 62f, width - 48f, 32f), $"{wallet.Credits:N0} CR", titleStyle);
 
-            DrawUpgrade(x, y + 108f, UpgradeType.Engine, EngineLevel, "+12% torque, +10% response per level");
-            DrawUpgrade(x, y + 158f, UpgradeType.Grip, GripLevel, "+10% lateral tire grip per level");
-            DrawUpgrade(x, y + 208f, UpgradeType.Stability, StabilityLevel, "+16% anti-roll, +12% angular damping per level");
+            DrawUpgrade(x, y + 108f, UpgradeType.Engine, EngineLevel, "+12% тяги и +10% отклика за уровень");
+            DrawUpgrade(x, y + 158f, UpgradeType.Grip, GripLevel, "+10% бокового сцепления за уровень");
+            DrawUpgrade(x, y + 208f, UpgradeType.Stability, StabilityLevel, "+16% anti-roll и +12% демпфирования за уровень");
 
-            GUI.Label(new Rect(x + 24f, y + 267f, width - 48f, 28f), "1 / 2 / 3 — buy     E or Esc — close", hintStyle);
+            GUI.Label(new Rect(x + 24f, y + 267f, width - 48f, 28f), "1 / 2 / 3 — купить     E или Esc — закрыть", hintStyle);
         }
 
         private void DrawUpgrade(float x, float y, UpgradeType type, int level, string description)
         {
-            string levelText = level >= MaxLevel ? "MAX" : $"LVL {level}/{MaxLevel}";
+            string levelText = level >= MaxLevel ? "МАКС" : $"УР. {level}/{MaxLevel}";
             string priceText = level >= MaxLevel ? string.Empty : $"   {Price(type, level):N0} CR";
             GUI.Label(
-                new Rect(x + 24f, y, 570f, 32f),
+                new Rect(x + 24f, y, 650f, 32f),
                 $"[{(int)type + 1}] {Name(type)}   {levelText}{priceText}   — {description}",
                 itemStyle);
         }
