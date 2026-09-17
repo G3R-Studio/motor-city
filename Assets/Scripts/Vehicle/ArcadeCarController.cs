@@ -14,10 +14,10 @@ namespace MotorCity.Vehicle
         [SerializeField] private float directionChangeBrake = 24f;
 
         [Header("Suspension")]
-        [SerializeField] private float suspensionRestLength = 0.72f;
+        [SerializeField] private float suspensionRestLength = 0.60f;
         [SerializeField] private float wheelRadius = 0.34f;
-        [SerializeField] private float springStrength = 36000f;
-        [SerializeField] private float damperStrength = 5600f;
+        [SerializeField] private float springStrength = 40000f;
+        [SerializeField] private float damperStrength = 6200f;
 
         [Header("Tires")]
         [SerializeField] private float tireGrip = 1.25f;
@@ -30,9 +30,9 @@ namespace MotorCity.Vehicle
 
         [Header("Stability")]
         [SerializeField] private float downforce = 0.8f;
-        [SerializeField] private float antiRollStrength = 2600f;
-        [SerializeField] private float rollDamping = 3.2f;
-        [SerializeField] private float pitchDamping = 1.5f;
+        [SerializeField] private float antiRollStrength = 2900f;
+        [SerializeField] private float rollDamping = 3.5f;
+        [SerializeField] private float pitchDamping = 1.7f;
         [SerializeField] private float pitchResponse = 0.42f;
         [SerializeField] private float rollResponse = 0.5f;
 
