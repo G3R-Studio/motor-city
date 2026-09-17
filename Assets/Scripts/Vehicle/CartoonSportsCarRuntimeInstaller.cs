@@ -93,15 +93,31 @@ namespace MotorCity.Vehicle
         private static void NormalizeVisualScale(Transform visual)
         {
             Bounds bounds = RendererBounds(visual);
+
+            // Most vehicle assets use Z as forward. If this one arrives with its long
+            // axis on X, rotate the whole visual once before measuring/scaling it.
+            if (bounds.size.x > bounds.size.z * 1.15f)
+            {
+                visual.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                bounds = RendererBounds(visual);
+            }
+
             float length = Mathf.Max(bounds.size.x, bounds.size.z);
             if (length < 0.01f) return;
 
             float scale = TargetLength / length;
-            visual.localScale = Vector3.one * scale;
+            visual.localScale = visual.localScale * scale;
 
             bounds = RendererBounds(visual);
-            Vector3 localCenter = visual.parent.InverseTransformPoint(bounds.center);
-            visual.localPosition -= new Vector3(localCenter.x, bounds.min.y - 0.08f, localCenter.z);
+            Transform parent = visual.parent;
+            Vector3 centerLocal = parent.InverseTransformPoint(bounds.center);
+            Vector3 bottomWorld = new(bounds.center.x, bounds.min.y, bounds.center.z);
+            float bottomLocalY = parent.InverseTransformPoint(bottomWorld).y;
+
+            // Center the car over the physics root and keep the lowest rendered point
+            // just above local ground level. The actual wheel centres are repositioned
+            // by the suspension immediately afterwards.
+            visual.localPosition -= new Vector3(centerLocal.x, bottomLocalY - 0.08f, centerLocal.z);
         }
 
         private static List<Transform> FindWheelMeshes(Transform root)
