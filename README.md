@@ -28,6 +28,9 @@ The project currently includes:
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
 - activity coordination so delivery, drift challenge, street sprint and garage cannot overlap;
+- mission markers hide while another mission is active, while the garage marker remains visible;
+- entering the garage cancels the active mission;
+- Russian in-game HUD, garage text, activity prompts and status messages;
 - a HUD with speed, credits, current activity, drift score and installed upgrade levels;
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
@@ -50,7 +53,7 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 
 - `W/S` or arrow keys — throttle / reverse;
 - `A/D` or arrow keys — steering;
-- `Space` — rear-wheel handbrake at speed and four-wheel parking brake near a stop;
+- `Space` — strong rear-wheel handbrake at speed with additional deceleration, and four-wheel parking brake near a stop;
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
 - `E` — open/close the garage while stopped in the purple garage marker;
@@ -59,4 +62,4 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 
 ## Current gameplay
 
-Drive freely through the prototype district and build drift score from the WheelCollider vehicle slip, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Only one activity can run at a time. Completing activities awards credits, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
+Drive freely through the prototype district and build drift score from the WheelCollider vehicle slip, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards credits, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
