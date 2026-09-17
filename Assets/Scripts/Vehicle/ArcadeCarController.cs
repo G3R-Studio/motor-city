@@ -22,7 +22,8 @@ namespace MotorCity.Vehicle
         [SerializeField] private float vehicleMass = 2400f;
         [SerializeField] private float angularDrag = 0.32f;
         [SerializeField] private float reverseDrag = 0.3f;
-        [SerializeField] private Vector3 centerOfMass = new(0f, -0.62f, 0.08f);
+        [SerializeField] private Vector3 centerOfMass = new(0f, 0.42f, 0.08f);
+        [SerializeField] private float antiRollForce = 7200f;
 
         [Header("Prefab WheelCollider")]
         [SerializeField] private float wheelRadius = 0.5f;
@@ -189,7 +190,7 @@ namespace MotorCity.Vehicle
                 sideways.extremumValue = 1f;
                 sideways.asymptoteSlip = 0.5f;
                 sideways.asymptoteValue = 0.75f;
-                sideways.stiffness = 1f;
+                sideways.stiffness = i < 2 ? 1.28f : 1.20f;
                 wheel.sidewaysFriction = sideways;
             }
 
@@ -226,6 +227,49 @@ namespace MotorCity.Vehicle
 
             RearSidewaysSlip = rearGrounded > 0 ? rearSideways / rearGrounded : 0f;
             RearForwardSlip = rearGrounded > 0 ? rearForward / rearGrounded : 0f;
+
+            ApplyAntiRoll(FrontLeft, FrontRight);
+            ApplyAntiRoll(RearLeft, RearRight);
+        }
+
+        private void ApplyAntiRoll(int leftIndex, int rightIndex)
+        {
+            WheelCollider left = wheelColliders[leftIndex];
+            WheelCollider right = wheelColliders[rightIndex];
+            if (left == null || right == null) return;
+
+            float leftTravel = 1f;
+            float rightTravel = 1f;
+            bool leftGrounded = left.GetGroundHit(out WheelHit leftHit);
+            bool rightGrounded = right.GetGroundHit(out WheelHit rightHit);
+
+            if (leftGrounded)
+            {
+                Vector3 localHit = left.transform.InverseTransformPoint(leftHit.point);
+                leftTravel = (-localHit.y - left.radius) /
+                             Mathf.Max(0.001f, left.suspensionDistance);
+            }
+
+            if (rightGrounded)
+            {
+                Vector3 localHit = right.transform.InverseTransformPoint(rightHit.point);
+                rightTravel = (-localHit.y - right.radius) /
+                              Mathf.Max(0.001f, right.suspensionDistance);
+            }
+
+            float antiRoll = (leftTravel - rightTravel) * antiRollForce;
+
+            if (leftGrounded)
+                body.AddForceAtPosition(
+                    left.transform.up * -antiRoll,
+                    left.transform.position,
+                    ForceMode.Force);
+
+            if (rightGrounded)
+                body.AddForceAtPosition(
+                    right.transform.up * antiRoll,
+                    right.transform.position,
+                    ForceMode.Force);
         }
 
         private void ReadInput()
