@@ -103,7 +103,6 @@ namespace MotorCity.Vehicle
         {
             if (centers == null || centers.Length < 4) return;
 
-            wheelRadius = Mathf.Clamp(measuredWheelRadius, 0.28f, 0.52f);
             wheelCenters = new Vector3[4];
 
             for (int i = 0; i < 4; i++)
