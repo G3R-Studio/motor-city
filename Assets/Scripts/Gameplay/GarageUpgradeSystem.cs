@@ -213,9 +213,9 @@ namespace MotorCity.Gameplay
             GUI.Label(new Rect(x + 24f, y + 18f, width - 48f, 44f), "MOTOR CITY GARAGE", titleStyle);
             GUI.Label(new Rect(x + 24f, y + 62f, width - 48f, 32f), $"{wallet.Credits:N0} CR", titleStyle);
 
-            DrawUpgrade(x, y + 108f, UpgradeType.Engine, EngineLevel, "more motor torque / acceleration");
-            DrawUpgrade(x, y + 158f, UpgradeType.Grip, GripLevel, "more lateral tire grip");
-            DrawUpgrade(x, y + 208f, UpgradeType.Stability, StabilityLevel, "more anti-roll / chassis control");
+            DrawUpgrade(x, y + 108f, UpgradeType.Engine, EngineLevel, "+12% torque, +10% response per level");
+            DrawUpgrade(x, y + 158f, UpgradeType.Grip, GripLevel, "+10% lateral tire grip per level");
+            DrawUpgrade(x, y + 208f, UpgradeType.Stability, StabilityLevel, "+16% anti-roll, +12% angular damping per level");
 
             GUI.Label(new Rect(x + 24f, y + 267f, width - 48f, 28f), "1 / 2 / 3 — buy     E or Esc — close", hintStyle);
         }
