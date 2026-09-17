@@ -5,6 +5,8 @@ namespace MotorCity.Gameplay
 {
     public sealed class DriftChallenge : MonoBehaviour
     {
+        private const string ActivityId = "drift";
+
         [SerializeField] private Vector3 zoneCenter = new(83f, 0f, -83f);
         [SerializeField] private float startRadius = 7f;
         [SerializeField] private float activityRadius = 19f;
@@ -15,6 +17,7 @@ namespace MotorCity.Gameplay
         private ArcadeCarController car;
         private DriftTracker drift;
         private PlayerWallet wallet;
+        private ActivityManager activityManager;
         private int scoreAtStart;
         private bool armed = true;
 
@@ -26,17 +29,18 @@ namespace MotorCity.Gameplay
         public Vector3 ZoneCenter => zoneCenter;
         public string StatusText { get; private set; } = "Orange zone: drift challenge";
 
-        public void Initialize(ArcadeCarController targetCar, DriftTracker driftTracker, PlayerWallet targetWallet)
+        public void Initialize(ArcadeCarController targetCar, DriftTracker driftTracker, PlayerWallet targetWallet, ActivityManager manager)
         {
             car = targetCar;
             drift = driftTracker;
             wallet = targetWallet;
+            activityManager = manager;
             TimeRemaining = durationSeconds;
         }
 
         private void Update()
         {
-            if (car == null || drift == null || wallet == null) return;
+            if (car == null || drift == null || wallet == null || activityManager == null) return;
 
             float distance = Vector3.Distance(Flat(car.transform.position), Flat(zoneCenter));
 
@@ -53,7 +57,19 @@ namespace MotorCity.Gameplay
                 }
 
                 if (distance <= startRadius)
+                {
+                    if (activityManager.IsBusy && !activityManager.IsActive(ActivityId))
+                    {
+                        StatusText = $"Drift unavailable during {activityManager.ActiveName}";
+                        return;
+                    }
+
                     BeginChallenge();
+                }
+                else
+                {
+                    StatusText = "Orange zone: drift challenge";
+                }
 
                 return;
             }
@@ -84,6 +100,8 @@ namespace MotorCity.Gameplay
 
         private void BeginChallenge()
         {
+            if (!activityManager.TryBegin(ActivityId, "Drift Challenge")) return;
+
             IsActive = true;
             armed = false;
             TimeRemaining = durationSeconds;
@@ -94,6 +112,7 @@ namespace MotorCity.Gameplay
         private void EndChallenge(string message)
         {
             IsActive = false;
+            activityManager.End(ActivityId);
             TimeRemaining = 0f;
             StatusText = message + ". Leave the zone to retry.";
         }
