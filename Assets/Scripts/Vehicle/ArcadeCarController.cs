@@ -12,6 +12,10 @@ namespace MotorCity.Vehicle
         [SerializeField] private float steerAngle = 20f;
         [SerializeField] private float traction = 1f;
 
+        [Header("Legacy Input.GetAxis Feel")]
+        [SerializeField] private float inputSensitivity = 3f;
+        [SerializeField] private float inputGravity = 3f;
+
         [Header("Visual Wheels")]
         [SerializeField] private float visualWheelRadius = 0.34f;
 
@@ -20,6 +24,7 @@ namespace MotorCity.Vehicle
 
         // This is the entire movement state, matching the uploaded CarController.cs.
         private Vector3 moveForce;
+        private float throttleInput;
         private float steerInput;
         private float wheelSpinDegrees;
 
@@ -79,15 +84,18 @@ namespace MotorCity.Vehicle
                 gamepadSteer = gamepad.leftStick.x.ReadValue();
             }
 
-            float throttleInput =
+            float throttleTarget =
                 Mathf.Abs(keyboardThrottle) >= Mathf.Abs(gamepadThrottle)
                     ? keyboardThrottle
                     : gamepadThrottle;
 
-            steerInput =
+            float steerTarget =
                 Mathf.Abs(keyboardSteer) >= Mathf.Abs(gamepadSteer)
                     ? keyboardSteer
                     : gamepadSteer;
+
+            throttleInput = SmoothLegacyAxis(throttleInput, throttleTarget);
+            steerInput = SmoothLegacyAxis(steerInput, steerTarget);
 
             // Direct port of the uploaded CarController.cs movement:
             // acceleration -> transform movement -> steering -> drag -> speed cap -> traction.
@@ -99,10 +107,14 @@ namespace MotorCity.Vehicle
                 steerInput *
                 moveForce.magnitude *
                 steerAngle *
-                Time.deltaTime,
-                Space.World);
+                Time.deltaTime);
 
-            moveForce *= drag;
+            // The source multiplies by Drag once per Update. That makes its feel
+            // depend on frame rate. Preserve exactly the same damping it has at
+            // 60 FPS while making it stable at any editor/browser frame rate.
+            float frameRateIndependentDrag =
+                Mathf.Pow(Mathf.Clamp01(drag), Time.deltaTime * 60f);
+            moveForce *= frameRateIndependentDrag;
             moveForce = Vector3.ClampMagnitude(moveForce, maxSpeed);
 
             if (moveForce.sqrMagnitude > 0.000001f)
@@ -116,6 +128,12 @@ namespace MotorCity.Vehicle
             }
 
             UpdateVisualWheels();
+        }
+
+        private float SmoothLegacyAxis(float current, float target)
+        {
+            float rate = Mathf.Abs(target) > 0.001f ? inputSensitivity : inputGravity;
+            return Mathf.MoveTowards(current, target, rate * Time.deltaTime);
         }
 
         public void ConfigureExternalWheelRig(
@@ -143,6 +161,7 @@ namespace MotorCity.Vehicle
         public void ClearMotion()
         {
             moveForce = Vector3.zero;
+            throttleInput = 0f;
             steerInput = 0f;
             wheelSpinDegrees = 0f;
         }
