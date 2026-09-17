@@ -41,6 +41,7 @@ namespace MotorCity.Vehicle
         private readonly Transform[] wheelVisualRoots = new Transform[4];
         private readonly Transform[] brakeVisualRoots = new Transform[4];
         private readonly float[] steeringAngles = new float[4];
+        private readonly float[] sourceMotorTorque = new float[4];
 
         private Vector3[] wheelCenters =
         {
@@ -155,7 +156,9 @@ namespace MotorCity.Vehicle
                 }
 
                 WheelCollider wheel = wheelColliders[i];
-                wheel.transform.localPosition = wheelCenters[i];
+                wheel.transform.localPosition =
+                    wheelCenters[i] +
+                    Vector3.up * (suspensionDistance * suspensionTargetPosition);
                 wheel.transform.localRotation = Quaternion.identity;
                 wheel.transform.localScale = Vector3.one;
 
@@ -286,30 +289,33 @@ namespace MotorCity.Vehicle
                         0f,
                         Time.deltaTime * wheelRotateSpeed);
 
-                // WheelController.cs: default motor torque decay/sign behavior.
-                wheel.motorTorque =
+                // Preserve WheelController.cs torque math in its original coordinate
+                // convention, then invert once for Motor City's +Z forward axis.
+                sourceMotorTorque[i] =
                     -Mathf.Lerp(
-                        wheel.motorTorque,
+                        sourceMotorTorque[i],
                         0f,
                         Time.deltaTime * wheelAcceleration);
 
                 if (vertical > 0.1f)
                 {
-                    wheel.motorTorque =
+                    sourceMotorTorque[i] =
                         -Mathf.Lerp(
-                            wheel.motorTorque,
+                            sourceMotorTorque[i],
                             wheelMaxSpeed,
                             Time.deltaTime * wheelAcceleration);
                 }
 
                 if (vertical < -0.1f)
                 {
-                    wheel.motorTorque =
+                    sourceMotorTorque[i] =
                         Mathf.Lerp(
-                            wheel.motorTorque,
+                            sourceMotorTorque[i],
                             wheelMaxSpeed,
                             Time.deltaTime * wheelAcceleration * brakePower);
                 }
+
+                wheel.motorTorque = -sourceMotorTorque[i];
 
                 if (horizontal > 0.1f)
                 {
@@ -368,6 +374,7 @@ namespace MotorCity.Vehicle
             for (int i = 0; i < 4; i++)
             {
                 steeringAngles[i] = 0f;
+                sourceMotorTorque[i] = 0f;
                 if (wheelColliders[i] == null) continue;
                 wheelColliders[i].motorTorque = 0f;
                 wheelColliders[i].brakeTorque = 0f;
