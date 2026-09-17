@@ -12,8 +12,8 @@ The project currently includes:
 
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
-- Pro Drift Controller v1 vehicle physics adapted to Unity 6 and the Input System;
-- a 2000 kg Rigidbody chassis with four driven WheelColliders;
+- Pro Drift Controller v1 vehicle physics adapted to Unity 6 and the Input System, including the source project's 0.02 s physics timestep, solver settings and legacy Input.GetAxis snap behavior;
+- a Rigidbody chassis with four driven WheelColliders, a decoupled physical wheelbase/track derived from the source prefab proportions and optional body colliders from the imported racing-car prefab;
 - the source controller's steering interpolation, four-wheel motor torque, reverse drag and acceleration behavior;
 - the source prefab's WheelCollider suspension and friction settings;
 - wheel visuals synchronized to the physical WheelColliders;
