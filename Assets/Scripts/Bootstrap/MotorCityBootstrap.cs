@@ -23,8 +23,6 @@ namespace MotorCity.Bootstrap
             CreateLighting();
             CreatePrototypeCity();
 
-            Time.fixedDeltaTime = 1f / 60f;
-
             ArcadeCarController car = CreateCar();
             ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
             DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
