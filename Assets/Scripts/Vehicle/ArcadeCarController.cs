@@ -65,6 +65,9 @@ namespace MotorCity.Vehicle
         private Rigidbody body;
         private float horizontal;
         private float vertical;
+        private int engineUpgradeLevel;
+        private int gripUpgradeLevel;
+        private int stabilityUpgradeLevel;
 
         public float SpeedKph => body == null ? 0f : body.linearVelocity.magnitude * 3.6f;
         public float ForwardSpeedKph =>
@@ -204,7 +207,8 @@ namespace MotorCity.Vehicle
                 sideways.extremumValue = 1f;
                 sideways.asymptoteSlip = 0.5f;
                 sideways.asymptoteValue = 0.75f;
-                sideways.stiffness = i < 2 ? 1.16f : 1.10f;
+                float gripMultiplier = 1f + gripUpgradeLevel * 0.07f;
+                sideways.stiffness = (i < 2 ? 1.16f : 1.10f) * gripMultiplier;
                 wheel.sidewaysFriction = sideways;
             }
 
@@ -271,7 +275,8 @@ namespace MotorCity.Vehicle
                               Mathf.Max(0.001f, right.suspensionDistance);
             }
 
-            float antiRoll = (leftTravel - rightTravel) * antiRollForce;
+            float stabilityMultiplier = 1f + stabilityUpgradeLevel * 0.10f;
+            float antiRoll = (leftTravel - rightTravel) * antiRollForce * stabilityMultiplier;
 
             if (leftGrounded)
                 body.AddForceAtPosition(
@@ -417,6 +422,31 @@ namespace MotorCity.Vehicle
             }
 
             body.linearDamping = vertical < -0.1f ? reverseDrag : 0f;
+            body.angularDamping = angularDrag * (1f + stabilityUpgradeLevel * 0.08f);
+        }
+
+        public void ApplyUpgradeLevels(int engineLevel, int gripLevel, int stabilityLevel)
+        {
+            engineUpgradeLevel = Mathf.Clamp(engineLevel, 0, 3);
+            gripUpgradeLevel = Mathf.Clamp(gripLevel, 0, 3);
+            stabilityUpgradeLevel = Mathf.Clamp(stabilityLevel, 0, 3);
+
+            wheelMaxSpeed = 2000f * (1f + engineUpgradeLevel * 0.08f);
+            wheelAcceleration = 30f * (1f + engineUpgradeLevel * 0.06f);
+
+            for (int i = 0; i < wheelColliders.Length; i++)
+            {
+                WheelCollider wheel = wheelColliders[i];
+                if (wheel == null) continue;
+
+                WheelFrictionCurve sideways = wheel.sidewaysFriction;
+                float gripMultiplier = 1f + gripUpgradeLevel * 0.07f;
+                sideways.stiffness = (i < 2 ? 1.16f : 1.10f) * gripMultiplier;
+                wheel.sidewaysFriction = sideways;
+            }
+
+            if (body != null)
+                body.angularDamping = angularDrag * (1f + stabilityUpgradeLevel * 0.08f);
         }
 
         private void LateUpdate()
