@@ -5,6 +5,8 @@ namespace MotorCity.Gameplay
 {
     public sealed class StreetSprintActivity : MonoBehaviour
     {
+        private const string ActivityId = "sprint";
+
         [SerializeField] private int baseRewardCredits = 550;
         [SerializeField] private int maximumTimeBonusCredits = 450;
         [SerializeField] private float startRadius = 7f;
@@ -12,6 +14,7 @@ namespace MotorCity.Gameplay
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
+        private ActivityManager activityManager;
         private Vector3[] route;
         private int checkpointIndex;
         private bool armed = true;
@@ -26,10 +29,11 @@ namespace MotorCity.Gameplay
                 : route[Mathf.Clamp(checkpointIndex, 0, route.Length - 1)];
         public string StatusText { get; private set; } = "Green marker: street sprint";
 
-        public void Initialize(ArcadeCarController targetCar, PlayerWallet targetWallet)
+        public void Initialize(ArcadeCarController targetCar, PlayerWallet targetWallet, ActivityManager manager)
         {
             car = targetCar;
             wallet = targetWallet;
+            activityManager = manager;
             route = new[]
             {
                 new Vector3(-84f, 0f, -84f),
@@ -43,7 +47,7 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
-            if (car == null || wallet == null || route == null || route.Length < 2) return;
+            if (car == null || wallet == null || activityManager == null || route == null || route.Length < 2) return;
 
             float distance = Vector3.Distance(Flat(car.transform.position), Flat(CurrentTarget));
 
@@ -62,7 +66,19 @@ namespace MotorCity.Gameplay
                 }
 
                 if (distance <= startRadius)
+                {
+                    if (activityManager.IsBusy && !activityManager.IsActive(ActivityId))
+                    {
+                        StatusText = $"Sprint unavailable during {activityManager.ActiveName}";
+                        return;
+                    }
+
                     BeginSprint();
+                }
+                else
+                {
+                    StatusText = "Green marker: street sprint";
+                }
 
                 return;
             }
@@ -82,6 +98,8 @@ namespace MotorCity.Gameplay
 
         private void BeginSprint()
         {
+            if (!activityManager.TryBegin(ActivityId, "Street Sprint")) return;
+
             IsActive = true;
             armed = false;
             ElapsedSeconds = 0f;
@@ -99,8 +117,9 @@ namespace MotorCity.Gameplay
             wallet.AddCredits(reward);
 
             IsActive = false;
+            activityManager.End(ActivityId);
             checkpointIndex = 0;
-            StatusText = $"Sprint complete {ElapsedSeconds:0.0}s  +{reward} CR. Leave start to retry.";
+            StatusText = $"Sprint complete {ElapsedSeconds:0.0}s  +{reward} CR";
         }
 
         private static Vector3 Flat(Vector3 value)
