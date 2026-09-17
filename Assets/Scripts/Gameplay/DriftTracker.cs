@@ -5,11 +5,11 @@ namespace MotorCity.Gameplay
 {
     public sealed class DriftTracker : MonoBehaviour
     {
-        [SerializeField] private float minimumSpeedKph = 32f;
-        [SerializeField] private float minimumSlipAngle = 9f;
-        [SerializeField] private float maximumControlledSlipAngle = 58f;
-        [SerializeField] private float minimumRearSidewaysSlip = 0.16f;
-        [SerializeField] private float comboGraceSeconds = 0.85f;
+        [SerializeField] private float minimumSpeedKph = 27f;
+        [SerializeField] private float minimumSlipAngle = 7f;
+        [SerializeField] private float maximumControlledSlipAngle = 65f;
+        [SerializeField] private float minimumRearSidewaysSlip = 0.10f;
+        [SerializeField] private float comboGraceSeconds = 1.0f;
 
         private ArcadeCarController car;
         private float graceTimer;
