@@ -4,9 +4,9 @@ Browser-first open-world car game prototype for Yandex Games.
 
 ## Current prototype
 
-The repository now contains the first Unity 6 foundation:
+The repository now contains the first Unity 6.6 foundation:
 
-- Unity 6 + Universal Render Pipeline package;
+- Unity 6.6 + Universal Render Pipeline;
 - Web-oriented lightweight runtime scene;
 - arcade vehicle controller with throttle, reverse, steering, grip and handbrake;
 - smooth chase camera;
@@ -18,7 +18,7 @@ The current car and city are intentionally built from primitives. They are a tec
 
 ## Run locally
 
-1. Install Unity 6 (6000.0 LTS or a newer compatible Unity 6 editor) with Web build support.
+1. Install Unity 6.6.1 (6000.6.1f1) with Web Build Support.
 2. Clone this repository.
 3. Open the repository root as a Unity project.
 4. Wait for packages to import. The project setup script will create/open `Assets/Scenes/Prototype.unity` automatically.
