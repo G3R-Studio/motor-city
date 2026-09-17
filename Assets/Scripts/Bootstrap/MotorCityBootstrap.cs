@@ -23,8 +23,10 @@ namespace MotorCity.Bootstrap
             CreateLighting();
             CreatePrototypeCity();
 
+            Time.fixedDeltaTime = 1f / 60f;
+
             ArcadeCarController car = CreateCar();
-            CartoonSportsCarRuntimeInstaller.TryInstallNow(car);
+            ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
             DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
 
             GameObject systems = new("Gameplay Systems");
@@ -172,7 +174,12 @@ namespace MotorCity.Bootstrap
             Material tailLight = Material(new Color(0.9f, 0.015f, 0.008f), 0.05f, 0.78f);
 
             GameObject car = new("PlayerCar");
-            car.transform.position = new Vector3(0f, 0f, -68f);
+            car.transform.position = new Vector3(0f, 1.2f, -68f);
+            car.AddComponent<Rigidbody>();
+
+            BoxCollider chassis = car.AddComponent<BoxCollider>();
+            chassis.size = new Vector3(1.9f, 0.7f, 4.2f);
+            chassis.center = new Vector3(0f, 0.58f, 0f);
 
             Primitive("LowerBody", PrimitiveType.Cube, car.transform, new Vector3(1.86f, 0.48f, 4.18f), new Vector3(0f, 0.46f, 0f), bodyMaterial, false);
             Primitive("UpperBody", PrimitiveType.Cube, car.transform, new Vector3(1.72f, 0.25f, 3.5f), new Vector3(0f, 0.73f, -0.05f), bodyMaterial, false);
@@ -284,14 +291,6 @@ namespace MotorCity.Bootstrap
             go.transform.position = position;
             go.transform.localScale = scale;
             go.GetComponent<Renderer>().sharedMaterial = material;
-
-            Collider primitiveCollider = go.GetComponent<Collider>();
-            if (primitiveCollider != null)
-            {
-                primitiveCollider.enabled = false;
-                Object.Destroy(primitiveCollider);
-            }
-
             return go;
         }
 
@@ -303,11 +302,10 @@ namespace MotorCity.Bootstrap
             go.transform.localPosition = localPosition;
             go.transform.localScale = scale;
             go.GetComponent<Renderer>().sharedMaterial = material;
-            Collider primitiveCollider = go.GetComponent<Collider>();
-            if (primitiveCollider != null)
+            if (!keepCollider)
             {
-                primitiveCollider.enabled = false;
-                Object.Destroy(primitiveCollider);
+                Collider primitiveCollider = go.GetComponent<Collider>();
+                if (primitiveCollider != null) Object.Destroy(primitiveCollider);
             }
 
             return go;
