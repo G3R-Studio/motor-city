@@ -53,7 +53,7 @@ namespace MotorCity.Vehicle
             visual.transform.localRotation = Quaternion.identity;
             visual.transform.localScale = Vector3.one;
 
-            DisablePhysics(visual);
+            StripPhysics(visual);
             NormalizeHorizontalScaleAndRotation(visual.transform);
 
             List<Transform> wheelAnchors = FindExactWheels(visual.transform);
@@ -96,7 +96,7 @@ namespace MotorCity.Vehicle
 
             HideOnlyPrimitiveFallback(carTransform);
             car.ConfigureExternalWheelRig(spinRoots, brakeRoots, centerLocal, measuredRadius);
-            Debug.Log("Motor City: CARRERA connected to PhysX WheelColliders with grouped wheel visuals and original texture atlas.");
+            Debug.Log("Motor City: CARRERA connected to transform-based CarController movement with grouped visual wheels and original texture atlas.");
             return true;
         }
 
@@ -360,10 +360,19 @@ namespace MotorCity.Vehicle
             return bounds;
         }
 
-        private static void DisablePhysics(GameObject visual)
+        private static void StripPhysics(GameObject visual)
         {
-            foreach (Collider collider in visual.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
-            foreach (Rigidbody rigidbody in visual.GetComponentsInChildren<Rigidbody>(true)) rigidbody.isKinematic = true;
+            foreach (Collider collider in visual.GetComponentsInChildren<Collider>(true))
+            {
+                collider.enabled = false;
+                Object.Destroy(collider);
+            }
+
+            foreach (Rigidbody rigidbody in visual.GetComponentsInChildren<Rigidbody>(true))
+            {
+                rigidbody.isKinematic = true;
+                Object.Destroy(rigidbody);
+            }
         }
 
         private static void HideOnlyPrimitiveFallback(Transform car)
