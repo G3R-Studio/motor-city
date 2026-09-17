@@ -40,8 +40,38 @@ public static class ArcadeFreeRacingCarImporter
             return;
         }
 
-        if (!force && AssetDatabase.LoadAssetAtPath<GameObject>(OutputPrefab) != null)
-            return;
+        GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(OutputPrefab);
+        if (!force && existing != null)
+        {
+            bool existingHasBodyCollider =
+                existing.GetComponentsInChildren<Collider>(true)
+                    .Any(c =>
+                    {
+                        string lower = c.transform.name.ToLowerInvariant();
+                        return
+                            !(lower.Contains("wheel") ||
+                              lower.Contains("tire") ||
+                              lower.Contains("tyre") ||
+                              lower.Contains("rim"));
+                    });
+
+            GameObject candidate = AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath);
+            bool candidateHasBodyCollider =
+                candidate != null &&
+                candidate.GetComponentsInChildren<Collider>(true)
+                    .Any(c =>
+                    {
+                        string lower = c.transform.name.ToLowerInvariant();
+                        return
+                            !(lower.Contains("wheel") ||
+                              lower.Contains("tire") ||
+                              lower.Contains("tyre") ||
+                              lower.Contains("rim"));
+                    });
+
+            if (existingHasBodyCollider || !candidateHasBodyCollider)
+                return;
+        }
 
         Directory.CreateDirectory(OutputDirectory);
 
@@ -103,10 +133,9 @@ public static class ArcadeFreeRacingCarImporter
         if (lower.Contains("arcade - free racing car")) score += 100;
         if (lower.Contains("prefab")) score += 40;
         if (lower.Contains("blue")) score += 30;
-        if (lower.Contains("meshes only")) score += 25;
+        if (lower.Contains("collider")) score += 35;
         if (lower.Contains("variant")) score += 10;
-
-        if (lower.Contains("collider")) score -= 5;
+        if (lower.Contains("meshes only")) score -= 10;
         if (lower.Contains("demo")) score -= 50;
 
         return score;
