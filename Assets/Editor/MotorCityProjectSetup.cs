@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace MotorCity.Editor
         {
             EnsureFolders();
             EnsureRenderPipeline();
+            EnsureInputSystem();
             EnsureScene();
 
             PlayerSettings.companyName = "G3R Studio";
@@ -66,6 +68,20 @@ namespace MotorCity.Editor
             QualitySettings.renderPipeline = pipeline;
         }
 
+        private static void EnsureInputSystem()
+        {
+            PlayerSettings settings = Resources.FindObjectsOfTypeAll<PlayerSettings>().FirstOrDefault();
+            if (settings == null) return;
+
+            SerializedObject serializedSettings = new(settings);
+            SerializedProperty activeInputHandler = serializedSettings.FindProperty("activeInputHandler");
+            if (activeInputHandler == null || activeInputHandler.intValue == 1) return;
+
+            activeInputHandler.intValue = 1;
+            serializedSettings.ApplyModifiedPropertiesWithoutUndo();
+            Debug.Log("Motor City: Active Input Handling switched to Input System Package (New).");
+        }
+
         private static void EnsureScene()
         {
             if (!File.Exists(ScenePath))
@@ -78,9 +94,7 @@ namespace MotorCity.Editor
 
             Scene current = SceneManager.GetActiveScene();
             if (!current.isDirty && current.path != ScenePath)
-            {
                 EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
-            }
         }
     }
 }
