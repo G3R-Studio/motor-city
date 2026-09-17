@@ -1,4 +1,5 @@
 using MotorCity.CameraSystem;
+using MotorCity.Gameplay;
 using MotorCity.UI;
 using MotorCity.Vehicle;
 using MotorCity.World;
@@ -16,15 +17,24 @@ namespace MotorCity.Bootstrap
 
             Time.fixedDeltaTime = 1f / 60f;
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.31f, 0.38f, 0.5f);
-            RenderSettings.ambientEquatorColor = new Color(0.18f, 0.2f, 0.24f);
-            RenderSettings.ambientGroundColor = new Color(0.07f, 0.08f, 0.09f);
+            RenderSettings.ambientSkyColor = new Color(0.24f, 0.31f, 0.43f);
+            RenderSettings.ambientEquatorColor = new Color(0.13f, 0.15f, 0.19f);
+            RenderSettings.ambientGroundColor = new Color(0.045f, 0.05f, 0.055f);
 
             CreateLighting();
             CreatePrototypeCity();
+
             ArcadeCarController car = CreateCar();
+            DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
+
+            GameObject systems = new("Gameplay Systems");
+            PlayerWallet wallet = systems.AddComponent<PlayerWallet>();
+            DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
+            delivery.Initialize(car, wallet);
+            CreateDeliveryMarker(delivery);
+
             CreateCamera(car.transform);
-            CreateHud(car);
+            CreateHud(car, wallet, drift, delivery);
         }
 
         private static void CreateLighting()
@@ -32,70 +42,134 @@ namespace MotorCity.Bootstrap
             GameObject sunObject = new("Sun");
             Light sun = sunObject.AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.intensity = 1.15f;
-            sun.color = new Color(1f, 0.91f, 0.78f);
-            sun.transform.rotation = Quaternion.Euler(48f, -32f, 0f);
+            sun.intensity = 1.25f;
+            sun.color = new Color(1f, 0.9f, 0.76f);
+            sun.shadows = LightShadows.Soft;
+            sun.transform.rotation = Quaternion.Euler(47f, -34f, 0f);
         }
 
         private static void CreatePrototypeCity()
         {
-            Material road = Material(new Color(0.055f, 0.06f, 0.07f), 0.18f, 0.25f);
-            Material concrete = Material(new Color(0.28f, 0.3f, 0.32f), 0.02f, 0.1f);
-            Material buildingA = Material(new Color(0.11f, 0.16f, 0.22f), 0.15f, 0.2f);
-            Material buildingB = Material(new Color(0.21f, 0.13f, 0.12f), 0.08f, 0.15f);
-            Material line = Material(new Color(0.92f, 0.77f, 0.18f), 0f, 0.1f);
+            Material asphalt = Material(new Color(0.045f, 0.048f, 0.055f), 0.08f, 0.23f);
+            Material groundMaterial = Material(new Color(0.115f, 0.125f, 0.13f), 0f, 0.08f);
+            Material sidewalk = Material(new Color(0.31f, 0.32f, 0.33f), 0f, 0.18f);
+            Material buildingA = Material(new Color(0.08f, 0.14f, 0.2f), 0.12f, 0.28f);
+            Material buildingB = Material(new Color(0.23f, 0.105f, 0.075f), 0.06f, 0.22f);
+            Material buildingC = Material(new Color(0.16f, 0.17f, 0.19f), 0.1f, 0.32f);
+            Material laneWhite = Material(new Color(0.88f, 0.9f, 0.86f), 0f, 0.22f);
+            Material laneYellow = Material(new Color(0.95f, 0.7f, 0.12f), 0f, 0.2f);
+            Material glass = Material(new Color(0.05f, 0.16f, 0.23f), 0.45f, 0.72f);
+            Material lampDark = Material(new Color(0.035f, 0.04f, 0.045f), 0.55f, 0.35f);
+            Material lampGlow = Material(new Color(1f, 0.65f, 0.24f), 0f, 0.65f);
 
-            // One continuous collider is the driving surface. Keeping the prototype
-            // physics on a single plane avoids seams and overlapping contacts between
-            // the many decorative road meshes.
-            GameObject ground = Primitive("Ground", PrimitiveType.Cube, new Vector3(0f, -0.5f, 0f), new Vector3(240f, 1f, 240f), concrete);
+            GameObject ground = Primitive("Ground", PrimitiveType.Cube, new Vector3(0f, -0.52f, 0f), new Vector3(252f, 1f, 252f), groundMaterial);
             ground.isStatic = true;
 
             for (int i = -2; i <= 2; i++)
             {
-                CreateVisualSurface($"Road_NS_{i}", PrimitiveType.Cube, new Vector3(i * 42f, 0.012f, 0f), new Vector3(18f, 0.02f, 220f), road);
-                CreateVisualSurface($"Road_EW_{i}", PrimitiveType.Cube, new Vector3(0f, 0.014f, i * 42f), new Vector3(220f, 0.02f, 18f), road);
-            }
+                float axis = i * 42f;
+                CreateVisualSurface($"Road_NS_{i}", PrimitiveType.Cube, new Vector3(axis, 0.012f, 0f), new Vector3(18f, 0.02f, 230f), asphalt);
+                CreateVisualSurface($"Road_EW_{i}", PrimitiveType.Cube, new Vector3(0f, 0.014f, axis), new Vector3(230f, 0.02f, 18f), asphalt);
 
-            for (int z = -2; z <= 2; z++)
-            {
-                for (int x = -2; x <= 2; x++)
+                for (int p = -108; p <= 108; p += 9)
                 {
-                    if ((x + z) % 2 == 0) continue;
-                    Vector3 blockCenter = new(x * 42f + 21f, 0f, z * 42f + 21f);
-                    for (int b = 0; b < 3; b++)
-                    {
-                        float height = 8f + ((x * 17 + z * 11 + b * 7 + 100) % 22);
-                        Vector3 pos = blockCenter + new Vector3((b - 1) * 7f, height * 0.5f, ((b % 2) * 2 - 1) * 5f);
-                        Primitive($"Building_{x}_{z}_{b}", PrimitiveType.Cube, pos, new Vector3(6f, height, 9f), b % 2 == 0 ? buildingA : buildingB).isStatic = true;
-                    }
+                    CreateVisualSurface("Lane_NS", PrimitiveType.Cube, new Vector3(axis, 0.03f, p), new Vector3(0.14f, 0.008f, 3.7f), i == 0 ? laneYellow : laneWhite);
+                    CreateVisualSurface("Lane_EW", PrimitiveType.Cube, new Vector3(p, 0.032f, axis), new Vector3(3.7f, 0.008f, 0.14f), i == 0 ? laneYellow : laneWhite);
                 }
             }
 
-            for (int z = -100; z <= 100; z += 8)
-                CreateVisualSurface("CenterLine", PrimitiveType.Cube, new Vector3(0f, 0.027f, z), new Vector3(0.18f, 0.008f, 3.5f), line);
+            for (int z = -2; z <= 1; z++)
+            {
+                for (int x = -2; x <= 1; x++)
+                {
+                    Vector3 blockCenter = new(x * 42f + 21f, 0f, z * 42f + 21f);
+                    CreateCityBlock(x, z, blockCenter, sidewalk, buildingA, buildingB, buildingC, glass);
+                }
+            }
 
-            // Open drift pad beside the spawn area. Visual only; Ground provides physics.
-            CreateVisualSurface("DriftPad", PrimitiveType.Cylinder, new Vector3(83f, 0.012f, -83f), new Vector3(34f, 0.02f, 34f), road);
+            CreateParkingLot(new Vector3(83f, 0f, -83f), asphalt, laneWhite);
+            CreateStreetLights(lampDark, lampGlow);
+        }
+
+        private static void CreateCityBlock(int gridX, int gridZ, Vector3 center, Material sidewalk, Material buildingA, Material buildingB, Material buildingC, Material glass)
+        {
+            CreateVisualSurface("Sidewalk", PrimitiveType.Cube, center + new Vector3(0f, 0.035f, 0f), new Vector3(22f, 0.06f, 22f), sidewalk);
+
+            int seed = Mathf.Abs(gridX * 37 + gridZ * 61 + 97);
+            int buildingCount = 2 + seed % 2;
+
+            for (int i = 0; i < buildingCount; i++)
+            {
+                float height = 10f + (seed * (i + 3) % 22);
+                float side = i == 0 ? -1f : 1f;
+                Vector3 pos = center + new Vector3(side * 5.5f, height * 0.5f + 0.08f, (i % 2 == 0 ? -1f : 1f) * 3.6f);
+                Vector3 scale = new(8.5f, height, 11.5f);
+                Material facade = (seed + i) % 3 == 0 ? buildingA : ((seed + i) % 3 == 1 ? buildingB : buildingC);
+                GameObject building = Primitive($"Building_{gridX}_{gridZ}_{i}", PrimitiveType.Cube, pos, scale, facade);
+                building.isStatic = true;
+
+                for (float y = 3f; y < height - 1f; y += 3.2f)
+                {
+                    Vector3 windowPos = new(pos.x, y, pos.z - scale.z * 0.5f - 0.01f);
+                    CreateVisualSurface("Windows", PrimitiveType.Cube, windowPos, new Vector3(scale.x * 0.66f, 1.25f, 0.035f), glass);
+                }
+            }
+
+            if ((gridX + gridZ) % 2 == 0)
+            {
+                Material shop = Material(new Color(0.12f, 0.28f, 0.34f), 0.08f, 0.55f);
+                Vector3 storefront = center + new Vector3(0f, 1.3f, -8.2f);
+                CreateVisualSurface("Storefront", PrimitiveType.Cube, storefront, new Vector3(8f, 2.5f, 0.18f), shop);
+            }
+        }
+
+        private static void CreateParkingLot(Vector3 center, Material asphalt, Material line)
+        {
+            CreateVisualSurface("DriftAndParkingLot", PrimitiveType.Cube, center + new Vector3(0f, 0.018f, 0f), new Vector3(34f, 0.025f, 34f), asphalt);
+
+            for (int i = -3; i <= 3; i++)
+            {
+                CreateVisualSurface("ParkingLine", PrimitiveType.Cube, center + new Vector3(i * 4.2f, 0.04f, 8f), new Vector3(0.09f, 0.008f, 6.5f), line);
+                CreateVisualSurface("ParkingLine", PrimitiveType.Cube, center + new Vector3(i * 4.2f, 0.04f, -8f), new Vector3(0.09f, 0.008f, 6.5f), line);
+            }
+        }
+
+        private static void CreateStreetLights(Material dark, Material glow)
+        {
+            for (int z = -84; z <= 84; z += 42)
+            {
+                for (int x = -84; x <= 84; x += 42)
+                {
+                    CreateLamp(new Vector3(x + 10.5f, 0f, z + 10.5f), dark, glow);
+                    CreateLamp(new Vector3(x - 10.5f, 0f, z - 10.5f), dark, glow);
+                }
+            }
+        }
+
+        private static void CreateLamp(Vector3 position, Material dark, Material glow)
+        {
+            GameObject pole = CreateVisualSurface("StreetLamp", PrimitiveType.Cylinder, position + new Vector3(0f, 2.6f, 0f), new Vector3(0.12f, 2.6f, 0.12f), dark);
+            pole.transform.localScale = new Vector3(0.12f, 2.6f, 0.12f);
+            CreateVisualSurface("LampHead", PrimitiveType.Cube, position + new Vector3(0f, 5.2f, 0f), new Vector3(0.65f, 0.14f, 0.32f), glow);
         }
 
         private static ArcadeCarController CreateCar()
         {
-            Material bodyMaterial = Material(new Color(0.86f, 0.07f, 0.035f), 0.42f, 0.62f);
-            Material darkMaterial = Material(new Color(0.018f, 0.02f, 0.025f), 0.05f, 0.2f);
-            Material glassMaterial = Material(new Color(0.035f, 0.095f, 0.14f), 0.55f, 0.7f);
+            Material bodyMaterial = Material(new Color(0.72f, 0.025f, 0.018f), 0.55f, 0.72f);
+            Material darkMaterial = Material(new Color(0.012f, 0.014f, 0.018f), 0.35f, 0.3f);
+            Material glassMaterial = Material(new Color(0.025f, 0.095f, 0.145f), 0.62f, 0.82f);
+            Material chrome = Material(new Color(0.42f, 0.44f, 0.46f), 0.92f, 0.68f);
+            Material headlight = Material(new Color(0.92f, 0.95f, 1f), 0.05f, 0.88f);
+            Material tailLight = Material(new Color(0.9f, 0.015f, 0.008f), 0.05f, 0.78f);
 
             GameObject car = new("PlayerCar");
             car.transform.position = new Vector3(0f, 1.2f, -68f);
             car.AddComponent<Rigidbody>();
-            BoxCollider collider = car.AddComponent<BoxCollider>();
-            collider.size = new Vector3(1.9f, 0.75f, 4.35f);
-            collider.center = new Vector3(0f, 0.42f, 0f);
 
-            // Longitudinal/lateral grip is handled by ArcadeCarController. The chassis
-            // collider therefore uses a low-friction material so PhysX contact friction
-            // does not fight the scripted vehicle dynamics.
-            PhysicsMaterial chassisMaterial = new("Car Chassis")
+            BoxCollider collider = car.AddComponent<BoxCollider>();
+            collider.size = new Vector3(1.82f, 0.58f, 4.05f);
+            collider.center = new Vector3(0f, 0.57f, 0f);
+            collider.material = new PhysicsMaterial("Car Chassis")
             {
                 dynamicFriction = 0f,
                 staticFriction = 0f,
@@ -103,26 +177,44 @@ namespace MotorCity.Bootstrap
                 frictionCombine = PhysicsMaterialCombine.Minimum,
                 bounceCombine = PhysicsMaterialCombine.Minimum
             };
-            collider.material = chassisMaterial;
 
-            Primitive("Body", PrimitiveType.Cube, car.transform, new Vector3(1.85f, 0.58f, 4.15f), new Vector3(0f, 0.4f, 0f), bodyMaterial, false);
-            Primitive("Cabin", PrimitiveType.Cube, car.transform, new Vector3(1.55f, 0.6f, 1.8f), new Vector3(0f, 0.93f, -0.15f), glassMaterial, false);
-            Primitive("Hood", PrimitiveType.Cube, car.transform, new Vector3(1.75f, 0.12f, 1.3f), new Vector3(0f, 0.74f, 1.3f), bodyMaterial, false);
+            Primitive("LowerBody", PrimitiveType.Cube, car.transform, new Vector3(1.86f, 0.48f, 4.18f), new Vector3(0f, 0.46f, 0f), bodyMaterial, false);
+            Primitive("UpperBody", PrimitiveType.Cube, car.transform, new Vector3(1.72f, 0.25f, 3.5f), new Vector3(0f, 0.73f, -0.05f), bodyMaterial, false);
+            Primitive("Cabin", PrimitiveType.Cube, car.transform, new Vector3(1.48f, 0.55f, 1.72f), new Vector3(0f, 1.02f, -0.25f), glassMaterial, false);
+            Primitive("Hood", PrimitiveType.Cube, car.transform, new Vector3(1.66f, 0.12f, 1.18f), new Vector3(0f, 0.84f, 1.32f), bodyMaterial, false);
+            Primitive("FrontBumper", PrimitiveType.Cube, car.transform, new Vector3(1.78f, 0.18f, 0.18f), new Vector3(0f, 0.38f, 2.12f), darkMaterial, false);
+            Primitive("RearBumper", PrimitiveType.Cube, car.transform, new Vector3(1.78f, 0.18f, 0.18f), new Vector3(0f, 0.38f, -2.12f), darkMaterial, false);
+            Primitive("Spoiler", PrimitiveType.Cube, car.transform, new Vector3(1.45f, 0.08f, 0.32f), new Vector3(0f, 0.96f, -1.9f), darkMaterial, false);
 
-            CreateWheel(car.transform, new Vector3(-0.98f, 0.22f, 1.32f), darkMaterial);
-            CreateWheel(car.transform, new Vector3(0.98f, 0.22f, 1.32f), darkMaterial);
-            CreateWheel(car.transform, new Vector3(-0.98f, 0.22f, -1.35f), darkMaterial);
-            CreateWheel(car.transform, new Vector3(0.98f, 0.22f, -1.35f), darkMaterial);
+            Primitive("HeadlightL", PrimitiveType.Cube, car.transform, new Vector3(0.48f, 0.18f, 0.05f), new Vector3(-0.55f, 0.62f, 2.105f), headlight, false);
+            Primitive("HeadlightR", PrimitiveType.Cube, car.transform, new Vector3(0.48f, 0.18f, 0.05f), new Vector3(0.55f, 0.62f, 2.105f), headlight, false);
+            Primitive("TailLightL", PrimitiveType.Cube, car.transform, new Vector3(0.5f, 0.17f, 0.05f), new Vector3(-0.55f, 0.59f, -2.105f), tailLight, false);
+            Primitive("TailLightR", PrimitiveType.Cube, car.transform, new Vector3(0.5f, 0.17f, 0.05f), new Vector3(0.55f, 0.59f, -2.105f), tailLight, false);
+
+            CreateWheel(car.transform, "Wheel_FL", new Vector3(-0.94f, 0.18f, 1.32f), darkMaterial, chrome);
+            CreateWheel(car.transform, "Wheel_FR", new Vector3(0.94f, 0.18f, 1.32f), darkMaterial, chrome);
+            CreateWheel(car.transform, "Wheel_RL", new Vector3(-0.94f, 0.18f, -1.34f), darkMaterial, chrome);
+            CreateWheel(car.transform, "Wheel_RR", new Vector3(0.94f, 0.18f, -1.34f), darkMaterial, chrome);
 
             ArcadeCarController controller = car.AddComponent<ArcadeCarController>();
             car.AddComponent<CarReset>();
             return controller;
         }
 
-        private static void CreateWheel(Transform parent, Vector3 localPosition, Material material)
+        private static void CreateWheel(Transform parent, string name, Vector3 localPosition, Material tire, Material rim)
         {
-            GameObject wheel = Primitive("Wheel", PrimitiveType.Cylinder, parent, new Vector3(0.7f, 0.28f, 0.7f), localPosition, material, false);
+            GameObject wheel = Primitive(name, PrimitiveType.Cylinder, parent, new Vector3(0.68f, 0.3f, 0.68f), localPosition, tire, false);
             wheel.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+            GameObject wheelRim = Primitive(name + "_Rim", PrimitiveType.Cylinder, wheel.transform, new Vector3(0.42f, 0.32f, 0.42f), Vector3.zero, rim, false);
+            wheelRim.transform.localRotation = Quaternion.identity;
+        }
+
+        private static void CreateDeliveryMarker(DeliveryActivity delivery)
+        {
+            Material markerMaterial = Material(new Color(0.08f, 0.5f, 1f), 0.05f, 0.75f);
+            GameObject marker = CreateVisualSurface("Delivery Marker", PrimitiveType.Cylinder, new Vector3(42f, 1.25f, -42f), new Vector3(3.2f, 0.08f, 3.2f), markerMaterial);
+            RouteMarkerVisual visual = marker.AddComponent<RouteMarkerVisual>();
+            visual.Bind(delivery);
         }
 
         private static void CreateCamera(Transform target)
@@ -138,11 +230,11 @@ namespace MotorCity.Bootstrap
             chase.SetTarget(target);
         }
 
-        private static void CreateHud(ArcadeCarController car)
+        private static void CreateHud(ArcadeCarController car, PlayerWallet wallet, DriftTracker drift, DeliveryActivity delivery)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
-            prototypeHud.Bind(car);
+            prototypeHud.Bind(car, wallet, drift, delivery);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
