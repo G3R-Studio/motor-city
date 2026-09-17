@@ -99,7 +99,7 @@ namespace MotorCity.UI
 
             GUI.Label(
                 new Rect(24, 52, 680, 86),
-                "W/S — gas/reverse   A/D — steer   E — garage\nR — reset   RMB — camera   Wheel — zoom",
+                "W/S — gas/reverse   A/D — steer   SPACE — handbrake   E — garage\nR — reset   RMB — camera   Wheel — zoom",
                 hintStyle);
 
             string status = ResolveStatus();
@@ -117,6 +117,13 @@ namespace MotorCity.UI
                 GUI.Label(
                     new Rect(Screen.width * 0.5f - 180f, 34f, 360f, 46f),
                     $"DRIFT {drift.CurrentScore:N0}{combo}",
+                    driftStyle);
+            }
+            else if (drift != null && drift.ShowRewardMessage)
+            {
+                GUI.Label(
+                    new Rect(Screen.width * 0.5f - 180f, 34f, 360f, 46f),
+                    $"DRIFT BANK  +{drift.LastBankedCredits:N0} CR",
                     driftStyle);
             }
         }
