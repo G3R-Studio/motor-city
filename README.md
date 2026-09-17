@@ -20,13 +20,13 @@ The project currently includes:
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
 - drift scoring based on actual vehicle slip and movement angle, with free-roam drift series banked into CR when the drift ends;
-- a timed drift challenge in the parking area with a score target and CR reward;
+- a timed drift challenge in the parking area with a score target, CR reward, a larger square activity area and a 3.5-second return grace period after leaving the zone;
 - a timed street sprint with moving checkpoints and a performance-based CR reward;
 - a smooth orbiting chase camera with mouse look and zoom;
 - a procedural city district with road lanes, sidewalks, buildings, storefronts, parking areas and street lights;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
-- a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels;
+- a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
 - activity coordination so delivery, drift challenge, street sprint and garage cannot overlap;
 - a HUD with speed, credits, current activity, drift score and installed upgrade levels;
 - instant vehicle reset;
