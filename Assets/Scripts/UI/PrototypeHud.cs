@@ -10,17 +10,24 @@ namespace MotorCity.UI
         private PlayerWallet wallet;
         private DriftTracker drift;
         private DeliveryActivity delivery;
+        private DriftChallenge driftChallenge;
         private GUIStyle speedStyle;
         private GUIStyle primaryStyle;
         private GUIStyle hintStyle;
         private GUIStyle driftStyle;
 
-        public void Bind(ArcadeCarController controller, PlayerWallet playerWallet, DriftTracker driftTracker, DeliveryActivity deliveryActivity)
+        public void Bind(
+            ArcadeCarController controller,
+            PlayerWallet playerWallet,
+            DriftTracker driftTracker,
+            DeliveryActivity deliveryActivity,
+            DriftChallenge challenge)
         {
             car = controller;
             wallet = playerWallet;
             drift = driftTracker;
             delivery = deliveryActivity;
+            driftChallenge = challenge;
         }
 
         private void EnsureStyles()
@@ -68,11 +75,16 @@ namespace MotorCity.UI
 
             GUI.Label(new Rect(Screen.width - 300, Screen.height - 104, 260, 52), $"{speed:000} km/h", speedStyle);
             GUI.Label(new Rect(24, 18, 420, 34), $"MOTOR CITY    {credits:N0} CR", primaryStyle);
-            GUI.Label(new Rect(24, 52, 540, 86), "W/S — gas/reverse   A/D — steer   SPACE — handbrake\nR — reset   RMB — camera   Wheel — zoom", hintStyle);
+            GUI.Label(new Rect(24, 52, 620, 86), "W/S — gas/reverse   A/D — steer   SPACE — handbrake\nR — reset   RMB — camera   Wheel — zoom", hintStyle);
+
+            if (driftChallenge != null)
+            {
+                GUI.Label(new Rect(24, Screen.height - 112, 760, 32), driftChallenge.StatusText, primaryStyle);
+            }
 
             if (delivery != null)
             {
-                GUI.Label(new Rect(24, Screen.height - 78, 660, 32), delivery.StatusText, primaryStyle);
+                GUI.Label(new Rect(24, Screen.height - 78, 760, 32), delivery.StatusText, primaryStyle);
             }
 
             if (drift != null && (drift.IsDrifting || drift.CurrentScore > 0))
