@@ -14,6 +14,7 @@ namespace MotorCity.Editor
     {
         private const string ScenePath = "Assets/Scenes/Prototype.unity";
         private const string PipelinePath = "Assets/Settings/MotorCityURP.asset";
+        private const string RendererPath = "Assets/Settings/MotorCityRenderer.asset";
 
         static MotorCityProjectSetup()
         {
@@ -44,7 +45,19 @@ namespace MotorCity.Editor
             UniversalRenderPipelineAsset pipeline = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(PipelinePath);
             if (pipeline == null)
             {
-                pipeline = UniversalRenderPipelineAsset.Create();
+                UniversalRendererData rendererData = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
+                if (rendererData == null)
+                {
+                    rendererData = ScriptableObject.CreateInstance<UniversalRendererData>();
+                    AssetDatabase.CreateAsset(rendererData, RendererPath);
+                }
+
+                pipeline = UniversalRenderPipelineAsset.Create(rendererData);
+                pipeline.name = "Motor City URP";
+                pipeline.supportsHDR = false;
+                pipeline.renderScale = 1f;
+                pipeline.msaaSampleCount = 2;
+                pipeline.shadowDistance = 80f;
                 AssetDatabase.CreateAsset(pipeline, PipelinePath);
                 AssetDatabase.SaveAssets();
             }
