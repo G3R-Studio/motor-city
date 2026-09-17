@@ -8,6 +8,7 @@ namespace MotorCity.Vehicle
     public sealed class CartoonSportsCarRuntimeInstaller : MonoBehaviour
     {
         private const float TargetLength = 4.2f;
+        private static readonly string[] ExactLowPolyWheelNames = { "tyre003", "tyre004", "tyre1", "tyre2" };
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void ScheduleInstall()
@@ -53,10 +54,13 @@ namespace MotorCity.Vehicle
             DisablePhysics(visual);
             NormalizeVisualScale(visual.transform);
 
-            List<Transform> wheelMeshes = FindWheelMeshes(visual.transform);
+            List<Transform> wheelMeshes = FindExactLowPolyWheels(visual.transform);
+            if (wheelMeshes.Count < 4)
+                wheelMeshes = FindWheelMeshesFallback(visual.transform);
+
             if (wheelMeshes.Count < 4)
             {
-                Debug.LogWarning("Motor City: Cartoon Sports Car imported, but four separate wheel transforms were not found. Keeping fallback suspension visuals.");
+                Debug.LogWarning("Motor City: Cartoon Sports Car imported, but four wheel transforms were not found. Keeping fallback suspension visuals.");
                 visual.SetActive(false);
                 return;
             }
@@ -82,20 +86,18 @@ namespace MotorCity.Vehicle
                 pivots[i] = pivot;
 
                 Vector3 local = carTransform.InverseTransformPoint(bounds.center);
-                suspensionPoints[i] = new Vector3(local.x, -0.10f, local.z);
+                suspensionPoints[i] = new Vector3(local.x, -0.08f, local.z);
             }
 
             HideFallbackVisuals(carTransform, visual.transform);
             car.ConfigureExternalWheelRig(pivots, suspensionPoints, measuredRadius);
-            Debug.Log("Motor City: Cartoon Sports Car visual installed and suspension rebuilt from asset wheel positions.");
+            Debug.Log("Motor City: CARRERA_LOW installed with exact tyre transforms and suspension rebuilt from real wheel positions.");
         }
 
         private static void NormalizeVisualScale(Transform visual)
         {
             Bounds bounds = RendererBounds(visual);
 
-            // Most vehicle assets use Z as forward. If this one arrives with its long
-            // axis on X, rotate the whole visual once before measuring/scaling it.
             if (bounds.size.x > bounds.size.z * 1.15f)
             {
                 visual.localRotation = Quaternion.Euler(0f, 90f, 0f);
@@ -114,13 +116,25 @@ namespace MotorCity.Vehicle
             Vector3 bottomWorld = new(bounds.center.x, bounds.min.y, bounds.center.z);
             float bottomLocalY = parent.InverseTransformPoint(bottomWorld).y;
 
-            // Center the car over the physics root and keep the lowest rendered point
-            // just above local ground level. The actual wheel centres are repositioned
-            // by the suspension immediately afterwards.
-            visual.localPosition -= new Vector3(centerLocal.x, bottomLocalY - 0.08f, centerLocal.z);
+            visual.localPosition -= new Vector3(centerLocal.x, bottomLocalY - 0.06f, centerLocal.z);
         }
 
-        private static List<Transform> FindWheelMeshes(Transform root)
+        private static List<Transform> FindExactLowPolyWheels(Transform root)
+        {
+            Transform[] all = root.GetComponentsInChildren<Transform>(true);
+            var result = new List<Transform>(4);
+
+            foreach (string exactName in ExactLowPolyWheelNames)
+            {
+                Transform found = all.FirstOrDefault(t => t.name.Equals(exactName, System.StringComparison.OrdinalIgnoreCase));
+                if (found != null && found.GetComponentInChildren<Renderer>(true) != null)
+                    result.Add(found);
+            }
+
+            return result;
+        }
+
+        private static List<Transform> FindWheelMeshesFallback(Transform root)
         {
             Transform[] all = root.GetComponentsInChildren<Transform>(true);
             var candidates = new List<Transform>();
