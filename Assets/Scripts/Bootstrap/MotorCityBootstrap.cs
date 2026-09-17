@@ -34,22 +34,28 @@ namespace MotorCity.Bootstrap
             DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
 
             GameObject systems = new("Gameplay Systems");
+            ActivityManager activityManager = systems.AddComponent<ActivityManager>();
             PlayerWallet wallet = systems.AddComponent<PlayerWallet>();
+
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
-            delivery.Initialize(car, wallet);
+            delivery.Initialize(car, wallet, activityManager);
 
             DriftChallenge driftChallenge = systems.AddComponent<DriftChallenge>();
-            driftChallenge.Initialize(car, drift, wallet);
+            driftChallenge.Initialize(car, drift, wallet, activityManager);
 
             StreetSprintActivity streetSprint = systems.AddComponent<StreetSprintActivity>();
-            streetSprint.Initialize(car, wallet);
+            streetSprint.Initialize(car, wallet, activityManager);
+
+            GarageUpgradeSystem garage = systems.AddComponent<GarageUpgradeSystem>();
+            garage.Initialize(car, wallet, activityManager);
 
             CreateDeliveryMarker(delivery);
             CreateDriftChallengeMarker(driftChallenge);
             CreateStreetSprintMarker(streetSprint);
+            CreateGarageMarker(garage);
 
             CreateCamera(car.transform);
-            CreateHud(car, wallet, drift, delivery, driftChallenge, streetSprint);
+            CreateHud(car, wallet, drift, delivery, driftChallenge, streetSprint, activityManager, garage);
         }
 
         private static void CreateLighting()
@@ -220,6 +226,7 @@ namespace MotorCity.Bootstrap
         {
             Material markerMaterial = Material(new Color(0.08f, 0.5f, 1f), 0.05f, 0.75f);
             GameObject marker = CreateVisualSurface("Delivery Marker", PrimitiveType.Cylinder, new Vector3(42f, 1.25f, -42f), new Vector3(3.2f, 0.08f, 3.2f), markerMaterial);
+            marker.isStatic = false;
             RouteMarkerVisual visual = marker.AddComponent<RouteMarkerVisual>();
             visual.Bind(delivery);
         }
@@ -235,6 +242,7 @@ namespace MotorCity.Bootstrap
                 new Vector3(5.8f, 0.055f, 5.8f),
                 markerMaterial);
 
+            marker.isStatic = false;
             DriftChallengeMarkerVisual visual = marker.AddComponent<DriftChallengeMarkerVisual>();
             visual.Bind(challenge);
         }
@@ -249,8 +257,24 @@ namespace MotorCity.Bootstrap
                 new Vector3(3.8f, 0.06f, 3.8f),
                 markerMaterial);
 
+            marker.isStatic = false;
             StreetSprintMarkerVisual visual = marker.AddComponent<StreetSprintMarkerVisual>();
             visual.Bind(sprint);
+        }
+
+        private static void CreateGarageMarker(GarageUpgradeSystem garage)
+        {
+            Material markerMaterial = Material(new Color(0.72f, 0.16f, 1f), 0.02f, 0.75f);
+            GameObject marker = CreateVisualSurface(
+                "Garage Marker",
+                PrimitiveType.Cylinder,
+                garage.GarageCenter + Vector3.up * 0.1f,
+                new Vector3(4.4f, 0.06f, 4.4f),
+                markerMaterial);
+
+            marker.isStatic = false;
+            GarageMarkerVisual visual = marker.AddComponent<GarageMarkerVisual>();
+            visual.Bind(garage);
         }
 
         private static void CreateCamera(Transform target)
@@ -272,11 +296,21 @@ namespace MotorCity.Bootstrap
             DriftTracker drift,
             DeliveryActivity delivery,
             DriftChallenge driftChallenge,
-            StreetSprintActivity streetSprint)
+            StreetSprintActivity streetSprint,
+            ActivityManager activityManager,
+            GarageUpgradeSystem garage)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
-            prototypeHud.Bind(car, wallet, drift, delivery, driftChallenge, streetSprint);
+            prototypeHud.Bind(
+                car,
+                wallet,
+                drift,
+                delivery,
+                driftChallenge,
+                streetSprint,
+                activityManager,
+                garage);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
