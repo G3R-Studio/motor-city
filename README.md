@@ -4,7 +4,7 @@ Browser-first open-world car game prototype for Yandex Games.
 
 ## About the game
 
-Motor City is an open-world driving game built around free driving, car control and a city environment. The current version is an early technical prototype focused on the core driving experience and browser performance.
+Motor City is an open-world driving game built around free driving, car control, drifting and activities in a city environment. The current version is an early playable prototype focused on vehicle feel, a compact urban area and the first gameplay loop.
 
 ## Current version
 
@@ -12,14 +12,19 @@ The project currently includes:
 
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
-- an arcade vehicle controller with throttle, reverse, steering, grip and handbrake;
+- four-point raycast suspension with springs and dampers;
+- tire-based lateral grip, rear-wheel drive and speed-dependent steering;
+- handbrake behavior and drift scoring with a combo multiplier;
 - a smooth orbiting chase camera with mouse look and zoom;
-- a procedural prototype city grid with roads, buildings and a drift pad;
-- a speed HUD;
+- a procedural city district with road lanes, sidewalks, buildings, storefronts, parking areas and street lights;
+- an improved prototype car with body details, lights, bumpers, spoiler, tires and rims;
+- a delivery route with visible checkpoints and a credit reward;
+- a basic player wallet and credit counter;
+- a HUD with speed, credits, delivery state and drift score;
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
 
-The current car and environment are built from simple primitives and are used as a technical prototype rather than final game art.
+The car and environment are still generated from lightweight primitive geometry and are not final game art.
 
 ## Run locally
 
@@ -37,3 +42,7 @@ The current car and environment are built from simple primitives and are used as
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
 - `R` — reset the vehicle.
+
+## Current gameplay
+
+Drive freely through the prototype district, use the handbrake and throttle to build drift score, or drive to the blue route marker to begin a delivery. Follow the moving route marker through the city to complete the delivery and earn credits.
