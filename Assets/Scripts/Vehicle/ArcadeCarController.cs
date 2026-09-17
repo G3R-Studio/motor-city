@@ -36,7 +36,7 @@ namespace MotorCity.Vehicle
         [SerializeField] private float pitchResponse = 0.42f;
         [SerializeField] private float rollResponse = 0.5f;
 
-        private readonly Vector3[] suspensionPoints =
+        private Vector3[] suspensionPoints =
         {
             new(-0.82f, -0.12f, 1.34f),
             new( 0.82f, -0.12f, 1.34f),
@@ -58,6 +58,7 @@ namespace MotorCity.Vehicle
         private bool handbrakeInput;
         private Vector3 previousLocalVelocity;
         private float currentSteerAngle;
+        private bool externalWheelRig;
 
         public float SpeedKph => body == null ? 0f : body.linearVelocity.magnitude * 3.6f;
         public float ForwardSpeedKph => body == null ? 0f : Vector3.Dot(body.linearVelocity, transform.forward) * 3.6f;
@@ -89,13 +90,42 @@ namespace MotorCity.Vehicle
             previousLocalVelocity = transform.InverseTransformDirection(body.linearVelocity);
         }
 
+        public void ConfigureExternalWheelRig(Transform[] wheels, Vector3[] points, float measuredWheelRadius)
+        {
+            if (wheels == null || points == null || wheels.Length < 4 || points.Length < 4) return;
+
+            externalWheelRig = true;
+            suspensionPoints = new Vector3[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                visualWheels[i] = wheels[i];
+                suspensionPoints[i] = points[i];
+                wheelSpin[i] = 0f;
+            }
+
+            wheelRadius = Mathf.Clamp(measuredWheelRadius, 0.27f, 0.42f);
+
+            // Cartoon Sports Car preset: lower ride height, shorter travel and firmer
+            // damping than the primitive prototype while keeping enough compliance
+            // for curbs and future uneven roads.
+            suspensionRestLength = 0.43f;
+            springStrength = 47000f;
+            damperStrength = 7600f;
+            antiRollStrength = 3400f;
+            rollDamping = 4.2f;
+            pitchDamping = 2.2f;
+            pitchResponse = 0.30f;
+            rollResponse = 0.32f;
+            body.centerOfMass = new Vector3(0f, -0.54f, 0.04f);
+        }
+
         private void CacheVisualWheels()
         {
+            if (externalWheelRig) return;
+
             for (int i = 0; i < wheelNames.Length; i++)
-            {
-                Transform found = transform.Find(wheelNames[i]);
-                visualWheels[i] = found;
-            }
+                visualWheels[i] = transform.Find(wheelNames[i]);
         }
 
         private void Update()
@@ -278,18 +308,17 @@ namespace MotorCity.Vehicle
                 if (wheel == null) continue;
 
                 Vector3 origin = transform.TransformPoint(suspensionPoints[i]);
-                Vector3 centerWorld;
-
-                if (grounded[i])
-                    centerWorld = hits[i].point + transform.up * wheelRadius;
-                else
-                    centerWorld = origin - transform.up * suspensionRestLength;
+                Vector3 centerWorld = grounded[i]
+                    ? hits[i].point + transform.up * wheelRadius
+                    : origin - transform.up * suspensionRestLength;
 
                 wheel.localPosition = transform.InverseTransformPoint(centerWorld);
                 wheelSpin[i] = Mathf.Repeat(wheelSpin[i] + spinDelta, 360f);
 
                 float steer = i < 2 ? currentSteerAngle : 0f;
-                wheel.localRotation = Quaternion.Euler(wheelSpin[i], steer, 90f);
+                wheel.localRotation = externalWheelRig
+                    ? Quaternion.Euler(wheelSpin[i], steer, 0f)
+                    : Quaternion.Euler(wheelSpin[i], steer, 90f);
             }
         }
 
