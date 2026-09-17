@@ -88,8 +88,8 @@ namespace MotorCity.Vehicle
             body.linearDamping = 0f;
             body.angularDamping = angularDrag;
             body.useGravity = true;
-            body.interpolation = RigidbodyInterpolation.Interpolate;
-            body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            body.interpolation = RigidbodyInterpolation.None;
+            body.collisionDetectionMode = CollisionDetectionMode.Discrete;
 
             SetupFallbackWheelVisuals();
             BuildOrReconfigureWheelColliders();
@@ -192,7 +192,6 @@ namespace MotorCity.Vehicle
                 wheel.sidewaysFriction = sideways;
             }
 
-            wheelColliders[FrontLeft].ConfigureVehicleSubsteps(5f, 8, 12);
         }
 
         private void Update()
