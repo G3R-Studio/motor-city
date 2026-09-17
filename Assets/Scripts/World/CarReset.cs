@@ -1,18 +1,18 @@
+using MotorCity.Vehicle;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace MotorCity.World
 {
-    [RequireComponent(typeof(Rigidbody))]
     public sealed class CarReset : MonoBehaviour
     {
-        private Rigidbody body;
+        private ArcadeCarController car;
         private Vector3 spawnPosition;
         private Quaternion spawnRotation;
 
         private void Awake()
         {
-            body = GetComponent<Rigidbody>();
+            car = GetComponent<ArcadeCarController>();
             spawnPosition = transform.position;
             spawnRotation = transform.rotation;
         }
@@ -28,10 +28,8 @@ namespace MotorCity.World
 
         public void ResetVehicle()
         {
-            body.linearVelocity = Vector3.zero;
-            body.angularVelocity = Vector3.zero;
-            body.position = spawnPosition;
-            body.rotation = spawnRotation;
+            if (car != null) car.ClearMotion();
+            transform.SetPositionAndRotation(spawnPosition, spawnRotation);
         }
     }
 }
