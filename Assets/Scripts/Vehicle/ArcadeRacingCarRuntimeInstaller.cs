@@ -29,9 +29,9 @@ namespace MotorCity.Vehicle
 
         private void Start()
         {
-            ArcadeCarController car = Object.FindAnyObjectByType<ArcadeCarController>();
+            ArcadeCarController car = UnityEngine.Object.FindAnyObjectByType<ArcadeCarController>();
             if (car != null) TryInstallNow(car);
-            Destroy(gameObject);
+            UnityEngine.Object.Destroy(gameObject);
         }
 
         public static bool TryInstallNow(ArcadeCarController car)
@@ -256,15 +256,15 @@ namespace MotorCity.Vehicle
         {
             foreach (WheelCollider wheel in
                      visual.GetComponentsInChildren<WheelCollider>(true))
-                Destroy(wheel);
+                UnityEngine.Object.Destroy(wheel);
 
             foreach (Rigidbody rigidbody in
                      visual.GetComponentsInChildren<Rigidbody>(true))
-                Destroy(rigidbody);
+                UnityEngine.Object.Destroy(rigidbody);
 
             foreach (Collider collider in
                      visual.GetComponentsInChildren<Collider>(true))
-                Destroy(collider);
+                UnityEngine.Object.Destroy(collider);
         }
 
         private static void UpgradeMaterialsForCurrentPipeline(GameObject root)
