@@ -29,7 +29,7 @@ namespace MotorCity.Gameplay
         public int TargetScore => targetScore;
         public int RewardCredits => rewardCredits;
         public Vector3 ZoneCenter => zoneCenter;
-        public string StatusText { get; private set; } = "Orange zone: drift challenge";
+        public string StatusText { get; private set; } = "Оранжевая зона: дрифт-заезд";
 
         public void Initialize(ArcadeCarController targetCar, DriftTracker driftTracker, PlayerWallet targetWallet, ActivityManager manager)
         {
@@ -54,7 +54,7 @@ namespace MotorCity.Gameplay
                     if (distance > startRadius + 4f)
                     {
                         armed = true;
-                        StatusText = "Orange zone: drift challenge";
+                        StatusText = "Оранжевая зона: дрифт-заезд";
                     }
                     return;
                 }
@@ -63,7 +63,7 @@ namespace MotorCity.Gameplay
                 {
                     if (activityManager.IsBusy && !activityManager.IsActive(ActivityId))
                     {
-                        StatusText = $"Drift unavailable during {activityManager.ActiveName}";
+                        StatusText = $"Дрифт-заезд недоступен: активно «{activityManager.ActiveName}»";
                         return;
                     }
 
@@ -71,7 +71,7 @@ namespace MotorCity.Gameplay
                 }
                 else
                 {
-                    StatusText = "Orange zone: drift challenge";
+                    StatusText = "Оранжевая зона: дрифт-заезд";
                 }
 
                 return;
@@ -82,7 +82,7 @@ namespace MotorCity.Gameplay
             if (CurrentScore >= targetScore)
             {
                 wallet.AddCredits(rewardCredits);
-                EndChallenge($"Drift challenge complete +{rewardCredits} CR");
+                EndChallenge($"Дрифт-заезд завершён  +{rewardCredits} CR");
                 return;
             }
 
@@ -98,12 +98,12 @@ namespace MotorCity.Gameplay
 
                 if (outsideTimer >= outsideGraceSeconds)
                 {
-                    EndChallenge("Drift challenge failed: stay near the parking lot");
+                    EndChallenge("Провал: слишком далеко от площадки");
                     return;
                 }
 
                 StatusText =
-                    $"DRIFT CHALLENGE  {CurrentScore:N0}/{targetScore:N0}   {TimeRemaining:0.0}s   RETURN {remainingGrace:0.0}s";
+                    $"ДРИФТ  {CurrentScore:N0}/{targetScore:N0}   {TimeRemaining:0.0}с   ВЕРНИСЬ {remainingGrace:0.0}с";
                 return;
             }
 
@@ -111,23 +111,23 @@ namespace MotorCity.Gameplay
 
             if (TimeRemaining <= 0f)
             {
-                EndChallenge($"Drift challenge failed: {CurrentScore:N0}/{targetScore:N0}");
+                EndChallenge($"Провал: {CurrentScore:N0}/{targetScore:N0}");
                 return;
             }
 
-            StatusText = $"DRIFT CHALLENGE  {CurrentScore:N0}/{targetScore:N0}   {TimeRemaining:0.0}s";
+            StatusText = $"ДРИФТ  {CurrentScore:N0}/{targetScore:N0}   {TimeRemaining:0.0}с";
         }
 
         private void BeginChallenge()
         {
-            if (!activityManager.TryBegin(ActivityId, "Drift Challenge")) return;
+            if (!activityManager.TryBegin(ActivityId, "Дрифт-заезд")) return;
 
             IsActive = true;
             armed = false;
             TimeRemaining = durationSeconds;
             scoreAtStart = drift.TotalScore;
             outsideTimer = 0f;
-            StatusText = $"DRIFT CHALLENGE  0/{targetScore:N0}   {TimeRemaining:0.0}s";
+            StatusText = $"ДРИФТ  0/{targetScore:N0}   {TimeRemaining:0.0}с";
         }
 
         private void EndChallenge(string message)
@@ -136,7 +136,18 @@ namespace MotorCity.Gameplay
             activityManager.End(ActivityId);
             TimeRemaining = 0f;
             outsideTimer = 0f;
-            StatusText = message + ". Leave the zone to retry.";
+            StatusText = message + ". Покинь зону, чтобы повторить.";
+        }
+
+        public void CancelActivity()
+        {
+            if (!IsActive) return;
+            IsActive = false;
+            armed = false;
+            TimeRemaining = 0f;
+            outsideTimer = 0f;
+            activityManager?.End(ActivityId);
+            StatusText = "Дрифт-заезд отменён. Покинь зону, чтобы повторить.";
         }
 
         private static Vector3 Flat(Vector3 value)
