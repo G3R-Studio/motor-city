@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,6 +7,7 @@ namespace MotorCity.EditorTools
     [InitializeOnLoad]
     public static class CartoonSportsCarImporter
     {
+        private const string ExactSourcePath = "Assets/Cartoon Sports Car/meshes/CARRERA_LOW.FBX";
         private const string OutputFolder = "Assets/Resources/MotorCity";
         private const string OutputPath = OutputFolder + "/PlayerCarVisual.prefab";
 
@@ -21,7 +21,10 @@ namespace MotorCity.EditorTools
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
 
-            string sourcePath = FindBestSource();
+            string sourcePath = AssetDatabase.LoadAssetAtPath<GameObject>(ExactSourcePath) != null
+                ? ExactSourcePath
+                : FindFallbackSource();
+
             if (string.IsNullOrEmpty(sourcePath)) return;
 
             GameObject source = AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath);
@@ -41,7 +44,7 @@ namespace MotorCity.EditorTools
 
                 RemovePhysics(instance);
                 PrefabUtility.SaveAsPrefabAsset(instance, OutputPath);
-                Debug.Log($"Motor City: prepared Cartoon Sports Car runtime visual from '{sourcePath}'.");
+                Debug.Log($"Motor City: prepared exact Cartoon Sports Car runtime visual from '{sourcePath}'.");
             }
             finally
             {
@@ -49,7 +52,7 @@ namespace MotorCity.EditorTools
             }
         }
 
-        private static string FindBestSource()
+        private static string FindFallbackSource()
         {
             string[] guids = AssetDatabase.FindAssets("t:GameObject");
             string bestPath = null;
@@ -67,9 +70,8 @@ namespace MotorCity.EditorTools
                 if (lower.Contains("cartoon")) score += 8;
                 if (lower.Contains("sport")) score += 8;
                 if (lower.Contains("car")) score += 5;
-                if (lower.Contains("rcc")) score += 6;
-                if (lower.Contains("low")) score += 3;
-                if (lower.Contains("prefab")) score += 2;
+                if (lower.Contains("carrera")) score += 8;
+                if (lower.Contains("low")) score += 5;
                 if (lower.Contains("demo") || lower.Contains("scene")) score -= 6;
 
                 if (score < 12) continue;
