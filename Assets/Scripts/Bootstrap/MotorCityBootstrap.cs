@@ -12,7 +12,7 @@ namespace MotorCity.Bootstrap
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BuildPrototype()
         {
-            if (Object.FindFirstObjectByType<ArcadeCarController>() != null) return;
+            if (Object.FindAnyObjectByType<ArcadeCarController>() != null) return;
 
             Time.fixedDeltaTime = 1f / 60f;
             RenderSettings.ambientMode = AmbientMode.Trilight;
@@ -45,13 +45,16 @@ namespace MotorCity.Bootstrap
             Material buildingB = Material(new Color(0.21f, 0.13f, 0.12f), 0.08f, 0.15f);
             Material line = Material(new Color(0.92f, 0.77f, 0.18f), 0f, 0.1f);
 
-            GameObject ground = Primitive("Ground", PrimitiveType.Cube, new Vector3(0f, -0.55f, 0f), new Vector3(240f, 1f, 240f), concrete);
+            // One continuous collider is the driving surface. Keeping the prototype
+            // physics on a single plane avoids seams and overlapping contacts between
+            // the many decorative road meshes.
+            GameObject ground = Primitive("Ground", PrimitiveType.Cube, new Vector3(0f, -0.5f, 0f), new Vector3(240f, 1f, 240f), concrete);
             ground.isStatic = true;
 
             for (int i = -2; i <= 2; i++)
             {
-                Primitive($"Road_NS_{i}", PrimitiveType.Cube, new Vector3(i * 42f, 0f, 0f), new Vector3(18f, 0.08f, 220f), road).isStatic = true;
-                Primitive($"Road_EW_{i}", PrimitiveType.Cube, new Vector3(0f, 0.01f, i * 42f), new Vector3(220f, 0.08f, 18f), road).isStatic = true;
+                CreateVisualSurface($"Road_NS_{i}", PrimitiveType.Cube, new Vector3(i * 42f, 0.012f, 0f), new Vector3(18f, 0.02f, 220f), road);
+                CreateVisualSurface($"Road_EW_{i}", PrimitiveType.Cube, new Vector3(0f, 0.014f, i * 42f), new Vector3(220f, 0.02f, 18f), road);
             }
 
             for (int z = -2; z <= 2; z++)
@@ -69,18 +72,11 @@ namespace MotorCity.Bootstrap
                 }
             }
 
-            // Road markings are visual only. Their primitive colliders used to act like
-            // tiny speed bumps and capped the car at roughly 35 km/h.
             for (int z = -100; z <= 100; z += 8)
-            {
-                GameObject marking = Primitive("CenterLine", PrimitiveType.Cube, new Vector3(0f, 0.045f, z), new Vector3(0.18f, 0.01f, 3.5f), line);
-                Collider markingCollider = marking.GetComponent<Collider>();
-                if (markingCollider != null) Object.Destroy(markingCollider);
-                marking.isStatic = true;
-            }
+                CreateVisualSurface("CenterLine", PrimitiveType.Cube, new Vector3(0f, 0.027f, z), new Vector3(0.18f, 0.008f, 3.5f), line);
 
-            // Open drift pad beside the spawn area.
-            Primitive("DriftPad", PrimitiveType.Cylinder, new Vector3(83f, 0.02f, -83f), new Vector3(34f, 0.04f, 34f), road).isStatic = true;
+            // Open drift pad beside the spawn area. Visual only; Ground provides physics.
+            CreateVisualSurface("DriftPad", PrimitiveType.Cylinder, new Vector3(83f, 0.012f, -83f), new Vector3(34f, 0.02f, 34f), road);
         }
 
         private static ArcadeCarController CreateCar()
@@ -95,6 +91,19 @@ namespace MotorCity.Bootstrap
             BoxCollider collider = car.AddComponent<BoxCollider>();
             collider.size = new Vector3(1.9f, 0.75f, 4.35f);
             collider.center = new Vector3(0f, 0.42f, 0f);
+
+            // Longitudinal/lateral grip is handled by ArcadeCarController. The chassis
+            // collider therefore uses a low-friction material so PhysX contact friction
+            // does not fight the scripted vehicle dynamics.
+            PhysicsMaterial chassisMaterial = new("Car Chassis")
+            {
+                dynamicFriction = 0f,
+                staticFriction = 0f,
+                bounciness = 0f,
+                frictionCombine = PhysicsMaterialCombine.Minimum,
+                bounceCombine = PhysicsMaterialCombine.Minimum
+            };
+            collider.material = chassisMaterial;
 
             Primitive("Body", PrimitiveType.Cube, car.transform, new Vector3(1.85f, 0.58f, 4.15f), new Vector3(0f, 0.4f, 0f), bodyMaterial, false);
             Primitive("Cabin", PrimitiveType.Cube, car.transform, new Vector3(1.55f, 0.6f, 1.8f), new Vector3(0f, 0.93f, -0.15f), glassMaterial, false);
@@ -134,6 +143,15 @@ namespace MotorCity.Bootstrap
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
             prototypeHud.Bind(car);
+        }
+
+        private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
+        {
+            GameObject go = Primitive(name, type, position, scale, material);
+            Collider surfaceCollider = go.GetComponent<Collider>();
+            if (surfaceCollider != null) Object.Destroy(surfaceCollider);
+            go.isStatic = true;
+            return go;
         }
 
         private static GameObject Primitive(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
