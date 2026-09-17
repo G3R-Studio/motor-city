@@ -27,7 +27,7 @@ namespace MotorCity.Gameplay
             route == null || route.Length == 0
                 ? Vector3.zero
                 : route[Mathf.Clamp(checkpointIndex, 0, route.Length - 1)];
-        public string StatusText { get; private set; } = "Green marker: street sprint";
+        public string StatusText { get; private set; } = "Зелёный маркер: уличный спринт";
 
         public void Initialize(ArcadeCarController targetCar, PlayerWallet targetWallet, ActivityManager manager)
         {
@@ -60,7 +60,7 @@ namespace MotorCity.Gameplay
                     if (distance > startRadius + 4f)
                     {
                         armed = true;
-                        StatusText = "Green marker: street sprint";
+                        StatusText = "Зелёный маркер: уличный спринт";
                     }
                     return;
                 }
@@ -69,7 +69,7 @@ namespace MotorCity.Gameplay
                 {
                     if (activityManager.IsBusy && !activityManager.IsActive(ActivityId))
                     {
-                        StatusText = $"Sprint unavailable during {activityManager.ActiveName}";
+                        StatusText = $"Спринт недоступен: активно «{activityManager.ActiveName}»";
                         return;
                     }
 
@@ -77,7 +77,7 @@ namespace MotorCity.Gameplay
                 }
                 else
                 {
-                    StatusText = "Green marker: street sprint";
+                    StatusText = "Зелёный маркер: уличный спринт";
                 }
 
                 return;
@@ -93,18 +93,18 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            StatusText = $"STREET SPRINT  CP {checkpointIndex + 1}/{route.Length}   {ElapsedSeconds:0.0}s";
+            StatusText = $"СПРИНТ  ТОЧКА {checkpointIndex + 1}/{route.Length}   {ElapsedSeconds:0.0}с";
         }
 
         private void BeginSprint()
         {
-            if (!activityManager.TryBegin(ActivityId, "Street Sprint")) return;
+            if (!activityManager.TryBegin(ActivityId, "Уличный спринт")) return;
 
             IsActive = true;
             armed = false;
             ElapsedSeconds = 0f;
             checkpointIndex = 1;
-            StatusText = $"STREET SPRINT  CP {checkpointIndex + 1}/{route.Length}   0.0s";
+            StatusText = $"СПРИНТ  ТОЧКА {checkpointIndex + 1}/{route.Length}   0.0с";
         }
 
         private void CompleteSprint()
@@ -119,7 +119,18 @@ namespace MotorCity.Gameplay
             IsActive = false;
             activityManager.End(ActivityId);
             checkpointIndex = 0;
-            StatusText = $"Sprint complete {ElapsedSeconds:0.0}s  +{reward} CR";
+            StatusText = $"Спринт завершён за {ElapsedSeconds:0.0}с  +{reward} CR";
+        }
+
+        public void CancelActivity()
+        {
+            if (!IsActive) return;
+            IsActive = false;
+            armed = false;
+            checkpointIndex = 0;
+            ElapsedSeconds = 0f;
+            activityManager?.End(ActivityId);
+            StatusText = "Спринт отменён. Отъедь от старта, чтобы повторить.";
         }
 
         private static Vector3 Flat(Vector3 value)
