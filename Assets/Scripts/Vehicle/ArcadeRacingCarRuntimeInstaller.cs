@@ -54,7 +54,7 @@ namespace MotorCity.Vehicle
             visual.transform.localRotation = Quaternion.identity;
             visual.transform.localScale = Vector3.one;
 
-            StripImportedPhysics(visual);
+            int importedBodyColliderCount = StripImportedPhysics(visual);
             NormalizeHorizontalScaleAndRotation(visual.transform);
             UpgradeMaterialsForCurrentPipeline(visual);
 
@@ -94,6 +94,19 @@ namespace MotorCity.Vehicle
             float measuredRadius = radiusSum / 4f;
 
             HidePrimitiveFallback(carTransform);
+
+            if (importedBodyColliderCount > 0)
+            {
+                BoxCollider fallbackCollider = carTransform.GetComponent<BoxCollider>();
+                if (fallbackCollider != null)
+                {
+                    fallbackCollider.enabled = false;
+                    UnityEngine.Object.Destroy(fallbackCollider);
+                }
+
+                car.UseAutomaticMassProperties();
+            }
+
             car.ConfigureExternalWheelRig(
                 spinRoots,
                 null,
@@ -252,19 +265,48 @@ namespace MotorCity.Vehicle
             return bounds;
         }
 
-        private static void StripImportedPhysics(GameObject visual)
+        private static int StripImportedPhysics(GameObject visual)
         {
             foreach (WheelCollider wheel in
                      visual.GetComponentsInChildren<WheelCollider>(true))
+            {
+                wheel.enabled = false;
                 UnityEngine.Object.Destroy(wheel);
+            }
 
             foreach (Rigidbody rigidbody in
                      visual.GetComponentsInChildren<Rigidbody>(true))
+            {
+                rigidbody.isKinematic = true;
                 UnityEngine.Object.Destroy(rigidbody);
+            }
+
+            int bodyColliderCount = 0;
 
             foreach (Collider collider in
                      visual.GetComponentsInChildren<Collider>(true))
-                UnityEngine.Object.Destroy(collider);
+            {
+                if (collider is WheelCollider) continue;
+
+                string lower = collider.transform.name.ToLowerInvariant();
+                bool wheelPart =
+                    lower.Contains("wheel") ||
+                    lower.Contains("tire") ||
+                    lower.Contains("tyre") ||
+                    lower.Contains("rim");
+
+                if (wheelPart)
+                {
+                    collider.enabled = false;
+                    UnityEngine.Object.Destroy(collider);
+                    continue;
+                }
+
+                collider.enabled = true;
+                bodyColliderCount++;
+            }
+
+            return bodyColliderCount;
         }
 
         private static void UpgradeMaterialsForCurrentPipeline(GameObject root)
