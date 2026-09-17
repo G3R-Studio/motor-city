@@ -5,9 +5,11 @@ namespace MotorCity.Gameplay
 {
     public sealed class DriftTracker : MonoBehaviour
     {
-        [SerializeField] private float minimumSpeedKph = 28f;
-        [SerializeField] private float minimumSlipAngle = 12f;
-        [SerializeField] private float comboGraceSeconds = 1.15f;
+        [SerializeField] private float minimumSpeedKph = 32f;
+        [SerializeField] private float minimumSlipAngle = 9f;
+        [SerializeField] private float maximumControlledSlipAngle = 58f;
+        [SerializeField] private float minimumRearSidewaysSlip = 0.16f;
+        [SerializeField] private float comboGraceSeconds = 0.85f;
 
         private ArcadeCarController car;
         private float graceTimer;
@@ -28,18 +30,29 @@ namespace MotorCity.Gameplay
         {
             if (car == null) return;
 
-            float speed = car.SpeedKph;
-            float slip = Mathf.Abs(car.SlipAngleDegrees);
-            bool validDrift = speed >= minimumSpeedKph && slip >= minimumSlipAngle;
+            float speed = Mathf.Abs(car.ForwardSpeedKph);
+            float angle = Mathf.Abs(car.SlipAngleDegrees);
+            float rearSlip = car.RearSidewaysSlip;
+
+            bool controlledAngle = angle >= minimumSlipAngle && angle <= maximumControlledSlipAngle;
+            bool rearIsActuallySliding = rearSlip >= minimumRearSidewaysSlip;
+            bool validDrift = speed >= minimumSpeedKph &&
+                              car.GroundedWheels >= 3 &&
+                              controlledAngle &&
+                              rearIsActuallySliding;
 
             if (validDrift)
             {
                 IsDrifting = true;
                 graceTimer = comboGraceSeconds;
 
-                float intensity = Mathf.InverseLerp(minimumSlipAngle, 48f, slip);
-                combo = Mathf.Min(5f, combo + Time.deltaTime * (0.32f + intensity * 0.55f));
-                currentScore += Time.deltaTime * speed * (0.65f + intensity) * combo;
+                float angleQuality = Mathf.InverseLerp(minimumSlipAngle, 38f, angle);
+                float slipQuality = Mathf.InverseLerp(minimumRearSidewaysSlip, 0.65f, rearSlip);
+                float speedQuality = Mathf.InverseLerp(minimumSpeedKph, 110f, speed);
+                float quality = Mathf.Clamp01(angleQuality * 0.48f + slipQuality * 0.32f + speedQuality * 0.20f);
+
+                combo = Mathf.Min(3.5f, combo + Time.deltaTime * Mathf.Lerp(0.12f, 0.34f, quality));
+                currentScore += Time.deltaTime * speed * Mathf.Lerp(0.42f, 1.18f, quality) * combo;
                 return;
             }
 
