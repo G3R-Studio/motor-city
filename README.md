@@ -13,7 +13,7 @@ The project currently includes:
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
 - PhysX WheelCollider-based four-wheel suspension with springs and dampers;
-- slip-based tire friction, rear-wheel drive, traction control and speed-dependent Ackermann steering;
+- Extreme Drift-derived rear-wheel-drive vehicle dynamics with automatic gears, RPM torque curve, dynamic slip-based tire stiffness, speed-sensitive steering, center-of-mass transfer and yaw-assisted drift behavior;
 - synchronized visual wheels driven by WheelCollider world poses;
 - handbrake behavior and slip-validated drift scoring with a combo multiplier;
 - a timed drift challenge in the parking area with a score target and CR reward;
@@ -42,6 +42,7 @@ The city environment is still generated from lightweight prototype geometry and 
 - `W/S` or arrow keys — throttle / brake and reverse;
 - `A/D` or arrow keys — steering;
 - `Space` — handbrake;
+- `Shift` — power shift at speed;
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
 - `R` — reset the vehicle.
