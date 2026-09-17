@@ -15,7 +15,6 @@ namespace MotorCity.Bootstrap
         {
             if (Object.FindAnyObjectByType<ArcadeCarController>() != null) return;
 
-            Time.fixedDeltaTime = 1f / 60f;
             RenderSettings.ambientMode = AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = new Color(0.24f, 0.31f, 0.43f);
             RenderSettings.ambientEquatorColor = new Color(0.13f, 0.15f, 0.19f);
