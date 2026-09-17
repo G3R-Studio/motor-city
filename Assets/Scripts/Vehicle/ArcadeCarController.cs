@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace MotorCity.Vehicle
 {
@@ -108,7 +109,6 @@ namespace MotorCity.Vehicle
                 wheelSpin[i] = 0f;
             }
 
-            // Carrera-specific road setup: short travel, firm springs, strong damping.
             suspensionRestLength = 0.22f;
             suspensionMinLength = 0.10f;
             suspensionMaxLength = 0.31f;
@@ -131,15 +131,24 @@ namespace MotorCity.Vehicle
 
         private void Update()
         {
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null)
+            {
+                throttleInput = 0f;
+                steerInput = 0f;
+                handbrakeInput = false;
+                return;
+            }
+
             throttleInput = 0f;
-            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) throttleInput += 1f;
-            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) throttleInput -= 1f;
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed) throttleInput += 1f;
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed) throttleInput -= 1f;
 
             steerInput = 0f;
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) steerInput -= 1f;
-            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) steerInput += 1f;
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) steerInput -= 1f;
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) steerInput += 1f;
 
-            handbrakeInput = Input.GetKey(KeyCode.Space);
+            handbrakeInput = keyboard.spaceKey.isPressed;
         }
 
         private void FixedUpdate()
@@ -190,11 +199,10 @@ namespace MotorCity.Vehicle
                 float compression = suspensionRestLength - springLength[i];
                 float springForce = Mathf.Max(0f, compression * springRate);
                 float damperForce = -suspensionVelocity * damperRate;
-
                 float bumpCompression = Mathf.Max(0f, suspensionMinLength + 0.035f - springLength[i]);
                 float bumpForce = bumpCompression * bumpStopRate;
-
                 float totalForce = Mathf.Clamp(springForce + damperForce + bumpForce, 0f, maxWheelForce);
+
                 wheelLoad[i] = totalForce;
                 body.AddForceAtPosition(transform.up * totalForce, hardpoint, ForceMode.Force);
             }
@@ -216,7 +224,6 @@ namespace MotorCity.Vehicle
 
             Vector3 leftPoint = transform.TransformPoint(suspensionHardpoints[left]);
             Vector3 rightPoint = transform.TransformPoint(suspensionHardpoints[right]);
-
             body.AddForceAtPosition(transform.up * force, leftPoint, ForceMode.Force);
             body.AddForceAtPosition(-transform.up * force, rightPoint, ForceMode.Force);
         }
@@ -290,7 +297,6 @@ namespace MotorCity.Vehicle
             if (GroundedWheels == 0) return;
 
             body.AddForce(-transform.up * body.linearVelocity.sqrMagnitude * downforce, ForceMode.Force);
-
             Vector3 localAngular = transform.InverseTransformDirection(body.angularVelocity);
             body.AddRelativeTorque(new Vector3(0f, -localAngular.y * yawDamping, 0f), ForceMode.Acceleration);
         }
@@ -320,10 +326,9 @@ namespace MotorCity.Vehicle
                 Transform spin = wheelSpinPivots[i];
                 if (spin == null) continue;
 
-                if (externalWheelRig)
-                    spin.localRotation = Quaternion.Euler(wheelSpin[i], 0f, 0f);
-                else
-                    spin.localRotation = Quaternion.Euler(wheelSpin[i], 0f, 90f);
+                spin.localRotation = externalWheelRig
+                    ? Quaternion.Euler(wheelSpin[i], 0f, 0f)
+                    : Quaternion.Euler(wheelSpin[i], 0f, 90f);
             }
         }
     }
