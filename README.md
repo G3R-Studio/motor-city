@@ -26,7 +26,9 @@ The project currently includes:
 - a procedural city district with road lanes, sidewalks, buildings, storefronts, parking areas and street lights;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
-- a HUD with speed, credits, delivery state and drift score;
+- a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels;
+- activity coordination so delivery, drift challenge, street sprint and garage cannot overlap;
+- a HUD with speed, credits, current activity, drift score and installed upgrade levels;
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
 
@@ -50,8 +52,10 @@ The car importer prefers the blue mesh-only racing-car prefab and falls back to 
 - `A/D` or arrow keys — steering;
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
+- `E` — open/close the garage while stopped in the purple garage marker;
+- `1/2/3` — buy engine/grip/stability upgrades while the garage is open;
 - `R` — reset the vehicle.
 
 ## Current gameplay
 
-Drive freely through the prototype district and build drift score from the WheelCollider vehicle slip, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Completing activities awards credits, which are stored locally between sessions.
+Drive freely through the prototype district and build drift score from the WheelCollider vehicle slip, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Only one activity can run at a time. Completing activities awards credits, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
