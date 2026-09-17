@@ -15,6 +15,12 @@ namespace MotorCity.Bootstrap
         {
             if (Object.FindAnyObjectByType<ArcadeCarController>() != null) return;
 
+            Time.fixedDeltaTime = 0.02f;
+            Physics.gravity = new Vector3(0f, -9.81f, 0f);
+            Physics.defaultContactOffset = 0.01f;
+            Physics.defaultSolverIterations = 6;
+            Physics.defaultSolverVelocityIterations = 1;
+
             RenderSettings.ambientMode = AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = new Color(0.24f, 0.31f, 0.43f);
             RenderSettings.ambientEquatorColor = new Color(0.13f, 0.15f, 0.19f);
