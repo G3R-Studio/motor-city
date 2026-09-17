@@ -322,7 +322,7 @@ namespace MotorCity.Vehicle
                     steeringAngles[i] =
                         Mathf.LerpAngle(
                             steeringAngles[i],
-                            -wheelSteeringAngle,
+                            wheelSteeringAngle,
                             Time.fixedDeltaTime * wheelRotateSpeed);
                 }
 
@@ -331,7 +331,7 @@ namespace MotorCity.Vehicle
                     steeringAngles[i] =
                         Mathf.LerpAngle(
                             steeringAngles[i],
-                            wheelSteeringAngle,
+                            -wheelSteeringAngle,
                             Time.fixedDeltaTime * wheelRotateSpeed);
                 }
 
