@@ -69,8 +69,15 @@ namespace MotorCity.Bootstrap
                 }
             }
 
+            // Road markings are visual only. Their primitive colliders used to act like
+            // tiny speed bumps and capped the car at roughly 35 km/h.
             for (int z = -100; z <= 100; z += 8)
-                Primitive("CenterLine", PrimitiveType.Cube, new Vector3(0f, 0.08f, z), new Vector3(0.18f, 0.035f, 3.5f), line).isStatic = true;
+            {
+                GameObject marking = Primitive("CenterLine", PrimitiveType.Cube, new Vector3(0f, 0.045f, z), new Vector3(0.18f, 0.01f, 3.5f), line);
+                Collider markingCollider = marking.GetComponent<Collider>();
+                if (markingCollider != null) Object.Destroy(markingCollider);
+                marking.isStatic = true;
+            }
 
             // Open drift pad beside the spawn area.
             Primitive("DriftPad", PrimitiveType.Cylinder, new Vector3(83f, 0.02f, -83f), new Vector3(34f, 0.04f, 34f), road).isStatic = true;
