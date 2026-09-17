@@ -14,9 +14,11 @@ namespace MotorCity.Gameplay
         private ArcadeCarController car;
         private float graceTimer;
         private float currentScore;
+        private float totalScore;
         private float combo = 1f;
 
         public int CurrentScore => Mathf.RoundToInt(currentScore);
+        public int TotalScore => Mathf.RoundToInt(totalScore);
         public float Combo => combo;
         public bool IsDrifting { get; private set; }
         public int BestDrift { get; private set; }
@@ -52,7 +54,9 @@ namespace MotorCity.Gameplay
                 float quality = Mathf.Clamp01(angleQuality * 0.48f + slipQuality * 0.32f + speedQuality * 0.20f);
 
                 combo = Mathf.Min(3.5f, combo + Time.deltaTime * Mathf.Lerp(0.12f, 0.34f, quality));
-                currentScore += Time.deltaTime * speed * Mathf.Lerp(0.42f, 1.18f, quality) * combo;
+                float earned = Time.deltaTime * speed * Mathf.Lerp(0.42f, 1.18f, quality) * combo;
+                currentScore += earned;
+                totalScore += earned;
                 return;
             }
 
