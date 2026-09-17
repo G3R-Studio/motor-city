@@ -12,10 +12,11 @@ The project currently includes:
 
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
-- PhysX WheelCollider-based four-wheel suspension with springs and dampers;
-- Extreme Drift-derived rear-wheel-drive vehicle dynamics with automatic gears, RPM torque curve, dynamic slip-based tire stiffness, speed-sensitive steering, center-of-mass transfer and yaw-assisted drift behavior;
-- synchronized visual wheels driven by WheelCollider world poses;
-- handbrake behavior and slip-validated drift scoring with a combo multiplier;
+- transform-based car movement ported from the supplied CarController.cs;
+- acceleration through a persistent movement vector, drag, a hard maximum speed and steering proportional to current movement speed;
+- drift-like sliding produced by gradually aligning the movement vector back toward the car's forward direction with the Traction parameter;
+- visual wheel steering and rotation without Rigidbody, WheelCollider or suspension simulation;
+- drift scoring derived from the angle between the car's forward direction and its movement vector;
 - a timed drift challenge in the parking area with a score target and CR reward;
 - a timed street sprint with moving checkpoints and a performance-based CR reward;
 - the imported Cartoon Sports Car Carrera visual with its original texture atlas converted for URP at runtime and installed before the first rendered frame;
@@ -41,12 +42,10 @@ The city environment is still generated from lightweight prototype geometry and 
 
 - `W/S` or arrow keys — throttle / brake and reverse;
 - `A/D` or arrow keys — steering;
-- `Space` — handbrake;
-- `Shift` — power shift at speed;
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
 - `R` — reset the vehicle.
 
 ## Current gameplay
 
-Drive freely through the prototype district, use the handbrake and throttle to build drift score, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Completing activities awards credits, which are stored locally between sessions.
+Drive freely through the prototype district and build drift score from the car's transform-based sliding, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Completing activities awards credits, which are stored locally between sessions.
