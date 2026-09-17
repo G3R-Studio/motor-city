@@ -19,7 +19,7 @@ The project currently includes:
 - wheel visuals synchronized to the physical WheelColliders;
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
-- drift scoring based on actual vehicle slip and movement angle;
+- drift scoring based on actual vehicle slip and movement angle, with free-roam drift series banked into CR when the drift ends;
 - a timed drift challenge in the parking area with a score target and CR reward;
 - a timed street sprint with moving checkpoints and a performance-based CR reward;
 - a smooth orbiting chase camera with mouse look and zoom;
@@ -44,12 +44,13 @@ The city environment is still generated from lightweight prototype geometry and 
 6. Wait for packages to import. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically.
 7. Press Play.
 
-The car importer prefers the blue mesh-only racing-car prefab and falls back to another matching racing-car prefab if that exact variant is unavailable.
+The car importer prefers a matching racing-car prefab with usable body colliders and falls back to another matching prefab if needed.
 
 ## Controls
 
 - `W/S` or arrow keys — throttle / reverse;
 - `A/D` or arrow keys — steering;
+- `Space` — rear-wheel handbrake at speed and four-wheel parking brake near a stop;
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
 - `E` — open/close the garage while stopped in the purple garage marker;
