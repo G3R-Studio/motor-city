@@ -22,7 +22,7 @@ namespace MotorCity.Gameplay
         public int CheckpointCount => route?.Length ?? 0;
         public int RewardCredits => rewardCredits;
         public Vector3 CurrentTarget => route == null || route.Length == 0 ? Vector3.zero : route[Mathf.Clamp(checkpointIndex, 0, route.Length - 1)];
-        public string StatusText { get; private set; } = "Blue marker: delivery";
+        public string StatusText { get; private set; } = "Синий маркер: доставка";
 
         public void Initialize(ArcadeCarController targetCar, PlayerWallet targetWallet, ActivityManager manager)
         {
@@ -50,19 +50,19 @@ namespace MotorCity.Gameplay
                 checkpointIndex = 0;
                 if (distance <= startRadius)
                 {
-                    if (!activityManager.TryBegin(ActivityId, "Delivery"))
+                    if (!activityManager.TryBegin(ActivityId, "Доставка"))
                     {
-                        StatusText = $"Delivery unavailable during {activityManager.ActiveName}";
+                        StatusText = $"Доставка недоступна: активно «{activityManager.ActiveName}»";
                         return;
                     }
 
                     IsActive = true;
                     checkpointIndex = 1;
-                    StatusText = $"DELIVERY  CP {checkpointIndex + 1}/{route.Length}";
+                    StatusText = $"ДОСТАВКА  ТОЧКА {checkpointIndex + 1}/{route.Length}";
                 }
                 else
                 {
-                    StatusText = "Blue marker: delivery";
+                    StatusText = "Синий маркер: доставка";
                 }
                 return;
             }
@@ -76,11 +76,20 @@ namespace MotorCity.Gameplay
                 IsActive = false;
                 activityManager.End(ActivityId);
                 checkpointIndex = 0;
-                StatusText = $"Delivery complete +{rewardCredits} CR";
+                StatusText = $"Доставка завершена  +{rewardCredits} CR";
                 return;
             }
 
-            StatusText = $"DELIVERY  CP {checkpointIndex + 1}/{route.Length}";
+            StatusText = $"ДОСТАВКА  ТОЧКА {checkpointIndex + 1}/{route.Length}";
+        }
+
+        public void CancelActivity()
+        {
+            if (!IsActive) return;
+            IsActive = false;
+            checkpointIndex = 0;
+            activityManager?.End(ActivityId);
+            StatusText = "Доставка отменена";
         }
 
         private static Vector3 Flat(Vector3 value)
