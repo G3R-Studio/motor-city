@@ -9,6 +9,7 @@ namespace MotorCity.Vehicle
     public sealed class CartoonSportsCarRuntimeInstaller : MonoBehaviour
     {
         private const float TargetLength = 4.2f;
+        private const float TargetWheelCenterLocalY = 0.39f;
         private static readonly string[] ExactWheelNames = { "tyre003", "tyre004", "tyre1", "tyre2" };
         private static readonly string[] ExactBrakeNames = { "brakes003", "brakes004", "brakes1", "brakes2" };
         private static readonly HashSet<string> FallbackVisualNames = new()
@@ -60,32 +61,34 @@ namespace MotorCity.Vehicle
             visual.transform.localScale = Vector3.one;
 
             DisablePhysics(visual);
-            NormalizeVisualScale(visual.transform);
-            UpgradeMaterialsForCurrentPipeline(visual);
-            ApplyBodyPaint(visual);
+            NormalizeHorizontalScaleAndRotation(visual.transform);
 
             List<Transform> wheelMeshes = FindExactWheels(visual.transform);
             if (wheelMeshes.Count < 4) wheelMeshes = FindWheelMeshesFallback(visual.transform);
 
             if (wheelMeshes.Count < 4)
             {
-                Debug.LogWarning("Motor City: full CARRERA model loaded, but four wheel transforms were not found. Keeping fallback suspension visuals.");
+                Debug.LogWarning("Motor City: full CARRERA model loaded, but four tyre transforms were not found. Keeping fallback vehicle visual.");
                 visual.SetActive(false);
                 return;
             }
+
+            AlignBodyToWheelCenters(visual.transform, carTransform, wheelMeshes);
+            UpgradeMaterialsForCurrentPipeline(visual);
+            ApplyBodyPaint(visual);
 
             Transform[] ordered = OrderWheels(carTransform, wheelMeshes);
             List<Transform> brakes = FindExactBrakes(visual.transform);
             Transform[] carriers = new Transform[4];
             Transform[] spinPivots = new Transform[4];
-            Vector3[] suspensionPoints = new Vector3[4];
+            Vector3[] wheelCenters = new Vector3[4];
             float measuredRadius = 0.33f;
 
             for (int i = 0; i < 4; i++)
             {
                 Transform tyre = ordered[i];
                 Bounds bounds = RendererBounds(tyre);
-                measuredRadius = Mathf.Clamp(Mathf.Max(bounds.extents.y, bounds.extents.z), 0.27f, 0.42f);
+                measuredRadius = Mathf.Clamp(Mathf.Max(bounds.extents.y, bounds.extents.z), 0.28f, 0.40f);
 
                 GameObject carrierObject = new($"AssetWheelCarrier_{i}");
                 Transform carrier = carrierObject.transform;
@@ -110,17 +113,15 @@ namespace MotorCity.Vehicle
 
                 carriers[i] = carrier;
                 spinPivots[i] = spin;
-
-                Vector3 local = carTransform.InverseTransformPoint(bounds.center);
-                suspensionPoints[i] = new Vector3(local.x, 0.20f, local.z);
+                wheelCenters[i] = carTransform.InverseTransformPoint(bounds.center);
             }
 
             HideOnlyPrimitiveFallback(carTransform);
-            car.ConfigureExternalWheelRig(carriers, spinPivots, suspensionPoints, measuredRadius);
-            Debug.Log("Motor City: full CARRERA installed with visible asset wheels, brakes, interior and suspension rig.");
+            car.ConfigureExternalWheelRig(carriers, spinPivots, wheelCenters, measuredRadius);
+            Debug.Log("Motor City: full CARRERA aligned to real wheel centres and connected to rewritten short-travel suspension.");
         }
 
-        private static void NormalizeVisualScale(Transform visual)
+        private static void NormalizeHorizontalScaleAndRotation(Transform visual)
         {
             Bounds bounds = RendererBounds(visual);
             if (bounds.size.x > bounds.size.z * 1.15f)
@@ -136,11 +137,24 @@ namespace MotorCity.Vehicle
             bounds = RendererBounds(visual);
             Transform parent = visual.parent;
             Vector3 centerLocal = parent.InverseTransformPoint(bounds.center);
-
-            // Only center the body in X/Z. Do not vertically normalize from the tyre
-            // bottoms: the suspension owns wheel height and the chassis should retain
-            // the FBX's original relationship to its wheel arches.
             visual.localPosition -= new Vector3(centerLocal.x, 0f, centerLocal.z);
+        }
+
+        private static void AlignBodyToWheelCenters(Transform visual, Transform carRoot, List<Transform> wheels)
+        {
+            float sumY = 0f;
+            int count = 0;
+
+            foreach (Transform wheel in wheels)
+            {
+                Bounds bounds = RendererBounds(wheel);
+                sumY += carRoot.InverseTransformPoint(bounds.center).y;
+                count++;
+            }
+
+            if (count == 0) return;
+            float currentAverageY = sumY / count;
+            visual.localPosition += Vector3.up * (TargetWheelCenterLocalY - currentAverageY);
         }
 
         private static void UpgradeMaterialsForCurrentPipeline(GameObject root)
@@ -161,12 +175,6 @@ namespace MotorCity.Vehicle
                     if (old == null)
                     {
                         upgraded[i] = null;
-                        continue;
-                    }
-
-                    if (old.shader != null && old.shader.name.StartsWith("Universal Render Pipeline"))
-                    {
-                        upgraded[i] = old;
                         continue;
                     }
 
@@ -196,7 +204,7 @@ namespace MotorCity.Vehicle
 
         private static void ApplyBodyPaint(GameObject root)
         {
-            Color paint = new(0.34f, 0.025f, 0.018f, 1f);
+            Color paint = new(0.28f, 0.018f, 0.012f, 1f);
             string[] bodyTokens = { "carrera", "door", "hood", "spoiler", "bottom" };
 
             foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
@@ -206,7 +214,7 @@ namespace MotorCity.Vehicle
                 bool excluded = lower.Contains("glass") || lower.Contains("tyre") || lower.Contains("tire") ||
                                 lower.Contains("rim") || lower.Contains("brake") || lower.Contains("lamp") ||
                                 lower.Contains("inside") || lower.Contains("seat") || lower.Contains("dash") ||
-                                lower.Contains("mirror");
+                                lower.Contains("mirror") || lower.Contains("window");
                 if (!bodyPart || excluded) continue;
 
                 Material[] materials = renderer.materials;
@@ -214,12 +222,8 @@ namespace MotorCity.Vehicle
                 {
                     if (material == null || !material.HasProperty("_BaseColor")) continue;
                     Color original = material.GetColor("_BaseColor");
-                    material.SetColor("_BaseColor", new Color(
-                        Mathf.Max(0.08f, original.r * paint.r * 2f),
-                        Mathf.Max(0.01f, original.g * paint.g * 2f),
-                        Mathf.Max(0.008f, original.b * paint.b * 2f),
-                        original.a));
-                    if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0.45f);
+                    material.SetColor("_BaseColor", new Color(paint.r, paint.g, paint.b, original.a));
+                    if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0.42f);
                     if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.68f);
                 }
             }
@@ -307,8 +311,7 @@ namespace MotorCity.Vehicle
         {
             foreach (Renderer renderer in car.GetComponentsInChildren<Renderer>(true))
             {
-                if (FallbackVisualNames.Contains(renderer.transform.name))
-                    renderer.enabled = false;
+                if (FallbackVisualNames.Contains(renderer.transform.name)) renderer.enabled = false;
             }
         }
     }
