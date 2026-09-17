@@ -258,11 +258,8 @@ namespace MotorCity.Vehicle
             Vector3 localAcceleration = (localVelocity - previousLocalVelocity) / Mathf.Max(Time.fixedDeltaTime, 0.0001f);
             previousLocalVelocity = localVelocity;
 
-            // Unity local +X pitch rotates the nose downward, so forward acceleration
-            // needs negative X torque. Positive lateral acceleration (turning right)
-            // needs positive Z torque so the body rolls outward to the left.
             float pitchTorque = -Mathf.Clamp(localAcceleration.z, -18f, 18f) * pitchResponse;
-            float rollTorque = Mathf.Clamp(localAcceleration.x, -18f, 18f) * rollResponse;
+            float rollTorque = -Mathf.Clamp(localAcceleration.x, -18f, 18f) * rollResponse;
             body.AddRelativeTorque(new Vector3(pitchTorque, 0f, rollTorque), ForceMode.Acceleration);
         }
 
