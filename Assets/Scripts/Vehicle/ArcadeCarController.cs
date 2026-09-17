@@ -68,6 +68,7 @@ namespace MotorCity.Vehicle
         private int engineUpgradeLevel;
         private int gripUpgradeLevel;
         private int stabilityUpgradeLevel;
+        private bool drivingEnabled = true;
 
         public float SpeedKph => body == null ? 0f : body.linearVelocity.magnitude * 3.6f;
         public float ForwardSpeedKph =>
@@ -216,6 +217,13 @@ namespace MotorCity.Vehicle
 
         private void Update()
         {
+            if (!drivingEnabled)
+            {
+                horizontal = 0f;
+                vertical = 0f;
+                return;
+            }
+
             ReadInput();
         }
 
@@ -483,6 +491,13 @@ namespace MotorCity.Vehicle
             if (body == null) return;
             body.ResetCenterOfMass();
             body.ResetInertiaTensor();
+        }
+
+        public void SetDrivingEnabled(bool enabled)
+        {
+            drivingEnabled = enabled;
+            if (!enabled)
+                ClearMotion();
         }
 
         public void ClearMotion()
