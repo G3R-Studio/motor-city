@@ -48,11 +48,17 @@ namespace MotorCity.Bootstrap
             streetSprint.Initialize(car, wallet, activityManager);
 
             GarageUpgradeSystem garage = systems.AddComponent<GarageUpgradeSystem>();
-            garage.Initialize(car, wallet, activityManager);
+            garage.Initialize(
+                car,
+                wallet,
+                activityManager,
+                delivery,
+                driftChallenge,
+                streetSprint);
 
-            CreateDeliveryMarker(delivery);
-            CreateDriftChallengeMarker(driftChallenge);
-            CreateStreetSprintMarker(streetSprint);
+            CreateDeliveryMarker(delivery, activityManager);
+            CreateDriftChallengeMarker(driftChallenge, activityManager);
+            CreateStreetSprintMarker(streetSprint, activityManager);
             CreateGarageMarker(garage);
 
             CreateCamera(car.transform);
@@ -223,16 +229,20 @@ namespace MotorCity.Bootstrap
             wheelRim.transform.localRotation = Quaternion.identity;
         }
 
-        private static void CreateDeliveryMarker(DeliveryActivity delivery)
+        private static void CreateDeliveryMarker(
+            DeliveryActivity delivery,
+            ActivityManager activityManager)
         {
             Material markerMaterial = Material(new Color(0.08f, 0.5f, 1f), 0.05f, 0.75f);
             GameObject marker = CreateVisualSurface("Delivery Marker", PrimitiveType.Cylinder, new Vector3(42f, 1.25f, -42f), new Vector3(3.2f, 0.08f, 3.2f), markerMaterial);
             marker.isStatic = false;
             RouteMarkerVisual visual = marker.AddComponent<RouteMarkerVisual>();
-            visual.Bind(delivery);
+            visual.Bind(delivery, activityManager);
         }
 
-        private static void CreateDriftChallengeMarker(DriftChallenge challenge)
+        private static void CreateDriftChallengeMarker(
+            DriftChallenge challenge,
+            ActivityManager activityManager)
         {
             Material markerMaterial = Material(new Color(1f, 0.48f, 0.06f), 0.02f, 0.7f);
             Vector3 position = challenge.ZoneCenter + Vector3.up * 0.09f;
@@ -245,10 +255,12 @@ namespace MotorCity.Bootstrap
 
             marker.isStatic = false;
             DriftChallengeMarkerVisual visual = marker.AddComponent<DriftChallengeMarkerVisual>();
-            visual.Bind(challenge);
+            visual.Bind(challenge, activityManager);
         }
 
-        private static void CreateStreetSprintMarker(StreetSprintActivity sprint)
+        private static void CreateStreetSprintMarker(
+            StreetSprintActivity sprint,
+            ActivityManager activityManager)
         {
             Material markerMaterial = Material(new Color(0.18f, 1f, 0.34f), 0.02f, 0.72f);
             GameObject marker = CreateVisualSurface(
@@ -260,7 +272,7 @@ namespace MotorCity.Bootstrap
 
             marker.isStatic = false;
             StreetSprintMarkerVisual visual = marker.AddComponent<StreetSprintMarkerVisual>();
-            visual.Bind(sprint);
+            visual.Bind(sprint, activityManager);
         }
 
         private static void CreateGarageMarker(GarageUpgradeSystem garage)
