@@ -85,28 +85,28 @@ namespace MotorCity.UI
 
             GUI.Label(
                 new Rect(Screen.width - 300, Screen.height - 104, 260, 52),
-                $"{speed:000} km/h",
+                $"{speed:000} км/ч",
                 speedStyle);
 
             string upgrades = garage == null
                 ? string.Empty
-                : $"    E{garage.EngineLevel}  G{garage.GripLevel}  S{garage.StabilityLevel}";
+                : $"    ДВ{garage.EngineLevel}  СЦ{garage.GripLevel}  СТ{garage.StabilityLevel}";
 
             GUI.Label(
-                new Rect(24, 18, 620, 34),
+                new Rect(24, 18, 700, 34),
                 $"MOTOR CITY    {credits:N0} CR{upgrades}",
                 primaryStyle);
 
             GUI.Label(
-                new Rect(24, 52, 680, 86),
-                "W/S — gas/reverse   A/D — steer   SPACE — handbrake   E — garage\nR — reset   RMB — camera   Wheel — zoom",
+                new Rect(24, 52, 900, 86),
+                "W/S — газ/реверс   A/D — руль   SPACE — ручник   E — гараж\nR — сброс   ПКМ — камера   Колесо — приближение",
                 hintStyle);
 
             string status = ResolveStatus();
             if (!string.IsNullOrEmpty(status))
             {
                 GUI.Label(
-                    new Rect(24, Screen.height - 78, Mathf.Min(960f, Screen.width - 48f), 34),
+                    new Rect(24, Screen.height - 78, Mathf.Min(1100f, Screen.width - 48f), 34),
                     status,
                     primaryStyle);
             }
@@ -115,15 +115,15 @@ namespace MotorCity.UI
             {
                 string combo = drift.Combo > 1.05f ? $"  x{drift.Combo:0.0}" : string.Empty;
                 GUI.Label(
-                    new Rect(Screen.width * 0.5f - 180f, 34f, 360f, 46f),
-                    $"DRIFT {drift.CurrentScore:N0}{combo}",
+                    new Rect(Screen.width * 0.5f - 220f, 34f, 440f, 46f),
+                    $"ДРИФТ {drift.CurrentScore:N0}{combo}",
                     driftStyle);
             }
             else if (drift != null && drift.ShowRewardMessage)
             {
                 GUI.Label(
-                    new Rect(Screen.width * 0.5f - 180f, 34f, 360f, 46f),
-                    $"DRIFT BANK  +{drift.LastBankedCredits:N0} CR",
+                    new Rect(Screen.width * 0.5f - 220f, 34f, 440f, 46f),
+                    $"ДРИФТ ЗАВЕРШЁН  +{drift.LastBankedCredits:N0} CR",
                     driftStyle);
             }
         }
@@ -145,7 +145,7 @@ namespace MotorCity.UI
             if (garage != null && garage.IsNearGarage)
                 return garage.StatusText;
 
-            return "BLUE delivery   •   ORANGE drift   •   GREEN sprint   •   PURPLE garage";
+            return "СИНИЙ — доставка   •   ОРАНЖЕВЫЙ — дрифт   •   ЗЕЛЁНЫЙ — спринт   •   ФИОЛЕТОВЫЙ — гараж";
         }
     }
 }
