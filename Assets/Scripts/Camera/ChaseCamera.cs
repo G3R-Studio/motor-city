@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace MotorCity.CameraSystem
 {
@@ -12,12 +13,12 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float lookAhead = 2.5f;
 
         [Header("Orbit")]
-        [SerializeField] private float mouseSensitivity = 3f;
+        [SerializeField] private float mouseSensitivity = 0.12f;
         [SerializeField] private float minPitch = -8f;
         [SerializeField] private float maxPitch = 55f;
         [SerializeField] private float minDistance = 4.5f;
         [SerializeField] private float maxDistance = 12f;
-        [SerializeField] private float zoomSpeed = 1.25f;
+        [SerializeField] private float zoomSpeed = 0.0125f;
         [SerializeField] private float recenterDelay = 1.35f;
         [SerializeField] private float recenterSpeed = 3f;
 
@@ -31,25 +32,30 @@ namespace MotorCity.CameraSystem
         {
             if (target == null) return;
 
-            if (Input.GetMouseButton(1))
+            Mouse mouse = Mouse.current;
+            bool orbiting = mouse != null && mouse.rightButton.isPressed;
+
+            if (orbiting)
             {
-                yawOffset += Input.GetAxis("Mouse X") * mouseSensitivity;
-                pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
+                Vector2 delta = mouse.delta.ReadValue();
+                yawOffset += delta.x * mouseSensitivity;
+                pitch -= delta.y * mouseSensitivity;
                 pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
                 lastManualInputTime = Time.time;
             }
 
-            float scroll = Input.mouseScrollDelta.y;
-            if (Mathf.Abs(scroll) > 0.01f)
+            if (mouse != null)
             {
-                distance = Mathf.Clamp(distance - scroll * zoomSpeed, minDistance, maxDistance);
-                lastManualInputTime = Time.time;
+                float scroll = mouse.scroll.ReadValue().y;
+                if (Mathf.Abs(scroll) > 0.01f)
+                {
+                    distance = Mathf.Clamp(distance - scroll * zoomSpeed, minDistance, maxDistance);
+                    lastManualInputTime = Time.time;
+                }
             }
 
-            if (!Input.GetMouseButton(1) && Time.time - lastManualInputTime > recenterDelay)
-            {
+            if (!orbiting && Time.time - lastManualInputTime > recenterDelay)
                 yawOffset = Mathf.LerpAngle(yawOffset, 0f, 1f - Mathf.Exp(-recenterSpeed * Time.deltaTime));
-            }
         }
 
         private void LateUpdate()
