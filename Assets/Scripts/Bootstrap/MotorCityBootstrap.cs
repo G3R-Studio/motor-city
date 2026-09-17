@@ -36,6 +36,7 @@ namespace MotorCity.Bootstrap
             GameObject systems = new("Gameplay Systems");
             ActivityManager activityManager = systems.AddComponent<ActivityManager>();
             PlayerWallet wallet = systems.AddComponent<PlayerWallet>();
+            drift.Initialize(wallet, activityManager);
 
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
             delivery.Initialize(car, wallet, activityManager);
