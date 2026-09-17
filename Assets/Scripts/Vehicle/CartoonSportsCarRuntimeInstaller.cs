@@ -9,9 +9,8 @@ namespace MotorCity.Vehicle
     public sealed class CartoonSportsCarRuntimeInstaller : MonoBehaviour
     {
         private const float TargetLength = 4.2f;
-        private const float TargetWheelCenterLocalY = 0.39f;
+        private const float TargetWheelCenterLocalY = 0.36f;
         private static readonly string[] ExactWheelNames = { "tyre003", "tyre004", "tyre1", "tyre2" };
-        private static readonly string[] ExactBrakeNames = { "brakes003", "brakes004", "brakes1", "brakes2" };
         private static readonly HashSet<string> FallbackVisualNames = new()
         {
             "LowerBody", "UpperBody", "Cabin", "Hood", "FrontBumper", "RearBumper", "Spoiler",
@@ -63,62 +62,138 @@ namespace MotorCity.Vehicle
             DisablePhysics(visual);
             NormalizeHorizontalScaleAndRotation(visual.transform);
 
-            List<Transform> wheelMeshes = FindExactWheels(visual.transform);
-            if (wheelMeshes.Count < 4) wheelMeshes = FindWheelMeshesFallback(visual.transform);
+            List<Transform> wheelAnchors = FindExactWheels(visual.transform);
+            if (wheelAnchors.Count < 4) wheelAnchors = FindWheelMeshesFallback(visual.transform);
 
-            if (wheelMeshes.Count < 4)
+            if (wheelAnchors.Count < 4)
             {
-                Debug.LogWarning("Motor City: full CARRERA model loaded, but four tyre transforms were not found. Keeping fallback vehicle visual.");
+                Debug.LogWarning("Motor City: CARRERA loaded, but four wheel anchors were not found. Keeping fallback vehicle visual.");
                 visual.SetActive(false);
                 return;
             }
 
-            AlignBodyToWheelCenters(visual.transform, carTransform, wheelMeshes);
+            AlignBodyToWheelCenters(visual.transform, carTransform, wheelAnchors);
             UpgradeMaterialsForCurrentPipeline(visual);
-            ApplyBodyPaint(visual);
 
-            Transform[] ordered = OrderWheels(carTransform, wheelMeshes);
-            List<Transform> brakes = FindExactBrakes(visual.transform);
-            Transform[] carriers = new Transform[4];
-            Transform[] spinPivots = new Transform[4];
-            Vector3[] wheelCenters = new Vector3[4];
-            float measuredRadius = 0.33f;
+            Transform[] ordered = OrderWheels(carTransform, wheelAnchors);
+            Vector3[] centerWorld = new Vector3[4];
+            Vector3[] centerLocal = new Vector3[4];
+            float radiusSum = 0f;
 
             for (int i = 0; i < 4; i++)
             {
-                Transform tyre = ordered[i];
-                Bounds bounds = RendererBounds(tyre);
-                measuredRadius = Mathf.Clamp(Mathf.Max(bounds.extents.y, bounds.extents.z), 0.28f, 0.40f);
-
-                GameObject carrierObject = new($"AssetWheelCarrier_{i}");
-                Transform carrier = carrierObject.transform;
-                carrier.SetParent(carTransform, true);
-                carrier.position = bounds.center;
-                carrier.rotation = carTransform.rotation;
-
-                GameObject spinObject = new($"AssetWheelSpin_{i}");
-                Transform spin = spinObject.transform;
-                spin.SetParent(carrier, false);
-                spin.localPosition = Vector3.zero;
-                spin.localRotation = Quaternion.identity;
-
-                tyre.SetParent(spin, true);
-
-                Transform nearestBrake = FindNearestBrake(bounds.center, brakes);
-                if (nearestBrake != null)
-                {
-                    nearestBrake.SetParent(carrier, true);
-                    brakes.Remove(nearestBrake);
-                }
-
-                carriers[i] = carrier;
-                spinPivots[i] = spin;
-                wheelCenters[i] = carTransform.InverseTransformPoint(bounds.center);
+                Bounds bounds = RendererBounds(ordered[i]);
+                centerWorld[i] = bounds.center;
+                centerLocal[i] = carTransform.InverseTransformPoint(bounds.center);
+                radiusSum += Mathf.Clamp(Mathf.Max(bounds.extents.y, bounds.extents.z), 0.29f, 0.40f);
             }
 
+            float measuredRadius = radiusSum / 4f;
+            Transform[] spinRoots = new Transform[4];
+            Transform[] brakeRoots = new Transform[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                spinRoots[i] = CreateWheelRoot(carTransform, $"CarreraWheelSpin_{i}", centerWorld[i]);
+                brakeRoots[i] = CreateWheelRoot(carTransform, $"CarreraWheelBrake_{i}", centerWorld[i]);
+            }
+
+            BuildWheelVisualGroups(visual.transform, centerWorld, measuredRadius, spinRoots, brakeRoots);
+
             HideOnlyPrimitiveFallback(carTransform);
-            car.ConfigureExternalWheelRig(carriers, spinPivots, wheelCenters, measuredRadius);
-            Debug.Log("Motor City: full CARRERA aligned to real wheel centres and connected to rewritten short-travel suspension.");
+            car.ConfigureExternalWheelRig(spinRoots, brakeRoots, centerLocal, measuredRadius);
+            Debug.Log("Motor City: CARRERA connected to PhysX WheelColliders with grouped wheel visuals and original texture atlas.");
+        }
+
+        private static Transform CreateWheelRoot(Transform car, string name, Vector3 worldPosition)
+        {
+            GameObject rootObject = new(name);
+            Transform root = rootObject.transform;
+            root.SetParent(car, true);
+            root.position = worldPosition;
+            root.rotation = car.rotation;
+            root.localScale = Vector3.one;
+            return root;
+        }
+
+        private static void BuildWheelVisualGroups(
+            Transform visual,
+            Vector3[] wheelCenters,
+            float wheelRadius,
+            Transform[] spinRoots,
+            Transform[] brakeRoots)
+        {
+            Renderer[] renderers = visual.GetComponentsInChildren<Renderer>(true);
+            var spinParts = new List<Transform>[4];
+            var brakeParts = new List<Transform>[4];
+            for (int i = 0; i < 4; i++)
+            {
+                spinParts[i] = new List<Transform>();
+                brakeParts[i] = new List<Transform>();
+            }
+
+            float maxDistance = Mathf.Max(0.6f, wheelRadius * 1.9f);
+            float maxDistanceSq = maxDistance * maxDistance;
+
+            foreach (Renderer renderer in renderers)
+            {
+                Transform part = renderer.transform;
+                string lower = part.name.ToLowerInvariant();
+
+                bool brakePart = lower.Contains("brake");
+                bool spinPart = lower.Contains("tyre") || lower.Contains("tire") || lower.Contains("rim") || lower.Contains("wheel");
+                if (!brakePart && !spinPart) continue;
+
+                int nearest = NearestWheel(renderer.bounds.center, wheelCenters, out float distanceSq);
+                if (nearest < 0 || distanceSq > maxDistanceSq) continue;
+
+                if (brakePart) brakeParts[nearest].Add(part);
+                else spinParts[nearest].Add(part);
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                foreach (Transform part in TopLevelParts(spinParts[i]))
+                    part.SetParent(spinRoots[i], true);
+
+                foreach (Transform part in TopLevelParts(brakeParts[i]))
+                    part.SetParent(brakeRoots[i], true);
+            }
+        }
+
+        private static IEnumerable<Transform> TopLevelParts(List<Transform> parts)
+        {
+            HashSet<Transform> set = parts.ToHashSet();
+            foreach (Transform part in parts)
+            {
+                bool nested = false;
+                Transform parent = part.parent;
+                while (parent != null)
+                {
+                    if (set.Contains(parent))
+                    {
+                        nested = true;
+                        break;
+                    }
+                    parent = parent.parent;
+                }
+
+                if (!nested) yield return part;
+            }
+        }
+
+        private static int NearestWheel(Vector3 point, Vector3[] centers, out float distanceSq)
+        {
+            int best = -1;
+            distanceSq = float.MaxValue;
+            for (int i = 0; i < centers.Length; i++)
+            {
+                float candidate = (centers[i] - point).sqrMagnitude;
+                if (candidate >= distanceSq) continue;
+                distanceSq = candidate;
+                best = i;
+            }
+            return best;
         }
 
         private static void NormalizeHorizontalScaleAndRotation(Transform visual)
@@ -178,54 +253,69 @@ namespace MotorCity.Vehicle
                         continue;
                     }
 
+                    if (old.shader != null && old.shader.name.StartsWith("Universal Render Pipeline/"))
+                    {
+                        upgraded[i] = old;
+                        continue;
+                    }
+
                     if (cache.TryGetValue(old, out Material cached))
                     {
                         upgraded[i] = cached;
                         continue;
                     }
 
-                    Texture mainTexture = old.HasProperty("_MainTex") ? old.GetTexture("_MainTex") : null;
-                    Color color = old.HasProperty("_Color") ? old.GetColor("_Color") : Color.white;
-                    float metallic = old.HasProperty("_Metallic") ? old.GetFloat("_Metallic") : 0f;
-                    float smoothness = old.HasProperty("_Glossiness") ? old.GetFloat("_Glossiness") : 0.35f;
+                    string lower = old.name.ToLowerInvariant();
+                    bool glass = lower.Contains("glass");
+                    bool mirror = lower.Contains("mirror");
+                    bool matte = lower.Contains("matte");
 
-                    Material material = new(urpLit) { name = old.name + "_URP" };
-                    if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
-                    if (mainTexture != null && material.HasProperty("_BaseMap")) material.SetTexture("_BaseMap", mainTexture);
-                    if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", metallic);
-                    if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", smoothness);
+                    Texture baseTexture = old.HasProperty("_MainTex") ? old.GetTexture("_MainTex") : null;
+                    Color oldColor = old.HasProperty("_Color") ? old.GetColor("_Color") : Color.white;
+                    float metallic = old.HasProperty("_Metallic") ? old.GetFloat("_Metallic") : 0f;
+                    float smoothness = old.HasProperty("_Glossiness") ? old.GetFloat("_Glossiness") : 0.4f;
+
+                    Material material = new(urpLit)
+                    {
+                        name = old.name + "_URP",
+                        enableInstancing = true
+                    };
+
+                    if (baseTexture != null && material.HasProperty("_BaseMap"))
+                    {
+                        material.SetTexture("_BaseMap", baseTexture);
+                        if (old.HasProperty("_MainTex"))
+                        {
+                            material.SetTextureScale("_BaseMap", old.GetTextureScale("_MainTex"));
+                            material.SetTextureOffset("_BaseMap", old.GetTextureOffset("_MainTex"));
+                        }
+                    }
+
+                    Color baseColor = baseTexture != null && !glass ? Color.white : oldColor;
+                    if (glass)
+                        baseColor = new Color(0.18f, 0.22f, 0.27f, 0.38f);
+
+                    if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", baseColor);
+                    if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", mirror ? 0.92f : metallic);
+                    if (material.HasProperty("_Smoothness"))
+                        material.SetFloat("_Smoothness", mirror ? 0.92f : (matte ? 0.24f : smoothness));
+
+                    if (glass)
+                    {
+                        material.SetFloat("_Surface", 1f);
+                        material.SetFloat("_Blend", 0f);
+                        material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+                        material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+                        material.SetFloat("_ZWrite", 0f);
+                        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                        material.renderQueue = (int)RenderQueue.Transparent;
+                    }
+
                     cache.Add(old, material);
                     upgraded[i] = material;
                 }
 
                 renderer.sharedMaterials = upgraded;
-            }
-        }
-
-        private static void ApplyBodyPaint(GameObject root)
-        {
-            Color paint = new(0.28f, 0.018f, 0.012f, 1f);
-            string[] bodyTokens = { "carrera", "door", "hood", "spoiler", "bottom" };
-
-            foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
-            {
-                string lower = renderer.name.ToLowerInvariant();
-                bool bodyPart = bodyTokens.Any(token => lower.Contains(token));
-                bool excluded = lower.Contains("glass") || lower.Contains("tyre") || lower.Contains("tire") ||
-                                lower.Contains("rim") || lower.Contains("brake") || lower.Contains("lamp") ||
-                                lower.Contains("inside") || lower.Contains("seat") || lower.Contains("dash") ||
-                                lower.Contains("mirror") || lower.Contains("window");
-                if (!bodyPart || excluded) continue;
-
-                Material[] materials = renderer.materials;
-                foreach (Material material in materials)
-                {
-                    if (material == null || !material.HasProperty("_BaseColor")) continue;
-                    Color original = material.GetColor("_BaseColor");
-                    material.SetColor("_BaseColor", new Color(paint.r, paint.g, paint.b, original.a));
-                    if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0.42f);
-                    if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.68f);
-                }
             }
         }
 
@@ -239,34 +329,6 @@ namespace MotorCity.Vehicle
                 if (found != null && found.GetComponentInChildren<Renderer>(true) != null) result.Add(found);
             }
             return result;
-        }
-
-        private static List<Transform> FindExactBrakes(Transform root)
-        {
-            Transform[] all = root.GetComponentsInChildren<Transform>(true);
-            var result = new List<Transform>(4);
-            foreach (string exactName in ExactBrakeNames)
-            {
-                Transform found = all.FirstOrDefault(t => t.name.Equals(exactName, System.StringComparison.OrdinalIgnoreCase));
-                if (found != null) result.Add(found);
-            }
-            return result;
-        }
-
-        private static Transform FindNearestBrake(Vector3 wheelCenter, List<Transform> brakes)
-        {
-            Transform best = null;
-            float bestDistance = float.MaxValue;
-            foreach (Transform brake in brakes)
-            {
-                float distance = (RendererBounds(brake).center - wheelCenter).sqrMagnitude;
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    best = brake;
-                }
-            }
-            return best;
         }
 
         private static List<Transform> FindWheelMeshesFallback(Transform root)
@@ -289,7 +351,9 @@ namespace MotorCity.Vehicle
         private static Transform[] OrderWheels(Transform car, List<Transform> wheels)
         {
             return wheels.OrderByDescending(t => car.InverseTransformPoint(RendererBounds(t).center).z)
-                .ThenBy(t => car.InverseTransformPoint(RendererBounds(t).center).x).Take(4).ToArray();
+                .ThenBy(t => car.InverseTransformPoint(RendererBounds(t).center).x)
+                .Take(4)
+                .ToArray();
         }
 
         private static Bounds RendererBounds(Transform root)
