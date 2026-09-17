@@ -15,12 +15,14 @@ The project currently includes:
 - PhysX WheelCollider-based four-wheel suspension with springs and dampers;
 - slip-based tire friction, rear-wheel drive, traction control and speed-dependent Ackermann steering;
 - synchronized visual wheels driven by WheelCollider world poses;
-- handbrake behavior and drift scoring with a combo multiplier;
-- the imported Cartoon Sports Car Carrera visual with its original texture atlas converted for URP at runtime;
+- handbrake behavior and slip-validated drift scoring with a combo multiplier;
+- a timed drift challenge in the parking area with a score target and CR reward;
+- a timed street sprint with moving checkpoints and a performance-based CR reward;
+- the imported Cartoon Sports Car Carrera visual with its original texture atlas converted for URP at runtime and installed before the first rendered frame;
 - a smooth orbiting chase camera with mouse look and zoom;
 - a procedural city district with road lanes, sidewalks, buildings, storefronts, parking areas and street lights;
 - a delivery route with visible checkpoints and a credit reward;
-- a basic player wallet and credit counter;
+- a locally persistent player wallet and credit counter;
 - a HUD with speed, credits, delivery state and drift score;
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
@@ -46,4 +48,4 @@ The city environment is still generated from lightweight prototype geometry and 
 
 ## Current gameplay
 
-Drive freely through the prototype district, use the handbrake and throttle to build drift score, or drive to the blue route marker to begin a delivery. Follow the moving route marker through the city to complete the delivery and earn credits.
+Drive freely through the prototype district, use the handbrake and throttle to build drift score, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Completing activities awards credits, which are stored locally between sessions.
