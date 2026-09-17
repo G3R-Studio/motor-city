@@ -7,7 +7,7 @@ namespace MotorCity.EditorTools
     [InitializeOnLoad]
     public static class CartoonSportsCarImporter
     {
-        private const string ExactSourcePath = "Assets/Cartoon Sports Car/meshes/CARRERA_LOW.FBX";
+        private const string ExactSourcePath = "Assets/Cartoon Sports Car/meshes/CARRERA.FBX";
         private const string OutputFolder = "Assets/Resources/MotorCity";
         private const string OutputPath = OutputFolder + "/PlayerCarVisual.prefab";
 
@@ -44,7 +44,7 @@ namespace MotorCity.EditorTools
 
                 RemovePhysics(instance);
                 PrefabUtility.SaveAsPrefabAsset(instance, OutputPath);
-                Debug.Log($"Motor City: prepared exact Cartoon Sports Car runtime visual from '{sourcePath}'.");
+                Debug.Log($"Motor City: prepared full Cartoon Sports Car runtime visual from '{sourcePath}'.");
             }
             finally
             {
@@ -70,8 +70,9 @@ namespace MotorCity.EditorTools
                 if (lower.Contains("cartoon")) score += 8;
                 if (lower.Contains("sport")) score += 8;
                 if (lower.Contains("car")) score += 5;
-                if (lower.Contains("carrera")) score += 8;
-                if (lower.Contains("low")) score += 5;
+                if (lower.Contains("carrera")) score += 10;
+                if (lower.Contains("low")) score -= 8;
+                if (lower.Contains("collider")) score -= 12;
                 if (lower.Contains("demo") || lower.Contains("scene")) score -= 6;
 
                 if (score < 12) continue;
@@ -99,7 +100,7 @@ namespace MotorCity.EditorTools
             foreach (Transform item in all)
             {
                 string n = item.name.ToLowerInvariant();
-                if (n.Contains("wheel") || n.Contains("tyre") || n.Contains("tire")) count++;
+                if (n.Contains("wheel") || n.Contains("tyre") || n.Contains("tire") || n.Contains("rim")) count++;
             }
             return count;
         }
