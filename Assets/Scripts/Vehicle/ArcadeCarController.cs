@@ -23,7 +23,9 @@ namespace MotorCity.Vehicle
         [SerializeField] private float angularDrag = 0.32f;
         [SerializeField] private float reverseDrag = 0.3f;
         [SerializeField] private Vector3 centerOfMass = new(0f, 0.42f, 0.08f);
-        [SerializeField] private float antiRollForce = 7200f;
+        [SerializeField] private float antiRollForce = 4600f;
+        [SerializeField] private float physicsHalfTrack = 1.05f;
+        [SerializeField] private float physicsHalfWheelbase = 1.72f;
 
         [Header("Prefab WheelCollider")]
         [SerializeField] private float wheelRadius = 0.5f;
@@ -38,19 +40,21 @@ namespace MotorCity.Vehicle
         [Header("Legacy Input.GetAxis Feel")]
         [SerializeField] private float inputSensitivity = 3f;
         [SerializeField] private float inputGravity = 3f;
+        [SerializeField] private bool inputSnap = true;
 
         private readonly WheelCollider[] wheelColliders = new WheelCollider[4];
         private readonly Transform[] wheelVisualRoots = new Transform[4];
         private readonly Transform[] brakeVisualRoots = new Transform[4];
         private readonly float[] steeringAngles = new float[4];
         private readonly float[] sourceMotorTorque = new float[4];
+        private readonly Vector3[] visualWheelOffsets = new Vector3[4];
 
         private Vector3[] wheelCenters =
         {
-            new(-0.94f, 0.56f, 1.32f),
-            new( 0.94f, 0.56f, 1.32f),
-            new(-0.94f, 0.56f,-1.34f),
-            new( 0.94f, 0.56f,-1.34f)
+            new(-1.05f, 0.42f,  1.72f),
+            new( 1.05f, 0.42f,  1.72f),
+            new(-1.05f, 0.42f, -1.72f),
+            new( 1.05f, 0.42f, -1.72f)
         };
 
         private readonly string[] fallbackWheelNames =
@@ -106,7 +110,17 @@ namespace MotorCity.Vehicle
         {
             if (centers == null || centers.Length < 4) return;
 
-            wheelCenters = new Vector3[4];
+            float averageY = 0f;
+            for (int i = 0; i < 4; i++) averageY += centers[i].y;
+            averageY *= 0.25f;
+
+            wheelCenters = new[]
+            {
+                new Vector3(-physicsHalfTrack, averageY,  physicsHalfWheelbase),
+                new Vector3( physicsHalfTrack, averageY,  physicsHalfWheelbase),
+                new Vector3(-physicsHalfTrack, averageY, -physicsHalfWheelbase),
+                new Vector3( physicsHalfTrack, averageY, -physicsHalfWheelbase)
+            };
 
             for (int i = 0; i < 4; i++)
             {
@@ -120,7 +134,7 @@ namespace MotorCity.Vehicle
                         ? brakeRoots[i]
                         : null;
 
-                wheelCenters[i] = centers[i];
+                visualWheelOffsets[i] = centers[i] - wheelCenters[i];
             }
 
             BuildOrReconfigureWheelColliders();
@@ -190,7 +204,7 @@ namespace MotorCity.Vehicle
                 sideways.extremumValue = 1f;
                 sideways.asymptoteSlip = 0.5f;
                 sideways.asymptoteValue = 0.75f;
-                sideways.stiffness = i < 2 ? 1.28f : 1.20f;
+                sideways.stiffness = i < 2 ? 1.16f : 1.10f;
                 wheel.sidewaysFriction = sideways;
             }
 
@@ -315,8 +329,26 @@ namespace MotorCity.Vehicle
 
         private float SmoothLegacyAxis(float current, float target)
         {
+            if (inputSnap &&
+                Mathf.Abs(target) > 0.001f &&
+                Mathf.Abs(current) > 0.001f &&
+                Mathf.Sign(target) != Mathf.Sign(current))
+            {
+                current = 0f;
+            }
+
             float rate = Mathf.Abs(target) > 0.001f ? inputSensitivity : inputGravity;
             return Mathf.MoveTowards(current, target, rate * Time.deltaTime);
+        }
+
+        private static float SourceLerpFactor(float sourceRate)
+        {
+            float sourceFrameT = Mathf.Clamp01(sourceRate / 60f);
+            if (sourceFrameT >= 1f) return 1f;
+
+            return 1f - Mathf.Pow(
+                1f - sourceFrameT,
+                Time.fixedDeltaTime * 60f);
         }
 
         private void ApplySourceController()
@@ -331,7 +363,7 @@ namespace MotorCity.Vehicle
                     Mathf.LerpAngle(
                         steeringAngles[i],
                         0f,
-                        Time.fixedDeltaTime * wheelRotateSpeed);
+                        SourceLerpFactor(wheelRotateSpeed));
 
                 // Preserve WheelController.cs torque math in its original coordinate
                 // convention, then invert once for Motor City's +Z forward axis.
@@ -339,7 +371,7 @@ namespace MotorCity.Vehicle
                     -Mathf.Lerp(
                         sourceMotorTorque[i],
                         0f,
-                        Time.fixedDeltaTime * wheelAcceleration);
+                        SourceLerpFactor(wheelAcceleration));
 
                 if (vertical > 0.1f)
                 {
@@ -347,7 +379,7 @@ namespace MotorCity.Vehicle
                         -Mathf.Lerp(
                             sourceMotorTorque[i],
                             wheelMaxSpeed,
-                            Time.fixedDeltaTime * wheelAcceleration);
+                            SourceLerpFactor(wheelAcceleration));
                 }
 
                 if (vertical < -0.1f)
@@ -356,7 +388,7 @@ namespace MotorCity.Vehicle
                         Mathf.Lerp(
                             sourceMotorTorque[i],
                             wheelMaxSpeed,
-                            Time.fixedDeltaTime * wheelAcceleration * brakePower);
+                            SourceLerpFactor(wheelAcceleration * brakePower));
                 }
 
                 wheel.motorTorque = -sourceMotorTorque[i];
@@ -367,7 +399,7 @@ namespace MotorCity.Vehicle
                         Mathf.LerpAngle(
                             steeringAngles[i],
                             wheelSteeringAngle,
-                            Time.fixedDeltaTime * wheelRotateSpeed);
+                            SourceLerpFactor(wheelRotateSpeed));
                 }
 
                 if (horizontal < -0.1f)
@@ -376,7 +408,7 @@ namespace MotorCity.Vehicle
                         Mathf.LerpAngle(
                             steeringAngles[i],
                             -wheelSteeringAngle,
-                            Time.fixedDeltaTime * wheelRotateSpeed);
+                            SourceLerpFactor(wheelRotateSpeed));
                 }
 
                 // In the source prefab all four wheels receive motor torque,
@@ -401,7 +433,8 @@ namespace MotorCity.Vehicle
                 if (wheel == null || visual == null) continue;
 
                 wheel.GetWorldPose(out Vector3 position, out Quaternion rotation);
-                visual.position = position;
+                visual.position =
+                    position + transform.TransformVector(visualWheelOffsets[i]);
                 visual.rotation = rotation;
 
                 Transform brakeVisual = brakeVisualRoots[i];
@@ -413,6 +446,13 @@ namespace MotorCity.Vehicle
                         Quaternion.Euler(0f, wheel.steerAngle, 0f);
                 }
             }
+        }
+
+        public void UseAutomaticMassProperties()
+        {
+            if (body == null) return;
+            body.ResetCenterOfMass();
+            body.ResetInertiaTensor();
         }
 
         public void ClearMotion()
