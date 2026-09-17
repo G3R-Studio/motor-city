@@ -110,13 +110,14 @@ namespace MotorCity.Gameplay
             }
 
             IsOpen = true;
-            car.ClearMotion();
+            car.SetDrivingEnabled(false);
             StatusText = "GARAGE OPEN";
         }
 
         private void CloseGarage()
         {
             IsOpen = false;
+            car.SetDrivingEnabled(true);
             activityManager.End(ActivityId);
             StatusText = IsNearGarage ? "GARAGE — press E" : "Purple marker: garage";
         }
