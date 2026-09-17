@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace MotorCity.Vehicle
 {
@@ -9,6 +10,7 @@ namespace MotorCity.Vehicle
     {
         private const float TargetLength = 4.2f;
         private static readonly string[] ExactLowPolyWheelNames = { "tyre003", "tyre004", "tyre1", "tyre2" };
+        private static readonly string[] ExactLowPolyBrakeNames = { "brakes003", "brakes004", "brakes1", "brakes2" };
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void ScheduleInstall()
@@ -44,7 +46,6 @@ namespace MotorCity.Vehicle
         private static void Install(ArcadeCarController car, GameObject prefab)
         {
             Transform carTransform = car.transform;
-
             GameObject visual = Instantiate(prefab, carTransform);
             visual.name = "CartoonSportsCarVisual_Runtime";
             visual.transform.localPosition = Vector3.zero;
@@ -53,10 +54,10 @@ namespace MotorCity.Vehicle
 
             DisablePhysics(visual);
             NormalizeVisualScale(visual.transform);
+            UpgradeMaterialsForCurrentPipeline(visual);
 
             List<Transform> wheelMeshes = FindExactLowPolyWheels(visual.transform);
-            if (wheelMeshes.Count < 4)
-                wheelMeshes = FindWheelMeshesFallback(visual.transform);
+            if (wheelMeshes.Count < 4) wheelMeshes = FindWheelMeshesFallback(visual.transform);
 
             if (wheelMeshes.Count < 4)
             {
@@ -66,38 +67,54 @@ namespace MotorCity.Vehicle
             }
 
             Transform[] ordered = OrderWheels(carTransform, wheelMeshes);
-            Transform[] pivots = new Transform[4];
+            List<Transform> brakes = FindExactLowPolyBrakes(visual.transform);
+            Transform[] carriers = new Transform[4];
+            Transform[] spinPivots = new Transform[4];
             Vector3[] suspensionPoints = new Vector3[4];
             float measuredRadius = 0.33f;
 
             for (int i = 0; i < 4; i++)
             {
-                Transform wheel = ordered[i];
-                Bounds bounds = RendererBounds(wheel);
+                Transform tyre = ordered[i];
+                Bounds bounds = RendererBounds(tyre);
                 measuredRadius = Mathf.Clamp(Mathf.Max(bounds.extents.y, bounds.extents.z), 0.27f, 0.42f);
 
-                GameObject pivotObject = new($"AssetWheelPivot_{i}");
-                Transform pivot = pivotObject.transform;
-                pivot.SetParent(carTransform, true);
-                pivot.position = bounds.center;
-                pivot.rotation = carTransform.rotation;
+                GameObject carrierObject = new($"AssetWheelCarrier_{i}");
+                Transform carrier = carrierObject.transform;
+                carrier.SetParent(carTransform, true);
+                carrier.position = bounds.center;
+                carrier.rotation = carTransform.rotation;
 
-                wheel.SetParent(pivot, true);
-                pivots[i] = pivot;
+                GameObject spinObject = new($"AssetWheelSpin_{i}");
+                Transform spin = spinObject.transform;
+                spin.SetParent(carrier, false);
+                spin.localPosition = Vector3.zero;
+                spin.localRotation = Quaternion.identity;
+
+                tyre.SetParent(spin, true);
+
+                Transform nearestBrake = FindNearestBrake(bounds.center, brakes);
+                if (nearestBrake != null)
+                {
+                    nearestBrake.SetParent(carrier, true);
+                    brakes.Remove(nearestBrake);
+                }
+
+                carriers[i] = carrier;
+                spinPivots[i] = spin;
 
                 Vector3 local = carTransform.InverseTransformPoint(bounds.center);
                 suspensionPoints[i] = new Vector3(local.x, -0.08f, local.z);
             }
 
             HideFallbackVisuals(carTransform, visual.transform);
-            car.ConfigureExternalWheelRig(pivots, suspensionPoints, measuredRadius);
-            Debug.Log("Motor City: CARRERA_LOW installed with exact tyre transforms and suspension rebuilt from real wheel positions.");
+            car.ConfigureExternalWheelRig(carriers, spinPivots, suspensionPoints, measuredRadius);
+            Debug.Log("Motor City: CARRERA_LOW installed with independent suspension carriers, steering and wheel spin pivots.");
         }
 
         private static void NormalizeVisualScale(Transform visual)
         {
             Bounds bounds = RendererBounds(visual);
-
             if (bounds.size.x > bounds.size.z * 1.15f)
             {
                 visual.localRotation = Quaternion.Euler(0f, 90f, 0f);
@@ -107,71 +124,125 @@ namespace MotorCity.Vehicle
             float length = Mathf.Max(bounds.size.x, bounds.size.z);
             if (length < 0.01f) return;
 
-            float scale = TargetLength / length;
-            visual.localScale = visual.localScale * scale;
-
+            visual.localScale *= TargetLength / length;
             bounds = RendererBounds(visual);
             Transform parent = visual.parent;
             Vector3 centerLocal = parent.InverseTransformPoint(bounds.center);
             Vector3 bottomWorld = new(bounds.center.x, bounds.min.y, bounds.center.z);
             float bottomLocalY = parent.InverseTransformPoint(bottomWorld).y;
-
             visual.localPosition -= new Vector3(centerLocal.x, bottomLocalY - 0.06f, centerLocal.z);
+        }
+
+        private static void UpgradeMaterialsForCurrentPipeline(GameObject root)
+        {
+            if (GraphicsSettings.currentRenderPipeline == null) return;
+            Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
+            if (urpLit == null) return;
+
+            foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
+            {
+                Material[] source = renderer.sharedMaterials;
+                Material[] upgraded = new Material[source.Length];
+
+                for (int i = 0; i < source.Length; i++)
+                {
+                    Material old = source[i];
+                    if (old == null)
+                    {
+                        upgraded[i] = null;
+                        continue;
+                    }
+
+                    if (old.shader != null && old.shader.name.StartsWith("Universal Render Pipeline"))
+                    {
+                        upgraded[i] = old;
+                        continue;
+                    }
+
+                    Texture mainTexture = old.HasProperty("_MainTex") ? old.GetTexture("_MainTex") : null;
+                    Color color = old.HasProperty("_Color") ? old.GetColor("_Color") : Color.white;
+                    float metallic = old.HasProperty("_Metallic") ? old.GetFloat("_Metallic") : 0f;
+                    float smoothness = old.HasProperty("_Glossiness") ? old.GetFloat("_Glossiness") : 0.35f;
+
+                    Material material = new(urpLit) { name = old.name + "_URP", color = color };
+                    if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
+                    if (mainTexture != null && material.HasProperty("_BaseMap")) material.SetTexture("_BaseMap", mainTexture);
+                    if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", metallic);
+                    if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", smoothness);
+                    upgraded[i] = material;
+                }
+
+                renderer.materials = upgraded;
+            }
         }
 
         private static List<Transform> FindExactLowPolyWheels(Transform root)
         {
             Transform[] all = root.GetComponentsInChildren<Transform>(true);
             var result = new List<Transform>(4);
-
             foreach (string exactName in ExactLowPolyWheelNames)
             {
                 Transform found = all.FirstOrDefault(t => t.name.Equals(exactName, System.StringComparison.OrdinalIgnoreCase));
-                if (found != null && found.GetComponentInChildren<Renderer>(true) != null)
-                    result.Add(found);
+                if (found != null && found.GetComponentInChildren<Renderer>(true) != null) result.Add(found);
             }
-
             return result;
+        }
+
+        private static List<Transform> FindExactLowPolyBrakes(Transform root)
+        {
+            Transform[] all = root.GetComponentsInChildren<Transform>(true);
+            var result = new List<Transform>(4);
+            foreach (string exactName in ExactLowPolyBrakeNames)
+            {
+                Transform found = all.FirstOrDefault(t => t.name.Equals(exactName, System.StringComparison.OrdinalIgnoreCase));
+                if (found != null) result.Add(found);
+            }
+            return result;
+        }
+
+        private static Transform FindNearestBrake(Vector3 wheelCenter, List<Transform> brakes)
+        {
+            Transform best = null;
+            float bestDistance = float.MaxValue;
+            foreach (Transform brake in brakes)
+            {
+                float distance = (RendererBounds(brake).center - wheelCenter).sqrMagnitude;
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    best = brake;
+                }
+            }
+            return best;
         }
 
         private static List<Transform> FindWheelMeshesFallback(Transform root)
         {
             Transform[] all = root.GetComponentsInChildren<Transform>(true);
             var candidates = new List<Transform>();
-
             foreach (Transform item in all)
             {
                 if (item == root) continue;
                 string n = item.name.ToLowerInvariant();
                 if (!(n.Contains("wheel") || n.Contains("tyre") || n.Contains("tire"))) continue;
                 if (item.GetComponentInChildren<Renderer>(true) == null) continue;
-
                 bool childOfExisting = candidates.Any(c => item.IsChildOf(c));
                 if (!childOfExisting) candidates.Add(item);
             }
-
             if (candidates.Count <= 4) return candidates;
-
-            return candidates
-                .OrderByDescending(t => RendererBounds(t).size.sqrMagnitude)
-                .Take(4)
-                .ToList();
+            return candidates.OrderByDescending(t => RendererBounds(t).size.sqrMagnitude).Take(4).ToList();
         }
 
         private static Transform[] OrderWheels(Transform car, List<Transform> wheels)
         {
-            return wheels
-                .OrderByDescending(t => car.InverseTransformPoint(RendererBounds(t).center).z)
-                .ThenBy(t => car.InverseTransformPoint(RendererBounds(t).center).x)
-                .Take(4)
-                .ToArray();
+            return wheels.OrderByDescending(t => car.InverseTransformPoint(RendererBounds(t).center).z)
+                .ThenBy(t => car.InverseTransformPoint(RendererBounds(t).center).x).Take(4).ToArray();
         }
 
         private static Bounds RendererBounds(Transform root)
         {
             Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
             if (renderers.Length == 0) return new Bounds(root.position, Vector3.one * 0.1f);
-
             Bounds bounds = renderers[0].bounds;
             for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
             return bounds;
@@ -188,7 +259,7 @@ namespace MotorCity.Vehicle
             foreach (Renderer renderer in car.GetComponentsInChildren<Renderer>(true))
             {
                 if (renderer.transform.IsChildOf(importedVisual)) continue;
-                if (renderer.transform.name.StartsWith("AssetWheelPivot_")) continue;
+                if (renderer.transform.name.StartsWith("AssetWheelCarrier_")) continue;
                 renderer.enabled = false;
             }
         }
