@@ -2,45 +2,36 @@
 
 Browser-first open-world car game prototype for Yandex Games.
 
-## Current prototype
+## About the game
 
-The repository now contains the first Unity 6.6 foundation:
+Motor City is an open-world driving game built around free driving, car control and a city environment. The current version is an early technical prototype focused on the core driving experience and browser performance.
+
+## Current version
+
+The project currently includes:
 
 - Unity 6.6 + Universal Render Pipeline;
-- Web-oriented lightweight runtime scene;
-- arcade vehicle controller with throttle, reverse, steering, grip and handbrake;
-- smooth chase camera;
-- procedural prototype city grid and drift pad;
-- speed HUD and instant car reset;
-- automatic editor setup that creates `Assets/Scenes/Prototype.unity` and configures URP/build settings on first import.
+- a lightweight Web-oriented runtime scene;
+- an arcade vehicle controller with throttle, reverse, steering, grip and handbrake;
+- a smooth chase camera;
+- a procedural prototype city grid with roads, buildings and a drift pad;
+- a speed HUD;
+- instant vehicle reset;
+- automatic editor setup for the prototype scene and URP configuration.
 
-The current car and city are intentionally built from primitives. They are a technical test bed, not final art.
+The current car and environment are built from simple primitives and are used as a technical prototype rather than final game art.
 
 ## Run locally
 
-1. Install Unity 6.6.1 (6000.6.1f1) with Web Build Support.
+1. Install Unity 6.6.1 (`6000.6.1f1`) with Web Build Support.
 2. Clone this repository.
 3. Open the repository root as a Unity project.
-4. Wait for packages to import. The project setup script will create/open `Assets/Scenes/Prototype.unity` automatically.
+4. Wait for packages to import. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically.
 5. Press Play.
 
-Controls:
+## Controls
 
-- `W/S` or arrows — throttle / reverse;
-- `A/D` or arrows — steering;
+- `W/S` or arrow keys — throttle / reverse;
+- `A/D` or arrow keys — steering;
 - `Space` — handbrake;
 - `R` — reset the vehicle.
-
-## Direction
-
-The next milestones are:
-
-1. replace the placeholder rigidbody handling with raycast suspension / proper tire model;
-2. add a real modular road test district and optimized environment art pipeline;
-3. add garage, car data/configs and upgrade architecture;
-4. create drift scoring, delivery and race activities;
-5. profile the Web build early on desktop and mobile browsers;
-6. add Yandex Games SDK integration;
-7. add Colyseus multiplayer only after the local driving loop is stable.
-
-The project is intentionally being designed for Web from day one: streamed content, aggressive LODs, lightweight shaders, limited runtime allocations and server-authoritative economy are part of the planned architecture.
