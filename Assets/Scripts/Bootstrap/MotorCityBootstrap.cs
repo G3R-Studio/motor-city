@@ -36,11 +36,15 @@ namespace MotorCity.Bootstrap
             DriftChallenge driftChallenge = systems.AddComponent<DriftChallenge>();
             driftChallenge.Initialize(car, drift, wallet);
 
+            StreetSprintActivity streetSprint = systems.AddComponent<StreetSprintActivity>();
+            streetSprint.Initialize(car, wallet);
+
             CreateDeliveryMarker(delivery);
             CreateDriftChallengeMarker(driftChallenge);
+            CreateStreetSprintMarker(streetSprint);
 
             CreateCamera(car.transform);
-            CreateHud(car, wallet, drift, delivery, driftChallenge);
+            CreateHud(car, wallet, drift, delivery, driftChallenge, streetSprint);
         }
 
         private static void CreateLighting()
@@ -238,6 +242,20 @@ namespace MotorCity.Bootstrap
             visual.Bind(challenge);
         }
 
+        private static void CreateStreetSprintMarker(StreetSprintActivity sprint)
+        {
+            Material markerMaterial = Material(new Color(0.18f, 1f, 0.34f), 0.02f, 0.72f);
+            GameObject marker = CreateVisualSurface(
+                "Street Sprint Marker",
+                PrimitiveType.Cylinder,
+                sprint.CurrentTarget + Vector3.up * 0.12f,
+                new Vector3(3.8f, 0.06f, 3.8f),
+                markerMaterial);
+
+            StreetSprintMarkerVisual visual = marker.AddComponent<StreetSprintMarkerVisual>();
+            visual.Bind(sprint);
+        }
+
         private static void CreateCamera(Transform target)
         {
             GameObject cameraObject = new("Main Camera");
@@ -256,11 +274,12 @@ namespace MotorCity.Bootstrap
             PlayerWallet wallet,
             DriftTracker drift,
             DeliveryActivity delivery,
-            DriftChallenge driftChallenge)
+            DriftChallenge driftChallenge,
+            StreetSprintActivity streetSprint)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
-            prototypeHud.Bind(car, wallet, drift, delivery, driftChallenge);
+            prototypeHud.Bind(car, wallet, drift, delivery, driftChallenge, streetSprint);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
