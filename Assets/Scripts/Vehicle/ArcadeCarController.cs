@@ -37,6 +37,12 @@ namespace MotorCity.Vehicle
             body.interpolation = RigidbodyInterpolation.Interpolate;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             body.centerOfMass = new Vector3(0f, -0.45f, 0.15f);
+
+            // Unity 6 clamps Rigidbody velocity to maxLinearVelocity before each
+            // simulation step. Set it explicitly above the car's own speed limit so
+            // our controller, not the physics safety cap, determines top speed.
+            float forwardLimitMs = maxForwardSpeedKph / 3.6f;
+            body.maxLinearVelocity = forwardLimitMs + 10f;
         }
 
         private void Update()
