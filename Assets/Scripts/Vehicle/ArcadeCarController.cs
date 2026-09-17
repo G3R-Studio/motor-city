@@ -37,6 +37,11 @@ namespace MotorCity.Vehicle
         [SerializeField] private float forceAppPointDistance = 0.02f;
         [SerializeField] private float wheelDampingRate = 0.25f;
 
+        [Header("Handbrake")]
+        [SerializeField] private float handbrakeRearTorque = 9000f;
+        [SerializeField] private float parkingBrakeTorque = 14000f;
+        [SerializeField] private float parkingBrakeSpeedKph = 6f;
+
         [Header("Legacy Input.GetAxis Feel")]
         [SerializeField] private float inputSensitivity = 3f;
         [SerializeField] private float inputGravity = 3f;
@@ -69,11 +74,12 @@ namespace MotorCity.Vehicle
         private int gripUpgradeLevel;
         private int stabilityUpgradeLevel;
         private bool drivingEnabled = true;
+        private bool handbrakeInput;
 
         public float SpeedKph => body == null ? 0f : body.linearVelocity.magnitude * 3.6f;
         public float ForwardSpeedKph =>
             body == null ? 0f : Vector3.Dot(body.linearVelocity, transform.forward) * 3.6f;
-        public bool IsHandbrake => false;
+        public bool IsHandbrake => handbrakeInput;
         public int GroundedWheels { get; private set; }
         public float RearSidewaysSlip { get; private set; }
         public float RearForwardSlip { get; private set; }
@@ -221,6 +227,7 @@ namespace MotorCity.Vehicle
             {
                 horizontal = 0f;
                 vertical = 0f;
+                handbrakeInput = true;
                 return;
             }
 
@@ -230,6 +237,7 @@ namespace MotorCity.Vehicle
         private void FixedUpdate()
         {
             ApplySourceController();
+            ApplyHandbrake();
 
             GroundedWheels = 0;
             float rearSideways = 0f;
@@ -306,6 +314,7 @@ namespace MotorCity.Vehicle
 
             float keyboardVertical = 0f;
             float keyboardHorizontal = 0f;
+            bool keyboardHandbrake = false;
 
             if (keyboard != null)
             {
@@ -313,10 +322,12 @@ namespace MotorCity.Vehicle
                 if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed) keyboardVertical -= 1f;
                 if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) keyboardHorizontal -= 1f;
                 if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) keyboardHorizontal += 1f;
+                keyboardHandbrake = keyboard.spaceKey.isPressed;
             }
 
             float gamepadVertical = 0f;
             float gamepadHorizontal = 0f;
+            bool gamepadHandbrake = false;
 
             if (gamepad != null)
             {
@@ -324,6 +335,7 @@ namespace MotorCity.Vehicle
                     gamepad.rightTrigger.ReadValue() -
                     gamepad.leftTrigger.ReadValue();
                 gamepadHorizontal = gamepad.leftStick.x.ReadValue();
+                gamepadHandbrake = gamepad.buttonSouth.isPressed;
             }
 
             float verticalTarget =
@@ -338,6 +350,7 @@ namespace MotorCity.Vehicle
 
             vertical = SmoothLegacyAxis(vertical, verticalTarget);
             horizontal = SmoothLegacyAxis(horizontal, horizontalTarget);
+            handbrakeInput = keyboardHandbrake || gamepadHandbrake;
         }
 
         private float SmoothLegacyAxis(float current, float target)
@@ -433,6 +446,38 @@ namespace MotorCity.Vehicle
             body.angularDamping = angularDrag * (1f + stabilityUpgradeLevel * 0.08f);
         }
 
+
+        private void ApplyHandbrake()
+        {
+            bool parkingMode = SpeedKph <= parkingBrakeSpeedKph;
+
+            for (int i = 0; i < wheelColliders.Length; i++)
+            {
+                WheelCollider wheel = wheelColliders[i];
+                if (wheel == null) continue;
+
+                if (!handbrakeInput)
+                {
+                    wheel.brakeTorque = 0f;
+                    continue;
+                }
+
+                wheel.motorTorque = 0f;
+                sourceMotorTorque[i] = 0f;
+
+                bool rearWheel = i == RearLeft || i == RearRight;
+                wheel.brakeTorque = parkingMode
+                    ? parkingBrakeTorque
+                    : (rearWheel ? handbrakeRearTorque : 0f);
+            }
+
+            if (handbrakeInput && parkingMode && body.linearVelocity.sqrMagnitude < 0.08f)
+            {
+                body.linearVelocity = Vector3.zero;
+                body.angularVelocity = Vector3.zero;
+            }
+        }
+
         public void ApplyUpgradeLevels(int engineLevel, int gripLevel, int stabilityLevel)
         {
             engineUpgradeLevel = Mathf.Clamp(engineLevel, 0, 3);
@@ -504,6 +549,7 @@ namespace MotorCity.Vehicle
         {
             horizontal = 0f;
             vertical = 0f;
+            handbrakeInput = false;
 
             for (int i = 0; i < 4; i++)
             {
