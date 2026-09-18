@@ -87,8 +87,8 @@ namespace MotorCity.Bootstrap
                 return;
 
             Debug.LogWarning(
-                "Motor City: CubexCube runtime city prefab is missing. " +
-                "Import CubexCube - Free City Pack I and rebuild the city.");
+                "Motor City: Modern City Pack runtime city prefab is missing. " +
+                "Import the package into Assets/MCP and rebuild the city.");
 
             Material asphalt =
                 Material(
