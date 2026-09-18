@@ -127,6 +127,9 @@ namespace MotorCity.Vehicle
         {
             if (centers == null || centers.Length < 4) return;
 
+            if (measuredWheelRadius > 0.01f)
+                wheelRadius = Mathf.Clamp(measuredWheelRadius, 0.32f, 0.52f);
+
             float averageY = 0f;
             for (int i = 0; i < 4; i++) averageY += centers[i].y;
             averageY *= 0.25f;
@@ -560,8 +563,9 @@ namespace MotorCity.Vehicle
         public void UseAutomaticMassProperties()
         {
             if (body == null) return;
-            body.ResetCenterOfMass();
+            body.mass = vehicleMass;
             body.ResetInertiaTensor();
+            body.centerOfMass = centerOfMass;
         }
 
         public void SetDrivingEnabled(bool enabled)
