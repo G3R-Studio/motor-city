@@ -50,12 +50,12 @@ namespace MotorCity.Gameplay
                 new Vector3(target.x, 0f, target.z);
 
             float pulse =
-                1f + Mathf.Sin(Time.time * 3.2f) * 0.025f;
+                1f + Mathf.Sin(Time.time * 2.8f) * 0.015f;
             transform.localScale = baseScale * pulse;
 
             Color tint = activity.IsActive
-                ? new Color(1f, 0.72f, 0.18f)
-                : new Color(0.22f, 0.62f, 1f);
+                ? new Color(0.18f, 0.78f, 1f)
+                : new Color(0.16f, 0.52f, 0.95f);
 
             Tint(tint);
         }
