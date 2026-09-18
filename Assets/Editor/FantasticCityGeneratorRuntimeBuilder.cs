@@ -105,12 +105,14 @@ public static class FantasticCityGeneratorRuntimeBuilder
 
             Debug.Log(
                 "Motor City: Fantastic City Generator runtime city baked. " +
-                $"Renderers={renderers}, added driveable colliders={colliders}, " +
+                $"Source={scene.path}, Renderers={renderers}, " +
+                $"added driveable colliders={colliders}, " +
                 $"breakable street props={breakableProps}, prefab={RuntimePrefab}");
 
             EditorUtility.DisplayDialog(
                 "Motor City — FCG Runtime City",
                 "Готово.\n\n" +
+                $"Источник: {scene.path}\n" +
                 $"Renderer'ов: {renderers}\n" +
                 $"Добавлено дорожных/хайвей/парковочных MeshCollider: {colliders}\n" +
                 $"Ломающихся городских объектов: {breakableProps}\n\n" +
