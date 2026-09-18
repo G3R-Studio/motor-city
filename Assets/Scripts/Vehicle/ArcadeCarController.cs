@@ -15,9 +15,9 @@ namespace MotorCity.Vehicle
         private const int RearRight = 3;
 
         [Header("Prometeo tuning")]
-        [SerializeField] private int baseMaxSpeedKph = 170;
-        [SerializeField] private int maxReverseSpeedKph = 45;
-        [SerializeField] private int accelerationMultiplier = 6;
+        [SerializeField] private int baseMaxSpeedKph = 220;
+        [SerializeField] private int maxReverseSpeedKph = 55;
+        [SerializeField] private int accelerationMultiplier = 8;
         [SerializeField] private int maxSteeringAngle = 32;
         [SerializeField] private float steeringSpeed = 0.68f;
         [SerializeField] private int brakeForce = 900;
@@ -671,9 +671,9 @@ namespace MotorCity.Vehicle
             int tunedMaxSpeed =
                 Mathf.Clamp(
                     baseMaxSpeedKph +
-                    engineUpgradeLevel * 7,
+                    engineUpgradeLevel * 10,
                     20,
-                    190);
+                    260);
 
             int tunedAcceleration =
                 Mathf.Clamp(
