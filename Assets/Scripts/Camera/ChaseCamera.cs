@@ -18,15 +18,26 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float maxPitch = 55f;
         [SerializeField] private float minDistance = 4.5f;
         [SerializeField] private float maxDistance = 12f;
-        [SerializeField] private float zoomSpeed = 0.0125f;
+        [SerializeField] private float zoomStep = 0.9f;
+        [SerializeField] private float zoomSharpness = 12f;
         [SerializeField] private float recenterDelay = 1.35f;
         [SerializeField] private float recenterSpeed = 3f;
 
         private float yawOffset;
         private float pitch = 13f;
         private float lastManualInputTime = -10f;
+        private float targetDistance;
 
-        public void SetTarget(Transform newTarget) => target = newTarget;
+        public void SetTarget(Transform newTarget)
+        {
+            target = newTarget;
+            targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
+        }
+
+        private void Awake()
+        {
+            targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
+        }
 
         private void Update()
         {
@@ -49,10 +60,19 @@ namespace MotorCity.CameraSystem
                 float scroll = mouse.scroll.ReadValue().y;
                 if (Mathf.Abs(scroll) > 0.01f)
                 {
-                    distance = Mathf.Clamp(distance - scroll * zoomSpeed, minDistance, maxDistance);
+                    float direction = Mathf.Sign(scroll);
+                    targetDistance = Mathf.Clamp(
+                        targetDistance - direction * zoomStep,
+                        minDistance,
+                        maxDistance);
                     lastManualInputTime = Time.time;
                 }
             }
+
+            distance = Mathf.Lerp(
+                distance,
+                targetDistance,
+                1f - Mathf.Exp(-zoomSharpness * Time.deltaTime));
 
             if (!orbiting && Time.time - lastManualInputTime > recenterDelay)
                 yawOffset = Mathf.LerpAngle(yawOffset, 0f, 1f - Mathf.Exp(-recenterSpeed * Time.deltaTime));
