@@ -190,8 +190,8 @@ namespace MotorCity.World
                 other == null)
                 return;
 
-            Vehicle.ArcadeCarController car =
-                other.GetComponentInParent<Vehicle.ArcadeCarController>();
+            MotorCity.Vehicle.ArcadeCarController car =
+                other.GetComponentInParent<MotorCity.Vehicle.ArcadeCarController>();
 
             if (car == null)
                 return;
