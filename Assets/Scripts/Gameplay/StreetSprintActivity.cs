@@ -10,8 +10,8 @@ namespace MotorCity.Gameplay
 
         [SerializeField] private int baseRewardCredits = 550;
         [SerializeField] private int maximumTimeBonusCredits = 450;
-        [SerializeField] private float startRadius = 33.6f;
-        [SerializeField] private float checkpointRadius = 28.7f;
+        [SerializeField] private float startRadius = 14f;
+        [SerializeField] private float checkpointRadius = 14f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
