@@ -24,13 +24,13 @@ The project currently includes:
 - a timed drift challenge placed on the active city road network, with a score target, КР reward and a 3.5-second return grace period after leaving the activity area;
 - a timed street sprint with moving checkpoints and a performance-based КР reward;
 - a smooth orbiting chase camera with mouse look, zoom, speed-based look-ahead, distance and field-of-view response;
-- editor tooling for **Fantastic City Generator**: generated FCG renderers in the active scene can be converted from legacy/Built-in materials to URP/Lit while preserving base textures, normal maps, occlusion, emission and transparent/cutout behavior;
+- editor tooling for **Fantastic City Generator**: generated FCG renderers in the active scene can be converted from legacy/Built-in materials to URP/Lit while preserving base textures, normal maps, occlusion, emission and transparent/cutout behavior; the generated `City-Maker` can then be baked into a local runtime `CityVisual.prefab`;
 - legacy Community Core City 02 and Japanese Otaku City integrations have been removed;
 - compact activity-specific world markers with lightweight built-in fallbacks;
 - a compact floating garage waypoint using a CC0 Kenney Game Icons flag asset;
 - moving delivery and sprint targets with a four-cone drift marker cluster;
 - a compact HUD navigator that points toward the current delivery/sprint checkpoint and, during free roam, toward the nearest activity or garage with live distance;
-- the current city integration is being rebuilt around a locally generated Fantastic City Generator layout; the editor can export a generated-scene report with object hierarchy, world positions, renderer bounds, materials, meshes and colliders so gameplay coordinates can be tied to the actual generated streets;
+- the active city uses the locally generated Fantastic City Generator layout; the runtime installer resolves asphalt by the exact MeshCollider triangle/submesh material (`FCG_Roads`) instead of renderer bounds, so spawn, drift, delivery and sprint targets are placed on real road surface while the garage uses a known parking area from the generated layout;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
@@ -53,7 +53,7 @@ A flat temporary test surface is currently used when no generated runtime city p
 4. Import **ARCADE: FREE Racing Car** by Mena from the Unity Asset Store / Package Manager.
 5. Import **PROMETEO: Car Controller** by Mena from the Unity Asset Store. Motor City does not redistribute the Prometeo package; the runtime bridge detects `PrometeoCarController` after Unity recompiles.
 6. Import **Fantastic City Generator** locally under `Assets/Fantastic City Generator`, generate the city in an editor scene, then use `Motor City > Fantastic City Generator > Fix Pink Materials in Active Scene` to convert the generated city materials for URP.
-7. Save the generated scene and use `Motor City > Fantastic City Generator > Export Active FCG City Report` when the generated layout needs to be integrated into Motor City.
+7. Save the generated scene, then use `Motor City > Fantastic City Generator > Build Runtime City from Active Scene` to bake the local generated city into `Assets/Resources/MotorCity/Environment/CityVisual.prefab`. The generated runtime environment folder is intentionally ignored by Git.
 8. The editor automatically prepares the runtime UI and marker sprites.
 9. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically and keep both Unity input backends enabled for Prometeo compatibility.
 10. Press Play.
