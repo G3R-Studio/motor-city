@@ -7,7 +7,7 @@ namespace MotorCity.Gameplay
     {
         private const string ActivityId = "drift";
 
-        [SerializeField] private Vector3 zoneCenter = new(0f, 0f, -200.9f);
+        private Vector3 zoneCenter;
         [SerializeField] private float startRadius = 15f;
         [SerializeField] private float activityHalfExtent = 52f;
         [SerializeField] private float outsideGraceSeconds = 3.5f;
@@ -40,11 +40,6 @@ namespace MotorCity.Gameplay
             zoneCenter =
                 MotorCity.World.CityAssetRuntimeInstaller.DriftChallengePoint;
             TimeRemaining = durationSeconds;
-        }
-
-        public void SnapZoneToRoad()
-        {
-            zoneCenter = MotorCity.World.CityAssetRuntimeInstaller.SnapToNearestRoad(zoneCenter);
         }
 
         private void Update()
