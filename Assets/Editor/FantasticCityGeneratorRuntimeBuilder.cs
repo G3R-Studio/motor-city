@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using MotorCity.World;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -90,6 +91,10 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 EnsureDriveableColliders(
                     clone);
 
+            int breakableProps =
+                BreakableStreetProp.PrepareAll(
+                    clone);
+
             MarkStatic(
                 clone);
 
@@ -106,13 +111,14 @@ public static class FantasticCityGeneratorRuntimeBuilder
             Debug.Log(
                 "Motor City: Fantastic City Generator runtime city baked. " +
                 $"Renderers={renderers}, added driveable colliders={colliders}, " +
-                $"prefab={RuntimePrefab}");
+                $"breakable street props={breakableProps}, prefab={RuntimePrefab}");
 
             EditorUtility.DisplayDialog(
                 "Motor City — FCG Runtime City",
                 "Готово.\n\n" +
                 $"Renderer'ов: {renderers}\n" +
-                $"Добавлено дорожных/хайвей/парковочных MeshCollider: {colliders}\n\n" +
+                $"Добавлено дорожных/хайвей/парковочных MeshCollider: {colliders}\n" +
+                $"Ломающихся городских объектов: {breakableProps}\n\n" +
                 "Runtime-город сохранён локально и переживёт git reset.",
                 "OK");
         }
