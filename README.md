@@ -12,7 +12,7 @@ The project currently includes:
 
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
-- Prometeo Car Controller as the vehicle physics source, connected at runtime through a Motor City integration bridge so gameplay systems do not depend directly on the Asset Store script;
+- Prometeo Car Controller as the vehicle physics source, connected at runtime through a Motor City integration bridge so gameplay systems do not depend directly on the Asset Store script; Motor City feeds Prometeo through runtime touch-input proxies driven by the Unity Input System, so keyboard/gamepad controls do not depend on Prometeo's legacy Input.GetKey path;
 - four Prometeo WheelColliders generated from the actual imported wheel centers and measured wheel radius instead of guessed wheelbase/track values;
 - Prometeo acceleration, steering, service braking, coasting and handbrake traction-loss behavior, with Motor City garage upgrades mapped onto the controller tuning;
 - the imported racing-car visual automatically realigned so its measured wheelbase follows the Motor City vehicle forward axis before the physics rig is created;
