@@ -83,51 +83,28 @@ namespace MotorCity.Bootstrap
 
         private static void CreatePrototypeCity()
         {
-            // Preferred world: the downloaded CC0 Community Core / Kenney city.
-            // The old procedural primitives remain only as a fallback if the
-            // editor asset installer could not prepare the external assets.
             if (CityAssetRuntimeInstaller.TryInstall())
                 return;
 
-            Material asphalt = Material(new Color(0.045f, 0.048f, 0.055f), 0.08f, 0.23f);
-            Material groundMaterial = Material(new Color(0.115f, 0.125f, 0.13f), 0f, 0.08f);
-            Material sidewalk = Material(new Color(0.31f, 0.32f, 0.33f), 0f, 0.18f);
-            Material buildingA = Material(new Color(0.08f, 0.14f, 0.2f), 0.12f, 0.28f);
-            Material buildingB = Material(new Color(0.23f, 0.105f, 0.075f), 0.06f, 0.22f);
-            Material buildingC = Material(new Color(0.16f, 0.17f, 0.19f), 0.1f, 0.32f);
-            Material laneWhite = Material(new Color(0.88f, 0.9f, 0.86f), 0f, 0.22f);
-            Material laneYellow = Material(new Color(0.95f, 0.7f, 0.12f), 0f, 0.2f);
-            Material glass = Material(new Color(0.05f, 0.16f, 0.23f), 0.45f, 0.72f);
-            Material lampDark = Material(new Color(0.035f, 0.04f, 0.045f), 0.55f, 0.35f);
-            Material lampGlow = Material(new Color(1f, 0.65f, 0.24f), 0f, 0.65f);
+            Debug.LogWarning(
+                "Motor City: Versatile Demo City runtime prefab is missing. " +
+                "Showing only a temporary test surface instead of the old procedural city.");
 
-            GameObject ground = Primitive("Ground", PrimitiveType.Cube, new Vector3(0f, -0.52f, 0f), new Vector3(252f, 1f, 252f), groundMaterial);
+            Material asphalt =
+                Material(
+                    new Color(0.045f, 0.048f, 0.055f),
+                    0.08f,
+                    0.23f);
+
+            GameObject ground =
+                Primitive(
+                    "Temporary City Test Surface",
+                    PrimitiveType.Cube,
+                    new Vector3(0f, -0.52f, 0f),
+                    new Vector3(500f, 1f, 500f),
+                    asphalt);
+
             ground.isStatic = true;
-
-            for (int i = -2; i <= 2; i++)
-            {
-                float axis = i * 42f;
-                CreateVisualSurface($"Road_NS_{i}", PrimitiveType.Cube, new Vector3(axis, 0.012f, 0f), new Vector3(18f, 0.02f, 230f), asphalt);
-                CreateVisualSurface($"Road_EW_{i}", PrimitiveType.Cube, new Vector3(0f, 0.014f, axis), new Vector3(230f, 0.02f, 18f), asphalt);
-
-                for (int p = -108; p <= 108; p += 9)
-                {
-                    CreateVisualSurface("Lane_NS", PrimitiveType.Cube, new Vector3(axis, 0.03f, p), new Vector3(0.14f, 0.008f, 3.7f), i == 0 ? laneYellow : laneWhite);
-                    CreateVisualSurface("Lane_EW", PrimitiveType.Cube, new Vector3(p, 0.032f, axis), new Vector3(3.7f, 0.008f, 0.14f), i == 0 ? laneYellow : laneWhite);
-                }
-            }
-
-            for (int z = -2; z <= 1; z++)
-            {
-                for (int x = -2; x <= 1; x++)
-                {
-                    Vector3 blockCenter = new(x * 42f + 21f, 0f, z * 42f + 21f);
-                    CreateCityBlock(x, z, blockCenter, sidewalk, buildingA, buildingB, buildingC, glass);
-                }
-            }
-
-            CreateParkingLot(new Vector3(83f, 0f, -83f), asphalt, laneWhite);
-            CreateStreetLights(lampDark, lampGlow);
         }
 
         private static void CreateCityBlock(int gridX, int gridZ, Vector3 center, Material sidewalk, Material buildingA, Material buildingB, Material buildingC, Material glass)
