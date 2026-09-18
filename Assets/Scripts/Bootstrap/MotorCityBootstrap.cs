@@ -78,6 +78,12 @@ namespace MotorCity.Bootstrap
 
         private static void CreatePrototypeCity()
         {
+            // Preferred world: the downloaded CC0 Community Core / Kenney city.
+            // The old procedural primitives remain only as a fallback if the
+            // editor asset installer could not prepare the external assets.
+            if (CityAssetRuntimeInstaller.TryInstall())
+                return;
+
             Material asphalt = Material(new Color(0.045f, 0.048f, 0.055f), 0.08f, 0.23f);
             Material groundMaterial = Material(new Color(0.115f, 0.125f, 0.13f), 0f, 0.08f);
             Material sidewalk = Material(new Color(0.31f, 0.32f, 0.33f), 0f, 0.18f);
