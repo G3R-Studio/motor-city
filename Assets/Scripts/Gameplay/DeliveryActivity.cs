@@ -30,14 +30,7 @@ namespace MotorCity.Gameplay
             car = targetCar;
             wallet = targetWallet;
             activityManager = manager;
-            route = new[]
-            {
-                new Vector3(200.9f, 0f, -200.9f),
-                new Vector3(401.9f, 0f, 0f),
-                new Vector3(200.9f, 0f, 401.9f),
-                new Vector3(-200.9f, 0f, 401.9f),
-                new Vector3(-401.9f, 0f, 200.9f)
-            };
+            route = CityAssetRuntimeInstaller.DeliveryRoute;
         }
 
         public void SnapRouteToRoad()
