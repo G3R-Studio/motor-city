@@ -17,12 +17,12 @@ namespace MotorCity.Vehicle
         [Header("Prometeo tuning")]
         [SerializeField] private int baseMaxSpeedKph = 220;
         [SerializeField] private int maxReverseSpeedKph = 55;
-        [SerializeField] private int accelerationMultiplier = 8;
+        [SerializeField] private int accelerationMultiplier = 7;
         [SerializeField] private int maxSteeringAngle = 32;
         [SerializeField] private float steeringSpeed = 0.68f;
         [SerializeField] private int brakeForce = 900;
         [SerializeField] private int decelerationMultiplier = 4;
-        [SerializeField] private int handbrakeDriftMultiplier = 5;
+        [SerializeField] private int handbrakeDriftMultiplier = 4;
         [SerializeField] private Vector3 bodyMassCenter =
             new(0f, 0.32f, 0.05f);
 
@@ -311,7 +311,10 @@ namespace MotorCity.Vehicle
             forward.extremumValue = 1f;
             forward.asymptoteSlip = 0.78f;
             forward.asymptoteValue = 0.72f;
-            forward.stiffness = 1.12f;
+            forward.stiffness =
+                index >= RearLeft
+                    ? 1.48f
+                    : 1.18f;
 
             wheel.forwardFriction = forward;
 
@@ -322,7 +325,10 @@ namespace MotorCity.Vehicle
             sideways.extremumValue = 1f;
             sideways.asymptoteSlip = 0.55f;
             sideways.asymptoteValue = 0.76f;
-            sideways.stiffness = 1.08f;
+            sideways.stiffness =
+                index >= RearLeft
+                    ? 1.24f
+                    : 1.18f;
 
             wheel.sidewaysFriction = sideways;
         }
@@ -885,13 +891,19 @@ namespace MotorCity.Vehicle
                 WheelFrictionCurve forward =
                     wheel.forwardFriction;
                 forward.stiffness =
-                    1.12f * gripMultiplier;
+                    (i >= RearLeft
+                        ? 1.48f
+                        : 1.18f) *
+                    gripMultiplier;
                 wheel.forwardFriction = forward;
 
                 WheelFrictionCurve sideways =
                     wheel.sidewaysFriction;
                 sideways.stiffness =
-                    1.08f * gripMultiplier;
+                    (i >= RearLeft
+                        ? 1.24f
+                        : 1.18f) *
+                    gripMultiplier;
                 wheel.sidewaysFriction = sideways;
             }
         }
