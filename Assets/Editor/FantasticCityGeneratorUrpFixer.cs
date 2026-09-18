@@ -960,14 +960,17 @@ public static class FantasticCityGeneratorUrpFixer
             FindOriginalFcgMaterial(
                 generatedName);
 
+        bool foliage =
+            IsFoliageMaterialName(
+                generatedName);
+
         if (source != null)
         {
-            Texture currentBase =
-                material.HasProperty("_BaseMap")
-                    ? material.GetTexture("_BaseMap")
-                    : null;
-
-            if (currentBase == null)
+            // Foliage materials are intentionally refreshed every pass. Some
+            // old FCG shaders leave a non-null default white texture in the
+            // generated URP material, so checking only for null is not enough.
+            if (foliage ||
+                !HasUsefulBaseTexture(material))
             {
                 CopyBaseMap(
                     source,
@@ -994,9 +997,13 @@ public static class FantasticCityGeneratorUrpFixer
                 source,
                 material);
         }
-        else if (IsFoliageMaterialName(
-                     generatedName.ToLowerInvariant()))
+
+        if (foliage)
         {
+            EnsureFoliageBaseTexture(
+                material,
+                generatedName);
+
             ConfigureFoliageFallback(
                 material);
         }
@@ -1014,6 +1021,20 @@ public static class FantasticCityGeneratorUrpFixer
         if (string.IsNullOrWhiteSpace(
                 materialName))
             return null;
+
+        string wanted =
+            NormalizeMaterialName(
+                materialName);
+
+        if (string.IsNullOrWhiteSpace(
+                wanted))
+            return null;
+
+        Material best =
+            null;
+
+        int bestScore =
+            int.MinValue;
 
         string[] guids =
             AssetDatabase.FindAssets(
@@ -1036,16 +1057,315 @@ public static class FantasticCityGeneratorUrpFixer
             if (candidate == null)
                 continue;
 
-            if (string.Equals(
-                    candidate.name,
-                    materialName,
-                    StringComparison.OrdinalIgnoreCase))
+            string normalized =
+                NormalizeMaterialName(
+                    candidate.name);
+
+            if (string.IsNullOrWhiteSpace(
+                    normalized))
+                continue;
+
+            int score =
+                0;
+
+            if (normalized == wanted)
+                score += 100;
+
+            if (wanted.Contains(normalized) ||
+                normalized.Contains(wanted))
+                score += 35;
+
+            string[] wantedTokens =
+                MaterialNameTokens(
+                    wanted);
+
+            string[] candidateTokens =
+                MaterialNameTokens(
+                    normalized);
+
+            foreach (string token in wantedTokens)
             {
-                return candidate;
+                if (candidateTokens.Contains(
+                        token))
+                {
+                    score += 8;
+                }
+            }
+
+            if (score <= bestScore)
+                continue;
+
+            bestScore =
+                score;
+
+            best =
+                candidate;
+        }
+
+        return
+            bestScore >= 16
+                ? best
+                : null;
+    }
+
+    private static bool HasUsefulBaseTexture(
+        Material material)
+    {
+        if (material == null ||
+            !material.HasProperty("_BaseMap"))
+            return false;
+
+        Texture texture =
+            material.GetTexture(
+                "_BaseMap");
+
+        if (texture == null)
+            return false;
+
+        string path =
+            AssetDatabase.GetAssetPath(
+                texture);
+
+        return
+            !string.IsNullOrWhiteSpace(
+                path);
+    }
+
+    private static void EnsureFoliageBaseTexture(
+        Material material,
+        string materialName)
+    {
+        if (material == null ||
+            !material.HasProperty("_BaseMap"))
+            return;
+
+        Texture current =
+            material.GetTexture(
+                "_BaseMap");
+
+        string currentPath =
+            current != null
+                ? AssetDatabase.GetAssetPath(
+                    current)
+                : string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(
+                currentPath) &&
+            IsFcgPath(
+                currentPath))
+            return;
+
+        Texture fallback =
+            FindFcgTextureForMaterial(
+                materialName);
+
+        if (fallback == null)
+            return;
+
+        material.SetTexture(
+            "_BaseMap",
+            fallback);
+
+        Debug.Log(
+            "Motor City: restored FCG foliage texture " +
+            $"'{fallback.name}' for material '{material.name}'.");
+    }
+
+    private static Texture FindFcgTextureForMaterial(
+        string materialName)
+    {
+        string wanted =
+            NormalizeMaterialName(
+                materialName);
+
+        string[] wantedTokens =
+            MaterialNameTokens(
+                wanted);
+
+        Texture best =
+            null;
+
+        int bestScore =
+            int.MinValue;
+
+        string[] guids =
+            AssetDatabase.FindAssets(
+                "t:Texture2D",
+                new[]
+                {
+                    FcgRoot.TrimEnd('/')
+                });
+
+        foreach (string guid in guids)
+        {
+            string path =
+                AssetDatabase.GUIDToAssetPath(
+                    guid);
+
+            Texture texture =
+                AssetDatabase.LoadAssetAtPath<Texture>(
+                    path);
+
+            if (texture == null)
+                continue;
+
+            string normalizedTexture =
+                NormalizeMaterialName(
+                    texture.name);
+
+            int score =
+                0;
+
+            if (normalizedTexture == wanted)
+                score += 100;
+
+            if (wanted.Contains(
+                    normalizedTexture) ||
+                normalizedTexture.Contains(
+                    wanted))
+                score += 30;
+
+            string[] textureTokens =
+                MaterialNameTokens(
+                    normalizedTexture);
+
+            foreach (string token in wantedTokens)
+            {
+                if (textureTokens.Contains(
+                        token))
+                {
+                    score += 9;
+                }
+            }
+
+            string lower =
+                texture.name.ToLowerInvariant();
+
+            if (wanted.Contains("grass") &&
+                lower.Contains("grass"))
+                score += 20;
+
+            if ((wanted.Contains("tree") ||
+                 wanted.Contains("leaf") ||
+                 wanted.Contains("foliage")) &&
+                (lower.Contains("tree") ||
+                 lower.Contains("leaf") ||
+                 lower.Contains("foliage")))
+                score += 20;
+
+            if (lower.Contains("normal") ||
+                lower.Contains("bump") ||
+                lower.Contains("mask") ||
+                lower.Contains("control") ||
+                lower.Contains("metal") ||
+                lower.Contains("spec") ||
+                lower.Contains("ao") ||
+                lower.Contains("occlusion"))
+                score -= 40;
+
+            if (score <= bestScore)
+                continue;
+
+            bestScore =
+                score;
+
+            best =
+                texture;
+        }
+
+        return
+            bestScore >= 20
+                ? best
+                : null;
+    }
+
+    private static string NormalizeMaterialName(
+        string value)
+    {
+        if (string.IsNullOrWhiteSpace(
+                value))
+            return string.Empty;
+
+        string normalized =
+            value.Trim();
+
+        if (normalized.StartsWith(
+                "FCG_",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            normalized =
+                normalized.Substring(4);
+        }
+
+        normalized =
+            normalized.Replace(
+                "(Instance)",
+                string.Empty,
+                StringComparison.OrdinalIgnoreCase);
+
+        int lastDot =
+            normalized.LastIndexOf('.');
+
+        if (lastDot >= 0 &&
+            lastDot < normalized.Length - 1)
+        {
+            string suffix =
+                normalized.Substring(
+                    lastDot + 1);
+
+            if (suffix.All(char.IsDigit))
+            {
+                normalized =
+                    normalized.Substring(
+                        0,
+                        lastDot);
             }
         }
 
-        return null;
+        return new string(
+            normalized
+                .ToLowerInvariant()
+                .Where(char.IsLetterOrDigit)
+                .ToArray());
+    }
+
+    private static string[] MaterialNameTokens(
+        string normalized)
+    {
+        if (string.IsNullOrWhiteSpace(
+                normalized))
+            return Array.Empty<string>();
+
+        var tokens =
+            new List<string>();
+
+        foreach (string known in new[]
+        {
+            "grass",
+            "splat",
+            "tree",
+            "trees",
+            "leaf",
+            "leaves",
+            "foliage",
+            "palm",
+            "fern",
+            "road",
+            "highway",
+            "atlas"
+        })
+        {
+            if (normalized.Contains(
+                    known))
+            {
+                tokens.Add(
+                    known);
+            }
+        }
+
+        return tokens
+            .Distinct()
+            .ToArray();
     }
 
     private static string FindBestBaseTextureProperty(
