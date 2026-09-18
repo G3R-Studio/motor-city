@@ -555,51 +555,37 @@ namespace MotorCity.World
             float cityGroundY =
                 cityBounds.min.y;
 
+            // First pass: only explicit road meshes/materials. This avoids
+            // sidewalks and plazas being chosen simply because they are flat.
             foreach (Renderer renderer in renderers)
             {
-                if (renderer == null ||
-                    !renderer.enabled)
+                if (!IsUsableRoadRenderer(
+                        renderer,
+                        cityGroundY,
+                        false))
                     continue;
 
-                string searchable =
-                    BuildHierarchyName(
-                        renderer.transform) +
-                    " " +
-                    BuildMaterialNames(
-                        renderer);
+                EnsureRoadCollider(
+                    renderer);
 
-                Bounds bounds =
-                    renderer.bounds;
+                AddRoadRendererSamples(
+                    renderer);
+            }
 
-                bool nonRoadSurface =
-                    searchable.Contains("sidewalk") ||
-                    searchable.Contains("footpath") ||
-                    searchable.Contains("pedestrian") ||
-                    searchable.Contains("curb") ||
-                    searchable.Contains("kerb") ||
-                    searchable.Contains("plaza") ||
-                    searchable.Contains("pavement");
+            if (roadPoints.Count > 0)
+            {
+                Debug.Log(
+                    $"Motor City: detected {roadPoints.Count} explicit road samples.");
+                return;
+            }
 
-                bool namedRoad =
-                    !nonRoadSurface &&
-                    (searchable.Contains("road") ||
-                     searchable.Contains("street") ||
-                     searchable.Contains("highway") ||
-                     searchable.Contains("asphalt") ||
-                     searchable.Contains("intersection") ||
-                     searchable.Contains("lane") ||
-                     searchable.Contains("tarmac"));
-
-                bool geometricRoad =
-                    !nonRoadSurface &&
-                    bounds.size.y <= 0.6f &&
-                    Mathf.Max(
-                        bounds.size.x,
-                        bounds.size.z) >= 12f &&
-                    bounds.min.y <= cityGroundY + 2.5f;
-
-                if (!namedRoad &&
-                    !geometricRoad)
+            // Last-resort fallback for unusually named assets.
+            foreach (Renderer renderer in renderers)
+            {
+                if (!IsUsableRoadRenderer(
+                        renderer,
+                        cityGroundY,
+                        true))
                     continue;
 
                 EnsureRoadCollider(
@@ -614,6 +600,76 @@ namespace MotorCity.World
                 Debug.LogWarning(
                     "Motor City: road detector found no suitable renderer surfaces.");
             }
+            else
+            {
+                Debug.LogWarning(
+                    $"Motor City: no explicitly named road meshes were found; using {roadPoints.Count} geometric road samples.");
+            }
+        }
+
+        private static bool IsUsableRoadRenderer(
+            Renderer renderer,
+            float cityGroundY,
+            bool allowGeometryFallback)
+        {
+            if (renderer == null ||
+                !renderer.enabled)
+                return false;
+
+            string searchable =
+                BuildHierarchyName(
+                    renderer.transform) +
+                " " +
+                BuildMaterialNames(
+                    renderer);
+
+            bool nonRoadSurface =
+                searchable.Contains("sidewalk") ||
+                searchable.Contains("footpath") ||
+                searchable.Contains("pedestrian") ||
+                searchable.Contains("curb") ||
+                searchable.Contains("kerb") ||
+                searchable.Contains("plaza") ||
+                searchable.Contains("pavement") ||
+                searchable.Contains("walkway") ||
+                searchable.Contains("walk ") ||
+                searchable.Contains("stairs") ||
+                searchable.Contains("step") ||
+                searchable.Contains("building") ||
+                searchable.Contains("grass") ||
+                searchable.Contains("ground") ||
+                searchable.Contains("park");
+
+            if (nonRoadSurface)
+                return false;
+
+            bool explicitRoad =
+                searchable.Contains("road") ||
+                searchable.Contains("street") ||
+                searchable.Contains("highway") ||
+                searchable.Contains("asphalt") ||
+                searchable.Contains("intersection") ||
+                searchable.Contains("lane") ||
+                searchable.Contains("tarmac");
+
+            if (explicitRoad)
+                return true;
+
+            if (!allowGeometryFallback)
+                return false;
+
+            Bounds bounds =
+                renderer.bounds;
+
+            return
+                bounds.size.y <= 0.35f &&
+                Mathf.Max(
+                    bounds.size.x,
+                    bounds.size.z) >= 18f &&
+                Mathf.Min(
+                    bounds.size.x,
+                    bounds.size.z) >= 5f &&
+                bounds.min.y <= cityGroundY + 2.0f;
         }
 
         private static void AddRoadRendererSamples(
