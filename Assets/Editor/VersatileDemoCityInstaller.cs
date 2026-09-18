@@ -10,8 +10,12 @@ using UnityEngine.SceneManagement;
 [InitializeOnLoad]
 public static class VersatileDemoCityInstaller
 {
-    private const string SourceRoot =
-        "Assets/Versatile Studio Assets/Demo City By Versatile Studio";
+    private static readonly string[] PreferredSourceRoots =
+    {
+        "Assets/Versatile Studio Assets/Demo City By Versatile Studio",
+        "Assets/Versatile Studio Assets",
+        "Assets/Demo City By Versatile Studio"
+    };
 
     private const string RuntimeRoot =
         "Assets/Resources/MotorCity/Environment";
@@ -47,7 +51,7 @@ public static class VersatileDemoCityInstaller
 
         CleanupLegacyCityAssets();
 
-        if (!AssetDatabase.IsValidFolder(SourceRoot))
+        if (string.IsNullOrEmpty(FindBestDemoScene()))
             return;
 
         bool currentBuild =
@@ -96,7 +100,10 @@ public static class VersatileDemoCityInstaller
 
     private static void Build(bool force)
     {
-        if (!AssetDatabase.IsValidFolder(SourceRoot))
+        string scenePath =
+            FindBestDemoScene();
+
+        if (string.IsNullOrEmpty(scenePath))
         {
             if (force)
             {
@@ -105,18 +112,6 @@ public static class VersatileDemoCityInstaller
                     "Import the Asset Store package first.");
             }
 
-            return;
-        }
-
-        string scenePath =
-            FindBestDemoScene();
-
-        if (string.IsNullOrEmpty(scenePath))
-        {
-            Debug.LogError(
-                "Motor City: no Unity scene was found inside '" +
-                SourceRoot +
-                "'.");
             return;
         }
 
@@ -201,13 +196,23 @@ public static class VersatileDemoCityInstaller
 
     private static string FindBestDemoScene()
     {
+        string[] preferredRoots =
+            PreferredSourceRoots
+                .Where(AssetDatabase.IsValidFolder)
+                .ToArray();
+
         string[] sceneGuids =
-            AssetDatabase.FindAssets(
-                "t:Scene",
-                new[] { SourceRoot });
+            preferredRoots.Length > 0
+                ? AssetDatabase.FindAssets(
+                    "t:Scene",
+                    preferredRoots)
+                : AssetDatabase.FindAssets(
+                    "t:Scene",
+                    new[] { "Assets" });
 
         return sceneGuids
             .Select(AssetDatabase.GUIDToAssetPath)
+            .Where(IsVersatileDemoCityScene)
             .Select(
                 path => new
                 {
@@ -218,6 +223,28 @@ public static class VersatileDemoCityInstaller
             .ThenBy(item => item.Path.Length)
             .Select(item => item.Path)
             .FirstOrDefault();
+    }
+
+    private static bool IsVersatileDemoCityScene(
+        string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        string lower =
+            path.Replace('\\', '/')
+                .ToLowerInvariant();
+
+        bool versatile =
+            lower.Contains("versatile");
+
+        bool city =
+            lower.Contains("demo city") ||
+            lower.Contains("democity") ||
+            lower.Contains("/city") ||
+            lower.Contains("city ");
+
+        return versatile && city;
     }
 
     private static int ScoreScene(
