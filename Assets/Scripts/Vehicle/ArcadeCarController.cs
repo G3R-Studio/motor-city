@@ -18,7 +18,7 @@ namespace MotorCity.Vehicle
         [SerializeField] private int accelerationMultiplier = 6;
         [SerializeField] private int maxSteeringAngle = 32;
         [SerializeField] private float steeringSpeed = 0.68f;
-        [SerializeField] private int brakeForce = 560;
+        [SerializeField] private int brakeForce = 900;
         [SerializeField] private int decelerationMultiplier = 4;
         [SerializeField] private int handbrakeDriftMultiplier = 5;
         [SerializeField] private Vector3 bodyMassCenter =
