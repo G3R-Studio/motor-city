@@ -509,18 +509,29 @@ public static class FantasticCityGeneratorUrpFixer
         Material source,
         Material destination)
     {
+        string normalizedSourceName =
+            NormalizeMaterialName(
+                source.name);
+
+        bool grassSplat =
+            normalizedSourceName.Contains(
+                "grasssplat");
+
         string sourceProperty =
-            FirstExistingProperty(
-                source,
-                "_BaseMap",
-                "_MainTex",
-                "_BaseColorMap",
-                "_Albedo",
-                "_AlbedoMap",
-                "_Diffuse",
-                "_DiffuseMap",
-                "_ColorMap",
-                "_Texture");
+            grassSplat
+                ? FindBestBaseTextureProperty(
+                    source)
+                : FirstExistingProperty(
+                    source,
+                    "_BaseMap",
+                    "_MainTex",
+                    "_BaseColorMap",
+                    "_Albedo",
+                    "_AlbedoMap",
+                    "_Diffuse",
+                    "_DiffuseMap",
+                    "_ColorMap",
+                    "_Texture");
 
         if (sourceProperty == null)
         {
@@ -1300,8 +1311,7 @@ public static class FantasticCityGeneratorUrpFixer
         normalized =
             normalized.Replace(
                 "(Instance)",
-                string.Empty,
-                StringComparison.OrdinalIgnoreCase);
+                string.Empty);
 
         int lastDot =
             normalized.LastIndexOf('.');
@@ -1392,6 +1402,12 @@ public static class FantasticCityGeneratorUrpFixer
         int bestScore =
             int.MinValue;
 
+        bool grassSplat =
+            NormalizeMaterialName(
+                material.name)
+                .Contains(
+                    "grasssplat");
+
         foreach (string property in properties)
         {
             Texture texture =
@@ -1421,7 +1437,16 @@ public static class FantasticCityGeneratorUrpFixer
                 0;
 
             if (lower.Contains("main"))
-                score += 8;
+                score +=
+                    grassSplat
+                        ? -8
+                        : 8;
+
+            if (grassSplat &&
+                lower.Contains("splat"))
+            {
+                score += 22;
+            }
 
             if (lower.Contains("base"))
                 score += 7;
@@ -1442,6 +1467,19 @@ public static class FantasticCityGeneratorUrpFixer
                 textureName.Contains("albedo") ||
                 textureName.Contains("color"))
                 score += 3;
+
+            if (grassSplat &&
+                textureName.Contains("grass"))
+            {
+                score += 14;
+            }
+
+            if (grassSplat &&
+                (textureName.Contains("control") ||
+                 textureName.Contains("mask")))
+            {
+                score -= 30;
+            }
 
             if (score <= bestScore)
                 continue;
