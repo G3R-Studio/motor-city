@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MotorCity.Gameplay;
 using UnityEngine;
 
@@ -7,16 +8,31 @@ namespace MotorCity.World
     {
         private StreetSprintActivity sprint;
         private ActivityManager activityManager;
-        private Renderer markerRenderer;
+        private Renderer[] markerRenderers;
+        private Material[] markerMaterials;
         private Vector3 baseScale;
 
         public void Bind(StreetSprintActivity activity, ActivityManager manager)
         {
             sprint = activity;
             activityManager = manager;
-            markerRenderer = GetComponent<Renderer>();
             baseScale = transform.localScale;
+            CacheVisuals();
             SnapToTarget();
+        }
+
+        private void CacheVisuals()
+        {
+            markerRenderers = GetComponentsInChildren<Renderer>(true);
+            List<Material> materials = new();
+
+            foreach (Renderer renderer in markerRenderers)
+            {
+                if (renderer == null) continue;
+                materials.AddRange(renderer.materials);
+            }
+
+            markerMaterials = materials.ToArray();
         }
 
         private void Update()
@@ -28,31 +44,21 @@ namespace MotorCity.World
                 !activityManager.IsBusy ||
                 activityManager.IsActive("sprint");
 
-            if (markerRenderer != null)
-                markerRenderer.enabled = visible;
-
+            SetVisible(visible);
             if (!visible) return;
 
             SnapToTarget();
 
-            float pulse = 1f + Mathf.Sin(Time.time * 4.2f) * 0.08f;
-            transform.localScale = new Vector3(
-                baseScale.x * pulse,
-                baseScale.y,
-                baseScale.z * pulse);
+            float pulse =
+                1f + Mathf.Sin(Time.time * 4.2f) * 0.045f;
 
-            if (markerRenderer != null)
-            {
-                Color target = sprint.IsActive
-                    ? new Color(0.1f, 0.95f, 0.45f, 1f)
-                    : new Color(0.18f, 1f, 0.34f, 1f);
+            transform.localScale =
+                baseScale * pulse;
 
-                markerRenderer.material.color =
-                    Color.Lerp(
-                        markerRenderer.material.color,
-                        target,
-                        Time.deltaTime * 7f);
-            }
+            Tint(
+                sprint.IsActive
+                    ? new Color(0.12f, 1f, 0.48f)
+                    : new Color(0.22f, 1f, 0.34f));
         }
 
         private void SnapToTarget()
@@ -61,7 +67,30 @@ namespace MotorCity.World
             transform.position =
                 target +
                 Vector3.up *
-                (0.12f + Mathf.Sin(Time.time * 2.8f) * 0.04f);
+                (0.12f +
+                 Mathf.Sin(Time.time * 2.8f) * 0.04f);
+        }
+
+        private void SetVisible(bool visible)
+        {
+            if (markerRenderers == null) return;
+            foreach (Renderer renderer in markerRenderers)
+                if (renderer != null)
+                    renderer.enabled = visible;
+        }
+
+        private void Tint(Color color)
+        {
+            if (markerMaterials == null) return;
+
+            foreach (Material material in markerMaterials)
+            {
+                if (material == null) continue;
+                if (material.HasProperty("_BaseColor"))
+                    material.SetColor("_BaseColor", color);
+                else if (material.HasProperty("_Color"))
+                    material.color = color;
+            }
         }
     }
 }
