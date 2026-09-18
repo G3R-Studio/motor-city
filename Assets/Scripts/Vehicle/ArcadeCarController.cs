@@ -1,9 +1,11 @@
 using System;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace MotorCity.Vehicle
 {
+    [DefaultExecutionOrder(-100)]
     [RequireComponent(typeof(Rigidbody))]
     public sealed class ArcadeCarController : MonoBehaviour
     {
@@ -52,6 +54,12 @@ namespace MotorCity.Vehicle
         private Rigidbody body;
         private Component prometeo;
         private Type prometeoType;
+        private Component throttleInputProxy;
+        private Component reverseInputProxy;
+        private Component leftInputProxy;
+        private Component rightInputProxy;
+        private Component handbrakeInputProxy;
+        private Type prometeoTouchInputType;
 
         private bool wheelRigReady;
         private bool drivingEnabled = true;
@@ -135,6 +143,8 @@ namespace MotorCity.Vehicle
                     TryBindPrometeo();
                 }
             }
+
+            UpdatePrometeoInputProxies();
 
             if (resetHoldTimer > 0f)
             {
@@ -319,6 +329,13 @@ namespace MotorCity.Vehicle
             if (!complete)
                 return false;
 
+            bool inputProxyReady =
+                EnsurePrometeoInputProxies();
+
+            SetPrometeoField(
+                "useTouchControls",
+                inputProxyReady);
+
             SetPrometeoField(
                 "frontLeftMesh",
                 wheelMeshes[FrontLeft]);
@@ -354,9 +371,11 @@ namespace MotorCity.Vehicle
             SetPrometeoField(
                 "useSounds",
                 false);
-            SetPrometeoField(
-                "useTouchControls",
-                false);
+            if (!inputProxyReady)
+            {
+                Debug.LogWarning(
+                    "Motor City: PrometeoTouchInput was not found, so Prometeo is falling back to its built-in input path.");
+            }
 
             ApplyPrometeoTuning();
 
@@ -370,6 +389,222 @@ namespace MotorCity.Vehicle
                 "Motor City: Prometeo Car Controller is now the active vehicle physics controller.");
 
             return true;
+        }
+
+        private bool EnsurePrometeoInputProxies()
+        {
+            if (throttleInputProxy != null &&
+                reverseInputProxy != null &&
+                leftInputProxy != null &&
+                rightInputProxy != null &&
+                handbrakeInputProxy != null)
+                return true;
+
+            prometeoTouchInputType =
+                FindTypeByName(
+                    "PrometeoTouchInput");
+
+            if (prometeoTouchInputType == null ||
+                !typeof(Component).IsAssignableFrom(
+                    prometeoTouchInputType))
+                return false;
+
+            throttleInputProxy =
+                CreateInputProxy(
+                    "Prometeo Input — Throttle");
+
+            reverseInputProxy =
+                CreateInputProxy(
+                    "Prometeo Input — Reverse");
+
+            leftInputProxy =
+                CreateInputProxy(
+                    "Prometeo Input — Left");
+
+            rightInputProxy =
+                CreateInputProxy(
+                    "Prometeo Input — Right");
+
+            handbrakeInputProxy =
+                CreateInputProxy(
+                    "Prometeo Input — Handbrake");
+
+            bool ready =
+                throttleInputProxy != null &&
+                reverseInputProxy != null &&
+                leftInputProxy != null &&
+                rightInputProxy != null &&
+                handbrakeInputProxy != null;
+
+            if (!ready)
+                return false;
+
+            SetPrometeoField(
+                "throttleButton",
+                throttleInputProxy.gameObject);
+
+            SetPrometeoField(
+                "reverseButton",
+                reverseInputProxy.gameObject);
+
+            SetPrometeoField(
+                "turnLeftButton",
+                leftInputProxy.gameObject);
+
+            SetPrometeoField(
+                "turnRightButton",
+                rightInputProxy.gameObject);
+
+            SetPrometeoField(
+                "handbrakeButton",
+                handbrakeInputProxy.gameObject);
+
+            return true;
+        }
+
+        private Component CreateInputProxy(
+            string name)
+        {
+            GameObject inputObject =
+                new(name);
+
+            inputObject.transform.SetParent(
+                transform,
+                false);
+
+            inputObject.hideFlags =
+                HideFlags.HideInHierarchy;
+
+            return inputObject.AddComponent(
+                prometeoTouchInputType);
+        }
+
+        private void UpdatePrometeoInputProxies()
+        {
+            if (prometeo == null ||
+                throttleInputProxy == null)
+                return;
+
+            bool throttle = false;
+            bool reverse = false;
+            bool left = false;
+            bool right = false;
+            bool handbrake = false;
+
+            if (drivingEnabled &&
+                resetHoldTimer <= 0f)
+            {
+                Keyboard keyboard =
+                    Keyboard.current;
+
+                if (keyboard != null)
+                {
+                    throttle =
+                        keyboard.wKey.isPressed ||
+                        keyboard.upArrowKey.isPressed;
+
+                    reverse =
+                        keyboard.sKey.isPressed ||
+                        keyboard.downArrowKey.isPressed;
+
+                    left =
+                        keyboard.aKey.isPressed ||
+                        keyboard.leftArrowKey.isPressed;
+
+                    right =
+                        keyboard.dKey.isPressed ||
+                        keyboard.rightArrowKey.isPressed;
+
+                    handbrake =
+                        keyboard.spaceKey.isPressed;
+                }
+
+                Gamepad gamepad =
+                    Gamepad.current;
+
+                if (gamepad != null)
+                {
+                    throttle |=
+                        gamepad.rightTrigger.ReadValue() >
+                        0.12f;
+
+                    reverse |=
+                        gamepad.leftTrigger.ReadValue() >
+                        0.12f;
+
+                    float steer =
+                        gamepad.leftStick.x.ReadValue();
+
+                    left |= steer < -0.16f;
+                    right |= steer > 0.16f;
+
+                    handbrake |=
+                        gamepad.buttonSouth.isPressed;
+                }
+            }
+
+            SetInputProxyPressed(
+                throttleInputProxy,
+                throttle);
+
+            SetInputProxyPressed(
+                reverseInputProxy,
+                reverse);
+
+            SetInputProxyPressed(
+                leftInputProxy,
+                left);
+
+            SetInputProxyPressed(
+                rightInputProxy,
+                right);
+
+            SetInputProxyPressed(
+                handbrakeInputProxy,
+                handbrake);
+        }
+
+        private static void SetInputProxyPressed(
+            Component proxy,
+            bool pressed)
+        {
+            if (proxy == null)
+                return;
+
+            Type type =
+                proxy.GetType();
+
+            FieldInfo field =
+                type.GetField(
+                    "buttonPressed",
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic);
+
+            if (field != null &&
+                field.FieldType == typeof(bool))
+            {
+                field.SetValue(
+                    proxy,
+                    pressed);
+                return;
+            }
+
+            PropertyInfo property =
+                type.GetProperty(
+                    "buttonPressed",
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic);
+
+            if (property != null &&
+                property.CanWrite &&
+                property.PropertyType == typeof(bool))
+            {
+                property.SetValue(
+                    proxy,
+                    pressed);
+            }
         }
 
         private void ApplyPrometeoTuning()
@@ -779,12 +1014,19 @@ namespace MotorCity.Vehicle
 
         private static Type FindPrometeoType()
         {
+            return FindTypeByName(
+                "PrometeoCarController");
+        }
+
+        private static Type FindTypeByName(
+            string typeName)
+        {
             foreach (System.Reflection.Assembly assembly
                      in AppDomain.CurrentDomain.GetAssemblies())
             {
                 Type direct =
                     assembly.GetType(
-                        "PrometeoCarController",
+                        typeName,
                         false);
 
                 if (direct != null)
@@ -809,8 +1051,7 @@ namespace MotorCity.Vehicle
                 foreach (Type type in types)
                 {
                     if (type != null &&
-                        type.Name ==
-                        "PrometeoCarController")
+                        type.Name == typeName)
                         return type;
                 }
             }
