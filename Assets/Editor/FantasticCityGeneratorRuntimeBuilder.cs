@@ -262,7 +262,14 @@ public static class FantasticCityGeneratorRuntimeBuilder
         bool parking =
             meshName.StartsWith("park-04") ||
             meshName.StartsWith("park-05") ||
-            meshName.StartsWith("park-06");
+            meshName.StartsWith("park-06") ||
+            meshName.StartsWith("park-08");
+
+        if (meshName.Contains("guardrail") ||
+            meshName.Contains("guard-rail") ||
+            path.Contains("guardrail") ||
+            path.Contains("guard-rail"))
+            return false;
 
         bool driveableMaterial =
             renderer.sharedMaterials.Any(
