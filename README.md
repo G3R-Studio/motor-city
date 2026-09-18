@@ -12,15 +12,15 @@ The project currently includes:
 
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
-- drift-capable rear-wheel-drive WheelCollider vehicle physics adapted to Unity 6 and the Input System, with a 0.02 s physics timestep, higher solver precision and smoothed keyboard/gamepad input;
-- a 1480 kg Rigidbody chassis with rear-wheel drive, four WheelColliders, speed-sensitive steering, four-wheel service braking, anti-roll forces and a deliberately lowered center of mass;
-- separate forward drive, service-brake and reverse behavior, limited reverse speed, speed-sensitive steering and dynamic rear grip for throttle and handbrake drifts;
-- retuned WheelCollider suspension, damping and tyre friction, with the collider radius matched to the imported visual wheel size;
-- wheel visuals synchronized to the physical WheelColliders;
+- Prometeo Car Controller as the vehicle physics source, connected at runtime through a Motor City integration bridge so gameplay systems do not depend directly on the Asset Store script;
+- four Prometeo WheelColliders generated from the actual imported wheel centers and measured wheel radius instead of guessed wheelbase/track values;
+- Prometeo acceleration, steering, service braking, coasting and handbrake traction-loss behavior, with Motor City garage upgrades mapped onto the controller tuning;
+- the imported racing-car visual automatically realigned so its measured wheelbase follows the Motor City vehicle forward axis before the physics rig is created;
+- wheel meshes kept separate from their WheelColliders, as required by Prometeo, with the visual wheel roots driven by Prometeo wheel poses;
 - runtime rear-tire smoke and persistent tire-mark trails emitted from actual WheelCollider ground-contact points while the rear tires are sliding;
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
-- a unified drift state based on actual rear-wheel sideways slip, vehicle slip angle and grounded wheels; the same state drives drift scoring, smoke and tire marks, with free-roam drift series banked into КР when the drift ends;
+- a unified drift state based on Prometeo drift/traction state plus actual rear-wheel sideways slip, vehicle slip angle and grounded wheels; the same state drives drift scoring, smoke and tire marks, with free-roam drift series banked into КР when the drift ends;
 - a timed drift challenge centered on a reviewed City 02 road intersection, with a score target, КР reward and a 3.5-second return grace period after leaving the activity area;
 - a timed street sprint with moving checkpoints and a performance-based КР reward;
 - a smooth orbiting chase camera with mouse look, zoom, speed-based look-ahead, distance and field-of-view response;
@@ -50,11 +50,12 @@ Primitive geometry remains only as an emergency fallback if the external CC0 ass
 2. Clone this repository.
 3. Open the repository root as a Unity project.
 4. Import **ARCADE: FREE Racing Car** by Mena from the Unity Asset Store / Package Manager.
-5. Wait for the Motor City importer to generate `Assets/Resources/MotorCity/PlayerCarVisual.prefab`.
-6. The editor will also automatically download the CC0 Community Core Stack City 02 / Kenney environment and generate the runtime city and activity prop prefabs under `Assets/Resources/MotorCity/Environment`.
-7. The editor automatically downloads the Kenney CC0 UI Pack and prepares the runtime UI sprites under `Assets/Resources/MotorCity/UI`.
-8. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically.
-9. Press Play.
+5. Import **PROMETEO: Car Controller** by Mena from the Unity Asset Store. Motor City does not redistribute the Prometeo package; the runtime bridge detects `PrometeoCarController` after Unity recompiles.
+6. Wait for the Motor City importer to generate `Assets/Resources/MotorCity/PlayerCarVisual.prefab`.
+7. The editor will also automatically download the CC0 Community Core Stack City 02 / Kenney environment and generate the runtime city and activity prop prefabs under `Assets/Resources/MotorCity/Environment`.
+8. The editor automatically downloads the Kenney CC0 UI Pack and prepares the runtime UI sprites under `Assets/Resources/MotorCity/UI`.
+9. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically and keep both Unity input backends enabled for Prometeo compatibility.
+10. Press Play.
 
 The car importer prefers a matching racing-car prefab with usable body colliders and falls back to another matching prefab if needed.
 
@@ -62,7 +63,7 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 
 - `W/S` or arrow keys — throttle / reverse;
 - `A/D` or arrow keys — steering;
-- `Space` — rear-wheel handbrake at speed and four-wheel parking brake near a stop;
+- `Space` — Prometeo handbrake / traction break for initiating and sustaining a drift;
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
 - `E` — open/close the garage while stopped in the purple garage marker;
@@ -71,4 +72,4 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 
 ## Current gameplay
 
-Drive freely through the prototype district with rear-wheel-drive drift handling and build drift score from the same WheelCollider slip state that produces tire smoke and road marks, or take part in one of the current activities. The blue crate marker starts the delivery route, the orange cone cluster starts a timed drift challenge at a city intersection, and the green race flag starts a timed street sprint. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
+Drive freely through the prototype district with Prometeo-based drift handling and build drift score from the same physical slide state that produces tire smoke and road marks, or take part in one of the current activities. The blue crate marker starts the delivery route, the orange cone cluster starts a timed drift challenge at a city intersection, and the green race flag starts a timed street sprint. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
