@@ -12,7 +12,7 @@ namespace MotorCity.Gameplay
         private const string ActivityId = "garage";
         private const int MaxLevel = 3;
 
-        [SerializeField] private Vector3 garageCenter = new(-200.9f, 0f, -200.9f);
+        private Vector3 garageCenter;
         [SerializeField] private float interactRadius = 13f;
         [SerializeField] private float maxOpenSpeedKph = 8f;
 
@@ -125,15 +125,10 @@ namespace MotorCity.Gameplay
         {
             return Mathf.Clamp(index, 0, 2) switch
             {
-                0 => "+12% тяги и +10% отклика за уровень",
-                1 => "+10% бокового сцепления за уровень",
-                _ => "+16% стабилизации крена и +12% демпфирования за уровень"
+                0 => "+15% тяги и +10% отклика за уровень",
+                1 => "+8% бокового сцепления за уровень",
+                _ => "+16% стабилизации крена и +14% демпфирования за уровень"
             };
-        }
-
-        public void SnapGarageToRoad()
-        {
-            garageCenter = MotorCity.World.CityAssetRuntimeInstaller.SnapToNearestRoad(garageCenter);
         }
 
         private void OpenGarage()
