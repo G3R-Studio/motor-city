@@ -31,3 +31,11 @@ sysinfo.txt
 
 # Unity Asset Store tools
 /Assets/AssetStoreTools*
+
+# Generated/downloaded external visual assets
+/Assets/ThirdParty/CommunityCoreCity02/
+/Assets/ThirdParty/CommunityCoreCity02.meta
+/Assets/Resources/MotorCity/Environment/
+/Assets/Resources/MotorCity/Environment.meta
+/Assets/Resources/MotorCity/PlayerCarVisual.prefab
+/Assets/Resources/MotorCity/PlayerCarVisual.prefab.meta
