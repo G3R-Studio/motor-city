@@ -473,10 +473,7 @@ namespace MotorCity.Vehicle
                 if (wheel == null) continue;
 
                 if (!handbrakeInput)
-                {
-                    wheel.brakeTorque = 0f;
                     continue;
-                }
 
                 wheel.motorTorque = 0f;
                 sourceMotorTorque[i] = 0f;
