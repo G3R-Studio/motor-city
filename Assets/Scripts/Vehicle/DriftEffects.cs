@@ -96,6 +96,17 @@ namespace MotorCity.Vehicle
                 trail.transform.position =
                     hit.point +
                     hit.normal * 0.025f;
+
+                Vector3 forward =
+                    Vector3.ProjectOnPlane(
+                        transform.forward,
+                        hit.normal);
+
+                if (forward.sqrMagnitude > 0.001f)
+                    trail.transform.rotation =
+                        Quaternion.LookRotation(
+                            hit.normal,
+                            forward.normalized);
             }
 
             trail.emitting =
@@ -119,6 +130,10 @@ namespace MotorCity.Vehicle
                 particles.transform.position =
                     hit.point +
                     hit.normal * 0.08f;
+                particles.transform.rotation =
+                    Quaternion.LookRotation(
+                        hit.normal,
+                        transform.forward);
             }
 
             ParticleSystem.EmissionModule emission =
