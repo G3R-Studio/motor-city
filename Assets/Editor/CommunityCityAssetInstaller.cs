@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Net;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 [InitializeOnLoad]
 public static class CommunityCityAssetInstaller
@@ -130,60 +131,73 @@ public static class CommunityCityAssetInstaller
 
         Directory.CreateDirectory(ImportedRoot);
 
-        using FileStream zipStream =
-            File.OpenRead(zipPath);
-        using ZipArchive archive =
-            new(zipStream, ZipArchiveMode.Read);
-
-        const string assetsMarker = "/Assets/City 02/";
-
-        foreach (ZipArchiveEntry entry in archive.Entries)
+        using (FileStream zipStream = File.OpenRead(zipPath))
+        using (ZipArchive archive = new(zipStream, ZipArchiveMode.Read))
         {
-            string normalized =
-                entry.FullName.Replace('\\', '/');
+            const string assetsMarker = "/Assets/City 02/";
 
-            int markerIndex =
-                normalized.IndexOf(
-                    assetsMarker,
-                    StringComparison.Ordinal);
-
-            if (markerIndex < 0)
-                continue;
-
-            string relative =
-                normalized.Substring(
-                    markerIndex + "/Assets/".Length);
-
-            if (string.IsNullOrWhiteSpace(relative))
-                continue;
-
-            string destination =
-                Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    ImportedRoot,
-                    relative.Replace('/', Path.DirectorySeparatorChar));
-
-            if (normalized.EndsWith("/", StringComparison.Ordinal))
+            foreach (ZipArchiveEntry entry in archive.Entries)
             {
-                Directory.CreateDirectory(destination);
-                continue;
+                string normalized =
+                    entry.FullName.Replace('\\', '/');
+
+                int markerIndex =
+                    normalized.IndexOf(
+                        assetsMarker,
+                        StringComparison.Ordinal);
+
+                if (markerIndex < 0)
+                    continue;
+
+                string relative =
+                    normalized.Substring(
+                        markerIndex + "/Assets/".Length);
+
+                if (string.IsNullOrWhiteSpace(relative))
+                    continue;
+
+                string destination =
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        ImportedRoot,
+                        relative.Replace('/', Path.DirectorySeparatorChar));
+
+                if (normalized.EndsWith("/", StringComparison.Ordinal))
+                {
+                    Directory.CreateDirectory(destination);
+                    continue;
+                }
+
+                string directory = Path.GetDirectoryName(destination);
+                if (!string.IsNullOrEmpty(directory))
+                    Directory.CreateDirectory(directory);
+
+                using Stream sourceStream = entry.Open();
+                using FileStream destinationStream =
+                    new(
+                        destination,
+                        FileMode.Create,
+                        FileAccess.Write,
+                        FileShare.None);
+                sourceStream.CopyTo(destinationStream);
             }
-
-            string directory = Path.GetDirectoryName(destination);
-            if (!string.IsNullOrEmpty(directory))
-                Directory.CreateDirectory(directory);
-
-            using Stream sourceStream = entry.Open();
-            using FileStream destinationStream =
-                new(
-                    destination,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.None);
-            sourceStream.CopyTo(destinationStream);
         }
 
-        File.Delete(zipPath);
+        SafeDelete(zipPath);
+    }
+
+    private static void SafeDelete(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+        catch (IOException)
+        {
+            // Temporary archive cleanup is non-critical. A later installer
+            // pass can remove or overwrite the cached ZIP.
+        }
     }
 
     private static void BuildCityPrefab()
@@ -221,7 +235,15 @@ public static class CommunityCityAssetInstaller
 
         foreach (Light light in
                  city.GetComponentsInChildren<Light>(true))
+        {
+            UniversalAdditionalLightData additional =
+                light.GetComponent<UniversalAdditionalLightData>();
+
+            if (additional != null)
+                UnityEngine.Object.DestroyImmediate(additional);
+
             UnityEngine.Object.DestroyImmediate(light);
+        }
 
         foreach (Collider collider in
                  city.GetComponentsInChildren<Collider>(true))
