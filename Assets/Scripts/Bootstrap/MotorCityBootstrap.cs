@@ -18,13 +18,18 @@ namespace MotorCity.Bootstrap
             Time.fixedDeltaTime = 0.02f;
             Physics.gravity = new Vector3(0f, -9.81f, 0f);
             Physics.defaultContactOffset = 0.01f;
-            Physics.defaultSolverIterations = 6;
-            Physics.defaultSolverVelocityIterations = 1;
+            Physics.defaultSolverIterations = 10;
+            Physics.defaultSolverVelocityIterations = 3;
 
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.24f, 0.31f, 0.43f);
-            RenderSettings.ambientEquatorColor = new Color(0.13f, 0.15f, 0.19f);
-            RenderSettings.ambientGroundColor = new Color(0.045f, 0.05f, 0.055f);
+            RenderSettings.ambientSkyColor = new Color(0.34f, 0.40f, 0.48f);
+            RenderSettings.ambientEquatorColor = new Color(0.19f, 0.20f, 0.22f);
+            RenderSettings.ambientGroundColor = new Color(0.075f, 0.072f, 0.07f);
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogColor = new Color(0.55f, 0.61f, 0.67f);
+            RenderSettings.fogStartDistance = 260f;
+            RenderSettings.fogEndDistance = 980f;
 
             CreateLighting();
             CreatePrototypeCity();
@@ -74,10 +79,10 @@ namespace MotorCity.Bootstrap
             GameObject sunObject = new("Sun");
             Light sun = sunObject.AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.intensity = 1.25f;
-            sun.color = new Color(1f, 0.9f, 0.76f);
+            sun.intensity = 1.05f;
+            sun.color = new Color(1f, 0.94f, 0.84f);
             sun.shadows = LightShadows.Soft;
-            sun.transform.rotation = Quaternion.Euler(47f, -34f, 0f);
+            sun.transform.rotation = Quaternion.Euler(38f, -28f, 0f);
         }
 
         private static void CreatePrototypeCity()
@@ -462,10 +467,10 @@ namespace MotorCity.Bootstrap
             GameObject cameraObject = new("Main Camera");
             cameraObject.tag = "MainCamera";
             Camera camera = cameraObject.AddComponent<Camera>();
-            camera.fieldOfView = 67f;
-            camera.nearClipPlane = 0.08f;
+            camera.fieldOfView = 62f;
+            camera.nearClipPlane = 0.12f;
             camera.farClipPlane = 3162.5f;
-            cameraObject.transform.position = target.position + new Vector3(0f, 3.6f, -7.5f);
+            cameraObject.transform.position = target.position + new Vector3(0f, 2.8f, -6.8f);
             ChaseCamera chase = cameraObject.AddComponent<ChaseCamera>();
             chase.SetTarget(target);
         }
