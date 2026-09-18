@@ -1,5 +1,6 @@
-using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace MotorCity.World
 {
@@ -18,9 +19,8 @@ namespace MotorCity.World
         [SerializeField] private PropKind kind;
         [SerializeField] private float minimumBreakSpeedKph = 6f;
         [SerializeField] private float speedRetention = 0.97f;
-        [SerializeField] private float brokenMass = 18f;
-        [SerializeField] private float pushImpulseMultiplier = 0.55f;
-        [SerializeField] private float despawnSeconds = 18f;
+        [SerializeField] private float fallSeconds = 0.55f;
+        [SerializeField] private float fadeSeconds = 1.8f;
 
         private Collider breakCollider;
         private bool broken;
@@ -76,39 +76,34 @@ namespace MotorCity.World
             switch (kind)
             {
                 case PropKind.Hydrant:
-                    speedRetention = 0.985f;
-                    brokenMass = 10f;
-                    pushImpulseMultiplier = 0.7f;
-                    despawnSeconds = 14f;
+                    speedRetention = 0.988f;
+                    fallSeconds = 0.38f;
+                    fadeSeconds = 1.4f;
                     break;
 
                 case PropKind.Bench:
-                    speedRetention = 0.975f;
-                    brokenMass = 16f;
-                    pushImpulseMultiplier = 0.62f;
-                    despawnSeconds = 18f;
+                    speedRetention = 0.982f;
+                    fallSeconds = 0.48f;
+                    fadeSeconds = 1.6f;
                     break;
 
                 case PropKind.TrafficLight:
-                    speedRetention = 0.96f;
-                    brokenMass = 28f;
-                    pushImpulseMultiplier = 0.46f;
-                    despawnSeconds = 22f;
+                    speedRetention = 0.968f;
+                    fallSeconds = 0.62f;
+                    fadeSeconds = 2.0f;
                     break;
 
                 case PropKind.LightPole:
-                    speedRetention = 0.965f;
-                    brokenMass = 24f;
-                    pushImpulseMultiplier = 0.48f;
-                    despawnSeconds = 22f;
+                    speedRetention = 0.972f;
+                    fallSeconds = 0.62f;
+                    fadeSeconds = 2.0f;
                     break;
 
                 case PropKind.Sign:
                 case PropKind.Pole:
-                    speedRetention = 0.98f;
-                    brokenMass = 12f;
-                    pushImpulseMultiplier = 0.72f;
-                    despawnSeconds = 16f;
+                    speedRetention = 0.982f;
+                    fallSeconds = 0.5f;
+                    fadeSeconds = 1.6f;
                     break;
             }
         }
@@ -118,9 +113,6 @@ namespace MotorCity.World
             Collider[] existing =
                 GetComponentsInChildren<Collider>(true);
 
-            // A single collider on the breakable root makes the whole prop
-            // behave as one lightweight obstacle. Child colliders are disabled
-            // so a traffic light or lamp cannot act as an invisible wall.
             foreach (Collider collider in existing)
             {
                 if (collider == null ||
@@ -174,9 +166,8 @@ namespace MotorCity.World
             breakCollider.enabled =
                 true;
 
-            // Before impact the prop is non-blocking. The car loses a tiny
-            // amount of speed manually, so street furniture never kills a
-            // drift or abruptly stops free-roam driving.
+            // Street furniture is deliberately non-blocking before impact.
+            // The slight loss of car speed is applied manually.
             breakCollider.isTrigger =
                 true;
 
@@ -232,8 +223,6 @@ namespace MotorCity.World
                     0f,
                     carVelocity.z);
 
-            // Deliberately tiny speed loss: enough to make the impact readable
-            // but not enough to ruin a drift line.
             carBody.linearVelocity =
                 new Vector3(
                     carVelocity.x * speedRetention,
@@ -254,138 +243,256 @@ namespace MotorCity.World
 
             if (breakCollider != null)
             {
-                breakCollider.isTrigger =
+                // No physical tumbling after the hit. This avoids poles
+                // spinning forever and keeps them from disturbing drifting.
+                breakCollider.enabled =
                     false;
             }
 
-            Rigidbody body =
+            Rigidbody existingBody =
                 GetComponent<Rigidbody>();
 
-            if (body == null)
+            if (existingBody != null)
             {
-                body =
-                    gameObject.AddComponent<Rigidbody>();
+                Destroy(
+                    existingBody);
             }
 
-            body.mass =
-                brokenMass;
-
-            body.useGravity =
-                true;
-
-            body.linearDamping =
-                0.22f;
-
-            body.angularDamping =
-                0.32f;
-
-            body.collisionDetectionMode =
-                CollisionDetectionMode.ContinuousSpeculative;
-
-            body.interpolation =
-                RigidbodyInterpolation.Interpolate;
-
-            Vector3 direction =
+            Vector3 fallDirection =
                 horizontal.sqrMagnitude > 0.01f
                     ? horizontal.normalized
                     : carBody.transform.forward;
 
-            float impactSpeed =
-                Mathf.Clamp(
-                    horizontal.magnitude,
-                    2f,
-                    35f);
+            StartCoroutine(
+                FallAndFade(
+                    fallDirection));
+        }
 
-            float impulse =
-                Mathf.Clamp(
-                    brokenMass *
-                    impactSpeed *
-                    pushImpulseMultiplier *
-                    0.12f,
-                    4f,
-                    48f);
+        private IEnumerator FallAndFade(
+            Vector3 fallDirection)
+        {
+            Quaternion startRotation =
+                transform.rotation;
 
-            Vector3 impactPoint =
-                transform.position +
-                Vector3.up *
-                Mathf.Max(
-                    0.35f,
-                    CombinedRendererHeight() *
-                    0.28f);
+            Vector3 horizontal =
+                new(
+                    fallDirection.x,
+                    0f,
+                    fallDirection.z);
 
-            body.AddForceAtPosition(
-                direction *
-                impulse +
-                Vector3.up *
-                Mathf.Min(
-                    2.5f,
-                    impulse * 0.08f),
-                impactPoint,
-                ForceMode.Impulse);
+            if (horizontal.sqrMagnitude <
+                0.001f)
+            {
+                horizontal =
+                    transform.forward;
+            }
 
-            Vector3 torqueAxis =
+            horizontal.Normalize();
+
+            Vector3 fallAxis =
                 Vector3.Cross(
                     Vector3.up,
-                    direction);
+                    horizontal);
 
-            body.AddTorque(
-                torqueAxis *
-                Mathf.Clamp(
-                    impulse * 0.65f,
-                    2f,
-                    22f),
-                ForceMode.Impulse);
+            if (fallAxis.sqrMagnitude <
+                0.001f)
+            {
+                fallAxis =
+                    transform.right;
+            }
 
-            IgnoreCarCollisions(
-                carBody);
+            float fallAngle =
+                kind == PropKind.Hydrant
+                    ? 68f
+                    : kind == PropKind.Bench
+                        ? 74f
+                        : 86f;
+
+            Quaternion targetRotation =
+                Quaternion.AngleAxis(
+                    fallAngle,
+                    fallAxis) *
+                startRotation;
+
+            Material[] fadeMaterials =
+                CreateFadeMaterialInstances();
+
+            float totalSeconds =
+                Mathf.Max(
+                    0.1f,
+                    fallSeconds + fadeSeconds);
+
+            float elapsed =
+                0f;
+
+            while (elapsed <
+                   totalSeconds)
+            {
+                elapsed +=
+                    Time.deltaTime;
+
+                float fallT =
+                    Mathf.Clamp01(
+                        elapsed /
+                        Mathf.Max(
+                            0.05f,
+                            fallSeconds));
+
+                float easedFall =
+                    1f -
+                    Mathf.Pow(
+                        1f - fallT,
+                        3f);
+
+                transform.rotation =
+                    Quaternion.Slerp(
+                        startRotation,
+                        targetRotation,
+                        easedFall);
+
+                float fadeStart =
+                    Mathf.Max(
+                        0f,
+                        fallSeconds * 0.35f);
+
+                float fadeT =
+                    Mathf.Clamp01(
+                        (elapsed - fadeStart) /
+                        Mathf.Max(
+                            0.05f,
+                            fadeSeconds));
+
+                SetFadeAlpha(
+                    fadeMaterials,
+                    1f - fadeT);
+
+                yield return null;
+            }
+
+            SetFadeAlpha(
+                fadeMaterials,
+                0f);
 
             Destroy(
-                gameObject,
-                despawnSeconds);
+                gameObject);
         }
 
-        private void IgnoreCarCollisions(
-            Rigidbody carBody)
-        {
-            if (breakCollider == null ||
-                carBody == null)
-                return;
-
-            foreach (Collider carCollider in
-                     carBody.GetComponentsInChildren<Collider>(true))
-            {
-                if (carCollider == null ||
-                    carCollider == breakCollider)
-                    continue;
-
-                Physics.IgnoreCollision(
-                    breakCollider,
-                    carCollider,
-                    true);
-            }
-        }
-
-        private float CombinedRendererHeight()
+        private Material[] CreateFadeMaterialInstances()
         {
             Renderer[] renderers =
                 GetComponentsInChildren<Renderer>(true);
 
-            if (renderers.Length == 0)
-                return 1f;
+            var materials =
+                new System.Collections.Generic.List<Material>();
 
-            Bounds bounds =
-                renderers[0].bounds;
-
-            for (int i = 1;
-                 i < renderers.Length;
-                 i++)
+            foreach (Renderer renderer in renderers)
             {
-                bounds.Encapsulate(
-                    renderers[i].bounds);
+                if (renderer == null)
+                    continue;
+
+                Material[] source =
+                    renderer.materials;
+
+                foreach (Material material in source)
+                {
+                    if (material == null)
+                        continue;
+
+                    ConfigureTransparentMaterial(
+                        material);
+
+                    materials.Add(
+                        material);
+                }
             }
 
-            return
-                bounds.size.y;
+            return materials.ToArray();
+        }
+
+        private static void ConfigureTransparentMaterial(
+            Material material)
+        {
+            if (material == null)
+                return;
+
+            if (material.HasProperty("_Surface"))
+                material.SetFloat("_Surface", 1f);
+
+            if (material.HasProperty("_Blend"))
+                material.SetFloat("_Blend", 0f);
+
+            if (material.HasProperty("_SrcBlend"))
+            {
+                material.SetFloat(
+                    "_SrcBlend",
+                    (float)BlendMode.SrcAlpha);
+            }
+
+            if (material.HasProperty("_DstBlend"))
+            {
+                material.SetFloat(
+                    "_DstBlend",
+                    (float)BlendMode.OneMinusSrcAlpha);
+            }
+
+            if (material.HasProperty("_ZWrite"))
+                material.SetFloat("_ZWrite", 0f);
+
+            material.EnableKeyword(
+                "_SURFACE_TYPE_TRANSPARENT");
+
+            material.SetOverrideTag(
+                "RenderType",
+                "Transparent");
+
+            material.renderQueue =
+                (int)RenderQueue.Transparent;
+        }
+
+        private static void SetFadeAlpha(
+            Material[] materials,
+            float alpha)
+        {
+            if (materials == null)
+                return;
+
+            alpha =
+                Mathf.Clamp01(
+                    alpha);
+
+            foreach (Material material in materials)
+            {
+                if (material == null)
+                    continue;
+
+                if (material.HasProperty("_BaseColor"))
+                {
+                    Color color =
+                        material.GetColor(
+                            "_BaseColor");
+
+                    color.a =
+                        alpha;
+
+                    material.SetColor(
+                        "_BaseColor",
+                        color);
+                }
+
+                if (material.HasProperty("_Color"))
+                {
+                    Color color =
+                        material.GetColor(
+                            "_Color");
+
+                    color.a =
+                        alpha;
+
+                    material.SetColor(
+                        "_Color",
+                        color);
+                }
+            }
         }
 
         private bool TryCalculateLocalRendererBounds(
