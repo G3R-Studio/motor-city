@@ -119,7 +119,7 @@ namespace MotorCity.Gameplay
             IsActive = false;
             activityManager.End(ActivityId);
             checkpointIndex = 0;
-            StatusText = $"Спринт завершён за {ElapsedSeconds:0.0}с  +{reward} CR";
+            StatusText = $"Спринт завершён за {ElapsedSeconds:0.0}с  +{reward} КР";
         }
 
         public void CancelActivity()
