@@ -24,27 +24,41 @@ namespace MotorCity.World
         // the exact MeshCollider triangle/submesh using the FCG_Roads material.
         private static readonly Vector3[] DeliveryPreferred =
         {
+            // Main-city loop from the new two-district FCG generation.
             new(-300f, 0f, 0f),
-            new(-150f, 0f, 0f),
-            new(150f, 0f, 0f),
-            new(150f, 0f, 150f),
+            new(0f, 0f, 0f),
+            new(300f, 0f, 0f),
             new(450f, 0f, 150f),
-            new(450f, 0f, 300f),
-            new(150f, 0f, 300f),
-            new(-150f, 0f, 300f),
-            new(-300f, 0f, 150f)
+            new(300f, 0f, 300f),
+            new(300f, 0f, 600f),
+            new(0f, 0f, 600f),
+            new(-300f, 0f, 600f),
+            new(-450f, 0f, 300f),
+            new(-450f, 0f, 150f),
+            new(-300f, 0f, 0f)
         };
 
         private static readonly Vector3[] SprintPreferred =
         {
-            new(-300f, 0f, 0f),
-            new(150f, 0f, 0f),
-            new(450f, 0f, 0f),
-            new(450f, 0f, 150f),
-            new(450f, 0f, 300f),
-            new(150f, 0f, 300f),
-            new(-300f, 0f, 300f),
-            new(-300f, 0f, 150f)
+            // Start in the large district, use the whole curved highway,
+            // then finish with a lap through the small remote district.
+            new(-300f, 0f, -220f),
+            new(-300f, 0f, -420f),
+            new(-300f, 0f, -620f),
+            new(-285f, 0f, -780f),
+            new(-245f, 0f, -950f),
+            new(-195f, 0f, -1120f),
+            new(-155f, 0f, -1320f),
+            new(-105f, 0f, -1510f),
+            new(-100f, 0f, -1630f),
+            new(150f, 0f, -1650f),
+            new(200f, 0f, -1830f),
+            new(150f, 0f, -2010f),
+            new(-100f, 0f, -2040f),
+            new(-350f, 0f, -2010f),
+            new(-400f, 0f, -1830f),
+            new(-350f, 0f, -1650f),
+            new(-100f, 0f, -1600f)
         };
 
         private static Vector3[] deliveryRoute =
@@ -58,20 +72,18 @@ namespace MotorCity.World
         private static bool hasCityBounds;
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
-            new(150f, 0.2f, 90f);
+            new(0f, 0.2f, 300f);
 
         public static Quaternion PlayerSpawnRotation { get; private set; } =
             Quaternion.identity;
 
-        // Parking area visible in the generated report:
-        // Double-Block-05-C / BB-062 / Park-06 (2).
+        // Central Park-06 from the new generated main district.
         public static Vector3 GaragePoint { get; private set; } =
-            new(81.66f, 0.4f, 259.613f);
+            new(-114.42f, 0.4f, 358.62f);
 
-        // Central grid intersection. It is resolved to an actual FCG_Roads
-        // triangle at runtime, never to a renderer bound or sidewalk.
+        // Broad central-east intersection in the main district.
         public static Vector3 DriftChallengePoint { get; private set; } =
-            new(150f, 0.2f, 150f);
+            new(300f, 0.2f, 300f);
 
         public static Vector3[] DeliveryRoute =>
             (Vector3[])deliveryRoute.Clone();
@@ -143,10 +155,10 @@ namespace MotorCity.World
             PlayerSpawnPoint =
                 FindRoadPointNear(
                     new Vector3(
-                        150f,
                         0f,
-                        90f),
-                    70f,
+                        0f,
+                        300f),
+                    90f,
                     "player spawn",
                     false);
 
@@ -159,18 +171,18 @@ namespace MotorCity.World
             GaragePoint =
                 FindParkingPointNear(
                     new Vector3(
-                        81.66f,
+                        -114.42f,
                         0f,
-                        259.613f),
-                    28f);
+                        358.62f),
+                    36f);
 
             DriftChallengePoint =
                 FindRoadPointNear(
                     new Vector3(
-                        150f,
+                        300f,
                         0f,
-                        150f),
-                    55f,
+                        300f),
+                    90f,
                     "drift zone",
                     true);
 
@@ -305,7 +317,7 @@ namespace MotorCity.World
             if (!found)
             {
                 Debug.LogWarning(
-                    $"Motor City: no exact FCG_Roads triangle found for {context} " +
+                    $"Motor City: no exact FCG driveable triangle found for {context} " +
                     $"near {preferred}. Using preferred point.");
 
                 best =
@@ -323,7 +335,7 @@ namespace MotorCity.World
                 MarkerLift;
 
             Debug.Log(
-                $"Motor City: {context} snapped to FCG asphalt at {best}.");
+                $"Motor City: {context} snapped to FCG driveable surface at {best}.");
 
             return best;
         }
@@ -653,9 +665,16 @@ namespace MotorCity.World
             string materialName =
                 material.name.ToLowerInvariant();
 
-            return
+            bool asphalt =
                 materialName.Contains("road") &&
                 !materialName.Contains("grass");
+
+            bool highway =
+                materialName.Contains("highway");
+
+            return
+                asphalt ||
+                highway;
         }
 
         private static Material ResolveTriangleMaterial(
@@ -909,8 +928,8 @@ namespace MotorCity.World
             string name =
                 transform.name.ToLowerInvariant();
 
-            bool roadMaterial =
-                UsesRoadMaterial(
+            bool driveableMaterial =
+                UsesDriveableMaterial(
                     renderer);
 
             bool mainGround =
@@ -918,12 +937,17 @@ namespace MotorCity.World
                 name.StartsWith("bd-") ||
                 name.StartsWith("double-block");
 
+            bool highwayMesh =
+                name.StartsWith("hw-") ||
+                path.Contains("/hw-");
+
             return
-                roadMaterial &&
-                mainGround;
+                driveableMaterial &&
+                (mainGround ||
+                 highwayMesh);
         }
 
-        private static bool UsesRoadMaterial(
+        private static bool UsesDriveableMaterial(
             Renderer renderer)
         {
             if (renderer == null)
@@ -935,8 +959,14 @@ namespace MotorCity.World
                 if (material == null)
                     continue;
 
-                if (material.name.IndexOf(
+                string materialName =
+                    material.name;
+
+                if (materialName.IndexOf(
                         "road",
+                        StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    materialName.IndexOf(
+                        "highway",
                         StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     return true;
