@@ -24,7 +24,10 @@ namespace MotorCity.Gameplay
         private StreetSprintActivity streetSprint;
 
         private GUIStyle titleStyle;
+        private GUIStyle moneyStyle;
         private GUIStyle itemStyle;
+        private GUIStyle priceStyle;
+        private GUIStyle descriptionStyle;
         private GUIStyle hintStyle;
 
         public int EngineLevel { get; private set; }
@@ -145,7 +148,7 @@ namespace MotorCity.Gameplay
             int price = Price(type, level);
             if (!wallet.TrySpendCredits(price))
             {
-                StatusText = $"Для «{Name(type)}» нужно {price:N0} CR";
+                StatusText = $"Для «{Name(type)}» нужно {price:N0} КР";
                 return;
             }
 
@@ -216,29 +219,50 @@ namespace MotorCity.Gameplay
             if (!IsOpen || wallet == null) return;
             EnsureStyles();
 
-            float width = Mathf.Min(700f, Screen.width - 40f);
+            float width = Mathf.Clamp(Screen.width - 24f, 520f, 820f);
             float x = (Screen.width - width) * 0.5f;
-            float y = Mathf.Max(30f, Screen.height * 0.17f);
+            float y = Mathf.Max(12f, Screen.height * 0.08f);
+            float panelHeight = 388f;
 
-            GUI.Box(new Rect(x, y, width, 310f), string.Empty);
-            GUI.Label(new Rect(x + 24f, y + 18f, width - 48f, 44f), "ГАРАЖ MOTOR CITY", titleStyle);
-            GUI.Label(new Rect(x + 24f, y + 62f, width - 48f, 32f), $"{wallet.Credits:N0} CR", titleStyle);
+            GUI.Box(new Rect(x, y, width, panelHeight), string.Empty);
+            GUI.Label(new Rect(x + 24f, y + 16f, width - 48f, 36f), "ГАРАЖ MOTOR CITY", titleStyle);
+            GUI.Label(new Rect(x + 24f, y + 52f, width - 48f, 30f), $"{wallet.Credits:N0} КР", moneyStyle);
 
-            DrawUpgrade(x, y + 108f, UpgradeType.Engine, EngineLevel, "+12% тяги и +10% отклика за уровень");
-            DrawUpgrade(x, y + 158f, UpgradeType.Grip, GripLevel, "+10% бокового сцепления за уровень");
-            DrawUpgrade(x, y + 208f, UpgradeType.Stability, StabilityLevel, "+16% стабилизации крена и +12% демпфирования за уровень");
+            DrawUpgrade(x, width, y + 96f, UpgradeType.Engine, EngineLevel, "+12% тяги и +10% отклика за уровень");
+            DrawUpgrade(x, width, y + 166f, UpgradeType.Grip, GripLevel, "+10% бокового сцепления за уровень");
+            DrawUpgrade(x, width, y + 236f, UpgradeType.Stability, StabilityLevel, "+16% стабилизации крена и +12% демпфирования за уровень");
 
-            GUI.Label(new Rect(x + 24f, y + 267f, width - 48f, 28f), "1 / 2 / 3 — купить     E или Esc — закрыть", hintStyle);
+            GUI.Label(
+                new Rect(x + 24f, y + 334f, width - 48f, 28f),
+                "1 / 2 / 3 — купить     E или Esc — закрыть",
+                hintStyle);
         }
 
-        private void DrawUpgrade(float x, float y, UpgradeType type, int level, string description)
+        private void DrawUpgrade(
+            float x,
+            float width,
+            float y,
+            UpgradeType type,
+            int level,
+            string description)
         {
             string levelText = level >= MaxLevel ? "МАКС" : $"УР. {level}/{MaxLevel}";
-            string priceText = level >= MaxLevel ? string.Empty : $"   {Price(type, level):N0} CR";
+            string priceText = level >= MaxLevel ? "КУПЛЕНО" : $"{Price(type, level):N0} КР";
+
             GUI.Label(
-                new Rect(x + 24f, y, 650f, 32f),
-                $"[{(int)type + 1}] {Name(type)}   {levelText}{priceText}   — {description}",
+                new Rect(x + 24f, y, width - 190f, 28f),
+                $"[{(int)type + 1}] {Name(type)}   {levelText}",
                 itemStyle);
+
+            GUI.Label(
+                new Rect(x + width - 178f, y, 154f, 28f),
+                priceText,
+                priceStyle);
+
+            GUI.Label(
+                new Rect(x + 42f, y + 30f, width - 66f, 24f),
+                description,
+                descriptionStyle);
         }
 
         private void EnsureStyles()
@@ -253,6 +277,14 @@ namespace MotorCity.Gameplay
             };
             titleStyle.normal.textColor = Color.white;
 
+            moneyStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 23,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleLeft
+            };
+            moneyStyle.normal.textColor = Color.white;
+
             itemStyle = new GUIStyle(GUI.skin.label)
             {
                 fontSize = 17,
@@ -260,6 +292,21 @@ namespace MotorCity.Gameplay
                 alignment = TextAnchor.MiddleLeft
             };
             itemStyle.normal.textColor = Color.white;
+
+            priceStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 17,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleRight
+            };
+            priceStyle.normal.textColor = Color.white;
+
+            descriptionStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 14,
+                alignment = TextAnchor.MiddleLeft
+            };
+            descriptionStyle.normal.textColor = new Color(1f, 1f, 1f, 0.78f);
 
             hintStyle = new GUIStyle(GUI.skin.label)
             {
