@@ -64,8 +64,8 @@ namespace MotorCity.World
             if (mainCamera != null)
             {
                 Vector3 direction =
-                    transform.position -
-                    mainCamera.transform.position;
+                    mainCamera.transform.position -
+                    transform.position;
 
                 if (direction.sqrMagnitude > 0.0001f)
                     transform.rotation =
