@@ -29,6 +29,7 @@ The project currently includes:
 - compact activity-specific world markers with lightweight built-in fallbacks;
 - a compact floating garage waypoint using a CC0 Kenney Game Icons flag asset;
 - moving delivery and sprint targets with a four-cone drift marker cluster;
+- a compact HUD navigator that points toward the current delivery/sprint checkpoint and, during free roam, toward the nearest activity or garage with live distance;
 - gameplay layout resolved dynamically from road/highway/street geometry in the active city: player spawn, garage, drift area, delivery route and sprint route are snapped to the detected road network;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
@@ -42,7 +43,7 @@ The project currently includes:
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
 
-Procedural geometry remains only as an emergency fallback when the Versatile Studio city package has not been imported or its runtime city has not yet been generated.
+A flat temporary test surface is used only as an emergency fallback when the Versatile Studio runtime city is unavailable.
 
 ## Run locally
 
