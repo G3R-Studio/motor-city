@@ -75,11 +75,17 @@ namespace MotorCity.Editor
 
             SerializedObject serializedSettings = new(settings);
             SerializedProperty activeInputHandler = serializedSettings.FindProperty("activeInputHandler");
-            if (activeInputHandler == null || activeInputHandler.intValue == 1) return;
+            if (activeInputHandler == null ||
+                activeInputHandler.intValue == 2)
+                return;
 
-            activeInputHandler.intValue = 1;
+            // Prometeo Car Controller reads keyboard input through the legacy
+            // UnityEngine.Input API, while the rest of Motor City uses the
+            // newer Input System. "Both" keeps both systems available.
+            activeInputHandler.intValue = 2;
             serializedSettings.ApplyModifiedPropertiesWithoutUndo();
-            Debug.Log("Motor City: Active Input Handling switched to Input System Package (New).");
+            Debug.Log(
+                "Motor City: Active Input Handling switched to Both for Prometeo + Input System compatibility.");
         }
 
         private static void EnsureScene()
