@@ -168,7 +168,7 @@ namespace MotorCity.UI
                 CreateText(
                     topPanel,
                     "Улучшения",
-                    19,
+                    21,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(22f, -57f),
@@ -190,7 +190,7 @@ namespace MotorCity.UI
                 CreateText(
                     hintPanel,
                     "Текст подсказок",
-                    17,
+                    19,
                     FontStyle.Normal,
                     TextAnchor.MiddleLeft,
                     new Vector2(18f, -6f),
@@ -215,7 +215,7 @@ namespace MotorCity.UI
                 CreateText(
                     speedPanel,
                     "Скорость",
-                    34,
+                    38,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
@@ -237,7 +237,7 @@ namespace MotorCity.UI
                 CreateText(
                     statusPanel,
                     "Статус",
-                    19,
+                    23,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
@@ -260,7 +260,7 @@ namespace MotorCity.UI
                 CreateText(
                     driftRect,
                     "Очки дрифта",
-                    25,
+                    28,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
@@ -513,7 +513,7 @@ namespace MotorCity.UI
             else
             {
                 image.color =
-                    new Color(0.06f, 0.075f, 0.09f, 0.92f);
+                    new Color(0.92f, 0.94f, 0.97f, 0.96f);
             }
 
             return rect;
@@ -552,8 +552,17 @@ namespace MotorCity.UI
             text.fontSize = fontSize;
             text.fontStyle = fontStyle;
             text.alignment = alignment;
-            text.color = Color.white;
+            text.color =
+                new Color(0.055f, 0.065f, 0.085f, 1f);
             text.raycastTarget = false;
+
+            Shadow shadow =
+                go.AddComponent<Shadow>();
+            shadow.effectColor =
+                new Color(1f, 1f, 1f, 0.55f);
+            shadow.effectDistance =
+                new Vector2(1f, -1f);
+            shadow.useGraphicAlpha = true;
             text.horizontalOverflow =
                 HorizontalWrapMode.Overflow;
             text.verticalOverflow =
