@@ -1,0 +1,16 @@
+{
+  "name": "MotorCity.DisabledLegacyMCP",
+  "rootNamespace": "",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "MOTORCITY_ENABLE_LEGACY_MCP"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
