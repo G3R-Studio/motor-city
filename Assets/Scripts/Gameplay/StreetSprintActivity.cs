@@ -1,4 +1,5 @@
 using MotorCity.Vehicle;
+using MotorCity.World;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -43,6 +44,14 @@ namespace MotorCity.Gameplay
                 new Vector3(401.9f, 0f, -200.9f),
                 new Vector3(0f, 0f, -401.9f)
             };
+        }
+
+        public void SnapRouteToRoad()
+        {
+            if (route == null) return;
+
+            for (int i = 0; i < route.Length; i++)
+                route[i] = CityAssetRuntimeInstaller.SnapToNearestRoad(route[i]);
         }
 
         private void Update()
