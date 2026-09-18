@@ -25,7 +25,8 @@ The project currently includes:
 - a smooth orbiting chase camera with mouse look and zoom;
 - automatic editor download and preparation of the CC0 Community Core Stack / Kenney city environment;
 - an asset-based city with real road, building, vehicle, tree, street-light and prop meshes replacing the procedural primitive city when the CC0 pack is available;
-- asset-based delivery, drift, sprint and garage world markers prepared from the same CC0 Kenney source;
+- asset-based delivery, drift and sprint world markers prepared from the CC0 Kenney city source;
+- a dedicated floating garage waypoint using a CC0 Kenney Game Icons flag asset instead of an environment building;
 - delivery and sprint checkpoint gates built from Kenney road-kit assets, plus a four-cone drift marker cluster;
 - automatic road-mesh snapping for the player spawn, delivery checkpoints, sprint checkpoints and garage position;
 - a delivery route with visible checkpoints and a credit reward;
