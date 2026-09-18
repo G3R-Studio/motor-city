@@ -52,6 +52,9 @@ namespace MotorCity.Bootstrap
             StreetSprintActivity streetSprint = systems.AddComponent<StreetSprintActivity>();
             streetSprint.Initialize(car, wallet, activityManager);
 
+            CircuitRaceActivity circuitRace = systems.AddComponent<CircuitRaceActivity>();
+            circuitRace.Initialize(car, wallet, activityManager);
+
             GarageUpgradeSystem garage = systems.AddComponent<GarageUpgradeSystem>();
             garage.Initialize(
                 car,
@@ -59,15 +62,26 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 delivery,
                 driftChallenge,
-                streetSprint);
+                streetSprint,
+                circuitRace);
 
             CreateDeliveryMarker(delivery, activityManager);
             CreateDriftChallengeMarker(driftChallenge, activityManager);
             CreateStreetSprintMarker(streetSprint, activityManager);
+            CreateCircuitRaceMarker(circuitRace, activityManager);
             CreateGarageMarker(garage);
 
             CreateCamera(car.transform);
-            CreateHud(car, wallet, drift, delivery, driftChallenge, streetSprint, activityManager, garage);
+            CreateHud(
+                car,
+                wallet,
+                drift,
+                delivery,
+                driftChallenge,
+                streetSprint,
+                circuitRace,
+                activityManager,
+                garage);
         }
 
         private static void CreateLighting()
@@ -279,6 +293,102 @@ namespace MotorCity.Bootstrap
             return root;
         }
 
+        private static void CreateCircuitRaceMarker(
+            CircuitRaceActivity race,
+            ActivityManager activityManager)
+        {
+            GameObject marker =
+                CreateCircuitFlagMarker(
+                    race.CurrentTarget);
+
+            CircuitRaceMarkerVisual visual =
+                marker.AddComponent<CircuitRaceMarkerVisual>();
+
+            visual.Bind(
+                race,
+                activityManager);
+        }
+
+        private static GameObject CreateCircuitFlagMarker(
+            Vector3 position)
+        {
+            GameObject root =
+                new("Circuit Race Marker");
+
+            root.transform.position =
+                position;
+
+            Material poleMaterial =
+                Material(
+                    new Color(0.10f, 0.13f, 0.16f),
+                    0.35f,
+                    0.45f);
+
+            Primitive(
+                "Circuit Flag Pole",
+                PrimitiveType.Cylinder,
+                root.transform,
+                new Vector3(0.08f, 1.35f, 0.08f),
+                new Vector3(0f, 1.35f, 0f),
+                poleMaterial,
+                false);
+
+            Sprite flagSprite =
+                Resources.Load<Sprite>(
+                    "MotorCity/Markers/flag");
+
+            Color circuitColor =
+                new(0.08f, 0.9f, 1f);
+
+            if (flagSprite != null)
+            {
+                GameObject flag =
+                    new("Circuit Flag");
+
+                flag.transform.SetParent(
+                    root.transform,
+                    false);
+
+                flag.transform.localPosition =
+                    new Vector3(
+                        0.68f,
+                        2.25f,
+                        0f);
+
+                flag.transform.localScale =
+                    Vector3.one *
+                    1.35f;
+
+                SpriteRenderer renderer =
+                    flag.AddComponent<SpriteRenderer>();
+
+                renderer.sprite =
+                    flagSprite;
+
+                renderer.color =
+                    circuitColor;
+            }
+            else
+            {
+                Material flagMaterial =
+                    Material(
+                        circuitColor,
+                        0.02f,
+                        0.55f);
+
+                Primitive(
+                    "Circuit Flag Fallback",
+                    PrimitiveType.Cube,
+                    root.transform,
+                    new Vector3(1.35f, 0.75f, 0.08f),
+                    new Vector3(0.68f, 2.25f, 0f),
+                    flagMaterial,
+                    false);
+            }
+
+            return root;
+        }
+
         private static void CreateGarageMarker(
             GarageUpgradeSystem garage)
         {
@@ -396,6 +506,7 @@ namespace MotorCity.Bootstrap
             DeliveryActivity delivery,
             DriftChallenge driftChallenge,
             StreetSprintActivity streetSprint,
+            CircuitRaceActivity circuitRace,
             ActivityManager activityManager,
             GarageUpgradeSystem garage)
         {
@@ -408,6 +519,7 @@ namespace MotorCity.Bootstrap
                 delivery,
                 driftChallenge,
                 streetSprint,
+                circuitRace,
                 activityManager,
                 garage);
         }
