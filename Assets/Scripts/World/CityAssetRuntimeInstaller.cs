@@ -571,22 +571,32 @@ namespace MotorCity.World
                 Bounds bounds =
                     renderer.bounds;
 
-                bool namedRoad =
-                    searchable.Contains("road") ||
-                    searchable.Contains("street") ||
-                    searchable.Contains("highway") ||
-                    searchable.Contains("asphalt") ||
-                    searchable.Contains("intersection") ||
-                    searchable.Contains("lane") ||
-                    searchable.Contains("tarmac") ||
+                bool nonRoadSurface =
+                    searchable.Contains("sidewalk") ||
+                    searchable.Contains("footpath") ||
+                    searchable.Contains("pedestrian") ||
+                    searchable.Contains("curb") ||
+                    searchable.Contains("kerb") ||
+                    searchable.Contains("plaza") ||
                     searchable.Contains("pavement");
 
+                bool namedRoad =
+                    !nonRoadSurface &&
+                    (searchable.Contains("road") ||
+                     searchable.Contains("street") ||
+                     searchable.Contains("highway") ||
+                     searchable.Contains("asphalt") ||
+                     searchable.Contains("intersection") ||
+                     searchable.Contains("lane") ||
+                     searchable.Contains("tarmac"));
+
                 bool geometricRoad =
-                    bounds.size.y <= 1.2f &&
+                    !nonRoadSurface &&
+                    bounds.size.y <= 0.6f &&
                     Mathf.Max(
                         bounds.size.x,
-                        bounds.size.z) >= 8f &&
-                    bounds.min.y <= cityGroundY + 4f;
+                        bounds.size.z) >= 12f &&
+                    bounds.min.y <= cityGroundY + 2.5f;
 
                 if (!namedRoad &&
                     !geometricRoad)
