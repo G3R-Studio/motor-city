@@ -204,6 +204,16 @@ public static class ModernCityPackInstaller
     private static void StripLegacyRuntimeComponents(
         GameObject root)
     {
+        foreach (Transform item in
+                 root.GetComponentsInChildren<Transform>(true))
+        {
+            if (item == null)
+                continue;
+
+            GameObjectUtility.RemoveMonoBehavioursWithMissingScript(
+                item.gameObject);
+        }
+
         Component[] components =
             root.GetComponentsInChildren<Component>(true);
 
