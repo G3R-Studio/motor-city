@@ -44,15 +44,13 @@ sysinfo.txt
 /Assets/Resources/MotorCity/Markers/
 /Assets/Resources/MotorCity/Markers.meta
 
-# Unity Asset Store source assets kept local
-/Assets/Versatile Studio Assets/
-/Assets/Versatile Studio Assets.meta
 
 
 # Local city asset scanner report
 /MotorCity_CityAssetReport.txt
 
 
-# Current local city Asset Store package
-/Assets/CubexCube - Free City Pack I/
-/Assets/CubexCube - Free City Pack I.meta
+
+# Current local Modern City Pack source
+/Assets/MCP/
+/Assets/MCP.meta
