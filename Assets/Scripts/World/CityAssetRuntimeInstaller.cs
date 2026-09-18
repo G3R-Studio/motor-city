@@ -194,12 +194,15 @@ namespace MotorCity.World
             var reserved =
                 new List<Vector3>();
 
+            Vector3 preferredSpawn =
+                new(
+                    120f,
+                    center.y,
+                    30f);
+
             PlayerSpawnPoint =
-                SelectRoadPoint(
-                    center,
-                    halfX,
-                    halfZ,
-                    new Vector2(-0.18f, -0.58f),
+                SelectNearestRoadPoint(
+                    preferredSpawn,
                     reserved,
                     0f);
 
@@ -346,6 +349,61 @@ namespace MotorCity.World
             }
 
             return result;
+        }
+
+        private static Vector3 SelectNearestRoadPoint(
+            Vector3 target,
+            List<Vector3> reserved,
+            float minimumSpacing)
+        {
+            if (roadPoints.Count == 0)
+                return target;
+
+            float minimumSpacingSqr =
+                minimumSpacing *
+                minimumSpacing;
+
+            Vector3 best =
+                roadPoints[0];
+
+            float bestScore =
+                float.PositiveInfinity;
+
+            foreach (Vector3 point in roadPoints)
+            {
+                float score =
+                    HorizontalSqrDistance(
+                        point,
+                        target);
+
+                if (reserved != null &&
+                    minimumSpacing > 0f)
+                {
+                    foreach (Vector3 used in reserved)
+                    {
+                        if (HorizontalSqrDistance(
+                                point,
+                                used) <
+                            minimumSpacingSqr)
+                        {
+                            score +=
+                                minimumSpacingSqr * 8f;
+                            break;
+                        }
+                    }
+                }
+
+                if (score >= bestScore)
+                    continue;
+
+                bestScore =
+                    score;
+
+                best =
+                    point;
+            }
+
+            return best;
         }
 
         private static Vector3 SelectRoadPoint(
