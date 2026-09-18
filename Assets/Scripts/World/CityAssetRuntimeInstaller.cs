@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MotorCity.World
@@ -7,8 +8,12 @@ namespace MotorCity.World
         private const string ResourcePath =
             "MotorCity/Environment/CityVisual";
 
+        private static readonly List<Vector3> roadPoints = new();
+
         public static bool TryInstall()
         {
+            roadPoints.Clear();
+
             GameObject prefab =
                 Resources.Load<GameObject>(ResourcePath);
 
@@ -19,10 +24,101 @@ namespace MotorCity.World
                 Object.Instantiate(prefab);
             city.name = "Motor City — CC0 Asset City";
 
+            CacheRoadPoints(city);
             AddBuildingColliders(city);
             CreateGroundCollider();
 
             return true;
+        }
+
+        public static Vector3 SnapToNearestRoad(Vector3 approximate)
+        {
+            if (roadPoints.Count == 0)
+                return approximate;
+
+            Vector3 flatApprox =
+                new(approximate.x, 0f, approximate.z);
+
+            float bestDistance = float.PositiveInfinity;
+            Vector3 best = flatApprox;
+
+            foreach (Vector3 point in roadPoints)
+            {
+                float distance =
+                    (point - flatApprox).sqrMagnitude;
+
+                if (distance >= bestDistance)
+                    continue;
+
+                bestDistance = distance;
+                best = point;
+            }
+
+            return new Vector3(
+                best.x,
+                approximate.y,
+                best.z);
+        }
+
+        private static void CacheRoadPoints(GameObject city)
+        {
+            Renderer[] renderers =
+                city.GetComponentsInChildren<Renderer>(true);
+
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null)
+                    continue;
+
+                string hierarchyName =
+                    BuildHierarchyName(renderer.transform);
+
+                bool roadLike =
+                    hierarchyName.Contains("road") ||
+                    hierarchyName.Contains("street") ||
+                    hierarchyName.Contains("intersection");
+
+                if (!roadLike)
+                    continue;
+
+                Bounds bounds = renderer.bounds;
+                Vector3 center =
+                    new(bounds.center.x, 0f, bounds.center.z);
+
+                roadPoints.Add(center);
+
+                Vector3 right =
+                    renderer.transform.right *
+                    Mathf.Min(bounds.extents.x, 8f);
+
+                Vector3 forward =
+                    renderer.transform.forward *
+                    Mathf.Min(bounds.extents.z, 8f);
+
+                roadPoints.Add(
+                    new Vector3(
+                        center.x + right.x,
+                        0f,
+                        center.z + right.z));
+
+                roadPoints.Add(
+                    new Vector3(
+                        center.x - right.x,
+                        0f,
+                        center.z - right.z));
+
+                roadPoints.Add(
+                    new Vector3(
+                        center.x + forward.x,
+                        0f,
+                        center.z + forward.z));
+
+                roadPoints.Add(
+                    new Vector3(
+                        center.x - forward.x,
+                        0f,
+                        center.z - forward.z));
+            }
         }
 
         private static void AddBuildingColliders(
@@ -59,7 +155,7 @@ namespace MotorCity.World
             Transform current = transform;
 
             for (int i = 0;
-                 current != null && i < 4;
+                 current != null && i < 5;
                  i++)
             {
                 value += " " +
