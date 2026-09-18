@@ -69,3 +69,8 @@ sysinfo.txt
 
 # Generated FCG scene inspection report
 /MotorCity_FCGSceneReport.txt
+
+
+# Local generated city workbench scenes
+/Assets/LocalGenerated/
+/Assets/LocalGenerated.meta
