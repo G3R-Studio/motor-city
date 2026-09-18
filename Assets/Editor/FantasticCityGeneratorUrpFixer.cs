@@ -70,6 +70,9 @@ public static class FantasticCityGeneratorUrpFixer
         var sourceMaterials =
             new HashSet<Material>();
 
+        var generatedMaterials =
+            new HashSet<Material>();
+
         foreach (Renderer renderer in renderers)
         {
             foreach (Material material in
@@ -80,7 +83,11 @@ public static class FantasticCityGeneratorUrpFixer
 
                 if (IsGeneratedUrpMaterial(
                         material))
+                {
+                    generatedMaterials.Add(
+                        material);
                     continue;
+                }
 
                 if (BelongsToFantasticCityGenerator(
                         material))
@@ -91,7 +98,8 @@ public static class FantasticCityGeneratorUrpFixer
             }
         }
 
-        if (sourceMaterials.Count == 0)
+        if (sourceMaterials.Count == 0 &&
+            generatedMaterials.Count == 0)
         {
             EditorUtility.DisplayDialog(
                 "Motor City — FCG URP Fix",
@@ -112,6 +120,19 @@ public static class FantasticCityGeneratorUrpFixer
 
         try
         {
+            int repairedGenerated =
+                0;
+
+            foreach (Material generated in
+                     generatedMaterials)
+            {
+                RepairGeneratedUrpMaterial(
+                    generated,
+                    urpLit);
+
+                repairedGenerated++;
+            }
+
             int materialIndex =
                 0;
 
@@ -195,13 +216,15 @@ public static class FantasticCityGeneratorUrpFixer
 
             Debug.Log(
                 "Motor City: Fantastic City Generator URP conversion complete. " +
-                $"Converted {converted.Count} materials and updated " +
+                $"Converted {converted.Count} source materials, repaired " +
+                $"{repairedGenerated} existing URP materials and updated " +
                 $"{changedRenderers} renderers.");
 
             EditorUtility.DisplayDialog(
                 "Motor City — FCG URP Fix",
                 "Готово.\n\n" +
-                $"Материалов конвертировано: {converted.Count}\n" +
+                $"Новых материалов конвертировано: {converted.Count}\n" +
+                $"Существующих URP-материалов исправлено: {repairedGenerated}\n" +
                 $"Renderer'ов обновлено: {changedRenderers}\n\n" +
                 "Сохрани сцену (Ctrl+S).",
                 "OK");
@@ -492,7 +515,19 @@ public static class FantasticCityGeneratorUrpFixer
                 "_BaseMap",
                 "_MainTex",
                 "_BaseColorMap",
-                "_Albedo");
+                "_Albedo",
+                "_AlbedoMap",
+                "_Diffuse",
+                "_DiffuseMap",
+                "_ColorMap",
+                "_Texture");
+
+        if (sourceProperty == null)
+        {
+            sourceProperty =
+                FindBestBaseTextureProperty(
+                    source);
+        }
 
         if (sourceProperty != null)
         {
@@ -746,7 +781,12 @@ public static class FantasticCityGeneratorUrpFixer
         string materialName =
             source.name.ToLowerInvariant();
 
+        bool foliage =
+            IsFoliageMaterialName(
+                materialName);
+
         bool cutout =
+            foliage ||
             shaderName.IndexOf(
                 "cutout",
                 StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -803,6 +843,15 @@ public static class FantasticCityGeneratorUrpFixer
             destination.SetOverrideTag(
                 "RenderType",
                 "TransparentCutout");
+
+            if (foliage &&
+                destination.HasProperty(
+                    "_Cull"))
+            {
+                destination.SetFloat(
+                    "_Cull",
+                    (float)CullMode.Off);
+            }
 
             return;
         }
@@ -888,6 +937,273 @@ public static class FantasticCityGeneratorUrpFixer
 
         destination.renderQueue =
             (int)RenderQueue.Geometry;
+    }
+
+    private static void RepairGeneratedUrpMaterial(
+        Material material,
+        Shader urpLit)
+    {
+        if (material == null)
+            return;
+
+        material.shader =
+            urpLit;
+
+        string generatedName =
+            material.name.StartsWith(
+                "FCG_",
+                StringComparison.OrdinalIgnoreCase)
+                ? material.name.Substring(4)
+                : material.name;
+
+        Material source =
+            FindOriginalFcgMaterial(
+                generatedName);
+
+        if (source != null)
+        {
+            Texture currentBase =
+                material.HasProperty("_BaseMap")
+                    ? material.GetTexture("_BaseMap")
+                    : null;
+
+            if (currentBase == null)
+            {
+                CopyBaseMap(
+                    source,
+                    material);
+            }
+
+            CopyNormalMap(
+                source,
+                material);
+
+            CopyOcclusionMap(
+                source,
+                material);
+
+            CopyEmission(
+                source,
+                material);
+
+            CopySurfaceValues(
+                source,
+                material);
+
+            ConfigureSurfaceType(
+                source,
+                material);
+        }
+        else if (IsFoliageMaterialName(
+                     generatedName.ToLowerInvariant()))
+        {
+            ConfigureFoliageFallback(
+                material);
+        }
+
+        material.enableInstancing =
+            true;
+
+        EditorUtility.SetDirty(
+            material);
+    }
+
+    private static Material FindOriginalFcgMaterial(
+        string materialName)
+    {
+        if (string.IsNullOrWhiteSpace(
+                materialName))
+            return null;
+
+        string[] guids =
+            AssetDatabase.FindAssets(
+                "t:Material",
+                new[]
+                {
+                    FcgRoot.TrimEnd('/')
+                });
+
+        foreach (string guid in guids)
+        {
+            string path =
+                AssetDatabase.GUIDToAssetPath(
+                    guid);
+
+            Material candidate =
+                AssetDatabase.LoadAssetAtPath<Material>(
+                    path);
+
+            if (candidate == null)
+                continue;
+
+            if (string.Equals(
+                    candidate.name,
+                    materialName,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private static string FindBestBaseTextureProperty(
+        Material material)
+    {
+        if (material == null)
+            return null;
+
+        string[] properties;
+
+        try
+        {
+            properties =
+                material.GetTexturePropertyNames();
+        }
+        catch
+        {
+            return null;
+        }
+
+        string best =
+            null;
+
+        int bestScore =
+            int.MinValue;
+
+        foreach (string property in properties)
+        {
+            Texture texture =
+                SafeGetTexture(
+                    material,
+                    property);
+
+            if (texture == null)
+                continue;
+
+            string lower =
+                property.ToLowerInvariant();
+
+            if (lower.Contains("normal") ||
+                lower.Contains("bump") ||
+                lower.Contains("mask") ||
+                lower.Contains("metal") ||
+                lower.Contains("smooth") ||
+                lower.Contains("spec") ||
+                lower.Contains("occlusion") ||
+                lower.Contains("ao") ||
+                lower.Contains("emission") ||
+                lower.Contains("illum"))
+                continue;
+
+            int score =
+                0;
+
+            if (lower.Contains("main"))
+                score += 8;
+
+            if (lower.Contains("base"))
+                score += 7;
+
+            if (lower.Contains("albedo"))
+                score += 7;
+
+            if (lower.Contains("diffuse"))
+                score += 6;
+
+            if (lower.Contains("color"))
+                score += 4;
+
+            string textureName =
+                texture.name.ToLowerInvariant();
+
+            if (textureName.Contains("diff") ||
+                textureName.Contains("albedo") ||
+                textureName.Contains("color"))
+                score += 3;
+
+            if (score <= bestScore)
+                continue;
+
+            bestScore =
+                score;
+
+            best =
+                property;
+        }
+
+        return best;
+    }
+
+    private static bool IsFoliageMaterialName(
+        string materialName)
+    {
+        if (string.IsNullOrWhiteSpace(
+                materialName))
+            return false;
+
+        string lower =
+            materialName.ToLowerInvariant();
+
+        return
+            lower.Contains("grass") ||
+            lower.Contains("tree") ||
+            lower.Contains("leaf") ||
+            lower.Contains("leaves") ||
+            lower.Contains("foliage") ||
+            lower.Contains("vegetation") ||
+            lower.Contains("fern") ||
+            lower.Contains("palm");
+    }
+
+    private static void ConfigureFoliageFallback(
+        Material material)
+    {
+        if (material.HasProperty(
+                "_Surface"))
+        {
+            material.SetFloat(
+                "_Surface",
+                0f);
+        }
+
+        if (material.HasProperty(
+                "_AlphaClip"))
+        {
+            material.SetFloat(
+                "_AlphaClip",
+                1f);
+        }
+
+        if (material.HasProperty(
+                "_Cutoff"))
+        {
+            material.SetFloat(
+                "_Cutoff",
+                0.38f);
+        }
+
+        if (material.HasProperty(
+                "_Cull"))
+        {
+            material.SetFloat(
+                "_Cull",
+                (float)CullMode.Off);
+        }
+
+        material.EnableKeyword(
+            "_ALPHATEST_ON");
+
+        material.DisableKeyword(
+            "_SURFACE_TYPE_TRANSPARENT");
+
+        material.SetOverrideTag(
+            "RenderType",
+            "TransparentCutout");
+
+        material.renderQueue =
+            (int)RenderQueue.AlphaTest;
     }
 
     private static string FirstExistingProperty(
