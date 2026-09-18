@@ -62,12 +62,6 @@ namespace MotorCity.Gameplay
             ApplyUpgrades();
         }
 
-        private void OnDisable()
-        {
-            if (car != null)
-                car.SetDrivingEnabled(true);
-        }
-
         private void Update()
         {
             if (car == null || wallet == null || activityManager == null) return;
