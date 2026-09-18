@@ -47,3 +47,7 @@ sysinfo.txt
 # Unity Asset Store source assets kept local
 /Assets/Versatile Studio Assets/
 /Assets/Versatile Studio Assets.meta
+
+
+# Local city asset scanner report
+/MotorCity_CityAssetReport.txt
