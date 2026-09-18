@@ -17,7 +17,8 @@ namespace MotorCity.Vehicle
         [SerializeField] private float wheelSteeringAngle = 34f;
         [SerializeField] private float wheelAcceleration = 28f;
         [SerializeField] private float wheelMaxSpeed = 2700f;
-        [SerializeField] private float serviceBrakeTorque = 9200f;
+        [SerializeField] private float serviceBrakeTorque = 18000f;
+        [SerializeField] private float serviceBrakeDeceleration = 8.5f;
         [SerializeField] private float reverseMotorTorque = 760f;
         [SerializeField] private float maxReverseSpeedKph = 48f;
         [SerializeField] private float highSpeedSteerAngle = 14f;
@@ -50,9 +51,9 @@ namespace MotorCity.Vehicle
         [SerializeField] private float powerDriftMinimumSpeedKph = 32f;
         [SerializeField] private float powerDriftSteerThreshold = 0.42f;
         [SerializeField] private float powerDriftThrottleThreshold = 0.62f;
-        [SerializeField] private float handbrakeRearTorque = 10500f;
-        [SerializeField] private float handbrakeDeceleration = 0.65f;
-        [SerializeField] private float parkingBrakeTorque = 30000f;
+        [SerializeField] private float handbrakeRearTorque = 19000f;
+        [SerializeField] private float handbrakeDeceleration = 4.0f;
+        [SerializeField] private float parkingBrakeTorque = 36000f;
         [SerializeField] private float parkingBrakeSpeedKph = 8f;
         [SerializeField] private float driftDetectionSideSlip = 0.12f;
         [SerializeField] private float driftDetectionAngle = 8f;
@@ -93,6 +94,8 @@ namespace MotorCity.Vehicle
         private int stabilityUpgradeLevel;
         private bool drivingEnabled = true;
         private bool handbrakeInput;
+        private float rawVerticalInput;
+        private float resetHoldTimer;
 
         public float SpeedKph => body == null ? 0f : body.linearVelocity.magnitude * 3.6f;
         public float ForwardSpeedKph =>
@@ -143,20 +146,15 @@ namespace MotorCity.Vehicle
             if (measuredWheelRadius > 0.01f)
                 wheelRadius = Mathf.Clamp(measuredWheelRadius, 0.32f, 0.52f);
 
-            float averageY = 0f;
-            for (int i = 0; i < 4; i++) averageY += centers[i].y;
-            averageY *= 0.25f;
-
-            wheelCenters = new[]
-            {
-                new Vector3(-physicsHalfTrack, averageY,  physicsHalfWheelbase),
-                new Vector3( physicsHalfTrack, averageY,  physicsHalfWheelbase),
-                new Vector3(-physicsHalfTrack, averageY, -physicsHalfWheelbase),
-                new Vector3( physicsHalfTrack, averageY, -physicsHalfWheelbase)
-            };
+            wheelCenters = new Vector3[4];
 
             for (int i = 0; i < 4; i++)
             {
+                // The imported car visual has already been normalized and
+                // vertically aligned. Its measured wheel centers are therefore
+                // the authoritative physical wheel locations too.
+                wheelCenters[i] = centers[i];
+
                 wheelVisualRoots[i] =
                     visualRoots != null && visualRoots.Length > i
                         ? visualRoots[i]
@@ -167,7 +165,7 @@ namespace MotorCity.Vehicle
                         ? brakeRoots[i]
                         : null;
 
-                visualWheelOffsets[i] = centers[i] - wheelCenters[i];
+                visualWheelOffsets[i] = Vector3.zero;
             }
 
             BuildOrReconfigureWheelColliders();
@@ -206,8 +204,7 @@ namespace MotorCity.Vehicle
 
                 WheelCollider wheel = wheelColliders[i];
                 wheel.transform.localPosition =
-                    wheelCenters[i] +
-                    Vector3.up * (suspensionDistance * suspensionTargetPosition);
+                    wheelCenters[i];
                 wheel.transform.localRotation = Quaternion.identity;
                 wheel.transform.localScale = Vector3.one;
 
@@ -424,6 +421,7 @@ namespace MotorCity.Vehicle
                     ? keyboardHorizontal
                     : gamepadHorizontal;
 
+            rawVerticalInput = verticalTarget;
             vertical = SmoothLegacyAxis(vertical, verticalTarget);
             horizontal = SmoothLegacyAxis(horizontal, horizontalTarget);
             handbrakeInput = keyboardHandbrake || gamepadHandbrake;
@@ -566,15 +564,50 @@ namespace MotorCity.Vehicle
 
         private void ApplySourceController()
         {
+            if (resetHoldTimer > 0f)
+            {
+                resetHoldTimer =
+                    Mathf.Max(
+                        0f,
+                        resetHoldTimer - Time.fixedDeltaTime);
+
+                for (int i = 0; i < wheelColliders.Length; i++)
+                {
+                    WheelCollider heldWheel = wheelColliders[i];
+                    if (heldWheel == null) continue;
+
+                    heldWheel.motorTorque = 0f;
+                    heldWheel.brakeTorque = parkingBrakeTorque;
+                    sourceMotorTorque[i] = 0f;
+                }
+
+                body.linearVelocity = Vector3.zero;
+                body.angularVelocity = Vector3.zero;
+                return;
+            }
+
             float absSpeed = Mathf.Abs(ForwardSpeedKph);
             float steerT = Mathf.InverseLerp(20f, steerFadeSpeedKph, absSpeed);
             float steerLimit = Mathf.Lerp(wheelSteeringAngle, highSpeedSteerAngle, steerT);
             float targetSteer = horizontal * steerLimit;
 
-            bool brakingForward = vertical < -0.05f && ForwardSpeedKph > 3f;
-            bool brakingReverse = vertical > 0.05f && ForwardSpeedKph < -3f;
-            bool wantsReverse = vertical < -0.05f && ForwardSpeedKph <= 3f;
-            bool wantsForward = vertical > 0.05f && ForwardSpeedKph >= -3f;
+            bool brakingForward =
+                rawVerticalInput < -0.05f &&
+                ForwardSpeedKph > 3f;
+            bool brakingReverse =
+                rawVerticalInput > 0.05f &&
+                ForwardSpeedKph < -3f;
+            bool wantsReverse =
+                vertical < -0.05f &&
+                ForwardSpeedKph <= 3f;
+            bool wantsForward =
+                vertical > 0.05f &&
+                ForwardSpeedKph >= -3f;
+
+            float serviceBrakeInput =
+                (brakingForward || brakingReverse)
+                    ? Mathf.Clamp01(Mathf.Abs(rawVerticalInput))
+                    : 0f;
 
             for (int i = 0; i < 4; i++)
             {
@@ -598,7 +631,8 @@ namespace MotorCity.Vehicle
                 if (brakingForward || brakingReverse)
                 {
                     wheel.brakeTorque =
-                        serviceBrakeTorque * Mathf.Abs(vertical) *
+                        serviceBrakeTorque *
+                        serviceBrakeInput *
                         (frontWheel ? 0.62f : 0.38f);
                     sourceMotorTorque[i] = 0f;
                     continue;
@@ -623,6 +657,23 @@ namespace MotorCity.Vehicle
                     SourceLerpFactor(wheelAcceleration));
 
                 wheel.motorTorque = sourceMotorTorque[i];
+            }
+
+            if (serviceBrakeInput > 0f)
+            {
+                Vector3 planarVelocity =
+                    Vector3.ProjectOnPlane(
+                        body.linearVelocity,
+                        transform.up);
+
+                if (planarVelocity.sqrMagnitude > 0.01f)
+                {
+                    body.AddForce(
+                        -planarVelocity.normalized *
+                        serviceBrakeDeceleration *
+                        serviceBrakeInput,
+                        ForceMode.Acceleration);
+                }
             }
 
             body.linearDamping =
@@ -755,7 +806,9 @@ namespace MotorCity.Vehicle
         {
             horizontal = 0f;
             vertical = 0f;
+            rawVerticalInput = 0f;
             handbrakeInput = false;
+            resetHoldTimer = 0.18f;
 
             for (int i = 0; i < 4; i++)
             {
