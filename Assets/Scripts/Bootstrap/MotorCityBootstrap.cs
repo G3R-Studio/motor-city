@@ -87,8 +87,8 @@ namespace MotorCity.Bootstrap
                 return;
 
             Debug.LogWarning(
-                "Motor City: Modern City Pack runtime city prefab is missing. " +
-                "Import the package into Assets/MCP and rebuild the city.");
+                "Motor City: Fantastic City Generator runtime city is missing. " +
+                "Generate City-Maker and bake it through the Motor City FCG tool.");
 
             Material asphalt =
                 Material(
