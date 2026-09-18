@@ -11,7 +11,8 @@ public static class JapaneseOtakuCityInstaller
     private const string SourceRoot = "Assets/ZRNAssets";
     private const string RuntimeRoot = "Assets/Resources/MotorCity/Environment";
     private const string RuntimeCityPrefab = RuntimeRoot + "/CityVisual.prefab";
-    private const string BuildVersion = "otaku-city-v1";
+    private const string BuildVersion = "otaku-city-scale-3x-v2";
+    private const float CityScaleMultiplier = 3.0f;
     private const string BuildVersionKey = "MotorCity.JapaneseOtakuCity.BuildVersion";
 
     private static readonly string[] ClutterKeywords =
@@ -107,6 +108,9 @@ public static class JapaneseOtakuCityInstaller
 
         RemoveEmbeddedCamerasAndLights(city);
         RemoveObviousClutter(city);
+
+        city.transform.localScale *= CityScaleMultiplier;
+
         CenterOnGround(city);
 
         foreach (Transform item in
@@ -128,7 +132,7 @@ public static class JapaneseOtakuCityInstaller
 
         Debug.Log(
             "Motor City: Japanese Otaku City is now the primary runtime city. " +
-            $"Source: '{sourcePath}'.");
+            $"Scale={CityScaleMultiplier:0.##}x. Source: '{sourcePath}'.");
     }
 
     private static string FindSourceAssetPath()
