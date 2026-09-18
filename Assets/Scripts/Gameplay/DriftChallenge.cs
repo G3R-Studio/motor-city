@@ -8,8 +8,8 @@ namespace MotorCity.Gameplay
         private const string ActivityId = "drift";
 
         [SerializeField] private Vector3 zoneCenter = new(0f, 0f, -200.9f);
-        [SerializeField] private float startRadius = 33.6f;
-        [SerializeField] private float activityHalfExtent = 95.8f;
+        [SerializeField] private float startRadius = 15f;
+        [SerializeField] private float activityHalfExtent = 62f;
         [SerializeField] private float outsideGraceSeconds = 3.5f;
         [SerializeField] private float durationSeconds = 42f;
         [SerializeField] private int targetScore = 1800;
