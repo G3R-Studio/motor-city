@@ -83,6 +83,9 @@ public static class CommunityCityAssetInstaller
             BuildRuntimeProp(
                 ImportedRoot + "/City 02/Third Party/Kenney/City Kit (Industrial)/Prefabs/building-a.prefab",
                 RuntimeRoot + "/GarageBuilding.prefab");
+            BuildRuntimeProp(
+                ImportedRoot + "/City 02/Third Party/Kenney/City Kit (Roads)/Prefabs/Light Poles/light-curved-double.prefab",
+                RuntimeRoot + "/CheckpointGate.prefab");
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
