@@ -89,17 +89,7 @@ public static class KenneyUiAssetInstaller
 
             string[] wanted =
             {
-                "sprites/grey_panel.png",
-                "sprites/blue_panel.png",
-                "sprites/green_panel.png",
-                "sprites/yellow_panel.png",
-                "sprites/red_panel.png",
-                "sprites/grey_button00.png",
-                "sprites/blue_button00.png",
-                "sprites/green_button00.png",
-                "sprites/yellow_button00.png",
-                "sprites/red_button00.png",
-                "sounds/click1.ogg"
+                "sprites/grey_panel.png"
             };
 
             using (FileStream zipStream = File.OpenRead(zipPath))
@@ -158,15 +148,6 @@ public static class KenneyUiAssetInstaller
                 ImportAssetOptions.ForceSynchronousImport);
 
             ConfigureSprite("grey_panel.png", 12f);
-            ConfigureSprite("blue_panel.png", 12f);
-            ConfigureSprite("green_panel.png", 12f);
-            ConfigureSprite("yellow_panel.png", 12f);
-            ConfigureSprite("red_panel.png", 12f);
-            ConfigureSprite("grey_button00.png", 8f);
-            ConfigureSprite("blue_button00.png", 8f);
-            ConfigureSprite("green_button00.png", 8f);
-            ConfigureSprite("yellow_button00.png", 8f);
-            ConfigureSprite("red_button00.png", 8f);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

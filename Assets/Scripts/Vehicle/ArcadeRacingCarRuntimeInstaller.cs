@@ -41,7 +41,8 @@ namespace MotorCity.Vehicle
             if (car.transform.Find("ArcadeFreeRacingCarVisual_Runtime") != null) return true;
 
             GameObject prefab = Resources.Load<GameObject>("MotorCity/PlayerCarVisual");
-            if (prefab == null) return false;
+            if (prefab == null)
+                return ConfigureFallbackRig(car);
 
             return Install(car, prefab);
         }
@@ -64,9 +65,9 @@ namespace MotorCity.Vehicle
             {
                 Debug.LogWarning(
                     "Motor City: ARCADE Free Racing Car loaded, but four separate wheel meshes were not found. " +
-                    "Keeping the visual body with fallback wheel visuals.");
+                    "Keeping the visual body and using the fallback wheel rig.");
                 HideFallbackBodyOnly(carTransform);
-                return true;
+                return ConfigureFallbackRig(car);
             }
 
             AlignWheelbaseWithCarForward(
@@ -135,6 +136,48 @@ namespace MotorCity.Vehicle
                 "Motor City: ARCADE Free Racing Car prepared for Prometeo Car Controller physics. " +
                 $"FL={centerLocal[0]}, FR={centerLocal[1]}, " +
                 $"RL={centerLocal[2]}, RR={centerLocal[3]}.");
+
+            return true;
+        }
+
+        private static bool ConfigureFallbackRig(ArcadeCarController car)
+        {
+            if (car == null)
+                return false;
+
+            Transform root = car.transform;
+            string[] names =
+            {
+                "Wheel_FL",
+                "Wheel_FR",
+                "Wheel_RL",
+                "Wheel_RR"
+            };
+
+            Transform[] wheelRoots = new Transform[4];
+            Vector3[] wheelCenters = new Vector3[4];
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                Transform wheel = root.Find(names[i]);
+                if (wheel == null)
+                {
+                    Debug.LogWarning(
+                        $"Motor City: fallback wheel '{names[i]}' was not found, so the Prometeo rig could not be created.");
+                    return false;
+                }
+
+                wheelRoots[i] = wheel;
+                wheelCenters[i] = wheel.localPosition;
+            }
+
+            car.ConfigurePrometeoRig(
+                wheelRoots,
+                wheelCenters,
+                0.36f);
+
+            Debug.Log(
+                "Motor City: using the built-in fallback wheel rig.");
 
             return true;
         }
