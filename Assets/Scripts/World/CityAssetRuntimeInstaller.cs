@@ -17,6 +17,9 @@ namespace MotorCity.World
         private static readonly List<Vector3> roadPoints = new();
         private static readonly List<RoadAnchor> roadAnchors = new();
 
+        private static Bounds gameplayBounds;
+        private static bool hasGameplayBounds;
+
         private static Vector3[] deliveryRoute =
         {
             new(-120f, 0f, -80f),
@@ -74,10 +77,22 @@ namespace MotorCity.World
             city.name =
                 "Motor City — Versatile Demo City";
 
-            CacheRoadPoints(city);
+            gameplayBounds =
+                ResolveGameplayBounds(city);
+
+            hasGameplayBounds =
+                gameplayBounds.size.x > 1f &&
+                gameplayBounds.size.z > 1f;
+
+            CacheRoadPoints(
+                city,
+                gameplayBounds);
+
             AddBuildingColliders(city);
             CreateGroundCollider(city);
-            ResolveGameplayLayout(city);
+            ResolveGameplayLayout(
+                city,
+                gameplayBounds);
 
             return true;
         }
@@ -121,26 +136,27 @@ namespace MotorCity.World
         }
 
         private static void ResolveGameplayLayout(
-            GameObject city)
+            GameObject city,
+            Bounds cityBounds)
         {
-            Bounds cityBounds =
-                GetCityBounds(city);
 
             Vector3 center =
                 new(
                     cityBounds.center.x,
-                    0f,
+                    cityBounds.center.y,
                     cityBounds.center.z);
 
+            // Keep activity targets comfortably inside the actual city block
+            // instead of pushing them toward the outer scene bounds.
             float halfX =
                 Mathf.Max(
-                    80f,
-                    cityBounds.extents.x);
+                    24f,
+                    cityBounds.extents.x * 0.72f);
 
             float halfZ =
                 Mathf.Max(
-                    80f,
-                    cityBounds.extents.z);
+                    24f,
+                    cityBounds.extents.z * 0.72f);
 
             if (roadPoints.Count == 0)
             {
@@ -278,24 +294,24 @@ namespace MotorCity.World
 
         private static readonly Vector2[] DeliveryNormalizedLayout =
         {
-            new(-0.68f, -0.34f),
-            new(-0.28f, -0.18f),
-            new(0.08f, -0.02f),
-            new(0.58f, 0.20f),
-            new(0.26f, 0.62f),
-            new(-0.42f, 0.52f)
+            new(-0.52f, -0.30f),
+            new(-0.22f, -0.16f),
+            new(0.10f, -0.02f),
+            new(0.48f, 0.18f),
+            new(0.24f, 0.48f),
+            new(-0.36f, 0.42f)
         };
 
         private static readonly Vector2[] SprintNormalizedLayout =
         {
-            new(-0.78f, -0.68f),
-            new(-0.80f, 0.18f),
-            new(-0.48f, 0.74f),
-            new(0.18f, 0.80f),
-            new(0.76f, 0.52f),
-            new(0.80f, -0.20f),
-            new(0.42f, -0.76f),
-            new(-0.34f, -0.80f)
+            new(-0.58f, -0.52f),
+            new(-0.60f, 0.12f),
+            new(-0.36f, 0.56f),
+            new(0.18f, 0.60f),
+            new(0.56f, 0.42f),
+            new(0.58f, -0.18f),
+            new(0.34f, -0.56f),
+            new(-0.30f, -0.58f)
         };
 
         private static Vector3[] BuildRoadRoute(
@@ -420,6 +436,13 @@ namespace MotorCity.World
                     }
 
                     if (!IsDriveableSurface(renderer))
+                        continue;
+
+                    if (hasGameplayBounds &&
+                        !ContainsXZ(
+                            gameplayBounds,
+                            hit.point,
+                            8f))
                         continue;
 
                     float distance =
@@ -692,13 +715,11 @@ namespace MotorCity.World
         }
 
         private static void CacheRoadPoints(
-            GameObject city)
+            GameObject city,
+            Bounds cityBounds)
         {
             Renderer[] renderers =
                 city.GetComponentsInChildren<Renderer>(true);
-
-            Bounds cityBounds =
-                GetCityBounds(city);
 
             float cityGroundY =
                 cityBounds.min.y;
@@ -794,6 +815,13 @@ namespace MotorCity.World
         {
             if (renderer == null ||
                 !renderer.enabled)
+                return false;
+
+            if (hasGameplayBounds &&
+                !IntersectsXZ(
+                    gameplayBounds,
+                    renderer.bounds,
+                    12f))
                 return false;
 
             string hierarchy =
@@ -1088,6 +1116,142 @@ namespace MotorCity.World
             }
 
             return value;
+        }
+
+        private static Bounds ResolveGameplayBounds(
+            GameObject city)
+        {
+            Transform cityPart =
+                FindTransformByName(
+                    city.transform,
+                    "city_part_demo_main1");
+
+            Transform buildings =
+                cityPart != null
+                    ? FindTransformByName(
+                        cityPart,
+                        "BUILDINGS")
+                    : null;
+
+            Transform source =
+                buildings != null
+                    ? buildings
+                    : cityPart != null
+                        ? cityPart
+                        : city.transform;
+
+            Renderer[] renderers =
+                source.GetComponentsInChildren<Renderer>(true);
+
+            if (renderers.Length == 0)
+            {
+                Debug.LogWarning(
+                    "Motor City: city_part_demo_main1/BUILDINGS has no renderers; " +
+                    "using full scene bounds.");
+
+                return GetCityBounds(city);
+            }
+
+            Bounds bounds =
+                renderers[0].bounds;
+
+            for (int i = 1;
+                 i < renderers.Length;
+                 i++)
+            {
+                bounds.Encapsulate(
+                    renderers[i].bounds);
+            }
+
+            // Roads run around the building footprint, so allow a small
+            // horizontal margin while still excluding the rest of the demo scene.
+            bounds.Expand(
+                new Vector3(
+                    28f,
+                    10f,
+                    28f));
+
+            Debug.Log(
+                "Motor City: gameplay area locked to " +
+                $"{source.name}, bounds center={bounds.center}, size={bounds.size}.");
+
+            return bounds;
+        }
+
+        private static Transform FindTransformByName(
+            Transform root,
+            string targetName)
+        {
+            if (root == null)
+                return null;
+
+            if (string.Equals(
+                    root.name,
+                    targetName,
+                    System.StringComparison.OrdinalIgnoreCase))
+                return root;
+
+            foreach (Transform child in root)
+            {
+                Transform match =
+                    FindTransformByName(
+                        child,
+                        targetName);
+
+                if (match != null)
+                    return match;
+            }
+
+            return null;
+        }
+
+        private static bool ContainsXZ(
+            Bounds bounds,
+            Vector3 point,
+            float inset)
+        {
+            float minX =
+                bounds.min.x +
+                inset;
+            float maxX =
+                bounds.max.x -
+                inset;
+            float minZ =
+                bounds.min.z +
+                inset;
+            float maxZ =
+                bounds.max.z -
+                inset;
+
+            if (minX > maxX)
+            {
+                minX = bounds.min.x;
+                maxX = bounds.max.x;
+            }
+
+            if (minZ > maxZ)
+            {
+                minZ = bounds.min.z;
+                maxZ = bounds.max.z;
+            }
+
+            return
+                point.x >= minX &&
+                point.x <= maxX &&
+                point.z >= minZ &&
+                point.z <= maxZ;
+        }
+
+        private static bool IntersectsXZ(
+            Bounds area,
+            Bounds candidate,
+            float margin)
+        {
+            return
+                candidate.max.x >= area.min.x - margin &&
+                candidate.min.x <= area.max.x + margin &&
+                candidate.max.z >= area.min.z - margin &&
+                candidate.min.z <= area.max.z + margin;
         }
 
         private static Bounds GetCityBounds(
