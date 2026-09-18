@@ -45,3 +45,7 @@ sysinfo.txt
 
 /Assets/Resources/MotorCity/Markers/
 /Assets/Resources/MotorCity/Markers.meta
+
+# Unity Asset Store source assets kept local
+/Assets/ZRNAssets/
+/Assets/ZRNAssets.meta
