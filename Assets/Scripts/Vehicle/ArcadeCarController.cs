@@ -93,7 +93,11 @@ namespace MotorCity.Vehicle
                     transform.forward) * 3.6f;
 
         public bool IsHandbrake =>
+            handbrakeHeld ||
             ReadPrometeoBool("isTractionLocked");
+
+        public bool HandbrakeInputHeld =>
+            handbrakeHeld;
 
         public bool HasPrometeoPhysics =>
             prometeo != null;
@@ -847,6 +851,49 @@ namespace MotorCity.Vehicle
                 physicalSlide ||
                 (ReadPrometeoBool("isDrifting") &&
                  SpeedKph >= minimumDriftSpeedKph);
+        }
+
+        public void ApplyPhysicalHandbrake(
+            float rearBrakeTorque,
+            float lowSpeedRearBrakeTorque,
+            float lowSpeedThresholdKph,
+            float holdThresholdKph)
+        {
+            if (!handbrakeHeld ||
+                !drivingEnabled ||
+                resetHoldTimer > 0f)
+                return;
+
+            float torque =
+                SpeedKph <= lowSpeedThresholdKph
+                    ? lowSpeedRearBrakeTorque
+                    : rearBrakeTorque;
+
+            for (int i = RearLeft; i <= RearRight; i++)
+            {
+                WheelCollider wheel =
+                    wheelColliders[i];
+
+                if (wheel == null)
+                    continue;
+
+                wheel.motorTorque = 0f;
+                wheel.brakeTorque =
+                    Mathf.Max(
+                        wheel.brakeTorque,
+                        torque);
+            }
+
+            if (body != null &&
+                SpeedKph <= holdThresholdKph &&
+                !throttleHeld &&
+                !reverseHeld)
+            {
+                body.linearVelocity =
+                    Vector3.zero;
+                body.angularVelocity =
+                    Vector3.zero;
+            }
         }
 
         public bool TryGetRearGroundHit(
