@@ -24,13 +24,13 @@ The project currently includes:
 - a timed drift challenge placed on the active city road network, with a score target, КР reward and a 3.5-second return grace period after leaving the activity area;
 - a timed street sprint with moving checkpoints and a performance-based КР reward;
 - a smooth orbiting chase camera with mouse look, zoom, speed-based look-ahead, distance and field-of-view response;
-- automatic integration for **Modern City Pack** imported locally under `Assets/MCP`; Motor City builds the runtime environment from `Demo/Scenes/mcp_day.unity`, keeps the city buildings, roads, terrain, street props, traffic lights, trees and decals, strips legacy demo gameplay/camera/audio components, and converts the materials used by the city to URP;
+- editor tooling for **Fantastic City Generator**: generated FCG renderers in the active scene can be converted from legacy/Built-in materials to URP/Lit while preserving base textures, normal maps, occlusion, emission and transparent/cutout behavior;
 - legacy Community Core City 02 and Japanese Otaku City integrations have been removed;
 - compact activity-specific world markers with lightweight built-in fallbacks;
 - a compact floating garage waypoint using a CC0 Kenney Game Icons flag asset;
 - moving delivery and sprint targets with a four-cone drift marker cluster;
 - a compact HUD navigator that points toward the current delivery/sprint checkpoint and, during free roam, toward the nearest activity or garage with live distance;
-- gameplay layout uses fixed coordinates from the actual Modern City Pack `mcp_day` road grid instead of automatic road guessing: the player spawns on a real central lane, the garage is placed off the driving lane on a paved/sidewalk tile, the drift challenge uses a large four-way intersection, and delivery/sprint follow connected road corridors and intersections;
+- the current city integration is being rebuilt around a locally generated Fantastic City Generator layout; the editor can export a generated-scene report with object hierarchy, world positions, renderer bounds, materials, meshes and colliders so gameplay coordinates can be tied to the actual generated streets;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
@@ -43,7 +43,7 @@ The project currently includes:
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
 
-A flat temporary test surface is used only as an emergency fallback when the Modern City Pack runtime city is unavailable.
+A flat temporary test surface is currently used when no generated runtime city prefab is available.
 
 ## Run locally
 
@@ -52,8 +52,8 @@ A flat temporary test surface is used only as an emergency fallback when the Mod
 3. Open the repository root as a Unity project.
 4. Import **ARCADE: FREE Racing Car** by Mena from the Unity Asset Store / Package Manager.
 5. Import **PROMETEO: Car Controller** by Mena from the Unity Asset Store. Motor City does not redistribute the Prometeo package; the runtime bridge detects `PrometeoCarController` after Unity recompiles.
-6. Import **Modern City Pack** so its source is located at `Assets/MCP`. The source folder is intentionally ignored by Git; Motor City uses `Assets/MCP/Demo/Scenes/mcp_day.unity` and generates `Assets/Resources/MotorCity/Environment/CityVisual.prefab` automatically.
-7. Wait for the Motor City importers to generate the player-car visual and runtime city prefab.
+6. Import **Fantastic City Generator** locally under `Assets/Fantastic City Generator`, generate the city in an editor scene, then use `Motor City > Fantastic City Generator > Fix Pink Materials in Active Scene` to convert the generated city materials for URP.
+7. Save the generated scene and use `Motor City > Fantastic City Generator > Export Active FCG City Report` when the generated layout needs to be integrated into Motor City.
 8. The editor automatically prepares the runtime UI and marker sprites.
 9. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically and keep both Unity input backends enabled for Prometeo compatibility.
 10. Press Play.
