@@ -26,7 +26,10 @@ namespace MotorCity.UI
         private Text speedUnitText;
         private Text statusText;
         private Text driftText;
+        private Text navigatorArrowText;
+        private Text navigatorText;
 
+        private GameObject navigatorPanel;
         private GameObject statusPanel;
         private GameObject driftPanel;
         private GameObject garageOverlay;
@@ -149,6 +152,9 @@ namespace MotorCity.UI
 
             if (garageOpen)
                 UpdateGarage();
+
+            UpdateNavigator(
+                garageOpen);
         }
 
         private void BuildUi()
@@ -188,6 +194,7 @@ namespace MotorCity.UI
             BuildPlayerCard(canvasObject.transform);
             BuildSpeedometer(canvasObject.transform);
             BuildStatus(canvasObject.transform);
+            BuildNavigator(canvasObject.transform);
             BuildControlsHint(canvasObject.transform);
             BuildDriftPanel(canvasObject.transform);
             BuildGarage(canvasObject.transform);
@@ -339,6 +346,245 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
+        }
+
+        private void BuildNavigator(Transform canvas)
+        {
+            RectTransform panel =
+                CreatePanel(
+                    canvas,
+                    "Navigator",
+                    new Vector2(-20f, -18f),
+                    new Vector2(300f, 74f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
+                    PanelSoftColor);
+
+            navigatorPanel =
+                panel.gameObject;
+
+            CreateAccent(
+                panel,
+                BlueAccent,
+                new Vector2(-8f, -8f),
+                new Vector2(4f, 58f),
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f));
+
+            navigatorArrowText =
+                CreateText(
+                    panel,
+                    "Navigator Arrow",
+                    30,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(22f, -37f),
+                    new Vector2(54f, 54f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 0.5f),
+                    BlueAccent);
+
+            navigatorText =
+                CreateText(
+                    panel,
+                    "Navigator Text",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(58f, -37f),
+                    new Vector2(220f, 52f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 0.5f),
+                    TextColor);
+        }
+
+        private void UpdateNavigator(
+            bool garageOpen)
+        {
+            if (navigatorPanel == null ||
+                navigatorArrowText == null ||
+                navigatorText == null)
+                return;
+
+            if (car == null ||
+                garageOpen)
+            {
+                navigatorPanel.SetActive(false);
+                return;
+            }
+
+            Vector3 target;
+            string label;
+
+            if (delivery != null &&
+                delivery.IsActive)
+            {
+                target =
+                    delivery.CurrentTarget;
+                label =
+                    "ДОСТАВКА";
+            }
+            else if (streetSprint != null &&
+                     streetSprint.IsActive)
+            {
+                target =
+                    streetSprint.CurrentTarget;
+                label =
+                    "СПРИНТ";
+            }
+            else if (driftChallenge != null &&
+                     driftChallenge.IsActive)
+            {
+                target =
+                    driftChallenge.ZoneCenter;
+                label =
+                    "ДРИФТ-ЗОНА";
+            }
+            else
+            {
+                ResolveNearestFreeRoamTarget(
+                    out target,
+                    out label);
+            }
+
+            Vector3 toTarget =
+                target -
+                car.transform.position;
+
+            toTarget.y = 0f;
+
+            float distance =
+                toTarget.magnitude;
+
+            if (distance < 0.1f)
+            {
+                navigatorArrowText.text =
+                    "•";
+            }
+            else
+            {
+                float signedAngle =
+                    Vector3.SignedAngle(
+                        car.transform.forward,
+                        toTarget.normalized,
+                        Vector3.up);
+
+                navigatorArrowText.text =
+                    DirectionArrow(
+                        signedAngle);
+            }
+
+            navigatorText.text =
+                $"{label}\n{Mathf.RoundToInt(distance)} М";
+
+            navigatorPanel.SetActive(true);
+        }
+
+        private void ResolveNearestFreeRoamTarget(
+            out Vector3 target,
+            out string label)
+        {
+            target =
+                car.transform.position;
+            label =
+                "СВОБОДНАЯ ЕЗДА";
+
+            float bestDistance =
+                float.PositiveInfinity;
+
+            ConsiderNavigationTarget(
+                delivery != null
+                    ? delivery.CurrentTarget
+                    : Vector3.zero,
+                "ДОСТАВКА",
+                delivery != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+
+            ConsiderNavigationTarget(
+                driftChallenge != null
+                    ? driftChallenge.ZoneCenter
+                    : Vector3.zero,
+                "ДРИФТ",
+                driftChallenge != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+
+            ConsiderNavigationTarget(
+                streetSprint != null
+                    ? streetSprint.CurrentTarget
+                    : Vector3.zero,
+                "СПРИНТ",
+                streetSprint != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+
+            ConsiderNavigationTarget(
+                garage != null
+                    ? garage.GarageCenter
+                    : Vector3.zero,
+                "ГАРАЖ",
+                garage != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+        }
+
+        private void ConsiderNavigationTarget(
+            Vector3 candidate,
+            string candidateLabel,
+            bool valid,
+            ref Vector3 target,
+            ref string label,
+            ref float bestDistance)
+        {
+            if (!valid)
+                return;
+
+            Vector3 delta =
+                candidate -
+                car.transform.position;
+
+            delta.y = 0f;
+
+            float distance =
+                delta.sqrMagnitude;
+
+            if (distance >= bestDistance)
+                return;
+
+            bestDistance =
+                distance;
+            target =
+                candidate;
+            label =
+                candidateLabel;
+        }
+
+        private static string DirectionArrow(
+            float signedAngle)
+        {
+            float absolute =
+                Mathf.Abs(
+                    signedAngle);
+
+            if (absolute <= 20f)
+                return "↑";
+
+            if (absolute >= 160f)
+                return "↓";
+
+            if (signedAngle > 0f)
+                return absolute <= 70f
+                    ? "↗"
+                    : "→";
+
+            return absolute <= 70f
+                ? "↖"
+                : "←";
         }
 
         private void BuildControlsHint(Transform canvas)
