@@ -13,6 +13,7 @@ namespace MotorCity.UI
         private DeliveryActivity delivery;
         private DriftChallenge driftChallenge;
         private StreetSprintActivity streetSprint;
+        private CircuitRaceActivity circuitRace;
         private ActivityManager activityManager;
         private GarageUpgradeSystem garage;
 
@@ -65,6 +66,7 @@ namespace MotorCity.UI
             DeliveryActivity deliveryActivity,
             DriftChallenge challenge,
             StreetSprintActivity sprint,
+            CircuitRaceActivity circuit,
             ActivityManager manager,
             GarageUpgradeSystem garageSystem)
         {
@@ -74,6 +76,7 @@ namespace MotorCity.UI
             delivery = deliveryActivity;
             driftChallenge = challenge;
             streetSprint = sprint;
+            circuitRace = circuit;
             activityManager = manager;
             garage = garageSystem;
 
@@ -432,6 +435,14 @@ namespace MotorCity.UI
                 label =
                     "СПРИНТ";
             }
+            else if (circuitRace != null &&
+                     circuitRace.IsActive)
+            {
+                target =
+                    circuitRace.CurrentTarget;
+                label =
+                    $"КОЛЬЦО {circuitRace.CurrentLap}/{circuitRace.LapCount}";
+            }
             else if (driftChallenge != null &&
                      driftChallenge.IsActive)
             {
@@ -518,6 +529,16 @@ namespace MotorCity.UI
                     : Vector3.zero,
                 "СПРИНТ",
                 streetSprint != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+
+            ConsiderNavigationTarget(
+                circuitRace != null
+                    ? circuitRace.CurrentTarget
+                    : Vector3.zero,
+                "КОЛЬЦО",
+                circuitRace != null,
                 ref target,
                 ref label,
                 ref bestDistance);
@@ -875,6 +896,8 @@ namespace MotorCity.UI
                         driftChallenge?.StatusText,
                     "sprint" =>
                         streetSprint?.StatusText,
+                    "circuit" =>
+                        circuitRace?.StatusText,
                     "garage" =>
                         garage?.StatusText,
                     _ =>
@@ -883,7 +906,7 @@ namespace MotorCity.UI
             }
 
             return
-                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   ГАРАЖ";
+                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   КОЛЬЦО   •   ГАРАЖ";
         }
 
         private RectTransform CreatePanel(
