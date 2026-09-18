@@ -83,8 +83,7 @@ namespace MotorCity.World
         private void SnapToTarget()
         {
             Vector3 target = sprint.CurrentTarget;
-            transform.position =
-                new Vector3(target.x, 0f, target.z);
+            transform.position = target;
         }
 
         private void SetVisible(bool visible)
