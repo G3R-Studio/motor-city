@@ -60,6 +60,8 @@ namespace MotorCity.Vehicle
         private Component rightInputProxy;
         private Component handbrakeInputProxy;
         private Type prometeoTouchInputType;
+        private WheelFrictionCurve baseFrontLeftSideways;
+        private WheelFrictionCurve baseFrontRightSideways;
 
         private bool wheelRigReady;
         private bool drivingEnabled = true;
@@ -170,6 +172,43 @@ namespace MotorCity.Vehicle
             UpdateTelemetry();
         }
 
+        private void LateUpdate()
+        {
+            ApplyRearWheelDriveBias();
+        }
+
+        private void ApplyRearWheelDriveBias()
+        {
+            if (prometeo == null ||
+                !wheelRigReady)
+                return;
+
+            // Prometeo applies drive torque to all four wheels. Motor City
+            // uses a rear-wheel-drive drift setup, so the front axle is
+            // kept free-rolling while Prometeo still owns throttle,
+            // braking, steering and speed limiting.
+            if (wheelColliders[FrontLeft] != null)
+                wheelColliders[FrontLeft].motorTorque = 0f;
+
+            if (wheelColliders[FrontRight] != null)
+                wheelColliders[FrontRight].motorTorque = 0f;
+
+            if (!IsHandbrake)
+                return;
+
+            // Prometeo's stock handbrake reduces lateral grip on all four
+            // wheels. Restore front grip so traction loss is rear-biased
+            // and the car rotates from the rear axle instead of washing
+            // out with the nose.
+            if (wheelColliders[FrontLeft] != null)
+                wheelColliders[FrontLeft].sidewaysFriction =
+                    baseFrontLeftSideways;
+
+            if (wheelColliders[FrontRight] != null)
+                wheelColliders[FrontRight].sidewaysFriction =
+                    baseFrontRightSideways;
+        }
+
         public void ConfigurePrometeoRig(
             Transform[] visualWheelRoots,
             Vector3[] wheelCentersLocal,
@@ -205,6 +244,11 @@ namespace MotorCity.Vehicle
                     wheelCentersLocal[i],
                     radius);
             }
+
+            baseFrontLeftSideways =
+                wheelColliders[FrontLeft].sidewaysFriction;
+            baseFrontRightSideways =
+                wheelColliders[FrontRight].sidewaysFriction;
 
             wheelRigReady = true;
             TryBindPrometeo();
