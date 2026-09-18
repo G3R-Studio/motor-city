@@ -9,8 +9,8 @@ namespace MotorCity.Gameplay
 
         [SerializeField] private int baseRewardCredits = 550;
         [SerializeField] private int maximumTimeBonusCredits = 450;
-        [SerializeField] private float startRadius = 7f;
-        [SerializeField] private float checkpointRadius = 6f;
+        [SerializeField] private float startRadius = 10.5f;
+        [SerializeField] private float checkpointRadius = 9f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
@@ -36,12 +36,12 @@ namespace MotorCity.Gameplay
             activityManager = manager;
             route = new[]
             {
-                new Vector3(-84f, 0f, -84f),
-                new Vector3(-84f, 0f, 42f),
-                new Vector3(0f, 0f, 84f),
-                new Vector3(84f, 0f, 42f),
-                new Vector3(84f, 0f, -42f),
-                new Vector3(0f, 0f, -84f)
+                new Vector3(-126f, 0f, -126f),
+                new Vector3(-126f, 0f, 63f),
+                new Vector3(0f, 0f, 126f),
+                new Vector3(126f, 0f, 63f),
+                new Vector3(126f, 0f, -63f),
+                new Vector3(0f, 0f, -126f)
             };
         }
 
