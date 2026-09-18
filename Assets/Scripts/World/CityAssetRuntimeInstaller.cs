@@ -63,11 +63,30 @@ namespace MotorCity.World
             new(-300f, 0f, -1632f)
         };
 
+        private static readonly Vector3[] CircuitPreferred =
+        {
+            // Two-lap loop around the large district. As with the other
+            // activities, every target is snapped to an exact FCG road triangle.
+            new(150f, 0f, -100f),
+            new(450f, 0f, -100f),
+            new(450f, 0f, 150f),
+            new(450f, 0f, 430f),
+            new(150f, 0f, 450f),
+            new(-150f, 0f, 450f),
+            new(-450f, 0f, 360f),
+            new(-450f, 0f, 150f),
+            new(-450f, 0f, -100f),
+            new(-150f, 0f, -100f)
+        };
+
         private static Vector3[] deliveryRoute =
             (Vector3[])DeliveryPreferred.Clone();
 
         private static Vector3[] sprintRoute =
             (Vector3[])SprintPreferred.Clone();
+
+        private static Vector3[] circuitRoute =
+            (Vector3[])CircuitPreferred.Clone();
 
         private static GameObject activeCity;
         private static Bounds cityBounds;
@@ -92,6 +111,9 @@ namespace MotorCity.World
 
         public static Vector3[] SprintRoute =>
             (Vector3[])sprintRoute.Clone();
+
+        public static Vector3[] CircuitRoute =>
+            (Vector3[])circuitRoute.Clone();
 
         public static bool TryInstall()
         {
@@ -197,6 +219,11 @@ namespace MotorCity.World
                 ResolveRoadRoute(
                     SprintPreferred,
                     "sprint");
+
+            circuitRoute =
+                ResolveRoadRoute(
+                    CircuitPreferred,
+                    "circuit");
         }
 
         private static Vector3[] ResolveRoadRoute(
