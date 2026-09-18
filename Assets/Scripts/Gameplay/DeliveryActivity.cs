@@ -76,7 +76,7 @@ namespace MotorCity.Gameplay
                 IsActive = false;
                 activityManager.End(ActivityId);
                 checkpointIndex = 0;
-                StatusText = $"Доставка завершена  +{rewardCredits} CR";
+                StatusText = $"Доставка завершена  +{rewardCredits} КР";
                 return;
             }
 
