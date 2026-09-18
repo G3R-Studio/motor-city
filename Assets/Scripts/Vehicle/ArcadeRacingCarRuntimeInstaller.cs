@@ -10,7 +10,6 @@ namespace MotorCity.Vehicle
     {
         private const float TargetLength = 4.35f;
         private const float TargetWheelCenterLocalY = 0.42f;
-        private const float SourceVisualForwardYaw = 180f;
 
         private static readonly HashSet<string> FallbackVisualNames = new()
         {
@@ -51,15 +50,6 @@ namespace MotorCity.Vehicle
         {
             Transform carTransform = car.transform;
 
-            // ARCADE's source mesh uses local -Z as its visual nose while
-            // Motor City and Prometeo use local +Z as physical forward.
-            // Rotate the physics root, then compensate the child visual below.
-            // The car keeps the same world-facing appearance, but physics,
-            // steering axle and visual nose now share the same +Z direction.
-            carTransform.rotation =
-                carTransform.rotation *
-                Quaternion.Euler(0f, 180f, 0f);
-
             GameObject visual = Instantiate(prefab, carTransform);
             visual.name = "ArcadeFreeRacingCarVisual_Runtime";
             visual.transform.localPosition = Vector3.zero;
@@ -85,8 +75,10 @@ namespace MotorCity.Vehicle
                 carTransform,
                 wheelAnchors);
 
-            OrientSourceVisualForward(
-                visual.transform);
+            EnsureVisualNoseFacesPositiveZ(
+                visual.transform,
+                carTransform,
+                wheelAnchors);
 
             CenterVisualHorizontally(
                 visual.transform,
@@ -97,10 +89,24 @@ namespace MotorCity.Vehicle
                 carTransform,
                 wheelAnchors);
 
+            // Re-evaluate the anchors after all visual rotations. The Prometeo
+            // contract is explicit: indices 0/1 are the physical front axle
+            // (+Z in PlayerCar local space), 2/3 are the rear axle.
+            wheelAnchors =
+                FindWheelAnchors(
+                    visual.transform);
+
             Transform[] ordered =
                 OrderWheels(
                     carTransform,
                     wheelAnchors);
+            if (ordered.Length < 4)
+            {
+                Debug.LogError(
+                    "Motor City: could not classify four ARCADE wheels into front/rear axles.");
+                return ConfigureFallbackRig(car);
+            }
+
             Vector3[] centerWorld = new Vector3[4];
             Vector3[] centerLocal = new Vector3[4];
             float radiusSum = 0f;
@@ -145,7 +151,9 @@ namespace MotorCity.Vehicle
             Debug.Log(
                 "Motor City: ARCADE Free Racing Car prepared for Prometeo Car Controller physics. " +
                 $"FL={centerLocal[0]}, FR={centerLocal[1]}, " +
-                $"RL={centerLocal[2]}, RR={centerLocal[3]}.");
+                $"RL={centerLocal[2]}, RR={centerLocal[3]}. " +
+                $"Front axle average Z={(centerLocal[0].z + centerLocal[1].z) * 0.5f:0.###}, " +
+                $"rear axle average Z={(centerLocal[2].z + centerLocal[3].z) * 0.5f:0.###}.");
 
             return true;
         }
@@ -261,13 +269,48 @@ namespace MotorCity.Vehicle
             Transform car,
             List<Transform> wheels)
         {
-            return wheels
-                .OrderByDescending(
-                    t => car.InverseTransformPoint(RendererBounds(t).center).z)
-                .ThenBy(
-                    t => car.InverseTransformPoint(RendererBounds(t).center).x)
-                .Take(4)
-                .ToArray();
+            if (wheels == null ||
+                wheels.Count < 4)
+                return Array.Empty<Transform>();
+
+            var positions =
+                wheels
+                    .Distinct()
+                    .Select(
+                        wheel => new
+                        {
+                            Wheel = wheel,
+                            Local =
+                                car.InverseTransformPoint(
+                                    RendererBounds(wheel).center)
+                        })
+                    .OrderByDescending(item => item.Local.z)
+                    .Take(4)
+                    .ToArray();
+
+            if (positions.Length < 4)
+                return Array.Empty<Transform>();
+
+            var front =
+                positions
+                    .Take(2)
+                    .OrderBy(item => item.Local.x)
+                    .ToArray();
+
+            var rear =
+                positions
+                    .Skip(2)
+                    .Take(2)
+                    .OrderBy(item => item.Local.x)
+                    .ToArray();
+
+            return new[]
+            {
+                front[0].Wheel,
+                front[1].Wheel,
+                rear[0].Wheel,
+                rear[1].Wheel
+            };
         }
 
         private static Transform CreateWheelRoot(
@@ -343,18 +386,190 @@ namespace MotorCity.Vehicle
                 Quaternion.Euler(0f, 90f, 0f);
         }
 
-        private static void OrientSourceVisualForward(
-            Transform visual)
+        private static void EnsureVisualNoseFacesPositiveZ(
+            Transform visual,
+            Transform carRoot,
+            List<Transform> wheels)
         {
-            // Compensate the imported ARCADE source mesh so its visual nose
-            // points along the physics root's +Z axis. The root itself was
-            // rotated in Install(), so the car keeps its previous world heading.
-            visual.localRotation =
-                visual.localRotation *
-                Quaternion.Euler(
-                    0f,
-                    SourceVisualForwardYaw,
-                    0f);
+            if (visual == null ||
+                carRoot == null)
+                return;
+
+            float frontZ = 0f;
+            int frontCount = 0;
+            float rearZ = 0f;
+            int rearCount = 0;
+
+            foreach (Transform item in
+                     visual.GetComponentsInChildren<Transform>(true))
+            {
+                if (item == null ||
+                    item == visual)
+                    continue;
+
+                string name =
+                    item.name.ToLowerInvariant();
+
+                Renderer renderer =
+                    item.GetComponentInChildren<Renderer>(true);
+
+                if (renderer == null)
+                    continue;
+
+                float z =
+                    carRoot.InverseTransformPoint(
+                        RendererBounds(item).center).z;
+
+                if (LooksLikeFrontPart(name))
+                {
+                    frontZ += z;
+                    frontCount++;
+                }
+
+                if (LooksLikeRearPart(name))
+                {
+                    rearZ += z;
+                    rearCount++;
+                }
+            }
+
+            // Wheel names are often more reliable than body-part names.
+            if (wheels != null)
+            {
+                foreach (Transform wheel in wheels)
+                {
+                    if (wheel == null)
+                        continue;
+
+                    string name =
+                        wheel.name.ToLowerInvariant();
+
+                    float z =
+                        carRoot.InverseTransformPoint(
+                            RendererBounds(wheel).center).z;
+
+                    if (LooksLikeFrontWheel(name))
+                    {
+                        frontZ += z * 2f;
+                        frontCount += 2;
+                    }
+
+                    if (LooksLikeRearWheel(name))
+                    {
+                        rearZ += z * 2f;
+                        rearCount += 2;
+                    }
+                }
+            }
+
+            bool shouldFlip;
+
+            if (frontCount > 0 &&
+                rearCount > 0)
+            {
+                float averageFront =
+                    frontZ / frontCount;
+
+                float averageRear =
+                    rearZ / rearCount;
+
+                shouldFlip =
+                    averageFront <
+                    averageRear;
+            }
+            else
+            {
+                Bounds bounds =
+                    RendererBounds(visual);
+
+                float centerZ =
+                    carRoot.InverseTransformPoint(
+                        bounds.center).z;
+
+                if (frontCount > 0)
+                {
+                    shouldFlip =
+                        frontZ / frontCount <
+                        centerZ;
+                }
+                else if (rearCount > 0)
+                {
+                    shouldFlip =
+                        rearZ / rearCount >
+                        centerZ;
+                }
+                else
+                {
+                    // Known orientation of the current ARCADE Free Racing Car
+                    // source: the visual nose is on local -Z.
+                    shouldFlip =
+                        true;
+                }
+            }
+
+            if (shouldFlip)
+            {
+                visual.localRotation =
+                    visual.localRotation *
+                    Quaternion.Euler(
+                        0f,
+                        180f,
+                        0f);
+            }
+
+            Debug.Log(
+                "Motor City: ARCADE visual forward resolved without rotating " +
+                $"the PlayerCar physics root. Visual flipped={shouldFlip}.");
+        }
+
+        private static bool LooksLikeFrontPart(
+            string name)
+        {
+            return
+                name.Contains("front") ||
+                name.Contains("headlight") ||
+                name.Contains("head_light") ||
+                name.Contains("hood") ||
+                name.Contains("bonnet");
+        }
+
+        private static bool LooksLikeRearPart(
+            string name)
+        {
+            return
+                name.Contains("rear") ||
+                name.Contains("tail") ||
+                name.Contains("back") ||
+                name.Contains("spoiler") ||
+                name.Contains("trunk") ||
+                name.Contains("boot");
+        }
+
+        private static bool LooksLikeFrontWheel(
+            string name)
+        {
+            return
+                name.Contains("front") ||
+                name.Contains("wheel_fl") ||
+                name.Contains("wheel_fr") ||
+                name.Contains("wheelfl") ||
+                name.Contains("wheelfr") ||
+                name.Contains("_fl") ||
+                name.Contains("_fr");
+        }
+
+        private static bool LooksLikeRearWheel(
+            string name)
+        {
+            return
+                name.Contains("rear") ||
+                name.Contains("back") ||
+                name.Contains("wheel_rl") ||
+                name.Contains("wheel_rr") ||
+                name.Contains("wheelrl") ||
+                name.Contains("wheelrr") ||
+                name.Contains("_rl") ||
+                name.Contains("_rr");
         }
 
         private static void CenterVisualHorizontally(
