@@ -46,6 +46,8 @@ namespace MotorCity.Gameplay
             delivery = deliveryActivity;
             driftChallenge = challenge;
             streetSprint = sprint;
+            garageCenter =
+                MotorCity.World.CityAssetRuntimeInstaller.GaragePoint;
 
             EngineLevel = Mathf.Clamp(PlayerPrefs.GetInt(EngineKey, 0), 0, MaxLevel);
             GripLevel = Mathf.Clamp(PlayerPrefs.GetInt(GripKey, 0), 0, MaxLevel);
