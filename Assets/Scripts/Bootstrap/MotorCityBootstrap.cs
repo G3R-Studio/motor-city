@@ -239,10 +239,15 @@ namespace MotorCity.Bootstrap
             DeliveryActivity delivery,
             ActivityManager activityManager)
         {
-            Material markerMaterial = Material(new Color(0.08f, 0.5f, 1f), 0.05f, 0.75f);
-            GameObject marker = CreateVisualSurface("Delivery Marker", PrimitiveType.Cylinder, new Vector3(42f, 1.25f, -42f), new Vector3(3.2f, 0.08f, 3.2f), markerMaterial);
-            marker.isStatic = false;
-            RouteMarkerVisual visual = marker.AddComponent<RouteMarkerVisual>();
+            GameObject marker = CreateAssetMarker(
+                "Delivery Marker",
+                "MotorCity/Environment/DeliveryCrate",
+                new Vector3(42f, 1.25f, -42f),
+                2.2f,
+                new Color(0.08f, 0.5f, 1f));
+
+            RouteMarkerVisual visual =
+                marker.AddComponent<RouteMarkerVisual>();
             visual.Bind(delivery, activityManager);
         }
 
@@ -250,17 +255,15 @@ namespace MotorCity.Bootstrap
             DriftChallenge challenge,
             ActivityManager activityManager)
         {
-            Material markerMaterial = Material(new Color(1f, 0.48f, 0.06f), 0.02f, 0.7f);
-            Vector3 position = challenge.ZoneCenter + Vector3.up * 0.09f;
-            GameObject marker = CreateVisualSurface(
-                "Drift Challenge Zone",
-                PrimitiveType.Cylinder,
-                position,
-                new Vector3(5.8f, 0.055f, 5.8f),
-                markerMaterial);
+            GameObject marker = CreateAssetMarker(
+                "Drift Challenge Marker",
+                "MotorCity/Environment/DriftCone",
+                challenge.ZoneCenter + Vector3.up * 0.09f,
+                1.45f,
+                new Color(1f, 0.48f, 0.06f));
 
-            marker.isStatic = false;
-            DriftChallengeMarkerVisual visual = marker.AddComponent<DriftChallengeMarkerVisual>();
+            DriftChallengeMarkerVisual visual =
+                marker.AddComponent<DriftChallengeMarkerVisual>();
             visual.Bind(challenge, activityManager);
         }
 
@@ -268,32 +271,117 @@ namespace MotorCity.Bootstrap
             StreetSprintActivity sprint,
             ActivityManager activityManager)
         {
-            Material markerMaterial = Material(new Color(0.18f, 1f, 0.34f), 0.02f, 0.72f);
-            GameObject marker = CreateVisualSurface(
+            GameObject marker = CreateAssetMarker(
                 "Street Sprint Marker",
-                PrimitiveType.Cylinder,
+                "MotorCity/Environment/SprintCar",
                 sprint.CurrentTarget + Vector3.up * 0.12f,
-                new Vector3(3.8f, 0.06f, 3.8f),
-                markerMaterial);
+                3.4f,
+                new Color(0.18f, 1f, 0.34f));
 
-            marker.isStatic = false;
-            StreetSprintMarkerVisual visual = marker.AddComponent<StreetSprintMarkerVisual>();
+            StreetSprintMarkerVisual visual =
+                marker.AddComponent<StreetSprintMarkerVisual>();
             visual.Bind(sprint, activityManager);
         }
 
-        private static void CreateGarageMarker(GarageUpgradeSystem garage)
+        private static void CreateGarageMarker(
+            GarageUpgradeSystem garage)
         {
-            Material markerMaterial = Material(new Color(0.72f, 0.16f, 1f), 0.02f, 0.75f);
-            GameObject marker = CreateVisualSurface(
-                "Garage Marker",
-                PrimitiveType.Cylinder,
-                garage.GarageCenter + Vector3.up * 0.1f,
-                new Vector3(4.4f, 0.06f, 4.4f),
-                markerMaterial);
+            GameObject marker = CreateAssetMarker(
+                "Garage",
+                "MotorCity/Environment/GarageBuilding",
+                garage.GarageCenter,
+                11f,
+                new Color(0.72f, 0.16f, 1f));
 
-            marker.isStatic = false;
-            GarageMarkerVisual visual = marker.AddComponent<GarageMarkerVisual>();
+            GarageMarkerVisual visual =
+                marker.AddComponent<GarageMarkerVisual>();
             visual.Bind(garage);
+        }
+
+        private static GameObject CreateAssetMarker(
+            string name,
+            string resourcePath,
+            Vector3 position,
+            float targetSize,
+            Color fallbackColor)
+        {
+            GameObject root = new(name);
+            root.transform.position = position;
+
+            GameObject prefab =
+                Resources.Load<GameObject>(resourcePath);
+
+            if (prefab != null)
+            {
+                GameObject visual =
+                    Object.Instantiate(prefab, root.transform);
+
+                visual.name = "Asset Visual";
+                NormalizeAssetVisual(
+                    visual.transform,
+                    root.transform.position,
+                    targetSize);
+
+                foreach (Collider collider in
+                         visual.GetComponentsInChildren<Collider>(true))
+                    Object.Destroy(collider);
+
+                return root;
+            }
+
+            // Emergency fallback only if the editor could not prepare CC0 assets.
+            Material material =
+                Material(fallbackColor, 0.02f, 0.7f);
+
+            GameObject fallback =
+                Primitive(
+                    "Fallback Marker",
+                    PrimitiveType.Cylinder,
+                    root.transform,
+                    new Vector3(targetSize, 0.08f, targetSize),
+                    Vector3.zero,
+                    material,
+                    false);
+
+            fallback.isStatic = false;
+            return root;
+        }
+
+        private static void NormalizeAssetVisual(
+            Transform visual,
+            Vector3 anchor,
+            float targetSize)
+        {
+            Renderer[] renderers =
+                visual.GetComponentsInChildren<Renderer>(true);
+
+            if (renderers.Length == 0)
+                return;
+
+            Bounds bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+
+            float maxSize =
+                Mathf.Max(
+                    bounds.size.x,
+                    bounds.size.y,
+                    bounds.size.z);
+
+            if (maxSize > 0.001f)
+                visual.localScale *= targetSize / maxSize;
+
+            renderers =
+                visual.GetComponentsInChildren<Renderer>(true);
+
+            bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+
+            visual.position += new Vector3(
+                anchor.x - bounds.center.x,
+                anchor.y - bounds.min.y,
+                anchor.z - bounds.center.z);
         }
 
         private static void CreateCamera(Transform target)
