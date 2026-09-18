@@ -10,8 +10,8 @@ namespace MotorCity.World
         private Vector3 baseScale;
         private Camera mainCamera;
 
-        private const float TargetMarkerSize = 5.2f;
-        private const float MarkerHeight = 5.8f;
+        private const float TargetMarkerSize = 2.8f;
+        private const float MarkerHeight = 3.9f;
 
         public void Bind(GarageUpgradeSystem target)
         {
@@ -70,7 +70,7 @@ namespace MotorCity.World
             transform.position =
                 garage.GarageCenter +
                 Vector3.up *
-                (MarkerHeight + Mathf.Sin(Time.time * 2.5f) * 0.22f);
+                (MarkerHeight + Mathf.Sin(Time.time * 2.2f) * 0.12f);
 
             if (mainCamera == null)
                 mainCamera = Camera.main;
@@ -88,8 +88,8 @@ namespace MotorCity.World
 
             float pulse =
                 1f +
-                Mathf.Sin(Time.time * 3.2f) *
-                0.08f;
+                Mathf.Sin(Time.time * 2.8f) *
+                0.035f;
 
             marker.transform.localScale =
                 baseScale * pulse;
