@@ -57,7 +57,15 @@ namespace MotorCity.Gameplay
             GripLevel = Mathf.Clamp(PlayerPrefs.GetInt(GripKey, 0), 0, MaxLevel);
             StabilityLevel = Mathf.Clamp(PlayerPrefs.GetInt(StabilityKey, 0), 0, MaxLevel);
 
+            IsOpen = false;
+            car?.SetDrivingEnabled(true);
             ApplyUpgrades();
+        }
+
+        private void OnDisable()
+        {
+            if (car != null)
+                car.SetDrivingEnabled(true);
         }
 
         private void Update()
