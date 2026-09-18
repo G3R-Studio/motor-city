@@ -5,10 +5,10 @@ namespace MotorCity.Gameplay
 {
     public sealed class DriftTracker : MonoBehaviour
     {
-        [SerializeField] private float minimumSpeedKph = 32f;
-        [SerializeField] private float minimumSlipAngle = 12f;
+        [SerializeField] private float minimumSpeedKph = 26f;
+        [SerializeField] private float minimumSlipAngle = 8f;
         [SerializeField] private float maximumControlledSlipAngle = 65f;
-        [SerializeField] private float minimumRearSidewaysSlip = 0.18f;
+        [SerializeField] private float minimumRearSidewaysSlip = 0.12f;
         [SerializeField] private float comboGraceSeconds = 1.0f;
 
         [Header("Free Drift Rewards")]
@@ -61,17 +61,12 @@ namespace MotorCity.Gameplay
             bool rearIsActuallySliding =
                 rearSlip >= minimumRearSidewaysSlip;
 
-            bool rearIsBrokenLoose =
-                car.IsHandbrake ||
-                car.RearForwardSlip >= 0.12f ||
-                angle >= 18f;
-
             bool validDrift =
+                car.IsSliding &&
                 speed >= minimumSpeedKph &&
                 car.GroundedWheels >= 3 &&
                 controlledAngle &&
-                rearIsActuallySliding &&
-                rearIsBrokenLoose;
+                rearIsActuallySliding;
 
             if (validDrift)
             {
@@ -81,7 +76,12 @@ namespace MotorCity.Gameplay
                 float angleQuality =
                     Mathf.InverseLerp(minimumSlipAngle, 38f, angle);
                 float slipQuality =
-                    Mathf.InverseLerp(minimumRearSidewaysSlip, 0.65f, rearSlip);
+                    Mathf.Max(
+                        car.DriftIntensity,
+                        Mathf.InverseLerp(
+                            minimumRearSidewaysSlip,
+                            0.58f,
+                            rearSlip));
                 float speedQuality =
                     Mathf.InverseLerp(minimumSpeedKph, 110f, speed);
 
