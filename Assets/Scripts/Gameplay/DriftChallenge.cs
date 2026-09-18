@@ -82,7 +82,7 @@ namespace MotorCity.Gameplay
             if (CurrentScore >= targetScore)
             {
                 wallet.AddCredits(rewardCredits);
-                EndChallenge($"Дрифт-заезд завершён  +{rewardCredits} CR");
+                EndChallenge($"Дрифт-заезд завершён  +{rewardCredits} КР");
                 return;
             }
 
