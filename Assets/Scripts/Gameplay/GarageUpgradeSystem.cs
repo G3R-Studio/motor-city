@@ -22,6 +22,7 @@ namespace MotorCity.Gameplay
         private DeliveryActivity delivery;
         private DriftChallenge driftChallenge;
         private StreetSprintActivity streetSprint;
+        private CircuitRaceActivity circuitRace;
 
         public int EngineLevel { get; private set; }
         public int GripLevel { get; private set; }
@@ -38,7 +39,8 @@ namespace MotorCity.Gameplay
             ActivityManager manager,
             DeliveryActivity deliveryActivity,
             DriftChallenge challenge,
-            StreetSprintActivity sprint)
+            StreetSprintActivity sprint,
+            CircuitRaceActivity circuit)
         {
             car = targetCar;
             wallet = targetWallet;
@@ -46,6 +48,7 @@ namespace MotorCity.Gameplay
             delivery = deliveryActivity;
             driftChallenge = challenge;
             streetSprint = sprint;
+            circuitRace = circuit;
             garageCenter =
                 MotorCity.World.CityAssetRuntimeInstaller.GaragePoint;
 
@@ -148,6 +151,7 @@ namespace MotorCity.Gameplay
             delivery?.CancelActivity();
             driftChallenge?.CancelActivity();
             streetSprint?.CancelActivity();
+            circuitRace?.CancelActivity();
         }
 
         private void CloseGarage()
