@@ -31,6 +31,7 @@ The project currently includes:
 - moving delivery and sprint targets with a four-cone drift marker cluster;
 - a compact HUD navigator that points toward the current delivery/sprint checkpoint and, during free roam, toward the nearest activity or garage with live distance;
 - the active city uses the latest locally generated Fantastic City Generator layout with a large main district, a compact remote district and a three-section connecting highway; the runtime installer resolves `FCG_Roads` and `FCG_HighWay` by exact MeshCollider triangle/submesh material, explicitly excludes highway guardrails from driveable surfaces, keeps delivery inside the large district, places the garage on a real parking surface, and routes the street sprint across the highway into the compact district;
+- breakable street furniture is baked into the generated city: street lights, park lamps, traffic lights, hydrants, benches, poles and recognized road signs use non-blocking trigger colliders, take only a small amount of vehicle speed on impact, topple with lightweight physics, stop colliding with the player car and despawn after a short time;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
