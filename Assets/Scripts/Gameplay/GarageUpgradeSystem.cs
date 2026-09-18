@@ -12,8 +12,8 @@ namespace MotorCity.Gameplay
         private const string ActivityId = "garage";
         private const int MaxLevel = 3;
 
-        [SerializeField] private Vector3 garageCenter = new(-113.3f, 0f, -113.3f);
-        [SerializeField] private float interactRadius = 18.9f;
+        [SerializeField] private Vector3 garageCenter = new(-158.8f, 0f, -158.8f);
+        [SerializeField] private float interactRadius = 26.5f;
         [SerializeField] private float maxOpenSpeedKph = 8f;
 
         private ArcadeCarController car;
