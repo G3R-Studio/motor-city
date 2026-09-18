@@ -33,14 +33,6 @@ namespace MotorCity.Gameplay
             route = CityAssetRuntimeInstaller.DeliveryRoute;
         }
 
-        public void SnapRouteToRoad()
-        {
-            if (route == null) return;
-
-            for (int i = 0; i < route.Length; i++)
-                route[i] = CityAssetRuntimeInstaller.SnapToNearestRoad(route[i]);
-        }
-
         private void Update()
         {
             if (car == null || wallet == null || activityManager == null || route == null || route.Length == 0) return;
