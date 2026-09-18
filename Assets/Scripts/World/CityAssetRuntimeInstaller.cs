@@ -7,50 +7,62 @@ namespace MotorCity.World
         private const string ResourcePath =
             "MotorCity/Environment/CityVisual";
 
-        private const float RoadY =
-            0.28f;
+        private const string RoadRootName =
+            "- roads";
 
-        // These coordinates are taken from the actual CubexCube demo scene.
-        // They intentionally reference specific road modules instead of
-        // calculating positions from renderer bounds.
-        private static readonly Vector3[] deliveryRoute =
+        private const string TerrainRootName =
+            "- terrain";
+
+        private const float DefaultSurfaceY =
+            0.12f;
+
+        private static readonly Vector3[] DeliveryRouteRaw =
         {
-            new(17.779f, RoadY, 20.200f),
-            new(43.779f, RoadY, 20.200f),
-            new(69.779f, RoadY, 33.200f),
-            new(69.779f, RoadY, 72.200f),
-            new(56.779f, RoadY, 85.200f),
-            new(17.779f, RoadY, 85.200f)
+            new(-295f, DefaultSurfaceY, 155f),
+            new(-300f, DefaultSurfaceY, 255f),
+            new(-245f, DefaultSurfaceY, 255f),
+            new(-180f, DefaultSurfaceY, 255f),
+            new(-180f, DefaultSurfaceY, 185f),
+            new(-125f, DefaultSurfaceY, 185f),
+            new(-70f, DefaultSurfaceY, 185f),
+            new(-70f, DefaultSurfaceY, 110f)
         };
 
-        private static readonly Vector3[] sprintRoute =
+        private static readonly Vector3[] SprintRouteRaw =
         {
-            new(4.779f, RoadY, 85.200f),
-            new(43.779f, RoadY, 85.200f),
-            new(69.779f, RoadY, 85.200f),
-            new(69.779f, RoadY, 72.200f),
-            new(69.779f, RoadY, 46.200f),
-            new(69.779f, RoadY, 20.200f),
-            new(43.779f, RoadY, 20.200f),
-            new(17.779f, RoadY, 20.200f)
+            new(-300f, DefaultSurfaceY, 110f),
+            new(-300f, DefaultSurfaceY, 185f),
+            new(-300f, DefaultSurfaceY, 255f),
+            new(-300f, DefaultSurfaceY, 337.5f),
+            new(-180f, DefaultSurfaceY, 337.5f),
+            new(-180f, DefaultSurfaceY, 255f),
+            new(-70f, DefaultSurfaceY, 255f),
+            new(-70f, DefaultSurfaceY, 185f),
+            new(-70f, DefaultSurfaceY, 110f),
+            new(-180f, DefaultSurfaceY, 110f)
         };
+
+        private static Vector3[] deliveryRoute =
+            (Vector3[])DeliveryRouteRaw.Clone();
+
+        private static Vector3[] sprintRoute =
+            (Vector3[])SprintRouteRaw.Clone();
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
-            new(69.779f, RoadY, 33.200f);
+            new(-175f, DefaultSurfaceY, 145f);
 
         public static Quaternion PlayerSpawnRotation { get; private set; } =
             Quaternion.identity;
 
-        // Road_Grass_Porch next to the western apartment building.
-        // The point is offset to the open side of the porch/driveway rather
-        // than sitting in the middle of an asphalt lane.
+        // Open paved/sidewalk tile immediately west of the north road.
+        // This keeps the garage off the driving lane while still reachable
+        // from the street.
         public static Vector3 GaragePoint { get; private set; } =
-            new(22.300f, RoadY, 45.450f);
+            new(-197.5f, DefaultSurfaceY, 322.5f);
 
-        // Road_Turn_90_1 at the north-east corner of the main connected grid.
-        // Four drift cones fit within the 13 x 13 m road tile.
+        // Large four-way intersection from mcp_roads_cross_02.
         public static Vector3 DriftChallengePoint { get; private set; } =
-            new(69.779f, RoadY, 85.200f);
+            new(-180f, DefaultSurfaceY, 110f);
 
         public static Vector3[] DeliveryRoute =>
             (Vector3[])deliveryRoute.Clone();
@@ -71,18 +83,20 @@ namespace MotorCity.World
                 Object.Instantiate(prefab);
 
             city.name =
-                "Motor City — CubexCube Free City";
+                "Motor City — Modern City Pack";
 
-            EnsureFallbackColliders(
+            EnsureFallbackRoadColliders(
                 city);
+
+            Physics.SyncTransforms();
 
             PlayerSpawnPoint =
                 ResolveSurfaceHeight(
                     new Vector3(
-                        69.779f,
-                        RoadY,
-                        33.200f),
-                    "Roads");
+                        -175f,
+                        DefaultSurfaceY,
+                        145f),
+                    RoadRootName);
 
             PlayerSpawnRotation =
                 Quaternion.LookRotation(
@@ -92,22 +106,35 @@ namespace MotorCity.World
             GaragePoint =
                 ResolveSurfaceHeight(
                     new Vector3(
-                        22.300f,
-                        RoadY,
-                        45.450f),
-                    "Roads_Grass");
+                        -197.5f,
+                        DefaultSurfaceY,
+                        322.5f),
+                    TerrainRootName);
 
             DriftChallengePoint =
                 ResolveSurfaceHeight(
                     new Vector3(
-                        69.779f,
-                        RoadY,
-                        85.200f),
-                    "Roads");
+                        -180f,
+                        DefaultSurfaceY,
+                        110f),
+                    RoadRootName);
+
+            deliveryRoute =
+                ResolveRoute(
+                    DeliveryRouteRaw,
+                    RoadRootName);
+
+            sprintRoute =
+                ResolveRoute(
+                    SprintRouteRaw,
+                    RoadRootName);
 
             Debug.Log(
-                "Motor City: CubexCube gameplay layout loaded from fixed demo-scene road coordinates. " +
-                $"Spawn={PlayerSpawnPoint}, Garage={GaragePoint}, Drift={DriftChallengePoint}.");
+                "Motor City: Modern City Pack gameplay layout loaded from " +
+                "fixed mcp_day road-grid coordinates. " +
+                $"Spawn={PlayerSpawnPoint}, " +
+                $"Garage={GaragePoint}, " +
+                $"Drift={DriftChallengePoint}.");
 
             return true;
         }
@@ -116,64 +143,60 @@ namespace MotorCity.World
             Vector3 approximate)
         {
             Vector3 best =
-                deliveryRoute[0];
+                PlayerSpawnPoint;
 
             float bestDistance =
                 HorizontalSqrDistance(
                     approximate,
                     best);
 
-            foreach (Vector3 point in deliveryRoute)
-            {
-                float distance =
-                    HorizontalSqrDistance(
-                        approximate,
-                        point);
+            ConsiderRoute(
+                deliveryRoute,
+                approximate,
+                ref best,
+                ref bestDistance);
 
-                if (distance >= bestDistance)
-                    continue;
-
-                bestDistance =
-                    distance;
-
-                best =
-                    point;
-            }
-
-            foreach (Vector3 point in sprintRoute)
-            {
-                float distance =
-                    HorizontalSqrDistance(
-                        approximate,
-                        point);
-
-                if (distance >= bestDistance)
-                    continue;
-
-                bestDistance =
-                    distance;
-
-                best =
-                    point;
-            }
+            ConsiderRoute(
+                sprintRoute,
+                approximate,
+                ref best,
+                ref bestDistance);
 
             return best;
+        }
+
+        private static Vector3[] ResolveRoute(
+            Vector3[] source,
+            string requiredRoot)
+        {
+            Vector3[] result =
+                new Vector3[source.Length];
+
+            for (int i = 0;
+                 i < source.Length;
+                 i++)
+            {
+                result[i] =
+                    ResolveSurfaceHeight(
+                        source[i],
+                        requiredRoot);
+            }
+
+            return result;
         }
 
         private static Vector3 ResolveSurfaceHeight(
             Vector3 point,
             string requiredRoot)
         {
-            Physics.SyncTransforms();
-
             RaycastHit[] hits =
                 Physics.RaycastAll(
                     new Vector3(
                         point.x,
-                        20f,
+                        40f,
                         point.z),
                     Vector3.down,
-                    40f,
+                    80f,
                     Physics.DefaultRaycastLayers,
                     QueryTriggerInteraction.Ignore);
 
@@ -198,6 +221,7 @@ namespace MotorCity.World
                 {
                     bestY =
                         hit.point.y;
+
                     found =
                         true;
                 }
@@ -207,6 +231,13 @@ namespace MotorCity.World
                 found
                     ? bestY + 0.04f
                     : point.y;
+
+            if (!found)
+            {
+                Debug.LogWarning(
+                    $"Motor City: no '{requiredRoot}' surface found below " +
+                    $"{point.x:0.##}, {point.z:0.##}; using fallback Y={point.y:0.##}.");
+            }
 
             return point;
         }
@@ -233,48 +264,18 @@ namespace MotorCity.World
             return false;
         }
 
-        private static void EnsureFallbackColliders(
+        private static void EnsureFallbackRoadColliders(
             GameObject city)
         {
             AddMeshCollidersUnder(
                 FindTransform(
                     city.transform,
-                    "Roads"));
+                    RoadRootName));
 
             AddMeshCollidersUnder(
                 FindTransform(
                     city.transform,
-                    "Roads_Grass"));
-
-            AddMeshCollidersUnder(
-                FindTransform(
-                    city.transform,
-                    "Roads_Sand"));
-
-            Transform buildings =
-                FindTransform(
-                    city.transform,
-                    "Buildings");
-
-            if (buildings == null)
-                return;
-
-            foreach (Renderer renderer in
-                     buildings.GetComponentsInChildren<Renderer>(true))
-            {
-                if (renderer == null ||
-                    renderer.GetComponent<Collider>() != null)
-                    continue;
-
-                BoxCollider collider =
-                    renderer.gameObject.AddComponent<BoxCollider>();
-
-                collider.center =
-                    renderer.localBounds.center;
-
-                collider.size =
-                    renderer.localBounds.size;
-            }
+                    TerrainRootName));
         }
 
         private static void AddMeshCollidersUnder(
@@ -327,6 +328,33 @@ namespace MotorCity.World
             }
 
             return null;
+        }
+
+        private static void ConsiderRoute(
+            Vector3[] route,
+            Vector3 approximate,
+            ref Vector3 best,
+            ref float bestDistance)
+        {
+            if (route == null)
+                return;
+
+            foreach (Vector3 point in route)
+            {
+                float distance =
+                    HorizontalSqrDistance(
+                        approximate,
+                        point);
+
+                if (distance >= bestDistance)
+                    continue;
+
+                bestDistance =
+                    distance;
+
+                best =
+                    point;
+            }
         }
 
         private static float HorizontalSqrDistance(
