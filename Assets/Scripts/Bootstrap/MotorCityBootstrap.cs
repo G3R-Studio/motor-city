@@ -107,68 +107,6 @@ namespace MotorCity.Bootstrap
             ground.isStatic = true;
         }
 
-        private static void CreateCityBlock(int gridX, int gridZ, Vector3 center, Material sidewalk, Material buildingA, Material buildingB, Material buildingC, Material glass)
-        {
-            CreateVisualSurface("Sidewalk", PrimitiveType.Cube, center + new Vector3(0f, 0.035f, 0f), new Vector3(22f, 0.06f, 22f), sidewalk);
-
-            int seed = Mathf.Abs(gridX * 37 + gridZ * 61 + 97);
-            int buildingCount = 2 + seed % 2;
-
-            for (int i = 0; i < buildingCount; i++)
-            {
-                float height = 10f + (seed * (i + 3) % 22);
-                float side = i == 0 ? -1f : 1f;
-                Vector3 pos = center + new Vector3(side * 5.5f, height * 0.5f + 0.08f, (i % 2 == 0 ? -1f : 1f) * 3.6f);
-                Vector3 scale = new(8.5f, height, 11.5f);
-                Material facade = (seed + i) % 3 == 0 ? buildingA : ((seed + i) % 3 == 1 ? buildingB : buildingC);
-                GameObject building = Primitive($"Building_{gridX}_{gridZ}_{i}", PrimitiveType.Cube, pos, scale, facade);
-                building.isStatic = true;
-
-                for (float y = 3f; y < height - 1f; y += 3.2f)
-                {
-                    Vector3 windowPos = new(pos.x, y, pos.z - scale.z * 0.5f - 0.01f);
-                    CreateVisualSurface("Windows", PrimitiveType.Cube, windowPos, new Vector3(scale.x * 0.66f, 1.25f, 0.035f), glass);
-                }
-            }
-
-            if ((gridX + gridZ) % 2 == 0)
-            {
-                Material shop = Material(new Color(0.12f, 0.28f, 0.34f), 0.08f, 0.55f);
-                Vector3 storefront = center + new Vector3(0f, 1.3f, -8.2f);
-                CreateVisualSurface("Storefront", PrimitiveType.Cube, storefront, new Vector3(8f, 2.5f, 0.18f), shop);
-            }
-        }
-
-        private static void CreateParkingLot(Vector3 center, Material asphalt, Material line)
-        {
-            CreateVisualSurface("DriftAndParkingLot", PrimitiveType.Cube, center + new Vector3(0f, 0.018f, 0f), new Vector3(34f, 0.025f, 34f), asphalt);
-
-            for (int i = -3; i <= 3; i++)
-            {
-                CreateVisualSurface("ParkingLine", PrimitiveType.Cube, center + new Vector3(i * 4.2f, 0.04f, 8f), new Vector3(0.09f, 0.008f, 6.5f), line);
-                CreateVisualSurface("ParkingLine", PrimitiveType.Cube, center + new Vector3(i * 4.2f, 0.04f, -8f), new Vector3(0.09f, 0.008f, 6.5f), line);
-            }
-        }
-
-        private static void CreateStreetLights(Material dark, Material glow)
-        {
-            for (int z = -84; z <= 84; z += 42)
-            {
-                for (int x = -84; x <= 84; x += 42)
-                {
-                    CreateLamp(new Vector3(x + 10.5f, 0f, z + 10.5f), dark, glow);
-                    CreateLamp(new Vector3(x - 10.5f, 0f, z - 10.5f), dark, glow);
-                }
-            }
-        }
-
-        private static void CreateLamp(Vector3 position, Material dark, Material glow)
-        {
-            GameObject pole = CreateVisualSurface("StreetLamp", PrimitiveType.Cylinder, position + new Vector3(0f, 2.6f, 0f), new Vector3(0.12f, 2.6f, 0.12f), dark);
-            pole.transform.localScale = new Vector3(0.12f, 2.6f, 0.12f);
-            CreateVisualSurface("LampHead", PrimitiveType.Cube, position + new Vector3(0f, 5.2f, 0f), new Vector3(0.65f, 0.14f, 0.32f), glow);
-        }
-
         private static ArcadeCarController CreateCar()
         {
             Material bodyMaterial = Material(new Color(0.72f, 0.025f, 0.018f), 0.55f, 0.72f);
