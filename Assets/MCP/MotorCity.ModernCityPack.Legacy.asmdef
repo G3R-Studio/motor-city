@@ -5,11 +5,7 @@
   "includePlatforms": [],
   "excludePlatforms": [
     "Editor",
-    "WebGL",
-    "WindowsStandalone32",
-    "WindowsStandalone64",
-    "LinuxStandalone64",
-    "macOSStandalone"
+    "WebGL"
   ],
   "allowUnsafeCode": false,
   "overrideReferences": false,
