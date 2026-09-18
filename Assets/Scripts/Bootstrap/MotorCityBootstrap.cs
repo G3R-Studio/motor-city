@@ -197,7 +197,7 @@ namespace MotorCity.Bootstrap
             Material tailLight = Material(new Color(0.9f, 0.015f, 0.008f), 0.05f, 0.78f);
 
             GameObject car = new("PlayerCar");
-            car.transform.position = new Vector3(0f, 1.2f, -68f);
+            car.transform.position = new Vector3(0f, 1.2f, -102f);
             car.AddComponent<Rigidbody>();
 
             BoxCollider chassis = car.AddComponent<BoxCollider>();
@@ -242,7 +242,7 @@ namespace MotorCity.Bootstrap
             GameObject marker = CreateAssetMarker(
                 "Delivery Marker",
                 "MotorCity/Environment/DeliveryCrate",
-                new Vector3(42f, 1.25f, -42f),
+                delivery.CurrentTarget + Vector3.up * 1.25f,
                 2.2f,
                 new Color(0.08f, 0.5f, 1f));
 
@@ -391,7 +391,7 @@ namespace MotorCity.Bootstrap
             Camera camera = cameraObject.AddComponent<Camera>();
             camera.fieldOfView = 67f;
             camera.nearClipPlane = 0.08f;
-            camera.farClipPlane = 700f;
+            camera.farClipPlane = 1050f;
             cameraObject.transform.position = target.position + new Vector3(0f, 3.6f, -7.5f);
             ChaseCamera chase = cameraObject.AddComponent<ChaseCamera>();
             chase.SetTarget(target);
