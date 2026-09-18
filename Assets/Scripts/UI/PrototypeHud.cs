@@ -148,7 +148,7 @@ namespace MotorCity.UI
                     "Панель игрока",
                     grey,
                     new Vector2(18f, -18f),
-                    new Vector2(570f, 112f),
+                    new Vector2(470f, 92f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f));
 
@@ -156,11 +156,11 @@ namespace MotorCity.UI
                 CreateText(
                     topPanel,
                     "Деньги",
-                    27,
+                    24,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(22f, -12f),
-                    new Vector2(520f, 42f),
+                    new Vector2(420f, 36f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f));
 
@@ -168,11 +168,11 @@ namespace MotorCity.UI
                 CreateText(
                     topPanel,
                     "Улучшения",
-                    21,
+                    18,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(22f, -57f),
-                    new Vector2(520f, 32f),
+                    new Vector2(22f, -49f),
+                    new Vector2(420f, 28f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f));
 
@@ -181,8 +181,8 @@ namespace MotorCity.UI
                     canvasObject.transform,
                     "Подсказки",
                     grey,
-                    new Vector2(18f, -142f),
-                    new Vector2(540f, 48f),
+                    new Vector2(18f, -120f),
+                    new Vector2(470f, 42f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f));
 
@@ -190,16 +190,16 @@ namespace MotorCity.UI
                 CreateText(
                     hintPanel,
                     "Текст подсказок",
-                    19,
+                    17,
                     FontStyle.Normal,
                     TextAnchor.MiddleLeft,
                     new Vector2(18f, -6f),
-                    new Vector2(505f, 34f),
+                    new Vector2(435f, 30f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f));
 
             hintText.text =
-                "R — сброс   ПКМ — камера   Колесо — приближение";
+                "WASD — движение   Space — ручник   R — сброс   ПКМ — камера";
 
             RectTransform speedPanel =
                 CreatePanel(
@@ -207,7 +207,7 @@ namespace MotorCity.UI
                     "Скорость",
                     grey,
                     new Vector2(-22f, 22f),
-                    new Vector2(290f, 108f),
+                    new Vector2(210f, 96f),
                     new Vector2(1f, 0f),
                     new Vector2(1f, 0f));
 
@@ -215,11 +215,11 @@ namespace MotorCity.UI
                 CreateText(
                     speedPanel,
                     "Скорость",
-                    38,
+                    34,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(260f, 92f),
+                    new Vector2(185f, 80f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f));
 
@@ -229,7 +229,7 @@ namespace MotorCity.UI
                     "Активность",
                     grey,
                     new Vector2(0f, 22f),
-                    new Vector2(1180f, 62f),
+                    new Vector2(920f, 56f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f));
 
@@ -237,11 +237,11 @@ namespace MotorCity.UI
                 CreateText(
                     statusPanel,
                     "Статус",
-                    23,
+                    20,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(1135f, 48f),
+                    new Vector2(875f, 42f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f));
 
@@ -251,7 +251,7 @@ namespace MotorCity.UI
                     "Дрифт",
                     yellow,
                     new Vector2(0f, -28f),
-                    new Vector2(480f, 72f),
+                    new Vector2(410f, 64f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f));
 
@@ -260,11 +260,11 @@ namespace MotorCity.UI
                 CreateText(
                     driftRect,
                     "Очки дрифта",
-                    28,
+                    25,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(440f, 56f),
+                    new Vector2(375f, 50f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f));
 
@@ -315,7 +315,7 @@ namespace MotorCity.UI
                     "Панель гаража",
                     grey,
                     Vector2.zero,
-                    new Vector2(860f, 520f),
+                    new Vector2(800f, 500f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f));
 
@@ -335,7 +335,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Деньги гаража",
-                    28,
+                    25,
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
                     new Vector2(-30f, -24f),
@@ -360,7 +360,7 @@ namespace MotorCity.UI
                         $"Улучшение {i + 1}",
                         rowSprites[i],
                         new Vector2(30f, y),
-                        new Vector2(800f, 88f),
+                        new Vector2(740f, 84f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f));
 
@@ -372,7 +372,7 @@ namespace MotorCity.UI
                         FontStyle.Bold,
                         TextAnchor.MiddleLeft,
                         new Vector2(18f, -8f),
-                        new Vector2(520f, 32f),
+                        new Vector2(420f, 28f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f));
 
@@ -396,7 +396,7 @@ namespace MotorCity.UI
                         FontStyle.Normal,
                         TextAnchor.MiddleLeft,
                         new Vector2(18f, -44f),
-                        new Vector2(750f, 28f),
+                        new Vector2(690f, 26f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f));
             }
@@ -513,7 +513,7 @@ namespace MotorCity.UI
             else
             {
                 image.color =
-                    new Color(0.92f, 0.94f, 0.97f, 0.96f);
+                    new Color(0.08f, 0.095f, 0.12f, 0.92f);
             }
 
             return rect;
