@@ -62,12 +62,12 @@ namespace MotorCity.World
 
             GameObject city =
                 Object.Instantiate(prefab);
-            city.name = "Motor City — CC0 Asset City";
+            city.name = "Motor City — Runtime City";
 
             IndexCityObjects(city);
             CacheRoadPoints(city);
             AddBuildingColliders(city);
-            CreateGroundCollider();
+            CreateGroundCollider(city);
             ResolveGameplayLayout();
 
             return true;
@@ -340,19 +340,37 @@ namespace MotorCity.World
             return value;
         }
 
-        private static void CreateGroundCollider()
+        private static void CreateGroundCollider(
+            GameObject city)
         {
             GameObject ground =
                 new("City Ground Physics");
 
+            Renderer[] renderers =
+                city.GetComponentsInChildren<Renderer>(true);
+
+            Bounds bounds =
+                renderers.Length > 0
+                    ? renderers[0].bounds
+                    : new Bounds(Vector3.zero, new Vector3(1200f, 1f, 1200f));
+
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+
             ground.transform.position =
-                new Vector3(0f, -0.22f, 0f);
+                new Vector3(
+                    bounds.center.x,
+                    bounds.min.y - 0.22f,
+                    bounds.center.z);
 
             BoxCollider collider =
                 ground.AddComponent<BoxCollider>();
 
             collider.size =
-                new Vector3(1214.4f, 0.4f, 1214.4f);
+                new Vector3(
+                    Mathf.Max(200f, bounds.size.x + 40f),
+                    0.4f,
+                    Mathf.Max(200f, bounds.size.z + 40f));
         }
     }
 }
