@@ -16,7 +16,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
     private const string RuntimePrefab =
         RuntimeRoot + "/CityVisual.prefab";
 
-    [MenuItem("Motor City/Fantastic City Generator/Build Runtime City from Active Scene")]
+    [MenuItem("Motor City/Fantastic City Generator/Build Runtime City from Saved FCG City")]
     public static void BuildRuntimeCity()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -28,48 +28,43 @@ public static class FantasticCityGeneratorRuntimeBuilder
             return;
         }
 
-        Scene scene =
-            SceneManager.GetActiveScene();
-
-        if (!FantasticCityGeneratorWorkbench.IsSafeWorkbench(
-                scene))
+        if (!FantasticCityGeneratorSceneSource.TryOpenSourceScene(
+                out Scene scene,
+                out bool openedTemporarily,
+                out Scene previousActiveScene))
         {
             EditorUtility.DisplayDialog(
                 "Motor City — FCG Runtime City",
-                "Активная сцена не находится в Assets/LocalGenerated.\n\n" +
-                "Чтобы город не потерялся после git reset, сначала открой:\n" +
-                "Motor City > Fantastic City Generator > Create or Open Safe Workbench",
-                "OK");
-            return;
-        }
-
-        if (!EditorSceneManager.SaveScene(
-                scene))
-        {
-            EditorUtility.DisplayDialog(
-                "Motor City — FCG Runtime City",
-                "Не удалось сохранить FCG workbench перед сборкой runtime-города.",
+                "Не найдена сохранённая локальная сцена с City-Maker.\n\n" +
+                "Сохрани сгенерированный город в Assets/LocalGenerated.",
                 "OK");
             return;
         }
 
         GameObject source =
-            scene
-                .GetRootGameObjects()
-                .FirstOrDefault(
-                    root =>
-                        string.Equals(
-                            root.name,
-                            "City-Maker",
-                            StringComparison.OrdinalIgnoreCase));
+            FantasticCityGeneratorSceneSource.FindCityRoot(
+                scene);
 
         if (source == null)
         {
+            FantasticCityGeneratorSceneSource.FinishSourceScene(
+                scene,
+                openedTemporarily,
+                previousActiveScene,
+                false);
+
             EditorUtility.DisplayDialog(
                 "Motor City — FCG Runtime City",
-                "В активной сцене не найден корневой объект City-Maker.",
+                "В сохранённой сцене не найден корневой объект City-Maker.",
                 "OK");
             return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(
+                scene.path))
+        {
+            EditorSceneManager.SaveScene(
+                scene);
         }
 
         EnsureFolder(
@@ -136,8 +131,16 @@ public static class FantasticCityGeneratorRuntimeBuilder
         finally
         {
             if (clone != null)
+            {
                 UnityEngine.Object.DestroyImmediate(
                     clone);
+            }
+
+            FantasticCityGeneratorSceneSource.FinishSourceScene(
+                scene,
+                openedTemporarily,
+                previousActiveScene,
+                true);
         }
     }
 
