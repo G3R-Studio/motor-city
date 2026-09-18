@@ -19,11 +19,13 @@ The project currently includes:
 - wheel visuals synchronized to the physical WheelColliders;
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
-- drift scoring based on actual vehicle slip and movement angle, with free-roam drift series banked into CR when the drift ends;
-- a timed drift challenge in the parking area with a score target, CR reward, a larger square activity area and a 3.5-second return grace period after leaving the zone;
-- a timed street sprint with moving checkpoints and a performance-based CR reward;
+- drift scoring based on actual vehicle slip and movement angle, with free-roam drift series banked into КР when the drift ends;
+- a timed drift challenge in the parking area with a score target, КР reward, a larger square activity area and a 3.5-second return grace period after leaving the zone;
+- a timed street sprint with moving checkpoints and a performance-based КР reward;
 - a smooth orbiting chase camera with mouse look and zoom;
-- a procedural city district with road lanes, sidewalks, buildings, storefronts, parking areas and street lights;
+- automatic editor download and preparation of the CC0 Community Core Stack / Kenney city environment;
+- an asset-based city with real road, building, vehicle, tree, street-light and prop meshes replacing the procedural primitive city when the CC0 pack is available;
+- asset-based delivery, drift, sprint and garage world markers prepared from the same CC0 Kenney source;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
@@ -35,7 +37,7 @@ The project currently includes:
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
 
-The city environment is still generated from lightweight prototype geometry and is not final game art.
+Primitive geometry remains only as an emergency fallback if the external CC0 asset installer cannot prepare the city assets.
 
 ## Run locally
 
@@ -44,8 +46,9 @@ The city environment is still generated from lightweight prototype geometry and 
 3. Open the repository root as a Unity project.
 4. Import **ARCADE: FREE Racing Car** by Mena from the Unity Asset Store / Package Manager.
 5. Wait for the Motor City importer to generate `Assets/Resources/MotorCity/PlayerCarVisual.prefab`.
-6. Wait for packages to import. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically.
-7. Press Play.
+6. The editor will also automatically download the CC0 Community Core Stack City 02 / Kenney environment and generate the runtime city and activity prop prefabs under `Assets/Resources/MotorCity/Environment`.
+7. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically.
+8. Press Play.
 
 The car importer prefers a matching racing-car prefab with usable body colliders and falls back to another matching prefab if needed.
 
@@ -62,4 +65,4 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 
 ## Current gameplay
 
-Drive freely through the prototype district and build drift score from the WheelCollider vehicle slip, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards credits, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
+Drive freely through the prototype district and build drift score from the WheelCollider vehicle slip, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
