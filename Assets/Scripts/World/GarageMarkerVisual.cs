@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MotorCity.Gameplay;
 using UnityEngine;
 
@@ -7,63 +6,84 @@ namespace MotorCity.World
     public sealed class GarageMarkerVisual : MonoBehaviour
     {
         private GarageUpgradeSystem garage;
-        private Renderer[] markerRenderers;
-        private Material[] markerMaterials;
+        private SpriteRenderer marker;
+        private Vector3 baseScale;
+        private Camera mainCamera;
 
         public void Bind(GarageUpgradeSystem target)
         {
             garage = target;
-            CacheVisuals();
+            BuildMarker();
 
             if (garage != null)
-                transform.position = garage.GarageCenter;
+                transform.position =
+                    garage.GarageCenter + Vector3.up * 10f;
         }
 
-        private void CacheVisuals()
+        private void BuildMarker()
         {
-            markerRenderers = GetComponentsInChildren<Renderer>(true);
-            List<Material> materials = new();
+            Sprite sprite =
+                Resources.Load<Sprite>(
+                    "MotorCity/Markers/flag");
 
-            foreach (Renderer renderer in markerRenderers)
-            {
-                if (renderer == null) continue;
-                materials.AddRange(renderer.materials);
-            }
+            GameObject visual =
+                new("Garage Marker Flag");
+            visual.transform.SetParent(
+                transform,
+                false);
 
-            markerMaterials = materials.ToArray();
+            marker =
+                visual.AddComponent<SpriteRenderer>();
+            marker.sprite = sprite;
+            marker.color =
+                new Color(0.72f, 0.2f, 1f, 1f);
+            marker.sortingOrder = 200;
+
+            visual.transform.localScale =
+                Vector3.one * 6.5f;
+
+            baseScale =
+                visual.transform.localScale;
+
+            mainCamera = Camera.main;
         }
 
         private void Update()
         {
-            if (garage == null) return;
+            if (garage == null || marker == null)
+                return;
 
-            transform.position = garage.GarageCenter;
+            transform.position =
+                garage.GarageCenter +
+                Vector3.up *
+                (10f + Mathf.Sin(Time.time * 2.5f) * 0.45f);
 
-            Color tint = garage.IsOpen
-                ? new Color(0.95f, 0.42f, 1f)
-                : new Color(0.78f, 0.42f, 1f);
+            if (mainCamera == null)
+                mainCamera = Camera.main;
 
-            if (markerMaterials == null) return;
-
-            foreach (Material material in markerMaterials)
+            if (mainCamera != null)
             {
-                if (material == null) continue;
+                Vector3 direction =
+                    transform.position -
+                    mainCamera.transform.position;
 
-                Color current = material.HasProperty("_BaseColor")
-                    ? material.GetColor("_BaseColor")
-                    : material.color;
-
-                Color next =
-                    Color.Lerp(
-                        current,
-                        tint,
-                        Time.deltaTime * 3f);
-
-                if (material.HasProperty("_BaseColor"))
-                    material.SetColor("_BaseColor", next);
-                else if (material.HasProperty("_Color"))
-                    material.color = next;
+                if (direction.sqrMagnitude > 0.0001f)
+                    transform.rotation =
+                        Quaternion.LookRotation(direction.normalized);
             }
+
+            float pulse =
+                1f +
+                Mathf.Sin(Time.time * 3.2f) *
+                0.08f;
+
+            marker.transform.localScale =
+                baseScale * pulse;
+
+            marker.color =
+                garage.IsOpen
+                    ? new Color(0.95f, 0.55f, 1f, 1f)
+                    : new Color(0.72f, 0.2f, 1f, 1f);
         }
     }
 }
