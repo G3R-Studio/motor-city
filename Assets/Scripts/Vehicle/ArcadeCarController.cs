@@ -15,14 +15,14 @@ namespace MotorCity.Vehicle
         private const int RearRight = 3;
 
         [Header("Prometeo tuning")]
-        [SerializeField] private int baseMaxSpeedKph = 220;
+        [SerializeField] private int baseMaxSpeedKph = 240;
         [SerializeField] private int maxReverseSpeedKph = 55;
-        [SerializeField] private int accelerationMultiplier = 7;
+        [SerializeField] private int accelerationMultiplier = 10;
         [SerializeField] private int maxSteeringAngle = 32;
         [SerializeField] private float steeringSpeed = 0.68f;
         [SerializeField] private int brakeForce = 900;
-        [SerializeField] private int decelerationMultiplier = 4;
-        [SerializeField] private int handbrakeDriftMultiplier = 4;
+        [SerializeField] private int decelerationMultiplier = 2;
+        [SerializeField] private int handbrakeDriftMultiplier = 6;
         [SerializeField] private Vector3 bodyMassCenter =
             new(0f, 0.32f, 0.05f);
 
