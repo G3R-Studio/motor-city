@@ -15,21 +15,21 @@ namespace MotorCity.Vehicle
         [SerializeField] private float brakePower = 10f;
         [SerializeField] private float wheelRotateSpeed = 20f;
         [SerializeField] private float wheelSteeringAngle = 34f;
-        [SerializeField] private float wheelAcceleration = 18f;
-        [SerializeField] private float wheelMaxSpeed = 1450f;
+        [SerializeField] private float wheelAcceleration = 28f;
+        [SerializeField] private float wheelMaxSpeed = 2700f;
         [SerializeField] private float serviceBrakeTorque = 9200f;
         [SerializeField] private float reverseMotorTorque = 760f;
         [SerializeField] private float maxReverseSpeedKph = 48f;
-        [SerializeField] private float highSpeedSteerAngle = 9f;
+        [SerializeField] private float highSpeedSteerAngle = 14f;
         [SerializeField] private float steerFadeSpeedKph = 145f;
-        [SerializeField] private float aerodynamicDownforce = 7.5f;
+        [SerializeField] private float aerodynamicDownforce = 1.8f;
 
         [Header("Prefab Rigidbody")]
         [SerializeField] private float vehicleMass = 1480f;
-        [SerializeField] private float angularDrag = 0.42f;
+        [SerializeField] private float angularDrag = 0.28f;
         [SerializeField] private float reverseDrag = 0.08f;
         [SerializeField] private Vector3 centerOfMass = new(0f, 0.32f, 0.05f);
-        [SerializeField] private float antiRollForce = 6200f;
+        [SerializeField] private float antiRollForce = 5200f;
         [SerializeField] private float physicsHalfTrack = 1.05f;
         [SerializeField] private float physicsHalfWheelbase = 1.72f;
 
@@ -43,9 +43,15 @@ namespace MotorCity.Vehicle
         [SerializeField] private float forceAppPointDistance = 0.02f;
         [SerializeField] private float wheelDampingRate = 0.25f;
 
-        [Header("Handbrake")]
+        [Header("Drift / Handbrake")]
+        [SerializeField] private float rearGrip = 1.08f;
+        [SerializeField] private float rearPowerDriftGrip = 0.82f;
+        [SerializeField] private float rearHandbrakeGrip = 0.56f;
+        [SerializeField] private float powerDriftMinimumSpeedKph = 32f;
+        [SerializeField] private float powerDriftSteerThreshold = 0.42f;
+        [SerializeField] private float powerDriftThrottleThreshold = 0.62f;
         [SerializeField] private float handbrakeRearTorque = 10500f;
-        [SerializeField] private float handbrakeDeceleration = 2.2f;
+        [SerializeField] private float handbrakeDeceleration = 0.65f;
         [SerializeField] private float parkingBrakeTorque = 30000f;
         [SerializeField] private float parkingBrakeSpeedKph = 8f;
 
@@ -225,7 +231,9 @@ namespace MotorCity.Vehicle
                 sideways.asymptoteSlip = 0.58f;
                 sideways.asymptoteValue = 0.78f;
                 float gripMultiplier = 1f + gripUpgradeLevel * 0.08f;
-                sideways.stiffness = (i < 2 ? 1.22f : 1.16f) * gripMultiplier;
+                sideways.stiffness =
+                    (i < 2 ? 1.22f : rearGrip) *
+                    gripMultiplier;
                 wheel.sidewaysFriction = sideways;
             }
 
@@ -246,6 +254,7 @@ namespace MotorCity.Vehicle
 
         private void FixedUpdate()
         {
+            UpdateDynamicRearGrip();
             ApplySourceController();
             ApplyHandbrake();
 
@@ -387,6 +396,39 @@ namespace MotorCity.Vehicle
                 Time.fixedDeltaTime * 60f);
         }
 
+        private void UpdateDynamicRearGrip()
+        {
+            float gripMultiplier =
+                1f + gripUpgradeLevel * 0.08f;
+
+            bool powerDrift =
+                !handbrakeInput &&
+                ForwardSpeedKph >= powerDriftMinimumSpeedKph &&
+                vertical >= powerDriftThrottleThreshold &&
+                Mathf.Abs(horizontal) >= powerDriftSteerThreshold;
+
+            float targetRearGrip =
+                handbrakeInput
+                    ? rearHandbrakeGrip
+                    : (powerDrift
+                        ? rearPowerDriftGrip
+                        : rearGrip);
+
+            for (int i = RearLeft; i <= RearRight; i++)
+            {
+                WheelCollider wheel = wheelColliders[i];
+                if (wheel == null) continue;
+
+                WheelFrictionCurve sideways =
+                    wheel.sidewaysFriction;
+
+                sideways.stiffness =
+                    targetRearGrip * gripMultiplier;
+
+                wheel.sidewaysFriction = sideways;
+            }
+        }
+
         private void ApplySourceController()
         {
             float absSpeed = Mathf.Abs(ForwardSpeedKph);
@@ -510,8 +552,8 @@ namespace MotorCity.Vehicle
             gripUpgradeLevel = Mathf.Clamp(gripLevel, 0, 3);
             stabilityUpgradeLevel = Mathf.Clamp(stabilityLevel, 0, 3);
 
-            wheelMaxSpeed = 1450f * (1f + engineUpgradeLevel * 0.12f);
-            wheelAcceleration = 18f * (1f + engineUpgradeLevel * 0.08f);
+            wheelMaxSpeed = 2700f * (1f + engineUpgradeLevel * 0.15f);
+            wheelAcceleration = 28f * (1f + engineUpgradeLevel * 0.10f);
 
             for (int i = 0; i < wheelColliders.Length; i++)
             {
@@ -520,7 +562,9 @@ namespace MotorCity.Vehicle
 
                 WheelFrictionCurve sideways = wheel.sidewaysFriction;
                 float gripMultiplier = 1f + gripUpgradeLevel * 0.08f;
-                sideways.stiffness = (i < 2 ? 1.22f : 1.16f) * gripMultiplier;
+                sideways.stiffness =
+                    (i < 2 ? 1.22f : rearGrip) *
+                    gripMultiplier;
                 wheel.sidewaysFriction = sideways;
             }
 
