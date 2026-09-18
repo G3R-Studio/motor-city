@@ -77,8 +77,7 @@ public static class KenneyUiAssetInstaller
                     "Library",
                     "MotorCityKenneyUi.zip");
 
-            if (File.Exists(zipPath))
-                File.Delete(zipPath);
+            SafeDelete(zipPath);
 
             using (WebClient client = new())
             {
