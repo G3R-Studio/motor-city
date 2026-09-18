@@ -9,10 +9,50 @@ namespace MotorCity.World
             "MotorCity/Environment/CityVisual";
 
         private static readonly List<Vector3> roadPoints = new();
+        private static readonly Dictionary<string, Transform> namedCityObjects =
+            new();
+
+        private static Vector3[] deliveryRoute =
+        {
+            new(0f, 0f, -42f),
+            new(42f, 0f, -42f),
+            new(84f, 0f, 42f),
+            new(42f, 0f, 84f),
+            new(-42f, 0f, 84f)
+        };
+
+        private static Vector3[] sprintRoute =
+        {
+            new(-42f, 0f, -42f),
+            new(-84f, 0f, 0f),
+            new(-84f, 0f, 84f),
+            new(84f, 0f, 84f),
+            new(84f, 0f, 0f),
+            new(42f, 0f, -42f)
+        };
+
+        public static Vector3 PlayerSpawnPoint { get; private set; } =
+            new(0f, 0f, -42f);
+
+        public static Quaternion PlayerSpawnRotation { get; private set; } =
+            Quaternion.identity;
+
+        public static Vector3 GaragePoint { get; private set; } =
+            new(-42f, 0f, 42f);
+
+        public static Vector3 DriftChallengePoint { get; private set; } =
+            Vector3.zero;
+
+        public static Vector3[] DeliveryRoute =>
+            (Vector3[])deliveryRoute.Clone();
+
+        public static Vector3[] SprintRoute =>
+            (Vector3[])sprintRoute.Clone();
 
         public static bool TryInstall()
         {
             roadPoints.Clear();
+            namedCityObjects.Clear();
 
             GameObject prefab =
                 Resources.Load<GameObject>(ResourcePath);
@@ -24,9 +64,11 @@ namespace MotorCity.World
                 Object.Instantiate(prefab);
             city.name = "Motor City — CC0 Asset City";
 
+            IndexCityObjects(city);
             CacheRoadPoints(city);
             AddBuildingColliders(city);
             CreateGroundCollider();
+            ResolveGameplayLayout();
 
             return true;
         }
@@ -58,6 +100,136 @@ namespace MotorCity.World
                 best.x,
                 approximate.y,
                 best.z);
+        }
+
+        private static void IndexCityObjects(GameObject city)
+        {
+            Transform[] transforms =
+                city.GetComponentsInChildren<Transform>(true);
+
+            foreach (Transform item in transforms)
+            {
+                if (item == null ||
+                    string.IsNullOrWhiteSpace(item.name) ||
+                    namedCityObjects.ContainsKey(item.name))
+                    continue;
+
+                namedCityObjects.Add(item.name, item);
+            }
+        }
+
+        private static void ResolveGameplayLayout()
+        {
+            // These anchors were reviewed directly in the source City 02 prefab.
+            // We resolve the Transform by name after the installer has uniformly
+            // scaled and centered the city, so no guessed runtime coordinates are
+            // involved.
+            Transform player =
+                FindNamed("road-straight_942");
+            Transform garage =
+                FindNamed("road-straight_1023");
+            Transform drift =
+                FindNamed("road-crossroad-path_18");
+
+            if (player != null)
+            {
+                PlayerSpawnPoint = Flat(player.position);
+
+                Vector3 forward =
+                    Vector3.ProjectOnPlane(
+                        player.forward,
+                        Vector3.up);
+
+                if (forward.sqrMagnitude > 0.01f)
+                    PlayerSpawnRotation =
+                        Quaternion.LookRotation(
+                            forward.normalized,
+                            Vector3.up);
+            }
+            else
+            {
+                PlayerSpawnPoint =
+                    SnapToNearestRoad(
+                        new Vector3(0f, 0f, -42f));
+                PlayerSpawnRotation = Quaternion.identity;
+            }
+
+            GaragePoint = garage != null
+                ? Flat(garage.position)
+                : SnapToNearestRoad(new Vector3(-42f, 0f, 42f));
+
+            DriftChallengePoint = drift != null
+                ? Flat(drift.position)
+                : SnapToNearestRoad(Vector3.zero);
+
+            deliveryRoute = ResolveRoute(
+                new[]
+                {
+                    "road-straight_1299",
+                    "road-straight_1289",
+                    "road-straight_955",
+                    "road-straight_1001",
+                    "road-straight_1103"
+                },
+                deliveryRoute);
+
+            sprintRoute = ResolveRoute(
+                new[]
+                {
+                    "road-straight_1307",
+                    "road-straight_1395",
+                    "road-straight_1391",
+                    "road-straight_1245",
+                    "road-straight_1260",
+                    "road-straight_1387"
+                },
+                sprintRoute);
+
+            Debug.Log(
+                "Motor City layout resolved from City 02 prefab. " +
+                $"Spawn={PlayerSpawnPoint}, " +
+                $"Garage={GaragePoint}, " +
+                $"Drift={DriftChallengePoint}, " +
+                $"DeliveryStart={deliveryRoute[0]}, " +
+                $"SprintStart={sprintRoute[0]}");
+        }
+
+        private static Vector3[] ResolveRoute(
+            string[] objectNames,
+            Vector3[] fallback)
+        {
+            Vector3[] result =
+                new Vector3[objectNames.Length];
+
+            for (int i = 0; i < objectNames.Length; i++)
+            {
+                Transform item =
+                    FindNamed(objectNames[i]);
+
+                result[i] = item != null
+                    ? Flat(item.position)
+                    : SnapToNearestRoad(
+                        fallback[
+                            Mathf.Min(
+                                i,
+                                fallback.Length - 1)]);
+            }
+
+            return result;
+        }
+
+        private static Transform FindNamed(string name)
+        {
+            namedCityObjects.TryGetValue(
+                name,
+                out Transform value);
+            return value;
+        }
+
+        private static Vector3 Flat(Vector3 value)
+        {
+            value.y = 0f;
+            return value;
         }
 
         private static void CacheRoadPoints(GameObject city)
