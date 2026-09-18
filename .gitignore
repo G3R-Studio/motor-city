@@ -60,3 +60,12 @@ sysinfo.txt
 /Assets/CubexCube - Free City Pack I.meta
 /Assets/Versatile Studio Assets/
 /Assets/Versatile Studio Assets.meta
+
+
+# Fantastic City Generator source stays local
+/Assets/Fantastic City Generator/
+/Assets/Fantastic City Generator.meta
+/Assets/City/Fantastic City Generator*.rar
+
+# Generated FCG scene inspection report
+/MotorCity_FCGSceneReport.txt
