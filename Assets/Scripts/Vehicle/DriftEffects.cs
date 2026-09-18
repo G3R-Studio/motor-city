@@ -95,7 +95,7 @@ namespace MotorCity.Vehicle
             {
                 trail.transform.position =
                     hit.point +
-                    hit.normal * 0.025f;
+                    hit.normal * 0.055f;
 
                 Vector3 forward =
                     Vector3.ProjectOnPlane(
@@ -111,8 +111,7 @@ namespace MotorCity.Vehicle
 
             trail.emitting =
                 grounded &&
-                sliding &&
-                car.SpeedKph >= 24f;
+                sliding;
         }
 
         private void UpdateSmoke(
@@ -157,7 +156,7 @@ namespace MotorCity.Vehicle
                 go.AddComponent<TrailRenderer>();
 
             trail.material = trailMaterial;
-            trail.time = 24f;
+            trail.time = 40f;
             trail.startWidth = 0.19f;
             trail.endWidth = 0.17f;
             trail.minVertexDistance = 0.14f;
@@ -313,12 +312,53 @@ namespace MotorCity.Vehicle
                 new(shader);
 
             Color color =
-                new(0.04f, 0.04f, 0.045f, 1f);
+                new(0.025f, 0.025f, 0.028f, 0.88f);
 
             if (material.HasProperty("_BaseColor"))
                 material.SetColor("_BaseColor", color);
+
             if (material.HasProperty("_Color"))
                 material.SetColor("_Color", color);
+
+            if (material.HasProperty("_Surface"))
+                material.SetFloat("_Surface", 1f);
+
+            if (material.HasProperty("_Blend"))
+                material.SetFloat("_Blend", 0f);
+
+            if (material.HasProperty("_SrcBlend"))
+            {
+                material.SetFloat(
+                    "_SrcBlend",
+                    (float)BlendMode.SrcAlpha);
+            }
+
+            if (material.HasProperty("_DstBlend"))
+            {
+                material.SetFloat(
+                    "_DstBlend",
+                    (float)BlendMode.OneMinusSrcAlpha);
+            }
+
+            if (material.HasProperty("_ZWrite"))
+                material.SetFloat("_ZWrite", 0f);
+
+            if (material.HasProperty("_Cull"))
+            {
+                material.SetFloat(
+                    "_Cull",
+                    (float)CullMode.Off);
+            }
+
+            material.EnableKeyword(
+                "_SURFACE_TYPE_TRANSPARENT");
+
+            material.SetOverrideTag(
+                "RenderType",
+                "Transparent");
+
+            material.renderQueue =
+                (int)RenderQueue.Transparent + 1;
 
             return material;
         }
