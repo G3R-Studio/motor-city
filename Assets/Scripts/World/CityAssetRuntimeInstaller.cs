@@ -117,10 +117,7 @@ namespace MotorCity.World
                     point;
             }
 
-            return new Vector3(
-                best.x,
-                approximate.y,
-                best.z);
+            return best;
         }
 
         private static void ResolveGameplayLayout(
@@ -417,7 +414,6 @@ namespace MotorCity.World
                     point;
             }
 
-            best.y = 0f;
             return best;
         }
 
@@ -538,6 +534,9 @@ namespace MotorCity.World
                     !geometricRoad)
                     continue;
 
+                EnsureRoadCollider(
+                    renderer);
+
                 AddRoadRendererSamples(
                     renderer);
             }
@@ -558,7 +557,7 @@ namespace MotorCity.World
             Vector3 center =
                 new(
                     bounds.center.x,
-                    0f,
+                    bounds.max.y,
                     bounds.center.z);
 
             Vector3 direction =
@@ -621,8 +620,6 @@ namespace MotorCity.World
             Vector3 position,
             Vector3 direction)
         {
-            position.y = 0f;
-
             roadPoints.Add(
                 position);
 
@@ -632,6 +629,68 @@ namespace MotorCity.World
                     Position = position,
                     Direction = direction
                 });
+        }
+
+        private static void EnsureRoadCollider(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return;
+
+            if (renderer.GetComponent<Collider>() != null)
+                return;
+
+            MeshFilter meshFilter =
+                renderer.GetComponent<MeshFilter>();
+
+            if (meshFilter != null &&
+                meshFilter.sharedMesh != null)
+            {
+                MeshCollider meshCollider =
+                    renderer.gameObject
+                        .AddComponent<MeshCollider>();
+
+                meshCollider.sharedMesh =
+                    meshFilter.sharedMesh;
+
+                meshCollider.convex =
+                    false;
+
+                return;
+            }
+
+            // Fallback for road renderers without a MeshFilter.
+            // Keep the collider thin so it follows the visible surface
+            // instead of creating a large invisible wall.
+            BoxCollider box =
+                renderer.gameObject
+                    .AddComponent<BoxCollider>();
+
+            Vector3 center =
+                renderer.localBounds.center;
+
+            Vector3 size =
+                renderer.localBounds.size;
+
+            float top =
+                center.y +
+                size.y * 0.5f;
+
+            size.y =
+                Mathf.Clamp(
+                    size.y,
+                    0.08f,
+                    0.35f);
+
+            center.y =
+                top -
+                size.y * 0.5f;
+
+            box.center =
+                center;
+
+            box.size =
+                size;
         }
 
         private static string BuildMaterialNames(
@@ -756,10 +815,13 @@ namespace MotorCity.World
             Bounds bounds =
                 GetCityBounds(city);
 
+            ground.name =
+                "City Safety Floor Physics";
+
             ground.transform.position =
                 new Vector3(
                     bounds.center.x,
-                    bounds.min.y - 0.22f,
+                    bounds.min.y - 20.2f,
                     bounds.center.z);
 
             BoxCollider collider =
