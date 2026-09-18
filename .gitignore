@@ -33,8 +33,6 @@ sysinfo.txt
 /Assets/AssetStoreTools*
 
 # Generated/downloaded external visual assets
-/Assets/ThirdParty/CommunityCoreCity02/
-/Assets/ThirdParty/CommunityCoreCity02.meta
 /Assets/Resources/MotorCity/Environment/
 /Assets/Resources/MotorCity/Environment.meta
 /Assets/Resources/MotorCity/PlayerCarVisual.prefab
@@ -47,5 +45,5 @@ sysinfo.txt
 /Assets/Resources/MotorCity/Markers.meta
 
 # Unity Asset Store source assets kept local
-/Assets/ZRNAssets/
-/Assets/ZRNAssets.meta
+/Assets/Versatile Studio Assets/
+/Assets/Versatile Studio Assets.meta
