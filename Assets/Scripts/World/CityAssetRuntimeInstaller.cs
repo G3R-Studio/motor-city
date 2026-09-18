@@ -19,21 +19,24 @@ namespace MotorCity.World
 
         private static Vector3[] deliveryRoute =
         {
-            new(-80f, 0f, -40f),
-            new(-20f, 0f, -40f),
-            new(40f, 0f, -10f),
-            new(80f, 0f, 40f),
-            new(10f, 0f, 70f)
+            new(-120f, 0f, -80f),
+            new(-40f, 0f, -40f),
+            new(30f, 0f, -10f),
+            new(100f, 0f, 35f),
+            new(45f, 0f, 100f),
+            new(-55f, 0f, 85f)
         };
 
         private static Vector3[] sprintRoute =
         {
-            new(-90f, 0f, -60f),
-            new(-90f, 0f, 50f),
-            new(-20f, 0f, 90f),
-            new(90f, 0f, 70f),
-            new(90f, 0f, -40f),
-            new(10f, 0f, -80f)
+            new(-150f, 0f, -110f),
+            new(-155f, 0f, 70f),
+            new(-80f, 0f, 145f),
+            new(55f, 0f, 150f),
+            new(150f, 0f, 85f),
+            new(155f, 0f, -70f),
+            new(70f, 0f, -145f),
+            new(-65f, 0f, -150f)
         };
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
@@ -43,10 +46,10 @@ namespace MotorCity.World
             Quaternion.identity;
 
         public static Vector3 GaragePoint { get; private set; } =
-            new(-40f, 0f, 40f);
+            new(-60f, 0f, 30f);
 
         public static Vector3 DriftChallengePoint { get; private set; } =
-            Vector3.zero;
+            new(60f, 0f, 20f);
 
         public static Vector3[] DeliveryRoute =>
             (Vector3[])deliveryRoute.Clone();
@@ -74,7 +77,7 @@ namespace MotorCity.World
             CacheRoadPoints(city);
             AddBuildingColliders(city);
             CreateGroundCollider(city);
-            ResolveGameplayLayout();
+            ResolveGameplayLayout(city);
 
             return true;
         }
@@ -100,7 +103,9 @@ namespace MotorCity.World
             foreach (Vector3 point in roadPoints)
             {
                 float distance =
-                    (point - flatApprox).sqrMagnitude;
+                    HorizontalSqrDistance(
+                        point,
+                        flatApprox);
 
                 if (distance >= bestDistance)
                     continue;
@@ -118,152 +123,322 @@ namespace MotorCity.World
                 best.z);
         }
 
-        private static void ResolveGameplayLayout()
+        private static void ResolveGameplayLayout(
+            GameObject city)
         {
+            Bounds cityBounds =
+                GetCityBounds(city);
+
+            Vector3 center =
+                new(
+                    cityBounds.center.x,
+                    0f,
+                    cityBounds.center.z);
+
+            float halfX =
+                Mathf.Max(
+                    80f,
+                    cityBounds.extents.x);
+
+            float halfZ =
+                Mathf.Max(
+                    80f,
+                    cityBounds.extents.z);
+
             if (roadPoints.Count == 0)
             {
+                Debug.LogWarning(
+                    "Motor City: no road geometry was detected in the Versatile city. " +
+                    "Gameplay points will use city-relative fallback coordinates.");
+
                 PlayerSpawnPoint =
-                    Vector3.zero;
+                    center +
+                    new Vector3(
+                        -halfX * 0.18f,
+                        0f,
+                        -halfZ * 0.52f);
 
                 PlayerSpawnRotation =
-                    Quaternion.identity;
+                    Quaternion.LookRotation(
+                        (center - PlayerSpawnPoint).normalized,
+                        Vector3.up);
 
                 GaragePoint =
-                    new Vector3(-40f, 0f, 40f);
+                    center +
+                    new Vector3(
+                        -halfX * 0.56f,
+                        0f,
+                        halfZ * 0.12f);
 
                 DriftChallengePoint =
-                    Vector3.zero;
+                    center +
+                    new Vector3(
+                        halfX * 0.42f,
+                        0f,
+                        halfZ * 0.06f);
+
+                deliveryRoute =
+                    BuildFallbackRoute(
+                        center,
+                        halfX,
+                        halfZ,
+                        DeliveryNormalizedLayout);
+
+                sprintRoute =
+                    BuildFallbackRoute(
+                        center,
+                        halfX,
+                        halfZ,
+                        SprintNormalizedLayout);
 
                 return;
             }
 
-            float minX = float.PositiveInfinity;
-            float maxX = float.NegativeInfinity;
-            float minZ = float.PositiveInfinity;
-            float maxZ = float.NegativeInfinity;
-
-            foreach (Vector3 point in roadPoints)
-            {
-                minX = Mathf.Min(minX, point.x);
-                maxX = Mathf.Max(maxX, point.x);
-                minZ = Mathf.Min(minZ, point.z);
-                maxZ = Mathf.Max(maxZ, point.z);
-            }
-
-            Vector3 center =
-                new(
-                    (minX + maxX) * 0.5f,
-                    0f,
-                    (minZ + maxZ) * 0.5f);
-
-            float halfX =
-                Mathf.Max(
-                    40f,
-                    (maxX - minX) * 0.5f);
-
-            float halfZ =
-                Mathf.Max(
-                    40f,
-                    (maxZ - minZ) * 0.5f);
+            var reserved =
+                new List<Vector3>();
 
             PlayerSpawnPoint =
-                SnapToNearestRoad(
-                    center +
-                    new Vector3(
-                        0f,
-                        0f,
-                        -halfZ * 0.18f));
+                SelectRoadPoint(
+                    center,
+                    halfX,
+                    halfZ,
+                    new Vector2(-0.18f, -0.58f),
+                    reserved,
+                    0f);
+
+            reserved.Add(
+                PlayerSpawnPoint);
 
             PlayerSpawnRotation =
                 ResolveRoadRotation(
-                    PlayerSpawnPoint);
-
-            GaragePoint =
-                SnapToNearestRoad(
-                    center +
-                    new Vector3(
-                        -halfX * 0.42f,
-                        0f,
-                        halfZ * 0.18f));
-
-            DriftChallengePoint =
-                SnapToNearestRoad(
+                    PlayerSpawnPoint,
                     center);
 
-            deliveryRoute =
-                BuildRoute(
+            GaragePoint =
+                SelectRoadPoint(
                     center,
                     halfX,
                     halfZ,
-                    new[]
-                    {
-                        new Vector2(-0.62f, -0.35f),
-                        new Vector2(-0.18f, -0.35f),
-                        new Vector2(0.28f, -0.08f),
-                        new Vector2(0.62f, 0.32f),
-                        new Vector2(0.08f, 0.58f)
-                    });
+                    new Vector2(-0.58f, 0.08f),
+                    reserved,
+                    Mathf.Min(halfX, halfZ) * 0.18f);
+
+            reserved.Add(
+                GaragePoint);
+
+            DriftChallengePoint =
+                SelectRoadPoint(
+                    center,
+                    halfX,
+                    halfZ,
+                    new Vector2(0.46f, 0.12f),
+                    reserved,
+                    Mathf.Min(halfX, halfZ) * 0.22f);
+
+            reserved.Add(
+                DriftChallengePoint);
+
+            deliveryRoute =
+                BuildRoadRoute(
+                    center,
+                    halfX,
+                    halfZ,
+                    DeliveryNormalizedLayout,
+                    reserved,
+                    Mathf.Min(halfX, halfZ) * 0.12f);
+
+            foreach (Vector3 point in deliveryRoute)
+                reserved.Add(point);
 
             sprintRoute =
-                BuildRoute(
+                BuildRoadRoute(
                     center,
                     halfX,
                     halfZ,
-                    new[]
-                    {
-                        new Vector2(-0.72f, -0.55f),
-                        new Vector2(-0.74f, 0.42f),
-                        new Vector2(-0.18f, 0.70f),
-                        new Vector2(0.72f, 0.55f),
-                        new Vector2(0.72f, -0.34f),
-                        new Vector2(0.08f, -0.68f)
-                    });
+                    SprintNormalizedLayout,
+                    reserved,
+                    Mathf.Min(halfX, halfZ) * 0.09f);
 
             Debug.Log(
-                "Motor City layout resolved from the current runtime city. " +
+                "Motor City: gameplay coordinates rebuilt for Versatile Demo City. " +
                 $"Spawn={PlayerSpawnPoint}, " +
                 $"Garage={GaragePoint}, " +
                 $"Drift={DriftChallengePoint}, " +
-                $"DeliveryStart={deliveryRoute[0]}, " +
-                $"SprintStart={sprintRoute[0]}");
+                $"Delivery={FormatRoute(deliveryRoute)}, " +
+                $"Sprint={FormatRoute(sprintRoute)}");
         }
 
-        private static Vector3[] BuildRoute(
+        private static readonly Vector2[] DeliveryNormalizedLayout =
+        {
+            new(-0.68f, -0.34f),
+            new(-0.28f, -0.18f),
+            new(0.08f, -0.02f),
+            new(0.58f, 0.20f),
+            new(0.26f, 0.62f),
+            new(-0.42f, 0.52f)
+        };
+
+        private static readonly Vector2[] SprintNormalizedLayout =
+        {
+            new(-0.78f, -0.68f),
+            new(-0.80f, 0.18f),
+            new(-0.48f, 0.74f),
+            new(0.18f, 0.80f),
+            new(0.76f, 0.52f),
+            new(0.80f, -0.20f),
+            new(0.42f, -0.76f),
+            new(-0.34f, -0.80f)
+        };
+
+        private static Vector3[] BuildRoadRoute(
+            Vector3 center,
+            float halfX,
+            float halfZ,
+            Vector2[] normalizedPoints,
+            List<Vector3> reserved,
+            float minimumSpacing)
+        {
+            Vector3[] result =
+                new Vector3[normalizedPoints.Length];
+
+            var localReserved =
+                new List<Vector3>(reserved);
+
+            for (int i = 0;
+                 i < normalizedPoints.Length;
+                 i++)
+            {
+                result[i] =
+                    SelectRoadPoint(
+                        center,
+                        halfX,
+                        halfZ,
+                        normalizedPoints[i],
+                        localReserved,
+                        minimumSpacing);
+
+                localReserved.Add(
+                    result[i]);
+            }
+
+            return result;
+        }
+
+        private static Vector3[] BuildFallbackRoute(
             Vector3 center,
             float halfX,
             float halfZ,
             Vector2[] normalizedPoints)
         {
-            Vector3[] route =
+            Vector3[] result =
                 new Vector3[normalizedPoints.Length];
 
             for (int i = 0;
                  i < normalizedPoints.Length;
                  i++)
             {
-                Vector2 point =
+                Vector2 normalized =
                     normalizedPoints[i];
 
-                Vector3 approximate =
+                result[i] =
                     center +
                     new Vector3(
-                        point.x * halfX,
+                        normalized.x * halfX,
                         0f,
-                        point.y * halfZ);
-
-                route[i] =
-                    SnapToNearestRoad(
-                        approximate);
+                        normalized.y * halfZ);
             }
 
-            return route;
+            return result;
+        }
+
+        private static Vector3 SelectRoadPoint(
+            Vector3 center,
+            float halfX,
+            float halfZ,
+            Vector2 normalized,
+            List<Vector3> reserved,
+            float minimumSpacing)
+        {
+            Vector3 target =
+                center +
+                new Vector3(
+                    normalized.x * halfX,
+                    0f,
+                    normalized.y * halfZ);
+
+            float minimumSpacingSqr =
+                minimumSpacing *
+                minimumSpacing;
+
+            Vector3 best =
+                roadPoints[0];
+
+            float bestScore =
+                float.PositiveInfinity;
+
+            foreach (Vector3 point in roadPoints)
+            {
+                float score =
+                    HorizontalSqrDistance(
+                        point,
+                        target);
+
+                if (reserved != null &&
+                    minimumSpacing > 0f)
+                {
+                    bool tooClose =
+                        false;
+
+                    foreach (Vector3 used in reserved)
+                    {
+                        if (HorizontalSqrDistance(
+                                point,
+                                used) <
+                            minimumSpacingSqr)
+                        {
+                            tooClose =
+                                true;
+                            break;
+                        }
+                    }
+
+                    if (tooClose)
+                        score +=
+                            minimumSpacingSqr * 8f;
+                }
+
+                if (score >= bestScore)
+                    continue;
+
+                bestScore =
+                    score;
+
+                best =
+                    point;
+            }
+
+            best.y = 0f;
+            return best;
         }
 
         private static Quaternion ResolveRoadRotation(
-            Vector3 position)
+            Vector3 position,
+            Vector3 cityCenter)
         {
             if (roadAnchors.Count == 0)
-                return Quaternion.identity;
+            {
+                Vector3 towardCenter =
+                    cityCenter -
+                    position;
+
+                towardCenter.y = 0f;
+
+                return towardCenter.sqrMagnitude > 0.01f
+                    ? Quaternion.LookRotation(
+                        towardCenter.normalized,
+                        Vector3.up)
+                    : Quaternion.identity;
+            }
 
             float bestDistance =
                 float.PositiveInfinity;
@@ -274,8 +449,9 @@ namespace MotorCity.World
             foreach (RoadAnchor anchor in roadAnchors)
             {
                 float distance =
-                    (anchor.Position - position)
-                    .sqrMagnitude;
+                    HorizontalSqrDistance(
+                        anchor.Position,
+                        position);
 
                 if (distance >= bestDistance)
                     continue;
@@ -293,6 +469,21 @@ namespace MotorCity.World
                 bestDirection =
                     Vector3.forward;
 
+            Vector3 towardCenterDirection =
+                cityCenter -
+                position;
+
+            towardCenterDirection.y = 0f;
+
+            if (towardCenterDirection.sqrMagnitude > 0.01f &&
+                Vector3.Dot(
+                    bestDirection,
+                    towardCenterDirection) < 0f)
+            {
+                bestDirection =
+                    -bestDirection;
+            }
+
             return Quaternion.LookRotation(
                 bestDirection.normalized,
                 Vector3.up);
@@ -304,107 +495,163 @@ namespace MotorCity.World
             Renderer[] renderers =
                 city.GetComponentsInChildren<Renderer>(true);
 
+            Bounds cityBounds =
+                GetCityBounds(city);
+
+            float cityGroundY =
+                cityBounds.min.y;
+
             foreach (Renderer renderer in renderers)
             {
-                if (renderer == null)
+                if (renderer == null ||
+                    !renderer.enabled)
                     continue;
 
-                string hierarchyName =
+                string searchable =
                     BuildHierarchyName(
-                        renderer.transform);
-
-                bool roadLike =
-                    hierarchyName.Contains("road") ||
-                    hierarchyName.Contains("street") ||
-                    hierarchyName.Contains("highway") ||
-                    hierarchyName.Contains("asphalt") ||
-                    hierarchyName.Contains("intersection") ||
-                    hierarchyName.Contains("lane");
-
-                if (!roadLike)
-                    continue;
+                        renderer.transform) +
+                    " " +
+                    BuildMaterialNames(
+                        renderer);
 
                 Bounds bounds =
                     renderer.bounds;
 
-                Vector3 center =
-                    new(
-                        bounds.center.x,
-                        0f,
-                        bounds.center.z);
+                bool namedRoad =
+                    searchable.Contains("road") ||
+                    searchable.Contains("street") ||
+                    searchable.Contains("highway") ||
+                    searchable.Contains("asphalt") ||
+                    searchable.Contains("intersection") ||
+                    searchable.Contains("lane") ||
+                    searchable.Contains("tarmac") ||
+                    searchable.Contains("pavement");
 
-                Vector3 direction =
-                    renderer.localBounds.size.x >=
-                    renderer.localBounds.size.z
-                        ? renderer.transform.right
-                        : renderer.transform.forward;
+                bool geometricRoad =
+                    bounds.size.y <= 1.2f &&
+                    Mathf.Max(
+                        bounds.size.x,
+                        bounds.size.z) >= 8f &&
+                    bounds.min.y <= cityGroundY + 4f;
 
+                if (!namedRoad &&
+                    !geometricRoad)
+                    continue;
+
+                AddRoadRendererSamples(
+                    renderer);
+            }
+
+            if (roadPoints.Count == 0)
+            {
+                Debug.LogWarning(
+                    "Motor City: road detector found no suitable renderer surfaces.");
+            }
+        }
+
+        private static void AddRoadRendererSamples(
+            Renderer renderer)
+        {
+            Bounds bounds =
+                renderer.bounds;
+
+            Vector3 center =
+                new(
+                    bounds.center.x,
+                    0f,
+                    bounds.center.z);
+
+            Vector3 direction =
+                renderer.localBounds.size.x >=
+                renderer.localBounds.size.z
+                    ? renderer.transform.right
+                    : renderer.transform.forward;
+
+            direction =
+                Vector3.ProjectOnPlane(
+                    direction,
+                    Vector3.up);
+
+            if (direction.sqrMagnitude < 0.01f)
                 direction =
-                    Vector3.ProjectOnPlane(
-                        direction,
-                        Vector3.up);
+                    Vector3.forward;
 
-                if (direction.sqrMagnitude < 0.01f)
-                    direction =
-                        Vector3.forward;
+            direction.Normalize();
 
-                direction.Normalize();
+            AddRoadAnchor(
+                center,
+                direction);
 
-                roadPoints.Add(
-                    center);
+            float longExtent =
+                Mathf.Max(
+                    bounds.extents.x,
+                    bounds.extents.z);
 
-                roadAnchors.Add(
-                    new RoadAnchor
-                    {
-                        Position = center,
-                        Direction = direction
-                    });
+            int sampleCount =
+                Mathf.Clamp(
+                    Mathf.CeilToInt(
+                        longExtent / 24f),
+                    1,
+                    8);
 
-                float sampleDistance =
-                    Mathf.Clamp(
-                        Mathf.Max(
-                            bounds.extents.x,
-                            bounds.extents.z) * 0.55f,
-                        4f,
-                        28f);
+            for (int i = 1;
+                 i <= sampleCount;
+                 i++)
+            {
+                float distance =
+                    longExtent *
+                    (i /
+                     (float)(sampleCount + 1));
 
-                roadPoints.Add(
+                AddRoadAnchor(
                     center +
                     direction *
-                    sampleDistance);
+                    distance,
+                    direction);
 
-                roadPoints.Add(
+                AddRoadAnchor(
                     center -
                     direction *
-                    sampleDistance);
+                    distance,
+                    direction);
             }
+        }
 
-            if (roadPoints.Count > 0)
-                return;
+        private static void AddRoadAnchor(
+            Vector3 position,
+            Vector3 direction)
+        {
+            position.y = 0f;
 
-            foreach (Collider collider in
-                     city.GetComponentsInChildren<Collider>(true))
+            roadPoints.Add(
+                position);
+
+            roadAnchors.Add(
+                new RoadAnchor
+                {
+                    Position = position,
+                    Direction = direction
+                });
+        }
+
+        private static string BuildMaterialNames(
+            Renderer renderer)
+        {
+            string value =
+                string.Empty;
+
+            foreach (Material material in
+                     renderer.sharedMaterials)
             {
-                if (collider == null)
+                if (material == null)
                     continue;
 
-                string hierarchyName =
-                    BuildHierarchyName(
-                        collider.transform);
-
-                if (!hierarchyName.Contains("road") &&
-                    !hierarchyName.Contains("street") &&
-                    !hierarchyName.Contains("highway"))
-                    continue;
-
-                Vector3 center =
-                    collider.bounds.center;
-
-                center.y = 0f;
-
-                roadPoints.Add(
-                    center);
+                value +=
+                    " " +
+                    material.name.ToLowerInvariant();
             }
+
+            return value;
         }
 
         private static void AddBuildingColliders(
@@ -425,7 +672,8 @@ namespace MotorCity.World
                 bool buildingLike =
                     hierarchyName.Contains("building") ||
                     hierarchyName.Contains("house") ||
-                    hierarchyName.Contains("shop");
+                    hierarchyName.Contains("shop") ||
+                    hierarchyName.Contains("tower");
 
                 if (!buildingLike)
                     continue;
@@ -455,7 +703,7 @@ namespace MotorCity.World
                 transform;
 
             for (int i = 0;
-                 current != null && i < 5;
+                 current != null && i < 6;
                  i++)
             {
                 value +=
@@ -469,24 +717,24 @@ namespace MotorCity.World
             return value;
         }
 
-        private static void CreateGroundCollider(
+        private static Bounds GetCityBounds(
             GameObject city)
         {
-            GameObject ground =
-                new("City Ground Physics");
-
             Renderer[] renderers =
                 city.GetComponentsInChildren<Renderer>(true);
 
+            if (renderers.Length == 0)
+            {
+                return new Bounds(
+                    Vector3.zero,
+                    new Vector3(
+                        400f,
+                        1f,
+                        400f));
+            }
+
             Bounds bounds =
-                renderers.Length > 0
-                    ? renderers[0].bounds
-                    : new Bounds(
-                        Vector3.zero,
-                        new Vector3(
-                            1200f,
-                            1f,
-                            1200f));
+                renderers[0].bounds;
 
             for (int i = 1;
                  i < renderers.Length;
@@ -495,6 +743,18 @@ namespace MotorCity.World
                 bounds.Encapsulate(
                     renderers[i].bounds);
             }
+
+            return bounds;
+        }
+
+        private static void CreateGroundCollider(
+            GameObject city)
+        {
+            GameObject ground =
+                new("City Ground Physics");
+
+            Bounds bounds =
+                GetCityBounds(city);
 
             ground.transform.position =
                 new Vector3(
@@ -514,6 +774,45 @@ namespace MotorCity.World
                     Mathf.Max(
                         200f,
                         bounds.size.z + 40f));
+        }
+
+        private static float HorizontalSqrDistance(
+            Vector3 a,
+            Vector3 b)
+        {
+            float x =
+                a.x - b.x;
+
+            float z =
+                a.z - b.z;
+
+            return x * x +
+                   z * z;
+        }
+
+        private static string FormatRoute(
+            Vector3[] route)
+        {
+            if (route == null ||
+                route.Length == 0)
+                return "[]";
+
+            string value =
+                "[";
+
+            for (int i = 0;
+                 i < route.Length;
+                 i++)
+            {
+                if (i > 0)
+                    value += ", ";
+
+                value +=
+                    route[i].ToString("F1");
+            }
+
+            return value +
+                   "]";
         }
     }
 }
