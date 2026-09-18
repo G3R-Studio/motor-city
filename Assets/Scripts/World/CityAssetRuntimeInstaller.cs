@@ -200,11 +200,11 @@ namespace MotorCity.World
                     center.y,
                     30f);
 
+            Physics.SyncTransforms();
+
             PlayerSpawnPoint =
-                SelectNearestRoadPoint(
-                    preferredSpawn,
-                    reserved,
-                    0f);
+                FindDriveableSpawnNear(
+                    preferredSpawn);
 
             reserved.Add(
                 PlayerSpawnPoint);
@@ -349,6 +349,128 @@ namespace MotorCity.World
             }
 
             return result;
+        }
+
+        private static Vector3 FindDriveableSpawnNear(
+            Vector3 preferred)
+        {
+            const float searchRadius = 26f;
+            const float step = 2f;
+            const float rayHeight = 80f;
+            const float maxRayDistance = 180f;
+
+            Vector3 best =
+                SelectNearestRoadPoint(
+                    preferred,
+                    null,
+                    0f);
+
+            float bestDistance =
+                float.PositiveInfinity;
+
+            for (float x = -searchRadius;
+                 x <= searchRadius;
+                 x += step)
+            {
+                for (float z = -searchRadius;
+                     z <= searchRadius;
+                     z += step)
+                {
+                    Vector3 origin =
+                        new(
+                            preferred.x + x,
+                            preferred.y + rayHeight,
+                            preferred.z + z);
+
+                    if (!Physics.Raycast(
+                            origin,
+                            Vector3.down,
+                            out RaycastHit hit,
+                            maxRayDistance,
+                            Physics.DefaultRaycastLayers,
+                            QueryTriggerInteraction.Ignore))
+                        continue;
+
+                    Renderer renderer =
+                        hit.collider != null
+                            ? hit.collider.GetComponent<Renderer>()
+                            : null;
+
+                    if (renderer == null)
+                        renderer =
+                            hit.collider != null
+                                ? hit.collider.GetComponentInParent<Renderer>()
+                                : null;
+
+                    if (!IsDriveableSurface(renderer))
+                        continue;
+
+                    float distance =
+                        HorizontalSqrDistance(
+                            hit.point,
+                            preferred);
+
+                    if (distance >= bestDistance)
+                        continue;
+
+                    bestDistance =
+                        distance;
+
+                    best =
+                        hit.point;
+                }
+            }
+
+            if (float.IsPositiveInfinity(bestDistance))
+            {
+                Debug.LogWarning(
+                    "Motor City: no asphalt raycast surface was found near the preferred spawn; " +
+                    $"falling back to road sample {best}.");
+            }
+            else
+            {
+                Debug.Log(
+                    $"Motor City: driveable spawn surface found at {best} near preferred {preferred}.");
+            }
+
+            return best;
+        }
+
+        private static bool IsDriveableSurface(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return false;
+
+            string hierarchy =
+                BuildHierarchyName(
+                    renderer.transform);
+
+            string materials =
+                BuildMaterialNames(
+                    renderer);
+
+            string searchable =
+                hierarchy +
+                " " +
+                materials;
+
+            if (searchable.Contains("sidewalk") ||
+                searchable.Contains("sideway") ||
+                searchable.Contains("footpath") ||
+                searchable.Contains("pedestrian") ||
+                searchable.Contains("curb") ||
+                searchable.Contains("kerb") ||
+                searchable.Contains("pavement") ||
+                searchable.Contains("fence") ||
+                searchable.Contains("plaza"))
+                return false;
+
+            return
+                materials.Contains("asphalt") ||
+                materials.Contains("tarmac") ||
+                materials.Contains("lane") ||
+                searchable.Contains("highway");
         }
 
         private static Vector3 SelectNearestRoadPoint(
