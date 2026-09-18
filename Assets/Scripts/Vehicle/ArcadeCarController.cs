@@ -15,20 +15,26 @@ namespace MotorCity.Vehicle
         private const int RearRight = 3;
 
         [Header("Prometeo tuning")]
-        [SerializeField] private int baseMaxSpeedKph = 240;
+        [SerializeField] private int baseMaxSpeedKph = 250;
         [SerializeField] private int maxReverseSpeedKph = 55;
-        [SerializeField] private int accelerationMultiplier = 10;
+        [SerializeField] private int accelerationMultiplier = 14;
         [SerializeField] private int maxSteeringAngle = 32;
         [SerializeField] private float steeringSpeed = 0.68f;
         [SerializeField] private int brakeForce = 900;
-        [SerializeField] private int decelerationMultiplier = 2;
-        [SerializeField] private int handbrakeDriftMultiplier = 6;
+        [SerializeField] private int decelerationMultiplier = 1;
+        [SerializeField] private int handbrakeDriftMultiplier = 7;
         [SerializeField] private Vector3 bodyMassCenter =
             new(0f, 0.32f, 0.05f);
 
         [Header("Vehicle body")]
-        [SerializeField] private float vehicleMass = 1400f;
-        [SerializeField] private float angularDamping = 0.24f;
+        [SerializeField] private float vehicleMass = 1200f;
+        [SerializeField] private float angularDamping = 0.22f;
+
+        [Header("Power assist")]
+        [SerializeField] private float basePowerAssistAcceleration = 6.5f;
+        [SerializeField] private float driftPowerAssistAcceleration = 4.0f;
+        [SerializeField] private float reversePowerAssistAcceleration = 3.0f;
+        [SerializeField] private float powerAssistFadeStartKph = 205f;
 
         [Header("Prometeo WheelColliders")]
         [SerializeField] private float fallbackWheelRadius = 0.36f;
@@ -64,6 +70,9 @@ namespace MotorCity.Vehicle
         private bool wheelRigReady;
         private bool drivingEnabled = true;
         private bool warnedMissingPrometeo;
+        private bool throttleHeld;
+        private bool reverseHeld;
+        private bool handbrakeHeld;
         private float prometeoRetryTimer;
         private float resetHoldTimer;
 
@@ -165,9 +174,13 @@ namespace MotorCity.Vehicle
         private void FixedUpdate()
         {
             if (resetHoldTimer > 0f)
+            {
                 HoldVehicleStill();
+                return;
+            }
 
             UpdateTelemetry();
+            ApplyPowerAssist();
         }
 
         public void ConfigurePrometeoRig(
@@ -269,7 +282,7 @@ namespace MotorCity.Vehicle
             forward.asymptoteValue = 0.72f;
             forward.stiffness =
                 index >= RearLeft
-                    ? 1.48f
+                    ? 1.22f
                     : 1.18f;
 
             wheel.forwardFriction = forward;
@@ -283,7 +296,7 @@ namespace MotorCity.Vehicle
             sideways.asymptoteValue = 0.76f;
             sideways.stiffness =
                 index >= RearLeft
-                    ? 1.24f
+                    ? 0.98f
                     : 1.18f;
 
             wheel.sidewaysFriction = sideways;
@@ -561,6 +574,10 @@ namespace MotorCity.Vehicle
                 }
             }
 
+            throttleHeld = throttle;
+            reverseHeld = reverse;
+            handbrakeHeld = handbrake;
+
             SetInputProxyPressed(
                 throttleInputProxy,
                 throttle);
@@ -633,16 +650,16 @@ namespace MotorCity.Vehicle
             int tunedMaxSpeed =
                 Mathf.Clamp(
                     baseMaxSpeedKph +
-                    engineUpgradeLevel * 10,
+                    engineUpgradeLevel * 12,
                     20,
-                    260);
+                    290);
 
             int tunedAcceleration =
                 Mathf.Clamp(
                     accelerationMultiplier +
                     engineUpgradeLevel,
                     1,
-                    10);
+                    18);
 
             int tunedDriftMultiplier =
                 Mathf.Clamp(
@@ -692,6 +709,53 @@ namespace MotorCity.Vehicle
                 body.angularDamping =
                     angularDamping +
                     stabilityUpgradeLevel * 0.035f;
+            }
+        }
+
+        private void ApplyPowerAssist()
+        {
+            if (body == null ||
+                prometeo == null ||
+                !drivingEnabled ||
+                GroundedWheels < 2)
+                return;
+
+            float forwardSpeed = ForwardSpeedKph;
+
+            if (throttleHeld &&
+                forwardSpeed < baseMaxSpeedKph + engineUpgradeLevel * 12f)
+            {
+                float maxSpeed =
+                    baseMaxSpeedKph +
+                    engineUpgradeLevel * 12f;
+
+                float fade =
+                    1f - Mathf.InverseLerp(
+                        powerAssistFadeStartKph,
+                        maxSpeed,
+                        Mathf.Max(0f, forwardSpeed));
+
+                float acceleration =
+                    basePowerAssistAcceleration *
+                    (1f + engineUpgradeLevel * 0.14f);
+
+                if (IsSliding || handbrakeHeld)
+                    acceleration += driftPowerAssistAcceleration;
+
+                body.AddForce(
+                    transform.forward *
+                    acceleration *
+                    Mathf.Clamp01(fade),
+                    ForceMode.Acceleration);
+            }
+
+            if (reverseHeld &&
+                forwardSpeed > -maxReverseSpeedKph)
+            {
+                body.AddForce(
+                    -transform.forward *
+                    reversePowerAssistAcceleration,
+                    ForceMode.Acceleration);
             }
         }
 
@@ -848,7 +912,7 @@ namespace MotorCity.Vehicle
                     wheel.forwardFriction;
                 forward.stiffness =
                     (i >= RearLeft
-                        ? 1.48f
+                        ? 1.22f
                         : 1.18f) *
                     gripMultiplier;
                 wheel.forwardFriction = forward;
@@ -857,7 +921,7 @@ namespace MotorCity.Vehicle
                     wheel.sidewaysFriction;
                 sideways.stiffness =
                     (i >= RearLeft
-                        ? 1.24f
+                        ? 0.98f
                         : 1.18f) *
                     gripMultiplier;
                 wheel.sidewaysFriction = sideways;
