@@ -44,6 +44,7 @@ namespace MotorCity.Bootstrap
 
             DriftChallenge driftChallenge = systems.AddComponent<DriftChallenge>();
             driftChallenge.Initialize(car, drift, wallet, activityManager);
+            driftChallenge.SnapZoneToRoad();
 
             StreetSprintActivity streetSprint = systems.AddComponent<StreetSprintActivity>();
             streetSprint.Initialize(car, wallet, activityManager);
@@ -248,9 +249,9 @@ namespace MotorCity.Bootstrap
         {
             GameObject marker = CreateAssetMarker(
                 "Delivery Marker",
-                "MotorCity/Environment/CheckpointGate",
+                "MotorCity/Environment/DeliveryCrate",
                 delivery.CurrentTarget,
-                14f,
+                5.4f,
                 new Color(0.08f, 0.5f, 1f));
 
             RouteMarkerVisual visual =
@@ -302,9 +303,9 @@ namespace MotorCity.Bootstrap
         {
             GameObject marker = CreateAssetMarker(
                 "Street Sprint Marker",
-                "MotorCity/Environment/CheckpointGate",
+                "MotorCity/Environment/SprintCar",
                 sprint.CurrentTarget,
-                14f,
+                6.8f,
                 new Color(0.18f, 1f, 0.34f));
 
             StreetSprintMarkerVisual visual =
