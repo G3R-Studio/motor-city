@@ -131,7 +131,7 @@ namespace MotorCity.Gameplay
 
         public void SnapGarageToRoad()
         {
-            garageCenter = World.CityAssetRuntimeInstaller.SnapToNearestRoad(garageCenter);
+            garageCenter = MotorCity.World.CityAssetRuntimeInstaller.SnapToNearestRoad(garageCenter);
         }
 
         private void OpenGarage()
