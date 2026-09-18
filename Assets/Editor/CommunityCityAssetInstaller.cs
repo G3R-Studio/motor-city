@@ -114,8 +114,10 @@ public static class CommunityCityAssetInstaller
 
         Directory.CreateDirectory(ImportedRoot);
 
+        using FileStream zipStream =
+            File.OpenRead(zipPath);
         using ZipArchive archive =
-            ZipFile.OpenRead(zipPath);
+            new(zipStream, ZipArchiveMode.Read);
 
         const string assetsMarker = "/Assets/City 02/";
 
@@ -155,7 +157,14 @@ public static class CommunityCityAssetInstaller
             if (!string.IsNullOrEmpty(directory))
                 Directory.CreateDirectory(directory);
 
-            entry.ExtractToFile(destination, true);
+            using Stream sourceStream = entry.Open();
+            using FileStream destinationStream =
+                new(
+                    destination,
+                    FileMode.Create,
+                    FileAccess.Write,
+                    FileShare.None);
+            sourceStream.CopyTo(destinationStream);
         }
 
         File.Delete(zipPath);
