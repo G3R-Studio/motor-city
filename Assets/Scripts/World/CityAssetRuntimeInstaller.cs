@@ -125,11 +125,11 @@ namespace MotorCity.World
             // scaled and centered the city, so no guessed runtime coordinates are
             // involved.
             Transform player =
-                FindNamed("road-straight_942");
+                FindNamed("road-straight_964");
             Transform garage =
-                FindNamed("road-straight_1023");
+                FindNamed("road-straight_1176");
             Transform drift =
-                FindNamed("road-crossroad-path_18");
+                FindNamed("road-crossroad-path_20");
 
             if (player != null)
             {
@@ -165,23 +165,23 @@ namespace MotorCity.World
             deliveryRoute = ResolveRoute(
                 new[]
                 {
-                    "road-straight_1299",
-                    "road-straight_1289",
-                    "road-straight_955",
-                    "road-straight_1001",
-                    "road-straight_1103"
+                    "road-straight_1304",
+                    "road-straight_1295",
+                    "road-crossroad-path_29",
+                    "road-straight_984",
+                    "road-straight_1035"
                 },
                 deliveryRoute);
 
             sprintRoute = ResolveRoute(
                 new[]
                 {
-                    "road-straight_1307",
-                    "road-straight_1395",
-                    "road-straight_1391",
-                    "road-straight_1245",
-                    "road-straight_1260",
-                    "road-straight_1387"
+                    "road-straight_1322",
+                    "road-straight_1396",
+                    "road-straight_1155",
+                    "road-straight_1238",
+                    "road-straight_1268",
+                    "road-straight_1382"
                 },
                 sprintRoute);
 
