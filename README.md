@@ -53,8 +53,9 @@ A flat temporary test surface is currently used when no generated runtime city p
 3. Open the repository root as a Unity project.
 4. Import **ARCADE: FREE Racing Car** by Mena from the Unity Asset Store / Package Manager.
 5. Import **PROMETEO: Car Controller** by Mena from the Unity Asset Store. Motor City does not redistribute the Prometeo package; the runtime bridge detects `PrometeoCarController` after Unity recompiles.
-6. Import **Fantastic City Generator** locally under `Assets/Fantastic City Generator`, generate the city in an editor scene, then use `Motor City > Fantastic City Generator > Fix Pink Materials in Active Scene` to convert the generated city materials for URP.
-7. Save the generated scene, then use `Motor City > Fantastic City Generator > Build Runtime City from Active Scene` to bake the local generated city into `Assets/Resources/MotorCity/Environment/CityVisual.prefab`. The generated runtime environment folder is intentionally ignored by Git.
+6. Import **Fantastic City Generator** locally under `Assets/Fantastic City Generator`, generate the city in an editor scene, then use `Motor City > Fantastic City Generator > Fix Materials in Saved FCG City` to convert the generated city materials for URP.
+7. Save the generated scene, then use `Motor City > Fantastic City Generator > Build Runtime City from Saved FCG City` to bake the local generated city into `Assets/Resources/MotorCity/Environment/CityVisual.prefab`. The generated runtime environment folder is intentionally ignored by Git.
+8. The FCG material/build tools can be launched while `Prototype.unity` is open: they automatically find the saved `City-Maker` scene under `Assets/LocalGenerated`, open it temporarily, process/save it, rebuild `CityVisual.prefab`, then return to the previous scene.
 8. The editor automatically prepares the runtime UI and marker sprites.
 9. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically and keep both Unity input backends enabled for Prometeo compatibility.
 10. Press Play.
