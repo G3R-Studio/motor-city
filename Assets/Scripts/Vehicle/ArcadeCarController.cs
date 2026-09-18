@@ -54,6 +54,11 @@ namespace MotorCity.Vehicle
         [SerializeField] private float handbrakeDeceleration = 0.65f;
         [SerializeField] private float parkingBrakeTorque = 30000f;
         [SerializeField] private float parkingBrakeSpeedKph = 8f;
+        [SerializeField] private float driftDetectionSideSlip = 0.12f;
+        [SerializeField] private float driftDetectionAngle = 8f;
+        [SerializeField] private float driftAssistYawAcceleration = 4.6f;
+        [SerializeField] private float driftAssistMinimumSpeedKph = 28f;
+        [SerializeField] private float driftAssistFullSpeedKph = 105f;
 
         [Header("Legacy Input.GetAxis Feel")]
         [SerializeField] private float inputSensitivity = 3f;
@@ -96,6 +101,8 @@ namespace MotorCity.Vehicle
         public int GroundedWheels { get; private set; }
         public float RearSidewaysSlip { get; private set; }
         public float RearForwardSlip { get; private set; }
+        public bool IsSliding { get; private set; }
+        public float DriftIntensity { get; private set; }
 
         public float SlipAngleDegrees
         {
@@ -254,10 +261,18 @@ namespace MotorCity.Vehicle
 
         private void FixedUpdate()
         {
+            MeasureWheelState();
             UpdateDynamicRearGrip();
             ApplySourceController();
             ApplyHandbrake();
+            ApplyDriftAssist();
 
+            ApplyAntiRoll(FrontLeft, FrontRight);
+            ApplyAntiRoll(RearLeft, RearRight);
+        }
+
+        private void MeasureWheelState()
+        {
             GroundedWheels = 0;
             float rearSideways = 0f;
             float rearForward = 0f;
@@ -266,23 +281,65 @@ namespace MotorCity.Vehicle
             for (int i = 0; i < 4; i++)
             {
                 WheelCollider wheel = wheelColliders[i];
-                if (wheel == null || !wheel.GetGroundHit(out WheelHit hit)) continue;
+                if (wheel == null ||
+                    !wheel.GetGroundHit(out WheelHit hit))
+                    continue;
 
                 GroundedWheels++;
 
                 if (i >= RearLeft)
                 {
-                    rearSideways += Mathf.Abs(hit.sidewaysSlip);
-                    rearForward += Mathf.Abs(hit.forwardSlip);
+                    rearSideways +=
+                        Mathf.Abs(hit.sidewaysSlip);
+                    rearForward +=
+                        Mathf.Abs(hit.forwardSlip);
                     rearGrounded++;
                 }
             }
 
-            RearSidewaysSlip = rearGrounded > 0 ? rearSideways / rearGrounded : 0f;
-            RearForwardSlip = rearGrounded > 0 ? rearForward / rearGrounded : 0f;
+            RearSidewaysSlip =
+                rearGrounded > 0
+                    ? rearSideways / rearGrounded
+                    : 0f;
 
-            ApplyAntiRoll(FrontLeft, FrontRight);
-            ApplyAntiRoll(RearLeft, RearRight);
+            RearForwardSlip =
+                rearGrounded > 0
+                    ? rearForward / rearGrounded
+                    : 0f;
+
+            float angle =
+                Mathf.Abs(SlipAngleDegrees);
+
+            float slipIntensity =
+                Mathf.InverseLerp(
+                    driftDetectionSideSlip,
+                    0.58f,
+                    RearSidewaysSlip);
+
+            float angleIntensity =
+                Mathf.InverseLerp(
+                    driftDetectionAngle,
+                    34f,
+                    angle);
+
+            float speedIntensity =
+                Mathf.InverseLerp(
+                    22f,
+                    72f,
+                    SpeedKph);
+
+            DriftIntensity =
+                Mathf.Clamp01(
+                    Mathf.Min(
+                        slipIntensity * 1.18f,
+                        angleIntensity * 1.12f) *
+                    Mathf.Lerp(0.7f, 1f, speedIntensity));
+
+            IsSliding =
+                GroundedWheels >= 3 &&
+                SpeedKph >= 24f &&
+                RearSidewaysSlip >= driftDetectionSideSlip &&
+                angle >= driftDetectionAngle;
         }
 
         private void ApplyAntiRoll(int leftIndex, int rightIndex)
@@ -407,10 +464,15 @@ namespace MotorCity.Vehicle
                 vertical >= powerDriftThrottleThreshold &&
                 Mathf.Abs(horizontal) >= powerDriftSteerThreshold;
 
+            bool sustainingDrift =
+                !handbrakeInput &&
+                IsSliding &&
+                vertical >= 0.24f;
+
             float targetRearGrip =
                 handbrakeInput
                     ? rearHandbrakeGrip
-                    : (powerDrift
+                    : ((powerDrift || sustainingDrift)
                         ? rearPowerDriftGrip
                         : rearGrip);
 
@@ -427,6 +489,79 @@ namespace MotorCity.Vehicle
 
                 wheel.sidewaysFriction = sideways;
             }
+        }
+
+        private void ApplyDriftAssist()
+        {
+            if (body == null ||
+                GroundedWheels < 3 ||
+                SpeedKph < driftAssistMinimumSpeedKph)
+                return;
+
+            bool driftIntent =
+                handbrakeInput ||
+                IsSliding ||
+                (vertical > 0.52f &&
+                 Mathf.Abs(horizontal) > 0.34f);
+
+            if (!driftIntent ||
+                Mathf.Abs(horizontal) < 0.05f)
+                return;
+
+            float speedFactor =
+                Mathf.InverseLerp(
+                    driftAssistMinimumSpeedKph,
+                    driftAssistFullSpeedKph,
+                    SpeedKph);
+
+            float slideFactor =
+                IsSliding
+                    ? Mathf.Lerp(
+                        0.62f,
+                        1f,
+                        DriftIntensity)
+                    : 0.42f;
+
+            float stabilityReduction =
+                1f - stabilityUpgradeLevel * 0.08f;
+
+            body.AddTorque(
+                transform.up *
+                horizontal *
+                driftAssistYawAcceleration *
+                Mathf.Lerp(0.55f, 1f, speedFactor) *
+                slideFactor *
+                stabilityReduction,
+                ForceMode.Acceleration);
+
+            if (IsSliding && vertical > 0.1f)
+            {
+                body.AddForce(
+                    transform.forward *
+                    (1.2f + DriftIntensity * 1.6f) *
+                    vertical,
+                    ForceMode.Acceleration);
+            }
+        }
+
+        public bool TryGetRearGroundHit(
+            int rearWheel,
+            out WheelHit hit)
+        {
+            int index =
+                rearWheel <= 0
+                    ? RearLeft
+                    : RearRight;
+
+            WheelCollider wheel =
+                wheelColliders[index];
+
+            if (wheel != null &&
+                wheel.GetGroundHit(out hit))
+                return true;
+
+            hit = default;
+            return false;
         }
 
         private void ApplySourceController()
