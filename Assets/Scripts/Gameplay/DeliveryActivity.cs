@@ -8,8 +8,8 @@ namespace MotorCity.Gameplay
         private const string ActivityId = "delivery";
 
         [SerializeField] private int rewardCredits = 450;
-        [SerializeField] private float checkpointRadius = 7.5f;
-        [SerializeField] private float startRadius = 10.5f;
+        [SerializeField] private float checkpointRadius = 13.5f;
+        [SerializeField] private float startRadius = 18.9f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
@@ -31,11 +31,11 @@ namespace MotorCity.Gameplay
             activityManager = manager;
             route = new[]
             {
-                new Vector3(63f, 0f, -63f),
-                new Vector3(126f, 0f, 0f),
-                new Vector3(63f, 0f, 126f),
-                new Vector3(-63f, 0f, 126f),
-                new Vector3(-126f, 0f, 63f)
+                new Vector3(113.3f, 0f, -113.3f),
+                new Vector3(226.6f, 0f, 0f),
+                new Vector3(113.3f, 0f, 226.6f),
+                new Vector3(-113.3f, 0f, 226.6f),
+                new Vector3(-226.6f, 0f, 113.3f)
             };
         }
 
