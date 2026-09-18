@@ -805,11 +805,12 @@ public static class FantasticCityGeneratorUrpFixer
             source.name.ToLowerInvariant();
 
         bool foliage =
-            IsFoliageMaterialName(
+            IsCutoutFoliageMaterialName(
                 materialName);
 
         bool cutout =
-            foliage ||
+            (foliage &&
+             HasUsableAlphaTexture(destination)) ||
             shaderName.IndexOf(
                 "cutout",
                 StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -850,11 +851,14 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_Cutoff",
-                    source.HasProperty(
-                        "_Cutoff")
-                        ? source.GetFloat(
+                    foliage
+                        ? 0.12f
+                        : source.HasProperty(
                             "_Cutoff")
-                        : 0.45f);
+                            ? Mathf.Clamp01(
+                                source.GetFloat(
+                                    "_Cutoff"))
+                            : 0.45f);
             }
 
             destination.EnableKeyword(
@@ -1527,9 +1531,86 @@ public static class FantasticCityGeneratorUrpFixer
             lower.Contains("palm");
     }
 
+    private static bool IsCutoutFoliageMaterialName(
+        string materialName)
+    {
+        if (string.IsNullOrWhiteSpace(
+                materialName))
+            return false;
+
+        string lower =
+            materialName.ToLowerInvariant();
+
+        // "Grass-Splat" and "Grass-01" are ground materials, not leaf cards.
+        return
+            lower.Contains("tree") ||
+            lower.Contains("leaf") ||
+            lower.Contains("leaves") ||
+            lower.Contains("foliage") ||
+            lower.Contains("vegetation") ||
+            lower.Contains("fern") ||
+            lower.Contains("palm");
+    }
+
+    private static bool HasUsableAlphaTexture(
+        Material material)
+    {
+        if (material == null ||
+            !material.HasProperty(
+                "_BaseMap"))
+            return false;
+
+        Texture texture =
+            material.GetTexture(
+                "_BaseMap");
+
+        if (texture == null)
+            return false;
+
+        string path =
+            AssetDatabase.GetAssetPath(
+                texture);
+
+        if (string.IsNullOrWhiteSpace(
+                path))
+            return false;
+
+        TextureImporter importer =
+            AssetImporter.GetAtPath(
+                path) as TextureImporter;
+
+        if (importer == null)
+            return false;
+
+        try
+        {
+            return importer.DoesSourceTextureHaveAlpha();
+        }
+        catch
+        {
+            return importer.alphaSource !=
+                TextureImporterAlphaSource.None;
+        }
+    }
+
     private static void ConfigureFoliageFallback(
         Material material)
     {
+        if (material == null)
+            return;
+
+        string name =
+            NormalizeMaterialName(
+                material.name);
+
+        bool cutoutFoliage =
+            IsCutoutFoliageMaterialName(
+                name);
+
+        bool hasAlpha =
+            HasUsableAlphaTexture(
+                material);
+
         if (material.HasProperty(
                 "_Surface"))
         {
@@ -1538,42 +1619,70 @@ public static class FantasticCityGeneratorUrpFixer
                 0f);
         }
 
-        if (material.HasProperty(
-                "_AlphaClip"))
+        material.DisableKeyword(
+            "_SURFACE_TYPE_TRANSPARENT");
+
+        if (cutoutFoliage &&
+            hasAlpha)
         {
-            material.SetFloat(
-                "_AlphaClip",
-                1f);
+            if (material.HasProperty(
+                    "_AlphaClip"))
+            {
+                material.SetFloat(
+                    "_AlphaClip",
+                    1f);
+            }
+
+            if (material.HasProperty(
+                    "_Cutoff"))
+            {
+                // Keep this deliberately low. Some FCG tree atlases use
+                // soft alpha and disappear almost entirely with a 0.4-0.5
+                // cutout threshold.
+                material.SetFloat(
+                    "_Cutoff",
+                    0.12f);
+            }
+
+            material.EnableKeyword(
+                "_ALPHATEST_ON");
+
+            material.SetOverrideTag(
+                "RenderType",
+                "TransparentCutout");
+
+            material.renderQueue =
+                (int)RenderQueue.AlphaTest;
+        }
+        else
+        {
+            if (material.HasProperty(
+                    "_AlphaClip"))
+            {
+                material.SetFloat(
+                    "_AlphaClip",
+                    0f);
+            }
+
+            material.DisableKeyword(
+                "_ALPHATEST_ON");
+
+            material.SetOverrideTag(
+                "RenderType",
+                "Opaque");
+
+            material.renderQueue =
+                (int)RenderQueue.Geometry;
         }
 
-        if (material.HasProperty(
-                "_Cutoff"))
-        {
-            material.SetFloat(
-                "_Cutoff",
-                0.38f);
-        }
-
-        if (material.HasProperty(
+        if (cutoutFoliage &&
+            material.HasProperty(
                 "_Cull"))
         {
             material.SetFloat(
                 "_Cull",
                 (float)CullMode.Off);
         }
-
-        material.EnableKeyword(
-            "_ALPHATEST_ON");
-
-        material.DisableKeyword(
-            "_SURFACE_TYPE_TRANSPARENT");
-
-        material.SetOverrideTag(
-            "RenderType",
-            "TransparentCutout");
-
-        material.renderQueue =
-            (int)RenderQueue.AlphaTest;
     }
 
     private static string FirstExistingProperty(
