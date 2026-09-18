@@ -1,16 +1,22 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using MotorCity.Vehicle;
 
 namespace MotorCity.CameraSystem
 {
     public sealed class ChaseCamera : MonoBehaviour
     {
         [SerializeField] private Transform target;
-        [SerializeField] private float distance = 7.5f;
-        [SerializeField] private float height = 2.7f;
-        [SerializeField] private float positionSharpness = 9f;
-        [SerializeField] private float rotationSharpness = 12f;
-        [SerializeField] private float lookAhead = 2.5f;
+        [SerializeField] private float distance = 6.8f;
+        [SerializeField] private float height = 2.25f;
+        [SerializeField] private float positionSharpness = 7.5f;
+        [SerializeField] private float rotationSharpness = 10f;
+        [SerializeField] private float lookAhead = 2.2f;
+        [SerializeField] private float speedLookAhead = 3.8f;
+        [SerializeField] private float speedDistanceBonus = 1.25f;
+        [SerializeField] private float baseFieldOfView = 62f;
+        [SerializeField] private float highSpeedFieldOfView = 72f;
+        [SerializeField] private float fieldOfViewSharpness = 4.5f;
 
         [Header("Orbit")]
         [SerializeField] private float mouseSensitivity = 0.12f;
@@ -27,16 +33,20 @@ namespace MotorCity.CameraSystem
         private float pitch = 13f;
         private float lastManualInputTime = -10f;
         private float targetDistance;
+        private ArcadeCarController car;
+        private Camera cameraComponent;
 
         public void SetTarget(Transform newTarget)
         {
             target = newTarget;
+            car = target == null ? null : target.GetComponent<ArcadeCarController>();
             targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
         }
 
         private void Awake()
         {
             targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
+            cameraComponent = GetComponent<Camera>();
         }
 
         private void Update()
@@ -85,14 +95,72 @@ namespace MotorCity.CameraSystem
             float positionT = 1f - Mathf.Exp(-positionSharpness * Time.deltaTime);
             float rotationT = 1f - Mathf.Exp(-rotationSharpness * Time.deltaTime);
 
-            Quaternion orbitRotation = Quaternion.Euler(pitch, target.eulerAngles.y + yawOffset, 0f);
-            Vector3 orbitOffset = orbitRotation * new Vector3(0f, 0f, -distance);
-            Vector3 desiredPosition = target.position + Vector3.up * height + orbitOffset;
-            transform.position = Vector3.Lerp(transform.position, desiredPosition, positionT);
+            float speed01 = car == null
+                ? 0f
+                : Mathf.InverseLerp(20f, 180f, car.SpeedKph);
 
-            Vector3 lookPoint = target.position + target.forward * lookAhead + Vector3.up * 1.05f;
-            Quaternion desiredRotation = Quaternion.LookRotation(lookPoint - transform.position, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, rotationT);
+            float dynamicDistance =
+                distance + speedDistanceBonus * speed01;
+
+            Quaternion orbitRotation =
+                Quaternion.Euler(
+                    pitch,
+                    target.eulerAngles.y + yawOffset,
+                    0f);
+
+            Vector3 orbitOffset =
+                orbitRotation *
+                new Vector3(0f, 0f, -dynamicDistance);
+
+            Vector3 desiredPosition =
+                target.position +
+                Vector3.up * height +
+                orbitOffset;
+
+            transform.position =
+                Vector3.Lerp(
+                    transform.position,
+                    desiredPosition,
+                    positionT);
+
+            float dynamicLookAhead =
+                Mathf.Lerp(
+                    lookAhead,
+                    speedLookAhead,
+                    speed01);
+
+            Vector3 lookPoint =
+                target.position +
+                target.forward * dynamicLookAhead +
+                Vector3.up * 0.92f;
+
+            Quaternion desiredRotation =
+                Quaternion.LookRotation(
+                    lookPoint - transform.position,
+                    Vector3.up);
+
+            transform.rotation =
+                Quaternion.Slerp(
+                    transform.rotation,
+                    desiredRotation,
+                    rotationT);
+
+            if (cameraComponent != null)
+            {
+                float targetFov =
+                    Mathf.Lerp(
+                        baseFieldOfView,
+                        highSpeedFieldOfView,
+                        speed01);
+
+                cameraComponent.fieldOfView =
+                    Mathf.Lerp(
+                        cameraComponent.fieldOfView,
+                        targetFov,
+                        1f - Mathf.Exp(
+                            -fieldOfViewSharpness *
+                            Time.deltaTime));
+            }
         }
     }
 }
