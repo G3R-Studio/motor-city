@@ -1,0 +1,21 @@
+{
+  "name": "MotorCity.ModernCityPack.Legacy",
+  "rootNamespace": "",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [
+    "Editor",
+    "WebGL",
+    "WindowsStandalone32",
+    "WindowsStandalone64",
+    "LinuxStandalone64",
+    "macOSStandalone"
+  ],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
