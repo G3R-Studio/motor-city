@@ -68,9 +68,24 @@ namespace MotorCity.Vehicle
                 return true;
             }
 
-            AlignBodyToWheelCenters(visual.transform, carTransform, wheelAnchors);
+            AlignWheelbaseWithCarForward(
+                visual.transform,
+                carTransform,
+                wheelAnchors);
 
-            Transform[] ordered = OrderWheels(carTransform, wheelAnchors);
+            CenterVisualHorizontally(
+                visual.transform,
+                carTransform);
+
+            AlignBodyToWheelCenters(
+                visual.transform,
+                carTransform,
+                wheelAnchors);
+
+            Transform[] ordered =
+                OrderWheels(
+                    carTransform,
+                    wheelAnchors);
             Vector3[] centerWorld = new Vector3[4];
             Vector3[] centerLocal = new Vector3[4];
             float radiusSum = 0f;
@@ -107,14 +122,13 @@ namespace MotorCity.Vehicle
                 car.UseAutomaticMassProperties();
             }
 
-            car.ConfigureExternalWheelRig(
+            car.ConfigurePrometeoRig(
                 spinRoots,
-                null,
                 centerLocal,
                 measuredRadius);
 
             Debug.Log(
-                "Motor City: ARCADE Free Racing Car connected to Pro Drift Controller v1 WheelCollider physics.");
+                "Motor City: ARCADE Free Racing Car prepared for Prometeo Car Controller physics.");
 
             return true;
         }
@@ -231,6 +245,61 @@ namespace MotorCity.Vehicle
             Vector3 centerLocal = parent.InverseTransformPoint(bounds.center);
             visual.localPosition -=
                 new Vector3(centerLocal.x, 0f, centerLocal.z);
+        }
+
+        private static void AlignWheelbaseWithCarForward(
+            Transform visual,
+            Transform carRoot,
+            List<Transform> wheels)
+        {
+            if (wheels == null ||
+                wheels.Count < 4)
+                return;
+
+            float minX = float.PositiveInfinity;
+            float maxX = float.NegativeInfinity;
+            float minZ = float.PositiveInfinity;
+            float maxZ = float.NegativeInfinity;
+
+            foreach (Transform wheel in wheels)
+            {
+                Vector3 center =
+                    carRoot.InverseTransformPoint(
+                        RendererBounds(wheel).center);
+
+                minX = Mathf.Min(minX, center.x);
+                maxX = Mathf.Max(maxX, center.x);
+                minZ = Mathf.Min(minZ, center.z);
+                maxZ = Mathf.Max(maxZ, center.z);
+            }
+
+            float xSpan = maxX - minX;
+            float zSpan = maxZ - minZ;
+
+            if (xSpan <= zSpan)
+                return;
+
+            visual.localRotation =
+                visual.localRotation *
+                Quaternion.Euler(0f, 90f, 0f);
+        }
+
+        private static void CenterVisualHorizontally(
+            Transform visual,
+            Transform carRoot)
+        {
+            Bounds bounds =
+                RendererBounds(visual);
+
+            Vector3 centerLocal =
+                carRoot.InverseTransformPoint(
+                    bounds.center);
+
+            visual.localPosition -=
+                new Vector3(
+                    centerLocal.x,
+                    0f,
+                    centerLocal.z);
         }
 
         private static void AlignBodyToWheelCenters(
