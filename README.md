@@ -26,6 +26,8 @@ The project currently includes:
 - automatic editor download and preparation of the CC0 Community Core Stack / Kenney city environment;
 - an asset-based city with real road, building, vehicle, tree, street-light and prop meshes replacing the procedural primitive city when the CC0 pack is available;
 - asset-based delivery, drift, sprint and garage world markers prepared from the same CC0 Kenney source;
+- delivery and sprint checkpoint gates built from Kenney road-kit assets, plus a four-cone drift marker cluster;
+- automatic road-mesh snapping for the player spawn, delivery checkpoints, sprint checkpoints and garage position;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
@@ -33,6 +35,7 @@ The project currently includes:
 - mission markers hide while another mission is active, while the garage marker remains visible;
 - entering the garage cancels the active mission;
 - Russian in-game HUD, garage text, activity prompts and status messages;
+- a Canvas-based runtime HUD and garage interface using automatically prepared Kenney CC0 UI panels instead of IMGUI;
 - a HUD with speed, credits, current activity, drift score and installed upgrade levels;
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
@@ -47,8 +50,9 @@ Primitive geometry remains only as an emergency fallback if the external CC0 ass
 4. Import **ARCADE: FREE Racing Car** by Mena from the Unity Asset Store / Package Manager.
 5. Wait for the Motor City importer to generate `Assets/Resources/MotorCity/PlayerCarVisual.prefab`.
 6. The editor will also automatically download the CC0 Community Core Stack City 02 / Kenney environment and generate the runtime city and activity prop prefabs under `Assets/Resources/MotorCity/Environment`.
-7. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically.
-8. Press Play.
+7. The editor automatically downloads the Kenney CC0 UI Pack and prepares the runtime UI sprites under `Assets/Resources/MotorCity/UI`.
+8. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically.
+9. Press Play.
 
 The car importer prefers a matching racing-car prefab with usable body colliders and falls back to another matching prefab if needed.
 
