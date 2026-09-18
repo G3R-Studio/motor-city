@@ -50,7 +50,7 @@ namespace MotorCity.World
             SnapToTarget();
 
             float pulse =
-                1f + Mathf.Sin(Time.time * 4.2f) * 0.045f;
+                1f + Mathf.Sin(Time.time * 4.2f) * 0.025f;
 
             transform.localScale =
                 baseScale * pulse;
@@ -65,10 +65,7 @@ namespace MotorCity.World
         {
             Vector3 target = sprint.CurrentTarget;
             transform.position =
-                target +
-                Vector3.up *
-                (0.12f +
-                 Mathf.Sin(Time.time * 2.8f) * 0.04f);
+                new Vector3(target.x, 0f, target.z);
         }
 
         private void SetVisible(bool visible)
