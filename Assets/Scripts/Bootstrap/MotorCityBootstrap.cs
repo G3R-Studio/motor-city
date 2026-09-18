@@ -87,8 +87,8 @@ namespace MotorCity.Bootstrap
                 return;
 
             Debug.LogWarning(
-                "Motor City: Versatile Demo City runtime prefab is missing. " +
-                "Showing only a temporary test surface instead of the old procedural city.");
+                "Motor City: CubexCube runtime city prefab is missing. " +
+                "Import CubexCube - Free City Pack I and rebuild the city.");
 
             Material asphalt =
                 Material(
