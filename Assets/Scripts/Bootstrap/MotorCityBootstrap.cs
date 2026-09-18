@@ -40,12 +40,14 @@ namespace MotorCity.Bootstrap
 
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
             delivery.Initialize(car, wallet, activityManager);
+            delivery.SnapRouteToRoad();
 
             DriftChallenge driftChallenge = systems.AddComponent<DriftChallenge>();
             driftChallenge.Initialize(car, drift, wallet, activityManager);
 
             StreetSprintActivity streetSprint = systems.AddComponent<StreetSprintActivity>();
             streetSprint.Initialize(car, wallet, activityManager);
+            streetSprint.SnapRouteToRoad();
 
             GarageUpgradeSystem garage = systems.AddComponent<GarageUpgradeSystem>();
             garage.Initialize(
@@ -55,6 +57,7 @@ namespace MotorCity.Bootstrap
                 delivery,
                 driftChallenge,
                 streetSprint);
+            garage.SnapGarageToRoad();
 
             CreateDeliveryMarker(delivery, activityManager);
             CreateDriftChallengeMarker(driftChallenge, activityManager);
@@ -197,7 +200,11 @@ namespace MotorCity.Bootstrap
             Material tailLight = Material(new Color(0.9f, 0.015f, 0.008f), 0.05f, 0.78f);
 
             GameObject car = new("PlayerCar");
-            car.transform.position = new Vector3(0f, 1.2f, -325.3f);
+            Vector3 roadSpawn =
+                CityAssetRuntimeInstaller.SnapToNearestRoad(
+                    new Vector3(0f, 0f, -325.3f));
+            car.transform.position =
+                roadSpawn + Vector3.up * 1.2f;
             car.AddComponent<Rigidbody>();
 
             BoxCollider chassis = car.AddComponent<BoxCollider>();
