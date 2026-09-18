@@ -15,14 +15,14 @@ namespace MotorCity.Vehicle
         private const int RearRight = 3;
 
         [Header("Prometeo tuning")]
-        [SerializeField] private int baseMaxSpeedKph = 220;
-        [SerializeField] private int maxReverseSpeedKph = 55;
-        [SerializeField] private int accelerationMultiplier = 7;
+        [SerializeField] private int baseMaxSpeedKph = 170;
+        [SerializeField] private int maxReverseSpeedKph = 45;
+        [SerializeField] private int accelerationMultiplier = 6;
         [SerializeField] private int maxSteeringAngle = 32;
         [SerializeField] private float steeringSpeed = 0.68f;
         [SerializeField] private int brakeForce = 900;
         [SerializeField] private int decelerationMultiplier = 4;
-        [SerializeField] private int handbrakeDriftMultiplier = 4;
+        [SerializeField] private int handbrakeDriftMultiplier = 5;
         [SerializeField] private Vector3 bodyMassCenter =
             new(0f, 0.32f, 0.05f);
 
@@ -311,10 +311,7 @@ namespace MotorCity.Vehicle
             forward.extremumValue = 1f;
             forward.asymptoteSlip = 0.78f;
             forward.asymptoteValue = 0.72f;
-            forward.stiffness =
-                index >= RearLeft
-                    ? 1.48f
-                    : 1.18f;
+            forward.stiffness = 1.12f;
 
             wheel.forwardFriction = forward;
 
@@ -325,10 +322,7 @@ namespace MotorCity.Vehicle
             sideways.extremumValue = 1f;
             sideways.asymptoteSlip = 0.55f;
             sideways.asymptoteValue = 0.76f;
-            sideways.stiffness =
-                index >= RearLeft
-                    ? 1.24f
-                    : 1.18f;
+            sideways.stiffness = 1.08f;
 
             wheel.sidewaysFriction = sideways;
         }
@@ -677,9 +671,9 @@ namespace MotorCity.Vehicle
             int tunedMaxSpeed =
                 Mathf.Clamp(
                     baseMaxSpeedKph +
-                    engineUpgradeLevel * 10,
+                    engineUpgradeLevel * 7,
                     20,
-                    260);
+                    190);
 
             int tunedAcceleration =
                 Mathf.Clamp(
@@ -891,19 +885,13 @@ namespace MotorCity.Vehicle
                 WheelFrictionCurve forward =
                     wheel.forwardFriction;
                 forward.stiffness =
-                    (i >= RearLeft
-                        ? 1.48f
-                        : 1.18f) *
-                    gripMultiplier;
+                    1.12f * gripMultiplier;
                 wheel.forwardFriction = forward;
 
                 WheelFrictionCurve sideways =
                     wheel.sidewaysFriction;
                 sideways.stiffness =
-                    (i >= RearLeft
-                        ? 1.24f
-                        : 1.18f) *
-                    gripMultiplier;
+                    1.08f * gripMultiplier;
                 wheel.sidewaysFriction = sideways;
             }
         }
