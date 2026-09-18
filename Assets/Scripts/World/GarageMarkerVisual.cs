@@ -37,17 +37,31 @@ namespace MotorCity.World
 
             marker =
                 visual.AddComponent<SpriteRenderer>();
+
+            if (sprite == null)
+            {
+                sprite = Sprite.Create(
+                    Texture2D.whiteTexture,
+                    new Rect(0f, 0f, 1f, 1f),
+                    new Vector2(0.5f, 0.5f),
+                    1f);
+
+                sprite.name =
+                    "MotorCity_GarageMarkerFallback";
+
+                visual.transform.localRotation =
+                    Quaternion.Euler(0f, 0f, 45f);
+            }
+
             marker.sprite = sprite;
             marker.color =
                 new Color(0.72f, 0.2f, 1f, 1f);
             marker.sortingOrder = 200;
 
             float spriteSize =
-                sprite == null
-                    ? 1f
-                    : Mathf.Max(
-                        sprite.bounds.size.x,
-                        sprite.bounds.size.y);
+                Mathf.Max(
+                    sprite.bounds.size.x,
+                    sprite.bounds.size.y);
 
             float normalizedScale =
                 TargetMarkerSize /
