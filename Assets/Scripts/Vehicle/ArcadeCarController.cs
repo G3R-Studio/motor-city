@@ -1156,39 +1156,42 @@ namespace MotorCity.Vehicle
         private static Type FindTypeByName(
             string typeName)
         {
-            foreach (System.Reflection.Assembly assembly
-                     in AppDomain.CurrentDomain.GetAssemblies())
+            // Prometeo is imported into the project's default Assembly-CSharp,
+            // the same assembly as Motor City's runtime scripts. Searching only
+            // this assembly avoids AppDomain.GetAssemblies(), which Unity 6.6
+            // warns can expose already-unloaded assemblies.
+            System.Reflection.Assembly assembly =
+                typeof(ArcadeCarController).Assembly;
+
+            Type direct =
+                assembly.GetType(
+                    typeName,
+                    false);
+
+            if (direct != null)
+                return direct;
+
+            Type[] types;
+
+            try
             {
-                Type direct =
-                    assembly.GetType(
-                        typeName,
-                        false);
+                types =
+                    assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException exception)
+            {
+                types =
+                    exception.Types;
+            }
 
-                if (direct != null)
-                    return direct;
+            if (types == null)
+                return null;
 
-                Type[] types;
-
-                try
-                {
-                    types =
-                        assembly.GetTypes();
-                }
-                catch (ReflectionTypeLoadException exception)
-                {
-                    types =
-                        exception.Types;
-                }
-
-                if (types == null)
-                    continue;
-
-                foreach (Type type in types)
-                {
-                    if (type != null &&
-                        type.Name == typeName)
-                        return type;
-                }
+            foreach (Type type in types)
+            {
+                if (type != null &&
+                    type.Name == typeName)
+                    return type;
             }
 
             return null;
