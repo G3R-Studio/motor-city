@@ -11,7 +11,7 @@ namespace MotorCity.Vehicle
         private const int RearLeft = 2;
         private const int RearRight = 3;
 
-        [Header("Road Car Controller")]
+        [Header("Drift-capable Road Controller")]
         [SerializeField] private float brakePower = 10f;
         [SerializeField] private float wheelRotateSpeed = 20f;
         [SerializeField] private float wheelSteeringAngle = 34f;
