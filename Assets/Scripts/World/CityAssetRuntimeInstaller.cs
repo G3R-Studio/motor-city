@@ -135,15 +135,17 @@ namespace MotorCity.World
             {
                 PlayerSpawnPoint = Flat(player.position);
 
-                Vector3 forward =
+                // City 02 road-straight meshes run along their local X axis.
+                // Using Transform.forward places the car across the lane.
+                Vector3 roadDirection =
                     Vector3.ProjectOnPlane(
-                        player.forward,
+                        player.right,
                         Vector3.up);
 
-                if (forward.sqrMagnitude > 0.01f)
+                if (roadDirection.sqrMagnitude > 0.01f)
                     PlayerSpawnRotation =
                         Quaternion.LookRotation(
-                            forward.normalized,
+                            roadDirection.normalized,
                             Vector3.up);
             }
             else
