@@ -203,8 +203,10 @@ namespace MotorCity.World
             Physics.SyncTransforms();
 
             PlayerSpawnPoint =
-                FindDriveableSpawnNear(
-                    preferredSpawn);
+                FindDriveablePointNear(
+                    preferredSpawn,
+                    26f,
+                    "spawn");
 
             reserved.Add(
                 PlayerSpawnPoint);
@@ -215,25 +217,31 @@ namespace MotorCity.World
                     center);
 
             GaragePoint =
-                SelectRoadPoint(
-                    center,
-                    halfX,
-                    halfZ,
-                    new Vector2(-0.58f, 0.08f),
-                    reserved,
-                    Mathf.Min(halfX, halfZ) * 0.18f);
+                FindDriveablePointNear(
+                    SelectRoadPoint(
+                        center,
+                        halfX,
+                        halfZ,
+                        new Vector2(-0.58f, 0.08f),
+                        reserved,
+                        Mathf.Min(halfX, halfZ) * 0.18f),
+                    34f,
+                    "garage");
 
             reserved.Add(
                 GaragePoint);
 
             DriftChallengePoint =
-                SelectRoadPoint(
-                    center,
-                    halfX,
-                    halfZ,
-                    new Vector2(0.46f, 0.12f),
-                    reserved,
-                    Mathf.Min(halfX, halfZ) * 0.22f);
+                FindDriveablePointNear(
+                    SelectRoadPoint(
+                        center,
+                        halfX,
+                        halfZ,
+                        new Vector2(0.46f, 0.12f),
+                        reserved,
+                        Mathf.Min(halfX, halfZ) * 0.22f),
+                    42f,
+                    "drift");
 
             reserved.Add(
                 DriftChallengePoint);
@@ -308,7 +316,7 @@ namespace MotorCity.World
                  i < normalizedPoints.Length;
                  i++)
             {
-                result[i] =
+                Vector3 selected =
                     SelectRoadPoint(
                         center,
                         halfX,
@@ -316,6 +324,12 @@ namespace MotorCity.World
                         normalizedPoints[i],
                         localReserved,
                         minimumSpacing);
+
+                result[i] =
+                    FindDriveablePointNear(
+                        selected,
+                        38f,
+                        "route");
 
                 localReserved.Add(
                     result[i]);
@@ -351,13 +365,14 @@ namespace MotorCity.World
             return result;
         }
 
-        private static Vector3 FindDriveableSpawnNear(
-            Vector3 preferred)
+        private static Vector3 FindDriveablePointNear(
+            Vector3 preferred,
+            float searchRadius,
+            string context)
         {
-            const float searchRadius = 26f;
             const float step = 2f;
-            const float rayHeight = 80f;
-            const float maxRayDistance = 180f;
+            const float rayHeight = 90f;
+            const float maxRayDistance = 220f;
 
             Vector3 best =
                 SelectNearestRoadPoint(
@@ -397,10 +412,12 @@ namespace MotorCity.World
                             : null;
 
                     if (renderer == null)
+                    {
                         renderer =
                             hit.collider != null
                                 ? hit.collider.GetComponentInParent<Renderer>()
                                 : null;
+                    }
 
                     if (!IsDriveableSurface(renderer))
                         continue;
@@ -424,14 +441,23 @@ namespace MotorCity.World
             if (float.IsPositiveInfinity(bestDistance))
             {
                 Debug.LogWarning(
-                    "Motor City: no asphalt raycast surface was found near the preferred spawn; " +
+                    $"Motor City: no asphalt raycast surface was found for {context} near {preferred}; " +
                     $"falling back to road sample {best}.");
             }
             else
             {
                 Debug.Log(
-                    $"Motor City: driveable spawn surface found at {best} near preferred {preferred}.");
+                    $"Motor City: {context} snapped to driveable asphalt at {best} " +
+                    $"from preferred {preferred}.");
             }
+
+            // Put marker anchors a tiny amount above the road to avoid
+            // z-fighting or geometry clipping while keeping gameplay distance
+            // checks effectively on the road surface.
+            best.y +=
+                context == "spawn"
+                    ? 0f
+                    : 0.04f;
 
             return best;
         }
