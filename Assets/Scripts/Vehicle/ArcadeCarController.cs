@@ -770,6 +770,10 @@ namespace MotorCity.Vehicle
             if (body == null) return;
             body.linearVelocity = Vector3.zero;
             body.angularVelocity = Vector3.zero;
+
+            DriftEffects effects =
+                GetComponent<DriftEffects>();
+            effects?.ClearTrails();
         }
     }
 }
