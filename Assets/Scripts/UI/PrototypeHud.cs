@@ -94,12 +94,12 @@ namespace MotorCity.UI
 
             GUI.Label(
                 new Rect(24, 18, 700, 34),
-                $"MOTOR CITY    {credits:N0} CR{upgrades}",
+                $"MOTOR CITY    {credits:N0} КР{upgrades}",
                 primaryStyle);
 
             GUI.Label(
                 new Rect(24, 52, 900, 86),
-                "W/S — газ/реверс   A/D — руль   SPACE — ручник   E — гараж\nR — сброс   ПКМ — камера   Колесо — приближение",
+                "R — сброс   ПКМ — камера   Колесо — приближение",
                 hintStyle);
 
             string status = ResolveStatus();
@@ -123,7 +123,7 @@ namespace MotorCity.UI
             {
                 GUI.Label(
                     new Rect(Screen.width * 0.5f - 220f, 34f, 440f, 46f),
-                    $"ДРИФТ ЗАВЕРШЁН  +{drift.LastBankedCredits:N0} CR",
+                    $"ДРИФТ ЗАВЕРШЁН  +{drift.LastBankedCredits:N0} КР",
                     driftStyle);
             }
         }
