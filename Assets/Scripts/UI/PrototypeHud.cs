@@ -17,19 +17,43 @@ namespace MotorCity.UI
         private GarageUpgradeSystem garage;
 
         private Font font;
+        private Sprite panelSprite;
+
         private Text moneyText;
         private Text upgradesText;
         private Text hintText;
         private Text speedText;
+        private Text speedUnitText;
         private Text statusText;
         private Text driftText;
+
+        private GameObject statusPanel;
         private GameObject driftPanel;
         private GameObject garageOverlay;
+
         private Text garageMoneyText;
         private Text garageStatusText;
-        private readonly Text[] garageTitleTexts = new Text[3];
-        private readonly Text[] garagePriceTexts = new Text[3];
-        private readonly Text[] garageDescriptionTexts = new Text[3];
+        private readonly Text[] garageTitleTexts =
+            new Text[3];
+        private readonly Text[] garagePriceTexts =
+            new Text[3];
+        private readonly Text[] garageDescriptionTexts =
+            new Text[3];
+
+        private static readonly Color PanelColor =
+            new(0.025f, 0.032f, 0.045f, 0.90f);
+        private static readonly Color PanelSoftColor =
+            new(0.035f, 0.045f, 0.06f, 0.82f);
+        private static readonly Color TextColor =
+            new(0.95f, 0.97f, 1f, 1f);
+        private static readonly Color SecondaryTextColor =
+            new(0.66f, 0.72f, 0.8f, 1f);
+        private static readonly Color BlueAccent =
+            new(0.12f, 0.58f, 1f, 1f);
+        private static readonly Color DriftAccent =
+            new(1f, 0.55f, 0.12f, 1f);
+        private static readonly Color GarageAccent =
+            new(0.66f, 0.3f, 1f, 1f);
 
         public void Bind(
             ArcadeCarController controller,
@@ -58,17 +82,36 @@ namespace MotorCity.UI
             if (moneyText == null)
                 return;
 
-            int credits = wallet == null ? 0 : wallet.Credits;
-            moneyText.text = $"MOTOR CITY    {credits:N0} КР";
+            int credits =
+                wallet == null
+                    ? 0
+                    : wallet.Credits;
 
-            upgradesText.text = garage == null
-                ? string.Empty
-                : $"ДВ {garage.EngineLevel}    СЦ {garage.GripLevel}    СТ {garage.StabilityLevel}";
+            moneyText.text =
+                $"{credits:N0} КР";
 
-            float speed = car == null ? 0f : car.SpeedKph;
-            speedText.text = $"{speed:000}\nкм/ч";
+            upgradesText.text =
+                garage == null
+                    ? string.Empty
+                    : $"ДВИГ {garage.EngineLevel}   •   СЦЕП {garage.GripLevel}   •   СТАБ {garage.StabilityLevel}";
 
-            statusText.text = ResolveStatus();
+            float speed =
+                car == null
+                    ? 0f
+                    : car.SpeedKph;
+
+            speedText.text =
+                Mathf.RoundToInt(speed)
+                    .ToString("000");
+
+            string status =
+                ResolveStatus();
+
+            statusPanel.SetActive(
+                !string.IsNullOrWhiteSpace(status));
+
+            if (statusPanel.activeSelf)
+                statusText.text = status;
 
             bool showDrift =
                 drift != null &&
@@ -80,25 +123,27 @@ namespace MotorCity.UI
 
             if (showDrift)
             {
-                if (drift.IsDrifting || drift.CurrentScore > 0)
+                if (drift.IsDrifting ||
+                    drift.CurrentScore > 0)
                 {
                     string combo =
                         drift.Combo > 1.05f
-                            ? $"    x{drift.Combo:0.0}"
+                            ? $"   x{drift.Combo:0.0}"
                             : string.Empty;
 
                     driftText.text =
-                        $"ДРИФТ  {drift.CurrentScore:N0}{combo}";
+                        $"DRIFT   {drift.CurrentScore:N0}{combo}";
                 }
                 else
                 {
                     driftText.text =
-                        $"ДРИФТ ЗАВЕРШЁН   +{drift.LastBankedCredits:N0} КР";
+                        $"DRIFT ЗАВЕРШЁН   +{drift.LastBankedCredits:N0} КР";
                 }
             }
 
             bool garageOpen =
-                garage != null && garage.IsOpen;
+                garage != null &&
+                garage.IsOpen;
 
             garageOverlay.SetActive(garageOpen);
 
@@ -112,15 +157,20 @@ namespace MotorCity.UI
                 Resources.GetBuiltinResource<Font>(
                     "LegacyRuntime.ttf");
 
+            panelSprite =
+                Resources.Load<Sprite>(
+                    "MotorCity/UI/grey_panel");
+
             GameObject canvasObject =
-                new("Motor City Canvas");
+                new("Motor City HUD");
             canvasObject.transform.SetParent(
                 transform,
                 false);
 
             Canvas canvas =
                 canvasObject.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.renderMode =
+                RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
 
             CanvasScaler scaler =
@@ -128,167 +178,247 @@ namespace MotorCity.UI
             scaler.uiScaleMode =
                 CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution =
-                new Vector2(1920f, 1080f);
+                new Vector2(1600f, 900f);
+            scaler.screenMatchMode =
+                CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 0.5f;
 
             canvasObject.AddComponent<GraphicRaycaster>();
 
-            Sprite grey =
-                Resources.Load<Sprite>("MotorCity/UI/grey_panel");
-            Sprite blue =
-                Resources.Load<Sprite>("MotorCity/UI/blue_panel");
-            Sprite green =
-                Resources.Load<Sprite>("MotorCity/UI/green_panel");
-            Sprite yellow =
-                Resources.Load<Sprite>("MotorCity/UI/yellow_panel");
-
-            RectTransform topPanel =
-                CreatePanel(
-                    canvasObject.transform,
-                    "Панель игрока",
-                    grey,
-                    new Vector2(18f, -18f),
-                    new Vector2(470f, 92f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f));
-
-            moneyText =
-                CreateText(
-                    topPanel,
-                    "Деньги",
-                    24,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(22f, -12f),
-                    new Vector2(420f, 36f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f));
-
-            upgradesText =
-                CreateText(
-                    topPanel,
-                    "Улучшения",
-                    18,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(22f, -49f),
-                    new Vector2(420f, 28f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f));
-
-            RectTransform hintPanel =
-                CreatePanel(
-                    canvasObject.transform,
-                    "Подсказки",
-                    grey,
-                    new Vector2(18f, -120f),
-                    new Vector2(470f, 42f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f));
-
-            hintText =
-                CreateText(
-                    hintPanel,
-                    "Текст подсказок",
-                    17,
-                    FontStyle.Normal,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(18f, -6f),
-                    new Vector2(435f, 30f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f));
-
-            hintText.text =
-                "WASD — движение   Space — ручник   R — сброс   ПКМ — камера";
-
-            RectTransform speedPanel =
-                CreatePanel(
-                    canvasObject.transform,
-                    "Скорость",
-                    grey,
-                    new Vector2(-22f, 22f),
-                    new Vector2(210f, 96f),
-                    new Vector2(1f, 0f),
-                    new Vector2(1f, 0f));
-
-            speedText =
-                CreateText(
-                    speedPanel,
-                    "Скорость",
-                    34,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
-                    new Vector2(185f, 80f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f));
-
-            RectTransform statusPanel =
-                CreatePanel(
-                    canvasObject.transform,
-                    "Активность",
-                    grey,
-                    new Vector2(0f, 22f),
-                    new Vector2(920f, 56f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f));
-
-            statusText =
-                CreateText(
-                    statusPanel,
-                    "Статус",
-                    20,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
-                    new Vector2(875f, 42f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f));
-
-            RectTransform driftRect =
-                CreatePanel(
-                    canvasObject.transform,
-                    "Дрифт",
-                    yellow,
-                    new Vector2(0f, -28f),
-                    new Vector2(410f, 64f),
-                    new Vector2(0.5f, 1f),
-                    new Vector2(0.5f, 1f));
-
-            driftPanel = driftRect.gameObject;
-            driftText =
-                CreateText(
-                    driftRect,
-                    "Очки дрифта",
-                    25,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
-                    new Vector2(375f, 50f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f));
-
-            BuildGarage(
-                canvasObject.transform,
-                grey,
-                blue,
-                green,
-                yellow);
+            BuildPlayerCard(canvasObject.transform);
+            BuildSpeedometer(canvasObject.transform);
+            BuildStatus(canvasObject.transform);
+            BuildControlsHint(canvasObject.transform);
+            BuildDriftPanel(canvasObject.transform);
+            BuildGarage(canvasObject.transform);
 
             driftPanel.SetActive(false);
             garageOverlay.SetActive(false);
         }
 
-        private void BuildGarage(
-            Transform canvas,
-            Sprite grey,
-            Sprite blue,
-            Sprite green,
-            Sprite yellow)
+        private void BuildPlayerCard(Transform canvas)
+        {
+            RectTransform card =
+                CreatePanel(
+                    canvas,
+                    "Player Card",
+                    new Vector2(18f, -18f),
+                    new Vector2(318f, 76f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    PanelColor);
+
+            CreateAccent(
+                card,
+                BlueAccent,
+                new Vector2(5f, -8f),
+                new Vector2(4f, 60f),
+                new Vector2(0f, 1f),
+                new Vector2(0f, 1f));
+
+            Text label =
+                CreateText(
+                    card,
+                    "City Label",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(20f, -9f),
+                    new Vector2(150f, 18f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    SecondaryTextColor);
+            label.text = "MOTOR CITY";
+
+            moneyText =
+                CreateText(
+                    card,
+                    "Credits",
+                    24,
+                    FontStyle.Bold,
+                    TextAnchor.UpperRight,
+                    new Vector2(-14f, -8f),
+                    new Vector2(150f, 30f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
+                    TextColor);
+
+            upgradesText =
+                CreateText(
+                    card,
+                    "Upgrades",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.LowerLeft,
+                    new Vector2(20f, 10f),
+                    new Vector2(282f, 24f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    SecondaryTextColor);
+        }
+
+        private void BuildSpeedometer(Transform canvas)
+        {
+            RectTransform panel =
+                CreatePanel(
+                    canvas,
+                    "Speedometer",
+                    new Vector2(-20f, 20f),
+                    new Vector2(174f, 112f),
+                    new Vector2(1f, 0f),
+                    new Vector2(1f, 0f),
+                    PanelColor);
+
+            CreateAccent(
+                panel,
+                BlueAccent,
+                new Vector2(-9f, 8f),
+                new Vector2(156f, 4f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f));
+
+            speedText =
+                CreateText(
+                    panel,
+                    "Speed",
+                    50,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, 12f),
+                    new Vector2(158f, 68f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+
+            speedUnitText =
+                CreateText(
+                    panel,
+                    "Speed Unit",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -32f),
+                    new Vector2(130f, 20f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    SecondaryTextColor);
+            speedUnitText.text = "КМ/Ч";
+        }
+
+        private void BuildStatus(Transform canvas)
+        {
+            RectTransform panel =
+                CreatePanel(
+                    canvas,
+                    "Activity Status",
+                    new Vector2(0f, -18f),
+                    new Vector2(720f, 46f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    PanelSoftColor);
+
+            statusPanel = panel.gameObject;
+
+            CreateAccent(
+                panel,
+                BlueAccent,
+                new Vector2(0f, -4f),
+                new Vector2(650f, 3f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f));
+
+            statusText =
+                CreateText(
+                    panel,
+                    "Status Text",
+                    18,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -2f),
+                    new Vector2(684f, 34f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+        }
+
+        private void BuildControlsHint(Transform canvas)
+        {
+            RectTransform panel =
+                CreatePanel(
+                    canvas,
+                    "Controls Hint",
+                    new Vector2(18f, 20f),
+                    new Vector2(438f, 34f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Color(
+                        PanelSoftColor.r,
+                        PanelSoftColor.g,
+                        PanelSoftColor.b,
+                        0.72f));
+
+            hintText =
+                CreateText(
+                    panel,
+                    "Controls Text",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(14f, 0f),
+                    new Vector2(410f, 24f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    SecondaryTextColor);
+
+            hintText.text =
+                "WASD  ДВИЖЕНИЕ   SPACE  РУЧНИК   R  СБРОС   ПКМ  КАМЕРА";
+        }
+
+        private void BuildDriftPanel(Transform canvas)
+        {
+            RectTransform panel =
+                CreatePanel(
+                    canvas,
+                    "Drift HUD",
+                    new Vector2(0f, -76f),
+                    new Vector2(340f, 54f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    new Color(
+                        0.10f,
+                        0.055f,
+                        0.025f,
+                        0.92f));
+
+            driftPanel = panel.gameObject;
+
+            CreateAccent(
+                panel,
+                DriftAccent,
+                new Vector2(0f, -4f),
+                new Vector2(296f, 4f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f));
+
+            driftText =
+                CreateText(
+                    panel,
+                    "Drift Score",
+                    22,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -2f),
+                    new Vector2(310f, 38f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+        }
+
+        private void BuildGarage(Transform canvas)
         {
             garageOverlay =
                 new GameObject(
-                    "Гараж UI",
+                    "Garage Overlay",
                     typeof(RectTransform),
                     typeof(Image));
 
@@ -306,127 +436,156 @@ namespace MotorCity.UI
             Image backdrop =
                 garageOverlay.GetComponent<Image>();
             backdrop.color =
-                new Color(0f, 0f, 0f, 0.48f);
+                new Color(0.005f, 0.008f, 0.012f, 0.68f);
             backdrop.raycastTarget = false;
 
             RectTransform panel =
                 CreatePanel(
                     garageOverlay.transform,
-                    "Панель гаража",
-                    grey,
+                    "Garage Panel",
                     Vector2.zero,
-                    new Vector2(800f, 500f),
+                    new Vector2(760f, 446f),
                     new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f));
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        0.02f,
+                        0.026f,
+                        0.038f,
+                        0.98f));
 
-            CreateText(
+            CreateAccent(
                 panel,
-                "Заголовок гаража",
-                34,
-                FontStyle.Bold,
-                TextAnchor.MiddleLeft,
-                new Vector2(30f, -24f),
-                new Vector2(560f, 52f),
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f)).text =
-                    "ГАРАЖ MOTOR CITY";
+                GarageAccent,
+                new Vector2(0f, -5f),
+                new Vector2(690f, 5f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f));
+
+            Text title =
+                CreateText(
+                    panel,
+                    "Garage Title",
+                    27,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(28f, -28f),
+                    new Vector2(390f, 42f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    TextColor);
+            title.text = "ГАРАЖ";
 
             garageMoneyText =
                 CreateText(
                     panel,
-                    "Деньги гаража",
-                    25,
+                    "Garage Credits",
+                    22,
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
-                    new Vector2(-30f, -24f),
-                    new Vector2(260f, 52f),
+                    new Vector2(-28f, -28f),
+                    new Vector2(250f, 42f),
                     new Vector2(1f, 1f),
-                    new Vector2(1f, 1f));
+                    new Vector2(1f, 1f),
+                    TextColor);
 
-            Sprite[] rowSprites =
+            Color[] accents =
             {
-                blue,
-                green,
-                yellow
+                new(0.12f, 0.58f, 1f, 1f),
+                new(0.12f, 0.9f, 0.58f, 1f),
+                new(1f, 0.62f, 0.12f, 1f)
             };
 
             for (int i = 0; i < 3; i++)
             {
-                float y = -108f - i * 104f;
+                float y =
+                    -104f - i * 92f;
 
                 RectTransform row =
                     CreatePanel(
                         panel,
-                        $"Улучшение {i + 1}",
-                        rowSprites[i],
-                        new Vector2(30f, y),
-                        new Vector2(740f, 84f),
+                        $"Upgrade {i + 1}",
+                        new Vector2(28f, y),
+                        new Vector2(704f, 76f),
                         new Vector2(0f, 1f),
-                        new Vector2(0f, 1f));
+                        new Vector2(0f, 1f),
+                        PanelSoftColor);
+
+                CreateAccent(
+                    row,
+                    accents[i],
+                    new Vector2(5f, -7f),
+                    new Vector2(4f, 62f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f));
 
                 garageTitleTexts[i] =
                     CreateText(
                         row,
-                        "Название",
-                        22,
+                        "Upgrade Title",
+                        18,
                         FontStyle.Bold,
-                        TextAnchor.MiddleLeft,
+                        TextAnchor.UpperLeft,
                         new Vector2(18f, -8f),
-                        new Vector2(420f, 28f),
+                        new Vector2(440f, 26f),
                         new Vector2(0f, 1f),
-                        new Vector2(0f, 1f));
+                        new Vector2(0f, 1f),
+                        TextColor);
 
                 garagePriceTexts[i] =
                     CreateText(
                         row,
-                        "Цена",
-                        22,
+                        "Upgrade Price",
+                        17,
                         FontStyle.Bold,
-                        TextAnchor.MiddleRight,
-                        new Vector2(-18f, -8f),
-                        new Vector2(220f, 32f),
+                        TextAnchor.UpperRight,
+                        new Vector2(-16f, -8f),
+                        new Vector2(210f, 26f),
                         new Vector2(1f, 1f),
-                        new Vector2(1f, 1f));
+                        new Vector2(1f, 1f),
+                        accents[i]);
 
                 garageDescriptionTexts[i] =
                     CreateText(
                         row,
-                        "Описание",
-                        16,
+                        "Upgrade Description",
+                        14,
                         FontStyle.Normal,
-                        TextAnchor.MiddleLeft,
-                        new Vector2(18f, -44f),
-                        new Vector2(690f, 26f),
-                        new Vector2(0f, 1f),
-                        new Vector2(0f, 1f));
+                        TextAnchor.LowerLeft,
+                        new Vector2(18f, 9f),
+                        new Vector2(650f, 28f),
+                        new Vector2(0f, 0f),
+                        new Vector2(0f, 0f),
+                        SecondaryTextColor);
             }
 
             garageStatusText =
                 CreateText(
                     panel,
-                    "Статус гаража",
-                    17,
+                    "Garage Status",
+                    14,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(30f, 62f),
-                    new Vector2(560f, 34f),
+                    new Vector2(28f, 26f),
+                    new Vector2(420f, 26f),
                     new Vector2(0f, 0f),
-                    new Vector2(0f, 0f));
+                    new Vector2(0f, 0f),
+                    SecondaryTextColor);
 
             Text footer =
                 CreateText(
                     panel,
-                    "Управление гаражом",
-                    17,
-                    FontStyle.Normal,
+                    "Garage Controls",
+                    14,
+                    FontStyle.Bold,
                     TextAnchor.MiddleRight,
-                    new Vector2(-30f, 62f),
-                    new Vector2(360f, 34f),
+                    new Vector2(-28f, 26f),
+                    new Vector2(320f, 26f),
                     new Vector2(1f, 0f),
-                    new Vector2(1f, 0f));
+                    new Vector2(1f, 0f),
+                    SecondaryTextColor);
 
             footer.text =
-                "1 / 2 / 3 — купить    E / Esc — закрыть";
+                "1 / 2 / 3  КУПИТЬ    E / ESC  ЗАКРЫТЬ";
         }
 
         private void UpdateGarage()
@@ -438,8 +597,10 @@ namespace MotorCity.UI
             {
                 garageTitleTexts[i].text =
                     garage.GetUpgradeTitle(i);
+
                 garagePriceTexts[i].text =
                     garage.GetUpgradePrice(i);
+
                 garageDescriptionTexts[i].text =
                     garage.GetUpgradeDescription(i);
             }
@@ -462,26 +623,31 @@ namespace MotorCity.UI
             {
                 return activityManager.ActiveId switch
                 {
-                    "delivery" => delivery?.StatusText,
-                    "drift" => driftChallenge?.StatusText,
-                    "sprint" => streetSprint?.StatusText,
-                    "garage" => garage?.StatusText,
-                    _ => activityManager.ActiveName
+                    "delivery" =>
+                        delivery?.StatusText,
+                    "drift" =>
+                        driftChallenge?.StatusText,
+                    "sprint" =>
+                        streetSprint?.StatusText,
+                    "garage" =>
+                        garage?.StatusText,
+                    _ =>
+                        activityManager.ActiveName
                 };
             }
 
             return
-                "СИНИЙ — доставка   •   ОРАНЖЕВЫЙ — дрифт   •   ЗЕЛЁНЫЙ — спринт   •   ФИОЛЕТОВЫЙ — гараж";
+                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   ГАРАЖ";
         }
 
         private RectTransform CreatePanel(
             Transform parent,
             string name,
-            Sprite sprite,
             Vector2 anchoredPosition,
             Vector2 size,
             Vector2 anchor,
-            Vector2 pivot)
+            Vector2 pivot,
+            Color color)
         {
             GameObject go =
                 new(
@@ -489,34 +655,82 @@ namespace MotorCity.UI
                     typeof(RectTransform),
                     typeof(Image));
 
-            go.transform.SetParent(parent, false);
+            go.transform.SetParent(
+                parent,
+                false);
 
             RectTransform rect =
                 go.GetComponent<RectTransform>();
+
             rect.anchorMin = anchor;
             rect.anchorMax = anchor;
             rect.pivot = pivot;
-            rect.anchoredPosition = anchoredPosition;
+            rect.anchoredPosition =
+                anchoredPosition;
             rect.sizeDelta = size;
 
             Image image =
                 go.GetComponent<Image>();
 
             image.raycastTarget = false;
+            image.color = color;
 
-            if (sprite != null)
+            if (panelSprite != null)
             {
-                image.sprite = sprite;
+                image.sprite = panelSprite;
                 image.type = Image.Type.Sliced;
-                image.color = Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(0.08f, 0.095f, 0.12f, 0.92f);
             }
 
+            Outline outline =
+                go.AddComponent<Outline>();
+
+            outline.effectColor =
+                new Color(
+                    0.35f,
+                    0.5f,
+                    0.72f,
+                    0.14f);
+
+            outline.effectDistance =
+                new Vector2(1f, -1f);
+
+            outline.useGraphicAlpha = true;
             return rect;
+        }
+
+        private static void CreateAccent(
+            Transform parent,
+            Color color,
+            Vector2 anchoredPosition,
+            Vector2 size,
+            Vector2 anchor,
+            Vector2 pivot)
+        {
+            GameObject go =
+                new(
+                    "Accent",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            go.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                go.GetComponent<RectTransform>();
+
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = pivot;
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta = size;
+
+            Image image =
+                go.GetComponent<Image>();
+
+            image.color = color;
+            image.raycastTarget = false;
         }
 
         private Text CreateText(
@@ -528,7 +742,8 @@ namespace MotorCity.UI
             Vector2 anchoredPosition,
             Vector2 size,
             Vector2 anchor,
-            Vector2 pivot)
+            Vector2 pivot,
+            Color color)
         {
             GameObject go =
                 new(
@@ -536,37 +751,48 @@ namespace MotorCity.UI
                     typeof(RectTransform),
                     typeof(Text));
 
-            go.transform.SetParent(parent, false);
+            go.transform.SetParent(
+                parent,
+                false);
 
             RectTransform rect =
                 go.GetComponent<RectTransform>();
+
             rect.anchorMin = anchor;
             rect.anchorMax = anchor;
             rect.pivot = pivot;
-            rect.anchoredPosition = anchoredPosition;
+            rect.anchoredPosition =
+                anchoredPosition;
             rect.sizeDelta = size;
 
             Text text =
                 go.GetComponent<Text>();
+
             text.font = font;
             text.fontSize = fontSize;
             text.fontStyle = fontStyle;
             text.alignment = alignment;
-            text.color =
-                new Color(0.055f, 0.065f, 0.085f, 1f);
+            text.color = color;
             text.raycastTarget = false;
+
+            text.horizontalOverflow =
+                HorizontalWrapMode.Wrap;
+            text.verticalOverflow =
+                VerticalWrapMode.Truncate;
+
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize =
+                Mathf.Max(10, fontSize - 5);
+            text.resizeTextMaxSize = fontSize;
 
             Shadow shadow =
                 go.AddComponent<Shadow>();
+
             shadow.effectColor =
-                new Color(1f, 1f, 1f, 0.55f);
+                new Color(0f, 0f, 0f, 0.72f);
             shadow.effectDistance =
                 new Vector2(1f, -1f);
             shadow.useGraphicAlpha = true;
-            text.horizontalOverflow =
-                HorizontalWrapMode.Overflow;
-            text.verticalOverflow =
-                VerticalWrapMode.Overflow;
 
             return text;
         }
