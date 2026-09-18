@@ -267,53 +267,90 @@ namespace MotorCity.Gameplay
 
         private void EnsureStyles()
         {
-            if (titleStyle != null) return;
-
-            titleStyle = new GUIStyle(GUI.skin.label)
+            if (titleStyle == null)
             {
-                fontSize = 24,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleLeft
-            };
-            titleStyle.normal.textColor = Color.white;
+                titleStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 24,
+                    fontStyle = FontStyle.Bold,
+                    alignment = TextAnchor.MiddleLeft
+                };
+                titleStyle.normal.textColor = Color.white;
+            }
 
-            moneyStyle = new GUIStyle(GUI.skin.label)
+            if (moneyStyle == null)
             {
-                fontSize = 23,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleLeft
-            };
-            moneyStyle.normal.textColor = Color.white;
+                moneyStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 23,
+                    fontStyle = FontStyle.Bold,
+                    alignment = TextAnchor.MiddleLeft
+                };
+                moneyStyle.normal.textColor = Color.white;
+            }
 
-            itemStyle = new GUIStyle(GUI.skin.label)
+            if (itemStyle == null)
             {
-                fontSize = 17,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleLeft
-            };
-            itemStyle.normal.textColor = Color.white;
+                itemStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 17,
+                    fontStyle = FontStyle.Bold,
+                    alignment = TextAnchor.MiddleLeft
+                };
+                itemStyle.normal.textColor = Color.white;
+            }
 
-            priceStyle = new GUIStyle(GUI.skin.label)
+            if (priceStyle == null)
             {
-                fontSize = 17,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleRight
-            };
-            priceStyle.normal.textColor = Color.white;
+                priceStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 17,
+                    fontStyle = FontStyle.Bold,
+                    alignment = TextAnchor.MiddleRight
+                };
+                priceStyle.normal.textColor = Color.white;
+            }
 
-            descriptionStyle = new GUIStyle(GUI.skin.label)
+            if (descriptionStyle == null)
             {
-                fontSize = 14,
-                alignment = TextAnchor.MiddleLeft
-            };
-            descriptionStyle.normal.textColor = new Color(1f, 1f, 1f, 0.78f);
+                descriptionStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 14,
+                    alignment = TextAnchor.MiddleLeft
+                };
+                descriptionStyle.normal.textColor = new Color(1f, 1f, 1f, 0.78f);
+            }
 
-            hintStyle = new GUIStyle(GUI.skin.label)
+            if (hintStyle == null)
             {
-                fontSize = 15,
-                alignment = TextAnchor.MiddleLeft
-            };
-            hintStyle.normal.textColor = new Color(1f, 1f, 1f, 0.72f);
+                hintStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 15,
+                    alignment = TextAnchor.MiddleLeft
+                };
+                hintStyle.normal.textColor = new Color(1f, 1f, 1f, 0.72f);
+            }
+        }
+
+        private void OnDisable()
+        {
+            RestoreDriving();
+        }
+
+        private void OnDestroy()
+        {
+            RestoreDriving();
+        }
+
+        private void RestoreDriving()
+        {
+            if (car != null)
+                car.SetDrivingEnabled(true);
+
+            if (activityManager != null)
+                activityManager.End(ActivityId);
+
+            IsOpen = false;
         }
 
         private static Vector3 Flat(Vector3 value)
