@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MotorCity.Gameplay;
 using UnityEngine;
 
@@ -6,34 +7,62 @@ namespace MotorCity.World
     public sealed class GarageMarkerVisual : MonoBehaviour
     {
         private GarageUpgradeSystem garage;
-        private Renderer markerRenderer;
-        private Material markerMaterial;
-        private Vector3 baseScale;
+        private Renderer[] markerRenderers;
+        private Material[] markerMaterials;
 
         public void Bind(GarageUpgradeSystem target)
         {
             garage = target;
-            markerRenderer = GetComponent<Renderer>();
-            markerMaterial = markerRenderer != null ? markerRenderer.material : null;
-            baseScale = transform.localScale;
+            CacheVisuals();
+
             if (garage != null)
-                transform.position = garage.GarageCenter + Vector3.up * 0.1f;
+                transform.position = garage.GarageCenter;
+        }
+
+        private void CacheVisuals()
+        {
+            markerRenderers = GetComponentsInChildren<Renderer>(true);
+            List<Material> materials = new();
+
+            foreach (Renderer renderer in markerRenderers)
+            {
+                if (renderer == null) continue;
+                materials.AddRange(renderer.materials);
+            }
+
+            markerMaterials = materials.ToArray();
         }
 
         private void Update()
         {
             if (garage == null) return;
 
-            float pulse = 1f + Mathf.Sin(Time.time * 3.8f) * 0.075f;
-            transform.localScale = new Vector3(baseScale.x * pulse, baseScale.y, baseScale.z * pulse);
-            transform.position = garage.GarageCenter + Vector3.up * (0.1f + Mathf.Sin(Time.time * 2.5f) * 0.04f);
+            transform.position = garage.GarageCenter;
 
-            if (markerMaterial != null)
+            Color tint = garage.IsOpen
+                ? new Color(0.95f, 0.42f, 1f)
+                : new Color(0.78f, 0.42f, 1f);
+
+            if (markerMaterials == null) return;
+
+            foreach (Material material in markerMaterials)
             {
-                Color target = garage.IsOpen
-                    ? new Color(0.95f, 0.28f, 1f, 1f)
-                    : new Color(0.72f, 0.16f, 1f, 1f);
-                markerMaterial.color = Color.Lerp(markerMaterial.color, target, Time.deltaTime * 6f);
+                if (material == null) continue;
+
+                Color current = material.HasProperty("_BaseColor")
+                    ? material.GetColor("_BaseColor")
+                    : material.color;
+
+                Color next =
+                    Color.Lerp(
+                        current,
+                        tint,
+                        Time.deltaTime * 3f);
+
+                if (material.HasProperty("_BaseColor"))
+                    material.SetColor("_BaseColor", next);
+                else if (material.HasProperty("_Color"))
+                    material.color = next;
             }
         }
     }
