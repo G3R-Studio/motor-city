@@ -11,35 +11,41 @@ namespace MotorCity.Vehicle
         private const int RearLeft = 2;
         private const int RearRight = 3;
 
-        [Header("Pro Drift Controller v1")]
+        [Header("Road Car Controller")]
         [SerializeField] private float brakePower = 10f;
         [SerializeField] private float wheelRotateSpeed = 20f;
-        [SerializeField] private float wheelSteeringAngle = 40f;
-        [SerializeField] private float wheelAcceleration = 30f;
-        [SerializeField] private float wheelMaxSpeed = 2000f;
+        [SerializeField] private float wheelSteeringAngle = 34f;
+        [SerializeField] private float wheelAcceleration = 18f;
+        [SerializeField] private float wheelMaxSpeed = 1450f;
+        [SerializeField] private float serviceBrakeTorque = 9200f;
+        [SerializeField] private float reverseMotorTorque = 760f;
+        [SerializeField] private float maxReverseSpeedKph = 48f;
+        [SerializeField] private float highSpeedSteerAngle = 9f;
+        [SerializeField] private float steerFadeSpeedKph = 145f;
+        [SerializeField] private float aerodynamicDownforce = 7.5f;
 
         [Header("Prefab Rigidbody")]
-        [SerializeField] private float vehicleMass = 2400f;
-        [SerializeField] private float angularDrag = 0.32f;
-        [SerializeField] private float reverseDrag = 0.3f;
-        [SerializeField] private Vector3 centerOfMass = new(0f, 0.42f, 0.08f);
-        [SerializeField] private float antiRollForce = 4600f;
+        [SerializeField] private float vehicleMass = 1480f;
+        [SerializeField] private float angularDrag = 0.42f;
+        [SerializeField] private float reverseDrag = 0.08f;
+        [SerializeField] private Vector3 centerOfMass = new(0f, 0.32f, 0.05f);
+        [SerializeField] private float antiRollForce = 6200f;
         [SerializeField] private float physicsHalfTrack = 1.05f;
         [SerializeField] private float physicsHalfWheelbase = 1.72f;
 
         [Header("Prefab WheelCollider")]
         [SerializeField] private float wheelRadius = 0.5f;
-        [SerializeField] private float wheelMass = 20f;
-        [SerializeField] private float suspensionDistance = 0.34f;
-        [SerializeField] private float suspensionSpring = 56000f;
-        [SerializeField] private float suspensionDamper = 3200f;
+        [SerializeField] private float wheelMass = 18f;
+        [SerializeField] private float suspensionDistance = 0.28f;
+        [SerializeField] private float suspensionSpring = 36000f;
+        [SerializeField] private float suspensionDamper = 4200f;
         [SerializeField] private float suspensionTargetPosition = 0.5f;
         [SerializeField] private float forceAppPointDistance = 0.02f;
         [SerializeField] private float wheelDampingRate = 0.25f;
 
         [Header("Handbrake")]
-        [SerializeField] private float handbrakeRearTorque = 18000f;
-        [SerializeField] private float handbrakeDeceleration = 8.5f;
+        [SerializeField] private float handbrakeRearTorque = 10500f;
+        [SerializeField] private float handbrakeDeceleration = 2.2f;
         [SerializeField] private float parkingBrakeTorque = 30000f;
         [SerializeField] private float parkingBrakeSpeedKph = 8f;
 
@@ -203,20 +209,20 @@ namespace MotorCity.Vehicle
                 wheel.suspensionSpring = spring;
 
                 WheelFrictionCurve forward = wheel.forwardFriction;
-                forward.extremumSlip = 0.4f;
+                forward.extremumSlip = 0.32f;
                 forward.extremumValue = 1f;
-                forward.asymptoteSlip = 0.8f;
-                forward.asymptoteValue = 0.5f;
-                forward.stiffness = 1f;
+                forward.asymptoteSlip = 0.72f;
+                forward.asymptoteValue = 0.72f;
+                forward.stiffness = 1.12f;
                 wheel.forwardFriction = forward;
 
                 WheelFrictionCurve sideways = wheel.sidewaysFriction;
-                sideways.extremumSlip = 0.8f;
+                sideways.extremumSlip = 0.28f;
                 sideways.extremumValue = 1f;
-                sideways.asymptoteSlip = 0.5f;
-                sideways.asymptoteValue = 0.75f;
-                float gripMultiplier = 1f + gripUpgradeLevel * 0.10f;
-                sideways.stiffness = (i < 2 ? 1.16f : 1.10f) * gripMultiplier;
+                sideways.asymptoteSlip = 0.58f;
+                sideways.asymptoteValue = 0.78f;
+                float gripMultiplier = 1f + gripUpgradeLevel * 0.08f;
+                sideways.stiffness = (i < 2 ? 1.22f : 1.16f) * gripMultiplier;
                 wheel.sidewaysFriction = sideways;
             }
 
@@ -380,73 +386,79 @@ namespace MotorCity.Vehicle
 
         private void ApplySourceController()
         {
+            float absSpeed = Mathf.Abs(ForwardSpeedKph);
+            float steerT = Mathf.InverseLerp(20f, steerFadeSpeedKph, absSpeed);
+            float steerLimit = Mathf.Lerp(wheelSteeringAngle, highSpeedSteerAngle, steerT);
+            float targetSteer = horizontal * steerLimit;
+
+            bool brakingForward = vertical < -0.05f && ForwardSpeedKph > 3f;
+            bool brakingReverse = vertical > 0.05f && ForwardSpeedKph < -3f;
+            bool wantsReverse = vertical < -0.05f && ForwardSpeedKph <= 3f;
+            bool wantsForward = vertical > 0.05f && ForwardSpeedKph >= -3f;
+
             for (int i = 0; i < 4; i++)
             {
                 WheelCollider wheel = wheelColliders[i];
                 if (wheel == null) continue;
 
-                // WheelController.cs: return steering to zero every frame.
-                steeringAngles[i] =
-                    Mathf.LerpAngle(
+                bool frontWheel = i < 2;
+                bool drivenWheel = i >= RearLeft;
+
+                steeringAngles[i] = frontWheel
+                    ? Mathf.LerpAngle(
                         steeringAngles[i],
-                        0f,
-                        SourceLerpFactor(wheelRotateSpeed));
+                        targetSteer,
+                        SourceLerpFactor(wheelRotateSpeed))
+                    : 0f;
 
-                // Preserve WheelController.cs torque math in its original coordinate
-                // convention, then invert once for Motor City's +Z forward axis.
-                sourceMotorTorque[i] =
-                    -Mathf.Lerp(
-                        sourceMotorTorque[i],
-                        0f,
-                        SourceLerpFactor(wheelAcceleration));
+                wheel.steerAngle = frontWheel ? steeringAngles[i] : 0f;
+                wheel.motorTorque = 0f;
+                wheel.brakeTorque = 0f;
 
-                if (vertical > 0.1f)
+                if (brakingForward || brakingReverse)
                 {
-                    sourceMotorTorque[i] =
-                        -Mathf.Lerp(
-                            sourceMotorTorque[i],
-                            wheelMaxSpeed,
-                            SourceLerpFactor(wheelAcceleration));
+                    wheel.brakeTorque =
+                        serviceBrakeTorque * Mathf.Abs(vertical) *
+                        (frontWheel ? 0.62f : 0.38f);
+                    sourceMotorTorque[i] = 0f;
+                    continue;
                 }
 
-                if (vertical < -0.1f)
+                if (!drivenWheel)
                 {
-                    sourceMotorTorque[i] =
-                        Mathf.Lerp(
-                            sourceMotorTorque[i],
-                            wheelMaxSpeed,
-                            SourceLerpFactor(wheelAcceleration * brakePower));
+                    sourceMotorTorque[i] = 0f;
+                    continue;
                 }
 
-                wheel.motorTorque = -sourceMotorTorque[i];
+                float requestedTorque = 0f;
 
-                if (horizontal > 0.1f)
-                {
-                    steeringAngles[i] =
-                        Mathf.LerpAngle(
-                            steeringAngles[i],
-                            wheelSteeringAngle,
-                            SourceLerpFactor(wheelRotateSpeed));
-                }
+                if (wantsForward)
+                    requestedTorque = wheelMaxSpeed * vertical;
+                else if (wantsReverse && absSpeed < maxReverseSpeedKph)
+                    requestedTorque = reverseMotorTorque * vertical;
 
-                if (horizontal < -0.1f)
-                {
-                    steeringAngles[i] =
-                        Mathf.LerpAngle(
-                            steeringAngles[i],
-                            -wheelSteeringAngle,
-                            SourceLerpFactor(wheelRotateSpeed));
-                }
+                sourceMotorTorque[i] = Mathf.Lerp(
+                    sourceMotorTorque[i],
+                    requestedTorque,
+                    SourceLerpFactor(wheelAcceleration));
 
-                // In the source prefab all four wheels receive motor torque,
-                // while only the front WheelAlignment components are steerable.
-                wheel.steerAngle = i < 2 ? steeringAngles[i] : 0f;
+                wheel.motorTorque = sourceMotorTorque[i];
             }
 
-            body.linearDamping = vertical < -0.1f ? reverseDrag : 0f;
-            body.angularDamping = angularDrag * (1f + stabilityUpgradeLevel * 0.12f);
-        }
+            body.linearDamping =
+                Mathf.Abs(vertical) < 0.05f ? 0.018f : reverseDrag;
+            body.angularDamping =
+                angularDrag * (1f + stabilityUpgradeLevel * 0.14f);
 
+            if (GroundedWheels >= 2 && body.linearVelocity.sqrMagnitude > 4f)
+            {
+                body.AddForce(
+                    -transform.up *
+                    aerodynamicDownforce *
+                    body.linearVelocity.sqrMagnitude,
+                    ForceMode.Force);
+            }
+        }
 
         private void ApplyHandbrake()
         {
@@ -498,8 +510,8 @@ namespace MotorCity.Vehicle
             gripUpgradeLevel = Mathf.Clamp(gripLevel, 0, 3);
             stabilityUpgradeLevel = Mathf.Clamp(stabilityLevel, 0, 3);
 
-            wheelMaxSpeed = 2000f * (1f + engineUpgradeLevel * 0.12f);
-            wheelAcceleration = 30f * (1f + engineUpgradeLevel * 0.10f);
+            wheelMaxSpeed = 1450f * (1f + engineUpgradeLevel * 0.12f);
+            wheelAcceleration = 18f * (1f + engineUpgradeLevel * 0.08f);
 
             for (int i = 0; i < wheelColliders.Length; i++)
             {
@@ -507,8 +519,8 @@ namespace MotorCity.Vehicle
                 if (wheel == null) continue;
 
                 WheelFrictionCurve sideways = wheel.sidewaysFriction;
-                float gripMultiplier = 1f + gripUpgradeLevel * 0.10f;
-                sideways.stiffness = (i < 2 ? 1.16f : 1.10f) * gripMultiplier;
+                float gripMultiplier = 1f + gripUpgradeLevel * 0.08f;
+                sideways.stiffness = (i < 2 ? 1.22f : 1.16f) * gripMultiplier;
                 wheel.sidewaysFriction = sideways;
             }
 
