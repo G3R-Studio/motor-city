@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -6,16 +7,28 @@ namespace MotorCity.Gameplay
     {
         private DeliveryActivity activity;
         private ActivityManager activityManager;
-        private Renderer markerRenderer;
-        private Material markerMaterial;
+        private Renderer[] markerRenderers;
+        private Material[] markerMaterials;
 
         public void Bind(DeliveryActivity targetActivity, ActivityManager manager)
         {
             activity = targetActivity;
             activityManager = manager;
-            markerRenderer = GetComponent<Renderer>();
-            if (markerRenderer != null)
-                markerMaterial = markerRenderer.material;
+            CacheVisuals();
+        }
+
+        private void CacheVisuals()
+        {
+            markerRenderers = GetComponentsInChildren<Renderer>(true);
+            List<Material> materials = new();
+
+            foreach (Renderer renderer in markerRenderers)
+            {
+                if (renderer == null) continue;
+                materials.AddRange(renderer.materials);
+            }
+
+            markerMaterials = materials.ToArray();
         }
 
         private void Update()
@@ -27,9 +40,7 @@ namespace MotorCity.Gameplay
                 !activityManager.IsBusy ||
                 activityManager.IsActive("delivery");
 
-            if (markerRenderer != null)
-                markerRenderer.enabled = visible;
-
+            SetVisible(visible);
             if (!visible) return;
 
             Vector3 target = activity.CurrentTarget;
@@ -38,21 +49,38 @@ namespace MotorCity.Gameplay
                 1.25f + Mathf.Sin(Time.time * 3f) * 0.18f,
                 target.z);
 
-            transform.Rotate(0f, 55f * Time.deltaTime, 0f, Space.World);
+            transform.Rotate(
+                0f,
+                55f * Time.deltaTime,
+                0f,
+                Space.World);
 
-            if (markerMaterial != null)
+            Color tint = activity.IsActive
+                ? new Color(1f, 0.72f, 0.18f)
+                : new Color(0.22f, 0.62f, 1f);
+
+            Tint(tint);
+        }
+
+        private void SetVisible(bool visible)
+        {
+            if (markerRenderers == null) return;
+            foreach (Renderer renderer in markerRenderers)
+                if (renderer != null)
+                    renderer.enabled = visible;
+        }
+
+        private void Tint(Color color)
+        {
+            if (markerMaterials == null) return;
+
+            foreach (Material material in markerMaterials)
             {
-                Color baseColor = activity.IsActive
-                    ? new Color(1f, 0.62f, 0.08f)
-                    : new Color(0.08f, 0.5f, 1f);
-
-                markerMaterial.color = baseColor;
-
-                if (markerMaterial.HasProperty("_EmissionColor"))
-                {
-                    markerMaterial.EnableKeyword("_EMISSION");
-                    markerMaterial.SetColor("_EmissionColor", baseColor * 2.2f);
-                }
+                if (material == null) continue;
+                if (material.HasProperty("_BaseColor"))
+                    material.SetColor("_BaseColor", color);
+                else if (material.HasProperty("_Color"))
+                    material.color = color;
             }
         }
     }
