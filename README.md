@@ -12,22 +12,22 @@ The project currently includes:
 
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
-- Pro Drift Controller v1 vehicle physics adapted to Unity 6 and the Input System, including the source project's 0.02 s physics timestep, solver settings and legacy Input.GetAxis snap behavior;
-- a Rigidbody chassis with four driven WheelColliders, a decoupled physical wheelbase/track derived from the source prefab proportions and optional body colliders from the imported racing-car prefab;
-- the source controller's steering interpolation, four-wheel motor torque, reverse drag and acceleration behavior;
-- the source prefab's WheelCollider suspension and friction settings;
+- road-focused WheelCollider vehicle physics adapted to Unity 6 and the Input System, with a 0.02 s physics timestep, higher solver precision and smoothed keyboard/gamepad input;
+- a 1480 kg Rigidbody chassis with rear-wheel drive, four WheelColliders, speed-sensitive steering, four-wheel service braking, anti-roll forces and a deliberately lowered center of mass;
+- separate forward drive, service-brake and reverse behavior, limited reverse speed, aerodynamic downforce and more progressive high-speed steering;
+- retuned WheelCollider suspension, damping and tyre friction, with the collider radius matched to the imported visual wheel size;
 - wheel visuals synchronized to the physical WheelColliders;
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
 - drift scoring based on actual vehicle slip and movement angle, with free-roam drift series banked into КР when the drift ends;
 - a timed drift challenge in the parking area with a score target, КР reward, a larger square activity area and a 3.5-second return grace period after leaving the zone;
 - a timed street sprint with moving checkpoints and a performance-based КР reward;
-- a smooth orbiting chase camera with mouse look and zoom;
+- a smooth orbiting chase camera with mouse look, zoom, speed-based look-ahead, distance and field-of-view response;
 - automatic editor download and preparation of the CC0 Community Core Stack / Kenney city environment;
 - an asset-based city with real road, building, vehicle, tree, street-light and prop meshes replacing the procedural primitive city when the CC0 pack is available;
-- asset-based delivery, drift and sprint world markers prepared from the CC0 Kenney city source;
-- a dedicated floating garage waypoint using a CC0 Kenney Game Icons flag asset instead of an environment building;
-- delivery and sprint checkpoint gates built from Kenney road-kit assets, plus a four-cone drift marker cluster;
+- compact activity-specific world markers: a delivery crate, drift cones and a race flag, prepared from CC0 Kenney assets;
+- a compact floating garage waypoint using a CC0 Kenney Game Icons flag asset;
+- moving delivery and sprint targets with a four-cone drift marker cluster;
 - automatic road-mesh snapping for the player spawn, delivery checkpoints, sprint checkpoints and garage position;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
@@ -61,7 +61,7 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 
 - `W/S` or arrow keys — throttle / reverse;
 - `A/D` or arrow keys — steering;
-- `Space` — strong rear-wheel handbrake at speed with additional deceleration, and four-wheel parking brake near a stop;
+- `Space` — rear-wheel handbrake at speed and four-wheel parking brake near a stop;
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
 - `E` — open/close the garage while stopped in the purple garage marker;
@@ -70,4 +70,4 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 
 ## Current gameplay
 
-Drive freely through the prototype district and build drift score from the WheelCollider vehicle slip, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
+Drive freely through the prototype district with rear-wheel-drive road-car handling and build drift score from real WheelCollider slip, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
