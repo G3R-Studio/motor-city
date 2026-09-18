@@ -24,7 +24,7 @@ public static class CommunityCityAssetInstaller
     private const string RuntimeCityPrefab =
         RuntimeRoot + "/CityVisual.prefab";
 
-    private const string BuildVersion = "city-uniform-scale-1138.5-v5";
+    private const string BuildVersion = "city-uniform-scale-1138.5-gates-v6";
     private const string BuildVersionKey = "MotorCity.CommunityCity.BuildVersion";
 
     private static bool installing;
