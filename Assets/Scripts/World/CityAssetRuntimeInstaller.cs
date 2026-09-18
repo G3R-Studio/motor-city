@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MotorCity.World
 {
@@ -7,62 +10,68 @@ namespace MotorCity.World
         private const string ResourcePath =
             "MotorCity/Environment/CityVisual";
 
-        private const string RoadRootName =
-            "- roads";
+        private const string SceneCityName =
+            "City-Maker";
 
-        private const string TerrainRootName =
-            "- terrain";
+        private const string RuntimeCityName =
+            "MotorCity_FCGCity";
 
-        private const float DefaultSurfaceY =
-            0.12f;
+        private const float MarkerLift =
+            0.05f;
 
-        private static readonly Vector3[] DeliveryRouteRaw =
+        // These targets follow the actual generated FCG grid from the
+        // 2026-09-18 city report. Every road target is validated against
+        // the exact MeshCollider triangle/submesh using the FCG_Roads material.
+        private static readonly Vector3[] DeliveryPreferred =
         {
-            new(-295f, DefaultSurfaceY, 155f),
-            new(-300f, DefaultSurfaceY, 255f),
-            new(-245f, DefaultSurfaceY, 255f),
-            new(-180f, DefaultSurfaceY, 255f),
-            new(-180f, DefaultSurfaceY, 185f),
-            new(-125f, DefaultSurfaceY, 185f),
-            new(-70f, DefaultSurfaceY, 185f),
-            new(-70f, DefaultSurfaceY, 110f)
+            new(-300f, 0f, 0f),
+            new(-150f, 0f, 0f),
+            new(150f, 0f, 0f),
+            new(150f, 0f, 150f),
+            new(450f, 0f, 150f),
+            new(450f, 0f, 300f),
+            new(150f, 0f, 300f),
+            new(-150f, 0f, 300f),
+            new(-300f, 0f, 150f)
         };
 
-        private static readonly Vector3[] SprintRouteRaw =
+        private static readonly Vector3[] SprintPreferred =
         {
-            new(-300f, DefaultSurfaceY, 110f),
-            new(-300f, DefaultSurfaceY, 185f),
-            new(-300f, DefaultSurfaceY, 255f),
-            new(-300f, DefaultSurfaceY, 337.5f),
-            new(-180f, DefaultSurfaceY, 337.5f),
-            new(-180f, DefaultSurfaceY, 255f),
-            new(-70f, DefaultSurfaceY, 255f),
-            new(-70f, DefaultSurfaceY, 185f),
-            new(-70f, DefaultSurfaceY, 110f),
-            new(-180f, DefaultSurfaceY, 110f)
+            new(-300f, 0f, 0f),
+            new(150f, 0f, 0f),
+            new(450f, 0f, 0f),
+            new(450f, 0f, 150f),
+            new(450f, 0f, 300f),
+            new(150f, 0f, 300f),
+            new(-300f, 0f, 300f),
+            new(-300f, 0f, 150f)
         };
 
         private static Vector3[] deliveryRoute =
-            (Vector3[])DeliveryRouteRaw.Clone();
+            (Vector3[])DeliveryPreferred.Clone();
 
         private static Vector3[] sprintRoute =
-            (Vector3[])SprintRouteRaw.Clone();
+            (Vector3[])SprintPreferred.Clone();
+
+        private static GameObject activeCity;
+        private static Bounds cityBounds;
+        private static bool hasCityBounds;
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
-            new(-175f, DefaultSurfaceY, 145f);
+            new(150f, 0.2f, 90f);
 
         public static Quaternion PlayerSpawnRotation { get; private set; } =
             Quaternion.identity;
 
-        // Open paved/sidewalk tile immediately west of the north road.
-        // This keeps the garage off the driving lane while still reachable
-        // from the street.
+        // Parking area visible in the generated report:
+        // Double-Block-05-C / BB-062 / Park-06 (2).
         public static Vector3 GaragePoint { get; private set; } =
-            new(-197.5f, DefaultSurfaceY, 322.5f);
+            new(81.66f, 0.4f, 259.613f);
 
-        // Large four-way intersection from mcp_roads_cross_02.
+        // Central grid intersection. It is resolved to an actual FCG_Roads
+        // triangle at runtime, never to a renderer bound or sidewalk.
         public static Vector3 DriftChallengePoint { get; private set; } =
-            new(-180f, DefaultSurfaceY, 110f);
+            new(150f, 0.2f, 150f);
 
         public static Vector3[] DeliveryRoute =>
             (Vector3[])deliveryRoute.Clone();
@@ -72,68 +81,45 @@ namespace MotorCity.World
 
         public static bool TryInstall()
         {
-            GameObject prefab =
-                Resources.Load<GameObject>(
-                    ResourcePath);
+            activeCity =
+                FindExistingCity();
 
-            if (prefab == null)
-                return false;
+            if (activeCity == null)
+            {
+                GameObject prefab =
+                    Resources.Load<GameObject>(
+                        ResourcePath);
 
-            GameObject city =
-                Object.Instantiate(prefab);
+                if (prefab == null)
+                    return false;
 
-            city.name =
-                "Motor City — Modern City Pack";
+                activeCity =
+                    UnityEngine.Object.Instantiate(
+                        prefab);
 
-            EnsureFallbackRoadColliders(
-                city);
+                activeCity.name =
+                    RuntimeCityName;
+            }
+
+            EnsureDriveableMeshColliders(
+                activeCity);
+
+            cityBounds =
+                CalculateCityBounds(
+                    activeCity);
+
+            hasCityBounds =
+                cityBounds.size.x > 10f &&
+                cityBounds.size.z > 10f;
 
             Physics.SyncTransforms();
 
-            PlayerSpawnPoint =
-                ResolveSurfaceHeight(
-                    new Vector3(
-                        -175f,
-                        DefaultSurfaceY,
-                        145f),
-                    RoadRootName);
-
-            PlayerSpawnRotation =
-                Quaternion.LookRotation(
-                    Vector3.forward,
-                    Vector3.up);
-
-            GaragePoint =
-                ResolveSurfaceHeight(
-                    new Vector3(
-                        -197.5f,
-                        DefaultSurfaceY,
-                        322.5f),
-                    TerrainRootName);
-
-            DriftChallengePoint =
-                ResolveSurfaceHeight(
-                    new Vector3(
-                        -180f,
-                        DefaultSurfaceY,
-                        110f),
-                    RoadRootName);
-
-            deliveryRoute =
-                ResolveRoute(
-                    DeliveryRouteRaw,
-                    RoadRootName);
-
-            sprintRoute =
-                ResolveRoute(
-                    SprintRouteRaw,
-                    RoadRootName);
+            ResolveGameplayLayout();
 
             Debug.Log(
-                "Motor City: Modern City Pack gameplay layout loaded from " +
-                "fixed mcp_day road-grid coordinates. " +
-                $"Spawn={PlayerSpawnPoint}, " +
-                $"Garage={GaragePoint}, " +
+                "Motor City: Fantastic City Generator city installed. " +
+                $"Bounds center={cityBounds.center}, size={cityBounds.size}. " +
+                $"Spawn={PlayerSpawnPoint}, Garage={GaragePoint}, " +
                 $"Drift={DriftChallengePoint}.");
 
             return true;
@@ -142,154 +128,701 @@ namespace MotorCity.World
         public static Vector3 SnapToNearestRoad(
             Vector3 approximate)
         {
-            Vector3 best =
-                PlayerSpawnPoint;
+            if (activeCity == null)
+                return approximate;
 
-            float bestDistance =
-                HorizontalSqrDistance(
-                    approximate,
-                    best);
-
-            ConsiderRoute(
-                deliveryRoute,
+            return FindRoadPointNear(
                 approximate,
-                ref best,
-                ref bestDistance);
-
-            ConsiderRoute(
-                sprintRoute,
-                approximate,
-                ref best,
-                ref bestDistance);
-
-            return best;
+                42f,
+                "road snap",
+                false);
         }
 
-        private static Vector3[] ResolveRoute(
-            Vector3[] source,
-            string requiredRoot)
+        private static void ResolveGameplayLayout()
+        {
+            PlayerSpawnPoint =
+                FindRoadPointNear(
+                    new Vector3(
+                        150f,
+                        0f,
+                        90f),
+                    70f,
+                    "player spawn",
+                    false);
+
+            PlayerSpawnRotation =
+                Quaternion.LookRotation(
+                    EstimateRoadDirection(
+                        PlayerSpawnPoint),
+                    Vector3.up);
+
+            GaragePoint =
+                FindParkingPointNear(
+                    new Vector3(
+                        81.66f,
+                        0f,
+                        259.613f),
+                    28f);
+
+            DriftChallengePoint =
+                FindRoadPointNear(
+                    new Vector3(
+                        150f,
+                        0f,
+                        150f),
+                    55f,
+                    "drift zone",
+                    true);
+
+            deliveryRoute =
+                ResolveRoadRoute(
+                    DeliveryPreferred,
+                    "delivery");
+
+            sprintRoute =
+                ResolveRoadRoute(
+                    SprintPreferred,
+                    "sprint");
+        }
+
+        private static Vector3[] ResolveRoadRoute(
+            Vector3[] preferred,
+            string context)
         {
             Vector3[] result =
-                new Vector3[source.Length];
+                new Vector3[preferred.Length];
 
             for (int i = 0;
-                 i < source.Length;
+                 i < preferred.Length;
                  i++)
             {
                 result[i] =
-                    ResolveSurfaceHeight(
-                        source[i],
-                        requiredRoot);
+                    FindRoadPointNear(
+                        preferred[i],
+                        80f,
+                        context + " " + (i + 1),
+                        false);
             }
 
             return result;
         }
 
-        private static Vector3 ResolveSurfaceHeight(
-            Vector3 point,
-            string requiredRoot)
+        private static Vector3 FindRoadPointNear(
+            Vector3 preferred,
+            float searchRadius,
+            string context,
+            bool preferWideRoad)
         {
-            RaycastHit[] hits =
-                Physics.RaycastAll(
-                    new Vector3(
-                        point.x,
-                        40f,
-                        point.z),
-                    Vector3.down,
-                    80f,
-                    Physics.DefaultRaycastLayers,
-                    QueryTriggerInteraction.Ignore);
+            if (TryGetRoadHit(
+                    preferred.x,
+                    preferred.z,
+                    out Vector3 exact))
+            {
+                if (!preferWideRoad ||
+                    RoadOpenness(
+                        exact,
+                        13f) >= 4)
+                {
+                    exact.y +=
+                        MarkerLift;
 
-            float bestY =
-                point.y;
+                    return exact;
+                }
+            }
+
+            const float step =
+                5f;
+
+            Vector3 best =
+                preferred;
+
+            float bestScore =
+                float.PositiveInfinity;
 
             bool found =
                 false;
 
-            foreach (RaycastHit hit in hits)
+            int rings =
+                Mathf.CeilToInt(
+                    searchRadius /
+                    step);
+
+            for (int ring = 1;
+                 ring <= rings;
+                 ring++)
             {
-                if (hit.collider == null)
-                    continue;
+                float radius =
+                    ring *
+                    step;
 
-                if (!IsUnderNamedRoot(
-                        hit.collider.transform,
-                        requiredRoot))
-                    continue;
-
-                if (!found ||
-                    hit.point.y > bestY)
+                for (float offset = -radius;
+                     offset <= radius;
+                     offset += step)
                 {
-                    bestY =
-                        hit.point.y;
+                    TestRoadCandidate(
+                        preferred,
+                        preferred.x + offset,
+                        preferred.z - radius,
+                        preferWideRoad,
+                        ref found,
+                        ref best,
+                        ref bestScore);
+
+                    TestRoadCandidate(
+                        preferred,
+                        preferred.x + offset,
+                        preferred.z + radius,
+                        preferWideRoad,
+                        ref found,
+                        ref best,
+                        ref bestScore);
+
+                    TestRoadCandidate(
+                        preferred,
+                        preferred.x - radius,
+                        preferred.z + offset,
+                        preferWideRoad,
+                        ref found,
+                        ref best,
+                        ref bestScore);
+
+                    TestRoadCandidate(
+                        preferred,
+                        preferred.x + radius,
+                        preferred.z + offset,
+                        preferWideRoad,
+                        ref found,
+                        ref best,
+                        ref bestScore);
+                }
+
+                if (found &&
+                    bestScore <=
+                    radius * radius)
+                    break;
+            }
+
+            if (!found)
+            {
+                Debug.LogWarning(
+                    $"Motor City: no exact FCG_Roads triangle found for {context} " +
+                    $"near {preferred}. Using preferred point.");
+
+                best =
+                    preferred;
+
+                best.y =
+                    Mathf.Max(
+                        0.2f,
+                        preferred.y);
+
+                return best;
+            }
+
+            best.y +=
+                MarkerLift;
+
+            Debug.Log(
+                $"Motor City: {context} snapped to FCG asphalt at {best}.");
+
+            return best;
+        }
+
+        private static void TestRoadCandidate(
+            Vector3 preferred,
+            float x,
+            float z,
+            bool preferWideRoad,
+            ref bool found,
+            ref Vector3 best,
+            ref float bestScore)
+        {
+            if (hasCityBounds &&
+                (x < cityBounds.min.x ||
+                 x > cityBounds.max.x ||
+                 z < cityBounds.min.z ||
+                 z > cityBounds.max.z))
+                return;
+
+            if (!TryGetRoadHit(
+                    x,
+                    z,
+                    out Vector3 hit))
+                return;
+
+            float dx =
+                hit.x -
+                preferred.x;
+
+            float dz =
+                hit.z -
+                preferred.z;
+
+            float score =
+                dx * dx +
+                dz * dz;
+
+            if (preferWideRoad)
+            {
+                int openness =
+                    RoadOpenness(
+                        hit,
+                        13f);
+
+                score -=
+                    openness *
+                    140f;
+            }
+
+            if (found &&
+                score >= bestScore)
+                return;
+
+            found =
+                true;
+
+            best =
+                hit;
+
+            bestScore =
+                score;
+        }
+
+        private static int RoadOpenness(
+            Vector3 point,
+            float radius)
+        {
+            int count =
+                0;
+
+            Vector2[] offsets =
+            {
+                new(radius, 0f),
+                new(-radius, 0f),
+                new(0f, radius),
+                new(0f, -radius),
+                new(radius * 0.7f, radius * 0.7f),
+                new(-radius * 0.7f, radius * 0.7f),
+                new(radius * 0.7f, -radius * 0.7f),
+                new(-radius * 0.7f, -radius * 0.7f)
+            };
+
+            foreach (Vector2 offset in offsets)
+            {
+                if (TryGetRoadHit(
+                        point.x + offset.x,
+                        point.z + offset.y,
+                        out _))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static Vector3 FindParkingPointNear(
+            Vector3 preferred,
+            float searchRadius)
+        {
+            if (TryGetParkingHit(
+                    preferred.x,
+                    preferred.z,
+                    out Vector3 exact))
+            {
+                exact.y +=
+                    MarkerLift;
+
+                return exact;
+            }
+
+            const float step =
+                2.5f;
+
+            float bestDistance =
+                float.PositiveInfinity;
+
+            Vector3 best =
+                preferred;
+
+            bool found =
+                false;
+
+            for (float x = -searchRadius;
+                 x <= searchRadius;
+                 x += step)
+            {
+                for (float z = -searchRadius;
+                     z <= searchRadius;
+                     z += step)
+                {
+                    if (!TryGetParkingHit(
+                            preferred.x + x,
+                            preferred.z + z,
+                            out Vector3 hit))
+                        continue;
+
+                    float distance =
+                        x * x +
+                        z * z;
+
+                    if (distance >= bestDistance)
+                        continue;
+
+                    bestDistance =
+                        distance;
+
+                    best =
+                        hit;
 
                     found =
                         true;
                 }
             }
 
-            point.y =
-                found
-                    ? bestY + 0.04f
-                    : point.y;
-
             if (!found)
             {
                 Debug.LogWarning(
-                    $"Motor City: no '{requiredRoot}' surface found below " +
-                    $"{point.x:0.##}, {point.z:0.##}; using fallback Y={point.y:0.##}.");
+                    "Motor City: generated FCG parking lot was not raycastable; " +
+                    "garage uses report coordinate fallback.");
+
+                preferred.y =
+                    0.4f;
+
+                return preferred;
             }
 
-            return point;
+            best.y +=
+                MarkerLift;
+
+            return best;
         }
 
-        private static bool IsUnderNamedRoot(
-            Transform transform,
-            string requiredRoot)
+        private static bool TryGetRoadHit(
+            float x,
+            float z,
+            out Vector3 point)
         {
-            Transform current =
-                transform;
+            point =
+                default;
 
-            while (current != null)
+            RaycastHit[] hits =
+                Physics.RaycastAll(
+                    new Vector3(
+                        x,
+                        RayStartY(),
+                        z),
+                    Vector3.down,
+                    RayDistance(),
+                    Physics.DefaultRaycastLayers,
+                    QueryTriggerInteraction.Ignore);
+
+            if (hits == null ||
+                hits.Length == 0)
+                return false;
+
+            Array.Sort(
+                hits,
+                (a, b) =>
+                    a.distance.CompareTo(
+                        b.distance));
+
+            foreach (RaycastHit hit in hits)
             {
-                if (string.Equals(
-                        current.name,
-                        requiredRoot,
-                        System.StringComparison.OrdinalIgnoreCase))
-                    return true;
+                if (!IsExactRoadTriangle(
+                        hit))
+                    continue;
 
-                current =
-                    current.parent;
+                point =
+                    hit.point;
+
+                return true;
             }
 
             return false;
         }
 
-        private static void EnsureFallbackRoadColliders(
-            GameObject city)
+        private static bool TryGetParkingHit(
+            float x,
+            float z,
+            out Vector3 point)
         {
-            AddMeshCollidersUnder(
-                FindTransform(
-                    city.transform,
-                    RoadRootName));
+            point =
+                default;
 
-            AddMeshCollidersUnder(
-                FindTransform(
-                    city.transform,
-                    TerrainRootName));
+            RaycastHit[] hits =
+                Physics.RaycastAll(
+                    new Vector3(
+                        x,
+                        RayStartY(),
+                        z),
+                    Vector3.down,
+                    RayDistance(),
+                    Physics.DefaultRaycastLayers,
+                    QueryTriggerInteraction.Ignore);
+
+            if (hits == null ||
+                hits.Length == 0)
+                return false;
+
+            Array.Sort(
+                hits,
+                (a, b) =>
+                    a.distance.CompareTo(
+                        b.distance));
+
+            foreach (RaycastHit hit in hits)
+            {
+                MeshCollider meshCollider =
+                    hit.collider as MeshCollider;
+
+                if (meshCollider == null)
+                    continue;
+
+                string path =
+                    GetHierarchyPath(
+                            hit.collider.transform)
+                        .ToLowerInvariant();
+
+                if (!path.Contains("park-04") &&
+                    !path.Contains("park-05") &&
+                    !path.Contains("park-06"))
+                    continue;
+
+                Renderer renderer =
+                    hit.collider.GetComponent<Renderer>();
+
+                Material material =
+                    ResolveTriangleMaterial(
+                        hit,
+                        renderer,
+                        meshCollider);
+
+                if (material != null &&
+                    material.name.IndexOf(
+                        "grass",
+                        StringComparison.OrdinalIgnoreCase) >= 0)
+                    continue;
+
+                point =
+                    hit.point;
+
+                return true;
+            }
+
+            return false;
         }
 
-        private static void AddMeshCollidersUnder(
-            Transform root)
+        private static bool IsExactRoadTriangle(
+            RaycastHit hit)
         {
-            if (root == null)
-                return;
+            MeshCollider meshCollider =
+                hit.collider as MeshCollider;
+
+            if (meshCollider == null ||
+                meshCollider.sharedMesh == null)
+                return false;
+
+            string path =
+                GetHierarchyPath(
+                        hit.collider.transform)
+                    .ToLowerInvariant();
+
+            if (path.Contains("sidewalk") ||
+                path.Contains("/buildings/") ||
+                path.Contains("/park-") ||
+                path.Contains("/garden") ||
+                path.Contains("/objects/"))
+                return false;
+
+            Renderer renderer =
+                hit.collider.GetComponent<Renderer>();
+
+            if (renderer == null)
+                return false;
+
+            Material material =
+                ResolveTriangleMaterial(
+                    hit,
+                    renderer,
+                    meshCollider);
+
+            if (material == null)
+                return false;
+
+            string materialName =
+                material.name.ToLowerInvariant();
+
+            return
+                materialName.Contains("road") &&
+                !materialName.Contains("grass");
+        }
+
+        private static Material ResolveTriangleMaterial(
+            RaycastHit hit,
+            Renderer renderer,
+            MeshCollider meshCollider)
+        {
+            if (renderer == null ||
+                meshCollider == null ||
+                meshCollider.sharedMesh == null)
+                return null;
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            if (materials == null ||
+                materials.Length == 0)
+                return null;
+
+            int triangleIndex =
+                hit.triangleIndex;
+
+            if (triangleIndex < 0)
+                return materials[0];
+
+            Mesh mesh =
+                meshCollider.sharedMesh;
+
+            int triangleCursor =
+                0;
+
+            int subMeshCount =
+                Mathf.Min(
+                    mesh.subMeshCount,
+                    materials.Length);
+
+            for (int subMesh = 0;
+                 subMesh < subMeshCount;
+                 subMesh++)
+            {
+                if (mesh.GetTopology(subMesh) !=
+                    MeshTopology.Triangles)
+                    continue;
+
+                int triangleCount =
+                    (int)mesh.GetIndexCount(
+                        subMesh) /
+                    3;
+
+                if (triangleIndex >= triangleCursor &&
+                    triangleIndex <
+                    triangleCursor + triangleCount)
+                {
+                    return materials[subMesh];
+                }
+
+                triangleCursor +=
+                    triangleCount;
+            }
+
+            return materials[0];
+        }
+
+        private static Vector3 EstimateRoadDirection(
+            Vector3 point)
+        {
+            int xScore =
+                AxisRoadScore(
+                    point,
+                    Vector3.right);
+
+            int zScore =
+                AxisRoadScore(
+                    point,
+                    Vector3.forward);
+
+            Vector3 direction =
+                zScore >= xScore
+                    ? Vector3.forward
+                    : Vector3.right;
+
+            Vector3 towardCenter =
+                cityBounds.center -
+                point;
+
+            towardCenter.y =
+                0f;
+
+            if (towardCenter.sqrMagnitude > 1f &&
+                Vector3.Dot(
+                    direction,
+                    towardCenter) < 0f)
+            {
+                direction =
+                    -direction;
+            }
+
+            return direction;
+        }
+
+        private static int AxisRoadScore(
+            Vector3 point,
+            Vector3 axis)
+        {
+            int score =
+                0;
+
+            float[] distances =
+            {
+                6f,
+                12f,
+                18f
+            };
+
+            foreach (float distance in distances)
+            {
+                Vector3 forward =
+                    point +
+                    axis *
+                    distance;
+
+                Vector3 backward =
+                    point -
+                    axis *
+                    distance;
+
+                if (TryGetRoadHit(
+                        forward.x,
+                        forward.z,
+                        out _))
+                    score++;
+
+                if (TryGetRoadHit(
+                        backward.x,
+                        backward.z,
+                        out _))
+                    score++;
+            }
+
+            return score;
+        }
+
+        private static void EnsureDriveableMeshColliders(
+            GameObject city)
+        {
+            int added =
+                0;
 
             foreach (MeshFilter filter in
-                     root.GetComponentsInChildren<MeshFilter>(true))
+                     city.GetComponentsInChildren<MeshFilter>(true))
             {
                 if (filter == null ||
-                    filter.sharedMesh == null ||
-                    filter.GetComponent<Collider>() != null)
+                    filter.sharedMesh == null)
+                    continue;
+
+                Renderer renderer =
+                    filter.GetComponent<Renderer>();
+
+                if (renderer == null)
+                    continue;
+
+                if (!ShouldHaveDriveableCollider(
+                        filter.transform,
+                        renderer))
+                    continue;
+
+                if (filter.GetComponent<MeshCollider>() != null)
                     continue;
 
                 MeshCollider collider =
@@ -300,76 +833,163 @@ namespace MotorCity.World
 
                 collider.convex =
                     false;
+
+                added++;
+            }
+
+            if (added > 0)
+            {
+                Debug.Log(
+                    $"Motor City: added {added} FCG road/parking MeshColliders.");
             }
         }
 
-        private static Transform FindTransform(
-            Transform root,
-            string name)
+        private static bool ShouldHaveDriveableCollider(
+            Transform transform,
+            Renderer renderer)
         {
-            if (root == null)
+            string path =
+                GetHierarchyPath(
+                        transform)
+                    .ToLowerInvariant();
+
+            string name =
+                transform.name.ToLowerInvariant();
+
+            bool parking =
+                name.StartsWith("park-04") ||
+                name.StartsWith("park-05") ||
+                name.StartsWith("park-06");
+
+            bool roadMaterial =
+                false;
+
+            foreach (Material material in
+                     renderer.sharedMaterials)
+            {
+                if (material == null)
+                    continue;
+
+                if (material.name.IndexOf(
+                        "road",
+                        StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    roadMaterial =
+                        true;
+
+                    break;
+                }
+            }
+
+            bool mainGround =
+                path.Contains("/meshes/") ||
+                name.StartsWith("bd-") ||
+                name.StartsWith("double-block");
+
+            return
+                parking ||
+                (roadMaterial &&
+                 mainGround);
+        }
+
+        private static GameObject FindExistingCity()
+        {
+            Scene scene =
+                SceneManager.GetActiveScene();
+
+            if (!scene.IsValid() ||
+                !scene.isLoaded)
                 return null;
 
-            if (string.Equals(
-                    root.name,
-                    name,
-                    System.StringComparison.OrdinalIgnoreCase))
-                return root;
-
-            foreach (Transform child in root)
+            foreach (GameObject root in
+                     scene.GetRootGameObjects())
             {
-                Transform match =
-                    FindTransform(
-                        child,
-                        name);
-
-                if (match != null)
-                    return match;
+                if (string.Equals(
+                        root.name,
+                        SceneCityName,
+                        StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(
+                        root.name,
+                        RuntimeCityName,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return root;
+                }
             }
 
             return null;
         }
 
-        private static void ConsiderRoute(
-            Vector3[] route,
-            Vector3 approximate,
-            ref Vector3 best,
-            ref float bestDistance)
+        private static Bounds CalculateCityBounds(
+            GameObject city)
         {
-            if (route == null)
-                return;
+            Renderer[] renderers =
+                city.GetComponentsInChildren<Renderer>(true);
 
-            foreach (Vector3 point in route)
+            if (renderers.Length == 0)
             {
-                float distance =
-                    HorizontalSqrDistance(
-                        approximate,
-                        point);
-
-                if (distance >= bestDistance)
-                    continue;
-
-                bestDistance =
-                    distance;
-
-                best =
-                    point;
+                return new Bounds(
+                    new Vector3(
+                        0f,
+                        0f,
+                        150f),
+                    new Vector3(
+                        1532f,
+                        20f,
+                        932f));
             }
+
+            Bounds bounds =
+                renderers[0].bounds;
+
+            for (int i = 1;
+                 i < renderers.Length;
+                 i++)
+            {
+                bounds.Encapsulate(
+                    renderers[i].bounds);
+            }
+
+            return bounds;
         }
 
-        private static float HorizontalSqrDistance(
-            Vector3 a,
-            Vector3 b)
+        private static float RayStartY()
         {
-            float x =
-                a.x - b.x;
-
-            float z =
-                a.z - b.z;
-
             return
-                x * x +
-                z * z;
+                hasCityBounds
+                    ? cityBounds.max.y + 40f
+                    : 220f;
+        }
+
+        private static float RayDistance()
+        {
+            return
+                hasCityBounds
+                    ? cityBounds.size.y + 100f
+                    : 320f;
+        }
+
+        private static string GetHierarchyPath(
+            Transform transform)
+        {
+            string path =
+                transform.name;
+
+            Transform current =
+                transform.parent;
+
+            while (current != null)
+            {
+                path =
+                    current.name +
+                    "/" +
+                    path;
+
+                current =
+                    current.parent;
+            }
+
+            return path;
         }
     }
 }
