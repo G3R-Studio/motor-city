@@ -10,7 +10,7 @@ namespace MotorCity.Vehicle
     {
         private const float TargetLength = 4.35f;
         private const float TargetWheelCenterLocalY = 0.42f;
-        private const float SourceVisualForwardYaw = 0f;
+        private const float SourceVisualForwardYaw = 180f;
 
         private static readonly HashSet<string> FallbackVisualNames = new()
         {
@@ -50,6 +50,16 @@ namespace MotorCity.Vehicle
         private static bool Install(ArcadeCarController car, GameObject prefab)
         {
             Transform carTransform = car.transform;
+
+            // ARCADE's source mesh uses local -Z as its visual nose while
+            // Motor City and Prometeo use local +Z as physical forward.
+            // Rotate the physics root, then compensate the child visual below.
+            // The car keeps the same world-facing appearance, but physics,
+            // steering axle and visual nose now share the same +Z direction.
+            carTransform.rotation =
+                carTransform.rotation *
+                Quaternion.Euler(0f, 180f, 0f);
+
             GameObject visual = Instantiate(prefab, carTransform);
             visual.name = "ArcadeFreeRacingCarVisual_Runtime";
             visual.transform.localPosition = Vector3.zero;
@@ -336,9 +346,9 @@ namespace MotorCity.Vehicle
         private static void OrientSourceVisualForward(
             Transform visual)
         {
-            // The generated PlayerCarVisual prefab is already normalized
-            // to Motor City's +Z forward axis. Do not flip it again here,
-            // otherwise Prometeo's front/rear wheel classification is reversed.
+            // Compensate the imported ARCADE source mesh so its visual nose
+            // points along the physics root's +Z axis. The root itself was
+            // rotated in Install(), so the car keeps its previous world heading.
             visual.localRotation =
                 visual.localRotation *
                 Quaternion.Euler(
