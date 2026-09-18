@@ -10,6 +10,7 @@ namespace MotorCity.Vehicle
     {
         private const float TargetLength = 4.35f;
         private const float TargetWheelCenterLocalY = 0.42f;
+        private const float SourceVisualForwardYaw = 180f;
 
         private static readonly HashSet<string> FallbackVisualNames = new()
         {
@@ -73,6 +74,9 @@ namespace MotorCity.Vehicle
                 carTransform,
                 wheelAnchors);
 
+            OrientSourceVisualForward(
+                visual.transform);
+
             CenterVisualHorizontally(
                 visual.transform,
                 carTransform);
@@ -128,7 +132,9 @@ namespace MotorCity.Vehicle
                 measuredRadius);
 
             Debug.Log(
-                "Motor City: ARCADE Free Racing Car prepared for Prometeo Car Controller physics.");
+                "Motor City: ARCADE Free Racing Car prepared for Prometeo Car Controller physics. " +
+                $"FL={centerLocal[0]}, FR={centerLocal[1]}, " +
+                $"RL={centerLocal[2]}, RR={centerLocal[3]}.");
 
             return true;
         }
@@ -282,6 +288,21 @@ namespace MotorCity.Vehicle
             visual.localRotation =
                 visual.localRotation *
                 Quaternion.Euler(0f, 90f, 0f);
+        }
+
+        private static void OrientSourceVisualForward(
+            Transform visual)
+        {
+            // The current ARCADE racing-car source asset points its nose
+            // toward local -Z after import. Motor City and Prometeo both
+            // treat local +Z as vehicle forward. Resolve that once here,
+            // before FL/FR/RL/RR are classified from wheel positions.
+            visual.localRotation =
+                visual.localRotation *
+                Quaternion.Euler(
+                    0f,
+                    SourceVisualForwardYaw,
+                    0f);
         }
 
         private static void CenterVisualHorizontally(
