@@ -9,8 +9,8 @@ namespace MotorCity.Gameplay
         private const string ActivityId = "delivery";
 
         [SerializeField] private int rewardCredits = 450;
-        [SerializeField] private float checkpointRadius = 23.9f;
-        [SerializeField] private float startRadius = 33.6f;
+        [SerializeField] private float checkpointRadius = 12f;
+        [SerializeField] private float startRadius = 14f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
