@@ -9,12 +9,14 @@ namespace MotorCity.Gameplay
         private ActivityManager activityManager;
         private Renderer[] markerRenderers;
         private Material[] markerMaterials;
+        private Vector3 baseScale;
 
         public void Bind(DeliveryActivity targetActivity, ActivityManager manager)
         {
             activity = targetActivity;
             activityManager = manager;
             CacheVisuals();
+            baseScale = transform.localScale;
         }
 
         private void CacheVisuals()
@@ -44,16 +46,12 @@ namespace MotorCity.Gameplay
             if (!visible) return;
 
             Vector3 target = activity.CurrentTarget;
-            transform.position = new Vector3(
-                target.x,
-                1.25f + Mathf.Sin(Time.time * 3f) * 0.18f,
-                target.z);
+            transform.position =
+                new Vector3(target.x, 0f, target.z);
 
-            transform.Rotate(
-                0f,
-                55f * Time.deltaTime,
-                0f,
-                Space.World);
+            float pulse =
+                1f + Mathf.Sin(Time.time * 3.2f) * 0.025f;
+            transform.localScale = baseScale * pulse;
 
             Color tint = activity.IsActive
                 ? new Color(1f, 0.72f, 0.18f)
