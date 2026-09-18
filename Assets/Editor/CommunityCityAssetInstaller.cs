@@ -24,7 +24,7 @@ public static class CommunityCityAssetInstaller
     private const string RuntimeCityPrefab =
         RuntimeRoot + "/CityVisual.prefab";
 
-    private const string BuildVersion = "city-scale-1.5-v1";
+    private const string BuildVersion = "city-horizontal-scale-2.7-v2";
     private const string BuildVersionKey = "MotorCity.CommunityCity.BuildVersion";
 
     private static bool installing;
@@ -238,15 +238,22 @@ public static class CommunityCityAssetInstaller
         for (int i = 1; i < renderers.Length; i++)
             bounds.Encapsulate(renderers[i].bounds);
 
-        const float targetHorizontalSize = 357f;
+        const float targetHorizontalSize = 642f;
+        const float verticalScaleRelativeToHorizontal = 0.67f;
+
         float horizontalSize =
             Mathf.Max(bounds.size.x, bounds.size.z);
 
         if (horizontalSize > 0.01f)
         {
-            float scale =
+            float horizontalScale =
                 targetHorizontalSize / horizontalSize;
-            city.transform.localScale *= scale;
+
+            Vector3 sourceScale = city.transform.localScale;
+            city.transform.localScale = new Vector3(
+                sourceScale.x * horizontalScale,
+                sourceScale.y * horizontalScale * verticalScaleRelativeToHorizontal,
+                sourceScale.z * horizontalScale);
         }
 
         renderers =
