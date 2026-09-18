@@ -82,7 +82,7 @@ namespace MotorCity.World
                 ground.AddComponent<BoxCollider>();
 
             collider.size =
-                new Vector3(378f, 0.4f, 378f);
+                new Vector3(680f, 0.4f, 680f);
         }
     }
 }
