@@ -315,12 +315,8 @@ namespace MotorCity.Bootstrap
         private static void CreateGarageMarker(
             GarageUpgradeSystem garage)
         {
-            GameObject marker = CreateAssetMarker(
-                "Garage",
-                "MotorCity/Environment/GarageBuilding",
-                garage.GarageCenter,
-                26f,
-                new Color(0.72f, 0.16f, 1f));
+            GameObject marker =
+                new("Garage Marker");
 
             GarageMarkerVisual visual =
                 marker.AddComponent<GarageMarkerVisual>();
