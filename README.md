@@ -21,15 +21,15 @@ The project currently includes:
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
 - a unified drift state based on Prometeo drift/traction state plus actual rear-wheel sideways slip, vehicle slip angle and grounded wheels; the same state drives drift scoring, smoke and tire marks, with free-roam drift series banked into КР when the drift ends;
-- a timed drift challenge centered on a reviewed City 02 road intersection, with a score target, КР reward and a 3.5-second return grace period after leaving the activity area;
+- a timed drift challenge placed on the active city road network, with a score target, КР reward and a 3.5-second return grace period after leaving the activity area;
 - a timed street sprint with moving checkpoints and a performance-based КР reward;
 - a smooth orbiting chase camera with mouse look, zoom, speed-based look-ahead, distance and field-of-view response;
-- automatic integration for ZENRIN Japanese Otaku City when that Asset Store package is imported locally; it becomes the primary runtime city and obvious clutter such as parked vehicles, bicycles, trash and small tree groups is stripped from the generated runtime prefab;
-- the previous CC0 Community Core Stack / Kenney city remains an automatic fallback when Japanese Otaku City is not installed;
-- compact activity-specific world markers: a delivery crate, drift cones and a race flag, prepared from CC0 Kenney assets;
+- automatic integration for **Demo City By Versatile Studio (Mobile Friendly)** when the free Asset Store package is imported locally; Motor City builds its runtime city from the package demo scene while removing the package camera/UI conflicts;
+- legacy Community Core City 02 and Japanese Otaku City integrations have been removed;
+- compact activity-specific world markers with lightweight built-in fallbacks;
 - a compact floating garage waypoint using a CC0 Kenney Game Icons flag asset;
 - moving delivery and sprint targets with a four-cone drift marker cluster;
-- gameplay layout resolved from named road objects in the City 02 prefab: player spawn, garage, drift area, delivery route and sprint route all follow reviewed city geometry instead of guessed world coordinates;
+- gameplay layout resolved dynamically from road/highway/street geometry in the active city: player spawn, garage, drift area, delivery route and sprint route are snapped to the detected road network;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
@@ -42,7 +42,7 @@ The project currently includes:
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
 
-Primitive geometry remains only as an emergency fallback if the external CC0 asset installer cannot prepare the city assets.
+Procedural geometry remains only as an emergency fallback when the Versatile Studio city package has not been imported or its runtime city has not yet been generated.
 
 ## Run locally
 
@@ -51,12 +51,11 @@ Primitive geometry remains only as an emergency fallback if the external CC0 ass
 3. Open the repository root as a Unity project.
 4. Import **ARCADE: FREE Racing Car** by Mena from the Unity Asset Store / Package Manager.
 5. Import **PROMETEO: Car Controller** by Mena from the Unity Asset Store. Motor City does not redistribute the Prometeo package; the runtime bridge detects `PrometeoCarController` after Unity recompiles.
-6. Import **Japanese Otaku City** by ZENRIN from the Unity Asset Store. Its local `Assets/ZRNAssets` source folder is intentionally ignored by Git; Motor City builds its own runtime `CityVisual.prefab` from the Akihabara source model.
-7. Wait for the Motor City importer to generate `Assets/Resources/MotorCity/PlayerCarVisual.prefab` and the runtime city prefab under `Assets/Resources/MotorCity/Environment`.
-8. If Japanese Otaku City is not installed, the editor automatically prepares the CC0 Community Core Stack / Kenney city as a fallback.
-9. The editor automatically prepares the runtime UI and marker sprites.
-10. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically and keep both Unity input backends enabled for Prometeo compatibility.
-11. Press Play.
+6. Import the free **Demo City By Versatile Studio (Mobile Friendly)** package from the Unity Asset Store. Its local `Assets/Versatile Studio Assets` source folder is intentionally ignored by Git; Motor City detects the package demo scene and generates `Assets/Resources/MotorCity/Environment/CityVisual.prefab` automatically.
+7. Wait for the Motor City importers to generate the player-car visual and runtime city prefab.
+8. The editor automatically prepares the runtime UI and marker sprites.
+9. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically and keep both Unity input backends enabled for Prometeo compatibility.
+10. Press Play.
 
 The car importer prefers a matching racing-car prefab with usable body colliders and falls back to another matching prefab if needed.
 
