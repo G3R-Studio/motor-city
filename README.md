@@ -17,10 +17,11 @@ The project currently includes:
 - separate forward drive, service-brake and reverse behavior, limited reverse speed, speed-sensitive steering and dynamic rear grip for throttle and handbrake drifts;
 - retuned WheelCollider suspension, damping and tyre friction, with the collider radius matched to the imported visual wheel size;
 - wheel visuals synchronized to the physical WheelColliders;
+- runtime rear-tire smoke and persistent tire-mark trails emitted from actual WheelCollider ground-contact points while the rear tires are sliding;
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
-- drift scoring based on actual vehicle slip and movement angle, with free-roam drift series banked into КР when the drift ends;
-- a timed drift challenge in the parking area with a score target, КР reward, a larger square activity area and a 3.5-second return grace period after leaving the zone;
+- a unified drift state based on actual rear-wheel sideways slip, vehicle slip angle and grounded wheels; the same state drives drift scoring, smoke and tire marks, with free-roam drift series banked into КР when the drift ends;
+- a timed drift challenge centered on a reviewed City 02 road intersection, with a score target, КР reward and a 3.5-second return grace period after leaving the activity area;
 - a timed street sprint with moving checkpoints and a performance-based КР reward;
 - a smooth orbiting chase camera with mouse look, zoom, speed-based look-ahead, distance and field-of-view response;
 - automatic editor download and preparation of the CC0 Community Core Stack / Kenney city environment;
@@ -28,7 +29,7 @@ The project currently includes:
 - compact activity-specific world markers: a delivery crate, drift cones and a race flag, prepared from CC0 Kenney assets;
 - a compact floating garage waypoint using a CC0 Kenney Game Icons flag asset;
 - moving delivery and sprint targets with a four-cone drift marker cluster;
-- automatic road-mesh snapping for the player spawn, delivery checkpoints, sprint checkpoints and garage position;
+- gameplay layout resolved from named road objects in the City 02 prefab: player spawn, garage, drift area, delivery route and sprint route all follow reviewed city geometry instead of guessed world coordinates;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
@@ -36,8 +37,8 @@ The project currently includes:
 - mission markers hide while another mission is active, while the garage marker remains visible;
 - entering the garage cancels the active mission;
 - Russian in-game HUD, garage text, activity prompts and status messages;
-- a Canvas-based runtime HUD and garage interface using automatically prepared Kenney CC0 UI panels instead of IMGUI;
-- a HUD with speed, credits, current activity, drift score and installed upgrade levels;
+- a compact dark racing-style Canvas HUD with responsive text fitting, separate speedometer, activity status, controls hint and contextual drift panel;
+- a redesigned garage overlay with three clearly separated upgrade rows and automatic text resizing so long labels remain inside their panels;
 - instant vehicle reset;
 - automatic editor setup for the prototype scene and URP configuration.
 
@@ -70,4 +71,4 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 
 ## Current gameplay
 
-Drive freely through the prototype district with rear-wheel-drive road-car handling and build drift score from real WheelCollider slip, or take part in one of the current activities. The blue route marker starts the delivery route, the orange parking-lot zone starts a timed drift challenge, and the green marker starts a timed street sprint. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
+Drive freely through the prototype district with rear-wheel-drive drift handling and build drift score from the same WheelCollider slip state that produces tire smoke and road marks, or take part in one of the current activities. The blue crate marker starts the delivery route, the orange cone cluster starts a timed drift challenge at a city intersection, and the green race flag starts a timed street sprint. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
