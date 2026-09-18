@@ -19,7 +19,7 @@ public static class FantasticCityGeneratorUrpFixer
     private const string MaterialRoot =
         RuntimeRoot + "/FCGMaterials";
 
-    [MenuItem("Motor City/Fantastic City Generator/Fix Pink Materials in Active Scene")]
+    [MenuItem("Motor City/Fantastic City Generator/Fix Materials in Saved FCG City")]
     public static void FixPinkMaterialsInActiveScene()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -44,15 +44,15 @@ public static class FantasticCityGeneratorUrpFixer
             return;
         }
 
-        Scene scene =
-            SceneManager.GetActiveScene();
-
-        if (!scene.IsValid() ||
-            !scene.isLoaded)
+        if (!FantasticCityGeneratorSceneSource.TryOpenSourceScene(
+                out Scene scene,
+                out bool openedTemporarily,
+                out Scene previousActiveScene))
         {
             EditorUtility.DisplayDialog(
                 "Motor City — FCG URP Fix",
-                "Нет активной загруженной сцены.",
+                "Не найдена сохранённая локальная сцена с City-Maker.\n\n" +
+                "Сохрани сгенерированный город в Assets/LocalGenerated.",
                 "OK");
             return;
         }
@@ -103,9 +103,15 @@ public static class FantasticCityGeneratorUrpFixer
         {
             EditorUtility.DisplayDialog(
                 "Motor City — FCG URP Fix",
-                "В активной сцене не найдено материалов Fantastic City Generator. " +
-                "Сначала сгенерируй город.",
+                "В сохранённой сцене City-Maker не найдено материалов Fantastic City Generator.",
                 "OK");
+
+            FantasticCityGeneratorSceneSource.FinishSourceScene(
+                scene,
+                openedTemporarily,
+                previousActiveScene,
+                false);
+
             return;
         }
 
@@ -244,6 +250,12 @@ public static class FantasticCityGeneratorUrpFixer
         finally
         {
             EditorUtility.ClearProgressBar();
+
+            FantasticCityGeneratorSceneSource.FinishSourceScene(
+                scene,
+                openedTemporarily,
+                previousActiveScene,
+                true);
         }
     }
 
