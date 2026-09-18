@@ -44,6 +44,7 @@ public static class CommunityCityAssetInstaller
     private static void AutoInstallIfNeeded()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+        if (JapaneseOtakuCityInstaller.HasSourceAsset()) return;
 
         bool prefabExists =
             AssetDatabase.LoadAssetAtPath<GameObject>(RuntimeCityPrefab) != null;
@@ -59,6 +60,7 @@ public static class CommunityCityAssetInstaller
     private static void Install(bool force)
     {
         if (installing) return;
+        if (!force && JapaneseOtakuCityInstaller.HasSourceAsset()) return;
         if (!force &&
             AssetDatabase.LoadAssetAtPath<GameObject>(RuntimeCityPrefab) != null &&
             EditorPrefs.GetString(BuildVersionKey, string.Empty) == BuildVersion)
