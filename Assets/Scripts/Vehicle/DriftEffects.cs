@@ -156,7 +156,7 @@ namespace MotorCity.Vehicle
                 go.AddComponent<TrailRenderer>();
 
             trail.material = trailMaterial;
-            trail.time = 40f;
+            trail.time = 5f;
             trail.startWidth = 0.19f;
             trail.endWidth = 0.17f;
             trail.minVertexDistance = 0.14f;
