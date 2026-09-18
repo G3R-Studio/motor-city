@@ -24,41 +24,43 @@ namespace MotorCity.World
         // the exact MeshCollider triangle/submesh using the FCG_Roads material.
         private static readonly Vector3[] DeliveryPreferred =
         {
-            // Main-city loop from the new two-district FCG generation.
-            new(-300f, 0f, 0f),
-            new(0f, 0f, 0f),
-            new(300f, 0f, 0f),
+            // Large-district delivery loop from the 2026-09-18 17:09 FCG
+            // workbench generation. Targets intentionally follow the visible
+            // city grid from the report/screenshot; each is then snapped to
+            // the exact FCG_Roads triangle.
+            new(-450f, 0f, -100f),
+            new(-150f, 0f, -100f),
+            new(150f, 0f, -100f),
+            new(450f, 0f, -100f),
             new(450f, 0f, 150f),
-            new(300f, 0f, 300f),
-            new(300f, 0f, 600f),
-            new(0f, 0f, 600f),
-            new(-300f, 0f, 600f),
-            new(-450f, 0f, 300f),
+            new(450f, 0f, 360f),
+            new(150f, 0f, 450f),
+            new(-150f, 0f, 450f),
+            new(-450f, 0f, 360f),
             new(-450f, 0f, 150f),
-            new(-300f, 0f, 0f)
+            new(-150f, 0f, 150f),
+            new(150f, 0f, 150f)
         };
 
         private static readonly Vector3[] SprintPreferred =
         {
-            // Start in the large district, use the whole curved highway,
-            // then finish with a lap through the small remote district.
-            new(-300f, 0f, -220f),
-            new(-300f, 0f, -420f),
-            new(-300f, 0f, -620f),
-            new(-285f, 0f, -780f),
-            new(-245f, 0f, -950f),
-            new(-195f, 0f, -1120f),
-            new(-155f, 0f, -1320f),
-            new(-105f, 0f, -1510f),
-            new(-100f, 0f, -1630f),
-            new(150f, 0f, -1650f),
-            new(200f, 0f, -1830f),
-            new(150f, 0f, -2010f),
-            new(-100f, 0f, -2040f),
-            new(-350f, 0f, -2010f),
-            new(-400f, 0f, -1830f),
-            new(-350f, 0f, -1650f),
-            new(-100f, 0f, -1600f)
+            // Main district -> entrance roundabout -> complete three-piece
+            // highway -> perimeter lap of the compact district.
+            new(450f, 0f, 150f),
+            new(150f, 0f, 100f),
+            new(-150f, 0f, 0f),
+            new(-300f, 0f, -240f),
+            new(-314f, 0f, -420f),
+            new(-314f, 0f, -620f),
+            new(-300f, 0f, -800f),
+            new(-300f, 0f, -1000f),
+            new(-300f, 0f, -1200f),
+            new(-300f, 0f, -1400f),
+            new(-300f, 0f, -1600f),
+            new(20f, 0f, -1832f),
+            new(-300f, 0f, -2010f),
+            new(-630f, 0f, -1832f),
+            new(-300f, 0f, -1632f)
         };
 
         private static Vector3[] deliveryRoute =
@@ -72,18 +74,18 @@ namespace MotorCity.World
         private static bool hasCityBounds;
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
-            new(0f, 0.2f, 300f);
+            new(0f, 0.2f, 100f);
 
         public static Quaternion PlayerSpawnRotation { get; private set; } =
             Quaternion.identity;
 
-        // Central Park-06 from the new generated main district.
+        // Park-06 beside the lower central road network in the large district.
         public static Vector3 GaragePoint { get; private set; } =
-            new(-114.42f, 0.4f, 358.62f);
+            new(368.91f, 0.4f, 183.37f);
 
-        // Broad central-east intersection in the main district.
+        // Lower roundabout / broad junction visible in the large district.
         public static Vector3 DriftChallengePoint { get; private set; } =
-            new(300f, 0.2f, 300f);
+            new(450f, 0.2f, 150f);
 
         public static Vector3[] DeliveryRoute =>
             (Vector3[])deliveryRoute.Clone();
@@ -157,7 +159,7 @@ namespace MotorCity.World
                     new Vector3(
                         0f,
                         0f,
-                        300f),
+                        100f),
                     90f,
                     "player spawn",
                     false);
@@ -171,18 +173,18 @@ namespace MotorCity.World
             GaragePoint =
                 FindParkingPointNear(
                     new Vector3(
-                        -114.42f,
+                        368.91f,
                         0f,
-                        358.62f),
-                    36f);
+                        183.37f),
+                    30f);
 
             DriftChallengePoint =
                 FindRoadPointNear(
                     new Vector3(
-                        300f,
+                        450f,
                         0f,
-                        300f),
-                    90f,
+                        150f),
+                    75f,
                     "drift zone",
                     true);
 
@@ -595,7 +597,8 @@ namespace MotorCity.World
 
                 if (!path.Contains("park-04") &&
                     !path.Contains("park-05") &&
-                    !path.Contains("park-06"))
+                    !path.Contains("park-06") &&
+                    !path.Contains("park-08"))
                     continue;
 
                 if (hit.collider is MeshCollider meshCollider)
@@ -644,7 +647,9 @@ namespace MotorCity.World
                 path.Contains("/buildings/") ||
                 path.Contains("/park-") ||
                 path.Contains("/garden") ||
-                path.Contains("/objects/"))
+                path.Contains("/objects/") ||
+                path.Contains("guardrail") ||
+                path.Contains("guard-rail"))
                 return false;
 
             Renderer renderer =
@@ -845,7 +850,8 @@ namespace MotorCity.World
                 bool parking =
                     objectName.StartsWith("park-04") ||
                     objectName.StartsWith("park-05") ||
-                    objectName.StartsWith("park-06");
+                    objectName.StartsWith("park-06") ||
+                    objectName.StartsWith("park-08");
 
                 if (parking)
                 {
@@ -927,6 +933,12 @@ namespace MotorCity.World
 
             string name =
                 transform.name.ToLowerInvariant();
+
+            if (name.Contains("guardrail") ||
+                name.Contains("guard-rail") ||
+                path.Contains("guardrail") ||
+                path.Contains("guard-rail"))
+                return false;
 
             bool driveableMaterial =
                 UsesDriveableMaterial(
@@ -1063,11 +1075,11 @@ namespace MotorCity.World
                     new Vector3(
                         0f,
                         80f,
-                        150f),
+                        -766f),
                     new Vector3(
                         1532f,
                         170f,
-                        932f));
+                        2764f));
             }
 
             Bounds bounds =
