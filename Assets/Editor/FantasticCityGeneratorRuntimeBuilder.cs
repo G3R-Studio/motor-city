@@ -29,6 +29,28 @@ public static class FantasticCityGeneratorRuntimeBuilder
         Scene scene =
             SceneManager.GetActiveScene();
 
+        if (!FantasticCityGeneratorWorkbench.IsSafeWorkbench(
+                scene))
+        {
+            EditorUtility.DisplayDialog(
+                "Motor City — FCG Runtime City",
+                "Активная сцена не находится в Assets/LocalGenerated.\n\n" +
+                "Чтобы город не потерялся после git reset, сначала открой:\n" +
+                "Motor City > Fantastic City Generator > Create or Open Safe Workbench",
+                "OK");
+            return;
+        }
+
+        if (!EditorSceneManager.SaveScene(
+                scene))
+        {
+            EditorUtility.DisplayDialog(
+                "Motor City — FCG Runtime City",
+                "Не удалось сохранить FCG workbench перед сборкой runtime-города.",
+                "OK");
+            return;
+        }
+
         GameObject source =
             scene
                 .GetRootGameObjects()
