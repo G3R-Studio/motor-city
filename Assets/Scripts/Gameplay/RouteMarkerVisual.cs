@@ -46,8 +46,7 @@ namespace MotorCity.Gameplay
             if (!visible) return;
 
             Vector3 target = activity.CurrentTarget;
-            transform.position =
-                new Vector3(target.x, 0f, target.z);
+            transform.position = target;
 
             float pulse =
                 1f + Mathf.Sin(Time.time * 2.8f) * 0.015f;
