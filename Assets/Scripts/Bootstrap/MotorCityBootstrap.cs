@@ -251,7 +251,7 @@ namespace MotorCity.Bootstrap
                 "Delivery Marker",
                 "MotorCity/Environment/DeliveryCrate",
                 delivery.CurrentTarget,
-                5.4f,
+                2.4f,
                 new Color(0.08f, 0.5f, 1f));
 
             RouteMarkerVisual visual =
@@ -301,16 +301,63 @@ namespace MotorCity.Bootstrap
             StreetSprintActivity sprint,
             ActivityManager activityManager)
         {
-            GameObject marker = CreateAssetMarker(
-                "Street Sprint Marker",
-                "MotorCity/Environment/SprintCar",
-                sprint.CurrentTarget,
-                6.8f,
-                new Color(0.18f, 1f, 0.34f));
+            GameObject marker = CreateSprintFlagMarker(
+                sprint.CurrentTarget);
 
             StreetSprintMarkerVisual visual =
                 marker.AddComponent<StreetSprintMarkerVisual>();
             visual.Bind(sprint, activityManager);
+        }
+
+        private static GameObject CreateSprintFlagMarker(
+            Vector3 position)
+        {
+            GameObject root = new("Street Sprint Marker");
+            root.transform.position = position;
+
+            Material poleMaterial =
+                Material(new Color(0.12f, 0.13f, 0.15f), 0.35f, 0.45f);
+
+            Primitive(
+                "Sprint Flag Pole",
+                PrimitiveType.Cylinder,
+                root.transform,
+                new Vector3(0.08f, 1.35f, 0.08f),
+                new Vector3(0f, 1.35f, 0f),
+                poleMaterial,
+                false);
+
+            Sprite flagSprite =
+                Resources.Load<Sprite>("MotorCity/Markers/flag");
+
+            if (flagSprite != null)
+            {
+                GameObject flag = new("Sprint Flag");
+                flag.transform.SetParent(root.transform, false);
+                flag.transform.localPosition = new Vector3(0.68f, 2.25f, 0f);
+                flag.transform.localScale = Vector3.one * 1.35f;
+
+                SpriteRenderer renderer =
+                    flag.AddComponent<SpriteRenderer>();
+                renderer.sprite = flagSprite;
+                renderer.color = new Color(0.18f, 1f, 0.34f);
+            }
+            else
+            {
+                Material flagMaterial =
+                    Material(new Color(0.18f, 1f, 0.34f), 0.02f, 0.55f);
+
+                Primitive(
+                    "Sprint Flag Fallback",
+                    PrimitiveType.Cube,
+                    root.transform,
+                    new Vector3(1.35f, 0.75f, 0.08f),
+                    new Vector3(0.68f, 2.25f, 0f),
+                    flagMaterial,
+                    false);
+            }
+
+            return root;
         }
 
         private static void CreateGarageMarker(
