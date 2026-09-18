@@ -10,7 +10,7 @@ namespace MotorCity.Vehicle
     {
         private const float TargetLength = 4.35f;
         private const float TargetWheelCenterLocalY = 0.42f;
-        private const float SourceVisualForwardYaw = 180f;
+        private const float SourceVisualForwardYaw = 0f;
 
         private static readonly HashSet<string> FallbackVisualNames = new()
         {
@@ -336,10 +336,9 @@ namespace MotorCity.Vehicle
         private static void OrientSourceVisualForward(
             Transform visual)
         {
-            // The current ARCADE racing-car source asset points its nose
-            // toward local -Z after import. Motor City and Prometeo both
-            // treat local +Z as vehicle forward. Resolve that once here,
-            // before FL/FR/RL/RR are classified from wheel positions.
+            // The generated PlayerCarVisual prefab is already normalized
+            // to Motor City's +Z forward axis. Do not flip it again here,
+            // otherwise Prometeo's front/rear wheel classification is reversed.
             visual.localRotation =
                 visual.localRotation *
                 Quaternion.Euler(
