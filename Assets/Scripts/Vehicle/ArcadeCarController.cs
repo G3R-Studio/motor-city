@@ -17,7 +17,7 @@ namespace MotorCity.Vehicle
         [Header("Prometeo tuning")]
         [SerializeField] private int baseMaxSpeedKph = 250;
         [SerializeField] private int maxReverseSpeedKph = 55;
-        [SerializeField] private int accelerationMultiplier = 14;
+        [SerializeField] private int accelerationMultiplier = 12;
         [SerializeField] private int maxSteeringAngle = 32;
         [SerializeField] private float steeringSpeed = 0.68f;
         [SerializeField] private int brakeForce = 900;
@@ -27,14 +27,14 @@ namespace MotorCity.Vehicle
             new(0f, 0.32f, 0.05f);
 
         [Header("Vehicle body")]
-        [SerializeField] private float vehicleMass = 1200f;
+        [SerializeField] private float vehicleMass = 1280f;
         [SerializeField] private float angularDamping = 0.22f;
 
         [Header("Power assist")]
-        [SerializeField] private float basePowerAssistAcceleration = 6.5f;
-        [SerializeField] private float driftPowerAssistAcceleration = 4.0f;
-        [SerializeField] private float reversePowerAssistAcceleration = 3.0f;
-        [SerializeField] private float powerAssistFadeStartKph = 205f;
+        [SerializeField] private float basePowerAssistAcceleration = 4.2f;
+        [SerializeField] private float driftPowerAssistAcceleration = 2.4f;
+        [SerializeField] private float reversePowerAssistAcceleration = 2.2f;
+        [SerializeField] private float powerAssistFadeStartKph = 175f;
 
         [Header("Prometeo WheelColliders")]
         [SerializeField] private float fallbackWheelRadius = 0.36f;
