@@ -465,12 +465,24 @@ namespace MotorCity.Vehicle
         private Component CreateInputProxy(
             string name)
         {
+            // PrometeoTouchInput expects a RectTransform in Start(), even
+            // when we drive buttonPressed from code instead of real UI.
             GameObject inputObject =
-                new(name);
+                new(
+                    name,
+                    typeof(RectTransform));
 
-            inputObject.transform.SetParent(
+            RectTransform rect =
+                inputObject.GetComponent<RectTransform>();
+
+            rect.SetParent(
                 transform,
                 false);
+
+            rect.localPosition = Vector3.zero;
+            rect.localRotation = Quaternion.identity;
+            rect.localScale = Vector3.one;
+            rect.sizeDelta = Vector2.one;
 
             inputObject.hideFlags =
                 HideFlags.HideInHierarchy;
