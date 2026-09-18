@@ -54,3 +54,9 @@ sysinfo.txt
 # Current local Modern City Pack source
 /Assets/MCP/
 /Assets/MCP.meta
+
+# Other locally imported Asset Store city packages
+/Assets/CubexCube - Free City Pack I/
+/Assets/CubexCube - Free City Pack I.meta
+/Assets/Versatile Studio Assets/
+/Assets/Versatile Studio Assets.meta
