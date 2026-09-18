@@ -573,10 +573,7 @@ namespace MotorCity.World
 
             foreach (RaycastHit hit in hits)
             {
-                MeshCollider meshCollider =
-                    hit.collider as MeshCollider;
-
-                if (meshCollider == null)
+                if (hit.collider == null)
                     continue;
 
                 string path =
@@ -589,20 +586,23 @@ namespace MotorCity.World
                     !path.Contains("park-06"))
                     continue;
 
-                Renderer renderer =
-                    hit.collider.GetComponent<Renderer>();
+                if (hit.collider is MeshCollider meshCollider)
+                {
+                    Renderer renderer =
+                        hit.collider.GetComponent<Renderer>();
 
-                Material material =
-                    ResolveTriangleMaterial(
-                        hit,
-                        renderer,
-                        meshCollider);
+                    Material material =
+                        ResolveTriangleMaterial(
+                            hit,
+                            renderer,
+                            meshCollider);
 
-                if (material != null &&
-                    material.name.IndexOf(
-                        "grass",
-                        StringComparison.OrdinalIgnoreCase) >= 0)
-                    continue;
+                    if (material != null &&
+                        material.name.IndexOf(
+                            "grass",
+                            StringComparison.OrdinalIgnoreCase) >= 0)
+                        continue;
+                }
 
                 point =
                     hit.point;
@@ -801,7 +801,10 @@ namespace MotorCity.World
         private static void EnsureDriveableMeshColliders(
             GameObject city)
         {
-            int added =
+            int roadCollidersAdded =
+                0;
+
+            int parkingCollidersAdded =
                 0;
 
             foreach (MeshFilter filter in
@@ -817,7 +820,54 @@ namespace MotorCity.World
                 if (renderer == null)
                     continue;
 
-                if (!ShouldHaveDriveableCollider(
+                string objectName =
+                    filter.name.ToLowerInvariant();
+
+                bool parking =
+                    objectName.StartsWith("park-04") ||
+                    objectName.StartsWith("park-05") ||
+                    objectName.StartsWith("park-06");
+
+                if (parking)
+                {
+                    if (filter.GetComponent<Collider>() == null)
+                    {
+                        BoxCollider box =
+                            filter.gameObject.AddComponent<BoxCollider>();
+
+                        Bounds localBounds =
+                            renderer.localBounds;
+
+                        Vector3 size =
+                            localBounds.size;
+
+                        // Some FCG parking meshes are perfectly flat.
+                        // Give the collider a small vertical thickness so
+                        // Physics.Raycast can always hit the parking surface.
+                        size.y =
+                            Mathf.Max(
+                                size.y,
+                                0.2f);
+
+                        Vector3 center =
+                            localBounds.center;
+
+                        center.y +=
+                            size.y * 0.5f;
+
+                        box.center =
+                            center;
+
+                        box.size =
+                            size;
+
+                        parkingCollidersAdded++;
+                    }
+
+                    continue;
+                }
+
+                if (!ShouldHaveRoadMeshCollider(
                         filter.transform,
                         renderer))
                     continue;
@@ -834,17 +884,20 @@ namespace MotorCity.World
                 collider.convex =
                     false;
 
-                added++;
+                roadCollidersAdded++;
             }
 
-            if (added > 0)
+            if (roadCollidersAdded > 0 ||
+                parkingCollidersAdded > 0)
             {
                 Debug.Log(
-                    $"Motor City: added {added} FCG road/parking MeshColliders.");
+                    "Motor City: prepared FCG physics surfaces. " +
+                    $"Road MeshColliders added={roadCollidersAdded}, " +
+                    $"parking colliders added={parkingCollidersAdded}.");
             }
         }
 
-        private static bool ShouldHaveDriveableCollider(
+        private static bool ShouldHaveRoadMeshCollider(
             Transform transform,
             Renderer renderer)
         {
@@ -856,13 +909,25 @@ namespace MotorCity.World
             string name =
                 transform.name.ToLowerInvariant();
 
-            bool parking =
-                name.StartsWith("park-04") ||
-                name.StartsWith("park-05") ||
-                name.StartsWith("park-06");
-
             bool roadMaterial =
-                false;
+                UsesRoadMaterial(
+                    renderer);
+
+            bool mainGround =
+                path.Contains("/meshes/") ||
+                name.StartsWith("bd-") ||
+                name.StartsWith("double-block");
+
+            return
+                roadMaterial &&
+                mainGround;
+        }
+
+        private static bool UsesRoadMaterial(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return false;
 
             foreach (Material material in
                      renderer.sharedMaterials)
@@ -874,22 +939,40 @@ namespace MotorCity.World
                         "road",
                         StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    roadMaterial =
-                        true;
-
-                    break;
+                    return true;
                 }
             }
 
-            bool mainGround =
-                path.Contains("/meshes/") ||
-                name.StartsWith("bd-") ||
-                name.StartsWith("double-block");
+            return false;
+        }
 
-            return
-                parking ||
-                (roadMaterial &&
-                 mainGround);
+        private static bool IsFcgCityRenderer(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return false;
+
+            foreach (Material material in
+                     renderer.sharedMaterials)
+            {
+                if (material == null)
+                    continue;
+
+                string name =
+                    material.name;
+
+                if (name.StartsWith(
+                        "FCG_",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    name.IndexOf(
+                        "FCG",
+                        StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static GameObject FindExistingCity()
@@ -923,19 +1006,37 @@ namespace MotorCity.World
         private static Bounds CalculateCityBounds(
             GameObject city)
         {
-            Renderer[] renderers =
+            Renderer[] allRenderers =
                 city.GetComponentsInChildren<Renderer>(true);
+
+            var cityRenderers =
+                new List<Renderer>();
+
+            foreach (Renderer renderer in allRenderers)
+            {
+                if (IsFcgCityRenderer(
+                        renderer))
+                {
+                    cityRenderers.Add(
+                        renderer);
+                }
+            }
+
+            Renderer[] renderers =
+                cityRenderers.Count > 0
+                    ? cityRenderers.ToArray()
+                    : allRenderers;
 
             if (renderers.Length == 0)
             {
                 return new Bounds(
                     new Vector3(
                         0f,
-                        0f,
+                        80f,
                         150f),
                     new Vector3(
                         1532f,
-                        20f,
+                        170f,
                         932f));
             }
 
