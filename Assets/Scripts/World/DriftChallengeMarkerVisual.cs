@@ -61,10 +61,7 @@ namespace MotorCity.World
                 baseScale.y * pulse,
                 baseScale.z * pulse);
 
-            transform.position =
-                basePosition +
-                Vector3.up *
-                (Mathf.Sin(Time.time * 2.4f) * 0.035f);
+            transform.position = basePosition;
 
             Color tint = challenge.IsActive
                 ? new Color(1f, 0.36f, 0.04f)
