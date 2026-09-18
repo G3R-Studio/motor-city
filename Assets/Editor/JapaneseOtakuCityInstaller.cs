@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -11,7 +12,8 @@ public static class JapaneseOtakuCityInstaller
     private const string SourceRoot = "Assets/ZRNAssets";
     private const string RuntimeRoot = "Assets/Resources/MotorCity/Environment";
     private const string RuntimeCityPrefab = RuntimeRoot + "/CityVisual.prefab";
-    private const string BuildVersion = "otaku-city-scale-3x-v2";
+    private const string RuntimeMaterialRoot = RuntimeRoot + "/JapaneseMaterials";
+    private const string BuildVersion = "otaku-city-urp-materials-v3";
     private const float CityScaleMultiplier = 3.0f;
     private const string BuildVersionKey = "MotorCity.JapaneseOtakuCity.BuildVersion";
 
@@ -108,6 +110,7 @@ public static class JapaneseOtakuCityInstaller
 
         RemoveEmbeddedCamerasAndLights(city);
         RemoveObviousClutter(city);
+        ConvertMaterialsForUrp(city);
 
         city.transform.localScale *= CityScaleMultiplier;
 
@@ -234,6 +237,257 @@ public static class JapaneseOtakuCityInstaller
             UnityEngine.Object.DestroyImmediate(
                 item.gameObject);
         }
+    }
+
+
+    private static void ConvertMaterialsForUrp(
+        GameObject city)
+    {
+        Shader urpLit =
+            Shader.Find("Universal Render Pipeline/Lit");
+
+        if (urpLit == null)
+        {
+            Debug.LogWarning(
+                "Motor City: URP/Lit shader was not found, so Japanese city materials were left unchanged.");
+            return;
+        }
+
+        Directory.CreateDirectory(RuntimeMaterialRoot);
+
+        var converted =
+            new Dictionary<Material, Material>();
+
+        foreach (Renderer renderer in
+                 city.GetComponentsInChildren<Renderer>(true))
+        {
+            Material[] source =
+                renderer.sharedMaterials;
+
+            if (source == null ||
+                source.Length == 0)
+                continue;
+
+            Material[] result =
+                new Material[source.Length];
+
+            for (int i = 0; i < source.Length; i++)
+            {
+                Material old =
+                    source[i];
+
+                if (old == null)
+                {
+                    result[i] = null;
+                    continue;
+                }
+
+                if (!converted.TryGetValue(
+                        old,
+                        out Material replacement))
+                {
+                    replacement =
+                        BuildUrpMaterial(
+                            old,
+                            urpLit,
+                            converted.Count);
+
+                    converted.Add(
+                        old,
+                        replacement);
+                }
+
+                result[i] =
+                    replacement;
+            }
+
+            renderer.sharedMaterials =
+                result;
+        }
+    }
+
+    private static Material BuildUrpMaterial(
+        Material source,
+        Shader urpLit,
+        int index)
+    {
+        string lowerName =
+            source.name.ToLowerInvariant();
+
+        string shaderName =
+            source.shader != null
+                ? source.shader.name.ToLowerInvariant()
+                : string.Empty;
+
+        bool transparent =
+            lowerName.Contains("glass") ||
+            lowerName.Contains("window") ||
+            lowerName.Contains("transparent") ||
+            shaderName.Contains("transparent");
+
+        Texture baseTexture = null;
+        Vector2 textureScale = Vector2.one;
+        Vector2 textureOffset = Vector2.zero;
+
+        if (source.HasProperty("_BaseMap"))
+        {
+            baseTexture =
+                source.GetTexture("_BaseMap");
+            textureScale =
+                source.GetTextureScale("_BaseMap");
+            textureOffset =
+                source.GetTextureOffset("_BaseMap");
+        }
+        else if (source.HasProperty("_MainTex"))
+        {
+            baseTexture =
+                source.GetTexture("_MainTex");
+            textureScale =
+                source.GetTextureScale("_MainTex");
+            textureOffset =
+                source.GetTextureOffset("_MainTex");
+        }
+
+        Color sourceColor =
+            source.HasProperty("_BaseColor")
+                ? source.GetColor("_BaseColor")
+                : source.HasProperty("_Color")
+                    ? source.GetColor("_Color")
+                    : Color.white;
+
+        if (!transparent)
+            sourceColor.a = 1f;
+
+        Material material =
+            new(urpLit)
+            {
+                name =
+                    "JOC_" +
+                    SanitizeAssetName(source.name) +
+                    "_" +
+                    index
+            };
+
+        if (baseTexture != null &&
+            material.HasProperty("_BaseMap"))
+        {
+            material.SetTexture(
+                "_BaseMap",
+                baseTexture);
+            material.SetTextureScale(
+                "_BaseMap",
+                textureScale);
+            material.SetTextureOffset(
+                "_BaseMap",
+                textureOffset);
+        }
+
+        if (material.HasProperty("_BaseColor"))
+            material.SetColor(
+                "_BaseColor",
+                sourceColor);
+
+        if (material.HasProperty("_Metallic"))
+            material.SetFloat(
+                "_Metallic",
+                0f);
+
+        if (material.HasProperty("_Smoothness"))
+            material.SetFloat(
+                "_Smoothness",
+                transparent ? 0.55f : 0.18f);
+
+        if (material.HasProperty("_Surface"))
+            material.SetFloat(
+                "_Surface",
+                transparent ? 1f : 0f);
+
+        if (material.HasProperty("_Blend"))
+            material.SetFloat(
+                "_Blend",
+                0f);
+
+        if (material.HasProperty("_AlphaClip"))
+            material.SetFloat(
+                "_AlphaClip",
+                0f);
+
+        if (transparent)
+        {
+            material.SetOverrideTag(
+                "RenderType",
+                "Transparent");
+            material.renderQueue = 3000;
+            material.EnableKeyword(
+                "_SURFACE_TYPE_TRANSPARENT");
+            material.SetFloat(
+                "_ZWrite",
+                0f);
+        }
+        else
+        {
+            material.SetOverrideTag(
+                "RenderType",
+                "Opaque");
+            material.renderQueue = -1;
+            material.DisableKeyword(
+                "_SURFACE_TYPE_TRANSPARENT");
+            material.SetFloat(
+                "_ZWrite",
+                1f);
+        }
+
+        string assetPath =
+            RuntimeMaterialRoot +
+            "/" +
+            material.name +
+            ".mat";
+
+        Material existing =
+            AssetDatabase.LoadAssetAtPath<Material>(
+                assetPath);
+
+        if (existing != null)
+        {
+            EditorUtility.CopySerialized(
+                material,
+                existing);
+            UnityEngine.Object.DestroyImmediate(
+                material);
+            EditorUtility.SetDirty(
+                existing);
+            return existing;
+        }
+
+        AssetDatabase.CreateAsset(
+            material,
+            assetPath);
+
+        return material;
+    }
+
+    private static string SanitizeAssetName(
+        string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "Material";
+
+        char[] invalid =
+            Path.GetInvalidFileNameChars();
+
+        string result =
+            new(
+                value
+                    .Select(
+                        ch =>
+                            invalid.Contains(ch)
+                                ? '_'
+                                : ch)
+                    .ToArray());
+
+        return string.IsNullOrWhiteSpace(result)
+            ? "Material"
+            : result;
     }
 
     private static void CenterOnGround(
