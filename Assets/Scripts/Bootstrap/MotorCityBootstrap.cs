@@ -248,9 +248,9 @@ namespace MotorCity.Bootstrap
         {
             GameObject marker = CreateAssetMarker(
                 "Delivery Marker",
-                "MotorCity/Environment/DeliveryCrate",
-                delivery.CurrentTarget + Vector3.up * 1.25f,
-                2.2f,
+                "MotorCity/Environment/CheckpointGate",
+                delivery.CurrentTarget,
+                14f,
                 new Color(0.08f, 0.5f, 1f));
 
             RouteMarkerVisual visual =
@@ -262,12 +262,34 @@ namespace MotorCity.Bootstrap
             DriftChallenge challenge,
             ActivityManager activityManager)
         {
-            GameObject marker = CreateAssetMarker(
-                "Drift Challenge Marker",
-                "MotorCity/Environment/DriftCone",
-                challenge.ZoneCenter + Vector3.up * 0.09f,
-                1.45f,
-                new Color(1f, 0.48f, 0.06f));
+            GameObject marker =
+                new("Drift Challenge Marker");
+            marker.transform.position =
+                challenge.ZoneCenter;
+
+            float coneOffset = 6f;
+            Vector3[] offsets =
+            {
+                new(-coneOffset, 0f, -coneOffset),
+                new(coneOffset, 0f, -coneOffset),
+                new(-coneOffset, 0f, coneOffset),
+                new(coneOffset, 0f, coneOffset)
+            };
+
+            foreach (Vector3 offset in offsets)
+            {
+                GameObject cone =
+                    CreateAssetMarker(
+                        "Drift Cone",
+                        "MotorCity/Environment/DriftCone",
+                        challenge.ZoneCenter + offset,
+                        2.2f,
+                        new Color(1f, 0.48f, 0.06f));
+
+                cone.transform.SetParent(
+                    marker.transform,
+                    true);
+            }
 
             DriftChallengeMarkerVisual visual =
                 marker.AddComponent<DriftChallengeMarkerVisual>();
@@ -280,9 +302,9 @@ namespace MotorCity.Bootstrap
         {
             GameObject marker = CreateAssetMarker(
                 "Street Sprint Marker",
-                "MotorCity/Environment/SprintCar",
-                sprint.CurrentTarget + Vector3.up * 0.12f,
-                3.4f,
+                "MotorCity/Environment/CheckpointGate",
+                sprint.CurrentTarget,
+                14f,
                 new Color(0.18f, 1f, 0.34f));
 
             StreetSprintMarkerVisual visual =
@@ -297,7 +319,7 @@ namespace MotorCity.Bootstrap
                 "Garage",
                 "MotorCity/Environment/GarageBuilding",
                 garage.GarageCenter,
-                11f,
+                26f,
                 new Color(0.72f, 0.16f, 1f));
 
             GarageMarkerVisual visual =
