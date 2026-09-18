@@ -233,6 +233,7 @@ namespace MotorCity.Bootstrap
 
             ArcadeCarController controller =
                 car.AddComponent<ArcadeCarController>();
+            car.AddComponent<HandbrakePhysicsAssist>();
             car.AddComponent<DriftEffects>();
             car.AddComponent<CarReset>();
             return controller;
