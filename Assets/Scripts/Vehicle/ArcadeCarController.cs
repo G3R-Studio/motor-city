@@ -12,7 +12,6 @@ namespace MotorCity.Vehicle
         private const int RearRight = 3;
 
         [Header("Drift-capable Road Controller")]
-        [SerializeField] private float brakePower = 10f;
         [SerializeField] private float wheelRotateSpeed = 20f;
         [SerializeField] private float wheelSteeringAngle = 34f;
         [SerializeField] private float wheelAcceleration = 28f;
@@ -31,8 +30,6 @@ namespace MotorCity.Vehicle
         [SerializeField] private float reverseDrag = 0.08f;
         [SerializeField] private Vector3 centerOfMass = new(0f, 0.32f, 0.05f);
         [SerializeField] private float antiRollForce = 5200f;
-        [SerializeField] private float physicsHalfTrack = 1.05f;
-        [SerializeField] private float physicsHalfWheelbase = 1.72f;
 
         [Header("Prefab WheelCollider")]
         [SerializeField] private float wheelRadius = 0.5f;
