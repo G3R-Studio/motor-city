@@ -24,6 +24,9 @@ public static class CommunityCityAssetInstaller
     private const string RuntimeCityPrefab =
         RuntimeRoot + "/CityVisual.prefab";
 
+    private const string BuildVersion = "city-scale-1.5-v1";
+    private const string BuildVersionKey = "MotorCity.CommunityCity.BuildVersion";
+
     private static bool installing;
 
     static CommunityCityAssetInstaller()
@@ -40,7 +43,15 @@ public static class CommunityCityAssetInstaller
     private static void AutoInstallIfNeeded()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode) return;
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(RuntimeCityPrefab) != null) return;
+
+        bool prefabExists =
+            AssetDatabase.LoadAssetAtPath<GameObject>(RuntimeCityPrefab) != null;
+        bool currentBuild =
+            EditorPrefs.GetString(BuildVersionKey, string.Empty) == BuildVersion;
+
+        if (prefabExists && currentBuild)
+            return;
+
         Install(false);
     }
 
@@ -48,7 +59,8 @@ public static class CommunityCityAssetInstaller
     {
         if (installing) return;
         if (!force &&
-            AssetDatabase.LoadAssetAtPath<GameObject>(RuntimeCityPrefab) != null)
+            AssetDatabase.LoadAssetAtPath<GameObject>(RuntimeCityPrefab) != null &&
+            EditorPrefs.GetString(BuildVersionKey, string.Empty) == BuildVersion)
             return;
 
         installing = true;
@@ -74,6 +86,7 @@ public static class CommunityCityAssetInstaller
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+            EditorPrefs.SetString(BuildVersionKey, BuildVersion);
 
             Debug.Log(
                 "Motor City: CC0 Community Core / Kenney city assets are installed and ready.");
@@ -225,7 +238,7 @@ public static class CommunityCityAssetInstaller
         for (int i = 1; i < renderers.Length; i++)
             bounds.Encapsulate(renderers[i].bounds);
 
-        const float targetHorizontalSize = 238f;
+        const float targetHorizontalSize = 357f;
         float horizontalSize =
             Mathf.Max(bounds.size.x, bounds.size.z);
 
