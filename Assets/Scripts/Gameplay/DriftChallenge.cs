@@ -37,6 +37,8 @@ namespace MotorCity.Gameplay
             drift = driftTracker;
             wallet = targetWallet;
             activityManager = manager;
+            zoneCenter =
+                MotorCity.World.CityAssetRuntimeInstaller.DriftChallengePoint;
             TimeRemaining = durationSeconds;
         }
 
