@@ -54,7 +54,7 @@ namespace MotorCity.World
             if (!visible) return;
 
             float pulse =
-                1f + Mathf.Sin(Time.time * 3.6f) * 0.055f;
+                1f + Mathf.Sin(Time.time * 3.1f) * 0.028f;
 
             transform.localScale = new Vector3(
                 baseScale.x * pulse,
@@ -64,8 +64,8 @@ namespace MotorCity.World
             transform.position = basePosition;
 
             Color tint = challenge.IsActive
-                ? new Color(1f, 0.36f, 0.04f)
-                : new Color(1f, 0.55f, 0.08f);
+                ? new Color(1f, 0.42f, 0.08f)
+                : new Color(0.95f, 0.5f, 0.1f);
 
             Tint(tint);
         }
