@@ -118,8 +118,7 @@ public static class CommunityCityAssetInstaller
                 "Library",
                 "MotorCityCommunityCity02.zip");
 
-        if (File.Exists(zipPath))
-            File.Delete(zipPath);
+        SafeDelete(zipPath);
 
         using (WebClient client = new())
         {
