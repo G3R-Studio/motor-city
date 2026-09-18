@@ -103,58 +103,57 @@ public static class KenneyUiAssetInstaller
                 "sounds/click1.ogg"
             };
 
-            using FileStream zipStream =
-                File.OpenRead(zipPath);
-            using ZipArchive archive =
-                new(zipStream, ZipArchiveMode.Read);
-
-            foreach (string relative in wanted)
+            using (FileStream zipStream = File.OpenRead(zipPath))
+            using (ZipArchive archive = new(zipStream, ZipArchiveMode.Read))
             {
-                ZipArchiveEntry entry = null;
-
-                foreach (ZipArchiveEntry candidate in archive.Entries)
+                foreach (string relative in wanted)
                 {
-                    string normalized =
-                        candidate.FullName.Replace('\\', '/');
+                    ZipArchiveEntry entry = null;
 
-                    if (normalized.EndsWith(
-                            "/" + relative,
-                            StringComparison.OrdinalIgnoreCase))
+                    foreach (ZipArchiveEntry candidate in archive.Entries)
                     {
-                        entry = candidate;
-                        break;
+                        string normalized =
+                            candidate.FullName.Replace('\\', '/');
+
+                        if (normalized.EndsWith(
+                                "/" + relative,
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            entry = candidate;
+                            break;
+                        }
                     }
+
+                    if (entry == null)
+                    {
+                        Debug.LogWarning(
+                            "Motor City: Kenney UI file not found: " +
+                            relative);
+                        continue;
+                    }
+
+                    string fileName =
+                        Path.GetFileName(relative);
+
+                    string destination =
+                        Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            RuntimeRoot,
+                            fileName);
+
+                    using Stream source = entry.Open();
+                    using FileStream target =
+                        new(
+                            destination,
+                            FileMode.Create,
+                            FileAccess.Write,
+                            FileShare.None);
+
+                    source.CopyTo(target);
                 }
-
-                if (entry == null)
-                {
-                    Debug.LogWarning(
-                        "Motor City: Kenney UI file not found: " +
-                        relative);
-                    continue;
-                }
-
-                string fileName =
-                    Path.GetFileName(relative);
-
-                string destination =
-                    Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        RuntimeRoot,
-                        fileName);
-
-                using Stream source = entry.Open();
-                using FileStream target =
-                    new(
-                        destination,
-                        FileMode.Create,
-                        FileAccess.Write,
-                        FileShare.None);
-
-                source.CopyTo(target);
             }
 
-            File.Delete(zipPath);
+            SafeDelete(zipPath);
 
             AssetDatabase.Refresh(
                 ImportAssetOptions.ForceSynchronousImport);
@@ -186,6 +185,20 @@ public static class KenneyUiAssetInstaller
         finally
         {
             installing = false;
+        }
+    }
+
+    private static void SafeDelete(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+        catch (IOException)
+        {
+            // The generated ZIP is only a temporary cache. If another process
+            // still holds it briefly, leave it for the next installer pass.
         }
     }
 
