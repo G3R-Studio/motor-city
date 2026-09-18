@@ -12,9 +12,9 @@ The project currently includes:
 
 - Unity 6.6 + Universal Render Pipeline;
 - a lightweight Web-oriented runtime scene;
-- road-focused WheelCollider vehicle physics adapted to Unity 6 and the Input System, with a 0.02 s physics timestep, higher solver precision and smoothed keyboard/gamepad input;
+- drift-capable rear-wheel-drive WheelCollider vehicle physics adapted to Unity 6 and the Input System, with a 0.02 s physics timestep, higher solver precision and smoothed keyboard/gamepad input;
 - a 1480 kg Rigidbody chassis with rear-wheel drive, four WheelColliders, speed-sensitive steering, four-wheel service braking, anti-roll forces and a deliberately lowered center of mass;
-- separate forward drive, service-brake and reverse behavior, limited reverse speed, aerodynamic downforce and more progressive high-speed steering;
+- separate forward drive, service-brake and reverse behavior, limited reverse speed, speed-sensitive steering and dynamic rear grip for throttle and handbrake drifts;
 - retuned WheelCollider suspension, damping and tyre friction, with the collider radius matched to the imported visual wheel size;
 - wheel visuals synchronized to the physical WheelColliders;
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
