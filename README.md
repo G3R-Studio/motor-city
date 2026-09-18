@@ -30,7 +30,7 @@ The project currently includes:
 - a compact floating garage waypoint using a CC0 Kenney Game Icons flag asset;
 - moving delivery and sprint targets with a four-cone drift marker cluster;
 - a compact HUD navigator that points toward the current delivery/sprint checkpoint and, during free roam, toward the nearest activity or garage with live distance;
-- the active city uses the locally generated Fantastic City Generator layout with a large main district, a smaller remote district and a curved connecting highway; the runtime installer resolves `FCG_Roads` and `FCG_HighWay` by exact MeshCollider triangle/submesh material instead of renderer bounds, keeps delivery inside the main district, uses a known central parking area for the garage, and routes the street sprint across the highway into the remote district;
+- the active city uses the latest locally generated Fantastic City Generator layout with a large main district, a compact remote district and a three-section connecting highway; the runtime installer resolves `FCG_Roads` and `FCG_HighWay` by exact MeshCollider triangle/submesh material, explicitly excludes highway guardrails from driveable surfaces, keeps delivery inside the large district, places the garage on a real parking surface, and routes the street sprint across the highway into the compact district;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
