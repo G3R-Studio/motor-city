@@ -89,7 +89,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 "Motor City — FCG Runtime City",
                 "Готово.\n\n" +
                 $"Renderer'ов: {renderers}\n" +
-                $"Добавлено дорожных/парковочных MeshCollider: {colliders}\n\n" +
+                $"Добавлено дорожных/хайвей/парковочных MeshCollider: {colliders}\n\n" +
                 "Runtime-город сохранён локально и переживёт git reset.",
                 "OK");
         }
@@ -241,22 +241,31 @@ public static class FantasticCityGeneratorRuntimeBuilder
             meshName.StartsWith("park-05") ||
             meshName.StartsWith("park-06");
 
-        bool roadMaterial =
+        bool driveableMaterial =
             renderer.sharedMaterials.Any(
                 material =>
                     material != null &&
-                    material.name.IndexOf(
-                        "road",
-                        StringComparison.OrdinalIgnoreCase) >= 0);
+                    (material.name.IndexOf(
+                         "road",
+                         StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     material.name.IndexOf(
+                         "highway",
+                         StringComparison.OrdinalIgnoreCase) >= 0));
 
         bool mainCityMesh =
             path.Contains("/meshes/") ||
             meshName.StartsWith("bd-") ||
             meshName.StartsWith("double-block");
 
+        bool highwayMesh =
+            meshName.StartsWith("hw-") ||
+            path.Contains("/hw-");
+
         return
             parking ||
-            (roadMaterial && mainCityMesh);
+            (driveableMaterial &&
+             (mainCityMesh ||
+              highwayMesh));
     }
 
     private static string GetHierarchyPath(
