@@ -53,6 +53,12 @@ namespace MotorCity.Bootstrap
                 systems.AddComponent<PlayerWallet>();
             drift.Initialize(wallet, activityManager);
 
+            VehicleRosterSystem vehicleRoster =
+                systems.AddComponent<VehicleRosterSystem>();
+            vehicleRoster.Initialize(
+                car,
+                reputation);
+
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
             delivery.Initialize(car, wallet, activityManager);
 
@@ -106,7 +112,8 @@ namespace MotorCity.Bootstrap
                 delivery,
                 driftChallenge,
                 streetSprint,
-                circuitRace);
+                circuitRace,
+                vehicleRoster);
 
             CreateDeliveryMarker(delivery, activityManager);
             CreateDriftChallengeMarker(driftChallenge, activityManager);
