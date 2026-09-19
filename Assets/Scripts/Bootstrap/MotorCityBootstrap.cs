@@ -493,6 +493,7 @@ namespace MotorCity.Bootstrap
             GameObject cameraObject = new("Main Camera");
             cameraObject.tag = "MainCamera";
             Camera camera = cameraObject.AddComponent<Camera>();
+            cameraObject.AddComponent<AudioListener>();
             camera.fieldOfView = 62f;
             camera.nearClipPlane = 0.12f;
             camera.farClipPlane = 3162.5f;
