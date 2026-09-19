@@ -51,6 +51,7 @@ The project currently includes:
 - mission markers hide while another mission is active, while the garage marker remains visible;
 - entering the garage cancels the active mission;
 - Russian in-game HUD, garage text, activity prompts and status messages;
+- a temporary runtime admin/debug panel opened with `F10` (or backquote) for testing progression: it can add КР, add/set REP, reset those values to zero and instantly raise REP enough to unlock the current vehicle roster;
 - a compact dark racing-style Canvas HUD with responsive text fitting, separate speedometer, activity status, controls hint and contextual drift panel;
 - a redesigned garage overlay with three clearly separated upgrade rows and automatic text resizing so long labels remain inside their panels;
 - instant local rescue reset: the car is moved to the nearest detected road around its current position instead of returning to the original spawn;
@@ -89,7 +90,8 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 - `Z/X` — select the previous/next unlocked vehicle while the garage is open;
 - `Esc` — cancel the current activity during its countdown or run, close the garage, or leave an activity result screen;
 - `Enter` — restart the just-finished activity from its result screen;
-- `R` — rescue-reset the vehicle to the nearest detected road surface around its current position, aligned with the road and with motion cleared.
+- `R` — rescue-reset the vehicle to the nearest detected road surface around its current position, aligned with the road and with motion cleared;
+- `F10` or backquote — open/close the temporary admin/debug panel.
 
 ## Current gameplay
 
