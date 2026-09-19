@@ -184,9 +184,23 @@ public static class FantasticCityGeneratorRuntimeBuilder
         foreach (Light light in
                  root.GetComponentsInChildren<Light>(true))
         {
-            if (light != null)
-                UnityEngine.Object.DestroyImmediate(
-                    light);
+            if (light == null)
+                continue;
+
+            if (IsStreetLightHierarchy(
+                    light.transform))
+            {
+                light.enabled =
+                    true;
+
+                light.shadows =
+                    LightShadows.None;
+
+                continue;
+            }
+
+            UnityEngine.Object.DestroyImmediate(
+                light);
         }
 
         foreach (Rigidbody body in
@@ -214,6 +228,32 @@ public static class FantasticCityGeneratorRuntimeBuilder
                     item.gameObject);
             }
         }
+    }
+
+    private static bool IsStreetLightHierarchy(
+        Transform item)
+    {
+        Transform current =
+            item;
+
+        while (current != null)
+        {
+            string name =
+                current.name.ToLowerInvariant();
+
+            if (name.StartsWith("streetlight") ||
+                name.StartsWith("parklamp") ||
+                name.Contains("street-light") ||
+                name.Contains("street_light"))
+            {
+                return true;
+            }
+
+            current =
+                current.parent;
+        }
+
+        return false;
     }
 
     private static int EnsureDriveableColliders(
