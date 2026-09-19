@@ -8,9 +8,19 @@ namespace MotorCity.Gameplay
     public sealed class StreetSprintActivity : MonoBehaviour
     {
         private const string ActivityId = "sprint";
+        private const string BestTimeKey =
+            "MotorCity.Sprint.BestTime";
 
+        [Header("Reward")]
         [SerializeField] private int baseRewardCredits = 550;
         [SerializeField] private int maximumTimeBonusCredits = 450;
+
+        [Header("Time tiers")]
+        [SerializeField] private float goldTimeSeconds = 45f;
+        [SerializeField] private float silverTimeSeconds = 60f;
+        [SerializeField] private float bronzeTimeSeconds = 80f;
+
+        [Header("Start")]
         [SerializeField] private float startRadius = 14f;
         [SerializeField] private float checkpointRadius = 14f;
         [SerializeField] private float maxStartSpeedKph = 8f;
@@ -29,12 +39,18 @@ namespace MotorCity.Gameplay
         public bool IsCountingDown => isCountingDown;
         public bool IsNearStart { get; private set; }
         public float ElapsedSeconds { get; private set; }
+        public float BestTimeSeconds { get; private set; }
         public int CheckpointIndex => checkpointIndex;
         public int CheckpointCount => route?.Length ?? 0;
+
         public Vector3 CurrentTarget =>
             route == null || route.Length == 0
                 ? Vector3.zero
-                : route[Mathf.Clamp(checkpointIndex, 0, route.Length - 1)];
+                : route[Mathf.Clamp(
+                    checkpointIndex,
+                    0,
+                    route.Length - 1)];
+
         public string StatusText { get; private set; } =
             "Зелёный маркер: уличный спринт";
 
@@ -47,6 +63,13 @@ namespace MotorCity.Gameplay
             wallet = targetWallet;
             activityManager = manager;
             route = CityAssetRuntimeInstaller.SprintRoute;
+
+            BestTimeSeconds =
+                Mathf.Max(
+                    0f,
+                    PlayerPrefs.GetFloat(
+                        BestTimeKey,
+                        0f));
         }
 
         private void Update()
@@ -58,11 +81,13 @@ namespace MotorCity.Gameplay
                 route.Length < 2)
                 return;
 
-            Keyboard keyboard = Keyboard.current;
+            Keyboard keyboard =
+                Keyboard.current;
 
             if (isCountingDown)
             {
                 IsNearStart = false;
+
                 if (keyboard != null &&
                     keyboard.escapeKey.wasPressedThisFrame)
                 {
@@ -77,6 +102,7 @@ namespace MotorCity.Gameplay
             if (IsActive)
             {
                 IsNearStart = false;
+
                 if (keyboard != null &&
                     keyboard.escapeKey.wasPressedThisFrame)
                 {
@@ -89,17 +115,21 @@ namespace MotorCity.Gameplay
             }
 
             checkpointIndex = 0;
+
             float distance =
                 Vector3.Distance(
                     Flat(car.transform.position),
                     Flat(route[0]));
 
-            IsNearStart = distance <= startRadius;
+            IsNearStart =
+                distance <= startRadius;
 
             if (!armed)
             {
                 IsNearStart = false;
-                if (distance > startRadius + 4f)
+
+                if (distance >
+                    startRadius + 4f)
                 {
                     armed = true;
                     StatusText =
@@ -124,15 +154,22 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (car.SpeedKph > maxStartSpeedKph)
+            if (car.SpeedKph >
+                maxStartSpeedKph)
             {
                 StatusText =
                     $"СПРИНТ — остановись до {maxStartSpeedKph:0} км/ч";
                 return;
             }
 
+            string best =
+                BestTimeSeconds > 0f
+                    ? $"   РЕК {BestTimeSeconds:0.0}с"
+                    : string.Empty;
+
             StatusText =
-                "СПРИНТ   E — НАЧАТЬ";
+                $"СПРИНТ   E — НАЧАТЬ   " +
+                $"ЗОЛОТО ≤ {goldTimeSeconds:0}с{best}";
 
             if (keyboard != null &&
                 keyboard.eKey.wasPressedThisFrame)
@@ -150,11 +187,17 @@ namespace MotorCity.Gameplay
 
             isCountingDown = true;
             armed = false;
+
             countdownRemaining =
-                Mathf.Max(0.1f, countdownSeconds);
+                Mathf.Max(
+                    0.1f,
+                    countdownSeconds);
+
             ElapsedSeconds = 0f;
             checkpointIndex = 0;
+
             car.SetDrivingEnabled(false);
+
             UpdateCountdownStatus();
         }
 
@@ -163,7 +206,8 @@ namespace MotorCity.Gameplay
             countdownRemaining =
                 Mathf.Max(
                     0f,
-                    countdownRemaining - Time.deltaTime);
+                    countdownRemaining -
+                    Time.deltaTime);
 
             if (countdownRemaining > 0f)
             {
@@ -175,7 +219,9 @@ namespace MotorCity.Gameplay
             IsActive = true;
             ElapsedSeconds = 0f;
             checkpointIndex = 1;
+
             car.SetDrivingEnabled(true);
+
             UpdateStatus();
         }
 
@@ -184,7 +230,8 @@ namespace MotorCity.Gameplay
             int shown =
                 Mathf.Max(
                     1,
-                    Mathf.CeilToInt(countdownRemaining));
+                    Mathf.CeilToInt(
+                        countdownRemaining));
 
             StatusText =
                 $"СПРИНТ   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
@@ -192,19 +239,25 @@ namespace MotorCity.Gameplay
 
         private void UpdateActiveSprint()
         {
-            ElapsedSeconds += Time.deltaTime;
+            ElapsedSeconds +=
+                Time.deltaTime;
 
             float distance =
                 Vector3.Distance(
                     Flat(car.transform.position),
                     Flat(CurrentTarget));
 
-            if (distance > checkpointRadius)
+            if (distance >
+                checkpointRadius)
+            {
+                UpdateStatus();
                 return;
+            }
 
             checkpointIndex++;
 
-            if (checkpointIndex >= route.Length)
+            if (checkpointIndex >=
+                route.Length)
             {
                 CompleteSprint();
                 return;
@@ -217,7 +270,24 @@ namespace MotorCity.Gameplay
         {
             StatusText =
                 $"СПРИНТ  ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
-                $"{ElapsedSeconds:0.0}с   ESC — ОТМЕНА";
+                $"{ElapsedSeconds:0.0}с   {CurrentTierHint()}   ESC — ОТМЕНА";
+        }
+
+        private string CurrentTierHint()
+        {
+            if (ElapsedSeconds <=
+                goldTimeSeconds)
+                return $"ЗОЛОТО ≤ {goldTimeSeconds:0}с";
+
+            if (ElapsedSeconds <=
+                silverTimeSeconds)
+                return $"СЕРЕБРО ≤ {silverTimeSeconds:0}с";
+
+            if (ElapsedSeconds <=
+                bronzeTimeSeconds)
+                return $"БРОНЗА ≤ {bronzeTimeSeconds:0}с";
+
+            return "ФИНИШИРУЙ";
         }
 
         private void CompleteSprint()
@@ -236,29 +306,65 @@ namespace MotorCity.Gameplay
                 baseRewardCredits +
                 bonus;
 
-            wallet.AddCredits(reward);
+            string tier =
+                ElapsedSeconds <= goldTimeSeconds
+                    ? "ЗОЛОТО"
+                    : ElapsedSeconds <= silverTimeSeconds
+                        ? "СЕРЕБРО"
+                        : ElapsedSeconds <= bronzeTimeSeconds
+                            ? "БРОНЗА"
+                            : "ФИНИШ";
+
+            bool newBest =
+                BestTimeSeconds <= 0f ||
+                ElapsedSeconds <
+                BestTimeSeconds;
+
+            if (newBest)
+            {
+                BestTimeSeconds =
+                    ElapsedSeconds;
+
+                PlayerPrefs.SetFloat(
+                    BestTimeKey,
+                    BestTimeSeconds);
+
+                PlayerPrefs.Save();
+            }
+
+            wallet.AddCredits(
+                reward);
 
             IsActive = false;
             checkpointIndex = 0;
+
             car.SetDrivingEnabled(false);
+
+            string record =
+                newBest
+                    ? "   •   НОВЫЙ РЕКОРД"
+                    : BestTimeSeconds > 0f
+                        ? $"   •   Рекорд: {BestTimeSeconds:0.0}с"
+                        : string.Empty;
 
             activityManager.ShowResult(
                 ActivityId,
                 "УЛИЧНЫЙ СПРИНТ",
-                "ФИНИШ",
-                $"Время: {ElapsedSeconds:0.0}с   •   Бонус: {bonus:N0} КР",
+                tier,
+                $"Время: {ElapsedSeconds:0.0}с   •   Бонус: {bonus:N0} КР{record}",
                 reward,
                 true);
 
             StatusText =
-                $"Спринт завершён за {ElapsedSeconds:0.0}с  +{reward} КР";
+                $"Спринт: {tier}  +{reward} КР";
         }
 
         public void RestartFromResult()
         {
             if (activityManager == null ||
                 !activityManager.HasResult ||
-                activityManager.ResultActivityId != ActivityId ||
+                activityManager.ResultActivityId !=
+                    ActivityId ||
                 route == null ||
                 route.Length < 2 ||
                 car == null)
@@ -267,7 +373,9 @@ namespace MotorCity.Gameplay
             activityManager.DismissResult();
 
             Vector3 direction =
-                Flat(route[1] - route[0]);
+                Flat(
+                    route[1] -
+                    route[0]);
 
             Quaternion rotation =
                 direction.sqrMagnitude > 0.01f
@@ -280,10 +388,12 @@ namespace MotorCity.Gameplay
                         0f);
 
             car.TeleportTo(
-                route[0] + Vector3.up * 1.1f,
+                route[0] +
+                Vector3.up * 1.1f,
                 rotation);
 
             armed = true;
+
             BeginCountdown();
         }
 
@@ -299,6 +409,7 @@ namespace MotorCity.Gameplay
             countdownRemaining = 0f;
             checkpointIndex = 0;
             ElapsedSeconds = 0f;
+
             car?.SetDrivingEnabled(true);
             activityManager?.End(ActivityId);
 
@@ -311,7 +422,8 @@ namespace MotorCity.Gameplay
             car?.SetDrivingEnabled(true);
         }
 
-        private static Vector3 Flat(Vector3 value)
+        private static Vector3 Flat(
+            Vector3 value)
         {
             value.y = 0f;
             return value;
