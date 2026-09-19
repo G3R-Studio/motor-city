@@ -951,25 +951,23 @@ namespace MotorCity.World
                         city.transform))
                     continue;
 
-                if (collider.enabled)
+                if (!collider.isTrigger ||
+                    !collider.enabled)
                 {
                     collider.isTrigger =
                         true;
 
                     collider.enabled =
-                        false;
+                        true;
 
                     disabled++;
                 }
-
-                UnityEngine.Object.Destroy(
-                    collider);
             }
 
             if (disabled > 0)
             {
                 Debug.Log(
-                    $"Motor City: hard-disabled {disabled} Road-Mark/RoadMark colliders.");
+                    $"Motor City: converted {disabled} Road-Mark/RoadMark colliders to triggers.");
             }
 
             return disabled;
