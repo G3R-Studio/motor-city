@@ -165,6 +165,18 @@ public static class FantasticCityGeneratorDayNightBuilder
             "nightSkybox",
             nightSkybox);
 
+        CopyMaterialArray(
+            source,
+            "materialDay",
+            destination,
+            "dayMaterials");
+
+        CopyMaterialArray(
+            source,
+            "materialNight",
+            destination,
+            "nightMaterials");
+
         CopyColor(
             source,
             "skyColorDay",
@@ -314,6 +326,46 @@ public static class FantasticCityGeneratorDayNightBuilder
         }
 
         return false;
+    }
+
+    private static void CopyMaterialArray(
+        SerializedObject source,
+        string sourceName,
+        SerializedObject destination,
+        string destinationName)
+    {
+        SerializedProperty from =
+            source.FindProperty(
+                sourceName);
+
+        SerializedProperty to =
+            destination.FindProperty(
+                destinationName);
+
+        if (from == null ||
+            to == null ||
+            !from.isArray ||
+            !to.isArray)
+            return;
+
+        to.arraySize =
+            from.arraySize;
+
+        for (int i = 0;
+             i < from.arraySize;
+             i++)
+        {
+            SerializedProperty fromElement =
+                from.GetArrayElementAtIndex(
+                    i);
+
+            SerializedProperty toElement =
+                to.GetArrayElementAtIndex(
+                    i);
+
+            toElement.objectReferenceValue =
+                fromElement.objectReferenceValue;
+        }
     }
 
     private static void CopyColor(
