@@ -395,8 +395,7 @@ namespace MotorCity.World
 
             Light[] all =
                 UnityEngine.Object.FindObjectsByType<Light>(
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.None);
+                    FindObjectsInactive.Include);
 
             foreach (Light light in all)
             {
