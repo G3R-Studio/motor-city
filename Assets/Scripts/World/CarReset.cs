@@ -60,6 +60,9 @@ namespace MotorCity.World
                 car.SetDrivingEnabled(
                     true);
 
+                GetComponent<VehiclePositionPersistence>()
+                    ?.SaveNow();
+
                 return;
             }
 
