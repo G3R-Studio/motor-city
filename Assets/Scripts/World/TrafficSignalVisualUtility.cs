@@ -34,8 +34,8 @@ namespace MotorCity.World
         private static int StabilizeTrafficLight(
             Transform trafficLightRoot)
         {
-            var groups =
-                new Dictionary<Transform, List<Renderer>>();
+            var candidates =
+                new List<Renderer>();
 
             foreach (Renderer renderer in
                      trafficLightRoot.GetComponentsInChildren<Renderer>(true))
@@ -45,41 +45,73 @@ namespace MotorCity.World
                         renderer))
                     continue;
 
-                Transform parent =
-                    renderer.transform.parent ??
-                    trafficLightRoot;
+                candidates.Add(
+                    renderer);
 
-                if (!groups.TryGetValue(
-                        parent,
-                        out List<Renderer> renderers))
-                {
-                    renderers =
-                        new List<Renderer>();
-
-                    groups.Add(
-                        parent,
-                        renderers);
-                }
-
-                renderers.Add(
+                StabilizeRendererMaterials(
                     renderer);
             }
 
             int disabled =
                 0;
 
-            foreach (List<Renderer> renderers in
-                     groups.Values)
+            var handled =
+                new HashSet<Renderer>();
+
+            for (int i = 0;
+                 i < candidates.Count;
+                 i++)
             {
-                if (renderers.Count <= 1)
+                Renderer origin =
+                    candidates[i];
+
+                if (origin == null ||
+                    handled.Contains(
+                        origin))
+                    continue;
+
+                var overlapGroup =
+                    new List<Renderer>
+                    {
+                        origin
+                    };
+
+                handled.Add(
+                    origin);
+
+                for (int j = i + 1;
+                     j < candidates.Count;
+                     j++)
+                {
+                    Renderer other =
+                        candidates[j];
+
+                    if (other == null ||
+                        handled.Contains(
+                            other))
+                        continue;
+
+                    if (!SignalsOverlap(
+                            origin,
+                            other))
+                        continue;
+
+                    overlapGroup.Add(
+                        other);
+
+                    handled.Add(
+                        other);
+                }
+
+                if (overlapGroup.Count <= 1)
                     continue;
 
                 Renderer keep =
                     ChooseStableRenderer(
-                        renderers);
+                        overlapGroup);
 
                 foreach (Renderer renderer in
-                         renderers)
+                         overlapGroup)
                 {
                     bool shouldEnable =
                         renderer == keep;
@@ -97,6 +129,204 @@ namespace MotorCity.World
             }
 
             return disabled;
+        }
+
+        private static bool SignalsOverlap(
+            Renderer first,
+            Renderer second)
+        {
+            if (first == null ||
+                second == null)
+                return false;
+
+            Bounds a =
+                first.bounds;
+
+            Bounds b =
+                second.bounds;
+
+            Vector3 centerDelta =
+                a.center -
+                b.center;
+
+            float maximumCenterDistance =
+                Mathf.Max(
+                    0.06f,
+                    Mathf.Min(
+                        a.extents.magnitude,
+                        b.extents.magnitude) *
+                    0.55f);
+
+            if (centerDelta.sqrMagnitude >
+                maximumCenterDistance *
+                maximumCenterDistance)
+                return false;
+
+            Bounds expanded =
+                a;
+
+            expanded.Expand(
+                0.04f);
+
+            return
+                expanded.Intersects(
+                    b);
+        }
+
+        private static void StabilizeRendererMaterials(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return;
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            if (materials == null ||
+                materials.Length <= 1)
+                return;
+
+            Material chosen =
+                null;
+
+            float bestScore =
+                float.NegativeInfinity;
+
+            int pedestrianMaterialCount =
+                0;
+
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                Material material =
+                    materials[i];
+
+                if (material == null ||
+                    !LooksLikePedestrianMaterial(
+                        material))
+                    continue;
+
+                pedestrianMaterialCount++;
+
+                float score =
+                    ScoreMaterial(
+                        material);
+
+                if (score >
+                    bestScore)
+                {
+                    bestScore =
+                        score;
+
+                    chosen =
+                        material;
+                }
+            }
+
+            if (pedestrianMaterialCount <= 1 ||
+                chosen == null)
+                return;
+
+            bool changed =
+                false;
+
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                Material material =
+                    materials[i];
+
+                if (material == null ||
+                    !LooksLikePedestrianMaterial(
+                        material))
+                    continue;
+
+                if (material ==
+                    chosen)
+                    continue;
+
+                materials[i] =
+                    chosen;
+
+                changed =
+                    true;
+            }
+
+            if (changed)
+            {
+                renderer.sharedMaterials =
+                    materials;
+            }
+        }
+
+        private static bool LooksLikePedestrianMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string name =
+                NormalizeName(
+                    material.name);
+
+            return
+                name.Contains(
+                    "pedestrian") ||
+                name.Contains(
+                    "walk") ||
+                name.Contains(
+                    "hand");
+        }
+
+        private static float ScoreMaterial(
+            Material material)
+        {
+            if (material == null)
+                return float.NegativeInfinity;
+
+            string name =
+                NormalizeName(
+                    material.name);
+
+            float score =
+                0f;
+
+            if (name.Contains(
+                    "red") ||
+                name.Contains(
+                    "stop") ||
+                name.Contains(
+                    "hand") ||
+                name.Contains(
+                    "dontwalk"))
+            {
+                score +=
+                    100f;
+            }
+
+            if (name.Contains(
+                    "green") ||
+                name.Contains(
+                    "walk"))
+            {
+                score -=
+                    20f;
+            }
+
+            Color color =
+                TryGetMaterialColor(
+                    material);
+
+            score +=
+                (color.r -
+                 Mathf.Max(
+                     color.g,
+                     color.b)) *
+                15f;
+
+            return score;
         }
 
         private static Renderer ChooseStableRenderer(
