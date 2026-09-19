@@ -78,9 +78,32 @@ public static class FantasticCityGeneratorDayNightBuilder
 
     private static void TryBuildSilently()
     {
-        if (AssetDatabase.LoadAssetAtPath<DayNightSettings>(
-                SettingsPath) != null)
-            return;
+        DayNightSettings existing =
+            AssetDatabase.LoadAssetAtPath<DayNightSettings>(
+                SettingsPath);
+
+        if (existing != null)
+        {
+            SerializedObject serialized =
+                new(
+                    existing);
+
+            SerializedProperty dayMaterials =
+                serialized.FindProperty(
+                    "dayMaterials");
+
+            SerializedProperty nightMaterials =
+                serialized.FindProperty(
+                    "nightMaterials");
+
+            if (dayMaterials != null &&
+                nightMaterials != null &&
+                dayMaterials.arraySize > 0 &&
+                nightMaterials.arraySize > 0)
+            {
+                return;
+            }
+        }
 
         Build(
             false);
