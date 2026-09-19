@@ -117,11 +117,11 @@ namespace MotorCity.World
                         cityRoot.transform))
                     continue;
 
-                collider.enabled =
-                    false;
+                collider.isTrigger =
+                    true;
 
-                UnityEngine.Object.Destroy(
-                    collider);
+                collider.enabled =
+                    true;
 
                 removed++;
             }
