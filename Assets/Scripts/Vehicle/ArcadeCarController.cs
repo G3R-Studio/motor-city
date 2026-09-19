@@ -144,6 +144,15 @@ namespace MotorCity.Vehicle
         public bool HasPrometeoPhysics =>
             prometeo != null;
 
+        public WheelCollider GetWheelCollider(
+            int index)
+        {
+            return index >= 0 &&
+                   index < wheelColliders.Length
+                ? wheelColliders[index]
+                : null;
+        }
+
         public int GroundedWheels { get; private set; }
         public float RearSidewaysSlip { get; private set; }
         public float RearForwardSlip { get; private set; }
