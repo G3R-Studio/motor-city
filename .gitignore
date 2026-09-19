@@ -48,6 +48,10 @@ sysinfo.txt
 /Assets/Resources/MotorCity/Audio/
 /Assets/Resources/MotorCity/Audio.meta
 
+# User-provided local audio files
+/Assets/LocalAudio/
+/Assets/LocalAudio.meta
+
 # Local Nox_Sound Vehicle - Essentials package
 /Assets/Nox_Sound/
 /Assets/Nox_Sound.meta
