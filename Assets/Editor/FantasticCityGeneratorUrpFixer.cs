@@ -460,6 +460,17 @@ public static class FantasticCityGeneratorUrpFixer
             shortGuid +
             ".mat";
 
+        bool foliage =
+            IsCutoutFoliageMaterialName(
+                source.name);
+
+        Shader targetShader =
+            foliage
+                ? Shader.Find(
+                      "MotorCity/TwoSidedFoliage") ??
+                  urpLit
+                : urpLit;
+
         Material material =
             AssetDatabase.LoadAssetAtPath<Material>(
                 path);
@@ -468,7 +479,7 @@ public static class FantasticCityGeneratorUrpFixer
         {
             material =
                 new Material(
-                    urpLit);
+                    targetShader);
 
             AssetDatabase.CreateAsset(
                 material,
@@ -477,7 +488,7 @@ public static class FantasticCityGeneratorUrpFixer
         else
         {
             material.shader =
-                urpLit;
+                targetShader;
         }
 
         material.name =
@@ -973,9 +984,6 @@ public static class FantasticCityGeneratorUrpFixer
         if (material == null)
             return;
 
-        material.shader =
-            urpLit;
-
         string generatedName =
             material.name.StartsWith(
                 "FCG_",
@@ -983,13 +991,23 @@ public static class FantasticCityGeneratorUrpFixer
                 ? material.name.Substring(4)
                 : material.name;
 
+        bool foliage =
+            IsCutoutFoliageMaterialName(
+                generatedName);
+
+        Shader targetShader =
+            foliage
+                ? Shader.Find(
+                      "MotorCity/TwoSidedFoliage") ??
+                  urpLit
+                : urpLit;
+
+        material.shader =
+            targetShader;
+
         Material source =
             FindOriginalFcgMaterialForGenerated(
                 material,
-                generatedName);
-
-        bool foliage =
-            IsFoliageMaterialName(
                 generatedName);
 
         if (source != null)
@@ -1762,6 +1780,55 @@ public static class FantasticCityGeneratorUrpFixer
             material.SetFloat(
                 "_Cull",
                 (float)CullMode.Off);
+        }
+
+        if (cutoutFoliage)
+        {
+            material.doubleSidedGI =
+                true;
+
+            if (material.HasProperty(
+                    "_BaseColor"))
+            {
+                material.SetColor(
+                    "_BaseColor",
+                    Color.white);
+            }
+
+            if (material.HasProperty(
+                    "_Color"))
+            {
+                material.SetColor(
+                    "_Color",
+                    Color.white);
+            }
+
+            if (material.HasProperty(
+                    "_BumpMap"))
+            {
+                material.SetTexture(
+                    "_BumpMap",
+                    null);
+            }
+
+            material.DisableKeyword(
+                "_NORMALMAP");
+
+            if (material.HasProperty(
+                    "_Metallic"))
+            {
+                material.SetFloat(
+                    "_Metallic",
+                    0f);
+            }
+
+            if (material.HasProperty(
+                    "_Smoothness"))
+            {
+                material.SetFloat(
+                    "_Smoothness",
+                    0f);
+            }
         }
     }
 
