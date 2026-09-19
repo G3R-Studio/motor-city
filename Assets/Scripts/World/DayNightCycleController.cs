@@ -407,6 +407,7 @@ namespace MotorCity.World
         private void RefreshStreetLights()
         {
             streetLights.Clear();
+            autoCreatedStreetLights = 0;
 
             GameObject cityRoot =
                 GameObject.Find(
@@ -420,8 +421,11 @@ namespace MotorCity.World
             var unique =
                 new HashSet<Light>();
 
+            Transform[] transforms =
+                cityRoot.GetComponentsInChildren<Transform>(true);
+
             foreach (Transform item in
-                     cityRoot.GetComponentsInChildren<Transform>(true))
+                     transforms)
             {
                 if (item == null ||
                     !IsNamedFcgLampNode(
@@ -432,6 +436,29 @@ namespace MotorCity.World
 
                 Light light =
                     EnsureRuntimeLampLight(
+                        item);
+
+                if (light == null)
+                    continue;
+
+                ConfigureLampLight(
+                    light);
+
+                unique.Add(
+                    light);
+            }
+
+            foreach (Transform item in
+                     transforms)
+            {
+                if (item == null ||
+                    !IsLampRoot(item) ||
+                    HasLampRootAncestor(item) ||
+                    HasNamedLampDescendant(item))
+                    continue;
+
+                Light light =
+                    EnsureFallbackLampLight(
                         item);
 
                 if (light == null)
@@ -616,6 +643,75 @@ namespace MotorCity.World
             return runtimeLight;
         }
 
+        private Light EnsureFallbackLampLight(
+            Transform lampRoot)
+        {
+            if (lampRoot == null)
+                return null;
+
+            foreach (Light existing in
+                     lampRoot.GetComponentsInChildren<Light>(true))
+            {
+                if (existing == null ||
+                    existing.type ==
+                    LightType.Directional)
+                    continue;
+
+                if (string.Equals(
+                        existing.gameObject.name,
+                        "MotorCity_LampLight",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return existing;
+                }
+            }
+
+            Renderer[] renderers =
+                lampRoot.GetComponentsInChildren<Renderer>(true);
+
+            if (renderers == null ||
+                renderers.Length == 0)
+                return null;
+
+            Bounds bounds =
+                renderers[0].bounds;
+
+            for (int i = 1;
+                 i < renderers.Length;
+                 i++)
+            {
+                Renderer renderer =
+                    renderers[i];
+
+                if (renderer != null)
+                    bounds.Encapsulate(
+                        renderer.bounds);
+            }
+
+            Vector3 worldPosition =
+                new(
+                    bounds.center.x,
+                    bounds.max.y - 0.08f,
+                    bounds.center.z);
+
+            GameObject lightObject =
+                new("MotorCity_LampLight");
+
+            lightObject.transform.SetParent(
+                lampRoot,
+                true);
+
+            lightObject.transform.position =
+                worldPosition;
+
+            Light runtimeLight =
+                lightObject.AddComponent<Light>();
+
+            autoCreatedStreetLights++;
+
+            return runtimeLight;
+        }
+
         private static void ConfigureLampLight(
             Light light)
         {
@@ -643,23 +739,23 @@ namespace MotorCity.World
             light.intensity =
                 Mathf.Max(
                     light.intensity,
-                    6.5f);
+                    9f);
 
             light.range =
                 Mathf.Max(
                     light.range,
-                    22f);
+                    30f);
 
             light.spotAngle =
                 Mathf.Max(
                     light.spotAngle,
-                    82f);
+                    92f);
 
             light.innerSpotAngle =
                 Mathf.Clamp(
                     Mathf.Max(
                         light.innerSpotAngle,
-                        46f),
+                        52f),
                     0f,
                     light.spotAngle);
 
@@ -831,6 +927,32 @@ namespace MotorCity.World
                 if (IsNamedFcgLampNode(
                         child))
                     return true;
+            }
+
+            return false;
+        }
+
+        private static bool HasLampRootAncestor(
+            Transform item)
+        {
+            if (item == null)
+                return false;
+
+            Transform current =
+                item.parent;
+
+            while (current != null)
+            {
+                if (IsLampRoot(
+                        current))
+                    return true;
+
+                if (IsRuntimeCityRoot(
+                        current))
+                    return false;
+
+                current =
+                    current.parent;
             }
 
             return false;
