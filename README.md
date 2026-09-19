@@ -47,7 +47,7 @@ The project currently includes:
 - Russian in-game HUD, garage text, activity prompts and status messages;
 - a compact dark racing-style Canvas HUD with responsive text fitting, separate speedometer, activity status, controls hint and contextual drift panel;
 - a redesigned garage overlay with three clearly separated upgrade rows and automatic text resizing so long labels remain inside their panels;
-- instant vehicle reset;
+- instant local rescue reset: the car is moved to the nearest detected road around its current position instead of returning to the original spawn;
 - automatic editor setup for the prototype scene and URP configuration.
 
 A flat temporary test surface is currently used when no generated runtime city prefab is available.
@@ -81,7 +81,7 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 - `1/2/3` — buy engine/grip/stability upgrades while the garage is open;
 - `Esc` — cancel the current activity during its countdown or run, close the garage, or leave an activity result screen;
 - `Enter` — restart the just-finished activity from its result screen;
-- `R` — reset the vehicle.
+- `R` — rescue-reset the vehicle to the nearest detected road surface around its current position, aligned with the road and with motion cleared.
 
 ## Current gameplay
 
