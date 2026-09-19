@@ -259,7 +259,8 @@ namespace MotorCity.Gameplay
             bool installed =
                 ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                     car,
-                    profile.ResourcePath);
+                    profile.ResourcePath,
+                    SelectedIndex != 0);
 
             if (!installed &&
                 SelectedIndex != 0)
@@ -277,7 +278,8 @@ namespace MotorCity.Gameplay
 
                 ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                     car,
-                    profile.ResourcePath);
+                    profile.ResourcePath,
+                    false);
             }
 
             car.ApplyVehicleProfile(
