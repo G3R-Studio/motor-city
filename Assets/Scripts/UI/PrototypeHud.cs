@@ -15,6 +15,7 @@ namespace MotorCity.UI
         private DriftChallenge driftChallenge;
         private StreetSprintActivity streetSprint;
         private CircuitRaceActivity circuitRace;
+        private SpeedTrapSystem speedTraps;
         private ActivityManager activityManager;
         private GarageUpgradeSystem garage;
 
@@ -77,6 +78,7 @@ namespace MotorCity.UI
             DriftChallenge challenge,
             StreetSprintActivity sprint,
             CircuitRaceActivity circuit,
+            SpeedTrapSystem speedTrapSystem,
             ActivityManager manager,
             GarageUpgradeSystem garageSystem)
         {
@@ -87,6 +89,7 @@ namespace MotorCity.UI
             driftChallenge = challenge;
             streetSprint = sprint;
             circuitRace = circuit;
+            speedTraps = speedTrapSystem;
             activityManager = manager;
             garage = garageSystem;
 
@@ -631,6 +634,22 @@ namespace MotorCity.UI
                 ref target,
                 ref label,
                 ref bestDistance);
+
+            if (speedTraps != null)
+            {
+                for (int i = 0;
+                     i < speedTraps.TrapCount;
+                     i++)
+                {
+                    ConsiderNavigationTarget(
+                        speedTraps.GetTrapPosition(i),
+                        "РАДАР",
+                        true,
+                        ref target,
+                        ref label,
+                        ref bestDistance);
+                }
+            }
 
             ConsiderNavigationTarget(
                 garage != null
@@ -1216,8 +1235,12 @@ namespace MotorCity.UI
                 circuitRace.IsNearStart)
                 return circuitRace.StatusText;
 
+            if (speedTraps != null &&
+                speedTraps.ShowMessage)
+                return speedTraps.StatusText;
+
             return
-                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   КОЛЬЦО   •   ГАРАЖ";
+                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   КОЛЬЦО   •   РАДАРЫ   •   ГАРАЖ";
         }
 
         private RectTransform CreatePanel(
