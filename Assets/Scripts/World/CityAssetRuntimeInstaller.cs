@@ -859,6 +859,10 @@ namespace MotorCity.World
         private static void EnsureDriveableMeshColliders(
             GameObject city)
         {
+            int legacyHighwayCollidersDisabled =
+                DisableLegacyHighwayColliders(
+                    city);
+
             int roadCollidersAdded =
                 0;
 
@@ -971,6 +975,7 @@ namespace MotorCity.World
                     "Motor City: prepared exact FCG physics surfaces. " +
                     $"Road/highway MeshColliders={roadCollidersAdded}, " +
                     $"old road colliders replaced={roadCollidersReplaced}, " +
+                    $"legacy highway colliders disabled={legacyHighwayCollidersDisabled}, " +
                     $"parking colliders added={parkingCollidersAdded}.");
             }
         }
@@ -1002,6 +1007,9 @@ namespace MotorCity.World
             var triangles =
                 new List<int>();
 
+            Vector3[] vertices =
+                source.vertices;
+
             for (int subMesh = 0;
                  subMesh < subMeshCount;
                  subMesh++)
@@ -1018,9 +1026,62 @@ namespace MotorCity.World
                     MeshTopology.Triangles)
                     continue;
 
-                triangles.AddRange(
+                int[] sourceTriangles =
                     source.GetTriangles(
-                        subMesh));
+                        subMesh);
+
+                for (int i = 0;
+                     i + 2 < sourceTriangles.Length;
+                     i += 3)
+                {
+                    int aIndex =
+                        sourceTriangles[i];
+
+                    int bIndex =
+                        sourceTriangles[i + 1];
+
+                    int cIndex =
+                        sourceTriangles[i + 2];
+
+                    Vector3 a =
+                        filter.transform.TransformPoint(
+                            vertices[aIndex]);
+
+                    Vector3 b =
+                        filter.transform.TransformPoint(
+                            vertices[bIndex]);
+
+                    Vector3 c =
+                        filter.transform.TransformPoint(
+                            vertices[cIndex]);
+
+                    Vector3 normal =
+                        Vector3.Cross(
+                            b - a,
+                            c - a);
+
+                    if (normal.sqrMagnitude <
+                        0.000001f)
+                        continue;
+
+                    normal.Normalize();
+
+                    // Only the upward-facing road deck is driveable.
+                    // Side walls / underside triangles in FCG highway meshes
+                    // caused invisible ramps that lifted the car into the air.
+                    if (normal.y <
+                        0.22f)
+                        continue;
+
+                    triangles.Add(
+                        aIndex);
+
+                    triangles.Add(
+                        bIndex);
+
+                    triangles.Add(
+                        cIndex);
+                }
             }
 
             if (triangles.Count <
@@ -1046,6 +1107,67 @@ namespace MotorCity.World
             collisionMesh.RecalculateBounds();
 
             return true;
+        }
+
+        private static int DisableLegacyHighwayColliders(
+            GameObject city)
+        {
+            if (city == null)
+                return 0;
+
+            int disabled =
+                0;
+
+            foreach (Collider collider in
+                     city.GetComponentsInChildren<Collider>(true))
+            {
+                if (collider == null ||
+                    !IsHighwayHierarchy(
+                        collider.transform))
+                    continue;
+
+                if (!collider.enabled)
+                    continue;
+
+                collider.enabled =
+                    false;
+
+                disabled++;
+            }
+
+            return disabled;
+        }
+
+        private static bool IsHighwayHierarchy(
+            Transform item)
+        {
+            Transform current =
+                item;
+
+            while (current != null)
+            {
+                string name =
+                    current.name.ToLowerInvariant();
+
+                if (name.Contains(
+                        "highway") ||
+                    name.Contains(
+                        "high-way") ||
+                    name.Contains(
+                        "high_way") ||
+                    name.StartsWith(
+                        "hw-") ||
+                    name.StartsWith(
+                        "hwy-"))
+                {
+                    return true;
+                }
+
+                current =
+                    current.parent;
+            }
+
+            return false;
         }
 
         private static bool IsDriveableCollisionMaterial(
