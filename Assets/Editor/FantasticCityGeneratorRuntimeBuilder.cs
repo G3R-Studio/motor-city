@@ -191,9 +191,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
             if (light == null)
                 continue;
 
-            if (light.type ==
-                    LightType.Spot &&
-                IsFcgSpotLight(
+            if (IsFcgSpotLight(
                     light.transform))
             {
                 light.enabled =
@@ -242,26 +240,17 @@ public static class FantasticCityGeneratorRuntimeBuilder
     private static bool IsFcgSpotLight(
         Transform item)
     {
-        Transform current =
-            item;
+        if (item == null)
+            return false;
 
-        while (current != null)
-        {
-            string normalized =
-                NormalizeName(
-                    current.name);
+        string normalized =
+            NormalizeName(
+                item.name);
 
-            if (normalized.Contains(
-                    "spotlight"))
-            {
-                return true;
-            }
-
-            current =
-                current.parent;
-        }
-
-        return false;
+        return
+            normalized.StartsWith(
+                "spotlight",
+                StringComparison.OrdinalIgnoreCase);
     }
 
     private static string NormalizeName(
