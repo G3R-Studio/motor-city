@@ -140,12 +140,12 @@ namespace MotorCity.World
             EnsureDriveableMeshColliders(
                 activeCity);
 
-            int hardDisabledRoadMarkColliders =
-                DisableRoadMarkHierarchyColliders(
-                    activeCity);
-
             int carvedStreetObjectTriangles =
                 CarveRoadSignsFromCombinedObjectColliders(
+                    activeCity);
+
+            int hardDisabledRoadMarkColliders =
+                DisableRoadMarkHierarchyColliders(
                     activeCity);
 
             CityCollisionUtility.Result collisionResult =
