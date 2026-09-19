@@ -181,10 +181,15 @@ namespace MotorCity.World
                     floor.AddComponent<BoxCollider>();
             }
 
+            float floorTop =
+                bounds.min.y -
+                6f;
+
             floor.transform.position =
                 new Vector3(
                     bounds.center.x,
-                    -1.02f,
+                    floorTop -
+                    1f,
                     bounds.center.z);
 
             floor.transform.rotation =
