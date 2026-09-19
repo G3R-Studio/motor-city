@@ -284,7 +284,7 @@ namespace MotorCity.Vehicle
             Transform[] visualWheelRoots,
             Vector3[] wheelCentersLocal,
             float measuredWheelRadius,
-            bool compactVehicleRig = false)
+            bool externalVisualSync = false)
         {
             if (visualWheelRoots == null ||
                 visualWheelRoots.Length < 4 ||
@@ -304,53 +304,46 @@ namespace MotorCity.Vehicle
                         0.58f)
                     : fallbackWheelRadius;
 
-            if (compactVehicleRig)
-            {
-                activeSuspensionDistance =
-                    Mathf.Clamp(
-                        radius * 0.32f,
-                        0.11f,
-                        0.17f);
-
-                activeSuspensionSpring =
-                    Mathf.Lerp(
-                        42000f,
-                        50000f,
-                        Mathf.InverseLerp(
-                            0.28f,
-                            0.52f,
-                            radius));
-
-                activeSuspensionDamper =
-                    Mathf.Lerp(
-                        5000f,
-                        6200f,
-                        Mathf.InverseLerp(
-                            0.28f,
-                            0.52f,
-                            radius));
-
-                activeSuspensionTargetPosition =
-                    0.58f;
-            }
-            else
-            {
-                activeSuspensionDistance =
-                    suspensionDistance;
-                activeSuspensionSpring =
-                    suspensionSpring;
-                activeSuspensionDamper =
-                    suspensionDamper;
-                activeSuspensionTargetPosition =
-                    suspensionTargetPosition;
-            }
+            activeSuspensionDistance =
+                suspensionDistance;
+            activeSuspensionSpring =
+                suspensionSpring;
+            activeSuspensionDamper =
+                suspensionDamper;
+            activeSuspensionTargetPosition =
+                suspensionTargetPosition;
 
             for (int i = 0; i < 4; i++)
             {
-                wheelMeshes[i] =
-                    visualWheelRoots[i] != null
-                        ? visualWheelRoots[i].gameObject
-                        : null;
+                if (externalVisualSync)
+                {
+                    GameObject proxy =
+                        new(
+                            $"PrometeoWheelProxy_{i}");
+
+                    proxy.transform.SetParent(
+                        transform,
+                        false);
+
+                    proxy.transform.localPosition =
+                        wheelCentersLocal[i];
+
+                    proxy.transform.localRotation =
+                        Quaternion.identity;
+
+                    proxy.transform.localScale =
+                        Vector3.one;
+
+                    wheelMeshes[i] =
+                        proxy;
+                }
+                else
+                {
+                    wheelMeshes[i] =
+                        visualWheelRoots[i] != null
+                            ? visualWheelRoots[i].gameObject
+                            : null;
+                }
 
                 ConfigureWheelCollider(
                     i,
