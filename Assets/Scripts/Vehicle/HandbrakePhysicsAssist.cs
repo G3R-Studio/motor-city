@@ -29,6 +29,7 @@ namespace MotorCity.Vehicle
                 lowSpeedThresholdKph,
                 holdThresholdKph);
 
+            car.ApplyDriftRecoveryAssist();
             car.ApplyStraightLineStability();
         }
     }
