@@ -186,6 +186,66 @@ namespace MotorCity.World
                 false);
         }
 
+        public static void ResolveNearestRoadResetPose(
+            Vector3 approximate,
+            Vector3 preferredForward,
+            out Vector3 position,
+            out Quaternion rotation)
+        {
+            Vector3 roadPoint =
+                activeCity != null
+                    ? FindRoadPointNear(
+                        approximate,
+                        90f,
+                        "vehicle reset",
+                        false)
+                    : approximate;
+
+            roadPoint.y =
+                Mathf.Max(
+                    roadPoint.y,
+                    0.05f);
+
+            position =
+                roadPoint +
+                Vector3.up * 1.15f;
+
+            Vector3 roadDirection =
+                activeCity != null
+                    ? EstimateRoadDirection(
+                        roadPoint)
+                    : preferredForward;
+
+            roadDirection.y = 0f;
+
+            if (roadDirection.sqrMagnitude <
+                0.001f)
+            {
+                roadDirection =
+                    Vector3.forward;
+            }
+
+            roadDirection.Normalize();
+
+            preferredForward.y = 0f;
+
+            if (preferredForward.sqrMagnitude >
+                    0.001f &&
+                Vector3.Dot(
+                    roadDirection,
+                    preferredForward.normalized) <
+                0f)
+            {
+                roadDirection =
+                    -roadDirection;
+            }
+
+            rotation =
+                Quaternion.LookRotation(
+                    roadDirection,
+                    Vector3.up);
+        }
+
         private static void ResolveGameplayLayout()
         {
             PlayerSpawnPoint =
