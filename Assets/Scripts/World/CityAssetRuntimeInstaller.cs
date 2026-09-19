@@ -140,8 +140,16 @@ namespace MotorCity.World
             EnsureDriveableMeshColliders(
                 activeCity);
 
+            int hardDisabledRoadMarkColliders =
+                DisableRoadMarkHierarchyColliders(
+                    activeCity);
+
             CityCollisionUtility.Result collisionResult =
                 CityCollisionUtility.Prepare(
+                    activeCity);
+
+            hardDisabledRoadMarkColliders +=
+                DisableRoadMarkHierarchyColliders(
                     activeCity);
 
             int stabilizedPedestrianSignals =
@@ -164,6 +172,7 @@ namespace MotorCity.World
                 "Motor City: Fantastic City Generator city installed. " +
                 $"Bounds center={cityBounds.center}, size={cityBounds.size}. " +
                 $"Pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
+                $"Road-Mark colliders hard-disabled={hardDisabledRoadMarkColliders}, " +
                 $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
                 $"pedestrian signal renderers disabled={stabilizedPedestrianSignals}, " +
                 $"safety floor={collisionResult.SafetyFloorReady}. " +
@@ -919,6 +928,81 @@ namespace MotorCity.World
             }
 
             return score;
+        }
+
+        private static int DisableRoadMarkHierarchyColliders(
+            GameObject city)
+        {
+            if (city == null)
+                return 0;
+
+            int disabled =
+                0;
+
+            foreach (Collider collider in
+                     city.GetComponentsInChildren<Collider>(
+                         true))
+            {
+                if (collider == null)
+                    continue;
+
+                if (!IsRoadMarkHierarchy(
+                        collider.transform,
+                        city.transform))
+                    continue;
+
+                if (collider.enabled)
+                {
+                    collider.isTrigger =
+                        true;
+
+                    collider.enabled =
+                        false;
+
+                    disabled++;
+                }
+
+                UnityEngine.Object.Destroy(
+                    collider);
+            }
+
+            if (disabled > 0)
+            {
+                Debug.Log(
+                    $"Motor City: hard-disabled {disabled} Road-Mark/RoadMark colliders.");
+            }
+
+            return disabled;
+        }
+
+        private static bool IsRoadMarkHierarchy(
+            Transform item,
+            Transform cityRoot)
+        {
+            Transform current =
+                item;
+
+            while (current != null)
+            {
+                string name =
+                    current.name
+                        .Replace("-", string.Empty)
+                        .Replace("_", string.Empty)
+                        .Replace(" ", string.Empty)
+                        .ToLowerInvariant();
+
+                if (name.StartsWith(
+                        "roadmark"))
+                    return true;
+
+                if (current == cityRoot)
+                    break;
+
+                current =
+                    current.parent;
+            }
+
+            return false;
         }
 
         private static void EnsureDriveableMeshColliders(
