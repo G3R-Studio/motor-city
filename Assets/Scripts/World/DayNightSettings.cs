@@ -6,6 +6,10 @@ namespace MotorCity.World
     {
         [SerializeField] private Material daySkybox;
         [SerializeField] private Material nightSkybox;
+        [SerializeField] private Material[] dayMaterials =
+            System.Array.Empty<Material>();
+        [SerializeField] private Material[] nightMaterials =
+            System.Array.Empty<Material>();
 
         [SerializeField] private Color daySkyColor =
             new(0.68f, 0.67f, 0.64f, 1f);
@@ -33,6 +37,8 @@ namespace MotorCity.World
 
         public Material DaySkybox => daySkybox;
         public Material NightSkybox => nightSkybox;
+        public Material[] DayMaterials => dayMaterials;
+        public Material[] NightMaterials => nightMaterials;
         public Color DaySkyColor => daySkyColor;
         public Color DayEquatorColor => dayEquatorColor;
         public Color NightSkyColor => nightSkyColor;
