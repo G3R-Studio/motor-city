@@ -327,6 +327,24 @@ namespace MotorCity.World
             if (renderer == null)
                 return false;
 
+            foreach (Material material in
+                     renderer.sharedMaterials)
+            {
+                if (material == null)
+                    continue;
+
+                string materialName =
+                    material.name.ToLowerInvariant();
+
+                if (materialName.Contains(
+                        "road") ||
+                    materialName.Contains(
+                        "highway"))
+                {
+                    return false;
+                }
+            }
+
             Bounds bounds =
                 renderer.bounds;
 
