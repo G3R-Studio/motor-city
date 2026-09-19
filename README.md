@@ -21,7 +21,7 @@ The project currently includes:
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
 - a unified drift state based on Prometeo drift/traction state plus actual rear-wheel sideways slip, vehicle slip angle and grounded wheels; the same state drives drift scoring, smoke and tire marks, with free-roam drift series banked into КР when the drift ends;
-- a timed drift challenge placed on the active city road network, with a score target, КР reward and a 3.5-second return grace period after leaving the activity area;
+- a 42-second drift challenge placed on the active city road network: the run always continues to the timer unless the player leaves the area for more than 3.5 seconds, with Bronze/Silver/Gold/Legendary score tiers at 1,800 / 3,000 / 4,500 / 6,000 points and tier-scaled КР rewards;
 - a timed street sprint with moving checkpoints and a performance-based КР reward;
 - a two-lap circuit race around the large district with moving checkpoints, time-based КР reward and a locally saved personal best time;
 - a unified activity result screen for delivery, drift challenge, street sprint and circuit race, showing the outcome, performance details and earned КР; completed/failed activities can be restarted immediately from the result screen, which safely returns the car to the activity start and runs the countdown again;
