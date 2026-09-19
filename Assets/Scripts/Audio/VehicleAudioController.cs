@@ -14,6 +14,8 @@ namespace MotorCity.Audio
         [SerializeField] private float idleVolume = 0.28f;
         [SerializeField] private float driveVolume = 0.46f;
         [SerializeField] private float drivingNoiseVolume = 0.34f;
+        [SerializeField] private float tireSquealVolume = 0.62f;
+        [SerializeField] private float minimumSquealSpeedKph = 18f;
         [SerializeField] private float maximumAudibleSpeedKph = 220f;
 
         private ArcadeCarController car;
@@ -21,6 +23,7 @@ namespace MotorCity.Audio
         private AudioSource idleSource;
         private AudioSource driveSource;
         private AudioSource roadSource;
+        private AudioSource tireSquealSource;
         private AudioSource oneShotSource;
 
         private bool previousHandbrake;
@@ -68,6 +71,11 @@ namespace MotorCity.Audio
                     "Driving Loop Audio",
                     library.DrivingLoop);
 
+            tireSquealSource =
+                CreateLoopSource(
+                    "Tire Squeal Audio",
+                    library.TireSquealLoop);
+
             oneShotSource =
                 gameObject.AddComponent<AudioSource>();
 
@@ -83,6 +91,9 @@ namespace MotorCity.Audio
 
             if (roadSource != null)
                 roadSource.Play();
+
+            if (tireSquealSource != null)
+                tireSquealSource.Play();
 
             Debug.Log(
                 "Motor City: Vehicle Essentials runtime audio enabled.");
@@ -113,6 +124,8 @@ namespace MotorCity.Audio
 
             UpdateRoadAudio(
                 speed01);
+
+            UpdateTireSqueal();
 
             bool handbrake =
                 car.HandbrakeInputHeld;
@@ -218,6 +231,60 @@ namespace MotorCity.Audio
                     0.9f,
                     1.28f,
                     speed01);
+        }
+
+        private void UpdateTireSqueal()
+        {
+            if (tireSquealSource == null)
+                return;
+
+            float speedGate =
+                Mathf.InverseLerp(
+                    minimumSquealSpeedKph,
+                    minimumSquealSpeedKph + 22f,
+                    car.SpeedKph);
+
+            float slip =
+                Mathf.Clamp01(
+                    Mathf.Max(
+                        car.DriftIntensity,
+                        Mathf.Abs(
+                            car.RearSidewaysSlip)));
+
+            float targetVolume =
+                car.IsSliding
+                    ? tireSquealVolume *
+                      speedGate *
+                      Mathf.SmoothStep(
+                          0.08f,
+                          0.9f,
+                          slip)
+                    : 0f;
+
+            float response =
+                targetVolume >
+                tireSquealSource.volume
+                    ? 10f
+                    : 7f;
+
+            tireSquealSource.volume =
+                Mathf.MoveTowards(
+                    tireSquealSource.volume,
+                    targetVolume,
+                    response *
+                    Time.deltaTime);
+
+            tireSquealSource.pitch =
+                Mathf.Lerp(
+                    0.93f,
+                    1.18f,
+                    Mathf.Clamp01(
+                        car.SpeedKph /
+                        130f)) +
+                Mathf.Clamp(
+                    slip * 0.08f,
+                    0f,
+                    0.08f);
         }
 
         private AudioSource CreateLoopSource(
