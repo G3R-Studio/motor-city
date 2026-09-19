@@ -74,8 +74,7 @@ namespace MotorCity.World
                      cityRoot.GetComponentsInChildren<Collider>(
                          true))
             {
-                if (collider == null ||
-                    collider is TerrainCollider)
+                if (collider == null)
                     continue;
 
                 if (!IsPassThroughStreetPropHierarchy(
