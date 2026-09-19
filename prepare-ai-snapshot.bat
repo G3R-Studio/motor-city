@@ -50,7 +50,19 @@ echo.
 echo ============================================================
 echo Checking for files larger than 95 MB
 echo ============================================================
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$files = Get-ChildItem -LiteralPath . -Recurse -File -Force -ErrorAction SilentlyContinue ^| Where-Object { $_.FullName -notmatch '\\.git\\' -and $_.Length -gt 95MB }; if ($files) { $files ^| Sort-Object Length -Descending ^| ForEach-Object { '{0,10:N1} MB  {1}' -f ($_.Length / 1MB), $_.FullName }; exit 2 } else { Write-Host 'No files over 95 MB found.'; exit 0 }"
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$files = Get-ChildItem -LiteralPath . -Recurse -File -Force -ErrorAction SilentlyContinue; " ^
+  "$large = $files | Where-Object { $_.FullName -notmatch '\\.git\\' -and $_.Length -gt 95MB }; " ^
+  "if ($large) { " ^
+  "  $large | Sort-Object Length -Descending | ForEach-Object { " ^
+  "    '{0,10:N1} MB  {1}' -f ($_.Length / 1MB), $_.FullName " ^
+  "  }; " ^
+  "  exit 2 " ^
+  "} else { " ^
+  "  Write-Host 'No files over 95 MB found.'; " ^
+  "  exit 0 " ^
+  "}"
 
 set "SIZECHECK=%ERRORLEVEL%"
 
