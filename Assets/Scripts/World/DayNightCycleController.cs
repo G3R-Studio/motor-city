@@ -445,17 +445,8 @@ namespace MotorCity.World
                     continue;
                 }
 
-                BreakableStreetProp breakable =
-                    light.GetComponentInParent<BreakableStreetProp>(
-                        true);
-
-                bool broken =
-                    breakable != null &&
-                    breakable.IsBroken;
-
                 bool shouldEnable =
-                    IsNight &&
-                    !broken;
+                    IsNight;
 
                 if (shouldEnable)
                 {
@@ -498,30 +489,17 @@ namespace MotorCity.World
         private static bool IsFcgSpotLight(
             Transform item)
         {
-            Transform current =
-                item;
+            if (item == null)
+                return false;
 
-            while (current != null)
-            {
-                string normalized =
-                    NormalizeName(
-                        current.name);
+            string normalized =
+                NormalizeName(
+                    item.name);
 
-                if (normalized.Contains(
-                        "spotlight"))
-                {
-                    return true;
-                }
-
-                if (IsRuntimeCityRoot(
-                        current))
-                    break;
-
-                current =
-                    current.parent;
-            }
-
-            return false;
+            return
+                normalized.StartsWith(
+                    "spotlight",
+                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool IsLampRoot(
