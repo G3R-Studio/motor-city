@@ -95,7 +95,7 @@ namespace MotorCity.Vehicle
             {
                 trail.transform.position =
                     hit.point +
-                    hit.normal * 0.055f;
+                    hit.normal * 0.018f;
 
                 Vector3 forward =
                     Vector3.ProjectOnPlane(
@@ -128,7 +128,7 @@ namespace MotorCity.Vehicle
             {
                 particles.transform.position =
                     hit.point +
-                    hit.normal * 0.08f;
+                    hit.normal * 0.12f;
                 particles.transform.rotation =
                     Quaternion.LookRotation(
                         hit.normal,
@@ -228,12 +228,12 @@ namespace MotorCity.Vehicle
                         0.68f,
                         0.69f,
                         0.7f,
-                        0.92f),
+                        1f),
                     new Color(
                         0.9f,
                         0.9f,
                         0.9f,
-                        0.78f));
+                        1f));
             main.gravityModifier = -0.035f;
             main.maxParticles = 180;
 
@@ -265,9 +265,9 @@ namespace MotorCity.Vehicle
                 },
                 new[]
                 {
-                    new GradientAlphaKey(0.95f, 0f),
-                    new GradientAlphaKey(0.82f, 0.45f),
-                    new GradientAlphaKey(0.58f, 0.72f),
+                    new GradientAlphaKey(1f, 0f),
+                    new GradientAlphaKey(1f, 0.5f),
+                    new GradientAlphaKey(0.82f, 0.78f),
                     new GradientAlphaKey(0f, 1f)
                 });
 
@@ -396,7 +396,10 @@ namespace MotorCity.Vehicle
             if (material.HasProperty("_ZWrite"))
                 material.SetFloat("_ZWrite", 0f);
 
-            material.renderQueue = 3000;
+            material.renderQueue =
+                (int)RenderQueue.Transparent +
+                25;
+
             return material;
         }
 
