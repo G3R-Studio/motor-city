@@ -16,6 +16,12 @@ public static class VehicleEssentialsAudioBuilder
     private const string LibraryPath =
         RuntimeRoot + "/VehicleAudioLibrary.asset";
 
+    private const string LocalAudioRoot =
+        "Assets/LocalAudio";
+
+    private const string LocalTireSquealPath =
+        LocalAudioRoot + "/tire-whistling-sound.wav";
+
     private static bool buildScheduled;
 
     static VehicleEssentialsAudioBuilder()
@@ -27,6 +33,36 @@ public static class VehicleEssentialsAudioBuilder
     [MenuItem("Motor City/Audio/Rebuild Vehicle Essentials Audio Library")]
     public static void RebuildMenu()
     {
+        BuildLibrary(
+            true);
+    }
+
+    [MenuItem("Motor City/Audio/Import Tire Squeal WAV")]
+    public static void ImportTireSqueal()
+    {
+        string path =
+            EditorUtility.OpenFilePanel(
+                "Choose tire squeal WAV",
+                Environment.GetFolderPath(
+                    Environment.SpecialFolder.UserProfile),
+                "wav");
+
+        if (string.IsNullOrWhiteSpace(
+                path))
+            return;
+
+        EnsureFolder(
+            LocalAudioRoot);
+
+        File.Copy(
+            path,
+            LocalTireSquealPath,
+            true);
+
+        AssetDatabase.ImportAsset(
+            LocalTireSquealPath,
+            ImportAssetOptions.ForceUpdate);
+
         BuildLibrary(
             true);
     }
@@ -123,11 +159,15 @@ public static class VehicleEssentialsAudioBuilder
                 AudioRole.Horn,
                 null);
 
+        AudioClip tireSqueal =
+            FindTireSquealClip();
+
         if (engineIdle == null &&
             engineDrive == null &&
             driving == null &&
             handbrake == null &&
-            horn == null)
+            horn == null &&
+            tireSqueal == null)
         {
             if (showDialogs)
             {
@@ -187,6 +227,11 @@ public static class VehicleEssentialsAudioBuilder
             .objectReferenceValue =
                 horn;
 
+        serialized.FindProperty(
+                "tireSquealLoop")
+            .objectReferenceValue =
+                tireSqueal;
+
         serialized.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(
@@ -200,7 +245,8 @@ public static class VehicleEssentialsAudioBuilder
             $"Engine drive: {ClipInfo(engineDrive)}\n" +
             $"Driving loop: {ClipInfo(driving)}\n" +
             $"Handbrake: {ClipInfo(handbrake)}\n" +
-            $"Horn: {ClipInfo(horn)}";
+            $"Horn: {ClipInfo(horn)}\n" +
+            $"Tire squeal: {ClipInfo(tireSqueal)}";
 
         Debug.Log(
             summary);
@@ -214,10 +260,92 @@ public static class VehicleEssentialsAudioBuilder
                 $"Engine drive: {ClipName(engineDrive)}\n" +
                 $"Driving loop: {ClipName(driving)}\n" +
                 $"Handbrake: {ClipName(handbrake)}\n" +
-                $"Horn: {ClipName(horn)}\n\n" +
-                "Нажми Play. Гудок — H.",
+                $"Horn: {ClipName(horn)}\n" +
+                $"Tire squeal: {ClipName(tireSqueal)}\n\n" +
+                "Нажми Play. Визг шин включается автоматически при скольжении, гудок — H.",
                 "OK");
         }
+    }
+
+    private static AudioClip FindTireSquealClip()
+    {
+        AudioClip exact =
+            AssetDatabase.LoadAssetAtPath<AudioClip>(
+                LocalTireSquealPath);
+
+        if (exact != null)
+            return exact;
+
+        AudioClip best =
+            null;
+
+        int bestScore =
+            int.MinValue;
+
+        foreach (string guid in
+                 AssetDatabase.FindAssets(
+                     "t:AudioClip",
+                     new[]
+                     {
+                         "Assets"
+                     }))
+        {
+            string path =
+                AssetDatabase.GUIDToAssetPath(
+                    guid);
+
+            if (string.IsNullOrWhiteSpace(
+                    path))
+                continue;
+
+            string compact =
+                Compact(
+                    path);
+
+            int score =
+                0;
+
+            if (compact.Contains(
+                    "tirewhistlingsound"))
+                score += 100;
+
+            if (compact.Contains(
+                    "tiresqueal"))
+                score += 80;
+
+            if (compact.Contains(
+                    "tirescreech"))
+                score += 72;
+
+            if (compact.Contains(
+                    "skid"))
+                score += 55;
+
+            if (compact.Contains(
+                    "tire"))
+                score += 20;
+
+            if (score <= bestScore)
+                continue;
+
+            AudioClip clip =
+                AssetDatabase.LoadAssetAtPath<AudioClip>(
+                    path);
+
+            if (clip == null)
+                continue;
+
+            bestScore =
+                score;
+
+            best =
+                clip;
+        }
+
+        return
+            bestScore >= 55
+                ? best
+                : null;
     }
 
     private static List<AudioEntry> FindVehicleEssentialsClips()
@@ -599,7 +727,11 @@ public sealed class VehicleEssentialsAudioAssetPostprocessor : AssetPostprocesso
         return
             lower.Contains("vehicle") ||
             lower.Contains("nox_sound") ||
-            lower.Contains("nox sound");
+            lower.Contains("nox sound") ||
+            lower.Contains("tire-whistling-sound") ||
+            lower.Contains("tire_squeal") ||
+            lower.Contains("tire squeal") ||
+            lower.Contains("skid");
     }
 }
 #endif
