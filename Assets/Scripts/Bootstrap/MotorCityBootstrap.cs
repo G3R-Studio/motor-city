@@ -40,6 +40,10 @@ namespace MotorCity.Bootstrap
 
             ArcadeCarController car = CreateCar();
             ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
+
+            VehiclePositionPersistence positionPersistence =
+                car.gameObject.AddComponent<VehiclePositionPersistence>();
+
             DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
 
             GameObject systems = new("Gameplay Systems");
@@ -58,6 +62,8 @@ namespace MotorCity.Bootstrap
             vehicleRoster.Initialize(
                 car,
                 reputation);
+
+            positionPersistence.RestoreSavedPosition();
 
             AdminDebugPanel adminPanel =
                 systems.AddComponent<AdminDebugPanel>();
