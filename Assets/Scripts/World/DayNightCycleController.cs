@@ -70,6 +70,11 @@ namespace MotorCity.World
             RefreshCityMaterialSlots();
             RefreshStreetLights();
 
+            Debug.Log(
+                "Motor City: day/night prepared. " +
+                $"material slots={cityMaterialSlots.Count}, " +
+                $"local city lights={streetLights.Count}.");
+
             ApplyEnvironment(
                 true);
 
@@ -293,12 +298,6 @@ namespace MotorCity.World
                 }
             }
 
-            Debug.Log(
-                "Motor City: day/night city material slots=" +
-                cityMaterialSlots.Count +
-                ", local city lights=" +
-                streetLights.Count +
-                ".");
         }
 
         private void ApplyEnvironment(
