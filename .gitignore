@@ -76,6 +76,12 @@ sysinfo.txt
 /Assets/Versatile Studio Assets/
 /Assets/Versatile Studio Assets.meta
 
+# Local Asset Store vehicle packages stay local and are not redistributed.
+/Assets/ARCADE - FREE Racing Car/
+/Assets/ARCADE - FREE Racing Car.meta
+/Assets/PROMETEO - Car Controller/
+/Assets/PROMETEO - Car Controller.meta
+
 # Fantastic City Generator source package stays local.
 /Assets/Fantastic City Generator/
 /Assets/Fantastic City Generator.meta
