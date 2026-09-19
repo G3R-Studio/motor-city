@@ -74,12 +74,13 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 - `Space` — Prometeo handbrake / traction break for initiating and sustaining a drift;
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
-- `E` — open/close the garage while stopped in the purple garage marker;
+- `E` — start an activity while stopped inside its start marker, or open/close the garage while stopped in the purple garage marker;
 - `1/2/3` — buy engine/grip/stability upgrades while the garage is open;
+- `Esc` — cancel the current activity during its countdown or run, or close the garage;
 - `R` — reset the vehicle.
 
 ## Current gameplay
 
-Drive freely through the prototype district with Prometeo-based drift handling and build drift score from the same physical slide state that produces tire smoke and road marks, or take part in one of the current activities. The blue crate marker starts the delivery route, the orange cone cluster starts a timed drift challenge at a city intersection, the green race flag starts a timed street sprint, and the cyan flag starts a two-lap circuit race around the large district. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
+Drive freely through the prototype district with Prometeo-based drift handling and build drift score from the same physical slide state that produces tire smoke and road marks, or take part in one of the current activities. The blue crate marker represents the delivery route, the orange cone cluster a timed drift challenge at a city intersection, the green race flag a timed street sprint, and the cyan flag a two-lap circuit race around the large district. Activities no longer start just by driving through their markers: stop inside the start area, press `E`, then wait for the three-second countdown before control is released and timing/scoring begins. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР, which are stored locally between sessions. The purple garage marker lets the player spend those credits on persistent engine, grip and stability upgrades.
 
 - editor diagnostics include a deep local cleanup audit (`Motor City > Diagnostics > Export Local Project Audit`) that scans empty/stale folders, runtime/saved-city dependency closure, literal Resources references, unreferenced Resources candidates, and FCG assets not used by the current saved city. It reports candidates only and does not delete project files.
