@@ -353,12 +353,12 @@ namespace MotorCity.World
                     0.04f;
             }
 
-            bool nightSky =
+            bool useNightSkybox =
                 NightAmount >=
                 0.5f;
 
             Material targetSkybox =
-                nightSky
+                useNightSkybox
                     ? runtimeNightSkybox
                     : runtimeDaySkybox;
 
