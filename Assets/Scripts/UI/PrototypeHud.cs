@@ -638,7 +638,7 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             hintText.text =
-                "WASD  ДВИЖЕНИЕ   SPACE  РУЧНИК   H  ГУДОК   R  СБРОС   ПКМ  КАМЕРА";
+                "WASD  ДВИЖЕНИЕ   SPACE  РУЧНИК   R  СБРОС   ПКМ  КАМЕРА";
         }
 
         private void BuildDriftPanel(Transform canvas)
