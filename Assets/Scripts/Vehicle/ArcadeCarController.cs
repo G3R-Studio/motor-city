@@ -751,7 +751,7 @@ namespace MotorCity.Vehicle
                     DriveMode.Sport =>
                         38,
                     DriveMode.Drift =>
-                        70,
+                        55,
                     _ =>
                         44
                 };
