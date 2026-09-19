@@ -5,7 +5,6 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-[InitializeOnLoad]
 public static class MotorCityEmptyLegacyFolderCleaner
 {
     private static readonly string[] LegacyFolders =
@@ -21,12 +20,6 @@ public static class MotorCityEmptyLegacyFolderCleaner
         "Assets/Fantastic City Generator/Player",
         "Assets/PROMETEO - Car Controller/Sounds"
     };
-
-    static MotorCityEmptyLegacyFolderCleaner()
-    {
-        EditorApplication.delayCall +=
-            RemoveEmptyLegacyFolders;
-    }
 
     [MenuItem("Motor City/Diagnostics/Clean Empty Legacy Folders")]
     public static void RemoveEmptyLegacyFolders()
@@ -51,37 +44,12 @@ public static class MotorCityEmptyLegacyFolderCleaner
 
             try
             {
-                if (AssetDatabase.IsValidFolder(
-                        assetPath))
-                {
-                    if (AssetDatabase.DeleteAsset(
-                            assetPath))
-                    {
-                        changed =
-                            true;
+                FileUtil.DeleteFileOrDirectory(
+                    assetPath);
 
-                        Debug.Log(
-                            "Motor City: removed empty legacy folder " +
-                            assetPath);
-
-                        continue;
-                    }
-                }
-
-                Directory.Delete(
-                    absolute,
-                    true);
-
-                string meta =
-                    absolute +
-                    ".meta";
-
-                if (File.Exists(
-                        meta))
-                {
-                    File.Delete(
-                        meta);
-                }
+                FileUtil.DeleteFileOrDirectory(
+                    assetPath +
+                    ".meta");
 
                 changed =
                     true;
