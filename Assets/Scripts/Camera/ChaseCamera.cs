@@ -57,6 +57,9 @@ namespace MotorCity.CameraSystem
             {
                 if (collider != null)
                 {
+                    collider.enabled =
+                        false;
+
                     Destroy(
                         collider);
                 }
@@ -67,6 +70,12 @@ namespace MotorCity.CameraSystem
             {
                 if (body != null)
                 {
+                    body.detectCollisions =
+                        false;
+
+                    body.isKinematic =
+                        true;
+
                     Destroy(
                         body);
                 }
