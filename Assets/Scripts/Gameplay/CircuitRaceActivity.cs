@@ -30,6 +30,7 @@ namespace MotorCity.Gameplay
 
         public bool IsActive { get; private set; }
         public bool IsCountingDown => isCountingDown;
+        public bool IsNearStart { get; private set; }
         public float ElapsedSeconds { get; private set; }
         public int CurrentLap => currentLap;
         public int LapCount => lapCount;
@@ -79,6 +80,7 @@ namespace MotorCity.Gameplay
 
             if (isCountingDown)
             {
+                IsNearStart = false;
                 if (keyboard != null &&
                     keyboard.escapeKey.wasPressedThisFrame)
                 {
@@ -92,6 +94,7 @@ namespace MotorCity.Gameplay
 
             if (IsActive)
             {
+                IsNearStart = false;
                 if (keyboard != null &&
                     keyboard.escapeKey.wasPressedThisFrame)
                 {
@@ -111,8 +114,11 @@ namespace MotorCity.Gameplay
                     Flat(car.transform.position),
                     Flat(route[0]));
 
+            IsNearStart = distance <= startRadius;
+
             if (!armed)
             {
+                IsNearStart = false;
                 if (distance > startRadius + 4f)
                 {
                     armed = true;
@@ -123,7 +129,7 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (distance > startRadius)
+            if (!IsNearStart)
             {
                 StatusText =
                     "Бирюзовый флаг: кольцевая гонка";
