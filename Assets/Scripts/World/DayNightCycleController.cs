@@ -29,7 +29,6 @@ namespace MotorCity.World
         private Material runtimeNightSkybox;
 
         private float time01;
-        private float streetLightRefreshTimer;
         private int autoCreatedStreetLights;
         private bool lastNightState;
         private bool initialized;
@@ -87,18 +86,6 @@ namespace MotorCity.World
 
             ApplyEnvironment(
                 false);
-
-            streetLightRefreshTimer -=
-                Time.deltaTime;
-
-            if (streetLightRefreshTimer <= 0f)
-            {
-                streetLightRefreshTimer =
-                    2f;
-
-                RefreshStreetLights();
-                ApplyStreetLights();
-            }
         }
 
         private void OnDestroy()
