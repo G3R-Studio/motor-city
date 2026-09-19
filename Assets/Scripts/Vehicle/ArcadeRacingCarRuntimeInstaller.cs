@@ -10,6 +10,8 @@ namespace MotorCity.Vehicle
     {
         private const float TargetLength = 4.35f;
         private const float TargetWheelCenterLocalY = 0.42f;
+        private const string RuntimeVisualName =
+            "MotorCityVehicleVisual_Runtime";
 
         private static readonly HashSet<string> FallbackVisualNames = new()
         {
@@ -36,14 +38,52 @@ namespace MotorCity.Vehicle
 
         public static bool TryInstallNow(ArcadeCarController car)
         {
-            if (car == null) return false;
-            if (car.transform.Find("ArcadeFreeRacingCarVisual_Runtime") != null) return true;
+            if (car == null)
+                return false;
 
-            GameObject prefab = Resources.Load<GameObject>("MotorCity/PlayerCarVisual");
+            if (car.transform.Find(RuntimeVisualName) != null ||
+                car.transform.Find("ArcadeFreeRacingCarVisual_Runtime") != null)
+                return true;
+
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    "MotorCity/PlayerCarVisual");
+
             if (prefab == null)
                 return ConfigureFallbackRig(car);
 
-            return Install(car, prefab);
+            return Install(
+                car,
+                prefab);
+        }
+
+        public static bool InstallVehicleVisual(
+            ArcadeCarController car,
+            string resourcePath)
+        {
+            if (car == null ||
+                string.IsNullOrWhiteSpace(
+                    resourcePath))
+                return false;
+
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    resourcePath);
+
+            if (prefab == null)
+            {
+                Debug.LogWarning(
+                    $"Motor City: vehicle visual resource '{resourcePath}' was not found.");
+
+                return false;
+            }
+
+            ClearRuntimeVisual(
+                car.transform);
+
+            return Install(
+                car,
+                prefab);
         }
 
         private static bool Install(ArcadeCarController car, GameObject prefab)
@@ -51,7 +91,7 @@ namespace MotorCity.Vehicle
             Transform carTransform = car.transform;
 
             GameObject visual = Instantiate(prefab, carTransform);
-            visual.name = "ArcadeFreeRacingCarVisual_Runtime";
+            visual.name = RuntimeVisualName;
             visual.transform.localPosition = Vector3.zero;
             visual.transform.localRotation = Quaternion.identity;
             visual.transform.localScale = Vector3.one;
@@ -149,13 +189,50 @@ namespace MotorCity.Vehicle
                 measuredRadius);
 
             Debug.Log(
-                "Motor City: ARCADE Free Racing Car prepared for Prometeo Car Controller physics. " +
+                "Motor City: vehicle visual prepared for Prometeo Car Controller physics. " +
                 $"FL={centerLocal[0]}, FR={centerLocal[1]}, " +
                 $"RL={centerLocal[2]}, RR={centerLocal[3]}. " +
                 $"Front axle average Z={(centerLocal[0].z + centerLocal[1].z) * 0.5f:0.###}, " +
                 $"rear axle average Z={(centerLocal[2].z + centerLocal[3].z) * 0.5f:0.###}.");
 
             return true;
+        }
+
+        private static void ClearRuntimeVisual(
+            Transform carRoot)
+        {
+            if (carRoot == null)
+                return;
+
+            for (int i =
+                     carRoot.childCount - 1;
+                 i >= 0;
+                 i--)
+            {
+                Transform child =
+                    carRoot.GetChild(i);
+
+                bool runtimeVisual =
+                    child.name ==
+                        RuntimeVisualName ||
+                    child.name ==
+                        "ArcadeFreeRacingCarVisual_Runtime";
+
+                bool runtimeWheel =
+                    child.name.StartsWith(
+                        "ArcadeRacingWheelSpin_",
+                        StringComparison.Ordinal);
+
+                if (!runtimeVisual &&
+                    !runtimeWheel)
+                    continue;
+
+                child.gameObject.SetActive(
+                    false);
+
+                UnityEngine.Object.Destroy(
+                    child.gameObject);
+            }
         }
 
         private static void SymmetrizePhysicalWheelCenters(
