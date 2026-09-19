@@ -51,6 +51,8 @@ namespace MotorCity.UI
 
         private Text garageMoneyText;
         private Text garageStatusText;
+        private Text garageVehicleText;
+        private Text garageVehicleStatsText;
         private readonly Text[] garageTitleTexts =
             new Text[3];
         private readonly Text[] garagePriceTexts =
@@ -1085,7 +1087,7 @@ namespace MotorCity.UI
                     garageOverlay.transform,
                     "Garage Panel",
                     Vector2.zero,
-                    new Vector2(760f, 446f),
+                    new Vector2(760f, 500f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
@@ -1129,6 +1131,32 @@ namespace MotorCity.UI
                     new Vector2(1f, 1f),
                     TextColor);
 
+            garageVehicleText =
+                CreateText(
+                    panel,
+                    "Garage Vehicle",
+                    17,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(28f, -76f),
+                    new Vector2(704f, 24f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    TextColor);
+
+            garageVehicleStatsText =
+                CreateText(
+                    panel,
+                    "Garage Vehicle Stats",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(28f, -101f),
+                    new Vector2(704f, 22f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    SecondaryTextColor);
+
             Color[] accents =
             {
                 new(0.12f, 0.58f, 1f, 1f),
@@ -1139,7 +1167,7 @@ namespace MotorCity.UI
             for (int i = 0; i < 3; i++)
             {
                 float y =
-                    -104f - i * 92f;
+                    -138f - i * 92f;
 
                 RectTransform row =
                     CreatePanel(
@@ -1226,13 +1254,25 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             footer.text =
-                "1 / 2 / 3  КУПИТЬ    E / ESC  ЗАКРЫТЬ";
+                "Z / X  МАШИНА    1 / 2 / 3  УЛУЧШИТЬ    E / ESC  ЗАКРЫТЬ";
         }
 
         private void UpdateGarage()
         {
             garageMoneyText.text =
                 $"{garage.Credits:N0} КР";
+
+            if (garageVehicleText != null)
+            {
+                garageVehicleText.text =
+                    garage.VehicleLine;
+            }
+
+            if (garageVehicleStatsText != null)
+            {
+                garageVehicleStatsText.text =
+                    garage.VehicleStatsLine;
+            }
 
             for (int i = 0; i < 3; i++)
             {
