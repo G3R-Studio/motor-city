@@ -129,6 +129,9 @@ namespace MotorCity.Vehicle
 
             float measuredRadius = radiusSum / 4f;
 
+            SymmetrizePhysicalWheelCenters(
+                centerLocal);
+
             HidePrimitiveFallback(carTransform);
 
             BoxCollider chassis =
@@ -154,6 +157,73 @@ namespace MotorCity.Vehicle
 
             return true;
         }
+
+        private static void SymmetrizePhysicalWheelCenters(
+            Vector3[] centers)
+        {
+            if (centers == null ||
+                centers.Length < 4)
+                return;
+
+            float frontHalfTrack =
+                (Mathf.Abs(centers[FrontLeftIndex].x) +
+                 Mathf.Abs(centers[FrontRightIndex].x)) *
+                0.5f;
+
+            float rearHalfTrack =
+                (Mathf.Abs(centers[RearLeftIndex].x) +
+                 Mathf.Abs(centers[RearRightIndex].x)) *
+                0.5f;
+
+            float frontZ =
+                (centers[FrontLeftIndex].z +
+                 centers[FrontRightIndex].z) *
+                0.5f;
+
+            float rearZ =
+                (centers[RearLeftIndex].z +
+                 centers[RearRightIndex].z) *
+                0.5f;
+
+            float frontY =
+                (centers[FrontLeftIndex].y +
+                 centers[FrontRightIndex].y) *
+                0.5f;
+
+            float rearY =
+                (centers[RearLeftIndex].y +
+                 centers[RearRightIndex].y) *
+                0.5f;
+
+            centers[FrontLeftIndex] =
+                new Vector3(
+                    -frontHalfTrack,
+                    frontY,
+                    frontZ);
+
+            centers[FrontRightIndex] =
+                new Vector3(
+                    frontHalfTrack,
+                    frontY,
+                    frontZ);
+
+            centers[RearLeftIndex] =
+                new Vector3(
+                    -rearHalfTrack,
+                    rearY,
+                    rearZ);
+
+            centers[RearRightIndex] =
+                new Vector3(
+                    rearHalfTrack,
+                    rearY,
+                    rearZ);
+        }
+
+        private const int FrontLeftIndex = 0;
+        private const int FrontRightIndex = 1;
+        private const int RearLeftIndex = 2;
+        private const int RearRightIndex = 3;
 
         private static bool ConfigureFallbackRig(ArcadeCarController car)
         {
