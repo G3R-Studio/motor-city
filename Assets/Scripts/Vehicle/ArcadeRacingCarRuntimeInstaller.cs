@@ -10,6 +10,7 @@ namespace MotorCity.Vehicle
     {
         private const float TargetLength = 4.35f;
         private const float TargetWheelCenterLocalY = 0.42f;
+        private const float StarterPhysicsWheelRadius = 0.36f;
         private const string RuntimeVisualName =
             "MotorCityVehicleVisual_Runtime";
 
@@ -103,16 +104,22 @@ namespace MotorCity.Vehicle
             visual.transform.localScale = Vector3.one;
 
             StripImportedPhysics(visual);
-            NormalizeHorizontalScaleAndRotation(visual.transform);
 
             if (rotateLeft90)
             {
+                NormalizeScaleOnly(
+                    visual.transform);
+
                 visual.transform.localRotation =
-                    visual.transform.localRotation *
                     Quaternion.Euler(
                         0f,
                         -90f,
                         0f);
+            }
+            else
+            {
+                NormalizeHorizontalScaleAndRotation(
+                    visual.transform);
             }
 
             UpgradeMaterialsForCurrentPipeline(visual);
@@ -137,6 +144,13 @@ namespace MotorCity.Vehicle
                 EnsureVisualNoseFacesPositiveZ(
                     visual.transform,
                     carTransform,
+                    wheelAnchors);
+            }
+
+            if (rotateLeft90)
+            {
+                MatchVisualWheelRadiusToStarter(
+                    visual.transform,
                     wheelAnchors);
             }
 
@@ -189,7 +203,10 @@ namespace MotorCity.Vehicle
                 ordered[i].SetParent(spinRoots[i], true);
             }
 
-            float measuredRadius = radiusSum / 4f;
+            float measuredRadius =
+                rotateLeft90
+                    ? StarterPhysicsWheelRadius
+                    : radiusSum / 4f;
 
             SymmetrizePhysicalWheelCenters(
                 centerLocal);
@@ -276,8 +293,14 @@ namespace MotorCity.Vehicle
                         "ArcadeRacingWheelSpin_",
                         StringComparison.Ordinal);
 
+                bool prometeoProxy =
+                    child.name.StartsWith(
+                        "PrometeoWheelProxy_",
+                        StringComparison.Ordinal);
+
                 if (!runtimeVisual &&
-                    !runtimeWheel)
+                    !runtimeWheel &&
+                    !prometeoProxy)
                     continue;
 
                 child.gameObject.SetActive(
@@ -714,6 +737,72 @@ namespace MotorCity.Vehicle
             root.rotation = car.rotation;
             root.localScale = Vector3.one;
             return root;
+        }
+
+        private static void NormalizeScaleOnly(
+            Transform visual)
+        {
+            Bounds bounds =
+                RendererBounds(
+                    visual);
+
+            float length =
+                Mathf.Max(
+                    bounds.size.x,
+                    bounds.size.z);
+
+            if (length < 0.01f)
+                return;
+
+            visual.localScale *=
+                TargetLength /
+                length;
+        }
+
+        private static void MatchVisualWheelRadiusToStarter(
+            Transform visual,
+            List<Transform> wheels)
+        {
+            if (visual == null ||
+                wheels == null ||
+                wheels.Count < 4)
+                return;
+
+            float sum = 0f;
+            int count = 0;
+
+            foreach (Transform wheel in wheels)
+            {
+                if (wheel == null)
+                    continue;
+
+                float radius =
+                    MeasureWheelRadius(
+                        RendererBounds(
+                            wheel));
+
+                if (radius <= 0.01f)
+                    continue;
+
+                sum += radius;
+                count++;
+            }
+
+            if (count == 0)
+                return;
+
+            float average =
+                sum / count;
+
+            float scale =
+                Mathf.Clamp(
+                    StarterPhysicsWheelRadius /
+                    average,
+                    0.72f,
+                    1.35f);
+
+            visual.localScale *=
+                scale;
         }
 
         private static void NormalizeHorizontalScaleAndRotation(Transform visual)
