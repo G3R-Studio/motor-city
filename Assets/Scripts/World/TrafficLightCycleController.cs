@@ -962,6 +962,7 @@ namespace MotorCity.World
             private readonly Color onBaseColor;
             private readonly Color onEmissionColor;
             private bool lastState;
+            private bool hasAppliedState;
 
             public LampColor Color { get; }
             public bool Pedestrian { get; }
@@ -992,16 +993,25 @@ namespace MotorCity.World
                         color);
 
                 lastState =
-                    true;
+                    false;
+
+                hasAppliedState =
+                    false;
             }
 
             public void SetState(
                 bool on)
             {
-                if (material == null ||
+                if (material == null)
+                    return;
+
+                if (hasAppliedState &&
                     lastState ==
                     on)
                     return;
+
+                hasAppliedState =
+                    true;
 
                 lastState =
                     on;
