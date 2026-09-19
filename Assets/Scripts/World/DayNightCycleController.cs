@@ -402,9 +402,7 @@ namespace MotorCity.World
             {
                 if (light == null ||
                     light == directionalLight ||
-                    light == moonLight ||
-                    light.type !=
-                    LightType.Spot)
+                    light == moonLight)
                     continue;
 
                 if (!IsRuntimeCityHierarchy(
