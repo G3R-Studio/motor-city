@@ -83,7 +83,6 @@ namespace MotorCity.Vehicle
         private bool reverseHeld;
         private bool handbrakeHeld;
         private bool steeringInputHeld;
-        private float steeringInputAxis;
         private float prometeoRetryTimer;
         private float resetHoldTimer;
 
@@ -593,7 +592,6 @@ namespace MotorCity.Vehicle
             bool left = false;
             bool right = false;
             bool handbrake = false;
-            float steerAxis = 0f;
 
             if (drivingEnabled &&
                 resetHoldTimer <= 0f)
@@ -619,13 +617,6 @@ namespace MotorCity.Vehicle
                         keyboard.dKey.isPressed ||
                         keyboard.rightArrowKey.isPressed;
 
-                    steerAxis =
-                        left == right
-                            ? 0f
-                            : left
-                                ? -1f
-                                : 1f;
-
                     handbrake =
                         keyboard.spaceKey.isPressed;
                 }
@@ -649,9 +640,6 @@ namespace MotorCity.Vehicle
                     left |= steer < -0.16f;
                     right |= steer > 0.16f;
 
-                    if (Mathf.Abs(steer) > 0.12f)
-                        steerAxis = steer;
-
                     handbrake |=
                         gamepad.buttonSouth.isPressed;
                 }
@@ -663,12 +651,6 @@ namespace MotorCity.Vehicle
             steeringInputHeld =
                 left ||
                 right;
-
-            steeringInputAxis =
-                Mathf.Clamp(
-                    steerAxis,
-                    -1f,
-                    1f);
 
             SetInputProxyPressed(
                 throttleInputProxy,
@@ -751,7 +733,7 @@ namespace MotorCity.Vehicle
                     DriveMode.Sport =>
                         38,
                     DriveMode.Drift =>
-                        55,
+                        70,
                     _ =>
                         44
                 };
@@ -760,11 +742,11 @@ namespace MotorCity.Vehicle
                 currentDriveMode switch
                 {
                     DriveMode.Sport =>
-                        steeringSpeed * 1.08f,
+                        steeringSpeed * 1.12f,
                     DriveMode.Drift =>
-                        steeringSpeed * 1.42f,
+                        steeringSpeed * 1.28f,
                     _ =>
-                        steeringSpeed * 0.98f
+                        steeringSpeed * 0.92f
                 };
 
             int tunedBrakeForce =
@@ -843,7 +825,7 @@ namespace MotorCity.Vehicle
                     {
                         DriveMode.Sport => 0.16f,
                         DriveMode.Comfort => 0.10f,
-                        _ => 0.015f
+                        _ => -0.035f
                     };
 
                 body.angularDamping =
@@ -901,7 +883,7 @@ namespace MotorCity.Vehicle
                 currentDriveMode switch
                 {
                     DriveMode.Sport => -3,
-                    DriveMode.Drift => 1,
+                    DriveMode.Drift => 3,
                     _ => -1
                 };
 
@@ -970,7 +952,7 @@ namespace MotorCity.Vehicle
                 {
                     acceleration +=
                         driftPowerAssistAcceleration *
-                        1.10f;
+                        1.45f;
                 }
                 else if (currentDriveMode ==
                              DriveMode.Sport &&
@@ -1088,79 +1070,6 @@ namespace MotorCity.Vehicle
                 physicalSlide ||
                 (ReadPrometeoBool("isDrifting") &&
                  SpeedKph >= minimumDriftSpeedKph);
-        }
-
-        public void ApplyDriftRecoveryAssist()
-        {
-            if (body == null ||
-                currentDriveMode !=
-                    DriveMode.Drift ||
-                !drivingEnabled ||
-                resetHoldTimer > 0f ||
-                !steeringInputHeld ||
-                GroundedWheels < 2 ||
-                SpeedKph < 18f)
-                return;
-
-            float slipAngle =
-                SlipAngleDegrees;
-
-            float yawRate =
-                Vector3.Dot(
-                    body.angularVelocity,
-                    transform.up);
-
-            if (Mathf.Abs(slipAngle) < 10f &&
-                Mathf.Abs(yawRate) < 0.25f)
-                return;
-
-            // Counter-steer is only assisted when the driver is actively
-            // steering against the direction of the slide/yaw.
-            float slideDirection =
-                Mathf.Abs(slipAngle) >
-                2f
-                    ? Mathf.Sign(
-                        slipAngle)
-                    : Mathf.Sign(
-                        yawRate);
-
-            bool counterSteering =
-                steeringInputAxis *
-                slideDirection <
-                -0.15f;
-
-            if (!counterSteering)
-                return;
-
-            float recovery =
-                Mathf.Clamp01(
-                    Mathf.InverseLerp(
-                        12f,
-                        48f,
-                        Mathf.Abs(
-                            slipAngle)));
-
-            body.AddTorque(
-                -transform.up *
-                yawRate *
-                Mathf.Lerp(
-                    0.8f,
-                    2.2f,
-                    recovery),
-                ForceMode.Acceleration);
-
-            Vector3 localVelocity =
-                transform.InverseTransformDirection(
-                    body.linearVelocity);
-
-            body.AddForce(
-                -transform.right *
-                localVelocity.x *
-                Mathf.Lerp(
-                    0.20f,
-                    0.55f,
-                    recovery),
-                ForceMode.Acceleration);
         }
 
         public void ApplyStraightLineStability()
@@ -1416,25 +1325,25 @@ namespace MotorCity.Vehicle
 
                     case DriveMode.Drift:
                         forward.extremumSlip =
-                            rear ? 0.36f : 0.33f;
+                            rear ? 0.42f : 0.34f;
                         forward.asymptoteSlip =
-                            rear ? 0.76f : 0.70f;
+                            rear ? 0.92f : 0.74f;
                         forward.extremumValue = 1f;
                         forward.asymptoteValue =
-                            rear ? 0.74f : 0.77f;
+                            rear ? 0.68f : 0.74f;
                         forward.stiffness =
-                            (rear ? 1.16f : 1.20f) *
+                            (rear ? 1.04f : 1.18f) *
                             upgradeGrip;
 
                         sideways.extremumSlip =
-                            rear ? 0.31f : 0.27f;
+                            rear ? 0.38f : 0.27f;
                         sideways.asymptoteSlip =
-                            rear ? 0.64f : 0.56f;
+                            rear ? 0.78f : 0.58f;
                         sideways.extremumValue = 1f;
                         sideways.asymptoteValue =
-                            rear ? 0.72f : 0.78f;
+                            rear ? 0.62f : 0.76f;
                         sideways.stiffness =
-                            (rear ? 0.92f : 1.22f) *
+                            (rear ? 0.70f : 1.20f) *
                             upgradeGrip;
                         break;
 
