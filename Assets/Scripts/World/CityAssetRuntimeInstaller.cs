@@ -862,6 +862,9 @@ namespace MotorCity.World
             int roadCollidersAdded =
                 0;
 
+            int roadCollidersReplaced =
+                0;
+
             int parkingCollidersAdded =
                 0;
 
@@ -900,9 +903,6 @@ namespace MotorCity.World
                         Vector3 size =
                             localBounds.size;
 
-                        // Some FCG parking meshes are perfectly flat.
-                        // Give the collider a small vertical thickness so
-                        // Physics.Raycast can always hit the parking surface.
                         size.y =
                             Mathf.Max(
                                 size.y,
@@ -931,14 +931,32 @@ namespace MotorCity.World
                         renderer))
                     continue;
 
-                if (filter.GetComponent<MeshCollider>() != null)
+                if (!TryBuildDriveableCollisionMesh(
+                        filter,
+                        renderer,
+                        out Mesh collisionMesh))
                     continue;
+
+                foreach (Collider existing in
+                         filter.GetComponents<Collider>())
+                {
+                    if (existing == null)
+                        continue;
+
+                    existing.enabled =
+                        false;
+
+                    UnityEngine.Object.Destroy(
+                        existing);
+
+                    roadCollidersReplaced++;
+                }
 
                 MeshCollider collider =
                     filter.gameObject.AddComponent<MeshCollider>();
 
                 collider.sharedMesh =
-                    filter.sharedMesh;
+                    collisionMesh;
 
                 collider.convex =
                     false;
@@ -950,10 +968,106 @@ namespace MotorCity.World
                 parkingCollidersAdded > 0)
             {
                 Debug.Log(
-                    "Motor City: prepared FCG physics surfaces. " +
-                    $"Road MeshColliders added={roadCollidersAdded}, " +
+                    "Motor City: prepared exact FCG physics surfaces. " +
+                    $"Road/highway MeshColliders={roadCollidersAdded}, " +
+                    $"old road colliders replaced={roadCollidersReplaced}, " +
                     $"parking colliders added={parkingCollidersAdded}.");
             }
+        }
+
+        private static bool TryBuildDriveableCollisionMesh(
+            MeshFilter filter,
+            Renderer renderer,
+            out Mesh collisionMesh)
+        {
+            collisionMesh =
+                null;
+
+            if (filter == null ||
+                filter.sharedMesh == null ||
+                renderer == null)
+                return false;
+
+            Mesh source =
+                filter.sharedMesh;
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            int subMeshCount =
+                Mathf.Min(
+                    source.subMeshCount,
+                    materials.Length);
+
+            var triangles =
+                new List<int>();
+
+            for (int subMesh = 0;
+                 subMesh < subMeshCount;
+                 subMesh++)
+            {
+                Material material =
+                    materials[subMesh];
+
+                if (!IsDriveableCollisionMaterial(
+                        material))
+                    continue;
+
+                if (source.GetTopology(
+                        subMesh) !=
+                    MeshTopology.Triangles)
+                    continue;
+
+                triangles.AddRange(
+                    source.GetTriangles(
+                        subMesh));
+            }
+
+            if (triangles.Count <
+                3)
+                return false;
+
+            collisionMesh =
+                new Mesh
+                {
+                    name =
+                        source.name +
+                        "_MotorCityDriveableCollision",
+                    indexFormat =
+                        source.indexFormat
+                };
+
+            collisionMesh.vertices =
+                source.vertices;
+
+            collisionMesh.triangles =
+                triangles.ToArray();
+
+            collisionMesh.RecalculateBounds();
+
+            return true;
+        }
+
+        private static bool IsDriveableCollisionMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string name =
+                material.name.ToLowerInvariant();
+
+            if (name.Contains(
+                    "guardrail") ||
+                name.Contains(
+                    "guard-rail"))
+                return false;
+
+            return
+                name.Contains(
+                    "road") ||
+                name.Contains(
+                    "highway");
         }
 
         private static bool ShouldHaveRoadMeshCollider(
