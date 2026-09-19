@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -104,9 +103,6 @@ namespace MotorCity.Vehicle
         private float driveModeMessageTimer;
         private float driveModeSwitchCooldown;
         private bool driveModeKeyHeld;
-        private readonly HashSet<Collider> loggedCollisionColliders =
-            new();
-        private int collisionDebugLogCount;
 
         public DriveMode CurrentDriveMode =>
             currentDriveMode;
@@ -1659,111 +1655,6 @@ namespace MotorCity.Vehicle
 
             if (body != null)
                 body.WakeUp();
-        }
-
-        private void OnCollisionEnter(
-            Collision collision)
-        {
-            if (collision == null ||
-                collision.collider == null ||
-                collisionDebugLogCount >= 40)
-                return;
-
-            Collider collider =
-                collision.collider;
-
-            if (!loggedCollisionColliders.Add(
-                    collider))
-                return;
-
-            collisionDebugLogCount++;
-
-            Transform item =
-                collider.transform;
-
-            string path =
-                BuildHierarchyPath(
-                    item);
-
-            MeshFilter filter =
-                item.GetComponent<MeshFilter>();
-
-            string meshName =
-                filter != null &&
-                filter.sharedMesh != null
-                    ? filter.sharedMesh.name
-                    : string.Empty;
-
-            Renderer renderer =
-                item.GetComponent<Renderer>();
-
-            string materials =
-                string.Empty;
-
-            if (renderer != null)
-            {
-                var names =
-                    new List<string>();
-
-                foreach (Material material in
-                         renderer.sharedMaterials)
-                {
-                    if (material != null)
-                        names.Add(
-                            material.name);
-                }
-
-                materials =
-                    string.Join(
-                        ", ",
-                        names);
-            }
-
-            Vector3 contactPoint =
-                collision.contactCount > 0
-                    ? collision.GetContact(0).point
-                    : item.position;
-
-            Debug.Log(
-                "Motor City VEHICLE COLLISION DEBUG: " +
-                $"path='{path}', " +
-                $"object='{item.name}', " +
-                $"collider={collider.GetType().Name}, " +
-                $"layer={LayerMask.LayerToName(item.gameObject.layer)}({item.gameObject.layer}), " +
-                $"isTrigger={collider.isTrigger}, " +
-                $"mesh='{meshName}', " +
-                $"materials=[{materials}], " +
-                $"contact={contactPoint}, " +
-                $"relativeVelocity={collision.relativeVelocity.magnitude:0.00}");
-        }
-
-        private static string BuildHierarchyPath(
-            Transform item)
-        {
-            if (item == null)
-                return string.Empty;
-
-            var names =
-                new List<string>();
-
-            Transform current =
-                item;
-
-            while (current != null)
-            {
-                names.Add(
-                    current.name);
-
-                current =
-                    current.parent;
-            }
-
-            names.Reverse();
-
-            return "/" +
-                string.Join(
-                    "/",
-                    names);
         }
 
         private void SetPrometeoEnabled(
