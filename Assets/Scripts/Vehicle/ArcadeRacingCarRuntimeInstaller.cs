@@ -54,12 +54,14 @@ namespace MotorCity.Vehicle
 
             return Install(
                 car,
-                prefab);
+                prefab,
+                false);
         }
 
         public static bool InstallVehicleVisual(
             ArcadeCarController car,
-            string resourcePath)
+            string resourcePath,
+            bool rotateLeft90 = false)
         {
             if (car == null ||
                 string.IsNullOrWhiteSpace(
@@ -83,10 +85,14 @@ namespace MotorCity.Vehicle
 
             return Install(
                 car,
-                prefab);
+                prefab,
+                rotateLeft90);
         }
 
-        private static bool Install(ArcadeCarController car, GameObject prefab)
+        private static bool Install(
+            ArcadeCarController car,
+            GameObject prefab,
+            bool rotateLeft90)
         {
             Transform carTransform = car.transform;
 
@@ -98,6 +104,17 @@ namespace MotorCity.Vehicle
 
             StripImportedPhysics(visual);
             NormalizeHorizontalScaleAndRotation(visual.transform);
+
+            if (rotateLeft90)
+            {
+                visual.transform.localRotation =
+                    visual.transform.localRotation *
+                    Quaternion.Euler(
+                        0f,
+                        -90f,
+                        0f);
+            }
+
             UpgradeMaterialsForCurrentPipeline(visual);
 
             List<Transform> wheelAnchors = FindWheelAnchors(visual.transform);
@@ -110,15 +127,18 @@ namespace MotorCity.Vehicle
                 return ConfigureFallbackRig(car);
             }
 
-            AlignWheelbaseWithCarForward(
-                visual.transform,
-                carTransform,
-                wheelAnchors);
+            if (!rotateLeft90)
+            {
+                AlignWheelbaseWithCarForward(
+                    visual.transform,
+                    carTransform,
+                    wheelAnchors);
 
-            EnsureVisualNoseFacesPositiveZ(
-                visual.transform,
-                carTransform,
-                wheelAnchors);
+                EnsureVisualNoseFacesPositiveZ(
+                    visual.transform,
+                    carTransform,
+                    wheelAnchors);
+            }
 
             CenterVisualHorizontally(
                 visual.transform,
