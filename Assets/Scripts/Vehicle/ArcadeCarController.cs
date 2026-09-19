@@ -101,6 +101,8 @@ namespace MotorCity.Vehicle
         private DriveMode currentDriveMode =
             DriveMode.Comfort;
         private float driveModeMessageTimer;
+        private float driveModeSwitchCooldown;
+        private bool driveModeKeyHeld;
 
         public DriveMode CurrentDriveMode =>
             currentDriveMode;
@@ -221,13 +223,39 @@ namespace MotorCity.Vehicle
             Keyboard modeKeyboard =
                 Keyboard.current;
 
-            if (drivingEnabled &&
-                resetHoldTimer <= 0f &&
-                modeKeyboard != null &&
-                modeKeyboard.qKey.wasPressedThisFrame &&
-                SpeedKph <= 1f)
+            if (driveModeSwitchCooldown > 0f)
             {
-                CycleDriveMode();
+                driveModeSwitchCooldown =
+                    Mathf.Max(
+                        0f,
+                        driveModeSwitchCooldown -
+                        Time.unscaledDeltaTime);
+            }
+
+            bool modeKeyDown =
+                modeKeyboard != null &&
+                modeKeyboard.qKey.isPressed;
+
+            if (!modeKeyDown)
+            {
+                driveModeKeyHeld =
+                    false;
+            }
+            else if (!driveModeKeyHeld)
+            {
+                driveModeKeyHeld =
+                    true;
+
+                if (drivingEnabled &&
+                    resetHoldTimer <= 0f &&
+                    driveModeSwitchCooldown <= 0f &&
+                    SpeedKph <= 1f)
+                {
+                    CycleDriveMode();
+
+                    driveModeSwitchCooldown =
+                        0.35f;
+                }
             }
 
             if (driveModeMessageTimer > 0f)
@@ -1483,24 +1511,20 @@ namespace MotorCity.Vehicle
 
         public void CycleDriveMode()
         {
+            int nextMode =
+                ((int)currentDriveMode + 1) %
+                3;
+
             currentDriveMode =
-                currentDriveMode switch
-                {
-                    DriveMode.Comfort =>
-                        DriveMode.Sport,
-                    DriveMode.Sport =>
-                        DriveMode.Drift,
-                    _ =>
-                        DriveMode.Comfort
-                };
+                (DriveMode)nextMode;
+
+            ApplyDriveModeTuning();
 
             PlayerPrefs.SetInt(
                 DriveModeKey,
-                (int)currentDriveMode);
+                nextMode);
 
             PlayerPrefs.Save();
-
-            ApplyDriveModeTuning();
 
             driveModeMessageTimer =
                 2.25f;
