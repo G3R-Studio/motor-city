@@ -8,9 +8,18 @@ namespace MotorCity.Gameplay
         public string ActiveName { get; private set; }
         public bool IsBusy => !string.IsNullOrEmpty(ActiveId);
 
+        public bool HasResult { get; private set; }
+        public string ResultActivityId { get; private set; }
+        public string ResultTitle { get; private set; }
+        public string ResultHeadline { get; private set; }
+        public string ResultDetails { get; private set; }
+        public int ResultRewardCredits { get; private set; }
+        public bool ResultSuccess { get; private set; }
+
         public bool TryBegin(string id, string displayName)
         {
             if (string.IsNullOrEmpty(id)) return false;
+            if (HasResult) return false;
             if (IsBusy && ActiveId != id) return false;
 
             ActiveId = id;
@@ -23,6 +32,36 @@ namespace MotorCity.Gameplay
             if (ActiveId != id) return;
             ActiveId = null;
             ActiveName = null;
+        }
+
+        public void ShowResult(
+            string activityId,
+            string title,
+            string headline,
+            string details,
+            int rewardCredits,
+            bool success)
+        {
+            End(activityId);
+
+            HasResult = true;
+            ResultActivityId = activityId;
+            ResultTitle = title;
+            ResultHeadline = headline;
+            ResultDetails = details;
+            ResultRewardCredits = Mathf.Max(0, rewardCredits);
+            ResultSuccess = success;
+        }
+
+        public void DismissResult()
+        {
+            HasResult = false;
+            ResultActivityId = null;
+            ResultTitle = null;
+            ResultHeadline = null;
+            ResultDetails = null;
+            ResultRewardCredits = 0;
+            ResultSuccess = false;
         }
 
         public bool IsActive(string id) => ActiveId == id;
