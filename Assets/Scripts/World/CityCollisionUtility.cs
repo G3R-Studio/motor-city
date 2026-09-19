@@ -50,6 +50,10 @@ namespace MotorCity.World
                 EnsureBuildingMeshColliders(
                     cityRoot);
 
+            disabled +=
+                RemoveRoadMarkBColliders(
+                    cityRoot);
+
             bool safetyFloor =
                 EnsureSafetyFloor(
                     cityRoot);
@@ -92,6 +96,101 @@ namespace MotorCity.World
             }
 
             return disabled;
+        }
+
+        public static int RemoveRoadMarkBColliders(
+            GameObject cityRoot)
+        {
+            if (cityRoot == null)
+                return 0;
+
+            int removed =
+                0;
+
+            foreach (Collider collider in
+                     cityRoot.GetComponentsInChildren<Collider>(
+                         true))
+            {
+                if (collider == null ||
+                    !IsRoadMarkBObject(
+                        collider.transform,
+                        cityRoot.transform))
+                    continue;
+
+                collider.enabled =
+                    false;
+
+                UnityEngine.Object.Destroy(
+                    collider);
+
+                removed++;
+            }
+
+            return removed;
+        }
+
+        private static bool IsRoadMarkBObject(
+            Transform item,
+            Transform cityRoot)
+        {
+            if (item == null)
+                return false;
+
+            Transform current =
+                item;
+
+            while (current != null)
+            {
+                string normalized =
+                    NormalizeName(
+                        current.name);
+
+                if (normalized.Contains(
+                        "roadmarkb"))
+                    return true;
+
+                MeshFilter filter =
+                    current.GetComponent<MeshFilter>();
+
+                if (filter != null &&
+                    filter.sharedMesh != null &&
+                    NormalizeName(
+                            filter.sharedMesh.name)
+                        .Contains(
+                            "roadmarkb"))
+                {
+                    return true;
+                }
+
+                Renderer renderer =
+                    current.GetComponent<Renderer>();
+
+                if (renderer != null)
+                {
+                    foreach (Material material in
+                             renderer.sharedMaterials)
+                    {
+                        if (material == null)
+                            continue;
+
+                        if (NormalizeName(
+                                material.name)
+                            .Contains(
+                                "roadmarkb"))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                if (current == cityRoot)
+                    break;
+
+                current =
+                    current.parent;
+            }
+
+            return false;
         }
 
         private static int EnsureBuildingMeshColliders(
