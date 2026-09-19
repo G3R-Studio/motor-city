@@ -256,9 +256,6 @@ namespace MotorCity.Gameplay
             VehicleProfile profile =
                 profiles[SelectedIndex];
 
-            car.SetDrivingEnabled(
-                false);
-
             bool installed =
                 ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                     car,
@@ -289,8 +286,6 @@ namespace MotorCity.Gameplay
                 profile.GripMultiplier,
                 profile.StabilityBonus);
 
-            car.SetDrivingEnabled(
-                true);
         }
 
         private bool IsUnlocked(
