@@ -89,6 +89,10 @@ namespace MotorCity.Vehicle
         private int engineUpgradeLevel;
         private int gripUpgradeLevel;
         private int stabilityUpgradeLevel;
+        private int vehicleSpeedBonus;
+        private int vehicleAccelerationBonus;
+        private float vehicleGripMultiplier = 1f;
+        private float vehicleStabilityBonus;
         private DriveMode currentDriveMode =
             DriveMode.Comfort;
         private float driveModeMessageTimer;
@@ -832,6 +836,7 @@ namespace MotorCity.Vehicle
                     Mathf.Max(
                         0.05f,
                         angularDamping +
+                        vehicleStabilityBonus +
                         stabilityUpgradeLevel * 0.035f +
                         modeDamping);
             }
@@ -849,6 +854,7 @@ namespace MotorCity.Vehicle
 
             return Mathf.Clamp(
                 baseMaxSpeedKph +
+                vehicleSpeedBonus +
                 engineUpgradeLevel * 12 +
                 modeBonus,
                 20,
@@ -867,6 +873,7 @@ namespace MotorCity.Vehicle
 
             return Mathf.Clamp(
                 accelerationMultiplier +
+                vehicleAccelerationBonus +
                 engineUpgradeLevel +
                 modeBonus,
                 1,
@@ -1238,6 +1245,39 @@ namespace MotorCity.Vehicle
             return false;
         }
 
+        public void ApplyVehicleProfile(
+            int speedBonusKph,
+            int accelerationBonus,
+            float gripMultiplier,
+            float stabilityBonus)
+        {
+            vehicleSpeedBonus =
+                Mathf.Clamp(
+                    speedBonusKph,
+                    -50,
+                    80);
+
+            vehicleAccelerationBonus =
+                Mathf.Clamp(
+                    accelerationBonus,
+                    -4,
+                    6);
+
+            vehicleGripMultiplier =
+                Mathf.Clamp(
+                    gripMultiplier,
+                    0.75f,
+                    1.30f);
+
+            vehicleStabilityBonus =
+                Mathf.Clamp(
+                    stabilityBonus,
+                    -0.08f,
+                    0.12f);
+
+            ApplyDriveModeTuning();
+        }
+
         public void ApplyUpgradeLevels(
             int engineLevel,
             int gripLevel,
@@ -1273,9 +1313,13 @@ namespace MotorCity.Vehicle
         private void ApplyWheelFriction()
         {
             float upgradeGrip =
-                1f +
-                gripUpgradeLevel *
-                0.055f;
+                (1f +
+                 gripUpgradeLevel *
+                 0.055f) *
+                Mathf.Clamp(
+                    vehicleGripMultiplier,
+                    0.75f,
+                    1.30f);
 
             for (int i = 0;
                  i <
