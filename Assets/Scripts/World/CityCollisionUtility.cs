@@ -281,6 +281,18 @@ namespace MotorCity.World
                     "/buildings/"))
                 return false;
 
+            if (path.Contains(
+                    "/highway/") ||
+                path.Contains(
+                    "/high-way/") ||
+                path.Contains(
+                    "/high_way/") ||
+                path.Contains(
+                    "/hw-") ||
+                path.Contains(
+                    "/hwy-"))
+                return false;
+
             string[] excluded =
             {
                 "/trees/",
