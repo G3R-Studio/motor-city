@@ -1071,11 +1071,14 @@ namespace MotorCity.World
 
                     normal.Normalize();
 
-                    // Only the upward-facing road deck is driveable.
-                    // Side walls / underside triangles in FCG highway meshes
-                    // caused invisible ramps that lifted the car into the air.
-                    if (normal.y <
-                        0.22f)
+                    // Keep sloped road-deck triangles even when the source
+                    // mesh uses reversed winding. FCG highway sections can
+                    // climb and descend sharply, so testing only positive Y
+                    // normals removed valid hill faces and dropped the car
+                    // through to unrelated colliders below.
+                    if (Mathf.Abs(
+                            normal.y) <
+                        0.16f)
                         continue;
 
                     triangles.Add(
