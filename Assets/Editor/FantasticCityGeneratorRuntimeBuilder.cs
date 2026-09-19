@@ -106,7 +106,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
             Debug.Log(
                 "Motor City: Fantastic City Generator runtime city baked. " +
                 $"Source={scene.path}, Renderers={renderers}, " +
-                $"added driveable colliders={colliders}, " +
+                $"added parking colliders={colliders}, " +
                 $"pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
                 $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
                 $"safety floor={collisionResult.SafetyFloorReady}, prefab={RuntimePrefab}");
@@ -116,7 +116,8 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 "Готово.\n\n" +
                 $"Источник: {scene.path}\n" +
                 $"Renderer'ов: {renderers}\n" +
-                $"Добавлено дорожных/хайвей/парковочных MeshCollider: {colliders}\n" +
+                $"Добавлено парковочных BoxCollider: {colliders}\n" +
+                "Точные road/highway MeshCollider создаются при запуске только из дорожных submesh.\n" +
                 $"Добавлено MeshCollider зданий: {collisionResult.AddedBuildingMeshColliders}\n" +
                 $"Отключено коллайдеров проезжаемых городских объектов: {collisionResult.DisabledStreetPropColliders}\n" +
                 $"Страховочный пол: {(collisionResult.SafetyFloorReady ? "да" : "нет")}\n\n" +
@@ -336,22 +337,47 @@ public static class FantasticCityGeneratorRuntimeBuilder
             if (renderer == null)
                 continue;
 
-            if (!ShouldHaveDriveableCollider(
-                    filter.transform,
-                    renderer))
+            string meshName =
+                filter.name.ToLowerInvariant();
+
+            bool parking =
+                meshName.StartsWith("park-04") ||
+                meshName.StartsWith("park-05") ||
+                meshName.StartsWith("park-06") ||
+                meshName.StartsWith("park-08");
+
+            if (!parking)
                 continue;
 
             if (filter.GetComponent<Collider>() != null)
                 continue;
 
-            MeshCollider collider =
-                filter.gameObject.AddComponent<MeshCollider>();
+            BoxCollider box =
+                filter.gameObject.AddComponent<BoxCollider>();
 
-            collider.sharedMesh =
-                filter.sharedMesh;
+            Bounds localBounds =
+                renderer.localBounds;
 
-            collider.convex =
-                false;
+            Vector3 size =
+                localBounds.size;
+
+            size.y =
+                Mathf.Max(
+                    size.y,
+                    0.2f);
+
+            Vector3 center =
+                localBounds.center;
+
+            center.y +=
+                size.y *
+                0.5f;
+
+            box.center =
+                center;
+
+            box.size =
+                size;
 
             added++;
         }
