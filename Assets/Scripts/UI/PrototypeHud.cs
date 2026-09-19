@@ -420,7 +420,8 @@ namespace MotorCity.UI
             string label;
 
             if (delivery != null &&
-                delivery.IsActive)
+                (delivery.IsActive ||
+                 delivery.IsCountingDown))
             {
                 target =
                     delivery.CurrentTarget;
@@ -428,7 +429,8 @@ namespace MotorCity.UI
                     "ДОСТАВКА";
             }
             else if (streetSprint != null &&
-                     streetSprint.IsActive)
+                     (streetSprint.IsActive ||
+                      streetSprint.IsCountingDown))
             {
                 target =
                     streetSprint.CurrentTarget;
@@ -436,7 +438,8 @@ namespace MotorCity.UI
                     "СПРИНТ";
             }
             else if (circuitRace != null &&
-                     circuitRace.IsActive)
+                     (circuitRace.IsActive ||
+                      circuitRace.IsCountingDown))
             {
                 target =
                     circuitRace.CurrentTarget;
@@ -444,7 +447,8 @@ namespace MotorCity.UI
                     $"КОЛЬЦО {circuitRace.CurrentLap}/{circuitRace.LapCount}";
             }
             else if (driftChallenge != null &&
-                     driftChallenge.IsActive)
+                     (driftChallenge.IsActive ||
+                      driftChallenge.IsCountingDown))
             {
                 target =
                     driftChallenge.ZoneCenter;
@@ -615,7 +619,7 @@ namespace MotorCity.UI
                     canvas,
                     "Controls Hint",
                     new Vector2(18f, 20f),
-                    new Vector2(438f, 34f),
+                    new Vector2(680f, 34f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     new Color(
@@ -632,13 +636,13 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(14f, 0f),
-                    new Vector2(410f, 24f),
+                    new Vector2(652f, 24f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     SecondaryTextColor);
 
             hintText.text =
-                "WASD  ДВИЖЕНИЕ   SPACE  РУЧНИК   R  СБРОС   ПКМ  КАМЕРА";
+                "WASD  ДВИЖЕНИЕ   SPACE  РУЧНИК   E  СТАРТ / ГАРАЖ   ESC  ОТМЕНА   R  СБРОС";
         }
 
         private void BuildDriftPanel(Transform canvas)
@@ -904,6 +908,22 @@ namespace MotorCity.UI
                         activityManager.ActiveName
                 };
             }
+
+            if (delivery != null &&
+                delivery.IsNearStart)
+                return delivery.StatusText;
+
+            if (driftChallenge != null &&
+                driftChallenge.IsNearStart)
+                return driftChallenge.StatusText;
+
+            if (streetSprint != null &&
+                streetSprint.IsNearStart)
+                return streetSprint.StatusText;
+
+            if (circuitRace != null &&
+                circuitRace.IsNearStart)
+                return circuitRace.StatusText;
 
             return
                 "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   КОЛЬЦО   •   ГАРАЖ";
