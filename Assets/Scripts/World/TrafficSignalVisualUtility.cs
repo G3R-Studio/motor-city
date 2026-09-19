@@ -34,6 +34,10 @@ namespace MotorCity.World
         private static int StabilizeTrafficLight(
             Transform trafficLightRoot)
         {
+            int disabled =
+                DisableTrafficLightAnimations(
+                    trafficLightRoot);
+
             var candidates =
                 new List<Renderer>();
 
@@ -48,12 +52,9 @@ namespace MotorCity.World
                 candidates.Add(
                     renderer);
 
-                StabilizeRendererMaterials(
+                ForceStablePedestrianStopState(
                     renderer);
             }
-
-            int disabled =
-                0;
 
             var handled =
                 new HashSet<Renderer>();
@@ -131,49 +132,44 @@ namespace MotorCity.World
             return disabled;
         }
 
-        private static bool SignalsOverlap(
-            Renderer first,
-            Renderer second)
+        private static int DisableTrafficLightAnimations(
+            Transform trafficLightRoot)
         {
-            if (first == null ||
-                second == null)
-                return false;
+            int disabled =
+                0;
 
-            Bounds a =
-                first.bounds;
+            foreach (Animator animator in
+                     trafficLightRoot.GetComponentsInChildren<Animator>(true))
+            {
+                if (animator == null ||
+                    !animator.enabled)
+                    continue;
 
-            Bounds b =
-                second.bounds;
+                animator.enabled =
+                    false;
 
-            Vector3 centerDelta =
-                a.center -
-                b.center;
+                disabled++;
+            }
 
-            float maximumCenterDistance =
-                Mathf.Max(
-                    0.06f,
-                    Mathf.Min(
-                        a.extents.magnitude,
-                        b.extents.magnitude) *
-                    0.55f);
+            foreach (Animation animation in
+                     trafficLightRoot.GetComponentsInChildren<Animation>(true))
+            {
+                if (animation == null ||
+                    !animation.enabled)
+                    continue;
 
-            if (centerDelta.sqrMagnitude >
-                maximumCenterDistance *
-                maximumCenterDistance)
-                return false;
+                animation.Stop();
 
-            Bounds expanded =
-                a;
+                animation.enabled =
+                    false;
 
-            expanded.Expand(
-                0.04f);
+                disabled++;
+            }
 
-            return
-                expanded.Intersects(
-                    b);
+            return disabled;
         }
 
-        private static void StabilizeRendererMaterials(
+        private static void ForceStablePedestrianStopState(
             Renderer renderer)
         {
             if (renderer == null)
@@ -183,17 +179,14 @@ namespace MotorCity.World
                 renderer.sharedMaterials;
 
             if (materials == null ||
-                materials.Length <= 1)
+                materials.Length == 0)
                 return;
 
-            Material chosen =
+            Material stopMaterial =
                 null;
 
-            float bestScore =
+            float stopScore =
                 float.NegativeInfinity;
-
-            int pedestrianMaterialCount =
-                0;
 
             for (int i = 0;
                  i < materials.Length;
@@ -202,30 +195,25 @@ namespace MotorCity.World
                 Material material =
                     materials[i];
 
-                if (material == null ||
-                    !LooksLikePedestrianMaterial(
-                        material))
+                if (material == null)
                     continue;
-
-                pedestrianMaterialCount++;
 
                 float score =
                     ScoreMaterial(
                         material);
 
                 if (score >
-                    bestScore)
+                    stopScore)
                 {
-                    bestScore =
+                    stopScore =
                         score;
 
-                    chosen =
+                    stopMaterial =
                         material;
                 }
             }
 
-            if (pedestrianMaterialCount <= 1 ||
-                chosen == null)
+            if (stopMaterial == null)
                 return;
 
             bool changed =
@@ -238,17 +226,21 @@ namespace MotorCity.World
                 Material material =
                     materials[i];
 
-                if (material == null ||
-                    !LooksLikePedestrianMaterial(
+                if (material == null)
+                    continue;
+
+                if (!LooksLikePedestrianMaterial(
+                        material) &&
+                    !LooksLikeSignalColorMaterial(
                         material))
                     continue;
 
                 if (material ==
-                    chosen)
+                    stopMaterial)
                     continue;
 
                 materials[i] =
-                    chosen;
+                    stopMaterial;
 
                 changed =
                     true;
@@ -259,9 +251,18 @@ namespace MotorCity.World
                 renderer.sharedMaterials =
                     materials;
             }
+
+            if (LooksLikeWalkRenderer(
+                    renderer) &&
+                !LooksLikeStopRenderer(
+                    renderer))
+            {
+                renderer.enabled =
+                    false;
+            }
         }
 
-        private static bool LooksLikePedestrianMaterial(
+        private static bool LooksLikeSignalColorMaterial(
             Material material)
         {
             if (material == null)
@@ -271,27 +272,97 @@ namespace MotorCity.World
                 NormalizeName(
                     material.name);
 
+            if (name.Contains(
+                    "red") ||
+                name.Contains(
+                    "green") ||
+                name.Contains(
+                    "stop") ||
+                name.Contains(
+                    "walk"))
+            {
+                return true;
+            }
+
+            Color color =
+                TryGetMaterialColor(
+                    material);
+
+            bool red =
+                color.r >
+                color.g *
+                1.35f;
+
+            bool green =
+                color.g >
+                color.r *
+                1.35f;
+
             return
-                name.Contains(
-                    "pedestrian") ||
-                name.Contains(
-                    "walk") ||
-                name.Contains(
-                    "hand");
+                red ||
+                green;
         }
 
-        private static float ScoreMaterial(
-            Material material)
+        private static bool LooksLikeWalkRenderer(
+            Renderer renderer)
         {
-            if (material == null)
-                return float.NegativeInfinity;
+            if (renderer == null)
+                return false;
 
             string name =
                 NormalizeName(
-                    material.name);
+                    renderer.name);
 
-            float score =
-                0f;
+            if (name.Contains(
+                    "green") ||
+                name.Contains(
+                    "walk"))
+            {
+                return true;
+            }
+
+            foreach (Material material in
+                     renderer.sharedMaterials)
+            {
+                if (material == null)
+                    continue;
+
+                string materialName =
+                    NormalizeName(
+                        material.name);
+
+                if (materialName.Contains(
+                        "green") ||
+                    materialName.Contains(
+                        "walk"))
+                {
+                    return true;
+                }
+
+                Color color =
+                    TryGetMaterialColor(
+                        material);
+
+                if (color.g >
+                    color.r *
+                    1.35f)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool LooksLikeStopRenderer(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return false;
+
+            string name =
+                NormalizeName(
+                    renderer.name);
 
             if (name.Contains(
                     "red") ||
@@ -302,31 +373,44 @@ namespace MotorCity.World
                 name.Contains(
                     "dontwalk"))
             {
-                score +=
-                    100f;
+                return true;
             }
 
-            if (name.Contains(
-                    "green") ||
-                name.Contains(
-                    "walk"))
+            foreach (Material material in
+                     renderer.sharedMaterials)
             {
-                score -=
-                    20f;
+                if (material == null)
+                    continue;
+
+                string materialName =
+                    NormalizeName(
+                        material.name);
+
+                if (materialName.Contains(
+                        "red") ||
+                    materialName.Contains(
+                        "stop") ||
+                    materialName.Contains(
+                        "hand") ||
+                    materialName.Contains(
+                        "dontwalk"))
+                {
+                    return true;
+                }
+
+                Color color =
+                    TryGetMaterialColor(
+                        material);
+
+                if (color.r >
+                    color.g *
+                    1.35f)
+                {
+                    return true;
+                }
             }
 
-            Color color =
-                TryGetMaterialColor(
-                    material);
-
-            score +=
-                (color.r -
-                 Mathf.Max(
-                     color.g,
-                     color.b)) *
-                15f;
-
-            return score;
+            return false;
         }
 
         private static Renderer ChooseStableRenderer(
