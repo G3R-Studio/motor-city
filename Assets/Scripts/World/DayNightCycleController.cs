@@ -516,7 +516,7 @@ namespace MotorCity.World
                 1f;
 
             MotorCity.Vehicle.ArcadeCarController car =
-                UnityEngine.Object.FindFirstObjectByType<MotorCity.Vehicle.ArcadeCarController>();
+                UnityEngine.Object.FindAnyObjectByType<MotorCity.Vehicle.ArcadeCarController>();
 
             if (car != null)
             {
