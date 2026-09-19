@@ -380,6 +380,10 @@ namespace MotorCity.World
                         normalized))
                     return true;
 
+                if (normalized.StartsWith(
+                        "roadmarkb"))
+                    return true;
+
                 current =
                     current.parent;
             }
