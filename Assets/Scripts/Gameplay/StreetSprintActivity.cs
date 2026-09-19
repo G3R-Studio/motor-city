@@ -239,11 +239,52 @@ namespace MotorCity.Gameplay
             wallet.AddCredits(reward);
 
             IsActive = false;
-            activityManager.End(ActivityId);
             checkpointIndex = 0;
+            car.SetDrivingEnabled(false);
+
+            activityManager.ShowResult(
+                ActivityId,
+                "УЛИЧНЫЙ СПРИНТ",
+                "ФИНИШ",
+                $"Время: {ElapsedSeconds:0.0}с   •   Бонус: {bonus:N0} КР",
+                reward,
+                true);
 
             StatusText =
                 $"Спринт завершён за {ElapsedSeconds:0.0}с  +{reward} КР";
+        }
+
+        public void RestartFromResult()
+        {
+            if (activityManager == null ||
+                !activityManager.HasResult ||
+                activityManager.ResultActivityId != ActivityId ||
+                route == null ||
+                route.Length < 2 ||
+                car == null)
+                return;
+
+            activityManager.DismissResult();
+
+            Vector3 direction =
+                Flat(route[1] - route[0]);
+
+            Quaternion rotation =
+                direction.sqrMagnitude > 0.01f
+                    ? Quaternion.LookRotation(
+                        direction.normalized,
+                        Vector3.up)
+                    : Quaternion.Euler(
+                        0f,
+                        car.transform.eulerAngles.y,
+                        0f);
+
+            car.TeleportTo(
+                route[0] + Vector3.up * 1.1f,
+                rotation);
+
+            armed = true;
+            BeginCountdown();
         }
 
         public void CancelActivity()
