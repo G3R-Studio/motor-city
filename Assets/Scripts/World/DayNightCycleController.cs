@@ -24,6 +24,7 @@ namespace MotorCity.World
 
         private DayNightSettings settings;
         private Light directionalLight;
+        private Light moonLight;
         private Material runtimeDaySkybox;
         private Material runtimeNightSkybox;
 
@@ -45,6 +46,8 @@ namespace MotorCity.World
             settings =
                 Resources.Load<DayNightSettings>(
                     SettingsResourcePath);
+
+            CreateMoonLight();
 
             time01 =
                 Mathf.Repeat(
@@ -100,6 +103,31 @@ namespace MotorCity.World
             if (runtimeNightSkybox != null)
                 Destroy(
                     runtimeNightSkybox);
+        }
+
+        private void CreateMoonLight()
+        {
+            GameObject moonObject =
+                new("Moon");
+
+            moonObject.transform.SetParent(
+                transform,
+                false);
+
+            moonLight =
+                moonObject.AddComponent<Light>();
+
+            moonLight.type =
+                LightType.Directional;
+
+            moonLight.shadows =
+                LightShadows.None;
+
+            moonLight.intensity =
+                0f;
+
+            moonLight.enabled =
+                false;
         }
 
         private void BuildRuntimeSkyboxes()
@@ -186,19 +214,27 @@ namespace MotorCity.World
 
             Color nightSky =
                 settings != null
-                    ? settings.NightSkyColor
+                    ? settings.NightSkyColor *
+                      0.22f
                     : new Color(
                         0.045f,
                         0.06f,
                         0.11f);
 
+            nightSky.a =
+                1f;
+
             Color nightEquator =
                 settings != null
-                    ? settings.NightEquatorColor
+                    ? settings.NightEquatorColor *
+                      0.18f
                     : new Color(
                         0.018f,
                         0.022f,
                         0.04f);
+
+            nightEquator.a =
+                1f;
 
             RenderSettings.ambientMode =
                 AmbientMode.Trilight;
@@ -284,21 +320,38 @@ namespace MotorCity.World
                     : 0.28f;
 
             directionalLight.color =
-                Color.Lerp(
-                    moonColor,
-                    sunColor,
-                    daylight);
+                sunColor;
 
             directionalLight.intensity =
-                Mathf.Lerp(
-                    moonIntensity,
-                    sunIntensity,
-                    daylight);
+                sunIntensity *
+                daylight;
 
             directionalLight.shadows =
                 daylight > 0.12f
                     ? LightShadows.Soft
                     : LightShadows.None;
+
+            if (moonLight != null)
+            {
+                moonLight.transform.rotation =
+                    Quaternion.Euler(
+                        solarAngle +
+                        180f,
+                        sunYawDegrees +
+                        180f,
+                        0f);
+
+                moonLight.color =
+                    moonColor;
+
+                moonLight.intensity =
+                    moonIntensity *
+                    NightAmount;
+
+                moonLight.enabled =
+                    NightAmount >
+                    0.04f;
+            }
 
             bool nightSky =
                 NightAmount >=
