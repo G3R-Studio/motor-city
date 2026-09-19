@@ -54,10 +54,24 @@ public static class VehicleEssentialsAudioBuilder
         EnsureFolder(
             LocalAudioRoot);
 
-        File.Copy(
-            path,
-            LocalTireSquealPath,
-            true);
+        string destination =
+            Path.GetFullPath(
+                LocalTireSquealPath);
+
+        string source =
+            Path.GetFullPath(
+                path);
+
+        if (!string.Equals(
+                source,
+                destination,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            File.Copy(
+                source,
+                destination,
+                true);
+        }
 
         AssetDatabase.ImportAsset(
             LocalTireSquealPath,
