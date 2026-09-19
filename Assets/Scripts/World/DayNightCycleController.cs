@@ -46,6 +46,8 @@ namespace MotorCity.World
         public bool IsNight { get; private set; }
         public float NightAmount { get; private set; }
         public float TimeOfDay01 => time01;
+        public int StreetLightCount => streetLights.Count;
+        public int EnabledStreetLightCount { get; private set; }
 
         public void Initialize(
             Light sun)
@@ -98,19 +100,16 @@ namespace MotorCity.World
             ApplyEnvironment(
                 false);
 
-            if (IsNight)
+            lampUpdateTimer -=
+                Time.deltaTime;
+
+            if (lampUpdateTimer <= 0f)
             {
-                lampUpdateTimer -=
-                    Time.deltaTime;
+                lampUpdateTimer =
+                    LampUpdateInterval;
 
-                if (lampUpdateTimer <= 0f)
-                {
-                    lampUpdateTimer =
-                        LampUpdateInterval;
-
-                    ResolveLampObserver();
-                    ApplyStreetLights();
-                }
+                ResolveLampObserver();
+                ApplyStreetLights();
             }
         }
 
@@ -489,6 +488,8 @@ namespace MotorCity.World
                 LampEnableDistance *
                 LampEnableDistance;
 
+            int enabledCount = 0;
+
             for (int i =
                      streetLights.Count -
                      1;
@@ -513,7 +514,7 @@ namespace MotorCity.World
                     maximumDistanceSquared;
 
                 bool shouldEnable =
-                    IsNight &&
+                    NightAmount >= 0.38f &&
                     nearObserver;
 
                 if (shouldEnable)
@@ -524,7 +525,13 @@ namespace MotorCity.World
 
                 light.enabled =
                     shouldEnable;
+
+                if (shouldEnable)
+                    enabledCount++;
             }
+
+            EnabledStreetLightCount =
+                enabledCount;
         }
 
         private void ResolveLampObserver()
@@ -719,7 +726,7 @@ namespace MotorCity.World
                 return;
 
             light.type =
-                LightType.Spot;
+                LightType.Point;
 
             light.lightmapBakeType =
                 LightmapBakeType.Realtime;
@@ -739,37 +746,19 @@ namespace MotorCity.World
             light.intensity =
                 Mathf.Max(
                     light.intensity,
-                    9f);
+                    55f);
 
             light.range =
                 Mathf.Max(
                     light.range,
-                    30f);
-
-            light.spotAngle =
-                Mathf.Max(
-                    light.spotAngle,
-                    92f);
-
-            light.innerSpotAngle =
-                Mathf.Clamp(
-                    Mathf.Max(
-                        light.innerSpotAngle,
-                        52f),
-                    0f,
-                    light.spotAngle);
+                    24f);
 
             light.bounceIntensity =
                 0f;
 
-            // FCG lamp nodes are positioned at the luminaire, but their
-            // source rotations vary between prefabs. Point the runtime lamp
-            // straight at the road so every fixture visibly illuminates it.
-            light.transform.rotation =
-                Quaternion.LookRotation(
-                    Vector3.down,
-                    Vector3.forward);
-
+            // Point lights avoid relying on FCG source rotations after bake.
+            // The runtime anchor/fallback is placed at the luminaire itself,
+            // so the road and nearby sidewalk receive a visible pool of light.
             light.enabled =
                 false;
         }
