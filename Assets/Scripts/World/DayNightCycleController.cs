@@ -30,6 +30,7 @@ namespace MotorCity.World
 
         private float time01;
         private float streetLightRefreshTimer;
+        private int autoCreatedStreetLights;
         private bool lastNightState;
         private bool initialized;
 
@@ -59,7 +60,8 @@ namespace MotorCity.World
 
             Debug.Log(
                 "Motor City: day/night prepared. " +
-                $"FCG spot lights={streetLights.Count}.");
+                $"FCG lamp lights={streetLights.Count}, " +
+                $"auto-created={autoCreatedStreetLights}.");
 
             ApplyEnvironment(
                 true);
@@ -92,7 +94,7 @@ namespace MotorCity.World
             if (streetLightRefreshTimer <= 0f)
             {
                 streetLightRefreshTimer =
-                    0.5f;
+                    2f;
 
                 RefreshStreetLights();
                 ApplyStreetLights();
@@ -393,34 +395,71 @@ namespace MotorCity.World
         {
             streetLights.Clear();
 
-            Light[] all =
-                UnityEngine.Object.FindObjectsByType<Light>(
+            var unique =
+                new HashSet<Light>();
+
+            Transform[] allTransforms =
+                UnityEngine.Object.FindObjectsByType<Transform>(
                     FindObjectsInactive.Include);
 
-            foreach (Light light in all)
+            foreach (Transform item in allTransforms)
             {
+                if (item == null ||
+                    !IsRuntimeCityHierarchy(
+                        item) ||
+                    !IsNamedFcgLampNode(
+                        item))
+                    continue;
+
+                Light light =
+                    FindExistingLampLight(
+                        item);
+
+                if (light == null &&
+                    !HasNamedLampDescendant(
+                        item))
+                {
+                    light =
+                        item.gameObject.AddComponent<Light>();
+
+                    light.type =
+                        LightType.Spot;
+
+                    light.color =
+                        new Color(
+                            1f,
+                            0.78f,
+                            0.52f);
+
+                    light.intensity =
+                        3.2f;
+
+                    light.range =
+                        16f;
+
+                    light.spotAngle =
+                        72f;
+
+                    light.innerSpotAngle =
+                        38f;
+
+                    autoCreatedStreetLights++;
+                }
+
                 if (light == null ||
                     light == directionalLight ||
                     light == moonLight)
                     continue;
 
-                if (!IsRuntimeCityHierarchy(
-                        light.transform))
-                    continue;
+                ConfigureLampLight(
+                    light);
 
-                if (!IsFcgSpotLight(
-                        light.transform))
-                    continue;
-
-                light.lightmapBakeType =
-                    LightmapBakeType.Realtime;
-
-                light.shadows =
-                    LightShadows.None;
-
-                streetLights.Add(
+                unique.Add(
                     light);
             }
+
+            streetLights.AddRange(
+                unique);
         }
 
         private void ApplyStreetLights()
@@ -483,7 +522,125 @@ namespace MotorCity.World
             }
         }
 
-        private static bool IsFcgSpotLight(
+        private static Light FindExistingLampLight(
+            Transform item)
+        {
+            if (item == null)
+                return null;
+
+            foreach (Light light in
+                     item.GetComponentsInChildren<Light>(true))
+            {
+                if (light != null &&
+                    light.type !=
+                    LightType.Directional)
+                {
+                    return light;
+                }
+            }
+
+            Transform current =
+                item.parent;
+
+            while (current != null &&
+                   !IsRuntimeCityRoot(
+                       current))
+            {
+                if (IsNamedFcgLampNode(
+                        current))
+                {
+                    Light light =
+                        current.GetComponent<Light>();
+
+                    if (light != null &&
+                        light.type !=
+                        LightType.Directional)
+                    {
+                        return light;
+                    }
+                }
+
+                current =
+                    current.parent;
+            }
+
+            return null;
+        }
+
+        private static void ConfigureLampLight(
+            Light light)
+        {
+            if (light == null)
+                return;
+
+            light.type =
+                LightType.Spot;
+
+            light.lightmapBakeType =
+                LightmapBakeType.Realtime;
+
+            light.shadows =
+                LightShadows.None;
+
+            light.cullingMask =
+                ~0;
+
+            light.intensity =
+                Mathf.Max(
+                    light.intensity,
+                    2.8f);
+
+            light.range =
+                Mathf.Max(
+                    light.range,
+                    15f);
+
+            light.spotAngle =
+                Mathf.Max(
+                    light.spotAngle,
+                    68f);
+
+            light.innerSpotAngle =
+                Mathf.Clamp(
+                    Mathf.Max(
+                        light.innerSpotAngle,
+                        34f),
+                    0f,
+                    light.spotAngle);
+
+            if (light.color.maxColorComponent <
+                0.2f)
+            {
+                light.color =
+                    new Color(
+                        1f,
+                        0.78f,
+                        0.52f);
+            }
+        }
+
+        private static bool HasNamedLampDescendant(
+            Transform item)
+        {
+            if (item == null)
+                return false;
+
+            foreach (Transform child in
+                     item.GetComponentsInChildren<Transform>(true))
+            {
+                if (child == null ||
+                    child == item)
+                    continue;
+
+                if (IsNamedFcgLampNode(
+                        child))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsNamedFcgLampNode(
             Transform item)
         {
             if (item == null)
