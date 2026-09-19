@@ -187,8 +187,17 @@ namespace MotorCity.Gameplay
             {
                 wallet.AddCredits(rewardCredits);
                 IsActive = false;
-                activityManager.End(ActivityId);
                 checkpointIndex = 0;
+                car.SetDrivingEnabled(false);
+
+                activityManager.ShowResult(
+                    ActivityId,
+                    "ДОСТАВКА",
+                    "МАРШРУТ ЗАВЕРШЁН",
+                    $"Пройдено точек: {route.Length - 1}",
+                    rewardCredits,
+                    true);
+
                 StatusText =
                     $"Доставка завершена  +{rewardCredits} КР";
                 return;
@@ -196,6 +205,38 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 $"ДОСТАВКА  ТОЧКА {checkpointIndex + 1}/{route.Length}   ESC — ОТМЕНА";
+        }
+
+        public void RestartFromResult()
+        {
+            if (activityManager == null ||
+                !activityManager.HasResult ||
+                activityManager.ResultActivityId != ActivityId ||
+                route == null ||
+                route.Length < 2 ||
+                car == null)
+                return;
+
+            activityManager.DismissResult();
+
+            Vector3 direction =
+                Flat(route[1] - route[0]);
+
+            Quaternion rotation =
+                direction.sqrMagnitude > 0.01f
+                    ? Quaternion.LookRotation(
+                        direction.normalized,
+                        Vector3.up)
+                    : Quaternion.Euler(
+                        0f,
+                        car.transform.eulerAngles.y,
+                        0f);
+
+            car.TeleportTo(
+                route[0] + Vector3.up * 1.1f,
+                rotation);
+
+            BeginCountdown();
         }
 
         public void CancelActivity()
