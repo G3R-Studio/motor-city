@@ -24,7 +24,7 @@ namespace MotorCity.World
         [SerializeField] private float fadeSeconds = 1.2f;
         [SerializeField] private float visibleAfterFallSeconds = 6f;
 
-        private Collider breakCollider;
+        [SerializeField] private Collider breakCollider;
         private bool broken;
 
         public bool IsBroken => broken;
@@ -49,19 +49,29 @@ namespace MotorCity.World
                         out PropKind propKind))
                     continue;
 
-                if (item.GetComponent<BreakableStreetProp>() != null)
-                    continue;
-
                 BreakableStreetProp prop =
-                    item.gameObject.AddComponent<BreakableStreetProp>();
+                    item.GetComponent<BreakableStreetProp>();
+
+                bool added =
+                    prop == null;
+
+                if (prop == null)
+                {
+                    prop =
+                        item.gameObject.AddComponent<BreakableStreetProp>();
+                }
 
                 prop.Configure(
                     propKind);
 
                 if (!prop.PrepareTriggerCollider())
                 {
-                    DestroyComponent(
-                        prop);
+                    if (added)
+                    {
+                        DestroyComponent(
+                            prop);
+                    }
+
                     continue;
                 }
 
@@ -148,14 +158,13 @@ namespace MotorCity.World
                 if (collider == null)
                     continue;
 
-                if (collider.transform == transform &&
+                if (box == null &&
+                    collider.transform == transform &&
                     collider is BoxCollider rootBox &&
-                    box == null)
+                    rootBox.isTrigger)
                 {
                     box =
                         rootBox;
-
-                    continue;
                 }
 
                 collider.enabled =
@@ -249,7 +258,41 @@ namespace MotorCity.World
             return true;
         }
 
+        private void Awake()
+        {
+            if (breakCollider != null)
+                return;
+
+            foreach (Collider collider in
+                     GetComponents<Collider>())
+            {
+                if (collider != null &&
+                    collider.isTrigger &&
+                    collider.enabled)
+                {
+                    breakCollider =
+                        collider;
+
+                    break;
+                }
+            }
+        }
+
         private void OnTriggerEnter(
+            Collider other)
+        {
+            TryBreakFromCollider(
+                other);
+        }
+
+        private void OnTriggerStay(
+            Collider other)
+        {
+            TryBreakFromCollider(
+                other);
+        }
+
+        private void TryBreakFromCollider(
             Collider other)
         {
             if (broken ||
@@ -267,6 +310,17 @@ namespace MotorCity.World
             // props down before the visible body reaches them.
             if (other.transform !=
                 car.transform)
+                return;
+
+            TryBreakFromCar(
+                car);
+        }
+
+        public void TryBreakFromCar(
+            MotorCity.Vehicle.ArcadeCarController car)
+        {
+            if (broken ||
+                car == null)
                 return;
 
             Rigidbody carBody =
@@ -352,13 +406,18 @@ namespace MotorCity.World
                         false;
             }
 
-            if (breakCollider != null)
+            foreach (Collider collider in
+                     GetComponentsInChildren<Collider>(true))
             {
-                // No physical tumbling after the hit. This avoids poles
-                // spinning forever and keeps them from disturbing drifting.
-                breakCollider.enabled =
-                    false;
+                if (collider != null)
+                {
+                    collider.enabled =
+                        false;
+                }
             }
+
+            breakCollider =
+                null;
 
             Rigidbody existingBody =
                 GetComponent<Rigidbody>();
@@ -412,9 +471,13 @@ namespace MotorCity.World
             float fallAngle =
                 kind == PropKind.Hydrant
                     ? 68f
-                    : kind == PropKind.Bench
-                        ? 74f
-                        : 86f;
+                    : kind == PropKind.Trash
+                        ? 78f
+                        : kind == PropKind.Bench
+                            ? 74f
+                            : kind == PropKind.TrafficLight
+                                ? 82f
+                                : 86f;
 
             Vector3 pivot =
                 transform.position;
@@ -422,11 +485,22 @@ namespace MotorCity.World
             if (TryCalculateWorldRendererBounds(
                     out Bounds worldBounds))
             {
-                pivot =
-                    new Vector3(
-                        worldBounds.center.x,
-                        worldBounds.min.y,
-                        worldBounds.center.z);
+                if (kind == PropKind.TrafficLight)
+                {
+                    pivot =
+                        new Vector3(
+                            transform.position.x,
+                            worldBounds.min.y,
+                            transform.position.z);
+                }
+                else
+                {
+                    pivot =
+                        new Vector3(
+                            worldBounds.center.x,
+                            worldBounds.min.y,
+                            worldBounds.center.z);
+                }
             }
 
             float elapsed =
