@@ -144,20 +144,12 @@ namespace MotorCity.World
                 DisableRoadMarkHierarchyColliders(
                     activeCity);
 
-            int disabledCombinedObjectColliders =
-                DisableCombinedStreetObjectColliders(
-                    activeCity);
-
             CityCollisionUtility.Result collisionResult =
                 CityCollisionUtility.Prepare(
                     activeCity);
 
             hardDisabledRoadMarkColliders +=
                 DisableRoadMarkHierarchyColliders(
-                    activeCity);
-
-            disabledCombinedObjectColliders +=
-                DisableCombinedStreetObjectColliders(
                     activeCity);
 
             int stabilizedPedestrianSignals =
@@ -181,7 +173,6 @@ namespace MotorCity.World
                 $"Bounds center={cityBounds.center}, size={cityBounds.size}. " +
                 $"Pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
                 $"Road-Mark colliders hard-disabled={hardDisabledRoadMarkColliders}, " +
-                $"combined street-object colliders disabled={disabledCombinedObjectColliders}, " +
                 $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
                 $"pedestrian signal renderers disabled={stabilizedPedestrianSignals}, " +
                 $"safety floor={collisionResult.SafetyFloorReady}. " +
@@ -937,71 +928,6 @@ namespace MotorCity.World
             }
 
             return score;
-        }
-
-        private static int DisableCombinedStreetObjectColliders(
-            GameObject city)
-        {
-            if (city == null)
-                return 0;
-
-            int disabled =
-                0;
-
-            foreach (Collider collider in
-                     city.GetComponentsInChildren<Collider>(
-                         true))
-            {
-                if (collider == null)
-                    continue;
-
-                string objectName =
-                    collider.gameObject.name
-                        .Replace("-", string.Empty)
-                        .Replace("_", string.Empty)
-                        .Replace(" ", string.Empty)
-                        .ToLowerInvariant();
-
-                string meshName =
-                    string.Empty;
-
-                if (collider is MeshCollider meshCollider &&
-                    meshCollider.sharedMesh != null)
-                {
-                    meshName =
-                        meshCollider.sharedMesh.name
-                            .Replace("-", string.Empty)
-                            .Replace("_", string.Empty)
-                            .Replace(" ", string.Empty)
-                            .ToLowerInvariant();
-                }
-
-                if (objectName != "colliderobjects" &&
-                    meshName != "colliderobjects")
-                    continue;
-
-                if (collider.enabled)
-                {
-                    collider.isTrigger =
-                        true;
-
-                    collider.enabled =
-                        false;
-
-                    disabled++;
-                }
-
-                UnityEngine.Object.Destroy(
-                    collider);
-            }
-
-            if (disabled > 0)
-            {
-                Debug.Log(
-                    $"Motor City: disabled {disabled} combined Collider-Objects street-prop colliders.");
-            }
-
-            return disabled;
         }
 
         private static int DisableRoadMarkHierarchyColliders(
