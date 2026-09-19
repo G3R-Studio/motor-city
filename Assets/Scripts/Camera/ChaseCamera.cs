@@ -47,6 +47,30 @@ namespace MotorCity.CameraSystem
         {
             targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
             cameraComponent = GetComponent<Camera>();
+            RemoveCameraPhysics();
+        }
+
+        private void RemoveCameraPhysics()
+        {
+            foreach (Collider collider in
+                     GetComponentsInChildren<Collider>(true))
+            {
+                if (collider != null)
+                {
+                    Destroy(
+                        collider);
+                }
+            }
+
+            foreach (Rigidbody body in
+                     GetComponentsInChildren<Rigidbody>(true))
+            {
+                if (body != null)
+                {
+                    Destroy(
+                        body);
+                }
+            }
         }
 
         private void Update()
