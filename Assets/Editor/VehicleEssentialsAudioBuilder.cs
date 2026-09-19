@@ -102,15 +102,19 @@ public static class VehicleEssentialsAudioBuilder
         List<AudioEntry> clips =
             FindVehicleEssentialsClips();
 
-        if (clips.Count == 0)
+        AudioClip tireSqueal =
+            FindTireSquealClip();
+
+        if (clips.Count == 0 &&
+            tireSqueal == null)
         {
             if (showDialogs)
             {
                 EditorUtility.DisplayDialog(
                     "Motor City — Vehicle Audio",
-                    "Vehicle - Essentials не найден.\n\n" +
-                    "Сначала импортируй пакет Nox_Sound из Unity Asset Store, " +
-                    "затем снова запусти эту команду.",
+                    "Не найдено ни Vehicle - Essentials, ни локального tire squeal.\n\n" +
+                    "Импортируй пакет Nox_Sound или используй " +
+                    "Motor City > Audio > Import Tire Squeal WAV.",
                     "OK");
             }
 
@@ -158,9 +162,6 @@ public static class VehicleEssentialsAudioBuilder
                 clips,
                 AudioRole.Horn,
                 null);
-
-        AudioClip tireSqueal =
-            FindTireSquealClip();
 
         if (engineIdle == null &&
             engineDrive == null &&
