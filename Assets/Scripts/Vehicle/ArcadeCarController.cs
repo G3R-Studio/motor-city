@@ -55,6 +55,11 @@ namespace MotorCity.Vehicle
         [SerializeField] private float wheelDampingRate = 0.3f;
         [SerializeField] private float forceAppPointDistance = 0.05f;
 
+        private float activeSuspensionDistance;
+        private float activeSuspensionSpring;
+        private float activeSuspensionDamper;
+        private float activeSuspensionTargetPosition;
+
         [Header("Drift telemetry")]
         [SerializeField] private float driftDetectionSideSlip = 0.10f;
         [SerializeField] private float driftDetectionAngle = 7f;
@@ -200,6 +205,15 @@ namespace MotorCity.Vehicle
                 RigidbodyInterpolation.Interpolate;
             body.collisionDetectionMode =
                 CollisionDetectionMode.ContinuousDynamic;
+
+            activeSuspensionDistance =
+                suspensionDistance;
+            activeSuspensionSpring =
+                suspensionSpring;
+            activeSuspensionDamper =
+                suspensionDamper;
+            activeSuspensionTargetPosition =
+                suspensionTargetPosition;
         }
 
         private void Update()
@@ -269,7 +283,8 @@ namespace MotorCity.Vehicle
         public void ConfigurePrometeoRig(
             Transform[] visualWheelRoots,
             Vector3[] wheelCentersLocal,
-            float measuredWheelRadius)
+            float measuredWheelRadius,
+            bool compactVehicleRig = false)
         {
             if (visualWheelRoots == null ||
                 visualWheelRoots.Length < 4 ||
@@ -288,6 +303,47 @@ namespace MotorCity.Vehicle
                         0.26f,
                         0.58f)
                     : fallbackWheelRadius;
+
+            if (compactVehicleRig)
+            {
+                activeSuspensionDistance =
+                    Mathf.Clamp(
+                        radius * 0.32f,
+                        0.11f,
+                        0.17f);
+
+                activeSuspensionSpring =
+                    Mathf.Lerp(
+                        42000f,
+                        50000f,
+                        Mathf.InverseLerp(
+                            0.28f,
+                            0.52f,
+                            radius));
+
+                activeSuspensionDamper =
+                    Mathf.Lerp(
+                        5000f,
+                        6200f,
+                        Mathf.InverseLerp(
+                            0.28f,
+                            0.52f,
+                            radius));
+
+                activeSuspensionTargetPosition =
+                    0.58f;
+            }
+            else
+            {
+                activeSuspensionDistance =
+                    suspensionDistance;
+                activeSuspensionSpring =
+                    suspensionSpring;
+                activeSuspensionDamper =
+                    suspensionDamper;
+                activeSuspensionTargetPosition =
+                    suspensionTargetPosition;
+            }
 
             for (int i = 0; i < 4; i++)
             {
@@ -341,7 +397,7 @@ namespace MotorCity.Vehicle
             wheel.radius = radius;
             wheel.mass = wheelMass;
             wheel.suspensionDistance =
-                suspensionDistance;
+                activeSuspensionDistance;
             wheel.forceAppPointDistance =
                 forceAppPointDistance;
             wheel.wheelDampingRate =
@@ -350,10 +406,12 @@ namespace MotorCity.Vehicle
             JointSpring spring =
                 wheel.suspensionSpring;
 
-            spring.spring = suspensionSpring;
-            spring.damper = suspensionDamper;
+            spring.spring =
+                activeSuspensionSpring;
+            spring.damper =
+                activeSuspensionDamper;
             spring.targetPosition =
-                suspensionTargetPosition;
+                activeSuspensionTargetPosition;
 
             wheel.suspensionSpring = spring;
 
