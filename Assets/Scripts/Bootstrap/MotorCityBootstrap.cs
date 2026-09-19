@@ -73,6 +73,23 @@ namespace MotorCity.Bootstrap
                 reputation,
                 activityManager);
 
+            DriftSpotSystem driftSpots =
+                systems.AddComponent<DriftSpotSystem>();
+            driftSpots.Initialize(
+                car,
+                drift,
+                wallet,
+                reputation,
+                activityManager);
+
+            DiscoverySystem discoveries =
+                systems.AddComponent<DiscoverySystem>();
+            discoveries.Initialize(
+                car,
+                wallet,
+                reputation,
+                activityManager);
+
             GarageUpgradeSystem garage = systems.AddComponent<GarageUpgradeSystem>();
             garage.Initialize(
                 car,
@@ -88,6 +105,8 @@ namespace MotorCity.Bootstrap
             CreateStreetSprintMarker(streetSprint, activityManager);
             CreateCircuitRaceMarker(circuitRace, activityManager);
             CreateSpeedTrapMarkers(speedTraps);
+            CreateDriftSpotMarkers(driftSpots);
+            CreateDiscoveryMarkers(discoveries);
             CreateGarageMarker(garage);
 
             CreateCamera(car.transform);
@@ -100,6 +119,8 @@ namespace MotorCity.Bootstrap
                 streetSprint,
                 circuitRace,
                 speedTraps,
+                driftSpots,
+                discoveries,
                 activityManager,
                 garage);
         }
@@ -524,6 +545,113 @@ namespace MotorCity.Bootstrap
             }
         }
 
+        private static void CreateDriftSpotMarkers(
+            DriftSpotSystem driftSpots)
+        {
+            if (driftSpots == null)
+                return;
+
+            Material ringMaterial =
+                Material(
+                    new Color(
+                        1f,
+                        0.36f,
+                        0.08f),
+                    0.02f,
+                    0.72f);
+
+            for (int i = 0;
+                 i < driftSpots.SpotCount;
+                 i++)
+            {
+                GameObject root =
+                    new($"Drift Spot {i + 1}");
+
+                root.transform.position =
+                    driftSpots.GetSpotPosition(i) +
+                    Vector3.up * 0.08f;
+
+                GameObject ring =
+                    Primitive(
+                        "Drift Ring",
+                        PrimitiveType.Cylinder,
+                        root.transform,
+                        new Vector3(
+                            8f,
+                            0.025f,
+                            8f),
+                        Vector3.zero,
+                        ringMaterial,
+                        false);
+
+                ring.transform.localScale =
+                    new Vector3(
+                        8f,
+                        0.025f,
+                        8f);
+            }
+        }
+
+        private static void CreateDiscoveryMarkers(
+            DiscoverySystem discoveries)
+        {
+            if (discoveries == null)
+                return;
+
+            Material beaconMaterial =
+                Material(
+                    new Color(
+                        0.72f,
+                        0.28f,
+                        1f),
+                    0.02f,
+                    0.72f);
+
+            for (int i = 0;
+                 i < discoveries.DiscoveryCount;
+                 i++)
+            {
+                if (discoveries.IsFound(i))
+                    continue;
+
+                GameObject root =
+                    new($"Discovery {i + 1}");
+
+                root.transform.position =
+                    discoveries.GetDiscoveryPosition(i);
+
+                Primitive(
+                    "Discovery Base",
+                    PrimitiveType.Cylinder,
+                    root.transform,
+                    new Vector3(
+                        1.3f,
+                        0.08f,
+                        1.3f),
+                    new Vector3(
+                        0f,
+                        0.08f,
+                        0f),
+                    beaconMaterial,
+                    false);
+
+                Primitive(
+                    "Discovery Beacon",
+                    PrimitiveType.Cylinder,
+                    root.transform,
+                    new Vector3(
+                        0.13f,
+                        2.4f,
+                        0.13f),
+                    new Vector3(
+                        0f,
+                        2.4f,
+                        0f),
+                    beaconMaterial,
+                    false);
+            }
+        }
+
         private static void CreateGarageMarker(
             GarageUpgradeSystem garage)
         {
@@ -643,6 +771,8 @@ namespace MotorCity.Bootstrap
             StreetSprintActivity streetSprint,
             CircuitRaceActivity circuitRace,
             SpeedTrapSystem speedTraps,
+            DriftSpotSystem driftSpots,
+            DiscoverySystem discoveries,
             ActivityManager activityManager,
             GarageUpgradeSystem garage)
         {
@@ -657,6 +787,8 @@ namespace MotorCity.Bootstrap
                 streetSprint,
                 circuitRace,
                 speedTraps,
+                driftSpots,
+                discoveries,
                 activityManager,
                 garage);
         }
