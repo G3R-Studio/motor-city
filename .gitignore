@@ -44,6 +44,20 @@ sysinfo.txt
 /Assets/Resources/MotorCity/Markers/
 /Assets/Resources/MotorCity/Markers.meta
 
+# Generated local vehicle audio bindings
+/Assets/Resources/MotorCity/Audio/
+/Assets/Resources/MotorCity/Audio.meta
+
+# Local Nox_Sound Vehicle - Essentials package
+/Assets/Nox_Sound/
+/Assets/Nox_Sound.meta
+/Assets/Nox Sound/
+/Assets/Nox Sound.meta
+/Assets/Vehicle - Essentials/
+/Assets/Vehicle - Essentials.meta
+/Assets/Vehicle Essentials/
+/Assets/Vehicle Essentials.meta
+
 
 
 # Local city asset scanner report
