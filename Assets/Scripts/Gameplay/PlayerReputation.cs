@@ -35,6 +35,22 @@ namespace MotorCity.Gameplay
             Reputation +=
                 amount;
 
+            Save();
+        }
+
+        public void SetReputation(
+            int amount)
+        {
+            Reputation =
+                Mathf.Max(
+                    0,
+                    amount);
+
+            Save();
+        }
+
+        private void Save()
+        {
             PlayerPrefs.SetInt(
                 ReputationKey,
                 Reputation);
