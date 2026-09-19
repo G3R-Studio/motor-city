@@ -129,41 +129,84 @@ public static class PolyPackVehicleImporter
 
     private static List<Candidate> FindCandidates()
     {
-        string[] guids =
-            AssetDatabase.FindAssets(
-                "t:Prefab");
+        List<Candidate> explicitVehicles =
+            FindExplicitStarterVehicles();
+
+        if (explicitVehicles.Count >=
+            VehicleCount)
+        {
+            return explicitVehicles;
+        }
+
+        string[] paths =
+            AssetDatabase.GetAllAssetPaths();
 
         var result =
-            new List<Candidate>();
+            new List<Candidate>(
+                explicitVehicles);
 
-        foreach (string guid in guids)
+        var seen =
+            new HashSet<string>(
+                result.Select(
+                    item => item.Path),
+                StringComparer.OrdinalIgnoreCase);
+
+        foreach (string path in paths)
         {
-            string path =
-                AssetDatabase.GUIDToAssetPath(
-                    guid);
+            if (string.IsNullOrWhiteSpace(
+                    path) ||
+                !path.StartsWith(
+                    "Assets/",
+                    StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string extension =
+                Path.GetExtension(
+                        path)
+                    .ToLowerInvariant();
+
+            if (extension != ".prefab" &&
+                extension != ".fbx" &&
+                extension != ".obj")
+                continue;
 
             string lower =
                 path.ToLowerInvariant();
 
+            if (lower.Contains(
+                    "/resources/motorcity/") ||
+                lower.Contains(
+                    "fantastic city generator") ||
+                lower.Contains(
+                    "arcade - free racing car") ||
+                lower.Contains(
+                    "cityvisual"))
+                continue;
+
             bool packageMatch =
-                lower.Contains("vehicles - polypack") ||
-                lower.Contains("vehicles_polypack") ||
-                lower.Contains("vehicles polypack") ||
-                (lower.Contains("polypack") &&
-                 lower.Contains("vehicle"));
+                lower.Contains("polypack") ||
+                lower.Contains("alstra") ||
+                lower.Contains("musclecar") ||
+                lower.Contains("pickup") ||
+                lower.Contains("suvv") ||
+                lower.Contains("swifto") ||
+                lower.Contains("minivan");
 
             if (!packageMatch)
                 continue;
 
-            GameObject prefab =
+            if (seen.Contains(path))
+                continue;
+
+            GameObject asset =
                 AssetDatabase.LoadAssetAtPath<GameObject>(
                     path);
 
-            if (prefab == null)
+            if (asset == null)
                 continue;
 
             Renderer[] renderers =
-                prefab.GetComponentsInChildren<Renderer>(
+                asset.GetComponentsInChildren<Renderer>(
                     true);
 
             if (renderers.Length == 0)
@@ -172,9 +215,9 @@ public static class PolyPackVehicleImporter
             int score =
                 Score(
                     path,
-                    prefab);
+                    asset);
 
-            if (score < 0)
+            if (score < -20)
                 continue;
 
             result.Add(
@@ -186,6 +229,29 @@ public static class PolyPackVehicleImporter
                         FamilyKey(
                             path)
                 });
+
+            seen.Add(path);
+        }
+
+        if (result.Count == 0)
+        {
+            Debug.LogWarning(
+                "Motor City: Vehicles - PolyPack scan found no usable GameObject assets. " +
+                "Expected model names include SwiftoV1, MuscleCarV1, PickupV1 and SuvV1.");
+        }
+        else
+        {
+            Debug.Log(
+                "Motor City: Vehicles - PolyPack candidates: " +
+                string.Join(
+                    " | ",
+                    result
+                        .OrderByDescending(
+                            item => item.Score)
+                        .Take(12)
+                        .Select(
+                            item =>
+                                $"{item.Path} (score {item.Score})")));
         }
 
         return result
@@ -195,6 +261,107 @@ public static class PolyPackVehicleImporter
                 item => item.Path,
                 StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static List<Candidate> FindExplicitStarterVehicles()
+    {
+        string[] preferredNames =
+        {
+            "SwiftoV1",
+            "MuscleCarV1",
+            "PickupV1",
+            "SuvV1"
+        };
+
+        var result =
+            new List<Candidate>();
+
+        foreach (string preferredName in
+                 preferredNames)
+        {
+            string[] guids =
+                AssetDatabase.FindAssets(
+                    preferredName);
+
+            string bestPath =
+                guids
+                    .Select(
+                        AssetDatabase.GUIDToAssetPath)
+                    .Where(
+                        path =>
+                        {
+                            if (string.IsNullOrWhiteSpace(
+                                    path))
+                                return false;
+
+                            string extension =
+                                Path.GetExtension(
+                                        path)
+                                    .ToLowerInvariant();
+
+                            if (extension != ".fbx" &&
+                                extension != ".prefab" &&
+                                extension != ".obj")
+                                return false;
+
+                            string fileName =
+                                Path.GetFileNameWithoutExtension(
+                                    path);
+
+                            return string.Equals(
+                                fileName,
+                                preferredName,
+                                StringComparison.OrdinalIgnoreCase);
+                        })
+                    .OrderBy(
+                        path =>
+                            Path.GetExtension(
+                                    path)
+                                .Equals(
+                                    ".prefab",
+                                    StringComparison.OrdinalIgnoreCase)
+                                ? 0
+                                : 1)
+                    .ThenBy(
+                        path => path,
+                        StringComparer.OrdinalIgnoreCase)
+                    .FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(
+                    bestPath))
+                continue;
+
+            GameObject asset =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    bestPath);
+
+            if (asset == null)
+                continue;
+
+            result.Add(
+                new Candidate
+                {
+                    Path = bestPath,
+                    Score =
+                        1000 -
+                        result.Count * 10,
+                    Family =
+                        FamilyKey(
+                            bestPath)
+                });
+        }
+
+        if (result.Count > 0)
+        {
+            Debug.Log(
+                "Motor City: explicit Vehicles - PolyPack models found: " +
+                string.Join(
+                    " | ",
+                    result.Select(
+                        item => item.Path)));
+        }
+
+        return result;
     }
 
     private static int Score(
