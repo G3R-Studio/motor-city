@@ -23,6 +23,7 @@ namespace MotorCity.UI
 
         private Text moneyText;
         private Text upgradesText;
+        private Text driveModeText;
         private Text hintText;
         private Text speedText;
         private Text speedUnitText;
@@ -108,6 +109,28 @@ namespace MotorCity.UI
                 garage == null
                     ? string.Empty
                     : $"ДВИГ {garage.EngineLevel}   •   СЦЕП {garage.GripLevel}   •   СТАБ {garage.StabilityLevel}";
+
+            if (driveModeText != null &&
+                car != null)
+            {
+                driveModeText.text =
+                    $"РЕЖИМ  {car.DriveModeDisplayName}";
+
+                driveModeText.color =
+                    car.CurrentDriveMode switch
+                    {
+                        DriveMode.Sport =>
+                            new Color(
+                                0.30f,
+                                1f,
+                                0.54f,
+                                1f),
+                        DriveMode.Drift =>
+                            DriftAccent,
+                        _ =>
+                            BlueAccent
+                    };
+            }
 
             float speed =
                 car == null
@@ -241,7 +264,7 @@ namespace MotorCity.UI
                     canvas,
                     "Player Card",
                     new Vector2(18f, -18f),
-                    new Vector2(318f, 76f),
+                    new Vector2(360f, 96f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     PanelColor);
@@ -250,7 +273,7 @@ namespace MotorCity.UI
                 card,
                 BlueAccent,
                 new Vector2(5f, -8f),
-                new Vector2(4f, 60f),
+                new Vector2(4f, 80f),
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f));
 
@@ -276,20 +299,33 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperRight,
                     new Vector2(-14f, -8f),
-                    new Vector2(150f, 30f),
+                    new Vector2(170f, 30f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
+
+            driveModeText =
+                CreateText(
+                    card,
+                    "Drive Mode",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(20f, -51f),
+                    new Vector2(320f, 20f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 0.5f),
+                    BlueAccent);
 
             upgradesText =
                 CreateText(
                     card,
                     "Upgrades",
-                    14,
+                    13,
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
-                    new Vector2(20f, 10f),
-                    new Vector2(282f, 24f),
+                    new Vector2(20f, 9f),
+                    new Vector2(320f, 22f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     SecondaryTextColor);
@@ -647,7 +683,7 @@ namespace MotorCity.UI
                     canvas,
                     "Controls Hint",
                     new Vector2(18f, 20f),
-                    new Vector2(680f, 34f),
+                    new Vector2(810f, 34f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     new Color(
@@ -664,13 +700,13 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(14f, 0f),
-                    new Vector2(652f, 24f),
+                    new Vector2(782f, 24f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     SecondaryTextColor);
 
             hintText.text =
-                "WASD  ДВИЖЕНИЕ   SPACE  РУЧНИК   E  СТАРТ / ГАРАЖ   ESC  ОТМЕНА   R  СБРОС";
+                "WASD  ДВИЖЕНИЕ   Q  РЕЖИМ   SPACE  РУЧНИК   E  СТАРТ / ГАРАЖ   ESC  ОТМЕНА   R  СБРОС";
         }
 
         private void BuildDriftPanel(Transform canvas)
