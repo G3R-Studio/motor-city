@@ -128,8 +128,8 @@ namespace MotorCity.Vehicle
             if (wheelAnchors.Count < 4)
             {
                 Debug.LogWarning(
-                    "Motor City: ARCADE Free Racing Car loaded, but four separate wheel meshes were not found. " +
-                    "Keeping the visual body and using the fallback wheel rig.");
+                    "Motor City: selected vehicle does not expose four separable wheel meshes. " +
+                    "The model cannot use the per-car animated wheel rig, so the fallback rig is used.");
                 HideFallbackBodyOnly(carTransform);
                 return ConfigureFallbackRig(car);
             }
@@ -616,50 +616,147 @@ namespace MotorCity.Vehicle
             return true;
         }
 
-        private static List<Transform> FindWheelAnchors(Transform root)
+        private static List<Transform> FindWheelAnchors(
+            Transform root)
         {
-            Transform[] all = root.GetComponentsInChildren<Transform>(true);
-            var named = new List<Transform>();
+            Transform[] all =
+                root.GetComponentsInChildren<Transform>(
+                    true);
+
+            var named =
+                new List<Transform>();
 
             foreach (Transform item in all)
             {
-                if (item == root) continue;
-                string n = item.name.ToLowerInvariant();
-                if (!(n.Contains("wheel") || n.Contains("tire") || n.Contains("tyre"))) continue;
-                if (item.GetComponentInChildren<Renderer>(true) == null) continue;
+                if (item == root)
+                    continue;
 
-                bool nested = named.Any(existing => item.IsChildOf(existing));
-                if (!nested) named.Add(item);
+                string name =
+                    item.name.ToLowerInvariant();
+
+                if (!(name.Contains("wheel") ||
+                      name.Contains("tire") ||
+                      name.Contains("tyre")))
+                    continue;
+
+                if (item.GetComponentInChildren<Renderer>(
+                        true) == null)
+                    continue;
+
+                bool nested =
+                    named.Any(
+                        existing =>
+                            item.IsChildOf(
+                                existing));
+
+                if (!nested)
+                {
+                    named.Add(
+                        item);
+                }
             }
 
             if (named.Count >= 4)
-                return SelectFourCornerWheels(root, named);
-
-            Bounds bodyBounds = RendererBounds(root);
-            Vector3 bodyCenter = bodyBounds.center;
-            Vector3 bodySize = bodyBounds.size;
-            var geometric = new List<Transform>();
-
-            foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
             {
-                Transform item = renderer.transform;
-                Bounds bounds = renderer.bounds;
-                Vector3 local = root.InverseTransformPoint(bounds.center);
-
-                bool lowEnough =
-                    bounds.center.y <= bodyCenter.y + bodySize.y * 0.05f;
-                bool offCenter =
-                    Mathf.Abs(local.x) >= bodySize.x * 0.18f &&
-                    Mathf.Abs(local.z) >= bodySize.z * 0.15f;
-                bool smallEnough =
-                    Mathf.Max(bounds.size.x, bounds.size.z) <=
-                    Mathf.Max(bodySize.x, bodySize.z) * 0.38f;
-
-                if (lowEnough && offCenter && smallEnough)
-                    geometric.Add(item);
+                return SelectFourCornerWheels(
+                    root,
+                    named);
             }
 
-            return SelectFourCornerWheels(root, geometric);
+            Renderer[] renderers =
+                root.GetComponentsInChildren<Renderer>(
+                    true);
+
+            if (renderers.Length == 0)
+                return named;
+
+            Bounds fullBounds =
+                renderers[0].bounds;
+
+            for (int i = 1;
+                 i < renderers.Length;
+                 i++)
+            {
+                fullBounds.Encapsulate(
+                    renderers[i].bounds);
+            }
+
+            Vector3 rootCenter =
+                root.InverseTransformPoint(
+                    fullBounds.center);
+
+            Vector3 fullSize =
+                fullBounds.size;
+
+            float horizontalMax =
+                Mathf.Max(
+                    fullSize.x,
+                    fullSize.z);
+
+            var geometric =
+                new List<Transform>();
+
+            foreach (Renderer renderer in
+                     renderers)
+            {
+                if (renderer == null)
+                    continue;
+
+                Transform item =
+                    renderer.transform;
+
+                Bounds bounds =
+                    renderer.bounds;
+
+                Vector3 local =
+                    root.InverseTransformPoint(
+                        bounds.center);
+
+                Vector3 size =
+                    bounds.size;
+
+                bool low =
+                    bounds.center.y <=
+                    fullBounds.min.y +
+                    fullBounds.size.y *
+                    0.48f;
+
+                bool small =
+                    Mathf.Max(
+                        size.x,
+                        size.y,
+                        size.z) <=
+                    horizontalMax *
+                    0.34f;
+
+                bool awayFromCenter =
+                    Mathf.Abs(
+                        local.x -
+                        rootCenter.x) >=
+                        fullSize.x *
+                        0.18f ||
+                    Mathf.Abs(
+                        local.z -
+                        rootCenter.z) >=
+                        fullSize.z *
+                        0.18f;
+
+                if (!low ||
+                    !small ||
+                    !awayFromCenter)
+                    continue;
+
+                if (!geometric.Contains(
+                        item))
+                {
+                    geometric.Add(
+                        item);
+                }
+            }
+
+            return SelectFourCornerWheels(
+                root,
+                geometric);
         }
 
         private static List<Transform> SelectFourCornerWheels(
