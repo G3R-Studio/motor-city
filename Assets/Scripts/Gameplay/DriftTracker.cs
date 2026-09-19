@@ -24,8 +24,12 @@ namespace MotorCity.Gameplay
         [SerializeField] private int minimumContinuationGroundedWheels = 2;
 
         [Header("Free Drift Rewards")]
-        [SerializeField] private int minimumBankScore = 80;
-        [SerializeField] private float scorePerCredit = 8f;
+        [SerializeField] private int minimumBankScore = 150;
+        [SerializeField] private float minimumBankTravelDistance = 18f;
+        [SerializeField] private int fullRateScore = 2500;
+        [SerializeField] private float scorePerCredit = 18f;
+        [SerializeField] private float highScorePerCredit = 36f;
+        [SerializeField] private int maximumCreditsPerDrift = 350;
         [SerializeField] private float rewardMessageSeconds = 2.5f;
 
         private ArcadeCarController car;
@@ -37,6 +41,7 @@ namespace MotorCity.Gameplay
         private float combo = 1f;
         private float rewardMessageTimer;
         private bool comboInProgress;
+        private Vector3 comboStartPosition;
 
         public int CurrentScore => Mathf.RoundToInt(currentScore);
         public int TotalScore => Mathf.RoundToInt(totalScore);
@@ -90,6 +95,12 @@ namespace MotorCity.Gameplay
 
             if (scoringDrift)
             {
+                if (!comboInProgress)
+                {
+                    comboStartPosition =
+                        transform.position;
+                }
+
                 comboInProgress =
                     true;
 
@@ -294,16 +305,46 @@ namespace MotorCity.Gameplay
                 activityManager == null ||
                 !activityManager.IsBusy;
 
+            float travelDistance =
+                Vector3.Distance(
+                    Flat(comboStartPosition),
+                    Flat(transform.position));
+
             if (freeRoam &&
                 wallet != null &&
-                finishedScore >= minimumBankScore)
+                finishedScore >= minimumBankScore &&
+                travelDistance >=
+                    minimumBankTravelDistance)
             {
-                int credits =
+                int regularScore =
+                    Mathf.Min(
+                        finishedScore,
+                        fullRateScore);
+
+                int overflowScore =
                     Mathf.Max(
-                        1,
+                        0,
+                        finishedScore -
+                        fullRateScore);
+
+                float calculatedCredits =
+                    regularScore /
+                    Mathf.Max(
+                        1f,
+                        scorePerCredit);
+
+                calculatedCredits +=
+                    overflowScore /
+                    Mathf.Max(
+                        scorePerCredit,
+                        highScorePerCredit);
+
+                int credits =
+                    Mathf.Clamp(
                         Mathf.RoundToInt(
-                            finishedScore /
-                            scorePerCredit));
+                            calculatedCredits),
+                        1,
+                        maximumCreditsPerDrift);
 
                 wallet.AddCredits(
                     credits);
@@ -313,6 +354,10 @@ namespace MotorCity.Gameplay
 
                 rewardMessageTimer =
                     rewardMessageSeconds;
+            }
+            else
+            {
+                LastBankedCredits = 0;
             }
 
             currentScore =
@@ -326,6 +371,16 @@ namespace MotorCity.Gameplay
 
             graceTimer =
                 0f;
+
+            comboStartPosition =
+                transform.position;
+        }
+
+        private static Vector3 Flat(
+            Vector3 value)
+        {
+            value.y = 0f;
+            return value;
         }
     }
 }
