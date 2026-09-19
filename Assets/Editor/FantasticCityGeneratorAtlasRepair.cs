@@ -22,7 +22,7 @@ public static class FantasticCityGeneratorAtlasRepair
 
         string[] guids =
             AssetDatabase.FindAssets(
-                "t:Material FCG_Atlas-1",
+                "t:Material",
                 new[]
                 {
                     "Assets/Resources/MotorCity/Environment/FCGMaterials"
