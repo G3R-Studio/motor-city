@@ -99,6 +99,12 @@ namespace MotorCity.Vehicle
         public bool HandbrakeInputHeld =>
             handbrakeHeld;
 
+        public bool ThrottleInputHeld =>
+            throttleHeld;
+
+        public bool ReverseInputHeld =>
+            reverseHeld;
+
         public bool HasPrometeoPhysics =>
             prometeo != null;
 
