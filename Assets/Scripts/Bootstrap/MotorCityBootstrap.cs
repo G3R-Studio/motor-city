@@ -43,8 +43,14 @@ namespace MotorCity.Bootstrap
             DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
 
             GameObject systems = new("Gameplay Systems");
-            ActivityManager activityManager = systems.AddComponent<ActivityManager>();
-            PlayerWallet wallet = systems.AddComponent<PlayerWallet>();
+            PlayerReputation reputation =
+                systems.AddComponent<PlayerReputation>();
+            ActivityManager activityManager =
+                systems.AddComponent<ActivityManager>();
+            activityManager.Initialize(
+                reputation);
+            PlayerWallet wallet =
+                systems.AddComponent<PlayerWallet>();
             drift.Initialize(wallet, activityManager);
 
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
