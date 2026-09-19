@@ -25,6 +25,8 @@ namespace MotorCity.World
         private Collider breakCollider;
         private bool broken;
 
+        public bool IsBroken => broken;
+
         public static int PrepareAll(
             GameObject cityRoot)
         {
@@ -135,7 +137,7 @@ namespace MotorCity.World
                 BoxCollider box =
                     gameObject.AddComponent<BoxCollider>();
 
-                box.center =
+                Vector3 center =
                     localBounds.center;
 
                 Vector3 size =
@@ -155,6 +157,38 @@ namespace MotorCity.World
                     Mathf.Max(
                         0.16f,
                         size.z);
+
+                if (kind == PropKind.LightPole ||
+                    kind == PropKind.TrafficLight ||
+                    kind == PropKind.Sign ||
+                    kind == PropKind.Pole)
+                {
+                    float maximumHorizontalSize =
+                        kind == PropKind.TrafficLight
+                            ? 0.72f
+                            : kind == PropKind.LightPole
+                                ? 0.58f
+                                : 0.48f;
+
+                    size.x =
+                        Mathf.Min(
+                            size.x,
+                            maximumHorizontalSize);
+
+                    size.z =
+                        Mathf.Min(
+                            size.z,
+                            maximumHorizontalSize);
+
+                    center.x =
+                        0f;
+
+                    center.z =
+                        0f;
+                }
+
+                box.center =
+                    center;
 
                 box.size =
                     size;
@@ -185,6 +219,13 @@ namespace MotorCity.World
                 other.GetComponentInParent<MotorCity.Vehicle.ArcadeCarController>();
 
             if (car == null)
+                return;
+
+            // Only the PlayerCar root chassis may break street furniture.
+            // WheelColliders and imported visual colliders must not knock
+            // props down before the visible body reaches them.
+            if (other.transform !=
+                car.transform)
                 return;
 
             Rigidbody carBody =
