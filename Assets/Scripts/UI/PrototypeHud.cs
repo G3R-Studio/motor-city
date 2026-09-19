@@ -18,6 +18,7 @@ namespace MotorCity.UI
         private SpeedTrapSystem speedTraps;
         private DriftSpotSystem driftSpots;
         private DiscoverySystem discoveries;
+        private StuntJumpSystem stuntJumps;
         private ActivityManager activityManager;
         private GarageUpgradeSystem garage;
 
@@ -83,6 +84,7 @@ namespace MotorCity.UI
             SpeedTrapSystem speedTrapSystem,
             DriftSpotSystem driftSpotSystem,
             DiscoverySystem discoverySystem,
+            StuntJumpSystem stuntJumpSystem,
             ActivityManager manager,
             GarageUpgradeSystem garageSystem)
         {
@@ -96,6 +98,7 @@ namespace MotorCity.UI
             speedTraps = speedTrapSystem;
             driftSpots = driftSpotSystem;
             discoveries = discoverySystem;
+            stuntJumps = stuntJumpSystem;
             activityManager = manager;
             garage = garageSystem;
 
@@ -692,6 +695,22 @@ namespace MotorCity.UI
                 }
             }
 
+            if (stuntJumps != null)
+            {
+                for (int i = 0;
+                     i < stuntJumps.JumpCount;
+                     i++)
+                {
+                    ConsiderNavigationTarget(
+                        stuntJumps.GetJumpPosition(i),
+                        "ТРАМПЛИН",
+                        true,
+                        ref target,
+                        ref label,
+                        ref bestDistance);
+                }
+            }
+
             ConsiderNavigationTarget(
                 garage != null
                     ? garage.GarageCenter
@@ -1276,6 +1295,11 @@ namespace MotorCity.UI
                 circuitRace.IsNearStart)
                 return circuitRace.StatusText;
 
+            if (stuntJumps != null &&
+                (stuntJumps.IsAttemptActive ||
+                 stuntJumps.ShowMessage))
+                return stuntJumps.StatusText;
+
             if (driftSpots != null &&
                 driftSpots.ShowMessage)
                 return driftSpots.StatusText;
@@ -1289,7 +1313,7 @@ namespace MotorCity.UI
                 return speedTraps.StatusText;
 
             return
-                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   КОЛЬЦО   •   РАДАРЫ   •   DRIFT SPOTS   •   ИССЛЕДОВАНИЕ   •   ГАРАЖ";
+                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   КОЛЬЦО   •   РАДАРЫ   •   DRIFT SPOTS   •   ПРЫЖКИ   •   ИССЛЕДОВАНИЕ   •   ГАРАЖ";
         }
 
         private RectTransform CreatePanel(
