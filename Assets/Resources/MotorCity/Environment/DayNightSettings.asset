@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1863b9814f6e4b8981902b6955bd74a8, type: 3}
+  m_Name: DayNightSettings
+  m_EditorClassIdentifier: Assembly-CSharp::MotorCity.World.DayNightSettings
+  daySkybox: {fileID: 2100000, guid: 80a8721c3c7b714448236ada3ef569ad, type: 2}
+  nightSkybox: {fileID: 2100000, guid: bf0f57d86098fc34ba3f71cc9d491765, type: 2}
+  daySkyColor: {r: 0.6792453, g: 0.66536134, b: 0.63759345, a: 1}
+  dayEquatorColor: {r: 0.8207547, g: 0.8207547, b: 0.8207547, a: 1}
+  nightSkyColor: {r: 0.46462265, g: 0.477095, b: 0.5, a: 1}
+  nightEquatorColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
+  sunColor: {r: 0.7924528, g: 0.62577266, b: 0.38501248, a: 1}
+  moonColor: {r: 0.6611339, g: 0.6611339, b: 0.7830189, a: 1}
+  sunIntensity: 1.036842
+  moonIntensity: 0.3363636
