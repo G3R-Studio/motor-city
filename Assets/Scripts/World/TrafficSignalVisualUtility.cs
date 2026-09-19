@@ -413,6 +413,118 @@ namespace MotorCity.World
             return false;
         }
 
+        private static bool SignalsOverlap(
+            Renderer first,
+            Renderer second)
+        {
+            if (first == null ||
+                second == null)
+                return false;
+
+            Bounds a =
+                first.bounds;
+
+            Bounds b =
+                second.bounds;
+
+            Vector3 centerDelta =
+                a.center -
+                b.center;
+
+            float maximumCenterDistance =
+                Mathf.Max(
+                    0.06f,
+                    Mathf.Min(
+                        a.extents.magnitude,
+                        b.extents.magnitude) *
+                    0.55f);
+
+            if (centerDelta.sqrMagnitude >
+                maximumCenterDistance *
+                maximumCenterDistance)
+                return false;
+
+            Bounds expanded =
+                a;
+
+            expanded.Expand(
+                0.04f);
+
+            return
+                expanded.Intersects(
+                    b);
+        }
+
+        private static bool LooksLikePedestrianMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string name =
+                NormalizeName(
+                    material.name);
+
+            return
+                name.Contains(
+                    "pedestrian") ||
+                name.Contains(
+                    "walk") ||
+                name.Contains(
+                    "hand") ||
+                name.Contains(
+                    "dontwalk");
+        }
+
+        private static float ScoreMaterial(
+            Material material)
+        {
+            if (material == null)
+                return float.NegativeInfinity;
+
+            string name =
+                NormalizeName(
+                    material.name);
+
+            float score =
+                0f;
+
+            if (name.Contains(
+                    "red") ||
+                name.Contains(
+                    "stop") ||
+                name.Contains(
+                    "hand") ||
+                name.Contains(
+                    "dontwalk"))
+            {
+                score +=
+                    100f;
+            }
+
+            if (name.Contains(
+                    "green") ||
+                name.Contains(
+                    "walk"))
+            {
+                score -=
+                    20f;
+            }
+
+            Color color =
+                TryGetMaterialColor(
+                    material);
+
+            score +=
+                (color.r -
+                 Mathf.Max(
+                     color.g,
+                     color.b)) *
+                15f;
+
+            return score;
+        }
+
         private static Renderer ChooseStableRenderer(
             List<Renderer> renderers)
         {
