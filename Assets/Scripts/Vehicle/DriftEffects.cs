@@ -228,12 +228,12 @@ namespace MotorCity.Vehicle
                         0.68f,
                         0.69f,
                         0.7f,
-                        0.48f),
+                        0.92f),
                     new Color(
                         0.9f,
                         0.9f,
                         0.9f,
-                        0.34f));
+                        0.78f));
             main.gravityModifier = -0.035f;
             main.maxParticles = 180;
 
@@ -265,8 +265,9 @@ namespace MotorCity.Vehicle
                 },
                 new[]
                 {
-                    new GradientAlphaKey(0.45f, 0f),
-                    new GradientAlphaKey(0.18f, 0.55f),
+                    new GradientAlphaKey(0.95f, 0f),
+                    new GradientAlphaKey(0.82f, 0.45f),
+                    new GradientAlphaKey(0.58f, 0.72f),
                     new GradientAlphaKey(0f, 1f)
                 });
 
