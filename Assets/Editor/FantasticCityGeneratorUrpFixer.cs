@@ -984,7 +984,8 @@ public static class FantasticCityGeneratorUrpFixer
                 : material.name;
 
         Material source =
-            FindOriginalFcgMaterial(
+            FindOriginalFcgMaterialForGenerated(
+                material,
                 generatedName);
 
         bool foliage =
@@ -1040,6 +1041,85 @@ public static class FantasticCityGeneratorUrpFixer
 
         EditorUtility.SetDirty(
             material);
+    }
+
+    private static Material FindOriginalFcgMaterialForGenerated(
+        Material generated,
+        string materialName)
+    {
+        if (generated != null)
+        {
+            string generatedPath =
+                AssetDatabase.GetAssetPath(
+                    generated);
+
+            string fileName =
+                Path.GetFileNameWithoutExtension(
+                    generatedPath);
+
+            int separator =
+                fileName.LastIndexOf(
+                    '_');
+
+            if (separator >= 0 &&
+                separator <
+                fileName.Length - 1)
+            {
+                string shortGuid =
+                    fileName.Substring(
+                        separator + 1);
+
+                if (shortGuid.Length == 8 &&
+                    shortGuid.All(
+                        IsHexCharacter))
+                {
+                    string[] guids =
+                        AssetDatabase.FindAssets(
+                            "t:Material",
+                            new[]
+                            {
+                                FcgRoot.TrimEnd('/')
+                            });
+
+                    foreach (string guid in guids)
+                    {
+                        if (!guid.StartsWith(
+                                shortGuid,
+                                StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        string sourcePath =
+                            AssetDatabase.GUIDToAssetPath(
+                                guid);
+
+                        Material exact =
+                            AssetDatabase.LoadAssetAtPath<Material>(
+                                sourcePath);
+
+                        if (exact != null)
+                        {
+                            return exact;
+                        }
+                    }
+                }
+            }
+        }
+
+        return
+            FindOriginalFcgMaterial(
+                materialName);
+    }
+
+    private static bool IsHexCharacter(
+        char value)
+    {
+        return
+            (value >= '0' &&
+             value <= '9') ||
+            (value >= 'a' &&
+             value <= 'f') ||
+            (value >= 'A' &&
+             value <= 'F');
     }
 
     private static Material FindOriginalFcgMaterial(
