@@ -1,3 +1,4 @@
+using MotorCity.Audio;
 using MotorCity.CameraSystem;
 using MotorCity.Gameplay;
 using MotorCity.UI;
@@ -164,6 +165,7 @@ namespace MotorCity.Bootstrap
                 car.AddComponent<ArcadeCarController>();
             car.AddComponent<HandbrakePhysicsAssist>();
             car.AddComponent<DriftEffects>();
+            car.AddComponent<VehicleAudioController>();
             car.AddComponent<CarReset>();
             return controller;
         }
