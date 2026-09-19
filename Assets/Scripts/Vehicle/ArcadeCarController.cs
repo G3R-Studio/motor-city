@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using MotorCity.World;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -218,10 +217,6 @@ namespace MotorCity.Vehicle
             activeSuspensionTargetPosition =
                 suspensionTargetPosition;
 
-            if (GetComponent<RoadSignCollisionBypass>() == null)
-            {
-                gameObject.AddComponent<RoadSignCollisionBypass>();
-            }
         }
 
         private void Update()
