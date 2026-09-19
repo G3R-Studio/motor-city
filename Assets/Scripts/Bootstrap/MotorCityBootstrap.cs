@@ -59,6 +59,12 @@ namespace MotorCity.Bootstrap
                 car,
                 reputation);
 
+            AdminDebugPanel adminPanel =
+                systems.AddComponent<AdminDebugPanel>();
+            adminPanel.Initialize(
+                wallet,
+                reputation);
+
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
             delivery.Initialize(car, wallet, activityManager);
 
