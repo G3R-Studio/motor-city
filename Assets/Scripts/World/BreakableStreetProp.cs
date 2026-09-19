@@ -125,8 +125,16 @@ namespace MotorCity.World
 
         private bool PrepareTriggerCollider()
         {
-            if (!TryCalculateLocalRendererBounds(
-                    out Bounds localBounds))
+            Bounds localBounds;
+
+            bool hasBounds =
+                kind == PropKind.Trash
+                    ? TryCalculateDirectRendererBounds(
+                        out localBounds)
+                    : TryCalculateLocalRendererBounds(
+                        out localBounds);
+
+            if (!hasBounds)
                 return false;
 
             Collider[] existing =
@@ -312,6 +320,25 @@ namespace MotorCity.World
                     carVelocity.x * speedRetention,
                     carVelocity.y,
                     carVelocity.z * speedRetention);
+
+            Transform originalParent =
+                transform.parent;
+
+            BreakableStreetProp[] nestedBreakables =
+                GetComponentsInChildren<BreakableStreetProp>(
+                    true);
+
+            foreach (BreakableStreetProp nested in
+                     nestedBreakables)
+            {
+                if (nested == null ||
+                    nested == this)
+                    continue;
+
+                nested.transform.SetParent(
+                    originalParent,
+                    true);
+            }
 
             transform.SetParent(
                 null,
@@ -611,6 +638,79 @@ namespace MotorCity.World
             }
         }
 
+        private bool TryCalculateDirectRendererBounds(
+            out Bounds localBounds)
+        {
+            Renderer renderer =
+                GetComponent<Renderer>();
+
+            if (renderer == null)
+            {
+                localBounds =
+                    default;
+
+                return false;
+            }
+
+            Bounds world =
+                renderer.bounds;
+
+            Vector3 min =
+                world.min;
+
+            Vector3 max =
+                world.max;
+
+            bool initialized =
+                false;
+
+            localBounds =
+                default;
+
+            for (int x = 0;
+                 x <= 1;
+                 x++)
+            {
+                for (int y = 0;
+                     y <= 1;
+                     y++)
+                {
+                    for (int z = 0;
+                         z <= 1;
+                         z++)
+                    {
+                        Vector3 corner =
+                            new(
+                                x == 0 ? min.x : max.x,
+                                y == 0 ? min.y : max.y,
+                                z == 0 ? min.z : max.z);
+
+                        Vector3 local =
+                            transform.InverseTransformPoint(
+                                corner);
+
+                        if (!initialized)
+                        {
+                            localBounds =
+                                new Bounds(
+                                    local,
+                                    Vector3.zero);
+
+                            initialized =
+                                true;
+                        }
+                        else
+                        {
+                            localBounds.Encapsulate(
+                                local);
+                        }
+                    }
+                }
+            }
+
+            return initialized;
+        }
+
         private bool TryCalculateWorldRendererBounds(
             out Bounds worldBounds)
         {
@@ -736,9 +836,20 @@ namespace MotorCity.World
             string name =
                 item.name.ToLowerInvariant();
 
-            if (name.StartsWith("streetlight") ||
-                name.StartsWith("parklamp") ||
-                name.Contains("street-light"))
+            bool streetLightInstance =
+                name.StartsWith("streetlight-") ||
+                name.StartsWith("streetlight_") ||
+                name.StartsWith("streetlight (") ||
+                name.Contains("street-light");
+
+            bool parkLampInstance =
+                name == "parklamp" ||
+                name.StartsWith("parklamp ") ||
+                name.StartsWith("parklamp-") ||
+                name.StartsWith("parklamp_");
+
+            if (streetLightInstance ||
+                parkLampInstance)
             {
                 propKind =
                     PropKind.LightPole;
