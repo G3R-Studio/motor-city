@@ -563,31 +563,77 @@ public static class FantasticCityGeneratorUrpFixer
                     source);
         }
 
+        Texture baseTexture =
+            null;
+
+        Vector2 baseScale =
+            Vector2.one;
+
+        Vector2 baseOffset =
+            Vector2.zero;
+
         if (sourceProperty != null)
         {
-            Texture texture =
+            baseTexture =
                 SafeGetTexture(
                     source,
                     sourceProperty);
 
-            if (texture != null &&
-                destination.HasProperty(
-                    "_BaseMap"))
+            if (baseTexture != null)
             {
-                destination.SetTexture(
-                    "_BaseMap",
-                    texture);
-
-                destination.SetTextureScale(
-                    "_BaseMap",
+                baseScale =
                     source.GetTextureScale(
-                        sourceProperty));
+                        sourceProperty);
 
-                destination.SetTextureOffset(
-                    "_BaseMap",
+                baseOffset =
                     source.GetTextureOffset(
-                        sourceProperty));
+                        sourceProperty);
             }
+        }
+
+        // Some recovered FCG materials reference shaders that Unity can no
+        // longer resolve. In that state GetTexturePropertyNames() may return
+        // nothing even though the material YAML still contains its original
+        // texture references. Read the serialized TexEnvs directly so the
+        // recovered city can regain its exact atlases instead of becoming
+        // plain white.
+        if (baseTexture == null ||
+            string.IsNullOrWhiteSpace(
+                AssetDatabase.GetAssetPath(
+                    baseTexture)))
+        {
+            if (TryGetSerializedBaseTexture(
+                    source,
+                    out Texture serializedTexture,
+                    out Vector2 serializedScale,
+                    out Vector2 serializedOffset))
+            {
+                baseTexture =
+                    serializedTexture;
+
+                baseScale =
+                    serializedScale;
+
+                baseOffset =
+                    serializedOffset;
+            }
+        }
+
+        if (baseTexture != null &&
+            destination.HasProperty(
+                "_BaseMap"))
+        {
+            destination.SetTexture(
+                "_BaseMap",
+                baseTexture);
+
+            destination.SetTextureScale(
+                "_BaseMap",
+                baseScale);
+
+            destination.SetTextureOffset(
+                "_BaseMap",
+                baseOffset);
         }
 
         Color color =
@@ -1012,16 +1058,13 @@ public static class FantasticCityGeneratorUrpFixer
 
         if (source != null)
         {
-            // Foliage materials are intentionally refreshed every pass. Some
-            // old FCG shaders leave a non-null default white texture in the
-            // generated URP material, so checking only for null is not enough.
-            if (foliage ||
-                !HasUsefulBaseTexture(material))
-            {
-                CopyBaseMap(
-                    source,
-                    material);
-            }
+            // Always refresh the base map from the recovered source material.
+            // After a lost generated-material folder Unity can leave a valid
+            // looking white/default texture assigned, which previously made
+            // HasUsefulBaseTexture() incorrectly skip the repair.
+            CopyBaseMap(
+                source,
+                material);
 
             CopyNormalMap(
                 source,
@@ -1606,6 +1649,218 @@ public static class FantasticCityGeneratorUrpFixer
         }
 
         return best;
+    }
+
+    private static bool TryGetSerializedBaseTexture(
+        Material material,
+        out Texture texture,
+        out Vector2 scale,
+        out Vector2 offset)
+    {
+        texture =
+            null;
+
+        scale =
+            Vector2.one;
+
+        offset =
+            Vector2.zero;
+
+        if (material == null)
+            return false;
+
+        SerializedObject serialized =
+            new SerializedObject(
+                material);
+
+        SerializedProperty texEnvs =
+            serialized.FindProperty(
+                "m_SavedProperties.m_TexEnvs");
+
+        if (texEnvs == null ||
+            !texEnvs.isArray)
+            return false;
+
+        bool grassSplat =
+            NormalizeMaterialName(
+                material.name)
+                .Contains(
+                    "grasssplat");
+
+        Texture bestTexture =
+            null;
+
+        Vector2 bestScale =
+            Vector2.one;
+
+        Vector2 bestOffset =
+            Vector2.zero;
+
+        int bestScore =
+            int.MinValue;
+
+        for (int i = 0;
+             i < texEnvs.arraySize;
+             i++)
+        {
+            SerializedProperty entry =
+                texEnvs.GetArrayElementAtIndex(
+                    i);
+
+            SerializedProperty nameProperty =
+                entry.FindPropertyRelative(
+                    "first");
+
+            SerializedProperty second =
+                entry.FindPropertyRelative(
+                    "second");
+
+            if (nameProperty == null ||
+                second == null)
+                continue;
+
+            SerializedProperty textureProperty =
+                second.FindPropertyRelative(
+                    "m_Texture");
+
+            Texture candidate =
+                textureProperty != null
+                    ? textureProperty.objectReferenceValue as Texture
+                    : null;
+
+            if (candidate == null)
+                continue;
+
+            string propertyName =
+                nameProperty.stringValue ??
+                string.Empty;
+
+            string lower =
+                propertyName.ToLowerInvariant();
+
+            if (lower.Contains("normal") ||
+                lower.Contains("bump") ||
+                lower.Contains("mask") ||
+                lower.Contains("metal") ||
+                lower.Contains("smooth") ||
+                lower.Contains("spec") ||
+                lower.Contains("occlusion") ||
+                lower.Contains("ao") ||
+                lower.Contains("emission") ||
+                lower.Contains("illum"))
+            {
+                continue;
+            }
+
+            int score =
+                0;
+
+            if (lower == "_maintex")
+                score +=
+                    grassSplat
+                        ? 2
+                        : 40;
+
+            if (lower == "_basemap")
+                score += 45;
+
+            if (lower.Contains("albedo"))
+                score += 35;
+
+            if (lower.Contains("diffuse"))
+                score += 32;
+
+            if (lower.Contains("base"))
+                score += 25;
+
+            if (lower.Contains("color"))
+                score += 18;
+
+            if (grassSplat &&
+                lower.Contains("splat"))
+            {
+                score += 55;
+            }
+
+            string textureName =
+                candidate.name != null
+                    ? candidate.name.ToLowerInvariant()
+                    : string.Empty;
+
+            if (textureName.Contains("albedo") ||
+                textureName.Contains("diff") ||
+                textureName.Contains("color"))
+            {
+                score += 15;
+            }
+
+            if (grassSplat &&
+                textureName.Contains("grass"))
+            {
+                score += 25;
+            }
+
+            string path =
+                AssetDatabase.GetAssetPath(
+                    candidate);
+
+            if (!string.IsNullOrWhiteSpace(
+                    path))
+            {
+                score += 10;
+            }
+
+            if (score <= bestScore)
+                continue;
+
+            Vector2 candidateScale =
+                Vector2.one;
+
+            Vector2 candidateOffset =
+                Vector2.zero;
+
+            SerializedProperty scaleProperty =
+                second.FindPropertyRelative(
+                    "m_Scale");
+
+            SerializedProperty offsetProperty =
+                second.FindPropertyRelative(
+                    "m_Offset");
+
+            if (scaleProperty != null)
+                candidateScale =
+                    scaleProperty.vector2Value;
+
+            if (offsetProperty != null)
+                candidateOffset =
+                    offsetProperty.vector2Value;
+
+            bestScore =
+                score;
+
+            bestTexture =
+                candidate;
+
+            bestScale =
+                candidateScale;
+
+            bestOffset =
+                candidateOffset;
+        }
+
+        if (bestTexture == null)
+            return false;
+
+        texture =
+            bestTexture;
+
+        scale =
+            bestScale;
+
+        offset =
+            bestOffset;
+
+        return true;
     }
 
     private static bool IsFoliageMaterialName(
