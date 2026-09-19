@@ -121,9 +121,19 @@ public static class PolyPackVehicleImporter
 
         if (force)
         {
-            Debug.Log(
-                $"Motor City: prepared {written}/{VehicleCount} " +
-                "Vehicles - PolyPack garage vehicles.");
+            if (written < VehicleCount)
+            {
+                Debug.LogWarning(
+                    $"Motor City: prepared only {written}/{VehicleCount} driveable " +
+                    "PolyPack vehicles. Some source FBX files do not expose four " +
+                    "separate wheel meshes and cannot use animated wheel physics.");
+            }
+            else
+            {
+                Debug.Log(
+                    $"Motor City: prepared {written}/{VehicleCount} " +
+                    "Vehicles - PolyPack garage vehicles.");
+            }
         }
     }
 
@@ -211,6 +221,23 @@ public static class PolyPackVehicleImporter
 
             if (renderers.Length == 0)
                 continue;
+
+            int wheelParts =
+                CountSeparableWheelParts(
+                    asset);
+
+            if (wheelParts < 4)
+            {
+                if (lower.Contains("polypack") ||
+                    lower.Contains("alstra"))
+                {
+                    Debug.Log(
+                        $"Motor City: skipping PolyPack model '{path}' — " +
+                        $"only {wheelParts} separable wheel parts found.");
+                }
+
+                continue;
+            }
 
             int score =
                 Score(
@@ -338,6 +365,19 @@ public static class PolyPackVehicleImporter
             if (asset == null)
                 continue;
 
+            int wheelParts =
+                CountSeparableWheelParts(
+                    asset);
+
+            if (wheelParts < 4)
+            {
+                Debug.Log(
+                    $"Motor City: preferred PolyPack model '{bestPath}' rejected — " +
+                    $"only {wheelParts} separable wheel parts found.");
+
+                continue;
+            }
+
             result.Add(
                 new Candidate
                 {
@@ -362,6 +402,177 @@ public static class PolyPackVehicleImporter
         }
 
         return result;
+    }
+
+    private static int CountSeparableWheelParts(
+        GameObject asset)
+    {
+        if (asset == null)
+            return 0;
+
+        Transform root =
+            asset.transform;
+
+        Transform[] all =
+            asset.GetComponentsInChildren<Transform>(
+                true);
+
+        int named = 0;
+
+        foreach (Transform item in all)
+        {
+            if (item == root)
+                continue;
+
+            string name =
+                item.name.ToLowerInvariant();
+
+            if (!(name.Contains("wheel") ||
+                  name.Contains("tire") ||
+                  name.Contains("tyre")))
+                continue;
+
+            if (item.GetComponentInChildren<Renderer>(
+                    true) == null)
+                continue;
+
+            named++;
+        }
+
+        if (named >= 4)
+            return named;
+
+        Renderer[] renderers =
+            asset.GetComponentsInChildren<Renderer>(
+                true);
+
+        if (renderers.Length < 5)
+            return named;
+
+        Bounds fullBounds =
+            renderers[0].bounds;
+
+        for (int i = 1;
+             i < renderers.Length;
+             i++)
+        {
+            fullBounds.Encapsulate(
+                renderers[i].bounds);
+        }
+
+        Vector3 rootCenter =
+            root.InverseTransformPoint(
+                fullBounds.center);
+
+        Vector3 fullSize =
+            fullBounds.size;
+
+        float horizontalMax =
+            Mathf.Max(
+                fullSize.x,
+                fullSize.z);
+
+        var candidates =
+            new List<Vector3>();
+
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer == null)
+                continue;
+
+            Bounds bounds =
+                renderer.bounds;
+
+            Vector3 local =
+                root.InverseTransformPoint(
+                    bounds.center);
+
+            Vector3 size =
+                bounds.size;
+
+            bool low =
+                bounds.center.y <=
+                fullBounds.min.y +
+                fullBounds.size.y *
+                0.48f;
+
+            bool small =
+                Mathf.Max(
+                    size.x,
+                    size.y,
+                    size.z) <=
+                horizontalMax *
+                0.34f;
+
+            bool awayFromCenter =
+                Mathf.Abs(
+                    local.x -
+                    rootCenter.x) >=
+                    fullSize.x *
+                    0.18f ||
+                Mathf.Abs(
+                    local.z -
+                    rootCenter.z) >=
+                    fullSize.z *
+                    0.18f;
+
+            if (!low ||
+                !small ||
+                !awayFromCenter)
+                continue;
+
+            candidates.Add(
+                local);
+        }
+
+        if (candidates.Count < 4)
+            return Mathf.Max(
+                named,
+                candidates.Count);
+
+        bool lengthAlongZ =
+            fullSize.z >=
+            fullSize.x;
+
+        bool[] quadrants =
+            new bool[4];
+
+        foreach (Vector3 local in
+                 candidates)
+        {
+            float lateral =
+                lengthAlongZ
+                    ? local.x - rootCenter.x
+                    : local.z - rootCenter.z;
+
+            float longitudinal =
+                lengthAlongZ
+                    ? local.z - rootCenter.z
+                    : local.x - rootCenter.x;
+
+            int index =
+                (longitudinal >= 0f
+                    ? 0
+                    : 2) +
+                (lateral >= 0f
+                    ? 1
+                    : 0);
+
+            quadrants[index] =
+                true;
+        }
+
+        int covered = 0;
+
+        foreach (bool quadrant in quadrants)
+        {
+            if (quadrant)
+                covered++;
+        }
+
+        return Mathf.Max(
+            named,
+            covered);
     }
 
     private static int Score(
