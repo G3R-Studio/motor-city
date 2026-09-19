@@ -17,14 +17,14 @@ The project currently includes:
 - Prometeo acceleration, steering, service braking, coasting and handbrake traction-loss behavior, with Motor City garage upgrades mapped onto the controller tuning;
 - the imported racing-car visual automatically realigned so its measured wheelbase follows the Motor City vehicle forward axis before the physics rig is created;
 - wheel meshes kept separate from their WheelColliders, as required by Prometeo, with the visual wheel roots driven by Prometeo wheel poses;
-- runtime rear-tire smoke and tire-mark trails emitted from actual WheelCollider ground-contact points while the rear tires are sliding;
+- runtime rear-tire smoke with dense, high-opacity particles and tire-mark trails emitted from actual WheelCollider ground-contact points while the rear tires are sliding;
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
 - a unified drift state based on Prometeo drift/traction state plus actual rear-wheel sideways slip, vehicle slip angle and grounded wheels; the same state drives drift scoring, smoke and tire marks, with free-roam drift series banked into КР when the drift ends;
 - a timed drift challenge placed on the active city road network, with a score target, КР reward and a 3.5-second return grace period after leaving the activity area;
 - a timed street sprint with moving checkpoints and a performance-based КР reward;
 - a two-lap circuit race around the large district with moving checkpoints, time-based КР reward and a locally saved personal best time;
-- a smooth orbiting chase camera with mouse look, zoom, speed-based look-ahead, distance and field-of-view response;
+- a smooth orbiting chase camera with mouse look, zoom, speed-based look-ahead, distance and field-of-view response; the runtime camera is explicitly stripped of colliders and rigidbodies so it cannot hit street props;
 - editor tooling for **Fantastic City Generator**: generated FCG renderers in the active scene can be converted from legacy/Built-in materials to URP/Lit while preserving base textures, normal maps, occlusion, emission and transparent/cutout behavior; the generated `City-Maker` can then be baked into a local runtime `CityVisual.prefab`;
 - legacy Community Core City 02 and Japanese Otaku City integrations have been removed;
 - compact activity-specific world markers with lightweight built-in fallbacks;
@@ -32,7 +32,7 @@ The project currently includes:
 - moving delivery and sprint targets with a four-cone drift marker cluster;
 - a compact HUD navigator that points toward the current delivery/sprint checkpoint and, during free roam, toward the nearest activity or garage with live distance;
 - the active city uses the latest locally generated Fantastic City Generator layout with a large main district, a compact remote district and a three-section connecting highway; the runtime installer resolves `FCG_Roads` and `FCG_HighWay` by exact MeshCollider triangle/submesh material, explicitly excludes highway guardrails from driveable surfaces, keeps delivery inside the large district, places the garage on a real parking surface, and routes the street sprint across the highway into the compact district;
-- breakable street furniture is baked into the generated city: street lights, park lamps, traffic lights, hydrants, benches, poles and recognized road signs use non-blocking trigger colliders, take only a small amount of vehicle speed on impact, topple with lightweight physics, stop colliding with the player car and despawn after a short time;
+- breakable street furniture is baked into the generated city: street lights, park lamps, traffic lights, hydrants, benches, poles and recognized road signs use non-blocking trigger colliders, take only a small amount of vehicle speed on impact, fall without spinning, fade away and stop colliding with the player car; FCG street/park lamp Light components are preserved in the runtime city with shadows disabled for performance and switch off immediately when the pole is knocked down;
 - a delivery route with visible checkpoints and a credit reward;
 - a locally persistent player wallet and credit counter;
 - a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
