@@ -17,7 +17,8 @@ The project currently includes:
 - Prometeo acceleration, steering, service braking, coasting and handbrake traction-loss behavior, with Motor City garage upgrades mapped onto the controller tuning;
 - the imported racing-car visual automatically realigned so its measured wheelbase follows the Motor City vehicle forward axis before the physics rig is created;
 - wheel meshes kept separate from their WheelColliders, as required by Prometeo, with the visual wheel roots driven by Prometeo wheel poses;
-- runtime rear-tire smoke and persistent tire-mark trails emitted from actual WheelCollider ground-contact points while the rear tires are sliding;
+- runtime rear-tire smoke and tire-mark trails emitted from actual WheelCollider ground-contact points while the rear tires are sliding;
+- optional local integration for Nox_Sound's **Vehicle - Essentials** pack: the editor automatically builds a local audio library from imported Engine Loops, Driving Loops, Handbrakes and Horns; runtime audio blends engine/road loops with speed, plays a handbrake one-shot and maps the horn to H;
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
 - a unified drift state based on Prometeo drift/traction state plus actual rear-wheel sideways slip, vehicle slip angle and grounded wheels; the same state drives drift scoring, smoke and tire marks, with free-roam drift series banked into КР when the drift ends;
@@ -54,12 +55,13 @@ A flat temporary test surface is currently used when no generated runtime city p
 3. Open the repository root as a Unity project.
 4. Import **ARCADE: FREE Racing Car** by Mena from the Unity Asset Store / Package Manager.
 5. Import **PROMETEO: Car Controller** by Mena from the Unity Asset Store. Motor City does not redistribute the Prometeo package; the runtime bridge detects `PrometeoCarController` after Unity recompiles.
-6. Import **Fantastic City Generator** locally under `Assets/Fantastic City Generator`, generate the city in an editor scene, then use `Motor City > Fantastic City Generator > Fix Materials in Saved FCG City` to convert the generated city materials for URP.
-7. Save the generated scene, then use `Motor City > Fantastic City Generator > Build Runtime City from Saved FCG City` to bake the local generated city into `Assets/Resources/MotorCity/Environment/CityVisual.prefab`. The generated runtime environment folder is intentionally ignored by Git.
-8. The FCG material/build tools can be launched while `Prototype.unity` is open: they automatically find the saved `City-Maker` scene under `Assets/LocalGenerated`, open it temporarily, process/save it, rebuild `CityVisual.prefab`, then return to the previous scene.
-8. The editor automatically prepares the runtime UI and marker sprites.
-9. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically and keep both Unity input backends enabled for Prometeo compatibility.
-10. Press Play.
+6. Optionally import **Vehicle - Essentials** by Nox_Sound from the Unity Asset Store. Motor City keeps the audio files local and automatically creates `Assets/Resources/MotorCity/Audio/VehicleAudioLibrary.asset`; if needed, rebuild it through `Motor City > Audio > Rebuild Vehicle Essentials Audio Library`.
+7. Import **Fantastic City Generator** locally under `Assets/Fantastic City Generator`, generate the city in an editor scene, then use `Motor City > Fantastic City Generator > Fix Materials in Saved FCG City` to convert the generated city materials for URP.
+8. Save the generated scene, then use `Motor City > Fantastic City Generator > Build Runtime City from Saved FCG City` to bake the local generated city into `Assets/Resources/MotorCity/Environment/CityVisual.prefab`. The generated runtime environment folder is intentionally ignored by Git.
+9. The FCG material/build tools can be launched while `Prototype.unity` is open: they automatically find the saved `City-Maker` scene under `Assets/LocalGenerated`, open it temporarily, process/save it, rebuild `CityVisual.prefab`, then return to the previous scene.
+10. The editor automatically prepares the runtime UI and marker sprites.
+11. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically and keep both Unity input backends enabled for Prometeo compatibility.
+12. Press Play.
 
 The car importer prefers a matching racing-car prefab with usable body colliders and falls back to another matching prefab if needed.
 
@@ -68,6 +70,7 @@ The car importer prefers a matching racing-car prefab with usable body colliders
 - `W/S` or arrow keys — throttle / reverse;
 - `A/D` or arrow keys — steering;
 - `Space` — Prometeo handbrake / traction break for initiating and sustaining a drift;
+- `H` — horn when Vehicle - Essentials is installed;
 - hold right mouse button and move the mouse — rotate the camera;
 - mouse wheel — camera zoom;
 - `E` — open/close the garage while stopped in the purple garage marker;
