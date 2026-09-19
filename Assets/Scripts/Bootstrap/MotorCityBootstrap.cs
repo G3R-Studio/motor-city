@@ -65,6 +65,14 @@ namespace MotorCity.Bootstrap
             CircuitRaceActivity circuitRace = systems.AddComponent<CircuitRaceActivity>();
             circuitRace.Initialize(car, wallet, activityManager);
 
+            SpeedTrapSystem speedTraps =
+                systems.AddComponent<SpeedTrapSystem>();
+            speedTraps.Initialize(
+                car,
+                wallet,
+                reputation,
+                activityManager);
+
             GarageUpgradeSystem garage = systems.AddComponent<GarageUpgradeSystem>();
             garage.Initialize(
                 car,
@@ -79,6 +87,7 @@ namespace MotorCity.Bootstrap
             CreateDriftChallengeMarker(driftChallenge, activityManager);
             CreateStreetSprintMarker(streetSprint, activityManager);
             CreateCircuitRaceMarker(circuitRace, activityManager);
+            CreateSpeedTrapMarkers(speedTraps);
             CreateGarageMarker(garage);
 
             CreateCamera(car.transform);
@@ -90,6 +99,7 @@ namespace MotorCity.Bootstrap
                 driftChallenge,
                 streetSprint,
                 circuitRace,
+                speedTraps,
                 activityManager,
                 garage);
         }
@@ -414,6 +424,106 @@ namespace MotorCity.Bootstrap
             return root;
         }
 
+        private static void CreateSpeedTrapMarkers(
+            SpeedTrapSystem speedTraps)
+        {
+            if (speedTraps == null)
+                return;
+
+            Material frameMaterial =
+                Material(
+                    new Color(
+                        0.08f,
+                        0.78f,
+                        1f),
+                    0.08f,
+                    0.72f);
+
+            Material cameraMaterial =
+                Material(
+                    new Color(
+                        0.04f,
+                        0.05f,
+                        0.07f),
+                    0.45f,
+                    0.42f);
+
+            for (int i = 0;
+                 i < speedTraps.TrapCount;
+                 i++)
+            {
+                GameObject root =
+                    new(
+                        $"Speed Trap {i + 1}");
+
+                root.transform.position =
+                    speedTraps.GetTrapPosition(i);
+
+                root.transform.rotation =
+                    speedTraps.GetTrapRotation(i);
+
+                Primitive(
+                    "Left Post",
+                    PrimitiveType.Cylinder,
+                    root.transform,
+                    new Vector3(
+                        0.18f,
+                        2.6f,
+                        0.18f),
+                    new Vector3(
+                        -5.2f,
+                        2.6f,
+                        0f),
+                    frameMaterial,
+                    false);
+
+                Primitive(
+                    "Right Post",
+                    PrimitiveType.Cylinder,
+                    root.transform,
+                    new Vector3(
+                        0.18f,
+                        2.6f,
+                        0.18f),
+                    new Vector3(
+                        5.2f,
+                        2.6f,
+                        0f),
+                    frameMaterial,
+                    false);
+
+                Primitive(
+                    "Top Beam",
+                    PrimitiveType.Cube,
+                    root.transform,
+                    new Vector3(
+                        10.6f,
+                        0.18f,
+                        0.18f),
+                    new Vector3(
+                        0f,
+                        5.15f,
+                        0f),
+                    frameMaterial,
+                    false);
+
+                Primitive(
+                    "Radar Camera",
+                    PrimitiveType.Cube,
+                    root.transform,
+                    new Vector3(
+                        0.7f,
+                        0.5f,
+                        0.9f),
+                    new Vector3(
+                        0f,
+                        4.65f,
+                        0.35f),
+                    cameraMaterial,
+                    false);
+            }
+        }
+
         private static void CreateGarageMarker(
             GarageUpgradeSystem garage)
         {
@@ -532,6 +642,7 @@ namespace MotorCity.Bootstrap
             DriftChallenge driftChallenge,
             StreetSprintActivity streetSprint,
             CircuitRaceActivity circuitRace,
+            SpeedTrapSystem speedTraps,
             ActivityManager activityManager,
             GarageUpgradeSystem garage)
         {
@@ -545,6 +656,7 @@ namespace MotorCity.Bootstrap
                 driftChallenge,
                 streetSprint,
                 circuitRace,
+                speedTraps,
                 activityManager,
                 garage);
         }
