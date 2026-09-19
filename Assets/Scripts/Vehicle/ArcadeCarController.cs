@@ -82,6 +82,7 @@ namespace MotorCity.Vehicle
         private bool throttleHeld;
         private bool reverseHeld;
         private bool handbrakeHeld;
+        private bool steeringInputHeld;
         private float prometeoRetryTimer;
         private float resetHoldTimer;
 
@@ -647,6 +648,9 @@ namespace MotorCity.Vehicle
             throttleHeld = throttle;
             reverseHeld = reverse;
             handbrakeHeld = handbrake;
+            steeringInputHeld =
+                left ||
+                right;
 
             SetInputProxyPressed(
                 throttleInputProxy,
@@ -1068,6 +1072,109 @@ namespace MotorCity.Vehicle
                 physicalSlide ||
                 (ReadPrometeoBool("isDrifting") &&
                  SpeedKph >= minimumDriftSpeedKph);
+        }
+
+        public void ApplyStraightLineStability()
+        {
+            if (body == null ||
+                !drivingEnabled ||
+                resetHoldTimer > 0f ||
+                steeringInputHeld ||
+                handbrakeHeld ||
+                GroundedWheels < 3 ||
+                SpeedKph < 10f)
+                return;
+
+            float slipAngle =
+                Mathf.Abs(
+                    SlipAngleDegrees);
+
+            float maximumAssistSlip =
+                currentDriveMode ==
+                    DriveMode.Drift
+                    ? 4.5f
+                    : 9f;
+
+            if (IsSliding ||
+                slipAngle >
+                maximumAssistSlip)
+                return;
+
+            float steerReturnRate =
+                currentDriveMode switch
+                {
+                    DriveMode.Sport => 220f,
+                    DriveMode.Drift => 115f,
+                    _ => 170f
+                };
+
+            for (int i = FrontLeft;
+                 i <= FrontRight;
+                 i++)
+            {
+                WheelCollider wheel =
+                    wheelColliders[i];
+
+                if (wheel == null)
+                    continue;
+
+                wheel.steerAngle =
+                    Mathf.MoveTowards(
+                        wheel.steerAngle,
+                        0f,
+                        steerReturnRate *
+                        Time.fixedDeltaTime);
+            }
+
+            Vector3 localVelocity =
+                transform.InverseTransformDirection(
+                    body.linearVelocity);
+
+            float lateralGain =
+                currentDriveMode switch
+                {
+                    DriveMode.Sport => 2.9f,
+                    DriveMode.Drift => 0.65f,
+                    _ => 1.8f
+                };
+
+            float speedFactor =
+                Mathf.InverseLerp(
+                    12f,
+                    140f,
+                    SpeedKph);
+
+            float lateralAcceleration =
+                -localVelocity.x *
+                lateralGain *
+                Mathf.Lerp(
+                    0.45f,
+                    1f,
+                    speedFactor);
+
+            body.AddForce(
+                transform.right *
+                lateralAcceleration,
+                ForceMode.Acceleration);
+
+            float yawRate =
+                Vector3.Dot(
+                    body.angularVelocity,
+                    transform.up);
+
+            float yawGain =
+                currentDriveMode switch
+                {
+                    DriveMode.Sport => 2.4f,
+                    DriveMode.Drift => 0.45f,
+                    _ => 1.35f
+                };
+
+            body.AddTorque(
+                -transform.up *
+                yawRate *
+                yawGain,
+                ForceMode.Acceleration);
         }
 
         public void ApplyPhysicalHandbrake(
