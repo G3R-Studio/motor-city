@@ -1,4 +1,3 @@
-using MotorCity.Audio;
 using MotorCity.CameraSystem;
 using MotorCity.Gameplay;
 using MotorCity.UI;
@@ -165,7 +164,6 @@ namespace MotorCity.Bootstrap
                 car.AddComponent<ArcadeCarController>();
             car.AddComponent<HandbrakePhysicsAssist>();
             car.AddComponent<DriftEffects>();
-            car.AddComponent<VehicleAudioController>();
             car.AddComponent<CarReset>();
             return controller;
         }
@@ -493,7 +491,6 @@ namespace MotorCity.Bootstrap
             GameObject cameraObject = new("Main Camera");
             cameraObject.tag = "MainCamera";
             Camera camera = cameraObject.AddComponent<Camera>();
-            cameraObject.AddComponent<AudioListener>();
             camera.fieldOfView = 62f;
             camera.nearClipPlane = 0.12f;
             camera.farClipPlane = 3162.5f;
