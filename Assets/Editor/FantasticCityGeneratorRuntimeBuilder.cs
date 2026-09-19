@@ -86,8 +86,8 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 EnsureDriveableColliders(
                     clone);
 
-            int breakableProps =
-                BreakableStreetProp.PrepareAll(
+            CityCollisionUtility.Result collisionResult =
+                CityCollisionUtility.Prepare(
                     clone);
 
             MarkStatic(
@@ -107,7 +107,9 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 "Motor City: Fantastic City Generator runtime city baked. " +
                 $"Source={scene.path}, Renderers={renderers}, " +
                 $"added driveable colliders={colliders}, " +
-                $"breakable street props={breakableProps}, prefab={RuntimePrefab}");
+                $"pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
+                $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
+                $"safety floor={collisionResult.SafetyFloorReady}, prefab={RuntimePrefab}");
 
             EditorUtility.DisplayDialog(
                 "Motor City — FCG Runtime City",
@@ -115,7 +117,9 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 $"Источник: {scene.path}\n" +
                 $"Renderer'ов: {renderers}\n" +
                 $"Добавлено дорожных/хайвей/парковочных MeshCollider: {colliders}\n" +
-                $"Ломающихся городских объектов: {breakableProps}\n\n" +
+                $"Добавлено MeshCollider зданий: {collisionResult.AddedBuildingMeshColliders}\n" +
+                $"Отключено коллайдеров проезжаемых городских объектов: {collisionResult.DisabledStreetPropColliders}\n" +
+                $"Страховочный пол: {(collisionResult.SafetyFloorReady ? "да" : "нет")}\n\n" +
                 "Runtime-город сохранён локально и переживёт git reset.",
                 "OK");
         }
