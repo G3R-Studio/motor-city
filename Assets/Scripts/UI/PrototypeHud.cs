@@ -22,6 +22,7 @@ namespace MotorCity.UI
         private Sprite panelSprite;
 
         private Text moneyText;
+        private Text reputationText;
         private Text upgradesText;
         private Text driveModeText;
         private Text hintText;
@@ -104,6 +105,13 @@ namespace MotorCity.UI
 
             moneyText.text =
                 $"{credits:N0} КР";
+
+            if (reputationText != null &&
+                activityManager != null)
+            {
+                reputationText.text =
+                    $"REP {activityManager.TotalReputation:N0}   •   УР. {activityManager.ReputationLevel}";
+            }
 
             upgradesText.text =
                 garage == null
@@ -303,6 +311,19 @@ namespace MotorCity.UI
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
+
+            reputationText =
+                CreateText(
+                    card,
+                    "Reputation",
+                    11,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleRight,
+                    new Vector2(-14f, -40f),
+                    new Vector2(170f, 18f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 0.5f),
+                    SecondaryTextColor);
 
             driveModeText =
                 CreateText(
@@ -887,9 +908,15 @@ namespace MotorCity.UI
             resultDetailsText.text =
                 activityManager.ResultDetails ?? string.Empty;
 
+            bool hasCredits =
+                activityManager.ResultRewardCredits > 0;
+
+            bool hasReputation =
+                activityManager.ResultReputationReward > 0;
+
             resultRewardText.text =
-                activityManager.ResultRewardCredits > 0
-                    ? $"+{activityManager.ResultRewardCredits:N0} КР"
+                hasCredits || hasReputation
+                    ? $"+{activityManager.ResultRewardCredits:N0} КР   +{activityManager.ResultReputationReward:N0} REP"
                     : "БЕЗ НАГРАДЫ";
 
             Color accent =
@@ -899,7 +926,8 @@ namespace MotorCity.UI
 
             resultHeadlineText.color = accent;
             resultRewardText.color =
-                activityManager.ResultRewardCredits > 0
+                activityManager.ResultRewardCredits > 0 ||
+                activityManager.ResultReputationReward > 0
                     ? accent
                     : SecondaryTextColor;
         }
