@@ -731,11 +731,11 @@ namespace MotorCity.Vehicle
                 currentDriveMode switch
                 {
                     DriveMode.Sport =>
-                        38,
+                        36,
                     DriveMode.Drift =>
-                        70,
+                        62,
                     _ =>
-                        44
+                        42
                 };
 
             float tunedSteeringSpeed =
