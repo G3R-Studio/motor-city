@@ -31,8 +31,12 @@ namespace MotorCity.Bootstrap
             RenderSettings.fogStartDistance = 260f;
             RenderSettings.fogEndDistance = 980f;
 
-            CreateLighting();
+            Light sun =
+                CreateLighting();
+
             CreatePrototypeCity();
+            CreateDayNightCycle(
+                sun);
 
             ArcadeCarController car = CreateCar();
             ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
@@ -84,7 +88,7 @@ namespace MotorCity.Bootstrap
                 garage);
         }
 
-        private static void CreateLighting()
+        private static Light CreateLighting()
         {
             GameObject sunObject = new("Sun");
             Light sun = sunObject.AddComponent<Light>();
@@ -93,6 +97,21 @@ namespace MotorCity.Bootstrap
             sun.color = new Color(1f, 0.94f, 0.84f);
             sun.shadows = LightShadows.Soft;
             sun.transform.rotation = Quaternion.Euler(38f, -28f, 0f);
+
+            return sun;
+        }
+
+        private static void CreateDayNightCycle(
+            Light sun)
+        {
+            GameObject cycleObject =
+                new("Day Night Cycle");
+
+            DayNightCycleController cycle =
+                cycleObject.AddComponent<DayNightCycleController>();
+
+            cycle.Initialize(
+                sun);
         }
 
         private static void CreatePrototypeCity()
