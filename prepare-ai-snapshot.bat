@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+cd /d "%~dp0"
+
 title Motor City - AI review snapshot
 
 echo ============================================================
@@ -9,6 +11,9 @@ echo ============================================================
 echo.
 echo This stages Motor City-owned and generated project state.
 echo Unity caches and third-party Asset Store source packages stay excluded.
+echo.
+echo Repository root:
+cd
 echo.
 
 where git >nul 2>nul
