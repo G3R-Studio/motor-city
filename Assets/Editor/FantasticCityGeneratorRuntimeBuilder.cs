@@ -187,10 +187,12 @@ public static class FantasticCityGeneratorRuntimeBuilder
             if (light == null)
                 continue;
 
-            if (IsStreetLightHierarchy(
-                    light.transform))
+            if (light.type !=
+                LightType.Directional)
             {
-                // DayNightCycleController enables these only after sunset.
+                // FCG's DayNight setup can use spot/point lights whose
+                // hierarchy names vary between prefabs. Preserve every
+                // local city light and let DayNightCycleController manage it.
                 light.enabled =
                     false;
 
