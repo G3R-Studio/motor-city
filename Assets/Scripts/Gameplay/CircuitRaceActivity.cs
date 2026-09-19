@@ -288,19 +288,60 @@ namespace MotorCity.Gameplay
             wallet.AddCredits(reward);
 
             IsActive = false;
-            activityManager.End(ActivityId);
             checkpointIndex = 0;
             currentLap = 1;
+            car.SetDrivingEnabled(false);
 
             string record =
                 newBest
-                    ? "   НОВЫЙ РЕКОРД!"
+                    ? "НОВЫЙ РЕКОРД"
                     : BestTimeSeconds > 0f
-                        ? $"   РЕКОРД {BestTimeSeconds:0.0}с"
+                        ? $"Рекорд: {BestTimeSeconds:0.0}с"
                         : string.Empty;
 
+            activityManager.ShowResult(
+                ActivityId,
+                "КОЛЬЦЕВАЯ ГОНКА",
+                newBest ? "НОВЫЙ РЕКОРД!" : "ФИНИШ",
+                $"Время: {ElapsedSeconds:0.0}с   •   {record}   •   Бонус: {bonus:N0} КР",
+                reward,
+                true);
+
             StatusText =
-                $"Кольцо завершено за {ElapsedSeconds:0.0}с  +{reward} КР{record}";
+                $"Кольцо завершено за {ElapsedSeconds:0.0}с  +{reward} КР";
+        }
+
+        public void RestartFromResult()
+        {
+            if (activityManager == null ||
+                !activityManager.HasResult ||
+                activityManager.ResultActivityId != ActivityId ||
+                route == null ||
+                route.Length < 2 ||
+                car == null)
+                return;
+
+            activityManager.DismissResult();
+
+            Vector3 direction =
+                Flat(route[1] - route[0]);
+
+            Quaternion rotation =
+                direction.sqrMagnitude > 0.01f
+                    ? Quaternion.LookRotation(
+                        direction.normalized,
+                        Vector3.up)
+                    : Quaternion.Euler(
+                        0f,
+                        car.transform.eulerAngles.y,
+                        0f);
+
+            car.TeleportTo(
+                route[0] + Vector3.up * 1.1f,
+                rotation);
+
+            armed = true;
+            BeginCountdown();
         }
 
         public void CancelActivity()
