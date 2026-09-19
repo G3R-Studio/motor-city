@@ -18,6 +18,11 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float highSpeedFieldOfView = 72f;
         [SerializeField] private float fieldOfViewSharpness = 4.5f;
 
+        [Header("Obstacle Avoidance")]
+        [SerializeField] private float collisionRadius = 0.32f;
+        [SerializeField] private float collisionPadding = 0.14f;
+        [SerializeField] private float minimumCollisionDistance = 0.65f;
+
         [Header("Orbit")]
         [SerializeField] private float mouseSensitivity = 0.12f;
         [SerializeField] private float minPitch = -8f;
@@ -35,6 +40,9 @@ namespace MotorCity.CameraSystem
         private float targetDistance;
         private ArcadeCarController car;
         private Camera cameraComponent;
+
+        private readonly RaycastHit[] collisionHits =
+            new RaycastHit[32];
 
         public void SetTarget(Transform newTarget)
         {
@@ -80,6 +88,88 @@ namespace MotorCity.CameraSystem
                         body);
                 }
             }
+        }
+
+        private Vector3 ResolveObstacleCollision(
+            Vector3 pivot,
+            Vector3 candidate)
+        {
+            Vector3 offset =
+                candidate -
+                pivot;
+
+            float distanceToCandidate =
+                offset.magnitude;
+
+            if (distanceToCandidate <=
+                0.001f)
+            {
+                return candidate;
+            }
+
+            Vector3 direction =
+                offset /
+                distanceToCandidate;
+
+            int hitCount =
+                Physics.SphereCastNonAlloc(
+                    pivot,
+                    collisionRadius,
+                    direction,
+                    collisionHits,
+                    distanceToCandidate,
+                    Physics.DefaultRaycastLayers,
+                    QueryTriggerInteraction.Ignore);
+
+            float nearestDistance =
+                float.PositiveInfinity;
+
+            for (int i = 0;
+                 i < hitCount;
+                 i++)
+            {
+                Collider collider =
+                    collisionHits[i].collider;
+
+                if (collider == null)
+                    continue;
+
+                if (target != null &&
+                    (collider.transform == target ||
+                     collider.transform.IsChildOf(
+                         target)))
+                {
+                    continue;
+                }
+
+                float hitDistance =
+                    collisionHits[i].distance;
+
+                if (hitDistance <
+                    nearestDistance)
+                {
+                    nearestDistance =
+                        hitDistance;
+                }
+            }
+
+            if (float.IsPositiveInfinity(
+                    nearestDistance))
+            {
+                return candidate;
+            }
+
+            float safeDistance =
+                Mathf.Clamp(
+                    nearestDistance -
+                    collisionPadding,
+                    minimumCollisionDistance,
+                    distanceToCandidate);
+
+            return
+                pivot +
+                direction *
+                safeDistance;
         }
 
         private void Update()
@@ -145,16 +235,24 @@ namespace MotorCity.CameraSystem
                 orbitRotation *
                 new Vector3(0f, 0f, -dynamicDistance);
 
-            Vector3 desiredPosition =
+            Vector3 cameraPivot =
                 target.position +
-                Vector3.up * height +
+                Vector3.up * height;
+
+            Vector3 desiredPosition =
+                cameraPivot +
                 orbitOffset;
 
-            transform.position =
+            Vector3 smoothedPosition =
                 Vector3.Lerp(
                     transform.position,
                     desiredPosition,
                     positionT);
+
+            transform.position =
+                ResolveObstacleCollision(
+                    cameraPivot,
+                    smoothedPosition);
 
             float dynamicLookAhead =
                 Mathf.Lerp(
