@@ -22,6 +22,16 @@ namespace MotorCity.World
         private readonly List<Light> streetLights =
             new();
 
+        private readonly List<Material> runtimeNightMaterials =
+            new();
+
+        private readonly List<MaterialSlot> cityMaterialSlots =
+            new();
+
+        private readonly Dictionary<string, Material> nightMaterialByDayName =
+            new(
+                StringComparer.OrdinalIgnoreCase);
+
         private DayNightSettings settings;
         private Light directionalLight;
         private Light moonLight;
@@ -55,7 +65,10 @@ namespace MotorCity.World
                     1f);
 
             BuildRuntimeSkyboxes();
+            BuildNightMaterialMap();
+            RefreshCityMaterialSlots();
             RefreshStreetLights();
+
             ApplyEnvironment(
                 true);
 
@@ -103,6 +116,16 @@ namespace MotorCity.World
             if (runtimeNightSkybox != null)
                 Destroy(
                     runtimeNightSkybox);
+
+            foreach (Material material in
+                     runtimeNightMaterials)
+            {
+                if (material != null)
+                {
+                    Destroy(
+                        material);
+                }
+            }
         }
 
         private void CreateMoonLight()
@@ -158,6 +181,123 @@ namespace MotorCity.World
                             "_MotorCityRuntime"
                     };
             }
+        }
+
+        private void BuildNightMaterialMap()
+        {
+            nightMaterialByDayName.Clear();
+
+            if (settings == null)
+                return;
+
+            Material[] day =
+                settings.DayMaterials;
+
+            Material[] night =
+                settings.NightMaterials;
+
+            if (day == null ||
+                night == null)
+                return;
+
+            int count =
+                Mathf.Min(
+                    day.Length,
+                    night.Length);
+
+            for (int i = 0;
+                 i < count;
+                 i++)
+            {
+                Material dayMaterial =
+                    day[i];
+
+                Material nightSource =
+                    night[i];
+
+                if (dayMaterial == null ||
+                    nightSource == null)
+                    continue;
+
+                string key =
+                    NormalizeMaterialName(
+                        dayMaterial.name);
+
+                if (string.IsNullOrWhiteSpace(
+                        key))
+                    continue;
+
+                Material runtimeNight =
+                    CreateRuntimeNightMaterial(
+                        nightSource);
+
+                if (runtimeNight == null)
+                    continue;
+
+                runtimeNightMaterials.Add(
+                    runtimeNight);
+
+                nightMaterialByDayName[key] =
+                    runtimeNight;
+            }
+        }
+
+        private void RefreshCityMaterialSlots()
+        {
+            cityMaterialSlots.Clear();
+
+            if (nightMaterialByDayName.Count == 0)
+                return;
+
+            Renderer[] renderers =
+                UnityEngine.Object.FindObjectsByType<Renderer>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null ||
+                    !IsRuntimeCityHierarchy(
+                        renderer.transform))
+                    continue;
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    Material dayMaterial =
+                        materials[i];
+
+                    if (dayMaterial == null)
+                        continue;
+
+                    string key =
+                        NormalizeMaterialName(
+                            dayMaterial.name);
+
+                    if (!nightMaterialByDayName.TryGetValue(
+                            key,
+                            out Material nightMaterial))
+                        continue;
+
+                    cityMaterialSlots.Add(
+                        new MaterialSlot(
+                            renderer,
+                            i,
+                            dayMaterial,
+                            nightMaterial));
+                }
+            }
+
+            Debug.Log(
+                "Motor City: day/night city material slots=" +
+                cityMaterialSlots.Count +
+                ", local city lights=" +
+                streetLights.Count +
+                ".");
         }
 
         private void ApplyEnvironment(
@@ -381,6 +521,7 @@ namespace MotorCity.World
                     IsNight;
 
                 ApplyStreetLights();
+                ApplyCityNightMaterials();
             }
         }
 
@@ -396,10 +537,13 @@ namespace MotorCity.World
             foreach (Light light in all)
             {
                 if (light == null ||
-                    light == directionalLight)
+                    light == directionalLight ||
+                    light == moonLight ||
+                    light.type ==
+                    LightType.Directional)
                     continue;
 
-                if (!IsStreetLightHierarchy(
+                if (!IsRuntimeCityHierarchy(
                         light.transform))
                     continue;
 
@@ -438,13 +582,228 @@ namespace MotorCity.World
                     breakable != null &&
                     breakable.IsBroken;
 
-                light.enabled =
+                bool shouldEnable =
                     IsNight &&
                     !broken;
+
+                if (light.gameObject.activeSelf !=
+                    shouldEnable)
+                {
+                    light.gameObject.SetActive(
+                        shouldEnable);
+                }
+
+                light.enabled =
+                    shouldEnable;
             }
         }
 
-        private static bool IsStreetLightHierarchy(
+        private void ApplyCityNightMaterials()
+        {
+            foreach (MaterialSlot slot in
+                     cityMaterialSlots)
+            {
+                if (slot.Renderer == null)
+                    continue;
+
+                BreakableStreetProp breakable =
+                    slot.Renderer.GetComponentInParent<BreakableStreetProp>(
+                        true);
+
+                if (breakable != null &&
+                    breakable.IsBroken)
+                    continue;
+
+                Material[] materials =
+                    slot.Renderer.sharedMaterials;
+
+                if (slot.Index < 0 ||
+                    slot.Index >=
+                    materials.Length)
+                    continue;
+
+                materials[slot.Index] =
+                    IsNight
+                        ? slot.NightMaterial
+                        : slot.DayMaterial;
+
+                slot.Renderer.sharedMaterials =
+                    materials;
+            }
+        }
+
+        private static Material CreateRuntimeNightMaterial(
+            Material source)
+        {
+            if (source == null)
+                return null;
+
+            Shader shader =
+                Shader.Find(
+                    "Universal Render Pipeline/Lit");
+
+            Material runtime =
+                shader != null
+                    ? new Material(
+                        shader)
+                    : new Material(
+                        source);
+
+            runtime.name =
+                "MotorCity_Night_" +
+                source.name;
+
+            Texture baseTexture =
+                FirstTexture(
+                    source,
+                    "_BaseMap",
+                    "_MainTex",
+                    "_BaseColorMap",
+                    "_Albedo",
+                    "_AlbedoMap",
+                    "_Diffuse",
+                    "_DiffuseMap");
+
+            if (baseTexture != null &&
+                runtime.HasProperty(
+                    "_BaseMap"))
+            {
+                runtime.SetTexture(
+                    "_BaseMap",
+                    baseTexture);
+            }
+
+            Color baseColor =
+                source.HasProperty(
+                    "_BaseColor")
+                    ? source.GetColor(
+                        "_BaseColor")
+                    : source.HasProperty(
+                          "_Color")
+                        ? source.GetColor(
+                            "_Color")
+                        : Color.white;
+
+            if (runtime.HasProperty(
+                    "_BaseColor"))
+            {
+                runtime.SetColor(
+                    "_BaseColor",
+                    baseColor);
+            }
+
+            Texture emissionTexture =
+                FirstTexture(
+                    source,
+                    "_EmissionMap",
+                    "_Illum",
+                    "_Emission");
+
+            if (emissionTexture == null)
+            {
+                emissionTexture =
+                    baseTexture;
+            }
+
+            if (emissionTexture != null &&
+                runtime.HasProperty(
+                    "_EmissionMap"))
+            {
+                runtime.SetTexture(
+                    "_EmissionMap",
+                    emissionTexture);
+            }
+
+            Color emissionColor =
+                source.HasProperty(
+                    "_EmissionColor")
+                    ? source.GetColor(
+                        "_EmissionColor")
+                    : Color.white;
+
+            if (emissionColor.maxColorComponent <
+                0.1f)
+            {
+                emissionColor =
+                    Color.white;
+            }
+
+            emissionColor *=
+                1.8f;
+
+            if (runtime.HasProperty(
+                    "_EmissionColor"))
+            {
+                runtime.SetColor(
+                    "_EmissionColor",
+                    emissionColor);
+            }
+
+            runtime.EnableKeyword(
+                "_EMISSION");
+
+            runtime.globalIlluminationFlags =
+                MaterialGlobalIlluminationFlags.RealtimeEmissive;
+
+            if (runtime.HasProperty(
+                    "_Metallic") &&
+                source.HasProperty(
+                    "_Metallic"))
+            {
+                runtime.SetFloat(
+                    "_Metallic",
+                    source.GetFloat(
+                        "_Metallic"));
+            }
+
+            if (runtime.HasProperty(
+                    "_Smoothness"))
+            {
+                float smoothness =
+                    source.HasProperty(
+                        "_Smoothness")
+                        ? source.GetFloat(
+                            "_Smoothness")
+                        : source.HasProperty(
+                              "_Glossiness")
+                            ? source.GetFloat(
+                                "_Glossiness")
+                            : 0.35f;
+
+                runtime.SetFloat(
+                    "_Smoothness",
+                    smoothness);
+            }
+
+            return runtime;
+        }
+
+        private static Texture FirstTexture(
+            Material material,
+            params string[] properties)
+        {
+            if (material == null)
+                return null;
+
+            foreach (string property in
+                     properties)
+            {
+                if (!material.HasProperty(
+                        property))
+                    continue;
+
+                Texture texture =
+                    material.GetTexture(
+                        property);
+
+                if (texture != null)
+                    return texture;
+            }
+
+            return null;
+        }
+
+        private static bool IsRuntimeCityHierarchy(
             Transform item)
         {
             Transform current =
@@ -452,17 +811,14 @@ namespace MotorCity.World
 
             while (current != null)
             {
-                string name =
-                    current.name.ToLowerInvariant();
-
-                if (name.StartsWith(
-                        "streetlight") ||
-                    name.StartsWith(
-                        "parklamp") ||
-                    name.Contains(
-                        "street-light") ||
-                    name.Contains(
-                        "street_light"))
+                if (string.Equals(
+                        current.name,
+                        "MotorCity_FCGCity",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(
+                        current.name,
+                        "City-Maker",
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -472,6 +828,65 @@ namespace MotorCity.World
             }
 
             return false;
+        }
+
+        private static string NormalizeMaterialName(
+            string value)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    value))
+                return string.Empty;
+
+            string normalized =
+                value.Trim();
+
+            if (normalized.StartsWith(
+                    "FCG_",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                normalized =
+                    normalized.Substring(
+                        4);
+            }
+
+            normalized =
+                normalized.Replace(
+                    "(Instance)",
+                    string.Empty);
+
+            return new string(
+                normalized
+                    .ToLowerInvariant()
+                    .Where(
+                        char.IsLetterOrDigit)
+                    .ToArray());
+        }
+
+        private readonly struct MaterialSlot
+        {
+            public Renderer Renderer { get; }
+            public int Index { get; }
+            public Material DayMaterial { get; }
+            public Material NightMaterial { get; }
+
+            public MaterialSlot(
+                Renderer renderer,
+                int index,
+                Material dayMaterial,
+                Material nightMaterial)
+            {
+                Renderer =
+                    renderer;
+
+                Index =
+                    index;
+
+                DayMaterial =
+                    dayMaterial;
+
+                NightMaterial =
+                    nightMaterial;
+            }
         }
     }
 }
