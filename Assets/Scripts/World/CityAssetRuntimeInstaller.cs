@@ -944,24 +944,24 @@ namespace MotorCity.World
             var signZones =
                 new List<Bounds>();
 
-            foreach (Renderer renderer in
-                     city.GetComponentsInChildren<Renderer>(
+            foreach (Collider signCollider in
+                     city.GetComponentsInChildren<Collider>(
                          true))
             {
-                if (renderer == null ||
+                if (signCollider == null ||
                     !IsRoadMarkHierarchy(
-                        renderer.transform,
+                        signCollider.transform,
                         city.transform))
                     continue;
 
                 Bounds zone =
-                    renderer.bounds;
+                    signCollider.bounds;
 
                 zone.Expand(
                     new Vector3(
-                        0.18f,
-                        0.18f,
-                        0.18f));
+                        0.06f,
+                        0.06f,
+                        0.06f));
 
                 signZones.Add(
                     zone);
@@ -1058,16 +1058,9 @@ namespace MotorCity.World
                         meshTransform.TransformPoint(
                             vertices[triangles[i + 2]]);
 
-                    Bounds triangleBounds =
-                        new Bounds(
-                            a,
-                            Vector3.zero);
-
-                    triangleBounds.Encapsulate(
-                        b);
-
-                    triangleBounds.Encapsulate(
-                        d);
+                    Vector3 center =
+                        (a + b + d) /
+                        3f;
 
                     bool remove =
                         false;
@@ -1075,8 +1068,14 @@ namespace MotorCity.World
                     foreach (Bounds zone in
                              relevantZones)
                     {
-                        if (triangleBounds.Intersects(
-                                zone))
+                        if (zone.Contains(
+                                a) ||
+                            zone.Contains(
+                                b) ||
+                            zone.Contains(
+                                d) ||
+                            zone.Contains(
+                                center))
                         {
                             remove =
                                 true;
