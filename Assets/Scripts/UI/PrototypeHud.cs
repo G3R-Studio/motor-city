@@ -16,6 +16,8 @@ namespace MotorCity.UI
         private StreetSprintActivity streetSprint;
         private CircuitRaceActivity circuitRace;
         private SpeedTrapSystem speedTraps;
+        private DriftSpotSystem driftSpots;
+        private DiscoverySystem discoveries;
         private ActivityManager activityManager;
         private GarageUpgradeSystem garage;
 
@@ -79,6 +81,8 @@ namespace MotorCity.UI
             StreetSprintActivity sprint,
             CircuitRaceActivity circuit,
             SpeedTrapSystem speedTrapSystem,
+            DriftSpotSystem driftSpotSystem,
+            DiscoverySystem discoverySystem,
             ActivityManager manager,
             GarageUpgradeSystem garageSystem)
         {
@@ -90,6 +94,8 @@ namespace MotorCity.UI
             streetSprint = sprint;
             circuitRace = circuit;
             speedTraps = speedTrapSystem;
+            driftSpots = driftSpotSystem;
+            discoveries = discoverySystem;
             activityManager = manager;
             garage = garageSystem;
 
@@ -644,6 +650,41 @@ namespace MotorCity.UI
                     ConsiderNavigationTarget(
                         speedTraps.GetTrapPosition(i),
                         "РАДАР",
+                        true,
+                        ref target,
+                        ref label,
+                        ref bestDistance);
+                }
+            }
+
+            if (driftSpots != null)
+            {
+                for (int i = 0;
+                     i < driftSpots.SpotCount;
+                     i++)
+                {
+                    ConsiderNavigationTarget(
+                        driftSpots.GetSpotPosition(i),
+                        "DRIFT SPOT",
+                        true,
+                        ref target,
+                        ref label,
+                        ref bestDistance);
+                }
+            }
+
+            if (discoveries != null)
+            {
+                for (int i = 0;
+                     i < discoveries.DiscoveryCount;
+                     i++)
+                {
+                    if (discoveries.IsFound(i))
+                        continue;
+
+                    ConsiderNavigationTarget(
+                        discoveries.GetDiscoveryPosition(i),
+                        "ОТКРЫТИЕ",
                         true,
                         ref target,
                         ref label,
@@ -1235,12 +1276,20 @@ namespace MotorCity.UI
                 circuitRace.IsNearStart)
                 return circuitRace.StatusText;
 
+            if (driftSpots != null &&
+                driftSpots.ShowMessage)
+                return driftSpots.StatusText;
+
+            if (discoveries != null &&
+                discoveries.ShowMessage)
+                return discoveries.StatusText;
+
             if (speedTraps != null &&
                 speedTraps.ShowMessage)
                 return speedTraps.StatusText;
 
             return
-                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   КОЛЬЦО   •   РАДАРЫ   •   ГАРАЖ";
+                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   КОЛЬЦО   •   РАДАРЫ   •   DRIFT SPOTS   •   ИССЛЕДОВАНИЕ   •   ГАРАЖ";
         }
 
         private RectTransform CreatePanel(
