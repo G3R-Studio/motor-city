@@ -25,6 +25,7 @@ namespace MotorCity.Gameplay
 
         public bool IsActive { get; private set; }
         public bool IsCountingDown => isCountingDown;
+        public bool IsNearStart { get; private set; }
         public int CheckpointIndex => checkpointIndex;
         public int CheckpointCount => route?.Length ?? 0;
         public int RewardCredits => rewardCredits;
@@ -58,6 +59,7 @@ namespace MotorCity.Gameplay
 
             if (isCountingDown)
             {
+                IsNearStart = false;
                 if (keyboard != null &&
                     keyboard.escapeKey.wasPressedThisFrame)
                 {
@@ -71,6 +73,7 @@ namespace MotorCity.Gameplay
 
             if (IsActive)
             {
+                IsNearStart = false;
                 if (keyboard != null &&
                     keyboard.escapeKey.wasPressedThisFrame)
                 {
@@ -88,7 +91,9 @@ namespace MotorCity.Gameplay
                     Flat(car.transform.position),
                     Flat(route[0]));
 
-            if (distance > startRadius)
+            IsNearStart = distance <= startRadius;
+
+            if (!IsNearStart)
             {
                 StatusText = "Синий маркер: доставка";
                 return;
