@@ -144,8 +144,12 @@ namespace MotorCity.World
                 CityCollisionUtility.Prepare(
                     activeCity);
 
-            int stabilizedPedestrianSignals =
+            int stabilizedTrafficAnimations =
                 TrafficSignalVisualUtility.StabilizePedestrianSignals(
+                    activeCity);
+
+            TrafficLightCycleController trafficLights =
+                TrafficLightCycleController.Install(
                     activeCity);
 
             cityBounds =
@@ -165,7 +169,8 @@ namespace MotorCity.World
                 $"Bounds center={cityBounds.center}, size={cityBounds.size}. " +
                 $"Pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
                 $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
-                $"pedestrian signal renderers disabled={stabilizedPedestrianSignals}, " +
+                $"traffic animations disabled={stabilizedTrafficAnimations}, " +
+                $"traffic cycle={(trafficLights != null ? "active" : "missing")}, " +
                 $"safety floor={collisionResult.SafetyFloorReady}. " +
                 $"Spawn={PlayerSpawnPoint}, Garage={GaragePoint}, " +
                 $"Drift={DriftChallengePoint}.");
