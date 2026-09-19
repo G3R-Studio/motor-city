@@ -90,6 +90,14 @@ namespace MotorCity.Bootstrap
                 reputation,
                 activityManager);
 
+            StuntJumpSystem stuntJumps =
+                systems.AddComponent<StuntJumpSystem>();
+            stuntJumps.Initialize(
+                car,
+                wallet,
+                reputation,
+                activityManager);
+
             GarageUpgradeSystem garage = systems.AddComponent<GarageUpgradeSystem>();
             garage.Initialize(
                 car,
@@ -107,6 +115,7 @@ namespace MotorCity.Bootstrap
             CreateSpeedTrapMarkers(speedTraps);
             CreateDriftSpotMarkers(driftSpots);
             CreateDiscoveryMarkers(discoveries);
+            CreateStuntJumpRamps(stuntJumps);
             CreateGarageMarker(garage);
 
             CreateCamera(car.transform);
@@ -121,6 +130,7 @@ namespace MotorCity.Bootstrap
                 speedTraps,
                 driftSpots,
                 discoveries,
+                stuntJumps,
                 activityManager,
                 garage);
         }
@@ -652,6 +662,95 @@ namespace MotorCity.Bootstrap
             }
         }
 
+        private static void CreateStuntJumpRamps(
+            StuntJumpSystem stuntJumps)
+        {
+            if (stuntJumps == null)
+                return;
+
+            Material rampMaterial =
+                Material(
+                    new Color(
+                        0.92f,
+                        0.72f,
+                        0.08f),
+                    0.10f,
+                    0.54f);
+
+            Material stripeMaterial =
+                Material(
+                    new Color(
+                        0.08f,
+                        0.09f,
+                        0.11f),
+                    0.04f,
+                    0.42f);
+
+            for (int i = 0;
+                 i < stuntJumps.JumpCount;
+                 i++)
+            {
+                GameObject root =
+                    new(
+                        $"Stunt Jump {i + 1}");
+
+                root.transform.position =
+                    stuntJumps.GetJumpPosition(i);
+
+                root.transform.rotation =
+                    stuntJumps.GetJumpRotation(i);
+
+                GameObject ramp =
+                    Primitive(
+                        "Ramp",
+                        PrimitiveType.Cube,
+                        root.transform,
+                        new Vector3(
+                            7.2f,
+                            0.45f,
+                            8.2f),
+                        new Vector3(
+                            0f,
+                            0.72f,
+                            0f),
+                        rampMaterial,
+                        true);
+
+                ramp.transform.localRotation =
+                    Quaternion.Euler(
+                        -11.5f,
+                        0f,
+                        0f);
+
+                for (int stripe = -2;
+                     stripe <= 2;
+                     stripe++)
+                {
+                    GameObject marker =
+                        Primitive(
+                            "Ramp Stripe",
+                            PrimitiveType.Cube,
+                            root.transform,
+                            new Vector3(
+                                0.34f,
+                                0.05f,
+                                7.5f),
+                            new Vector3(
+                                stripe * 1.25f,
+                                1.13f,
+                                0.05f),
+                            stripeMaterial,
+                            false);
+
+                    marker.transform.localRotation =
+                        Quaternion.Euler(
+                            -11.5f,
+                            0f,
+                            0f);
+                }
+            }
+        }
+
         private static void CreateGarageMarker(
             GarageUpgradeSystem garage)
         {
@@ -773,6 +872,7 @@ namespace MotorCity.Bootstrap
             SpeedTrapSystem speedTraps,
             DriftSpotSystem driftSpots,
             DiscoverySystem discoveries,
+            StuntJumpSystem stuntJumps,
             ActivityManager activityManager,
             GarageUpgradeSystem garage)
         {
@@ -789,6 +889,7 @@ namespace MotorCity.Bootstrap
                 speedTraps,
                 driftSpots,
                 discoveries,
+                stuntJumps,
                 activityManager,
                 garage);
         }
