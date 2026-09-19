@@ -1,6 +1,7 @@
 using MotorCity.Gameplay;
 using MotorCity.Vehicle;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace MotorCity.UI
@@ -34,6 +35,13 @@ namespace MotorCity.UI
         private GameObject statusPanel;
         private GameObject driftPanel;
         private GameObject garageOverlay;
+        private GameObject activityResultOverlay;
+
+        private Text resultTitleText;
+        private Text resultHeadlineText;
+        private Text resultDetailsText;
+        private Text resultRewardText;
+        private Text resultControlsText;
 
         private Text garageMoneyText;
         private Text garageStatusText;
@@ -109,6 +117,24 @@ namespace MotorCity.UI
             speedText.text =
                 Mathf.RoundToInt(speed)
                     .ToString("000");
+
+            bool resultOpen =
+                activityManager != null &&
+                activityManager.HasResult;
+
+            activityResultOverlay.SetActive(
+                resultOpen);
+
+            if (resultOpen)
+            {
+                statusPanel.SetActive(false);
+                driftPanel.SetActive(false);
+                garageOverlay.SetActive(false);
+                navigatorPanel.SetActive(false);
+                UpdateActivityResult();
+                HandleActivityResultInput();
+                return;
+            }
 
             string status =
                 ResolveStatus();
@@ -200,9 +226,11 @@ namespace MotorCity.UI
             BuildNavigator(canvasObject.transform);
             BuildControlsHint(canvasObject.transform);
             BuildDriftPanel(canvasObject.transform);
+            BuildActivityResult(canvasObject.transform);
             BuildGarage(canvasObject.transform);
 
             driftPanel.SetActive(false);
+            activityResultOverlay.SetActive(false);
             garageOverlay.SetActive(false);
         }
 
@@ -683,6 +711,205 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
+        }
+
+        private void BuildActivityResult(Transform canvas)
+        {
+            activityResultOverlay =
+                new GameObject(
+                    "Activity Result Overlay",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            activityResultOverlay.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform overlay =
+                activityResultOverlay.GetComponent<RectTransform>();
+
+            overlay.anchorMin = Vector2.zero;
+            overlay.anchorMax = Vector2.one;
+            overlay.offsetMin = Vector2.zero;
+            overlay.offsetMax = Vector2.zero;
+
+            Image backdrop =
+                activityResultOverlay.GetComponent<Image>();
+
+            backdrop.color =
+                new Color(
+                    0.005f,
+                    0.008f,
+                    0.014f,
+                    0.72f);
+
+            backdrop.raycastTarget = false;
+
+            RectTransform panel =
+                CreatePanel(
+                    activityResultOverlay.transform,
+                    "Activity Result",
+                    Vector2.zero,
+                    new Vector2(620f, 330f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        0.02f,
+                        0.028f,
+                        0.042f,
+                        0.98f));
+
+            CreateAccent(
+                panel,
+                BlueAccent,
+                new Vector2(0f, -5f),
+                new Vector2(550f, 5f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f));
+
+            resultTitleText =
+                CreateText(
+                    panel,
+                    "Result Title",
+                    16,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -34f),
+                    new Vector2(540f, 28f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    SecondaryTextColor);
+
+            resultHeadlineText =
+                CreateText(
+                    panel,
+                    "Result Headline",
+                    34,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -84f),
+                    new Vector2(550f, 52f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    TextColor);
+
+            resultDetailsText =
+                CreateText(
+                    panel,
+                    "Result Details",
+                    18,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -150f),
+                    new Vector2(550f, 52f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    SecondaryTextColor);
+
+            resultRewardText =
+                CreateText(
+                    panel,
+                    "Result Reward",
+                    28,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -210f),
+                    new Vector2(500f, 42f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    TextColor);
+
+            resultControlsText =
+                CreateText(
+                    panel,
+                    "Result Controls",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, 30f),
+                    new Vector2(540f, 28f),
+                    new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f),
+                    SecondaryTextColor);
+
+            resultControlsText.text =
+                "ENTER  ПОВТОРИТЬ     ESC  ПРОДОЛЖИТЬ";
+        }
+
+        private void UpdateActivityResult()
+        {
+            if (activityManager == null ||
+                !activityManager.HasResult)
+                return;
+
+            resultTitleText.text =
+                activityManager.ResultTitle ?? string.Empty;
+
+            resultHeadlineText.text =
+                activityManager.ResultHeadline ?? string.Empty;
+
+            resultDetailsText.text =
+                activityManager.ResultDetails ?? string.Empty;
+
+            resultRewardText.text =
+                activityManager.ResultRewardCredits > 0
+                    ? $"+{activityManager.ResultRewardCredits:N0} КР"
+                    : "БЕЗ НАГРАДЫ";
+
+            Color accent =
+                activityManager.ResultSuccess
+                    ? new Color(0.20f, 1f, 0.58f, 1f)
+                    : new Color(1f, 0.38f, 0.22f, 1f);
+
+            resultHeadlineText.color = accent;
+            resultRewardText.color =
+                activityManager.ResultRewardCredits > 0
+                    ? accent
+                    : SecondaryTextColor;
+        }
+
+        private void HandleActivityResultInput()
+        {
+            Keyboard keyboard =
+                Keyboard.current;
+
+            if (keyboard == null ||
+                activityManager == null ||
+                !activityManager.HasResult)
+                return;
+
+            if (keyboard.escapeKey.wasPressedThisFrame)
+            {
+                activityManager.DismissResult();
+                car?.SetDrivingEnabled(true);
+                return;
+            }
+
+            bool restart =
+                keyboard.enterKey.wasPressedThisFrame ||
+                keyboard.numpadEnterKey.wasPressedThisFrame;
+
+            if (!restart)
+                return;
+
+            switch (activityManager.ResultActivityId)
+            {
+                case "delivery":
+                    delivery?.RestartFromResult();
+                    break;
+
+                case "drift":
+                    driftChallenge?.RestartFromResult();
+                    break;
+
+                case "sprint":
+                    streetSprint?.RestartFromResult();
+                    break;
+
+                case "circuit":
+                    circuitRace?.RestartFromResult();
+                    break;
+            }
         }
 
         private void BuildGarage(Transform canvas)
