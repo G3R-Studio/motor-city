@@ -104,7 +104,7 @@ namespace MotorCity.Vehicle
         private float driveModeMessageTimer;
         private float driveModeSwitchCooldown;
         private bool driveModeKeyHeld;
-        private readonly HashSet<int> loggedCollisionColliderIds =
+        private readonly HashSet<Collider> loggedCollisionColliders =
             new();
         private int collisionDebugLogCount;
 
@@ -1672,11 +1672,8 @@ namespace MotorCity.Vehicle
             Collider collider =
                 collision.collider;
 
-            int id =
-                collider.GetInstanceID();
-
-            if (!loggedCollisionColliderIds.Add(
-                    id))
+            if (!loggedCollisionColliders.Add(
+                    collider))
                 return;
 
             collisionDebugLogCount++;
