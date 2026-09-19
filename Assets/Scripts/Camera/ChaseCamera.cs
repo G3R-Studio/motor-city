@@ -22,6 +22,8 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float collisionRadius = 0.32f;
         [SerializeField] private float collisionPadding = 0.14f;
         [SerializeField] private float minimumCollisionDistance = 0.65f;
+        [SerializeField] private float collisionEnterSmoothTime = 0.035f;
+        [SerializeField] private float collisionExitSmoothTime = 0.18f;
 
         [Header("Orbit")]
         [SerializeField] private float mouseSensitivity = 0.12f;
@@ -40,6 +42,8 @@ namespace MotorCity.CameraSystem
         private float targetDistance;
         private ArcadeCarController car;
         private Camera cameraComponent;
+        private float currentCollisionDistance;
+        private float collisionDistanceVelocity;
 
         private readonly RaycastHit[] collisionHits =
             new RaycastHit[32];
@@ -49,11 +53,15 @@ namespace MotorCity.CameraSystem
             target = newTarget;
             car = target == null ? null : target.GetComponent<ArcadeCarController>();
             targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
+            currentCollisionDistance = targetDistance;
+            collisionDistanceVelocity = 0f;
         }
 
         private void Awake()
         {
             targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
+            currentCollisionDistance = targetDistance;
+            collisionDistanceVelocity = 0f;
             cameraComponent = GetComponent<Camera>();
             RemoveCameraPhysics();
         }
@@ -90,12 +98,12 @@ namespace MotorCity.CameraSystem
             }
         }
 
-        private Vector3 ResolveObstacleCollision(
+        private float ResolveObstacleDistance(
             Vector3 pivot,
-            Vector3 candidate)
+            Vector3 desiredPosition)
         {
             Vector3 offset =
-                candidate -
+                desiredPosition -
                 pivot;
 
             float distanceToCandidate =
@@ -104,7 +112,8 @@ namespace MotorCity.CameraSystem
             if (distanceToCandidate <=
                 0.001f)
             {
-                return candidate;
+                return
+                    minimumCollisionDistance;
             }
 
             Vector3 direction =
@@ -122,7 +131,7 @@ namespace MotorCity.CameraSystem
                     QueryTriggerInteraction.Ignore);
 
             float nearestDistance =
-                float.PositiveInfinity;
+                distanceToCandidate;
 
             for (int i = 0;
                  i < hitCount;
@@ -142,34 +151,101 @@ namespace MotorCity.CameraSystem
                     continue;
                 }
 
-                float hitDistance =
-                    collisionHits[i].distance;
-
-                if (hitDistance <
-                    nearestDistance)
-                {
-                    nearestDistance =
-                        hitDistance;
-                }
+                nearestDistance =
+                    Mathf.Min(
+                        nearestDistance,
+                        collisionHits[i].distance);
             }
 
-            if (float.IsPositiveInfinity(
-                    nearestDistance))
+            if (nearestDistance >=
+                distanceToCandidate -
+                0.001f)
             {
-                return candidate;
+                return
+                    distanceToCandidate;
             }
 
-            float safeDistance =
+            return
                 Mathf.Clamp(
                     nearestDistance -
                     collisionPadding,
                     minimumCollisionDistance,
                     distanceToCandidate);
+        }
+
+        private Vector3 ResolveStableCameraPosition(
+            Vector3 pivot,
+            Vector3 desiredPosition)
+        {
+            Vector3 offset =
+                desiredPosition -
+                pivot;
+
+            float desiredDistance =
+                offset.magnitude;
+
+            if (desiredDistance <=
+                0.001f)
+            {
+                return desiredPosition;
+            }
+
+            Vector3 direction =
+                offset /
+                desiredDistance;
+
+            float allowedDistance =
+                ResolveObstacleDistance(
+                    pivot,
+                    desiredPosition);
+
+            if (currentCollisionDistance <=
+                0.001f)
+            {
+                currentCollisionDistance =
+                    allowedDistance;
+            }
+
+            float smoothTime =
+                allowedDistance <
+                currentCollisionDistance
+                    ? collisionEnterSmoothTime
+                    : collisionExitSmoothTime;
+
+            currentCollisionDistance =
+                Mathf.SmoothDamp(
+                    currentCollisionDistance,
+                    allowedDistance,
+                    ref collisionDistanceVelocity,
+                    Mathf.Max(
+                        0.001f,
+                        smoothTime),
+                    Mathf.Infinity,
+                    Time.deltaTime);
+
+            // Never let smoothing overshoot through the obstacle.
+            if (allowedDistance <
+                currentCollisionDistance)
+            {
+                currentCollisionDistance =
+                    allowedDistance;
+
+                collisionDistanceVelocity =
+                    Mathf.Min(
+                        0f,
+                        collisionDistanceVelocity);
+            }
+
+            currentCollisionDistance =
+                Mathf.Clamp(
+                    currentCollisionDistance,
+                    minimumCollisionDistance,
+                    desiredDistance);
 
             return
                 pivot +
                 direction *
-                safeDistance;
+                currentCollisionDistance;
         }
 
         private void Update()
@@ -243,16 +319,43 @@ namespace MotorCity.CameraSystem
                 cameraPivot +
                 orbitOffset;
 
-            Vector3 smoothedPosition =
-                Vector3.Lerp(
-                    transform.position,
-                    desiredPosition,
-                    positionT);
+            Vector3 collisionSafePosition =
+                ResolveStableCameraPosition(
+                    cameraPivot,
+                    desiredPosition);
 
             transform.position =
-                ResolveObstacleCollision(
+                Vector3.Lerp(
+                    transform.position,
+                    collisionSafePosition,
+                    positionT);
+
+            // A final clamp keeps the interpolated camera outside geometry
+            // without repeatedly snapping it in and out every frame.
+            float finalAllowedDistance =
+                ResolveObstacleDistance(
                     cameraPivot,
-                    smoothedPosition);
+                    transform.position);
+
+            Vector3 finalOffset =
+                transform.position -
+                cameraPivot;
+
+            float finalDistance =
+                finalOffset.magnitude;
+
+            if (finalDistance >
+                    finalAllowedDistance +
+                    0.001f &&
+                finalDistance >
+                    0.001f)
+            {
+                transform.position =
+                    cameraPivot +
+                    finalOffset /
+                    finalDistance *
+                    finalAllowedDistance;
+            }
 
             float dynamicLookAhead =
                 Mathf.Lerp(
