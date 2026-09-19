@@ -28,6 +28,8 @@ namespace MotorCity.Vehicle
                 lowSpeedRearBrakeTorque,
                 lowSpeedThresholdKph,
                 holdThresholdKph);
+
+            car.ApplyStraightLineStability();
         }
     }
 }
