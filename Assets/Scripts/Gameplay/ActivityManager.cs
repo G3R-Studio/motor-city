@@ -15,6 +15,24 @@ namespace MotorCity.Gameplay
         public string ResultDetails { get; private set; }
         public int ResultRewardCredits { get; private set; }
         public bool ResultSuccess { get; private set; }
+        public int ResultReputationReward { get; private set; }
+        public int TotalReputation =>
+            reputation == null
+                ? 0
+                : reputation.Reputation;
+        public int ReputationLevel =>
+            reputation == null
+                ? 1
+                : reputation.Level;
+
+        private PlayerReputation reputation;
+
+        public void Initialize(
+            PlayerReputation playerReputation)
+        {
+            reputation =
+                playerReputation;
+        }
 
         public bool TryBegin(string id, string displayName)
         {
@@ -49,8 +67,26 @@ namespace MotorCity.Gameplay
             ResultTitle = title;
             ResultHeadline = headline;
             ResultDetails = details;
-            ResultRewardCredits = Mathf.Max(0, rewardCredits);
-            ResultSuccess = success;
+            ResultRewardCredits =
+                Mathf.Max(
+                    0,
+                    rewardCredits);
+
+            ResultSuccess =
+                success;
+
+            ResultReputationReward =
+                success
+                    ? Mathf.Clamp(
+                        Mathf.RoundToInt(
+                            ResultRewardCredits *
+                            0.10f),
+                        25,
+                        150)
+                    : 0;
+
+            reputation?.AddReputation(
+                ResultReputationReward);
         }
 
         public void DismissResult()
@@ -61,6 +97,7 @@ namespace MotorCity.Gameplay
             ResultHeadline = null;
             ResultDetails = null;
             ResultRewardCredits = 0;
+            ResultReputationReward = 0;
             ResultSuccess = false;
         }
 
