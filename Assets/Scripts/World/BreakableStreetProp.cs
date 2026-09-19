@@ -214,6 +214,16 @@ namespace MotorCity.World
             broken =
                 true;
 
+            foreach (Light light in
+                     GetComponentsInChildren<Light>(true))
+            {
+                if (light != null)
+                {
+                    light.enabled =
+                        false;
+                }
+            }
+
             Vector3 carVelocity =
                 carBody.linearVelocity;
 
