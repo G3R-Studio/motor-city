@@ -431,26 +431,11 @@ namespace MotorCity.World
                     continue;
 
                 Light light =
-                    FindExistingLampLight(
+                    EnsureRuntimeLampLight(
                         item);
 
                 if (light == null)
-                {
-                    GameObject lightObject =
-                        new("MotorCity_LampLight");
-
-                    lightObject.transform.SetParent(
-                        item,
-                        false);
-
-                    lightObject.transform.localPosition =
-                        Vector3.zero;
-
-                    light =
-                        lightObject.AddComponent<Light>();
-
-                    autoCreatedStreetLights++;
-                }
+                    continue;
 
                 ConfigureLampLight(
                     light);
@@ -578,49 +563,57 @@ namespace MotorCity.World
             }
         }
 
-        private static Light FindExistingLampLight(
-            Transform item)
+        private Light EnsureRuntimeLampLight(
+            Transform anchor)
         {
-            if (item == null)
+            if (anchor == null)
                 return null;
 
-            foreach (Light light in
-                     item.GetComponentsInChildren<Light>(true))
+            Light runtimeLight =
+                null;
+
+            foreach (Light existing in
+                     anchor.GetComponentsInChildren<Light>(true))
             {
-                if (light != null &&
-                    light.type !=
+                if (existing == null ||
+                    existing.type ==
                     LightType.Directional)
+                    continue;
+
+                if (string.Equals(
+                        existing.gameObject.name,
+                        "MotorCity_LampLight",
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    return light;
-                }
-            }
+                    runtimeLight =
+                        existing;
 
-            Transform current =
-                item.parent;
-
-            while (current != null &&
-                   !IsRuntimeCityRoot(
-                       current))
-            {
-                if (IsNamedFcgLampNode(
-                        current))
-                {
-                    Light light =
-                        current.GetComponent<Light>();
-
-                    if (light != null &&
-                        light.type !=
-                        LightType.Directional)
-                    {
-                        return light;
-                    }
+                    continue;
                 }
 
-                current =
-                    current.parent;
+                existing.enabled =
+                    false;
             }
 
-            return null;
+            if (runtimeLight != null)
+                return runtimeLight;
+
+            GameObject lightObject =
+                new("MotorCity_LampLight");
+
+            lightObject.transform.SetParent(
+                anchor,
+                false);
+
+            lightObject.transform.localPosition =
+                Vector3.zero;
+
+            runtimeLight =
+                lightObject.AddComponent<Light>();
+
+            autoCreatedStreetLights++;
+
+            return runtimeLight;
         }
 
         private static void ConfigureLampLight(
