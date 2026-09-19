@@ -217,8 +217,7 @@ namespace MotorCity.Gameplay
             if (CurrentScore >= targetScore)
             {
                 wallet.AddCredits(rewardCredits);
-                EndChallenge(
-                    $"Дрифт-заезд завершён  +{rewardCredits} КР");
+                CompleteChallenge();
                 return;
             }
 
@@ -241,8 +240,8 @@ namespace MotorCity.Gameplay
 
                 if (outsideTimer >= outsideGraceSeconds)
                 {
-                    EndChallenge(
-                        "Провал: слишком далеко от площадки");
+                    FailChallenge(
+                        "СЛИШКОМ ДАЛЕКО ОТ ПЛОЩАДКИ");
                     return;
                 }
 
@@ -256,8 +255,8 @@ namespace MotorCity.Gameplay
 
             if (TimeRemaining <= 0f)
             {
-                EndChallenge(
-                    $"Провал: {CurrentScore:N0}/{targetScore:N0}");
+                FailChallenge(
+                    $"НЕ ХВАТИЛО ОЧКОВ: {CurrentScore:N0}/{targetScore:N0}");
                 return;
             }
 
@@ -266,18 +265,71 @@ namespace MotorCity.Gameplay
                 $"{TimeRemaining:0.0}с   ESC — ОТМЕНА";
         }
 
-        private void EndChallenge(string message)
+        private void CompleteChallenge()
         {
+            int finalScore = CurrentScore;
+
             IsActive = false;
             isCountingDown = false;
-            activityManager.End(ActivityId);
             TimeRemaining = 0f;
             outsideTimer = 0f;
-            car.SetDrivingEnabled(true);
+            car.SetDrivingEnabled(false);
+
+            activityManager.ShowResult(
+                ActivityId,
+                "ДРИФТ-ЗАЕЗД",
+                "ЦЕЛЬ ВЫПОЛНЕНА",
+                $"Очки: {finalScore:N0} / {targetScore:N0}",
+                rewardCredits,
+                true);
 
             StatusText =
-                message +
-                ". Покинь зону, чтобы повторить.";
+                $"Дрифт-заезд завершён  +{rewardCredits} КР";
+        }
+
+        private void FailChallenge(string reason)
+        {
+            int finalScore = CurrentScore;
+
+            IsActive = false;
+            isCountingDown = false;
+            TimeRemaining = 0f;
+            outsideTimer = 0f;
+            car.SetDrivingEnabled(false);
+
+            activityManager.ShowResult(
+                ActivityId,
+                "ДРИФТ-ЗАЕЗД",
+                "ПРОВАЛ",
+                $"{reason}   •   Очки: {finalScore:N0}",
+                0,
+                false);
+
+            StatusText = "Дрифт-заезд провален";
+        }
+
+        public void RestartFromResult()
+        {
+            if (activityManager == null ||
+                !activityManager.HasResult ||
+                activityManager.ResultActivityId != ActivityId ||
+                car == null)
+                return;
+
+            activityManager.DismissResult();
+
+            Quaternion rotation =
+                Quaternion.Euler(
+                    0f,
+                    car.transform.eulerAngles.y,
+                    0f);
+
+            car.TeleportTo(
+                zoneCenter + Vector3.up * 1.1f,
+                rotation);
+
+            armed = true;
+            BeginCountdown();
         }
 
         public void CancelActivity()
