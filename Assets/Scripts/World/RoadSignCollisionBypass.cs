@@ -9,10 +9,10 @@ namespace MotorCity.World
         private const string RuntimeCityName =
             "MotorCity_FCGCity";
 
-        private readonly List<Bounds> signZones =
+        private readonly List<Collider> combinedObjectColliders =
             new();
 
-        private readonly List<Collider> combinedObjectColliders =
+        private readonly HashSet<Collider> activeRoadSignTriggers =
             new();
 
         private Collider[] vehicleColliders =
@@ -33,9 +33,6 @@ namespace MotorCity.World
             if (city == null)
                 return;
 
-            CollectRoadSignZones(
-                city.transform);
-
             CollectCombinedObjectColliders(
                 city);
 
@@ -43,52 +40,88 @@ namespace MotorCity.World
                 false);
         }
 
-        private void FixedUpdate()
+        private void OnTriggerEnter(
+            Collider other)
         {
-            if (signZones.Count == 0 ||
-                combinedObjectColliders.Count == 0 ||
-                vehicleColliders.Length == 0)
+            if (!IsRoadMarkTrigger(
+                    other))
                 return;
 
-            bool insideSignZone =
-                VehicleTouchesSignZone();
+            activeRoadSignTriggers.Add(
+                other);
 
-            if (insideSignZone !=
-                ignoringCombinedObjects)
+            ApplyIgnoreState(
+                true);
+        }
+
+        private void OnTriggerStay(
+            Collider other)
+        {
+            if (!IsRoadMarkTrigger(
+                    other))
+                return;
+
+            activeRoadSignTriggers.Add(
+                other);
+
+            if (!ignoringCombinedObjects)
             {
                 ApplyIgnoreState(
-                    insideSignZone);
+                    true);
+            }
+        }
+
+        private void OnTriggerExit(
+            Collider other)
+        {
+            if (!IsRoadMarkTrigger(
+                    other))
+                return;
+
+            activeRoadSignTriggers.Remove(
+                other);
+
+            activeRoadSignTriggers.RemoveWhere(
+                collider =>
+                    collider == null);
+
+            if (activeRoadSignTriggers.Count == 0)
+            {
+                ApplyIgnoreState(
+                    false);
             }
         }
 
         private void OnDisable()
         {
+            activeRoadSignTriggers.Clear();
+
             ApplyIgnoreState(
                 false);
         }
 
-        private bool VehicleTouchesSignZone()
+        private bool IsRoadMarkTrigger(
+            Collider collider)
         {
-            foreach (Collider vehicleCollider in
-                     vehicleColliders)
+            if (collider == null ||
+                !collider.isTrigger)
+                return false;
+
+            Transform current =
+                collider.transform;
+
+            while (current != null)
             {
-                if (vehicleCollider == null ||
-                    !vehicleCollider.enabled ||
-                    vehicleCollider.isTrigger)
-                    continue;
-
-                Bounds vehicleBounds =
-                    vehicleCollider.bounds;
-
-                foreach (Bounds signZone in
-                         signZones)
+                if (Normalize(
+                        current.name)
+                    .StartsWith(
+                        "roadmark"))
                 {
-                    if (vehicleBounds.Intersects(
-                            signZone))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
+
+                current =
+                    current.parent;
             }
 
             return false;
@@ -97,6 +130,11 @@ namespace MotorCity.World
         private void ApplyIgnoreState(
             bool ignore)
         {
+            if (ignoringCombinedObjects ==
+                    ignore &&
+                ignore)
+                return;
+
             foreach (Collider vehicleCollider in
                      vehicleColliders)
             {
@@ -119,60 +157,6 @@ namespace MotorCity.World
 
             ignoringCombinedObjects =
                 ignore;
-        }
-
-        private void CollectRoadSignZones(
-            Transform cityRoot)
-        {
-            foreach (Renderer renderer in
-                     cityRoot.GetComponentsInChildren<Renderer>(
-                         true))
-            {
-                if (renderer == null ||
-                    !IsRoadMarkHierarchy(
-                        renderer.transform,
-                        cityRoot))
-                    continue;
-
-                Bounds zone =
-                    renderer.bounds;
-
-                zone.Expand(
-                    new Vector3(
-                        0.55f,
-                        0.35f,
-                        0.55f));
-
-                MergeOrAddZone(
-                    zone);
-            }
-        }
-
-        private void MergeOrAddZone(
-            Bounds zone)
-        {
-            for (int i = 0;
-                 i < signZones.Count;
-                 i++)
-            {
-                Bounds existing =
-                    signZones[i];
-
-                if (!existing.Intersects(
-                        zone))
-                    continue;
-
-                existing.Encapsulate(
-                    zone);
-
-                signZones[i] =
-                    existing;
-
-                return;
-            }
-
-            signZones.Add(
-                zone);
         }
 
         private void CollectCombinedObjectColliders(
@@ -207,33 +191,6 @@ namespace MotorCity.World
                         collider);
                 }
             }
-        }
-
-        private static bool IsRoadMarkHierarchy(
-            Transform item,
-            Transform cityRoot)
-        {
-            Transform current =
-                item;
-
-            while (current != null)
-            {
-                if (Normalize(
-                        current.name)
-                    .StartsWith(
-                        "roadmark"))
-                {
-                    return true;
-                }
-
-                if (current == cityRoot)
-                    break;
-
-                current =
-                    current.parent;
-            }
-
-            return false;
         }
 
         private static string Normalize(
