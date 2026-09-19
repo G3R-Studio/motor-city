@@ -215,7 +215,8 @@ namespace MotorCity.World
                         continue;
 
                     if (other.Root.IsChildOf(
-                            candidate.Root))
+                            candidate.Root) &&
+                        other.HasVehicleSignals)
                     {
                         containsAnotherSignalHead =
                             true;
@@ -614,6 +615,10 @@ namespace MotorCity.World
             public int LampCount =>
                 vehicleLamps.Count +
                 pedestrianLamps.Count;
+
+            public bool HasVehicleSignals =>
+                vehicleLamps.Count >
+                0;
 
             private SignalHead(
                 Transform root,
