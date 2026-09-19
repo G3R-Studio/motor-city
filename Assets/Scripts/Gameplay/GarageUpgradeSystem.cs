@@ -23,6 +23,7 @@ namespace MotorCity.Gameplay
         private DriftChallenge driftChallenge;
         private StreetSprintActivity streetSprint;
         private CircuitRaceActivity circuitRace;
+        private VehicleRosterSystem vehicleRoster;
 
         public int EngineLevel { get; private set; }
         public int GripLevel { get; private set; }
@@ -33,6 +34,16 @@ namespace MotorCity.Gameplay
         public int Credits => wallet == null ? 0 : wallet.Credits;
         public string StatusText { get; private set; } = "Фиолетовый маркер: гараж";
 
+        public string VehicleLine =>
+            vehicleRoster == null
+                ? "МАШИНЫ НЕДОСТУПНЫ"
+                : vehicleRoster.GetGarageLine();
+
+        public string VehicleStatsLine =>
+            vehicleRoster == null
+                ? string.Empty
+                : vehicleRoster.GetStatsLine();
+
         public void Initialize(
             ArcadeCarController targetCar,
             PlayerWallet targetWallet,
@@ -40,7 +51,8 @@ namespace MotorCity.Gameplay
             DeliveryActivity deliveryActivity,
             DriftChallenge challenge,
             StreetSprintActivity sprint,
-            CircuitRaceActivity circuit)
+            CircuitRaceActivity circuit,
+            VehicleRosterSystem roster)
         {
             car = targetCar;
             wallet = targetWallet;
@@ -49,6 +61,7 @@ namespace MotorCity.Gameplay
             driftChallenge = challenge;
             streetSprint = sprint;
             circuitRace = circuit;
+            vehicleRoster = roster;
             garageCenter =
                 MotorCity.World.CityAssetRuntimeInstaller.GaragePoint;
 
@@ -103,6 +116,13 @@ namespace MotorCity.Gameplay
                 TryBuy(UpgradeType.Grip);
             if (keyboard.digit3Key.wasPressedThisFrame || keyboard.numpad3Key.wasPressedThisFrame)
                 TryBuy(UpgradeType.Stability);
+
+            if (keyboard.zKey.wasPressedThisFrame)
+                TrySelectVehicle(-1);
+
+            if (keyboard.xKey.wasPressedThisFrame)
+                TrySelectVehicle(1);
+
             if (keyboard.escapeKey.wasPressedThisFrame)
                 CloseGarage();
         }
@@ -162,6 +182,31 @@ namespace MotorCity.Gameplay
             StatusText = IsNearGarage
                 ? "ГАРАЖ — нажми E"
                 : "Фиолетовый маркер: гараж";
+        }
+
+        private void TrySelectVehicle(
+            int offset)
+        {
+            if (vehicleRoster == null)
+            {
+                StatusText =
+                    "Автопарк ещё не подготовлен";
+
+                return;
+            }
+
+            vehicleRoster.TrySelectOffset(
+                offset,
+                out string status);
+
+            if (!string.IsNullOrWhiteSpace(
+                    status))
+            {
+                StatusText =
+                    status;
+            }
+
+            ApplyUpgrades();
         }
 
         private void TryBuy(UpgradeType type)
