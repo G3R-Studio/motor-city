@@ -195,6 +195,9 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 light.enabled =
                     false;
 
+                light.lightmapBakeType =
+                    LightmapBakeType.Realtime;
+
                 light.shadows =
                     LightShadows.None;
 
