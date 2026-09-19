@@ -1049,10 +1049,10 @@ namespace MotorCity.World
                 if (material.HasProperty(
                         "_EmissionColor"))
                 {
-                    Color emission =
+                    UnityEngine.Color emission =
                         on
                             ? onEmissionColor
-                            : Color.black;
+                            : UnityEngine.Color.black;
 
                     material.SetColor(
                         "_EmissionColor",
