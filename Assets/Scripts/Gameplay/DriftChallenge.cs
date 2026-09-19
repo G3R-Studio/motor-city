@@ -13,8 +13,19 @@ namespace MotorCity.Gameplay
         [SerializeField] private float activityHalfExtent = 52f;
         [SerializeField] private float outsideGraceSeconds = 3.5f;
         [SerializeField] private float durationSeconds = 42f;
-        [SerializeField] private int targetScore = 1800;
-        [SerializeField] private int rewardCredits = 650;
+
+        [Header("Score tiers")]
+        [SerializeField] private int bronzeScore = 1800;
+        [SerializeField] private int silverScore = 3000;
+        [SerializeField] private int goldScore = 4500;
+        [SerializeField] private int legendaryScore = 6000;
+
+        [Header("Tier rewards")]
+        [SerializeField] private int bronzeRewardCredits = 650;
+        [SerializeField] private int silverRewardCredits = 800;
+        [SerializeField] private int goldRewardCredits = 1050;
+        [SerializeField] private int legendaryRewardCredits = 1350;
+
         [SerializeField] private float maxStartSpeedKph = 8f;
         [SerializeField] private float countdownSeconds = 3f;
 
@@ -32,15 +43,18 @@ namespace MotorCity.Gameplay
         public bool IsCountingDown => isCountingDown;
         public bool IsNearStart { get; private set; }
         public float TimeRemaining { get; private set; }
+
         public int CurrentScore =>
             drift == null
                 ? 0
                 : Mathf.Max(
                     0,
                     drift.TotalScore - scoreAtStart);
-        public int TargetScore => targetScore;
-        public int RewardCredits => rewardCredits;
+
+        public int TargetScore => bronzeScore;
+        public int RewardCredits => bronzeRewardCredits;
         public Vector3 ZoneCenter => zoneCenter;
+
         public string StatusText { get; private set; } =
             "Оранжевая зона: дрифт-заезд";
 
@@ -54,8 +68,10 @@ namespace MotorCity.Gameplay
             drift = driftTracker;
             wallet = targetWallet;
             activityManager = manager;
+
             zoneCenter =
                 MotorCity.World.CityAssetRuntimeInstaller.DriftChallengePoint;
+
             TimeRemaining = durationSeconds;
         }
 
@@ -67,11 +83,13 @@ namespace MotorCity.Gameplay
                 activityManager == null)
                 return;
 
-            Keyboard keyboard = Keyboard.current;
+            Keyboard keyboard =
+                Keyboard.current;
 
             if (isCountingDown)
             {
                 IsNearStart = false;
+
                 if (keyboard != null &&
                     keyboard.escapeKey.wasPressedThisFrame)
                 {
@@ -86,6 +104,7 @@ namespace MotorCity.Gameplay
             if (IsActive)
             {
                 IsNearStart = false;
+
                 if (keyboard != null &&
                     keyboard.escapeKey.wasPressedThisFrame)
                 {
@@ -105,12 +124,15 @@ namespace MotorCity.Gameplay
                     flatPosition,
                     Flat(zoneCenter));
 
-            IsNearStart = distance <= startRadius;
+            IsNearStart =
+                distance <= startRadius;
 
             if (!armed)
             {
                 IsNearStart = false;
-                if (distance > startRadius + 4f)
+
+                if (distance >
+                    startRadius + 4f)
                 {
                     armed = true;
                     StatusText =
@@ -135,7 +157,8 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (car.SpeedKph > maxStartSpeedKph)
+            if (car.SpeedKph >
+                maxStartSpeedKph)
             {
                 StatusText =
                     $"ДРИФТ — остановись до {maxStartSpeedKph:0} км/ч";
@@ -143,7 +166,8 @@ namespace MotorCity.Gameplay
             }
 
             StatusText =
-                $"ДРИФТ-ЗАЕЗД   E — НАЧАТЬ   ЦЕЛЬ {targetScore:N0}";
+                $"ДРИФТ-ЗАЕЗД   E — НАЧАТЬ   " +
+                $"БРОНЗА {bronzeScore:N0}   ЛЕГЕНДА {legendaryScore:N0}";
 
             if (keyboard != null &&
                 keyboard.eKey.wasPressedThisFrame)
@@ -161,11 +185,19 @@ namespace MotorCity.Gameplay
 
             isCountingDown = true;
             armed = false;
+
             countdownRemaining =
-                Mathf.Max(0.1f, countdownSeconds);
-            TimeRemaining = durationSeconds;
+                Mathf.Max(
+                    0.1f,
+                    countdownSeconds);
+
+            TimeRemaining =
+                durationSeconds;
+
             outsideTimer = 0f;
+
             car.SetDrivingEnabled(false);
+
             UpdateCountdownStatus();
         }
 
@@ -174,7 +206,8 @@ namespace MotorCity.Gameplay
             countdownRemaining =
                 Mathf.Max(
                     0f,
-                    countdownRemaining - Time.deltaTime);
+                    countdownRemaining -
+                    Time.deltaTime);
 
             if (countdownRemaining > 0f)
             {
@@ -187,10 +220,10 @@ namespace MotorCity.Gameplay
             TimeRemaining = durationSeconds;
             scoreAtStart = drift.TotalScore;
             outsideTimer = 0f;
+
             car.SetDrivingEnabled(true);
 
-            StatusText =
-                $"ДРИФТ  0/{targetScore:N0}   {TimeRemaining:0.0}с   ESC — ОТМЕНА";
+            UpdateActiveStatus();
         }
 
         private void UpdateCountdownStatus()
@@ -198,7 +231,8 @@ namespace MotorCity.Gameplay
             int shown =
                 Mathf.Max(
                     1,
-                    Mathf.CeilToInt(countdownRemaining));
+                    Mathf.CeilToInt(
+                        countdownRemaining));
 
             StatusText =
                 $"ДРИФТ   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
@@ -212,33 +246,32 @@ namespace MotorCity.Gameplay
             TimeRemaining =
                 Mathf.Max(
                     0f,
-                    TimeRemaining - Time.deltaTime);
-
-            if (CurrentScore >= targetScore)
-            {
-                wallet.AddCredits(rewardCredits);
-                CompleteChallenge();
-                return;
-            }
+                    TimeRemaining -
+                    Time.deltaTime);
 
             Vector3 local =
                 flatPosition -
                 Flat(zoneCenter);
 
             bool insideChallengeArea =
-                Mathf.Abs(local.x) <= activityHalfExtent &&
-                Mathf.Abs(local.z) <= activityHalfExtent;
+                Mathf.Abs(local.x) <=
+                    activityHalfExtent &&
+                Mathf.Abs(local.z) <=
+                    activityHalfExtent;
 
             if (!insideChallengeArea)
             {
-                outsideTimer += Time.deltaTime;
+                outsideTimer +=
+                    Time.deltaTime;
 
                 float remainingGrace =
                     Mathf.Max(
                         0f,
-                        outsideGraceSeconds - outsideTimer);
+                        outsideGraceSeconds -
+                        outsideTimer);
 
-                if (outsideTimer >= outsideGraceSeconds)
+                if (outsideTimer >=
+                    outsideGraceSeconds)
                 {
                     FailChallenge(
                         "СЛИШКОМ ДАЛЕКО ОТ ПЛОЩАДКИ");
@@ -246,8 +279,9 @@ namespace MotorCity.Gameplay
                 }
 
                 StatusText =
-                    $"ДРИФТ  {CurrentScore:N0}/{targetScore:N0}   " +
-                    $"{TimeRemaining:0.0}с   ВЕРНИСЬ {remainingGrace:0.0}с";
+                    $"ДРИФТ  {CurrentScore:N0}   " +
+                    $"{TimeRemaining:0.0}с   " +
+                    $"ВЕРНИСЬ {remainingGrace:0.0}с";
                 return;
             }
 
@@ -255,46 +289,118 @@ namespace MotorCity.Gameplay
 
             if (TimeRemaining <= 0f)
             {
-                FailChallenge(
-                    $"НЕ ХВАТИЛО ОЧКОВ: {CurrentScore:N0}/{targetScore:N0}");
+                FinishByScore();
                 return;
             }
 
+            UpdateActiveStatus();
+        }
+
+        private void UpdateActiveStatus()
+        {
             StatusText =
-                $"ДРИФТ  {CurrentScore:N0}/{targetScore:N0}   " +
+                $"ДРИФТ  {CurrentScore:N0}   " +
+                $"{CurrentTierProgress()}   " +
                 $"{TimeRemaining:0.0}с   ESC — ОТМЕНА";
         }
 
-        private void CompleteChallenge()
+        private string CurrentTierProgress()
         {
-            int finalScore = CurrentScore;
+            int score =
+                CurrentScore;
+
+            if (score < bronzeScore)
+                return $"БРОНЗА {bronzeScore:N0}";
+
+            if (score < silverScore)
+                return $"СЕРЕБРО {silverScore:N0}";
+
+            if (score < goldScore)
+                return $"ЗОЛОТО {goldScore:N0}";
+
+            if (score < legendaryScore)
+                return $"ЛЕГЕНДА {legendaryScore:N0}";
+
+            return "ЛЕГЕНДА ДОСТИГНУТА";
+        }
+
+        private void FinishByScore()
+        {
+            int finalScore =
+                CurrentScore;
+
+            if (finalScore <
+                bronzeScore)
+            {
+                FailChallenge(
+                    $"НЕ ХВАТИЛО ОЧКОВ: {finalScore:N0}/{bronzeScore:N0}");
+                return;
+            }
+
+            string tier;
+            int reward;
+
+            if (finalScore >=
+                legendaryScore)
+            {
+                tier = "ЛЕГЕНДА";
+                reward =
+                    legendaryRewardCredits;
+            }
+            else if (finalScore >=
+                     goldScore)
+            {
+                tier = "ЗОЛОТО";
+                reward =
+                    goldRewardCredits;
+            }
+            else if (finalScore >=
+                     silverScore)
+            {
+                tier = "СЕРЕБРО";
+                reward =
+                    silverRewardCredits;
+            }
+            else
+            {
+                tier = "БРОНЗА";
+                reward =
+                    bronzeRewardCredits;
+            }
+
+            wallet.AddCredits(
+                reward);
 
             IsActive = false;
             isCountingDown = false;
             TimeRemaining = 0f;
             outsideTimer = 0f;
+
             car.SetDrivingEnabled(false);
 
             activityManager.ShowResult(
                 ActivityId,
                 "ДРИФТ-ЗАЕЗД",
-                "ЦЕЛЬ ВЫПОЛНЕНА",
-                $"Очки: {finalScore:N0} / {targetScore:N0}",
-                rewardCredits,
+                tier,
+                $"Очки: {finalScore:N0}   •   Время: {durationSeconds:0}с",
+                reward,
                 true);
 
             StatusText =
-                $"Дрифт-заезд завершён  +{rewardCredits} КР";
+                $"Дрифт-заезд: {tier}  +{reward} КР";
         }
 
-        private void FailChallenge(string reason)
+        private void FailChallenge(
+            string reason)
         {
-            int finalScore = CurrentScore;
+            int finalScore =
+                CurrentScore;
 
             IsActive = false;
             isCountingDown = false;
             TimeRemaining = 0f;
             outsideTimer = 0f;
+
             car.SetDrivingEnabled(false);
 
             activityManager.ShowResult(
@@ -305,14 +411,16 @@ namespace MotorCity.Gameplay
                 0,
                 false);
 
-            StatusText = "Дрифт-заезд провален";
+            StatusText =
+                "Дрифт-заезд провален";
         }
 
         public void RestartFromResult()
         {
             if (activityManager == null ||
                 !activityManager.HasResult ||
-                activityManager.ResultActivityId != ActivityId ||
+                activityManager.ResultActivityId !=
+                    ActivityId ||
                 car == null)
                 return;
 
@@ -325,10 +433,12 @@ namespace MotorCity.Gameplay
                     0f);
 
             car.TeleportTo(
-                zoneCenter + Vector3.up * 1.1f,
+                zoneCenter +
+                Vector3.up * 1.1f,
                 rotation);
 
             armed = true;
+
             BeginCountdown();
         }
 
@@ -344,6 +454,7 @@ namespace MotorCity.Gameplay
             countdownRemaining = 0f;
             TimeRemaining = 0f;
             outsideTimer = 0f;
+
             car?.SetDrivingEnabled(true);
             activityManager?.End(ActivityId);
 
@@ -356,7 +467,8 @@ namespace MotorCity.Gameplay
             car?.SetDrivingEnabled(true);
         }
 
-        private static Vector3 Flat(Vector3 value)
+        private static Vector3 Flat(
+            Vector3 value)
         {
             value.y = 0f;
             return value;
