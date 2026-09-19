@@ -240,17 +240,39 @@ public static class FantasticCityGeneratorRuntimeBuilder
     private static bool IsFcgSpotLight(
         Transform item)
     {
-        if (item == null)
-            return false;
+        Transform current =
+            item;
 
-        string normalized =
-            NormalizeName(
-                item.name);
+        while (current != null)
+        {
+            string normalized =
+                NormalizeName(
+                    current.name);
 
-        return
-            normalized.StartsWith(
-                "spotlight",
-                StringComparison.OrdinalIgnoreCase);
+            if (normalized.StartsWith(
+                    "spotlight",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (string.Equals(
+                    current.name,
+                    "MotorCity_FCGCity",
+                    StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(
+                    current.name,
+                    "City-Maker",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
+            current =
+                current.parent;
+        }
+
+        return false;
     }
 
     private static string NormalizeName(
