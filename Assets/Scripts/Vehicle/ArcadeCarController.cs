@@ -5,6 +5,13 @@ using UnityEngine.InputSystem;
 
 namespace MotorCity.Vehicle
 {
+    public enum DriveMode
+    {
+        Comfort = 0,
+        Sport = 1,
+        Drift = 2
+    }
+
     [DefaultExecutionOrder(-100)]
     [RequireComponent(typeof(Rigidbody))]
     public sealed class ArcadeCarController : MonoBehaviour
@@ -13,6 +20,8 @@ namespace MotorCity.Vehicle
         private const int FrontRight = 1;
         private const int RearLeft = 2;
         private const int RearRight = 3;
+        private const string DriveModeKey =
+            "MotorCity.Vehicle.DriveMode";
 
         [Header("Prometeo tuning")]
         [SerializeField] private int baseMaxSpeedKph = 250;
@@ -79,6 +88,34 @@ namespace MotorCity.Vehicle
         private int engineUpgradeLevel;
         private int gripUpgradeLevel;
         private int stabilityUpgradeLevel;
+        private DriveMode currentDriveMode =
+            DriveMode.Comfort;
+        private float driveModeMessageTimer;
+
+        public DriveMode CurrentDriveMode =>
+            currentDriveMode;
+
+        public string DriveModeDisplayName =>
+            currentDriveMode switch
+            {
+                DriveMode.Sport => "СПОРТ",
+                DriveMode.Drift => "ДРИФТ",
+                _ => "КОМФОРТ"
+            };
+
+        public string DriveModeDescription =>
+            currentDriveMode switch
+            {
+                DriveMode.Sport =>
+                    "максимальная тяга и сцепление",
+                DriveMode.Drift =>
+                    "острый руль и свободная задняя ось",
+                _ =>
+                    "стабильная повседневная езда"
+            };
+
+        public bool ShowDriveModeMessage =>
+            driveModeMessageTimer > 0f;
 
         public float SpeedKph =>
             body == null
@@ -131,6 +168,14 @@ namespace MotorCity.Vehicle
 
         private void Awake()
         {
+            currentDriveMode =
+                (DriveMode)Mathf.Clamp(
+                    PlayerPrefs.GetInt(
+                        DriveModeKey,
+                        (int)DriveMode.Comfort),
+                    0,
+                    2);
+
             body = GetComponent<Rigidbody>();
             body.mass = vehicleMass;
             body.linearDamping = 0.015f;
@@ -145,6 +190,26 @@ namespace MotorCity.Vehicle
 
         private void Update()
         {
+            Keyboard modeKeyboard =
+                Keyboard.current;
+
+            if (drivingEnabled &&
+                resetHoldTimer <= 0f &&
+                modeKeyboard != null &&
+                modeKeyboard.qKey.wasPressedThisFrame)
+            {
+                CycleDriveMode();
+            }
+
+            if (driveModeMessageTimer > 0f)
+            {
+                driveModeMessageTimer =
+                    Mathf.Max(
+                        0f,
+                        driveModeMessageTimer -
+                        Time.deltaTime);
+            }
+
             if (wheelRigReady &&
                 prometeo == null)
             {
@@ -224,6 +289,7 @@ namespace MotorCity.Vehicle
             }
 
             wheelRigReady = true;
+            ApplyWheelFriction();
             TryBindPrometeo();
         }
 
@@ -648,72 +714,182 @@ namespace MotorCity.Vehicle
 
         private void ApplyPrometeoTuning()
         {
-            if (prometeo == null)
-                return;
-
             int tunedMaxSpeed =
-                Mathf.Clamp(
-                    baseMaxSpeedKph +
-                    engineUpgradeLevel * 12,
-                    20,
-                    290);
+                GetTunedMaxSpeedKph();
 
             int tunedAcceleration =
-                Mathf.Clamp(
-                    accelerationMultiplier +
-                    engineUpgradeLevel,
-                    1,
-                    18);
+                GetTunedAccelerationMultiplier();
 
             int tunedDriftMultiplier =
-                Mathf.Clamp(
-                    handbrakeDriftMultiplier -
-                    gripUpgradeLevel / 2,
-                    3,
-                    10);
+                GetTunedHandbrakeDriftMultiplier();
+
+            int tunedSteeringAngle =
+                currentDriveMode switch
+                {
+                    DriveMode.Sport =>
+                        Mathf.Max(
+                            24,
+                            maxSteeringAngle - 3),
+                    DriveMode.Drift =>
+                        maxSteeringAngle + 7,
+                    _ =>
+                        maxSteeringAngle
+                };
+
+            float tunedSteeringSpeed =
+                currentDriveMode switch
+                {
+                    DriveMode.Sport =>
+                        steeringSpeed * 1.12f,
+                    DriveMode.Drift =>
+                        steeringSpeed * 1.28f,
+                    _ =>
+                        steeringSpeed * 0.92f
+                };
+
+            int tunedBrakeForce =
+                currentDriveMode switch
+                {
+                    DriveMode.Sport =>
+                        brakeForce + 260,
+                    DriveMode.Drift =>
+                        Mathf.Max(
+                            650,
+                            brakeForce - 100),
+                    _ =>
+                        brakeForce + 60
+                };
 
             Vector3 tunedCenterOfMass =
                 bodyMassCenter +
                 Vector3.down *
                 (stabilityUpgradeLevel * 0.025f);
 
-            SetPrometeoField(
-                "maxSpeed",
-                tunedMaxSpeed);
-            SetPrometeoField(
-                "maxReverseSpeed",
-                maxReverseSpeedKph);
-            SetPrometeoField(
-                "accelerationMultiplier",
-                tunedAcceleration);
-            SetPrometeoField(
-                "maxSteeringAngle",
-                maxSteeringAngle);
-            SetPrometeoField(
-                "steeringSpeed",
-                steeringSpeed);
-            SetPrometeoField(
-                "brakeForce",
-                brakeForce);
-            SetPrometeoField(
-                "decelerationMultiplier",
-                decelerationMultiplier);
-            SetPrometeoField(
-                "handbrakeDriftMultiplier",
-                tunedDriftMultiplier);
-            SetPrometeoField(
-                "bodyMassCenter",
-                tunedCenterOfMass);
+            tunedCenterOfMass +=
+                currentDriveMode switch
+                {
+                    DriveMode.Sport =>
+                        Vector3.down * 0.055f,
+                    DriveMode.Comfort =>
+                        Vector3.down * 0.025f,
+                    _ =>
+                        Vector3.up * 0.005f
+                };
+
+            if (prometeo != null)
+            {
+                SetPrometeoField(
+                    "maxSpeed",
+                    tunedMaxSpeed);
+                SetPrometeoField(
+                    "maxReverseSpeed",
+                    maxReverseSpeedKph);
+                SetPrometeoField(
+                    "accelerationMultiplier",
+                    tunedAcceleration);
+                SetPrometeoField(
+                    "maxSteeringAngle",
+                    tunedSteeringAngle);
+                SetPrometeoField(
+                    "steeringSpeed",
+                    tunedSteeringSpeed);
+                SetPrometeoField(
+                    "brakeForce",
+                    tunedBrakeForce);
+                SetPrometeoField(
+                    "decelerationMultiplier",
+                    currentDriveMode ==
+                    DriveMode.Sport
+                        ? Mathf.Max(
+                            1,
+                            decelerationMultiplier + 1)
+                        : decelerationMultiplier);
+                SetPrometeoField(
+                    "handbrakeDriftMultiplier",
+                    tunedDriftMultiplier);
+                SetPrometeoField(
+                    "bodyMassCenter",
+                    tunedCenterOfMass);
+            }
 
             if (body != null)
             {
                 body.mass = vehicleMass;
                 body.centerOfMass =
                     tunedCenterOfMass;
+
+                float modeDamping =
+                    currentDriveMode switch
+                    {
+                        DriveMode.Sport => 0.16f,
+                        DriveMode.Comfort => 0.10f,
+                        _ => -0.035f
+                    };
+
                 body.angularDamping =
-                    angularDamping +
-                    stabilityUpgradeLevel * 0.035f;
+                    Mathf.Max(
+                        0.05f,
+                        angularDamping +
+                        stabilityUpgradeLevel * 0.035f +
+                        modeDamping);
             }
+        }
+
+        private int GetTunedMaxSpeedKph()
+        {
+            int modeBonus =
+                currentDriveMode switch
+                {
+                    DriveMode.Sport => 30,
+                    DriveMode.Drift => -12,
+                    _ => -22
+                };
+
+            return Mathf.Clamp(
+                baseMaxSpeedKph +
+                engineUpgradeLevel * 12 +
+                modeBonus,
+                20,
+                320);
+        }
+
+        private int GetTunedAccelerationMultiplier()
+        {
+            int modeBonus =
+                currentDriveMode switch
+                {
+                    DriveMode.Sport => 4,
+                    DriveMode.Drift => 2,
+                    _ => 0
+                };
+
+            return Mathf.Clamp(
+                accelerationMultiplier +
+                engineUpgradeLevel +
+                modeBonus,
+                1,
+                20);
+        }
+
+        private int GetTunedHandbrakeDriftMultiplier()
+        {
+            int baseValue =
+                handbrakeDriftMultiplier -
+                gripUpgradeLevel / 2;
+
+            int modeOffset =
+                currentDriveMode switch
+                {
+                    DriveMode.Sport => -3,
+                    DriveMode.Drift => 3,
+                    _ => -1
+                };
+
+            return Mathf.Clamp(
+                baseValue +
+                modeOffset,
+                2,
+                10);
         }
 
         private void ApplyPowerAssist()
@@ -724,27 +900,67 @@ namespace MotorCity.Vehicle
                 GroundedWheels < 2)
                 return;
 
-            float forwardSpeed = ForwardSpeedKph;
+            float forwardSpeed =
+                ForwardSpeedKph;
+
+            float maxSpeed =
+                GetTunedMaxSpeedKph();
 
             if (throttleHeld &&
-                forwardSpeed < baseMaxSpeedKph + engineUpgradeLevel * 12f)
+                forwardSpeed < maxSpeed)
             {
-                float maxSpeed =
-                    baseMaxSpeedKph +
-                    engineUpgradeLevel * 12f;
+                float fadeStart =
+                    currentDriveMode ==
+                    DriveMode.Sport
+                        ? Mathf.Max(
+                            120f,
+                            powerAssistFadeStartKph + 22f)
+                        : currentDriveMode ==
+                          DriveMode.Comfort
+                            ? powerAssistFadeStartKph - 20f
+                            : powerAssistFadeStartKph - 8f;
 
                 float fade =
-                    1f - Mathf.InverseLerp(
-                        powerAssistFadeStartKph,
+                    1f -
+                    Mathf.InverseLerp(
+                        fadeStart,
                         maxSpeed,
-                        Mathf.Max(0f, forwardSpeed));
+                        Mathf.Max(
+                            0f,
+                            forwardSpeed));
+
+                float modeAcceleration =
+                    currentDriveMode switch
+                    {
+                        DriveMode.Sport => 1.72f,
+                        DriveMode.Drift => 1.22f,
+                        _ => 0.82f
+                    };
 
                 float acceleration =
                     basePowerAssistAcceleration *
-                    (1f + engineUpgradeLevel * 0.14f);
+                    modeAcceleration *
+                    (1f +
+                     engineUpgradeLevel * 0.14f);
 
-                if (IsSliding || handbrakeHeld)
-                    acceleration += driftPowerAssistAcceleration;
+                if (currentDriveMode ==
+                        DriveMode.Drift &&
+                    (IsSliding ||
+                     handbrakeHeld))
+                {
+                    acceleration +=
+                        driftPowerAssistAcceleration *
+                        1.45f;
+                }
+                else if (currentDriveMode ==
+                             DriveMode.Sport &&
+                         SpeedKph < 70f)
+                {
+                    // Direct forward acceleration helps Sport launch hard
+                    // without asking the driven rear tires to create all
+                    // of the launch torque and spin themselves.
+                    acceleration += 2.8f;
+                }
 
                 body.AddForce(
                     transform.forward *
@@ -754,7 +970,8 @@ namespace MotorCity.Vehicle
             }
 
             if (reverseHeld &&
-                forwardSpeed > -maxReverseSpeedKph)
+                forwardSpeed >
+                -maxReverseSpeedKph)
             {
                 body.AddForce(
                     -transform.forward *
@@ -939,14 +1156,25 @@ namespace MotorCity.Vehicle
                     0,
                     3);
 
-            ApplyPrometeoTuning();
+            ApplyDriveModeTuning();
+        }
 
-            float gripMultiplier =
+        private void ApplyDriveModeTuning()
+        {
+            ApplyPrometeoTuning();
+            ApplyWheelFriction();
+        }
+
+        private void ApplyWheelFriction()
+        {
+            float upgradeGrip =
                 1f +
-                gripUpgradeLevel * 0.055f;
+                gripUpgradeLevel *
+                0.055f;
 
             for (int i = 0;
-                 i < wheelColliders.Length;
+                 i <
+                 wheelColliders.Length;
                  i++)
             {
                 WheelCollider wheel =
@@ -955,24 +1183,117 @@ namespace MotorCity.Vehicle
                 if (wheel == null)
                     continue;
 
+                bool rear =
+                    i >= RearLeft;
+
                 WheelFrictionCurve forward =
                     wheel.forwardFriction;
-                forward.stiffness =
-                    (i >= RearLeft
-                        ? 1.22f
-                        : 1.18f) *
-                    gripMultiplier;
-                wheel.forwardFriction = forward;
 
                 WheelFrictionCurve sideways =
                     wheel.sidewaysFriction;
-                sideways.stiffness =
-                    (i >= RearLeft
-                        ? 0.98f
-                        : 1.18f) *
-                    gripMultiplier;
-                wheel.sidewaysFriction = sideways;
+
+                switch (currentDriveMode)
+                {
+                    case DriveMode.Sport:
+                        forward.extremumSlip =
+                            rear ? 0.20f : 0.24f;
+                        forward.asymptoteSlip =
+                            rear ? 0.48f : 0.55f;
+                        forward.extremumValue = 1f;
+                        forward.asymptoteValue =
+                            0.82f;
+                        forward.stiffness =
+                            (rear ? 1.78f : 1.55f) *
+                            upgradeGrip;
+
+                        sideways.extremumSlip =
+                            rear ? 0.20f : 0.23f;
+                        sideways.asymptoteSlip =
+                            rear ? 0.43f : 0.50f;
+                        sideways.extremumValue = 1f;
+                        sideways.asymptoteValue =
+                            0.82f;
+                        sideways.stiffness =
+                            (rear ? 1.58f : 1.48f) *
+                            upgradeGrip;
+                        break;
+
+                    case DriveMode.Drift:
+                        forward.extremumSlip =
+                            rear ? 0.42f : 0.34f;
+                        forward.asymptoteSlip =
+                            rear ? 0.92f : 0.74f;
+                        forward.extremumValue = 1f;
+                        forward.asymptoteValue =
+                            rear ? 0.68f : 0.74f;
+                        forward.stiffness =
+                            (rear ? 1.04f : 1.18f) *
+                            upgradeGrip;
+
+                        sideways.extremumSlip =
+                            rear ? 0.38f : 0.27f;
+                        sideways.asymptoteSlip =
+                            rear ? 0.78f : 0.58f;
+                        sideways.extremumValue = 1f;
+                        sideways.asymptoteValue =
+                            rear ? 0.62f : 0.76f;
+                        sideways.stiffness =
+                            (rear ? 0.70f : 1.20f) *
+                            upgradeGrip;
+                        break;
+
+                    default:
+                        forward.extremumSlip = 0.31f;
+                        forward.asymptoteSlip = 0.67f;
+                        forward.extremumValue = 1f;
+                        forward.asymptoteValue =
+                            0.76f;
+                        forward.stiffness =
+                            (rear ? 1.38f : 1.30f) *
+                            upgradeGrip;
+
+                        sideways.extremumSlip = 0.24f;
+                        sideways.asymptoteSlip = 0.52f;
+                        sideways.extremumValue = 1f;
+                        sideways.asymptoteValue =
+                            0.78f;
+                        sideways.stiffness =
+                            (rear ? 1.20f : 1.30f) *
+                            upgradeGrip;
+                        break;
+                }
+
+                wheel.forwardFriction =
+                    forward;
+
+                wheel.sidewaysFriction =
+                    sideways;
             }
+        }
+
+        public void CycleDriveMode()
+        {
+            currentDriveMode =
+                currentDriveMode switch
+                {
+                    DriveMode.Comfort =>
+                        DriveMode.Sport,
+                    DriveMode.Sport =>
+                        DriveMode.Drift,
+                    _ =>
+                        DriveMode.Comfort
+                };
+
+            PlayerPrefs.SetInt(
+                DriveModeKey,
+                (int)currentDriveMode);
+
+            PlayerPrefs.Save();
+
+            ApplyDriveModeTuning();
+
+            driveModeMessageTimer =
+                2.25f;
         }
 
         public void UseAutomaticMassProperties()
