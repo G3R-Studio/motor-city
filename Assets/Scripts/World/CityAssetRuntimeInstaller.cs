@@ -874,6 +874,9 @@ namespace MotorCity.World
             int roadCollidersReplaced =
                 0;
 
+            int specialHighwayColliders =
+                0;
+
             int parkingCollidersAdded =
                 0;
 
@@ -892,6 +895,17 @@ namespace MotorCity.World
 
                 string objectName =
                     filter.name.ToLowerInvariant();
+
+                if (TryPrepareSpecialHighwayPart(
+                        filter,
+                        out bool handledSpecialHighway))
+                {
+                    if (handledSpecialHighway)
+                    {
+                        specialHighwayColliders++;
+                        continue;
+                    }
+                }
 
                 bool parking =
                     objectName.StartsWith("park-04") ||
@@ -980,9 +994,142 @@ namespace MotorCity.World
                     "Motor City: prepared exact FCG physics surfaces. " +
                     $"Road/highway MeshColliders={roadCollidersAdded}, " +
                     $"old road colliders replaced={roadCollidersReplaced}, " +
+                    $"exact HW-F-400 colliders={specialHighwayColliders}, " +
                     $"legacy highway colliders disabled={legacyHighwayCollidersDisabled}, " +
                     $"parking colliders added={parkingCollidersAdded}.");
             }
+        }
+
+        private static bool TryPrepareSpecialHighwayPart(
+            MeshFilter filter,
+            out bool handled)
+        {
+            handled =
+                false;
+
+            if (filter == null ||
+                filter.sharedMesh == null)
+                return false;
+
+            Transform segment =
+                FindSpecialHighwaySegmentRoot(
+                    filter.transform);
+
+            if (segment == null)
+                return false;
+
+            bool roadDeck =
+                filter.transform ==
+                segment;
+
+            string normalizedName =
+                NormalizeHighwayPartName(
+                    filter.name);
+
+            bool grass =
+                normalizedName ==
+                "grass";
+
+            bool guardRail =
+                normalizedName ==
+                "guardrail";
+
+            if (!roadDeck &&
+                !grass &&
+                !guardRail)
+            {
+                return true;
+            }
+
+            foreach (Collider existing in
+                     filter.GetComponents<Collider>())
+            {
+                if (existing == null)
+                    continue;
+
+                existing.enabled =
+                    false;
+
+                UnityEngine.Object.Destroy(
+                    existing);
+            }
+
+            MeshCollider collider =
+                filter.gameObject.AddComponent<MeshCollider>();
+
+            // These three FCG highway sections are already split into
+            // independent road, grass and guard-rail visual meshes. Using
+            // those exact source meshes avoids approximations that flatten
+            // hills, miss valleys, or make the roadside float.
+            collider.sharedMesh =
+                filter.sharedMesh;
+
+            collider.convex =
+                false;
+
+            collider.isTrigger =
+                false;
+
+            handled =
+                true;
+
+            return true;
+        }
+
+        private static Transform FindSpecialHighwaySegmentRoot(
+            Transform item)
+        {
+            Transform current =
+                item;
+
+            while (current != null)
+            {
+                string name =
+                    current.name;
+
+                if (name.StartsWith(
+                        "HW-F-400-01",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    name.StartsWith(
+                        "HW-F-400-02",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    name.StartsWith(
+                        "HW-F-400-04",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return current;
+                }
+
+                current =
+                    current.parent;
+            }
+
+            return null;
+        }
+
+        private static string NormalizeHighwayPartName(
+            string value)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    value))
+                return string.Empty;
+
+            var result =
+                new System.Text.StringBuilder(
+                    value.Length);
+
+            foreach (char character in
+                     value.ToLowerInvariant())
+            {
+                if (char.IsLetterOrDigit(
+                        character))
+                {
+                    result.Append(
+                        character);
+                }
+            }
+
+            return result.ToString();
         }
 
         private static bool TryBuildDriveableCollisionMesh(
