@@ -144,6 +144,10 @@ namespace MotorCity.World
                 DisableRoadMarkHierarchyColliders(
                     activeCity);
 
+            int carvedStreetObjectTriangles =
+                CarveRoadSignsFromCombinedObjectColliders(
+                    activeCity);
+
             CityCollisionUtility.Result collisionResult =
                 CityCollisionUtility.Prepare(
                     activeCity);
@@ -173,6 +177,7 @@ namespace MotorCity.World
                 $"Bounds center={cityBounds.center}, size={cityBounds.size}. " +
                 $"Pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
                 $"Road-Mark colliders hard-disabled={hardDisabledRoadMarkColliders}, " +
+                $"sign triangles removed from Collider-Objects={carvedStreetObjectTriangles}, " +
                 $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
                 $"pedestrian signal renderers disabled={stabilizedPedestrianSignals}, " +
                 $"safety floor={collisionResult.SafetyFloorReady}. " +
@@ -930,6 +935,232 @@ namespace MotorCity.World
             return score;
         }
 
+        private static int CarveRoadSignsFromCombinedObjectColliders(
+            GameObject city)
+        {
+            if (city == null)
+                return 0;
+
+            var signZones =
+                new List<Bounds>();
+
+            foreach (Renderer renderer in
+                     city.GetComponentsInChildren<Renderer>(
+                         true))
+            {
+                if (renderer == null ||
+                    !IsRoadMarkHierarchy(
+                        renderer.transform,
+                        city.transform))
+                    continue;
+
+                Bounds zone =
+                    renderer.bounds;
+
+                zone.Expand(
+                    new Vector3(
+                        0.18f,
+                        0.18f,
+                        0.18f));
+
+                signZones.Add(
+                    zone);
+            }
+
+            if (signZones.Count == 0)
+                return 0;
+
+            int removedTriangles =
+                0;
+
+            foreach (MeshCollider collider in
+                     city.GetComponentsInChildren<MeshCollider>(
+                         true))
+            {
+                if (collider == null ||
+                    collider.sharedMesh == null)
+                    continue;
+
+                string objectName =
+                    NormalizeColliderObjectName(
+                        collider.gameObject.name);
+
+                string meshName =
+                    NormalizeColliderObjectName(
+                        collider.sharedMesh.name);
+
+                if (objectName != "colliderobjects" &&
+                    meshName != "colliderobjects")
+                    continue;
+
+                var relevantZones =
+                    new List<Bounds>();
+
+                foreach (Bounds zone in
+                         signZones)
+                {
+                    if (collider.bounds.Intersects(
+                            zone))
+                    {
+                        relevantZones.Add(
+                            zone);
+                    }
+                }
+
+                if (relevantZones.Count == 0)
+                    continue;
+
+                Mesh source =
+                    collider.sharedMesh;
+
+                Vector3[] vertices;
+                int[] triangles;
+
+                try
+                {
+                    vertices =
+                        source.vertices;
+
+                    triangles =
+                        source.triangles;
+                }
+                catch (UnityException exception)
+                {
+                    Debug.LogWarning(
+                        $"Motor City: could not carve road signs from '{source.name}' because the mesh is not readable: {exception.Message}");
+
+                    continue;
+                }
+
+                var kept =
+                    new List<int>(
+                        triangles.Length);
+
+                Transform meshTransform =
+                    collider.transform;
+
+                int removedFromCollider =
+                    0;
+
+                for (int i = 0;
+                     i + 2 < triangles.Length;
+                     i += 3)
+                {
+                    Vector3 a =
+                        meshTransform.TransformPoint(
+                            vertices[triangles[i]]);
+
+                    Vector3 b =
+                        meshTransform.TransformPoint(
+                            vertices[triangles[i + 1]]);
+
+                    Vector3 d =
+                        meshTransform.TransformPoint(
+                            vertices[triangles[i + 2]]);
+
+                    Bounds triangleBounds =
+                        new Bounds(
+                            a,
+                            Vector3.zero);
+
+                    triangleBounds.Encapsulate(
+                        b);
+
+                    triangleBounds.Encapsulate(
+                        d);
+
+                    bool remove =
+                        false;
+
+                    foreach (Bounds zone in
+                             relevantZones)
+                    {
+                        if (triangleBounds.Intersects(
+                                zone))
+                        {
+                            remove =
+                                true;
+                            break;
+                        }
+                    }
+
+                    if (remove)
+                    {
+                        removedFromCollider++;
+                        continue;
+                    }
+
+                    kept.Add(
+                        triangles[i]);
+
+                    kept.Add(
+                        triangles[i + 1]);
+
+                    kept.Add(
+                        triangles[i + 2]);
+                }
+
+                if (removedFromCollider == 0)
+                    continue;
+
+                Mesh filtered =
+                    new Mesh
+                    {
+                        name =
+                            source.name +
+                            "_MotorCity_NoRoadSigns",
+                        indexFormat =
+                            source.indexFormat,
+                        vertices =
+                            vertices
+                    };
+
+                filtered.triangles =
+                    kept.ToArray();
+
+                filtered.RecalculateBounds();
+
+                collider.sharedMesh =
+                    null;
+
+                collider.sharedMesh =
+                    filtered;
+
+                collider.enabled =
+                    true;
+
+                removedTriangles +=
+                    removedFromCollider;
+            }
+
+            if (removedTriangles > 0)
+            {
+                Debug.Log(
+                    $"Motor City: removed {removedTriangles} road-sign triangles from combined Collider-Objects meshes.");
+            }
+
+            return removedTriangles;
+        }
+
+        private static string NormalizeColliderObjectName(
+            string value)
+        {
+            return string.IsNullOrEmpty(
+                    value)
+                ? string.Empty
+                : value
+                    .Replace(
+                        "-",
+                        string.Empty)
+                    .Replace(
+                        "_",
+                        string.Empty)
+                    .Replace(
+                        " ",
+                        string.Empty)
+                    .ToLowerInvariant();
+        }
+
         private static int DisableRoadMarkHierarchyColliders(
             GameObject city)
         {
@@ -951,23 +1182,22 @@ namespace MotorCity.World
                         city.transform))
                     continue;
 
-                if (!collider.isTrigger ||
-                    !collider.enabled)
+                if (collider.enabled)
                 {
-                    collider.isTrigger =
-                        true;
-
                     collider.enabled =
-                        true;
+                        false;
 
                     disabled++;
                 }
+
+                UnityEngine.Object.Destroy(
+                    collider);
             }
 
             if (disabled > 0)
             {
                 Debug.Log(
-                    $"Motor City: converted {disabled} Road-Mark/RoadMark colliders to triggers.");
+                    $"Motor City: hard-disabled {disabled} Road-Mark/RoadMark colliders.");
             }
 
             return disabled;
