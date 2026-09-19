@@ -90,6 +90,10 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 CityCollisionUtility.Prepare(
                     clone);
 
+            int stabilizedPedestrianSignals =
+                TrafficSignalVisualUtility.StabilizePedestrianSignals(
+                    clone);
+
             MarkStatic(
                 clone);
 
@@ -109,6 +113,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 $"added parking colliders={colliders}, " +
                 $"pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
                 $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
+                $"pedestrian signal renderers disabled={stabilizedPedestrianSignals}, " +
                 $"safety floor={collisionResult.SafetyFloorReady}, prefab={RuntimePrefab}");
 
             EditorUtility.DisplayDialog(
@@ -120,6 +125,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 "Точные road/highway MeshCollider создаются при запуске только из дорожных submesh.\n" +
                 $"Добавлено MeshCollider зданий: {collisionResult.AddedBuildingMeshColliders}\n" +
                 $"Отключено коллайдеров проезжаемых городских объектов: {collisionResult.DisabledStreetPropColliders}\n" +
+                $"Стабилизировано пешеходных сигналов: {stabilizedPedestrianSignals}\n" +
                 $"Страховочный пол: {(collisionResult.SafetyFloorReady ? "да" : "нет")}\n\n" +
                 "Runtime-город сохранён локально и переживёт git reset.",
                 "OK");
