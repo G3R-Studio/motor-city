@@ -190,8 +190,9 @@ public static class FantasticCityGeneratorRuntimeBuilder
             if (IsStreetLightHierarchy(
                     light.transform))
             {
+                // DayNightCycleController enables these only after sunset.
                 light.enabled =
-                    true;
+                    false;
 
                 light.shadows =
                     LightShadows.None;
