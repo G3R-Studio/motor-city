@@ -13,6 +13,19 @@ namespace MotorCity.Vehicle
 
         private bool ready;
 
+        public void Clear()
+        {
+            ready = false;
+
+            for (int i = 0;
+                 i < 4;
+                 i++)
+            {
+                wheels[i] = null;
+                visualRoots[i] = null;
+            }
+        }
+
         public void Bind(
             ArcadeCarController car,
             Transform[] roots)
