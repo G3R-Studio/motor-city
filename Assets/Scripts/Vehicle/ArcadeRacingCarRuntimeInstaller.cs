@@ -177,7 +177,9 @@ namespace MotorCity.Vehicle
                 Bounds bounds = RendererBounds(ordered[i]);
                 centerWorld[i] = bounds.center;
                 centerLocal[i] = carTransform.InverseTransformPoint(bounds.center);
-                radiusSum += Mathf.Clamp(bounds.extents.y, 0.28f, 0.52f);
+                radiusSum +=
+                    MeasureWheelRadius(
+                        bounds);
 
                 spinRoots[i] = CreateWheelRoot(
                     carTransform,
@@ -199,6 +201,16 @@ namespace MotorCity.Vehicle
 
             if (chassis != null)
             {
+                if (rotateLeft90)
+                {
+                    ConfigureChassisFromVisual(
+                        chassis,
+                        carTransform,
+                        visual.transform,
+                        ordered,
+                        measuredRadius);
+                }
+
                 chassis.enabled =
                     true;
             }
@@ -206,7 +218,28 @@ namespace MotorCity.Vehicle
             car.ConfigurePrometeoRig(
                 spinRoots,
                 centerLocal,
-                measuredRadius);
+                measuredRadius,
+                rotateLeft90);
+
+            VehicleWheelVisualSync wheelSync =
+                car.GetComponent<VehicleWheelVisualSync>();
+
+            if (rotateLeft90)
+            {
+                if (wheelSync == null)
+                {
+                    wheelSync =
+                        car.gameObject.AddComponent<VehicleWheelVisualSync>();
+                }
+
+                wheelSync.Bind(
+                    car,
+                    spinRoots);
+            }
+            else if (wheelSync != null)
+            {
+                wheelSync.Clear();
+            }
 
             Debug.Log(
                 "Motor City: vehicle visual prepared for Prometeo Car Controller physics. " +
@@ -253,6 +286,198 @@ namespace MotorCity.Vehicle
                 UnityEngine.Object.Destroy(
                     child.gameObject);
             }
+        }
+
+        private static float MeasureWheelRadius(
+            Bounds bounds)
+        {
+            float[] dimensions =
+            {
+                bounds.size.x,
+                bounds.size.y,
+                bounds.size.z
+            };
+
+            Array.Sort(
+                dimensions);
+
+            float diameter =
+                dimensions[1];
+
+            return Mathf.Clamp(
+                diameter * 0.5f,
+                0.26f,
+                0.58f);
+        }
+
+        private static void ConfigureChassisFromVisual(
+            BoxCollider chassis,
+            Transform carRoot,
+            Transform visualRoot,
+            Transform[] wheels,
+            float wheelRadius)
+        {
+            if (chassis == null ||
+                carRoot == null ||
+                visualRoot == null)
+                return;
+
+            Renderer[] renderers =
+                visualRoot.GetComponentsInChildren<Renderer>(
+                    true);
+
+            bool hasBounds = false;
+            Bounds localBounds =
+                new(
+                    Vector3.zero,
+                    Vector3.zero);
+
+            foreach (Renderer renderer in
+                     renderers)
+            {
+                if (renderer == null ||
+                    IsWheelRenderer(
+                        renderer.transform,
+                        wheels))
+                    continue;
+
+                Bounds world =
+                    renderer.bounds;
+
+                Vector3 min =
+                    world.min;
+
+                Vector3 max =
+                    world.max;
+
+                for (int x = 0;
+                     x < 2;
+                     x++)
+                {
+                    for (int y = 0;
+                         y < 2;
+                         y++)
+                    {
+                        for (int z = 0;
+                             z < 2;
+                             z++)
+                        {
+                            Vector3 worldCorner =
+                                new(
+                                    x == 0
+                                        ? min.x
+                                        : max.x,
+                                    y == 0
+                                        ? min.y
+                                        : max.y,
+                                    z == 0
+                                        ? min.z
+                                        : max.z);
+
+                            Vector3 local =
+                                carRoot.InverseTransformPoint(
+                                    worldCorner);
+
+                            if (!hasBounds)
+                            {
+                                localBounds =
+                                    new Bounds(
+                                        local,
+                                        Vector3.zero);
+
+                                hasBounds =
+                                    true;
+                            }
+                            else
+                            {
+                                localBounds.Encapsulate(
+                                    local);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!hasBounds)
+                return;
+
+            float width =
+                Mathf.Clamp(
+                    localBounds.size.x * 0.88f,
+                    1.35f,
+                    2.35f);
+
+            float length =
+                Mathf.Clamp(
+                    localBounds.size.z * 0.88f,
+                    2.7f,
+                    4.75f);
+
+            float bodyHeight =
+                Mathf.Clamp(
+                    localBounds.size.y * 0.58f,
+                    0.52f,
+                    1.05f);
+
+            float wheelBottom =
+                TargetWheelCenterLocalY -
+                wheelRadius;
+
+            float desiredBottom =
+                Mathf.Max(
+                    wheelBottom + 0.055f,
+                    localBounds.min.y + 0.025f);
+
+            float desiredTop =
+                Mathf.Min(
+                    localBounds.max.y - 0.08f,
+                    desiredBottom +
+                    bodyHeight);
+
+            if (desiredTop <=
+                desiredBottom + 0.2f)
+            {
+                desiredTop =
+                    desiredBottom +
+                    bodyHeight;
+            }
+
+            chassis.size =
+                new Vector3(
+                    width,
+                    desiredTop -
+                    desiredBottom,
+                    length);
+
+            chassis.center =
+                new Vector3(
+                    localBounds.center.x,
+                    (desiredBottom +
+                     desiredTop) * 0.5f,
+                    localBounds.center.z);
+        }
+
+        private static bool IsWheelRenderer(
+            Transform candidate,
+            Transform[] wheels)
+        {
+            if (candidate == null ||
+                wheels == null)
+                return false;
+
+            foreach (Transform wheel in
+                     wheels)
+            {
+                if (wheel == null)
+                    continue;
+
+                if (candidate == wheel ||
+                    candidate.IsChildOf(
+                        wheel))
+                    return true;
+            }
+
+            return false;
         }
 
         private static void SymmetrizePhysicalWheelCenters(
