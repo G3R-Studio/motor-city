@@ -24,6 +24,9 @@ namespace MotorCity.Editor
 
         private static void ConfigureProject()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
+
             EnsureFolders();
             EnsureRenderPipeline();
             EnsureInputSystem();
@@ -90,6 +93,9 @@ namespace MotorCity.Editor
 
         private static void EnsureScene()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
+
             if (!File.Exists(ScenePath))
             {
                 Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
