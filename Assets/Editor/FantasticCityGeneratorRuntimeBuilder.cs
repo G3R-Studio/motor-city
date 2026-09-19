@@ -187,12 +187,11 @@ public static class FantasticCityGeneratorRuntimeBuilder
             if (light == null)
                 continue;
 
-            if (light.type !=
-                LightType.Directional)
+            if (light.type ==
+                    LightType.Spot &&
+                IsFcgSpotLight(
+                    light.transform))
             {
-                // FCG's DayNight setup can use spot/point lights whose
-                // hierarchy names vary between prefabs. Preserve every
-                // local city light and let DayNightCycleController manage it.
                 light.enabled =
                     false;
 
@@ -231,6 +230,47 @@ public static class FantasticCityGeneratorRuntimeBuilder
                     item.gameObject);
             }
         }
+    }
+
+    private static bool IsFcgSpotLight(
+        Transform item)
+    {
+        Transform current =
+            item;
+
+        while (current != null)
+        {
+            string normalized =
+                NormalizeName(
+                    current.name);
+
+            if (normalized.Contains(
+                    "spotlight"))
+            {
+                return true;
+            }
+
+            current =
+                current.parent;
+        }
+
+        return false;
+    }
+
+    private static string NormalizeName(
+        string value)
+    {
+        if (string.IsNullOrWhiteSpace(
+                value))
+            return string.Empty;
+
+        return
+            new string(
+                value
+                    .ToLowerInvariant()
+                    .Where(
+                        char.IsLetterOrDigit)
+                    .ToArray());
     }
 
     private static bool IsStreetLightHierarchy(
