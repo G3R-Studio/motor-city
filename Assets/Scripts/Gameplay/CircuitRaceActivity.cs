@@ -1,6 +1,7 @@
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace MotorCity.Gameplay
 {
@@ -14,6 +15,8 @@ namespace MotorCity.Gameplay
         [SerializeField] private int maximumTimeBonusCredits = 700;
         [SerializeField] private float startRadius = 14f;
         [SerializeField] private float checkpointRadius = 14f;
+        [SerializeField] private float maxStartSpeedKph = 8f;
+        [SerializeField] private float countdownSeconds = 3f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
@@ -22,8 +25,11 @@ namespace MotorCity.Gameplay
         private int checkpointIndex;
         private int currentLap = 1;
         private bool armed = true;
+        private bool isCountingDown;
+        private float countdownRemaining;
 
         public bool IsActive { get; private set; }
+        public bool IsCountingDown => isCountingDown;
         public float ElapsedSeconds { get; private set; }
         public int CurrentLap => currentLap;
         public int LapCount => lapCount;
@@ -69,42 +75,47 @@ namespace MotorCity.Gameplay
                 route.Length < 4)
                 return;
 
-            float distance =
-                Vector3.Distance(
-                    Flat(car.transform.position),
-                    Flat(CurrentTarget));
+            Keyboard keyboard = Keyboard.current;
 
-            if (!IsActive)
+            if (isCountingDown)
             {
-                checkpointIndex = 0;
-                currentLap = 1;
-
-                if (!armed)
+                if (keyboard != null &&
+                    keyboard.escapeKey.wasPressedThisFrame)
                 {
-                    if (distance > startRadius + 4f)
-                    {
-                        armed = true;
-                        StatusText =
-                            "Бирюзовый флаг: кольцевая гонка";
-                    }
-
+                    CancelActivity();
                     return;
                 }
 
-                if (distance <= startRadius)
-                {
-                    if (activityManager.IsBusy &&
-                        !activityManager.IsActive(ActivityId))
-                    {
-                        StatusText =
-                            $"Кольцо недоступно: активно «{activityManager.ActiveName}»";
-                        return;
-                    }
+                UpdateCountdown();
+                return;
+            }
 
-                    BeginRace();
-                }
-                else
+            if (IsActive)
+            {
+                if (keyboard != null &&
+                    keyboard.escapeKey.wasPressedThisFrame)
                 {
+                    CancelActivity();
+                    return;
+                }
+
+                UpdateActiveRace();
+                return;
+            }
+
+            checkpointIndex = 0;
+            currentLap = 1;
+
+            float distance =
+                Vector3.Distance(
+                    Flat(car.transform.position),
+                    Flat(route[0]));
+
+            if (!armed)
+            {
+                if (distance > startRadius + 4f)
+                {
+                    armed = true;
                     StatusText =
                         "Бирюзовый флаг: кольцевая гонка";
                 }
@@ -112,17 +123,109 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            ElapsedSeconds +=
-                Time.deltaTime;
+            if (distance > startRadius)
+            {
+                StatusText =
+                    "Бирюзовый флаг: кольцевая гонка";
+                return;
+            }
 
-            if (distance >
-                checkpointRadius)
+            if (activityManager.IsBusy &&
+                !activityManager.IsActive(ActivityId))
+            {
+                StatusText =
+                    $"Кольцо недоступно: активно «{activityManager.ActiveName}»";
+                return;
+            }
+
+            if (car.SpeedKph > maxStartSpeedKph)
+            {
+                StatusText =
+                    $"КОЛЬЦО — остановись до {maxStartSpeedKph:0} км/ч";
+                return;
+            }
+
+            string best =
+                BestTimeSeconds > 0f
+                    ? $"   РЕК {BestTimeSeconds:0.0}с"
+                    : string.Empty;
+
+            StatusText =
+                $"КОЛЬЦО   E — НАЧАТЬ{best}";
+
+            if (keyboard != null &&
+                keyboard.eKey.wasPressedThisFrame)
+            {
+                BeginCountdown();
+            }
+        }
+
+        private void BeginCountdown()
+        {
+            if (!activityManager.TryBegin(
+                    ActivityId,
+                    "Кольцевая гонка"))
+                return;
+
+            isCountingDown = true;
+            armed = false;
+            countdownRemaining =
+                Mathf.Max(0.1f, countdownSeconds);
+            ElapsedSeconds = 0f;
+            currentLap = 1;
+            checkpointIndex = 0;
+            car.SetDrivingEnabled(false);
+            UpdateCountdownStatus();
+        }
+
+        private void UpdateCountdown()
+        {
+            countdownRemaining =
+                Mathf.Max(
+                    0f,
+                    countdownRemaining - Time.deltaTime);
+
+            if (countdownRemaining > 0f)
+            {
+                UpdateCountdownStatus();
+                return;
+            }
+
+            isCountingDown = false;
+            IsActive = true;
+            ElapsedSeconds = 0f;
+            currentLap = 1;
+            checkpointIndex = 1;
+            car.SetDrivingEnabled(true);
+            UpdateStatus();
+        }
+
+        private void UpdateCountdownStatus()
+        {
+            int shown =
+                Mathf.Max(
+                    1,
+                    Mathf.CeilToInt(countdownRemaining));
+
+            StatusText =
+                $"КОЛЬЦО   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+        }
+
+        private void UpdateActiveRace()
+        {
+            ElapsedSeconds += Time.deltaTime;
+
+            float distance =
+                Vector3.Distance(
+                    Flat(car.transform.position),
+                    Flat(CurrentTarget));
+
+            if (distance > checkpointRadius)
                 return;
 
             if (checkpointIndex == 0)
             {
-                if (currentLap >=
-                    lapCount)
+                if (currentLap >= lapCount)
                 {
                     CompleteRace();
                     return;
@@ -136,28 +239,11 @@ namespace MotorCity.Gameplay
 
             checkpointIndex++;
 
-            if (checkpointIndex >=
-                route.Length)
+            if (checkpointIndex >= route.Length)
             {
-                // Finish the current lap by crossing the original start line.
                 checkpointIndex = 0;
             }
 
-            UpdateStatus();
-        }
-
-        private void BeginRace()
-        {
-            if (!activityManager.TryBegin(
-                    ActivityId,
-                    "Кольцевая гонка"))
-                return;
-
-            IsActive = true;
-            armed = false;
-            ElapsedSeconds = 0f;
-            currentLap = 1;
-            checkpointIndex = 1;
             UpdateStatus();
         }
 
@@ -179,8 +265,7 @@ namespace MotorCity.Gameplay
 
             bool newBest =
                 BestTimeSeconds <= 0f ||
-                ElapsedSeconds <
-                BestTimeSeconds;
+                ElapsedSeconds < BestTimeSeconds;
 
             if (newBest)
             {
@@ -194,13 +279,10 @@ namespace MotorCity.Gameplay
                 PlayerPrefs.Save();
             }
 
-            wallet.AddCredits(
-                reward);
+            wallet.AddCredits(reward);
 
             IsActive = false;
-            activityManager.End(
-                ActivityId);
-
+            activityManager.End(ActivityId);
             checkpointIndex = 0;
             currentLap = 1;
 
@@ -217,17 +299,19 @@ namespace MotorCity.Gameplay
 
         public void CancelActivity()
         {
-            if (!IsActive)
+            if (!IsActive &&
+                !isCountingDown)
                 return;
 
             IsActive = false;
+            isCountingDown = false;
             armed = false;
+            countdownRemaining = 0f;
             checkpointIndex = 0;
             currentLap = 1;
             ElapsedSeconds = 0f;
-
-            activityManager?.End(
-                ActivityId);
+            car?.SetDrivingEnabled(true);
+            activityManager?.End(ActivityId);
 
             StatusText =
                 "Кольцевая гонка отменена. Отъедь от старта, чтобы повторить.";
@@ -251,11 +335,15 @@ namespace MotorCity.Gameplay
             StatusText =
                 $"КОЛЬЦО  КРУГ {currentLap}/{lapCount}   " +
                 $"ТОЧКА {shownCheckpoint}/{total}   " +
-                $"{ElapsedSeconds:0.0}с{best}";
+                $"{ElapsedSeconds:0.0}с{best}   ESC — ОТМЕНА";
         }
 
-        private static Vector3 Flat(
-            Vector3 value)
+        private void OnDisable()
+        {
+            car?.SetDrivingEnabled(true);
+        }
+
+        private static Vector3 Flat(Vector3 value)
         {
             value.y = 0f;
             return value;
