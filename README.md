@@ -19,6 +19,7 @@ The project currently includes:
 - wheel meshes kept separate from their WheelColliders, as required by Prometeo, with the visual wheel roots driven by Prometeo wheel poses;
 - runtime rear-tire smoke and tire-mark trails emitted from actual WheelCollider ground-contact points while the rear tires are sliding;
 - optional local integration for Nox_Sound's **Vehicle - Essentials** pack: the editor automatically builds a local audio library from imported Engine Loops, Driving Loops, Handbrakes and Horns; runtime audio blends engine/road loops with speed, plays a handbrake one-shot and maps the horn to H;
+- optional custom tire-squeal WAV import through `Motor City > Audio > Import Tire Squeal WAV`; the selected local clip is copied into ignored `Assets/LocalAudio`, bound to the vehicle audio library and blended automatically from real rear-wheel slip/drift intensity;
 - automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
 - runtime URP material conversion for the player car visual;
 - a unified drift state based on Prometeo drift/traction state plus actual rear-wheel sideways slip, vehicle slip angle and grounded wheels; the same state drives drift scoring, smoke and tire marks, with free-roam drift series banked into КР when the drift ends;
