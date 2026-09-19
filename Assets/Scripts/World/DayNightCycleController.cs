@@ -110,6 +110,11 @@ namespace MotorCity.World
 
                 ResolveLampObserver();
                 ApplyStreetLights();
+
+                Debug.Log(
+                    "Motor City: street lamps " +
+                    $"night={IsNight}, amount={NightAmount:0.00}, " +
+                    $"found={StreetLightCount}, enabled={EnabledStreetLightCount}.");
             }
         }
 
