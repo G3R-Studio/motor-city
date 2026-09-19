@@ -140,8 +140,8 @@ namespace MotorCity.World
             EnsureDriveableMeshColliders(
                 activeCity);
 
-            int preparedBreakables =
-                BreakableStreetProp.PrepareAll(
+            CityCollisionUtility.Result collisionResult =
+                CityCollisionUtility.Prepare(
                     activeCity);
 
             cityBounds =
@@ -159,7 +159,9 @@ namespace MotorCity.World
             Debug.Log(
                 "Motor City: Fantastic City Generator city installed. " +
                 $"Bounds center={cityBounds.center}, size={cityBounds.size}. " +
-                $"Breakables prepared={preparedBreakables}. " +
+                $"Pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
+                $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
+                $"safety floor={collisionResult.SafetyFloorReady}. " +
                 $"Spawn={PlayerSpawnPoint}, Garage={GaragePoint}, " +
                 $"Drift={DriftChallengePoint}.");
 
