@@ -9,18 +9,21 @@ namespace MotorCity.Audio
         [SerializeField] private AudioClip drivingLoop;
         [SerializeField] private AudioClip handbrakeClip;
         [SerializeField] private AudioClip hornClip;
+        [SerializeField] private AudioClip tireSquealLoop;
 
         public AudioClip EngineIdleLoop => engineIdleLoop;
         public AudioClip EngineDriveLoop => engineDriveLoop;
         public AudioClip DrivingLoop => drivingLoop;
         public AudioClip HandbrakeClip => handbrakeClip;
         public AudioClip HornClip => hornClip;
+        public AudioClip TireSquealLoop => tireSquealLoop;
 
         public bool HasAnyClip =>
             engineIdleLoop != null ||
             engineDriveLoop != null ||
             drivingLoop != null ||
             handbrakeClip != null ||
-            hornClip != null;
+            hornClip != null ||
+            tireSquealLoop != null;
     }
 }
