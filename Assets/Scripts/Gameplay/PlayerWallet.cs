@@ -28,6 +28,16 @@ namespace MotorCity.Gameplay
             return true;
         }
 
+        public void SetCredits(int amount)
+        {
+            Credits =
+                Mathf.Max(
+                    0,
+                    amount);
+
+            Save();
+        }
+
         private void OnApplicationPause(bool paused)
         {
             if (paused) Save();
