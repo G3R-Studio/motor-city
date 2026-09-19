@@ -414,7 +414,13 @@ namespace MotorCity.World
                 normalized.Contains(
                     "roadsign") ||
                 normalized.Contains(
+                    "streetsign") ||
+                normalized.Contains(
+                    "waysign") ||
+                normalized.Contains(
                     "signpost") ||
+                normalized.StartsWith(
+                    "sign") ||
                 normalized.Contains(
                     "bollard") ||
                 normalized.StartsWith(
