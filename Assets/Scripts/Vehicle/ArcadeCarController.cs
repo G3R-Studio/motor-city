@@ -1001,6 +1001,26 @@ namespace MotorCity.Vehicle
                 SetPrometeoEnabled(true);
         }
 
+        public void TeleportTo(
+            Vector3 position,
+            Quaternion rotation)
+        {
+            SetDrivingEnabled(false);
+
+            transform.SetPositionAndRotation(
+                position,
+                rotation);
+
+            if (body != null)
+            {
+                body.position = position;
+                body.rotation = rotation;
+            }
+
+            ClearMotion();
+            Physics.SyncTransforms();
+        }
+
         public void ClearMotion()
         {
             resetHoldTimer = 0.20f;
