@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -9,6 +10,12 @@ namespace MotorCity.World
     {
         private const string SettingsResourcePath =
             "MotorCity/Environment/DayNightSettings";
+
+        private const float LampUpdateInterval =
+            0.25f;
+
+        private const float LampEnableDistance =
+            110f;
 
         [SerializeField] private float fullCycleSeconds =
             480f;
@@ -29,7 +36,10 @@ namespace MotorCity.World
         private Material runtimeNightSkybox;
 
         private float time01;
+        private float lampUpdateTimer;
+        private float observerResolveTimer;
         private int autoCreatedStreetLights;
+        private Transform lampObserver;
         private bool lastNightState;
         private bool initialized;
 
@@ -55,6 +65,7 @@ namespace MotorCity.World
                     1f);
 
             BuildRuntimeSkyboxes();
+            ForceAdditionalLightsSupport();
             RefreshStreetLights();
 
             Debug.Log(
@@ -86,6 +97,21 @@ namespace MotorCity.World
 
             ApplyEnvironment(
                 false);
+
+            if (IsNight)
+            {
+                lampUpdateTimer -=
+                    Time.deltaTime;
+
+                if (lampUpdateTimer <= 0f)
+                {
+                    lampUpdateTimer =
+                        LampUpdateInterval;
+
+                    ResolveLampObserver();
+                    ApplyStreetLights();
+                }
+            }
         }
 
         private void OnDestroy()
@@ -382,19 +408,25 @@ namespace MotorCity.World
         {
             streetLights.Clear();
 
+            GameObject cityRoot =
+                GameObject.Find(
+                    "MotorCity_FCGCity") ??
+                GameObject.Find(
+                    "City-Maker");
+
+            if (cityRoot == null)
+                return;
+
             var unique =
                 new HashSet<Light>();
 
-            Transform[] allTransforms =
-                UnityEngine.Object.FindObjectsByType<Transform>(
-                    FindObjectsInactive.Include);
-
-            foreach (Transform item in allTransforms)
+            foreach (Transform item in
+                     cityRoot.GetComponentsInChildren<Transform>(true))
             {
                 if (item == null ||
-                    !IsRuntimeCityHierarchy(
-                        item) ||
                     !IsNamedFcgLampNode(
+                        item) ||
+                    HasNamedLampDescendant(
                         item))
                     continue;
 
@@ -402,41 +434,23 @@ namespace MotorCity.World
                     FindExistingLampLight(
                         item);
 
-                if (light == null &&
-                    !HasNamedLampDescendant(
-                        item))
+                if (light == null)
                 {
+                    GameObject lightObject =
+                        new("MotorCity_LampLight");
+
+                    lightObject.transform.SetParent(
+                        item,
+                        false);
+
+                    lightObject.transform.localPosition =
+                        Vector3.zero;
+
                     light =
-                        item.gameObject.AddComponent<Light>();
-
-                    light.type =
-                        LightType.Spot;
-
-                    light.color =
-                        new Color(
-                            1f,
-                            0.78f,
-                            0.52f);
-
-                    light.intensity =
-                        3.2f;
-
-                    light.range =
-                        16f;
-
-                    light.spotAngle =
-                        72f;
-
-                    light.innerSpotAngle =
-                        38f;
+                        lightObject.AddComponent<Light>();
 
                     autoCreatedStreetLights++;
                 }
-
-                if (light == null ||
-                    light == directionalLight ||
-                    light == moonLight)
-                    continue;
 
                 ConfigureLampLight(
                     light);
@@ -447,10 +461,22 @@ namespace MotorCity.World
 
             streetLights.AddRange(
                 unique);
+
+            ResolveLampObserver();
+            ApplyStreetLights();
         }
 
         private void ApplyStreetLights()
         {
+            Vector3 observerPosition =
+                lampObserver != null
+                    ? lampObserver.position
+                    : Vector3.zero;
+
+            float maximumDistanceSquared =
+                LampEnableDistance *
+                LampEnableDistance;
+
             for (int i =
                      streetLights.Count -
                      1;
@@ -468,8 +494,15 @@ namespace MotorCity.World
                     continue;
                 }
 
+                bool nearObserver =
+                    lampObserver == null ||
+                    (light.transform.position -
+                     observerPosition).sqrMagnitude <=
+                    maximumDistanceSquared;
+
                 bool shouldEnable =
-                    IsNight;
+                    IsNight &&
+                    nearObserver;
 
                 if (shouldEnable)
                 {
@@ -479,6 +512,42 @@ namespace MotorCity.World
 
                 light.enabled =
                     shouldEnable;
+            }
+        }
+
+        private void ResolveLampObserver()
+        {
+            if (lampObserver != null)
+                return;
+
+            observerResolveTimer -=
+                Time.deltaTime;
+
+            if (observerResolveTimer >
+                0f)
+                return;
+
+            observerResolveTimer =
+                1f;
+
+            MotorCity.Vehicle.ArcadeCarController car =
+                UnityEngine.Object.FindFirstObjectByType<MotorCity.Vehicle.ArcadeCarController>();
+
+            if (car != null)
+            {
+                lampObserver =
+                    car.transform;
+
+                return;
+            }
+
+            Camera mainCamera =
+                Camera.main;
+
+            if (mainCamera != null)
+            {
+                lampObserver =
+                    mainCamera.transform;
             }
         }
 
@@ -572,37 +641,184 @@ namespace MotorCity.World
             light.cullingMask =
                 ~0;
 
+            light.color =
+                new Color(
+                    1f,
+                    0.78f,
+                    0.52f);
+
             light.intensity =
                 Mathf.Max(
                     light.intensity,
-                    2.8f);
+                    6.5f);
 
             light.range =
                 Mathf.Max(
                     light.range,
-                    15f);
+                    22f);
 
             light.spotAngle =
                 Mathf.Max(
                     light.spotAngle,
-                    68f);
+                    82f);
 
             light.innerSpotAngle =
                 Mathf.Clamp(
                     Mathf.Max(
                         light.innerSpotAngle,
-                        34f),
+                        46f),
                     0f,
                     light.spotAngle);
 
-            if (light.color.maxColorComponent <
-                0.2f)
+            light.bounceIntensity =
+                0f;
+
+            // FCG lamp nodes are positioned at the luminaire, but their
+            // source rotations vary between prefabs. Point the runtime lamp
+            // straight at the road so every fixture visibly illuminates it.
+            light.transform.rotation =
+                Quaternion.LookRotation(
+                    Vector3.down,
+                    Vector3.forward);
+
+            light.enabled =
+                false;
+        }
+
+        private static void ForceAdditionalLightsSupport()
+        {
+            RenderPipelineAsset pipeline =
+                GraphicsSettings.currentRenderPipeline;
+
+            if (pipeline == null)
+                return;
+
+            Type type =
+                pipeline.GetType();
+
+            TrySetEnumMember(
+                pipeline,
+                type,
+                "additionalLightsRenderingMode",
+                "m_AdditionalLightsRenderingMode",
+                "PerPixel");
+
+            TrySetIntegerMember(
+                pipeline,
+                type,
+                "maxAdditionalLightsCount",
+                "m_AdditionalLightsPerObjectLimit",
+                8);
+        }
+
+        private static void TrySetEnumMember(
+            object target,
+            Type type,
+            string propertyName,
+            string fieldName,
+            string enumValue)
+        {
+            try
             {
-                light.color =
-                    new Color(
-                        1f,
-                        0.78f,
-                        0.52f);
+                PropertyInfo property =
+                    type.GetProperty(
+                        propertyName,
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic);
+
+                if (property != null &&
+                    property.CanWrite &&
+                    property.PropertyType.IsEnum)
+                {
+                    object value =
+                        Enum.Parse(
+                            property.PropertyType,
+                            enumValue,
+                            true);
+
+                    property.SetValue(
+                        target,
+                        value);
+
+                    return;
+                }
+
+                FieldInfo field =
+                    type.GetField(
+                        fieldName,
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic);
+
+                if (field != null &&
+                    field.FieldType.IsEnum)
+                {
+                    object value =
+                        Enum.Parse(
+                            field.FieldType,
+                            enumValue,
+                            true);
+
+                    field.SetValue(
+                        target,
+                        value);
+                }
+            }
+            catch
+            {
+                // Keep the cycle functional on URP versions whose internals
+                // use different member names.
+            }
+        }
+
+        private static void TrySetIntegerMember(
+            object target,
+            Type type,
+            string propertyName,
+            string fieldName,
+            int value)
+        {
+            try
+            {
+                PropertyInfo property =
+                    type.GetProperty(
+                        propertyName,
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic);
+
+                if (property != null &&
+                    property.CanWrite &&
+                    property.PropertyType ==
+                    typeof(int))
+                {
+                    property.SetValue(
+                        target,
+                        value);
+
+                    return;
+                }
+
+                FieldInfo field =
+                    type.GetField(
+                        fieldName,
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic);
+
+                if (field != null &&
+                    field.FieldType ==
+                    typeof(int))
+                {
+                    field.SetValue(
+                        target,
+                        value);
+                }
+            }
+            catch
+            {
+                // Optional optimization only.
             }
         }
 
