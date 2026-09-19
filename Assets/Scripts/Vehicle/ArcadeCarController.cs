@@ -224,7 +224,8 @@ namespace MotorCity.Vehicle
             if (drivingEnabled &&
                 resetHoldTimer <= 0f &&
                 modeKeyboard != null &&
-                modeKeyboard.qKey.wasPressedThisFrame)
+                modeKeyboard.qKey.wasPressedThisFrame &&
+                SpeedKph <= 1f)
             {
                 CycleDriveMode();
             }
