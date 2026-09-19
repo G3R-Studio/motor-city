@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using UnityEngine;
 
 namespace MotorCity.World
@@ -54,9 +53,6 @@ namespace MotorCity.World
             disabled +=
                 RemoveRoadMarkBColliders(
                     cityRoot);
-
-            LogPotentialRoadSignColliders(
-                cityRoot);
 
             bool safetyFloor =
                 EnsureSafetyFloor(
@@ -149,8 +145,8 @@ namespace MotorCity.World
                     NormalizeName(
                         current.name);
 
-                if (normalized.Contains(
-                        "roadmarkb"))
+                if (normalized.StartsWith(
+                        "roadmark"))
                     return true;
 
                 MeshFilter filter =
@@ -160,8 +156,8 @@ namespace MotorCity.World
                     filter.sharedMesh != null &&
                     NormalizeName(
                             filter.sharedMesh.name)
-                        .Contains(
-                            "roadmarkb"))
+                        .StartsWith(
+                            "roadmark"))
                 {
                     return true;
                 }
@@ -179,8 +175,8 @@ namespace MotorCity.World
 
                         if (NormalizeName(
                                 material.name)
-                            .Contains(
-                                "roadmarkb"))
+                            .StartsWith(
+                                "roadmark"))
                         {
                             return true;
                         }
@@ -195,101 +191,6 @@ namespace MotorCity.World
             }
 
             return false;
-        }
-
-        private static void LogPotentialRoadSignColliders(
-            GameObject cityRoot)
-        {
-            if (cityRoot == null)
-                return;
-
-            int logged =
-                0;
-
-            foreach (Collider collider in
-                     cityRoot.GetComponentsInChildren<Collider>(
-                         true))
-            {
-                if (collider == null ||
-                    !collider.enabled)
-                    continue;
-
-                Transform item =
-                    collider.transform;
-
-                string path =
-                    GetRelativeHierarchyPath(
-                        item,
-                        cityRoot.transform);
-
-                string normalizedPath =
-                    NormalizeName(
-                        path);
-
-                MeshFilter filter =
-                    item.GetComponent<MeshFilter>();
-
-                string meshName =
-                    filter != null &&
-                    filter.sharedMesh != null
-                        ? filter.sharedMesh.name
-                        : string.Empty;
-
-                Renderer renderer =
-                    item.GetComponent<Renderer>();
-
-                string materialNames =
-                    renderer == null
-                        ? string.Empty
-                        : string.Join(
-                            ", ",
-                            renderer.sharedMaterials
-                                .Where(
-                                    material =>
-                                        material != null)
-                                .Select(
-                                    material =>
-                                        material.name));
-
-                string combined =
-                    NormalizeName(
-                        path +
-                        " " +
-                        meshName +
-                        " " +
-                        materialNames);
-
-                bool suspicious =
-                    combined.Contains(
-                        "sign") ||
-                    combined.Contains(
-                        "roadmark") ||
-                    combined.Contains(
-                        "markb") ||
-                    combined.Contains(
-                        "roadsign") ||
-                    combined.Contains(
-                        "trafficsign");
-
-                if (!suspicious)
-                    continue;
-
-                Debug.Log(
-                    "Motor City SIGN COLLIDER DEBUG: " +
-                    $"path='{path}', " +
-                    $"object='{item.name}', " +
-                    $"collider={collider.GetType().Name}, " +
-                    $"mesh='{meshName}', " +
-                    $"materials=[{materialNames}]");
-
-                logged++;
-
-                if (logged >= 80)
-                    break;
-            }
-
-            Debug.Log(
-                $"Motor City SIGN COLLIDER DEBUG: logged {logged} suspicious enabled colliders.");
         }
 
         private static int EnsureBuildingMeshColliders(
