@@ -415,6 +415,9 @@ namespace MotorCity.World
                         light.transform))
                     continue;
 
+                light.lightmapBakeType =
+                    LightmapBakeType.Realtime;
+
                 light.shadows =
                     LightShadows.None;
 
