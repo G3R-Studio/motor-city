@@ -12,6 +12,7 @@ namespace MotorCity.World
             TrafficLight,
             Sign,
             Hydrant,
+            Trash,
             Bench,
             Pole
         }
@@ -20,7 +21,8 @@ namespace MotorCity.World
         [SerializeField] private float minimumBreakSpeedKph = 6f;
         [SerializeField] private float speedRetention = 0.97f;
         [SerializeField] private float fallSeconds = 0.55f;
-        [SerializeField] private float fadeSeconds = 1.8f;
+        [SerializeField] private float fadeSeconds = 1.2f;
+        [SerializeField] private float visibleAfterFallSeconds = 6f;
 
         private Collider breakCollider;
         private bool broken;
@@ -80,25 +82,36 @@ namespace MotorCity.World
                 case PropKind.Hydrant:
                     speedRetention = 0.988f;
                     fallSeconds = 0.38f;
-                    fadeSeconds = 1.4f;
+                    fadeSeconds = 1.0f;
+                    visibleAfterFallSeconds = 5.5f;
+                    break;
+
+                case PropKind.Trash:
+                    speedRetention = 0.986f;
+                    fallSeconds = 0.42f;
+                    fadeSeconds = 1.0f;
+                    visibleAfterFallSeconds = 5.5f;
                     break;
 
                 case PropKind.Bench:
                     speedRetention = 0.982f;
                     fallSeconds = 0.48f;
-                    fadeSeconds = 1.6f;
+                    fadeSeconds = 1.15f;
+                    visibleAfterFallSeconds = 7f;
                     break;
 
                 case PropKind.TrafficLight:
                     speedRetention = 0.968f;
                     fallSeconds = 0.62f;
-                    fadeSeconds = 2.0f;
+                    fadeSeconds = 1.25f;
+                    visibleAfterFallSeconds = 7f;
                     break;
 
                 case PropKind.LightPole:
                     speedRetention = 0.972f;
                     fallSeconds = 0.62f;
-                    fadeSeconds = 2.0f;
+                    fadeSeconds = 1.25f;
+                    visibleAfterFallSeconds = 7f;
                     break;
 
                 case PropKind.Sign:
@@ -112,98 +125,118 @@ namespace MotorCity.World
 
         private bool PrepareTriggerCollider()
         {
+            if (!TryCalculateLocalRendererBounds(
+                    out Bounds localBounds))
+                return false;
+
             Collider[] existing =
                 GetComponentsInChildren<Collider>(true);
 
+            BoxCollider box =
+                null;
+
             foreach (Collider collider in existing)
             {
-                if (collider == null ||
-                    collider.transform == transform)
+                if (collider == null)
                     continue;
+
+                if (collider.transform == transform &&
+                    collider is BoxCollider rootBox &&
+                    box == null)
+                {
+                    box =
+                        rootBox;
+
+                    continue;
+                }
 
                 collider.enabled =
                     false;
             }
 
-            breakCollider =
-                GetComponent<Collider>();
-
-            if (breakCollider == null)
+            if (box == null)
             {
-                if (!TryCalculateLocalRendererBounds(
-                        out Bounds localBounds))
-                    return false;
-
-                BoxCollider box =
+                box =
                     gameObject.AddComponent<BoxCollider>();
-
-                Vector3 center =
-                    localBounds.center;
-
-                Vector3 size =
-                    localBounds.size;
-
-                size.x =
-                    Mathf.Max(
-                        0.16f,
-                        size.x);
-
-                size.y =
-                    Mathf.Max(
-                        0.22f,
-                        size.y);
-
-                size.z =
-                    Mathf.Max(
-                        0.16f,
-                        size.z);
-
-                if (kind == PropKind.LightPole ||
-                    kind == PropKind.TrafficLight ||
-                    kind == PropKind.Sign ||
-                    kind == PropKind.Pole)
-                {
-                    float maximumHorizontalSize =
-                        kind == PropKind.TrafficLight
-                            ? 0.72f
-                            : kind == PropKind.LightPole
-                                ? 0.58f
-                                : 0.48f;
-
-                    size.x =
-                        Mathf.Min(
-                            size.x,
-                            maximumHorizontalSize);
-
-                    size.z =
-                        Mathf.Min(
-                            size.z,
-                            maximumHorizontalSize);
-
-                    center.x =
-                        0f;
-
-                    center.z =
-                        0f;
-                }
-
-                box.center =
-                    center;
-
-                box.size =
-                    size;
-
-                breakCollider =
-                    box;
             }
 
-            breakCollider.enabled =
+            Vector3 center =
+                localBounds.center;
+
+            Vector3 size =
+                localBounds.size;
+
+            size.x =
+                Mathf.Max(
+                    0.16f,
+                    size.x);
+
+            size.y =
+                Mathf.Max(
+                    0.22f,
+                    size.y);
+
+            size.z =
+                Mathf.Max(
+                    0.16f,
+                    size.z);
+
+            if (kind == PropKind.LightPole ||
+                kind == PropKind.TrafficLight ||
+                kind == PropKind.Sign ||
+                kind == PropKind.Pole)
+            {
+                float maximumHorizontalSize =
+                    kind == PropKind.TrafficLight
+                        ? 0.72f
+                        : kind == PropKind.LightPole
+                            ? 0.50f
+                            : 0.44f;
+
+                size.x =
+                    Mathf.Min(
+                        size.x,
+                        maximumHorizontalSize);
+
+                size.z =
+                    Mathf.Min(
+                        size.z,
+                        maximumHorizontalSize);
+
+                center.x =
+                    0f;
+
+                center.z =
+                    0f;
+            }
+            else if (kind == PropKind.Hydrant ||
+                     kind == PropKind.Trash)
+            {
+                size.x =
+                    Mathf.Min(
+                        size.x,
+                        1.15f);
+
+                size.z =
+                    Mathf.Min(
+                        size.z,
+                        1.15f);
+            }
+
+            box.center =
+                center;
+
+            box.size =
+                size;
+
+            box.enabled =
                 true;
 
-            // Street furniture is deliberately non-blocking before impact.
-            // The slight loss of car speed is applied manually.
-            breakCollider.isTrigger =
+            box.isTrigger =
                 true;
+
+            breakCollider =
+                box;
 
             return true;
         }
@@ -322,9 +355,6 @@ namespace MotorCity.World
         private IEnumerator FallAndFade(
             Vector3 fallDirection)
         {
-            Quaternion startRotation =
-                transform.rotation;
-
             Vector3 horizontal =
                 new(
                     fallDirection.x,
@@ -359,25 +389,27 @@ namespace MotorCity.World
                         ? 74f
                         : 86f;
 
-            Quaternion targetRotation =
-                Quaternion.AngleAxis(
-                    fallAngle,
-                    fallAxis) *
-                startRotation;
+            Vector3 pivot =
+                transform.position;
 
-            Material[] fadeMaterials =
-                CreateFadeMaterialInstances();
-
-            float totalSeconds =
-                Mathf.Max(
-                    0.1f,
-                    fallSeconds + fadeSeconds);
+            if (TryCalculateWorldRendererBounds(
+                    out Bounds worldBounds))
+            {
+                pivot =
+                    new Vector3(
+                        worldBounds.center.x,
+                        worldBounds.min.y,
+                        worldBounds.center.z);
+            }
 
             float elapsed =
                 0f;
 
+            float currentAngle =
+                0f;
+
             while (elapsed <
-                   totalSeconds)
+                   fallSeconds)
             {
                 elapsed +=
                     Time.deltaTime;
@@ -395,20 +427,53 @@ namespace MotorCity.World
                         1f - fallT,
                         3f);
 
-                transform.rotation =
-                    Quaternion.Slerp(
-                        startRotation,
-                        targetRotation,
-                        easedFall);
+                float wantedAngle =
+                    fallAngle *
+                    easedFall;
 
-                float fadeStart =
-                    Mathf.Max(
-                        0f,
-                        fallSeconds * 0.35f);
+                float deltaAngle =
+                    wantedAngle -
+                    currentAngle;
+
+                if (Mathf.Abs(
+                        deltaAngle) >
+                    0.001f)
+                {
+                    transform.RotateAround(
+                        pivot,
+                        fallAxis,
+                        deltaAngle);
+                }
+
+                currentAngle =
+                    wantedAngle;
+
+                yield return null;
+            }
+
+            if (visibleAfterFallSeconds >
+                0f)
+            {
+                yield return
+                    new WaitForSeconds(
+                        visibleAfterFallSeconds);
+            }
+
+            Material[] fadeMaterials =
+                CreateFadeMaterialInstances();
+
+            elapsed =
+                0f;
+
+            while (elapsed <
+                   fadeSeconds)
+            {
+                elapsed +=
+                    Time.deltaTime;
 
                 float fadeT =
                     Mathf.Clamp01(
-                        (elapsed - fadeStart) /
+                        elapsed /
                         Mathf.Max(
                             0.05f,
                             fadeSeconds));
@@ -546,6 +611,41 @@ namespace MotorCity.World
             }
         }
 
+        private bool TryCalculateWorldRendererBounds(
+            out Bounds worldBounds)
+        {
+            Renderer[] renderers =
+                GetComponentsInChildren<Renderer>(true);
+
+            bool initialized =
+                false;
+
+            worldBounds =
+                default;
+
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null)
+                    continue;
+
+                if (!initialized)
+                {
+                    worldBounds =
+                        renderer.bounds;
+
+                    initialized =
+                        true;
+                }
+                else
+                {
+                    worldBounds.Encapsulate(
+                        renderer.bounds);
+                }
+            }
+
+            return initialized;
+        }
+
         private bool TryCalculateLocalRendererBounds(
             out Bounds localBounds)
         {
@@ -650,6 +750,14 @@ namespace MotorCity.World
             {
                 propKind =
                     PropKind.Hydrant;
+
+                return true;
+            }
+
+            if (name.Contains("trash"))
+            {
+                propKind =
+                    PropKind.Trash;
 
                 return true;
             }
