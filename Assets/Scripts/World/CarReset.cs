@@ -9,34 +9,83 @@ namespace MotorCity.World
     {
         private ArcadeCarController car;
         private Rigidbody body;
-        private Vector3 spawnPosition;
-        private Quaternion spawnRotation;
 
         private void Awake()
         {
-            car = GetComponent<ArcadeCarController>();
-            body = GetComponent<Rigidbody>();
-            spawnPosition = transform.position;
-            spawnRotation = transform.rotation;
+            car =
+                GetComponent<ArcadeCarController>();
+
+            body =
+                GetComponent<Rigidbody>();
         }
 
         private void Update()
         {
-            Keyboard keyboard = Keyboard.current;
-            bool resetPressed = keyboard != null && keyboard.rKey.wasPressedThisFrame;
+            Keyboard keyboard =
+                Keyboard.current;
 
-            if (resetPressed || transform.position.y < -10f)
+            bool resetPressed =
+                keyboard != null &&
+                keyboard.rKey.wasPressedThisFrame;
+
+            if (resetPressed ||
+                transform.position.y < -10f)
+            {
                 ResetVehicle();
+            }
         }
 
         public void ResetVehicle()
         {
-            if (car != null) car.ClearMotion();
+            Vector3 currentPosition =
+                body != null
+                    ? body.position
+                    : transform.position;
 
-            body.linearVelocity = Vector3.zero;
-            body.angularVelocity = Vector3.zero;
-            body.position = spawnPosition;
-            body.rotation = spawnRotation;
+            Vector3 currentForward =
+                transform.forward;
+
+            CityAssetRuntimeInstaller.ResolveNearestRoadResetPose(
+                currentPosition,
+                currentForward,
+                out Vector3 resetPosition,
+                out Quaternion resetRotation);
+
+            if (car != null)
+            {
+                car.TeleportTo(
+                    resetPosition,
+                    resetRotation);
+
+                car.SetDrivingEnabled(
+                    true);
+
+                return;
+            }
+
+            if (body != null)
+            {
+                body.linearVelocity =
+                    Vector3.zero;
+
+                body.angularVelocity =
+                    Vector3.zero;
+
+                body.position =
+                    resetPosition;
+
+                body.rotation =
+                    resetRotation;
+
+                body.Sleep();
+                body.WakeUp();
+
+                return;
+            }
+
+            transform.SetPositionAndRotation(
+                resetPosition,
+                resetRotation);
         }
     }
 }
