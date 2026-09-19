@@ -82,6 +82,17 @@ sysinfo.txt
 /Assets/PROMETEO - Car Controller/
 /Assets/PROMETEO - Car Controller.meta
 
+# Local Vehicles - PolyPack source package stays local; Motor City copies
+# selected runtime prefabs into Assets/Resources/MotorCity/Vehicles/.
+/Assets/Vehicles - PolyPack/
+/Assets/Vehicles - PolyPack.meta
+/Assets/Vehicles-PolyPack/
+/Assets/Vehicles-PolyPack.meta
+/Assets/Vehicles PolyPack/
+/Assets/Vehicles PolyPack.meta
+/Assets/*PolyPack*Vehicles*/
+/Assets/*PolyPack*Vehicles*.meta
+
 # Fantastic City Generator source package stays local.
 /Assets/Fantastic City Generator/
 /Assets/Fantastic City Generator.meta
