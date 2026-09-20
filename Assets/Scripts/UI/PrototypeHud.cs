@@ -134,7 +134,8 @@ namespace MotorCity.UI
             upgradesText.text =
                 garage == null
                     ? string.Empty
-                    : $"ДВИГ {garage.EngineLevel}   •   СЦЕП {garage.GripLevel}   •   СТАБ {garage.StabilityLevel}";
+                    : $"ДВИГ {garage.EngineLevel}   •   СЦЕП {garage.GripLevel}   •   " +
+                      $"СТАБ {garage.StabilityLevel}   •   {garage.VehicleMasteryShort}";
 
             if (careerText != null)
             {
@@ -1321,6 +1322,13 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
+            if (garage != null &&
+                garage.MasteryShowMessage)
+            {
+                return
+                    garage.MasteryStatusText;
+            }
+
             if (career != null &&
                 career.ShowMessage)
             {
