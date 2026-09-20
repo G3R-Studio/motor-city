@@ -11,6 +11,7 @@ namespace MotorCity.Gameplay
         private const float MinimumArmSpeedKph = 38f;
         private const float MinimumAirTime = 0.24f;
         private const float MessageSeconds = 3.5f;
+        private const float RoadsideOffsetMeters = 9.5f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
@@ -47,6 +48,7 @@ namespace MotorCity.Gameplay
                     "СЕВЕРНЫЙ ТРАМПЛИН",
                     new Vector3(450f, 0f, 360f),
                     new Vector3(0f, 0f, 1f),
+                    1f,
                     12f,
                     22f,
                     34f),
@@ -56,6 +58,7 @@ namespace MotorCity.Gameplay
                     "ШОССЕ",
                     new Vector3(-300f, 0f, -1400f),
                     new Vector3(0f, 0f, -1f),
+                    -1f,
                     18f,
                     32f,
                     48f),
@@ -65,6 +68,7 @@ namespace MotorCity.Gameplay
                     "ДАЛЬНИЙ РАЙОН",
                     new Vector3(-300f, 0f, -2010f),
                     new Vector3(0f, 0f, 1f),
+                    1f,
                     15f,
                     28f,
                     42f)
@@ -76,6 +80,7 @@ namespace MotorCity.Gameplay
             string displayName,
             Vector3 preferred,
             Vector3 preferredForward,
+            float roadsideSide,
             float bronzeDistance,
             float silverDistance,
             float goldDistance)
@@ -86,6 +91,29 @@ namespace MotorCity.Gameplay
                 out Vector3 carPosition,
                 out Quaternion rotation);
 
+            Vector3 roadsideRight =
+                rotation *
+                Vector3.right;
+
+            roadsideRight.y = 0f;
+
+            if (roadsideRight.sqrMagnitude < 0.001f)
+                roadsideRight = Vector3.right;
+
+            roadsideRight.Normalize();
+
+            Vector3 roadsidePosition =
+                carPosition -
+                Vector3.up * 1.10f +
+                roadsideRight *
+                RoadsideOffsetMeters *
+                Mathf.Sign(
+                    Mathf.Approximately(
+                        roadsideSide,
+                        0f)
+                        ? 1f
+                        : roadsideSide);
+
             string key =
                 "MotorCity.StuntJump." +
                 id;
@@ -95,8 +123,7 @@ namespace MotorCity.Gameplay
                 Id = id,
                 DisplayName = displayName,
                 Position =
-                    carPosition -
-                    Vector3.up * 1.10f,
+                    roadsidePosition,
                 Rotation = rotation,
                 BronzeDistance = bronzeDistance,
                 SilverDistance = silverDistance,
