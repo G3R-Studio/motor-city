@@ -405,10 +405,6 @@ namespace MotorCity.World
 
             if (!found)
             {
-                Debug.LogWarning(
-                    $"Motor City: no exact FCG driveable triangle found for {context} " +
-                    $"near {preferred}. Using preferred point.");
-
                 best =
                     preferred;
 
@@ -422,9 +418,6 @@ namespace MotorCity.World
 
             best.y +=
                 MarkerLift;
-
-            Debug.Log(
-                $"Motor City: {context} snapped to FCG driveable surface at {best}.");
 
             return best;
         }
@@ -583,10 +576,6 @@ namespace MotorCity.World
 
             if (!found)
             {
-                Debug.LogWarning(
-                    "Motor City: generated FCG parking lot was not raycastable; " +
-                    "garage uses report coordinate fallback.");
-
                 preferred.y =
                     0.4f;
 
