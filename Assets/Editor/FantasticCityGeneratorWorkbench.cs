@@ -14,7 +14,7 @@ public static class FantasticCityGeneratorWorkbench
     public const string WorkbenchScene =
         LocalRoot + "/FCG_Workbench.unity";
 
-    [MenuItem("Motor City/Fantastic City Generator/Create or Open Safe Workbench")]
+    [MenuItem("Motor City/Fantastic City Generator/1 - Create or Open Workbench")]
     public static void CreateOrOpen()
     {
         EnsureFolder(
