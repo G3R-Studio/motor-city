@@ -463,12 +463,20 @@ public static class FantasticCityGeneratorUrpFixer
             IsCutoutFoliageMaterialName(
                 source.name);
 
+        bool nightEmissive =
+            IsNightEmissionMaterialName(
+                source.name);
+
         Shader targetShader =
-            foliage
+            nightEmissive
                 ? Shader.Find(
-                      "MotorCity/TwoSidedFoliage") ??
+                      "MotorCity/NightEmissive") ??
                   urpLit
-                : urpLit;
+                : foliage
+                    ? Shader.Find(
+                          "MotorCity/TwoSidedFoliage") ??
+                      urpLit
+                    : urpLit;
 
         Material material =
             AssetDatabase.LoadAssetAtPath<Material>(
@@ -520,6 +528,13 @@ public static class FantasticCityGeneratorUrpFixer
         ConfigureSurfaceType(
             source,
             material);
+
+        if (nightEmissive)
+        {
+            ConfigureNightEmissionMaterial(
+                source,
+                material);
+        }
 
         EditorUtility.SetDirty(
             material);
@@ -1040,12 +1055,20 @@ public static class FantasticCityGeneratorUrpFixer
             IsCutoutFoliageMaterialName(
                 generatedName);
 
+        bool nightEmissive =
+            IsNightEmissionMaterialName(
+                generatedName);
+
         Shader targetShader =
-            foliage
+            nightEmissive
                 ? Shader.Find(
-                      "MotorCity/TwoSidedFoliage") ??
+                      "MotorCity/NightEmissive") ??
                   urpLit
-                : urpLit;
+                : foliage
+                    ? Shader.Find(
+                          "MotorCity/TwoSidedFoliage") ??
+                      urpLit
+                    : urpLit;
 
         material.shader =
             targetShader;
@@ -1084,6 +1107,13 @@ public static class FantasticCityGeneratorUrpFixer
             ConfigureSurfaceType(
                 source,
                 material);
+
+            if (nightEmissive)
+            {
+                ConfigureNightEmissionMaterial(
+                    source,
+                    material);
+            }
         }
 
         if (foliage)
@@ -1881,6 +1911,151 @@ public static class FantasticCityGeneratorUrpFixer
             lower.Contains("vegetation") ||
             lower.Contains("fern") ||
             lower.Contains("palm");
+    }
+
+    private static bool IsNightEmissionMaterialName(
+        string materialName)
+    {
+        string normalized =
+            NormalizeMaterialName(
+                materialName);
+
+        if (string.IsNullOrWhiteSpace(
+                normalized))
+            return false;
+
+        return
+            normalized.Contains(
+                "winsnight") ||
+            normalized.Contains(
+                "nightwindow") ||
+            normalized.Contains(
+                "windowlight") ||
+            normalized.Contains(
+                "windowlit") ||
+            normalized.Contains(
+                "emissive");
+    }
+
+    private static void ConfigureNightEmissionMaterial(
+        Material source,
+        Material destination)
+    {
+        if (destination == null)
+            return;
+
+        Texture emissionTexture =
+            null;
+
+        string sourceEmissionProperty =
+            source != null
+                ? FirstExistingProperty(
+                    source,
+                    "_EmissionMap",
+                    "_Illum")
+                : null;
+
+        if (sourceEmissionProperty != null)
+        {
+            emissionTexture =
+                SafeGetTexture(
+                    source,
+                    sourceEmissionProperty);
+        }
+
+        if (emissionTexture == null &&
+            destination.HasProperty(
+                "_BaseMap"))
+        {
+            emissionTexture =
+                destination.GetTexture(
+                    "_BaseMap");
+        }
+
+        if (emissionTexture != null &&
+            destination.HasProperty(
+                "_EmissionMap"))
+        {
+            destination.SetTexture(
+                "_EmissionMap",
+                emissionTexture);
+
+            if (destination.HasProperty(
+                    "_BaseMap"))
+            {
+                destination.SetTextureScale(
+                    "_EmissionMap",
+                    destination.GetTextureScale(
+                        "_BaseMap"));
+
+                destination.SetTextureOffset(
+                    "_EmissionMap",
+                    destination.GetTextureOffset(
+                        "_BaseMap"));
+            }
+        }
+
+        Color emissionColor =
+            new Color(
+                1f,
+                0.62f,
+                0.28f,
+                1f);
+
+        if (source != null)
+        {
+            if (source.HasProperty(
+                    "_ColorMap"))
+            {
+                emissionColor =
+                    source.GetColor(
+                        "_ColorMap");
+            }
+            else if (source.HasProperty(
+                         "_EmissionColor"))
+            {
+                Color sourceColor =
+                    source.GetColor(
+                        "_EmissionColor");
+
+                if (sourceColor.maxColorComponent >
+                    0.01f)
+                {
+                    emissionColor =
+                        sourceColor;
+                }
+            }
+        }
+
+        if (destination.HasProperty(
+                "_EmissionColor"))
+        {
+            destination.SetColor(
+                "_EmissionColor",
+                emissionColor);
+        }
+
+        float strength =
+            2.6f;
+
+        if (source != null &&
+            source.HasProperty(
+                "_Emission"))
+        {
+            strength =
+                Mathf.Max(
+                    strength,
+                    source.GetFloat(
+                        "_Emission"));
+        }
+
+        if (destination.HasProperty(
+                "_EmissionStrength"))
+        {
+            destination.SetFloat(
+                "_EmissionStrength",
+                strength);
+        }
     }
 
     private static bool IsCutoutFoliageMaterialName(
