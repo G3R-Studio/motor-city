@@ -11,6 +11,8 @@ Shader "MotorCity/NightEmissive"
         _EmissionStrength("Emission Strength", Range(0,8)) = 2.6
         _DayGlassTint("Day Glass Tint", Color) = (0.16,0.22,0.28,1)
         _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.34
+        _NightGlassTint("Night Glass Tint", Color) = (0.055,0.065,0.075,1)
+        _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.10
         _FresnelColor("Fresnel Color", Color) = (0.52,0.66,0.78,1)
         _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.24
         _SpecularStrength("Day Specular", Range(0,1)) = 0.22
@@ -62,6 +64,8 @@ Shader "MotorCity/NightEmissive"
                 half _BumpScale;
                 half4 _DayGlassTint;
                 half _DayGlassLift;
+                half4 _NightGlassTint;
+                half _NightGlassLift;
                 half4 _FresnelColor;
                 half _FresnelStrength;
                 half _SpecularStrength;
@@ -195,11 +199,27 @@ Shader "MotorCity/NightEmissive"
                         lighting,
                         half3(0.11h, 0.11h, 0.11h));
 
+                half nightAmount =
+                    saturate(
+                        _MotorCityNightEmission);
+
                 half3 dayGlass =
                     lerp(
                         litBase,
                         _DayGlassTint.rgb,
                         _DayGlassLift);
+
+                half3 nightGlass =
+                    lerp(
+                        litBase * 0.20h,
+                        _NightGlassTint.rgb,
+                        _NightGlassLift);
+
+                half3 glassBase =
+                    lerp(
+                        dayGlass,
+                        nightGlass,
+                        nightAmount);
 
                 half3 viewDirWS =
                     normalize(input.viewDirWS);
@@ -229,21 +249,27 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
-                half surfaceGloss =
+                half fresnelFade =
                     lerp(
                         1.0h,
-                        0.18h,
-                        saturate(_MotorCityNightEmission));
+                        0.055h,
+                        nightAmount);
+
+                half specularFade =
+                    lerp(
+                        1.0h,
+                        0.035h,
+                        nightAmount);
 
                 half3 color =
-                    dayGlass +
+                    glassBase +
                     _FresnelColor.rgb *
                     fresnel *
                     _FresnelStrength *
-                    surfaceGloss +
+                    fresnelFade +
                     mainLight.color *
                     specular *
-                    surfaceGloss;
+                    specularFade;
 
                 half4 emissionSample =
                     SAMPLE_TEXTURE2D(
@@ -253,7 +279,7 @@ Shader "MotorCity/NightEmissive"
 
                 half nightFactor =
                     saturate(
-                        (_MotorCityNightEmission - 0.30h) /
+                        (nightAmount - 0.30h) /
                         0.70h);
 
                 half emissionMask =
