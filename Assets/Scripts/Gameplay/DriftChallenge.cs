@@ -7,6 +7,7 @@ namespace MotorCity.Gameplay
     public sealed class DriftChallenge : MonoBehaviour
     {
         private const string ActivityId = "drift";
+        private const int EliteRequiredLevel = 3;
 
         private Vector3 zoneCenter;
         [SerializeField] private float startRadius = 15f;
@@ -38,6 +39,7 @@ namespace MotorCity.Gameplay
         private bool isCountingDown;
         private float countdownRemaining;
         private float outsideTimer;
+        private bool eliteMode;
 
         public bool IsActive { get; private set; }
         public bool IsCountingDown => isCountingDown;
@@ -165,13 +167,32 @@ namespace MotorCity.Gameplay
                 return;
             }
 
+            bool eliteUnlocked =
+                activityManager.HasDisciplineLevel(
+                    DisciplineType.Drift,
+                    EliteRequiredLevel);
+
+            string eliteHint =
+                eliteUnlocked
+                    ? "   SHIFT+E — ELITE"
+                    : $"   ELITE: DRIFT {EliteRequiredLevel}";
+
             StatusText =
                 $"ДРИФТ-ЗАЕЗД   E — НАЧАТЬ   " +
-                $"БРОНЗА {bronzeScore:N0}   ЛЕГЕНДА {legendaryScore:N0}";
+                $"БРОНЗА {bronzeScore:N0}   ЛЕГЕНДА {legendaryScore:N0}" +
+                eliteHint;
 
             if (keyboard != null &&
                 keyboard.eKey.wasPressedThisFrame)
             {
+                bool wantsElite =
+                    keyboard.leftShiftKey.isPressed ||
+                    keyboard.rightShiftKey.isPressed;
+
+                eliteMode =
+                    wantsElite &&
+                    eliteUnlocked;
+
                 BeginCountdown();
             }
         }
@@ -192,7 +213,9 @@ namespace MotorCity.Gameplay
                     countdownSeconds);
 
             TimeRemaining =
-                durationSeconds;
+                eliteMode
+                    ? 48f
+                    : durationSeconds;
 
             outsideTimer = 0f;
 
@@ -217,7 +240,11 @@ namespace MotorCity.Gameplay
 
             isCountingDown = false;
             IsActive = true;
-            TimeRemaining = durationSeconds;
+            TimeRemaining =
+                eliteMode
+                    ? 48f
+                    : durationSeconds;
+
             scoreAtStart = drift.TotalScore;
             outsideTimer = 0f;
 
@@ -235,7 +262,8 @@ namespace MotorCity.Gameplay
                         countdownRemaining));
 
             StatusText =
-                $"ДРИФТ   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+                $"{(eliteMode ? "ELITE DRIFT" : "ДРИФТ")}   " +
+                $"СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
         }
 
         private void UpdateActiveChallenge()
@@ -309,17 +337,26 @@ namespace MotorCity.Gameplay
             int score =
                 CurrentScore;
 
-            if (score < bronzeScore)
-                return $"БРОНЗА {bronzeScore:N0}";
+            int bronze =
+                eliteMode ? 3000 : bronzeScore;
+            int silver =
+                eliteMode ? 4800 : silverScore;
+            int gold =
+                eliteMode ? 6800 : goldScore;
+            int legendary =
+                eliteMode ? 9000 : legendaryScore;
 
-            if (score < silverScore)
-                return $"СЕРЕБРО {silverScore:N0}";
+            if (score < bronze)
+                return $"БРОНЗА {bronze:N0}";
 
-            if (score < goldScore)
-                return $"ЗОЛОТО {goldScore:N0}";
+            if (score < silver)
+                return $"СЕРЕБРО {silver:N0}";
 
-            if (score < legendaryScore)
-                return $"ЛЕГЕНДА {legendaryScore:N0}";
+            if (score < gold)
+                return $"ЗОЛОТО {gold:N0}";
+
+            if (score < legendary)
+                return $"ЛЕГЕНДА {legendary:N0}";
 
             return "ЛЕГЕНДА ДОСТИГНУТА";
         }
@@ -329,11 +366,20 @@ namespace MotorCity.Gameplay
             int finalScore =
                 CurrentScore;
 
+            int bronze =
+                eliteMode ? 3000 : bronzeScore;
+            int silver =
+                eliteMode ? 4800 : silverScore;
+            int gold =
+                eliteMode ? 6800 : goldScore;
+            int legendary =
+                eliteMode ? 9000 : legendaryScore;
+
             if (finalScore <
-                bronzeScore)
+                bronze)
             {
                 FailChallenge(
-                    $"НЕ ХВАТИЛО ОЧКОВ: {finalScore:N0}/{bronzeScore:N0}");
+                    $"НЕ ХВАТИЛО ОЧКОВ: {finalScore:N0}/{bronze:N0}");
                 return;
             }
 
@@ -341,21 +387,21 @@ namespace MotorCity.Gameplay
             int reward;
 
             if (finalScore >=
-                legendaryScore)
+                legendary)
             {
                 tier = "ЛЕГЕНДА";
                 reward =
                     legendaryRewardCredits;
             }
             else if (finalScore >=
-                     goldScore)
+                     gold)
             {
                 tier = "ЗОЛОТО";
                 reward =
                     goldRewardCredits;
             }
             else if (finalScore >=
-                     silverScore)
+                     silver)
             {
                 tier = "СЕРЕБРО";
                 reward =
@@ -366,6 +412,13 @@ namespace MotorCity.Gameplay
                 tier = "БРОНЗА";
                 reward =
                     bronzeRewardCredits;
+            }
+
+            if (eliteMode)
+            {
+                reward =
+                    Mathf.RoundToInt(
+                        reward * 1.6f);
             }
 
             wallet.AddCredits(
@@ -380,9 +433,11 @@ namespace MotorCity.Gameplay
 
             activityManager.ShowResult(
                 ActivityId,
-                "ДРИФТ-ЗАЕЗД",
+                eliteMode
+                    ? "ELITE DRIFT"
+                    : "ДРИФТ-ЗАЕЗД",
                 tier,
-                $"Очки: {finalScore:N0}   •   Время: {durationSeconds:0}с",
+                $"Очки: {finalScore:N0}   •   Время: {(eliteMode ? 48f : durationSeconds):0}с",
                 reward,
                 true);
 
