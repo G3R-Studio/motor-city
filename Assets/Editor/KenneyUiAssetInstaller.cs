@@ -28,7 +28,6 @@ public static class KenneyUiAssetInstaller
         EditorApplication.delayCall += AutoInstall;
     }
 
-    [MenuItem("Motor City/Install or Rebuild Kenney UI")]
     public static void InstallFromMenu()
     {
         Install(true);
