@@ -1019,7 +1019,8 @@ namespace MotorCity.Bootstrap
             StuntJumpSystem stuntJumps,
             ActivityManager activityManager,
             GarageUpgradeSystem garage,
-            CareerProgressionSystem career)
+            CareerProgressionSystem career,
+            VehicleHistorySystem vehicleHistory)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
@@ -1037,7 +1038,8 @@ namespace MotorCity.Bootstrap
                 stuntJumps,
                 activityManager,
                 garage,
-                career);
+                career,
+                vehicleHistory);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
