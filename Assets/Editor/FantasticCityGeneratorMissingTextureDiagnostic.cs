@@ -25,7 +25,6 @@ public static class FantasticCityGeneratorMissingTextureDiagnostic
             @"guid:\s*([0-9a-fA-F]{32})",
             RegexOptions.Compiled);
 
-    [MenuItem("Motor City/Fantastic City Generator/Diagnose Missing Texture References")]
     public static void Diagnose()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
