@@ -43,8 +43,6 @@ namespace MotorCity.World
             refreshTimer =
                 0.75f;
 
-            Debug.Log(
-                "Motor City: FCG traffic performance optimizer enabled.");
         }
 
         private void Update()
