@@ -42,6 +42,13 @@ namespace MotorCity.Bootstrap
             ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
             car.gameObject.AddComponent<PlayerHeadlights>();
 
+            CityDistanceOptimizer cityDistanceOptimizer =
+                new GameObject(
+                    "City Distance Optimizer")
+                    .AddComponent<CityDistanceOptimizer>();
+
+            cityDistanceOptimizer.Initialize();
+
             BindFcgTrafficPlayer(
                 car.transform);
 
