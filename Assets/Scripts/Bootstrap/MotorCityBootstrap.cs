@@ -72,6 +72,16 @@ namespace MotorCity.Bootstrap
                 systems.AddComponent<ActivityManager>();
             activityManager.Initialize(
                 reputation);
+
+            DisciplineReputationSystem disciplineReputation =
+                systems.AddComponent<DisciplineReputationSystem>();
+
+            disciplineReputation.Initialize(
+                activityManager);
+
+            activityManager.SetDisciplineReputation(
+                disciplineReputation);
+
             PlayerWallet wallet =
                 systems.AddComponent<PlayerWallet>();
 
