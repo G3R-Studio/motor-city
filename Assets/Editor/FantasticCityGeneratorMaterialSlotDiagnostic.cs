@@ -16,7 +16,6 @@ public static class FantasticCityGeneratorMaterialSlotDiagnostic
     private const string OutputReportPath =
         "MotorCity_FCGMaterialSlotMismatchReport.txt";
 
-    [MenuItem("Motor City/Fantastic City Generator/Diagnose Material Slot Mismatches from Scene Report")]
     public static void Diagnose()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
