@@ -152,12 +152,6 @@ namespace MotorCity.World
 
             ResolveGameplayLayout();
 
-            Debug.Log(
-                "Motor City: authored city loaded without runtime map modifications. " +
-                $"Bounds center={cityBounds.center}, size={cityBounds.size}. " +
-                $"Spawn={PlayerSpawnPoint}, Garage={GaragePoint}, " +
-                $"Drift={DriftChallengePoint}.");
-
             return true;
         }
 
