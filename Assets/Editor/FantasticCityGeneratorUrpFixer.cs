@@ -468,6 +468,9 @@ public static class FantasticCityGeneratorUrpFixer
                             false;
                 }
 
+                ApplyTrafficSignalEmission(
+                    clone);
+
                 string path =
                     TrafficCarRoot +
                     "/" +
@@ -578,6 +581,215 @@ public static class FantasticCityGeneratorUrpFixer
         }
 
         return rebuilt;
+    }
+
+    private static void ApplyTrafficSignalEmission(
+        GameObject carRoot)
+    {
+        if (carRoot == null)
+            return;
+
+        Material brakeMaterial =
+            GetOrCreateTrafficSignalMaterial(
+                "MotorCity_TrafficBrake",
+                new Color(
+                    0.35f,
+                    0.015f,
+                    0.01f,
+                    1f),
+                new Color(
+                    5.2f,
+                    0.08f,
+                    0.035f,
+                    1f));
+
+        Material turnMaterial =
+            GetOrCreateTrafficSignalMaterial(
+                "MotorCity_TrafficTurn",
+                new Color(
+                    0.32f,
+                    0.12f,
+                    0.01f,
+                    1f),
+                new Color(
+                    5.5f,
+                    1.1f,
+                    0.08f,
+                    1f));
+
+        foreach (MonoBehaviour behaviour in
+                 carRoot.GetComponentsInChildren<MonoBehaviour>(true))
+        {
+            if (behaviour == null)
+                continue;
+
+            Type type =
+                behaviour.GetType();
+
+            if (!string.Equals(
+                    type.FullName,
+                    "FCG.TrafficCar",
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            AssignSignalMaterial(
+                type,
+                behaviour,
+                "BreakLight",
+                brakeMaterial);
+
+            AssignSignalMaterial(
+                type,
+                behaviour,
+                "LightLeft",
+                turnMaterial);
+
+            AssignSignalMaterial(
+                type,
+                behaviour,
+                "LightRight",
+                turnMaterial);
+        }
+    }
+
+    private static void AssignSignalMaterial(
+        Type trafficCarType,
+        MonoBehaviour trafficCar,
+        string fieldName,
+        Material material)
+    {
+        if (trafficCarType == null ||
+            trafficCar == null ||
+            material == null)
+        {
+            return;
+        }
+
+        System.Reflection.FieldInfo field =
+            trafficCarType.GetField(
+                fieldName);
+
+        if (field == null ||
+            !typeof(GameObject).IsAssignableFrom(
+                field.FieldType))
+        {
+            return;
+        }
+
+        GameObject signalObject =
+            field.GetValue(
+                trafficCar) as GameObject;
+
+        if (signalObject == null)
+            return;
+
+        foreach (Renderer renderer in
+                 signalObject.GetComponentsInChildren<Renderer>(true))
+        {
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                materials[i] =
+                    material;
+            }
+
+            renderer.sharedMaterials =
+                materials;
+        }
+    }
+
+    private static Material GetOrCreateTrafficSignalMaterial(
+        string assetName,
+        Color baseColor,
+        Color emissionColor)
+    {
+        string path =
+            MaterialRoot +
+            "/" +
+            assetName +
+            ".mat";
+
+        Material material =
+            AssetDatabase.LoadAssetAtPath<Material>(
+                path);
+
+        Shader shader =
+            Shader.Find(
+                "Universal Render Pipeline/Lit");
+
+        if (shader == null)
+            return material;
+
+        if (material == null)
+        {
+            material =
+                new Material(
+                    shader);
+
+            AssetDatabase.CreateAsset(
+                material,
+                path);
+        }
+        else
+        {
+            material.shader =
+                shader;
+        }
+
+        material.name =
+            assetName;
+
+        material.enableInstancing =
+            true;
+
+        if (material.HasProperty(
+                "_BaseColor"))
+        {
+            material.SetColor(
+                "_BaseColor",
+                baseColor);
+        }
+
+        if (material.HasProperty(
+                "_Metallic"))
+        {
+            material.SetFloat(
+                "_Metallic",
+                0f);
+        }
+
+        if (material.HasProperty(
+                "_Smoothness"))
+        {
+            material.SetFloat(
+                "_Smoothness",
+                0.28f);
+        }
+
+        if (material.HasProperty(
+                "_EmissionColor"))
+        {
+            material.SetColor(
+                "_EmissionColor",
+                emissionColor);
+        }
+
+        material.EnableKeyword(
+            "_EMISSION");
+
+        material.globalIlluminationFlags =
+            MaterialGlobalIlluminationFlags.None;
+
+        EditorUtility.SetDirty(
+            material);
+
+        return material;
     }
 
     public static void DiagnoseMaterialsInActiveScene()
