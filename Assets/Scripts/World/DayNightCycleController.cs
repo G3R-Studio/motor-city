@@ -1120,7 +1120,7 @@ namespace MotorCity.World
                 type,
                 "maxAdditionalLightsCount",
                 "m_AdditionalLightsPerObjectLimit",
-                8);
+                6);
         }
 
         private static void TrySetEnumMember(
