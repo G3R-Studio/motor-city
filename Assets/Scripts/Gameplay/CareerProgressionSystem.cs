@@ -126,6 +126,40 @@ namespace MotorCity.Gameplay
                     Time.deltaTime);
         }
 
+        public void SetStageForTesting(
+            int stage)
+        {
+            Stage =
+                Mathf.Clamp(
+                    stage,
+                    0,
+                    StageCount);
+
+            int completedWins =
+                Stage switch
+                {
+                    0 => 0,
+                    1 => 1,
+                    2 => 3,
+                    _ => 5
+                };
+
+            deliveryWins = completedWins;
+            driftWins = completedWins;
+            sprintWins = completedWins;
+            circuitWins = completedWins;
+
+            PlayerPrefs.SetInt(
+                StageKey,
+                Stage);
+
+            SaveCounters();
+            PlayerPrefs.Save();
+
+            messageTimer = 0f;
+            StatusText = string.Empty;
+        }
+
         private void HandleActivityResult(
             string activityId,
             bool success)
