@@ -195,6 +195,42 @@ namespace MotorCity.Gameplay
             };
         }
 
+        public void SetUpgradeLevelsForTesting(
+            int engine,
+            int grip,
+            int stability)
+        {
+            EngineLevel =
+                Mathf.Clamp(
+                    engine,
+                    0,
+                    MaxLevel);
+
+            GripLevel =
+                Mathf.Clamp(
+                    grip,
+                    0,
+                    MaxLevel);
+
+            StabilityLevel =
+                Mathf.Clamp(
+                    stability,
+                    0,
+                    MaxLevel);
+
+            Save();
+            ApplyUpgrades();
+        }
+
+        public void SetAllUpgradeLevelsForTesting(
+            int level)
+        {
+            SetUpgradeLevelsForTesting(
+                level,
+                level,
+                level);
+        }
+
         private void OpenGarage()
         {
             CancelActiveMission();
