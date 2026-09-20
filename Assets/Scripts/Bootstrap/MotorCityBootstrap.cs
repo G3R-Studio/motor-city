@@ -111,12 +111,6 @@ namespace MotorCity.Bootstrap
 
             positionPersistence.RestoreSavedPosition();
 
-            AdminDebugPanel adminPanel =
-                systems.AddComponent<AdminDebugPanel>();
-            adminPanel.Initialize(
-                wallet,
-                reputation);
-
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
             delivery.Initialize(car, wallet, activityManager);
 
@@ -173,6 +167,24 @@ namespace MotorCity.Bootstrap
                 circuitRace,
                 vehicleRoster,
                 vehicleMastery);
+
+            AdminDebugPanel adminPanel =
+                systems.AddComponent<AdminDebugPanel>();
+
+            adminPanel.Initialize(
+                wallet,
+                reputation,
+                disciplineReputation,
+                vehicleMastery,
+                vehicleRoster,
+                garage,
+                career,
+                activityManager,
+                car,
+                delivery,
+                driftChallenge,
+                streetSprint,
+                circuitRace);
 
             CreateDeliveryMarker(delivery, activityManager);
             CreateDriftChallengeMarker(driftChallenge, activityManager);
