@@ -40,6 +40,8 @@ namespace MotorCity.Bootstrap
 
             ArcadeCarController car = CreateCar();
             ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
+            BindFcgTrafficPlayer(
+                car.transform);
 
             VehiclePositionPersistence positionPersistence =
                 car.gameObject.AddComponent<VehiclePositionPersistence>();
@@ -152,6 +154,63 @@ namespace MotorCity.Bootstrap
                 stuntJumps,
                 activityManager,
                 garage);
+        }
+
+        private static void BindFcgTrafficPlayer(
+            Transform player)
+        {
+            if (player == null)
+                return;
+
+            GameObject cityRoot =
+                GameObject.Find(
+                    "MotorCity_FCGCity") ??
+                GameObject.Find(
+                    "City-Maker");
+
+            if (cityRoot == null)
+                return;
+
+            foreach (MonoBehaviour behaviour in
+                     cityRoot.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (behaviour == null)
+                    continue;
+
+                System.Type type =
+                    behaviour.GetType();
+
+                if (!string.Equals(
+                        type.FullName,
+                        "FCG.TrafficSystem",
+                        System.StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                System.Reflection.FieldInfo playerField =
+                    type.GetField(
+                        "player");
+
+                if (playerField == null ||
+                    !typeof(Transform).IsAssignableFrom(
+                        playerField.FieldType))
+                {
+                    Debug.LogWarning(
+                        "Motor City: FCG TrafficSystem was found, but its public player field is unavailable.");
+
+                    return;
+                }
+
+                playerField.SetValue(
+                    behaviour,
+                    player);
+
+                Debug.Log(
+                    "Motor City: linked PlayerCar to FCG TrafficSystem so distance-based traffic limits can run.");
+
+                return;
+            }
         }
 
         private static Light CreateLighting()
