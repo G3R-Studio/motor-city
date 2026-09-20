@@ -19,7 +19,6 @@ public static class MotorCityLocalProjectAudit
     private const string FcgRoot =
         "Assets/Fantastic City Generator";
 
-    [MenuItem("Motor City/Diagnostics/Export Local Project Audit")]
     public static void ExportAudit()
     {
         string projectRoot =
