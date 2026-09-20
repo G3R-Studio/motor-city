@@ -27,10 +27,32 @@ public static class PolyPackVehicleImporter
 
     private static void TryAutoBuild()
     {
-        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        if (EditorApplication.isPlayingOrWillChangePlaymode ||
+            HasAllOutputs())
+        {
             return;
+        }
 
         Build(false);
+    }
+
+    private static bool HasAllOutputs()
+    {
+        for (int i = 0;
+             i < VehicleCount;
+             i++)
+        {
+            string outputPath =
+                $"{OutputDirectory}/Vehicle_{i + 1:00}.prefab";
+
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                    outputPath) == null)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static void Build(
@@ -105,9 +127,12 @@ public static class PolyPackVehicleImporter
 
                 written++;
 
-                Debug.Log(
-                    $"Motor City: prepared garage vehicle {i + 1} " +
-                    $"from '{selected[i].Path}'.");
+                if (force)
+                {
+                    Debug.Log(
+                        $"Motor City: prepared garage vehicle {i + 1} " +
+                        $"from '{selected[i].Path}'.");
+                }
             }
             finally
             {
@@ -227,17 +252,7 @@ public static class PolyPackVehicleImporter
                     asset);
 
             if (wheelParts < 4)
-            {
-                if (lower.Contains("polypack") ||
-                    lower.Contains("alstra"))
-                {
-                    Debug.Log(
-                        $"Motor City: skipping PolyPack model '{path}' — " +
-                        $"only {wheelParts} separable wheel parts found.");
-                }
-
                 continue;
-            }
 
             int score =
                 Score(
@@ -258,27 +273,6 @@ public static class PolyPackVehicleImporter
                 });
 
             seen.Add(path);
-        }
-
-        if (result.Count == 0)
-        {
-            Debug.LogWarning(
-                "Motor City: Vehicles - PolyPack scan found no usable GameObject assets. " +
-                "Expected model names include SwiftoV1, MuscleCarV1, PickupV1 and SuvV1.");
-        }
-        else
-        {
-            Debug.Log(
-                "Motor City: Vehicles - PolyPack candidates: " +
-                string.Join(
-                    " | ",
-                    result
-                        .OrderByDescending(
-                            item => item.Score)
-                        .Take(12)
-                        .Select(
-                            item =>
-                                $"{item.Path} (score {item.Score})")));
         }
 
         return result
@@ -370,13 +364,7 @@ public static class PolyPackVehicleImporter
                     asset);
 
             if (wheelParts < 4)
-            {
-                Debug.Log(
-                    $"Motor City: preferred PolyPack model '{bestPath}' rejected — " +
-                    $"only {wheelParts} separable wheel parts found.");
-
                 continue;
-            }
 
             result.Add(
                 new Candidate
@@ -389,16 +377,6 @@ public static class PolyPackVehicleImporter
                         FamilyKey(
                             bestPath)
                 });
-        }
-
-        if (result.Count > 0)
-        {
-            Debug.Log(
-                "Motor City: explicit Vehicles - PolyPack models found: " +
-                string.Join(
-                    " | ",
-                    result.Select(
-                        item => item.Path)));
         }
 
         return result;
