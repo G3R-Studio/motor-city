@@ -950,7 +950,7 @@ namespace MotorCity.Bootstrap
             Camera camera = cameraObject.AddComponent<Camera>();
             camera.fieldOfView = 62f;
             camera.nearClipPlane = 0.12f;
-            camera.farClipPlane = 3162.5f;
+            camera.farClipPlane = 2200f;
             cameraObject.transform.position = target.position + new Vector3(0f, 2.8f, -6.8f);
             ChaseCamera chase = cameraObject.AddComponent<ChaseCamera>();
             chase.SetTarget(target);
