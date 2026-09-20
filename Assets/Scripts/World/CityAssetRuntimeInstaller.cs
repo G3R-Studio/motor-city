@@ -958,6 +958,27 @@ namespace MotorCity.World
                 }
             }
 
+            foreach (Renderer renderer in
+                     city.GetComponentsInChildren<Renderer>(
+                         true))
+            {
+                if (renderer == null ||
+                    !UsesTrafficCarAtlas(
+                        renderer))
+                    continue;
+
+                GameObject vehicleRoot =
+                    FindTrafficAtlasVehicleRoot(
+                        renderer.transform,
+                        cityRoot);
+
+                if (vehicleRoot != null)
+                {
+                    rootsToRemove.Add(
+                        vehicleRoot);
+                }
+            }
+
             int removed =
                 0;
 
@@ -983,6 +1004,105 @@ namespace MotorCity.World
             }
 
             return removed;
+        }
+
+        private static bool UsesTrafficCarAtlas(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return false;
+
+            foreach (Material material in
+                     renderer.sharedMaterials)
+            {
+                if (material == null)
+                    continue;
+
+                string normalized =
+                    NormalizeStaticVehicleName(
+                        material.name);
+
+                if (normalized.Contains(
+                        "trafficcaratlas"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static GameObject FindTrafficAtlasVehicleRoot(
+            Transform item,
+            Transform cityRoot)
+        {
+            if (item == null)
+                return null;
+
+            Transform current =
+                item;
+
+            Transform candidate =
+                item;
+
+            while (current.parent != null &&
+                   current.parent != cityRoot)
+            {
+                Transform parent =
+                    current.parent;
+
+                string parentName =
+                    NormalizeStaticVehicleName(
+                        parent.name);
+
+                if (parentName == "cars" ||
+                    parentName == "vehicles" ||
+                    parentName.Contains(
+                        "trafficcars") ||
+                    parentName.Contains(
+                        "parkedcars"))
+                {
+                    return current.gameObject;
+                }
+
+                if (parent.GetComponent<Renderer>() != null &&
+                    !UsesTrafficCarAtlas(
+                        parent.GetComponent<Renderer>()))
+                {
+                    break;
+                }
+
+                if (parent.GetComponent<Renderer>() != null ||
+                    parent.GetComponent<Collider>() != null)
+                {
+                    candidate =
+                        parent;
+                }
+
+                current =
+                    parent;
+
+                if (current.parent == null ||
+                    current.parent == cityRoot)
+                    break;
+
+                string currentName =
+                    NormalizeStaticVehicleName(
+                        current.name);
+
+                if (currentName == "meshes" ||
+                    currentName == "buildings" ||
+                    currentName == "objects" ||
+                    currentName == "environment")
+                {
+                    break;
+                }
+            }
+
+            return
+                candidate != null
+                    ? candidate.gameObject
+                    : item.gameObject;
         }
 
         private static GameObject FindStaticParkedVehicleRoot(
