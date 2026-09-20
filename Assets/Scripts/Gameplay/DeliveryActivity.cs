@@ -10,6 +10,7 @@ namespace MotorCity.Gameplay
         private const string ActivityId = "delivery";
         private const string BestTimeKey =
             "MotorCity.Delivery.BestTime";
+        private const int EliteRequiredLevel = 3;
 
         [Header("Route")]
         [SerializeField] private float checkpointRadius = 12f;
@@ -35,6 +36,7 @@ namespace MotorCity.Gameplay
         private int checkpointIndex;
         private bool isCountingDown;
         private float countdownRemaining;
+        private bool eliteMode;
 
         public bool IsActive { get; private set; }
         public bool IsCountingDown => isCountingDown;
@@ -154,13 +156,32 @@ namespace MotorCity.Gameplay
                     ? $"   РЕК {BestTimeSeconds:0.0}с"
                     : string.Empty;
 
+            bool eliteUnlocked =
+                activityManager.HasDisciplineLevel(
+                    DisciplineType.Delivery,
+                    EliteRequiredLevel);
+
+            string eliteHint =
+                eliteUnlocked
+                    ? "   SHIFT+E — PREMIUM"
+                    : $"   PREMIUM: DELIVERY {EliteRequiredLevel}";
+
             StatusText =
                 $"ДОСТАВКА   E — НАЧАТЬ   " +
-                $"ЗОЛОТО ≤ {goldTimeSeconds:0}с{best}";
+                $"ЗОЛОТО ≤ {goldTimeSeconds:0}с{best}" +
+                eliteHint;
 
             if (keyboard != null &&
                 keyboard.eKey.wasPressedThisFrame)
             {
+                bool wantsElite =
+                    keyboard.leftShiftKey.isPressed ||
+                    keyboard.rightShiftKey.isPressed;
+
+                eliteMode =
+                    wantsElite &&
+                    eliteUnlocked;
+
                 BeginCountdown();
             }
         }
@@ -219,7 +240,8 @@ namespace MotorCity.Gameplay
                         countdownRemaining));
 
             StatusText =
-                $"ДОСТАВКА   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+                $"{(eliteMode ? "PREMIUM ДОСТАВКА" : "ДОСТАВКА")}   " +
+                $"СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
         }
 
         private void UpdateActiveDelivery()
@@ -254,23 +276,28 @@ namespace MotorCity.Gameplay
         private void UpdateStatus()
         {
             StatusText =
-                $"ДОСТАВКА  ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
+                $"{(eliteMode ? "PREMIUM ДОСТАВКА" : "ДОСТАВКА")}  " +
+                $"ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
                 $"{ElapsedSeconds:0.0}с   {CurrentTierHint()}   ESC — ОТМЕНА";
         }
 
         private string CurrentTierHint()
         {
-            if (ElapsedSeconds <=
-                goldTimeSeconds)
-                return $"ЗОЛОТО ≤ {goldTimeSeconds:0}с";
+            float gold =
+                eliteMode ? 52f : goldTimeSeconds;
+            float silver =
+                eliteMode ? 72f : silverTimeSeconds;
+            float bronze =
+                eliteMode ? 100f : bronzeTimeSeconds;
 
-            if (ElapsedSeconds <=
-                silverTimeSeconds)
-                return $"СЕРЕБРО ≤ {silverTimeSeconds:0}с";
+            if (ElapsedSeconds <= gold)
+                return $"ЗОЛОТО ≤ {gold:0}с";
 
-            if (ElapsedSeconds <=
-                bronzeTimeSeconds)
-                return $"БРОНЗА ≤ {bronzeTimeSeconds:0}с";
+            if (ElapsedSeconds <= silver)
+                return $"СЕРЕБРО ≤ {silver:0}с";
+
+            if (ElapsedSeconds <= bronze)
+                return $"БРОНЗА ≤ {bronze:0}с";
 
             return "ДОСТАВЬ ГРУЗ";
         }
@@ -280,22 +307,29 @@ namespace MotorCity.Gameplay
             string tier;
             int reward;
 
+            float gold =
+                eliteMode ? 52f : goldTimeSeconds;
+            float silver =
+                eliteMode ? 72f : silverTimeSeconds;
+            float bronze =
+                eliteMode ? 100f : bronzeTimeSeconds;
+
             if (ElapsedSeconds <=
-                goldTimeSeconds)
+                gold)
             {
                 tier = "ЗОЛОТО";
                 reward =
                     goldRewardCredits;
             }
             else if (ElapsedSeconds <=
-                     silverTimeSeconds)
+                     silver)
             {
                 tier = "СЕРЕБРО";
                 reward =
                     silverRewardCredits;
             }
             else if (ElapsedSeconds <=
-                     bronzeTimeSeconds)
+                     bronze)
             {
                 tier = "БРОНЗА";
                 reward =
@@ -325,6 +359,13 @@ namespace MotorCity.Gameplay
                 PlayerPrefs.Save();
             }
 
+            if (eliteMode)
+            {
+                reward =
+                    Mathf.RoundToInt(
+                        reward * 1.6f);
+            }
+
             wallet.AddCredits(
                 reward);
 
@@ -342,7 +383,9 @@ namespace MotorCity.Gameplay
 
             activityManager.ShowResult(
                 ActivityId,
-                "ДОСТАВКА",
+                eliteMode
+                    ? "PREMIUM DELIVERY"
+                    : "ДОСТАВКА",
                 tier,
                 $"Время: {ElapsedSeconds:0.0}с{record}",
                 reward,
