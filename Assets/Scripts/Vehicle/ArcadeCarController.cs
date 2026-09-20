@@ -574,9 +574,6 @@ namespace MotorCity.Vehicle
                 drivingEnabled &&
                 resetHoldTimer <= 0f);
 
-            Debug.Log(
-                "Motor City: Prometeo Car Controller is now the active vehicle physics controller.");
-
             return true;
         }
 
