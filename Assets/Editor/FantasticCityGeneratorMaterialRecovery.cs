@@ -20,7 +20,6 @@ public static class FantasticCityGeneratorMaterialRecovery
             @"([^,\[]+?) \[[^\]]+\](?:, |$)",
             RegexOptions.Compiled);
 
-    [MenuItem("Motor City/Fantastic City Generator/Recover Saved FCG Materials from Scene Report")]
     public static void Recover()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
