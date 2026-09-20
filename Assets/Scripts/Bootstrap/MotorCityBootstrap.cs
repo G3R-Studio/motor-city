@@ -850,7 +850,7 @@ namespace MotorCity.Bootstrap
                         PrimitiveType.Cube,
                         root.transform,
                         new Vector3(
-                            7.2f,
+                            4.4f,
                             0.45f,
                             8.2f),
                         new Vector3(
@@ -866,8 +866,8 @@ namespace MotorCity.Bootstrap
                         0f,
                         0f);
 
-                for (int stripe = -2;
-                     stripe <= 2;
+                for (int stripe = -1;
+                     stripe <= 1;
                      stripe++)
                 {
                     GameObject marker =
@@ -880,7 +880,7 @@ namespace MotorCity.Bootstrap
                                 0.05f,
                                 7.5f),
                             new Vector3(
-                                stripe * 1.25f,
+                                stripe * 1.35f,
                                 1.13f,
                                 0.05f),
                             stripeMaterial,
