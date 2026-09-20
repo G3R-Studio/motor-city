@@ -27,7 +27,6 @@ namespace MotorCity.Vehicle
         [SerializeField] private int baseMaxSpeedKph = 250;
         [SerializeField] private int maxReverseSpeedKph = 55;
         [SerializeField] private int accelerationMultiplier = 12;
-        [SerializeField] private int maxSteeringAngle = 32;
         [SerializeField] private float steeringSpeed = 0.68f;
         [SerializeField] private int brakeForce = 900;
         [SerializeField] private int decelerationMultiplier = 1;
