@@ -246,6 +246,15 @@ namespace MotorCity.World
                 "_MotorCityNightEmission",
                 NightAmount);
 
+            // Keep daytime reflections intact, but reduce environment
+            // reflections at night so URP Lit surfaces do not look like
+            // wet plastic under dense realtime street lighting.
+            RenderSettings.reflectionIntensity =
+                Mathf.Lerp(
+                    1f,
+                    0.22f,
+                    NightAmount);
+
             IsNight =
                 NightAmount >=
                 0.58f;
@@ -781,12 +790,12 @@ namespace MotorCity.World
             light.intensity =
                 Mathf.Max(
                     light.intensity,
-                    95f);
+                    66f);
 
             light.range =
                 Mathf.Max(
                     light.range,
-                    30f);
+                    32f);
 
             light.bounceIntensity =
                 0f;
