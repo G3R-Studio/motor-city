@@ -91,6 +91,14 @@ namespace MotorCity.Bootstrap
                 car,
                 reputation);
 
+            VehicleMasterySystem vehicleMastery =
+                systems.AddComponent<VehicleMasterySystem>();
+
+            vehicleMastery.Initialize(
+                activityManager,
+                vehicleRoster,
+                car);
+
             positionPersistence.RestoreSavedPosition();
 
             AdminDebugPanel adminPanel =
@@ -153,7 +161,8 @@ namespace MotorCity.Bootstrap
                 driftChallenge,
                 streetSprint,
                 circuitRace,
-                vehicleRoster);
+                vehicleRoster,
+                vehicleMastery);
 
             CreateDeliveryMarker(delivery, activityManager);
             CreateDriftChallengeMarker(driftChallenge, activityManager);
