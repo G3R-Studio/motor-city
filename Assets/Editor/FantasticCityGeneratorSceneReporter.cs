@@ -16,7 +16,6 @@ public static class FantasticCityGeneratorSceneReporter
     private const string ReportFileName =
         "MotorCity_FCGSceneReport.txt";
 
-    [MenuItem("Motor City/Fantastic City Generator/Export Active FCG City Report")]
     public static void ExportReport()
     {
         Scene scene =
