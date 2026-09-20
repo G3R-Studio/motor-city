@@ -90,6 +90,7 @@ namespace MotorCity.Vehicle
         private bool steeringInputHeld;
         private float prometeoRetryTimer;
         private float resetHoldTimer;
+        private float driveModeFrictionRefreshTimer;
 
         private int engineUpgradeLevel;
         private int gripUpgradeLevel;
@@ -271,6 +272,17 @@ namespace MotorCity.Vehicle
             }
 
             UpdatePrometeoInputProxies();
+
+            driveModeFrictionRefreshTimer -=
+                Time.unscaledDeltaTime;
+
+            if (driveModeFrictionRefreshTimer <= 0f)
+            {
+                driveModeFrictionRefreshTimer =
+                    0.12f;
+
+                ApplyWheelFriction();
+            }
 
             if (resetHoldTimer > 0f)
             {
@@ -551,7 +563,10 @@ namespace MotorCity.Vehicle
                     "Motor City: PrometeoTouchInput was not found, so Prometeo is falling back to its built-in input path.");
             }
 
-            ApplyPrometeoTuning();
+            ApplyDriveModeTuning();
+
+            driveModeFrictionRefreshTimer =
+                0f;
 
             warnedMissingPrometeo = false;
 
@@ -1646,6 +1661,9 @@ namespace MotorCity.Vehicle
 
             ApplyDriveModeTuning();
 
+            driveModeFrictionRefreshTimer =
+                0f;
+
             PlayerPrefs.SetInt(
                 DriveModeKey,
                 nextMode);
@@ -1790,8 +1808,23 @@ namespace MotorCity.Vehicle
         private void SetPrometeoEnabled(
             bool enabled)
         {
-            if (prometeo is Behaviour behaviour)
-                behaviour.enabled = enabled;
+            if (prometeo is not Behaviour behaviour)
+                return;
+
+            behaviour.enabled =
+                enabled;
+
+            if (!enabled)
+                return;
+
+            // Prometeo can restore its own cached steering/traction values
+            // after being disabled or after a traction-recovery cycle.
+            // Reassert the selected Motor City drive mode immediately.
+            ApplyPrometeoTuning();
+            ApplyWheelFriction();
+
+            driveModeFrictionRefreshTimer =
+                0f;
         }
 
         private void SetPrometeoField(
