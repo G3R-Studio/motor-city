@@ -140,6 +140,10 @@ namespace MotorCity.World
             EnsureDriveableMeshColliders(
                 activeCity);
 
+            int removedParkedVehicles =
+                RemoveStaticParkedVehicles(
+                    activeCity);
+
             CityCollisionUtility.Result collisionResult =
                 CityCollisionUtility.Prepare(
                     activeCity);
@@ -164,6 +168,7 @@ namespace MotorCity.World
                 "Motor City: Fantastic City Generator city installed. " +
                 $"Bounds center={cityBounds.center}, size={cityBounds.size}. " +
                 $"Pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
+                $"parked vehicles removed={removedParkedVehicles}, " +
                 $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
                 $"pedestrian signal renderers disabled={stabilizedPedestrianSignals}, " +
                 $"safety floor={collisionResult.SafetyFloorReady}. " +
@@ -919,6 +924,147 @@ namespace MotorCity.World
             }
 
             return score;
+        }
+
+        private static int RemoveStaticParkedVehicles(
+            GameObject city)
+        {
+            if (city == null)
+                return 0;
+
+            Transform cityRoot =
+                city.transform;
+
+            var rootsToRemove =
+                new HashSet<GameObject>();
+
+            foreach (Transform item in
+                     city.GetComponentsInChildren<Transform>(
+                         true))
+            {
+                if (item == null ||
+                    item == cityRoot)
+                    continue;
+
+                GameObject vehicleRoot =
+                    FindStaticParkedVehicleRoot(
+                        item,
+                        cityRoot);
+
+                if (vehicleRoot != null)
+                {
+                    rootsToRemove.Add(
+                        vehicleRoot);
+                }
+            }
+
+            int removed =
+                0;
+
+            foreach (GameObject vehicleRoot in
+                     rootsToRemove)
+            {
+                if (vehicleRoot == null)
+                    continue;
+
+                vehicleRoot.SetActive(
+                    false);
+
+                UnityEngine.Object.Destroy(
+                    vehicleRoot);
+
+                removed++;
+            }
+
+            if (removed > 0)
+            {
+                Debug.Log(
+                    $"Motor City: removed {removed} baked static parked vehicles from the FCG city.");
+            }
+
+            return removed;
+        }
+
+        private static GameObject FindStaticParkedVehicleRoot(
+            Transform item,
+            Transform cityRoot)
+        {
+            Transform current =
+                item;
+
+            Transform knownVehicleRoot =
+                null;
+
+            while (current != null &&
+                   current != cityRoot)
+            {
+                string normalized =
+                    NormalizeStaticVehicleName(
+                        current.name);
+
+                if (normalized.Contains(
+                        "tempra") ||
+                    normalized.Contains(
+                        "vesta"))
+                {
+                    knownVehicleRoot =
+                        current;
+                }
+
+                Transform parent =
+                    current.parent;
+
+                if (parent == null)
+                    break;
+
+                string parentName =
+                    NormalizeStaticVehicleName(
+                        parent.name);
+
+                if (parentName == "cars" ||
+                    parentName == "vehicles")
+                {
+                    return current.gameObject;
+                }
+
+                current =
+                    parent;
+            }
+
+            return
+                knownVehicleRoot != null
+                    ? knownVehicleRoot.gameObject
+                    : null;
+        }
+
+        private static string NormalizeStaticVehicleName(
+            string value)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    value))
+                return string.Empty;
+
+            char[] source =
+                value
+                    .ToLowerInvariant()
+                    .ToCharArray();
+
+            var result =
+                new System.Text.StringBuilder(
+                    source.Length);
+
+            foreach (char character in source)
+            {
+                if (char.IsLetterOrDigit(
+                        character))
+                {
+                    result.Append(
+                        character);
+                }
+            }
+
+            return
+                result.ToString();
         }
 
         private static void EnsureDriveableMeshColliders(
