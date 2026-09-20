@@ -276,10 +276,13 @@ namespace MotorCity.Gameplay
                     continue;
                 }
 
+                string status =
+                    string.Empty;
+
                 if (roster != null &&
                     roster.SelectVehicleForTesting(
                         i,
-                        out string status))
+                        out status))
                 {
                     lastAction =
                         status;
