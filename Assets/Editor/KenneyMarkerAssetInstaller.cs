@@ -30,7 +30,6 @@ public static class KenneyMarkerAssetInstaller
         EditorApplication.delayCall += AutoInstall;
     }
 
-    [MenuItem("Motor City/Install or Rebuild Kenney Markers")]
     public static void InstallFromMenu()
     {
         Install(true);
