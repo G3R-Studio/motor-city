@@ -8,7 +8,6 @@ public static class FantasticCityGeneratorAtlasRepair
     private const string MaterialPath =
         "Assets/Resources/MotorCity/Environment/FCGMaterials/Atlas-1_";
 
-    [MenuItem("Motor City/Fantastic City Generator/Repair FCG Atlas-1 Visibility")]
     public static void Repair()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
