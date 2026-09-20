@@ -463,28 +463,20 @@ public static class FantasticCityGeneratorUrpFixer
             IsCutoutFoliageMaterialName(
                 source.name);
 
-        bool glass =
-            IsGlassMaterialName(
-                source.name);
-
         bool nightEmissive =
             IsNightEmissionMaterialName(
                 source.name);
 
         Shader targetShader =
-            glass
+            nightEmissive
                 ? Shader.Find(
-                      "MotorCity/CityGlass") ??
+                      "MotorCity/NightEmissive") ??
                   urpLit
-                : nightEmissive
+                : foliage
                     ? Shader.Find(
-                          "MotorCity/NightEmissive") ??
+                          "MotorCity/TwoSidedFoliage") ??
                       urpLit
-                    : foliage
-                        ? Shader.Find(
-                              "MotorCity/TwoSidedFoliage") ??
-                          urpLit
-                        : urpLit;
+                    : urpLit;
 
         Material material =
             AssetDatabase.LoadAssetAtPath<Material>(
@@ -537,13 +529,7 @@ public static class FantasticCityGeneratorUrpFixer
             source,
             material);
 
-        if (glass)
-        {
-            ConfigureGlassMaterial(
-                source,
-                material);
-        }
-        else if (nightEmissive)
+        if (nightEmissive)
         {
             ConfigureNightEmissionMaterial(
                 source,
@@ -902,6 +888,13 @@ public static class FantasticCityGeneratorUrpFixer
             source.renderQueue ==
                 (int)RenderQueue.AlphaTest;
 
+        bool explicitTransparentMode =
+            source.HasProperty(
+                "_Mode") &&
+            source.GetFloat(
+                "_Mode") >=
+                2.5f;
+
         bool transparent =
             !cutout &&
             (shaderName.IndexOf(
@@ -909,7 +902,7 @@ public static class FantasticCityGeneratorUrpFixer
                  StringComparison.OrdinalIgnoreCase) >= 0 ||
              source.renderQueue >=
                  (int)RenderQueue.Transparent ||
-             materialName.Contains("glass"));
+             explicitTransparentMode);
 
         destination.DisableKeyword(
             "_ALPHATEST_ON");
@@ -1069,28 +1062,20 @@ public static class FantasticCityGeneratorUrpFixer
             IsCutoutFoliageMaterialName(
                 generatedName);
 
-        bool glass =
-            IsGlassMaterialName(
-                generatedName);
-
         bool nightEmissive =
             IsNightEmissionMaterialName(
                 generatedName);
 
         Shader targetShader =
-            glass
+            nightEmissive
                 ? Shader.Find(
-                      "MotorCity/CityGlass") ??
+                      "MotorCity/NightEmissive") ??
                   urpLit
-                : nightEmissive
+                : foliage
                     ? Shader.Find(
-                          "MotorCity/NightEmissive") ??
+                          "MotorCity/TwoSidedFoliage") ??
                       urpLit
-                    : foliage
-                        ? Shader.Find(
-                              "MotorCity/TwoSidedFoliage") ??
-                          urpLit
-                        : urpLit;
+                    : urpLit;
 
         material.shader =
             targetShader;
@@ -1130,13 +1115,7 @@ public static class FantasticCityGeneratorUrpFixer
                 source,
                 material);
 
-            if (glass)
-            {
-                ConfigureGlassMaterial(
-                    source,
-                    material);
-            }
-            else if (nightEmissive)
+            if (nightEmissive)
             {
                 ConfigureNightEmissionMaterial(
                     source,
@@ -1941,109 +1920,6 @@ public static class FantasticCityGeneratorUrpFixer
             lower.Contains("palm");
     }
 
-    private static bool IsGlassMaterialName(
-        string materialName)
-    {
-        string normalized =
-            NormalizeMaterialName(
-                materialName);
-
-        return
-            !string.IsNullOrWhiteSpace(
-                normalized) &&
-            normalized.Contains(
-                "glass");
-    }
-
-    private static void ConfigureGlassMaterial(
-        Material source,
-        Material destination)
-    {
-        if (destination == null)
-            return;
-
-        if (destination.HasProperty(
-                "_Opacity"))
-        {
-            destination.SetFloat(
-                "_Opacity",
-                0.72f);
-        }
-
-        if (destination.HasProperty(
-                "_Smoothness"))
-        {
-            destination.SetFloat(
-                "_Smoothness",
-                0.90f);
-        }
-
-        if (destination.HasProperty(
-                "_FresnelStrength"))
-        {
-            destination.SetFloat(
-                "_FresnelStrength",
-                0.38f);
-        }
-
-        Color tint =
-            new Color(
-                0.28f,
-                0.38f,
-                0.46f,
-                1f);
-
-        if (source != null)
-        {
-            Color sourceColor =
-                Color.white;
-
-            if (source.HasProperty(
-                    "_BaseColor"))
-            {
-                sourceColor =
-                    source.GetColor(
-                        "_BaseColor");
-            }
-            else if (source.HasProperty(
-                         "_Color"))
-            {
-                sourceColor =
-                    source.GetColor(
-                        "_Color");
-            }
-
-            if (sourceColor.maxColorComponent >
-                0.05f)
-            {
-                tint =
-                    Color.Lerp(
-                        tint,
-                        new Color(
-                            sourceColor.r,
-                            sourceColor.g,
-                            sourceColor.b,
-                            1f),
-                        0.30f);
-            }
-        }
-
-        if (destination.HasProperty(
-                "_BaseColor"))
-        {
-            destination.SetColor(
-                "_BaseColor",
-                tint);
-        }
-
-        destination.SetOverrideTag(
-            "RenderType",
-            "Transparent");
-
-        destination.renderQueue =
-            (int)RenderQueue.Transparent;
-    }
-
     private static bool IsNightEmissionMaterialName(
         string materialName)
     {
@@ -2056,8 +1932,18 @@ public static class FantasticCityGeneratorUrpFixer
             return false;
 
         return
-            normalized.Contains(
+            normalized == "wins" ||
+            normalized == "wins02" ||
+            normalized.StartsWith(
                 "winsnight") ||
+            normalized.StartsWith(
+                "wins02night") ||
+            normalized.StartsWith(
+                "winglass01") ||
+            normalized.StartsWith(
+                "winglass03") ||
+            normalized.StartsWith(
+                "winglass04") ||
             normalized.Contains(
                 "nightwindow") ||
             normalized.Contains(
@@ -2068,6 +1954,44 @@ public static class FantasticCityGeneratorUrpFixer
                 "emissive");
     }
 
+    private static Material FindNightWindowCounterpart(
+        Material source)
+    {
+        if (source == null)
+            return null;
+
+        string normalized =
+            NormalizeMaterialName(
+                source.name);
+
+        string nightName =
+            normalized switch
+            {
+                "wins" =>
+                    "Wins-Night",
+                "wins02" =>
+                    "Wins-02-Night",
+                "winglass01" =>
+                    "WinGlass-01-Night",
+                "winglass01d" =>
+                    "WinGlass-01-DN",
+                "winglass03" =>
+                    "WinGlass-03-Night",
+                "winglass04" =>
+                    "WinGlass-04-Night",
+                _ =>
+                    null
+            };
+
+        if (string.IsNullOrWhiteSpace(
+                nightName))
+            return null;
+
+        return
+            FindOriginalFcgMaterial(
+                nightName);
+    }
+
     private static void ConfigureNightEmissionMaterial(
         Material source,
         Material destination)
@@ -2075,13 +1999,18 @@ public static class FantasticCityGeneratorUrpFixer
         if (destination == null)
             return;
 
+        Material emissionSource =
+            FindNightWindowCounterpart(
+                source) ??
+            source;
+
         Texture emissionTexture =
             null;
 
         string sourceEmissionProperty =
-            source != null
+            emissionSource != null
                 ? FirstExistingProperty(
-                    source,
+                    emissionSource,
                     "_EmissionMap",
                     "_Illum")
                 : null;
@@ -2090,8 +2019,26 @@ public static class FantasticCityGeneratorUrpFixer
         {
             emissionTexture =
                 SafeGetTexture(
-                    source,
+                    emissionSource,
                     sourceEmissionProperty);
+        }
+
+        if (emissionTexture == null &&
+            source != null)
+        {
+            string dayEmissionProperty =
+                FirstExistingProperty(
+                    source,
+                    "_EmissionMap",
+                    "_Illum");
+
+            if (dayEmissionProperty != null)
+            {
+                emissionTexture =
+                    SafeGetTexture(
+                        source,
+                        dayEmissionProperty);
+            }
         }
 
         if (emissionTexture == null &&
@@ -2129,32 +2076,29 @@ public static class FantasticCityGeneratorUrpFixer
         Color emissionColor =
             new Color(
                 1f,
-                0.62f,
-                0.28f,
+                0.68f,
+                0.34f,
                 1f);
 
-        if (source != null)
+        if (emissionSource != null &&
+            emissionSource.HasProperty(
+                "_ColorMap"))
         {
-            if (source.HasProperty(
-                    "_ColorMap"))
+            Color sourceColor =
+                emissionSource.GetColor(
+                    "_ColorMap");
+
+            if (sourceColor.maxColorComponent >
+                0.01f)
             {
                 emissionColor =
-                    source.GetColor(
-                        "_ColorMap");
-            }
-            else if (source.HasProperty(
-                         "_EmissionColor"))
-            {
-                Color sourceColor =
-                    source.GetColor(
-                        "_EmissionColor");
+                    Color.Lerp(
+                        sourceColor,
+                        emissionColor,
+                        0.55f);
 
-                if (sourceColor.maxColorComponent >
-                    0.01f)
-                {
-                    emissionColor =
-                        sourceColor;
-                }
+                emissionColor.a =
+                    1f;
             }
         }
 
@@ -2167,16 +2111,16 @@ public static class FantasticCityGeneratorUrpFixer
         }
 
         float strength =
-            2.6f;
+            3.2f;
 
-        if (source != null &&
-            source.HasProperty(
+        if (emissionSource != null &&
+            emissionSource.HasProperty(
                 "_Emission"))
         {
             strength =
                 Mathf.Max(
                     strength,
-                    source.GetFloat(
+                    emissionSource.GetFloat(
                         "_Emission"));
         }
 
