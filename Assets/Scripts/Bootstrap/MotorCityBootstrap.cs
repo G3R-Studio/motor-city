@@ -71,6 +71,16 @@ namespace MotorCity.Bootstrap
                 wallet,
                 reputation);
 
+            TrafficSignalController trafficSignals =
+                systems.AddComponent<TrafficSignalController>();
+            trafficSignals.Initialize();
+
+            TrafficSystem traffic =
+                systems.AddComponent<TrafficSystem>();
+            traffic.Initialize(
+                car,
+                trafficSignals);
+
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
             delivery.Initialize(car, wallet, activityManager);
 
