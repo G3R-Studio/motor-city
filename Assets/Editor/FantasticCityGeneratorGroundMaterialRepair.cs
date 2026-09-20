@@ -18,7 +18,6 @@ public static class FantasticCityGeneratorGroundMaterialRepair
         "FCG_Grass-Splat"
     };
 
-    [MenuItem("Motor City/Fantastic City Generator/Repair Invisible Ground Patches")]
     public static void RepairInvisibleGroundPatches()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
