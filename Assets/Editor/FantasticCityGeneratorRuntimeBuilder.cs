@@ -79,24 +79,9 @@ public static class FantasticCityGeneratorRuntimeBuilder
 
         try
         {
-            StripGeneratorRuntimeComponents(
-                clone);
-
-            int colliders =
-                EnsureDriveableColliders(
-                    clone);
-
-            CityCollisionUtility.Result collisionResult =
-                CityCollisionUtility.Prepare(
-                    clone);
-
-            int stabilizedPedestrianSignals =
-                TrafficSignalVisualUtility.StabilizePedestrianSignals(
-                    clone);
-
-            MarkStatic(
-                clone);
-
+            // The authored FCG city is the single source of truth.
+            // Building the runtime prefab must not alter colliders, props,
+            // parked vehicles, signals, lights or any other map content.
             PrefabUtility.SaveAsPrefabAsset(
                 clone,
                 RuntimePrefab);
@@ -108,26 +93,15 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 clone.GetComponentsInChildren<Renderer>(true).Length;
 
             Debug.Log(
-                "Motor City: Fantastic City Generator runtime city baked. " +
-                $"Source={scene.path}, Renderers={renderers}, " +
-                $"added parking colliders={colliders}, " +
-                $"pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
-                $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
-                $"pedestrian signal renderers disabled={stabilizedPedestrianSignals}, " +
-                $"safety floor={collisionResult.SafetyFloorReady}, prefab={RuntimePrefab}");
+                "Motor City: Fantastic City Generator runtime city copied without map modifications. " +
+                $"Source={scene.path}, Renderers={renderers}, prefab={RuntimePrefab}");
 
             EditorUtility.DisplayDialog(
                 "Motor City — FCG Runtime City",
                 "Готово.\n\n" +
                 $"Источник: {scene.path}\n" +
-                $"Renderer'ов: {renderers}\n" +
-                $"Добавлено парковочных BoxCollider: {colliders}\n" +
-                "Точные road/highway MeshCollider создаются при запуске только из дорожных submesh.\n" +
-                $"Добавлено MeshCollider зданий: {collisionResult.AddedBuildingMeshColliders}\n" +
-                $"Отключено коллайдеров проезжаемых городских объектов: {collisionResult.DisabledStreetPropColliders}\n" +
-                $"Стабилизировано пешеходных сигналов: {stabilizedPedestrianSignals}\n" +
-                $"Страховочный пол: {(collisionResult.SafetyFloorReady ? "да" : "нет")}\n\n" +
-                "Runtime-город сохранён локально и переживёт git reset.",
+                $"Renderer'ов: {renderers}\n\n" +
+                "CityVisual.prefab сохранён без автоматических изменений карты.",
                 "OK");
         }
         catch (Exception exception)
