@@ -265,7 +265,7 @@ namespace MotorCity.World
             Color nightSky =
                 settings != null
                     ? settings.NightSkyColor *
-                      0.22f
+                      0.16f
                     : new Color(
                         0.045f,
                         0.06f,
@@ -277,7 +277,7 @@ namespace MotorCity.World
             Color nightEquator =
                 settings != null
                     ? settings.NightEquatorColor *
-                      0.18f
+                      0.12f
                     : new Color(
                         0.018f,
                         0.022f,
@@ -771,18 +771,18 @@ namespace MotorCity.World
             light.color =
                 new Color(
                     1f,
-                    0.78f,
-                    0.52f);
+                    0.72f,
+                    0.42f);
 
             light.intensity =
                 Mathf.Max(
                     light.intensity,
-                    55f);
+                    95f);
 
             light.range =
                 Mathf.Max(
                     light.range,
-                    24f);
+                    30f);
 
             light.bounceIntensity =
                 0f;
