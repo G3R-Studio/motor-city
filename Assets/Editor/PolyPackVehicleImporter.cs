@@ -19,7 +19,7 @@ public static class PolyPackVehicleImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Rebuild Vehicles - PolyPack Garage Cars")]
+    [MenuItem("Motor City/Vehicles/Rebuild PolyPack Garage Cars")]
     private static void RebuildFromMenu()
     {
         Build(true);
