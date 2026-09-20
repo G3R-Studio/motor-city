@@ -258,17 +258,6 @@ namespace MotorCity.Vehicle
                 wheelSync.Clear();
             }
 
-            Debug.Log(
-                "Motor City: vehicle visual prepared for Prometeo Car Controller physics. " +
-                $"FL='{ordered[0].name}' {centerLocal[0]}, " +
-                $"FR='{ordered[1].name}' {centerLocal[1]}, " +
-                $"RL='{ordered[2].name}' {centerLocal[2]}, " +
-                $"RR='{ordered[3].name}' {centerLocal[3]}. " +
-                $"Radius={measuredRadius:0.###}, " +
-                $"externalVisualSync={rotateLeft90}. " +
-                $"Front axle average Z={(centerLocal[0].z + centerLocal[1].z) * 0.5f:0.###}, " +
-                $"rear axle average Z={(centerLocal[2].z + centerLocal[3].z) * 0.5f:0.###}.");
-
             return true;
         }
 
