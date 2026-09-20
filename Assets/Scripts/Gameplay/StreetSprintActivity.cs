@@ -10,6 +10,7 @@ namespace MotorCity.Gameplay
         private const string ActivityId = "sprint";
         private const string BestTimeKey =
             "MotorCity.Sprint.BestTime";
+        private const int EliteRequiredLevel = 3;
 
         [Header("Reward")]
         [SerializeField] private int baseRewardCredits = 550;
@@ -34,6 +35,7 @@ namespace MotorCity.Gameplay
         private bool armed = true;
         private bool isCountingDown;
         private float countdownRemaining;
+        private bool eliteMode;
 
         public bool IsActive { get; private set; }
         public bool IsCountingDown => isCountingDown;
@@ -167,13 +169,32 @@ namespace MotorCity.Gameplay
                     ? $"   РЕК {BestTimeSeconds:0.0}с"
                     : string.Empty;
 
+            bool eliteUnlocked =
+                activityManager.HasDisciplineLevel(
+                    DisciplineType.Racing,
+                    EliteRequiredLevel);
+
+            string eliteHint =
+                eliteUnlocked
+                    ? "   SHIFT+E — ELITE"
+                    : $"   ELITE: RACING {EliteRequiredLevel}";
+
             StatusText =
                 $"СПРИНТ   E — НАЧАТЬ   " +
-                $"ЗОЛОТО ≤ {goldTimeSeconds:0}с{best}";
+                $"ЗОЛОТО ≤ {goldTimeSeconds:0}с{best}" +
+                eliteHint;
 
             if (keyboard != null &&
                 keyboard.eKey.wasPressedThisFrame)
             {
+                bool wantsElite =
+                    keyboard.leftShiftKey.isPressed ||
+                    keyboard.rightShiftKey.isPressed;
+
+                eliteMode =
+                    wantsElite &&
+                    eliteUnlocked;
+
                 BeginCountdown();
             }
         }
@@ -234,7 +255,8 @@ namespace MotorCity.Gameplay
                         countdownRemaining));
 
             StatusText =
-                $"СПРИНТ   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+                $"{(eliteMode ? "ELITE СПРИНТ" : "СПРИНТ")}   " +
+                $"СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
         }
 
         private void UpdateActiveSprint()
@@ -269,23 +291,28 @@ namespace MotorCity.Gameplay
         private void UpdateStatus()
         {
             StatusText =
-                $"СПРИНТ  ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
+                $"{(eliteMode ? "ELITE СПРИНТ" : "СПРИНТ")}  " +
+                $"ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
                 $"{ElapsedSeconds:0.0}с   {CurrentTierHint()}   ESC — ОТМЕНА";
         }
 
         private string CurrentTierHint()
         {
-            if (ElapsedSeconds <=
-                goldTimeSeconds)
-                return $"ЗОЛОТО ≤ {goldTimeSeconds:0}с";
+            float gold =
+                eliteMode ? 39f : goldTimeSeconds;
+            float silver =
+                eliteMode ? 52f : silverTimeSeconds;
+            float bronze =
+                eliteMode ? 70f : bronzeTimeSeconds;
 
-            if (ElapsedSeconds <=
-                silverTimeSeconds)
-                return $"СЕРЕБРО ≤ {silverTimeSeconds:0}с";
+            if (ElapsedSeconds <= gold)
+                return $"ЗОЛОТО ≤ {gold:0}с";
 
-            if (ElapsedSeconds <=
-                bronzeTimeSeconds)
-                return $"БРОНЗА ≤ {bronzeTimeSeconds:0}с";
+            if (ElapsedSeconds <= silver)
+                return $"СЕРЕБРО ≤ {silver:0}с";
+
+            if (ElapsedSeconds <= bronze)
+                return $"БРОНЗА ≤ {bronze:0}с";
 
             return "ФИНИШИРУЙ";
         }
@@ -306,12 +333,26 @@ namespace MotorCity.Gameplay
                 baseRewardCredits +
                 bonus;
 
+            if (eliteMode)
+            {
+                reward =
+                    Mathf.RoundToInt(
+                        reward * 1.6f);
+            }
+
+            float gold =
+                eliteMode ? 39f : goldTimeSeconds;
+            float silver =
+                eliteMode ? 52f : silverTimeSeconds;
+            float bronze =
+                eliteMode ? 70f : bronzeTimeSeconds;
+
             string tier =
-                ElapsedSeconds <= goldTimeSeconds
+                ElapsedSeconds <= gold
                     ? "ЗОЛОТО"
-                    : ElapsedSeconds <= silverTimeSeconds
+                    : ElapsedSeconds <= silver
                         ? "СЕРЕБРО"
-                        : ElapsedSeconds <= bronzeTimeSeconds
+                        : ElapsedSeconds <= bronze
                             ? "БРОНЗА"
                             : "ФИНИШ";
 
@@ -349,7 +390,9 @@ namespace MotorCity.Gameplay
 
             activityManager.ShowResult(
                 ActivityId,
-                "УЛИЧНЫЙ СПРИНТ",
+                eliteMode
+                    ? "ELITE STREET SPRINT"
+                    : "УЛИЧНЫЙ СПРИНТ",
                 tier,
                 $"Время: {ElapsedSeconds:0.0}с   •   Бонус: {bonus:N0} КР{record}",
                 reward,
