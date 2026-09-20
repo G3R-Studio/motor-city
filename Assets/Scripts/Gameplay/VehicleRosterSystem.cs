@@ -43,7 +43,13 @@ namespace MotorCity.Gameplay
                         0,
                         0,
                         1f,
-                        0f),
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        "СБАЛАНСИРОВАННАЯ — универсальная городская машина"),
 
                     new VehicleProfile(
                         "club",
@@ -53,7 +59,13 @@ namespace MotorCity.Gameplay
                         -6,
                         1,
                         1.04f,
-                        0.02f),
+                        0.02f,
+                        0.92f,
+                        1.10f,
+                        1.05f,
+                        0.98f,
+                        0.92f,
+                        "ЛЁГКАЯ — резкий руль и удобство в городе"),
 
                     new VehicleProfile(
                         "muscle",
@@ -63,7 +75,13 @@ namespace MotorCity.Gameplay
                         12,
                         2,
                         0.97f,
-                        -0.01f),
+                        -0.01f,
+                        1.10f,
+                        0.94f,
+                        0.96f,
+                        1.14f,
+                        1.18f,
+                        "СИЛОВАЯ — мощный разгон и естественный дрифт"),
 
                     new VehicleProfile(
                         "gt",
@@ -73,7 +91,13 @@ namespace MotorCity.Gameplay
                         24,
                         2,
                         1.03f,
-                        0.035f),
+                        0.035f,
+                        0.98f,
+                        1.03f,
+                        1.12f,
+                        1.08f,
+                        0.90f,
+                        "ТРЕКОВАЯ — тормоза, скорость и устойчивость"),
 
                     new VehicleProfile(
                         "apex",
@@ -83,7 +107,13 @@ namespace MotorCity.Gameplay
                         38,
                         3,
                         1.08f,
-                        0.055f)
+                        0.055f,
+                        0.90f,
+                        1.08f,
+                        1.18f,
+                        1.16f,
+                        0.82f,
+                        "ЭЛИТНАЯ — максимум темпа и точности")
                 };
 
             int stored =
@@ -244,7 +274,8 @@ namespace MotorCity.Gameplay
 
             return
                 $"БАЗА: СКОРОСТЬ {speed}   •   РАЗГОН {accel}   •   " +
-                $"СЦЕП {Signed(grip)}%   •   СТАБ {Signed(stability)}";
+                $"СЦЕП {Signed(grip)}%   •   СТАБ {Signed(stability)}   •   " +
+                profile.Character;
         }
 
         private void ApplySelectedVehicle()
@@ -286,7 +317,12 @@ namespace MotorCity.Gameplay
                 profile.SpeedBonus,
                 profile.AccelerationBonus,
                 profile.GripMultiplier,
-                profile.StabilityBonus);
+                profile.StabilityBonus,
+                profile.MassMultiplier,
+                profile.SteeringMultiplier,
+                profile.BrakeMultiplier,
+                profile.PowerMultiplier,
+                profile.DriftMultiplier);
 
         }
 
@@ -342,6 +378,12 @@ namespace MotorCity.Gameplay
             public readonly int AccelerationBonus;
             public readonly float GripMultiplier;
             public readonly float StabilityBonus;
+            public readonly float MassMultiplier;
+            public readonly float SteeringMultiplier;
+            public readonly float BrakeMultiplier;
+            public readonly float PowerMultiplier;
+            public readonly float DriftMultiplier;
+            public readonly string Character;
 
             public VehicleProfile(
                 string id,
@@ -351,7 +393,13 @@ namespace MotorCity.Gameplay
                 int speedBonus,
                 int accelerationBonus,
                 float gripMultiplier,
-                float stabilityBonus)
+                float stabilityBonus,
+                float massMultiplier,
+                float steeringMultiplier,
+                float brakeMultiplier,
+                float powerMultiplier,
+                float driftMultiplier,
+                string character)
             {
                 Id = id;
                 DisplayName = displayName;
@@ -364,6 +412,18 @@ namespace MotorCity.Gameplay
                     gripMultiplier;
                 StabilityBonus =
                     stabilityBonus;
+                MassMultiplier =
+                    massMultiplier;
+                SteeringMultiplier =
+                    steeringMultiplier;
+                BrakeMultiplier =
+                    brakeMultiplier;
+                PowerMultiplier =
+                    powerMultiplier;
+                DriftMultiplier =
+                    driftMultiplier;
+                Character =
+                    character;
             }
         }
     }
