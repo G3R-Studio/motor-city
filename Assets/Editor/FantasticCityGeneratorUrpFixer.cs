@@ -259,7 +259,6 @@ public static class FantasticCityGeneratorUrpFixer
         }
     }
 
-    [MenuItem("Motor City/Fantastic City Generator/Diagnose Materials in Active Scene")]
     public static void DiagnoseMaterialsInActiveScene()
     {
         Scene scene =
