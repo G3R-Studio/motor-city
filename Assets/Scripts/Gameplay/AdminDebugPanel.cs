@@ -18,6 +18,7 @@ namespace MotorCity.Gameplay
         private CareerProgressionSystem career;
         private VehicleHistorySystem vehicleHistory;
         private CityContractSystem contracts;
+        private CityLiveEventSystem liveEvents;
         private ActivityManager activityManager;
         private ArcadeCarController car;
         private DeliveryActivity delivery;
@@ -44,6 +45,7 @@ namespace MotorCity.Gameplay
             CareerProgressionSystem careerSystem,
             VehicleHistorySystem historySystem,
             CityContractSystem contractSystem,
+            CityLiveEventSystem liveEventSystem,
             ActivityManager manager,
             ArcadeCarController targetCar,
             DeliveryActivity deliveryActivity,
@@ -60,6 +62,7 @@ namespace MotorCity.Gameplay
             career = careerSystem;
             vehicleHistory = historySystem;
             contracts = contractSystem;
+            liveEvents = liveEventSystem;
             activityManager = manager;
             car = targetCar;
             delivery = deliveryActivity;
@@ -113,6 +116,7 @@ namespace MotorCity.Gameplay
             DrawUpgradesAndMastery();
             DrawCareer();
             DrawContracts();
+            DrawLiveEvents();
             DrawTime();
             DrawTeleports();
 
@@ -159,6 +163,12 @@ namespace MotorCity.Gameplay
             {
                 GUILayout.Label(
                     contracts.AdminLine);
+            }
+
+            if (liveEvents != null)
+            {
+                GUILayout.Label(
+                    liveEvents.AdminLine);
             }
 
             GUILayout.Space(8f);
@@ -410,6 +420,44 @@ namespace MotorCity.Gameplay
             GUILayout.Space(10f);
         }
 
+        private void DrawLiveEvents()
+        {
+            GUILayout.Label("LIVE EVENTS");
+
+            if (liveEvents != null)
+            {
+                GUILayout.Label(
+                    liveEvents.AdminLine);
+            }
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ЗАВЕРШИТЬ EVENT"))
+            {
+                liveEvents?.CompleteCurrentForTesting();
+                lastAction =
+                    "Live event завершён";
+            }
+
+            if (Button("СЛЕДУЮЩИЙ EVENT"))
+            {
+                liveEvents?.NextEventForTesting();
+                lastAction =
+                    "Переключено live event";
+            }
+
+            GUILayout.EndHorizontal();
+
+            if (Button("СБРОСИТЬ LIVE EVENTS"))
+            {
+                liveEvents?.ResetForTesting();
+                lastAction =
+                    "Live events сброшены";
+            }
+
+            GUILayout.Space(10f);
+        }
+
         private void DrawTime()
         {
             GUILayout.Label("ВРЕМЯ СУТОК");
@@ -537,6 +585,7 @@ namespace MotorCity.Gameplay
 
             vehicleHistory?.SetAllLegendaryForTesting();
             contracts?.SetCycleForTesting(5);
+            liveEvents?.CompleteCurrentForTesting();
 
             lastAction =
                 "MAX EVERYTHING применён";
@@ -587,6 +636,7 @@ namespace MotorCity.Gameplay
 
             vehicleHistory?.ResetAllForTesting();
             contracts?.ResetForTesting();
+            liveEvents?.ResetForTesting();
 
             if (roster != null)
             {
