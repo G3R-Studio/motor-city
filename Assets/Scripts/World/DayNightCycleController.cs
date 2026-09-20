@@ -103,11 +103,6 @@ namespace MotorCity.World
             ForceAdditionalLightsSupport();
             RefreshStreetLights();
 
-            Debug.Log(
-                "Motor City: day/night prepared. " +
-                $"FCG lamp lights={streetLights.Count}, " +
-                $"auto-created={autoCreatedStreetLights}.");
-
             ApplyEnvironment(
                 true);
 
