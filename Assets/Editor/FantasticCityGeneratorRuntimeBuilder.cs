@@ -70,18 +70,75 @@ public static class FantasticCityGeneratorRuntimeBuilder
         EnsureFolder(
             RuntimeRoot);
 
-        GameObject clone =
-            UnityEngine.Object.Instantiate(
-                source);
+        GameObject trafficSystem =
+            FindSceneRoot(
+                scene,
+                "Traffic System");
 
-        clone.name =
-            "MotorCity_FCGCity";
+        GameObject carContainer =
+            FindSceneRoot(
+                scene,
+                "CarContainer");
+
+        GameObject temporaryPackage =
+            new GameObject(
+                "__MotorCity_FCG_RuntimePackage");
+
+        SceneManager.MoveGameObjectToScene(
+            temporaryPackage,
+            scene);
+
+        Transform sourceOriginalParent =
+            source.transform.parent;
+
+        Transform trafficOriginalParent =
+            trafficSystem != null
+                ? trafficSystem.transform.parent
+                : null;
+
+        Transform carContainerOriginalParent =
+            carContainer != null
+                ? carContainer.transform.parent
+                : null;
+
+        source.transform.SetParent(
+            temporaryPackage.transform,
+            true);
+
+        if (trafficSystem != null)
+        {
+            trafficSystem.transform.SetParent(
+                temporaryPackage.transform,
+                true);
+        }
+
+        if (carContainer != null)
+        {
+            carContainer.transform.SetParent(
+                temporaryPackage.transform,
+                true);
+        }
+
+        GameObject clone =
+            null;
 
         try
         {
-            // The authored FCG city is the single source of truth.
-            // Building the runtime prefab must not alter colliders, props,
-            // parked vehicles, signals, lights or any other map content.
+            // Clone the three FCG roots as one hierarchy. Instantiating them
+            // together is important because FCG traffic scripts can keep
+            // serialized references between Traffic System, CarContainer and
+            // City-Maker; Unity remaps those references correctly inside one
+            // cloned hierarchy.
+            clone =
+                UnityEngine.Object.Instantiate(
+                    temporaryPackage);
+
+            clone.name =
+                "MotorCity_FCGCity";
+
+            // The authored FCG scene is the single source of truth.
+            // Building the runtime prefab must not alter colliders, traffic,
+            // cars, props, signals, lights or any other authored content.
             PrefabUtility.SaveAsPrefabAsset(
                 clone,
                 RuntimePrefab);
@@ -92,16 +149,26 @@ public static class FantasticCityGeneratorRuntimeBuilder
             int renderers =
                 clone.GetComponentsInChildren<Renderer>(true).Length;
 
+            string includedRoots =
+                "City-Maker" +
+                (trafficSystem != null
+                    ? ", Traffic System"
+                    : string.Empty) +
+                (carContainer != null
+                    ? ", CarContainer"
+                    : string.Empty);
+
             Debug.Log(
-                "Motor City: Fantastic City Generator runtime city copied without map modifications. " +
-                $"Source={scene.path}, Renderers={renderers}, prefab={RuntimePrefab}");
+                "Motor City: Fantastic City Generator runtime package copied without map modifications. " +
+                $"Source={scene.path}, Roots={includedRoots}, Renderers={renderers}, prefab={RuntimePrefab}");
 
             EditorUtility.DisplayDialog(
                 "Motor City — FCG Runtime City",
                 "Готово.\n\n" +
                 $"Источник: {scene.path}\n" +
+                $"Включено: {includedRoots}\n" +
                 $"Renderer'ов: {renderers}\n\n" +
-                "CityVisual.prefab сохранён без автоматических изменений карты.",
+                "CityVisual.prefab содержит город и найденные FCG traffic roots без автоматических изменений.",
                 "OK");
         }
         catch (Exception exception)
@@ -123,12 +190,61 @@ public static class FantasticCityGeneratorRuntimeBuilder
                     clone);
             }
 
+            source.transform.SetParent(
+                sourceOriginalParent,
+                true);
+
+            if (trafficSystem != null)
+            {
+                trafficSystem.transform.SetParent(
+                    trafficOriginalParent,
+                    true);
+            }
+
+            if (carContainer != null)
+            {
+                carContainer.transform.SetParent(
+                    carContainerOriginalParent,
+                    true);
+            }
+
+            if (temporaryPackage != null)
+            {
+                UnityEngine.Object.DestroyImmediate(
+                    temporaryPackage);
+            }
+
             FantasticCityGeneratorSceneSource.FinishSourceScene(
                 scene,
                 openedTemporarily,
                 previousActiveScene,
                 true);
         }
+    }
+
+    private static GameObject FindSceneRoot(
+        Scene scene,
+        string wantedName)
+    {
+        string wanted =
+            NormalizeName(
+                wantedName);
+
+        foreach (GameObject root in
+                 scene.GetRootGameObjects())
+        {
+            if (root == null)
+                continue;
+
+            if (NormalizeName(
+                    root.name) ==
+                wanted)
+            {
+                return root;
+            }
+        }
+
+        return null;
     }
 
     private static void StripGeneratorRuntimeComponents(
