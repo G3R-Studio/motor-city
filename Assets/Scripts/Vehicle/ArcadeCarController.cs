@@ -933,7 +933,7 @@ namespace MotorCity.Vehicle
                 GetEngineSpeedBonus() +
                 modeBonus,
                 20,
-                320);
+                360);
         }
 
         private int GetTunedAccelerationMultiplier()
@@ -952,121 +952,91 @@ namespace MotorCity.Vehicle
                 GetEngineAccelerationBonus() +
                 modeBonus,
                 1,
-                20);
+                24);
         }
 
         private int GetEngineSpeedBonus()
         {
-            int[] values =
-            {
-                0,
-                10,
-                22,
-                36,
-                52,
-                70
-            };
-
             return
-                values[Mathf.Clamp(
-                    engineUpgradeLevel,
-                    0,
-                    values.Length - 1)];
+                engineUpgradeLevel switch
+                {
+                    1 => 10,
+                    2 => 22,
+                    3 => 36,
+                    4 => 52,
+                    5 => 70,
+                    _ => 0
+                };
         }
 
         private int GetEngineAccelerationBonus()
         {
-            int[] values =
-            {
-                0,
-                1,
-                2,
-                4,
-                6,
-                8
-            };
-
             return
-                values[Mathf.Clamp(
-                    engineUpgradeLevel,
-                    0,
-                    values.Length - 1)];
+                engineUpgradeLevel switch
+                {
+                    1 => 1,
+                    2 => 2,
+                    3 => 4,
+                    4 => 6,
+                    5 => 8,
+                    _ => 0
+                };
         }
 
         private float GetEngineAssistBonus()
         {
-            float[] values =
-            {
-                0f,
-                0.12f,
-                0.25f,
-                0.40f,
-                0.58f,
-                0.78f
-            };
-
             return
-                values[Mathf.Clamp(
-                    engineUpgradeLevel,
-                    0,
-                    values.Length - 1)];
+                engineUpgradeLevel switch
+                {
+                    1 => 0.12f,
+                    2 => 0.25f,
+                    3 => 0.40f,
+                    4 => 0.58f,
+                    5 => 0.78f,
+                    _ => 0f
+                };
         }
 
         private float GetGripUpgradeBonus()
         {
-            float[] values =
-            {
-                0f,
-                0.05f,
-                0.11f,
-                0.18f,
-                0.26f,
-                0.35f
-            };
-
             return
-                values[Mathf.Clamp(
-                    gripUpgradeLevel,
-                    0,
-                    values.Length - 1)];
+                gripUpgradeLevel switch
+                {
+                    1 => 0.05f,
+                    2 => 0.11f,
+                    3 => 0.18f,
+                    4 => 0.26f,
+                    5 => 0.35f,
+                    _ => 0f
+                };
         }
 
         private float GetStabilityCenterDrop()
         {
-            float[] values =
-            {
-                0f,
-                0.018f,
-                0.038f,
-                0.062f,
-                0.090f,
-                0.122f
-            };
-
             return
-                values[Mathf.Clamp(
-                    stabilityUpgradeLevel,
-                    0,
-                    values.Length - 1)];
+                stabilityUpgradeLevel switch
+                {
+                    1 => 0.018f,
+                    2 => 0.038f,
+                    3 => 0.062f,
+                    4 => 0.090f,
+                    5 => 0.122f,
+                    _ => 0f
+                };
         }
 
         private float GetStabilityDampingBonus()
         {
-            float[] values =
-            {
-                0f,
-                0.12f,
-                0.26f,
-                0.43f,
-                0.63f,
-                0.86f
-            };
-
             return
-                values[Mathf.Clamp(
-                    stabilityUpgradeLevel,
-                    0,
-                    values.Length - 1)];
+                stabilityUpgradeLevel switch
+                {
+                    1 => 0.12f,
+                    2 => 0.26f,
+                    3 => 0.43f,
+                    4 => 0.63f,
+                    5 => 0.86f,
+                    _ => 0f
+                };
         }
 
         private int GetTunedHandbrakeDriftMultiplier()
