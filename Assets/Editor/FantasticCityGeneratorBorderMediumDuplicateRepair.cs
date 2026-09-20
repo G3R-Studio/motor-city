@@ -70,7 +70,6 @@ public static class FantasticCityGeneratorBorderMediumDuplicateRepair
         }
     };
 
-    [MenuItem("Motor City/Fantastic City Generator/Repair Remaining Border-Medium Duplicate Slots")]
     public static void Repair()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
