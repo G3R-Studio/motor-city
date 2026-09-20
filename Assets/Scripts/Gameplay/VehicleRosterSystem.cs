@@ -217,6 +217,45 @@ namespace MotorCity.Gameplay
             return true;
         }
 
+        public bool SelectVehicleForTesting(
+            int index,
+            out string status)
+        {
+            status =
+                string.Empty;
+
+            if (!Valid(index))
+            {
+                status =
+                    "Некорректный индекс машины";
+                return false;
+            }
+
+            if (!HasVisual(index))
+            {
+                status =
+                    $"{profiles[index].DisplayName}: модель не подготовлена";
+                return false;
+            }
+
+            SelectedIndex =
+                index;
+
+            PlayerPrefs.SetInt(
+                SelectedKey,
+                SelectedIndex);
+
+            PlayerPrefs.Save();
+
+            ApplySelectedVehicle();
+            VehicleChanged?.Invoke();
+
+            status =
+                $"ADMIN: выбрана {profiles[SelectedIndex].DisplayName}";
+
+            return true;
+        }
+
         public string GetGarageLine()
         {
             if (!Valid(SelectedIndex))
