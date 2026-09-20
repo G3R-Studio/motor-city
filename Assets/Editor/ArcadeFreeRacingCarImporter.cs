@@ -15,7 +15,7 @@ public static class ArcadeFreeRacingCarImporter
         EditorApplication.delayCall += TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Rebuild ARCADE Free Racing Car Visual")]
+    [MenuItem("Motor City/Vehicles/Rebuild STREET Visual")]
     private static void RebuildFromMenu()
     {
         Build(true);
