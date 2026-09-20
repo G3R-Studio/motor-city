@@ -242,6 +242,10 @@ namespace MotorCity.World
                 1f -
                 daylight;
 
+            Shader.SetGlobalFloat(
+                "_MotorCityNightEmission",
+                NightAmount);
+
             IsNight =
                 NightAmount >=
                 0.58f;
