@@ -18,7 +18,6 @@ public static class FantasticCityGeneratorTextureBindingDiagnostic
     private const string OutputPath =
         "MotorCity_FCGTextureBindingReport.txt";
 
-    [MenuItem("Motor City/Fantastic City Generator/Diagnose Texture Binding Mismatches")]
     public static void Diagnose()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
