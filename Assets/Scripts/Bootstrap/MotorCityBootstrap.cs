@@ -93,6 +93,14 @@ namespace MotorCity.Bootstrap
                 wallet,
                 reputation);
 
+            CityContractSystem contracts =
+                systems.AddComponent<CityContractSystem>();
+
+            contracts.Initialize(
+                activityManager,
+                wallet,
+                reputation);
+
             drift.Initialize(wallet, activityManager);
 
             VehicleRosterSystem vehicleRoster =
@@ -188,6 +196,7 @@ namespace MotorCity.Bootstrap
                 garage,
                 career,
                 vehicleHistory,
+                contracts,
                 activityManager,
                 car,
                 delivery,
@@ -221,7 +230,8 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 garage,
                 career,
-                vehicleHistory);
+                vehicleHistory,
+                contracts);
 
         }
 
@@ -1020,7 +1030,8 @@ namespace MotorCity.Bootstrap
             ActivityManager activityManager,
             GarageUpgradeSystem garage,
             CareerProgressionSystem career,
-            VehicleHistorySystem vehicleHistory)
+            VehicleHistorySystem vehicleHistory,
+            CityContractSystem contracts)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
@@ -1039,7 +1050,8 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 garage,
                 career,
-                vehicleHistory);
+                vehicleHistory,
+                contracts);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)

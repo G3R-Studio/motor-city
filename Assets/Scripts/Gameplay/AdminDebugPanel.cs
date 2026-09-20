@@ -17,6 +17,7 @@ namespace MotorCity.Gameplay
         private GarageUpgradeSystem garage;
         private CareerProgressionSystem career;
         private VehicleHistorySystem vehicleHistory;
+        private CityContractSystem contracts;
         private ActivityManager activityManager;
         private ArcadeCarController car;
         private DeliveryActivity delivery;
@@ -42,6 +43,7 @@ namespace MotorCity.Gameplay
             GarageUpgradeSystem garageSystem,
             CareerProgressionSystem careerSystem,
             VehicleHistorySystem historySystem,
+            CityContractSystem contractSystem,
             ActivityManager manager,
             ArcadeCarController targetCar,
             DeliveryActivity deliveryActivity,
@@ -57,6 +59,7 @@ namespace MotorCity.Gameplay
             garage = garageSystem;
             career = careerSystem;
             vehicleHistory = historySystem;
+            contracts = contractSystem;
             activityManager = manager;
             car = targetCar;
             delivery = deliveryActivity;
@@ -109,6 +112,7 @@ namespace MotorCity.Gameplay
             DrawVehicles();
             DrawUpgradesAndMastery();
             DrawCareer();
+            DrawContracts();
             DrawTime();
             DrawTeleports();
 
@@ -149,6 +153,12 @@ namespace MotorCity.Gameplay
                 GUILayout.Label(
                     $"{roster.SelectedName}   •   " +
                     $"МАСТЕРСТВО {mastery.CurrentLevel}/10");
+            }
+
+            if (contracts != null)
+            {
+                GUILayout.Label(
+                    contracts.AdminLine);
             }
 
             GUILayout.Space(8f);
@@ -362,6 +372,44 @@ namespace MotorCity.Gameplay
             GUILayout.Space(10f);
         }
 
+        private void DrawContracts()
+        {
+            GUILayout.Label("КОНТРАКТЫ");
+
+            if (contracts != null)
+            {
+                GUILayout.Label(
+                    contracts.AdminLine);
+            }
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ЗАВЕРШИТЬ ТЕКУЩИЙ"))
+            {
+                contracts?.CompleteCurrentForTesting();
+                lastAction =
+                    "Текущий контракт завершён";
+            }
+
+            if (Button("ЦИКЛ 5"))
+            {
+                contracts?.SetCycleForTesting(5);
+                lastAction =
+                    "Контракты: цикл 5";
+            }
+
+            GUILayout.EndHorizontal();
+
+            if (Button("СБРОСИТЬ КОНТРАКТЫ"))
+            {
+                contracts?.ResetForTesting();
+                lastAction =
+                    "Контракты сброшены";
+            }
+
+            GUILayout.Space(10f);
+        }
+
         private void DrawTime()
         {
             GUILayout.Label("ВРЕМЯ СУТОК");
@@ -488,6 +536,7 @@ namespace MotorCity.Gameplay
                 3);
 
             vehicleHistory?.SetAllLegendaryForTesting();
+            contracts?.SetCycleForTesting(5);
 
             lastAction =
                 "MAX EVERYTHING применён";
@@ -537,6 +586,7 @@ namespace MotorCity.Gameplay
                 0);
 
             vehicleHistory?.ResetAllForTesting();
+            contracts?.ResetForTesting();
 
             if (roster != null)
             {

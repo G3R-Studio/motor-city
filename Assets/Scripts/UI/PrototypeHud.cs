@@ -23,6 +23,7 @@ namespace MotorCity.UI
         private GarageUpgradeSystem garage;
         private CareerProgressionSystem career;
         private VehicleHistorySystem vehicleHistory;
+        private CityContractSystem contracts;
 
         private Font font;
         private Sprite panelSprite;
@@ -40,6 +41,7 @@ namespace MotorCity.UI
         private Text navigatorText;
         private Text careerText;
         private Text disciplineText;
+        private Text contractText;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -95,7 +97,8 @@ namespace MotorCity.UI
             ActivityManager manager,
             GarageUpgradeSystem garageSystem,
             CareerProgressionSystem careerSystem,
-            VehicleHistorySystem historySystem)
+            VehicleHistorySystem historySystem,
+            CityContractSystem contractSystem)
         {
             car = controller;
             wallet = playerWallet;
@@ -112,6 +115,7 @@ namespace MotorCity.UI
             garage = garageSystem;
             career = careerSystem;
             vehicleHistory = historySystem;
+            contracts = contractSystem;
 
             BuildUi();
         }
@@ -156,6 +160,14 @@ namespace MotorCity.UI
                     activityManager == null
                         ? string.Empty
                         : activityManager.DisciplineHudLine;
+            }
+
+            if (contractText != null)
+            {
+                contractText.text =
+                    contracts == null
+                        ? string.Empty
+                        : contracts.HudLine;
             }
 
             if (driveModeText != null &&
@@ -312,7 +324,7 @@ namespace MotorCity.UI
                     canvas,
                     "Player Card",
                     new Vector2(18f, -18f),
-                    new Vector2(420f, 148f),
+                    new Vector2(420f, 174f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     PanelColor);
@@ -321,7 +333,7 @@ namespace MotorCity.UI
                 card,
                 BlueAccent,
                 new Vector2(5f, -8f),
-                new Vector2(4f, 132f),
+                new Vector2(4f, 158f),
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f));
 
@@ -423,6 +435,23 @@ namespace MotorCity.UI
                         0.95f,
                         0.68f,
                         0.28f,
+                        1f));
+
+            contractText =
+                CreateText(
+                    card,
+                    "City Contract",
+                    10,
+                    FontStyle.Bold,
+                    TextAnchor.LowerLeft,
+                    new Vector2(20f, 75f),
+                    new Vector2(382f, 18f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Color(
+                        0.62f,
+                        1f,
+                        0.68f,
                         1f));
         }
 
@@ -1377,6 +1406,13 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
+            if (contracts != null &&
+                contracts.ShowMessage)
+            {
+                return
+                    contracts.StatusText;
+            }
+
             if (activityManager != null &&
                 activityManager.DisciplineShowMessage)
             {
