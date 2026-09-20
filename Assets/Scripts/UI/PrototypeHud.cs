@@ -21,6 +21,7 @@ namespace MotorCity.UI
         private StuntJumpSystem stuntJumps;
         private ActivityManager activityManager;
         private GarageUpgradeSystem garage;
+        private CareerProgressionSystem career;
 
         private Font font;
         private Sprite panelSprite;
@@ -36,6 +37,7 @@ namespace MotorCity.UI
         private Text driftText;
         private Text navigatorArrowText;
         private Text navigatorText;
+        private Text careerText;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -88,7 +90,8 @@ namespace MotorCity.UI
             DiscoverySystem discoverySystem,
             StuntJumpSystem stuntJumpSystem,
             ActivityManager manager,
-            GarageUpgradeSystem garageSystem)
+            GarageUpgradeSystem garageSystem,
+            CareerProgressionSystem careerSystem)
         {
             car = controller;
             wallet = playerWallet;
@@ -103,6 +106,7 @@ namespace MotorCity.UI
             stuntJumps = stuntJumpSystem;
             activityManager = manager;
             garage = garageSystem;
+            career = careerSystem;
 
             BuildUi();
         }
@@ -131,6 +135,14 @@ namespace MotorCity.UI
                 garage == null
                     ? string.Empty
                     : $"ДВИГ {garage.EngineLevel}   •   СЦЕП {garage.GripLevel}   •   СТАБ {garage.StabilityLevel}";
+
+            if (careerText != null)
+            {
+                careerText.text =
+                    career == null
+                        ? string.Empty
+                        : career.HudLine;
+            }
 
             if (driveModeText != null &&
                 car != null)
@@ -286,7 +298,7 @@ namespace MotorCity.UI
                     canvas,
                     "Player Card",
                     new Vector2(18f, -18f),
-                    new Vector2(360f, 96f),
+                    new Vector2(420f, 124f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     PanelColor);
@@ -295,7 +307,7 @@ namespace MotorCity.UI
                 card,
                 BlueAccent,
                 new Vector2(5f, -8f),
-                new Vector2(4f, 80f),
+                new Vector2(4f, 108f),
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f));
 
@@ -364,6 +376,23 @@ namespace MotorCity.UI
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     SecondaryTextColor);
+
+            careerText =
+                CreateText(
+                    card,
+                    "Career",
+                    11,
+                    FontStyle.Bold,
+                    TextAnchor.LowerLeft,
+                    new Vector2(20f, 31f),
+                    new Vector2(382f, 20f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Color(
+                        0.32f,
+                        0.78f,
+                        1f,
+                        1f));
         }
 
         private void BuildSpeedometer(Transform canvas)
@@ -1292,6 +1321,13 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
+            if (career != null &&
+                career.ShowMessage)
+            {
+                return
+                    career.StatusText;
+            }
+
             if (garage != null &&
                 garage.IsNearGarage &&
                 !garage.IsOpen)
