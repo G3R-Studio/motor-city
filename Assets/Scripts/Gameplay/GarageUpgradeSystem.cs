@@ -24,6 +24,7 @@ namespace MotorCity.Gameplay
         private StreetSprintActivity streetSprint;
         private CircuitRaceActivity circuitRace;
         private VehicleRosterSystem vehicleRoster;
+        private VehicleMasterySystem vehicleMastery;
 
         public int EngineLevel { get; private set; }
         public int GripLevel { get; private set; }
@@ -44,6 +45,25 @@ namespace MotorCity.Gameplay
                 ? string.Empty
                 : vehicleRoster.GetStatsLine();
 
+        public string VehicleMasteryLine =>
+            vehicleRoster == null
+                ? string.Empty
+                : vehicleRoster.GetMasteryLine();
+
+        public string VehicleMasteryShort =>
+            vehicleRoster == null
+                ? string.Empty
+                : vehicleRoster.GetMasteryShort();
+
+        public bool MasteryShowMessage =>
+            vehicleMastery != null &&
+            vehicleMastery.ShowMessage;
+
+        public string MasteryStatusText =>
+            vehicleMastery == null
+                ? string.Empty
+                : vehicleMastery.StatusText;
+
         public void Initialize(
             ArcadeCarController targetCar,
             PlayerWallet targetWallet,
@@ -52,7 +72,8 @@ namespace MotorCity.Gameplay
             DriftChallenge challenge,
             StreetSprintActivity sprint,
             CircuitRaceActivity circuit,
-            VehicleRosterSystem roster)
+            VehicleRosterSystem roster,
+            VehicleMasterySystem mastery)
         {
             car = targetCar;
             wallet = targetWallet;
@@ -62,6 +83,7 @@ namespace MotorCity.Gameplay
             streetSprint = sprint;
             circuitRace = circuit;
             vehicleRoster = roster;
+            vehicleMastery = mastery;
             garageCenter =
                 MotorCity.World.CityAssetRuntimeInstaller.GaragePoint;
 
