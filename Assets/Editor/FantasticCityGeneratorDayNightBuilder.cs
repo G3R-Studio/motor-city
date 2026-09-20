@@ -25,14 +25,12 @@ public static class FantasticCityGeneratorDayNightBuilder
             TryBuildSilently;
     }
 
-    [MenuItem("Motor City/Fantastic City Generator/Build Day-Night Settings")]
     public static void BuildMenu()
     {
         Build(
             true);
     }
 
-    [MenuItem("Motor City/Fantastic City Generator/Import DayNight Prefab...")]
     public static void ImportPrefabMenu()
     {
         string path =
