@@ -50,6 +50,7 @@ namespace MotorCity.World
         public float NightAmount { get; private set; }
         public float TimeOfDay01 => time01;
         public int StreetLightCount => streetLights.Count;
+        public int AutoCreatedStreetLightCount => autoCreatedStreetLights;
         public int EnabledStreetLightCount { get; private set; }
 
         public void SetTimeOfDay(
