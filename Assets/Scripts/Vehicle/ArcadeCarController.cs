@@ -844,7 +844,7 @@ namespace MotorCity.Vehicle
             Vector3 tunedCenterOfMass =
                 bodyMassCenter +
                 Vector3.down *
-                (stabilityUpgradeLevel * 0.025f);
+                GetStabilityCenterDrop();
 
             tunedCenterOfMass +=
                 currentDriveMode switch
@@ -912,7 +912,7 @@ namespace MotorCity.Vehicle
                         0.05f,
                         angularDamping +
                         vehicleStabilityBonus +
-                        stabilityUpgradeLevel * 0.035f +
+                        GetStabilityDampingBonus() +
                         modeDamping);
             }
         }
@@ -930,7 +930,7 @@ namespace MotorCity.Vehicle
             return Mathf.Clamp(
                 baseMaxSpeedKph +
                 vehicleSpeedBonus +
-                engineUpgradeLevel * 12 +
+                GetEngineSpeedBonus() +
                 modeBonus,
                 20,
                 320);
@@ -949,10 +949,124 @@ namespace MotorCity.Vehicle
             return Mathf.Clamp(
                 accelerationMultiplier +
                 vehicleAccelerationBonus +
-                engineUpgradeLevel +
+                GetEngineAccelerationBonus() +
                 modeBonus,
                 1,
                 20);
+        }
+
+        private int GetEngineSpeedBonus()
+        {
+            int[] values =
+            {
+                0,
+                10,
+                22,
+                36,
+                52,
+                70
+            };
+
+            return
+                values[Mathf.Clamp(
+                    engineUpgradeLevel,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private int GetEngineAccelerationBonus()
+        {
+            int[] values =
+            {
+                0,
+                1,
+                2,
+                4,
+                6,
+                8
+            };
+
+            return
+                values[Mathf.Clamp(
+                    engineUpgradeLevel,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private float GetEngineAssistBonus()
+        {
+            float[] values =
+            {
+                0f,
+                0.12f,
+                0.25f,
+                0.40f,
+                0.58f,
+                0.78f
+            };
+
+            return
+                values[Mathf.Clamp(
+                    engineUpgradeLevel,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private float GetGripUpgradeBonus()
+        {
+            float[] values =
+            {
+                0f,
+                0.05f,
+                0.11f,
+                0.18f,
+                0.26f,
+                0.35f
+            };
+
+            return
+                values[Mathf.Clamp(
+                    gripUpgradeLevel,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private float GetStabilityCenterDrop()
+        {
+            float[] values =
+            {
+                0f,
+                0.018f,
+                0.038f,
+                0.062f,
+                0.090f,
+                0.122f
+            };
+
+            return
+                values[Mathf.Clamp(
+                    stabilityUpgradeLevel,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private float GetStabilityDampingBonus()
+        {
+            float[] values =
+            {
+                0f,
+                0.12f,
+                0.26f,
+                0.43f,
+                0.63f,
+                0.86f
+            };
+
+            return
+                values[Mathf.Clamp(
+                    stabilityUpgradeLevel,
+                    0,
+                    values.Length - 1)];
         }
 
         private int GetTunedHandbrakeDriftMultiplier()
@@ -1025,7 +1139,7 @@ namespace MotorCity.Vehicle
                     basePowerAssistAcceleration *
                     modeAcceleration *
                     (1f +
-                     engineUpgradeLevel * 0.14f);
+                     GetEngineAssistBonus());
 
                 if (currentDriveMode ==
                         DriveMode.Drift &&
@@ -1362,19 +1476,19 @@ namespace MotorCity.Vehicle
                 Mathf.Clamp(
                     engineLevel,
                     0,
-                    3);
+                    5);
 
             gripUpgradeLevel =
                 Mathf.Clamp(
                     gripLevel,
                     0,
-                    3);
+                    5);
 
             stabilityUpgradeLevel =
                 Mathf.Clamp(
                     stabilityLevel,
                     0,
-                    3);
+                    5);
 
             ApplyDriveModeTuning();
         }
@@ -1389,8 +1503,7 @@ namespace MotorCity.Vehicle
         {
             float upgradeGrip =
                 (1f +
-                 gripUpgradeLevel *
-                 0.055f) *
+                 GetGripUpgradeBonus()) *
                 Mathf.Clamp(
                     vehicleGripMultiplier,
                     0.75f,
