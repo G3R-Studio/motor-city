@@ -229,13 +229,21 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
+                half surfaceGloss =
+                    lerp(
+                        1.0h,
+                        0.18h,
+                        saturate(_MotorCityNightEmission));
+
                 half3 color =
                     dayGlass +
                     _FresnelColor.rgb *
                     fresnel *
-                    _FresnelStrength +
+                    _FresnelStrength *
+                    surfaceGloss +
                     mainLight.color *
-                    specular;
+                    specular *
+                    surfaceGloss;
 
                 half4 emissionSample =
                     SAMPLE_TEXTURE2D(
