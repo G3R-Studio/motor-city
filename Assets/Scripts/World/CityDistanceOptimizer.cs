@@ -56,10 +56,6 @@ namespace MotorCity.World
             ResolveObserver();
             ApplyDistanceCulling();
 
-            Debug.Log(
-                "Motor City: city distance optimization prepared. " +
-                $"LOD groups={TunedLodGroupCount}, " +
-                $"distance-managed renderers={managedRenderers.Count}.");
         }
 
         private void Update()
