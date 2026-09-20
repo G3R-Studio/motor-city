@@ -101,8 +101,6 @@ namespace MotorCity.Vehicle
         private DriveMode currentDriveMode =
             DriveMode.Comfort;
         private float driveModeMessageTimer;
-        private float driveModeSwitchCooldown;
-        private bool driveModeKeyHeld;
 
         public DriveMode CurrentDriveMode =>
             currentDriveMode;
@@ -224,39 +222,26 @@ namespace MotorCity.Vehicle
             Keyboard modeKeyboard =
                 Keyboard.current;
 
-            if (driveModeSwitchCooldown > 0f)
-            {
-                driveModeSwitchCooldown =
-                    Mathf.Max(
-                        0f,
-                        driveModeSwitchCooldown -
-                        Time.unscaledDeltaTime);
-            }
-
-            bool modeKeyDown =
+            bool conflictingControlPressed =
                 modeKeyboard != null &&
-                modeKeyboard.qKey.isPressed;
+                (modeKeyboard.spaceKey.isPressed ||
+                 modeKeyboard.wKey.isPressed ||
+                 modeKeyboard.sKey.isPressed ||
+                 modeKeyboard.aKey.isPressed ||
+                 modeKeyboard.dKey.isPressed ||
+                 modeKeyboard.upArrowKey.isPressed ||
+                 modeKeyboard.downArrowKey.isPressed ||
+                 modeKeyboard.leftArrowKey.isPressed ||
+                 modeKeyboard.rightArrowKey.isPressed);
 
-            if (!modeKeyDown)
+            if (drivingEnabled &&
+                resetHoldTimer <= 0f &&
+                modeKeyboard != null &&
+                modeKeyboard.qKey.wasPressedThisFrame &&
+                !conflictingControlPressed &&
+                SpeedKph <= 1f)
             {
-                driveModeKeyHeld =
-                    false;
-            }
-            else if (!driveModeKeyHeld)
-            {
-                driveModeKeyHeld =
-                    true;
-
-                if (drivingEnabled &&
-                    resetHoldTimer <= 0f &&
-                    driveModeSwitchCooldown <= 0f &&
-                    SpeedKph <= 1f)
-                {
-                    CycleDriveMode();
-
-                    driveModeSwitchCooldown =
-                        0.35f;
-                }
+                CycleDriveMode();
             }
 
             if (driveModeMessageTimer > 0f)
