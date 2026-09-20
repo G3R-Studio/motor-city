@@ -149,6 +149,71 @@ namespace MotorCity.Gameplay
                     MaxLevel);
         }
 
+        public void SetReputationForTesting(
+            DisciplineType type,
+            int value)
+        {
+            int safeValue =
+                Mathf.Max(
+                    0,
+                    value);
+
+            switch (type)
+            {
+                case DisciplineType.Racing:
+                    RacingReputation = safeValue;
+                    Save(
+                        RacingKey,
+                        RacingReputation);
+                    break;
+
+                case DisciplineType.Drift:
+                    DriftReputation = safeValue;
+                    Save(
+                        DriftKey,
+                        DriftReputation);
+                    break;
+
+                case DisciplineType.Delivery:
+                    DeliveryReputation = safeValue;
+                    Save(
+                        DeliveryKey,
+                        DeliveryReputation);
+                    break;
+            }
+        }
+
+        public void SetLevelForTesting(
+            DisciplineType type,
+            int level)
+        {
+            int safeLevel =
+                Mathf.Clamp(
+                    level,
+                    1,
+                    MaxLevel);
+
+            SetReputationForTesting(
+                type,
+                LevelThresholds[safeLevel - 1]);
+        }
+
+        public void SetAllLevelsForTesting(
+            int level)
+        {
+            SetLevelForTesting(
+                DisciplineType.Racing,
+                level);
+
+            SetLevelForTesting(
+                DisciplineType.Drift,
+                level);
+
+            SetLevelForTesting(
+                DisciplineType.Delivery,
+                level);
+        }
+
         private void HandleActivityResult(
             string activityId,
             bool success)
