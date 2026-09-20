@@ -29,6 +29,9 @@ namespace MotorCity.World
         private readonly List<Light> streetLights =
             new();
 
+        private readonly Dictionary<Material, Material> lampEmissionMaterials =
+            new();
+
         private DayNightSettings settings;
         private Light directionalLight;
         private Light moonLight;
@@ -153,6 +156,18 @@ namespace MotorCity.World
             if (runtimeNightSkybox != null)
                 Destroy(
                     runtimeNightSkybox);
+
+            foreach (Material material in
+                     lampEmissionMaterials.Values)
+            {
+                if (material != null)
+                {
+                    Destroy(
+                        material);
+                }
+            }
+
+            lampEmissionMaterials.Clear();
         }
 
         private void CreateMoonLight()
@@ -242,6 +257,17 @@ namespace MotorCity.World
                 1f -
                 daylight;
 
+            float twilight =
+                1f -
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.InverseLerp(
+                        0.015f,
+                        0.20f,
+                        Mathf.Abs(
+                            solarHeight)));
+
             Shader.SetGlobalFloat(
                 "_MotorCityNightEmission",
                 NightAmount);
@@ -302,17 +328,41 @@ namespace MotorCity.World
             RenderSettings.ambientMode =
                 AmbientMode.Trilight;
 
-            RenderSettings.ambientSkyColor =
+            Color ambientSky =
                 Color.Lerp(
                     nightSky,
                     daySky,
                     daylight);
 
-            RenderSettings.ambientEquatorColor =
+            Color ambientEquator =
                 Color.Lerp(
                     nightEquator,
                     dayEquator,
                     daylight);
+
+            Color duskSky =
+                new Color(
+                    0.48f,
+                    0.24f,
+                    0.12f);
+
+            Color duskEquator =
+                new Color(
+                    0.34f,
+                    0.16f,
+                    0.09f);
+
+            RenderSettings.ambientSkyColor =
+                Color.Lerp(
+                    ambientSky,
+                    duskSky,
+                    twilight * 0.30f);
+
+            RenderSettings.ambientEquatorColor =
+                Color.Lerp(
+                    ambientEquator,
+                    duskEquator,
+                    twilight * 0.36f);
 
             RenderSettings.ambientGroundColor =
                 Color.Lerp(
@@ -332,7 +382,7 @@ namespace MotorCity.World
             RenderSettings.fogMode =
                 FogMode.Linear;
 
-            RenderSettings.fogColor =
+            Color fogColor =
                 Color.Lerp(
                     new Color(
                         0.035f,
@@ -343,6 +393,15 @@ namespace MotorCity.World
                         0.61f,
                         0.67f),
                     daylight);
+
+            RenderSettings.fogColor =
+                Color.Lerp(
+                    fogColor,
+                    new Color(
+                        0.40f,
+                        0.20f,
+                        0.12f),
+                    twilight * 0.24f);
 
             RenderSettings.fogStartDistance =
                 Mathf.Lerp(
@@ -418,7 +477,11 @@ namespace MotorCity.World
 
             bool useNightSkybox =
                 NightAmount >=
-                0.5f;
+                0.62f;
+
+            UpdateSkyboxTransition(
+                twilight,
+                useNightSkybox);
 
             Material targetSkybox =
                 useNightSkybox
@@ -436,6 +499,8 @@ namespace MotorCity.World
                 DynamicGI.UpdateEnvironment();
             }
 
+            ApplyLampEmission();
+
             if (force ||
                 IsNight !=
                 lastNightState)
@@ -445,6 +510,228 @@ namespace MotorCity.World
 
                 ApplyStreetLights();
             }
+        }
+
+        private void UpdateSkyboxTransition(
+            float twilight,
+            bool useNightSkybox)
+        {
+            if (runtimeDaySkybox != null)
+            {
+                if (runtimeDaySkybox.HasProperty(
+                        "_Exposure"))
+                {
+                    runtimeDaySkybox.SetFloat(
+                        "_Exposure",
+                        Mathf.Lerp(
+                            1f,
+                            0.20f,
+                            Mathf.SmoothStep(
+                                0f,
+                                1f,
+                                Mathf.InverseLerp(
+                                    0.22f,
+                                    0.62f,
+                                    NightAmount))));
+                }
+
+                if (runtimeDaySkybox.HasProperty(
+                        "_Tint"))
+                {
+                    runtimeDaySkybox.SetColor(
+                        "_Tint",
+                        Color.Lerp(
+                            Color.white,
+                            new Color(
+                                1f,
+                                0.58f,
+                                0.34f,
+                                1f),
+                            twilight * 0.30f));
+                }
+            }
+
+            if (runtimeNightSkybox != null &&
+                runtimeNightSkybox.HasProperty(
+                    "_Exposure"))
+            {
+                runtimeNightSkybox.SetFloat(
+                    "_Exposure",
+                    Mathf.Lerp(
+                        0.24f,
+                        1f,
+                        Mathf.SmoothStep(
+                            0f,
+                            1f,
+                            Mathf.InverseLerp(
+                                0.48f,
+                                0.90f,
+                                NightAmount))));
+            }
+        }
+
+        private void PrepareLampEmission(
+            GameObject cityRoot)
+        {
+            if (cityRoot == null)
+                return;
+
+            foreach (Transform lampRoot in
+                     cityRoot.GetComponentsInChildren<Transform>(true))
+            {
+                if (lampRoot == null ||
+                    !IsLampRoot(
+                        lampRoot))
+                {
+                    continue;
+                }
+
+                foreach (Renderer renderer in
+                         lampRoot.GetComponentsInChildren<Renderer>(true))
+                {
+                    if (renderer == null ||
+                        !LooksLikeLampBulb(
+                            renderer))
+                    {
+                        continue;
+                    }
+
+                    Material[] materials =
+                        renderer.sharedMaterials;
+
+                    bool changed =
+                        false;
+
+                    for (int i = 0;
+                         i < materials.Length;
+                         i++)
+                    {
+                        Material source =
+                            materials[i];
+
+                        if (source == null)
+                            continue;
+
+                        if (!lampEmissionMaterials.TryGetValue(
+                                source,
+                                out Material runtime))
+                        {
+                            runtime =
+                                new Material(
+                                    source)
+                                {
+                                    name =
+                                        source.name +
+                                        "_MotorCityLampEmission"
+                                };
+
+                            if (runtime.HasProperty(
+                                    "_EmissionColor"))
+                            {
+                                runtime.EnableKeyword(
+                                    "_EMISSION");
+                            }
+
+                            lampEmissionMaterials.Add(
+                                source,
+                                runtime);
+                        }
+
+                        materials[i] =
+                            runtime;
+
+                        changed =
+                            true;
+                    }
+
+                    if (changed)
+                    {
+                        renderer.sharedMaterials =
+                            materials;
+                    }
+                }
+            }
+
+            ApplyLampEmission();
+        }
+
+        private void ApplyLampEmission()
+        {
+            float amount =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.InverseLerp(
+                        0.30f,
+                        0.68f,
+                        NightAmount));
+
+            Color emission =
+                new Color(
+                    4.2f,
+                    2.15f,
+                    0.75f,
+                    1f) *
+                amount;
+
+            foreach (Material material in
+                     lampEmissionMaterials.Values)
+            {
+                if (material == null ||
+                    !material.HasProperty(
+                        "_EmissionColor"))
+                {
+                    continue;
+                }
+
+                material.SetColor(
+                    "_EmissionColor",
+                    emission);
+            }
+        }
+
+        private static bool LooksLikeLampBulb(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return false;
+
+            string rendererName =
+                NormalizeName(
+                    renderer.name);
+
+            if (rendererName.Contains(
+                    "lightv") ||
+                rendererName.Contains(
+                    "bulb") ||
+                rendererName.Contains(
+                    "lampglow"))
+            {
+                return true;
+            }
+
+            foreach (Material material in
+                     renderer.sharedMaterials)
+            {
+                if (material == null)
+                    continue;
+
+                string materialName =
+                    NormalizeName(
+                        material.name);
+
+                if (materialName.Contains(
+                        "lightv") ||
+                    materialName.Contains(
+                        "bulb") ||
+                    materialName.Contains(
+                        "lampglow"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void RefreshStreetLights()
@@ -513,6 +800,9 @@ namespace MotorCity.World
                 unique.Add(
                     light);
             }
+
+            PrepareLampEmission(
+                cityRoot);
 
             streetLights.AddRange(
                 unique);
