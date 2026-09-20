@@ -17,6 +17,7 @@ namespace MotorCity.Gameplay
         private GarageUpgradeSystem garage;
         private CareerProgressionSystem career;
         private VehicleHistorySystem vehicleHistory;
+        private VehicleSpecializationSystem vehicleSpecialization;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
         private ActivityManager activityManager;
@@ -44,6 +45,7 @@ namespace MotorCity.Gameplay
             GarageUpgradeSystem garageSystem,
             CareerProgressionSystem careerSystem,
             VehicleHistorySystem historySystem,
+            VehicleSpecializationSystem specializationSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
             ActivityManager manager,
@@ -61,6 +63,7 @@ namespace MotorCity.Gameplay
             garage = garageSystem;
             career = careerSystem;
             vehicleHistory = historySystem;
+            vehicleSpecialization = specializationSystem;
             contracts = contractSystem;
             liveEvents = liveEventSystem;
             activityManager = manager;
@@ -157,6 +160,12 @@ namespace MotorCity.Gameplay
                 GUILayout.Label(
                     $"{roster.SelectedName}   •   " +
                     $"МАСТЕРСТВО {mastery.CurrentLevel}/10");
+            }
+
+            if (vehicleSpecialization != null)
+            {
+                GUILayout.Label(
+                    vehicleSpecialization.GarageLine);
             }
 
             if (contracts != null)

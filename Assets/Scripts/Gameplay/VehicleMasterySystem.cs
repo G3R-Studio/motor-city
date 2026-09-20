@@ -99,6 +99,22 @@ namespace MotorCity.Gameplay
             }
         }
 
+        public void AddBonusXp(
+            int amount)
+        {
+            if (amount <= 0 ||
+                roster == null)
+            {
+                return;
+            }
+
+            currentXp +=
+                amount;
+
+            SaveCurrentVehicle();
+            ResolveLevel();
+        }
+
         public void SetCurrentLevelForTesting(
             int level)
         {

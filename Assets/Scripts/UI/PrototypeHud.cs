@@ -23,6 +23,7 @@ namespace MotorCity.UI
         private GarageUpgradeSystem garage;
         private CareerProgressionSystem career;
         private VehicleHistorySystem vehicleHistory;
+        private VehicleSpecializationSystem vehicleSpecialization;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
 
@@ -62,6 +63,7 @@ namespace MotorCity.UI
         private Text garageVehicleText;
         private Text garageVehicleStatsText;
         private Text garageVehicleHistoryText;
+        private Text garageVehicleSpecializationText;
         private readonly Text[] garageTitleTexts =
             new Text[3];
         private readonly Text[] garagePriceTexts =
@@ -100,6 +102,7 @@ namespace MotorCity.UI
             GarageUpgradeSystem garageSystem,
             CareerProgressionSystem careerSystem,
             VehicleHistorySystem historySystem,
+            VehicleSpecializationSystem specializationSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem)
         {
@@ -118,6 +121,7 @@ namespace MotorCity.UI
             garage = garageSystem;
             career = careerSystem;
             vehicleHistory = historySystem;
+            vehicleSpecialization = specializationSystem;
             contracts = contractSystem;
             liveEvents = liveEventSystem;
 
@@ -1205,7 +1209,7 @@ namespace MotorCity.UI
                     garageOverlay.transform,
                     "Garage Panel",
                     Vector2.zero,
-                    new Vector2(760f, 530f),
+                    new Vector2(760f, 552f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
@@ -1292,6 +1296,23 @@ namespace MotorCity.UI
                         1f,
                         1f));
 
+            garageVehicleSpecializationText =
+                CreateText(
+                    panel,
+                    "Garage Vehicle Specialization",
+                    11,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(28f, -146f),
+                    new Vector2(704f, 20f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Color(
+                        0.52f,
+                        1f,
+                        0.68f,
+                        1f));
+
             Color[] accents =
             {
                 new(0.12f, 0.58f, 1f, 1f),
@@ -1302,7 +1323,7 @@ namespace MotorCity.UI
             for (int i = 0; i < 3; i++)
             {
                 float y =
-                    -158f - i * 92f;
+                    -180f - i * 92f;
 
                 RectTransform row =
                     CreatePanel(
@@ -1417,6 +1438,14 @@ namespace MotorCity.UI
                         : vehicleHistory.GarageLine;
             }
 
+            if (garageVehicleSpecializationText != null)
+            {
+                garageVehicleSpecializationText.text =
+                    vehicleSpecialization == null
+                        ? string.Empty
+                        : vehicleSpecialization.GarageLine;
+            }
+
             for (int i = 0; i < 3; i++)
             {
                 garageTitleTexts[i].text =
@@ -1435,6 +1464,13 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
+            if (vehicleSpecialization != null &&
+                vehicleSpecialization.ShowMessage)
+            {
+                return
+                    vehicleSpecialization.StatusText;
+            }
+
             if (liveEvents != null &&
                 liveEvents.ShowMessage)
             {

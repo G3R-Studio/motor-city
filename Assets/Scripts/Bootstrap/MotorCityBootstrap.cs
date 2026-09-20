@@ -125,6 +125,15 @@ namespace MotorCity.Bootstrap
                 vehicleRoster,
                 car);
 
+            VehicleSpecializationSystem vehicleSpecialization =
+                systems.AddComponent<VehicleSpecializationSystem>();
+
+            vehicleSpecialization.Initialize(
+                activityManager,
+                wallet,
+                vehicleRoster,
+                vehicleMastery);
+
             VehicleHistorySystem vehicleHistory =
                 systems.AddComponent<VehicleHistorySystem>();
 
@@ -204,6 +213,7 @@ namespace MotorCity.Bootstrap
                 garage,
                 career,
                 vehicleHistory,
+                vehicleSpecialization,
                 contracts,
                 liveEvents,
                 activityManager,
@@ -240,6 +250,7 @@ namespace MotorCity.Bootstrap
                 garage,
                 career,
                 vehicleHistory,
+                vehicleSpecialization,
                 contracts,
                 liveEvents);
 
@@ -1041,6 +1052,7 @@ namespace MotorCity.Bootstrap
             GarageUpgradeSystem garage,
             CareerProgressionSystem career,
             VehicleHistorySystem vehicleHistory,
+            VehicleSpecializationSystem vehicleSpecialization,
             CityContractSystem contracts,
             CityLiveEventSystem liveEvents)
         {
@@ -1062,6 +1074,7 @@ namespace MotorCity.Bootstrap
                 garage,
                 career,
                 vehicleHistory,
+                vehicleSpecialization,
                 contracts,
                 liveEvents);
         }
