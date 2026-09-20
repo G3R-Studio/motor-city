@@ -74,6 +74,15 @@ namespace MotorCity.Bootstrap
                 reputation);
             PlayerWallet wallet =
                 systems.AddComponent<PlayerWallet>();
+
+            CareerProgressionSystem career =
+                systems.AddComponent<CareerProgressionSystem>();
+
+            career.Initialize(
+                activityManager,
+                wallet,
+                reputation);
+
             drift.Initialize(wallet, activityManager);
 
             VehicleRosterSystem vehicleRoster =
@@ -170,7 +179,8 @@ namespace MotorCity.Bootstrap
                 discoveries,
                 stuntJumps,
                 activityManager,
-                garage);
+                garage,
+                career);
         }
 
         private static void BindFcgTrafficPlayer(
