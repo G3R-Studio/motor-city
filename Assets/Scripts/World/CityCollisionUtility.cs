@@ -50,10 +50,6 @@ namespace MotorCity.World
                 EnsureBuildingMeshColliders(
                     cityRoot);
 
-            disabled +=
-                RemoveRoadMarkBColliders(
-                    cityRoot);
-
             bool safetyFloor =
                 EnsureSafetyFloor(
                     cityRoot);
@@ -96,101 +92,6 @@ namespace MotorCity.World
             }
 
             return disabled;
-        }
-
-        public static int RemoveRoadMarkBColliders(
-            GameObject cityRoot)
-        {
-            if (cityRoot == null)
-                return 0;
-
-            int removed =
-                0;
-
-            foreach (Collider collider in
-                     cityRoot.GetComponentsInChildren<Collider>(
-                         true))
-            {
-                if (collider == null ||
-                    !IsRoadMarkBObject(
-                        collider.transform,
-                        cityRoot.transform))
-                    continue;
-
-                collider.enabled =
-                    false;
-
-                UnityEngine.Object.Destroy(
-                    collider);
-
-                removed++;
-            }
-
-            return removed;
-        }
-
-        private static bool IsRoadMarkBObject(
-            Transform item,
-            Transform cityRoot)
-        {
-            if (item == null)
-                return false;
-
-            Transform current =
-                item;
-
-            while (current != null)
-            {
-                string normalized =
-                    NormalizeName(
-                        current.name);
-
-                if (normalized.StartsWith(
-                        "roadmark"))
-                    return true;
-
-                MeshFilter filter =
-                    current.GetComponent<MeshFilter>();
-
-                if (filter != null &&
-                    filter.sharedMesh != null &&
-                    NormalizeName(
-                            filter.sharedMesh.name)
-                        .StartsWith(
-                            "roadmark"))
-                {
-                    return true;
-                }
-
-                Renderer renderer =
-                    current.GetComponent<Renderer>();
-
-                if (renderer != null)
-                {
-                    foreach (Material material in
-                             renderer.sharedMaterials)
-                    {
-                        if (material == null)
-                            continue;
-
-                        if (NormalizeName(
-                                material.name)
-                            .StartsWith(
-                                "roadmark"))
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                if (current == cityRoot)
-                    break;
-
-                current =
-                    current.parent;
-            }
-
-            return false;
         }
 
         private static int EnsureBuildingMeshColliders(
@@ -479,10 +380,6 @@ namespace MotorCity.World
                         normalized))
                     return true;
 
-                if (normalized.StartsWith(
-                        "roadmarkb"))
-                    return true;
-
                 current =
                     current.parent;
             }
@@ -517,13 +414,7 @@ namespace MotorCity.World
                 normalized.Contains(
                     "roadsign") ||
                 normalized.Contains(
-                    "streetsign") ||
-                normalized.Contains(
-                    "waysign") ||
-                normalized.Contains(
                     "signpost") ||
-                normalized.StartsWith(
-                    "sign") ||
                 normalized.Contains(
                     "bollard") ||
                 normalized.StartsWith(
