@@ -846,6 +846,10 @@ public static class FantasticCityGeneratorUrpFixer
             source,
             material);
 
+        ConfigureMaterialAppearance(
+            source,
+            material);
+
         ConfigureSurfaceType(
             source,
             material);
@@ -1025,6 +1029,16 @@ public static class FantasticCityGeneratorUrpFixer
             "_BumpMap",
             texture);
 
+        destination.SetTextureScale(
+            "_BumpMap",
+            source.GetTextureScale(
+                sourceProperty));
+
+        destination.SetTextureOffset(
+            "_BumpMap",
+            source.GetTextureOffset(
+                sourceProperty));
+
         if (source.HasProperty(
                 "_BumpScale") &&
             destination.HasProperty(
@@ -1181,6 +1195,87 @@ public static class FantasticCityGeneratorUrpFixer
                 "_Smoothness",
                 Mathf.Clamp01(
                     smoothness));
+        }
+    }
+
+    private static void ConfigureMaterialAppearance(
+        Material source,
+        Material destination)
+    {
+        if (source == null ||
+            destination == null)
+        {
+            return;
+        }
+
+        string normalized =
+            NormalizeMaterialName(
+                source.name);
+
+        bool road =
+            normalized.Contains(
+                "roads") ||
+            normalized.StartsWith(
+                "road");
+
+        bool window =
+            normalized.StartsWith(
+                "wins") ||
+            normalized.StartsWith(
+                "winglass");
+
+        if (road)
+        {
+            if (destination.HasProperty(
+                    "_Metallic"))
+            {
+                destination.SetFloat(
+                    "_Metallic",
+                    0.04f);
+            }
+
+            if (destination.HasProperty(
+                    "_Smoothness"))
+            {
+                destination.SetFloat(
+                    "_Smoothness",
+                    0.24f);
+            }
+
+            if (destination.HasProperty(
+                    "_BumpScale"))
+            {
+                destination.SetFloat(
+                    "_BumpScale",
+                    0.62f);
+            }
+        }
+
+        if (window)
+        {
+            if (destination.HasProperty(
+                    "_BumpScale"))
+            {
+                destination.SetFloat(
+                    "_BumpScale",
+                    0.78f);
+            }
+
+            if (destination.HasProperty(
+                    "_SpecularStrength"))
+            {
+                destination.SetFloat(
+                    "_SpecularStrength",
+                    0.22f);
+            }
+
+            if (destination.HasProperty(
+                    "_FresnelStrength"))
+            {
+                destination.SetFloat(
+                    "_FresnelStrength",
+                    0.24f);
+            }
         }
     }
 
@@ -1429,6 +1524,10 @@ public static class FantasticCityGeneratorUrpFixer
                 material);
 
             CopySurfaceValues(
+                source,
+                material);
+
+            ConfigureMaterialAppearance(
                 source,
                 material);
 
