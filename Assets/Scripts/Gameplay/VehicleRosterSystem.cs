@@ -37,6 +37,36 @@ namespace MotorCity.Gameplay
                 ? profiles[SelectedIndex].RequiredRep
                 : 0;
 
+        public int GetUnlockedVehicleCount()
+        {
+            if (profiles == null)
+                return 0;
+
+            int count = 0;
+
+            for (int i = 0;
+                 i < profiles.Length;
+                 i++)
+            {
+                if (IsUnlocked(i) &&
+                    HasVisual(i))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        public string GetVehicleId(
+            int index)
+        {
+            return
+                Valid(index)
+                    ? profiles[index].Id
+                    : string.Empty;
+        }
+
         public void Initialize(
             ArcadeCarController targetCar,
             PlayerReputation playerReputation)

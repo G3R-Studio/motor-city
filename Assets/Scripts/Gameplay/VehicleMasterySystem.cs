@@ -99,6 +99,46 @@ namespace MotorCity.Gameplay
             }
         }
 
+        public int GetLevelForVehicle(
+            string vehicleId)
+        {
+            if (string.IsNullOrEmpty(
+                    vehicleId))
+            {
+                return 1;
+            }
+
+            int xp =
+                Mathf.Max(
+                    0,
+                    PlayerPrefs.GetInt(
+                        XpKey(
+                            vehicleId),
+                        0));
+
+            int level = 1;
+
+            for (int i = 1;
+                 i < LevelThresholds.Length;
+                 i++)
+            {
+                if (xp <
+                    LevelThresholds[i])
+                {
+                    break;
+                }
+
+                level =
+                    i + 1;
+            }
+
+            return
+                Mathf.Clamp(
+                    level,
+                    1,
+                    MaxLevel);
+        }
+
         public void AddBonusXp(
             int amount)
         {

@@ -18,6 +18,7 @@ namespace MotorCity.Gameplay
         private CareerProgressionSystem career;
         private VehicleHistorySystem vehicleHistory;
         private VehicleSpecializationSystem vehicleSpecialization;
+        private CollectionProgressionSystem collection;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
         private ActivityManager activityManager;
@@ -46,6 +47,7 @@ namespace MotorCity.Gameplay
             CareerProgressionSystem careerSystem,
             VehicleHistorySystem historySystem,
             VehicleSpecializationSystem specializationSystem,
+            CollectionProgressionSystem collectionSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
             ActivityManager manager,
@@ -64,6 +66,7 @@ namespace MotorCity.Gameplay
             career = careerSystem;
             vehicleHistory = historySystem;
             vehicleSpecialization = specializationSystem;
+            collection = collectionSystem;
             contracts = contractSystem;
             liveEvents = liveEventSystem;
             activityManager = manager;
@@ -117,6 +120,7 @@ namespace MotorCity.Gameplay
             DrawDisciplines();
             DrawVehicles();
             DrawUpgradesAndMastery();
+            DrawCollection();
             DrawCareer();
             DrawContracts();
             DrawLiveEvents();
@@ -166,6 +170,12 @@ namespace MotorCity.Gameplay
             {
                 GUILayout.Label(
                     vehicleSpecialization.GarageLine);
+            }
+
+            if (collection != null)
+            {
+                GUILayout.Label(
+                    collection.GarageLine);
             }
 
             if (contracts != null)
@@ -365,6 +375,44 @@ namespace MotorCity.Gameplay
 
             if (Button("ВСЕ МАШИНЫ — МАСТЕРСТВО 10"))
                 mastery?.SetAllVehicleLevelsForTesting(10);
+
+            GUILayout.Space(10f);
+        }
+
+        private void DrawCollection()
+        {
+            GUILayout.Label("КОЛЛЕКЦИЯ");
+
+            if (collection != null)
+            {
+                GUILayout.Label(
+                    collection.GarageLine);
+            }
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ПЕРЕСЧИТАТЬ"))
+            {
+                collection?.RecalculateForTesting();
+                lastAction =
+                    "Коллекционный рейтинг пересчитан";
+            }
+
+            if (Button("CLAIM ALL TEST"))
+            {
+                collection?.ClaimAllForTesting();
+                lastAction =
+                    "Коллекционные награды выданы";
+            }
+
+            GUILayout.EndHorizontal();
+
+            if (Button("СБРОСИТЬ НАГРАДЫ КОЛЛЕКЦИИ"))
+            {
+                collection?.ResetMilestonesForTesting();
+                lastAction =
+                    "Награды коллекции сброшены";
+            }
 
             GUILayout.Space(10f);
         }
@@ -593,6 +641,7 @@ namespace MotorCity.Gameplay
                 3);
 
             vehicleHistory?.SetAllLegendaryForTesting();
+            collection?.RecalculateForTesting();
             contracts?.SetCycleForTesting(5);
             liveEvents?.CompleteCurrentForTesting();
 
@@ -644,6 +693,7 @@ namespace MotorCity.Gameplay
                 0);
 
             vehicleHistory?.ResetAllForTesting();
+            collection?.ResetMilestonesForTesting();
             contracts?.ResetForTesting();
             liveEvents?.ResetForTesting();
 

@@ -98,6 +98,53 @@ namespace MotorCity.Gameplay
             SaveCurrentVehicle();
         }
 
+        public int GetLegacyTierForVehicle(
+            string vehicleId)
+        {
+            if (string.IsNullOrEmpty(
+                    vehicleId))
+            {
+                return 0;
+            }
+
+            float km =
+                Mathf.Max(
+                    0f,
+                    PlayerPrefs.GetFloat(
+                        Key(
+                            vehicleId,
+                            "DistanceMeters"),
+                        0f)) /
+                1000f;
+
+            int wins =
+                Mathf.Max(
+                    0,
+                    PlayerPrefs.GetInt(
+                        Key(
+                            vehicleId,
+                            "Victories"),
+                        0));
+
+            if (km >= 400f ||
+                wins >= 80)
+                return 4;
+
+            if (km >= 150f ||
+                wins >= 35)
+                return 3;
+
+            if (km >= 50f ||
+                wins >= 15)
+                return 2;
+
+            if (km >= 10f ||
+                wins >= 4)
+                return 1;
+
+            return 0;
+        }
+
         public void ResetAllForTesting()
         {
             SaveCurrentVehicle();

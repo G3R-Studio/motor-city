@@ -142,6 +142,16 @@ namespace MotorCity.Bootstrap
                 vehicleRoster,
                 activityManager);
 
+            CollectionProgressionSystem collection =
+                systems.AddComponent<CollectionProgressionSystem>();
+
+            collection.Initialize(
+                wallet,
+                reputation,
+                vehicleRoster,
+                vehicleMastery,
+                vehicleHistory);
+
             positionPersistence.RestoreSavedPosition();
 
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
@@ -214,6 +224,7 @@ namespace MotorCity.Bootstrap
                 career,
                 vehicleHistory,
                 vehicleSpecialization,
+                collection,
                 contracts,
                 liveEvents,
                 activityManager,
@@ -251,6 +262,7 @@ namespace MotorCity.Bootstrap
                 career,
                 vehicleHistory,
                 vehicleSpecialization,
+                collection,
                 contracts,
                 liveEvents);
 
@@ -1053,6 +1065,7 @@ namespace MotorCity.Bootstrap
             CareerProgressionSystem career,
             VehicleHistorySystem vehicleHistory,
             VehicleSpecializationSystem vehicleSpecialization,
+            CollectionProgressionSystem collection,
             CityContractSystem contracts,
             CityLiveEventSystem liveEvents)
         {
@@ -1075,6 +1088,7 @@ namespace MotorCity.Bootstrap
                 career,
                 vehicleHistory,
                 vehicleSpecialization,
+                collection,
                 contracts,
                 liveEvents);
         }
