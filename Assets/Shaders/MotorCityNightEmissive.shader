@@ -7,6 +7,10 @@ Shader "MotorCity/NightEmissive"
         _EmissionMap("Emission Map", 2D) = "white" {}
         [HDR] _EmissionColor("Emission Color", Color) = (1.0,0.62,0.28,1)
         _EmissionStrength("Emission Strength", Range(0,8)) = 2.6
+        _DayGlassTint("Day Glass Tint", Color) = (0.16,0.22,0.28,1)
+        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.34
+        _FresnelColor("Fresnel Color", Color) = (0.52,0.66,0.78,1)
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.24
     }
 
     SubShader
@@ -49,6 +53,10 @@ Shader "MotorCity/NightEmissive"
                 half4 _BaseColor;
                 half4 _EmissionColor;
                 half _EmissionStrength;
+                half4 _DayGlassTint;
+                half _DayGlassLift;
+                half4 _FresnelColor;
+                half _FresnelStrength;
             CBUFFER_END
 
             float _MotorCityNightEmission;
@@ -68,7 +76,8 @@ Shader "MotorCity/NightEmissive"
                 half3 normalWS : TEXCOORD1;
                 float2 baseUv : TEXCOORD2;
                 float2 emissionUv : TEXCOORD3;
-                half fogFactor : TEXCOORD4;
+                half3 viewDirWS : TEXCOORD4;
+                half fogFactor : TEXCOORD5;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
@@ -92,6 +101,7 @@ Shader "MotorCity/NightEmissive"
                 output.normalWS = normalInputs.normalWS;
                 output.baseUv = TRANSFORM_TEX(input.uv, _BaseMap);
                 output.emissionUv = TRANSFORM_TEX(input.uv, _EmissionMap);
+                output.viewDirWS = GetWorldSpaceNormalizeViewDir(positionInputs.positionWS);
                 output.fogFactor = ComputeFogFactor(positionInputs.positionCS.z);
 
                 return output;
@@ -134,11 +144,35 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
-                half3 color =
+                half3 litBase =
                     baseSample.rgb *
                     max(
                         lighting,
-                        half3(0.07h, 0.07h, 0.07h));
+                        half3(0.11h, 0.11h, 0.11h));
+
+                half3 dayGlass =
+                    lerp(
+                        litBase,
+                        _DayGlassTint.rgb,
+                        _DayGlassLift);
+
+                half3 viewDirWS =
+                    normalize(input.viewDirWS);
+
+                half fresnel =
+                    pow(
+                        1.0h -
+                        saturate(
+                            dot(
+                                normalWS,
+                                viewDirWS)),
+                        4.0h);
+
+                half3 color =
+                    dayGlass +
+                    _FresnelColor.rgb *
+                    fresnel *
+                    _FresnelStrength;
 
                 half4 emissionSample =
                     SAMPLE_TEXTURE2D(
