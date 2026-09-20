@@ -28,6 +28,7 @@ namespace MotorCity.World
             public Renderer[] Red;
             public Renderer[] Yellow;
             public Renderer[] Green;
+            public bool ControlsNorthSouth;
         }
 
         private Phase CurrentPhase
@@ -249,7 +250,12 @@ namespace MotorCity.World
                         Yellow =
                             yellow.ToArray(),
                         Green =
-                            green.ToArray()
+                            green.ToArray(),
+                        ControlsNorthSouth =
+                            Mathf.Abs(
+                                item.forward.z) >=
+                            Mathf.Abs(
+                                item.forward.x)
                     });
             }
 
@@ -262,12 +268,6 @@ namespace MotorCity.World
             Phase phase =
                 CurrentPhase;
 
-            bool yellow =
-                phase ==
-                    Phase.NorthSouthYellow ||
-                phase ==
-                    Phase.EastWestYellow;
-
             // FCG signal prefabs vary. Only renderers that are explicitly
             // named/material-tagged by colour are toggled. Atlas-based signal
             // bodies are left untouched.
@@ -276,8 +276,23 @@ namespace MotorCity.World
                 if (node == null)
                     continue;
 
+                bool green =
+                    node.ControlsNorthSouth
+                        ? phase ==
+                          Phase.NorthSouthGreen
+                        : phase ==
+                          Phase.EastWestGreen;
+
+                bool yellow =
+                    node.ControlsNorthSouth
+                        ? phase ==
+                          Phase.NorthSouthYellow
+                        : phase ==
+                          Phase.EastWestYellow;
+
                 SetEnabled(
                     node.Red,
+                    !green &&
                     !yellow);
 
                 SetEnabled(
@@ -286,7 +301,7 @@ namespace MotorCity.World
 
                 SetEnabled(
                     node.Green,
-                    !yellow);
+                    green);
             }
         }
 
