@@ -1661,9 +1661,13 @@ namespace MotorCity.Vehicle
             if (body == null)
                 return;
 
-            body.mass = vehicleMass;
+            body.mass =
+                vehicleMass *
+                vehicleMassMultiplier;
+
             body.ResetInertiaTensor();
-            body.centerOfMass = bodyMassCenter;
+
+            ApplyDriveModeTuning();
         }
 
         public void SetDrivingEnabled(
