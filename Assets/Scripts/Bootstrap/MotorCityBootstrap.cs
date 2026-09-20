@@ -212,6 +212,9 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 garage,
                 career);
+
+            Debug.Log(
+                "Motor City: runtime ready. F10 opens the admin/test panel.");
         }
 
         private static void BindFcgTrafficPlayer(
@@ -263,9 +266,6 @@ namespace MotorCity.Bootstrap
                 playerField.SetValue(
                     behaviour,
                     player);
-
-                Debug.Log(
-                    "Motor City: linked PlayerCar to FCG TrafficSystem so distance-based traffic limits can run.");
 
                 return;
             }
