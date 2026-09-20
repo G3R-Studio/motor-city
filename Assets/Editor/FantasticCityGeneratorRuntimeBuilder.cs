@@ -16,7 +16,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
     private const string RuntimePrefab =
         RuntimeRoot + "/CityVisual.prefab";
 
-    [MenuItem("Motor City/Fantastic City Generator/Build Runtime City from Saved FCG City")]
+    [MenuItem("Motor City/Fantastic City Generator/5 - Build Runtime City")]
     public static void BuildRuntimeCity()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
