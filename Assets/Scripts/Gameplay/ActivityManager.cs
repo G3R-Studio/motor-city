@@ -59,6 +59,17 @@ namespace MotorCity.Gameplay
                 system;
         }
 
+        public bool HasDisciplineLevel(
+            DisciplineType type,
+            int requiredLevel)
+        {
+            return
+                disciplineReputation != null &&
+                disciplineReputation.HasLevel(
+                    type,
+                    requiredLevel);
+        }
+
         public bool TryBegin(string id, string displayName)
         {
             if (string.IsNullOrEmpty(id)) return false;
