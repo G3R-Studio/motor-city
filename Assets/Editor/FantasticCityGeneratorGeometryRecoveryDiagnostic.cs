@@ -16,7 +16,6 @@ public static class FantasticCityGeneratorGeometryRecoveryDiagnostic
     private const string OutputReportPath =
         "MotorCity_FCGMissingGeometryReport.txt";
 
-    [MenuItem("Motor City/Fantastic City Generator/Diagnose Missing Geometry from Scene Report")]
     public static void Diagnose()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
