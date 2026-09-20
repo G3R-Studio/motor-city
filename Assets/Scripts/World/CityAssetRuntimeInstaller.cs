@@ -962,20 +962,29 @@ namespace MotorCity.World
                      city.GetComponentsInChildren<Renderer>(
                          true))
             {
-                if (renderer == null ||
-                    !UsesTrafficCarAtlas(
-                        renderer))
+                if (renderer == null)
                     continue;
 
-                GameObject vehicleRoot =
-                    FindTrafficAtlasVehicleRoot(
-                        renderer.transform,
-                        cityRoot);
+                if (UsesTrafficCarAtlas(
+                        renderer))
+                {
+                    GameObject vehicleRoot =
+                        FindTrafficAtlasVehicleRoot(
+                            renderer.transform,
+                            cityRoot);
 
-                if (vehicleRoot != null)
+                    if (vehicleRoot != null)
+                    {
+                        rootsToRemove.Add(
+                            vehicleRoot);
+                    }
+                }
+
+                if (UsesStaticTrafficTireMaterial(
+                        renderer))
                 {
                     rootsToRemove.Add(
-                        vehicleRoot);
+                        renderer.gameObject);
                 }
             }
 
@@ -1004,6 +1013,33 @@ namespace MotorCity.World
             }
 
             return removed;
+        }
+
+        private static bool UsesStaticTrafficTireMaterial(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return false;
+
+            foreach (Material material in
+                     renderer.sharedMaterials)
+            {
+                if (material == null)
+                    continue;
+
+                string normalized =
+                    NormalizeStaticVehicleName(
+                        material.name);
+
+                if (normalized == "tires" ||
+                    normalized.StartsWith(
+                        "tires"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool UsesTrafficCarAtlas(
