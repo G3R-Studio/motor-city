@@ -49,6 +49,36 @@ namespace MotorCity.World
         public int StreetLightCount => streetLights.Count;
         public int EnabledStreetLightCount { get; private set; }
 
+        public void SetTimeOfDay(
+            float normalizedTime)
+        {
+            time01 =
+                Mathf.Repeat(
+                    normalizedTime,
+                    1f);
+
+            if (!initialized)
+                return;
+
+            ApplyEnvironment(
+                true);
+
+            ResolveLampObserver();
+            ApplyStreetLights();
+        }
+
+        public void SetDay()
+        {
+            SetTimeOfDay(
+                0.50f);
+        }
+
+        public void SetNight()
+        {
+            SetTimeOfDay(
+                0.00f);
+        }
+
         public void Initialize(
             Light sun)
         {
