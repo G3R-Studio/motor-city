@@ -98,6 +98,11 @@ namespace MotorCity.Vehicle
         private int vehicleAccelerationBonus;
         private float vehicleGripMultiplier = 1f;
         private float vehicleStabilityBonus;
+        private float vehicleMassMultiplier = 1f;
+        private float vehicleSteeringMultiplier = 1f;
+        private float vehicleBrakeMultiplier = 1f;
+        private float vehiclePowerMultiplier = 1f;
+        private float vehicleDriftMultiplier = 1f;
         private DriveMode currentDriveMode =
             DriveMode.Comfort;
         private float driveModeMessageTimer;
@@ -806,7 +811,7 @@ namespace MotorCity.Vehicle
             int tunedDriftMultiplier =
                 GetTunedHandbrakeDriftMultiplier();
 
-            int tunedSteeringAngle =
+            int baseSteeringAngle =
                 currentDriveMode switch
                 {
                     DriveMode.Sport =>
@@ -817,8 +822,13 @@ namespace MotorCity.Vehicle
                         42
                 };
 
+            int tunedSteeringAngle =
+                Mathf.RoundToInt(
+                    baseSteeringAngle *
+                    vehicleSteeringMultiplier);
+
             float tunedSteeringSpeed =
-                currentDriveMode switch
+                (currentDriveMode switch
                 {
                     DriveMode.Sport =>
                         steeringSpeed * 1.12f,
@@ -826,9 +836,10 @@ namespace MotorCity.Vehicle
                         steeringSpeed * 1.28f,
                     _ =>
                         steeringSpeed * 0.92f
-                };
+                }) *
+                vehicleSteeringMultiplier;
 
-            int tunedBrakeForce =
+            int baseBrakeForce =
                 currentDriveMode switch
                 {
                     DriveMode.Sport =>
@@ -840,6 +851,11 @@ namespace MotorCity.Vehicle
                     _ =>
                         brakeForce + 60
                 };
+
+            int tunedBrakeForce =
+                Mathf.RoundToInt(
+                    baseBrakeForce *
+                    vehicleBrakeMultiplier);
 
             Vector3 tunedCenterOfMass =
                 bodyMassCenter +
@@ -895,7 +911,10 @@ namespace MotorCity.Vehicle
 
             if (body != null)
             {
-                body.mass = vehicleMass;
+                body.mass =
+                    vehicleMass *
+                    vehicleMassMultiplier;
+
                 body.centerOfMass =
                     tunedCenterOfMass;
 
@@ -1054,10 +1073,12 @@ namespace MotorCity.Vehicle
                 };
 
             return Mathf.Clamp(
-                baseValue +
-                modeOffset,
+                Mathf.RoundToInt(
+                    (baseValue +
+                     modeOffset) *
+                    vehicleDriftMultiplier),
                 2,
-                10);
+                12);
         }
 
         private void ApplyPowerAssist()
@@ -1108,6 +1129,7 @@ namespace MotorCity.Vehicle
                 float acceleration =
                     basePowerAssistAcceleration *
                     modeAcceleration *
+                    vehiclePowerMultiplier *
                     (1f +
                      GetEngineAssistBonus());
 
@@ -1408,7 +1430,12 @@ namespace MotorCity.Vehicle
             int speedBonusKph,
             int accelerationBonus,
             float gripMultiplier,
-            float stabilityBonus)
+            float stabilityBonus,
+            float massMultiplier,
+            float steeringMultiplier,
+            float brakeMultiplier,
+            float powerMultiplier,
+            float driftMultiplier)
         {
             vehicleSpeedBonus =
                 Mathf.Clamp(
@@ -1433,6 +1460,36 @@ namespace MotorCity.Vehicle
                     stabilityBonus,
                     -0.08f,
                     0.12f);
+
+            vehicleMassMultiplier =
+                Mathf.Clamp(
+                    massMultiplier,
+                    0.82f,
+                    1.18f);
+
+            vehicleSteeringMultiplier =
+                Mathf.Clamp(
+                    steeringMultiplier,
+                    0.88f,
+                    1.16f);
+
+            vehicleBrakeMultiplier =
+                Mathf.Clamp(
+                    brakeMultiplier,
+                    0.88f,
+                    1.22f);
+
+            vehiclePowerMultiplier =
+                Mathf.Clamp(
+                    powerMultiplier,
+                    0.88f,
+                    1.20f);
+
+            vehicleDriftMultiplier =
+                Mathf.Clamp(
+                    driftMultiplier,
+                    0.78f,
+                    1.24f);
 
             ApplyDriveModeTuning();
         }
