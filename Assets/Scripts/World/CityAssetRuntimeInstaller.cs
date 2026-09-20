@@ -958,6 +958,26 @@ namespace MotorCity.World
                 }
             }
 
+            foreach (Transform candidate in
+                     city.GetComponentsInChildren<Transform>(
+                         true))
+            {
+                if (candidate == null ||
+                    candidate == cityRoot)
+                    continue;
+
+                if (!HasStaticFourWheelSignature(
+                        candidate))
+                    continue;
+
+                if (HasRuntimeTrafficBehaviour(
+                        candidate))
+                    continue;
+
+                rootsToRemove.Add(
+                    candidate.gameObject);
+            }
+
             foreach (Renderer renderer in
                      city.GetComponentsInChildren<Renderer>(
                          true))
@@ -1013,6 +1033,108 @@ namespace MotorCity.World
             }
 
             return removed;
+        }
+
+        private static bool HasStaticFourWheelSignature(
+            Transform candidate)
+        {
+            if (candidate == null)
+                return false;
+
+            bool bl = false;
+            bool br = false;
+            bool fl = false;
+            bool fr = false;
+
+            foreach (Transform child in
+                     candidate)
+            {
+                if (child == null)
+                    continue;
+
+                string name =
+                    NormalizeStaticVehicleName(
+                        child.name);
+
+                if (IsWheelMarker(
+                        name,
+                        "bl"))
+                {
+                    bl = true;
+                }
+                else if (IsWheelMarker(
+                             name,
+                             "br"))
+                {
+                    br = true;
+                }
+                else if (IsWheelMarker(
+                             name,
+                             "fl"))
+                {
+                    fl = true;
+                }
+                else if (IsWheelMarker(
+                             name,
+                             "fr"))
+                {
+                    fr = true;
+                }
+            }
+
+            return
+                bl &&
+                br &&
+                fl &&
+                fr;
+        }
+
+        private static bool IsWheelMarker(
+            string normalized,
+            string marker)
+        {
+            if (string.IsNullOrEmpty(
+                    normalized))
+                return false;
+
+            return
+                normalized == marker ||
+                normalized == "wheel" + marker ||
+                normalized == "tire" + marker ||
+                normalized.EndsWith(
+                    "wheel" + marker) ||
+                normalized.EndsWith(
+                    "tire" + marker) ||
+                normalized.EndsWith(
+                    marker);
+        }
+
+        private static bool HasRuntimeTrafficBehaviour(
+            Transform candidate)
+        {
+            if (candidate == null)
+                return false;
+
+            foreach (Component component in
+                     candidate.GetComponents<Component>())
+            {
+                if (component == null)
+                    continue;
+
+                string typeName =
+                    component.GetType().Name
+                        .ToLowerInvariant();
+
+                if (typeName.Contains(
+                        "trafficcar") ||
+                    typeName.Contains(
+                        "trafficvehicle"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool UsesStaticTrafficTireMaterial(
