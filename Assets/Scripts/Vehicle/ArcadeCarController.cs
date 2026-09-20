@@ -104,6 +104,7 @@ namespace MotorCity.Vehicle
         private float vehicleBrakeMultiplier = 1f;
         private float vehiclePowerMultiplier = 1f;
         private float vehicleDriftMultiplier = 1f;
+        private int vehicleMasteryLevel = 1;
         private DriveMode currentDriveMode =
             DriveMode.Comfort;
         private float driveModeMessageTimer;
@@ -965,6 +966,7 @@ namespace MotorCity.Vehicle
                 baseMaxSpeedKph +
                 vehicleSpeedBonus +
                 GetEngineSpeedBonus() +
+                GetMasterySpeedBonus() +
                 modeBonus,
                 20,
                 360);
@@ -984,9 +986,47 @@ namespace MotorCity.Vehicle
                 accelerationMultiplier +
                 vehicleAccelerationBonus +
                 GetEngineAccelerationBonus() +
+                GetMasteryAccelerationBonus() +
                 modeBonus,
                 1,
                 24);
+        }
+
+        private int GetMasterySpeedBonus()
+        {
+            return
+                Mathf.Max(
+                    0,
+                    vehicleMasteryLevel - 1) *
+                2;
+        }
+
+        private int GetMasteryAccelerationBonus()
+        {
+            return
+                vehicleMasteryLevel >= 7
+                    ? 2
+                    : vehicleMasteryLevel >= 4
+                        ? 1
+                        : 0;
+        }
+
+        private float GetMasteryGripBonus()
+        {
+            return
+                Mathf.Max(
+                    0,
+                    vehicleMasteryLevel - 1) *
+                0.006f;
+        }
+
+        private float GetMasteryPowerBonus()
+        {
+            return
+                Mathf.Max(
+                    0,
+                    vehicleMasteryLevel - 1) *
+                0.012f;
         }
 
         private int GetEngineSpeedBonus()
@@ -1146,7 +1186,8 @@ namespace MotorCity.Vehicle
                     modeAcceleration *
                     vehiclePowerMultiplier *
                     (1f +
-                     GetEngineAssistBonus());
+                     GetEngineAssistBonus() +
+                     GetMasteryPowerBonus());
 
                 if (currentDriveMode ==
                         DriveMode.Drift &&
@@ -1509,6 +1550,18 @@ namespace MotorCity.Vehicle
             ApplyDriveModeTuning();
         }
 
+        public void ApplyMasteryLevel(
+            int level)
+        {
+            vehicleMasteryLevel =
+                Mathf.Clamp(
+                    level,
+                    1,
+                    10);
+
+            ApplyDriveModeTuning();
+        }
+
         public void ApplyUpgradeLevels(
             int engineLevel,
             int gripLevel,
@@ -1545,7 +1598,8 @@ namespace MotorCity.Vehicle
         {
             float upgradeGrip =
                 (1f +
-                 GetGripUpgradeBonus()) *
+                 GetGripUpgradeBonus() +
+                 GetMasteryGripBonus()) *
                 Mathf.Clamp(
                     vehicleGripMultiplier,
                     0.75f,
