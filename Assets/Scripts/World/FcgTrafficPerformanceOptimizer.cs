@@ -12,7 +12,7 @@ namespace MotorCity.World
         private const float NearDistance = 58f;
         private const float FarDistance = 105f;
 
-        private readonly Dictionary<int, TrafficEntry> traffic =
+        private readonly Dictionary<ulong, TrafficEntry> traffic =
             new();
 
         private Transform player;
@@ -94,7 +94,7 @@ namespace MotorCity.World
                     false);
 
             var alive =
-                new HashSet<int>();
+                new HashSet<ulong>();
 
             foreach (MonoBehaviour behaviour in behaviours)
             {
@@ -112,8 +112,8 @@ namespace MotorCity.World
                     continue;
                 }
 
-                int id =
-                    behaviour.GetInstanceID();
+                ulong id =
+                    behaviour.GetEntityId();
 
                 alive.Add(
                     id);
@@ -137,7 +137,7 @@ namespace MotorCity.World
             }
 
             var stale =
-                new List<int>();
+                new List<ulong>();
 
             foreach (KeyValuePair<int, TrafficEntry> pair in
                      traffic)
@@ -151,7 +151,7 @@ namespace MotorCity.World
                 }
             }
 
-            foreach (int id in stale)
+            foreach (ulong id in stale)
             {
                 traffic.Remove(
                     id);
