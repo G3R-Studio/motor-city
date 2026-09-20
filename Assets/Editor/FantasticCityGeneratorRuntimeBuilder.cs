@@ -236,9 +236,15 @@ public static class FantasticCityGeneratorRuntimeBuilder
             if (root == null)
                 continue;
 
-            if (NormalizeName(
-                    root.name) ==
-                wanted)
+            string normalized =
+                NormalizeName(
+                    root.name);
+
+            if (normalized ==
+                    wanted ||
+                normalized ==
+                    wanted +
+                    "clone")
             {
                 return root;
             }
