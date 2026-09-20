@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -26,6 +27,8 @@ namespace MotorCity.Gameplay
                 : reputation.Level;
 
         private PlayerReputation reputation;
+
+        public event Action<string, bool> ActivityResultShown;
 
         public void Initialize(
             PlayerReputation playerReputation)
@@ -87,6 +90,10 @@ namespace MotorCity.Gameplay
 
             reputation?.AddReputation(
                 ResultReputationReward);
+
+            ActivityResultShown?.Invoke(
+                activityId,
+                success);
         }
 
         public void DismissResult()
