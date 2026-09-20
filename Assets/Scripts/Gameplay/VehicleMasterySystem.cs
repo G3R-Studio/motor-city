@@ -99,6 +99,55 @@ namespace MotorCity.Gameplay
             }
         }
 
+        public void SetCurrentLevelForTesting(
+            int level)
+        {
+            int safeLevel =
+                Mathf.Clamp(
+                    level,
+                    1,
+                    MaxLevel);
+
+            currentXp =
+                LevelThresholds[safeLevel - 1];
+
+            SaveCurrentVehicle();
+            ResolveLevel();
+        }
+
+        public void SetAllVehicleLevelsForTesting(
+            int level)
+        {
+            int safeLevel =
+                Mathf.Clamp(
+                    level,
+                    1,
+                    MaxLevel);
+
+            int xp =
+                LevelThresholds[safeLevel - 1];
+
+            string[] vehicleIds =
+            {
+                "street",
+                "club",
+                "muscle",
+                "gt",
+                "apex"
+            };
+
+            foreach (string vehicleId in vehicleIds)
+            {
+                PlayerPrefs.SetInt(
+                    XpKey(
+                        vehicleId),
+                    xp);
+            }
+
+            PlayerPrefs.Save();
+            LoadCurrentVehicle();
+        }
+
         private void HandleVehicleChanged()
         {
             LoadCurrentVehicle();
