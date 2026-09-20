@@ -21,7 +21,6 @@ public static class MotorCityEmptyLegacyFolderCleaner
         "Assets/PROMETEO - Car Controller/Sounds"
     };
 
-    [MenuItem("Motor City/Diagnostics/Clean Empty Legacy Folders")]
     public static void RemoveEmptyLegacyFolders()
     {
         bool changed =
