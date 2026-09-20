@@ -1,3 +1,4 @@
+using System;
 using MotorCity.Vehicle;
 using UnityEngine;
 
@@ -14,6 +15,17 @@ namespace MotorCity.Gameplay
 
         public int SelectedIndex { get; private set; }
         public int VehicleCount => profiles?.Length ?? 0;
+
+        public string SelectedId =>
+            Valid(SelectedIndex)
+                ? profiles[SelectedIndex].Id
+                : "street";
+
+        public event Action VehicleChanged;
+
+        private int masteryLevel = 1;
+        private int masteryXp;
+        private int masteryNextXp = 100;
 
         public string SelectedName =>
             Valid(SelectedIndex)
@@ -197,6 +209,8 @@ namespace MotorCity.Gameplay
 
             ApplySelectedVehicle();
 
+            VehicleChanged?.Invoke();
+
             status =
                 $"Выбрана машина {profile.DisplayName}";
 
@@ -242,7 +256,49 @@ namespace MotorCity.Gameplay
             return
                 $"МАШИНА {SelectedIndex + 1}/{profiles.Length}: " +
                 current.DisplayName +
+                $"   •   МАСТЕРСТВО {masteryLevel}/10" +
                 nextText;
+        }
+
+        public string GetMasteryLine()
+        {
+            if (masteryLevel >= 10)
+            {
+                return
+                    $"МАСТЕРСТВО: УР. 10/10   •   {masteryXp:N0} XP   •   МАКСИМУМ";
+            }
+
+            return
+                $"МАСТЕРСТВО: УР. {masteryLevel}/10   •   " +
+                $"{masteryXp:N0}/{masteryNextXp:N0} XP";
+        }
+
+        public string GetMasteryShort()
+        {
+            return
+                $"МАСТ {masteryLevel}/10";
+        }
+
+        public void SetMasteryDisplay(
+            int level,
+            int xp,
+            int nextXp)
+        {
+            masteryLevel =
+                Mathf.Clamp(
+                    level,
+                    1,
+                    10);
+
+            masteryXp =
+                Mathf.Max(
+                    0,
+                    xp);
+
+            masteryNextXp =
+                Mathf.Max(
+                    masteryXp,
+                    nextXp);
         }
 
         public string GetStatsLine()
