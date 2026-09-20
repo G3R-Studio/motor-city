@@ -1,6 +1,7 @@
+using MotorCity.Vehicle;
+using MotorCity.World;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using MotorCity.World;
 
 namespace MotorCity.Gameplay
 {
@@ -10,17 +11,55 @@ namespace MotorCity.Gameplay
 
         private PlayerWallet wallet;
         private PlayerReputation reputation;
+        private DisciplineReputationSystem disciplines;
+        private VehicleMasterySystem mastery;
+        private VehicleRosterSystem roster;
+        private GarageUpgradeSystem garage;
+        private CareerProgressionSystem career;
+        private ActivityManager activityManager;
+        private ArcadeCarController car;
+        private DeliveryActivity delivery;
+        private DriftChallenge driftChallenge;
+        private StreetSprintActivity sprint;
+        private CircuitRaceActivity circuit;
         private DayNightCycleController dayNight;
+
         private bool visible;
+        private Vector2 scroll;
+        private string lastAction =
+            "Готово к тестированию";
+
         private Rect windowRect =
-            new(20f, 130f, 360f, 500f);
+            new(20f, 80f, 470f, 720f);
 
         public void Initialize(
             PlayerWallet playerWallet,
-            PlayerReputation playerReputation)
+            PlayerReputation playerReputation,
+            DisciplineReputationSystem disciplineSystem,
+            VehicleMasterySystem masterySystem,
+            VehicleRosterSystem vehicleRoster,
+            GarageUpgradeSystem garageSystem,
+            CareerProgressionSystem careerSystem,
+            ActivityManager manager,
+            ArcadeCarController targetCar,
+            DeliveryActivity deliveryActivity,
+            DriftChallenge driftActivity,
+            StreetSprintActivity sprintActivity,
+            CircuitRaceActivity circuitActivity)
         {
             wallet = playerWallet;
             reputation = playerReputation;
+            disciplines = disciplineSystem;
+            mastery = masterySystem;
+            roster = vehicleRoster;
+            garage = garageSystem;
+            career = careerSystem;
+            activityManager = manager;
+            car = targetCar;
+            delivery = deliveryActivity;
+            driftChallenge = driftActivity;
+            sprint = sprintActivity;
+            circuit = circuitActivity;
         }
 
         private void Update()
@@ -48,109 +87,277 @@ namespace MotorCity.Gameplay
                     WindowId,
                     windowRect,
                     DrawWindow,
-                    "MOTOR CITY — ADMIN");
+                    "MOTOR CITY — ADMIN / TEST");
         }
 
         private void DrawWindow(
             int id)
         {
-            GUILayout.Space(4f);
+            scroll =
+                GUILayout.BeginScrollView(
+                    scroll,
+                    false,
+                    true);
+
+            DrawSummary();
+            DrawPresets();
+            DrawMoneyAndRep();
+            DrawDisciplines();
+            DrawVehicles();
+            DrawUpgradesAndMastery();
+            DrawCareer();
+            DrawTime();
+            DrawTeleports();
+
+            GUILayout.Space(12f);
+            GUILayout.Label(
+                $"ПОСЛЕДНЕЕ: {lastAction}");
 
             GUILayout.Label(
-                $"КР: {(wallet == null ? 0 : wallet.Credits):N0}");
+                "F10 / BACKQUOTE — закрыть панель");
 
+            GUILayout.EndScrollView();
+
+            GUI.DragWindow(
+                new Rect(
+                    0f,
+                    0f,
+                    10000f,
+                    24f));
+        }
+
+        private void DrawSummary()
+        {
             GUILayout.Label(
-                $"REP: {(reputation == null ? 0 : reputation.Reputation):N0}   " +
-                $"УР.: {(reputation == null ? 1 : reputation.Level)}");
+                $"КР {(wallet == null ? 0 : wallet.Credits):N0}   •   " +
+                $"REP {(reputation == null ? 0 : reputation.Reputation):N0}");
+
+            if (disciplines != null)
+            {
+                GUILayout.Label(
+                    $"RACING {disciplines.RacingLevel}/10   •   " +
+                    $"DRIFT {disciplines.DriftLevel}/10   •   " +
+                    $"DELIVERY {disciplines.DeliveryLevel}/10");
+            }
+
+            if (roster != null &&
+                mastery != null)
+            {
+                GUILayout.Label(
+                    $"{roster.SelectedName}   •   " +
+                    $"МАСТЕРСТВО {mastery.CurrentLevel}/10");
+            }
 
             GUILayout.Space(8f);
+        }
 
-            GUILayout.Label("ДЕНЬГИ");
+        private void DrawPresets()
+        {
+            GUILayout.Label("БЫСТРЫЕ ПРЕСЕТЫ");
 
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(
-                    "+1 000 КР",
-                    GUILayout.Height(32f)))
-            {
-                wallet?.AddCredits(
-                    1000);
-            }
+            if (Button("MAX EVERYTHING"))
+                MaxEverything();
 
-            if (GUILayout.Button(
-                    "+10 000 КР",
-                    GUILayout.Height(32f)))
-            {
-                wallet?.AddCredits(
-                    10000);
-            }
+            if (Button("ELITE READY"))
+                EliteReady();
+
+            GUILayout.EndHorizontal();
+
+            if (Button("RESET TEST PROGRESSION"))
+                ResetTestProgression();
+
+            GUILayout.Space(10f);
+        }
+
+        private void DrawMoneyAndRep()
+        {
+            GUILayout.Label("ДЕНЬГИ / ОБЩИЙ REP");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("+10 000 КР"))
+                wallet?.AddCredits(10000);
+
+            if (Button("КР = 1 000 000"))
+                wallet?.SetCredits(1000000);
+
+            if (Button("КР = 0"))
+                wallet?.SetCredits(0);
 
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(
-                    "+100 000 КР",
-                    GUILayout.Height(32f)))
-            {
-                wallet?.AddCredits(
-                    100000);
-            }
+            if (Button("REP = 0"))
+                reputation?.SetReputation(0);
 
-            if (GUILayout.Button(
-                    "КР = 0",
-                    GUILayout.Height(32f)))
-            {
-                wallet?.SetCredits(
-                    0);
-            }
+            if (Button("REP = 3 500"))
+                reputation?.SetReputation(3500);
+
+            if (Button("REP = 10 000"))
+                reputation?.SetReputation(10000);
 
             GUILayout.EndHorizontal();
 
             GUILayout.Space(10f);
-            GUILayout.Label("РЕПУТАЦИЯ");
+        }
 
-            GUILayout.BeginHorizontal();
+        private void DrawDisciplines()
+        {
+            GUILayout.Label("ДИСЦИПЛИНЫ");
 
-            if (GUILayout.Button(
-                    "+500 REP",
-                    GUILayout.Height(32f)))
-            {
-                reputation?.AddReputation(
-                    500);
-            }
+            DrawDisciplineRow(
+                "RACING",
+                DisciplineType.Racing);
 
-            if (GUILayout.Button(
-                    "+2 500 REP",
-                    GUILayout.Height(32f)))
-            {
-                reputation?.AddReputation(
-                    2500);
-            }
+            DrawDisciplineRow(
+                "DRIFT",
+                DisciplineType.Drift);
 
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-
-            if (GUILayout.Button(
-                    "REP = 5 000",
-                    GUILayout.Height(32f)))
-            {
-                reputation?.SetReputation(
-                    5000);
-            }
-
-            if (GUILayout.Button(
-                    "REP = 0",
-                    GUILayout.Height(32f)))
-            {
-                reputation?.SetReputation(
-                    0);
-            }
-
-            GUILayout.EndHorizontal();
+            DrawDisciplineRow(
+                "DELIVERY",
+                DisciplineType.Delivery);
 
             GUILayout.Space(10f);
+        }
+
+        private void DrawDisciplineRow(
+            string label,
+            DisciplineType type)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(
+                label,
+                GUILayout.Width(82f));
+
+            if (Button("LVL 1", 78f))
+                disciplines?.SetLevelForTesting(
+                    type,
+                    1);
+
+            if (Button("LVL 3", 78f))
+                disciplines?.SetLevelForTesting(
+                    type,
+                    3);
+
+            if (Button("LVL 10", 78f))
+                disciplines?.SetLevelForTesting(
+                    type,
+                    10);
+
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawVehicles()
+        {
+            GUILayout.Label("МАШИНЫ");
+
+            string[] names =
+            {
+                "STREET",
+                "CLUB",
+                "MUSCLE",
+                "GT",
+                "APEX"
+            };
+
+            GUILayout.BeginHorizontal();
+
+            for (int i = 0;
+                 i < names.Length;
+                 i++)
+            {
+                if (!Button(
+                        names[i],
+                        82f))
+                {
+                    continue;
+                }
+
+                if (roster != null &&
+                    roster.SelectVehicleForTesting(
+                        i,
+                        out string status))
+                {
+                    lastAction =
+                        status;
+                }
+                else if (!string.IsNullOrWhiteSpace(
+                             status))
+                {
+                    lastAction =
+                        status;
+                }
+            }
+
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10f);
+        }
+
+        private void DrawUpgradesAndMastery()
+        {
+            GUILayout.Label("ТЮНИНГ");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ВСЁ 0/5"))
+                garage?.SetAllUpgradeLevelsForTesting(0);
+
+            if (Button("ВСЁ 3/5"))
+                garage?.SetAllUpgradeLevelsForTesting(3);
+
+            if (Button("ВСЁ 5/5"))
+                garage?.SetAllUpgradeLevelsForTesting(5);
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.Label("МАСТЕРСТВО ТЕКУЩЕЙ МАШИНЫ");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("LVL 1"))
+                mastery?.SetCurrentLevelForTesting(1);
+
+            if (Button("LVL 5"))
+                mastery?.SetCurrentLevelForTesting(5);
+
+            if (Button("LVL 10"))
+                mastery?.SetCurrentLevelForTesting(10);
+
+            GUILayout.EndHorizontal();
+
+            if (Button("ВСЕ МАШИНЫ — МАСТЕРСТВО 10"))
+                mastery?.SetAllVehicleLevelsForTesting(10);
+
+            GUILayout.Space(10f);
+        }
+
+        private void DrawCareer()
+        {
+            GUILayout.Label("КАРЬЕРА");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ЭТАП 0"))
+                career?.SetStageForTesting(0);
+
+            if (Button("ЭТАП 1"))
+                career?.SetStageForTesting(1);
+
+            if (Button("ЭТАП 2"))
+                career?.SetStageForTesting(2);
+
+            if (Button("ГОТОВО"))
+                career?.SetStageForTesting(3);
+
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10f);
+        }
+
+        private void DrawTime()
+        {
             GUILayout.Label("ВРЕМЯ СУТОК");
 
             if (dayNight == null)
@@ -161,50 +368,272 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(
-                    "ДЕНЬ",
-                    GUILayout.Height(32f)))
-            {
-                dayNight?.SetDay();
-            }
+            if (Button("НОЧЬ"))
+                dayNight?.SetTimeOfDay(0f);
 
-            if (GUILayout.Button(
-                    "НОЧЬ",
-                    GUILayout.Height(32f)))
-            {
-                dayNight?.SetNight();
-            }
+            if (Button("РАССВЕТ"))
+                dayNight?.SetTimeOfDay(0.25f);
+
+            if (Button("ДЕНЬ"))
+                dayNight?.SetTimeOfDay(0.50f);
+
+            if (Button("ЗАКАТ"))
+                dayNight?.SetTimeOfDay(0.75f);
 
             GUILayout.EndHorizontal();
 
             if (dayNight != null)
             {
                 GUILayout.Label(
-                    $"Время: {dayNight.TimeOfDay01:0.00}   " +
-                    $"Ночь: {(dayNight.IsNight ? "ДА" : "НЕТ")}");
+                    $"TIME {dayNight.TimeOfDay01:0.00}   •   " +
+                    $"NIGHT {(dayNight.IsNight ? "YES" : "NO")}");
             }
 
             GUILayout.Space(10f);
+        }
 
-            if (GUILayout.Button(
-                    "ОТКРЫТЬ ВСЕ МАШИНЫ ПО REP",
-                    GUILayout.Height(36f)))
+        private void DrawTeleports()
+        {
+            GUILayout.Label("ТЕЛЕПОРТ / АКТИВНОСТИ");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("SPAWN"))
             {
-                reputation?.SetReputation(
-                    5000);
+                Teleport(
+                    CityAssetRuntimeInstaller.PlayerSpawnPoint,
+                    CityAssetRuntimeInstaller.PlayerSpawnRotation);
             }
 
-            GUILayout.Space(8f);
+            if (Button("GARAGE"))
+            {
+                Teleport(
+                    CityAssetRuntimeInstaller.GaragePoint,
+                    Quaternion.identity);
+            }
 
-            GUILayout.Label(
-                "F10 / BACKQUOTE — закрыть панель");
+            if (Button("DRIFT"))
+            {
+                Teleport(
+                    CityAssetRuntimeInstaller.DriftChallengePoint,
+                    Quaternion.identity);
+            }
 
-            GUI.DragWindow(
-                new Rect(
-                    0f,
-                    0f,
-                    10000f,
-                    24f));
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("DELIVERY"))
+                TeleportToRoute(
+                    CityAssetRuntimeInstaller.DeliveryRoute);
+
+            if (Button("SPRINT"))
+                TeleportToRoute(
+                    CityAssetRuntimeInstaller.SprintRoute);
+
+            if (Button("CIRCUIT"))
+                TeleportToRoute(
+                    CityAssetRuntimeInstaller.CircuitRoute);
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ОТМЕНИТЬ АКТИВНОСТЬ"))
+                CancelActivities();
+
+            if (Button("R — RESCUE NOW"))
+            {
+                if (car != null)
+                {
+                    CityAssetRuntimeInstaller.ResolveNearestRoadResetPose(
+                        car.transform.position,
+                        car.transform.forward,
+                        out Vector3 position,
+                        out Quaternion rotation);
+
+                    Teleport(
+                        position,
+                        rotation);
+                }
+            }
+
+            GUILayout.EndHorizontal();
+        }
+
+        private void MaxEverything()
+        {
+            wallet?.SetCredits(
+                1000000);
+
+            reputation?.SetReputation(
+                10000);
+
+            disciplines?.SetAllLevelsForTesting(
+                10);
+
+            mastery?.SetAllVehicleLevelsForTesting(
+                10);
+
+            garage?.SetAllUpgradeLevelsForTesting(
+                5);
+
+            career?.SetStageForTesting(
+                3);
+
+            lastAction =
+                "MAX EVERYTHING применён";
+        }
+
+        private void EliteReady()
+        {
+            wallet?.SetCredits(
+                100000);
+
+            reputation?.SetReputation(
+                3500);
+
+            disciplines?.SetAllLevelsForTesting(
+                3);
+
+            mastery?.SetCurrentLevelForTesting(
+                5);
+
+            garage?.SetAllUpgradeLevelsForTesting(
+                3);
+
+            lastAction =
+                "ELITE/PREMIUM события разблокированы";
+        }
+
+        private void ResetTestProgression()
+        {
+            CancelActivities();
+
+            wallet?.SetCredits(
+                0);
+
+            reputation?.SetReputation(
+                0);
+
+            disciplines?.SetAllLevelsForTesting(
+                1);
+
+            mastery?.SetAllVehicleLevelsForTesting(
+                1);
+
+            garage?.SetAllUpgradeLevelsForTesting(
+                0);
+
+            career?.SetStageForTesting(
+                0);
+
+            if (roster != null)
+            {
+                roster.SelectVehicleForTesting(
+                    0,
+                    out _);
+            }
+
+            lastAction =
+                "Тестовая прогрессия сброшена";
+        }
+
+        private void TeleportToRoute(
+            Vector3[] route)
+        {
+            if (route == null ||
+                route.Length == 0)
+            {
+                lastAction =
+                    "Маршрут отсутствует";
+                return;
+            }
+
+            Vector3 forward =
+                route.Length > 1
+                    ? route[1] - route[0]
+                    : Vector3.forward;
+
+            forward.y = 0f;
+
+            Quaternion rotation =
+                forward.sqrMagnitude > 0.01f
+                    ? Quaternion.LookRotation(
+                        forward.normalized,
+                        Vector3.up)
+                    : Quaternion.identity;
+
+            Teleport(
+                route[0],
+                rotation);
+        }
+
+        private void Teleport(
+            Vector3 position,
+            Quaternion rotation)
+        {
+            if (car == null)
+                return;
+
+            CancelActivities();
+
+            car.TeleportTo(
+                position +
+                Vector3.up * 1.1f,
+                rotation);
+
+            car.SetDrivingEnabled(
+                true);
+
+            lastAction =
+                $"Телепорт: {position.x:0}, {position.z:0}";
+        }
+
+        private void CancelActivities()
+        {
+            delivery?.CancelActivity();
+            driftChallenge?.CancelActivity();
+            sprint?.CancelActivity();
+            circuit?.CancelActivity();
+
+            if (activityManager != null)
+            {
+                if (activityManager.HasResult)
+                    activityManager.DismissResult();
+
+                if (activityManager.IsBusy)
+                    activityManager.End(
+                        activityManager.ActiveId);
+            }
+
+            car?.SetDrivingEnabled(
+                true);
+
+            lastAction =
+                "Активности отменены";
+        }
+
+        private static bool Button(
+            string text,
+            float width = 0f)
+        {
+            if (width > 0f)
+            {
+                return
+                    GUILayout.Button(
+                        text,
+                        GUILayout.Width(
+                            width),
+                        GUILayout.Height(
+                            30f));
+            }
+
+            return
+                GUILayout.Button(
+                    text,
+                    GUILayout.Height(
+                        30f));
         }
     }
 }
