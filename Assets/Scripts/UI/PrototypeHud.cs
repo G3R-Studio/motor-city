@@ -22,6 +22,7 @@ namespace MotorCity.UI
         private ActivityManager activityManager;
         private GarageUpgradeSystem garage;
         private CareerProgressionSystem career;
+        private VehicleHistorySystem vehicleHistory;
 
         private Font font;
         private Sprite panelSprite;
@@ -56,6 +57,7 @@ namespace MotorCity.UI
         private Text garageStatusText;
         private Text garageVehicleText;
         private Text garageVehicleStatsText;
+        private Text garageVehicleHistoryText;
         private readonly Text[] garageTitleTexts =
             new Text[3];
         private readonly Text[] garagePriceTexts =
@@ -92,7 +94,8 @@ namespace MotorCity.UI
             StuntJumpSystem stuntJumpSystem,
             ActivityManager manager,
             GarageUpgradeSystem garageSystem,
-            CareerProgressionSystem careerSystem)
+            CareerProgressionSystem careerSystem,
+            VehicleHistorySystem historySystem)
         {
             car = controller;
             wallet = playerWallet;
@@ -108,6 +111,7 @@ namespace MotorCity.UI
             activityManager = manager;
             garage = garageSystem;
             career = careerSystem;
+            vehicleHistory = historySystem;
 
             BuildUi();
         }
@@ -1143,7 +1147,7 @@ namespace MotorCity.UI
                     garageOverlay.transform,
                     "Garage Panel",
                     Vector2.zero,
-                    new Vector2(760f, 500f),
+                    new Vector2(760f, 530f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
@@ -1213,6 +1217,23 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
 
+            garageVehicleHistoryText =
+                CreateText(
+                    panel,
+                    "Garage Vehicle History",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(28f, -124f),
+                    new Vector2(704f, 20f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Color(
+                        0.82f,
+                        0.72f,
+                        1f,
+                        1f));
+
             Color[] accents =
             {
                 new(0.12f, 0.58f, 1f, 1f),
@@ -1223,7 +1244,7 @@ namespace MotorCity.UI
             for (int i = 0; i < 3; i++)
             {
                 float y =
-                    -138f - i * 92f;
+                    -158f - i * 92f;
 
                 RectTransform row =
                     CreatePanel(
@@ -1328,6 +1349,14 @@ namespace MotorCity.UI
             {
                 garageVehicleStatsText.text =
                     garage.VehicleStatsLine;
+            }
+
+            if (garageVehicleHistoryText != null)
+            {
+                garageVehicleHistoryText.text =
+                    vehicleHistory == null
+                        ? string.Empty
+                        : vehicleHistory.GarageLine;
             }
 
             for (int i = 0; i < 3; i++)

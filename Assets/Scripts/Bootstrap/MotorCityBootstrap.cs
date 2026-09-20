@@ -109,6 +109,14 @@ namespace MotorCity.Bootstrap
                 vehicleRoster,
                 car);
 
+            VehicleHistorySystem vehicleHistory =
+                systems.AddComponent<VehicleHistorySystem>();
+
+            vehicleHistory.Initialize(
+                car,
+                vehicleRoster,
+                activityManager);
+
             positionPersistence.RestoreSavedPosition();
 
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
@@ -179,6 +187,7 @@ namespace MotorCity.Bootstrap
                 vehicleRoster,
                 garage,
                 career,
+                vehicleHistory,
                 activityManager,
                 car,
                 delivery,
@@ -211,10 +220,9 @@ namespace MotorCity.Bootstrap
                 stuntJumps,
                 activityManager,
                 garage,
-                career);
+                career,
+                vehicleHistory);
 
-            Debug.Log(
-                "Motor City: runtime ready. F10 opens the admin/test panel.");
         }
 
         private static void BindFcgTrafficPlayer(

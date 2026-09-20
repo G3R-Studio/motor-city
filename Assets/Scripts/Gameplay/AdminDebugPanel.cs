@@ -16,6 +16,7 @@ namespace MotorCity.Gameplay
         private VehicleRosterSystem roster;
         private GarageUpgradeSystem garage;
         private CareerProgressionSystem career;
+        private VehicleHistorySystem vehicleHistory;
         private ActivityManager activityManager;
         private ArcadeCarController car;
         private DeliveryActivity delivery;
@@ -40,6 +41,7 @@ namespace MotorCity.Gameplay
             VehicleRosterSystem vehicleRoster,
             GarageUpgradeSystem garageSystem,
             CareerProgressionSystem careerSystem,
+            VehicleHistorySystem historySystem,
             ActivityManager manager,
             ArcadeCarController targetCar,
             DeliveryActivity deliveryActivity,
@@ -54,6 +56,7 @@ namespace MotorCity.Gameplay
             roster = vehicleRoster;
             garage = garageSystem;
             career = careerSystem;
+            vehicleHistory = historySystem;
             activityManager = manager;
             car = targetCar;
             delivery = deliveryActivity;
@@ -484,6 +487,8 @@ namespace MotorCity.Gameplay
             career?.SetStageForTesting(
                 3);
 
+            vehicleHistory?.SetAllLegendaryForTesting();
+
             lastAction =
                 "MAX EVERYTHING применён";
         }
@@ -530,6 +535,8 @@ namespace MotorCity.Gameplay
 
             career?.SetStageForTesting(
                 0);
+
+            vehicleHistory?.ResetAllForTesting();
 
             if (roster != null)
             {
