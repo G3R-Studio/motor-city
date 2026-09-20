@@ -19,6 +19,9 @@ public static class FantasticCityGeneratorUrpFixer
     private const string MaterialRoot =
         RuntimeRoot + "/FCGMaterials";
 
+    private const string TrafficCarRoot =
+        RuntimeRoot + "/FCGTrafficCars";
+
     [MenuItem("Motor City/Fantastic City Generator/4 - Fix Materials")]
     public static void FixPinkMaterialsInActiveScene()
     {
@@ -67,6 +70,10 @@ public static class FantasticCityGeneratorUrpFixer
                 .Where(renderer => renderer != null)
                 .ToArray();
 
+        GameObject[] trafficCarPrefabs =
+            GetTrafficCarPrefabs(
+                scene);
+
         var sourceMaterials =
             new HashSet<Material>();
 
@@ -98,6 +105,40 @@ public static class FantasticCityGeneratorUrpFixer
             }
         }
 
+        foreach (GameObject trafficPrefab in
+                 trafficCarPrefabs)
+        {
+            if (trafficPrefab == null)
+                continue;
+
+            foreach (Renderer renderer in
+                     trafficPrefab.GetComponentsInChildren<Renderer>(true))
+            {
+                foreach (Material material in
+                         renderer.sharedMaterials)
+                {
+                    if (material == null)
+                        continue;
+
+                    if (IsGeneratedUrpMaterial(
+                            material))
+                    {
+                        generatedMaterials.Add(
+                            material);
+
+                        continue;
+                    }
+
+                    if (BelongsToFantasticCityGenerator(
+                            material))
+                    {
+                        sourceMaterials.Add(
+                            material);
+                    }
+                }
+            }
+        }
+
         if (sourceMaterials.Count == 0 &&
             generatedMaterials.Count == 0)
         {
@@ -120,6 +161,9 @@ public static class FantasticCityGeneratorUrpFixer
 
         EnsureFolder(
             MaterialRoot);
+
+        EnsureFolder(
+            TrafficCarRoot);
 
         var converted =
             new Dictionary<Material, Material>();
@@ -215,6 +259,12 @@ public static class FantasticCityGeneratorUrpFixer
                 changedRenderers++;
             }
 
+            int trafficPrefabsUpdated =
+                BuildUrpTrafficCarPrefabs(
+                    scene,
+                    trafficCarPrefabs,
+                    converted);
+
             AssetDatabase.SaveAssets();
 
             UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
@@ -223,15 +273,17 @@ public static class FantasticCityGeneratorUrpFixer
             Debug.Log(
                 "Motor City: Fantastic City Generator URP conversion complete. " +
                 $"Converted {converted.Count} source materials, repaired " +
-                $"{repairedGenerated} existing URP materials and updated " +
-                $"{changedRenderers} renderers.");
+                $"{repairedGenerated} existing URP materials, updated " +
+                $"{changedRenderers} renderers and rebuilt " +
+                $"{trafficPrefabsUpdated} traffic car prefabs.");
 
             EditorUtility.DisplayDialog(
                 "Motor City — FCG URP Fix",
                 "Готово.\n\n" +
                 $"Новых материалов конвертировано: {converted.Count}\n" +
                 $"Существующих URP-материалов исправлено: {repairedGenerated}\n" +
-                $"Renderer'ов обновлено: {changedRenderers}\n\n" +
+                $"Renderer'ов обновлено: {changedRenderers}\n" +
+                $"Traffic prefab'ов обновлено: {trafficPrefabsUpdated}\n\n" +
                 "Сохрани сцену (Ctrl+S).",
                 "OK");
         }
@@ -257,6 +309,275 @@ public static class FantasticCityGeneratorUrpFixer
                 previousActiveScene,
                 true);
         }
+    }
+
+    private static GameObject[] GetTrafficCarPrefabs(
+        Scene scene)
+    {
+        var result =
+            new List<GameObject>();
+
+        foreach (GameObject root in
+                 scene.GetRootGameObjects())
+        {
+            foreach (MonoBehaviour behaviour in
+                     root.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (behaviour == null)
+                    continue;
+
+                Type type =
+                    behaviour.GetType();
+
+                if (!string.Equals(
+                        type.FullName,
+                        "FCG.TrafficSystem",
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                System.Reflection.FieldInfo field =
+                    type.GetField(
+                        "IaCars");
+
+                if (field == null ||
+                    !typeof(GameObject[]).IsAssignableFrom(
+                        field.FieldType))
+                {
+                    continue;
+                }
+
+                GameObject[] cars =
+                    field.GetValue(
+                        behaviour) as GameObject[];
+
+                if (cars == null)
+                    continue;
+
+                foreach (GameObject car in cars)
+                {
+                    if (car != null &&
+                        !result.Contains(
+                            car))
+                    {
+                        result.Add(
+                            car);
+                    }
+                }
+            }
+        }
+
+        return
+            result.ToArray();
+    }
+
+    private static int BuildUrpTrafficCarPrefabs(
+        Scene scene,
+        GameObject[] sourcePrefabs,
+        Dictionary<Material, Material> converted)
+    {
+        if (sourcePrefabs == null ||
+            sourcePrefabs.Length == 0)
+        {
+            return 0;
+        }
+
+        var prefabMap =
+            new Dictionary<GameObject, GameObject>();
+
+        int rebuilt =
+            0;
+
+        for (int i = 0;
+             i < sourcePrefabs.Length;
+             i++)
+        {
+            GameObject source =
+                sourcePrefabs[i];
+
+            if (source == null)
+                continue;
+
+            GameObject clone =
+                UnityEngine.Object.Instantiate(
+                    source);
+
+            clone.name =
+                source.name;
+
+            try
+            {
+                foreach (Renderer renderer in
+                         clone.GetComponentsInChildren<Renderer>(true))
+                {
+                    Material[] materials =
+                        renderer.sharedMaterials;
+
+                    bool changed =
+                        false;
+
+                    for (int m = 0;
+                         m < materials.Length;
+                         m++)
+                    {
+                        Material sourceMaterial =
+                            materials[m];
+
+                        if (sourceMaterial == null)
+                            continue;
+
+                        if (converted.TryGetValue(
+                                sourceMaterial,
+                                out Material runtimeMaterial))
+                        {
+                            materials[m] =
+                                runtimeMaterial;
+
+                            changed =
+                                true;
+                        }
+                    }
+
+                    if (changed)
+                    {
+                        renderer.sharedMaterials =
+                            materials;
+                    }
+
+                    renderer.shadowCastingMode =
+                        ShadowCastingMode.Off;
+
+                    renderer.receiveShadows =
+                        false;
+                }
+
+                foreach (Light light in
+                         clone.GetComponentsInChildren<Light>(true))
+                {
+                    if (light != null)
+                        light.enabled =
+                            false;
+                }
+
+                foreach (AudioSource audio in
+                         clone.GetComponentsInChildren<AudioSource>(true))
+                {
+                    if (audio != null)
+                        audio.enabled =
+                            false;
+                }
+
+                string path =
+                    TrafficCarRoot +
+                    "/" +
+                    SanitizeFileName(
+                        source.name) +
+                    "_" +
+                    i.ToString("D2") +
+                    ".prefab";
+
+                GameObject saved =
+                    PrefabUtility.SaveAsPrefabAsset(
+                        clone,
+                        path);
+
+                if (saved != null)
+                {
+                    prefabMap[source] =
+                        saved;
+
+                    rebuilt++;
+                }
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(
+                    clone);
+            }
+        }
+
+        foreach (GameObject root in
+                 scene.GetRootGameObjects())
+        {
+            foreach (MonoBehaviour behaviour in
+                     root.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (behaviour == null)
+                    continue;
+
+                Type type =
+                    behaviour.GetType();
+
+                if (!string.Equals(
+                        type.FullName,
+                        "FCG.TrafficSystem",
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                System.Reflection.FieldInfo field =
+                    type.GetField(
+                        "IaCars");
+
+                if (field == null ||
+                    !typeof(GameObject[]).IsAssignableFrom(
+                        field.FieldType))
+                {
+                    continue;
+                }
+
+                GameObject[] cars =
+                    field.GetValue(
+                        behaviour) as GameObject[];
+
+                if (cars == null)
+                    continue;
+
+                bool changed =
+                    false;
+
+                GameObject[] replacement =
+                    (GameObject[])cars.Clone();
+
+                for (int i = 0;
+                     i < replacement.Length;
+                     i++)
+                {
+                    GameObject source =
+                        replacement[i];
+
+                    if (source != null &&
+                        prefabMap.TryGetValue(
+                            source,
+                            out GameObject runtime))
+                    {
+                        replacement[i] =
+                            runtime;
+
+                        changed =
+                            true;
+                    }
+                }
+
+                if (!changed)
+                    continue;
+
+                Undo.RecordObject(
+                    behaviour,
+                    "Use Motor City URP Traffic Cars");
+
+                field.SetValue(
+                    behaviour,
+                    replacement);
+
+                EditorUtility.SetDirty(
+                    behaviour);
+            }
+        }
+
+        return rebuilt;
     }
 
     public static void DiagnoseMaterialsInActiveScene()
