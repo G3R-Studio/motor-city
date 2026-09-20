@@ -41,7 +41,6 @@ public static class CityAssetScanner
         "parking", "carpark", "car park", "lot"
     };
 
-    [MenuItem("Motor City/Tools/Scan City Asset Folder")]
     public static void ScanCityAssetFolder()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
