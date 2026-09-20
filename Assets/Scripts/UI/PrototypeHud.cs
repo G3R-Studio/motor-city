@@ -38,6 +38,7 @@ namespace MotorCity.UI
         private Text navigatorArrowText;
         private Text navigatorText;
         private Text careerText;
+        private Text disciplineText;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -143,6 +144,14 @@ namespace MotorCity.UI
                     career == null
                         ? string.Empty
                         : career.HudLine;
+            }
+
+            if (disciplineText != null)
+            {
+                disciplineText.text =
+                    activityManager == null
+                        ? string.Empty
+                        : activityManager.DisciplineHudLine;
             }
 
             if (driveModeText != null &&
@@ -299,7 +308,7 @@ namespace MotorCity.UI
                     canvas,
                     "Player Card",
                     new Vector2(18f, -18f),
-                    new Vector2(420f, 124f),
+                    new Vector2(420f, 148f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     PanelColor);
@@ -308,7 +317,7 @@ namespace MotorCity.UI
                 card,
                 BlueAccent,
                 new Vector2(5f, -8f),
-                new Vector2(4f, 108f),
+                new Vector2(4f, 132f),
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f));
 
@@ -393,6 +402,23 @@ namespace MotorCity.UI
                         0.32f,
                         0.78f,
                         1f,
+                        1f));
+
+            disciplineText =
+                CreateText(
+                    card,
+                    "Discipline Reputation",
+                    10,
+                    FontStyle.Bold,
+                    TextAnchor.LowerLeft,
+                    new Vector2(20f, 53f),
+                    new Vector2(382f, 18f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Color(
+                        0.95f,
+                        0.68f,
+                        0.28f,
                         1f));
         }
 
@@ -1322,6 +1348,13 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
+            if (activityManager != null &&
+                activityManager.DisciplineShowMessage)
+            {
+                return
+                    activityManager.DisciplineStatusText;
+            }
+
             if (garage != null &&
                 garage.MasteryShowMessage)
             {
