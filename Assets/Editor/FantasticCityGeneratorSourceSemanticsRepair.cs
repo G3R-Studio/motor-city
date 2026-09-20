@@ -15,7 +15,6 @@ public static class FantasticCityGeneratorSourceSemanticsRepair
     private const string SourceRoot =
         "Assets/Fantastic City Generator";
 
-    [MenuItem("Motor City/Fantastic City Generator/Restore Source Material Semantics")]
     public static void Repair()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
