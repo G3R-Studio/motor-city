@@ -33,7 +33,6 @@ public static class FantasticCityGeneratorCriticalMaterialDiagnostic
         "WinGlass-03"
     };
 
-    [MenuItem("Motor City/Fantastic City Generator/Diagnose Critical Material State")]
     public static void Diagnose()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
