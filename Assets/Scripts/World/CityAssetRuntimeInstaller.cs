@@ -137,21 +137,9 @@ namespace MotorCity.World
                     RuntimeCityName;
             }
 
-            EnsureDriveableMeshColliders(
-                activeCity);
-
-            int removedParkedVehicles =
-                RemoveStaticParkedVehicles(
-                    activeCity);
-
-            CityCollisionUtility.Result collisionResult =
-                CityCollisionUtility.Prepare(
-                    activeCity);
-
-            int stabilizedPedestrianSignals =
-                TrafficSignalVisualUtility.StabilizePedestrianSignals(
-                    activeCity);
-
+            // Runtime treats the authored city as read-only.
+            // Colliders, props, parked vehicles, traffic signals and all
+            // other map objects must come exactly from CityVisual.prefab.
             cityBounds =
                 CalculateCityBounds(
                     activeCity);
@@ -165,13 +153,8 @@ namespace MotorCity.World
             ResolveGameplayLayout();
 
             Debug.Log(
-                "Motor City: Fantastic City Generator city installed. " +
+                "Motor City: authored city loaded without runtime map modifications. " +
                 $"Bounds center={cityBounds.center}, size={cityBounds.size}. " +
-                $"Pass-through prop colliders disabled={collisionResult.DisabledStreetPropColliders}, " +
-                $"parked vehicles removed={removedParkedVehicles}, " +
-                $"building MeshColliders added={collisionResult.AddedBuildingMeshColliders}, " +
-                $"pedestrian signal renderers disabled={stabilizedPedestrianSignals}, " +
-                $"safety floor={collisionResult.SafetyFloorReady}. " +
                 $"Spawn={PlayerSpawnPoint}, Garage={GaragePoint}, " +
                 $"Drift={DriftChallengePoint}.");
 
