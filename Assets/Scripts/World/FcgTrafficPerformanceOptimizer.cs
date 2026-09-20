@@ -16,6 +16,7 @@ namespace MotorCity.World
             new();
 
         private Transform player;
+        private Transform carContainer;
         private float refreshTimer;
 
         private sealed class TrafficEntry
@@ -39,12 +40,11 @@ namespace MotorCity.World
                     ? playerCar.transform
                     : null;
 
-            RefreshTrafficCache();
-            ApplyDistanceModes();
+            refreshTimer =
+                0.75f;
 
             Debug.Log(
-                "Motor City: FCG traffic performance optimizer enabled. " +
-                $"Tracked cars={traffic.Count}.");
+                "Motor City: FCG traffic performance optimizer enabled.");
         }
 
         private void Update()
@@ -73,10 +73,25 @@ namespace MotorCity.World
 
         private void RefreshTrafficCache()
         {
+            if (carContainer == null)
+            {
+                GameObject container =
+                    GameObject.Find(
+                        "CarContainer");
+
+                if (container != null)
+                {
+                    carContainer =
+                        container.transform;
+                }
+            }
+
+            if (carContainer == null)
+                return;
+
             MonoBehaviour[] behaviours =
-                UnityEngine.Object.FindObjectsByType<MonoBehaviour>(
-                    FindObjectsInactive.Exclude,
-                    FindObjectsSortMode.None);
+                carContainer.GetComponentsInChildren<MonoBehaviour>(
+                    false);
 
             var alive =
                 new HashSet<int>();
