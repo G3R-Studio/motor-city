@@ -15,7 +15,7 @@ public static class FantasticCityGeneratorSceneSource
     private const string SourceSceneKey =
         "MotorCity.FCG.SourceScene";
 
-    [MenuItem("Motor City/Fantastic City Generator/Choose Saved FCG Source Scene")]
+    [MenuItem("Motor City/Fantastic City Generator/3 - Choose Saved Source Scene...")]
     public static void ChooseSavedSourceScene()
     {
         string initialDirectory =
@@ -92,7 +92,7 @@ public static class FantasticCityGeneratorSceneSource
             "OK");
     }
 
-    [MenuItem("Motor City/Fantastic City Generator/Use Open City Scene as FCG Source")]
+    [MenuItem("Motor City/Fantastic City Generator/2 - Use Open City as Source")]
     public static void UseOpenCitySceneAsSource()
     {
         Scene active =
