@@ -19,7 +19,7 @@ public static class FantasticCityGeneratorUrpFixer
     private const string MaterialRoot =
         RuntimeRoot + "/FCGMaterials";
 
-    [MenuItem("Motor City/Fantastic City Generator/Fix Materials in Saved FCG City")]
+    [MenuItem("Motor City/Fantastic City Generator/4 - Fix Materials")]
     public static void FixPinkMaterialsInActiveScene()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
