@@ -10,7 +10,7 @@ namespace MotorCity.Gameplay
         private const string GripKey = "MotorCity.Upgrade.Grip";
         private const string StabilityKey = "MotorCity.Upgrade.Stability";
         private const string ActivityId = "garage";
-        private const int MaxLevel = 3;
+        private const int MaxLevel = 5;
 
         private Vector3 garageCenter;
         [SerializeField] private float interactRadius = 13f;
@@ -146,11 +146,30 @@ namespace MotorCity.Gameplay
 
         public string GetUpgradeDescription(int index)
         {
-            return Mathf.Clamp(index, 0, 2) switch
+            UpgradeType type =
+                (UpgradeType)Mathf.Clamp(
+                    index,
+                    0,
+                    2);
+
+            int level =
+                GetLevel(
+                    type);
+
+            return type switch
             {
-                0 => "Больше тяги и максимальной скорости за уровень",
-                1 => "Больше продольного и бокового сцепления за уровень",
-                _ => "Ниже центр массы и выше угловое демпфирование за уровень"
+                UpgradeType.Engine =>
+                    $"ТЮНИНГ МОТОРА: +{EngineSpeedBonus(level)} км/ч, " +
+                    $"+{EngineAccelerationBonus(level)} разгон, " +
+                    $"+{EngineAssistPercent(level)}% тяга",
+
+                UpgradeType.Grip =>
+                    $"ШИНЫ / СЦЕП: +{GripBonusPercent(level)}% сцепления, " +
+                    "меньше пробуксовка и стабильнее быстрые повороты",
+
+                _ =>
+                    $"ШАССИ: -{StabilityCenterDropMm(level)} мм центр массы, " +
+                    $"+{StabilityDampingPercent(level)}% угловое демпфирование"
             };
         }
 
@@ -267,16 +286,156 @@ namespace MotorCity.Gameplay
             }
         }
 
-        private static int Price(UpgradeType type, int currentLevel)
+        private static int Price(
+            UpgradeType type,
+            int currentLevel)
         {
-            int basePrice = type switch
+            int[] multipliers =
             {
-                UpgradeType.Engine => 700,
-                UpgradeType.Grip => 650,
-                _ => 600
+                1,
+                2,
+                4,
+                7,
+                11
             };
 
-            return basePrice * (currentLevel + 1);
+            int levelIndex =
+                Mathf.Clamp(
+                    currentLevel,
+                    0,
+                    multipliers.Length - 1);
+
+            int basePrice =
+                type switch
+                {
+                    UpgradeType.Engine => 650,
+                    UpgradeType.Grip => 600,
+                    _ => 550
+                };
+
+            return
+                basePrice *
+                multipliers[levelIndex];
+        }
+
+        private static int EngineSpeedBonus(
+            int level)
+        {
+            int[] values =
+            {
+                0,
+                10,
+                22,
+                36,
+                52,
+                70
+            };
+
+            return
+                values[Mathf.Clamp(
+                    level,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private static int EngineAccelerationBonus(
+            int level)
+        {
+            int[] values =
+            {
+                0,
+                1,
+                2,
+                4,
+                6,
+                8
+            };
+
+            return
+                values[Mathf.Clamp(
+                    level,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private static int EngineAssistPercent(
+            int level)
+        {
+            int[] values =
+            {
+                0,
+                12,
+                25,
+                40,
+                58,
+                78
+            };
+
+            return
+                values[Mathf.Clamp(
+                    level,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private static int GripBonusPercent(
+            int level)
+        {
+            int[] values =
+            {
+                0,
+                5,
+                11,
+                18,
+                26,
+                35
+            };
+
+            return
+                values[Mathf.Clamp(
+                    level,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private static int StabilityCenterDropMm(
+            int level)
+        {
+            int[] values =
+            {
+                0,
+                18,
+                38,
+                62,
+                90,
+                122
+            };
+
+            return
+                values[Mathf.Clamp(
+                    level,
+                    0,
+                    values.Length - 1)];
+        }
+
+        private static int StabilityDampingPercent(
+            int level)
+        {
+            int[] values =
+            {
+                0,
+                12,
+                26,
+                43,
+                63,
+                86
+            };
+
+            return
+                values[Mathf.Clamp(
+                    level,
+                    0,
+                    values.Length - 1)];
         }
 
         private static string Name(UpgradeType type)
