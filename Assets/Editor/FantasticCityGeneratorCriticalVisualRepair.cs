@@ -43,7 +43,6 @@ public static class FantasticCityGeneratorCriticalVisualRepair
         new Rule { Name = "FCG_WinGlass-03", Surface = SurfaceMode.Transparent }
     };
 
-    [MenuItem("Motor City/Fantastic City Generator/Repair Critical Recovered Visuals")]
     public static void Repair()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
