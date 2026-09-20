@@ -27,14 +27,36 @@ namespace MotorCity.Gameplay
                 : reputation.Level;
 
         private PlayerReputation reputation;
+        private DisciplineReputationSystem disciplineReputation;
 
         public event Action<string, bool> ActivityResultShown;
+
+        public string DisciplineHudLine =>
+            disciplineReputation == null
+                ? string.Empty
+                : disciplineReputation.HudLine;
+
+        public bool DisciplineShowMessage =>
+            disciplineReputation != null &&
+            disciplineReputation.ShowMessage;
+
+        public string DisciplineStatusText =>
+            disciplineReputation == null
+                ? string.Empty
+                : disciplineReputation.StatusText;
 
         public void Initialize(
             PlayerReputation playerReputation)
         {
             reputation =
                 playerReputation;
+        }
+
+        public void SetDisciplineReputation(
+            DisciplineReputationSystem system)
+        {
+            disciplineReputation =
+                system;
         }
 
         public bool TryBegin(string id, string displayName)
