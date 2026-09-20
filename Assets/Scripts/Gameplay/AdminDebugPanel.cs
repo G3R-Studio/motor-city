@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using MotorCity.World;
 
 namespace MotorCity.Gameplay
 {
@@ -9,9 +10,10 @@ namespace MotorCity.Gameplay
 
         private PlayerWallet wallet;
         private PlayerReputation reputation;
+        private DayNightCycleController dayNight;
         private bool visible;
         private Rect windowRect =
-            new(20f, 130f, 360f, 390f);
+            new(20f, 130f, 360f, 500f);
 
         public void Initialize(
             PlayerWallet playerWallet,
@@ -147,6 +149,40 @@ namespace MotorCity.Gameplay
             }
 
             GUILayout.EndHorizontal();
+
+            GUILayout.Space(10f);
+            GUILayout.Label("ВРЕМЯ СУТОК");
+
+            if (dayNight == null)
+            {
+                dayNight =
+                    Object.FindAnyObjectByType<DayNightCycleController>();
+            }
+
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button(
+                    "ДЕНЬ",
+                    GUILayout.Height(32f)))
+            {
+                dayNight?.SetDay();
+            }
+
+            if (GUILayout.Button(
+                    "НОЧЬ",
+                    GUILayout.Height(32f)))
+            {
+                dayNight?.SetNight();
+            }
+
+            GUILayout.EndHorizontal();
+
+            if (dayNight != null)
+            {
+                GUILayout.Label(
+                    $"Время: {dayNight.TimeOfDay01:0.00}   " +
+                    $"Ночь: {(dayNight.IsNight ? "ДА" : "НЕТ")}");
+            }
 
             GUILayout.Space(10f);
 
