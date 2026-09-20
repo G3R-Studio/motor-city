@@ -68,7 +68,6 @@ public static class FantasticCityGeneratorHistoricalMaterialSlotRepair
         }
     };
 
-    [MenuItem("Motor City/Fantastic City Generator/Restore Historical Material Slots")]
     public static void Repair()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
