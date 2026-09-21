@@ -182,7 +182,7 @@ Core fantasy:
 - [x] Mail.
 - [x] Ice cream route.
 - [x] Car wash mini-game.
-- [ ] Tow-truck profession after suitable vehicle exists.
+- [ ] Tow-truck profession after suitable vehicle exists. BLOCKED: no suitable tow/truck vehicle asset is tracked in main.
 - [x] Vehicle passport/history screen.
 - [x] Better contract mini-stories.
 - [x] Profession progression without adding extra currencies.
@@ -194,7 +194,7 @@ Core fantasy:
 - [x] Season framework.
 - [x] Season 1 content.
 - [ ] Character presentation.
-- [ ] Achievement system.
+- [x] Achievement system.
 - [ ] Garage presets.
 - [ ] Expanded photo album.
 - [ ] Async club prototype.

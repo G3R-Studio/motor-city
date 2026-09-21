@@ -41,6 +41,7 @@ namespace MotorCity.UI
         private PhotoHuntSystem photoHunt;
         private CityProfessionSystem professions;
         private CarWashJobSystem carWash;
+        private AchievementSystem achievements;
         private AdventureDirector adventureDirector;
 
         private Font font;
@@ -158,6 +159,7 @@ namespace MotorCity.UI
             PhotoHuntSystem photoHuntSystem,
             CityProfessionSystem professionSystem,
             CarWashJobSystem carWashSystem,
+            AchievementSystem achievementSystem,
             AdventureDirector director)
         {
             car = controller;
@@ -190,6 +192,7 @@ namespace MotorCity.UI
             photoHunt = photoHuntSystem;
             professions = professionSystem;
             carWash = carWashSystem;
+            achievements = achievementSystem;
             adventureDirector = director;
 
             BuildUi();
@@ -2147,6 +2150,13 @@ namespace MotorCity.UI
             {
                 return
                     onboarding.StatusText;
+            }
+
+            if (achievements != null &&
+                achievements.ShowMessage)
+            {
+                return
+                    achievements.StatusText;
             }
 
             if (season != null &&

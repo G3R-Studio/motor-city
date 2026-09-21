@@ -528,6 +528,17 @@ namespace MotorCity.Localization
                 { "season1.m9", E("ТРИ ГОРОДСКИХ ПРИКЛЮЧЕНИЯ", "THREE CITY ADVENTURES") },
                 { "season1.m10", E("ФИНАЛЬНЫЙ КУБОК", "FINAL CUP") },
 
+                { "achievement.unlocked", E("ДОСТИЖЕНИЕ «{0}» • +{1:N0} КР • +{2:N0} РЕП • {3}/{4}", "ACHIEVEMENT “{0}” • +{1:N0} CR • +{2:N0} REP • {3}/{4}") },
+                { "achievement.first_drive", E("ПЕРВЫЙ УСПЕХ", "FIRST SUCCESS") },
+                { "achievement.racer", E("ГОРОДСКОЙ ГОНЩИК", "CITY RACER") },
+                { "achievement.drifter", E("МАСТЕР УГЛА", "ANGLE MASTER") },
+                { "achievement.worker", E("ПОМОЩНИК ГОРОДА", "CITY HELPER") },
+                { "achievement.explorer", E("ИССЛЕДОВАТЕЛЬ", "EXPLORER") },
+                { "achievement.photographer", E("ФОТОГРАФ MOTOR CITY", "MOTOR CITY PHOTOGRAPHER") },
+                { "achievement.collector", E("КОЛЛЕКЦИОНЕР", "COLLECTOR") },
+                { "achievement.story", E("ЮНАЯ ЛЕГЕНДА", "YOUNG LEGEND") },
+                { "achievement.season", E("ЧЕМПИОН СЕЗОНА", "SEASON CHAMPION") },
+
                 { "photo.album_line", E("ФОТОАЛЬБОМ • МЕСТА {0}/{1} • СЕКРЕТЫ {2}/{3} • РЕДКИЕ МАШИНЫ {4}/{5} • СЕЗОН {6}/{7}", "PHOTO ALBUM • PLACES {0}/{1} • SECRETS {2}/{3} • RARE CARS {4}/{5} • SEASON {6}/{7}") },
                 { "photo.captured", E("ФОТООХОТА — {0} • +{1:N0} КР • +{2:N0} РЕП", "PHOTO HUNT — {0} • +{1:N0} CR • +{2:N0} REP") },
                 { "photo.landmark_name", E("ДОСТОПРИМЕЧАТЕЛЬНОСТЬ: {0}", "LANDMARK: {0}") },

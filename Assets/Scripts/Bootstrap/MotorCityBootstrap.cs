@@ -364,6 +364,20 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 professions);
 
+            AchievementSystem achievements =
+                systems.AddComponent<AchievementSystem>();
+
+            achievements.Initialize(
+                wallet,
+                reputation,
+                activityManager,
+                discoveries,
+                photoHunt,
+                vehicleRoster,
+                story,
+                season,
+                professions);
+
             AdventureDirector adventureDirector =
                 systems.AddComponent<AdventureDirector>();
 
@@ -452,6 +466,7 @@ namespace MotorCity.Bootstrap
                 photoHunt,
                 professions,
                 carWash,
+                achievements,
                 adventureDirector);
 
             MotorCityBootController bootController =
@@ -1461,6 +1476,7 @@ namespace MotorCity.Bootstrap
             PhotoHuntSystem photoHunt,
             CityProfessionSystem professions,
             CarWashJobSystem carWash,
+            AchievementSystem achievements,
             AdventureDirector adventureDirector)
         {
             GameObject hud = new("Prototype HUD");
@@ -1496,6 +1512,7 @@ namespace MotorCity.Bootstrap
                 photoHunt,
                 professions,
                 carWash,
+                achievements,
                 adventureDirector);
         }
 

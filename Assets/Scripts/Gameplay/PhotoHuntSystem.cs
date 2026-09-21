@@ -34,6 +34,12 @@ namespace MotorCity.Gameplay
 
         public string StatusText { get; private set; }
 
+        public int TotalCaptured =>
+            landmarkCount +
+            secretCount +
+            rareCarCount +
+            (seasonalCaptured ? 1 : 0);
+
         public string AlbumLine =>
             MotorCityLocalization.Format(
                 "photo.album_line",
