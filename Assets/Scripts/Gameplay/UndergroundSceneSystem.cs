@@ -1,5 +1,7 @@
+using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace MotorCity.Gameplay
 {
@@ -29,7 +31,9 @@ namespace MotorCity.Gameplay
         private ActivityManager activityManager;
         private PlayerWallet wallet;
         private PlayerReputation reputation;
+        private ArcadeCarController car;
         private DayNightCycleController dayNight;
+        private Vector3[] route;
 
         private int streetCred;
         private int eventIndex;
@@ -39,6 +43,40 @@ namespace MotorCity.Gameplay
         private int nightProgress;
         private float messageTimer;
         private bool invitationAnnounced;
+        private bool isCountingDown;
+        private float countdownRemaining;
+        private int checkpointIndex;
+        private float elapsedSeconds;
+        private bool armed = true;
+
+        public bool IsActive { get; private set; }
+        public bool IsNearMeeting { get; private set; }
+        public bool IsCountingDown => isCountingDown;
+
+        public Vector3 CurrentTarget
+        {
+            get
+            {
+                if (route == null ||
+                    route.Length == 0)
+                {
+                    return
+                        CityAssetRuntimeInstaller.UndergroundMeetingPoint;
+                }
+
+                if (!IsActive &&
+                    !isCountingDown)
+                {
+                    return route[0];
+                }
+
+                return route[
+                    Mathf.Clamp(
+                        checkpointIndex,
+                        0,
+                        route.Length - 1)];
+            }
+        }
 
         public int StreetCred =>
             streetCred;
@@ -120,7 +158,8 @@ namespace MotorCity.Gameplay
         public void Initialize(
             ActivityManager manager,
             PlayerWallet playerWallet,
-            PlayerReputation playerReputation)
+            PlayerReputation playerReputation,
+            ArcadeCarController targetCar)
         {
             activityManager =
                 manager;
@@ -130,6 +169,12 @@ namespace MotorCity.Gameplay
 
             reputation =
                 playerReputation;
+
+            car =
+                targetCar;
+
+            route =
+                CityAssetRuntimeInstaller.UndergroundRoute;
 
             Load();
 
@@ -151,28 +196,243 @@ namespace MotorCity.Gameplay
                         Time.deltaTime);
             }
 
-            if (eventIndex >= EventCount ||
-                invitationAnnounced)
+            if (car == null ||
+                route == null ||
+                route.Length < 2)
             {
+                return;
+            }
+
+            Keyboard keyboard =
+                Keyboard.current;
+
+            if (isCountingDown)
+            {
+                IsNearMeeting = false;
+
+                if (keyboard != null &&
+                    keyboard.escapeKey.wasPressedThisFrame)
+                {
+                    CancelRun();
+                    return;
+                }
+
+                countdownRemaining =
+                    Mathf.Max(
+                        0f,
+                        countdownRemaining -
+                        Time.deltaTime);
+
+                int shown =
+                    Mathf.Max(
+                        1,
+                        Mathf.CeilToInt(
+                            countdownRemaining));
+
+                StatusText =
+                    $"UNDERGROUND   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+
+                messageTimer = 0.25f;
+
+                if (countdownRemaining <= 0f)
+                {
+                    isCountingDown = false;
+                    IsActive = true;
+                    checkpointIndex = 1;
+                    elapsedSeconds = 0f;
+                    car.SetDrivingEnabled(true);
+                }
+
+                return;
+            }
+
+            if (IsActive)
+            {
+                IsNearMeeting = false;
+                elapsedSeconds += Time.deltaTime;
+
+                if (keyboard != null &&
+                    keyboard.escapeKey.wasPressedThisFrame)
+                {
+                    CancelRun();
+                    return;
+                }
+
+                float checkpointDistance =
+                    Vector3.Distance(
+                        Flat(car.transform.position),
+                        Flat(CurrentTarget));
+
+                if (checkpointDistance <= 15f)
+                {
+                    checkpointIndex++;
+
+                    if (checkpointIndex >= route.Length)
+                    {
+                        CompletePhysicalRun();
+                        return;
+                    }
+                }
+
+                StatusText =
+                    $"UNDERGROUND — {CurrentEvent().Name}   " +
+                    $"ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
+                    $"{elapsedSeconds:0.0}с   ESC — ОТМЕНА";
+
+                messageTimer = 0.25f;
+                return;
+            }
+
+            if (eventIndex >= EventCount)
+            {
+                IsNearMeeting = false;
                 return;
             }
 
             UndergroundEvent current =
                 CurrentEvent();
 
-            if (streetCred <
-                current.RequiredCred)
+            bool invitationUnlocked =
+                streetCred >=
+                current.RequiredCred;
+
+            bool night =
+                IsNight();
+
+            float distance =
+                Vector3.Distance(
+                    Flat(car.transform.position),
+                    Flat(route[0]));
+
+            IsNearMeeting =
+                invitationUnlocked &&
+                night &&
+                distance <= 18f;
+
+            if (!armed)
+            {
+                IsNearMeeting = false;
+
+                if (distance > 24f)
+                    armed = true;
+            }
+
+            if (invitationUnlocked &&
+                !invitationAnnounced)
+            {
+                invitationAnnounced = true;
+
+                StatusText =
+                    current.Invitation +
+                    "   МЕТКА ДОБАВЛЕНА НА МИНИКАРТУ";
+
+                messageTimer =
+                    MessageSeconds;
+            }
+
+            if (!invitationUnlocked ||
+                !night ||
+                !IsNearMeeting)
             {
                 return;
             }
 
-            invitationAnnounced = true;
+            if (activityManager != null &&
+                activityManager.IsBusy)
+            {
+                StatusText =
+                    $"UNDERGROUND НЕДОСТУПЕН: АКТИВНО «{activityManager.ActiveName}»";
+
+                messageTimer = 0.25f;
+                return;
+            }
+
+            if (car.SpeedKph > 8f)
+            {
+                StatusText =
+                    "UNDERGROUND — ОСТАНОВИСЬ ДО 8 КМ/Ч";
+
+                messageTimer = 0.25f;
+                return;
+            }
 
             StatusText =
-                current.Invitation;
+                $"UNDERGROUND — {current.Name}   E — НАЧАТЬ";
+
+            messageTimer = 0.25f;
+
+            if (keyboard != null &&
+                keyboard.eKey.wasPressedThisFrame)
+            {
+                BeginPhysicalRun();
+            }
+        }
+
+        private static Vector3 Flat(
+            Vector3 value)
+        {
+            value.y = 0f;
+            return value;
+        }
+
+        private void BeginPhysicalRun()
+        {
+            if (activityManager == null ||
+                !activityManager.TryBegin(
+                    "underground",
+                    CurrentEvent().Name))
+            {
+                return;
+            }
+
+            armed = false;
+            isCountingDown = true;
+            countdownRemaining = 3f;
+            checkpointIndex = 0;
+            elapsedSeconds = 0f;
+            car.SetDrivingEnabled(false);
+        }
+
+        private void CancelRun()
+        {
+            isCountingDown = false;
+            IsActive = false;
+            checkpointIndex = 0;
+            car?.SetDrivingEnabled(true);
+            activityManager?.End(
+                "underground");
+
+            StatusText =
+                "UNDERGROUND — ЗАЕЗД ОТМЕНЁН";
+
+            messageTimer =
+                3f;
+        }
+
+        private void CompletePhysicalRun()
+        {
+            UndergroundEvent current =
+                CurrentEvent();
+
+            IsActive = false;
+            isCountingDown = false;
+            checkpointIndex = 0;
+            car.SetDrivingEnabled(false);
+
+            CompleteEvent(
+                current);
+
+            activityManager?.End(
+                "underground");
+
+            StatusText =
+                $"{current.Name} — ФИНИШ {elapsedSeconds:0.0}с   " +
+                $"+{current.Credits:N0} КР   +{current.CredReward} STREET CRED";
 
             messageTimer =
                 MessageSeconds;
+
+            car.SetDrivingEnabled(true);
         }
 
         private void OnDestroy()

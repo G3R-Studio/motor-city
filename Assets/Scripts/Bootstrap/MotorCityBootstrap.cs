@@ -115,7 +115,8 @@ namespace MotorCity.Bootstrap
             underground.Initialize(
                 activityManager,
                 wallet,
-                reputation);
+                reputation,
+                car);
 
             drift.Initialize(wallet, activityManager);
 
@@ -263,6 +264,7 @@ namespace MotorCity.Bootstrap
             CreateDiscoveryMarkers(discoveries);
             CreateStuntJumpRamps(stuntJumps);
             CreateGarageMarker(garage);
+            CreateUndergroundMarker(underground);
 
             CreateCamera(car.transform);
             CreateHud(
@@ -958,6 +960,73 @@ namespace MotorCity.Bootstrap
                             0f);
                 }
             }
+        }
+
+        private static void CreateUndergroundMarker(
+            UndergroundSceneSystem underground)
+        {
+            if (underground == null)
+                return;
+
+            GameObject root =
+                new("Underground Marker");
+
+            root.transform.position =
+                CityAssetRuntimeInstaller.UndergroundMeetingPoint;
+
+            Material baseMaterial =
+                Material(
+                    new Color(
+                        0.26f,
+                        0.03f,
+                        0.34f),
+                    0.08f,
+                    0.66f);
+
+            Material glowMaterial =
+                Material(
+                    new Color(
+                        0.74f,
+                        0.12f,
+                        1f),
+                    0.02f,
+                    0.78f);
+
+            Primitive(
+                "Underground Ring",
+                PrimitiveType.Cylinder,
+                root.transform,
+                new Vector3(
+                    5.6f,
+                    0.035f,
+                    5.6f),
+                new Vector3(
+                    0f,
+                    0.07f,
+                    0f),
+                baseMaterial,
+                false);
+
+            Primitive(
+                "Underground Beacon",
+                PrimitiveType.Cylinder,
+                root.transform,
+                new Vector3(
+                    0.12f,
+                    2.8f,
+                    0.12f),
+                new Vector3(
+                    0f,
+                    2.8f,
+                    0f),
+                glowMaterial,
+                false);
+
+            UndergroundMarkerVisual visual =
+                root.AddComponent<UndergroundMarkerVisual>();
+
+            visual.Bind(
+                underground);
         }
 
         private static void CreateGarageMarker(

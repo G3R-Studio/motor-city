@@ -822,6 +822,21 @@ namespace MotorCity.UI
         {
             hasTarget = true;
 
+            if (underground != null &&
+                (underground.HasActiveInvitation ||
+                 underground.IsActive ||
+                 underground.IsCountingDown))
+            {
+                target =
+                    underground.CurrentTarget;
+                label =
+                    underground.IsActive ||
+                    underground.IsCountingDown
+                        ? "UNDERGROUND"
+                        : "ТАЙНАЯ ВСТРЕЧА";
+                return;
+            }
+
             if (delivery != null &&
                 (delivery.IsActive ||
                  delivery.IsCountingDown))
@@ -1700,6 +1715,8 @@ namespace MotorCity.UI
                         circuitRace?.StatusText,
                     "garage" =>
                         garage?.StatusText,
+                    "underground" =>
+                        underground?.StatusText,
                     _ =>
                         activityManager.ActiveName
                 };

@@ -88,6 +88,20 @@ namespace MotorCity.World
         private static Vector3[] circuitRoute =
             (Vector3[])CircuitPreferred.Clone();
 
+        private static readonly Vector3[] UndergroundPreferred =
+        {
+            new(-630f, 0f, -1832f),
+            new(-300f, 0f, -2010f),
+            new(20f, 0f, -1832f),
+            new(-300f, 0f, -1600f),
+            new(-314f, 0f, -1200f),
+            new(-314f, 0f, -800f),
+            new(-314f, 0f, -420f)
+        };
+
+        private static Vector3[] undergroundRoute =
+            (Vector3[])UndergroundPreferred.Clone();
+
         private static GameObject activeCity;
         private static Bounds cityBounds;
         private static bool hasCityBounds;
@@ -114,6 +128,15 @@ namespace MotorCity.World
 
         public static Vector3[] CircuitRoute =>
             (Vector3[])circuitRoute.Clone();
+
+        public static Vector3 UndergroundMeetingPoint =>
+            undergroundRoute != null &&
+            undergroundRoute.Length > 0
+                ? undergroundRoute[0]
+                : new Vector3(-630f, 0.2f, -1832f);
+
+        public static Vector3[] UndergroundRoute =>
+            (Vector3[])undergroundRoute.Clone();
 
         public static bool TryInstall()
         {
@@ -278,6 +301,11 @@ namespace MotorCity.World
                 ResolveRoadRoute(
                     CircuitPreferred,
                     "circuit");
+
+            undergroundRoute =
+                ResolveRoadRoute(
+                    UndergroundPreferred,
+                    "underground");
         }
 
         private static Vector3[] ResolveRoadRoute(
