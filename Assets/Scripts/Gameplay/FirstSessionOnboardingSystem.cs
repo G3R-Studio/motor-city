@@ -216,7 +216,7 @@ namespace MotorCity.Gameplay
                     introTimer +=
                         Time.unscaledDeltaTime;
 
-                    if (introTimer >= 4f)
+                    if (introTimer >= 1.5f)
                     {
                         Advance(
                             "onboarding.turbo_ready");
