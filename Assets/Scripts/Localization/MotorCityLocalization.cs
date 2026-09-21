@@ -574,7 +574,31 @@ namespace MotorCity.Localization
                 { "carwash.progress", E("МОЙКА {0}/3 • {1} • УДЕРЖИВАЙ E • {2}%", "WASH {0}/3 • {1} • HOLD E • {2}%") },
                 { "carwash.complete", E("МАШИНА СИЯЕТ!", "CAR IS SHINING!") },
                 { "carwash.result", E("УР. ПРОФЕССИЙ {0}", "JOB LVL {0}") },
-                { "carwash.cancelled", E("МОЙКА ОТМЕНЕНА", "CAR WASH CANCELLED") }
+                { "carwash.cancelled", E("МОЙКА ОТМЕНЕНА", "CAR WASH CANCELLED") },
+
+                { "club.title", E("АВТОКЛУБ MOTOR CITY", "MOTOR CITY CLUB") },
+                { "club.none", E("БЕЗ КЛУБА", "NO CLUB") },
+                { "club.join_prompt", E("Выбери клуб и вступи — без чата и лишних сообщений", "Choose a club and join — no open chat") },
+                { "club.controls_join", E("Z / X — ВЫБОР   •   E / ENTER — ВСТУПИТЬ   •   ESC / U — ЗАКРЫТЬ", "Z / X — SELECT   •   E / ENTER — JOIN   •   ESC / U — CLOSE") },
+                { "club.controls_member", E("Z / X — ДРУГИЕ КЛУБЫ   •   E / ENTER — СМЕНИТЬ КЛУБ   •   ESC / U — ЗАКРЫТЬ", "Z / X — OTHER CLUBS   •   E / ENTER — SWITCH CLUB   •   ESC / U — CLOSE") },
+                { "club.joined", E("Ты теперь в клубе «{0}»!", "You joined “{0}”!") },
+                { "club.weekly_progress", E("НЕДЕЛЬНАЯ ЦЕЛЬ • ЛИЧНЫЙ ВКЛАД {0}/{1}", "WEEKLY GOAL • PERSONAL CONTRIBUTION {0}/{1}") },
+                { "club.weekly_done", E("НЕДЕЛЬНАЯ ЦЕЛЬ ВЫПОЛНЕНА • {0}/{1}", "WEEKLY GOAL COMPLETE • {0}/{1}") },
+                { "club.contribution", E("{0} • вклад в неделю {1}/{2}", "{0} • weekly contribution {1}/{2}") },
+                { "club.weekly_reward", E("{0} • недельная цель готова! +{1:N0} КР • +{2:N0} РЕП", "{0} • weekly goal complete! +{1:N0} CR • +{2:N0} REP") },
+
+                { "club.name.neon", E("НЕОНОВЫЕ КОЛЁСА", "NEON WHEELS") },
+                { "club.desc.neon", E("Любят ночной город, яркие машины и аккуратный стиль.", "Night-city fans with bright cars and clean style.") },
+                { "club.name.turbo", E("ДРУЗЬЯ ТУРБО", "TURBO FRIENDS") },
+                { "club.desc.turbo", E("Исследуют город вместе с Турбо и собирают коллекции.", "Explore the city with Turbo and collect everything.") },
+                { "club.name.sun", E("СОЛНЕЧНЫЙ ГАРАЖ", "SUNNY GARAGE") },
+                { "club.desc.sun", E("Спокойные поездки, красивые машины и помощь городу.", "Relaxed drives, good-looking cars and helping the city.") },
+                { "club.name.rainbow", E("РАДУЖНЫЙ ДРИФТ", "RAINBOW DRIFT") },
+                { "club.desc.rainbow", E("Яркий дрифт без токсичности и опасных выходок.", "Bright drifting without toxicity or dangerous behavior.") },
+                { "club.name.city", E("ГОРОДСКИЕ ЛИСЫ", "CITY FOXES") },
+                { "club.desc.city", E("Знают каждый район, секрет и короткий маршрут.", "Know every district, secret and shortcut.") },
+                { "club.name.spark", E("КОМАНДА ИСКРА", "TEAM SPARK") },
+                { "club.desc.spark", E("Соревнуются дружелюбно и помогают новичкам.", "Friendly competition and helping newcomers.") }
             };
 
         private static string language = Russian;

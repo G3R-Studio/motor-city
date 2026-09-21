@@ -41,6 +41,7 @@ namespace MotorCity.UI
         private PhotoHuntSystem photoHunt;
         private CityProfessionSystem professions;
         private CarWashJobSystem carWash;
+        private ClubSystem club;
         private AchievementSystem achievements;
         private AdventureDirector adventureDirector;
 
@@ -83,6 +84,12 @@ namespace MotorCity.UI
         private GameObject garageOverlay;
         private GameObject garagePassportPanel;
         private GameObject activityResultOverlay;
+        private GameObject clubOverlay;
+        private Text clubEmblemText;
+        private Text clubNameText;
+        private Text clubDescriptionText;
+        private Text clubWeeklyText;
+        private Text clubControlsText;
         private RectTransform safeAreaRoot;
 
         private readonly Queue<string> notificationQueue =
@@ -163,6 +170,7 @@ namespace MotorCity.UI
             PhotoHuntSystem photoHuntSystem,
             CityProfessionSystem professionSystem,
             CarWashJobSystem carWashSystem,
+            ClubSystem clubSystem,
             AchievementSystem achievementSystem,
             AdventureDirector director)
         {
@@ -196,6 +204,7 @@ namespace MotorCity.UI
             photoHunt = photoHuntSystem;
             professions = professionSystem;
             carWash = carWashSystem;
+            club = clubSystem;
             achievements = achievementSystem;
             adventureDirector = director;
 
@@ -206,6 +215,8 @@ namespace MotorCity.UI
         {
             if (moneyText == null)
                 return;
+
+            HandleClubInput();
 
             int credits =
                 wallet == null
@@ -347,6 +358,12 @@ namespace MotorCity.UI
                 return;
             }
 
+            if (clubOverlay != null &&
+                clubOverlay.activeSelf)
+            {
+                UpdateClubOverlay();
+            }
+
             UpdateNotificationQueue();
 
             string status =
@@ -465,10 +482,12 @@ namespace MotorCity.UI
             BuildDriftPanel(safeAreaRoot);
             BuildActivityResult(safeAreaRoot);
             BuildGarage(safeAreaRoot);
+            BuildClubOverlay(safeAreaRoot);
 
             driftPanel.SetActive(false);
             activityResultOverlay.SetActive(false);
             garageOverlay.SetActive(false);
+            clubOverlay.SetActive(false);
         }
 
         private void BuildPlayerCard(Transform canvas)
@@ -1845,6 +1864,300 @@ namespace MotorCity.UI
             }
         }
 
+        private void BuildClubOverlay(
+            Transform canvas)
+        {
+            clubOverlay =
+                new GameObject(
+                    "Club Overlay",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            clubOverlay.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform overlay =
+                clubOverlay.GetComponent<RectTransform>();
+
+            overlay.anchorMin = Vector2.zero;
+            overlay.anchorMax = Vector2.one;
+            overlay.offsetMin = Vector2.zero;
+            overlay.offsetMax = Vector2.zero;
+
+            Image backdrop =
+                clubOverlay.GetComponent<Image>();
+
+            backdrop.color =
+                new Color(
+                    0.005f,
+                    0.008f,
+                    0.014f,
+                    0.78f);
+
+            backdrop.raycastTarget =
+                false;
+
+            RectTransform panel =
+                CreatePanel(
+                    clubOverlay.transform,
+                    "Club Panel",
+                    Vector2.zero,
+                    new Vector2(
+                        560f,
+                        360f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Color(
+                        0.02f,
+                        0.03f,
+                        0.05f,
+                        0.98f));
+
+            Text title =
+                CreateText(
+                    panel,
+                    "Club Title",
+                    25,
+                    FontStyle.Bold,
+                    TextAnchor.UpperCenter,
+                    new Vector2(
+                        0f,
+                        -22f),
+                    new Vector2(
+                        500f,
+                        36f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    TextColor);
+
+            title.text =
+                MotorCityLocalization.Text(
+                    "club.title");
+
+            clubEmblemText =
+                CreateText(
+                    panel,
+                    "Club Emblem",
+                    54,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        -92f),
+                    new Vector2(
+                        92f,
+                        92f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    BlueAccent);
+
+            clubNameText =
+                CreateText(
+                    panel,
+                    "Club Name",
+                    22,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        -178f),
+                    new Vector2(
+                        500f,
+                        34f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    TextColor);
+
+            clubDescriptionText =
+                CreateText(
+                    panel,
+                    "Club Description",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        -220f),
+                    new Vector2(
+                        480f,
+                        48f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    SecondaryTextColor);
+
+            clubWeeklyText =
+                CreateText(
+                    panel,
+                    "Club Weekly",
+                    16,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        -270f),
+                    new Vector2(
+                        480f,
+                        34f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Color(
+                        0.24f,
+                        0.88f,
+                        1f,
+                        1f));
+
+            clubControlsText =
+                CreateText(
+                    panel,
+                    "Club Controls",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.LowerCenter,
+                    new Vector2(
+                        0f,
+                        18f),
+                    new Vector2(
+                        500f,
+                        28f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    SecondaryTextColor);
+        }
+
+        private void HandleClubInput()
+        {
+            if (clubOverlay == null ||
+                club == null)
+            {
+                return;
+            }
+
+            if (MotorCityInput.ToggleClubPressed)
+            {
+                bool open =
+                    !clubOverlay.activeSelf;
+
+                clubOverlay.SetActive(
+                    open);
+
+                if (open)
+                {
+                    garageOverlay?.SetActive(
+                        false);
+
+                    car?.SetDrivingEnabled(
+                        false);
+
+                    UpdateClubOverlay();
+                }
+                else if (activityManager == null ||
+                         !activityManager.HasResult)
+                {
+                    car?.SetDrivingEnabled(
+                        true);
+                }
+
+                return;
+            }
+
+            if (!clubOverlay.activeSelf)
+                return;
+
+            if (MotorCityInput.CancelPressed)
+            {
+                clubOverlay.SetActive(
+                    false);
+
+                car?.SetDrivingEnabled(
+                    true);
+
+                return;
+            }
+
+            if (MotorCityInput.PreviousVehiclePressed)
+            {
+                club.CycleBrowse(
+                    -1);
+
+                UpdateClubOverlay();
+            }
+
+            if (MotorCityInput.NextVehiclePressed)
+            {
+                club.CycleBrowse(
+                    1);
+
+                UpdateClubOverlay();
+            }
+
+            if (MotorCityInput.RetryPressed ||
+                MotorCityInput.InteractPressed)
+            {
+                club.JoinBrowseClub();
+                UpdateClubOverlay();
+            }
+        }
+
+        private void UpdateClubOverlay()
+        {
+            if (club == null ||
+                clubOverlay == null ||
+                !clubOverlay.activeSelf)
+            {
+                return;
+            }
+
+            clubEmblemText.text =
+                club.BrowseClubEmblem;
+
+            clubNameText.text =
+                club.BrowseClubName;
+
+            clubDescriptionText.text =
+                club.BrowseClubDescription;
+
+            clubWeeklyText.text =
+                club.HasClub
+                    ? club.WeeklyLine
+                    : MotorCityLocalization.Text(
+                        "club.join_prompt");
+
+            clubControlsText.text =
+                MotorCityLocalization.Text(
+                    club.HasClub
+                        ? "club.controls_member"
+                        : "club.controls_join");
+        }
+
         private void BuildGarage(Transform canvas)
         {
             garageOverlay =
@@ -2358,6 +2671,13 @@ namespace MotorCity.UI
             {
                 return
                     onboarding.StatusText;
+            }
+
+            if (club != null &&
+                club.ShowMessage)
+            {
+                return
+                    club.StatusText;
             }
 
             if (achievements != null &&

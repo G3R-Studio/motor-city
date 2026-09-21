@@ -364,6 +364,14 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 professions);
 
+            ClubSystem club =
+                systems.AddComponent<ClubSystem>();
+
+            club.Initialize(
+                activityManager,
+                wallet,
+                reputation);
+
             AchievementSystem achievements =
                 systems.AddComponent<AchievementSystem>();
 
@@ -466,6 +474,7 @@ namespace MotorCity.Bootstrap
                 photoHunt,
                 professions,
                 carWash,
+                club,
                 achievements,
                 adventureDirector);
 
@@ -1476,6 +1485,7 @@ namespace MotorCity.Bootstrap
             PhotoHuntSystem photoHunt,
             CityProfessionSystem professions,
             CarWashJobSystem carWash,
+            ClubSystem club,
             AchievementSystem achievements,
             AdventureDirector adventureDirector)
         {
@@ -1512,6 +1522,7 @@ namespace MotorCity.Bootstrap
                 photoHunt,
                 professions,
                 carWash,
+                club,
                 achievements,
                 adventureDirector);
         }

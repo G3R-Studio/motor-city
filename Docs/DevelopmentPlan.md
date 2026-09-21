@@ -197,9 +197,9 @@ Core fantasy:
 - [x] Achievement system.
 - [x] Garage presets.
 - [x] Expanded photo album.
-- [ ] Async club prototype.
-- [ ] Preset club names/emblems.
-- [ ] No open chat.
+- [x] Async club client prototype (membership + weekly personal contribution; shared aggregation remains Beta/backend).
+- [x] Preset club names/emblems.
+- [x] No open chat.
 
 ---
 
