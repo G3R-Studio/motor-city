@@ -141,7 +141,21 @@ namespace MotorCity.Localization
                 { "history.style_none", E("СТИЛЬ НЕ ОПРЕДЕЛЁН", "STYLE UNDEFINED") },
                 { "history.style_racing", E("СТИЛЬ ГОНКИ", "STYLE RACING") },
                 { "history.style_drift", E("СТИЛЬ ДРИФТ", "STYLE DRIFT") },
-                { "history.style_delivery", E("СТИЛЬ ДОСТАВКА", "STYLE DELIVERY") }
+                { "history.style_delivery", E("СТИЛЬ ДОСТАВКА", "STYLE DELIVERY") },
+                { "history.garage_line", E("ИСТОРИЯ: {0:0.0} КМ   •   ПОБЕДЫ {1}   •   ЗАРАБОТАНО {2:N0} КР   •   {3}   •   {4}", "HISTORY: {0:0.0} KM   •   WINS {1}   •   EARNED {2:N0} CR   •   {3}   •   {4}") },
+
+                { "specialization.garage_line", E("СПЕЦИАЛИЗАЦИЯ: {0}   •   {1}", "SPECIALIZATION: {0}   •   {1}") },
+                { "specialization.reward", E("{0} — {1}   +{2:N0} КР   +{3} ОПЫТ МАСТЕРСТВА", "{0} — {1}   +{2:N0} CR   +{3} MASTERY XP") },
+                { "specialization.courier_desc", E("ДОСТАВКА +35% КР", "DELIVERY +35% CR") },
+                { "specialization.sprint_desc", E("СПРИНТ +35% КР, ДОСТАВКА +10%", "SPRINT +35% CR, DELIVERY +10%") },
+                { "specialization.drift_desc", E("ДРИФТ +40% КР", "DRIFT +40% CR") },
+                { "specialization.circuit_desc", E("КОЛЬЦО +35% КР, СПРИНТ +15%", "CIRCUIT +35% CR, SPRINT +15%") },
+                { "specialization.allrounder_desc", E("ВСЕ ОСНОВНЫЕ АКТИВНОСТИ +15% КР", "ALL CORE ACTIVITIES +15% CR") },
+                { "specialization.none_desc", E("БЕЗ БОНУСА", "NO BONUS") },
+
+                { "risk.admin", E("ВНИМАНИЕ {0:0}/100 • УРОВЕНЬ {1}/5 • {2}", "ATTENTION {0:0}/100 • LEVEL {1}/5 • {2}") },
+                { "risk.test", E("ТЕСТ: ВНИМАНИЕ ИНСПЕКТОРА", "TEST: INSPECTOR ATTENTION") },
+                { "risk.reason_level", E("{0}   •   ВНИМАНИЕ {1}/5", "{0}   •   ATTENTION {1}/5") }
             };
 
         private static string language = Russian;

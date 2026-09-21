@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
 
@@ -30,7 +31,7 @@ namespace MotorCity.Gameplay
         public string SelectedName =>
             Valid(SelectedIndex)
                 ? profiles[SelectedIndex].DisplayName
-                : "УЛИЧНАЯ";
+                : MotorCityLocalization.Text("vehicle.street.name");
 
         public int SelectedRequiredRep =>
             Valid(SelectedIndex)
@@ -79,7 +80,7 @@ namespace MotorCity.Gameplay
                 {
                     new VehicleProfile(
                         "street",
-                        "УЛИЧНАЯ",
+                        MotorCityLocalization.Text("vehicle.street.name"),
                         "MotorCity/PlayerCarVisual",
                         0,
                         0,
@@ -91,11 +92,11 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        "СБАЛАНСИРОВАННАЯ — универсальная городская машина"),
+                        MotorCityLocalization.Text("vehicle.street.desc")),
 
                     new VehicleProfile(
                         "club",
-                        "КЛУБНАЯ",
+                        MotorCityLocalization.Text("vehicle.club.name"),
                         "MotorCity/Vehicles/Vehicle_01",
                         500,
                         -6,
@@ -107,11 +108,11 @@ namespace MotorCity.Gameplay
                         1.05f,
                         0.98f,
                         0.92f,
-                        "ЛЁГКАЯ — резкий руль и удобство в городе"),
+                        MotorCityLocalization.Text("vehicle.club.desc")),
 
                     new VehicleProfile(
                         "muscle",
-                        "МАСЛКАР",
+                        MotorCityLocalization.Text("vehicle.muscle.name"),
                         "MotorCity/Vehicles/Vehicle_02",
                         1200,
                         12,
@@ -123,11 +124,11 @@ namespace MotorCity.Gameplay
                         0.96f,
                         1.14f,
                         1.18f,
-                        "СИЛОВАЯ — мощный разгон и естественный дрифт"),
+                        MotorCityLocalization.Text("vehicle.muscle.desc")),
 
                     new VehicleProfile(
                         "gt",
-                        "ГРАН-ТУРИЗМО",
+                        MotorCityLocalization.Text("vehicle.gt.name"),
                         "MotorCity/Vehicles/Vehicle_03",
                         2200,
                         24,
@@ -139,11 +140,11 @@ namespace MotorCity.Gameplay
                         1.12f,
                         1.08f,
                         0.90f,
-                        "ТРЕКОВАЯ — тормоза, скорость и устойчивость"),
+                        MotorCityLocalization.Text("vehicle.gt.desc")),
 
                     new VehicleProfile(
                         "apex",
-                        "АПЕКС",
+                        MotorCityLocalization.Text("vehicle.apex.name"),
                         "MotorCity/Vehicles/Vehicle_04",
                         3500,
                         38,
@@ -155,7 +156,7 @@ namespace MotorCity.Gameplay
                         1.18f,
                         1.16f,
                         0.82f,
-                        "ЭЛИТНАЯ — максимум темпа и точности")
+                        MotorCityLocalization.Text("vehicle.apex.desc"))
                 };
 
             int stored =
@@ -203,8 +204,8 @@ namespace MotorCity.Gameplay
             {
                 status =
                     direction < 0
-                        ? "Это первая машина в гараже"
-                        : "Это последняя машина в гараже";
+                        ? MotorCityLocalization.Text("vehicle.first")
+                        : MotorCityLocalization.Text("vehicle.last");
 
                 return false;
             }
@@ -215,7 +216,9 @@ namespace MotorCity.Gameplay
             if (!HasVisual(candidate))
             {
                 status =
-                    $"{profile.DisplayName}: модель ещё не подготовлена из пакета машин";
+                    MotorCityLocalization.Format(
+                        "vehicle.visual_missing",
+                        profile.DisplayName);
 
                 return false;
             }
@@ -223,7 +226,10 @@ namespace MotorCity.Gameplay
             if (!IsUnlocked(candidate))
             {
                 status =
-                    $"{profile.DisplayName}: нужно {profile.RequiredRep:N0} РЕП";
+                    MotorCityLocalization.Format(
+                        "vehicle.rep_required",
+                        profile.DisplayName,
+                        profile.RequiredRep);
 
                 return false;
             }
@@ -242,7 +248,9 @@ namespace MotorCity.Gameplay
             VehicleChanged?.Invoke();
 
             status =
-                $"Выбрана машина {profile.DisplayName}";
+                MotorCityLocalization.Format(
+                    "vehicle.selected",
+                    profile.DisplayName);
 
             return true;
         }
@@ -257,14 +265,17 @@ namespace MotorCity.Gameplay
             if (!Valid(index))
             {
                 status =
-                    "Некорректный индекс машины";
+                    MotorCityLocalization.Text(
+                        "vehicle.invalid");
                 return false;
             }
 
             if (!HasVisual(index))
             {
                 status =
-                    $"{profiles[index].DisplayName}: модель не подготовлена";
+                    MotorCityLocalization.Format(
+                        "vehicle.visual_missing",
+                        profiles[index].DisplayName);
                 return false;
             }
 
@@ -308,25 +319,35 @@ namespace MotorCity.Gameplay
                 if (!HasVisual(next))
                 {
                     nextText =
-                        $"   •   ДАЛЬШЕ: {nextProfile.DisplayName} — модель не подготовлена";
+                        MotorCityLocalization.Format(
+                            "vehicle.next_missing",
+                            nextProfile.DisplayName);
                 }
                 else if (IsUnlocked(next))
                 {
                     nextText =
-                        $"   •   ДАЛЬШЕ: {nextProfile.DisplayName} — ДОСТУПНА";
+                        MotorCityLocalization.Format(
+                            "vehicle.next_available",
+                            nextProfile.DisplayName);
                 }
                 else
                 {
                     nextText =
-                        $"   •   ДАЛЬШЕ: {nextProfile.DisplayName} — {nextProfile.RequiredRep:N0} РЕП";
+                        MotorCityLocalization.Format(
+                            "vehicle.next_rep",
+                            nextProfile.DisplayName,
+                            nextProfile.RequiredRep);
                 }
             }
 
             return
-                $"МАШИНА {SelectedIndex + 1}/{profiles.Length}: " +
-                current.DisplayName +
-                $"   •   МАСТЕРСТВО {masteryLevel}/10" +
-                nextText;
+                MotorCityLocalization.Format(
+                    "vehicle.garage_line",
+                    SelectedIndex + 1,
+                    profiles.Length,
+                    current.DisplayName,
+                    masteryLevel,
+                    nextText);
         }
 
         public string GetMasteryLine()
@@ -334,18 +355,25 @@ namespace MotorCity.Gameplay
             if (masteryLevel >= 10)
             {
                 return
-                    $"МАСТЕРСТВО: УР. 10/10   •   {masteryXp:N0} ОПЫТ   •   МАКСИМУМ";
+                    MotorCityLocalization.Format(
+                        "vehicle.mastery_max",
+                        masteryXp);
             }
 
             return
-                $"МАСТЕРСТВО: УР. {masteryLevel}/10   •   " +
-                $"{masteryXp:N0}/{masteryNextXp:N0} ОПЫТ";
+                MotorCityLocalization.Format(
+                    "vehicle.mastery",
+                    masteryLevel,
+                    masteryXp,
+                    masteryNextXp);
         }
 
         public string GetMasteryShort()
         {
             return
-                $"МАСТ {masteryLevel}/10";
+                MotorCityLocalization.Format(
+                    "vehicle.mastery_short",
+                    masteryLevel);
         }
 
         public void SetMasteryDisplay(
@@ -381,7 +409,9 @@ namespace MotorCity.Gameplay
             string speed =
                 Signed(
                     profile.SpeedBonus) +
-                " км/ч";
+                " " +
+                MotorCityLocalization.Text(
+                    "common.kmh").ToLowerInvariant();
 
             string accel =
                 Signed(
@@ -398,9 +428,13 @@ namespace MotorCity.Gameplay
                     100f);
 
             return
-                $"БАЗА: СКОРОСТЬ {speed}   •   РАЗГОН {accel}   •   " +
-                $"СЦЕП {Signed(grip)}%   •   СТАБ {Signed(stability)}   •   " +
-                profile.Character;
+                MotorCityLocalization.Format(
+                    "vehicle.stats",
+                    speed,
+                    accel,
+                    Signed(grip),
+                    Signed(stability),
+                    profile.Character);
         }
 
         private void ApplySelectedVehicle()

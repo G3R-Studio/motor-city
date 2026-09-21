@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using MotorCity.Localization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -114,20 +115,29 @@ namespace MotorCity.Vehicle
         public string DriveModeDisplayName =>
             currentDriveMode switch
             {
-                DriveMode.Sport => "СПОРТ",
-                DriveMode.Drift => "ДРИФТ",
-                _ => "КОМФОРТ"
+                DriveMode.Sport =>
+                    MotorCityLocalization.Text(
+                        "drive.sport.name"),
+                DriveMode.Drift =>
+                    MotorCityLocalization.Text(
+                        "drive.drift.name"),
+                _ =>
+                    MotorCityLocalization.Text(
+                        "drive.comfort.name")
             };
 
         public string DriveModeDescription =>
             currentDriveMode switch
             {
                 DriveMode.Sport =>
-                    "максимальная тяга и сцепление",
+                    MotorCityLocalization.Text(
+                        "drive.sport.desc"),
                 DriveMode.Drift =>
-                    "острый руль и свободная задняя ось",
+                    MotorCityLocalization.Text(
+                        "drive.drift.desc"),
                 _ =>
-                    "стабильная повседневная езда"
+                    MotorCityLocalization.Text(
+                        "drive.comfort.desc")
             };
 
         public bool ShowDriveModeMessage =>

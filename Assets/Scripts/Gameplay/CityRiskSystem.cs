@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
 
@@ -45,14 +46,17 @@ namespace MotorCity.Gameplay
 
         public string HudLine =>
             pursuitActive
-                ? $"ПОЛИЦИЯ • РОЗЫСК {RiskLevel}/5 • СБРОСЬ СКОРОСТЬ И СКРОЙСЯ"
+                ? MotorCityLocalization.Format("risk.hud", RiskLevel)
                 : string.Empty;
 
         public string AdminLine =>
-            $"ВНИМАНИЕ {attention:0}/100 • УРОВЕНЬ {RiskLevel}/5 • " +
-            (pursuitActive
-                ? "ПОГОНЯ"
-                : "СПОКОЙНО");
+            MotorCityLocalization.Format(
+                "risk.admin",
+                attention,
+                RiskLevel,
+                pursuitActive
+                    ? MotorCityLocalization.Text("risk.active")
+                    : MotorCityLocalization.Text("risk.calm"));
 
         public void Initialize(
             ArcadeCarController targetCar,
@@ -227,7 +231,7 @@ namespace MotorCity.Gameplay
         {
             AddAttention(
                 amount,
-                "ТЕСТ: ВНИМАНИЕ ПОЛИЦИИ");
+                MotorCityLocalization.Text("risk.test"));
         }
 
         public void ClearForTesting()
@@ -237,7 +241,7 @@ namespace MotorCity.Gameplay
             lastShownLevel = 0;
 
             StatusText =
-                "ПОЛИЦИЯ — ВНИМАНИЕ СБРОШЕНО";
+                MotorCityLocalization.Text("risk.cleared");
 
             messageTimer =
                 MessageSeconds;
@@ -257,13 +261,13 @@ namespace MotorCity.Gameplay
                 case "sprint":
                     AddAttention(
                         14f,
-                        "ПОЛИЦИЯ ЗАМЕТИЛА УЛИЧНЫЙ СПРИНТ");
+                        MotorCityLocalization.Text("risk.sprint"));
                     break;
 
                 case "drift":
                     AddAttention(
                         10f,
-                        "ПОЛИЦИЯ ЗАМЕТИЛА НЕЛЕГАЛЬНЫЙ ДРИФТ");
+                        MotorCityLocalization.Text("risk.drift"));
                     break;
             }
         }
@@ -272,7 +276,7 @@ namespace MotorCity.Gameplay
         {
             AddAttention(
                 24f,
-                "ПОЛИЦИЯ ЗАСЕКЛА ПОДПОЛЬНЫЙ ЗАЕЗД");
+                MotorCityLocalization.Text("risk.night"));
         }
 
         private void HandleVehicleChanged()
@@ -287,7 +291,7 @@ namespace MotorCity.Gameplay
                     25f);
 
             StatusText =
-                "СМЕНА МАШИНЫ СНИЗИЛА ВНИМАНИЕ ПОЛИЦИИ";
+                MotorCityLocalization.Text("risk.vehicle_changed");
 
             messageTimer =
                 MessageSeconds;
@@ -314,7 +318,10 @@ namespace MotorCity.Gameplay
                     100f);
 
             StatusText =
-                $"{reason}   •   РОЗЫСК {RiskLevel}/5";
+                MotorCityLocalization.Format(
+                    "risk.reason_level",
+                    reason,
+                    RiskLevel);
 
             messageTimer =
                 MessageSeconds;
@@ -335,7 +342,7 @@ namespace MotorCity.Gameplay
                 pursuitActive = true;
 
                 StatusText =
-                    "ПОЛИЦИЯ — НАЧАЛАСЬ ПОГОНЯ   СБРОСЬ СКОРОСТЬ, СКРОЙСЯ ИЛИ СМЕНИ МАШИНУ";
+                    MotorCityLocalization.Text("risk.started");
 
                 messageTimer =
                     MessageSeconds;
@@ -350,7 +357,7 @@ namespace MotorCity.Gameplay
                 pursuitActive = false;
 
                 StatusText =
-                    "ПОЛИЦИЯ — ТЫ ОТОРВАЛСЯ ОТ ПОГОНИ";
+                    MotorCityLocalization.Text("risk.escaped");
 
                 messageTimer =
                     MessageSeconds;
@@ -375,7 +382,9 @@ namespace MotorCity.Gameplay
                 return;
 
             StatusText =
-                $"ВНИМАНИЕ ПОЛИЦИИ — УРОВЕНЬ {level}/5";
+                MotorCityLocalization.Format(
+                    "risk.level",
+                    level);
 
             messageTimer =
                 3.5f;

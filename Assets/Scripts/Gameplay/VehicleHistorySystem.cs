@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
 
@@ -34,8 +35,13 @@ namespace MotorCity.Gameplay
             get
             {
                 return
-                    $"ИСТОРИЯ: {DistanceKm:0.0} КМ   •   ПОБЕДЫ {victories}   •   " +
-                    $"ЗАРАБОТАНО {earnedCredits:N0} КР   •   {LegacyStatus}   •   {FavoriteDiscipline}";
+                    MotorCityLocalization.Format(
+                        "history.garage_line",
+                        DistanceKm,
+                        victories,
+                        earnedCredits,
+                        LegacyStatus,
+                        FavoriteDiscipline);
             }
         }
 
@@ -220,18 +226,18 @@ namespace MotorCity.Gameplay
                 float km = DistanceKm;
 
                 if (km >= 400f || victories >= 80)
-                    return "ЛЕГЕНДА";
+                    return MotorCityLocalization.Text("history.legend");
 
                 if (km >= 150f || victories >= 35)
-                    return "КУЛЬТОВАЯ";
+                    return MotorCityLocalization.Text("history.cult");
 
                 if (km >= 50f || victories >= 15)
-                    return "ПРОВЕРЕНА";
+                    return MotorCityLocalization.Text("history.proven");
 
                 if (km >= 10f || victories >= 4)
-                    return "ОБКАТАНА";
+                    return MotorCityLocalization.Text("history.broken_in");
 
-                return "НОВАЯ";
+                return MotorCityLocalization.Text("history.new");
             }
         }
 
@@ -243,19 +249,19 @@ namespace MotorCity.Gameplay
                     driftVictories <= 0 &&
                     deliveryVictories <= 0)
                 {
-                    return "СТИЛЬ НЕ ОПРЕДЕЛЁН";
+                    return MotorCityLocalization.Text("history.style_none");
                 }
 
                 if (racingVictories >= driftVictories &&
                     racingVictories >= deliveryVictories)
                 {
-                    return "СТИЛЬ ГОНКИ";
+                    return MotorCityLocalization.Text("history.style_racing");
                 }
 
                 if (driftVictories >= deliveryVictories)
-                    return "СТИЛЬ ДРИФТ";
+                    return MotorCityLocalization.Text("history.style_drift");
 
-                return "СТИЛЬ ДОСТАВКА";
+                return MotorCityLocalization.Text("history.style_delivery");
             }
         }
 

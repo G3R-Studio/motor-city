@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -22,7 +23,10 @@ namespace MotorCity.Gameplay
         public string GarageLine =>
             roster == null
                 ? string.Empty
-                : $"СПЕЦИАЛИЗАЦИЯ: {CurrentRoleName()}   •   {CurrentRoleDescription()}";
+                : MotorCityLocalization.Format(
+                    "specialization.garage_line",
+                    CurrentRoleName(),
+                    CurrentRoleDescription());
 
         public string HudShort =>
             roster == null
@@ -158,8 +162,12 @@ namespace MotorCity.Gameplay
                 bonusMasteryXp);
 
             StatusText =
-                $"{roster.SelectedName} — {CurrentRoleName()}   " +
-                $"+{bonusCredits:N0} КР   +{bonusMasteryXp} ОПЫТ МАСТЕРСТВА";
+                MotorCityLocalization.Format(
+                    "specialization.reward",
+                    roster.SelectedName,
+                    CurrentRoleName(),
+                    bonusCredits,
+                    bonusMasteryXp);
 
             messageTimer =
                 MessageSeconds;
@@ -173,22 +181,22 @@ namespace MotorCity.Gameplay
             return roster.SelectedId switch
             {
                 "street" =>
-                    "ГОРОДСКОЙ КУРЬЕР",
+                    MotorCityLocalization.Text("specialization.courier"),
 
                 "club" =>
-                    "УЛИЧНЫЙ СПРИНТ",
+                    MotorCityLocalization.Text("specialization.sprint"),
 
                 "muscle" =>
-                    "ДРИФТ-МАШИНА",
+                    MotorCityLocalization.Text("specialization.drift"),
 
                 "gt" =>
-                    "СПЕЦИАЛИСТ КОЛЬЦА",
+                    MotorCityLocalization.Text("specialization.circuit"),
 
                 "apex" =>
-                    "ЭЛИТНЫЙ УНИВЕРСАЛ",
+                    MotorCityLocalization.Text("specialization.allrounder"),
 
                 _ =>
-                    "УНИВЕРСАЛ"
+                    MotorCityLocalization.Text("specialization.default")
             };
         }
 
@@ -200,22 +208,22 @@ namespace MotorCity.Gameplay
             return roster.SelectedId switch
             {
                 "street" =>
-                    "ДОСТАВКА +35% КР",
+                    MotorCityLocalization.Text("specialization.courier_desc"),
 
                 "club" =>
-                    "СПРИНТ +35% КР, ДОСТАВКА +10%",
+                    MotorCityLocalization.Text("specialization.sprint_desc"),
 
                 "muscle" =>
-                    "ДРИФТ +40% КР",
+                    MotorCityLocalization.Text("specialization.drift_desc"),
 
                 "gt" =>
-                    "КОЛЬЦО +35% КР, СПРИНТ +15%",
+                    MotorCityLocalization.Text("specialization.circuit_desc"),
 
                 "apex" =>
-                    "ВСЕ ОСНОВНЫЕ АКТИВНОСТИ +15% КР",
+                    MotorCityLocalization.Text("specialization.allrounder_desc"),
 
                 _ =>
-                    "БЕЗ БОНУСА"
+                    MotorCityLocalization.Text("specialization.none_desc")
             };
         }
 
