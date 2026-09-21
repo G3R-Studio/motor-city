@@ -24,6 +24,28 @@ namespace MotorCity.Persistence
             }
         }
 
+        public static long ModifiedUtcTicks
+        {
+            get
+            {
+                EnsureLoaded();
+                return document.ModifiedUtcTicks;
+            }
+        }
+
+        public static bool HasData
+        {
+            get
+            {
+                EnsureLoaded();
+
+                return
+                    document.Ints.Count > 0 ||
+                    document.Floats.Count > 0 ||
+                    document.Strings.Count > 0;
+            }
+        }
+
         public static int GetInt(
             string key,
             int defaultValue = 0)
@@ -226,12 +248,35 @@ namespace MotorCity.Persistence
         {
             EnsureLoaded();
 
-            document.ModifiedUtcTicks =
-                DateTime.UtcNow.Ticks;
-
             return
                 JsonUtility.ToJson(
                     document);
+        }
+
+        public static long ReadModifiedUtcTicks(
+            string json)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    json))
+            {
+                return 0L;
+            }
+
+            try
+            {
+                SaveDocument parsed =
+                    JsonUtility.FromJson<SaveDocument>(
+                        json);
+
+                return
+                    parsed == null
+                        ? 0L
+                        : parsed.ModifiedUtcTicks;
+            }
+            catch
+            {
+                return 0L;
+            }
         }
 
         public static bool ImportJson(

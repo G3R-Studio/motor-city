@@ -63,6 +63,21 @@ namespace MotorCity.Platform
         public static long ServerUnixTime =>
             Service.ServerUnixTime;
 
+        public static bool IsAuthenticated =>
+            Service.IsAuthenticated;
+
+        public static bool SupportsCloudSave =>
+            Service.SupportsCloudSave;
+
+        public static bool SupportsLeaderboards =>
+            Service.SupportsLeaderboards;
+
+        public static bool SupportsAds =>
+            Service.SupportsAds;
+
+        public static bool SupportsPurchases =>
+            Service.SupportsPurchases;
+
         public static void SetService(
             IMotorCityPlatformService platformService)
         {
