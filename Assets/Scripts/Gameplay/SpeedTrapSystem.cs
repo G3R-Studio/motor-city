@@ -107,12 +107,12 @@ namespace MotorCity.Gameplay
                 BestSpeed =
                     Mathf.Max(
                         0f,
-                        PlayerPrefs.GetFloat(
+                        MotorCity.Persistence.MotorCitySaveService.GetFloat(
                             keyPrefix + ".Best",
                             0f)),
                 HighestMedal =
                     Mathf.Clamp(
-                        PlayerPrefs.GetInt(
+                        MotorCity.Persistence.MotorCitySaveService.GetInt(
                             keyPrefix + ".Medal",
                             0),
                         0,
@@ -194,7 +194,7 @@ namespace MotorCity.Gameplay
                 trap.BestSpeed =
                     speed;
 
-                PlayerPrefs.SetFloat(
+                MotorCity.Persistence.MotorCitySaveService.SetFloat(
                     trap.KeyPrefix + ".Best",
                     trap.BestSpeed);
             }
@@ -237,7 +237,7 @@ namespace MotorCity.Gameplay
                 trap.HighestMedal =
                     medal;
 
-                PlayerPrefs.SetInt(
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
                     trap.KeyPrefix + ".Medal",
                     trap.HighestMedal);
 
@@ -248,7 +248,7 @@ namespace MotorCity.Gameplay
                     rep);
             }
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             string medalText =
                 MedalName(

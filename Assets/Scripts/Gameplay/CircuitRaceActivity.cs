@@ -77,14 +77,14 @@ namespace MotorCity.Gameplay
             BestTimeSeconds =
                 Mathf.Max(
                     0f,
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         BestTimeKey,
                         0f));
 
             BestLapSeconds =
                 Mathf.Max(
                     0f,
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         BestLapKey,
                         0f));
         }
@@ -335,11 +335,11 @@ namespace MotorCity.Gameplay
                 BestLapSeconds =
                     lapTime;
 
-                PlayerPrefs.SetFloat(
+                MotorCity.Persistence.MotorCitySaveService.SetFloat(
                     BestLapKey,
                     BestLapSeconds);
 
-                PlayerPrefs.Save();
+                MotorCity.Persistence.MotorCitySaveService.Save();
             }
         }
 
@@ -378,11 +378,11 @@ namespace MotorCity.Gameplay
                 BestTimeSeconds =
                     ElapsedSeconds;
 
-                PlayerPrefs.SetFloat(
+                MotorCity.Persistence.MotorCitySaveService.SetFloat(
                     BestTimeKey,
                     BestTimeSeconds);
 
-                PlayerPrefs.Save();
+                MotorCity.Persistence.MotorCitySaveService.Save();
             }
 
             wallet.AddCredits(

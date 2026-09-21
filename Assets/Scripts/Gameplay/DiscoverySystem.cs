@@ -94,7 +94,7 @@ namespace MotorCity.Gameplay
                 Id = id,
                 DisplayName = name,
                 Position = carPosition - Vector3.up * 1.10f,
-                Found = PlayerPrefs.GetInt(
+                Found = MotorCity.Persistence.MotorCitySaveService.GetInt(
                     $"MotorCity.Discovery.{id}",
                     0) != 0
             };
@@ -146,11 +146,11 @@ namespace MotorCity.Gameplay
         {
             item.Found = true;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 $"MotorCity.Discovery.{item.Id}",
                 1);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             const int credits = 90;
             const int rep = 35;

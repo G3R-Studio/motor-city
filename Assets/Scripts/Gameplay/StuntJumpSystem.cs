@@ -130,11 +130,11 @@ namespace MotorCity.Gameplay
                 GoldDistance = goldDistance,
                 BestDistance = Mathf.Max(
                     0f,
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         key + ".Best",
                         0f)),
                 HighestMedal = Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         key + ".Medal",
                         0),
                     0,
@@ -294,7 +294,7 @@ namespace MotorCity.Gameplay
                 jump.BestDistance =
                     distance;
 
-                PlayerPrefs.SetFloat(
+                MotorCity.Persistence.MotorCitySaveService.SetFloat(
                     jump.KeyPrefix + ".Best",
                     jump.BestDistance);
             }
@@ -337,7 +337,7 @@ namespace MotorCity.Gameplay
                 jump.HighestMedal =
                     medal;
 
-                PlayerPrefs.SetInt(
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
                     jump.KeyPrefix + ".Medal",
                     jump.HighestMedal);
 
@@ -348,7 +348,7 @@ namespace MotorCity.Gameplay
                     rep);
             }
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             string recordText =
                 newBest

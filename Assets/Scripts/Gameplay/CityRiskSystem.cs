@@ -69,7 +69,7 @@ namespace MotorCity.Gameplay
 
             attention =
                 Mathf.Clamp(
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         AttentionKey,
                         0f),
                     0f,
@@ -383,11 +383,11 @@ namespace MotorCity.Gameplay
 
         private void Save()
         {
-            PlayerPrefs.SetFloat(
+            MotorCity.Persistence.MotorCitySaveService.SetFloat(
                 AttentionKey,
                 attention);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
     }
 }

@@ -865,13 +865,13 @@ namespace MotorCity.Gameplay
             streetCred =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         CredKey,
                         0));
 
             eventIndex =
                 Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         EventIndexKey,
                         0),
                     0,
@@ -896,31 +896,31 @@ namespace MotorCity.Gameplay
 
         private void Save()
         {
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 CredKey,
                 streetCred);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 EventIndexKey,
                 eventIndex);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 RacingKey,
                 racingProgress);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DriftKey,
                 driftProgress);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DeliveryKey,
                 deliveryProgress);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 NightKey,
                 nightProgress);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
         private static int LoadValue(
@@ -929,7 +929,7 @@ namespace MotorCity.Gameplay
             return
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         key,
                         0));
         }

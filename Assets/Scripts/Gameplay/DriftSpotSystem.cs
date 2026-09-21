@@ -88,14 +88,14 @@ namespace MotorCity.Gameplay
                 SilverScore = silver,
                 GoldScore = gold,
                 HighestMedal = Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         $"MotorCity.DriftSpot.{id}.Medal",
                         0),
                     0,
                     3),
                 BestScore = Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         $"MotorCity.DriftSpot.{id}.Best",
                         0))
             };
@@ -186,7 +186,7 @@ namespace MotorCity.Gameplay
             if (newBest)
             {
                 spot.BestScore = score;
-                PlayerPrefs.SetInt(
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
                     $"MotorCity.DriftSpot.{spot.Id}.Best",
                     spot.BestScore);
             }
@@ -224,7 +224,7 @@ namespace MotorCity.Gameplay
 
                 spot.HighestMedal = medal;
 
-                PlayerPrefs.SetInt(
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
                     $"MotorCity.DriftSpot.{spot.Id}.Medal",
                     spot.HighestMedal);
 
@@ -232,7 +232,7 @@ namespace MotorCity.Gameplay
                 reputation?.AddReputation(rep);
             }
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             string record =
                 newBest
