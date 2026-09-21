@@ -60,6 +60,8 @@ namespace MotorCity.Gameplay
                         ContractCount,
                         cycle,
                         contract.Name,
+                        contract.Client,
+                        contract.Brief,
                         ProgressText(contract),
                         RewardCredits(contract));
             }
@@ -67,6 +69,7 @@ namespace MotorCity.Gameplay
 
         public string AdminLine =>
             $"КОНТРАКТ {contractIndex + 1}/{ContractCount} • УР.{cycle} • " +
+            CurrentDefinition().Client + " • " +
             CurrentDefinition().Name + " • " +
             ProgressText(CurrentDefinition());
 
@@ -208,6 +211,7 @@ namespace MotorCity.Gameplay
             StatusText =
                 MotorCityLocalization.Format(
                     "contract.progress",
+                    contract.Client,
                     contract.Name,
                     ProgressText(contract));
 
@@ -235,6 +239,9 @@ namespace MotorCity.Gameplay
             string completedName =
                 contract.Name;
 
+            string completedClient =
+                contract.Client;
+
             contractIndex++;
 
             if (contractIndex >=
@@ -253,10 +260,13 @@ namespace MotorCity.Gameplay
             StatusText =
                 MotorCityLocalization.Format(
                     "contract.complete",
+                    completedClient,
                     completedName,
                     credits,
                     rep,
-                    CurrentDefinition().Name);
+                    CurrentDefinition().Client,
+                    CurrentDefinition().Name,
+                    CurrentDefinition().Brief);
 
             messageTimer =
                 MessageSeconds;
@@ -301,6 +311,8 @@ namespace MotorCity.Gameplay
             {
                 0 => new ContractDefinition(
                     MotorCityLocalization.Text("contract.intro"),
+                    MotorCityLocalization.Text("story.character.vitya"),
+                    MotorCityLocalization.Text("contract.brief.intro"),
                     1,
                     1,
                     1,
@@ -310,6 +322,8 @@ namespace MotorCity.Gameplay
 
                 1 => new ContractDefinition(
                     MotorCityLocalization.Text("contract.racing"),
+                    MotorCityLocalization.Text("story.character.nika"),
+                    MotorCityLocalization.Text("contract.brief.racing"),
                     2 + scale,
                     0,
                     0,
@@ -319,6 +333,8 @@ namespace MotorCity.Gameplay
 
                 2 => new ContractDefinition(
                     MotorCityLocalization.Text("contract.drift"),
+                    MotorCityLocalization.Text("story.character.nika"),
+                    MotorCityLocalization.Text("contract.brief.drift"),
                     0,
                     2 + scale,
                     0,
@@ -328,6 +344,8 @@ namespace MotorCity.Gameplay
 
                 3 => new ContractDefinition(
                     MotorCityLocalization.Text("contract.delivery"),
+                    MotorCityLocalization.Text("story.character.vitya"),
+                    MotorCityLocalization.Text("contract.brief.delivery"),
                     0,
                     0,
                     2 + scale,
@@ -337,6 +355,8 @@ namespace MotorCity.Gameplay
 
                 4 => new ContractDefinition(
                     MotorCityLocalization.Text("contract.night"),
+                    MotorCityLocalization.Text("story.character.bublik"),
+                    MotorCityLocalization.Text("contract.brief.night"),
                     0,
                     0,
                     0,
@@ -346,6 +366,8 @@ namespace MotorCity.Gameplay
 
                 _ => new ContractDefinition(
                     MotorCityLocalization.Text("contract.tour"),
+                    MotorCityLocalization.Text("story.character.turbo"),
+                    MotorCityLocalization.Text("contract.brief.tour"),
                     2 + scale,
                     2 + scale,
                     2 + scale,
@@ -390,13 +412,13 @@ namespace MotorCity.Gameplay
 
             AppendProgress(
                 ref result,
-                "R",
+                MotorCityLocalization.Text("progress.racing_short"),
                 racingProgress,
                 contract.RacingRequired);
 
             AppendProgress(
                 ref result,
-                "D",
+                MotorCityLocalization.Text("progress.drift_short"),
                 driftProgress,
                 contract.DriftRequired);
 
@@ -524,6 +546,8 @@ namespace MotorCity.Gameplay
         private readonly struct ContractDefinition
         {
             public readonly string Name;
+            public readonly string Client;
+            public readonly string Brief;
             public readonly int RacingRequired;
             public readonly int DriftRequired;
             public readonly int DeliveryRequired;
@@ -533,6 +557,8 @@ namespace MotorCity.Gameplay
 
             public ContractDefinition(
                 string name,
+                string client,
+                string brief,
                 int racingRequired,
                 int driftRequired,
                 int deliveryRequired,
@@ -541,6 +567,8 @@ namespace MotorCity.Gameplay
                 int baseReputation)
             {
                 Name = name;
+                Client = client;
+                Brief = brief;
                 RacingRequired =
                     racingRequired;
                 DriftRequired =

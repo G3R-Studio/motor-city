@@ -184,7 +184,7 @@ Core fantasy:
 - [x] Car wash mini-game.
 - [ ] Tow-truck profession after suitable vehicle exists.
 - [x] Vehicle passport/history screen.
-- [ ] Better contract mini-stories.
+- [x] Better contract mini-stories.
 - [x] Profession progression without adding extra currencies.
 
 ---
