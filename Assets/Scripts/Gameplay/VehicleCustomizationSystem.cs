@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.IO;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
@@ -564,58 +563,50 @@ namespace MotorCity.Gameplay
                     (SelectedStickerIndex - 1) %
                     AccentColors.Length];
 
-            float side =
-                bounds.extents.x +
-                0.015f;
+            float sideX =
+                Mathf.Max(
+                    0.55f,
+                    bounds.extents.x * 0.90f);
 
-            float z =
-                bounds.center.z +
-                bounds.extents.z *
-                0.15f;
+            float centerY =
+                bounds.center.y +
+                bounds.extents.y * 0.02f;
 
-            GameObject left =
-                CreateFlatPart(
-                    "Sticker L",
-                    new Vector3(
-                        -side,
-                        bounds.center.y +
-                        bounds.extents.y *
-                        0.08f,
-                        z),
-                    new Vector3(
-                        0.02f,
-                        0.34f,
-                        0.62f),
-                    color);
+            float centerZ =
+                bounds.center.z -
+                bounds.extents.z * 0.15f;
 
-            left.transform.localRotation =
-                Quaternion.Euler(
-                    0f,
-                    0f,
-                    SelectedStickerIndex *
-                    18f);
+            float length =
+                Mathf.Clamp(
+                    bounds.size.z * 0.22f,
+                    0.45f,
+                    0.82f);
 
-            GameObject right =
-                CreateFlatPart(
-                    "Sticker R",
-                    new Vector3(
-                        side,
-                        bounds.center.y +
-                        bounds.extents.y *
-                        0.08f,
-                        z),
-                    new Vector3(
-                        0.02f,
-                        0.34f,
-                        0.62f),
-                    color);
+            float height =
+                Mathf.Clamp(
+                    bounds.size.y * 0.18f,
+                    0.12f,
+                    0.24f);
 
-            right.transform.localRotation =
-                Quaternion.Euler(
-                    0f,
-                    0f,
-                    -SelectedStickerIndex *
-                    18f);
+            CreateSideAccent(
+                "Sticker L",
+                -sideX,
+                centerY,
+                centerZ,
+                height,
+                length,
+                color,
+                true);
+
+            CreateSideAccent(
+                "Sticker R",
+                sideX,
+                centerY,
+                centerZ,
+                height,
+                length,
+                color,
+                false);
         }
 
         private void BuildVinyl(
@@ -626,41 +617,66 @@ namespace MotorCity.Gameplay
                     (SelectedVinylIndex + 1) %
                     AccentColors.Length];
 
-            float width =
-                Mathf.Max(
-                    0.10f,
-                    bounds.size.x *
-                    0.08f);
+            float stripeWidth =
+                Mathf.Clamp(
+                    bounds.size.x * 0.045f,
+                    0.055f,
+                    0.11f);
 
             int stripes =
                 SelectedVinylIndex == 3
-                    ? 3
-                    : SelectedVinylIndex;
+                    ? 2
+                    : 1;
+
+            float gap =
+                stripeWidth * 1.55f;
 
             for (int i = 0;
                  i < stripes;
                  i++)
             {
-                float offset =
-                    (i -
-                     (stripes - 1) *
-                     0.5f) *
-                    width *
-                    1.8f;
+                float x =
+                    bounds.center.x +
+                    (i - (stripes - 1) * 0.5f) *
+                    gap;
 
-                CreateFlatPart(
-                    "Vinyl " + i,
+                CreateTopAccent(
+                    "Vinyl Hood " + i,
                     new Vector3(
-                        bounds.center.x +
-                        offset,
-                        bounds.max.y +
-                        0.012f,
-                        bounds.center.z),
+                        x,
+                        bounds.max.y + 0.004f,
+                        bounds.center.z +
+                        bounds.extents.z * 0.31f),
                     new Vector3(
-                        width,
-                        0.018f,
-                        bounds.size.z *
-                        0.78f),
+                        stripeWidth,
+                        0.006f,
+                        bounds.size.z * 0.20f),
+                    color);
+
+                CreateTopAccent(
+                    "Vinyl Roof " + i,
+                    new Vector3(
+                        x,
+                        bounds.max.y + 0.006f,
+                        bounds.center.z -
+                        bounds.extents.z * 0.02f),
+                    new Vector3(
+                        stripeWidth,
+                        0.006f,
+                        bounds.size.z * 0.22f),
+                    color);
+
+                CreateTopAccent(
+                    "Vinyl Trunk " + i,
+                    new Vector3(
+                        x,
+                        bounds.max.y + 0.004f,
+                        bounds.center.z -
+                        bounds.extents.z * 0.32f),
+                    new Vector3(
+                        stripeWidth,
+                        0.006f,
+                        bounds.size.z * 0.13f),
                     color);
             }
         }
@@ -672,24 +688,50 @@ namespace MotorCity.Gameplay
                 AccentColors[
                     SelectedNeonIndex - 1];
 
-            CreateNeonPart(
+            GameObject lightObject =
+                new(
+                    "Underglow Light");
+
+            lightObject.transform.SetParent(
+                cosmeticsRoot.transform,
+                false);
+
+            lightObject.transform.localPosition =
                 new Vector3(
-                    0f,
-                    bounds.min.y -
-                    0.035f,
-                    bounds.center.z),
-                new Vector3(
-                    bounds.size.x *
-                    0.72f,
-                    0.025f,
-                    bounds.size.z *
-                    0.68f),
-                color);
+                    bounds.center.x,
+                    bounds.min.y + 0.05f,
+                    bounds.center.z);
+
+            Light light =
+                lightObject.AddComponent<Light>();
+
+            light.type =
+                LightType.Point;
+            light.color =
+                color;
+            light.range =
+                Mathf.Clamp(
+                    bounds.size.z * 0.72f,
+                    2.2f,
+                    4.2f);
+            light.intensity =
+                2.4f;
+            light.shadows =
+                LightShadows.None;
+            light.renderMode =
+                LightRenderMode.ForcePixel;
         }
 
         private void BuildPlate(
             Bounds bounds)
         {
+            Vector3 platePosition =
+                new(
+                    bounds.center.x,
+                    bounds.center.y -
+                    bounds.extents.y * 0.08f,
+                    bounds.min.z - 0.018f);
+
             GameObject plate =
                 GameObject.CreatePrimitive(
                     PrimitiveType.Cube);
@@ -702,19 +744,16 @@ namespace MotorCity.Gameplay
                 false);
 
             plate.transform.localPosition =
-                new Vector3(
-                    bounds.center.x,
-                    bounds.center.y -
-                    bounds.extents.y *
-                    0.10f,
-                    bounds.min.z -
-                    0.025f);
+                platePosition;
 
             plate.transform.localScale =
                 new Vector3(
-                    0.58f,
-                    0.18f,
-                    0.025f);
+                    Mathf.Clamp(
+                        bounds.size.x * 0.28f,
+                        0.42f,
+                        0.62f),
+                    0.16f,
+                    0.018f);
 
             Collider collider =
                 plate.GetComponent<Collider>();
@@ -729,6 +768,27 @@ namespace MotorCity.Gameplay
             {
                 renderer.sharedMaterial =
                     flatMaterial;
+
+                renderer.GetPropertyBlock(
+                    block);
+
+                Color plateColor =
+                    new(
+                        0.92f,
+                        0.94f,
+                        0.90f,
+                        1f);
+
+                block.SetColor(
+                    "_BaseColor",
+                    plateColor);
+                block.SetColor(
+                    "_Color",
+                    plateColor);
+
+                renderer.SetPropertyBlock(
+                    block);
+                block.Clear();
             }
 
             GameObject textObject =
@@ -736,39 +796,86 @@ namespace MotorCity.Gameplay
                     "Plate Text");
 
             textObject.transform.SetParent(
-                plate.transform,
+                cosmeticsRoot.transform,
                 false);
 
             textObject.transform.localPosition =
+                platePosition +
                 new Vector3(
                     0f,
                     0f,
-                    -0.56f);
+                    -0.016f);
 
             textObject.transform.localRotation =
-                Quaternion.Euler(
-                    0f,
-                    180f,
-                    0f);
+                Quaternion.identity;
 
             TextMesh mesh =
                 textObject.AddComponent<TextMesh>();
 
             mesh.text =
                 PlateText();
-
             mesh.anchor =
                 TextAnchor.MiddleCenter;
-
             mesh.alignment =
                 TextAlignment.Center;
-
-            mesh.fontSize = 42;
-            mesh.characterSize = 0.12f;
-            mesh.color = Color.black;
+            mesh.fontSize =
+                48;
+            mesh.characterSize =
+                0.055f;
+            mesh.color =
+                new Color(
+                    0.05f,
+                    0.06f,
+                    0.07f,
+                    1f);
         }
 
-        private GameObject CreateFlatPart(
+        private void CreateSideAccent(
+            string name,
+            float x,
+            float y,
+            float z,
+            float height,
+            float length,
+            Color color,
+            bool left)
+        {
+            GameObject accent =
+                CreateAccentPart(
+                    name,
+                    new Vector3(
+                        x,
+                        y,
+                        z),
+                    new Vector3(
+                        0.008f,
+                        height,
+                        length),
+                    color);
+
+            accent.transform.localRotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    left
+                        ? -12f
+                        : 12f);
+        }
+
+        private void CreateTopAccent(
+            string name,
+            Vector3 localPosition,
+            Vector3 localScale,
+            Color color)
+        {
+            CreateAccentPart(
+                name,
+                localPosition,
+                localScale,
+                color);
+        }
+
+        private GameObject CreateAccentPart(
             string name,
             Vector3 localPosition,
             Vector3 localScale,
@@ -823,48 +930,6 @@ namespace MotorCity.Gameplay
             }
 
             return part;
-        }
-
-        private void CreateNeonPart(
-            Vector3 localPosition,
-            Vector3 localScale,
-            Color color)
-        {
-            GameObject part =
-                CreateFlatPart(
-                    "Neon",
-                    localPosition,
-                    localScale,
-                    color);
-
-            Renderer renderer =
-                part.GetComponent<Renderer>();
-
-            if (renderer == null)
-                return;
-
-            renderer.sharedMaterial =
-                neonMaterial;
-
-            renderer.GetPropertyBlock(
-                block);
-
-            block.SetColor(
-                "_BaseColor",
-                color);
-
-            block.SetColor(
-                "_Color",
-                color);
-
-            block.SetColor(
-                "_EmissionColor",
-                color * 2.2f);
-
-            renderer.SetPropertyBlock(
-                block);
-
-            block.Clear();
         }
 
         private void BuildSharedMaterials()
