@@ -123,9 +123,10 @@ namespace MotorCity.World
         public static Vector3 GaragePoint { get; private set; } =
             new(368.91f, 0.4f, 183.37f);
 
-        // Lower roundabout / broad junction visible in the large district.
+        // Western broad junction in the large district, kept separate from
+        // the street sprint start on the eastern side.
         public static Vector3 DriftChallengePoint { get; private set; } =
-            new(450f, 0.2f, 150f);
+            new(-450f, 0.2f, 150f);
 
         public static Vector3[] DeliveryRoute =>
             (Vector3[])deliveryRoute.Clone();
@@ -492,7 +493,7 @@ namespace MotorCity.World
             DriftChallengePoint =
                 FindRoadPointNear(
                     new Vector3(
-                        450f,
+                        -450f,
                         0f,
                         150f),
                     75f,
