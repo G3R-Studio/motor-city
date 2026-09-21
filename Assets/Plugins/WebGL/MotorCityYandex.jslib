@@ -325,6 +325,15 @@ mergeInto(LibraryManager.library, {
     Promise.resolve(ysdk.getFlags({
       defaultFlags: {
         rewarded_credits: '250',
+        rewarded_daily_limit: '5',
+        rewarded_cooldown_seconds: '180',
+        weekend_bonus_credits: '180',
+        club_weekly_goal: '12',
+        club_weekly_credits: '900',
+        club_weekly_rep: '90',
+        leaderboard_rep_id: 'motor_city_rep',
+        leaderboard_collection_id: 'motor_city_collection',
+        leaderboard_activities_id: 'motor_city_activities',
         interstitial_min_seconds: '240',
         daily_tasks_enabled: '1'
       }

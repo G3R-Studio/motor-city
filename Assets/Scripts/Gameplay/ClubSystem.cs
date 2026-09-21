@@ -16,8 +16,13 @@ namespace MotorCity.Gameplay
         private const string RewardKey =
             "MotorCity.Club.WeeklyRewardClaimed";
 
-        private const int WeeklyGoal =
-            12;
+        private int WeeklyGoal =>
+            Mathf.Clamp(
+                MotorCityRemoteConfigRuntime.GetInt(
+                    "club_weekly_goal",
+                    12),
+                3,
+                30);
 
         private ActivityManager activities;
         private PlayerWallet wallet;
@@ -264,11 +269,21 @@ namespace MotorCity.Gameplay
             weeklyRewardClaimed =
                 true;
 
-            const int credits =
-                900;
+            int credits =
+                Mathf.Clamp(
+                    MotorCityRemoteConfigRuntime.GetInt(
+                        "club_weekly_credits",
+                        900),
+                    100,
+                    5000);
 
-            const int rep =
-                90;
+            int rep =
+                Mathf.Clamp(
+                    MotorCityRemoteConfigRuntime.GetInt(
+                        "club_weekly_rep",
+                        90),
+                    10,
+                    500);
 
             wallet?.AddCredits(
                 credits);
