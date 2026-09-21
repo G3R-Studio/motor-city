@@ -90,9 +90,6 @@ namespace MotorCity.Gameplay
             Vector3[] delivery =
                 CityAssetRuntimeInstaller.DeliveryRoute;
 
-            Vector3[] sprint =
-                CityAssetRuntimeInstaller.SprintRoute;
-
             StartPoint =
                 Point(
                     delivery,
@@ -101,8 +98,8 @@ namespace MotorCity.Gameplay
 
             BreakdownPoint =
                 Point(
-                    sprint,
-                    10,
+                    delivery,
+                    2,
                     CityAssetRuntimeInstaller.PlayerSpawnPoint);
 
             ServicePoint =
