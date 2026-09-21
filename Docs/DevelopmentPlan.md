@@ -98,7 +98,7 @@ Core fantasy:
 - [x] Reduce distant traffic update cost.
 - [x] Traffic shadows/probes/motion-vector cost audit.
 - [ ] WebGL memory/build-size audit.
-- [ ] Low/Medium/High quality presets.
+- [x] Low/Medium/High quality presets.
 
 ---
 

@@ -21,6 +21,8 @@ namespace MotorCity.Bootstrap
         {
             if (Object.FindAnyObjectByType<ArcadeCarController>() != null) return;
 
+            MotorCityQualityRuntime.Initialize();
+
             Time.fixedDeltaTime = 0.02f;
             Physics.gravity = new Vector3(0f, -9.81f, 0f);
             Physics.defaultContactOffset = 0.01f;
