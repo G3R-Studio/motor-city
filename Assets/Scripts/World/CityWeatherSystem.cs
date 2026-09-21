@@ -735,6 +735,12 @@ namespace MotorCity.World
                 FogColor = fogColor;
                 Grip = grip;
                 RainRate = rainRate;
+                UseExponentialFog =
+                    useExponentialFog;
+                FogDensity =
+                    fogDensity;
+                HazeAlpha =
+                    hazeAlpha;
             }
         }
     }
