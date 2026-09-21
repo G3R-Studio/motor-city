@@ -76,11 +76,11 @@ Core fantasy:
 - [x] Add reusable steps: go to point, checkpoints, drift score, race result, delivery, discovery, photo, parking.
 
 ### 0.7 Repackage existing progression
-- [ ] Simplify player-facing progression to KR + REP.
-- [ ] Keep mastery, discipline reputation and collection as secondary systems.
-- [ ] Reframe Underground as secret night car-club events.
-- [ ] Reframe police risk around friendly Inspector Bublik presentation.
-- [ ] Remove criminal/dark presentation that conflicts with the 6+ tone.
+- [x] Simplify player-facing progression to KR + REP.
+- [x] Keep mastery, discipline reputation and collection as secondary systems.
+- [x] Reframe Underground as secret night car-club events.
+- [x] Reframe police risk around friendly Inspector Bublik presentation.
+- [x] Remove criminal/dark presentation that conflicts with the 6+ tone.
 
 ### 0.8 Vehicle ownership and economy
 - [ ] REP unlocks access to a vehicle.

@@ -40,7 +40,7 @@ namespace MotorCity.Localization
                 { "hud.drift", E("ДРИФТ   {0:N0}{1}", "DRIFT   {0:N0}{1}") },
                 { "hud.drift_done", E("ДРИФТ ЗАВЕРШЁН   +{0:N0} КР", "DRIFT COMPLETE   +{0:N0} CR") },
                 { "hud.secret_meeting", E("ТАЙНАЯ ВСТРЕЧА", "SECRET MEET") },
-                { "hud.underground", E("ПОДПОЛЬЕ", "NIGHT CLUB") },
+                { "hud.underground", E("НОЧНОЙ АВТОКЛУБ", "NIGHT CAR CLUB") },
 
                 { "drive.comfort.name", E("КОМФОРТ", "COMFORT") },
                 { "drive.sport.name", E("СПОРТ", "SPORT") },
