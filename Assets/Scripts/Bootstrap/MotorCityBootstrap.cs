@@ -68,7 +68,10 @@ namespace MotorCity.Bootstrap
             DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
 
             GameObject systems = new("Gameplay Systems");
-            systems.AddComponent<MotorCityPlatformRuntime>();
+
+            MotorCityPlatformRuntime platformRuntime =
+                systems.AddComponent<MotorCityPlatformRuntime>();
+
             systems.AddComponent<MotorCitySaveRuntime>();
 
             PlayerReputation reputation =
@@ -308,6 +311,7 @@ namespace MotorCity.Bootstrap
                 cityRisk);
 
             MotorCityPlatform.GameReady();
+            platformRuntime.MarkGameplayRunning();
             MotorCityPlatform.GameplayStart();
         }
 
