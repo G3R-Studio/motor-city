@@ -34,6 +34,7 @@ namespace MotorCity.UI
         private UndergroundSceneSystem underground;
         private CityRiskSystem cityRisk;
         private TurboPetSystem turbo;
+        private FirstSessionOnboardingSystem onboarding;
         private AdventureDirector adventureDirector;
 
         private Font font;
@@ -135,6 +136,7 @@ namespace MotorCity.UI
             UndergroundSceneSystem undergroundSystem,
             CityRiskSystem riskSystem,
             TurboPetSystem turboSystem,
+            FirstSessionOnboardingSystem onboardingSystem,
             AdventureDirector director)
         {
             car = controller;
@@ -160,6 +162,7 @@ namespace MotorCity.UI
             underground = undergroundSystem;
             cityRisk = riskSystem;
             turbo = turboSystem;
+            onboarding = onboardingSystem;
             adventureDirector = director;
 
             BuildUi();
@@ -1698,6 +1701,13 @@ namespace MotorCity.UI
 
         private string ResolveTransientNotification()
         {
+            if (onboarding != null &&
+                onboarding.ShowMessage)
+            {
+                return
+                    onboarding.StatusText;
+            }
+
             if (turbo != null &&
                 turbo.ShowMessage)
             {

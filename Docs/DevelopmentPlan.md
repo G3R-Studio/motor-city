@@ -134,11 +134,11 @@ Core fantasy:
 
 ### First-session onboarding
 - [ ] Understand steering in under 60 seconds.
-- [ ] First drive.
-- [ ] First reward.
-- [ ] Meet Turbo.
+- [x] First drive.
+- [x] First reward.
+- [x] Meet Turbo.
 - [ ] First garage customization.
-- [ ] First daily task.
+- [x] First daily task.
 
 ### Daily Adventures
 - [ ] Three short daily tasks.

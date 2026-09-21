@@ -394,7 +394,24 @@ namespace MotorCity.Localization
                 { "turbo.daily_reward", E("Турбо: Задание готово! +{0:N0} КР и опыт Турбо.", "Turbo: Task complete! +{0:N0} CR and Turbo XP.") },
                 { "turbo.new_daily", E("Турбо: Новое приключение на сегодня готово!", "Turbo: Today’s new adventure is ready!") },
                 { "turbo.hint", E("Турбо: Не спеши — цель уже отмечена на миникарте.", "Turbo: No rush — your target is already marked on the minimap.") },
-                { "turbo.boost", E("Турбо: Пуск! Короткий буст активирован.", "Turbo: Go! Short boost activated.") }
+                { "turbo.boost", E("Турбо: Пуск! Короткий буст активирован.", "Turbo: Go! Short boost activated.") },
+
+                { "onboarding.title", E("ПЕРВЫЕ ШАГИ", "FIRST STEPS") },
+                { "onboarding.welcome", E("Добро пожаловать в Motor City! Сначала просто почувствуй машину.", "Welcome to Motor City! First, get a feel for the car.") },
+                { "onboarding.throttle", E("Нажми газ и начни движение", "Press throttle and start moving") },
+                { "onboarding.good_throttle", E("Отлично! Теперь попробуй повернуть.", "Great! Now try steering.") },
+                { "onboarding.steer", E("Поверни влево или вправо во время движения", "Steer left or right while moving") },
+                { "onboarding.good_steer", E("Управление готово. Прокатись ещё немного!", "Controls ready. Drive a little farther!") },
+                { "onboarding.drive", E("Прокатись по городу: {0}/80 м", "Drive around the city: {0}/80 m") },
+                { "onboarding.first_reward", E("Первая поездка! +250 КР. Это награда за исследование.", "First drive! +250 CR. That’s your exploration reward.") },
+                { "onboarding.meet_turbo", E("Познакомься с Турбо — твоим робо-котом и напарником.", "Meet Turbo — your robo-cat co-pilot.") },
+                { "onboarding.turbo_ready", E("Турбо готов! Теперь попробуй любую активность в городе.", "Turbo is ready! Now try any city activity.") },
+                { "onboarding.activity", E("Выполни любую короткую активность", "Complete any short activity") },
+                { "onboarding.activity_done", E("Готово! Награды за активности улучшают твою коллекцию.", "Done! Activity rewards grow your collection.") },
+                { "onboarding.garage", E("Заедь в гараж и открой его", "Drive to the garage and open it") },
+                { "onboarding.garage_done", E("Гараж найден. Здесь будут машины, тюнинг и внешний вид.", "Garage found. Cars, tuning and customization live here.") },
+                { "onboarding.daily", E("Посмотри ежедневное задание Турбо", "Check Turbo’s daily task") },
+                { "onboarding.complete", E("Первые шаги готовы! Теперь выбирай приключение сам.", "First steps complete! Now choose your own adventure.") }
             };
 
         private static string language = Russian;

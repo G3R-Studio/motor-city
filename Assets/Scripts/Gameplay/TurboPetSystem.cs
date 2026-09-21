@@ -772,8 +772,8 @@ namespace MotorCity.Gameplay
         {
             MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DailyDayKey,
-                (int)Mathf.Min(
-                    int.MaxValue,
+                (int)Math.Min(
+                    (long)int.MaxValue,
                     currentDay));
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(

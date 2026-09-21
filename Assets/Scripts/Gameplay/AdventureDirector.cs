@@ -13,6 +13,7 @@ namespace MotorCity.Gameplay
         private UndergroundSceneSystem nightClub;
         private CityRiskSystem cityRisk;
         private TurboPetSystem turbo;
+        private FirstSessionOnboardingSystem onboarding;
 
         private float refreshTimer;
 
@@ -34,7 +35,8 @@ namespace MotorCity.Gameplay
             CityLegendSystem legendSystem,
             UndergroundSceneSystem nightClubSystem,
             CityRiskSystem riskSystem,
-            TurboPetSystem turboSystem)
+            TurboPetSystem turboSystem,
+            FirstSessionOnboardingSystem onboardingSystem)
         {
             activityManager =
                 manager;
@@ -52,6 +54,8 @@ namespace MotorCity.Gameplay
                 riskSystem;
             turbo =
                 turboSystem;
+            onboarding =
+                onboardingSystem;
 
             RefreshMission();
         }
@@ -81,6 +85,12 @@ namespace MotorCity.Gameplay
 
             if (activity != null)
                 return activity;
+
+            MissionDefinition onboardingMission =
+                BuildOnboardingMission();
+
+            if (onboardingMission != null)
+                return onboardingMission;
 
             MissionDefinition inspector =
                 BuildInspectorMission();
@@ -172,6 +182,32 @@ namespace MotorCity.Gameplay
                     new MissionStepDefinition(
                         stepType,
                         id,
+                        objective));
+        }
+
+        private MissionDefinition BuildOnboardingMission()
+        {
+            if (onboarding == null ||
+                onboarding.IsComplete)
+            {
+                return null;
+            }
+
+            string objective =
+                onboarding.ObjectiveLine;
+
+            return
+                new MissionDefinition(
+                    "source.onboarding",
+                    MotorCityLocalization.Text(
+                        "onboarding.title"),
+                    objective,
+                    AdventureMissionSource.Story,
+                    990)
+                .AddStep(
+                    new MissionStepDefinition(
+                        MissionStepType.GoToPoint,
+                        string.Empty,
                         objective));
         }
 
