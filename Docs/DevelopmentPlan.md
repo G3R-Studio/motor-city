@@ -39,13 +39,13 @@ Core fantasy:
 - [ ] Validate migration in Unity with an existing local save.
 
 ### 0.2 Platform abstraction
-- [ ] Add platform service interface.
-- [ ] Add local/browser fallback implementation.
-- [ ] Separate gameplay from Yandex SDK calls.
-- [ ] Define Game Ready / Gameplay Start / Gameplay Stop lifecycle.
-- [ ] Define cloud save/load bridge.
-- [ ] Define leaderboard, rewarded ad and purchase bridge.
-- [ ] Define platform language and server-time bridge.
+- [x] Add platform service interface.
+- [x] Add local/browser fallback implementation.
+- [x] Separate gameplay from Yandex SDK calls.
+- [x] Define Game Ready / Gameplay Start / Gameplay Stop lifecycle.
+- [x] Define cloud save/load bridge.
+- [x] Define leaderboard, rewarded ad and purchase bridge.
+- [x] Define platform language and server-time bridge.
 
 ### 0.3 Localization architecture
 - [ ] Move player-facing text out of gameplay logic.

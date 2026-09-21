@@ -1,6 +1,7 @@
 using MotorCity.CameraSystem;
 using MotorCity.Gameplay;
 using MotorCity.Persistence;
+using MotorCity.Platform;
 using MotorCity.UI;
 using MotorCity.Vehicle;
 using MotorCity.World;
@@ -67,6 +68,7 @@ namespace MotorCity.Bootstrap
             DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
 
             GameObject systems = new("Gameplay Systems");
+            systems.AddComponent<MotorCityPlatformRuntime>();
             systems.AddComponent<MotorCitySaveRuntime>();
 
             PlayerReputation reputation =
@@ -305,6 +307,8 @@ namespace MotorCity.Bootstrap
                 underground,
                 cityRisk);
 
+            MotorCityPlatform.GameReady();
+            MotorCityPlatform.GameplayStart();
         }
 
         private static void BindFcgTrafficPlayer(
