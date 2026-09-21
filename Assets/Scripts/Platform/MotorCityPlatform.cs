@@ -44,6 +44,21 @@ namespace MotorCity.Platform
         void Purchase(
             string productId,
             Action<bool, string> completed);
+
+        void ConsumePurchase(
+            string purchaseToken,
+            Action<bool> completed);
+
+        void LoadPendingPurchases(
+            Action<bool, string> completed);
+
+        void LoadRemoteConfig(
+            Action<bool, string> completed);
+
+        void IncrementStat(
+            string key,
+            long amount,
+            Action<bool> completed);
     }
 
     public static class MotorCityPlatform
@@ -161,6 +176,40 @@ namespace MotorCity.Platform
                 productId,
                 completed);
         }
+
+        public static void ConsumePurchase(
+            string purchaseToken,
+            Action<bool> completed = null)
+        {
+            Service.ConsumePurchase(
+                purchaseToken,
+                completed);
+        }
+
+        public static void LoadPendingPurchases(
+            Action<bool, string> completed)
+        {
+            Service.LoadPendingPurchases(
+                completed);
+        }
+
+        public static void LoadRemoteConfig(
+            Action<bool, string> completed)
+        {
+            Service.LoadRemoteConfig(
+                completed);
+        }
+
+        public static void IncrementStat(
+            string key,
+            long amount,
+            Action<bool> completed = null)
+        {
+            Service.IncrementStat(
+                key,
+                amount,
+                completed);
+        }
     }
 
     internal sealed class LocalPlatformService :
@@ -266,6 +315,39 @@ namespace MotorCity.Platform
             completed?.Invoke(
                 false,
                 string.Empty);
+        }
+
+        public void ConsumePurchase(
+            string purchaseToken,
+            Action<bool> completed)
+        {
+            completed?.Invoke(
+                false);
+        }
+
+        public void LoadPendingPurchases(
+            Action<bool, string> completed)
+        {
+            completed?.Invoke(
+                false,
+                string.Empty);
+        }
+
+        public void LoadRemoteConfig(
+            Action<bool, string> completed)
+        {
+            completed?.Invoke(
+                false,
+                string.Empty);
+        }
+
+        public void IncrementStat(
+            string key,
+            long amount,
+            Action<bool> completed)
+        {
+            completed?.Invoke(
+                false);
         }
     }
 }
