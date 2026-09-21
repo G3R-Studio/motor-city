@@ -35,16 +35,17 @@ namespace MotorCity.Input
         TakePhoto = 27,
         ToggleVehiclePassport = 28,
         ToggleClub = 29,
-        RewardedBonus = 30
+        RewardedBonus = 30,
+        ToggleStore = 31
     }
 
     public static class MotorCityInput
     {
         private static readonly bool[] VirtualHeld =
-            new bool[31];
+            new bool[32];
 
         private static readonly int[] VirtualPressedFrame =
-            new int[31];
+            new int[32];
 
         static MotorCityInput()
         {
@@ -188,6 +189,10 @@ namespace MotorCity.Input
         public static bool RewardedBonusPressed =>
             KeyPressed(Key.Y) ||
             VirtualPressed(MotorCityInputAction.RewardedBonus);
+
+        public static bool ToggleStorePressed =>
+            KeyPressed(Key.T) ||
+            VirtualPressed(MotorCityInputAction.ToggleStore);
 
         public static bool CycleDriveModePressed =>
             KeyPressed(
