@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.World;
 using UnityEngine;
 
@@ -53,7 +54,7 @@ namespace MotorCity.Gameplay
             get
             {
                 if (AllLegendsDefeated)
-                    return "ЛЕГЕНДЫ ГОРОДА • ВСЕ ПОБЕЖДЕНЫ";
+                    return MotorCityLocalization.Text("legend.all_defeated");
 
                 LegendDefinition current =
                     CurrentDefinition();
@@ -62,15 +63,17 @@ namespace MotorCity.Gameplay
                         current))
                 {
                     return
-                        $"ЛЕГЕНДА — {current.Name} • " +
-                        UnlockRequirements(
-                            current);
+                        MotorCityLocalization.Format(
+                            "legend.hud",
+                            current.Name,
+                            UnlockRequirements(current));
                 }
 
                 return
-                    $"ЛЕГЕНДА — {current.Name} • " +
-                    ProgressText(
-                        current);
+                    MotorCityLocalization.Format(
+                        "legend.hud",
+                        current.Name,
+                        ProgressText(current));
             }
         }
 
@@ -165,8 +168,10 @@ namespace MotorCity.Gameplay
             unlockAnnounced = true;
 
             StatusText =
-                $"НОВАЯ ЛЕГЕНДА — {current.Name}   " +
-                current.Intro;
+                MotorCityLocalization.Format(
+                    "legend.new",
+                    current.Name,
+                    current.Intro);
 
             messageTimer =
                 MessageSeconds;
@@ -249,7 +254,7 @@ namespace MotorCity.Gameplay
             Save();
 
             StatusText =
-                "ЛЕГЕНДЫ ГОРОДА СБРОШЕНЫ";
+                MotorCityLocalization.Text("legend.reset");
 
             messageTimer =
                 MessageSeconds;
@@ -357,11 +362,16 @@ namespace MotorCity.Gameplay
             StatusText =
                 legendIndex >=
                 LegendCount
-                    ? $"ЛЕГЕНДЫ ГОРОДА ПОБЕЖДЕНЫ   " +
-                      $"+{current.Credits:N0} КР   +{current.Reputation:N0} РЕП"
-                    : $"{defeated} ПОБЕЖДЁН   " +
-                      $"+{current.Credits:N0} КР   +{current.Reputation:N0} РЕП   " +
-                      $"СЛЕДУЮЩИЙ: {CurrentDefinition().Name}";
+                    ? MotorCityLocalization.Format(
+                        "legend.all_complete",
+                        current.Credits,
+                        current.Reputation)
+                    : MotorCityLocalization.Format(
+                        "legend.complete",
+                        defeated,
+                        current.Credits,
+                        current.Reputation,
+                        CurrentDefinition().Name);
 
             messageTimer =
                 MessageSeconds;
@@ -419,8 +429,8 @@ namespace MotorCity.Gameplay
             return legendIndex switch
             {
                 0 => new LegendDefinition(
-                    "ПРИЗРАК",
-                    "Ночной гонщик заметил тебя",
+                    MotorCityLocalization.Text("legend.ghost"),
+                    MotorCityLocalization.Text("legend.ghost_intro"),
                     5,
                     1,
                     1,
@@ -433,8 +443,8 @@ namespace MotorCity.Gameplay
                     350),
 
                 1 => new LegendDefinition(
-                    "СКОЛЬЗЯЩИЙ",
-                    "Король городского дрифта принимает вызов",
+                    MotorCityLocalization.Text("legend.slider"),
+                    MotorCityLocalization.Text("legend.slider_intro"),
                     1,
                     5,
                     1,
@@ -447,8 +457,8 @@ namespace MotorCity.Gameplay
                     340),
 
                 2 => new LegendDefinition(
-                    "НОЛЬ",
-                    "Самый быстрый курьер города оставил маршрут",
+                    MotorCityLocalization.Text("legend.zero"),
+                    MotorCityLocalization.Text("legend.zero_intro"),
                     1,
                     1,
                     5,
@@ -461,8 +471,8 @@ namespace MotorCity.Gameplay
                     320),
 
                 _ => new LegendDefinition(
-                    "КОРОНА",
-                    "Финальный вызов требует владения всеми стилями",
+                    MotorCityLocalization.Text("legend.crown"),
+                    MotorCityLocalization.Text("legend.crown_intro"),
                     7,
                     7,
                     7,
@@ -480,24 +490,26 @@ namespace MotorCity.Gameplay
             LegendDefinition current)
         {
             string result =
-                $"НУЖНО МАСТ {current.MasteryRequired}";
+                MotorCityLocalization.Format(
+                    "legend.mastery_req",
+                    current.MasteryRequired);
 
             if (current.RacingLevelRequired > 1)
             {
                 result +=
-                    $" • ГОНКИ {current.RacingLevelRequired}";
+                    MotorCityLocalization.Format("legend.racing_req", current.RacingLevelRequired);
             }
 
             if (current.DriftLevelRequired > 1)
             {
                 result +=
-                    $" • ДРИФТ {current.DriftLevelRequired}";
+                    MotorCityLocalization.Format("legend.drift_req", current.DriftLevelRequired);
             }
 
             if (current.DeliveryLevelRequired > 1)
             {
                 result +=
-                    $" • ДОСТАВКА {current.DeliveryLevelRequired}";
+                    MotorCityLocalization.Format("legend.delivery_req", current.DeliveryLevelRequired);
             }
 
             return result;
@@ -523,20 +535,20 @@ namespace MotorCity.Gameplay
 
             AppendProgress(
                 ref result,
-                "ДОСТ",
+                MotorCityLocalization.Text("progress.delivery_short"),
                 deliveryProgress,
                 current.DeliveryRequired);
 
             AppendProgress(
                 ref result,
-                "НОЧЬ",
+                MotorCityLocalization.Text("progress.night"),
                 nightProgress,
                 current.NightRequired);
 
             return
                 string.IsNullOrEmpty(
                     result)
-                    ? "ГОТОВО"
+                    ? MotorCityLocalization.Text("progress.ready")
                     : result;
         }
 

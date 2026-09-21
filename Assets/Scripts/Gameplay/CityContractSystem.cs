@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.World;
 using UnityEngine;
 
@@ -53,10 +54,14 @@ namespace MotorCity.Gameplay
                     CurrentDefinition();
 
                 return
-                    $"КОНТРАКТ {contractIndex + 1}/{ContractCount} • " +
-                    $"УР.{cycle} — {contract.Name} • " +
-                    $"{ProgressText(contract)} • " +
-                    $"{RewardCredits(contract):N0} КР";
+                    MotorCityLocalization.Format(
+                        "contract.hud",
+                        contractIndex + 1,
+                        ContractCount,
+                        cycle,
+                        contract.Name,
+                        ProgressText(contract),
+                        RewardCredits(contract));
             }
         }
 
@@ -152,7 +157,7 @@ namespace MotorCity.Gameplay
             cycle = 1;
             ClearProgress();
             StatusText =
-                "КОНТРАКТЫ СБРОШЕНЫ";
+                MotorCityLocalization.Text("contract.reset");
             messageTimer =
                 MessageSeconds;
             Save();
@@ -201,9 +206,10 @@ namespace MotorCity.Gameplay
             Save();
 
             StatusText =
-                $"КОНТРАКТ — {contract.Name}   " +
-                ProgressText(
-                    contract);
+                MotorCityLocalization.Format(
+                    "contract.progress",
+                    contract.Name,
+                    ProgressText(contract));
 
             messageTimer =
                 3f;
@@ -245,9 +251,12 @@ namespace MotorCity.Gameplay
             Save();
 
             StatusText =
-                $"КОНТРАКТ ВЫПОЛНЕН — {completedName}   " +
-                $"+{credits:N0} КР   +{rep:N0} РЕП   " +
-                $"СЛЕДУЮЩИЙ: {CurrentDefinition().Name}";
+                MotorCityLocalization.Format(
+                    "contract.complete",
+                    completedName,
+                    credits,
+                    rep,
+                    CurrentDefinition().Name);
 
             messageTimer =
                 MessageSeconds;
@@ -291,7 +300,7 @@ namespace MotorCity.Gameplay
             return contractIndex switch
             {
                 0 => new ContractDefinition(
-                    "ГОРОДСКОЕ ЗНАКОМСТВО",
+                    MotorCityLocalization.Text("contract.intro"),
                     1,
                     1,
                     1,
@@ -300,7 +309,7 @@ namespace MotorCity.Gameplay
                     100),
 
                 1 => new ContractDefinition(
-                    "ГОНОЧНЫЙ ЗАКАЗ",
+                    MotorCityLocalization.Text("contract.racing"),
                     2 + scale,
                     0,
                     0,
@@ -309,7 +318,7 @@ namespace MotorCity.Gameplay
                     130),
 
                 2 => new ContractDefinition(
-                    "ДРИФТ-КОМИССИЯ",
+                    MotorCityLocalization.Text("contract.drift"),
                     0,
                     2 + scale,
                     0,
@@ -318,7 +327,7 @@ namespace MotorCity.Gameplay
                     130),
 
                 3 => new ContractDefinition(
-                    "КУРЬЕРСКАЯ СЕРИЯ",
+                    MotorCityLocalization.Text("contract.delivery"),
                     0,
                     0,
                     2 + scale,
@@ -327,7 +336,7 @@ namespace MotorCity.Gameplay
                     120),
 
                 4 => new ContractDefinition(
-                    "НОЧНАЯ СМЕНА",
+                    MotorCityLocalization.Text("contract.night"),
                     0,
                     0,
                     0,
@@ -336,7 +345,7 @@ namespace MotorCity.Gameplay
                     170),
 
                 _ => new ContractDefinition(
-                    "БОЛЬШОЙ ГОРОДСКОЙ ТУР",
+                    MotorCityLocalization.Text("contract.tour"),
                     2 + scale,
                     2 + scale,
                     2 + scale,
@@ -393,20 +402,20 @@ namespace MotorCity.Gameplay
 
             AppendProgress(
                 ref result,
-                "ДОСТ",
+                MotorCityLocalization.Text("progress.delivery_short"),
                 deliveryProgress,
                 contract.DeliveryRequired);
 
             AppendProgress(
                 ref result,
-                "НОЧЬ",
+                MotorCityLocalization.Text("progress.night"),
                 nightProgress,
                 contract.NightRequired);
 
             return
                 string.IsNullOrEmpty(
                     result)
-                    ? "ГОТОВО"
+                    ? MotorCityLocalization.Text("progress.ready")
                     : result;
         }
 

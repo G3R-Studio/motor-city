@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -113,7 +114,7 @@ namespace MotorCity.Gameplay
                 if (eventIndex >= EventCount)
                 {
                     return
-                        "ПОДПОЛЬЕ • ВНУТРЕННИЙ КРУГ";
+                        MotorCityLocalization.Text("nightclub.hud_complete");
                 }
 
                 UndergroundEvent current =
@@ -123,13 +124,11 @@ namespace MotorCity.Gameplay
                     current.RequiredCred)
                 {
                     return
-                        $"ПОДПОЛЬЕ • ДОВЕРИЕ {streetCred}/{current.RequiredCred}";
+                        MotorCityLocalization.Format("nightclub.hud_trust", streetCred, current.RequiredCred);
                 }
 
                 return
-                    $"ПОДПОЛЬЕ — {current.Name} • " +
-                    ProgressText(
-                        current);
+                    MotorCityLocalization.Format("nightclub.hud_event", current.Name, ProgressText(current));
             }
         }
 
@@ -233,7 +232,7 @@ namespace MotorCity.Gameplay
                             countdownRemaining));
 
                 StatusText =
-                    $"ПОДПОЛЬЕ   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+                    MotorCityLocalization.Format("nightclub.countdown", shown);
 
                 messageTimer = 0.25f;
 
@@ -278,9 +277,12 @@ namespace MotorCity.Gameplay
                 }
 
                 StatusText =
-                    $"ПОДПОЛЬЕ — {CurrentEvent().Name}   " +
-                    $"ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
-                    $"{elapsedSeconds:0.0}с   ESC — ОТМЕНА";
+                    MotorCityLocalization.Format(
+                        "nightclub.run",
+                        CurrentEvent().Name,
+                        checkpointIndex + 1,
+                        route.Length,
+                        elapsedSeconds);
 
                 messageTimer = 0.25f;
                 return;
@@ -327,7 +329,7 @@ namespace MotorCity.Gameplay
 
                 StatusText =
                     current.Invitation +
-                    "   МЕТКА ДОБАВЛЕНА НА МИНИКАРТУ";
+                    MotorCityLocalization.Text("nightclub.marker_added");
 
                 messageTimer =
                     MessageSeconds;
@@ -344,7 +346,7 @@ namespace MotorCity.Gameplay
                 activityManager.IsBusy)
             {
                 StatusText =
-                    $"ПОДПОЛЬЕ НЕДОСТУПНО: АКТИВНО «{activityManager.ActiveName}»";
+                    MotorCityLocalization.Format("nightclub.busy", activityManager.ActiveName);
 
                 messageTimer = 0.25f;
                 return;
@@ -353,14 +355,14 @@ namespace MotorCity.Gameplay
             if (car.SpeedKph > 8f)
             {
                 StatusText =
-                    "ПОДПОЛЬЕ — ОСТАНОВИСЬ ДО 8 КМ/Ч";
+                    MotorCityLocalization.Text("nightclub.stop");
 
                 messageTimer = 0.25f;
                 return;
             }
 
             StatusText =
-                $"ПОДПОЛЬЕ — {current.Name}   E — НАЧАТЬ";
+                MotorCityLocalization.Format("nightclub.start", current.Name);
 
             messageTimer = 0.25f;
 
@@ -406,7 +408,7 @@ namespace MotorCity.Gameplay
                 "underground");
 
             StatusText =
-                "ПОДПОЛЬЕ — ЗАЕЗД ОТМЕНЁН";
+                MotorCityLocalization.Text("nightclub.cancelled");
 
             messageTimer =
                 3f;
@@ -431,8 +433,12 @@ namespace MotorCity.Gameplay
                 "underground");
 
             StatusText =
-                $"{current.Name} — ФИНИШ {elapsedSeconds:0.0}с   " +
-                $"+{current.Credits:N0} КР   +{current.CredReward} АВТОРИТЕТА";
+                MotorCityLocalization.Format(
+                    "nightclub.finish",
+                    current.Name,
+                    elapsedSeconds,
+                    current.Credits,
+                    current.CredReward);
 
             messageTimer =
                 MessageSeconds;
@@ -516,7 +522,7 @@ namespace MotorCity.Gameplay
             Save();
 
             StatusText =
-                "ПОДПОЛЬЕ ПРОГРЕСС СБРОШЕН";
+                MotorCityLocalization.Text("nightclub.reset");
 
             messageTimer =
                 MessageSeconds;
@@ -559,7 +565,7 @@ namespace MotorCity.Gameplay
                         RankForCred(streetCred))
                     {
                         StatusText =
-                            $"ПОДПОЛЬЕ — {RankName()}   УЛИЧНЫЙ АВТОРИТЕТ {streetCred}";
+                            MotorCityLocalization.Format("nightclub.rank_up", RankName(), streetCred);
 
                         messageTimer =
                             MessageSeconds;
@@ -635,9 +641,7 @@ namespace MotorCity.Gameplay
             if (counted)
             {
                 StatusText =
-                    $"ПОДПОЛЬЕ — {current.Name}   " +
-                    ProgressText(
-                        current);
+                    MotorCityLocalization.Format("nightclub.progress", current.Name, ProgressText(current));
 
                 messageTimer =
                     3.5f;
@@ -674,11 +678,17 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 eventIndex >= EventCount
-                    ? $"ПОДПОЛЬЕ — ВНУТРЕННИЙ КРУГ   {completed} ЗАВЕРШЁН   " +
-                      $"+{current.Credits:N0} КР   +{current.CredReward} АВТОРИТЕТА"
-                    : $"{completed} ЗАВЕРШЁН   " +
-                      $"+{current.Credits:N0} КР   +{current.CredReward} АВТОРИТЕТА   " +
-                      $"СЛЕДУЮЩЕЕ ДОВЕРИЕ: {CurrentEvent().RequiredCred}";
+                    ? MotorCityLocalization.Format(
+                        "nightclub.complete_final",
+                        completed,
+                        current.Credits,
+                        current.CredReward)
+                    : MotorCityLocalization.Format(
+                        "nightclub.complete",
+                        completed,
+                        current.Credits,
+                        current.CredReward,
+                        CurrentEvent().RequiredCred);
 
             messageTimer =
                 MessageSeconds;
@@ -716,8 +726,8 @@ namespace MotorCity.Gameplay
             return eventIndex switch
             {
                 0 => new UndergroundEvent(
-                    "01:20 — СТАРЫЙ ПОРТ",
-                    "01:20. Старый порт. Приезжай один.",
+                    MotorCityLocalization.Text("nightclub.old_port"),
+                    MotorCityLocalization.Text("nightclub.old_port_invite"),
                     40,
                     2,
                     1,
@@ -728,8 +738,8 @@ namespace MotorCity.Gameplay
                     45),
 
                 1 => new UndergroundEvent(
-                    "БЕЗЫМЯННЫЙ ЗАЕЗД",
-                    "Имя здесь ничего не значит. Докажи темп ночью.",
+                    MotorCityLocalization.Text("nightclub.nameless"),
+                    MotorCityLocalization.Text("nightclub.nameless_invite"),
                     110,
                     2,
                     2,
@@ -740,8 +750,8 @@ namespace MotorCity.Gameplay
                     60),
 
                 2 => new UndergroundEvent(
-                    "ИСПЫТАНИЕ ЧЁРНОГО СПИСКА",
-                    "Чёрный список наблюдает. Ошибок не прощают.",
+                    MotorCityLocalization.Text("nightclub.club_test"),
+                    MotorCityLocalization.Text("nightclub.club_test_invite"),
                     200,
                     3,
                     3,
@@ -752,8 +762,8 @@ namespace MotorCity.Gameplay
                     80),
 
                 _ => new UndergroundEvent(
-                    "ВНУТРЕННИЙ КРУГ",
-                    "Последнее приглашение. Только для своих.",
+                    MotorCityLocalization.Text("nightclub.inner"),
+                    MotorCityLocalization.Text("nightclub.inner_invite"),
                     320,
                     4,
                     4,
@@ -785,20 +795,20 @@ namespace MotorCity.Gameplay
 
             AppendProgress(
                 ref result,
-                "ДОСТ",
+                MotorCityLocalization.Text("progress.delivery_short"),
                 deliveryProgress,
                 current.DeliveryRequired);
 
             AppendProgress(
                 ref result,
-                "НОЧЬ",
+                MotorCityLocalization.Text("progress.night"),
                 nightProgress,
                 current.NightRequired);
 
             return
                 string.IsNullOrEmpty(
                     result)
-                    ? "ГОТОВО"
+                    ? MotorCityLocalization.Text("progress.ready")
                     : result;
         }
 
@@ -826,11 +836,11 @@ namespace MotorCity.Gameplay
             return RankForCred(
                 streetCred) switch
                 {
-                    4 => "ВНУТРЕННИЙ КРУГ",
-                    3 => "ЧЁРНЫЙ СПИСОК",
-                    2 => "ДОВЕРЕННЫЙ",
-                    1 => "ЗАМЕЧЕН",
-                    _ => "НЕИЗВЕСТЕН"
+                    4 => MotorCityLocalization.Text("nightclub.inner"),
+                    3 => MotorCityLocalization.Text("nightclub.rank.club"),
+                    2 => MotorCityLocalization.Text("nightclub.rank.trusted"),
+                    1 => MotorCityLocalization.Text("nightclub.rank.noticed"),
+                    _ => MotorCityLocalization.Text("nightclub.rank.unknown")
                 };
         }
 
