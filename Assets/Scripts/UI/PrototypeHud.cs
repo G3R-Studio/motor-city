@@ -49,6 +49,7 @@ namespace MotorCity.UI
         private Text liveEventText;
         private Text collectionText;
         private Text legendText;
+        private Text objectiveText;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -157,11 +158,14 @@ namespace MotorCity.UI
                     $"REP {activityManager.TotalReputation:N0}   •   УР. {activityManager.ReputationLevel}";
             }
 
-            upgradesText.text =
-                garage == null
-                    ? string.Empty
-                    : $"ДВИГ {garage.EngineLevel}   •   СЦЕП {garage.GripLevel}   •   " +
-                      $"СТАБ {garage.StabilityLevel}   •   {garage.VehicleMasteryShort}";
+            if (upgradesText != null)
+            {
+                upgradesText.text =
+                    garage == null
+                        ? string.Empty
+                        : $"ДВИГ {garage.EngineLevel}   •   СЦЕП {garage.GripLevel}   •   " +
+                          $"СТАБ {garage.StabilityLevel}   •   {garage.VehicleMasteryShort}";
+            }
 
             if (careerText != null)
             {
@@ -209,6 +213,12 @@ namespace MotorCity.UI
                     legends == null
                         ? string.Empty
                         : legends.HudLine;
+            }
+
+            if (objectiveText != null)
+            {
+                objectiveText.text =
+                    ResolveObjectiveLine();
             }
 
             if (driveModeText != null &&
@@ -348,7 +358,6 @@ namespace MotorCity.UI
             BuildSpeedometer(canvasObject.transform);
             BuildStatus(canvasObject.transform);
             BuildNavigator(canvasObject.transform);
-            BuildControlsHint(canvasObject.transform);
             BuildDriftPanel(canvasObject.transform);
             BuildActivityResult(canvasObject.transform);
             BuildGarage(canvasObject.transform);
@@ -365,7 +374,7 @@ namespace MotorCity.UI
                     canvas,
                     "Player Card",
                     new Vector2(18f, -18f),
-                    new Vector2(420f, 246f),
+                    new Vector2(360f, 132f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     PanelColor);
@@ -374,7 +383,7 @@ namespace MotorCity.UI
                 card,
                 BlueAccent,
                 new Vector2(5f, -8f),
-                new Vector2(4f, 230f),
+                new Vector2(4f, 116f),
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f));
 
@@ -382,11 +391,11 @@ namespace MotorCity.UI
                 CreateText(
                     card,
                     "City Label",
-                    12,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(20f, -9f),
-                    new Vector2(150f, 18f),
+                    new Vector2(18f, -9f),
+                    new Vector2(120f, 18f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
@@ -396,11 +405,11 @@ namespace MotorCity.UI
                 CreateText(
                     card,
                     "Credits",
-                    24,
+                    22,
                     FontStyle.Bold,
                     TextAnchor.UpperRight,
-                    new Vector2(-14f, -8f),
-                    new Vector2(170f, 30f),
+                    new Vector2(-14f, -7f),
+                    new Vector2(190f, 28f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
@@ -409,142 +418,40 @@ namespace MotorCity.UI
                 CreateText(
                     card,
                     "Reputation",
-                    11,
+                    10,
                     FontStyle.Bold,
-                    TextAnchor.MiddleRight,
-                    new Vector2(-14f, -40f),
-                    new Vector2(170f, 18f),
+                    TextAnchor.UpperRight,
+                    new Vector2(-14f, -36f),
+                    new Vector2(190f, 18f),
                     new Vector2(1f, 1f),
-                    new Vector2(1f, 0.5f),
+                    new Vector2(1f, 1f),
                     SecondaryTextColor);
 
             driveModeText =
                 CreateText(
                     card,
                     "Drive Mode",
-                    13,
+                    12,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(20f, -51f),
+                    new Vector2(18f, -52f),
                     new Vector2(320f, 20f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 0.5f),
                     BlueAccent);
 
-            upgradesText =
+            objectiveText =
                 CreateText(
                     card,
-                    "Upgrades",
-                    13,
-                    FontStyle.Bold,
-                    TextAnchor.LowerLeft,
-                    new Vector2(20f, 9f),
-                    new Vector2(320f, 22f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    SecondaryTextColor);
-
-            careerText =
-                CreateText(
-                    card,
-                    "Career",
+                    "Active Objective",
                     11,
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
-                    new Vector2(20f, 31f),
-                    new Vector2(382f, 20f),
+                    new Vector2(18f, 12f),
+                    new Vector2(324f, 42f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
-                    new Color(
-                        0.32f,
-                        0.78f,
-                        1f,
-                        1f));
-
-            disciplineText =
-                CreateText(
-                    card,
-                    "Discipline Reputation",
-                    10,
-                    FontStyle.Bold,
-                    TextAnchor.LowerLeft,
-                    new Vector2(20f, 53f),
-                    new Vector2(382f, 18f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    new Color(
-                        0.95f,
-                        0.68f,
-                        0.28f,
-                        1f));
-
-            contractText =
-                CreateText(
-                    card,
-                    "City Contract",
-                    10,
-                    FontStyle.Bold,
-                    TextAnchor.LowerLeft,
-                    new Vector2(20f, 75f),
-                    new Vector2(382f, 18f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    new Color(
-                        0.62f,
-                        1f,
-                        0.68f,
-                        1f));
-
-            liveEventText =
-                CreateText(
-                    card,
-                    "City Live Event",
-                    10,
-                    FontStyle.Bold,
-                    TextAnchor.LowerLeft,
-                    new Vector2(20f, 97f),
-                    new Vector2(382f, 18f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    new Color(
-                        1f,
-                        0.48f,
-                        0.32f,
-                        1f));
-
-            collectionText =
-                CreateText(
-                    card,
-                    "Collection Rating",
-                    10,
-                    FontStyle.Bold,
-                    TextAnchor.LowerLeft,
-                    new Vector2(20f, 119f),
-                    new Vector2(382f, 18f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    new Color(
-                        0.92f,
-                        0.74f,
-                        1f,
-                        1f));
-
-            legendText =
-                CreateText(
-                    card,
-                    "City Legend",
-                    10,
-                    FontStyle.Bold,
-                    TextAnchor.LowerLeft,
-                    new Vector2(20f, 141f),
-                    new Vector2(382f, 18f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    new Color(
-                        1f,
-                        0.84f,
-                        0.34f,
-                        1f));
+                    TextColor);
         }
 
         private void BuildSpeedometer(Transform canvas)
@@ -602,7 +509,7 @@ namespace MotorCity.UI
                     canvas,
                     "Activity Status",
                     new Vector2(0f, -18f),
-                    new Vector2(720f, 46f),
+                    new Vector2(560f, 44f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     PanelSoftColor);
@@ -613,7 +520,7 @@ namespace MotorCity.UI
                 panel,
                 BlueAccent,
                 new Vector2(0f, -4f),
-                new Vector2(650f, 3f),
+                new Vector2(500f, 3f),
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f));
 
@@ -621,11 +528,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Status Text",
-                    18,
+                    16,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, -2f),
-                    new Vector2(684f, 34f),
+                    new Vector2(530f, 32f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
@@ -1664,8 +1571,38 @@ namespace MotorCity.UI
                 speedTraps.ShowMessage)
                 return speedTraps.StatusText;
 
-            return
-                "СВОБОДНАЯ ЕЗДА   •   ДОСТАВКА   •   ДРИФТ   •   СПРИНТ   •   КОЛЬЦО   •   РАДАРЫ   •   DRIFT SPOTS   •   ПРЫЖКИ   •   ИССЛЕДОВАНИЕ   •   ГАРАЖ";
+            return string.Empty;
+        }
+
+        private string ResolveObjectiveLine()
+        {
+            if (activityManager != null &&
+                activityManager.IsBusy)
+            {
+                return
+                    string.IsNullOrWhiteSpace(
+                        activityManager.ActiveName)
+                        ? string.Empty
+                        : $"ЦЕЛЬ: {activityManager.ActiveName}";
+            }
+
+            if (legends != null &&
+                !legends.AllLegendsDefeated)
+            {
+                return legends.HudLine;
+            }
+
+            if (liveEvents != null)
+            {
+                return liveEvents.HudLine;
+            }
+
+            if (contracts != null)
+            {
+                return contracts.HudLine;
+            }
+
+            return string.Empty;
         }
 
         private RectTransform CreatePanel(
