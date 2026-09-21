@@ -1342,7 +1342,7 @@ namespace MotorCity.UI
                 delta;
 
             const float markerRadius =
-                68f;
+                78f;
 
             float mapScale =
                 markerRadius /
