@@ -615,6 +615,34 @@ namespace MotorCity.UI
             navigatorPanel =
                 panel.gameObject;
 
+            GameObject viewportObject =
+                new(
+                    "Minimap Viewport",
+                    typeof(RectTransform),
+                    typeof(RectMask2D));
+
+            viewportObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform viewportRect =
+                viewportObject.GetComponent<RectTransform>();
+
+            viewportRect.anchorMin =
+                new Vector2(0.5f, 1f);
+
+            viewportRect.anchorMax =
+                new Vector2(0.5f, 1f);
+
+            viewportRect.pivot =
+                new Vector2(0.5f, 1f);
+
+            viewportRect.anchoredPosition =
+                new Vector2(0f, -8f);
+
+            viewportRect.sizeDelta =
+                new Vector2(270f, 158f);
+
             GameObject mapObject =
                 new(
                     "Minimap View",
@@ -622,26 +650,26 @@ namespace MotorCity.UI
                     typeof(RawImage));
 
             mapObject.transform.SetParent(
-                panel,
+                viewportRect,
                 false);
 
             RectTransform mapRect =
                 mapObject.GetComponent<RectTransform>();
 
             mapRect.anchorMin =
-                new Vector2(0.5f, 1f);
+                new Vector2(0.5f, 0.5f);
 
             mapRect.anchorMax =
-                new Vector2(0.5f, 1f);
+                new Vector2(0.5f, 0.5f);
 
             mapRect.pivot =
-                new Vector2(0.5f, 1f);
+                new Vector2(0.5f, 0.5f);
 
             mapRect.anchoredPosition =
-                new Vector2(0f, -8f);
+                Vector2.zero;
 
             mapRect.sizeDelta =
-                new Vector2(270f, 158f);
+                new Vector2(270f, 270f);
 
             minimapImage =
                 mapObject.GetComponent<RawImage>();
@@ -678,7 +706,11 @@ namespace MotorCity.UI
                     new Vector2(34f, 34f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
-                    TextColor);
+                    new Color(
+                        0.20f,
+                        0.62f,
+                        1f,
+                        1f));
 
             playerArrow.text =
                 "▲";
@@ -759,13 +791,19 @@ namespace MotorCity.UI
             float yaw =
                 car.transform.eulerAngles.y;
 
-            if (minimapPlayerArrow != null)
+            if (minimapImage != null)
             {
-                minimapPlayerArrow.localEulerAngles =
+                minimapImage.rectTransform.localEulerAngles =
                     new Vector3(
                         0f,
                         0f,
-                        -yaw);
+                        yaw);
+            }
+
+            if (minimapPlayerArrow != null)
+            {
+                minimapPlayerArrow.localEulerAngles =
+                    Vector3.zero;
             }
 
             ResolveMinimapTarget(
@@ -793,13 +831,23 @@ namespace MotorCity.UI
             float distance =
                 delta.magnitude;
 
+            Vector3 local =
+                Quaternion.Euler(
+                    0f,
+                    -yaw,
+                    0f) *
+                delta;
+
             const float mapHalfWidth = 122f;
             const float mapHalfHeight = 66f;
+            float mapScale =
+                mapHalfWidth /
+                worldRadius;
 
             Vector2 mapOffset =
                 new Vector2(
-                    delta.x / worldRadius * mapHalfWidth,
-                    delta.z / worldRadius * mapHalfHeight);
+                    local.x * mapScale,
+                    local.z * mapScale);
 
             if (mapOffset.sqrMagnitude >
                 mapHalfWidth * mapHalfWidth)
