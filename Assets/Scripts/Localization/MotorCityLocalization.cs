@@ -155,7 +155,22 @@ namespace MotorCity.Localization
 
                 { "risk.admin", E("ВНИМАНИЕ {0:0}/100 • УРОВЕНЬ {1}/5 • {2}", "ATTENTION {0:0}/100 • LEVEL {1}/5 • {2}") },
                 { "risk.test", E("ТЕСТ: ВНИМАНИЕ ИНСПЕКТОРА", "TEST: INSPECTOR ATTENTION") },
-                { "risk.reason_level", E("{0}   •   ВНИМАНИЕ {1}/5", "{0}   •   ATTENTION {1}/5") }
+                { "risk.reason_level", E("{0}   •   ВНИМАНИЕ {1}/5", "{0}   •   ATTENTION {1}/5") },
+
+                { "career.reward", E("КАРЬЕРА — ЭТАП {0} ЗАВЕРШЁН   +{1:N0} КР   +{2:N0} РЕП", "CAREER — STAGE {0} COMPLETE   +{1:N0} CR   +{2:N0} REP") },
+                { "career.hud", E("КАРЬЕРА {0}/{1} — {2}: Д {3}/{4}   ДР {5}/{4}   С {6}/{4}   К {7}/{4}", "CAREER {0}/{1} — {2}: D {3}/{4}   DR {5}/{4}   S {6}/{4}   C {7}/{4}") },
+
+                { "discipline.hud", E("ГОНКИ {0}/10   •   ДРИФТ {1}/10   •   ДОСТАВКА {2}/10", "RACING {0}/10   •   DRIFT {1}/10   •   DELIVERY {2}/10") },
+                { "discipline.level_up", E("{0}: УРОВЕНЬ {1}/10   +{2} РЕП", "{0}: LEVEL {1}/10   +{2} REP") },
+                { "discipline.reward", E("{0}: +{1} РЕП", "{0}: +{1} REP") },
+
+                { "mastery.level_up", E("{0}: МАСТЕРСТВО УР. {1}/10   +{2} ОПЫТ", "{0}: MASTERY LVL {1}/10   +{2} XP") },
+
+                { "collection.legendary", E("КОЛЛЕКЦИЯ {0:N0} • ЛЕГЕНДАРНЫЙ ГАРАЖ", "COLLECTION {0:N0} • LEGENDARY GARAGE") },
+                { "collection.hud", E("КОЛЛЕКЦИЯ {0:N0}/{1:N0} • НАГРАДА {2:N0} КР", "COLLECTION {0:N0}/{1:N0} • REWARD {2:N0} CR") },
+                { "collection.garage", E("КОЛЛЕКЦИОННЫЙ РЕЙТИНГ: {0:N0}   •   МАШИН {1}/{2}   •   ЭТАП {3}/{4}", "COLLECTION RATING: {0:N0}   •   CARS {1}/{2}   •   STAGE {3}/{4}") },
+                { "collection.reset", E("КОЛЛЕКЦИОННЫЕ НАГРАДЫ СБРОШЕНЫ", "COLLECTION REWARDS RESET") },
+                { "collection.reward", E("КОЛЛЕКЦИЯ — ЭТАП {0}/{1}   +{2:N0} КР   +{3:N0} РЕП", "COLLECTION — STAGE {0}/{1}   +{2:N0} CR   +{3:N0} REP") }
             };
 
         private static string language = Russian;

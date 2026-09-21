@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Localization;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -264,8 +265,11 @@ namespace MotorCity.Gameplay
                 return;
 
             StatusText =
-                $"КАРЬЕРА — ЭТАП {completedStage + 1} ЗАВЕРШЁН   " +
-                $"+{credits:N0} КР   +{rep:N0} РЕП";
+                MotorCityLocalization.Format(
+                    "career.reward",
+                    completedStage + 1,
+                    credits,
+                    rep);
 
             messageTimer =
                 RewardMessageSeconds;
@@ -276,7 +280,7 @@ namespace MotorCity.Gameplay
             if (Stage >= StageCount)
             {
                 return
-                    "КАРЬЕРА: ЛЕГЕНДА MOTOR CITY";
+                    MotorCityLocalization.Text("career.legend");
             }
 
             int required =
@@ -286,18 +290,23 @@ namespace MotorCity.Gameplay
             string stageName =
                 Stage switch
                 {
-                    0 => "НОВИЧОК",
-                    1 => "УЛИЧНЫЙ ПРОФИ",
-                    2 => "ЭЛИТА",
+                    0 => MotorCityLocalization.Text("career.rookie"),
+                    1 => MotorCityLocalization.Text("career.street_pro"),
+                    2 => MotorCityLocalization.Text("career.elite"),
                     _ => "MOTOR CITY"
                 };
 
             return
-                $"КАРЬЕРА {Stage + 1}/{StageCount} — {stageName}: " +
-                $"Д {Mathf.Min(deliveryWins, required)}/{required}   " +
-                $"ДР {Mathf.Min(driftWins, required)}/{required}   " +
-                $"С {Mathf.Min(sprintWins, required)}/{required}   " +
-                $"К {Mathf.Min(circuitWins, required)}/{required}";
+                MotorCityLocalization.Format(
+                    "career.hud",
+                    Stage + 1,
+                    StageCount,
+                    stageName,
+                    Mathf.Min(deliveryWins, required),
+                    required,
+                    Mathf.Min(driftWins, required),
+                    Mathf.Min(sprintWins, required),
+                    Mathf.Min(circuitWins, required));
         }
 
         private static int RequiredWins(

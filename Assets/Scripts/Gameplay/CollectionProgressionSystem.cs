@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -63,19 +64,30 @@ namespace MotorCity.Gameplay
                     Thresholds.Length)
                 {
                     return
-                        $"КОЛЛЕКЦИЯ {Rating:N0} • ЛЕГЕНДАРНЫЙ ГАРАЖ";
+                        MotorCityLocalization.Format(
+                            "collection.legendary",
+                            Rating);
                 }
 
                 return
-                    $"КОЛЛЕКЦИЯ {Rating:N0}/{Thresholds[claimedTier]:N0} • " +
-                    $"НАГРАДА {CreditRewards[claimedTier]:N0} КР";
+                    MotorCityLocalization.Format(
+                        "collection.hud",
+                        Rating,
+                        Thresholds[claimedTier],
+                        CreditRewards[claimedTier]);
             }
         }
 
         public string GarageLine =>
-            $"КОЛЛЕКЦИОННЫЙ РЕЙТИНГ: {Rating:N0}   •   " +
-            $"МАШИН {UnlockedVehicles()}/{VehicleCount()}   •   " +
-            $"ЭТАП {Mathf.Min(claimedTier + 1, Thresholds.Length)}/{Thresholds.Length}";
+            MotorCityLocalization.Format(
+                "collection.garage",
+                Rating,
+                UnlockedVehicles(),
+                VehicleCount(),
+                Mathf.Min(
+                    claimedTier + 1,
+                    Thresholds.Length),
+                Thresholds.Length);
 
         public void Initialize(
             PlayerWallet playerWallet,
@@ -170,7 +182,8 @@ namespace MotorCity.Gameplay
                 false);
 
             StatusText =
-                "КОЛЛЕКЦИОННЫЕ НАГРАДЫ СБРОШЕНЫ";
+                MotorCityLocalization.Text(
+                    "collection.reset");
 
             messageTimer =
                 MessageSeconds;
@@ -272,9 +285,12 @@ namespace MotorCity.Gameplay
                 SaveClaimedTier();
 
                 StatusText =
-                    $"КОЛЛЕКЦИЯ — ЭТАП {claimedTier}/{Thresholds.Length}   " +
-                    $"+{CreditRewards[tier]:N0} КР   " +
-                    $"+{ReputationRewards[tier]:N0} РЕП";
+                    MotorCityLocalization.Format(
+                        "collection.reward",
+                        claimedTier,
+                        Thresholds.Length,
+                        CreditRewards[tier],
+                        ReputationRewards[tier]);
 
                 messageTimer =
                     MessageSeconds;

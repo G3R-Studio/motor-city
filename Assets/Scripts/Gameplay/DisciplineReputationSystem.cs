@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -63,9 +64,11 @@ namespace MotorCity.Gameplay
             string.Empty;
 
         public string HudLine =>
-            $"ГОНКИ {RacingLevel}/10   •   " +
-            $"ДРИФТ {DriftLevel}/10   •   " +
-            $"ДОСТАВКА {DeliveryLevel}/10";
+            MotorCityLocalization.Format(
+                "discipline.hud",
+                RacingLevel,
+                DriftLevel,
+                DeliveryLevel);
 
         public void Initialize(
             ActivityManager manager)
@@ -272,8 +275,15 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 newLevel > previousLevel
-                    ? $"{name}: УРОВЕНЬ {newLevel}/10   +{reward} РЕП"
-                    : $"{name}: +{reward} РЕП";
+                    ? MotorCityLocalization.Format(
+                        "discipline.level_up",
+                        name,
+                        newLevel,
+                        reward)
+                    : MotorCityLocalization.Format(
+                        "discipline.reward",
+                        name,
+                        reward);
 
             messageTimer =
                 MessageSeconds;
@@ -374,11 +384,14 @@ namespace MotorCity.Gameplay
             return type switch
             {
                 DisciplineType.Racing =>
-                    "ГОНКИ",
+                    MotorCityLocalization.Text(
+                        "discipline.racing"),
                 DisciplineType.Drift =>
-                    "ДРИФТ",
+                    MotorCityLocalization.Text(
+                        "discipline.drift"),
                 _ =>
-                    "ДОСТАВКА"
+                    MotorCityLocalization.Text(
+                        "discipline.delivery")
             };
         }
     }

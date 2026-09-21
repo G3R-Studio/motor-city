@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
 
@@ -245,8 +246,11 @@ namespace MotorCity.Gameplay
                 previousLevel)
             {
                 StatusText =
-                    $"{roster.SelectedName}: МАСТЕРСТВО УР. {CurrentLevel}/10   " +
-                    $"+{earnedXp} ОПЫТ";
+                    MotorCityLocalization.Format(
+                        "mastery.level_up",
+                        roster.SelectedName,
+                        CurrentLevel,
+                        earnedXp);
 
                 messageTimer =
                     MessageSeconds;
