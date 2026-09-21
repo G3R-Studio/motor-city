@@ -1,5 +1,6 @@
 using MotorCity.CameraSystem;
 using MotorCity.Gameplay;
+using MotorCity.Persistence;
 using MotorCity.UI;
 using MotorCity.Vehicle;
 using MotorCity.World;
@@ -66,6 +67,8 @@ namespace MotorCity.Bootstrap
             DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
 
             GameObject systems = new("Gameplay Systems");
+            systems.AddComponent<MotorCitySaveRuntime>();
+
             PlayerReputation reputation =
                 systems.AddComponent<PlayerReputation>();
             ActivityManager activityManager =
