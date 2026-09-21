@@ -45,6 +45,8 @@ namespace MotorCity.UI
         private ClubSystem club;
         private WeekendEventSystem weekendEvents;
         private RewardedBonusSystem rewardedBonus;
+        private CosmeticStoreSystem cosmeticStore;
+        private bool storeOpen;
         private AchievementSystem achievements;
         private AdventureDirector adventureDirector;
 
@@ -177,6 +179,7 @@ namespace MotorCity.UI
             ClubSystem clubSystem,
             WeekendEventSystem weekendEventSystem,
             RewardedBonusSystem rewardedBonusSystem,
+            CosmeticStoreSystem cosmeticStoreSystem,
             AchievementSystem achievementSystem,
             AdventureDirector director)
         {
@@ -214,6 +217,7 @@ namespace MotorCity.UI
             club = clubSystem;
             weekendEvents = weekendEventSystem;
             rewardedBonus = rewardedBonusSystem;
+            cosmeticStore = cosmeticStoreSystem;
             achievements = achievementSystem;
             adventureDirector = director;
 
@@ -225,6 +229,7 @@ namespace MotorCity.UI
             if (moneyText == null)
                 return;
 
+            HandleStoreInput();
             HandleClubInput();
 
             if (MotorCityInput.RewardedBonusPressed)
@@ -378,6 +383,29 @@ namespace MotorCity.UI
                 UpdateClubOverlay();
             }
 
+            if (storeOpen &&
+                cosmeticStore != null)
+            {
+                garageOverlay.SetActive(false);
+                navigatorPanel.SetActive(false);
+                driftPanel.SetActive(false);
+                statusPanel.SetActive(true);
+                statusText.text =
+                    MotorCityLocalization.Format(
+                        "store.status",
+                        MotorCityLocalization.Text(
+                            "store.title") +
+                        " • " +
+                        cosmeticStore.SelectedName,
+                        cosmeticStore.SelectedDescription,
+                        cosmeticStore.SeasonPathLine +
+                        " • " +
+                        cosmeticStore.SelectedOwnershipLine,
+                        MotorCityLocalization.Text(
+                            "store.controls"));
+                return;
+            }
+
             UpdateNotificationQueue();
 
             string status =
@@ -448,6 +476,51 @@ namespace MotorCity.UI
 
             UpdateNavigator(
                 garageOpen);
+        }
+
+        private void HandleStoreInput()
+        {
+            if (cosmeticStore == null)
+                return;
+
+            if (MotorCityInput.ToggleStorePressed)
+            {
+                storeOpen =
+                    !storeOpen;
+
+                if (storeOpen &&
+                    clubOverlay != null)
+                {
+                    clubOverlay.SetActive(
+                        false);
+                }
+            }
+
+            if (!storeOpen)
+                return;
+
+            if (MotorCityInput.CancelPressed)
+            {
+                storeOpen = false;
+                return;
+            }
+
+            if (MotorCityInput.PreviousVehiclePressed)
+            {
+                cosmeticStore.CycleProduct(
+                    -1);
+            }
+
+            if (MotorCityInput.NextVehiclePressed)
+            {
+                cosmeticStore.CycleProduct(
+                    1);
+            }
+
+            if (MotorCityInput.InteractPressed)
+            {
+                cosmeticStore.PurchaseSelected();
+            }
         }
 
         private void BuildUi()
@@ -2710,6 +2783,13 @@ namespace MotorCity.UI
             {
                 return
                     onboarding.StatusText;
+            }
+
+            if (cosmeticStore != null &&
+                cosmeticStore.ShowMessage)
+            {
+                return
+                    cosmeticStore.StatusText;
             }
 
             if (rewardedBonus != null &&
