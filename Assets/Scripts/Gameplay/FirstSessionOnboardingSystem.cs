@@ -21,6 +21,7 @@ namespace MotorCity.Gameplay
         private ActivityManager activities;
         private GarageUpgradeSystem garage;
         private TurboPetSystem turbo;
+        private VehicleCustomizationSystem customization;
 
         private int step;
         private float drivenDistance;
@@ -68,6 +69,9 @@ namespace MotorCity.Gameplay
                         5 =>
                             MotorCityLocalization.Text(
                                 "onboarding.garage"),
+                        6 =>
+                            MotorCityLocalization.Text(
+                                "onboarding.customize"),
                         _ =>
                             turbo != null
                                 ? turbo.DailyObjectiveLine
@@ -83,7 +87,8 @@ namespace MotorCity.Gameplay
             PlayerReputation targetReputation,
             ActivityManager activityManager,
             GarageUpgradeSystem garageSystem,
-            TurboPetSystem turboSystem)
+            TurboPetSystem turboSystem,
+            VehicleCustomizationSystem customizationSystem)
         {
             car =
                 targetCar;
@@ -97,6 +102,8 @@ namespace MotorCity.Gameplay
                 garageSystem;
             turbo =
                 turboSystem;
+            customization =
+                customizationSystem;
 
             IsComplete =
                 MotorCity.Persistence.MotorCitySaveService.GetInt(
@@ -109,7 +116,7 @@ namespace MotorCity.Gameplay
                         StepKey,
                         0),
                     0,
-                    6);
+                    7);
 
             if (!IsComplete &&
                 IsLegacyPlayer())
@@ -128,6 +135,12 @@ namespace MotorCity.Gameplay
             {
                 activities.ActivityResultShown +=
                     OnActivityResult;
+            }
+
+            if (customization != null)
+            {
+                customization.CustomizationChanged +=
+                    OnCustomizationChanged;
             }
 
             if (!IsComplete)
@@ -224,6 +237,10 @@ namespace MotorCity.Gameplay
                     }
                     break;
 
+                case 6:
+                    // Completion is driven by the customization event.
+                    break;
+
                 default:
                     Complete();
                     break;
@@ -237,6 +254,24 @@ namespace MotorCity.Gameplay
                 activities.ActivityResultShown -=
                     OnActivityResult;
             }
+
+            if (customization != null)
+            {
+                customization.CustomizationChanged -=
+                    OnCustomizationChanged;
+            }
+        }
+
+        private void OnCustomizationChanged()
+        {
+            if (IsComplete ||
+                step != 6)
+            {
+                return;
+            }
+
+            Advance(
+                "onboarding.customized");
         }
 
         private void OnActivityResult(
@@ -283,7 +318,7 @@ namespace MotorCity.Gameplay
         {
             step =
                 Mathf.Min(
-                    6,
+                    7,
                     step + 1);
 
             introTimer = 0f;
@@ -312,7 +347,7 @@ namespace MotorCity.Gameplay
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(
                 StepKey,
-                6);
+                7);
 
             MotorCity.Persistence.MotorCitySaveService.Save();
 

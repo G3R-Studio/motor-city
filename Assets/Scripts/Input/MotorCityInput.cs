@@ -23,16 +23,17 @@ namespace MotorCity.Input
         SteerRight = 15,
         Handbrake = 16,
         BuyVehicle = 17,
-        CyclePetSkin = 18
+        CyclePetSkin = 18,
+        CycleBodyColor = 19
     }
 
     public static class MotorCityInput
     {
         private static readonly bool[] VirtualHeld =
-            new bool[19];
+            new bool[20];
 
         private static readonly int[] VirtualPressedFrame =
-            new int[19];
+            new int[20];
 
         static MotorCityInput()
         {
@@ -120,6 +121,12 @@ namespace MotorCity.Input
                 Key.C) ||
             VirtualPressed(
                 MotorCityInputAction.CyclePetSkin);
+
+        public static bool CycleBodyColorPressed =>
+            KeyPressed(
+                Key.V) ||
+            VirtualPressed(
+                MotorCityInputAction.CycleBodyColor);
 
         public static bool CycleDriveModePressed =>
             KeyPressed(

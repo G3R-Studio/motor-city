@@ -167,6 +167,13 @@ namespace MotorCity.Bootstrap
                 reputation,
                 wallet);
 
+            VehicleCustomizationSystem customization =
+                systems.AddComponent<VehicleCustomizationSystem>();
+
+            customization.Initialize(
+                car,
+                vehicleRoster);
+
             VehicleMasterySystem vehicleMastery =
                 systems.AddComponent<VehicleMasterySystem>();
 
@@ -287,7 +294,8 @@ namespace MotorCity.Bootstrap
                 circuitRace,
                 vehicleRoster,
                 vehicleMastery,
-                turbo);
+                turbo,
+                customization);
 
             CityRiskSystem cityRisk =
                 systems.AddComponent<CityRiskSystem>();
@@ -308,7 +316,8 @@ namespace MotorCity.Bootstrap
                 reputation,
                 activityManager,
                 garage,
-                turbo);
+                turbo,
+                customization);
 
             AdventureDirector adventureDirector =
                 systems.AddComponent<AdventureDirector>();

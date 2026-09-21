@@ -27,6 +27,7 @@ namespace MotorCity.Gameplay
         private VehicleRosterSystem vehicleRoster;
         private VehicleMasterySystem vehicleMastery;
         private TurboPetSystem turbo;
+        private VehicleCustomizationSystem customization;
 
         public int EngineLevel { get; private set; }
         public int GripLevel { get; private set; }
@@ -79,7 +80,8 @@ namespace MotorCity.Gameplay
             CircuitRaceActivity circuit,
             VehicleRosterSystem roster,
             VehicleMasterySystem mastery,
-            TurboPetSystem turboSystem)
+            TurboPetSystem turboSystem,
+            VehicleCustomizationSystem customizationSystem)
         {
             car = targetCar;
             wallet = targetWallet;
@@ -91,6 +93,8 @@ namespace MotorCity.Gameplay
             vehicleRoster = roster;
             vehicleMastery = mastery;
             turbo = turboSystem;
+            customization =
+                customizationSystem;
             garageCenter =
                 MotorCity.World.CityAssetRuntimeInstaller.GaragePoint;
 
@@ -162,6 +166,14 @@ namespace MotorCity.Gameplay
                 turbo.CycleSkin();
                 StatusText =
                     turbo.GarageLine;
+            }
+
+            if (MotorCityInput.CycleBodyColorPressed &&
+                customization != null)
+            {
+                customization.CycleBodyColor();
+                StatusText =
+                    customization.GarageLine;
             }
 
             if (MotorCityInput.CancelPressed)

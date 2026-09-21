@@ -137,7 +137,7 @@ Core fantasy:
 - [x] First drive.
 - [x] First reward.
 - [x] Meet Turbo.
-- [ ] First garage customization.
+- [x] First garage customization.
 - [x] First daily task.
 
 ### Daily Adventures
@@ -157,7 +157,7 @@ Core fantasy:
 - [ ] Final city festival race.
 
 ### Basic customization
-- [ ] Body colors.
+- [x] Body colors.
 - [ ] Stickers.
 - [ ] Simple vinyls.
 - [ ] Wheels.
