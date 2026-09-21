@@ -41,6 +41,7 @@ namespace MotorCity.World
         private float startFogEnd;
         private Color startFogColor;
         private float startGrip = 1f;
+        private float startHazeAlpha;
 
         public CityWeather CurrentWeather =>
             currentWeather;
@@ -50,6 +51,8 @@ namespace MotorCity.World
 
         public string StatusText { get; private set; } =
             string.Empty;
+
+        public float VisibilityHazeAlpha { get; private set; }
 
         public string AdminLine =>
             $"ПОГОДА: {DisplayName(currentWeather)}   •   " +
@@ -207,6 +210,9 @@ namespace MotorCity.World
                     ? 1f
                     : car.WeatherGripMultiplier;
 
+            startHazeAlpha =
+                VisibilityHazeAlpha;
+
             if (announce)
             {
                 StatusText =
@@ -225,20 +231,31 @@ namespace MotorCity.World
                     targetWeather);
 
             RenderSettings.fog = true;
+
             RenderSettings.fogMode =
-                FogMode.Linear;
+                target.UseExponentialFog
+                    ? FogMode.ExponentialSquared
+                    : FogMode.Linear;
 
-            RenderSettings.fogStartDistance =
-                Mathf.Lerp(
-                    startFogStart,
-                    target.FogStart,
-                    transition01);
+            if (target.UseExponentialFog)
+            {
+                RenderSettings.fogDensity =
+                    target.FogDensity;
+            }
+            else
+            {
+                RenderSettings.fogStartDistance =
+                    Mathf.Lerp(
+                        startFogStart,
+                        target.FogStart,
+                        transition01);
 
-            RenderSettings.fogEndDistance =
-                Mathf.Lerp(
-                    startFogEnd,
-                    target.FogEnd,
-                    transition01);
+                RenderSettings.fogEndDistance =
+                    Mathf.Lerp(
+                        startFogEnd,
+                        target.FogEnd,
+                        transition01);
+            }
 
             RenderSettings.fogColor =
                 Color.Lerp(
@@ -255,6 +272,12 @@ namespace MotorCity.World
             car?.SetWeatherGripMultiplier(
                 grip);
 
+            VisibilityHazeAlpha =
+                Mathf.Lerp(
+                    startHazeAlpha,
+                    target.HazeAlpha,
+                    transition01);
+
             SetRainIntensity(
                 Mathf.Lerp(
                     RainIntensity(currentWeather),
@@ -270,20 +293,34 @@ namespace MotorCity.World
                     weather);
 
             RenderSettings.fog = true;
+
             RenderSettings.fogMode =
-                FogMode.Linear;
+                profile.UseExponentialFog
+                    ? FogMode.ExponentialSquared
+                    : FogMode.Linear;
 
-            RenderSettings.fogStartDistance =
-                profile.FogStart;
+            if (profile.UseExponentialFog)
+            {
+                RenderSettings.fogDensity =
+                    profile.FogDensity;
+            }
+            else
+            {
+                RenderSettings.fogStartDistance =
+                    profile.FogStart;
 
-            RenderSettings.fogEndDistance =
-                profile.FogEnd;
+                RenderSettings.fogEndDistance =
+                    profile.FogEnd;
+            }
 
             RenderSettings.fogColor =
                 profile.FogColor;
 
             car?.SetWeatherGripMultiplier(
                 profile.Grip);
+
+            VisibilityHazeAlpha =
+                profile.HazeAlpha;
 
             SetRainIntensity(
                 profile.RainRate);
@@ -385,10 +422,19 @@ namespace MotorCity.World
                 rain.main;
 
             main.loop = true;
-            main.startLifetime = 0.75f;
-            main.startSpeed = 34f;
-            main.startSize = 0.055f;
-            main.maxParticles = 700;
+            main.startLifetime =
+                new ParticleSystem.MinMaxCurve(
+                    0.34f,
+                    0.52f);
+            main.startSpeed =
+                new ParticleSystem.MinMaxCurve(
+                    18f,
+                    25f);
+            main.startSize =
+                new ParticleSystem.MinMaxCurve(
+                    0.022f,
+                    0.045f);
+            main.maxParticles = 950;
             main.simulationSpace =
                 ParticleSystemSimulationSpace.World;
 
@@ -400,9 +446,12 @@ namespace MotorCity.World
 
             shape.scale =
                 new Vector3(
-                    34f,
+                    30f,
                     1f,
-                    34f);
+                    30f);
+
+            shape.randomDirectionAmount =
+                0.10f;
 
             rainObject.transform.rotation =
                 Quaternion.Euler(
@@ -416,8 +465,42 @@ namespace MotorCity.World
             renderer.renderMode =
                 ParticleSystemRenderMode.Stretch;
 
-            renderer.lengthScale = 2.6f;
-            renderer.velocityScale = 0.18f;
+            renderer.lengthScale = 0.34f;
+            renderer.velocityScale = 0.035f;
+
+            ParticleSystem.VelocityOverLifetimeModule velocity =
+                rain.velocityOverLifetime;
+
+            velocity.enabled = true;
+            velocity.space =
+                ParticleSystemSimulationSpace.World;
+
+            velocity.x =
+                new ParticleSystem.MinMaxCurve(
+                    -1.8f,
+                    1.8f);
+
+            velocity.y =
+                new ParticleSystem.MinMaxCurve(
+                    -3.2f,
+                    -1.4f);
+
+            velocity.z =
+                new ParticleSystem.MinMaxCurve(
+                    -1.2f,
+                    1.2f);
+
+            ParticleSystem.NoiseModule noise =
+                rain.noise;
+
+            noise.enabled = true;
+            noise.separateAxes = true;
+            noise.strengthX = 0.45f;
+            noise.strengthY = 0.12f;
+            noise.strengthZ = 0.45f;
+            noise.frequency = 0.42f;
+            noise.scrollSpeed = 0.28f;
+            noise.damping = true;
 
             Shader shader =
                 Shader.Find(
@@ -563,7 +646,10 @@ namespace MotorCity.World
                             0.49f,
                             0.54f),
                         0.98f,
-                        0f),
+                        0f,
+                        false,
+                        0f,
+                        0.015f),
 
                 CityWeather.Rain =>
                     new WeatherProfile(
@@ -574,7 +660,10 @@ namespace MotorCity.World
                             0.40f,
                             0.46f),
                         0.84f,
-                        360f),
+                        420f,
+                        false,
+                        0f,
+                        0.045f),
 
                 CityWeather.Storm =>
                     new WeatherProfile(
@@ -585,7 +674,10 @@ namespace MotorCity.World
                             0.30f,
                             0.36f),
                         0.76f,
-                        680f),
+                        760f,
+                        true,
+                        0.0048f,
+                        0.10f),
 
                 CityWeather.Fog =>
                     new WeatherProfile(
@@ -596,7 +688,10 @@ namespace MotorCity.World
                             0.61f,
                             0.64f),
                         0.90f,
-                        0f),
+                        0f,
+                        true,
+                        0.0095f,
+                        0.30f),
 
                 _ =>
                     new WeatherProfile(
@@ -607,6 +702,9 @@ namespace MotorCity.World
                             0.61f,
                             0.67f),
                         1f,
+                        0f,
+                        false,
+                        0f,
                         0f)
             };
         }
@@ -618,13 +716,19 @@ namespace MotorCity.World
             public readonly Color FogColor;
             public readonly float Grip;
             public readonly float RainRate;
+            public readonly bool UseExponentialFog;
+            public readonly float FogDensity;
+            public readonly float HazeAlpha;
 
             public WeatherProfile(
                 float fogStart,
                 float fogEnd,
                 Color fogColor,
                 float grip,
-                float rainRate)
+                float rainRate,
+                bool useExponentialFog,
+                float fogDensity,
+                float hazeAlpha)
             {
                 FogStart = fogStart;
                 FogEnd = fogEnd;
