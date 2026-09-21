@@ -42,25 +42,25 @@ namespace MotorCity.World
 
             restored = true;
 
-            if (PlayerPrefs.GetInt(
+            if (MotorCity.Persistence.MotorCitySaveService.GetInt(
                     HasPositionKey,
                     0) == 0)
                 return;
 
             Vector3 position =
                 new(
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         PositionXKey,
                         transform.position.x),
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         PositionYKey,
                         transform.position.y),
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         PositionZKey,
                         transform.position.z));
 
             float yaw =
-                PlayerPrefs.GetFloat(
+                MotorCity.Persistence.MotorCitySaveService.GetFloat(
                     YawKey,
                     transform.eulerAngles.y);
 
@@ -153,27 +153,27 @@ namespace MotorCity.World
                     ? body.rotation.eulerAngles.y
                     : transform.eulerAngles.y;
 
-            PlayerPrefs.SetFloat(
+            MotorCity.Persistence.MotorCitySaveService.SetFloat(
                 PositionXKey,
                 position.x);
 
-            PlayerPrefs.SetFloat(
+            MotorCity.Persistence.MotorCitySaveService.SetFloat(
                 PositionYKey,
                 position.y);
 
-            PlayerPrefs.SetFloat(
+            MotorCity.Persistence.MotorCitySaveService.SetFloat(
                 PositionZKey,
                 position.z);
 
-            PlayerPrefs.SetFloat(
+            MotorCity.Persistence.MotorCitySaveService.SetFloat(
                 YawKey,
                 yaw);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 HasPositionKey,
                 1);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
         private void OnApplicationPause(
