@@ -1341,10 +1341,11 @@ namespace MotorCity.UI
                     0f) *
                 delta;
 
-            const float mapHalfWidth = 122f;
-            const float mapHalfHeight = 66f;
+            const float markerRadius =
+                68f;
+
             float mapScale =
-                mapHalfWidth /
+                markerRadius /
                 worldRadius;
 
             Vector2 mapOffset =
@@ -1353,33 +1354,19 @@ namespace MotorCity.UI
                     local.z * mapScale);
 
             if (mapOffset.sqrMagnitude >
-                mapHalfWidth * mapHalfWidth)
+                markerRadius * markerRadius)
             {
                 mapOffset =
                     mapOffset.normalized *
-                    mapHalfWidth;
+                    markerRadius;
             }
-
-            mapOffset.x =
-                Mathf.Clamp(
-                    mapOffset.x,
-                    -mapHalfWidth,
-                    mapHalfWidth);
-
-            mapOffset.y =
-                Mathf.Clamp(
-                    mapOffset.y,
-                    -mapHalfHeight,
-                    mapHalfHeight);
 
             if (minimapTargetBlip != null)
             {
                 minimapTargetBlip.gameObject.SetActive(true);
 
                 minimapTargetBlip.anchoredPosition =
-                    new Vector2(
-                        mapOffset.x,
-                        11f + mapOffset.y);
+                    mapOffset;
             }
 
             if (minimapTargetText != null)
