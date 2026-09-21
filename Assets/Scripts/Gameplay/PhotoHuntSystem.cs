@@ -48,9 +48,9 @@ namespace MotorCity.Gameplay
                     ? discoveries.DiscoveryCount
                     : 5,
                 secretCount,
-                3,
+                5,
                 rareCarCount,
-                3,
+                6,
                 seasonalCaptured
                     ? 1
                     : 0,
@@ -186,7 +186,9 @@ namespace MotorCity.Gameplay
 
             int[] sourceIndices =
             {
+                0,
                 1,
+                2,
                 3,
                 4
             };
@@ -328,7 +330,7 @@ namespace MotorCity.Gameplay
                     StableHash(
                         CanonicalTrafficName(
                             best.transform))) %
-                3;
+                6;
 
             string id =
                 "rare." +
@@ -506,14 +508,19 @@ namespace MotorCity.Gameplay
             }
 
             for (int i = 0;
-                 i < 3;
+                 i < 5;
                  i++)
             {
                 LoadId(
                     "secret." +
                     i,
                     ref secretCount);
+            }
 
+            for (int i = 0;
+                 i < 6;
+                 i++)
+            {
                 LoadId(
                     "rare." +
                     i,

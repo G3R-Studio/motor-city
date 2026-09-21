@@ -144,12 +144,50 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (MotorCityInput.Upgrade1Pressed)
-                TryBuy(UpgradeType.Engine);
-            if (MotorCityInput.Upgrade2Pressed)
-                TryBuy(UpgradeType.Grip);
-            if (MotorCityInput.Upgrade3Pressed)
-                TryBuy(UpgradeType.Stability);
+            bool upgrade1 =
+                MotorCityInput.Upgrade1Pressed;
+
+            bool upgrade2 =
+                MotorCityInput.Upgrade2Pressed;
+
+            bool upgrade3 =
+                MotorCityInput.Upgrade3Pressed;
+
+            bool presetShortcut =
+                MotorCityInput.EliteModifierHeld &&
+                (upgrade1 ||
+                 upgrade2 ||
+                 upgrade3);
+
+            if (presetShortcut &&
+                customization != null)
+            {
+                int slot =
+                    upgrade1
+                        ? 0
+                        : upgrade2
+                            ? 1
+                            : 2;
+
+                customization.SelectPresetSlot(
+                    slot);
+
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "customization.preset_selected",
+                        slot + 1);
+            }
+            else
+            {
+                if (upgrade1)
+                    TryBuy(UpgradeType.Engine);
+
+                if (upgrade2)
+                    TryBuy(UpgradeType.Grip);
+
+                if (upgrade3)
+                    TryBuy(UpgradeType.Stability);
+            }
 
             if (MotorCityInput.PreviousVehiclePressed)
                 TrySelectVehicle(-1);
@@ -219,23 +257,25 @@ namespace MotorCity.Gameplay
             if (MotorCityInput.SaveCustomizationPresetPressed &&
                 customization != null)
             {
-                customization.SavePreset(0);
+                customization.SaveSelectedPreset();
                 StatusText =
-                    MotorCityLocalization.Text(
-                        "customization.preset_saved");
+                    MotorCityLocalization.Format(
+                        "customization.preset_saved",
+                        customization.PresetSlotNumber);
             }
 
             if (MotorCityInput.LoadCustomizationPresetPressed &&
                 customization != null)
             {
                 bool loaded =
-                    customization.LoadPreset(0);
+                    customization.LoadSelectedPreset();
 
                 StatusText =
-                    MotorCityLocalization.Text(
+                    MotorCityLocalization.Format(
                         loaded
                             ? "customization.preset_loaded"
-                            : "customization.preset_empty");
+                            : "customization.preset_empty",
+                        customization.PresetSlotNumber);
             }
 
             if (MotorCityInput.TakePhotoPressed &&

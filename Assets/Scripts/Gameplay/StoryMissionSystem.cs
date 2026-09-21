@@ -23,6 +23,59 @@ namespace MotorCity.Gameplay
         public bool ShowMessage => messageTimer > 0f;
         public string StatusText { get; private set; }
 
+        public string CurrentCharacterName
+        {
+            get
+            {
+                StoryMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? string.Empty
+                        : MotorCityLocalization.Text(
+                            mission.CharacterKey);
+            }
+        }
+
+        public string CurrentCharacterLine
+        {
+            get
+            {
+                StoryMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? string.Empty
+                        : MotorCityLocalization.Text(
+                            mission.TitleKey);
+            }
+        }
+
+        public int CurrentCharacterStyle
+        {
+            get
+            {
+                StoryMission mission =
+                    CurrentMission();
+
+                if (mission == null)
+                    return 0;
+
+                if (mission.CharacterKey.Contains("nika"))
+                    return 1;
+
+                if (mission.CharacterKey.Contains("bublik"))
+                    return 2;
+
+                if (mission.CharacterKey.Contains("turbo"))
+                    return 3;
+
+                return 0;
+            }
+        }
+
         public string ObjectiveLine
         {
             get

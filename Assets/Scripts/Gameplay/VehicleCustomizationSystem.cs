@@ -57,6 +57,14 @@ namespace MotorCity.Gameplay
         public int SelectedPlateIndex { get; private set; }
         public int SelectedPresetSlot { get; private set; }
 
+        public int PresetSlotNumber =>
+            SelectedPresetSlot + 1;
+
+        public string PresetLine =>
+            MotorCityLocalization.Format(
+                "customization.preset_slot",
+                PresetSlotNumber);
+
         public string GarageLine =>
             MotorCityLocalization.Format(
                 "customization.summary",
@@ -142,6 +150,29 @@ namespace MotorCity.Gameplay
                 (SelectedPlateIndex + 1) % 6;
 
             Changed();
+        }
+
+        public void SelectPresetSlot(
+            int slot)
+        {
+            SelectedPresetSlot =
+                Mathf.Clamp(
+                    slot,
+                    0,
+                    2);
+        }
+
+        public void SaveSelectedPreset()
+        {
+            SavePreset(
+                SelectedPresetSlot);
+        }
+
+        public bool LoadSelectedPreset()
+        {
+            return
+                LoadPreset(
+                    SelectedPresetSlot);
         }
 
         public void SavePreset(

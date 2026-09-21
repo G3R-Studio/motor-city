@@ -80,6 +80,35 @@ namespace MotorCity.Gameplay
 
         public string StatusText { get; private set; }
 
+        public string CurrentCharacterName
+        {
+            get
+            {
+                return
+                    MotorCityLocalization.Text(
+                        SeasonCharacterKey(
+                            missionIndex));
+            }
+        }
+
+        public string CurrentCharacterLine
+        {
+            get
+            {
+                SeasonMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? string.Empty
+                        : MotorCityLocalization.Text(
+                            mission.TitleKey);
+            }
+        }
+
+        public int CurrentCharacterStyle =>
+            missionIndex % 4;
+
         public string ObjectiveLine
         {
             get
@@ -333,6 +362,19 @@ namespace MotorCity.Gameplay
                     new SeasonMission("season1.m8","profession_carwash",1,820,85,32),
                     new SeasonMission("season1.m9","*",3,1050,110,40),
                     new SeasonMission("season1.m10","circuit",2,2500,250,80)
+                };
+        }
+
+        private static string SeasonCharacterKey(
+            int index)
+        {
+            return
+                index % 4 switch
+                {
+                    0 => "story.character.vitya",
+                    1 => "story.character.turbo",
+                    2 => "story.character.nika",
+                    _ => "story.character.bublik"
                 };
         }
 

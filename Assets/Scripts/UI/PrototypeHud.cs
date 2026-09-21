@@ -65,6 +65,10 @@ namespace MotorCity.UI
         private Text collectionText;
         private Text legendText;
         private Text objectiveText;
+        private GameObject characterPanel;
+        private Text characterAvatarText;
+        private Text characterNameText;
+        private Text characterLineText;
         private RawImage minimapImage;
         private RectTransform minimapTargetBlip;
         private RectTransform minimapPlayerArrow;
@@ -290,6 +294,8 @@ namespace MotorCity.UI
                     ResolveObjectiveLine();
             }
 
+            UpdateCharacterCard();
+
             if (driveModeText != null &&
                 car != null)
             {
@@ -452,6 +458,7 @@ namespace MotorCity.UI
                     canvasObject.transform);
 
             BuildPlayerCard(safeAreaRoot);
+            BuildCharacterCard(safeAreaRoot);
             BuildSpeedometer(safeAreaRoot);
             BuildStatus(safeAreaRoot);
             BuildNavigator(safeAreaRoot);
@@ -549,6 +556,194 @@ namespace MotorCity.UI
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     TextColor);
+        }
+
+        private void BuildCharacterCard(
+            Transform canvas)
+        {
+            RectTransform panel =
+                CreatePanel(
+                    canvas,
+                    "Character Card",
+                    new Vector2(
+                        18f,
+                        -158f),
+                    new Vector2(
+                        360f,
+                        64f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    PanelSoftColor);
+
+            characterPanel =
+                panel.gameObject;
+
+            characterAvatarText =
+                CreateText(
+                    panel,
+                    "Character Avatar",
+                    24,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        12f,
+                        -10f),
+                    new Vector2(
+                        46f,
+                        46f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    TextColor);
+
+            characterNameText =
+                CreateText(
+                    panel,
+                    "Character Name",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(
+                        68f,
+                        -10f),
+                    new Vector2(
+                        270f,
+                        20f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    BlueAccent);
+
+            characterLineText =
+                CreateText(
+                    panel,
+                    "Character Line",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.LowerLeft,
+                    new Vector2(
+                        68f,
+                        10f),
+                    new Vector2(
+                        270f,
+                        28f),
+                    new Vector2(
+                        0f,
+                        0f),
+                    new Vector2(
+                        0f,
+                        0f),
+                    TextColor);
+
+            characterPanel.SetActive(
+                false);
+        }
+
+        private void UpdateCharacterCard()
+        {
+            if (characterPanel == null)
+                return;
+
+            string name =
+                string.Empty;
+
+            string line =
+                string.Empty;
+
+            int style =
+                -1;
+
+            if (story != null &&
+                !story.IsComplete)
+            {
+                name =
+                    story.CurrentCharacterName;
+
+                line =
+                    story.CurrentCharacterLine;
+
+                style =
+                    story.CurrentCharacterStyle;
+            }
+            else if (season != null &&
+                     season.IsSeasonOneActive &&
+                     !season.IsComplete)
+            {
+                name =
+                    season.CurrentCharacterName;
+
+                line =
+                    season.CurrentCharacterLine;
+
+                style =
+                    season.CurrentCharacterStyle;
+            }
+
+            bool visible =
+                !string.IsNullOrWhiteSpace(
+                    name);
+
+            characterPanel.SetActive(
+                visible);
+
+            if (!visible)
+                return;
+
+            Color accent =
+                style switch
+                {
+                    1 =>
+                        new Color(
+                            1f,
+                            0.42f,
+                            0.66f,
+                            1f),
+                    2 =>
+                        new Color(
+                            1f,
+                            0.72f,
+                            0.16f,
+                            1f),
+                    3 =>
+                        new Color(
+                            0.20f,
+                            0.82f,
+                            1f,
+                            1f),
+                    _ =>
+                        new Color(
+                            0.56f,
+                            0.86f,
+                            0.34f,
+                            1f)
+                };
+
+            characterAvatarText.text =
+                name.Substring(
+                    0,
+                    1);
+
+            characterAvatarText.color =
+                accent;
+
+            characterNameText.text =
+                name;
+
+            characterNameText.color =
+                accent;
+
+            characterLineText.text =
+                line;
         }
 
         private Sprite CreateCircularMinimapSprite(
@@ -1792,7 +1987,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(28f, -168f),
-                    new Vector2(704f, 20f),
+                    new Vector2(704f, 38f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Color(
@@ -2041,10 +2236,23 @@ namespace MotorCity.UI
 
             if (garageCollectionText != null)
             {
-                garageCollectionText.text =
+                string collectionLine =
                     collection == null
                         ? string.Empty
                         : collection.GarageLine;
+
+                string albumLine =
+                    photoHunt == null
+                        ? string.Empty
+                        : photoHunt.AlbumLine;
+
+                garageCollectionText.text =
+                    string.IsNullOrWhiteSpace(
+                        albumLine)
+                        ? collectionLine
+                        : collectionLine +
+                          "\n" +
+                          albumLine;
             }
 
             for (int i = 0; i < 3; i++)

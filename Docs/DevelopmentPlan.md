@@ -193,10 +193,10 @@ Core fantasy:
 
 - [x] Season framework.
 - [x] Season 1 content.
-- [ ] Character presentation.
+- [x] Character presentation.
 - [x] Achievement system.
-- [ ] Garage presets.
-- [ ] Expanded photo album.
+- [x] Garage presets.
+- [x] Expanded photo album.
 - [ ] Async club prototype.
 - [ ] Preset club names/emblems.
 - [ ] No open chat.
