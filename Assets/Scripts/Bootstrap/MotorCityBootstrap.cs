@@ -338,6 +338,14 @@ namespace MotorCity.Bootstrap
                 discoveries,
                 customization);
 
+            CityProfessionSystem professions =
+                systems.AddComponent<CityProfessionSystem>();
+
+            professions.Initialize(
+                car,
+                wallet,
+                activityManager);
+
             AdventureDirector adventureDirector =
                 systems.AddComponent<AdventureDirector>();
 
@@ -390,6 +398,7 @@ namespace MotorCity.Bootstrap
             CreateStuntJumpRamps(stuntJumps);
             CreateGarageMarker(garage);
             CreateUndergroundMarker(underground);
+            CreateProfessionMarkers(professions);
 
             CreateCamera(car.transform);
             CreateHud(
@@ -420,6 +429,7 @@ namespace MotorCity.Bootstrap
                 dailyAdventures,
                 story,
                 photoHunt,
+                professions,
                 adventureDirector);
 
             MotorCityBootController bootController =
@@ -804,6 +814,72 @@ namespace MotorCity.Bootstrap
             }
 
             return root;
+        }
+
+        private static void CreateProfessionMarkers(
+            CityProfessionSystem professions)
+        {
+            if (professions == null)
+                return;
+
+            Color[] colors =
+            {
+                new(1f, 0.42f, 0.12f),
+                new(0.18f, 0.72f, 1f),
+                new(0.28f, 0.92f, 0.42f),
+                new(1f, 0.78f, 0.18f)
+            };
+
+            for (int i = 0;
+                 i < professions.StartCount;
+                 i++)
+            {
+                Material material =
+                    Material(
+                        colors[
+                            i %
+                            colors.Length],
+                        0.02f,
+                        0.55f);
+
+                GameObject root =
+                    new(
+                        "Profession " +
+                        professions.GetStartName(i));
+
+                root.transform.position =
+                    professions.GetStartPoint(i);
+
+                Primitive(
+                    "Profession Base",
+                    PrimitiveType.Cylinder,
+                    root.transform,
+                    new Vector3(
+                        2.2f,
+                        0.06f,
+                        2.2f),
+                    new Vector3(
+                        0f,
+                        0.08f,
+                        0f),
+                    material,
+                    false);
+
+                Primitive(
+                    "Profession Beacon",
+                    PrimitiveType.Cylinder,
+                    root.transform,
+                    new Vector3(
+                        0.12f,
+                        1.8f,
+                        0.12f),
+                    new Vector3(
+                        0f,
+                        1.8f,
+                        0f),
+                    material,
+                    false);
+            }
         }
 
         private static void CreateSpeedTrapMarkers(
@@ -1307,6 +1383,7 @@ namespace MotorCity.Bootstrap
             DailyAdventureSystem dailyAdventures,
             StoryMissionSystem story,
             PhotoHuntSystem photoHunt,
+            CityProfessionSystem professions,
             AdventureDirector adventureDirector)
         {
             GameObject hud = new("Prototype HUD");
@@ -1339,6 +1416,7 @@ namespace MotorCity.Bootstrap
                 dailyAdventures,
                 story,
                 photoHunt,
+                professions,
                 adventureDirector);
         }
 

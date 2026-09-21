@@ -177,15 +177,15 @@ Core fantasy:
 
 ## Phase 3 — Automotive life expansion
 
-- [ ] Pizza courier.
-- [ ] Taxi.
-- [ ] Mail.
-- [ ] Ice cream route.
+- [x] Pizza courier.
+- [x] Taxi.
+- [x] Mail.
+- [x] Ice cream route.
 - [ ] Car wash mini-game.
 - [ ] Tow-truck profession after suitable vehicle exists.
 - [ ] Vehicle passport/history screen.
 - [ ] Better contract mini-stories.
-- [ ] Profession progression without adding extra currencies.
+- [x] Profession progression without adding extra currencies.
 
 ---
 

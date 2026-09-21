@@ -503,7 +503,21 @@ namespace MotorCity.Localization
                 { "photo.rare_name", E("РЕДКАЯ МАШИНА #{0}", "RARE CAR #{0}") },
                 { "photo.seasonal_name", E("СЕЗОННЫЙ КАДР", "SEASONAL SHOT") },
                 { "photo.rare_duplicate", E("Эта редкая машина уже есть в альбоме", "This rare car is already in the album") },
-                { "photo.no_subject", E("Турбо: попробуй взять в кадр интересное место или машину.", "Turbo: try framing an interesting place or car.") }
+                { "photo.no_subject", E("Турбо: попробуй взять в кадр интересное место или машину.", "Turbo: try framing an interesting place or car.") },
+
+                { "profession.title", E("ГОРОДСКИЕ ПРОФЕССИИ", "CITY JOBS") },
+                { "profession.pizza", E("ДОСТАВКА ПИЦЦЫ", "PIZZA DELIVERY") },
+                { "profession.taxi", E("ТАКСИ", "TAXI") },
+                { "profession.mail", E("ГОРОДСКАЯ ПОЧТА", "CITY MAIL") },
+                { "profession.icecream", E("МОРОЖЕНОЕ", "ICE CREAM ROUTE") },
+                { "profession.start", E("{0} • УР. ПРОФЕССИЙ {1} • НАГРАДА ОТ {2:N0} КР • E — НАЧАТЬ", "{0} • JOB LVL {1} • REWARD FROM {2:N0} CR • E — START") },
+                { "profession.stop", E("{0} • остановись, чтобы начать работу", "{0} • stop to start the job") },
+                { "profession.busy", E("{0} недоступно: сначала заверши «{1}»", "{0} unavailable: finish “{1}” first") },
+                { "profession.started", E("{0} • маршрут начат", "{0} • route started") },
+                { "profession.progress", E("{0} • ТОЧКА {1}/{2} • {3} м • {4}", "{0} • STOP {1}/{2} • {3} m • {4}") },
+                { "profession.complete", E("РАБОТА ВЫПОЛНЕНА", "JOB COMPLETE") },
+                { "profession.result", E("ВРЕМЯ {0} • УР. ПРОФЕССИЙ {1}", "TIME {0} • JOB LVL {1}") },
+                { "profession.cancelled", E("{0} • работа отменена", "{0} • job cancelled") }
             };
 
         private static string language = Russian;

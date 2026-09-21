@@ -38,6 +38,7 @@ namespace MotorCity.UI
         private DailyAdventureSystem dailyAdventures;
         private StoryMissionSystem story;
         private PhotoHuntSystem photoHunt;
+        private CityProfessionSystem professions;
         private AdventureDirector adventureDirector;
 
         private Font font;
@@ -145,6 +146,7 @@ namespace MotorCity.UI
             DailyAdventureSystem dailyAdventureSystem,
             StoryMissionSystem storySystem,
             PhotoHuntSystem photoHuntSystem,
+            CityProfessionSystem professionSystem,
             AdventureDirector director)
         {
             car = controller;
@@ -174,6 +176,7 @@ namespace MotorCity.UI
             dailyAdventures = dailyAdventureSystem;
             story = storySystem;
             photoHunt = photoHuntSystem;
+            professions = professionSystem;
             adventureDirector = director;
 
             BuildUi();
@@ -1082,6 +1085,18 @@ namespace MotorCity.UI
                 return;
             }
 
+            if (professions != null &&
+                professions.IsActive)
+            {
+                target =
+                    professions.CurrentTarget;
+
+                label =
+                    professions.CurrentLabel;
+
+                return;
+            }
+
             if (delivery != null &&
                 (delivery.IsActive ||
                  delivery.IsCountingDown))
@@ -1250,6 +1265,22 @@ namespace MotorCity.UI
                     ConsiderNavigationTarget(
                         stuntJumps.GetJumpPosition(i),
                         MotorCityLocalization.Text("hud.stunt"),
+                        true,
+                        ref target,
+                        ref label,
+                        ref bestDistance);
+                }
+            }
+
+            if (professions != null)
+            {
+                for (int i = 0;
+                     i < professions.StartCount;
+                     i++)
+                {
+                    ConsiderNavigationTarget(
+                        professions.GetStartPoint(i),
+                        professions.GetStartName(i),
                         true,
                         ref target,
                         ref label,
@@ -2088,8 +2119,19 @@ namespace MotorCity.UI
                     "underground" =>
                         underground?.StatusText,
                     _ =>
-                        activityManager.ActiveName
+                        activityManager.ActiveId != null &&
+                        activityManager.ActiveId.StartsWith(
+                            "profession_")
+                            ? professions?.StatusText
+                            : activityManager.ActiveName
                 };
+            }
+
+            if (professions != null &&
+                professions.IsNearStart)
+            {
+                return
+                    professions.StatusText;
             }
 
             if (delivery != null &&
