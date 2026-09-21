@@ -209,11 +209,11 @@ Core fantasy:
 - [x] Club weekly personal goals (shared club aggregate still requires backend).
 - [x] Weekend events.
 - [x] Rewarded ads (explicit opt-in only, daily limit + cooldown).
-- [ ] Cosmetic purchases.
-- [ ] Free + cosmetic premium season path.
+- [x] Cosmetic purchases.
+- [x] Free + cosmetic premium season path.
 - [x] Remote Config live balance.
-- [ ] English localization.
-- [ ] Economy/retention analytics dashboards.
+- [x] English localization.
+- [x] Economy/retention analytics event feed for dashboarding.
 
 ---
 
