@@ -23,6 +23,23 @@ namespace MotorCity.Gameplay
         public bool ShowMessage => messageTimer > 0f;
         public string StatusText { get; private set; }
 
+        public string RequiredActivityId
+        {
+            get
+            {
+                if (IsComplete)
+                    return string.Empty;
+
+                StoryMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? string.Empty
+                        : mission.ActivityId;
+            }
+        }
+
         public string CurrentCharacterName
         {
             get
