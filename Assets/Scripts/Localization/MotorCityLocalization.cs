@@ -441,7 +441,41 @@ namespace MotorCity.Localization
                 { "daily.all_done", E("Сегодня всё готово • завершённых дней: {0}", "All done today • completed days: {0}") },
                 { "daily.complete", E("Три приключения готовы! +{0:N0} КР • серия {1}", "Three adventures complete! +{0:N0} CR • series {1}") },
                 { "daily.milestone", E("Награда за {0} дней! Сегодня +{1:N0} КР", "{0}-day reward! +{1:N0} CR today") },
-                { "daily.new_day", E("Новый день — три новых приключения уже готовы.", "New day — three new adventures are ready.") }
+                { "daily.new_day", E("Новый день — три новых приключения уже готовы.", "New day — three new adventures are ready.") },
+
+                { "story.title", E("ИСТОРИЯ MOTOR CITY", "MOTOR CITY STORY") },
+                { "story.hud", E("ИСТОРИЯ {0}/{1} • {2}: {3} • {4}/{5}", "STORY {0}/{1} • {2}: {3} • {4}/{5}") },
+                { "story.progress", E("{0}: отлично! Прогресс {1}/{2}.", "{0}: great! Progress {1}/{2}.") },
+                { "story.new_mission", E("МИССИЯ {0} • {1} — «{2}»", "MISSION {0} • {1} — “{2}”") },
+                { "story.mission_complete", E("МИССИЯ {0} ГОТОВА • {1} • +{2:N0} КР • +{3:N0} РЕП", "MISSION {0} COMPLETE • {1} • +{2:N0} CR • +{3:N0} REP") },
+                { "story.final_complete", E("ФЕСТИВАЛЬ MOTOR CITY ЗАВЕРШЁН! +{0:N0} КР • +{1:N0} РЕП", "MOTOR CITY FESTIVAL COMPLETE! +{0:N0} CR • +{1:N0} REP") },
+                { "story.complete_hud", E("ИСТОРИЯ • ФЕСТИВАЛЬ ПРОЙДЕН", "STORY • FESTIVAL COMPLETE") },
+
+                { "story.character.vitya", E("ДЯДЯ ВИТЯ", "UNCLE VITYA") },
+                { "story.character.nika", E("НИКА", "NIKA") },
+                { "story.character.bublik", E("ИНСПЕКТОР БУБЛИК", "INSPECTOR BUBLIK") },
+                { "story.character.turbo", E("ТУРБО", "TURBO") },
+
+                { "story.01.title", E("ПЕРВОЕ ДЕЛО", "FIRST JOB") },
+                { "story.01.objective", E("выполни доставку для мастерской", "complete a delivery for the workshop") },
+                { "story.02.title", E("ГОРОД ЗОВЁТ", "THE CITY CALLS") },
+                { "story.02.objective", E("заверши любую городскую активность", "complete any city activity") },
+                { "story.03.title", E("ПОЙМАЙ УГОЛ", "CATCH THE ANGLE") },
+                { "story.03.objective", E("заверши дрифт-заезд", "finish a drift challenge") },
+                { "story.04.title", E("ПРОВЕРКА МОТОРА", "ENGINE CHECK") },
+                { "story.04.objective", E("заверши уличный спринт", "finish a street sprint") },
+                { "story.05.title", E("АККУРАТНЫЙ МАРШРУТ", "CLEAN ROUTE") },
+                { "story.05.objective", E("выполни спокойную доставку", "complete a careful delivery") },
+                { "story.06.title", E("ДВА ПРИКЛЮЧЕНИЯ", "TWO ADVENTURES") },
+                { "story.06.objective", E("заверши две любые активности", "complete any two activities") },
+                { "story.07.title", E("ПЕРВОЕ КОЛЬЦО", "FIRST CIRCUIT") },
+                { "story.07.objective", E("финишируй в кольцевой гонке", "finish a circuit race") },
+                { "story.08.title", E("ГОРОДСКОЙ МАСТЕР", "CITY MASTER") },
+                { "story.08.objective", E("заверши ещё две активности", "complete two more activities") },
+                { "story.09.title", E("КОНТРОЛЬНЫЙ ЗАЕЗД", "CHECK RUN") },
+                { "story.09.objective", E("заверши спринт перед фестивалем", "finish a sprint before the festival") },
+                { "story.10.title", E("ФЕСТИВАЛЬ MOTOR CITY", "MOTOR CITY FESTIVAL") },
+                { "story.10.objective", E("выиграй финальную кольцевую гонку", "win the final circuit race") }
             };
 
         private static string language = Russian;

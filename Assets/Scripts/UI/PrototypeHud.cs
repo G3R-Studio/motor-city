@@ -36,6 +36,7 @@ namespace MotorCity.UI
         private TurboPetSystem turbo;
         private FirstSessionOnboardingSystem onboarding;
         private DailyAdventureSystem dailyAdventures;
+        private StoryMissionSystem story;
         private AdventureDirector adventureDirector;
 
         private Font font;
@@ -141,6 +142,7 @@ namespace MotorCity.UI
             TurboPetSystem turboSystem,
             FirstSessionOnboardingSystem onboardingSystem,
             DailyAdventureSystem dailyAdventureSystem,
+            StoryMissionSystem storySystem,
             AdventureDirector director)
         {
             car = controller;
@@ -168,6 +170,7 @@ namespace MotorCity.UI
             turbo = turboSystem;
             onboarding = onboardingSystem;
             dailyAdventures = dailyAdventureSystem;
+            story = storySystem;
             adventureDirector = director;
 
             BuildUi();
@@ -1923,6 +1926,13 @@ namespace MotorCity.UI
             {
                 return
                     onboarding.StatusText;
+            }
+
+            if (story != null &&
+                story.ShowMessage)
+            {
+                return
+                    story.StatusText;
             }
 
             if (dailyAdventures != null &&

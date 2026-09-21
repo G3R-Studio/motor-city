@@ -149,12 +149,12 @@ Core fantasy:
 - [x] No hard punishment for missed days.
 
 ### Story missions
-- [ ] 10 introductory missions.
-- [ ] Uncle Vitya.
-- [ ] Nika.
-- [ ] Inspector Bublik.
-- [ ] Turbo.
-- [ ] Final city festival race.
+- [x] 10 introductory missions.
+- [x] Uncle Vitya.
+- [x] Nika.
+- [x] Inspector Bublik.
+- [x] Turbo.
+- [x] Final city festival race.
 
 ### Basic customization
 - [x] Body colors.

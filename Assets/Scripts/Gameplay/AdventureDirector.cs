@@ -15,6 +15,7 @@ namespace MotorCity.Gameplay
         private TurboPetSystem turbo;
         private FirstSessionOnboardingSystem onboarding;
         private DailyAdventureSystem dailyAdventures;
+        private StoryMissionSystem story;
 
         private float refreshTimer;
 
@@ -38,7 +39,8 @@ namespace MotorCity.Gameplay
             CityRiskSystem riskSystem,
             TurboPetSystem turboSystem,
             FirstSessionOnboardingSystem onboardingSystem,
-            DailyAdventureSystem dailyAdventureSystem)
+            DailyAdventureSystem dailyAdventureSystem,
+            StoryMissionSystem storySystem)
         {
             activityManager =
                 manager;
@@ -60,6 +62,8 @@ namespace MotorCity.Gameplay
                 onboardingSystem;
             dailyAdventures =
                 dailyAdventureSystem;
+            story =
+                storySystem;
 
             RefreshMission();
         }
@@ -95,6 +99,12 @@ namespace MotorCity.Gameplay
 
             if (onboardingMission != null)
                 return onboardingMission;
+
+            MissionDefinition storyMission =
+                BuildStoryMission();
+
+            if (storyMission != null)
+                return storyMission;
 
             MissionDefinition inspector =
                 BuildInspectorMission();
@@ -217,6 +227,38 @@ namespace MotorCity.Gameplay
                 .AddStep(
                     new MissionStepDefinition(
                         MissionStepType.GoToPoint,
+                        string.Empty,
+                        objective));
+        }
+
+        private MissionDefinition BuildStoryMission()
+        {
+            if (story == null ||
+                story.IsComplete)
+            {
+                return null;
+            }
+
+            string objective =
+                story.ObjectiveLine;
+
+            if (string.IsNullOrWhiteSpace(
+                    objective))
+            {
+                return null;
+            }
+
+            return
+                new MissionDefinition(
+                    "source.story",
+                    MotorCityLocalization.Text(
+                        "story.title"),
+                    objective,
+                    AdventureMissionSource.Story,
+                    965)
+                .AddStep(
+                    new MissionStepDefinition(
+                        MissionStepType.RaceResult,
                         string.Empty,
                         objective));
         }
