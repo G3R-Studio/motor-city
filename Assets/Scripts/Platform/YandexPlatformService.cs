@@ -215,7 +215,7 @@ namespace MotorCity.Platform
 
         public void SubmitLeaderboard(
             string leaderboardId,
-            long score,
+            double score,
             Action<bool> completed)
         {
             if (!SupportsLeaderboards ||
@@ -229,7 +229,7 @@ namespace MotorCity.Platform
 
             bridge.SubmitLeaderboard(
                 leaderboardId,
-                Mathf.Max(
+                (double)Math.Max(
                     0L,
                     score),
                 completed);
@@ -356,7 +356,7 @@ namespace MotorCity.Platform
 
         public void IncrementStat(
             string key,
-            long amount,
+            double amount,
             Action<bool> completed)
         {
             if (!SupportsCloudSave ||
@@ -371,7 +371,7 @@ namespace MotorCity.Platform
 
             bridge.IncrementStat(
                 key,
-                amount,
+                (double)amount,
                 completed);
         }
 
@@ -892,7 +892,7 @@ namespace MotorCity.Platform
         private static extern void MotorCityYandexSubmitLeaderboard(
             string gameObjectName,
             string leaderboardId,
-            long score);
+            double score);
 
         [DllImport("__Internal")]
         private static extern void MotorCityYandexShowRewarded(
@@ -926,7 +926,7 @@ namespace MotorCity.Platform
         private static extern void MotorCityYandexIncrementStat(
             string gameObjectName,
             string key,
-            long amount);
+            double amount);
 #endif
     }
 

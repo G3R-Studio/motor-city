@@ -69,6 +69,12 @@ namespace MotorCity.Bootstrap
             MotorCityCloudSaveRuntime cloudRuntime =
                 gameObject.AddComponent<MotorCityCloudSaveRuntime>();
 
+            MotorCityRemoteConfigRuntime remoteConfig =
+                gameObject.AddComponent<MotorCityRemoteConfigRuntime>();
+
+            MotorCityPurchaseRuntime purchaseRuntime =
+                gameObject.AddComponent<MotorCityPurchaseRuntime>();
+
             status =
                 "...";
 
@@ -94,18 +100,26 @@ namespace MotorCity.Bootstrap
                         MotorCityLocalization.Text(
                             "boot.connecting");
 
-                    if (!MotorCityPlatform.SupportsCloudSave)
-                    {
-                        LoadGameScene();
-                        return;
-                    }
-
                     status =
                         MotorCityLocalization.Text(
                             "boot.sync");
 
-                    cloudRuntime.ResolveInitialCloud(
-                        LoadGameScene);
+                    remoteConfig.Load(
+                        () =>
+                        {
+                            purchaseRuntime.RefreshPending(
+                                () =>
+                                {
+                                    if (!MotorCityPlatform.SupportsCloudSave)
+                                    {
+                                        LoadGameScene();
+                                        return;
+                                    }
+
+                                    cloudRuntime.ResolveInitialCloud(
+                                        LoadGameScene);
+                                });
+                        });
                 });
         }
 

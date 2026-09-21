@@ -111,7 +111,7 @@ Core fantasy:
 - [x] Local + cloud save conflict strategy.
 - [x] Pause/resume integration.
 - [x] Platform language.
-- [ ] Basic analytics.
+- [x] Basic analytics.
 - [x] Leaderboard adapter.
 - [x] Rewarded ad adapter.
 - [x] Purchase adapter.

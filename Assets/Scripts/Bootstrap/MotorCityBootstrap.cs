@@ -107,6 +107,12 @@ namespace MotorCity.Bootstrap
             activityManager.Initialize(
                 reputation);
 
+            MotorCityAnalyticsRuntime analytics =
+                systems.AddComponent<MotorCityAnalyticsRuntime>();
+
+            analytics.Initialize(
+                activityManager);
+
             DisciplineReputationSystem disciplineReputation =
                 systems.AddComponent<DisciplineReputationSystem>();
 
