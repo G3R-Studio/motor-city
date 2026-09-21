@@ -460,7 +460,7 @@ namespace MotorCity.Platform
 
         public void SubmitLeaderboard(
             string leaderboardId,
-            long score,
+            double score,
             Action<bool> completed)
         {
             leaderboardCallback =
@@ -579,7 +579,7 @@ namespace MotorCity.Platform
 
         public void IncrementStat(
             string key,
-            long amount,
+            double amount,
             Action<bool> completed)
         {
             statCallback =
