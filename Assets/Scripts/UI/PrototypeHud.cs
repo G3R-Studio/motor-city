@@ -1,4 +1,5 @@
 using MotorCity.Gameplay;
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -160,13 +161,18 @@ namespace MotorCity.UI
                     : wallet.Credits;
 
             moneyText.text =
-                $"{credits:N0} КР";
+                MotorCityLocalization.Format(
+                    "common.credits",
+                    credits);
 
             if (reputationText != null &&
                 activityManager != null)
             {
                 reputationText.text =
-                    $"РЕП {activityManager.TotalReputation:N0}   •   УР. {activityManager.ReputationLevel}";
+                    MotorCityLocalization.Format(
+                        "hud.rep",
+                        activityManager.TotalReputation,
+                        activityManager.ReputationLevel);
             }
 
             if (upgradesText != null)
@@ -174,8 +180,12 @@ namespace MotorCity.UI
                 upgradesText.text =
                     garage == null
                         ? string.Empty
-                        : $"ДВИГ {garage.EngineLevel}   •   СЦЕП {garage.GripLevel}   •   " +
-                          $"СТАБ {garage.StabilityLevel}   •   {garage.VehicleMasteryShort}";
+                        : MotorCityLocalization.Format(
+                            "hud.upgrades",
+                            garage.EngineLevel,
+                            garage.GripLevel,
+                            garage.StabilityLevel,
+                            garage.VehicleMasteryShort);
             }
 
             if (careerText != null)
@@ -236,7 +246,9 @@ namespace MotorCity.UI
                 car != null)
             {
                 driveModeText.text =
-                    $"РЕЖИМ  {car.DriveModeDisplayName}";
+                    MotorCityLocalization.Format(
+                        "hud.drive_mode",
+                        car.DriveModeDisplayName);
 
                 driveModeText.color =
                     car.CurrentDriveMode switch
@@ -309,12 +321,17 @@ namespace MotorCity.UI
                             : string.Empty;
 
                     driftText.text =
-                        $"ДРИФТ   {drift.CurrentScore:N0}{combo}";
+                        MotorCityLocalization.Format(
+                            "hud.drift",
+                            drift.CurrentScore,
+                            combo);
                 }
                 else
                 {
                     driftText.text =
-                        $"ДРИФТ ЗАВЕРШЁН   +{drift.LastBankedCredits:N0} КР";
+                        MotorCityLocalization.Format(
+                            "hud.drift_done",
+                            drift.LastBankedCredits);
                 }
             }
 
@@ -508,7 +525,8 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             speedUnitText.text =
-                "КМ/Ч";
+                MotorCityLocalization.Text(
+                    "common.kmh");
         }
 
         private void BuildStatus(Transform canvas)
@@ -847,7 +865,8 @@ namespace MotorCity.UI
                 target =
                     delivery.CurrentTarget;
                 label =
-                    "ДОСТАВКА";
+                    MotorCityLocalization.Text(
+                        "activity.delivery");
                 return;
             }
 
@@ -858,7 +877,8 @@ namespace MotorCity.UI
                 target =
                     streetSprint.CurrentTarget;
                 label =
-                    "СПРИНТ";
+                    MotorCityLocalization.Text(
+                        "hud.sprint");
                 return;
             }
 
@@ -880,7 +900,8 @@ namespace MotorCity.UI
                 target =
                     driftChallenge.ZoneCenter;
                 label =
-                    "ДРИФТ";
+                    MotorCityLocalization.Text(
+                        "activity.drift");
                 return;
             }
 
@@ -900,7 +921,7 @@ namespace MotorCity.UI
             target =
                 car.transform.position;
             label =
-                "СВОБОДНАЯ ЕЗДА";
+                MotorCityLocalization.Text("hud.free_drive");
 
             float bestDistance =
                 float.PositiveInfinity;
@@ -1237,7 +1258,7 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             resultControlsText.text =
-                "ENTER  ПОВТОРИТЬ     ESC  ПРОДОЛЖИТЬ";
+                MotorCityLocalization.Text("hud.result_controls");
         }
 
         private void UpdateActivityResult()
@@ -1263,8 +1284,12 @@ namespace MotorCity.UI
 
             resultRewardText.text =
                 hasCredits || hasReputation
-                    ? $"+{activityManager.ResultRewardCredits:N0} КР   +{activityManager.ResultReputationReward:N0} РЕП"
-                    : "БЕЗ НАГРАДЫ";
+                    ? MotorCityLocalization.Format(
+                        "hud.result_reward",
+                        activityManager.ResultRewardCredits,
+                        activityManager.ResultReputationReward)
+                    : MotorCityLocalization.Text(
+                        "hud.no_rewards");
 
             Color accent =
                 activityManager.ResultSuccess
@@ -1571,7 +1596,7 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             footer.text =
-                "Z / X  МАШИНА    1 / 2 / 3  УЛУЧШИТЬ    E / ESC  ЗАКРЫТЬ";
+                MotorCityLocalization.Text("hud.garage_controls");
         }
 
         private void UpdateGarage()

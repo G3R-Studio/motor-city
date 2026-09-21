@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -33,11 +34,14 @@ namespace MotorCity.Gameplay
         public Vector3 GarageCenter => garageCenter;
         public bool IsNearGarage { get; private set; }
         public int Credits => wallet == null ? 0 : wallet.Credits;
-        public string StatusText { get; private set; } = "Фиолетовый маркер: гараж";
+        public string StatusText { get; private set; } =
+            MotorCityLocalization.Text(
+                "garage.marker_text");
 
         public string VehicleLine =>
             vehicleRoster == null
-                ? "МАШИНЫ НЕДОСТУПНЫ"
+                ? MotorCityLocalization.Text(
+                    "garage.vehicles_unavailable")
                 : vehicleRoster.GetGarageLine();
 
         public string VehicleStatsLine =>
@@ -119,16 +123,20 @@ namespace MotorCity.Gameplay
                 else if (car.SpeedKph <= maxOpenSpeedKph)
                     OpenGarage();
                 else
-                    StatusText = "Гараж: сначала полностью останови машину";
+                    StatusText = MotorCityLocalization.Text("garage.stop_first");
             }
 
             if (!IsOpen)
             {
                 StatusText = IsNearGarage
                     ? (activityManager.IsBusy
-                        ? $"E — открыть гараж и отменить «{activityManager.ActiveName}»"
-                        : "ГАРАЖ — остановись и нажми E")
-                    : "Фиолетовый маркер: гараж";
+                        ? MotorCityLocalization.Format(
+                            "garage.open_cancel",
+                            activityManager.ActiveName)
+                        : MotorCityLocalization.Text(
+                            "garage.stop_and_open"))
+                    : MotorCityLocalization.Text(
+                        "garage.marker_text");
                 return;
             }
 
@@ -153,8 +161,21 @@ namespace MotorCity.Gameplay
         {
             UpgradeType type = (UpgradeType)Mathf.Clamp(index, 0, 2);
             int level = GetLevel(type);
-            string levelText = level >= MaxLevel ? "МАКС" : $"УР. {level}/{MaxLevel}";
-            return $"[{index + 1}] {Name(type)}   {levelText}";
+            string levelText =
+                level >= MaxLevel
+                    ? MotorCityLocalization.Text(
+                        "garage.max_short")
+                    : MotorCityLocalization.Format(
+                        "garage.level_line",
+                        level,
+                        MaxLevel);
+
+            return
+                MotorCityLocalization.Format(
+                    "garage.title",
+                    index + 1,
+                    Name(type),
+                    levelText);
         }
 
         public string GetUpgradePrice(int index)
@@ -162,8 +183,11 @@ namespace MotorCity.Gameplay
             UpgradeType type = (UpgradeType)Mathf.Clamp(index, 0, 2);
             int level = GetLevel(type);
             return level >= MaxLevel
-                ? "КУПЛЕНО"
-                : $"{Price(type, level):N0} КР";
+                ? MotorCityLocalization.Text(
+                    "garage.bought")
+                : MotorCityLocalization.Format(
+                    "garage.price",
+                    Price(type, level));
         }
 
         public string GetUpgradeDescription(int index)
@@ -181,17 +205,22 @@ namespace MotorCity.Gameplay
             return type switch
             {
                 UpgradeType.Engine =>
-                    $"ТЮНИНГ МОТОРА: +{EngineSpeedBonus(level)} км/ч, " +
-                    $"+{EngineAccelerationBonus(level)} разгон, " +
-                    $"+{EngineAssistPercent(level)}% тяга",
+                    MotorCityLocalization.Format(
+                        "garage.engine_desc",
+                        EngineSpeedBonus(level),
+                        EngineAccelerationBonus(level),
+                        EngineAssistPercent(level)),
 
                 UpgradeType.Grip =>
-                    $"ШИНЫ / СЦЕП: +{GripBonusPercent(level)}% сцепления, " +
-                    "меньше пробуксовка и стабильнее быстрые повороты",
+                    MotorCityLocalization.Format(
+                        "garage.grip_desc",
+                        GripBonusPercent(level)),
 
                 _ =>
-                    $"ШАССИ: -{StabilityCenterDropMm(level)} мм центр массы, " +
-                    $"+{StabilityDampingPercent(level)}% угловое демпфирование"
+                    MotorCityLocalization.Format(
+                        "garage.stability_desc",
+                        StabilityCenterDropMm(level),
+                        StabilityDampingPercent(level))
             };
         }
 
@@ -235,12 +264,15 @@ namespace MotorCity.Gameplay
         {
             CancelActiveMission();
 
-            if (!activityManager.TryBegin(ActivityId, "Гараж"))
+            if (!activityManager.TryBegin(
+                    ActivityId,
+                    MotorCityLocalization.Text(
+                        "garage.activity_name")))
                 return;
 
             IsOpen = true;
             car.SetDrivingEnabled(false);
-            StatusText = "ГАРАЖ ОТКРЫТ";
+            StatusText = MotorCityLocalization.Text("garage.opened");
         }
 
         private void CancelActiveMission()
@@ -257,8 +289,10 @@ namespace MotorCity.Gameplay
             car.SetDrivingEnabled(true);
             activityManager.End(ActivityId);
             StatusText = IsNearGarage
-                ? "ГАРАЖ — нажми E"
-                : "Фиолетовый маркер: гараж";
+                ? MotorCityLocalization.Text(
+                    "garage.open_prompt")
+                : MotorCityLocalization.Text(
+                    "garage.marker_text");
         }
 
         private void TrySelectVehicle(
@@ -267,7 +301,7 @@ namespace MotorCity.Gameplay
             if (vehicleRoster == null)
             {
                 StatusText =
-                    "Автопарк ещё не подготовлен";
+                    MotorCityLocalization.Text("garage.fleet_unavailable");
 
                 return;
             }
@@ -291,14 +325,21 @@ namespace MotorCity.Gameplay
             int level = GetLevel(type);
             if (level >= MaxLevel)
             {
-                StatusText = $"{Name(type)} уже улучшен до максимума";
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "garage.upgrade_max",
+                        Name(type));
                 return;
             }
 
             int price = Price(type, level);
             if (!wallet.TrySpendCredits(price))
             {
-                StatusText = $"Для «{Name(type)}» нужно {price:N0} КР";
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "garage.need_credits2",
+                        Name(type),
+                        price);
                 return;
             }
 
@@ -306,7 +347,11 @@ namespace MotorCity.Gameplay
             SetLevel(type, level);
             Save();
             ApplyUpgrades();
-            StatusText = $"{Name(type)} улучшен до уровня {level}";
+            StatusText =
+                MotorCityLocalization.Format(
+                    "garage.upgraded2",
+                    Name(type),
+                    level);
         }
 
         private void ApplyUpgrades()
@@ -500,9 +545,15 @@ namespace MotorCity.Gameplay
         {
             return type switch
             {
-                UpgradeType.Engine => "Двигатель",
-                UpgradeType.Grip => "Сцепление",
-                _ => "Стабильность"
+                UpgradeType.Engine =>
+                    MotorCityLocalization.Text(
+                        "garage.engine_name"),
+                UpgradeType.Grip =>
+                    MotorCityLocalization.Text(
+                        "garage.grip_name"),
+                _ =>
+                    MotorCityLocalization.Text(
+                        "garage.stability_name")
             };
         }
 
