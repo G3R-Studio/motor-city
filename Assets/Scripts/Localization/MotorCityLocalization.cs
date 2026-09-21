@@ -633,7 +633,25 @@ namespace MotorCity.Localization
                 { "rewarded.no_reward", E("Бонус не получен — прогресс не изменился", "No reward received — progress unchanged") },
                 { "rewarded.limit", E("Рекламные бонусы на сегодня закончились", "Rewarded bonuses are finished for today") },
                 { "rewarded.cooldown", E("Следующий добровольный бонус через {0} с", "Next optional bonus in {0} s") },
-                { "rewarded.yandex_only", E("Добровольный рекламный бонус доступен в Yandex Games", "Optional rewarded bonus is available in Yandex Games") }
+                { "rewarded.yandex_only", E("Добровольный рекламный бонус доступен в Yandex Games", "Optional rewarded bonus is available in Yandex Games") },
+
+                { "store.title", E("МАГАЗИН КОСМЕТИКИ", "COSMETIC STORE") },
+                { "store.season.name", E("ПРЕМИУМ-ПУТЬ СЕЗОНА 1", "SEASON 1 PREMIUM PATH") },
+                { "store.season.desc", E("Дополнительные косметические награды за прогресс сезона. Не влияет на скорость и победы.", "Extra cosmetic rewards for season progress. Does not affect speed or wins.") },
+                { "store.turbo.name", E("НАБОР ТУРБО", "TURBO PACK") },
+                { "store.turbo.desc", E("Эксклюзивный косметический скин Турбо. Без игровых преимуществ.", "Exclusive cosmetic Turbo skin. No gameplay advantage.") },
+                { "store.owned", E("УЖЕ КУПЛЕНО", "OWNED") },
+                { "store.buy", E("E — КУПИТЬ", "E — BUY") },
+                { "store.yandex_only", E("Покупки доступны только в Yandex Games", "Purchases are available only in Yandex Games") },
+                { "store.premium_active", E("ПРЕМИУМ АКТИВЕН", "PREMIUM ACTIVE") },
+                { "store.premium_locked", E("ПРЕМИУМ НЕ АКТИВЕН", "PREMIUM NOT ACTIVE") },
+                { "store.season_path", E("СЕЗОН {0}/{1} • {2}", "SEASON {0}/{1} • {2}") },
+                { "store.already_owned", E("Этот косметический набор уже куплен", "This cosmetic pack is already owned") },
+                { "store.opening", E("Открываю безопасную покупку Yandex Games...", "Opening secure Yandex Games purchase...") },
+                { "store.cancelled", E("Покупка отменена — прогресс не изменился", "Purchase cancelled — progress unchanged") },
+                { "store.granted", E("ПОКУПКА ГОТОВА • {0}", "PURCHASE COMPLETE • {0}") },
+                { "store.controls", E("T — ЗАКРЫТЬ • Z/X — ВЫБОР • E — КУПИТЬ", "T — CLOSE • Z/X — SELECT • E — BUY") },
+                { "store.status", E("{0}\n{1}\n{2}\n{3}", "{0}\n{1}\n{2}\n{3}") }
             };
 
         private static string language = Russian;
