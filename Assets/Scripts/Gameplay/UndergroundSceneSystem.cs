@@ -703,7 +703,7 @@ namespace MotorCity.Gameplay
             if (dayNight == null)
             {
                 dayNight =
-                    Object.FindAnyObjectByType<DayNightCycleController>();
+                    UnityEngine.Object.FindAnyObjectByType<DayNightCycleController>();
             }
 
             return
