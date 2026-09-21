@@ -160,7 +160,7 @@ namespace MotorCity.Gameplay
 
             int stored =
                 Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         SelectedKey,
                         0),
                     0,
@@ -231,11 +231,11 @@ namespace MotorCity.Gameplay
             SelectedIndex =
                 candidate;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 SelectedKey,
                 SelectedIndex);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             ApplySelectedVehicle();
 
@@ -271,11 +271,11 @@ namespace MotorCity.Gameplay
             SelectedIndex =
                 index;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 SelectedKey,
                 SelectedIndex);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             ApplySelectedVehicle();
             VehicleChanged?.Invoke();
@@ -423,11 +423,11 @@ namespace MotorCity.Gameplay
             {
                 SelectedIndex = 0;
 
-                PlayerPrefs.SetInt(
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
                     SelectedKey,
                     0);
 
-                PlayerPrefs.Save();
+                MotorCity.Persistence.MotorCitySaveService.Save();
 
                 profile =
                     profiles[0];

@@ -71,7 +71,7 @@ namespace MotorCity.Gameplay
             BestTimeSeconds =
                 Mathf.Max(
                     0f,
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         BestTimeKey,
                         0f));
         }
@@ -352,11 +352,11 @@ namespace MotorCity.Gameplay
                 BestTimeSeconds =
                     ElapsedSeconds;
 
-                PlayerPrefs.SetFloat(
+                MotorCity.Persistence.MotorCitySaveService.SetFloat(
                     BestTimeKey,
                     BestTimeSeconds);
 
-                PlayerPrefs.Save();
+                MotorCity.Persistence.MotorCitySaveService.Save();
             }
 
             if (eliteMode)

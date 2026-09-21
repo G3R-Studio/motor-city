@@ -110,7 +110,7 @@ namespace MotorCity.Gameplay
             float km =
                 Mathf.Max(
                     0f,
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         Key(
                             vehicleId,
                             "DistanceMeters"),
@@ -120,7 +120,7 @@ namespace MotorCity.Gameplay
             int wins =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         Key(
                             vehicleId,
                             "Victories"),
@@ -160,15 +160,15 @@ namespace MotorCity.Gameplay
 
             foreach (string vehicleId in vehicleIds)
             {
-                PlayerPrefs.DeleteKey(Key(vehicleId, "DistanceMeters"));
-                PlayerPrefs.DeleteKey(Key(vehicleId, "Victories"));
-                PlayerPrefs.DeleteKey(Key(vehicleId, "EarnedCredits"));
-                PlayerPrefs.DeleteKey(Key(vehicleId, "RacingVictories"));
-                PlayerPrefs.DeleteKey(Key(vehicleId, "DriftVictories"));
-                PlayerPrefs.DeleteKey(Key(vehicleId, "DeliveryVictories"));
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(Key(vehicleId, "DistanceMeters"));
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(Key(vehicleId, "Victories"));
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(Key(vehicleId, "EarnedCredits"));
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(Key(vehicleId, "RacingVictories"));
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(Key(vehicleId, "DriftVictories"));
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(Key(vehicleId, "DeliveryVictories"));
             }
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             currentVehicleId =
                 roster == null
@@ -194,15 +194,15 @@ namespace MotorCity.Gameplay
 
             foreach (string vehicleId in vehicleIds)
             {
-                PlayerPrefs.SetFloat(Key(vehicleId, "DistanceMeters"), 500000f);
-                PlayerPrefs.SetInt(Key(vehicleId, "Victories"), 100);
-                PlayerPrefs.SetInt(Key(vehicleId, "EarnedCredits"), 1000000);
-                PlayerPrefs.SetInt(Key(vehicleId, "RacingVictories"), 40);
-                PlayerPrefs.SetInt(Key(vehicleId, "DriftVictories"), 35);
-                PlayerPrefs.SetInt(Key(vehicleId, "DeliveryVictories"), 25);
+                MotorCity.Persistence.MotorCitySaveService.SetFloat(Key(vehicleId, "DistanceMeters"), 500000f);
+                MotorCity.Persistence.MotorCitySaveService.SetInt(Key(vehicleId, "Victories"), 100);
+                MotorCity.Persistence.MotorCitySaveService.SetInt(Key(vehicleId, "EarnedCredits"), 1000000);
+                MotorCity.Persistence.MotorCitySaveService.SetInt(Key(vehicleId, "RacingVictories"), 40);
+                MotorCity.Persistence.MotorCitySaveService.SetInt(Key(vehicleId, "DriftVictories"), 35);
+                MotorCity.Persistence.MotorCitySaveService.SetInt(Key(vehicleId, "DeliveryVictories"), 25);
             }
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             currentVehicleId =
                 roster == null
@@ -345,42 +345,42 @@ namespace MotorCity.Gameplay
             distanceMeters =
                 Mathf.Max(
                     0f,
-                    PlayerPrefs.GetFloat(
+                    MotorCity.Persistence.MotorCitySaveService.GetFloat(
                         Key(currentVehicleId, "DistanceMeters"),
                         0f));
 
             victories =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         Key(currentVehicleId, "Victories"),
                         0));
 
             earnedCredits =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         Key(currentVehicleId, "EarnedCredits"),
                         0));
 
             racingVictories =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         Key(currentVehicleId, "RacingVictories"),
                         0));
 
             driftVictories =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         Key(currentVehicleId, "DriftVictories"),
                         0));
 
             deliveryVictories =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         Key(currentVehicleId, "DeliveryVictories"),
                         0));
 
@@ -393,31 +393,31 @@ namespace MotorCity.Gameplay
             if (string.IsNullOrEmpty(currentVehicleId))
                 return;
 
-            PlayerPrefs.SetFloat(
+            MotorCity.Persistence.MotorCitySaveService.SetFloat(
                 Key(currentVehicleId, "DistanceMeters"),
                 distanceMeters);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 Key(currentVehicleId, "Victories"),
                 victories);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 Key(currentVehicleId, "EarnedCredits"),
                 earnedCredits);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 Key(currentVehicleId, "RacingVictories"),
                 racingVictories);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 Key(currentVehicleId, "DriftVictories"),
                 driftVictories);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 Key(currentVehicleId, "DeliveryVictories"),
                 deliveryVictories);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             dirty = false;
             saveTimer = 0f;

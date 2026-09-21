@@ -111,7 +111,7 @@ namespace MotorCity.Gameplay
             int xp =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         XpKey(
                             vehicleId),
                         0));
@@ -194,13 +194,13 @@ namespace MotorCity.Gameplay
 
             foreach (string vehicleId in vehicleIds)
             {
-                PlayerPrefs.SetInt(
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
                     XpKey(
                         vehicleId),
                     xp);
             }
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
             LoadCurrentVehicle();
         }
 
@@ -261,7 +261,7 @@ namespace MotorCity.Gameplay
             currentXp =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         XpKey(
                             roster.SelectedId),
                         0));
@@ -308,12 +308,12 @@ namespace MotorCity.Gameplay
             if (roster == null)
                 return;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 XpKey(
                     roster.SelectedId),
                 currentXp);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
         private static string XpKey(

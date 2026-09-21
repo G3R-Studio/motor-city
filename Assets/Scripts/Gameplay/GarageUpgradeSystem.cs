@@ -87,9 +87,9 @@ namespace MotorCity.Gameplay
             garageCenter =
                 MotorCity.World.CityAssetRuntimeInstaller.GaragePoint;
 
-            EngineLevel = Mathf.Clamp(PlayerPrefs.GetInt(EngineKey, 0), 0, MaxLevel);
-            GripLevel = Mathf.Clamp(PlayerPrefs.GetInt(GripKey, 0), 0, MaxLevel);
-            StabilityLevel = Mathf.Clamp(PlayerPrefs.GetInt(StabilityKey, 0), 0, MaxLevel);
+            EngineLevel = Mathf.Clamp(MotorCity.Persistence.MotorCitySaveService.GetInt(EngineKey, 0), 0, MaxLevel);
+            GripLevel = Mathf.Clamp(MotorCity.Persistence.MotorCitySaveService.GetInt(GripKey, 0), 0, MaxLevel);
+            StabilityLevel = Mathf.Clamp(MotorCity.Persistence.MotorCitySaveService.GetInt(StabilityKey, 0), 0, MaxLevel);
 
             IsOpen = false;
             car?.SetDrivingEnabled(true);
@@ -508,10 +508,10 @@ namespace MotorCity.Gameplay
 
         private void Save()
         {
-            PlayerPrefs.SetInt(EngineKey, EngineLevel);
-            PlayerPrefs.SetInt(GripKey, GripLevel);
-            PlayerPrefs.SetInt(StabilityKey, StabilityLevel);
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.SetInt(EngineKey, EngineLevel);
+            MotorCity.Persistence.MotorCitySaveService.SetInt(GripKey, GripLevel);
+            MotorCity.Persistence.MotorCitySaveService.SetInt(StabilityKey, StabilityLevel);
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
         private void OnDisable()

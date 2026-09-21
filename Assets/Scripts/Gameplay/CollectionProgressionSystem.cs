@@ -101,7 +101,7 @@ namespace MotorCity.Gameplay
 
             claimedTier =
                 Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         ClaimedTierKey,
                         0),
                     0,
@@ -160,11 +160,11 @@ namespace MotorCity.Gameplay
         {
             claimedTier = 0;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 ClaimedTierKey,
                 claimedTier);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             Recalculate(
                 false);
@@ -300,11 +300,11 @@ namespace MotorCity.Gameplay
 
         private void SaveClaimedTier()
         {
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 ClaimedTierKey,
                 claimedTier);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
         private int UnlockedVehicles()
