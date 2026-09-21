@@ -215,7 +215,7 @@ namespace MotorCity.Platform
 
         public void SubmitLeaderboard(
             string leaderboardId,
-            double score,
+            long score,
             Action<bool> completed)
         {
             if (!SupportsLeaderboards ||
@@ -356,7 +356,7 @@ namespace MotorCity.Platform
 
         public void IncrementStat(
             string key,
-            double amount,
+            long amount,
             Action<bool> completed)
         {
             if (!SupportsCloudSave ||
