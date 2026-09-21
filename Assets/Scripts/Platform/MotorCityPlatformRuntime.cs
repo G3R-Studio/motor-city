@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using UnityEngine;
 
 namespace MotorCity.Platform
@@ -9,7 +10,18 @@ namespace MotorCity.Platform
 
         private void Awake()
         {
-            MotorCityPlatform.Initialize();
+            MotorCityLocalization.SetLanguage(
+                "ru");
+
+            MotorCityPlatform.Initialize(
+                success =>
+                {
+                    if (!success)
+                        return;
+
+                    MotorCityLocalization.SetLanguage(
+                        MotorCityPlatform.LanguageCode);
+                });
         }
 
         private void OnApplicationFocus(

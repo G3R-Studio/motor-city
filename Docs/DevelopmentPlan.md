@@ -49,10 +49,10 @@ Core fantasy:
 
 ### 0.3 Localization architecture
 - [ ] Move player-facing text out of gameplay logic.
-- [ ] Add localization keys/table.
-- [ ] Russian is the default language.
-- [ ] Prepare English table without changing the main language.
-- [ ] Keep technical IDs independent from localized names.
+- [x] Add localization keys/table.
+- [x] Russian is the default language.
+- [x] Prepare English table without changing the main language.
+- [x] Keep technical IDs independent from localized names.
 
 ### 0.4 Unified input
 - [ ] Add MotorCityInput facade.
