@@ -50,6 +50,11 @@ namespace MotorCity.UI
         private Text collectionText;
         private Text legendText;
         private Text objectiveText;
+        private RawImage minimapImage;
+        private RectTransform minimapTargetBlip;
+        private Text minimapTargetText;
+        private Camera minimapCamera;
+        private RenderTexture minimapTexture;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -460,46 +465,44 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Speedometer",
-                    new Vector2(-20f, 20f),
-                    new Vector2(174f, 112f),
+                    new Vector2(-24f, 24f),
+                    new Vector2(196f, 82f),
                     new Vector2(1f, 0f),
                     new Vector2(1f, 0f),
-                    PanelColor);
-
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(-9f, 8f),
-                new Vector2(156f, 4f),
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f));
+                    new Color(
+                        0.01f,
+                        0.015f,
+                        0.022f,
+                        0.54f));
 
             speedText =
                 CreateText(
                     panel,
                     "Speed",
-                    50,
+                    46,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(0f, 12f),
-                    new Vector2(158f, 68f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
+                    TextAnchor.MiddleRight,
+                    new Vector2(-18f, 12f),
+                    new Vector2(160f, 52f),
+                    new Vector2(1f, 0.5f),
+                    new Vector2(1f, 0.5f),
                     TextColor);
 
             speedUnitText =
                 CreateText(
                     panel,
                     "Speed Unit",
-                    13,
+                    11,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(0f, -32f),
-                    new Vector2(130f, 20f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
+                    TextAnchor.MiddleRight,
+                    new Vector2(-20f, -24f),
+                    new Vector2(120f, 18f),
+                    new Vector2(1f, 0.5f),
+                    new Vector2(1f, 0.5f),
                     SecondaryTextColor);
-            speedUnitText.text = "КМ/Ч";
+
+            speedUnitText.text =
+                "KM/H";
         }
 
         private void BuildStatus(Transform canvas)
@@ -508,10 +511,10 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(0f, -18f),
+                    new Vector2(0f, 26f),
                     new Vector2(560f, 44f),
-                    new Vector2(0.5f, 1f),
-                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f),
                     PanelSoftColor);
 
             statusPanel = panel.gameObject;
@@ -519,10 +522,10 @@ namespace MotorCity.UI
             CreateAccent(
                 panel,
                 BlueAccent,
-                new Vector2(0f, -4f),
+                new Vector2(0f, 4f),
                 new Vector2(500f, 3f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f));
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f));
 
             statusText =
                 CreateText(
@@ -543,48 +546,155 @@ namespace MotorCity.UI
             RectTransform panel =
                 CreatePanel(
                     canvas,
-                    "Navigator",
-                    new Vector2(-20f, -18f),
-                    new Vector2(300f, 74f),
-                    new Vector2(1f, 1f),
-                    new Vector2(1f, 1f),
-                    PanelSoftColor);
+                    "Minimap",
+                    new Vector2(20f, 20f),
+                    new Vector2(286f, 196f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Color(
+                        0.01f,
+                        0.015f,
+                        0.02f,
+                        0.82f));
 
             navigatorPanel =
                 panel.gameObject;
 
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(-8f, -8f),
-                new Vector2(4f, 58f),
-                new Vector2(1f, 1f),
-                new Vector2(1f, 1f));
+            GameObject mapObject =
+                new(
+                    "Minimap View",
+                    typeof(RectTransform),
+                    typeof(RawImage));
 
-            navigatorArrowText =
+            mapObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform mapRect =
+                mapObject.GetComponent<RectTransform>();
+
+            mapRect.anchorMin =
+                new Vector2(0.5f, 1f);
+
+            mapRect.anchorMax =
+                new Vector2(0.5f, 1f);
+
+            mapRect.pivot =
+                new Vector2(0.5f, 1f);
+
+            mapRect.anchoredPosition =
+                new Vector2(0f, -8f);
+
+            mapRect.sizeDelta =
+                new Vector2(270f, 158f);
+
+            minimapImage =
+                mapObject.GetComponent<RawImage>();
+
+            minimapImage.raycastTarget =
+                false;
+
+            minimapTexture =
+                new RenderTexture(
+                    256,
+                    256,
+                    16,
+                    RenderTextureFormat.ARGB32);
+
+            minimapTexture.name =
+                "MotorCity_Minimap";
+
+            minimapTexture.filterMode =
+                FilterMode.Bilinear;
+
+            minimapTexture.wrapMode =
+                TextureWrapMode.Clamp;
+
+            minimapImage.texture =
+                minimapTexture;
+
+            GameObject cameraObject =
+                new("Motor City Minimap Camera");
+
+            cameraObject.transform.SetParent(
+                transform,
+                false);
+
+            minimapCamera =
+                cameraObject.AddComponent<Camera>();
+
+            minimapCamera.orthographic = true;
+            minimapCamera.orthographicSize = 88f;
+            minimapCamera.nearClipPlane = 0.3f;
+            minimapCamera.farClipPlane = 320f;
+            minimapCamera.clearFlags =
+                CameraClearFlags.SolidColor;
+
+            minimapCamera.backgroundColor =
+                new Color(
+                    0.035f,
+                    0.045f,
+                    0.055f,
+                    1f);
+
+            minimapCamera.targetTexture =
+                minimapTexture;
+
+            minimapCamera.allowHDR = false;
+            minimapCamera.allowMSAA = false;
+            minimapCamera.useOcclusionCulling = false;
+            minimapCamera.depth = -20f;
+
+            Text playerArrow =
                 CreateText(
                     panel,
-                    "Navigator Arrow",
-                    30,
+                    "Minimap Player",
+                    22,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(22f, -37f),
-                    new Vector2(54f, 54f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 0.5f),
-                    BlueAccent);
+                    new Vector2(0f, 29f),
+                    new Vector2(34f, 34f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
 
-            navigatorText =
+            playerArrow.text =
+                "▲";
+
+            Text targetBlip =
                 CreateText(
                     panel,
-                    "Navigator Text",
-                    15,
+                    "Minimap Target",
+                    24,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(34f, 34f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        1f,
+                        0.78f,
+                        0.18f,
+                        1f));
+
+            targetBlip.text =
+                "●";
+
+            minimapTargetBlip =
+                targetBlip.rectTransform;
+
+            minimapTargetText =
+                CreateText(
+                    panel,
+                    "Minimap Target Label",
+                    11,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(58f, -37f),
-                    new Vector2(220f, 52f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 0.5f),
+                    new Vector2(10f, 10f),
+                    new Vector2(264f, 24f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
                     TextColor);
         }
 
@@ -592,19 +702,122 @@ namespace MotorCity.UI
             bool garageOpen)
         {
             if (navigatorPanel == null ||
-                navigatorArrowText == null ||
-                navigatorText == null)
+                minimapCamera == null ||
+                car == null)
+            {
                 return;
+            }
 
-            if (car == null ||
-                garageOpen)
+            if (garageOpen)
             {
                 navigatorPanel.SetActive(false);
                 return;
             }
 
-            Vector3 target;
-            string label;
+            navigatorPanel.SetActive(true);
+
+            Vector3 carPosition =
+                car.transform.position;
+
+            minimapCamera.transform.position =
+                new Vector3(
+                    carPosition.x,
+                    carPosition.y + 115f,
+                    carPosition.z);
+
+            float yaw =
+                car.transform.eulerAngles.y;
+
+            minimapCamera.transform.rotation =
+                Quaternion.Euler(
+                    90f,
+                    yaw,
+                    0f);
+
+            ResolveMinimapTarget(
+                out Vector3 target,
+                out string label,
+                out bool hasTarget);
+
+            if (!hasTarget)
+            {
+                if (minimapTargetBlip != null)
+                    minimapTargetBlip.gameObject.SetActive(false);
+
+                if (minimapTargetText != null)
+                    minimapTargetText.text = string.Empty;
+
+                return;
+            }
+
+            Vector3 delta =
+                target -
+                carPosition;
+
+            delta.y = 0f;
+
+            float distance =
+                delta.magnitude;
+
+            Vector3 local =
+                Quaternion.Euler(
+                    0f,
+                    -yaw,
+                    0f) *
+                delta;
+
+            const float mapHalfWidth = 122f;
+            const float mapHalfHeight = 66f;
+            const float worldRadius = 88f;
+
+            Vector2 mapOffset =
+                new Vector2(
+                    local.x / worldRadius * mapHalfWidth,
+                    local.z / worldRadius * mapHalfHeight);
+
+            if (mapOffset.sqrMagnitude >
+                mapHalfWidth * mapHalfWidth)
+            {
+                mapOffset =
+                    mapOffset.normalized *
+                    mapHalfWidth;
+            }
+
+            mapOffset.x =
+                Mathf.Clamp(
+                    mapOffset.x,
+                    -mapHalfWidth,
+                    mapHalfWidth);
+
+            mapOffset.y =
+                Mathf.Clamp(
+                    mapOffset.y,
+                    -mapHalfHeight,
+                    mapHalfHeight);
+
+            if (minimapTargetBlip != null)
+            {
+                minimapTargetBlip.gameObject.SetActive(true);
+
+                minimapTargetBlip.anchoredPosition =
+                    new Vector2(
+                        mapOffset.x,
+                        29f + mapOffset.y);
+            }
+
+            if (minimapTargetText != null)
+            {
+                minimapTargetText.text =
+                    $"{label}   {Mathf.RoundToInt(distance)} М";
+            }
+        }
+
+        private void ResolveMinimapTarget(
+            out Vector3 target,
+            out string label,
+            out bool hasTarget)
+        {
+            hasTarget = true;
 
             if (delivery != null &&
                 (delivery.IsActive ||
@@ -614,72 +827,49 @@ namespace MotorCity.UI
                     delivery.CurrentTarget;
                 label =
                     "ДОСТАВКА";
+                return;
             }
-            else if (streetSprint != null &&
-                     (streetSprint.IsActive ||
-                      streetSprint.IsCountingDown))
+
+            if (streetSprint != null &&
+                (streetSprint.IsActive ||
+                 streetSprint.IsCountingDown))
             {
                 target =
                     streetSprint.CurrentTarget;
                 label =
                     "СПРИНТ";
+                return;
             }
-            else if (circuitRace != null &&
-                     (circuitRace.IsActive ||
-                      circuitRace.IsCountingDown))
+
+            if (circuitRace != null &&
+                (circuitRace.IsActive ||
+                 circuitRace.IsCountingDown))
             {
                 target =
                     circuitRace.CurrentTarget;
                 label =
                     $"КОЛЬЦО {circuitRace.CurrentLap}/{circuitRace.LapCount}";
+                return;
             }
-            else if (driftChallenge != null &&
-                     (driftChallenge.IsActive ||
-                      driftChallenge.IsCountingDown))
+
+            if (driftChallenge != null &&
+                (driftChallenge.IsActive ||
+                 driftChallenge.IsCountingDown))
             {
                 target =
                     driftChallenge.ZoneCenter;
                 label =
-                    "ДРИФТ-ЗОНА";
-            }
-            else
-            {
-                ResolveNearestFreeRoamTarget(
-                    out target,
-                    out label);
+                    "ДРИФТ";
+                return;
             }
 
-            Vector3 toTarget =
-                target -
+            ResolveNearestFreeRoamTarget(
+                out target,
+                out label);
+
+            hasTarget =
+                target !=
                 car.transform.position;
-
-            toTarget.y = 0f;
-
-            float distance =
-                toTarget.magnitude;
-
-            if (distance < 0.1f)
-            {
-                navigatorArrowText.text =
-                    "•";
-            }
-            else
-            {
-                float signedAngle =
-                    Vector3.SignedAngle(
-                        car.transform.forward,
-                        toTarget.normalized,
-                        Vector3.up);
-
-                navigatorArrowText.text =
-                    DirectionArrow(
-                        signedAngle);
-            }
-
-            navigatorText.text =
-                $"{label}\n{Mathf.RoundToInt(distance)} М";
-
-            navigatorPanel.SetActive(true);
         }
 
         private void ResolveNearestFreeRoamTarget(
@@ -864,39 +1054,6 @@ namespace MotorCity.UI
             return absolute <= 70f
                 ? "↖"
                 : "←";
-        }
-
-        private void BuildControlsHint(Transform canvas)
-        {
-            RectTransform panel =
-                CreatePanel(
-                    canvas,
-                    "Controls Hint",
-                    new Vector2(18f, 20f),
-                    new Vector2(810f, 34f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    new Color(
-                        PanelSoftColor.r,
-                        PanelSoftColor.g,
-                        PanelSoftColor.b,
-                        0.72f));
-
-            hintText =
-                CreateText(
-                    panel,
-                    "Controls Text",
-                    13,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(14f, 0f),
-                    new Vector2(782f, 24f),
-                    new Vector2(0f, 0.5f),
-                    new Vector2(0f, 0.5f),
-                    SecondaryTextColor);
-
-            hintText.text =
-                "WASD  ДВИЖЕНИЕ   Q  РЕЖИМ   SPACE  РУЧНИК   E  СТАРТ / ГАРАЖ   ESC  ОТМЕНА   R  СБРОС";
         }
 
         private void BuildDriftPanel(Transform canvas)
@@ -1603,6 +1760,23 @@ namespace MotorCity.UI
             }
 
             return string.Empty;
+        }
+
+        private void OnDestroy()
+        {
+            if (minimapCamera != null)
+            {
+                minimapCamera.targetTexture = null;
+                Destroy(
+                    minimapCamera.gameObject);
+            }
+
+            if (minimapTexture != null)
+            {
+                minimapTexture.Release();
+                Destroy(
+                    minimapTexture);
+            }
         }
 
         private RectTransform CreatePanel(
