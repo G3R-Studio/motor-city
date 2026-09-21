@@ -286,50 +286,6 @@ namespace MotorCity.Gameplay
 
             PhotoTaken?.Invoke();
 
-#if !UNITY_WEBGL || UNITY_EDITOR
-            string directory =
-                Path.Combine(
-                    Application.persistentDataPath,
-                    "MotorCityPhotos");
-
-            Directory.CreateDirectory(
-                directory);
-
-            string fileName =
-                "MotorCity_" +
-                DateTime.Now.ToString(
-                    "yyyyMMdd_HHmmss") +
-                ".png";
-
-            string path =
-                Path.Combine(
-                    directory,
-                    fileName);
-
-            Texture2D screenshot =
-                new Texture2D(
-                    Screen.width,
-                    Screen.height,
-                    TextureFormat.RGB24,
-                    false);
-
-            screenshot.ReadPixels(
-                new Rect(
-                    0f,
-                    0f,
-                    Screen.width,
-                    Screen.height),
-                0,
-                0);
-
-            screenshot.Apply();
-            File.WriteAllBytes(
-                path,
-                screenshot.EncodeToPNG());
-
-            UnityEngine.Object.Destroy(
-                screenshot);
-#endif
 
             photoInProgress = false;
         }
