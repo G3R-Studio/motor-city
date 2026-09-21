@@ -223,7 +223,7 @@ namespace MotorCity.Localization
                 { "hud.result_controls", E("ENTER  ПОВТОРИТЬ     ESC  ПРОДОЛЖИТЬ", "ENTER  RETRY     ESC  CONTINUE") },
                 { "hud.no_rewards", E("БЕЗ НАГРАДЫ", "NO REWARD") },
                 { "hud.result_reward", E("+{0:N0} КР   +{1:N0} РЕП", "+{0:N0} CR   +{1:N0} REP") },
-                { "hud.garage_controls", E("Z/X МАШИНА • V ЦВЕТ • G НАКЛЕЙКА • H ВИНИЛ • J ДИСКИ • N НЕОН • L НОМЕР • SHIFT+1/2/3 СЛОТ • F5/F6 ПРЕСЕТ • P ФОТО • E/ESC ЗАКРЫТЬ", "Z/X CAR • V COLOR • G STICKER • H VINYL • J WHEELS • N NEON • L PLATE • F5/F6 PRESET • P PHOTO • E/ESC CLOSE") },
+                { "hud.garage_controls", E("Z/X МАШИНА • V ЦВЕТ • G НАКЛЕЙКА • H ВИНИЛ • J ДИСКИ • N НЕОН • L НОМЕР • SHIFT+1/2/3 СЛОТ • F5/F6 ПРЕСЕТ • Y БОНУС • P ФОТО • E/ESC ЗАКРЫТЬ", "Z/X CAR • V COLOR • G STICKER • H VINYL • J WHEELS • N NEON • L PLATE • F5/F6 PRESET • P PHOTO • E/ESC CLOSE") },
                 { "hud.target", E("ЦЕЛЬ: {0}", "TARGET: {0}") },
 
                 { "garage.marker_text", E("Фиолетовый маркер: гараж", "Purple marker: garage") },
@@ -598,7 +598,22 @@ namespace MotorCity.Localization
                 { "club.name.city", E("ГОРОДСКИЕ ЛИСЫ", "CITY FOXES") },
                 { "club.desc.city", E("Знают каждый район, секрет и короткий маршрут.", "Know every district, secret and shortcut.") },
                 { "club.name.spark", E("КОМАНДА ИСКРА", "TEAM SPARK") },
-                { "club.desc.spark", E("Соревнуются дружелюбно и помогают новичкам.", "Friendly competition and helping newcomers.") }
+                { "club.desc.spark", E("Соревнуются дружелюбно и помогают новичкам.", "Friendly competition and helping newcomers.") },
+
+                { "weekend.drift", E("ДРИФТ-ФЕСТИВАЛЬ", "DRIFT FESTIVAL") },
+                { "weekend.helpers", E("ГОРОДСКИЕ ПОМОЩНИКИ", "CITY HELPERS") },
+                { "weekend.speed", E("СКОРОСТНЫЕ ВЫХОДНЫЕ", "SPEED WEEKEND") },
+                { "weekend.hud", E("ВЫХОДНЫЕ • {0} • БОНУС +{1:N0} КР", "WEEKEND • {0} • BONUS +{1:N0} CR") },
+                { "weekend.started", E("СОБЫТИЕ ВЫХОДНОГО ДНЯ: {0} • +{1:N0} КР ЗА ПОДХОДЯЩУЮ АКТИВНОСТЬ", "WEEKEND EVENT: {0} • +{1:N0} CR FOR MATCHING ACTIVITIES") },
+                { "weekend.reward", E("{0} • БОНУС ВЫХОДНОГО ДНЯ +{1:N0} КР", "{0} • WEEKEND BONUS +{1:N0} CR") },
+
+                { "rewarded.prompt", E("Y — добровольный рекламный бонус +{0:N0} КР • сегодня {1}/{2}", "Y — optional rewarded bonus +{0:N0} CR • today {1}/{2}") },
+                { "rewarded.opening", E("Открываю добровольный бонус...", "Opening optional rewarded bonus...") },
+                { "rewarded.received", E("БОНУС ПОЛУЧЕН • +{0:N0} КР", "BONUS RECEIVED • +{0:N0} CR") },
+                { "rewarded.no_reward", E("Бонус не получен — прогресс не изменился", "No reward received — progress unchanged") },
+                { "rewarded.limit", E("Рекламные бонусы на сегодня закончились", "Rewarded bonuses are finished for today") },
+                { "rewarded.cooldown", E("Следующий добровольный бонус через {0} с", "Next optional bonus in {0} s") },
+                { "rewarded.yandex_only", E("Добровольный рекламный бонус доступен в Yandex Games", "Optional rewarded bonus is available in Yandex Games") }
             };
 
         private static string language = Russian;

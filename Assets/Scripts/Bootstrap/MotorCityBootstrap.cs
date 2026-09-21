@@ -372,6 +372,28 @@ namespace MotorCity.Bootstrap
                 wallet,
                 reputation);
 
+            WeekendEventSystem weekendEvents =
+                systems.AddComponent<WeekendEventSystem>();
+
+            weekendEvents.Initialize(
+                activityManager,
+                wallet);
+
+            RewardedBonusSystem rewardedBonus =
+                systems.AddComponent<RewardedBonusSystem>();
+
+            rewardedBonus.Initialize(
+                wallet,
+                activityManager);
+
+            LeaderboardSyncSystem leaderboardSync =
+                systems.AddComponent<LeaderboardSyncSystem>();
+
+            leaderboardSync.Initialize(
+                reputation,
+                collection,
+                activityManager);
+
             AchievementSystem achievements =
                 systems.AddComponent<AchievementSystem>();
 
@@ -475,6 +497,8 @@ namespace MotorCity.Bootstrap
                 professions,
                 carWash,
                 club,
+                weekendEvents,
+                rewardedBonus,
                 achievements,
                 adventureDirector);
 
@@ -1486,6 +1510,8 @@ namespace MotorCity.Bootstrap
             CityProfessionSystem professions,
             CarWashJobSystem carWash,
             ClubSystem club,
+            WeekendEventSystem weekendEvents,
+            RewardedBonusSystem rewardedBonus,
             AchievementSystem achievements,
             AdventureDirector adventureDirector)
         {
@@ -1523,6 +1549,8 @@ namespace MotorCity.Bootstrap
                 professions,
                 carWash,
                 club,
+                weekendEvents,
+                rewardedBonus,
                 achievements,
                 adventureDirector);
         }

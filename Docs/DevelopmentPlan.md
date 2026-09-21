@@ -205,13 +205,13 @@ Core fantasy:
 
 ## Phase 5 — Beta
 
-- [ ] Yandex leaderboards.
-- [ ] Club weekly goals.
-- [ ] Weekend events.
-- [ ] Rewarded ads.
+- [x] Yandex leaderboards runtime sync (REP, collection, activities; IDs configured through Remote Config/Yandex console).
+- [x] Club weekly personal goals (shared club aggregate still requires backend).
+- [x] Weekend events.
+- [x] Rewarded ads (explicit opt-in only, daily limit + cooldown).
 - [ ] Cosmetic purchases.
 - [ ] Free + cosmetic premium season path.
-- [ ] Remote Config live balance.
+- [x] Remote Config live balance.
 - [ ] English localization.
 - [ ] Economy/retention analytics dashboards.
 

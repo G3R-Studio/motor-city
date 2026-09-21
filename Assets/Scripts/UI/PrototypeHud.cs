@@ -42,6 +42,8 @@ namespace MotorCity.UI
         private CityProfessionSystem professions;
         private CarWashJobSystem carWash;
         private ClubSystem club;
+        private WeekendEventSystem weekendEvents;
+        private RewardedBonusSystem rewardedBonus;
         private AchievementSystem achievements;
         private AdventureDirector adventureDirector;
 
@@ -171,6 +173,8 @@ namespace MotorCity.UI
             CityProfessionSystem professionSystem,
             CarWashJobSystem carWashSystem,
             ClubSystem clubSystem,
+            WeekendEventSystem weekendEventSystem,
+            RewardedBonusSystem rewardedBonusSystem,
             AchievementSystem achievementSystem,
             AdventureDirector director)
         {
@@ -205,6 +209,8 @@ namespace MotorCity.UI
             professions = professionSystem;
             carWash = carWashSystem;
             club = clubSystem;
+            weekendEvents = weekendEventSystem;
+            rewardedBonus = rewardedBonusSystem;
             achievements = achievementSystem;
             adventureDirector = director;
 
@@ -217,6 +223,11 @@ namespace MotorCity.UI
                 return;
 
             HandleClubInput();
+
+            if (MotorCityInput.RewardedBonusPressed)
+            {
+                rewardedBonus?.TryShow();
+            }
 
             int credits =
                 wallet == null
@@ -2671,6 +2682,20 @@ namespace MotorCity.UI
             {
                 return
                     onboarding.StatusText;
+            }
+
+            if (rewardedBonus != null &&
+                rewardedBonus.ShowMessage)
+            {
+                return
+                    rewardedBonus.StatusText;
+            }
+
+            if (weekendEvents != null &&
+                weekendEvents.ShowMessage)
+            {
+                return
+                    weekendEvents.StatusText;
             }
 
             if (club != null &&
