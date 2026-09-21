@@ -22,7 +22,7 @@ namespace MotorCity.Gameplay
         private CityLegendSystem legends;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
-        private UndergroundSceneSystem underground;
+        private ПодпольеSceneSystem underground;
         private ActivityManager activityManager;
         private ArcadeCarController car;
         private DeliveryActivity delivery;
@@ -53,7 +53,7 @@ namespace MotorCity.Gameplay
             CityLegendSystem legendSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
-            UndergroundSceneSystem undergroundSystem,
+            ПодпольеSceneSystem undergroundSystem,
             ActivityManager manager,
             ArcadeCarController targetCar,
             DeliveryActivity deliveryActivity,
@@ -108,7 +108,7 @@ namespace MotorCity.Gameplay
                     WindowId,
                     windowRect,
                     DrawWindow,
-                    "MOTOR CITY — ADMIN / TEST");
+                    "MOTOR CITY — АДМИН / ТЕСТ");
         }
 
         private void DrawWindow(
@@ -131,7 +131,7 @@ namespace MotorCity.Gameplay
             DrawCareer();
             DrawContracts();
             DrawLiveEvents();
-            DrawUnderground();
+            DrawПодполье();
             DrawTime();
             DrawTeleports();
 
@@ -140,7 +140,7 @@ namespace MotorCity.Gameplay
                 $"ПОСЛЕДНЕЕ: {lastAction}");
 
             GUILayout.Label(
-                "F10 / BACKQUOTE — закрыть панель");
+                "F10 / ` — закрыть панель");
 
             GUILayout.EndScrollView();
 
@@ -156,14 +156,14 @@ namespace MotorCity.Gameplay
         {
             GUILayout.Label(
                 $"КР {(wallet == null ? 0 : wallet.Credits):N0}   •   " +
-                $"REP {(reputation == null ? 0 : reputation.Reputation):N0}");
+                $"РЕП {(reputation == null ? 0 : reputation.Reputation):N0}");
 
             if (disciplines != null)
             {
                 GUILayout.Label(
-                    $"RACING {disciplines.RacingLevel}/10   •   " +
-                    $"DRIFT {disciplines.DriftLevel}/10   •   " +
-                    $"DELIVERY {disciplines.DeliveryLevel}/10");
+                    $"ГОНКИ {disciplines.RacingLevel}/10   •   " +
+                    $"ДРИФТ {disciplines.DriftLevel}/10   •   " +
+                    $"ДОСТАВКА {disciplines.DeliveryLevel}/10");
             }
 
             if (roster != null &&
@@ -213,15 +213,15 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (Button("MAX EVERYTHING"))
+            if (Button("МАКСИМУМ ВСЕГО"))
                 MaxEverything();
 
-            if (Button("ELITE READY"))
+            if (Button("ГОТОВО К ЭЛИТЕ"))
                 EliteReady();
 
             GUILayout.EndHorizontal();
 
-            if (Button("RESET TEST PROGRESSION"))
+            if (Button("СБРОСИТЬ ТЕСТОВЫЙ ПРОГРЕСС"))
                 ResetTestProgression();
 
             GUILayout.Space(10f);
@@ -229,7 +229,7 @@ namespace MotorCity.Gameplay
 
         private void DrawMoneyAndRep()
         {
-            GUILayout.Label("ДЕНЬГИ / ОБЩИЙ REP");
+            GUILayout.Label("ДЕНЬГИ / ОБЩАЯ РЕПУТАЦИЯ");
 
             GUILayout.BeginHorizontal();
 
@@ -246,13 +246,13 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (Button("REP = 0"))
+            if (Button("РЕП = 0"))
                 reputation?.SetReputation(0);
 
-            if (Button("REP = 3 500"))
+            if (Button("РЕП = 3 500"))
                 reputation?.SetReputation(3500);
 
-            if (Button("REP = 10 000"))
+            if (Button("РЕП = 10 000"))
                 reputation?.SetReputation(10000);
 
             GUILayout.EndHorizontal();
@@ -265,15 +265,15 @@ namespace MotorCity.Gameplay
             GUILayout.Label("ДИСЦИПЛИНЫ");
 
             DrawDisciplineRow(
-                "RACING",
+                "ГОНКИ",
                 DisciplineType.Racing);
 
             DrawDisciplineRow(
-                "DRIFT",
+                "ДРИФТ",
                 DisciplineType.Drift);
 
             DrawDisciplineRow(
-                "DELIVERY",
+                "ДОСТАВКА",
                 DisciplineType.Delivery);
 
             GUILayout.Space(10f);
@@ -312,11 +312,11 @@ namespace MotorCity.Gameplay
 
             string[] names =
             {
-                "STREET",
-                "CLUB",
-                "MUSCLE",
+                "УЛИЧНАЯ",
+                "КЛУБНАЯ",
+                "МАСЛКАР",
                 "GT",
-                "APEX"
+                "АПЕКС"
             };
 
             GUILayout.BeginHorizontal();
@@ -412,7 +412,7 @@ namespace MotorCity.Gameplay
                     "Коллекционный рейтинг пересчитан";
             }
 
-            if (Button("CLAIM ALL TEST"))
+            if (Button("ЗАБРАТЬ ВСЁ (ТЕСТ)"))
             {
                 collection?.ClaimAllForTesting();
                 lastAction =
@@ -531,7 +531,7 @@ namespace MotorCity.Gameplay
 
         private void DrawLiveEvents()
         {
-            GUILayout.Label("LIVE EVENTS");
+            GUILayout.Label("ГОРОДСКИЕ СОБЫТИЯ");
 
             if (liveEvents != null)
             {
@@ -545,31 +545,31 @@ namespace MotorCity.Gameplay
             {
                 liveEvents?.CompleteCurrentForTesting();
                 lastAction =
-                    "Live event завершён";
+                    "Live событие завершён";
             }
 
             if (Button("СЛЕДУЮЩИЙ EVENT"))
             {
                 liveEvents?.NextEventForTesting();
                 lastAction =
-                    "Переключено live event";
+                    "Переключено live событие";
             }
 
             GUILayout.EndHorizontal();
 
-            if (Button("СБРОСИТЬ LIVE EVENTS"))
+            if (Button("СБРОСИТЬ ГОРОДСКИЕ СОБЫТИЯ"))
             {
                 liveEvents?.ResetForTesting();
                 lastAction =
-                    "Live events сброшены";
+                    "Live событиеs сброшены";
             }
 
             GUILayout.Space(10f);
         }
 
-        private void DrawUnderground()
+        private void DrawПодполье()
         {
-            GUILayout.Label("UNDERGROUND");
+            GUILayout.Label("ПОДПОЛЬЕ");
 
             if (underground != null)
             {
@@ -579,13 +579,13 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (Button("+40 STREET CRED"))
+            if (Button("+40 АВТОРИТЕТА"))
             {
                 underground?.AddCredForTesting(
                     40);
 
                 lastAction =
-                    "Underground: +40 Street Cred";
+                    "Подполье: +40 Street Cred";
             }
 
             if (Button("РАЗБЛОКИРОВАТЬ"))
@@ -593,7 +593,7 @@ namespace MotorCity.Gameplay
                 underground?.UnlockCurrentForTesting();
 
                 lastAction =
-                    "Underground event разблокирован";
+                    "Подполье событие разблокирован";
             }
 
             GUILayout.EndHorizontal();
@@ -605,7 +605,7 @@ namespace MotorCity.Gameplay
                 underground?.CompleteCurrentForTesting();
 
                 lastAction =
-                    "Underground event завершён";
+                    "Подполье событие завершён";
             }
 
             if (Button("СБРОСИТЬ"))
@@ -613,7 +613,7 @@ namespace MotorCity.Gameplay
                 underground?.ResetForTesting();
 
                 lastAction =
-                    "Underground прогресс сброшен";
+                    "Подполье прогресс сброшен";
             }
 
             GUILayout.EndHorizontal();
@@ -649,8 +649,8 @@ namespace MotorCity.Gameplay
             if (dayNight != null)
             {
                 GUILayout.Label(
-                    $"TIME {dayNight.TimeOfDay01:0.00}   •   " +
-                    $"NIGHT {(dayNight.IsNight ? "YES" : "NO")}");
+                    $"ВРЕМЯ {dayNight.TimeOfDay01:0.00}   •   " +
+                    $"НОЧЬ {(dayNight.IsNight ? "ДА" : "НЕТ")}");
             }
 
             GUILayout.Space(10f);
@@ -662,21 +662,21 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (Button("SPAWN"))
+            if (Button("СТАРТ"))
             {
                 Teleport(
                     CityAssetRuntimeInstaller.PlayerSpawnPoint,
                     CityAssetRuntimeInstaller.PlayerSpawnRotation);
             }
 
-            if (Button("GARAGE"))
+            if (Button("ГАРАЖ"))
             {
                 Teleport(
                     CityAssetRuntimeInstaller.GaragePoint,
                     Quaternion.identity);
             }
 
-            if (Button("DRIFT"))
+            if (Button("ДРИФТ"))
             {
                 Teleport(
                     CityAssetRuntimeInstaller.DriftChallengePoint,
@@ -687,15 +687,15 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (Button("DELIVERY"))
+            if (Button("ДОСТАВКА"))
                 TeleportToRoute(
                     CityAssetRuntimeInstaller.DeliveryRoute);
 
-            if (Button("SPRINT"))
+            if (Button("СПРИНТ"))
                 TeleportToRoute(
                     CityAssetRuntimeInstaller.SprintRoute);
 
-            if (Button("CIRCUIT"))
+            if (Button("КОЛЬЦО"))
                 TeleportToRoute(
                     CityAssetRuntimeInstaller.CircuitRoute);
 
@@ -706,7 +706,7 @@ namespace MotorCity.Gameplay
             if (Button("ОТМЕНИТЬ АКТИВНОСТЬ"))
                 CancelActivities();
 
-            if (Button("R — RESCUE NOW"))
+            if (Button("R — RESCUE НЕТW"))
             {
                 if (car != null)
                 {
@@ -753,7 +753,7 @@ namespace MotorCity.Gameplay
             underground?.AddCredForTesting(400);
 
             lastAction =
-                "MAX EVERYTHING применён";
+                "МАКСИМУМ ВСЕГО применён";
         }
 
         private void EliteReady()
@@ -774,7 +774,7 @@ namespace MotorCity.Gameplay
                 3);
 
             lastAction =
-                "ELITE/PREMIUM события разблокированы";
+                "ЭЛИТА/ПРЕМИУМ события разблокированы";
         }
 
         private void ResetTestProgression()

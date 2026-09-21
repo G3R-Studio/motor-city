@@ -63,9 +63,9 @@ namespace MotorCity.Gameplay
             string.Empty;
 
         public string HudLine =>
-            $"RACING {RacingLevel}/10   •   " +
-            $"DRIFT {DriftLevel}/10   •   " +
-            $"DELIVERY {DeliveryLevel}/10";
+            $"ГОНКИ {RacingLevel}/10   •   " +
+            $"ДРИФТ {DriftLevel}/10   •   " +
+            $"ДОСТАВКА {DeliveryLevel}/10";
 
         public void Initialize(
             ActivityManager manager)
@@ -272,8 +272,8 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 newLevel > previousLevel
-                    ? $"{name}: УРОВЕНЬ {newLevel}/10   +{reward} REP"
-                    : $"{name}: +{reward} REP";
+                    ? $"{name}: УРОВЕНЬ {newLevel}/10   +{reward} РЕП"
+                    : $"{name}: +{reward} РЕП";
 
             messageTimer =
                 MessageSeconds;
@@ -374,11 +374,11 @@ namespace MotorCity.Gameplay
             return type switch
             {
                 DisciplineType.Racing =>
-                    "RACING",
+                    "ГОНКИ",
                 DisciplineType.Drift =>
-                    "DRIFT",
+                    "ДРИФТ",
                 _ =>
-                    "DELIVERY"
+                    "ДОСТАВКА"
             };
         }
     }

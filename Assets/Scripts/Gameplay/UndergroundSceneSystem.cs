@@ -110,7 +110,7 @@ namespace MotorCity.Gameplay
                 if (eventIndex >= EventCount)
                 {
                     return
-                        "UNDERGROUND • INNER CIRCLE";
+                        "ПОДПОЛЬЕ • ВНУТРЕННИЙ КРУГ";
                 }
 
                 UndergroundEvent current =
@@ -120,11 +120,11 @@ namespace MotorCity.Gameplay
                     current.RequiredCred)
                 {
                     return
-                        $"UNDERGROUND • ДОВЕРИЕ {streetCred}/{current.RequiredCred}";
+                        $"ПОДПОЛЬЕ • ДОВЕРИЕ {streetCred}/{current.RequiredCred}";
                 }
 
                 return
-                    $"UNDERGROUND — {current.Name} • " +
+                    $"ПОДПОЛЬЕ — {current.Name} • " +
                     ProgressText(
                         current);
             }
@@ -140,14 +140,14 @@ namespace MotorCity.Gameplay
                 if (eventIndex >= EventCount)
                 {
                     return
-                        $"STREET CRED {streetCred} • {rank} • СЕРИЯ ЗАВЕРШЕНА";
+                        $"УЛИЧНЫЙ АВТОРИТЕТ {streetCred} • {rank} • СЕРИЯ ЗАВЕРШЕНА";
                 }
 
                 UndergroundEvent current =
                     CurrentEvent();
 
                 return
-                    $"STREET CRED {streetCred} • {rank} • " +
+                    $"УЛИЧНЫЙ АВТОРИТЕТ {streetCred} • {rank} • " +
                     $"{current.Name} • " +
                     (streetCred >= current.RequiredCred
                         ? ProgressText(current)
@@ -230,7 +230,7 @@ namespace MotorCity.Gameplay
                             countdownRemaining));
 
                 StatusText =
-                    $"UNDERGROUND   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+                    $"ПОДПОЛЬЕ   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
 
                 messageTimer = 0.25f;
 
@@ -275,7 +275,7 @@ namespace MotorCity.Gameplay
                 }
 
                 StatusText =
-                    $"UNDERGROUND — {CurrentEvent().Name}   " +
+                    $"ПОДПОЛЬЕ — {CurrentEvent().Name}   " +
                     $"ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
                     $"{elapsedSeconds:0.0}с   ESC — ОТМЕНА";
 
@@ -341,7 +341,7 @@ namespace MotorCity.Gameplay
                 activityManager.IsBusy)
             {
                 StatusText =
-                    $"UNDERGROUND НЕДОСТУПЕН: АКТИВНО «{activityManager.ActiveName}»";
+                    $"ПОДПОЛЬЕ НЕДОСТУПЕН: АКТИВНО «{activityManager.ActiveName}»";
 
                 messageTimer = 0.25f;
                 return;
@@ -350,14 +350,14 @@ namespace MotorCity.Gameplay
             if (car.SpeedKph > 8f)
             {
                 StatusText =
-                    "UNDERGROUND — ОСТАНОВИСЬ ДО 8 КМ/Ч";
+                    "ПОДПОЛЬЕ — ОСТАНОВИСЬ ДО 8 КМ/Ч";
 
                 messageTimer = 0.25f;
                 return;
             }
 
             StatusText =
-                $"UNDERGROUND — {current.Name}   E — НАЧАТЬ";
+                $"ПОДПОЛЬЕ — {current.Name}   E — НАЧАТЬ";
 
             messageTimer = 0.25f;
 
@@ -403,7 +403,7 @@ namespace MotorCity.Gameplay
                 "underground");
 
             StatusText =
-                "UNDERGROUND — ЗАЕЗД ОТМЕНЁН";
+                "ПОДПОЛЬЕ — ЗАЕЗД ОТМЕНЁН";
 
             messageTimer =
                 3f;
@@ -427,7 +427,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 $"{current.Name} — ФИНИШ {elapsedSeconds:0.0}с   " +
-                $"+{current.Credits:N0} КР   +{current.CredReward} STREET CRED";
+                $"+{current.Credits:N0} КР   +{current.CredReward} УЛИЧНЫЙ АВТОРИТЕТ";
 
             messageTimer =
                 MessageSeconds;
@@ -511,7 +511,7 @@ namespace MotorCity.Gameplay
             Save();
 
             StatusText =
-                "UNDERGROUND ПРОГРЕСС СБРОШЕН";
+                "ПОДПОЛЬЕ ПРОГРЕСС СБРОШЕН";
 
             messageTimer =
                 MessageSeconds;
@@ -554,7 +554,7 @@ namespace MotorCity.Gameplay
                         RankForCred(streetCred))
                     {
                         StatusText =
-                            $"UNDERGROUND — {RankName()}   STREET CRED {streetCred}";
+                            $"ПОДПОЛЬЕ — {RankName()}   УЛИЧНЫЙ АВТОРИТЕТ {streetCred}";
 
                         messageTimer =
                             MessageSeconds;
@@ -630,7 +630,7 @@ namespace MotorCity.Gameplay
             if (counted)
             {
                 StatusText =
-                    $"UNDERGROUND — {current.Name}   " +
+                    $"ПОДПОЛЬЕ — {current.Name}   " +
                     ProgressText(
                         current);
 
@@ -669,10 +669,10 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 eventIndex >= EventCount
-                    ? $"UNDERGROUND — INNER CIRCLE   {completed} ЗАВЕРШЁН   " +
-                      $"+{current.Credits:N0} КР   +{current.CredReward} STREET CRED"
+                    ? $"ПОДПОЛЬЕ — ВНУТРЕННИЙ КРУГ   {completed} ЗАВЕРШЁН   " +
+                      $"+{current.Credits:N0} КР   +{current.CredReward} УЛИЧНЫЙ АВТОРИТЕТ"
                     : $"{completed} ЗАВЕРШЁН   " +
-                      $"+{current.Credits:N0} КР   +{current.CredReward} STREET CRED   " +
+                      $"+{current.Credits:N0} КР   +{current.CredReward} УЛИЧНЫЙ АВТОРИТЕТ   " +
                       $"СЛЕДУЮЩЕЕ ДОВЕРИЕ: {CurrentEvent().RequiredCred}";
 
             messageTimer =
@@ -723,7 +723,7 @@ namespace MotorCity.Gameplay
                     45),
 
                 1 => new UndergroundEvent(
-                    "NO NAME RUN",
+                    "БЕЗЫМЯННЫЙ ЗАЕЗД",
                     "Имя здесь ничего не значит. Докажи темп ночью.",
                     110,
                     2,
@@ -735,8 +735,8 @@ namespace MotorCity.Gameplay
                     60),
 
                 2 => new UndergroundEvent(
-                    "BLACKLIST TEST",
-                    "Blacklist наблюдает. Ошибок не прощают.",
+                    "ИСПЫТАНИЕ ЧЁРНОГО СПИСКА",
+                    "Чёрный список наблюдает. Ошибок не прощают.",
                     200,
                     3,
                     3,
@@ -747,7 +747,7 @@ namespace MotorCity.Gameplay
                     80),
 
                 _ => new UndergroundEvent(
-                    "INNER CIRCLE",
+                    "ВНУТРЕННИЙ КРУГ",
                     "Последнее приглашение. Только для своих.",
                     320,
                     4,
@@ -780,13 +780,13 @@ namespace MotorCity.Gameplay
 
             AppendProgress(
                 ref result,
-                "DEL",
+                "ДОСТ",
                 deliveryProgress,
                 current.DeliveryRequired);
 
             AppendProgress(
                 ref result,
-                "NIGHT",
+                "НОЧЬ",
                 nightProgress,
                 current.NightRequired);
 
@@ -821,8 +821,8 @@ namespace MotorCity.Gameplay
             return RankForCred(
                 streetCred) switch
                 {
-                    4 => "INNER CIRCLE",
-                    3 => "BLACKLIST",
+                    4 => "ВНУТРЕННИЙ КРУГ",
+                    3 => "ЧЁРНЫЙ СПИСОК",
                     2 => "ДОВЕРЕННЫЙ",
                     1 => "ЗАМЕЧЕН",
                     _ => "НЕИЗВЕСТЕН"

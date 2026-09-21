@@ -358,9 +358,9 @@ namespace MotorCity.Gameplay
                 legendIndex >=
                 LegendCount
                     ? $"ЛЕГЕНДЫ ГОРОДА ПОБЕЖДЕНЫ   " +
-                      $"+{current.Credits:N0} КР   +{current.Reputation:N0} REP"
+                      $"+{current.Credits:N0} КР   +{current.Reputation:N0} РЕП"
                     : $"{defeated} ПОБЕЖДЁН   " +
-                      $"+{current.Credits:N0} КР   +{current.Reputation:N0} REP   " +
+                      $"+{current.Credits:N0} КР   +{current.Reputation:N0} РЕП   " +
                       $"СЛЕДУЮЩИЙ: {CurrentDefinition().Name}";
 
             messageTimer =
@@ -419,7 +419,7 @@ namespace MotorCity.Gameplay
             return legendIndex switch
             {
                 0 => new LegendDefinition(
-                    "GHOST",
+                    "ПРИЗРАК",
                     "Ночной гонщик заметил тебя",
                     5,
                     1,
@@ -433,7 +433,7 @@ namespace MotorCity.Gameplay
                     350),
 
                 1 => new LegendDefinition(
-                    "SIDEWINDER",
+                    "СКОЛЬЗЯЩИЙ",
                     "Король городского дрифта принимает вызов",
                     1,
                     5,
@@ -447,7 +447,7 @@ namespace MotorCity.Gameplay
                     340),
 
                 2 => new LegendDefinition(
-                    "ZERO",
+                    "НОЛЬ",
                     "Самый быстрый курьер города оставил маршрут",
                     1,
                     1,
@@ -461,7 +461,7 @@ namespace MotorCity.Gameplay
                     320),
 
                 _ => new LegendDefinition(
-                    "CROWN",
+                    "КОРОНА",
                     "Финальный вызов требует владения всеми стилями",
                     7,
                     7,
@@ -485,19 +485,19 @@ namespace MotorCity.Gameplay
             if (current.RacingLevelRequired > 1)
             {
                 result +=
-                    $" • RACING {current.RacingLevelRequired}";
+                    $" • ГОНКИ {current.RacingLevelRequired}";
             }
 
             if (current.DriftLevelRequired > 1)
             {
                 result +=
-                    $" • DRIFT {current.DriftLevelRequired}";
+                    $" • ДРИФТ {current.DriftLevelRequired}";
             }
 
             if (current.DeliveryLevelRequired > 1)
             {
                 result +=
-                    $" • DELIVERY {current.DeliveryLevelRequired}";
+                    $" • ДОСТАВКА {current.DeliveryLevelRequired}";
             }
 
             return result;
@@ -523,13 +523,13 @@ namespace MotorCity.Gameplay
 
             AppendProgress(
                 ref result,
-                "DEL",
+                "ДОСТ",
                 deliveryProgress,
                 current.DeliveryRequired);
 
             AppendProgress(
                 ref result,
-                "NIGHT",
+                "НОЧЬ",
                 nightProgress,
                 current.NightRequired);
 

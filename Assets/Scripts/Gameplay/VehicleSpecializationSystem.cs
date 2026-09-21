@@ -159,7 +159,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 $"{roster.SelectedName} — {CurrentRoleName()}   " +
-                $"+{bonusCredits:N0} КР   +{bonusMasteryXp} МАСТ XP";
+                $"+{bonusCredits:N0} КР   +{bonusMasteryXp} ОПЫТ МАСТЕРСТВА";
 
             messageTimer =
                 MessageSeconds;
@@ -176,16 +176,16 @@ namespace MotorCity.Gameplay
                     "ГОРОДСКОЙ КУРЬЕР",
 
                 "club" =>
-                    "STREET SPRINT",
+                    "УЛИЧНЫЙ СПРИНТ",
 
                 "muscle" =>
-                    "DRIFT MACHINE",
+                    "ДРИФТ-МАШИНА",
 
                 "gt" =>
-                    "CIRCUIT SPECIALIST",
+                    "СПЕЦИАЛИСТ КОЛЬЦА",
 
                 "apex" =>
-                    "ELITE ALL-ROUNDER",
+                    "ЭЛИТНЫЙ УНИВЕРСАЛ",
 
                 _ =>
                     "УНИВЕРСАЛ"
@@ -200,16 +200,16 @@ namespace MotorCity.Gameplay
             return roster.SelectedId switch
             {
                 "street" =>
-                    "DELIVERY +35% КР",
+                    "ДОСТАВКА +35% КР",
 
                 "club" =>
-                    "SPRINT +35% КР, DELIVERY +10%",
+                    "СПРИНТ +35% КР, ДОСТАВКА +10%",
 
                 "muscle" =>
-                    "DRIFT +40% КР",
+                    "ДРИФТ +40% КР",
 
                 "gt" =>
-                    "CIRCUIT +35% КР, SPRINT +15%",
+                    "КОЛЬЦО +35% КР, СПРИНТ +15%",
 
                 "apex" =>
                     "ВСЕ ОСНОВНЫЕ АКТИВНОСТИ +15% КР",

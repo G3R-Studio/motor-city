@@ -30,7 +30,7 @@ namespace MotorCity.Gameplay
         public string SelectedName =>
             Valid(SelectedIndex)
                 ? profiles[SelectedIndex].DisplayName
-                : "STREET";
+                : "УЛИЧНАЯ";
 
         public int SelectedRequiredRep =>
             Valid(SelectedIndex)
@@ -79,7 +79,7 @@ namespace MotorCity.Gameplay
                 {
                     new VehicleProfile(
                         "street",
-                        "STREET",
+                        "УЛИЧНАЯ",
                         "MotorCity/PlayerCarVisual",
                         0,
                         0,
@@ -95,7 +95,7 @@ namespace MotorCity.Gameplay
 
                     new VehicleProfile(
                         "club",
-                        "CLUB",
+                        "КЛУБНАЯ",
                         "MotorCity/Vehicles/Vehicle_01",
                         500,
                         -6,
@@ -111,7 +111,7 @@ namespace MotorCity.Gameplay
 
                     new VehicleProfile(
                         "muscle",
-                        "MUSCLE",
+                        "МАСЛКАР",
                         "MotorCity/Vehicles/Vehicle_02",
                         1200,
                         12,
@@ -127,7 +127,7 @@ namespace MotorCity.Gameplay
 
                     new VehicleProfile(
                         "gt",
-                        "GT",
+                        "ГРАН-ТУРИЗМО",
                         "MotorCity/Vehicles/Vehicle_03",
                         2200,
                         24,
@@ -143,7 +143,7 @@ namespace MotorCity.Gameplay
 
                     new VehicleProfile(
                         "apex",
-                        "APEX",
+                        "АПЕКС",
                         "MotorCity/Vehicles/Vehicle_04",
                         3500,
                         38,
@@ -215,7 +215,7 @@ namespace MotorCity.Gameplay
             if (!HasVisual(candidate))
             {
                 status =
-                    $"{profile.DisplayName}: модель ещё не подготовлена из Vehicles - PolyPack";
+                    $"{profile.DisplayName}: модель ещё не подготовлена из пакета машин";
 
                 return false;
             }
@@ -223,7 +223,7 @@ namespace MotorCity.Gameplay
             if (!IsUnlocked(candidate))
             {
                 status =
-                    $"{profile.DisplayName}: нужно {profile.RequiredRep:N0} REP";
+                    $"{profile.DisplayName}: нужно {profile.RequiredRep:N0} РЕП";
 
                 return false;
             }
@@ -318,7 +318,7 @@ namespace MotorCity.Gameplay
                 else
                 {
                     nextText =
-                        $"   •   ДАЛЬШЕ: {nextProfile.DisplayName} — {nextProfile.RequiredRep:N0} REP";
+                        $"   •   ДАЛЬШЕ: {nextProfile.DisplayName} — {nextProfile.RequiredRep:N0} РЕП";
                 }
             }
 
@@ -334,12 +334,12 @@ namespace MotorCity.Gameplay
             if (masteryLevel >= 10)
             {
                 return
-                    $"МАСТЕРСТВО: УР. 10/10   •   {masteryXp:N0} XP   •   МАКСИМУМ";
+                    $"МАСТЕРСТВО: УР. 10/10   •   {masteryXp:N0} ОПЫТ   •   МАКСИМУМ";
             }
 
             return
                 $"МАСТЕРСТВО: УР. {masteryLevel}/10   •   " +
-                $"{masteryXp:N0}/{masteryNextXp:N0} XP";
+                $"{masteryXp:N0}/{masteryNextXp:N0} ОПЫТ";
         }
 
         public string GetMasteryShort()

@@ -46,14 +46,14 @@ namespace MotorCity.Gameplay
                 if (coolingDown)
                 {
                     return
-                        $"LIVE EVENT • СЛЕДУЮЩЕЕ ЧЕРЕЗ {FormatTime(cooldownTimer)}";
+                        $"ГОРОДСКОЕ СОБЫТИЕ • СЛЕДУЮЩЕЕ ЧЕРЕЗ {FormatTime(cooldownTimer)}";
                 }
 
                 EventDefinition current =
                     CurrentDefinition();
 
                 return
-                    $"LIVE EVENT — {current.Name} • " +
+                    $"ГОРОДСКОЕ СОБЫТИЕ — {current.Name} • " +
                     $"{ProgressText(current)} • " +
                     $"{FormatTime(activeTimer)} • " +
                     $"+{current.Credits:N0} КР";
@@ -67,7 +67,7 @@ namespace MotorCity.Gameplay
                 if (coolingDown)
                 {
                     return
-                        $"LIVE EVENT • ПЕРЕРЫВ {FormatTime(cooldownTimer)} • " +
+                        $"ГОРОДСКОЕ СОБЫТИЕ • ПЕРЕРЫВ {FormatTime(cooldownTimer)} • " +
                         $"ВЫПОЛНЕНО {completedEvents}";
                 }
 
@@ -150,7 +150,7 @@ namespace MotorCity.Gameplay
                 return;
 
             StatusText =
-                $"LIVE EVENT ЗАВЕРШЁН — {CurrentDefinition().Name}   " +
+                $"ГОРОДСКОЕ СОБЫТИЕ ЗАВЕРШЁН — {CurrentDefinition().Name}   " +
                 "время вышло";
 
             messageTimer =
@@ -216,7 +216,7 @@ namespace MotorCity.Gameplay
                 false);
 
             StatusText =
-                "LIVE EVENTS СБРОШЕНЫ";
+                "ГОРОДСКОЕ СОБЫТИЕS СБРОШЕНЫ";
 
             messageTimer =
                 MessageSeconds;
@@ -266,7 +266,7 @@ namespace MotorCity.Gameplay
             }
 
             StatusText =
-                $"LIVE EVENT — {current.Name}   " +
+                $"ГОРОДСКОЕ СОБЫТИЕ — {current.Name}   " +
                 ProgressText(
                     current);
 
@@ -292,9 +292,9 @@ namespace MotorCity.Gameplay
             PlayerPrefs.Save();
 
             StatusText =
-                $"LIVE EVENT ВЫПОЛНЕН — {current.Name}   " +
+                $"ГОРОДСКОЕ СОБЫТИЕ ВЫПОЛНЕН — {current.Name}   " +
                 $"+{current.Credits:N0} КР   " +
-                $"+{current.Reputation:N0} REP";
+                $"+{current.Reputation:N0} РЕП";
 
             messageTimer =
                 MessageSeconds;
@@ -341,7 +341,7 @@ namespace MotorCity.Gameplay
                 return;
 
             StatusText =
-                $"НОВОЕ LIVE EVENT — {CurrentDefinition().Name}   " +
+                $"НОВОЕ ГОРОДСКОЕ СОБЫТИЕ — {CurrentDefinition().Name}   " +
                 ProgressText(
                     CurrentDefinition());
 
@@ -381,7 +381,7 @@ namespace MotorCity.Gameplay
             return eventIndex switch
             {
                 0 => new EventDefinition(
-                    "STREET HEAT",
+                    "УЛИЧНЫЙ ЖАР",
                     2,
                     0,
                     0,
@@ -390,7 +390,7 @@ namespace MotorCity.Gameplay
                     150),
 
                 1 => new EventDefinition(
-                    "DRIFT SESSION",
+                    "ДРИФТ-СЕССИЯ",
                     0,
                     2,
                     0,
@@ -399,7 +399,7 @@ namespace MotorCity.Gameplay
                     140),
 
                 2 => new EventDefinition(
-                    "COURIER RUSH",
+                    "КУРЬЕРСКИЙ РЫВОК",
                     0,
                     0,
                     2,
@@ -408,7 +408,7 @@ namespace MotorCity.Gameplay
                     120),
 
                 3 => new EventDefinition(
-                    "MIDNIGHT RUN",
+                    "ПОЛУНОЧНЫЙ ЗАЕЗД",
                     0,
                     0,
                     0,
@@ -417,7 +417,7 @@ namespace MotorCity.Gameplay
                     180),
 
                 _ => new EventDefinition(
-                    "TRIPLE THREAT",
+                    "ТРОЙНАЯ УГРОЗА",
                     1,
                     1,
                     1,
@@ -447,13 +447,13 @@ namespace MotorCity.Gameplay
 
             AppendProgress(
                 ref text,
-                "DEL",
+                "ДОСТ",
                 deliveryProgress,
                 current.DeliveryRequired);
 
             AppendProgress(
                 ref text,
-                "NIGHT",
+                "НОЧЬ",
                 nightProgress,
                 current.NightRequired);
 
