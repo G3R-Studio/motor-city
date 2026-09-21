@@ -292,17 +292,17 @@ namespace MotorCity.Gameplay
                 label,
                 GUILayout.Width(82f));
 
-            if (Button("LVL 1", 78f))
+            if (Button("УР. 1", 78f))
                 disciplines?.SetLevelForTesting(
                     type,
                     1);
 
-            if (Button("LVL 3", 78f))
+            if (Button("УР. 3", 78f))
                 disciplines?.SetLevelForTesting(
                     type,
                     3);
 
-            if (Button("LVL 10", 78f))
+            if (Button("УР. 10", 78f))
                 disciplines?.SetLevelForTesting(
                     type,
                     10);
@@ -319,7 +319,7 @@ namespace MotorCity.Gameplay
                 "УЛИЧНАЯ",
                 "КЛУБНАЯ",
                 "МАСЛКАР",
-                "GT",
+                "ГРАН-ТУРИЗМО",
                 "АПЕКС"
             };
 
@@ -380,13 +380,13 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (Button("LVL 1"))
+            if (Button("УР. 1"))
                 mastery?.SetCurrentLevelForTesting(1);
 
-            if (Button("LVL 5"))
+            if (Button("УР. 5"))
                 mastery?.SetCurrentLevelForTesting(5);
 
-            if (Button("LVL 10"))
+            if (Button("УР. 10"))
                 mastery?.SetCurrentLevelForTesting(10);
 
             GUILayout.EndHorizontal();
@@ -545,18 +545,18 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (Button("ЗАВЕРШИТЬ EVENT"))
+            if (Button("ЗАВЕРШИТЬ СОБЫТИЕ"))
             {
                 liveEvents?.CompleteCurrentForTesting();
                 lastAction =
-                    "Live событие завершён";
+                    "Городское событие завершено";
             }
 
-            if (Button("СЛЕДУЮЩИЙ EVENT"))
+            if (Button("СЛЕДУЮЩЕЕ СОБЫТИЕ"))
             {
                 liveEvents?.NextEventForTesting();
                 lastAction =
-                    "Переключено live событие";
+                    "Городское событие переключено";
             }
 
             GUILayout.EndHorizontal();
@@ -565,7 +565,7 @@ namespace MotorCity.Gameplay
             {
                 liveEvents?.ResetForTesting();
                 lastAction =
-                    "Live событиеs сброшены";
+                    "Городские события сброшены";
             }
 
             GUILayout.Space(10f);
@@ -589,7 +589,7 @@ namespace MotorCity.Gameplay
                     40);
 
                 lastAction =
-                    "Подполье: +40 Street Cred";
+                    "Подполье: +40 уличного авторитета";
             }
 
             if (Button("РАЗБЛОКИРОВАТЬ"))
@@ -604,7 +604,7 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (Button("ЗАВЕРШИТЬ EVENT"))
+            if (Button("ЗАВЕРШИТЬ СОБЫТИЕ"))
             {
                 underground?.CompleteCurrentForTesting();
 
@@ -752,7 +752,7 @@ namespace MotorCity.Gameplay
             if (Button("ОТМЕНИТЬ АКТИВНОСТЬ"))
                 CancelActivities();
 
-            if (Button("R — RESCUE НЕТW"))
+            if (Button("R — СПАСТИ МАШИНУ"))
             {
                 if (car != null)
                 {

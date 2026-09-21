@@ -281,7 +281,7 @@ namespace MotorCity.Gameplay
             VehicleChanged?.Invoke();
 
             status =
-                $"ADMIN: выбрана {profiles[SelectedIndex].DisplayName}";
+                $"АДМИН: выбрана {profiles[SelectedIndex].DisplayName}";
 
             return true;
         }

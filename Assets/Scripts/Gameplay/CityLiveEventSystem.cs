@@ -150,7 +150,7 @@ namespace MotorCity.Gameplay
                 return;
 
             StatusText =
-                $"ГОРОДСКОЕ СОБЫТИЕ ЗАВЕРШЁН — {CurrentDefinition().Name}   " +
+                $"ГОРОДСКОЕ СОБЫТИЕ ЗАВЕРШЕНО — {CurrentDefinition().Name}   " +
                 "время вышло";
 
             messageTimer =
@@ -292,7 +292,7 @@ namespace MotorCity.Gameplay
             PlayerPrefs.Save();
 
             StatusText =
-                $"ГОРОДСКОЕ СОБЫТИЕ ВЫПОЛНЕН — {current.Name}   " +
+                $"ГОРОДСКОЕ СОБЫТИЕ ВЫПОЛНЕНО — {current.Name}   " +
                 $"+{current.Credits:N0} КР   " +
                 $"+{current.Reputation:N0} РЕП";
 

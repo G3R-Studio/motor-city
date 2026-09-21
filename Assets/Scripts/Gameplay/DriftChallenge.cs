@@ -15,13 +15,13 @@ namespace MotorCity.Gameplay
         [SerializeField] private float outsideGraceSeconds = 3.5f;
         [SerializeField] private float durationSeconds = 42f;
 
-        [Header("Score tiers")]
+        [Header("Пороги очков")]
         [SerializeField] private int bronzeScore = 1800;
         [SerializeField] private int silverScore = 3000;
         [SerializeField] private int goldScore = 4500;
         [SerializeField] private int legendaryScore = 6000;
 
-        [Header("Tier rewards")]
+        [Header("Награды по уровням")]
         [SerializeField] private int bronzeRewardCredits = 650;
         [SerializeField] private int silverRewardCredits = 800;
         [SerializeField] private int goldRewardCredits = 1050;

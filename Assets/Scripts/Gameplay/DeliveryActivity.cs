@@ -12,18 +12,18 @@ namespace MotorCity.Gameplay
             "MotorCity.Delivery.BestTime";
         private const int EliteRequiredLevel = 3;
 
-        [Header("Route")]
+        [Header("Маршрут")]
         [SerializeField] private float checkpointRadius = 12f;
         [SerializeField] private float startRadius = 14f;
         [SerializeField] private float maxStartSpeedKph = 8f;
         [SerializeField] private float countdownSeconds = 3f;
 
-        [Header("Time tiers")]
+        [Header("Пороги времени")]
         [SerializeField] private float goldTimeSeconds = 60f;
         [SerializeField] private float silverTimeSeconds = 85f;
         [SerializeField] private float bronzeTimeSeconds = 115f;
 
-        [Header("Tier rewards")]
+        [Header("Награды по уровням")]
         [SerializeField] private int goldRewardCredits = 800;
         [SerializeField] private int silverRewardCredits = 650;
         [SerializeField] private int bronzeRewardCredits = 500;

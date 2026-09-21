@@ -344,7 +344,7 @@ namespace MotorCity.Gameplay
                 activityManager.IsBusy)
             {
                 StatusText =
-                    $"ПОДПОЛЬЕ НЕДОСТУПЕН: АКТИВНО «{activityManager.ActiveName}»";
+                    $"ПОДПОЛЬЕ НЕДОСТУПНО: АКТИВНО «{activityManager.ActiveName}»";
 
                 messageTimer = 0.25f;
                 return;
@@ -432,7 +432,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 $"{current.Name} — ФИНИШ {elapsedSeconds:0.0}с   " +
-                $"+{current.Credits:N0} КР   +{current.CredReward} УЛИЧНЫЙ АВТОРИТЕТ";
+                $"+{current.Credits:N0} КР   +{current.CredReward} АВТОРИТЕТА";
 
             messageTimer =
                 MessageSeconds;
@@ -675,9 +675,9 @@ namespace MotorCity.Gameplay
             StatusText =
                 eventIndex >= EventCount
                     ? $"ПОДПОЛЬЕ — ВНУТРЕННИЙ КРУГ   {completed} ЗАВЕРШЁН   " +
-                      $"+{current.Credits:N0} КР   +{current.CredReward} УЛИЧНЫЙ АВТОРИТЕТ"
+                      $"+{current.Credits:N0} КР   +{current.CredReward} АВТОРИТЕТА"
                     : $"{completed} ЗАВЕРШЁН   " +
-                      $"+{current.Credits:N0} КР   +{current.CredReward} УЛИЧНЫЙ АВТОРИТЕТ   " +
+                      $"+{current.Credits:N0} КР   +{current.CredReward} АВТОРИТЕТА   " +
                       $"СЛЕДУЮЩЕЕ ДОВЕРИЕ: {CurrentEvent().RequiredCred}";
 
             messageTimer =
