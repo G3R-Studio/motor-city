@@ -32,6 +32,9 @@ namespace MotorCity.Gameplay
 
         public bool IsComplete { get; private set; }
 
+        public int CurrentStep =>
+            step;
+
         public bool ShowMessage =>
             messageTimer > 0f;
 
