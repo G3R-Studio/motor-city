@@ -330,7 +330,40 @@ namespace MotorCity.Localization
                 { "nightclub.rank.club", E("ЧЛЕН КЛУБА", "CLUB MEMBER") },
                 { "nightclub.rank.trusted", E("ДОВЕРЕННЫЙ", "TRUSTED") },
                 { "nightclub.rank.noticed", E("ЗАМЕЧЕН", "NOTICED") },
-                { "nightclub.rank.unknown", E("НОВИЧОК", "NEWCOMER") }
+                { "nightclub.rank.unknown", E("НОВИЧОК", "NEWCOMER") },
+
+                { "world.main_north", E("СЕВЕР ГЛАВНОГО РАЙОНА", "NORTH MAIN DISTRICT") },
+                { "world.main_west", E("ЗАПАДНАЯ ОКРАИНА", "WEST OUTSKIRTS") },
+                { "world.highway_mid", E("СЕРЕДИНА ШОССЕ", "MID HIGHWAY") },
+                { "world.remote_east", E("ВОСТОК ДАЛЬНЕГО РАЙОНА", "EAST OUTER DISTRICT") },
+                { "world.remote_south", E("ЮГ ДАЛЬНЕГО РАЙОНА", "SOUTH OUTER DISTRICT") },
+                { "world.west_turn", E("ЗАПАДНЫЙ ПОВОРОТ", "WEST TURN") },
+                { "world.north_quarter", E("СЕВЕРНЫЙ КВАРТАЛ", "NORTH QUARTER") },
+                { "world.remote_corner", E("ДАЛЬНИЙ УГОЛ", "OUTER CORNER") },
+                { "world.central_avenue", E("ЦЕНТРАЛЬНЫЙ ПРОСПЕКТ", "CENTRAL AVENUE") },
+                { "world.highway", E("ШОССЕ", "HIGHWAY") },
+                { "world.remote_district", E("ДАЛЬНИЙ РАЙОН", "OUTER DISTRICT") },
+                { "world.north_jump", E("СЕВЕРНЫЙ ТРАМПЛИН", "NORTH RAMP") },
+
+                { "discovery.found", E("ОТКРЫТИЕ — {0}   +{1} КР   +{2} РЕП   {3}/{4}", "DISCOVERY — {0}   +{1} CR   +{2} REP   {3}/{4}") },
+
+                { "challenge.short_goals", E("Б {0}   С {1}   З {2}", "B {0}   S {1}   G {2}") },
+                { "challenge.new_record", E("   НОВЫЙ РЕКОРД", "   NEW RECORD") },
+                { "challenge.best_score", E("   РЕК {0:N0}", "   BEST {0:N0}") },
+                { "challenge.best_speed", E("   РЕК {0:0} {1}", "   BEST {0:0} {1}") },
+                { "challenge.best_distance", E("   РЕК {0:0.0} М", "   BEST {0:0.0} M") },
+                { "challenge.reward", E("   +{0:N0} КР   +{1:N0} РЕП", "   +{0:N0} CR   +{1:N0} REP") },
+
+                { "driftspot.live", E("ДРИФТ-ТОЧКА — {0}   {1:N0}   Б {2:N0}   С {3:N0}   З {4:N0}", "DRIFT SPOT — {0}   {1:N0}   B {2:N0}   S {3:N0}   G {4:N0}") },
+                { "driftspot.prompt", E("ДРИФТ-ТОЧКА — {0}   Б {1:N0}   С {2:N0}   З {3:N0}", "DRIFT SPOT — {0}   B {1:N0}   S {2:N0}   G {3:N0}") },
+                { "driftspot.result", E("ДРИФТ-ТОЧКА — {0}   {1:N0}   {2}{3}{4}", "DRIFT SPOT — {0}   {1:N0}   {2}{3}{4}") },
+
+                { "speedtrap.status", E("РАДАР — {0}   {1:0} {2}   {3}{4}{5}", "SPEED TRAP — {0}   {1:0} {2}   {3}{4}{5}") },
+
+                { "stunt.airborne", E("ПРЫЖОК — {0}   В ВОЗДУХЕ", "JUMP — {0}   AIRBORNE") },
+                { "stunt.prompt", E("ТРАМПЛИН — {0}   Б {1:0}м   С {2:0}м   З {3:0}м", "RAMP — {0}   B {1:0}m   S {2:0}m   G {3:0}m") },
+                { "stunt.live", E("ПРЫЖОК — {0}   {1:0.0} М   {2:0.00} С", "JUMP — {0}   {1:0.0} M   {2:0.00} S") },
+                { "stunt.result", E("ПРЫЖОК — {0}   {1:0.0} М   {2:0.00} С   {3}{4}{5}", "JUMP — {0}   {1:0.0} M   {2:0.00} S   {3}{4}{5}") }
             };
 
         private static string language = Russian;

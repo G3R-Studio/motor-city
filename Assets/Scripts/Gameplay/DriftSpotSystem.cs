@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -41,7 +42,7 @@ namespace MotorCity.Gameplay
             {
                 CreateSpot(
                     "west_roundabout",
-                    "ЗАПАДНЫЙ ПОВОРОТ",
+                    MotorCityLocalization.Text("world.west_turn"),
                     new Vector3(-450f, 0f, 150f),
                     650,
                     1200,
@@ -49,7 +50,7 @@ namespace MotorCity.Gameplay
 
                 CreateSpot(
                     "north_grid",
-                    "СЕВЕРНЫЙ КВАРТАЛ",
+                    MotorCityLocalization.Text("world.north_quarter"),
                     new Vector3(150f, 0f, 450f),
                     800,
                     1500,
@@ -57,7 +58,7 @@ namespace MotorCity.Gameplay
 
                 CreateSpot(
                     "remote_corner",
-                    "ДАЛЬНИЙ УГОЛ",
+                    MotorCityLocalization.Text("world.remote_corner"),
                     new Vector3(-630f, 0f, -1832f),
                     900,
                     1700,
@@ -138,11 +139,13 @@ namespace MotorCity.Gameplay
                 if (distance <= ExitRadius)
                 {
                     StatusText =
-                        $"ДРИФТ-ТОЧКА — {activeSpot.DisplayName}   " +
-                        $"{liveScore:N0}   " +
-                        $"Б {activeSpot.BronzeScore:N0}  " +
-                        $"С {activeSpot.SilverScore:N0}  " +
-                        $"З {activeSpot.GoldScore:N0}";
+                        MotorCityLocalization.Format(
+                            "driftspot.live",
+                            activeSpot.DisplayName,
+                            liveScore,
+                            activeSpot.BronzeScore,
+                            activeSpot.SilverScore,
+                            activeSpot.GoldScore);
                     return;
                 }
 
@@ -168,10 +171,12 @@ namespace MotorCity.Gameplay
                 activeSpot = spot;
                 scoreAtEntry = drift.TotalScore;
                 StatusText =
-                    $"ДРИФТ-ТОЧКА — {spot.DisplayName}   " +
-                    $"Б {spot.BronzeScore:N0}  " +
-                    $"С {spot.SilverScore:N0}  " +
-                    $"З {spot.GoldScore:N0}";
+                    MotorCityLocalization.Format(
+                        "driftspot.prompt",
+                        spot.DisplayName,
+                        spot.BronzeScore,
+                        spot.SilverScore,
+                        spot.GoldScore);
                 return;
             }
         }
@@ -236,21 +241,24 @@ namespace MotorCity.Gameplay
 
             string record =
                 newBest
-                    ? "   НОВЫЙ РЕКОРД"
+                    ? MotorCityLocalization.Text("challenge.new_record")
                     : spot.BestScore > 0
-                        ? $"   РЕК {spot.BestScore:N0}"
+                        ? MotorCityLocalization.Format("challenge.best_score", spot.BestScore)
                         : string.Empty;
 
             string reward =
                 credits > 0 || rep > 0
-                    ? $"   +{credits:N0} КР   +{rep:N0} РЕП"
+                    ? MotorCityLocalization.Format("challenge.reward", credits, rep)
                     : string.Empty;
 
             StatusText =
-                $"ДРИФТ-ТОЧКА — {spot.DisplayName}   " +
-                $"{score:N0}   {MedalName(medal)}" +
-                record +
-                reward;
+                MotorCityLocalization.Format(
+                    "driftspot.result",
+                    spot.DisplayName,
+                    score,
+                    MedalName(medal),
+                    record,
+                    reward);
 
             messageTimer = MessageSeconds;
         }
@@ -273,10 +281,10 @@ namespace MotorCity.Gameplay
         {
             return medal switch
             {
-                3 => "ЗОЛОТО",
-                2 => "СЕРЕБРО",
-                1 => "БРОНЗА",
-                _ => "БЕЗ МЕДАЛИ"
+                3 => MotorCityLocalization.Text("medal.gold"),
+                2 => MotorCityLocalization.Text("medal.silver"),
+                1 => MotorCityLocalization.Text("medal.bronze"),
+                _ => MotorCityLocalization.Text("medal.none")
             };
         }
 

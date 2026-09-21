@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -53,27 +54,27 @@ namespace MotorCity.Gameplay
             {
                 CreateDiscovery(
                     "main_north",
-                    "СЕВЕР ГЛАВНОГО РАЙОНА",
+                    MotorCityLocalization.Text("world.main_north"),
                     new Vector3(450f, 0f, 430f)),
 
                 CreateDiscovery(
                     "main_west",
-                    "ЗАПАДНАЯ ОКРАИНА",
+                    MotorCityLocalization.Text("world.main_west"),
                     new Vector3(-450f, 0f, 360f)),
 
                 CreateDiscovery(
                     "highway_mid",
-                    "СЕРЕДИНА ШОССЕ",
+                    MotorCityLocalization.Text("world.highway_mid"),
                     new Vector3(-300f, 0f, -1000f)),
 
                 CreateDiscovery(
                     "remote_east",
-                    "ВОСТОК ДАЛЬНЕГО РАЙОНА",
+                    MotorCityLocalization.Text("world.remote_east"),
                     new Vector3(20f, 0f, -1832f)),
 
                 CreateDiscovery(
                     "remote_south",
-                    "ЮГ ДАЛЬНЕГО РАЙОНА",
+                    MotorCityLocalization.Text("world.remote_south"),
                     new Vector3(-300f, 0f, -2010f))
             };
         }
@@ -159,9 +160,13 @@ namespace MotorCity.Gameplay
             reputation?.AddReputation(rep);
 
             StatusText =
-                $"ОТКРЫТИЕ — {item.DisplayName}   " +
-                $"+{credits} КР   +{rep} РЕП   " +
-                $"{FoundCount}/{DiscoveryCount}";
+                MotorCityLocalization.Format(
+                    "discovery.found",
+                    item.DisplayName,
+                    credits,
+                    rep,
+                    FoundCount,
+                    DiscoveryCount);
 
             messageTimer = MessageSeconds;
         }

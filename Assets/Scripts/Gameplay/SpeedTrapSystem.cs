@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -40,7 +41,7 @@ namespace MotorCity.Gameplay
                 {
                     CreateTrap(
                         "main_avenue",
-                        "ЦЕНТРАЛЬНЫЙ ПРОСПЕКТ",
+                        MotorCityLocalization.Text("world.central_avenue"),
                         new Vector3(
                             150f,
                             0f,
@@ -51,7 +52,7 @@ namespace MotorCity.Gameplay
 
                     CreateTrap(
                         "highway",
-                        "ШОССЕ",
+                        MotorCityLocalization.Text("world.highway"),
                         new Vector3(
                             -300f,
                             0f,
@@ -62,7 +63,7 @@ namespace MotorCity.Gameplay
 
                     CreateTrap(
                         "remote_district",
-                        "ДАЛЬНИЙ РАЙОН",
+                        MotorCityLocalization.Text("world.remote_district"),
                         new Vector3(
                             -300f,
                             0f,
@@ -257,20 +258,25 @@ namespace MotorCity.Gameplay
             string rewardText =
                 credits > 0 ||
                 rep > 0
-                    ? $"   +{credits:N0} КР   +{rep:N0} РЕП"
+                    ? MotorCityLocalization.Format("challenge.reward", credits, rep)
                     : string.Empty;
 
             string recordText =
                 newBest
-                    ? "   НОВЫЙ РЕКОРД"
+                    ? MotorCityLocalization.Text("challenge.new_record")
                     : trap.BestSpeed > 0f
-                        ? $"   РЕК {trap.BestSpeed:0} КМ/Ч"
+                        ? MotorCityLocalization.Format("challenge.best_speed", trap.BestSpeed, MotorCityLocalization.Text("common.kmh"))
                         : string.Empty;
 
             StatusText =
-                $"РАДАР — {trap.DisplayName}   " +
-                $"{speed:0} КМ/Ч   " +
-                $"{medalText}{recordText}{rewardText}";
+                MotorCityLocalization.Format(
+                    "speedtrap.status",
+                    trap.DisplayName,
+                    speed,
+                    MotorCityLocalization.Text("common.kmh"),
+                    medalText,
+                    recordText,
+                    rewardText);
 
             messageTimer =
                 MessageSeconds;
@@ -300,10 +306,10 @@ namespace MotorCity.Gameplay
         {
             return medal switch
             {
-                3 => "ЗОЛОТО",
-                2 => "СЕРЕБРО",
-                1 => "БРОНЗА",
-                _ => "БЕЗ МЕДАЛИ"
+                3 => MotorCityLocalization.Text("medal.gold"),
+                2 => MotorCityLocalization.Text("medal.silver"),
+                1 => MotorCityLocalization.Text("medal.bronze"),
+                _ => MotorCityLocalization.Text("medal.none")
             };
         }
 
@@ -341,9 +347,11 @@ namespace MotorCity.Gameplay
                 traps[index];
 
             return
-                $"Б {trap.BronzeSpeed:0}  " +
-                $"С {trap.SilverSpeed:0}  " +
-                $"З {trap.GoldSpeed:0}";
+                MotorCityLocalization.Format(
+                    "challenge.short_goals",
+                    trap.BronzeSpeed.ToString("0"),
+                    trap.SilverSpeed.ToString("0"),
+                    trap.GoldSpeed.ToString("0"));
         }
 
         public float GetBestSpeed(

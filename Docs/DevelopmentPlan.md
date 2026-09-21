@@ -48,7 +48,7 @@ Core fantasy:
 - [x] Define platform language and server-time bridge.
 
 ### 0.3 Localization architecture
-- [ ] Move player-facing text out of gameplay logic.
+- [x] Move player-facing text out of gameplay logic.
 - [x] Add localization keys/table.
 - [x] Russian is the default language.
 - [x] Prepare English table without changing the main language.

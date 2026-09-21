@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -45,7 +46,7 @@ namespace MotorCity.Gameplay
             {
                 CreateJump(
                     "main_north",
-                    "СЕВЕРНЫЙ ТРАМПЛИН",
+                    MotorCityLocalization.Text("world.north_jump"),
                     new Vector3(450f, 0f, 360f),
                     new Vector3(0f, 0f, 1f),
                     1f,
@@ -55,7 +56,7 @@ namespace MotorCity.Gameplay
 
                 CreateJump(
                     "highway",
-                    "ШОССЕ",
+                    MotorCityLocalization.Text("world.highway"),
                     new Vector3(-300f, 0f, -1400f),
                     new Vector3(0f, 0f, -1f),
                     -1f,
@@ -65,7 +66,7 @@ namespace MotorCity.Gameplay
 
                 CreateJump(
                     "remote",
-                    "ДАЛЬНИЙ РАЙОН",
+                    MotorCityLocalization.Text("world.remote_district"),
                     new Vector3(-300f, 0f, -2010f),
                     new Vector3(0f, 0f, 1f),
                     1f,
@@ -198,7 +199,7 @@ namespace MotorCity.Gameplay
                     airborneSeconds = 0f;
 
                     StatusText =
-                        $"ПРЫЖОК — {activeJump.DisplayName}   В ВОЗДУХЕ";
+                        MotorCityLocalization.Format("stunt.airborne", activeJump.DisplayName);
                 }
 
                 return;
@@ -243,10 +244,12 @@ namespace MotorCity.Gameplay
                 armedJump = jump;
 
                 StatusText =
-                    $"ТРАМПЛИН — {jump.DisplayName}   " +
-                    $"Б {jump.BronzeDistance:0}м  " +
-                    $"С {jump.SilverDistance:0}м  " +
-                    $"З {jump.GoldDistance:0}м";
+                    MotorCityLocalization.Format(
+                        "stunt.prompt",
+                        jump.DisplayName,
+                        jump.BronzeDistance,
+                        jump.SilverDistance,
+                        jump.GoldDistance);
 
                 return;
             }
@@ -263,9 +266,11 @@ namespace MotorCity.Gameplay
                     car.transform.position);
 
             StatusText =
-                $"ПРЫЖОК — {activeJump.DisplayName}   " +
-                $"{liveDistance:0.0} М   " +
-                $"{airborneSeconds:0.00} С";
+                MotorCityLocalization.Format(
+                    "stunt.live",
+                    activeJump.DisplayName,
+                    liveDistance,
+                    airborneSeconds);
 
             if (airborneSeconds <
                     MinimumAirTime ||
@@ -352,23 +357,26 @@ namespace MotorCity.Gameplay
 
             string recordText =
                 newBest
-                    ? "   НОВЫЙ РЕКОРД"
+                    ? MotorCityLocalization.Text("challenge.new_record")
                     : jump.BestDistance > 0f
-                        ? $"   РЕК {jump.BestDistance:0.0} М"
+                        ? MotorCityLocalization.Format("challenge.best_distance", jump.BestDistance)
                         : string.Empty;
 
             string rewardText =
                 credits > 0 ||
                 rep > 0
-                    ? $"   +{credits:N0} КР   +{rep:N0} РЕП"
+                    ? MotorCityLocalization.Format("challenge.reward", credits, rep)
                     : string.Empty;
 
             StatusText =
-                $"ПРЫЖОК — {jump.DisplayName}   " +
-                $"{distance:0.0} М   {airTime:0.00} С   " +
-                $"{MedalName(medal)}" +
-                recordText +
-                rewardText;
+                MotorCityLocalization.Format(
+                    "stunt.result",
+                    jump.DisplayName,
+                    distance,
+                    airTime,
+                    MedalName(medal),
+                    recordText,
+                    rewardText);
 
             messageTimer =
                 MessageSeconds;
@@ -405,10 +413,10 @@ namespace MotorCity.Gameplay
         {
             return medal switch
             {
-                3 => "ЗОЛОТО",
-                2 => "СЕРЕБРО",
-                1 => "БРОНЗА",
-                _ => "БЕЗ МЕДАЛИ"
+                3 => MotorCityLocalization.Text("medal.gold"),
+                2 => MotorCityLocalization.Text("medal.silver"),
+                1 => MotorCityLocalization.Text("medal.bronze"),
+                _ => MotorCityLocalization.Text("medal.none")
             };
         }
 
