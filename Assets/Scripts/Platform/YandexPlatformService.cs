@@ -345,7 +345,12 @@ namespace MotorCity.Platform
                     out serverTime);
             }
 
-            PlayerAvailable = true;
+            bool playerAvailable =
+                parts.Length > 3 &&
+                parts[3] == "1";
+
+            PlayerAvailable =
+                playerAvailable;
 
             Action<YandexInitResult> callback =
                 initializeCallback;

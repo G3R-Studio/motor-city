@@ -43,8 +43,10 @@ mergeInto(LibraryManager.library, {
           serverTime = ysdk.serverTime();
         }
 
+        var playerAvailable = player ? 1 : 0;
+
         send('OnYandexInitialized',
-          authorized + '|' + language + '|' + Math.floor(serverTime));
+          authorized + '|' + language + '|' + Math.floor(serverTime) + '|' + playerAvailable);
       } catch (error) {
         send('OnYandexInitFailed', error && error.message ? error.message : error);
       }

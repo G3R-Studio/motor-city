@@ -104,19 +104,19 @@ Core fantasy:
 
 ## Phase 1 — Yandex Games foundation
 
-- [ ] Production Boot scene.
-- [ ] Yandex SDK adapter implementation.
-- [ ] Guest mode.
-- [ ] Game Ready lifecycle.
-- [ ] Local + cloud save conflict strategy.
-- [ ] Pause/resume integration.
-- [ ] Platform language.
+- [x] Production Boot scene.
+- [x] Yandex SDK adapter implementation.
+- [x] Guest mode.
+- [x] Game Ready lifecycle.
+- [x] Local + cloud save conflict strategy.
+- [x] Pause/resume integration.
+- [x] Platform language.
 - [ ] Basic analytics.
 - [ ] Leaderboard adapter.
 - [ ] Rewarded ad adapter.
 - [ ] Purchase adapter.
 - [ ] Remote config adapter.
-- [ ] Mobile device quality selection.
+- [x] Mobile device quality selection.
 
 ---
 
