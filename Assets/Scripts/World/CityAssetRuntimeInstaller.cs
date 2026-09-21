@@ -180,6 +180,13 @@ namespace MotorCity.World
 
             Physics.SyncTransforms();
 
+            RoadSearchDebug.BeginSession(
+                cityBounds,
+                hasCityBounds,
+                activeCity != null
+                    ? activeCity.name
+                    : "<null>");
+
             ResolveGameplayLayout();
 
             return true;
@@ -207,11 +214,16 @@ namespace MotorCity.World
             Vector3 roadPoint =
                 PlayerSpawnPoint;
 
+            int testedCandidates = 0;
+            int acceptedCandidates = 0;
+
             bool foundRoad =
                 activeCity != null &&
                 TryFindNearestRoadForReset(
                     approximate,
-                    out roadPoint);
+                    out roadPoint,
+                    out testedCandidates,
+                    out acceptedCandidates);
 
             if (!foundRoad)
             {
@@ -228,6 +240,20 @@ namespace MotorCity.World
                         spawnRoad;
                 }
             }
+
+            RoadSearchDebug.Log(
+                "[RESCUE] from=" +
+                approximate.ToString("F2") +
+                " found=" +
+                foundRoad +
+                " tested=" +
+                testedCandidates +
+                " accepted=" +
+                acceptedCandidates +
+                " chosenRoad=" +
+                roadPoint.ToString("F2") +
+                " fallbackToSpawn=" +
+                (!foundRoad));
 
             // Use the actual road height only. Never derive rescue height
             // from the current vehicle Y; otherwise repeated resets can climb.
@@ -275,16 +301,21 @@ namespace MotorCity.World
 
         private static bool TryFindNearestRoadForReset(
             Vector3 approximate,
-            out Vector3 roadPoint)
+            out Vector3 roadPoint,
+            out int testedCandidates,
+            out int acceptedCandidates)
         {
             roadPoint =
                 default;
+            testedCandidates = 1;
+            acceptedCandidates = 0;
 
             if (TryGetRoadHit(
                     approximate.x,
                     approximate.z,
                     out roadPoint))
             {
+                acceptedCandidates = 1;
                 return true;
             }
 
@@ -326,7 +357,9 @@ namespace MotorCity.World
                         approximate.z - radius,
                         ref found,
                         ref roadPoint,
-                        ref bestDistanceSquared);
+                        ref bestDistanceSquared,
+                        ref testedCandidates,
+                        ref acceptedCandidates);
 
                     TestResetRoadCandidate(
                         approximate,
@@ -334,7 +367,9 @@ namespace MotorCity.World
                         approximate.z + radius,
                         ref found,
                         ref roadPoint,
-                        ref bestDistanceSquared);
+                        ref bestDistanceSquared,
+                        ref testedCandidates,
+                        ref acceptedCandidates);
 
                     TestResetRoadCandidate(
                         approximate,
@@ -342,7 +377,9 @@ namespace MotorCity.World
                         approximate.z + offset,
                         ref found,
                         ref roadPoint,
-                        ref bestDistanceSquared);
+                        ref bestDistanceSquared,
+                        ref testedCandidates,
+                        ref acceptedCandidates);
 
                     TestResetRoadCandidate(
                         approximate,
@@ -350,7 +387,9 @@ namespace MotorCity.World
                         approximate.z + offset,
                         ref found,
                         ref roadPoint,
-                        ref bestDistanceSquared);
+                        ref bestDistanceSquared,
+                        ref testedCandidates,
+                        ref acceptedCandidates);
                 }
 
                 if (found &&
@@ -370,8 +409,12 @@ namespace MotorCity.World
             float z,
             ref bool found,
             ref Vector3 best,
-            ref float bestDistanceSquared)
+            ref float bestDistanceSquared,
+            ref int testedCandidates,
+            ref int acceptedCandidates)
         {
+            testedCandidates++;
+
             if (hasCityBounds &&
                 (x < cityBounds.min.x ||
                  x > cityBounds.max.x ||
@@ -388,6 +431,8 @@ namespace MotorCity.World
             {
                 return;
             }
+
+            acceptedCandidates++;
 
             float dx =
                 hit.x -
@@ -473,6 +518,57 @@ namespace MotorCity.World
                 ResolveRoadRoute(
                     UndergroundPreferred,
                     "underground");
+
+            RoadSearchDebug.Log(
+                "[LAYOUT] spawn=" +
+                PlayerSpawnPoint.ToString("F2") +
+                " garage=" +
+                GaragePoint.ToString("F2") +
+                " drift=" +
+                DriftChallengePoint.ToString("F2"));
+
+            LogRoute(
+                "delivery",
+                deliveryRoute);
+
+            LogRoute(
+                "sprint",
+                sprintRoute);
+
+            LogRoute(
+                "circuit",
+                circuitRoute);
+
+            LogRoute(
+                "night",
+                undergroundRoute);
+        }
+
+        private static void LogRoute(
+            string name,
+            Vector3[] route)
+        {
+            if (route == null)
+            {
+                RoadSearchDebug.Log(
+                    "[LAYOUT] " +
+                    name +
+                    "=<null>");
+                return;
+            }
+
+            for (int i = 0;
+                 i < route.Length;
+                 i++)
+            {
+                RoadSearchDebug.Log(
+                    "[LAYOUT] " +
+                    name +
+                    "[" +
+                    i +
+                    "]=" +
+                    route[i].ToString("F2"));
+            }
         }
 
         private static Vector3[] ResolveRoadRoute(
@@ -515,6 +611,12 @@ namespace MotorCity.World
                 {
                     exact.y +=
                         MarkerLift;
+
+                    RoadSearchDebug.Log(
+                        "[ROAD SNAP] " +
+                        context +
+                        " exact=" +
+                        exact.ToString("F2"));
 
                     return exact;
                 }
@@ -602,11 +704,29 @@ namespace MotorCity.World
                         0.2f,
                         preferred.y);
 
+                RoadSearchDebug.Log(
+                    "[ROAD SNAP] " +
+                    context +
+                    " FALLBACK preferred=" +
+                    preferred.ToString("F2") +
+                    " radius=" +
+                    searchRadius.ToString("F1"));
+
                 return best;
             }
 
             best.y +=
                 MarkerLift;
+
+            RoadSearchDebug.Log(
+                "[ROAD SNAP] " +
+                context +
+                " nearest=" +
+                best.ToString("F2") +
+                " preferred=" +
+                preferred.ToString("F2") +
+                " radius=" +
+                searchRadius.ToString("F1"));
 
             return best;
         }
@@ -808,7 +928,7 @@ namespace MotorCity.World
 
             foreach (RaycastHit hit in hits)
             {
-                if (!IsExactRoadTriangle(
+                if (!IsRoadSurface(
                         hit))
                     continue;
 
@@ -891,6 +1011,91 @@ namespace MotorCity.World
             }
 
             return false;
+        }
+
+        private static bool IsRoadSurface(
+            RaycastHit hit)
+        {
+            if (hit.collider == null)
+                return false;
+
+            string path =
+                GetHierarchyPath(
+                        hit.collider.transform)
+                    .ToLowerInvariant();
+
+            if (path.Contains("sidewalk") ||
+                path.Contains("/buildings/") ||
+                path.Contains("/park-") ||
+                path.Contains("/garden") ||
+                path.Contains("/objects/") ||
+                path.Contains("guardrail") ||
+                path.Contains("guard-rail") ||
+                path.Contains("grass"))
+            {
+                return false;
+            }
+
+            bool pathLooksLikeRoad =
+                path.Contains("road") ||
+                path.Contains("street") ||
+                path.Contains("highway") ||
+                path.Contains("asphalt") ||
+                path.Contains("intersection") ||
+                path.Contains("crossroad");
+
+            if (IsExactRoadTriangle(
+                    hit))
+            {
+                return true;
+            }
+
+            Renderer renderer =
+                hit.collider.GetComponent<Renderer>();
+
+            if (renderer == null)
+            {
+                renderer =
+                    hit.collider.GetComponentInParent<Renderer>();
+            }
+
+            if (renderer == null)
+            {
+                renderer =
+                    hit.collider.GetComponentInChildren<Renderer>();
+            }
+
+            if (renderer != null)
+            {
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                if (materials != null)
+                {
+                    foreach (Material material in
+                             materials)
+                    {
+                        if (material == null)
+                            continue;
+
+                        string materialName =
+                            material.name
+                                .ToLowerInvariant();
+
+                        bool materialLooksLikeRoad =
+                            (materialName.Contains("road") ||
+                             materialName.Contains("highway") ||
+                             materialName.Contains("asphalt") ||
+                             materialName.Contains("street")) &&
+                            !materialName.Contains("grass");
+
+                        if (materialLooksLikeRoad)
+                            return true;
+                    }
+                }
+            }
+
+            return pathLooksLikeRoad;
         }
 
         private static bool IsExactRoadTriangle(
