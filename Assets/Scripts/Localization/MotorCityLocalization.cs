@@ -443,6 +443,10 @@ namespace MotorCity.Localization
                 { "turbo.skin_purple", E("КОСМОС", "COSMIC") },
                 { "turbo.skin_gold", E("ЗОЛОТОЙ", "GOLD") },
                 { "turbo.skin_season1", E("МЯТНЫЙ ФЕСТИВАЛЬ", "MINT FESTIVAL") },
+                { "turbo.skin_premium_1", E("РОЗОВЫЙ ИМПУЛЬС", "PINK PULSE") },
+                { "turbo.skin_premium_2", E("МЯТНЫЙ НЕОН", "MINT NEON") },
+                { "turbo.skin_premium_3", E("УЛЬТРАФИОЛЕТ", "ULTRAVIOLET") },
+                { "turbo.skin_cosmetic_pack", E("ТУРБО-ИСКРА", "TURBO SPARK") },
                 { "turbo.skin_unlocked", E("Турбо: открыт новый скин «{0}»!", "Turbo: new skin “{0}” unlocked!") },
                 { "turbo.skin_selected", E("Турбо: выбран скин «{0}».", "Turbo: “{0}” skin selected.") },
 

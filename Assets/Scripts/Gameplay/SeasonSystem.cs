@@ -36,6 +36,17 @@ namespace MotorCity.Gameplay
 
         public bool IsComplete { get; private set; }
 
+        public int MissionCount =>
+            missions?.Length ?? 10;
+
+        public int CompletedMissionCount =>
+            IsComplete
+                ? MissionCount
+                : Mathf.Clamp(
+                    missionIndex,
+                    0,
+                    MissionCount);
+
         public bool IsSeasonOneActive
         {
             get

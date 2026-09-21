@@ -143,7 +143,7 @@ namespace MotorCity.Gameplay
                         SelectedSkinKey,
                         0),
                     0,
-                    5);
+                    9);
 
             if (!IsSkinUnlocked(
                     selectedSkin))
@@ -197,7 +197,7 @@ namespace MotorCity.Gameplay
             int skinIndex)
         {
             if (skinIndex < 0 ||
-                skinIndex > 5)
+                skinIndex > 9)
             {
                 return false;
             }
@@ -211,7 +211,7 @@ namespace MotorCity.Gameplay
             int skinIndex)
         {
             if (skinIndex <= 0 ||
-                skinIndex > 5 ||
+                skinIndex > 9 ||
                 IsSkinUnlocked(
                     skinIndex))
             {
@@ -239,13 +239,13 @@ namespace MotorCity.Gameplay
         public void CycleSkin()
         {
             for (int offset = 1;
-                 offset <= 6;
+                 offset <= 10;
                  offset++)
             {
                 int candidate =
                     (selectedSkin +
                      offset) %
-                    6;
+                    10;
 
                 if (!IsSkinUnlocked(
                         candidate))
@@ -867,6 +867,30 @@ namespace MotorCity.Gameplay
                             1f,
                             0.82f,
                             1f),
+                    6 =>
+                        new Color(
+                            1f,
+                            0.24f,
+                            0.56f,
+                            1f),
+                    7 =>
+                        new Color(
+                            0.22f,
+                            0.95f,
+                            0.62f,
+                            1f),
+                    8 =>
+                        new Color(
+                            0.36f,
+                            0.22f,
+                            1f,
+                            1f),
+                    9 =>
+                        new Color(
+                            1f,
+                            0.32f,
+                            0.08f,
+                            1f),
                     _ =>
                         new Color(
                             0.92f,
@@ -918,6 +942,10 @@ namespace MotorCity.Gameplay
                     3 => "turbo.skin_purple",
                     4 => "turbo.skin_gold",
                     5 => "turbo.skin_season1",
+                    6 => "turbo.skin_premium_1",
+                    7 => "turbo.skin_premium_2",
+                    8 => "turbo.skin_premium_3",
+                    9 => "turbo.skin_cosmetic_pack",
                     _ => "turbo.skin_classic"
                 };
         }
