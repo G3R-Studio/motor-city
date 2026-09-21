@@ -14,7 +14,8 @@ namespace MotorCity.Gameplay
         NightClub = 5,
         Daily = 6,
         Story = 7,
-        Profession = 8
+        Profession = 8,
+        Inspector = 9
     }
 
     public enum MissionStepType

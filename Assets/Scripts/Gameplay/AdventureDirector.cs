@@ -11,6 +11,7 @@ namespace MotorCity.Gameplay
         private CityLiveEventSystem liveEvents;
         private CityLegendSystem legends;
         private UndergroundSceneSystem nightClub;
+        private CityRiskSystem cityRisk;
 
         private float refreshTimer;
 
@@ -30,7 +31,8 @@ namespace MotorCity.Gameplay
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
             CityLegendSystem legendSystem,
-            UndergroundSceneSystem nightClubSystem)
+            UndergroundSceneSystem nightClubSystem,
+            CityRiskSystem riskSystem)
         {
             activityManager =
                 manager;
@@ -44,6 +46,8 @@ namespace MotorCity.Gameplay
                 legendSystem;
             nightClub =
                 nightClubSystem;
+            cityRisk =
+                riskSystem;
 
             RefreshMission();
         }
@@ -73,6 +77,12 @@ namespace MotorCity.Gameplay
 
             if (activity != null)
                 return activity;
+
+            MissionDefinition inspector =
+                BuildInspectorMission();
+
+            if (inspector != null)
+                return inspector;
 
             MissionDefinition night =
                 BuildNightClubMission();
@@ -155,6 +165,32 @@ namespace MotorCity.Gameplay
                         objective));
         }
 
+        private MissionDefinition BuildInspectorMission()
+        {
+            if (cityRisk == null ||
+                !cityRisk.PursuitActive)
+            {
+                return null;
+            }
+
+            string objective =
+                cityRisk.HudLine;
+
+            return
+                new MissionDefinition(
+                    "source.inspector",
+                    MotorCityLocalization.Text(
+                        "adventure.inspector"),
+                    objective,
+                    AdventureMissionSource.Inspector,
+                    950)
+                .AddStep(
+                    new MissionStepDefinition(
+                        MissionStepType.Parking,
+                        string.Empty,
+                        objective));
+        }
+
         private MissionDefinition BuildNightClubMission()
         {
             if (nightClub == null ||
@@ -231,7 +267,7 @@ namespace MotorCity.Gameplay
                 new MissionDefinition(
                     "source.live_event",
                     MotorCityLocalization.Text(
-                        "hud.discovery"),
+                        "adventure.city_event"),
                     objective,
                     AdventureMissionSource.LiveEvent,
                     700)
@@ -260,7 +296,7 @@ namespace MotorCity.Gameplay
                 new MissionDefinition(
                     "source.contract",
                     MotorCityLocalization.Text(
-                        "contract.intro"),
+                        "adventure.contract"),
                     objective,
                     AdventureMissionSource.Contract,
                     600)
@@ -289,7 +325,7 @@ namespace MotorCity.Gameplay
                 new MissionDefinition(
                     "source.career",
                     MotorCityLocalization.Text(
-                        "career.rookie"),
+                        "adventure.career"),
                     objective,
                     AdventureMissionSource.Career,
                     500)

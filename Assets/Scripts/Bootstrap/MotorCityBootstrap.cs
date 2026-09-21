@@ -248,6 +248,18 @@ namespace MotorCity.Bootstrap
                 vehicleRoster,
                 underground);
 
+            AdventureDirector adventureDirector =
+                systems.AddComponent<AdventureDirector>();
+
+            adventureDirector.Initialize(
+                activityManager,
+                career,
+                contracts,
+                liveEvents,
+                legends,
+                underground,
+                cityRisk);
+
             AdminDebugPanel adminPanel =
                 systems.AddComponent<AdminDebugPanel>();
 
@@ -308,7 +320,8 @@ namespace MotorCity.Bootstrap
                 contracts,
                 liveEvents,
                 underground,
-                cityRisk);
+                cityRisk,
+                adventureDirector);
 
             MotorCityPlatform.GameReady();
             platformRuntime.MarkGameplayRunning();
@@ -1184,7 +1197,8 @@ namespace MotorCity.Bootstrap
             CityContractSystem contracts,
             CityLiveEventSystem liveEvents,
             UndergroundSceneSystem underground,
-            CityRiskSystem cityRisk)
+            CityRiskSystem cityRisk,
+            AdventureDirector adventureDirector)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
@@ -1210,7 +1224,8 @@ namespace MotorCity.Bootstrap
                 contracts,
                 liveEvents,
                 underground,
-                cityRisk);
+                cityRisk,
+                adventureDirector);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)

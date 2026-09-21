@@ -69,11 +69,11 @@ Core fantasy:
 - [ ] Replace runtime minimap camera with a cheaper solution if profiling confirms it is expensive.
 
 ### 0.6 Mission / Adventure architecture
-- [ ] Add a shared mission definition and step model.
-- [ ] Add AdventureDirector.
-- [ ] Existing Delivery/Drift/Sprint/Circuit remain reusable activity executors.
-- [ ] Career, contracts, live events, legends and secret events become mission sources instead of competing HUD systems.
-- [ ] Add reusable steps: go to point, checkpoints, drift score, race result, delivery, discovery, photo, parking.
+- [x] Add a shared mission definition and step model.
+- [x] Add AdventureDirector.
+- [x] Existing Delivery/Drift/Sprint/Circuit remain reusable activity executors.
+- [x] Career, contracts, live events, legends and secret events become mission sources instead of competing HUD systems.
+- [x] Add reusable steps: go to point, checkpoints, drift score, race result, delivery, discovery, photo, parking.
 
 ### 0.7 Repackage existing progression
 - [ ] Simplify player-facing progression to KR + REP.

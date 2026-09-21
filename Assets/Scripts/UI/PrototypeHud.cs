@@ -32,6 +32,7 @@ namespace MotorCity.UI
         private CityLiveEventSystem liveEvents;
         private UndergroundSceneSystem underground;
         private CityRiskSystem cityRisk;
+        private AdventureDirector adventureDirector;
 
         private Font font;
         private Sprite panelSprite;
@@ -130,7 +131,8 @@ namespace MotorCity.UI
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
             UndergroundSceneSystem undergroundSystem,
-            CityRiskSystem riskSystem)
+            CityRiskSystem riskSystem,
+            AdventureDirector director)
         {
             car = controller;
             wallet = playerWallet;
@@ -154,6 +156,7 @@ namespace MotorCity.UI
             liveEvents = liveEventSystem;
             underground = undergroundSystem;
             cityRisk = riskSystem;
+            adventureDirector = director;
 
             BuildUi();
         }
@@ -1882,46 +1885,11 @@ namespace MotorCity.UI
 
         private string ResolveObjectiveLine()
         {
-            if (activityManager != null &&
-                activityManager.IsBusy)
-            {
-                return
-                    string.IsNullOrWhiteSpace(
-                        activityManager.ActiveName)
-                        ? string.Empty
-                        : MotorCityLocalization.Format("hud.target", activityManager.ActiveName);
-            }
+            if (adventureDirector == null)
+                return string.Empty;
 
-            if (cityRisk != null &&
-                cityRisk.PursuitActive)
-            {
-                return
-                    cityRisk.HudLine;
-            }
-
-            if (underground != null &&
-                underground.HasActiveInvitation)
-            {
-                return underground.HudLine;
-            }
-
-            if (legends != null &&
-                !legends.AllLegendsDefeated)
-            {
-                return legends.HudLine;
-            }
-
-            if (liveEvents != null)
-            {
-                return liveEvents.HudLine;
-            }
-
-            if (contracts != null)
-            {
-                return contracts.HudLine;
-            }
-
-            return string.Empty;
+            return
+                adventureDirector.ObjectiveLine;
         }
 
         private void OnDestroy()
