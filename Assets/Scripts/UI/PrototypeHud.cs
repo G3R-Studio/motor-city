@@ -75,6 +75,7 @@ namespace MotorCity.UI
         private GameObject statusPanel;
         private GameObject driftPanel;
         private GameObject garageOverlay;
+        private GameObject garagePassportPanel;
         private GameObject activityResultOverlay;
         private RectTransform safeAreaRoot;
 
@@ -97,6 +98,12 @@ namespace MotorCity.UI
         private Text garageVehicleHistoryText;
         private Text garageVehicleSpecializationText;
         private Text garageCollectionText;
+        private Text garagePassportTitleText;
+        private Text garagePassportSummaryText;
+        private Text garagePassportDisciplinesText;
+        private Text garagePassportMasteryText;
+        private Text garagePassportSpecializationText;
+        private bool garagePassportOpen;
         private readonly Text[] garageTitleTexts =
             new Text[3];
         private readonly Text[] garagePriceTexts =
@@ -381,6 +388,17 @@ namespace MotorCity.UI
                 garage.IsOpen;
 
             garageOverlay.SetActive(garageOpen);
+
+            if (!garageOpen)
+            {
+                garagePassportOpen = false;
+
+                if (garagePassportPanel != null)
+                {
+                    garagePassportPanel.SetActive(
+                        false);
+                }
+            }
 
             if (garageOpen)
                 UpdateGarage();
@@ -1847,6 +1865,92 @@ namespace MotorCity.UI
                         SecondaryTextColor);
             }
 
+            garagePassportPanel =
+                CreatePanel(
+                    panel,
+                    "Vehicle Passport",
+                    new Vector2(28f, -202f),
+                    new Vector2(704f, 276f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Color(
+                        0.028f,
+                        0.036f,
+                        0.052f,
+                        0.99f)).gameObject;
+
+            RectTransform passportRect =
+                garagePassportPanel
+                    .GetComponent<RectTransform>();
+
+            garagePassportTitleText =
+                CreateText(
+                    passportRect,
+                    "Passport Title",
+                    23,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(22f, -18f),
+                    new Vector2(640f, 34f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    TextColor);
+
+            garagePassportSummaryText =
+                CreateText(
+                    passportRect,
+                    "Passport Summary",
+                    16,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(22f, -66f),
+                    new Vector2(650f, 64f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Color(0.82f, 0.72f, 1f, 1f));
+
+            garagePassportDisciplinesText =
+                CreateText(
+                    passportRect,
+                    "Passport Disciplines",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(22f, -132f),
+                    new Vector2(650f, 54f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    SecondaryTextColor);
+
+            garagePassportMasteryText =
+                CreateText(
+                    passportRect,
+                    "Passport Mastery",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(22f, -186f),
+                    new Vector2(650f, 28f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Color(0.52f, 1f, 0.68f, 1f));
+
+            garagePassportSpecializationText =
+                CreateText(
+                    passportRect,
+                    "Passport Specialization",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(22f, -220f),
+                    new Vector2(650f, 34f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    GarageAccent);
+
+            garagePassportPanel.SetActive(
+                false);
+
             garageStatusText =
                 CreateText(
                     panel,
@@ -1874,11 +1978,30 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             footer.text =
-                MotorCityLocalization.Text("hud.garage_controls");
+                MotorCityLocalization.Text("hud.garage_controls") +
+                "   •   " +
+                MotorCityLocalization.Text("hud.passport_control");
         }
 
         private void UpdateGarage()
         {
+            if (MotorCityInput.ToggleVehiclePassportPressed)
+            {
+                garagePassportOpen =
+                    !garagePassportOpen;
+            }
+
+            if (garagePassportPanel != null)
+            {
+                garagePassportPanel.SetActive(
+                    garagePassportOpen);
+            }
+
+            if (garagePassportOpen)
+            {
+                UpdateVehiclePassport();
+            }
+
             garageMoneyText.text =
                 MotorCityLocalization.Format("common.credits", garage.Credits);
 
@@ -1932,6 +2055,39 @@ namespace MotorCity.UI
 
             garageStatusText.text =
                 garage.StatusText;
+        }
+
+        private void UpdateVehiclePassport()
+        {
+            if (garagePassportTitleText == null)
+                return;
+
+            garagePassportTitleText.text =
+                MotorCityLocalization.Format(
+                    "history.passport_title",
+                    garage != null
+                        ? garage.VehicleLine
+                        : string.Empty);
+
+            garagePassportSummaryText.text =
+                vehicleHistory == null
+                    ? string.Empty
+                    : vehicleHistory.PassportSummary;
+
+            garagePassportDisciplinesText.text =
+                vehicleHistory == null
+                    ? string.Empty
+                    : vehicleHistory.PassportDisciplines;
+
+            garagePassportMasteryText.text =
+                garage == null
+                    ? string.Empty
+                    : garage.VehicleMasteryLine;
+
+            garagePassportSpecializationText.text =
+                vehicleSpecialization == null
+                    ? string.Empty
+                    : vehicleSpecialization.GarageLine;
         }
 
         private void UpdateNotificationQueue()

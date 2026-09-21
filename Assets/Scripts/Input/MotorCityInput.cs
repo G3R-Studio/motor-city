@@ -32,16 +32,17 @@ namespace MotorCity.Input
         CyclePlate = 24,
         SaveCustomizationPreset = 25,
         LoadCustomizationPreset = 26,
-        TakePhoto = 27
+        TakePhoto = 27,
+        ToggleVehiclePassport = 28
     }
 
     public static class MotorCityInput
     {
         private static readonly bool[] VirtualHeld =
-            new bool[28];
+            new bool[29];
 
         private static readonly int[] VirtualPressedFrame =
-            new int[28];
+            new int[29];
 
         static MotorCityInput()
         {
@@ -173,6 +174,10 @@ namespace MotorCity.Input
         public static bool TakePhotoPressed =>
             KeyPressed(Key.P) ||
             VirtualPressed(MotorCityInputAction.TakePhoto);
+
+        public static bool ToggleVehiclePassportPressed =>
+            KeyPressed(Key.K) ||
+            VirtualPressed(MotorCityInputAction.ToggleVehiclePassport);
 
         public static bool CycleDriveModePressed =>
             KeyPressed(

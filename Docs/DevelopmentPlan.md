@@ -183,7 +183,7 @@ Core fantasy:
 - [x] Ice cream route.
 - [x] Car wash mini-game.
 - [ ] Tow-truck profession after suitable vehicle exists.
-- [ ] Vehicle passport/history screen.
+- [x] Vehicle passport/history screen.
 - [ ] Better contract mini-stories.
 - [x] Profession progression without adding extra currencies.
 

@@ -29,6 +29,25 @@ namespace MotorCity.Gameplay
         public float DistanceKm => distanceMeters / 1000f;
         public int Victories => victories;
         public int EarnedCredits => earnedCredits;
+        public int RacingVictories => racingVictories;
+        public int DriftVictories => driftVictories;
+        public int DeliveryVictories => deliveryVictories;
+
+        public string PassportSummary =>
+            MotorCityLocalization.Format(
+                "history.passport_summary",
+                DistanceKm,
+                victories,
+                earnedCredits,
+                LegacyStatus);
+
+        public string PassportDisciplines =>
+            MotorCityLocalization.Format(
+                "history.passport_disciplines",
+                racingVictories,
+                driftVictories,
+                deliveryVictories,
+                FavoriteDiscipline);
 
         public string GarageLine
         {
