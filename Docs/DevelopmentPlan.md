@@ -83,12 +83,12 @@ Core fantasy:
 - [x] Remove criminal/dark presentation that conflicts with the 6+ tone.
 
 ### 0.8 Vehicle ownership and economy
-- [ ] REP unlocks access to a vehicle.
-- [ ] KR purchases ownership.
-- [ ] Starter vehicle is always owned and useful.
-- [ ] Collection score counts owned cars, not REP-unlocked cars.
-- [ ] Vehicle mastery/history stays attached to the specific car.
-- [ ] Balance upgrade and vehicle prices around 4–8 minute sessions.
+- [x] REP unlocks access to a vehicle.
+- [x] KR purchases ownership.
+- [x] Starter vehicle is always owned and useful.
+- [x] Collection score counts owned cars, not REP-unlocked cars.
+- [x] Vehicle mastery/history stays attached to the specific car.
+- [x] Balance upgrade and vehicle prices around 4–8 minute sessions.
 
 ### 0.9 Existing-runtime optimization
 - [ ] Cache repeated object lookups.

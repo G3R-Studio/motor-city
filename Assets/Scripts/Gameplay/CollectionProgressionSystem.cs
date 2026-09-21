@@ -82,7 +82,7 @@ namespace MotorCity.Gameplay
             MotorCityLocalization.Format(
                 "collection.garage",
                 Rating,
-                UnlockedVehicles(),
+                OwnedVehicles(),
                 VehicleCount(),
                 Mathf.Min(
                     claimedTier + 1,
@@ -220,13 +220,16 @@ namespace MotorCity.Gameplay
             if (roster != null)
             {
                 score +=
-                    roster.GetUnlockedVehicleCount() *
+                    roster.GetOwnedVehicleCount() *
                     120;
 
                 for (int i = 0;
                      i < roster.VehicleCount;
                      i++)
                 {
+                    if (!roster.IsOwned(i))
+                        continue;
+
                     string vehicleId =
                         roster.GetVehicleId(
                             i);

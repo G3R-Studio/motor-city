@@ -150,6 +150,9 @@ namespace MotorCity.Gameplay
             if (MotorCityInput.NextVehiclePressed)
                 TrySelectVehicle(1);
 
+            if (MotorCityInput.BuyVehiclePressed)
+                TryPurchaseNextVehicle();
+
             if (MotorCityInput.CancelPressed)
                 CloseGarage();
         }
@@ -305,6 +308,24 @@ namespace MotorCity.Gameplay
 
             vehicleRoster.TrySelectOffset(
                 offset,
+                out string status);
+
+            if (!string.IsNullOrWhiteSpace(
+                    status))
+            {
+                StatusText =
+                    status;
+            }
+
+            ApplyUpgrades();
+        }
+
+        private void TryPurchaseNextVehicle()
+        {
+            if (vehicleRoster == null)
+                return;
+
+            vehicleRoster.TryPurchaseNextVehicle(
                 out string status);
 
             if (!string.IsNullOrWhiteSpace(

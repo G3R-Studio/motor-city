@@ -132,7 +132,8 @@ namespace MotorCity.Bootstrap
                 systems.AddComponent<VehicleRosterSystem>();
             vehicleRoster.Initialize(
                 car,
-                reputation);
+                reputation,
+                wallet);
 
             VehicleMasterySystem vehicleMastery =
                 systems.AddComponent<VehicleMasterySystem>();
