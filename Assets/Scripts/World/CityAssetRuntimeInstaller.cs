@@ -204,7 +204,8 @@ namespace MotorCity.World
             out Vector3 position,
             out Quaternion rotation)
         {
-            Vector3 roadPoint;
+            Vector3 roadPoint =
+                PlayerSpawnPoint;
 
             bool foundRoad =
                 activeCity != null &&
