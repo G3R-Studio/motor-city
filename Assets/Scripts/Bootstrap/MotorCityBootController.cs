@@ -15,7 +15,7 @@ namespace MotorCity.Bootstrap
             "Prototype";
 
         private string status =
-            "Подготовка Motor City...";
+            "...";
         private bool loading = true;
 
         [RuntimeInitializeOnLoadMethod(
@@ -70,7 +70,7 @@ namespace MotorCity.Bootstrap
                 gameObject.AddComponent<MotorCityCloudSaveRuntime>();
 
             status =
-                "Подключение платформы...";
+                "...";
 
             platformRuntime.InitializePlatform(
                 success =>
@@ -90,6 +90,10 @@ namespace MotorCity.Bootstrap
                     MotorCityLocalization.SetLanguage(
                         MotorCityPlatform.LanguageCode);
 
+                    status =
+                        MotorCityLocalization.Text(
+                            "boot.connecting");
+
                     if (!MotorCityPlatform.SupportsCloudSave)
                     {
                         LoadGameScene();
@@ -97,7 +101,8 @@ namespace MotorCity.Bootstrap
                     }
 
                     status =
-                        "Синхронизация прогресса...";
+                        MotorCityLocalization.Text(
+                            "boot.sync");
 
                     cloudRuntime.ResolveInitialCloud(
                         LoadGameScene);
@@ -107,7 +112,8 @@ namespace MotorCity.Bootstrap
         private void LoadGameScene()
         {
             status =
-                "Загрузка города...";
+                MotorCityLocalization.Text(
+                    "boot.loading");
 
             AsyncOperation operation =
                 SceneManager.LoadSceneAsync(
@@ -120,15 +126,16 @@ namespace MotorCity.Bootstrap
                     "Motor City: Prototype scene could not be loaded.");
 
                 status =
-                    "Ошибка загрузки города";
+                    MotorCityLocalization.Text(
+                        "boot.error");
                 return;
             }
 
-            operation.completed +=
-                ignored =>
-                {
-                    loading = false;
-                };
+        }
+
+        public void NotifyGameplayBuilt()
+        {
+            loading = false;
         }
 
         private void OnGUI()

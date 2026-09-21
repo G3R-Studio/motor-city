@@ -374,7 +374,12 @@ namespace MotorCity.Localization
                 { "adventure.city_event", E("ГОРОДСКОЕ СОБЫТИЕ", "CITY EVENT") },
                 { "adventure.contract", E("КОНТРАКТ", "CONTRACT") },
                 { "adventure.career", E("КАРЬЕРА", "CAREER") },
-                { "adventure.inspector", E("ИНСПЕКТОР БУБЛИК", "INSPECTOR BUBLIK") }
+                { "adventure.inspector", E("ИНСПЕКТОР БУБЛИК", "INSPECTOR BUBLIK") },
+
+                { "boot.connecting", E("Подключение платформы...", "Connecting platform...") },
+                { "boot.sync", E("Синхронизация прогресса...", "Syncing progress...") },
+                { "boot.loading", E("Загрузка города...", "Loading city...") },
+                { "boot.error", E("Ошибка загрузки города", "City loading error") }
             };
 
         private static string language = Russian;

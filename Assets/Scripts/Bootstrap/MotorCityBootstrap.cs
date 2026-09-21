@@ -350,6 +350,11 @@ namespace MotorCity.Bootstrap
                 cityRisk,
                 adventureDirector);
 
+            MotorCityBootController bootController =
+                Object.FindAnyObjectByType<MotorCityBootController>();
+
+            bootController?.NotifyGameplayBuilt();
+
             MotorCityPlatform.GameReady();
             platformRuntime.MarkGameplayRunning();
             MotorCityPlatform.GameplayStart();
