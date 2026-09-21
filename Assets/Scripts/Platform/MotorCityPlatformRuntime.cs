@@ -1,3 +1,4 @@
+using System;
 using MotorCity.Localization;
 using UnityEngine;
 
@@ -7,20 +8,58 @@ namespace MotorCity.Platform
     {
         private bool gameplayRunning;
         private bool platformGameplayActive;
+        private bool initializationRequested;
+        private Action<bool> pendingInitializeCallbacks;
 
         private void Awake()
         {
             MotorCityLocalization.SetLanguage(
                 "ru");
+        }
+
+        public void InitializePlatform(
+            Action<bool> completed = null)
+        {
+            if (MotorCityPlatform.IsInitialized)
+            {
+                MotorCityLocalization.SetLanguage(
+                    MotorCityPlatform.LanguageCode);
+
+                completed?.Invoke(
+                    true);
+
+                return;
+            }
+
+            if (completed != null)
+            {
+                pendingInitializeCallbacks +=
+                    completed;
+            }
+
+            if (initializationRequested)
+                return;
+
+            initializationRequested = true;
 
             MotorCityPlatform.Initialize(
                 success =>
                 {
-                    if (!success)
-                        return;
+                    initializationRequested = false;
 
-                    MotorCityLocalization.SetLanguage(
-                        MotorCityPlatform.LanguageCode);
+                    if (success)
+                    {
+                        MotorCityLocalization.SetLanguage(
+                            MotorCityPlatform.LanguageCode);
+                    }
+
+                    Action<bool> callbacks =
+                        pendingInitializeCallbacks;
+
+                    pendingInitializeCallbacks = null;
+
+                    callbacks?.Invoke(
+                        success);
                 });
         }
 

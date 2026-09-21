@@ -8,6 +8,7 @@ using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 namespace MotorCity.Bootstrap
 {
@@ -19,7 +20,14 @@ namespace MotorCity.Bootstrap
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BuildPrototype()
         {
-            if (Object.FindAnyObjectByType<ArcadeCarController>() != null) return;
+            if (SceneManager.GetActiveScene().name !=
+                "Prototype")
+            {
+                return;
+            }
+
+            if (Object.FindAnyObjectByType<ArcadeCarController>() != null)
+                return;
 
             MotorCityQualityRuntime.Initialize();
 
@@ -76,9 +84,21 @@ namespace MotorCity.Bootstrap
             GameObject systems = new("Gameplay Systems");
 
             MotorCityPlatformRuntime platformRuntime =
-                systems.AddComponent<MotorCityPlatformRuntime>();
+                Object.FindAnyObjectByType<MotorCityPlatformRuntime>();
 
-            systems.AddComponent<MotorCitySaveRuntime>();
+            if (platformRuntime == null)
+            {
+                platformRuntime =
+                    systems.AddComponent<MotorCityPlatformRuntime>();
+
+                platformRuntime.InitializePlatform();
+            }
+
+            if (Object.FindAnyObjectByType<MotorCitySaveRuntime>() ==
+                null)
+            {
+                systems.AddComponent<MotorCitySaveRuntime>();
+            }
 
             PlayerReputation reputation =
                 systems.AddComponent<PlayerReputation>();
