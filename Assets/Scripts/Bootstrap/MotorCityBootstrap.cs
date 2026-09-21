@@ -260,6 +260,14 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 discoveries);
 
+            DailyAdventureSystem dailyAdventures =
+                systems.AddComponent<DailyAdventureSystem>();
+
+            dailyAdventures.Initialize(
+                activityManager,
+                wallet,
+                turbo);
+
             StuntJumpSystem stuntJumps =
                 systems.AddComponent<StuntJumpSystem>();
             stuntJumps.Initialize(
@@ -313,7 +321,8 @@ namespace MotorCity.Bootstrap
                 underground,
                 cityRisk,
                 turbo,
-                onboarding);
+                onboarding,
+                dailyAdventures);
 
             AdminDebugPanel adminPanel =
                 systems.AddComponent<AdminDebugPanel>();
@@ -378,6 +387,7 @@ namespace MotorCity.Bootstrap
                 cityRisk,
                 turbo,
                 onboarding,
+                dailyAdventures,
                 adventureDirector);
 
             MotorCityBootController bootController =
@@ -1262,6 +1272,7 @@ namespace MotorCity.Bootstrap
             CityRiskSystem cityRisk,
             TurboPetSystem turbo,
             FirstSessionOnboardingSystem onboarding,
+            DailyAdventureSystem dailyAdventures,
             AdventureDirector adventureDirector)
         {
             GameObject hud = new("Prototype HUD");
@@ -1291,6 +1302,7 @@ namespace MotorCity.Bootstrap
                 cityRisk,
                 turbo,
                 onboarding,
+                dailyAdventures,
                 adventureDirector);
         }
 

@@ -141,12 +141,12 @@ Core fantasy:
 - [x] First daily task.
 
 ### Daily Adventures
-- [ ] Three short daily tasks.
+- [x] Three short daily tasks.
 - [ ] 2–5 minute task duration.
-- [ ] Soft streak.
-- [ ] 3/7/14/30-day milestone rewards.
+- [x] Soft streak.
+- [x] 3/7/14/30-day milestone rewards.
 - [ ] Cosmetic milestone rewards.
-- [ ] No hard punishment for missed days.
+- [x] No hard punishment for missed days.
 
 ### Story missions
 - [ ] 10 introductory missions.

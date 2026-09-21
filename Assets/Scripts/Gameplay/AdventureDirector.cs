@@ -14,6 +14,7 @@ namespace MotorCity.Gameplay
         private CityRiskSystem cityRisk;
         private TurboPetSystem turbo;
         private FirstSessionOnboardingSystem onboarding;
+        private DailyAdventureSystem dailyAdventures;
 
         private float refreshTimer;
 
@@ -36,7 +37,8 @@ namespace MotorCity.Gameplay
             UndergroundSceneSystem nightClubSystem,
             CityRiskSystem riskSystem,
             TurboPetSystem turboSystem,
-            FirstSessionOnboardingSystem onboardingSystem)
+            FirstSessionOnboardingSystem onboardingSystem,
+            DailyAdventureSystem dailyAdventureSystem)
         {
             activityManager =
                 manager;
@@ -56,6 +58,8 @@ namespace MotorCity.Gameplay
                 turboSystem;
             onboarding =
                 onboardingSystem;
+            dailyAdventures =
+                dailyAdventureSystem;
 
             RefreshMission();
         }
@@ -117,10 +121,16 @@ namespace MotorCity.Gameplay
                 return live;
 
             MissionDefinition daily =
-                BuildTurboDailyMission();
+                BuildDailyAdventureMission();
 
             if (daily != null)
                 return daily;
+
+            MissionDefinition turboDaily =
+                BuildTurboDailyMission();
+
+            if (turboDaily != null)
+                return turboDaily;
 
             MissionDefinition contract =
                 BuildContractMission();
@@ -317,6 +327,35 @@ namespace MotorCity.Gameplay
                     objective,
                     AdventureMissionSource.LiveEvent,
                     700)
+                .AddStep(
+                    new MissionStepDefinition(
+                        MissionStepType.RaceResult,
+                        string.Empty,
+                        objective));
+        }
+
+        private MissionDefinition BuildDailyAdventureMission()
+        {
+            if (dailyAdventures == null)
+                return null;
+
+            string objective =
+                dailyAdventures.ObjectiveLine;
+
+            if (string.IsNullOrWhiteSpace(
+                    objective))
+            {
+                return null;
+            }
+
+            return
+                new MissionDefinition(
+                    "source.daily_adventure",
+                    MotorCityLocalization.Text(
+                        "daily.title"),
+                    objective,
+                    AdventureMissionSource.Daily,
+                    675)
                 .AddStep(
                     new MissionStepDefinition(
                         MissionStepType.RaceResult,

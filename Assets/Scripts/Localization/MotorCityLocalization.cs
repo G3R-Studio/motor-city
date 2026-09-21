@@ -411,7 +411,19 @@ namespace MotorCity.Localization
                 { "onboarding.garage", E("Заедь в гараж и открой его", "Drive to the garage and open it") },
                 { "onboarding.garage_done", E("Гараж найден. Здесь будут машины, тюнинг и внешний вид.", "Garage found. Cars, tuning and customization live here.") },
                 { "onboarding.daily", E("Посмотри ежедневное задание Турбо", "Check Turbo’s daily task") },
-                { "onboarding.complete", E("Первые шаги готовы! Теперь выбирай приключение сам.", "First steps complete! Now choose your own adventure.") }
+                { "onboarding.complete", E("Первые шаги готовы! Теперь выбирай приключение сам.", "First steps complete! Now choose your own adventure.") },
+
+                { "daily.title", E("ЕЖЕДНЕВНЫЕ ПРИКЛЮЧЕНИЯ", "DAILY ADVENTURES") },
+                { "daily.any", E("ПРИКЛЮЧЕНИЕ • Выполни активности: {0}/{1}", "ADVENTURE • Complete activities: {0}/{1}") },
+                { "daily.race", E("ПРИКЛЮЧЕНИЕ • Заверши гонку: {0}/{1}", "ADVENTURE • Finish a race: {0}/{1}") },
+                { "daily.drift", E("ПРИКЛЮЧЕНИЕ • Заверши дрифт: {0}/{1}", "ADVENTURE • Finish a drift challenge: {0}/{1}") },
+                { "daily.delivery", E("ПРИКЛЮЧЕНИЕ • Выполни доставку: {0}/{1}", "ADVENTURE • Complete a delivery: {0}/{1}") },
+                { "daily.task_done", E("Ежедневное задание {0}/3 готово! +{1:N0} КР", "Daily task {0}/3 complete! +{1:N0} CR") },
+                { "daily.all_tasks", E("Все три задания выполнены", "All three tasks are complete") },
+                { "daily.all_done", E("Сегодня всё готово • завершённых дней: {0}", "All done today • completed days: {0}") },
+                { "daily.complete", E("Три приключения готовы! +{0:N0} КР • серия {1}", "Three adventures complete! +{0:N0} CR • series {1}") },
+                { "daily.milestone", E("Награда за {0} дней! Сегодня +{1:N0} КР", "{0}-day reward! +{1:N0} CR today") },
+                { "daily.new_day", E("Новый день — три новых приключения уже готовы.", "New day — three new adventures are ready.") }
             };
 
         private static string language = Russian;
