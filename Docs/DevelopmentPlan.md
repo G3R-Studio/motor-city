@@ -112,10 +112,10 @@ Core fantasy:
 - [x] Pause/resume integration.
 - [x] Platform language.
 - [ ] Basic analytics.
-- [ ] Leaderboard adapter.
-- [ ] Rewarded ad adapter.
-- [ ] Purchase adapter.
-- [ ] Remote config adapter.
+- [x] Leaderboard adapter.
+- [x] Rewarded ad adapter.
+- [x] Purchase adapter.
+- [x] Remote config adapter.
 - [x] Mobile device quality selection.
 
 ---

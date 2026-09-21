@@ -29,13 +29,14 @@ namespace MotorCity.Platform
             bridge.PlayerAvailable;
 
         public bool SupportsLeaderboards =>
-            false;
+            IsInitialized &&
+            isAuthenticated;
 
         public bool SupportsAds =>
-            false;
+            IsInitialized;
 
         public bool SupportsPurchases =>
-            false;
+            IsInitialized;
 
         public string LanguageCode =>
             languageCode;
@@ -217,32 +218,161 @@ namespace MotorCity.Platform
             long score,
             Action<bool> completed)
         {
-            completed?.Invoke(
-                false);
+            if (!SupportsLeaderboards ||
+                string.IsNullOrWhiteSpace(
+                    leaderboardId))
+            {
+                completed?.Invoke(
+                    false);
+                return;
+            }
+
+            bridge.SubmitLeaderboard(
+                leaderboardId,
+                Mathf.Max(
+                    0L,
+                    score),
+                completed);
         }
 
         public void ShowRewarded(
             string placementId,
             Action<bool> completed)
         {
-            completed?.Invoke(
-                false);
+            if (!SupportsAds)
+            {
+                completed?.Invoke(
+                    false);
+                return;
+            }
+
+            GameplayStop();
+
+            bridge.ShowRewarded(
+                placementId,
+                rewarded =>
+                {
+                    GameplayStart();
+                    completed?.Invoke(
+                        rewarded);
+                });
         }
 
         public void ShowInterstitial(
             string placementId,
             Action completed)
         {
-            completed?.Invoke();
+            if (!SupportsAds)
+            {
+                completed?.Invoke();
+                return;
+            }
+
+            GameplayStop();
+
+            bridge.ShowInterstitial(
+                placementId,
+                () =>
+                {
+                    GameplayStart();
+                    completed?.Invoke();
+                });
         }
 
         public void Purchase(
             string productId,
             Action<bool, string> completed)
         {
-            completed?.Invoke(
-                false,
-                string.Empty);
+            if (!SupportsPurchases ||
+                string.IsNullOrWhiteSpace(
+                    productId))
+            {
+                completed?.Invoke(
+                    false,
+                    string.Empty);
+                return;
+            }
+
+            GameplayStop();
+
+            bridge.Purchase(
+                productId,
+                (success, token) =>
+                {
+                    GameplayStart();
+                    completed?.Invoke(
+                        success,
+                        token);
+                });
+        }
+
+        public void ConsumePurchase(
+            string purchaseToken,
+            Action<bool> completed)
+        {
+            if (!SupportsPurchases ||
+                string.IsNullOrWhiteSpace(
+                    purchaseToken))
+            {
+                completed?.Invoke(
+                    false);
+                return;
+            }
+
+            bridge.ConsumePurchase(
+                purchaseToken,
+                completed);
+        }
+
+        public void LoadPendingPurchases(
+            Action<bool, string> completed)
+        {
+            if (!SupportsPurchases)
+            {
+                completed?.Invoke(
+                    false,
+                    string.Empty);
+                return;
+            }
+
+            bridge.LoadPendingPurchases(
+                completed);
+        }
+
+        public void LoadRemoteConfig(
+            Action<bool, string> completed)
+        {
+            if (!IsInitialized)
+            {
+                completed?.Invoke(
+                    false,
+                    string.Empty);
+                return;
+            }
+
+            bridge.LoadRemoteConfig(
+                completed);
+        }
+
+        public void IncrementStat(
+            string key,
+            long amount,
+            Action<bool> completed)
+        {
+            if (!SupportsCloudSave ||
+                string.IsNullOrWhiteSpace(
+                    key) ||
+                amount == 0L)
+            {
+                completed?.Invoke(
+                    false);
+                return;
+            }
+
+            bridge.IncrementStat(
+                key,
+                amount,
+                completed);
         }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -266,6 +396,14 @@ namespace MotorCity.Platform
         private Action<YandexInitResult> initializeCallback;
         private Action<bool, string> loadCallback;
         private Action<bool> saveCallback;
+        private Action<bool> leaderboardCallback;
+        private Action<bool> rewardedCallback;
+        private Action interstitialCallback;
+        private Action<bool, string> purchaseCallback;
+        private Action<bool> consumeCallback;
+        private Action<bool, string> pendingPurchasesCallback;
+        private Action<bool, string> remoteConfigCallback;
+        private Action<bool> statCallback;
 
         public bool PlayerAvailable { get; private set; }
 
@@ -314,6 +452,144 @@ namespace MotorCity.Platform
             MotorCityYandexSaveCloudSave(
                 gameObject.name,
                 json);
+#else
+            completed?.Invoke(
+                false);
+#endif
+        }
+
+        public void SubmitLeaderboard(
+            string leaderboardId,
+            long score,
+            Action<bool> completed)
+        {
+            leaderboardCallback =
+                completed;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityYandexSubmitLeaderboard(
+                gameObject.name,
+                leaderboardId,
+                score);
+#else
+            completed?.Invoke(
+                false);
+#endif
+        }
+
+        public void ShowRewarded(
+            string placementId,
+            Action<bool> completed)
+        {
+            rewardedCallback =
+                completed;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityYandexShowRewarded(
+                gameObject.name,
+                placementId ?? string.Empty);
+#else
+            completed?.Invoke(
+                false);
+#endif
+        }
+
+        public void ShowInterstitial(
+            string placementId,
+            Action completed)
+        {
+            interstitialCallback =
+                completed;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityYandexShowInterstitial(
+                gameObject.name,
+                placementId ?? string.Empty);
+#else
+            completed?.Invoke();
+#endif
+        }
+
+        public void Purchase(
+            string productId,
+            Action<bool, string> completed)
+        {
+            purchaseCallback =
+                completed;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityYandexPurchase(
+                gameObject.name,
+                productId);
+#else
+            completed?.Invoke(
+                false,
+                string.Empty);
+#endif
+        }
+
+        public void ConsumePurchase(
+            string token,
+            Action<bool> completed)
+        {
+            consumeCallback =
+                completed;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityYandexConsumePurchase(
+                gameObject.name,
+                token);
+#else
+            completed?.Invoke(
+                false);
+#endif
+        }
+
+        public void LoadPendingPurchases(
+            Action<bool, string> completed)
+        {
+            pendingPurchasesCallback =
+                completed;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityYandexLoadPendingPurchases(
+                gameObject.name);
+#else
+            completed?.Invoke(
+                false,
+                string.Empty);
+#endif
+        }
+
+        public void LoadRemoteConfig(
+            Action<bool, string> completed)
+        {
+            remoteConfigCallback =
+                completed;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityYandexLoadRemoteConfig(
+                gameObject.name);
+#else
+            completed?.Invoke(
+                false,
+                string.Empty);
+#endif
+        }
+
+        public void IncrementStat(
+            string key,
+            long amount,
+            Action<bool> completed)
+        {
+            statCallback =
+                completed;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityYandexIncrementStat(
+                gameObject.name,
+                key,
+                amount);
 #else
             completed?.Invoke(
                 false);
@@ -446,6 +722,158 @@ namespace MotorCity.Platform
                 false);
         }
 
+        public void OnYandexLeaderboardResult(
+            string value)
+        {
+            Action<bool> callback =
+                leaderboardCallback;
+
+            leaderboardCallback = null;
+
+            callback?.Invoke(
+                value == "1");
+        }
+
+        public void OnYandexRewardedResult(
+            string value)
+        {
+            Action<bool> callback =
+                rewardedCallback;
+
+            rewardedCallback = null;
+
+            callback?.Invoke(
+                value == "1");
+        }
+
+        public void OnYandexInterstitialClosed(
+            string ignored)
+        {
+            Action callback =
+                interstitialCallback;
+
+            interstitialCallback = null;
+
+            callback?.Invoke();
+        }
+
+        public void OnYandexPurchaseResult(
+            string payload)
+        {
+            int separator =
+                string.IsNullOrEmpty(
+                    payload)
+                    ? -1
+                    : payload.IndexOf('|');
+
+            bool success =
+                separator >= 0 &&
+                payload.Substring(
+                    0,
+                    separator) == "1";
+
+            string token =
+                separator >= 0 &&
+                separator + 1 <
+                payload.Length
+                    ? payload.Substring(
+                        separator + 1)
+                    : string.Empty;
+
+            Action<bool, string> callback =
+                purchaseCallback;
+
+            purchaseCallback = null;
+
+            callback?.Invoke(
+                success,
+                token);
+        }
+
+        public void OnYandexConsumeResult(
+            string value)
+        {
+            Action<bool> callback =
+                consumeCallback;
+
+            consumeCallback = null;
+
+            callback?.Invoke(
+                value == "1");
+        }
+
+        public void OnYandexPendingPurchases(
+            string payload)
+        {
+            Action<bool, string> callback =
+                pendingPurchasesCallback;
+
+            pendingPurchasesCallback = null;
+
+            callback?.Invoke(
+                true,
+                payload ?? string.Empty);
+        }
+
+        public void OnYandexPendingPurchasesFailed(
+            string message)
+        {
+            Debug.LogWarning(
+                "Motor City: pending purchases failed: " +
+                message);
+
+            Action<bool, string> callback =
+                pendingPurchasesCallback;
+
+            pendingPurchasesCallback = null;
+
+            callback?.Invoke(
+                false,
+                string.Empty);
+        }
+
+        public void OnYandexRemoteConfig(
+            string payload)
+        {
+            Action<bool, string> callback =
+                remoteConfigCallback;
+
+            remoteConfigCallback = null;
+
+            callback?.Invoke(
+                true,
+                payload ?? string.Empty);
+        }
+
+        public void OnYandexRemoteConfigFailed(
+            string message)
+        {
+            Debug.LogWarning(
+                "Motor City: remote config failed: " +
+                message);
+
+            Action<bool, string> callback =
+                remoteConfigCallback;
+
+            remoteConfigCallback = null;
+
+            callback?.Invoke(
+                false,
+                string.Empty);
+        }
+
+        public void OnYandexStatResult(
+            string value)
+        {
+            Action<bool> callback =
+                statCallback;
+
+            statCallback = null;
+
+            callback?.Invoke(
+                value == "1");
+        }
+
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern void MotorCityYandexInitialize(
@@ -459,6 +887,46 @@ namespace MotorCity.Platform
         private static extern void MotorCityYandexSaveCloudSave(
             string gameObjectName,
             string json);
+
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexSubmitLeaderboard(
+            string gameObjectName,
+            string leaderboardId,
+            long score);
+
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexShowRewarded(
+            string gameObjectName,
+            string placementId);
+
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexShowInterstitial(
+            string gameObjectName,
+            string placementId);
+
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexPurchase(
+            string gameObjectName,
+            string productId);
+
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexConsumePurchase(
+            string gameObjectName,
+            string purchaseToken);
+
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexLoadPendingPurchases(
+            string gameObjectName);
+
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexLoadRemoteConfig(
+            string gameObjectName);
+
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexIncrementStat(
+            string gameObjectName,
+            string key,
+            long amount);
 #endif
     }
 
