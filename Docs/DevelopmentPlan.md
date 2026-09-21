@@ -62,10 +62,10 @@ Core fantasy:
 - [x] Prepare contextual action input instead of hard-coded E/Shift combinations.
 
 ### 0.5 HUD and UX cleanup
-- [ ] Keep speed, credits, REP, minimap, one objective and contextual prompt.
-- [ ] Hide secondary progression from permanent HUD.
-- [ ] Add a single notification queue.
-- [ ] Add touch-safe scalable layout.
+- [x] Keep speed, credits, REP, minimap, one objective and contextual prompt.
+- [x] Hide secondary progression from permanent HUD.
+- [x] Add a single notification queue.
+- [x] Add touch-safe scalable layout.
 - [ ] Replace runtime minimap camera with a cheaper solution if profiling confirms it is expensive.
 
 ### 0.6 Mission / Adventure architecture

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MotorCity.Gameplay;
 using MotorCity.Input;
 using MotorCity.Localization;
@@ -64,6 +65,13 @@ namespace MotorCity.UI
         private GameObject driftPanel;
         private GameObject garageOverlay;
         private GameObject activityResultOverlay;
+        private RectTransform safeAreaRoot;
+
+        private readonly Queue<string> notificationQueue =
+            new();
+        private string lastNotificationCandidate;
+        private string activeNotification;
+        private float activeNotificationTimer;
 
         private Text resultTitleText;
         private Text resultHeadlineText;
@@ -293,11 +301,17 @@ namespace MotorCity.UI
                 return;
             }
 
+            UpdateNotificationQueue();
+
             string status =
-                ResolveStatus();
+                !string.IsNullOrWhiteSpace(
+                    activeNotification)
+                    ? activeNotification
+                    : ResolveContextualStatus();
 
             statusPanel.SetActive(
-                !string.IsNullOrWhiteSpace(status));
+                !string.IsNullOrWhiteSpace(
+                    status));
 
             if (statusPanel.activeSelf)
                 statusText.text = status;
@@ -382,13 +396,17 @@ namespace MotorCity.UI
 
             canvasObject.AddComponent<GraphicRaycaster>();
 
-            BuildPlayerCard(canvasObject.transform);
-            BuildSpeedometer(canvasObject.transform);
-            BuildStatus(canvasObject.transform);
-            BuildNavigator(canvasObject.transform);
-            BuildDriftPanel(canvasObject.transform);
-            BuildActivityResult(canvasObject.transform);
-            BuildGarage(canvasObject.transform);
+            safeAreaRoot =
+                CreateSafeAreaRoot(
+                    canvasObject.transform);
+
+            BuildPlayerCard(safeAreaRoot);
+            BuildSpeedometer(safeAreaRoot);
+            BuildStatus(safeAreaRoot);
+            BuildNavigator(safeAreaRoot);
+            BuildDriftPanel(safeAreaRoot);
+            BuildActivityResult(safeAreaRoot);
+            BuildGarage(safeAreaRoot);
 
             driftPanel.SetActive(false);
             activityResultOverlay.SetActive(false);
@@ -1653,7 +1671,54 @@ namespace MotorCity.UI
                 garage.StatusText;
         }
 
-        private string ResolveStatus()
+        private void UpdateNotificationQueue()
+        {
+            string candidate =
+                ResolveTransientNotification();
+
+            if (!string.IsNullOrWhiteSpace(
+                    candidate) &&
+                candidate !=
+                lastNotificationCandidate)
+            {
+                notificationQueue.Enqueue(
+                    candidate);
+
+                lastNotificationCandidate =
+                    candidate;
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                    candidate))
+            {
+                lastNotificationCandidate =
+                    null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                    activeNotification))
+            {
+                activeNotificationTimer -=
+                    Time.unscaledDeltaTime;
+
+                if (activeNotificationTimer > 0f)
+                    return;
+
+                activeNotification =
+                    null;
+            }
+
+            if (notificationQueue.Count <= 0)
+                return;
+
+            activeNotification =
+                notificationQueue.Dequeue();
+
+            activeNotificationTimer =
+                2.8f;
+        }
+
+        private string ResolveTransientNotification()
         {
             if (cityRisk != null &&
                 cityRisk.ShowMessage)
@@ -1725,6 +1790,40 @@ namespace MotorCity.UI
                     career.StatusText;
             }
 
+            if (stuntJumps != null &&
+                stuntJumps.ShowMessage)
+            {
+                return
+                    stuntJumps.StatusText;
+            }
+
+            if (driftSpots != null &&
+                driftSpots.ShowMessage)
+            {
+                return
+                    driftSpots.StatusText;
+            }
+
+            if (discoveries != null &&
+                discoveries.ShowMessage)
+            {
+                return
+                    discoveries.StatusText;
+            }
+
+            if (speedTraps != null &&
+                speedTraps.ShowMessage)
+            {
+                return
+                    speedTraps.StatusText;
+            }
+
+            return
+                string.Empty;
+        }
+
+        private string ResolveContextualStatus()
+        {
             if (garage != null &&
                 garage.IsNearGarage &&
                 !garage.IsOpen)
@@ -1771,23 +1870,14 @@ namespace MotorCity.UI
                 return circuitRace.StatusText;
 
             if (stuntJumps != null &&
-                (stuntJumps.IsAttemptActive ||
-                 stuntJumps.ShowMessage))
-                return stuntJumps.StatusText;
+                stuntJumps.IsAttemptActive)
+            {
+                return
+                    stuntJumps.StatusText;
+            }
 
-            if (driftSpots != null &&
-                driftSpots.ShowMessage)
-                return driftSpots.StatusText;
-
-            if (discoveries != null &&
-                discoveries.ShowMessage)
-                return discoveries.StatusText;
-
-            if (speedTraps != null &&
-                speedTraps.ShowMessage)
-                return speedTraps.StatusText;
-
-            return string.Empty;
+            return
+                string.Empty;
         }
 
         private string ResolveObjectiveLine()
@@ -1848,6 +1938,126 @@ namespace MotorCity.UI
                 minimapTexture.Release();
                 Destroy(
                     minimapTexture);
+            }
+        }
+
+        private RectTransform CreateSafeAreaRoot(
+            Transform parent)
+        {
+            GameObject root =
+                new(
+                    "Safe Area",
+                    typeof(RectTransform));
+
+            root.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                root.GetComponent<RectTransform>();
+
+            ApplySafeArea(
+                rect);
+
+            SafeAreaRuntimeUpdater updater =
+                root.AddComponent<SafeAreaRuntimeUpdater>();
+
+            updater.Bind(
+                rect);
+
+            return rect;
+        }
+
+        private static void ApplySafeArea(
+            RectTransform rect)
+        {
+            if (rect == null ||
+                Screen.width <= 0 ||
+                Screen.height <= 0)
+            {
+                return;
+            }
+
+            Rect safe =
+                Screen.safeArea;
+
+            Vector2 min =
+                safe.position;
+
+            Vector2 max =
+                safe.position +
+                safe.size;
+
+            min.x /=
+                Screen.width;
+            min.y /=
+                Screen.height;
+            max.x /=
+                Screen.width;
+            max.y /=
+                Screen.height;
+
+            rect.anchorMin =
+                min;
+            rect.anchorMax =
+                max;
+            rect.offsetMin =
+                Vector2.zero;
+            rect.offsetMax =
+                Vector2.zero;
+        }
+
+        private sealed class SafeAreaRuntimeUpdater :
+            MonoBehaviour
+        {
+            private RectTransform target;
+            private Rect lastSafeArea;
+            private Vector2Int lastScreen;
+
+            public void Bind(
+                RectTransform rect)
+            {
+                target =
+                    rect;
+
+                Refresh(
+                    true);
+            }
+
+            private void Update()
+            {
+                Refresh(
+                    false);
+            }
+
+            private void Refresh(
+                bool force)
+            {
+                Rect currentSafeArea =
+                    Screen.safeArea;
+
+                Vector2Int currentScreen =
+                    new(
+                        Screen.width,
+                        Screen.height);
+
+                if (!force &&
+                    currentSafeArea ==
+                    lastSafeArea &&
+                    currentScreen ==
+                    lastScreen)
+                {
+                    return;
+                }
+
+                lastSafeArea =
+                    currentSafeArea;
+
+                lastScreen =
+                    currentScreen;
+
+                ApplySafeArea(
+                    target);
             }
         }
 
