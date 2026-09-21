@@ -12,15 +12,19 @@ namespace MotorCity.Platform
             new();
 
         private ActivityManager activities;
+        private PlayerWallet wallet;
         private bool sending;
         private float sessionStartedAt;
         private float lastSessionFlushAt;
 
         public void Initialize(
-            ActivityManager activityManager)
+            ActivityManager activityManager,
+            PlayerWallet playerWallet)
         {
             activities =
                 activityManager;
+            wallet =
+                playerWallet;
 
             sessionStartedAt =
                 Time.realtimeSinceStartup;
@@ -36,6 +40,15 @@ namespace MotorCity.Platform
             {
                 activities.ActivityResultShown +=
                     OnActivityResult;
+            }
+
+            if (wallet != null)
+            {
+                wallet.CreditsEarned +=
+                    OnCreditsEarned;
+
+                wallet.CreditsSpent +=
+                    OnCreditsSpent;
             }
         }
 
@@ -84,7 +97,32 @@ namespace MotorCity.Platform
                     OnActivityResult;
             }
 
+            if (wallet != null)
+            {
+                wallet.CreditsEarned -=
+                    OnCreditsEarned;
+
+                wallet.CreditsSpent -=
+                    OnCreditsSpent;
+            }
+
             QueueSessionSeconds();
+        }
+
+        private void OnCreditsEarned(
+            int amount)
+        {
+            QueueIncrement(
+                "credits_earned",
+                amount);
+        }
+
+        private void OnCreditsSpent(
+            int amount)
+        {
+            QueueIncrement(
+                "credits_spent",
+                amount);
         }
 
         private void OnActivityResult(
