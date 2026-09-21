@@ -301,10 +301,34 @@ namespace MotorCity.Gameplay
                     "yyyyMMdd_HHmmss") +
                 ".png";
 
-            ScreenCapture.CaptureScreenshot(
+            string path =
                 Path.Combine(
                     directory,
-                    fileName));
+                    fileName);
+
+            Texture2D screenshot =
+                new Texture2D(
+                    Screen.width,
+                    Screen.height,
+                    TextureFormat.RGB24,
+                    false);
+
+            screenshot.ReadPixels(
+                new Rect(
+                    0f,
+                    0f,
+                    Screen.width,
+                    Screen.height),
+                0,
+                0);
+
+            screenshot.Apply();
+            File.WriteAllBytes(
+                path,
+                screenshot.EncodeToPNG());
+
+            UnityEngine.Object.Destroy(
+                screenshot);
 #endif
 
             photoInProgress = false;
