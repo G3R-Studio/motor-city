@@ -1396,6 +1396,89 @@ namespace MotorCity.UI
         {
             hasTarget = true;
 
+            if (activityManager != null &&
+                !activityManager.IsBusy &&
+                onboarding != null &&
+                !onboarding.IsComplete)
+            {
+                if (onboarding.CurrentStep == 4 &&
+                    delivery != null)
+                {
+                    target =
+                        delivery.CurrentTarget;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.first_activity_target");
+                    return;
+                }
+
+                if (onboarding.CurrentStep == 5 &&
+                    garage != null)
+                {
+                    target =
+                        garage.GarageCenter;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.garage");
+                    return;
+                }
+            }
+
+            if (activityManager != null &&
+                !activityManager.IsBusy &&
+                (onboarding == null ||
+                 onboarding.IsComplete) &&
+                story != null &&
+                !story.IsComplete)
+            {
+                string required =
+                    story.RequiredActivityId;
+
+                if (required == "delivery" &&
+                    delivery != null)
+                {
+                    target =
+                        delivery.CurrentTarget;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.story_delivery_target");
+                    return;
+                }
+
+                if (required == "drift" &&
+                    driftChallenge != null)
+                {
+                    target =
+                        driftChallenge.ZoneCenter;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.story_drift_target");
+                    return;
+                }
+
+                if (required == "sprint" &&
+                    streetSprint != null)
+                {
+                    target =
+                        streetSprint.CurrentTarget;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.story_sprint_target");
+                    return;
+                }
+
+                if (required == "circuit" &&
+                    circuitRace != null)
+                {
+                    target =
+                        circuitRace.CurrentTarget;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.story_circuit_target");
+                    return;
+                }
+            }
+
             if (underground != null &&
                 (underground.HasActiveInvitation ||
                  underground.IsActive ||
@@ -2329,7 +2412,9 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     TextColor);
-            title.text = "ГАРАЖ";
+            title.text =
+                MotorCityLocalization.Text(
+                    "hud.garage_title");
 
             garageMoneyText =
                 CreateText(
@@ -2421,6 +2506,10 @@ namespace MotorCity.UI
                         1f,
                         1f));
 
+            garageVehicleHistoryText.gameObject.SetActive(false);
+            garageVehicleSpecializationText.gameObject.SetActive(false);
+            garageCollectionText.gameObject.SetActive(false);
+
             Color[] accents =
             {
                 new(0.12f, 0.58f, 1f, 1f),
@@ -2431,14 +2520,14 @@ namespace MotorCity.UI
             for (int i = 0; i < 3; i++)
             {
                 float y =
-                    -202f - i * 92f;
+                    -142f - i * 96f;
 
                 RectTransform row =
                     CreatePanel(
                         panel,
                         $"Upgrade {i + 1}",
                         new Vector2(28f, y),
-                        new Vector2(704f, 76f),
+                        new Vector2(704f, 82f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
                         PanelSoftColor);
@@ -2634,7 +2723,9 @@ namespace MotorCity.UI
             if (garageVehicleText != null)
             {
                 garageVehicleText.text =
-                    garage.VehicleLine;
+                    MotorCityLocalization.Format(
+                        "hud.garage_vehicle",
+                        garage.VehicleName);
             }
 
             if (garageVehicleStatsText != null)
