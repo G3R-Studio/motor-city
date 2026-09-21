@@ -55,11 +55,11 @@ Core fantasy:
 - [x] Keep technical IDs independent from localized names.
 
 ### 0.4 Unified input
-- [ ] Add MotorCityInput facade.
+- [x] Add MotorCityInput facade.
 - [ ] Replace direct Keyboard.current checks in gameplay systems.
-- [ ] Keep keyboard controls through the facade.
-- [ ] Prepare touch actions for mobile.
-- [ ] Prepare contextual action input instead of hard-coded E/Shift combinations.
+- [x] Keep keyboard controls through the facade.
+- [x] Prepare touch actions for mobile.
+- [x] Prepare contextual action input instead of hard-coded E/Shift combinations.
 
 ### 0.5 HUD and UX cleanup
 - [ ] Keep speed, credits, REP, minimap, one objective and contextual prompt.
