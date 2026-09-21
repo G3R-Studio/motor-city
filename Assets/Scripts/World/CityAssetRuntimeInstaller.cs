@@ -204,23 +204,37 @@ namespace MotorCity.World
             out Vector3 position,
             out Quaternion rotation)
         {
-            Vector3 roadPoint =
-                activeCity != null
-                    ? FindRoadPointNear(
-                        approximate,
-                        90f,
-                        "vehicle reset",
-                        false)
-                    : approximate;
+            Vector3 roadPoint;
 
-            roadPoint.y =
-                Mathf.Max(
-                    roadPoint.y,
-                    0.05f);
+            bool foundRoad =
+                activeCity != null &&
+                TryFindNearestRoadForReset(
+                    approximate,
+                    out roadPoint);
 
+            if (!foundRoad)
+            {
+                roadPoint =
+                    PlayerSpawnPoint;
+
+                if (activeCity != null &&
+                    TryGetRoadHit(
+                        PlayerSpawnPoint.x,
+                        PlayerSpawnPoint.z,
+                        out Vector3 spawnRoad))
+                {
+                    roadPoint =
+                        spawnRoad;
+                }
+            }
+
+            // Use the actual road height only. Never derive rescue height
+            // from the current vehicle Y; otherwise repeated resets can climb.
             position =
-                roadPoint +
-                Vector3.up * 1.15f;
+                new Vector3(
+                    roadPoint.x,
+                    roadPoint.y + 1.15f,
+                    roadPoint.z);
 
             Vector3 roadDirection =
                 activeCity != null
@@ -256,6 +270,151 @@ namespace MotorCity.World
                 Quaternion.LookRotation(
                     roadDirection,
                     Vector3.up);
+        }
+
+        private static bool TryFindNearestRoadForReset(
+            Vector3 approximate,
+            out Vector3 roadPoint)
+        {
+            roadPoint =
+                default;
+
+            if (TryGetRoadHit(
+                    approximate.x,
+                    approximate.z,
+                    out roadPoint))
+            {
+                return true;
+            }
+
+            // City roads are laid out on broad FCG blocks. Searching by
+            // expanding square rings gives us the nearest valid road in X/Z
+            // without ever using the car's current height as a fallback.
+            const float step =
+                4f;
+
+            const float maximumRadius =
+                220f;
+
+            float bestDistanceSquared =
+                float.PositiveInfinity;
+
+            bool found =
+                false;
+
+            int rings =
+                Mathf.CeilToInt(
+                    maximumRadius /
+                    step);
+
+            for (int ring = 1;
+                 ring <= rings;
+                 ring++)
+            {
+                float radius =
+                    ring *
+                    step;
+
+                for (float offset = -radius;
+                     offset <= radius;
+                     offset += step)
+                {
+                    TestResetRoadCandidate(
+                        approximate,
+                        approximate.x + offset,
+                        approximate.z - radius,
+                        ref found,
+                        ref roadPoint,
+                        ref bestDistanceSquared);
+
+                    TestResetRoadCandidate(
+                        approximate,
+                        approximate.x + offset,
+                        approximate.z + radius,
+                        ref found,
+                        ref roadPoint,
+                        ref bestDistanceSquared);
+
+                    TestResetRoadCandidate(
+                        approximate,
+                        approximate.x - radius,
+                        approximate.z + offset,
+                        ref found,
+                        ref roadPoint,
+                        ref bestDistanceSquared);
+
+                    TestResetRoadCandidate(
+                        approximate,
+                        approximate.x + radius,
+                        approximate.z + offset,
+                        ref found,
+                        ref roadPoint,
+                        ref bestDistanceSquared);
+                }
+
+                if (found &&
+                    bestDistanceSquared <=
+                    radius * radius)
+                {
+                    break;
+                }
+            }
+
+            return found;
+        }
+
+        private static void TestResetRoadCandidate(
+            Vector3 approximate,
+            float x,
+            float z,
+            ref bool found,
+            ref Vector3 best,
+            ref float bestDistanceSquared)
+        {
+            if (hasCityBounds &&
+                (x < cityBounds.min.x ||
+                 x > cityBounds.max.x ||
+                 z < cityBounds.min.z ||
+                 z > cityBounds.max.z))
+            {
+                return;
+            }
+
+            if (!TryGetRoadHit(
+                    x,
+                    z,
+                    out Vector3 hit))
+            {
+                return;
+            }
+
+            float dx =
+                hit.x -
+                approximate.x;
+
+            float dz =
+                hit.z -
+                approximate.z;
+
+            float distanceSquared =
+                dx * dx +
+                dz * dz;
+
+            if (found &&
+                distanceSquared >=
+                bestDistanceSquared)
+            {
+                return;
+            }
+
+            found =
+                true;
+
+            best =
+                hit;
+
+            bestDistanceSquared =
+                distanceSquared;
         }
 
         private static void ResolveGameplayLayout()

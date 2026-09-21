@@ -9,6 +9,7 @@ namespace MotorCity.World
     {
         private ArcadeCarController car;
         private Rigidbody body;
+        private float nextManualResetTime;
 
         private void Awake()
         {
@@ -21,11 +22,28 @@ namespace MotorCity.World
 
         private void Update()
         {
-            if (MotorCityInput.RescuePressed ||
-                transform.position.y < -10f)
+            bool fellOutOfWorld =
+                transform.position.y < -10f;
+
+            bool manualReset =
+                MotorCityInput.RescuePressed &&
+                Time.unscaledTime >=
+                nextManualResetTime;
+
+            if (!manualReset &&
+                !fellOutOfWorld)
             {
-                ResetVehicle();
+                return;
             }
+
+            if (manualReset)
+            {
+                nextManualResetTime =
+                    Time.unscaledTime +
+                    0.65f;
+            }
+
+            ResetVehicle();
         }
 
         public void ResetVehicle()
