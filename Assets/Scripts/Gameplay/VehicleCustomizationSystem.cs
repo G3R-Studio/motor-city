@@ -442,7 +442,7 @@ namespace MotorCity.Gameplay
                 return;
 
             Renderer[] renderers =
-                visual.GetComponentsInChildren<Renderer>(
+                car.GetComponentsInChildren<Renderer>(
                     true);
 
             Color wheelColor =
@@ -1263,9 +1263,18 @@ namespace MotorCity.Gameplay
             int index)
         {
             return
-                index == 0
-                    ? "customization.neon.0"
-                    : "customization.neon.on";
+                Mathf.Clamp(
+                    index,
+                    0,
+                    AccentColors.Length) switch
+                {
+                    1 => "customization.neon.blue",
+                    2 => "customization.neon.orange",
+                    3 => "customization.neon.purple",
+                    4 => "customization.neon.green",
+                    5 => "customization.neon.yellow",
+                    _ => "customization.neon.0"
+                };
         }
     }
 }
