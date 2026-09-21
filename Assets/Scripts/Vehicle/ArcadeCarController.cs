@@ -195,7 +195,7 @@ namespace MotorCity.Vehicle
         {
             currentDriveMode =
                 (DriveMode)Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         DriveModeKey,
                         (int)DriveMode.Comfort),
                     0,
@@ -1714,11 +1714,11 @@ namespace MotorCity.Vehicle
             driveModeFrictionRefreshTimer =
                 0f;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DriveModeKey,
                 nextMode);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             driveModeMessageTimer =
                 2.25f;
