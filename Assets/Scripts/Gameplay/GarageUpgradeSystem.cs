@@ -220,22 +220,6 @@ namespace MotorCity.Gameplay
                     customization.GarageLine;
             }
 
-            if (MotorCityInput.CycleStickerPressed &&
-                customization != null)
-            {
-                customization.CycleSticker();
-                StatusText =
-                    customization.GarageLine;
-            }
-
-            if (MotorCityInput.CycleVinylPressed &&
-                customization != null)
-            {
-                customization.CycleVinyl();
-                StatusText =
-                    customization.GarageLine;
-            }
-
             if (MotorCityInput.CycleWheelsPressed &&
                 customization != null)
             {
@@ -248,14 +232,6 @@ namespace MotorCity.Gameplay
                 customization != null)
             {
                 customization.CycleNeon();
-                StatusText =
-                    customization.GarageLine;
-            }
-
-            if (MotorCityInput.CyclePlatePressed &&
-                customization != null)
-            {
-                customization.CyclePlate();
                 StatusText =
                     customization.GarageLine;
             }
