@@ -22,6 +22,7 @@ namespace MotorCity.Gameplay
         private CityLegendSystem legends;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
+        private UndergroundSceneSystem underground;
         private ActivityManager activityManager;
         private ArcadeCarController car;
         private DeliveryActivity delivery;
@@ -29,7 +30,6 @@ namespace MotorCity.Gameplay
         private StreetSprintActivity sprint;
         private CircuitRaceActivity circuit;
         private DayNightCycleController dayNight;
-        private CityWeatherSystem weather;
 
         private bool visible;
         private Vector2 scroll;
@@ -53,7 +53,7 @@ namespace MotorCity.Gameplay
             CityLegendSystem legendSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
-            CityWeatherSystem weatherSystem,
+            UndergroundSceneSystem undergroundSystem,
             ActivityManager manager,
             ArcadeCarController targetCar,
             DeliveryActivity deliveryActivity,
@@ -74,7 +74,7 @@ namespace MotorCity.Gameplay
             legends = legendSystem;
             contracts = contractSystem;
             liveEvents = liveEventSystem;
-            weather = weatherSystem;
+            underground = undergroundSystem;
             activityManager = manager;
             car = targetCar;
             delivery = deliveryActivity;
@@ -131,7 +131,7 @@ namespace MotorCity.Gameplay
             DrawCareer();
             DrawContracts();
             DrawLiveEvents();
-            DrawWeather();
+            DrawUnderground();
             DrawTime();
             DrawTeleports();
 
@@ -567,41 +567,54 @@ namespace MotorCity.Gameplay
             GUILayout.Space(10f);
         }
 
-        private void DrawWeather()
+        private void DrawUnderground()
         {
-            GUILayout.Label("ПОГОДА");
+            GUILayout.Label("UNDERGROUND");
 
-            if (weather != null)
+            if (underground != null)
             {
                 GUILayout.Label(
-                    weather.AdminLine);
+                    underground.AdminLine);
             }
 
             GUILayout.BeginHorizontal();
 
-            if (Button("ЯСНО"))
-                weather?.SetWeatherForTesting(
-                    CityWeather.Clear);
+            if (Button("+40 STREET CRED"))
+            {
+                underground?.AddCredForTesting(
+                    40);
 
-            if (Button("ДОЖДЬ"))
-                weather?.SetWeatherForTesting(
-                    CityWeather.Rain);
+                lastAction =
+                    "Underground: +40 Street Cred";
+            }
 
-            if (Button("ЛИВЕНЬ"))
-                weather?.SetWeatherForTesting(
-                    CityWeather.Storm);
+            if (Button("РАЗБЛОКИРОВАТЬ"))
+            {
+                underground?.UnlockCurrentForTesting();
+
+                lastAction =
+                    "Underground event разблокирован";
+            }
 
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
 
-            if (Button("ОБЛАЧНО"))
-                weather?.SetWeatherForTesting(
-                    CityWeather.Overcast);
+            if (Button("ЗАВЕРШИТЬ EVENT"))
+            {
+                underground?.CompleteCurrentForTesting();
 
-            if (Button("ТУМАН"))
-                weather?.SetWeatherForTesting(
-                    CityWeather.Fog);
+                lastAction =
+                    "Underground event завершён";
+            }
+
+            if (Button("СБРОСИТЬ"))
+            {
+                underground?.ResetForTesting();
+
+                lastAction =
+                    "Underground прогресс сброшен";
+            }
 
             GUILayout.EndHorizontal();
             GUILayout.Space(10f);
@@ -737,6 +750,7 @@ namespace MotorCity.Gameplay
             legends?.UnlockCurrentForTesting();
             contracts?.SetCycleForTesting(5);
             liveEvents?.CompleteCurrentForTesting();
+            underground?.AddCredForTesting(400);
 
             lastAction =
                 "MAX EVERYTHING применён";
@@ -790,6 +804,7 @@ namespace MotorCity.Gameplay
             legends?.ResetForTesting();
             contracts?.ResetForTesting();
             liveEvents?.ResetForTesting();
+            underground?.ResetForTesting();
 
             if (roster != null)
             {

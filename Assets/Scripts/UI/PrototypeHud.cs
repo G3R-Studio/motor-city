@@ -1,6 +1,5 @@
 using MotorCity.Gameplay;
 using MotorCity.Vehicle;
-using MotorCity.World;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -29,7 +28,7 @@ namespace MotorCity.UI
         private CityLegendSystem legends;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
-        private CityWeatherSystem weather;
+        private UndergroundSceneSystem underground;
 
         private Font font;
         private Sprite panelSprite;
@@ -57,7 +56,6 @@ namespace MotorCity.UI
         private Text minimapTargetText;
         private Camera minimapCamera;
         private RenderTexture minimapTexture;
-        private Image weatherHazeImage;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -121,7 +119,7 @@ namespace MotorCity.UI
             CityLegendSystem legendSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
-            CityWeatherSystem weatherSystem)
+            UndergroundSceneSystem undergroundSystem)
         {
             car = controller;
             wallet = playerWallet;
@@ -143,7 +141,7 @@ namespace MotorCity.UI
             legends = legendSystem;
             contracts = contractSystem;
             liveEvents = liveEventSystem;
-            weather = weatherSystem;
+            underground = undergroundSystem;
 
             BuildUi();
         }
@@ -229,24 +227,6 @@ namespace MotorCity.UI
             {
                 objectiveText.text =
                     ResolveObjectiveLine();
-            }
-
-            if (weatherHazeImage != null)
-            {
-                float haze =
-                    weather == null
-                        ? 0f
-                        : weather.VisibilityHazeAlpha;
-
-                weatherHazeImage.color =
-                    new Color(
-                        0.72f,
-                        0.76f,
-                        0.80f,
-                        Mathf.Clamp01(haze));
-
-                weatherHazeImage.gameObject.SetActive(
-                    haze > 0.002f);
             }
 
             if (driveModeText != null &&
@@ -382,7 +362,6 @@ namespace MotorCity.UI
 
             canvasObject.AddComponent<GraphicRaycaster>();
 
-            BuildWeatherHaze(canvasObject.transform);
             BuildPlayerCard(canvasObject.transform);
             BuildSpeedometer(canvasObject.transform);
             BuildStatus(canvasObject.transform);
@@ -394,51 +373,6 @@ namespace MotorCity.UI
             driftPanel.SetActive(false);
             activityResultOverlay.SetActive(false);
             garageOverlay.SetActive(false);
-        }
-
-        private void BuildWeatherHaze(
-            Transform canvas)
-        {
-            GameObject hazeObject =
-                new(
-                    "Weather Haze",
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            hazeObject.transform.SetParent(
-                canvas,
-                false);
-
-            RectTransform rect =
-                hazeObject.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                Vector2.zero;
-
-            rect.anchorMax =
-                Vector2.one;
-
-            rect.offsetMin =
-                Vector2.zero;
-
-            rect.offsetMax =
-                Vector2.zero;
-
-            weatherHazeImage =
-                hazeObject.GetComponent<Image>();
-
-            weatherHazeImage.raycastTarget =
-                false;
-
-            weatherHazeImage.color =
-                new Color(
-                    0.72f,
-                    0.76f,
-                    0.80f,
-                    0f);
-
-            hazeObject.transform.SetAsFirstSibling();
-            hazeObject.SetActive(false);
         }
 
         private void BuildPlayerCard(Transform canvas)
@@ -1681,11 +1615,11 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
-            if (weather != null &&
-                weather.ShowMessage)
+            if (underground != null &&
+                underground.ShowMessage)
             {
                 return
-                    weather.StatusText;
+                    underground.StatusText;
             }
 
             if (legends != null &&
@@ -1817,6 +1751,12 @@ namespace MotorCity.UI
                         activityManager.ActiveName)
                         ? string.Empty
                         : $"ЦЕЛЬ: {activityManager.ActiveName}";
+            }
+
+            if (underground != null &&
+                underground.HasActiveInvitation)
+            {
+                return underground.HudLine;
             }
 
             if (legends != null &&

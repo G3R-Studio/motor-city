@@ -85,15 +85,6 @@ namespace MotorCity.Bootstrap
             PlayerWallet wallet =
                 systems.AddComponent<PlayerWallet>();
 
-            CityWeatherSystem weather =
-                systems.AddComponent<CityWeatherSystem>();
-
-            weather.Initialize(
-                car,
-                activityManager,
-                wallet,
-                reputation);
-
             CareerProgressionSystem career =
                 systems.AddComponent<CareerProgressionSystem>();
 
@@ -114,6 +105,14 @@ namespace MotorCity.Bootstrap
                 systems.AddComponent<CityLiveEventSystem>();
 
             liveEvents.Initialize(
+                activityManager,
+                wallet,
+                reputation);
+
+            UndergroundSceneSystem underground =
+                systems.AddComponent<UndergroundSceneSystem>();
+
+            underground.Initialize(
                 activityManager,
                 wallet,
                 reputation);
@@ -247,7 +246,7 @@ namespace MotorCity.Bootstrap
                 legends,
                 contracts,
                 liveEvents,
-                weather,
+                underground,
                 activityManager,
                 car,
                 delivery,
@@ -287,7 +286,7 @@ namespace MotorCity.Bootstrap
                 legends,
                 contracts,
                 liveEvents,
-                weather);
+                underground);
 
         }
 
@@ -1092,7 +1091,7 @@ namespace MotorCity.Bootstrap
             CityLegendSystem legends,
             CityContractSystem contracts,
             CityLiveEventSystem liveEvents,
-            CityWeatherSystem weather)
+            UndergroundSceneSystem underground)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
@@ -1117,7 +1116,7 @@ namespace MotorCity.Bootstrap
                 legends,
                 contracts,
                 liveEvents,
-                weather);
+                underground);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
