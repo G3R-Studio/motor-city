@@ -395,6 +395,13 @@ namespace MotorCity.Bootstrap
                 wallet,
                 activityManager);
 
+            CosmeticStoreSystem cosmeticStore =
+                systems.AddComponent<CosmeticStoreSystem>();
+
+            cosmeticStore.Initialize(
+                turbo,
+                season);
+
             LeaderboardSyncSystem leaderboardSync =
                 systems.AddComponent<LeaderboardSyncSystem>();
 
@@ -510,6 +517,7 @@ namespace MotorCity.Bootstrap
                 club,
                 weekendEvents,
                 rewardedBonus,
+                cosmeticStore,
                 achievements,
                 adventureDirector);
 
@@ -1577,6 +1585,7 @@ namespace MotorCity.Bootstrap
             ClubSystem club,
             WeekendEventSystem weekendEvents,
             RewardedBonusSystem rewardedBonus,
+            CosmeticStoreSystem cosmeticStore,
             AchievementSystem achievements,
             AdventureDirector adventureDirector)
         {
@@ -1617,6 +1626,7 @@ namespace MotorCity.Bootstrap
                 club,
                 weekendEvents,
                 rewardedBonus,
+                cosmeticStore,
                 achievements,
                 adventureDirector);
         }
