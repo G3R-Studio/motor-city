@@ -85,6 +85,15 @@ namespace MotorCity.Bootstrap
             PlayerWallet wallet =
                 systems.AddComponent<PlayerWallet>();
 
+            CityWeatherSystem weather =
+                systems.AddComponent<CityWeatherSystem>();
+
+            weather.Initialize(
+                car,
+                activityManager,
+                wallet,
+                reputation);
+
             CareerProgressionSystem career =
                 systems.AddComponent<CareerProgressionSystem>();
 
@@ -238,6 +247,7 @@ namespace MotorCity.Bootstrap
                 legends,
                 contracts,
                 liveEvents,
+                weather,
                 activityManager,
                 car,
                 delivery,
@@ -276,7 +286,8 @@ namespace MotorCity.Bootstrap
                 collection,
                 legends,
                 contracts,
-                liveEvents);
+                liveEvents,
+                weather);
 
         }
 
@@ -1080,7 +1091,8 @@ namespace MotorCity.Bootstrap
             CollectionProgressionSystem collection,
             CityLegendSystem legends,
             CityContractSystem contracts,
-            CityLiveEventSystem liveEvents)
+            CityLiveEventSystem liveEvents,
+            CityWeatherSystem weather)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
@@ -1104,7 +1116,8 @@ namespace MotorCity.Bootstrap
                 collection,
                 legends,
                 contracts,
-                liveEvents);
+                liveEvents,
+                weather);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)

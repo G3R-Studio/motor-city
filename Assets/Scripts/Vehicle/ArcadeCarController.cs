@@ -103,6 +103,7 @@ namespace MotorCity.Vehicle
         private float vehicleBrakeMultiplier = 1f;
         private float vehiclePowerMultiplier = 1f;
         private float vehicleDriftMultiplier = 1f;
+        private float weatherGripMultiplier = 1f;
         private int vehicleMasteryLevel = 1;
         private DriveMode currentDriveMode =
             DriveMode.Comfort;
@@ -132,6 +133,9 @@ namespace MotorCity.Vehicle
 
         public bool ShowDriveModeMessage =>
             driveModeMessageTimer > 0f;
+
+        public float WeatherGripMultiplier =>
+            weatherGripMultiplier;
 
         public float SpeedKph =>
             body == null
@@ -1558,6 +1562,18 @@ namespace MotorCity.Vehicle
             ApplyDriveModeTuning();
         }
 
+        public void SetWeatherGripMultiplier(
+            float multiplier)
+        {
+            weatherGripMultiplier =
+                Mathf.Clamp(
+                    multiplier,
+                    0.70f,
+                    1f);
+
+            ApplyWheelFriction();
+        }
+
         public void ApplyUpgradeLevels(
             int engineLevel,
             int gripLevel,
@@ -1599,7 +1615,8 @@ namespace MotorCity.Vehicle
                 Mathf.Clamp(
                     vehicleGripMultiplier,
                     0.75f,
-                    1.30f);
+                    1.30f) *
+                weatherGripMultiplier;
 
             for (int i = 0;
                  i <

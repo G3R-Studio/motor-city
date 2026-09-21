@@ -1,5 +1,6 @@
 using MotorCity.Gameplay;
 using MotorCity.Vehicle;
+using MotorCity.World;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -28,6 +29,7 @@ namespace MotorCity.UI
         private CityLegendSystem legends;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
+        private CityWeatherSystem weather;
 
         private Font font;
         private Sprite panelSprite;
@@ -117,7 +119,8 @@ namespace MotorCity.UI
             CollectionProgressionSystem collectionSystem,
             CityLegendSystem legendSystem,
             CityContractSystem contractSystem,
-            CityLiveEventSystem liveEventSystem)
+            CityLiveEventSystem liveEventSystem,
+            CityWeatherSystem weatherSystem)
         {
             car = controller;
             wallet = playerWallet;
@@ -139,6 +142,7 @@ namespace MotorCity.UI
             legends = legendSystem;
             contracts = contractSystem;
             liveEvents = liveEventSystem;
+            weather = weatherSystem;
 
             BuildUi();
         }
@@ -1612,6 +1616,13 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
+            if (weather != null &&
+                weather.ShowMessage)
+            {
+                return
+                    weather.StatusText;
+            }
+
             if (legends != null &&
                 legends.ShowMessage)
             {

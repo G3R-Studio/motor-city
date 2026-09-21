@@ -29,6 +29,7 @@ namespace MotorCity.Gameplay
         private StreetSprintActivity sprint;
         private CircuitRaceActivity circuit;
         private DayNightCycleController dayNight;
+        private CityWeatherSystem weather;
 
         private bool visible;
         private Vector2 scroll;
@@ -52,6 +53,7 @@ namespace MotorCity.Gameplay
             CityLegendSystem legendSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
+            CityWeatherSystem weatherSystem,
             ActivityManager manager,
             ArcadeCarController targetCar,
             DeliveryActivity deliveryActivity,
@@ -72,6 +74,7 @@ namespace MotorCity.Gameplay
             legends = legendSystem;
             contracts = contractSystem;
             liveEvents = liveEventSystem;
+            weather = weatherSystem;
             activityManager = manager;
             car = targetCar;
             delivery = deliveryActivity;
@@ -128,6 +131,7 @@ namespace MotorCity.Gameplay
             DrawCareer();
             DrawContracts();
             DrawLiveEvents();
+            DrawWeather();
             DrawTime();
             DrawTeleports();
 
@@ -560,6 +564,46 @@ namespace MotorCity.Gameplay
                     "Live events сброшены";
             }
 
+            GUILayout.Space(10f);
+        }
+
+        private void DrawWeather()
+        {
+            GUILayout.Label("ПОГОДА");
+
+            if (weather != null)
+            {
+                GUILayout.Label(
+                    weather.AdminLine);
+            }
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ЯСНО"))
+                weather?.SetWeatherForTesting(
+                    CityWeather.Clear);
+
+            if (Button("ДОЖДЬ"))
+                weather?.SetWeatherForTesting(
+                    CityWeather.Rain);
+
+            if (Button("ЛИВЕНЬ"))
+                weather?.SetWeatherForTesting(
+                    CityWeather.Storm);
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ОБЛАЧНО"))
+                weather?.SetWeatherForTesting(
+                    CityWeather.Overcast);
+
+            if (Button("ТУМАН"))
+                weather?.SetWeatherForTesting(
+                    CityWeather.Fog);
+
+            GUILayout.EndHorizontal();
             GUILayout.Space(10f);
         }
 
