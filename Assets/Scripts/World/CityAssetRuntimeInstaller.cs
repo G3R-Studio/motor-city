@@ -90,13 +90,20 @@ namespace MotorCity.World
 
         private static readonly Vector3[] UndergroundPreferred =
         {
-            new(-630f, 0f, -1832f),
-            new(-300f, 0f, -2010f),
-            new(20f, 0f, -1832f),
-            new(-300f, 0f, -1600f),
-            new(-314f, 0f, -1200f),
-            new(-314f, 0f, -800f),
-            new(-314f, 0f, -420f)
+            // Underground must stay inside the verified large-district road
+            // network. These points are shared with the working delivery /
+            // circuit area and are therefore guaranteed to be on-map for the
+            // current authored city.
+            new(-450f, 0f, 360f),
+            new(-450f, 0f, 150f),
+            new(-450f, 0f, -100f),
+            new(-150f, 0f, -100f),
+            new(150f, 0f, -100f),
+            new(450f, 0f, -100f),
+            new(450f, 0f, 150f),
+            new(450f, 0f, 360f),
+            new(150f, 0f, 450f),
+            new(-150f, 0f, 450f)
         };
 
         private static Vector3[] undergroundRoute =
