@@ -380,7 +380,7 @@ namespace MotorCity.Gameplay
             int index)
         {
             return
-                index % 4 switch
+                (index % 4) switch
                 {
                     0 => "story.character.vitya",
                     1 => "story.character.turbo",
