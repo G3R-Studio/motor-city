@@ -3,6 +3,7 @@ using MotorCity.Gameplay;
 using MotorCity.Input;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
+using MotorCity.World;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -57,9 +58,9 @@ namespace MotorCity.UI
         private Text objectiveText;
         private RawImage minimapImage;
         private RectTransform minimapTargetBlip;
+        private RectTransform minimapPlayerArrow;
         private Text minimapTargetText;
-        private Camera minimapCamera;
-        private RenderTexture minimapTexture;
+        private CitySchematicMap schematicMap;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -639,56 +640,23 @@ namespace MotorCity.UI
             minimapImage.raycastTarget =
                 false;
 
-            minimapTexture =
-                new RenderTexture(
-                    256,
-                    256,
-                    16,
-                    RenderTextureFormat.ARGB32);
+            schematicMap =
+                new CitySchematicMap();
 
-            minimapTexture.name =
-                "MotorCity_Minimap";
-
-            minimapTexture.filterMode =
-                FilterMode.Bilinear;
-
-            minimapTexture.wrapMode =
-                TextureWrapMode.Clamp;
-
-            minimapImage.texture =
-                minimapTexture;
-
-            GameObject cameraObject =
-                new("Motor City Minimap Camera");
-
-            cameraObject.transform.SetParent(
-                transform,
-                false);
-
-            minimapCamera =
-                cameraObject.AddComponent<Camera>();
-
-            minimapCamera.orthographic = true;
-            minimapCamera.orthographicSize = 88f;
-            minimapCamera.nearClipPlane = 0.3f;
-            minimapCamera.farClipPlane = 320f;
-            minimapCamera.clearFlags =
-                CameraClearFlags.SolidColor;
-
-            minimapCamera.backgroundColor =
-                new Color(
-                    0.035f,
-                    0.045f,
-                    0.055f,
-                    1f);
-
-            minimapCamera.targetTexture =
-                minimapTexture;
-
-            minimapCamera.allowHDR = false;
-            minimapCamera.allowMSAA = false;
-            minimapCamera.useOcclusionCulling = false;
-            minimapCamera.depth = -20f;
+            if (schematicMap.Build())
+            {
+                minimapImage.texture =
+                    schematicMap.Texture;
+            }
+            else
+            {
+                minimapImage.color =
+                    new Color(
+                        0.12f,
+                        0.14f,
+                        0.15f,
+                        1f);
+            }
 
             Text playerArrow =
                 CreateText(
@@ -705,6 +673,9 @@ namespace MotorCity.UI
 
             playerArrow.text =
                 "▲";
+
+            minimapPlayerArrow =
+                playerArrow.rectTransform;
 
             Text targetBlip =
                 CreateText(
@@ -747,7 +718,6 @@ namespace MotorCity.UI
             bool garageOpen)
         {
             if (navigatorPanel == null ||
-                minimapCamera == null ||
                 car == null)
             {
                 return;
@@ -764,20 +734,30 @@ namespace MotorCity.UI
             Vector3 carPosition =
                 car.transform.position;
 
-            minimapCamera.transform.position =
-                new Vector3(
-                    carPosition.x,
-                    carPosition.y + 115f,
-                    carPosition.z);
+            const float worldRadius =
+                88f;
+
+            if (schematicMap != null &&
+                schematicMap.IsValid &&
+                minimapImage != null)
+            {
+                minimapImage.uvRect =
+                    schematicMap.UvWindow(
+                        carPosition,
+                        worldRadius);
+            }
 
             float yaw =
                 car.transform.eulerAngles.y;
 
-            minimapCamera.transform.rotation =
-                Quaternion.Euler(
-                    90f,
-                    yaw,
-                    0f);
+            if (minimapPlayerArrow != null)
+            {
+                minimapPlayerArrow.localEulerAngles =
+                    new Vector3(
+                        0f,
+                        0f,
+                        -yaw);
+            }
 
             ResolveMinimapTarget(
                 out Vector3 target,
@@ -804,21 +784,13 @@ namespace MotorCity.UI
             float distance =
                 delta.magnitude;
 
-            Vector3 local =
-                Quaternion.Euler(
-                    0f,
-                    -yaw,
-                    0f) *
-                delta;
-
             const float mapHalfWidth = 122f;
             const float mapHalfHeight = 66f;
-            const float worldRadius = 88f;
 
             Vector2 mapOffset =
                 new Vector2(
-                    local.x / worldRadius * mapHalfWidth,
-                    local.z / worldRadius * mapHalfHeight);
+                    delta.x / worldRadius * mapHalfWidth,
+                    delta.z / worldRadius * mapHalfHeight);
 
             if (mapOffset.sqrMagnitude >
                 mapHalfWidth * mapHalfWidth)

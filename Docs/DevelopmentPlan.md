@@ -66,7 +66,7 @@ Core fantasy:
 - [x] Hide secondary progression from permanent HUD.
 - [x] Add a single notification queue.
 - [x] Add touch-safe scalable layout.
-- [ ] Replace runtime minimap camera with a cheaper solution if profiling confirms it is expensive.
+- [x] Replace runtime minimap camera with a static schematic city map.
 
 ### 0.6 Mission / Adventure architecture
 - [x] Add a shared mission definition and step model.
