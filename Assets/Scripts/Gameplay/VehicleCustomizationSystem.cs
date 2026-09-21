@@ -38,8 +38,7 @@ namespace MotorCity.Gameplay
 
         private ArcadeCarController car;
         private VehicleRosterSystem roster;
-        private readonly MaterialPropertyBlock block =
-            new();
+        private MaterialPropertyBlock block;
 
         private GameObject cosmeticsRoot;
         private Material flatMaterial;
@@ -81,6 +80,7 @@ namespace MotorCity.Gameplay
         {
             car = targetCar;
             roster = vehicleRoster;
+            block ??= new MaterialPropertyBlock();
 
             if (roster != null)
                 roster.VehicleChanged += OnVehicleChanged;
