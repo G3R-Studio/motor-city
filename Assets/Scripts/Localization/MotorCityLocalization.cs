@@ -237,7 +237,25 @@ namespace MotorCity.Localization
                 { "activity.best_lap", E("   •   Лучший круг: {0:0.0}с", "   •   Best lap: {0:0.0}s") },
                 { "activity.best_lap_short", E("   ЛУЧШ КРУГ {0:0.0}с", "   BEST LAP {0:0.0}s") },
                 { "activity.circuit_status", E("КОЛЬЦО  КРУГ {0}/{1}   ТОЧКА {2}/{3}   КРУГ {4:0.0}с   ОБЩ {5:0.0}с{6}   ESC — ОТМЕНА", "CIRCUIT  LAP {0}/{1}   POINT {2}/{3}   LAP {4:0.0}s   TOTAL {5:0.0}s{6}   ESC — CANCEL") },
-                { "activity.circuit_result", E("Время: {0:0.0}с   •   {1}{2}   •   Бонус: {3:N0} КР", "Time: {0:0.0}s   •   {1}{2}   •   Bonus: {3:N0} CR") }
+                { "activity.circuit_result", E("Время: {0:0.0}с   •   {1}{2}   •   Бонус: {3:N0} КР", "Time: {0:0.0}s   •   {1}{2}   •   Bonus: {3:N0} CR") },
+
+                { "activity.marker.drift", E("Оранжевая зона: дрифт-заезд", "Orange zone: drift challenge") },
+                { "activity.drift_challenge", E("ДРИФТ-ЗАЕЗД", "DRIFT CHALLENGE") },
+                { "activity.elite_drift_short", E("ЭЛИТНЫЙ ДРИФТ", "ELITE DRIFT") },
+                { "activity.drift_start", E("ДРИФТ-ЗАЕЗД   E — НАЧАТЬ   БРОНЗА {0:N0}   ЛЕГЕНДА {1:N0}{2}", "DRIFT CHALLENGE   E — START   BRONZE {0:N0}   LEGEND {1:N0}{2}") },
+                { "activity.drift_too_far", E("СЛИШКОМ ДАЛЕКО ОТ ПЛОЩАДКИ", "TOO FAR FROM THE DRIFT ZONE") },
+                { "activity.drift_return", E("ДРИФТ  {0:N0}   {1:0.0}с   ВЕРНИСЬ {2:0.0}с", "DRIFT  {0:N0}   {1:0.0}s   RETURN {2:0.0}s") },
+                { "activity.drift_status", E("ДРИФТ  {0:N0}   {1}   {2:0.0}с   ESC — ОТМЕНА", "DRIFT  {0:N0}   {1}   {2:0.0}s   ESC — CANCEL") },
+                { "activity.score_target", E("{0} {1:N0}", "{0} {1:N0}") },
+                { "activity.legend", E("ЛЕГЕНДА", "LEGEND") },
+                { "activity.legend_reached", E("ЛЕГЕНДА ДОСТИГНУТА", "LEGEND REACHED") },
+                { "activity.not_enough_score", E("НЕ ХВАТИЛО ОЧКОВ: {0:N0}/{1:N0}", "NOT ENOUGH SCORE: {0:N0}/{1:N0}") },
+                { "activity.drift_result", E("Очки: {0:N0}   •   Время: {1:0}с", "Score: {0:N0}   •   Time: {1:0}s") },
+                { "activity.failed", E("ПРОВАЛ", "FAILED") },
+                { "activity.drift_fail_details", E("{0}   •   Очки: {1:N0}", "{0}   •   Score: {1:N0}") },
+                { "activity.drift_failed", E("Дрифт-заезд провален", "Drift challenge failed") },
+                { "activity.drift_cancelled", E("Дрифт-заезд отменён. Покинь зону, чтобы повторить.", "Drift challenge cancelled. Leave the zone to retry.") },
+                { "hud.circuit_lap", E("КОЛЬЦО {0}/{1}", "CIRCUIT {0}/{1}") }
             };
 
         private static string language = Russian;

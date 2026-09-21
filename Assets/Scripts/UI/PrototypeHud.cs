@@ -832,7 +832,7 @@ namespace MotorCity.UI
             if (minimapTargetText != null)
             {
                 minimapTargetText.text =
-                    $"{label}   {Mathf.RoundToInt(distance)} М";
+                    MotorCityLocalization.Format("hud.distance", label, Mathf.RoundToInt(distance));
             }
         }
 
@@ -853,8 +853,10 @@ namespace MotorCity.UI
                 label =
                     underground.IsActive ||
                     underground.IsCountingDown
-                        ? "ПОДПОЛЬЕ"
-                        : "ТАЙНАЯ ВСТРЕЧА";
+                        ? MotorCityLocalization.Text(
+                            "hud.underground")
+                        : MotorCityLocalization.Text(
+                            "hud.secret_meeting");
                 return;
             }
 
@@ -889,7 +891,7 @@ namespace MotorCity.UI
                 target =
                     circuitRace.CurrentTarget;
                 label =
-                    $"КОЛЬЦО {circuitRace.CurrentLap}/{circuitRace.LapCount}";
+                    MotorCityLocalization.Format("hud.circuit_lap", circuitRace.CurrentLap, circuitRace.LapCount);
                 return;
             }
 
@@ -930,7 +932,7 @@ namespace MotorCity.UI
                 delivery != null
                     ? delivery.CurrentTarget
                     : Vector3.zero,
-                "ДОСТАВКА",
+                MotorCityLocalization.Text("activity.delivery"),
                 delivery != null,
                 ref target,
                 ref label,
@@ -940,7 +942,7 @@ namespace MotorCity.UI
                 driftChallenge != null
                     ? driftChallenge.ZoneCenter
                     : Vector3.zero,
-                "ДРИФТ",
+                MotorCityLocalization.Text("activity.drift"),
                 driftChallenge != null,
                 ref target,
                 ref label,
@@ -950,7 +952,7 @@ namespace MotorCity.UI
                 streetSprint != null
                     ? streetSprint.CurrentTarget
                     : Vector3.zero,
-                "СПРИНТ",
+                MotorCityLocalization.Text("hud.sprint"),
                 streetSprint != null,
                 ref target,
                 ref label,
@@ -960,7 +962,7 @@ namespace MotorCity.UI
                 circuitRace != null
                     ? circuitRace.CurrentTarget
                     : Vector3.zero,
-                "КОЛЬЦО",
+                MotorCityLocalization.Text("hud.circuit"),
                 circuitRace != null,
                 ref target,
                 ref label,
@@ -974,7 +976,7 @@ namespace MotorCity.UI
                 {
                     ConsiderNavigationTarget(
                         speedTraps.GetTrapPosition(i),
-                        "РАДАР",
+                        MotorCityLocalization.Text("hud.radar"),
                         true,
                         ref target,
                         ref label,
@@ -990,7 +992,7 @@ namespace MotorCity.UI
                 {
                     ConsiderNavigationTarget(
                         driftSpots.GetSpotPosition(i),
-                        "ДРИФТ-ТОЧКА",
+                        MotorCityLocalization.Text("hud.drift_spot"),
                         true,
                         ref target,
                         ref label,
@@ -1009,7 +1011,7 @@ namespace MotorCity.UI
 
                     ConsiderNavigationTarget(
                         discoveries.GetDiscoveryPosition(i),
-                        "ОТКРЫТИЕ",
+                        MotorCityLocalization.Text("hud.discovery"),
                         true,
                         ref target,
                         ref label,
@@ -1025,7 +1027,7 @@ namespace MotorCity.UI
                 {
                     ConsiderNavigationTarget(
                         stuntJumps.GetJumpPosition(i),
-                        "ТРАМПЛИН",
+                        MotorCityLocalization.Text("hud.stunt"),
                         true,
                         ref target,
                         ref label,
@@ -1037,7 +1039,7 @@ namespace MotorCity.UI
                 garage != null
                     ? garage.GarageCenter
                     : Vector3.zero,
-                "ГАРАЖ",
+                MotorCityLocalization.Text("hud.garage"),
                 garage != null,
                 ref target,
                 ref label,
@@ -1602,7 +1604,7 @@ namespace MotorCity.UI
         private void UpdateGarage()
         {
             garageMoneyText.text =
-                $"{garage.Credits:N0} КР";
+                MotorCityLocalization.Format("common.credits", garage.Credits);
 
             if (garageVehicleText != null)
             {
@@ -1802,7 +1804,7 @@ namespace MotorCity.UI
                     string.IsNullOrWhiteSpace(
                         activityManager.ActiveName)
                         ? string.Empty
-                        : $"ЦЕЛЬ: {activityManager.ActiveName}";
+                        : MotorCityLocalization.Format("hud.target", activityManager.ActiveName);
             }
 
             if (cityRisk != null &&

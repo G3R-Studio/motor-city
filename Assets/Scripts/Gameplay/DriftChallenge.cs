@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -58,7 +59,7 @@ namespace MotorCity.Gameplay
         public Vector3 ZoneCenter => zoneCenter;
 
         public string StatusText { get; private set; } =
-            "Оранжевая зона: дрифт-заезд";
+            MotorCityLocalization.Text("activity.marker.drift");
 
         public void Initialize(
             ArcadeCarController targetCar,
@@ -138,7 +139,7 @@ namespace MotorCity.Gameplay
                 {
                     armed = true;
                     StatusText =
-                        "Оранжевая зона: дрифт-заезд";
+                        MotorCityLocalization.Text("activity.marker.drift");
                 }
 
                 return;
@@ -147,7 +148,7 @@ namespace MotorCity.Gameplay
             if (!IsNearStart)
             {
                 StatusText =
-                    "Оранжевая зона: дрифт-заезд";
+                    MotorCityLocalization.Text("activity.marker.drift");
                 return;
             }
 
@@ -155,7 +156,7 @@ namespace MotorCity.Gameplay
                 !activityManager.IsActive(ActivityId))
             {
                 StatusText =
-                    $"Дрифт-заезд недоступен: активно «{activityManager.ActiveName}»";
+                    MotorCityLocalization.Format("activity.busy", MotorCityLocalization.Text("activity.drift_challenge"), activityManager.ActiveName);
                 return;
             }
 
@@ -163,7 +164,7 @@ namespace MotorCity.Gameplay
                 maxStartSpeedKph)
             {
                 StatusText =
-                    $"ДРИФТ — остановись до {maxStartSpeedKph:0} км/ч";
+                    MotorCityLocalization.Format("activity.stop", MotorCityLocalization.Text("activity.drift"), maxStartSpeedKph);
                 return;
             }
 
@@ -174,13 +175,15 @@ namespace MotorCity.Gameplay
 
             string eliteHint =
                 eliteUnlocked
-                    ? "   SHIFT+E — ЭЛИТА"
-                    : $"   ЭЛИТА: ДРИФТ {EliteRequiredLevel}";
+                    ? MotorCityLocalization.Text("activity.elite_hint")
+                    : MotorCityLocalization.Format("activity.elite_locked", MotorCityLocalization.Text("discipline.drift"), EliteRequiredLevel);
 
             StatusText =
-                $"ДРИФТ-ЗАЕЗД   E — НАЧАТЬ   " +
-                $"БРОНЗА {bronzeScore:N0}   ЛЕГЕНДА {legendaryScore:N0}" +
-                eliteHint;
+                MotorCityLocalization.Format(
+                    "activity.drift_start",
+                    bronzeScore,
+                    legendaryScore,
+                    eliteHint);
 
             if (keyboard != null &&
                 keyboard.eKey.wasPressedThisFrame)
@@ -201,7 +204,7 @@ namespace MotorCity.Gameplay
         {
             if (!activityManager.TryBegin(
                     ActivityId,
-                    "Дрифт-заезд"))
+                    MotorCityLocalization.Text("activity.drift_challenge")))
                 return;
 
             isCountingDown = true;
@@ -262,8 +265,12 @@ namespace MotorCity.Gameplay
                         countdownRemaining));
 
             StatusText =
-                $"{(eliteMode ? "ЭЛИТНЫЙ ДРИФТ" : "ДРИФТ")}   " +
-                $"СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+                MotorCityLocalization.Format(
+                    "activity.countdown",
+                    eliteMode
+                        ? MotorCityLocalization.Text("activity.elite_drift_short")
+                        : MotorCityLocalization.Text("activity.drift"),
+                    shown);
         }
 
         private void UpdateActiveChallenge()
@@ -302,14 +309,16 @@ namespace MotorCity.Gameplay
                     outsideGraceSeconds)
                 {
                     FailChallenge(
-                        "СЛИШКОМ ДАЛЕКО ОТ ПЛОЩАДКИ");
+                        MotorCityLocalization.Text("activity.drift_too_far"));
                     return;
                 }
 
                 StatusText =
-                    $"ДРИФТ  {CurrentScore:N0}   " +
-                    $"{TimeRemaining:0.0}с   " +
-                    $"ВЕРНИСЬ {remainingGrace:0.0}с";
+                    MotorCityLocalization.Format(
+                        "activity.drift_return",
+                        CurrentScore,
+                        TimeRemaining,
+                        remainingGrace);
                 return;
             }
 
@@ -327,9 +336,11 @@ namespace MotorCity.Gameplay
         private void UpdateActiveStatus()
         {
             StatusText =
-                $"ДРИФТ  {CurrentScore:N0}   " +
-                $"{CurrentTierProgress()}   " +
-                $"{TimeRemaining:0.0}с   ESC — ОТМЕНА";
+                MotorCityLocalization.Format(
+                    "activity.drift_status",
+                    CurrentScore,
+                    CurrentTierProgress(),
+                    TimeRemaining);
         }
 
         private string CurrentTierProgress()
@@ -347,18 +358,18 @@ namespace MotorCity.Gameplay
                 eliteMode ? 9000 : legendaryScore;
 
             if (score < bronze)
-                return $"БРОНЗА {bronze:N0}";
+                return MotorCityLocalization.Format("activity.score_target", MotorCityLocalization.Text("medal.bronze"), bronze);
 
             if (score < silver)
-                return $"СЕРЕБРО {silver:N0}";
+                return MotorCityLocalization.Format("activity.score_target", MotorCityLocalization.Text("medal.silver"), silver);
 
             if (score < gold)
-                return $"ЗОЛОТО {gold:N0}";
+                return MotorCityLocalization.Format("activity.score_target", MotorCityLocalization.Text("medal.gold"), gold);
 
             if (score < legendary)
-                return $"ЛЕГЕНДА {legendary:N0}";
+                return MotorCityLocalization.Format("activity.score_target", MotorCityLocalization.Text("activity.legend"), legendary);
 
-            return "ЛЕГЕНДА ДОСТИГНУТА";
+            return MotorCityLocalization.Text("activity.legend_reached");
         }
 
         private void FinishByScore()
@@ -379,7 +390,7 @@ namespace MotorCity.Gameplay
                 bronze)
             {
                 FailChallenge(
-                    $"НЕ ХВАТИЛО ОЧКОВ: {finalScore:N0}/{bronze:N0}");
+                    MotorCityLocalization.Format("activity.not_enough_score", finalScore, bronze));
                 return;
             }
 
@@ -389,27 +400,27 @@ namespace MotorCity.Gameplay
             if (finalScore >=
                 legendary)
             {
-                tier = "ЛЕГЕНДА";
+                tier = MotorCityLocalization.Text("activity.legend");
                 reward =
                     legendaryRewardCredits;
             }
             else if (finalScore >=
                      gold)
             {
-                tier = "ЗОЛОТО";
+                tier = MotorCityLocalization.Text("medal.gold");
                 reward =
                     goldRewardCredits;
             }
             else if (finalScore >=
                      silver)
             {
-                tier = "СЕРЕБРО";
+                tier = MotorCityLocalization.Text("medal.silver");
                 reward =
                     silverRewardCredits;
             }
             else
             {
-                tier = "БРОНЗА";
+                tier = MotorCityLocalization.Text("medal.bronze");
                 reward =
                     bronzeRewardCredits;
             }
@@ -434,15 +445,15 @@ namespace MotorCity.Gameplay
             activityManager.ShowResult(
                 ActivityId,
                 eliteMode
-                    ? "ЭЛИТНЫЙ ДРИФТ"
-                    : "ДРИФТ-ЗАЕЗД",
+                    ? MotorCityLocalization.Text("activity.elite_drift_short")
+                    : MotorCityLocalization.Text("activity.drift_challenge"),
                 tier,
-                $"Очки: {finalScore:N0}   •   Время: {(eliteMode ? 48f : durationSeconds):0}с",
+                MotorCityLocalization.Format("activity.drift_result", finalScore, eliteMode ? 48f : durationSeconds),
                 reward,
                 true);
 
             StatusText =
-                $"Дрифт-заезд: {tier}  +{reward} КР";
+                MotorCityLocalization.Format("activity.status_reward", MotorCityLocalization.Text("activity.drift_challenge"), tier, reward);
         }
 
         private void FailChallenge(
@@ -460,14 +471,14 @@ namespace MotorCity.Gameplay
 
             activityManager.ShowResult(
                 ActivityId,
-                "ДРИФТ-ЗАЕЗД",
-                "ПРОВАЛ",
-                $"{reason}   •   Очки: {finalScore:N0}",
+                MotorCityLocalization.Text("activity.drift_challenge"),
+                MotorCityLocalization.Text("activity.failed"),
+                MotorCityLocalization.Format("activity.drift_fail_details", reason, finalScore),
                 0,
                 false);
 
             StatusText =
-                "Дрифт-заезд провален";
+                MotorCityLocalization.Text("activity.drift_failed");
         }
 
         public void RestartFromResult()
@@ -514,7 +525,7 @@ namespace MotorCity.Gameplay
             activityManager?.End(ActivityId);
 
             StatusText =
-                "Дрифт-заезд отменён. Покинь зону, чтобы повторить.";
+                MotorCityLocalization.Text("activity.drift_cancelled");
         }
 
         private void OnDisable()
