@@ -230,6 +230,16 @@ namespace MotorCity.Bootstrap
                 vehicleRoster,
                 vehicleMastery);
 
+            CityRiskSystem cityRisk =
+                systems.AddComponent<CityRiskSystem>();
+
+            cityRisk.Initialize(
+                car,
+                activityManager,
+                garage,
+                vehicleRoster,
+                underground);
+
             AdminDebugPanel adminPanel =
                 systems.AddComponent<AdminDebugPanel>();
 
@@ -248,6 +258,7 @@ namespace MotorCity.Bootstrap
                 contracts,
                 liveEvents,
                 underground,
+                cityRisk,
                 activityManager,
                 car,
                 delivery,
@@ -288,7 +299,8 @@ namespace MotorCity.Bootstrap
                 legends,
                 contracts,
                 liveEvents,
-                underground);
+                underground,
+                cityRisk);
 
         }
 
@@ -1160,7 +1172,8 @@ namespace MotorCity.Bootstrap
             CityLegendSystem legends,
             CityContractSystem contracts,
             CityLiveEventSystem liveEvents,
-            UndergroundSceneSystem underground)
+            UndergroundSceneSystem underground,
+            CityRiskSystem cityRisk)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
@@ -1185,7 +1198,8 @@ namespace MotorCity.Bootstrap
                 legends,
                 contracts,
                 liveEvents,
-                underground);
+                underground,
+                cityRisk);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)

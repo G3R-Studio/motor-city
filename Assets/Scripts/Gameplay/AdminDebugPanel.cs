@@ -22,7 +22,8 @@ namespace MotorCity.Gameplay
         private CityLegendSystem legends;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
-        private ПодпольеSceneSystem underground;
+        private UndergroundSceneSystem underground;
+        private CityRiskSystem cityRisk;
         private ActivityManager activityManager;
         private ArcadeCarController car;
         private DeliveryActivity delivery;
@@ -53,7 +54,8 @@ namespace MotorCity.Gameplay
             CityLegendSystem legendSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
-            ПодпольеSceneSystem undergroundSystem,
+            UndergroundSceneSystem undergroundSystem,
+            CityRiskSystem riskSystem,
             ActivityManager manager,
             ArcadeCarController targetCar,
             DeliveryActivity deliveryActivity,
@@ -75,6 +77,7 @@ namespace MotorCity.Gameplay
             contracts = contractSystem;
             liveEvents = liveEventSystem;
             underground = undergroundSystem;
+            cityRisk = riskSystem;
             activityManager = manager;
             car = targetCar;
             delivery = deliveryActivity;
@@ -131,7 +134,8 @@ namespace MotorCity.Gameplay
             DrawCareer();
             DrawContracts();
             DrawLiveEvents();
-            DrawПодполье();
+            DrawUnderground();
+            DrawPoliceRisk();
             DrawTime();
             DrawTeleports();
 
@@ -567,7 +571,7 @@ namespace MotorCity.Gameplay
             GUILayout.Space(10f);
         }
 
-        private void DrawПодполье()
+        private void DrawUnderground()
         {
             GUILayout.Label("ПОДПОЛЬЕ");
 
@@ -614,6 +618,48 @@ namespace MotorCity.Gameplay
 
                 lastAction =
                     "Подполье прогресс сброшен";
+            }
+
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10f);
+        }
+
+        private void DrawPoliceRisk()
+        {
+            GUILayout.Label("ПОЛИЦИЯ / РИСК");
+
+            if (cityRisk != null)
+            {
+                GUILayout.Label(
+                    cityRisk.AdminLine);
+            }
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("+20 ВНИМАНИЯ"))
+            {
+                cityRisk?.AddAttentionForTesting(
+                    20f);
+
+                lastAction =
+                    "Полиция: +20 внимания";
+            }
+
+            if (Button("+50 ВНИМАНИЯ"))
+            {
+                cityRisk?.AddAttentionForTesting(
+                    50f);
+
+                lastAction =
+                    "Полиция: +50 внимания";
+            }
+
+            if (Button("СБРОСИТЬ"))
+            {
+                cityRisk?.ClearForTesting();
+
+                lastAction =
+                    "Внимание полиции сброшено";
             }
 
             GUILayout.EndHorizontal();

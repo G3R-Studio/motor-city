@@ -29,6 +29,7 @@ namespace MotorCity.UI
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
         private UndergroundSceneSystem underground;
+        private CityRiskSystem cityRisk;
 
         private Font font;
         private Sprite panelSprite;
@@ -119,7 +120,8 @@ namespace MotorCity.UI
             CityLegendSystem legendSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
-            UndergroundSceneSystem undergroundSystem)
+            UndergroundSceneSystem undergroundSystem,
+            CityRiskSystem riskSystem)
         {
             car = controller;
             wallet = playerWallet;
@@ -142,6 +144,7 @@ namespace MotorCity.UI
             contracts = contractSystem;
             liveEvents = liveEventSystem;
             underground = undergroundSystem;
+            cityRisk = riskSystem;
 
             BuildUi();
         }
@@ -1630,6 +1633,13 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
+            if (cityRisk != null &&
+                cityRisk.ShowMessage)
+            {
+                return
+                    cityRisk.StatusText;
+            }
+
             if (underground != null &&
                 underground.ShowMessage)
             {
@@ -1768,6 +1778,13 @@ namespace MotorCity.UI
                         activityManager.ActiveName)
                         ? string.Empty
                         : $"ЦЕЛЬ: {activityManager.ActiveName}";
+            }
+
+            if (cityRisk != null &&
+                cityRisk.PursuitActive)
+            {
+                return
+                    cityRisk.HudLine;
             }
 
             if (underground != null &&

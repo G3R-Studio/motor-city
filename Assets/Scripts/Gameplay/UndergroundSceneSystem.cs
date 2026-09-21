@@ -1,3 +1,4 @@
+using System;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -52,6 +53,8 @@ namespace MotorCity.Gameplay
         public bool IsActive { get; private set; }
         public bool IsNearMeeting { get; private set; }
         public bool IsCountingDown => isCountingDown;
+
+        public event Action PhysicalRunCompleted;
 
         public Vector3 CurrentTarget
         {
@@ -421,6 +424,8 @@ namespace MotorCity.Gameplay
 
             CompleteEvent(
                 current);
+
+            PhysicalRunCompleted?.Invoke();
 
             activityManager?.End(
                 "underground");
