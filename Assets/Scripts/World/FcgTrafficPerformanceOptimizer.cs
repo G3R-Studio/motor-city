@@ -15,6 +15,15 @@ namespace MotorCity.World
         private readonly Dictionary<EntityId, TrafficEntry> traffic =
             new();
 
+        private readonly List<MonoBehaviour> behaviourBuffer =
+            new();
+
+        private readonly HashSet<EntityId> aliveBuffer =
+            new();
+
+        private readonly List<EntityId> staleBuffer =
+            new();
+
         private Transform player;
         private Transform carContainer;
         private float refreshTimer;
@@ -87,14 +96,15 @@ namespace MotorCity.World
             if (carContainer == null)
                 return;
 
-            MonoBehaviour[] behaviours =
-                carContainer.GetComponentsInChildren<MonoBehaviour>(
-                    false);
+            behaviourBuffer.Clear();
 
-            var alive =
-                new HashSet<EntityId>();
+            carContainer.GetComponentsInChildren(
+                false,
+                behaviourBuffer);
 
-            foreach (MonoBehaviour behaviour in behaviours)
+            aliveBuffer.Clear();
+
+            foreach (MonoBehaviour behaviour in behaviourBuffer)
             {
                 if (behaviour == null)
                     continue;
@@ -113,7 +123,7 @@ namespace MotorCity.World
                 EntityId id =
                     behaviour.GetEntityId();
 
-                alive.Add(
+                aliveBuffer.Add(
                     id);
 
                 if (traffic.ContainsKey(
@@ -134,22 +144,21 @@ namespace MotorCity.World
                     entry);
             }
 
-            var stale =
-                new List<EntityId>();
+            staleBuffer.Clear();
 
             foreach (KeyValuePair<EntityId, TrafficEntry> pair in
                      traffic)
             {
-                if (!alive.Contains(
+                if (!aliveBuffer.Contains(
                         pair.Key) ||
                     pair.Value?.Behaviour == null)
                 {
-                    stale.Add(
+                    staleBuffer.Add(
                         pair.Key);
                 }
             }
 
-            foreach (EntityId id in stale)
+            foreach (EntityId id in staleBuffer)
             {
                 traffic.Remove(
                     id);
@@ -301,7 +310,7 @@ namespace MotorCity.World
                 entry.Behaviour;
 
             // FCG normally executes MoveCar every 0.02 s. Far traffic does
-            // not need 50 AI/physics updates per second, so it runs at 20 Hz.
+            // not need 50 AI/physics updates per second, so it runs at 12.5 Hz.
             // The full 50 Hz cadence is restored before the car is close
             // enough for the player to interact with it.
             trafficCar.CancelInvoke(
@@ -309,7 +318,7 @@ namespace MotorCity.World
 
             float interval =
                 farMode
-                    ? 0.05f
+                    ? 0.08f
                     : 0.02f;
 
             trafficCar.InvokeRepeating(

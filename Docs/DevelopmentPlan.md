@@ -91,12 +91,12 @@ Core fantasy:
 - [x] Balance upgrade and vehicle prices around 4–8 minute sessions.
 
 ### 0.9 Existing-runtime optimization
-- [ ] Cache repeated object lookups.
-- [ ] Reduce unnecessary runtime material/object creation.
+- [x] Cache repeated object lookups.
+- [x] Reduce unnecessary runtime material/object creation.
 - [ ] Profile physics tick and solver settings.
-- [ ] Keep full physics quality for player car.
-- [ ] Reduce distant traffic update cost.
-- [ ] Traffic shadows/probes/motion-vector cost audit.
+- [x] Keep full physics quality for player car.
+- [x] Reduce distant traffic update cost.
+- [x] Traffic shadows/probes/motion-vector cost audit.
 - [ ] WebGL memory/build-size audit.
 - [ ] Low/Medium/High quality presets.
 

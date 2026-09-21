@@ -27,6 +27,7 @@ namespace MotorCity.World
         private struct RendererEntry
         {
             public Renderer Renderer;
+            public Vector3 Center;
             public float CullDistanceSquared;
             public bool OriginalEnabled;
         }
@@ -252,6 +253,8 @@ namespace MotorCity.World
                     {
                         Renderer =
                             renderer,
+                        Center =
+                            bounds.center,
                         CullDistanceSquared =
                             cullDistance *
                             cullDistance,
@@ -282,11 +285,8 @@ namespace MotorCity.World
                 if (renderer == null)
                     continue;
 
-                Vector3 center =
-                    renderer.bounds.center;
-
                 bool visible =
-                    (center -
+                    (entry.Center -
                      observerPosition).sqrMagnitude <=
                     entry.CullDistanceSquared;
 

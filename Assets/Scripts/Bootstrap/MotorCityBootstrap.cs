@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MotorCity.CameraSystem;
 using MotorCity.Gameplay;
 using MotorCity.Persistence;
@@ -12,6 +13,9 @@ namespace MotorCity.Bootstrap
 {
     public static class MotorCityBootstrap
     {
+        private static readonly Dictionary<RuntimeMaterialKey, Material> RuntimeMaterialCache =
+            new();
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BuildPrototype()
         {
@@ -1265,16 +1269,122 @@ namespace MotorCity.Bootstrap
             return go;
         }
 
-        private static Material Material(Color color, float metallic, float smoothness)
+        private static Material Material(
+            Color color,
+            float metallic,
+            float smoothness)
         {
-            bool srp = GraphicsSettings.currentRenderPipeline != null;
-            Shader shader = Shader.Find(srp ? "Universal Render Pipeline/Lit" : "Standard");
-            Material material = new(shader) { color = color };
+            RuntimeMaterialKey key =
+                new(
+                    color,
+                    metallic,
+                    smoothness);
 
-            if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", metallic);
-            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", smoothness);
-            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", smoothness);
+            if (RuntimeMaterialCache.TryGetValue(
+                    key,
+                    out Material cached) &&
+                cached != null)
+            {
+                return cached;
+            }
+
+            bool srp =
+                GraphicsSettings.currentRenderPipeline != null;
+
+            Shader shader =
+                Shader.Find(
+                    srp
+                        ? "Universal Render Pipeline/Lit"
+                        : "Standard");
+
+            Material material =
+                new(shader)
+                {
+                    color = color
+                };
+
+            if (material.HasProperty("_Metallic"))
+                material.SetFloat("_Metallic", metallic);
+
+            if (material.HasProperty("_Smoothness"))
+                material.SetFloat("_Smoothness", smoothness);
+
+            if (material.HasProperty("_Glossiness"))
+                material.SetFloat("_Glossiness", smoothness);
+
+            RuntimeMaterialCache[key] =
+                material;
+
             return material;
+        }
+
+        private readonly struct RuntimeMaterialKey :
+            System.IEquatable<RuntimeMaterialKey>
+        {
+            private readonly Color32 color;
+            private readonly byte metallic;
+            private readonly byte smoothness;
+
+            public RuntimeMaterialKey(
+                Color sourceColor,
+                float sourceMetallic,
+                float sourceSmoothness)
+            {
+                color =
+                    sourceColor;
+
+                metallic =
+                    (byte)Mathf.RoundToInt(
+                        Mathf.Clamp01(
+                            sourceMetallic) *
+                        255f);
+
+                smoothness =
+                    (byte)Mathf.RoundToInt(
+                        Mathf.Clamp01(
+                            sourceSmoothness) *
+                        255f);
+            }
+
+            public bool Equals(
+                RuntimeMaterialKey other)
+            {
+                return
+                    color.Equals(
+                        other.color) &&
+                    metallic ==
+                        other.metallic &&
+                    smoothness ==
+                        other.smoothness;
+            }
+
+            public override bool Equals(
+                object obj)
+            {
+                return
+                    obj is RuntimeMaterialKey other &&
+                    Equals(
+                        other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hash =
+                        color.GetHashCode();
+
+                    hash =
+                        hash * 397 ^
+                        metallic;
+
+                    hash =
+                        hash * 397 ^
+                        smoothness;
+
+                    return hash;
+                }
+            }
         }
     }
 }
