@@ -40,6 +40,12 @@ namespace MotorCity.Gameplay
             MotorCityLocalization.Text(
                 "garage.marker_text");
 
+        public string VehicleName =>
+            vehicleRoster == null
+                ? MotorCityLocalization.Text(
+                    "garage.vehicles_unavailable")
+                : vehicleRoster.SelectedName;
+
         public string VehicleLine =>
             vehicleRoster == null
                 ? MotorCityLocalization.Text(
