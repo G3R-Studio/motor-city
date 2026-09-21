@@ -65,13 +65,10 @@ namespace MotorCity.Gameplay
 
         public string GarageLine =>
             MotorCityLocalization.Format(
-                "customization.summary",
+                "customization.simple_summary",
                 MotorCityLocalization.Text(ColorNameKey(SelectedColorIndex)),
-                MotorCityLocalization.Text(StickerNameKey(SelectedStickerIndex)),
-                MotorCityLocalization.Text(VinylNameKey(SelectedVinylIndex)),
                 MotorCityLocalization.Text(WheelNameKey(SelectedWheelStyleIndex)),
-                MotorCityLocalization.Text(NeonNameKey(SelectedNeonIndex)),
-                PlateText());
+                MotorCityLocalization.Text(NeonNameKey(SelectedNeonIndex)));
 
         public void Initialize(
             ArcadeCarController targetCar,
@@ -188,11 +185,8 @@ namespace MotorCity.Gameplay
                     slot);
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Color", SelectedColorIndex);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Sticker", SelectedStickerIndex);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Vinyl", SelectedVinylIndex);
             MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Wheels", SelectedWheelStyleIndex);
             MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Neon", SelectedNeonIndex);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Plate", SelectedPlateIndex);
             MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Exists", 1);
             MotorCity.Persistence.MotorCitySaveService.Save();
 
@@ -228,17 +222,8 @@ namespace MotorCity.Gameplay
                     0,
                     BodyColors.Length - 1);
 
-            SelectedStickerIndex =
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(prefix + ".Sticker", 0),
-                    0,
-                    3);
-
-            SelectedVinylIndex =
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(prefix + ".Vinyl", 0),
-                    0,
-                    3);
+            SelectedStickerIndex = 0;
+            SelectedVinylIndex = 0;
 
             SelectedWheelStyleIndex =
                 Mathf.Clamp(
@@ -252,11 +237,7 @@ namespace MotorCity.Gameplay
                     0,
                     AccentColors.Length);
 
-            SelectedPlateIndex =
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(prefix + ".Plate", 0),
-                    0,
-                    5);
+            SelectedPlateIndex = 0;
 
             SelectedPresetSlot =
                 slot;
@@ -310,11 +291,8 @@ namespace MotorCity.Gameplay
             SelectedColorIndex =
                 GetInt(id, "Color", 0, BodyColors.Length - 1);
 
-            SelectedStickerIndex =
-                GetInt(id, "Sticker", 0, 3);
-
-            SelectedVinylIndex =
-                GetInt(id, "Vinyl", 0, 3);
+            SelectedStickerIndex = 0;
+            SelectedVinylIndex = 0;
 
             SelectedWheelStyleIndex =
                 GetInt(id, "Wheels", 0, 3);
@@ -322,8 +300,7 @@ namespace MotorCity.Gameplay
             SelectedNeonIndex =
                 GetInt(id, "Neon", 0, AccentColors.Length);
 
-            SelectedPlateIndex =
-                GetInt(id, "Plate", 0, 5);
+            SelectedPlateIndex = 0;
         }
 
         private int GetInt(
@@ -349,11 +326,8 @@ namespace MotorCity.Gameplay
                 VehicleId();
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(Key(id, "Color"), SelectedColorIndex);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(Key(id, "Sticker"), SelectedStickerIndex);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(Key(id, "Vinyl"), SelectedVinylIndex);
             MotorCity.Persistence.MotorCitySaveService.SetInt(Key(id, "Wheels"), SelectedWheelStyleIndex);
             MotorCity.Persistence.MotorCitySaveService.SetInt(Key(id, "Neon"), SelectedNeonIndex);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(Key(id, "Plate"), SelectedPlateIndex);
             MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
@@ -461,8 +435,14 @@ namespace MotorCity.Gameplay
 
         private void ApplyWheelStyle()
         {
+            Transform visual =
+                FindVisualRoot();
+
+            if (visual == null)
+                return;
+
             Renderer[] renderers =
-                car.GetComponentsInChildren<Renderer>(
+                visual.GetComponentsInChildren<Renderer>(
                     true);
 
             Color wheelColor =
@@ -498,6 +478,8 @@ namespace MotorCity.Gameplay
                      renderers)
             {
                 if (renderer == null ||
+                    renderer is TrailRenderer ||
+                    renderer is ParticleSystemRenderer ||
                     !IsWheelLike(
                         renderer.transform.name))
                 {
@@ -539,20 +521,9 @@ namespace MotorCity.Gameplay
                 car.transform,
                 false);
 
-            if (SelectedStickerIndex > 0)
-                BuildSticker(
-                    bounds);
-
-            if (SelectedVinylIndex > 0)
-                BuildVinyl(
-                    bounds);
-
             if (SelectedNeonIndex > 0)
                 BuildNeon(
                     bounds);
-
-            BuildPlate(
-                bounds);
         }
 
         private void BuildSticker(
