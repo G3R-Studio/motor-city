@@ -320,6 +320,33 @@ namespace MotorCity.Gameplay
             if (!success)
                 return;
 
+            if (!string.IsNullOrWhiteSpace(
+                    activityId) &&
+                activityId.StartsWith(
+                    "profession_",
+                    StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            RegisterSuccessfulActivity(
+                activityId,
+                false);
+        }
+
+        public void RegisterCityJobCompletion(
+            string jobId)
+        {
+            RegisterSuccessfulActivity(
+                "profession_" +
+                (jobId ?? string.Empty),
+                true);
+        }
+
+        private void RegisterSuccessfulActivity(
+            string activityId,
+            bool forceDailyProgress)
+        {
             AddXp(
                 18);
 
@@ -327,6 +354,7 @@ namespace MotorCity.Gameplay
                 return;
 
             bool counts =
+                forceDailyProgress ||
                 dailyType switch
                 {
                     0 =>
