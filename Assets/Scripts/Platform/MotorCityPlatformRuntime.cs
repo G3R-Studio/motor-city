@@ -5,6 +5,7 @@ namespace MotorCity.Platform
     public sealed class MotorCityPlatformRuntime : MonoBehaviour
     {
         private bool gameplayRunning;
+        private bool platformGameplayActive;
 
         private void Awake()
         {
@@ -46,21 +47,30 @@ namespace MotorCity.Platform
         public void MarkGameplayRunning()
         {
             gameplayRunning = true;
+            platformGameplayActive = true;
         }
 
         private void ResumeGameplay()
         {
-            if (!gameplayRunning)
+            if (!gameplayRunning ||
+                platformGameplayActive)
+            {
                 return;
+            }
 
+            platformGameplayActive = true;
             MotorCityPlatform.GameplayStart();
         }
 
         private void PauseGameplay()
         {
-            if (!gameplayRunning)
+            if (!gameplayRunning ||
+                !platformGameplayActive)
+            {
                 return;
+            }
 
+            platformGameplayActive = false;
             MotorCityPlatform.GameplayStop();
         }
     }
