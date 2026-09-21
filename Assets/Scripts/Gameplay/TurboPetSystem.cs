@@ -355,7 +355,7 @@ namespace MotorCity.Gameplay
 
             bool counts =
                 forceDailyProgress ||
-                dailyType switch
+                (dailyType switch
                 {
                     0 =>
                         true,
@@ -366,7 +366,7 @@ namespace MotorCity.Gameplay
                         activityId == "drift",
                     _ =>
                         false
-                };
+                });
 
             if (!counts)
                 return;
