@@ -113,7 +113,7 @@ namespace MotorCity.Gameplay
                         0));
 
             currentDay =
-                Mathf.Max(
+                Math.Max(
                     1L,
                     MotorCityPlatform.ServerUnixTime /
                     86400L);
@@ -295,8 +295,8 @@ namespace MotorCity.Gameplay
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(
                 LastDayKey,
-                (int)Mathf.Min(
-                    int.MaxValue,
+                (int)Math.Min(
+                    (long)int.MaxValue,
                     currentDay));
 
             MotorCity.Persistence.MotorCitySaveService.Save();
@@ -365,7 +365,7 @@ namespace MotorCity.Gameplay
         private void RefreshDayIfNeeded()
         {
             long serverDay =
-                Mathf.Max(
+                Math.Max(
                     1L,
                     MotorCityPlatform.ServerUnixTime /
                     86400L);

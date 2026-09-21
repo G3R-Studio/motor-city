@@ -91,6 +91,8 @@ namespace MotorCity.Vehicle
         private float prometeoRetryTimer;
         private float resetHoldTimer;
         private float driveModeFrictionRefreshTimer;
+        private float turboAssistMultiplier = 1f;
+        private float turboAssistTimer;
 
         private int engineUpgradeLevel;
         private int gripUpgradeLevel;
@@ -256,6 +258,21 @@ namespace MotorCity.Vehicle
                         Time.deltaTime);
             }
 
+            if (turboAssistTimer > 0f)
+            {
+                turboAssistTimer =
+                    Mathf.Max(
+                        0f,
+                        turboAssistTimer -
+                        Time.deltaTime);
+
+                if (turboAssistTimer <= 0f)
+                {
+                    turboAssistMultiplier =
+                        1f;
+                }
+            }
+
             if (wheelRigReady &&
                 prometeo == null)
             {
@@ -295,6 +312,25 @@ namespace MotorCity.Vehicle
                     ReleaseResetBrakes();
                 }
             }
+        }
+
+        public void ActivateTurboAssist(
+            float multiplier,
+            float seconds)
+        {
+            turboAssistMultiplier =
+                Mathf.Clamp(
+                    multiplier,
+                    1f,
+                    1.6f);
+
+            turboAssistTimer =
+                Mathf.Max(
+                    turboAssistTimer,
+                    Mathf.Clamp(
+                        seconds,
+                        0f,
+                        6f));
         }
 
         private void FixedUpdate()
@@ -1145,6 +1181,7 @@ namespace MotorCity.Vehicle
                     basePowerAssistAcceleration *
                     modeAcceleration *
                     vehiclePowerMultiplier *
+                    turboAssistMultiplier *
                     (1f +
                      GetEngineAssistBonus() +
                      GetMasteryPowerBonus());

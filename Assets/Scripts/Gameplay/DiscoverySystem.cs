@@ -21,6 +21,8 @@ namespace MotorCity.Gameplay
         public string StatusText { get; private set; }
         public int DiscoveryCount => discoveries?.Length ?? 0;
 
+        public float BonusDiscoveryRadius { get; set; }
+
         public int FoundCount
         {
             get
@@ -134,8 +136,14 @@ namespace MotorCity.Gameplay
                     carPosition,
                     Flat(item.Position));
 
-                if (distance > DiscoverRadius)
+                if (distance >
+                    DiscoverRadius +
+                    Mathf.Max(
+                        0f,
+                        BonusDiscoveryRadius))
+                {
                     continue;
+                }
 
                 Discover(item);
                 return;

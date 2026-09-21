@@ -379,7 +379,22 @@ namespace MotorCity.Localization
                 { "boot.connecting", E("Подключение платформы...", "Connecting platform...") },
                 { "boot.sync", E("Синхронизация прогресса...", "Syncing progress...") },
                 { "boot.loading", E("Загрузка города...", "Loading city...") },
-                { "boot.error", E("Ошибка загрузки города", "City loading error") }
+                { "boot.error", E("Ошибка загрузки города", "City loading error") },
+
+                { "turbo.title", E("ТУРБО", "TURBO") },
+                { "turbo.hello", E("Турбо: Привет! Я твой напарник. Поехали исследовать Motor City!", "Turbo: Hi! I’m your co-pilot. Let’s explore Motor City!") },
+                { "turbo.reunion", E("Турбо: Я скучал! Ничего не потеряно — просто поехали кататься.", "Turbo: I missed you! Nothing was lost — let’s go for a drive.") },
+                { "turbo.mood_happy", E("РАДОСТНЫЙ", "HAPPY") },
+                { "turbo.level_up", E("Турбо получил уровень {0}! Новые способности становятся сильнее.", "Turbo reached level {0}! His abilities are getting stronger.") },
+                { "turbo.daily_any", E("ТУРБО • Выполни любые активности: {0}/{1}", "TURBO • Complete any activities: {0}/{1}") },
+                { "turbo.daily_race", E("ТУРБО • Заверши гонку: {0}/{1}", "TURBO • Finish a race: {0}/{1}") },
+                { "turbo.daily_drift", E("ТУРБО • Заверши дрифт-заезд: {0}/{1}", "TURBO • Finish a drift challenge: {0}/{1}") },
+                { "turbo.daily_done", E("ТУРБО • Задание на сегодня выполнено", "TURBO • Today’s task is complete") },
+                { "turbo.daily_progress", E("Турбо: Отлично! Задание {0}/{1}.", "Turbo: Nice! Task progress {0}/{1}.") },
+                { "turbo.daily_reward", E("Турбо: Задание готово! +{0:N0} КР и опыт Турбо.", "Turbo: Task complete! +{0:N0} CR and Turbo XP.") },
+                { "turbo.new_daily", E("Турбо: Новое приключение на сегодня готово!", "Turbo: Today’s new adventure is ready!") },
+                { "turbo.hint", E("Турбо: Не спеши — цель уже отмечена на миникарте.", "Turbo: No rush — your target is already marked on the minimap.") },
+                { "turbo.boost", E("Турбо: Пуск! Короткий буст активирован.", "Turbo: Go! Short boost activated.") }
             };
 
         private static string language = Russian;

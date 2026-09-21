@@ -123,13 +123,13 @@ Core fantasy:
 ## Phase 2 — Retention MVP
 
 ### Turbo pet
-- [ ] Robo-cat Turbo MVP.
-- [ ] Level and XP.
-- [ ] Mood/reunion messages.
-- [ ] Daily task giver.
-- [ ] Hint ability.
-- [ ] Collection magnet ability.
-- [ ] Short PvE boost ability.
+- [x] Robo-cat Turbo MVP.
+- [x] Level and XP.
+- [x] Mood/reunion messages.
+- [x] Daily task giver.
+- [x] Hint ability.
+- [x] Collection magnet ability.
+- [x] Short driving boost ability.
 - [ ] Cosmetic skins.
 
 ### First-session onboarding

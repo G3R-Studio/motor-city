@@ -12,6 +12,7 @@ namespace MotorCity.Gameplay
         private CityLegendSystem legends;
         private UndergroundSceneSystem nightClub;
         private CityRiskSystem cityRisk;
+        private TurboPetSystem turbo;
 
         private float refreshTimer;
 
@@ -32,7 +33,8 @@ namespace MotorCity.Gameplay
             CityLiveEventSystem liveEventSystem,
             CityLegendSystem legendSystem,
             UndergroundSceneSystem nightClubSystem,
-            CityRiskSystem riskSystem)
+            CityRiskSystem riskSystem,
+            TurboPetSystem turboSystem)
         {
             activityManager =
                 manager;
@@ -48,6 +50,8 @@ namespace MotorCity.Gameplay
                 nightClubSystem;
             cityRisk =
                 riskSystem;
+            turbo =
+                turboSystem;
 
             RefreshMission();
         }
@@ -101,6 +105,12 @@ namespace MotorCity.Gameplay
 
             if (live != null)
                 return live;
+
+            MissionDefinition daily =
+                BuildTurboDailyMission();
+
+            if (daily != null)
+                return daily;
 
             MissionDefinition contract =
                 BuildContractMission();
@@ -271,6 +281,35 @@ namespace MotorCity.Gameplay
                     objective,
                     AdventureMissionSource.LiveEvent,
                     700)
+                .AddStep(
+                    new MissionStepDefinition(
+                        MissionStepType.RaceResult,
+                        string.Empty,
+                        objective));
+        }
+
+        private MissionDefinition BuildTurboDailyMission()
+        {
+            if (turbo == null)
+                return null;
+
+            string objective =
+                turbo.DailyObjectiveLine;
+
+            if (string.IsNullOrWhiteSpace(
+                    objective))
+            {
+                return null;
+            }
+
+            return
+                new MissionDefinition(
+                    "source.turbo_daily",
+                    MotorCityLocalization.Text(
+                        "turbo.title"),
+                    objective,
+                    AdventureMissionSource.Daily,
+                    650)
                 .AddStep(
                     new MissionStepDefinition(
                         MissionStepType.RaceResult,
