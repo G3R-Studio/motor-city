@@ -652,7 +652,7 @@ namespace MotorCity.UI
                     22,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 29f),
+                    new Vector2(0f, 11f),
                     new Vector2(34f, 34f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
@@ -802,7 +802,7 @@ namespace MotorCity.UI
                 minimapTargetBlip.anchoredPosition =
                     new Vector2(
                         mapOffset.x,
-                        29f + mapOffset.y);
+                        11f + mapOffset.y);
             }
 
             if (minimapTargetText != null)
