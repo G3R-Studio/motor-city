@@ -246,7 +246,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 $"КОНТРАКТ ВЫПОЛНЕН — {completedName}   " +
-                $"+{credits:N0} КР   +{rep:N0} REP   " +
+                $"+{credits:N0} КР   +{rep:N0} РЕП   " +
                 $"СЛЕДУЮЩИЙ: {CurrentDefinition().Name}";
 
             messageTimer =
@@ -393,13 +393,13 @@ namespace MotorCity.Gameplay
 
             AppendProgress(
                 ref result,
-                "DEL",
+                "ДОСТ",
                 deliveryProgress,
                 contract.DeliveryRequired);
 
             AppendProgress(
                 ref result,
-                "NIGHT",
+                "НОЧЬ",
                 nightProgress,
                 contract.NightRequired);
 

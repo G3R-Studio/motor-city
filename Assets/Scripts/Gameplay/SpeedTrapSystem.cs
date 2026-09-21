@@ -257,7 +257,7 @@ namespace MotorCity.Gameplay
             string rewardText =
                 credits > 0 ||
                 rep > 0
-                    ? $"   +{credits:N0} КР   +{rep:N0} REP"
+                    ? $"   +{credits:N0} КР   +{rep:N0} РЕП"
                     : string.Empty;
 
             string recordText =

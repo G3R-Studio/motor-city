@@ -246,7 +246,7 @@ namespace MotorCity.Gameplay
             {
                 StatusText =
                     $"{roster.SelectedName}: МАСТЕРСТВО УР. {CurrentLevel}/10   " +
-                    $"+{earnedXp} XP";
+                    $"+{earnedXp} ОПЫТ";
 
                 messageTimer =
                     MessageSeconds;

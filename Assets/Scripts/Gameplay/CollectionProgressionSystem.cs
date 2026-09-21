@@ -274,7 +274,7 @@ namespace MotorCity.Gameplay
                 StatusText =
                     $"КОЛЛЕКЦИЯ — ЭТАП {claimedTier}/{Thresholds.Length}   " +
                     $"+{CreditRewards[tier]:N0} КР   " +
-                    $"+{ReputationRewards[tier]:N0} REP";
+                    $"+{ReputationRewards[tier]:N0} РЕП";
 
                 messageTimer =
                     MessageSeconds;

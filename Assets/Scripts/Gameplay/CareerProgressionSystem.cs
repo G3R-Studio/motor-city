@@ -265,7 +265,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 $"КАРЬЕРА — ЭТАП {completedStage + 1} ЗАВЕРШЁН   " +
-                $"+{credits:N0} КР   +{rep:N0} REP";
+                $"+{credits:N0} КР   +{rep:N0} РЕП";
 
             messageTimer =
                 RewardMessageSeconds;
