@@ -130,7 +130,7 @@ Core fantasy:
 - [x] Hint ability.
 - [x] Collection magnet ability.
 - [x] Short driving boost ability.
-- [ ] Cosmetic skins.
+- [x] Cosmetic skins.
 
 ### First-session onboarding
 - [ ] Understand steering in under 60 seconds.
@@ -145,7 +145,7 @@ Core fantasy:
 - [ ] 2–5 minute task duration.
 - [x] Soft streak.
 - [x] 3/7/14/30-day milestone rewards.
-- [ ] Cosmetic milestone rewards.
+- [x] Cosmetic milestone rewards.
 - [x] No hard punishment for missed days.
 
 ### Story missions

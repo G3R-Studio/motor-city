@@ -21,6 +21,10 @@ namespace MotorCity.Gameplay
             "MotorCity.Turbo.Daily.Progress";
         private const string DailyClaimedKey =
             "MotorCity.Turbo.Daily.Claimed";
+        private const string SkinMaskKey =
+            "MotorCity.Turbo.SkinMask";
+        private const string SelectedSkinKey =
+            "MotorCity.Turbo.SelectedSkin";
 
         private const float MessageSeconds =
             4f;
@@ -42,9 +46,24 @@ namespace MotorCity.Gameplay
         private int dailyProgress;
         private bool dailyClaimed;
         private long currentDay;
+        private int unlockedSkinMask;
+        private int selectedSkin;
 
         public int Level { get; private set; }
         public int Xp { get; private set; }
+
+        public int SelectedSkin =>
+            selectedSkin;
+
+        public string SkinName =>
+            MotorCityLocalization.Text(
+                SkinNameKey(
+                    selectedSkin));
+
+        public string GarageLine =>
+            MotorCityLocalization.Format(
+                "turbo.garage_skin",
+                SkinName);
 
         public bool ShowMessage =>
             messageTimer > 0f;
@@ -112,6 +131,26 @@ namespace MotorCity.Gameplay
                         XpKey,
                         0));
 
+            unlockedSkinMask =
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    SkinMaskKey,
+                    1) |
+                1;
+
+            selectedSkin =
+                Mathf.Clamp(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        SelectedSkinKey,
+                        0),
+                    0,
+                    4);
+
+            if (!IsSkinUnlocked(
+                    selectedSkin))
+            {
+                selectedSkin = 0;
+            }
+
             currentDay =
                 Math.Max(
                     1L,
@@ -151,6 +190,84 @@ namespace MotorCity.Gameplay
             {
                 activityManager.ActivityResultShown -=
                     OnActivityResult;
+            }
+        }
+
+        public bool IsSkinUnlocked(
+            int skinIndex)
+        {
+            if (skinIndex < 0 ||
+                skinIndex > 4)
+            {
+                return false;
+            }
+
+            return
+                (unlockedSkinMask &
+                 (1 << skinIndex)) != 0;
+        }
+
+        public void UnlockSkin(
+            int skinIndex)
+        {
+            if (skinIndex <= 0 ||
+                skinIndex > 4 ||
+                IsSkinUnlocked(
+                    skinIndex))
+            {
+                return;
+            }
+
+            unlockedSkinMask |=
+                1 << skinIndex;
+
+            selectedSkin =
+                skinIndex;
+
+            SaveSkin();
+            RefreshVisualSkin();
+
+            StatusText =
+                MotorCityLocalization.Format(
+                    "turbo.skin_unlocked",
+                    SkinName);
+
+            messageTimer =
+                MessageSeconds + 1f;
+        }
+
+        public void CycleSkin()
+        {
+            for (int offset = 1;
+                 offset <= 5;
+                 offset++)
+            {
+                int candidate =
+                    (selectedSkin +
+                     offset) %
+                    5;
+
+                if (!IsSkinUnlocked(
+                        candidate))
+                {
+                    continue;
+                }
+
+                selectedSkin =
+                    candidate;
+
+                SaveSkin();
+                RefreshVisualSkin();
+
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "turbo.skin_selected",
+                        SkinName);
+
+                messageTimer =
+                    MessageSeconds;
+
+                return;
             }
         }
 
@@ -718,23 +835,39 @@ namespace MotorCity.Gameplay
                 return;
 
             Color bodyColor =
-                Level >= 7
-                    ? new Color(
-                        0.72f,
-                        0.30f,
-                        1f,
-                        1f)
-                    : Level >= 4
-                        ? new Color(
+                selectedSkin switch
+                {
+                    1 =>
+                        new Color(
                             0.12f,
                             0.70f,
                             1f,
-                            1f)
-                        : new Color(
+                            1f),
+                    2 =>
+                        new Color(
+                            1f,
+                            0.52f,
+                            0.12f,
+                            1f),
+                    3 =>
+                        new Color(
+                            0.72f,
+                            0.30f,
+                            1f,
+                            1f),
+                    4 =>
+                        new Color(
+                            1f,
+                            0.78f,
+                            0.16f,
+                            1f),
+                    _ =>
+                        new Color(
                             0.92f,
                             0.95f,
                             1f,
-                            1f);
+                            1f)
+                };
 
             Renderer[] renderers =
                 visualRoot.GetComponentsInChildren<Renderer>(
@@ -753,6 +886,33 @@ namespace MotorCity.Gameplay
                 renderer.material.color =
                     bodyColor;
             }
+        }
+
+        private void SaveSkin()
+        {
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                SkinMaskKey,
+                unlockedSkinMask);
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                SelectedSkinKey,
+                selectedSkin);
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+        }
+
+        private static string SkinNameKey(
+            int skinIndex)
+        {
+            return
+                skinIndex switch
+                {
+                    1 => "turbo.skin_blue",
+                    2 => "turbo.skin_orange",
+                    3 => "turbo.skin_purple",
+                    4 => "turbo.skin_gold",
+                    _ => "turbo.skin_classic"
+                };
         }
 
         private void SaveProgress()

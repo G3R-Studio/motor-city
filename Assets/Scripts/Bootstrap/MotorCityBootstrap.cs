@@ -286,7 +286,8 @@ namespace MotorCity.Bootstrap
                 streetSprint,
                 circuitRace,
                 vehicleRoster,
-                vehicleMastery);
+                vehicleMastery,
+                turbo);
 
             CityRiskSystem cityRisk =
                 systems.AddComponent<CityRiskSystem>();

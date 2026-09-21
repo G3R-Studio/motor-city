@@ -22,16 +22,17 @@ namespace MotorCity.Input
         SteerLeft = 14,
         SteerRight = 15,
         Handbrake = 16,
-        BuyVehicle = 17
+        BuyVehicle = 17,
+        CyclePetSkin = 18
     }
 
     public static class MotorCityInput
     {
         private static readonly bool[] VirtualHeld =
-            new bool[18];
+            new bool[19];
 
         private static readonly int[] VirtualPressedFrame =
-            new int[18];
+            new int[19];
 
         static MotorCityInput()
         {
@@ -113,6 +114,12 @@ namespace MotorCity.Input
                 Key.B) ||
             VirtualPressed(
                 MotorCityInputAction.BuyVehicle);
+
+        public static bool CyclePetSkinPressed =>
+            KeyPressed(
+                Key.C) ||
+            VirtualPressed(
+                MotorCityInputAction.CyclePetSkin);
 
         public static bool CycleDriveModePressed =>
             KeyPressed(

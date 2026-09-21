@@ -286,6 +286,16 @@ namespace MotorCity.Gameplay
                 wallet?.AddCredits(
                     milestoneReward);
 
+                int skinIndex =
+                    MilestoneSkinIndex(
+                        completedDays);
+
+                if (skinIndex > 0)
+                {
+                    turbo?.UnlockSkin(
+                        skinIndex);
+                }
+
                 StatusText =
                     MotorCityLocalization.Format(
                         "daily.milestone",
@@ -522,6 +532,20 @@ namespace MotorCity.Gameplay
                         "daily.delivery",
                     _ =>
                         "daily.any"
+                };
+        }
+
+        private static int MilestoneSkinIndex(
+            int completedDayCount)
+        {
+            return
+                completedDayCount switch
+                {
+                    3 => 1,
+                    7 => 2,
+                    14 => 3,
+                    30 => 4,
+                    _ => 0
                 };
         }
 

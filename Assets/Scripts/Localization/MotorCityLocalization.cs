@@ -190,7 +190,7 @@ namespace MotorCity.Localization
                 { "hud.result_controls", E("ENTER  ПОВТОРИТЬ     ESC  ПРОДОЛЖИТЬ", "ENTER  RETRY     ESC  CONTINUE") },
                 { "hud.no_rewards", E("БЕЗ НАГРАДЫ", "NO REWARD") },
                 { "hud.result_reward", E("+{0:N0} КР   +{1:N0} РЕП", "+{0:N0} CR   +{1:N0} REP") },
-                { "hud.garage_controls", E("Z / X  МАШИНА    B  КУПИТЬ СЛЕД.    1 / 2 / 3  УЛУЧШИТЬ    E / ESC  ЗАКРЫТЬ", "Z / X  CAR    B  BUY NEXT    1 / 2 / 3  UPGRADE    E / ESC  CLOSE") },
+                { "hud.garage_controls", E("Z/X МАШИНА   B КУПИТЬ   C СКИН ТУРБО   1/2/3 УЛУЧШИТЬ   E/ESC ЗАКРЫТЬ", "Z/X CAR   B BUY   C TURBO SKIN   1/2/3 UPGRADE   E/ESC CLOSE") },
                 { "hud.target", E("ЦЕЛЬ: {0}", "TARGET: {0}") },
 
                 { "garage.marker_text", E("Фиолетовый маркер: гараж", "Purple marker: garage") },
@@ -395,6 +395,14 @@ namespace MotorCity.Localization
                 { "turbo.new_daily", E("Турбо: Новое приключение на сегодня готово!", "Turbo: Today’s new adventure is ready!") },
                 { "turbo.hint", E("Турбо: Не спеши — цель уже отмечена на миникарте.", "Turbo: No rush — your target is already marked on the minimap.") },
                 { "turbo.boost", E("Турбо: Пуск! Короткий буст активирован.", "Turbo: Go! Short boost activated.") },
+                { "turbo.garage_skin", E("ТУРБО • СКИН: {0}", "TURBO • SKIN: {0}") },
+                { "turbo.skin_classic", E("КЛАССИКА", "CLASSIC") },
+                { "turbo.skin_blue", E("НЕОН-СИНИЙ", "NEON BLUE") },
+                { "turbo.skin_orange", E("АПЕЛЬСИН", "ORANGE") },
+                { "turbo.skin_purple", E("КОСМОС", "COSMIC") },
+                { "turbo.skin_gold", E("ЗОЛОТОЙ", "GOLD") },
+                { "turbo.skin_unlocked", E("Турбо: открыт новый скин «{0}»!", "Turbo: new skin “{0}” unlocked!") },
+                { "turbo.skin_selected", E("Турбо: выбран скин «{0}».", "Turbo: “{0}” skin selected.") },
 
                 { "onboarding.title", E("ПЕРВЫЕ ШАГИ", "FIRST STEPS") },
                 { "onboarding.welcome", E("Добро пожаловать в Motor City! Сначала просто почувствуй машину.", "Welcome to Motor City! First, get a feel for the car.") },
