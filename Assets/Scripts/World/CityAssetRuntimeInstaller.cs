@@ -44,23 +44,24 @@ namespace MotorCity.World
 
         private static readonly Vector3[] SprintPreferred =
         {
-            // Main district -> entrance roundabout -> complete three-piece
-            // highway -> perimeter lap of the compact district.
+            // Street sprint stays entirely inside the verified main district.
+            // The previous route continued onto an old remote highway section
+            // that is outside the current playable city.
             new(450f, 0f, 150f),
-            new(150f, 0f, 100f),
-            new(-150f, 0f, 0f),
-            new(-300f, 0f, -240f),
-            new(-314f, 0f, -420f),
-            new(-314f, 0f, -620f),
-            new(-300f, 0f, -800f),
-            new(-300f, 0f, -1000f),
-            new(-300f, 0f, -1200f),
-            new(-300f, 0f, -1400f),
-            new(-300f, 0f, -1600f),
-            new(20f, 0f, -1832f),
-            new(-300f, 0f, -2010f),
-            new(-630f, 0f, -1832f),
-            new(-300f, 0f, -1632f)
+            new(450f, 0f, -100f),
+            new(150f, 0f, -100f),
+            new(-150f, 0f, -100f),
+            new(-450f, 0f, -100f),
+            new(-450f, 0f, 150f),
+            new(-450f, 0f, 360f),
+            new(-150f, 0f, 450f),
+            new(150f, 0f, 450f),
+            new(450f, 0f, 430f),
+            new(450f, 0f, 150f),
+            new(150f, 0f, 150f),
+            new(-150f, 0f, 150f),
+            new(-450f, 0f, 150f),
+            new(-150f, 0f, -100f)
         };
 
         private static readonly Vector3[] CircuitPreferred =
