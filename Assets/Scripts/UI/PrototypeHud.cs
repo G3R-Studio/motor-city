@@ -37,6 +37,7 @@ namespace MotorCity.UI
         private FirstSessionOnboardingSystem onboarding;
         private DailyAdventureSystem dailyAdventures;
         private StoryMissionSystem story;
+        private SeasonSystem season;
         private PhotoHuntSystem photoHunt;
         private CityProfessionSystem professions;
         private CarWashJobSystem carWash;
@@ -153,6 +154,7 @@ namespace MotorCity.UI
             FirstSessionOnboardingSystem onboardingSystem,
             DailyAdventureSystem dailyAdventureSystem,
             StoryMissionSystem storySystem,
+            SeasonSystem seasonSystem,
             PhotoHuntSystem photoHuntSystem,
             CityProfessionSystem professionSystem,
             CarWashJobSystem carWashSystem,
@@ -184,6 +186,7 @@ namespace MotorCity.UI
             onboarding = onboardingSystem;
             dailyAdventures = dailyAdventureSystem;
             story = storySystem;
+            season = seasonSystem;
             photoHunt = photoHuntSystem;
             professions = professionSystem;
             carWash = carWashSystem;
@@ -2144,6 +2147,13 @@ namespace MotorCity.UI
             {
                 return
                     onboarding.StatusText;
+            }
+
+            if (season != null &&
+                season.ShowMessage)
+            {
+                return
+                    season.StatusText;
             }
 
             if (photoHunt != null &&

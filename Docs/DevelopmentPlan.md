@@ -191,8 +191,8 @@ Core fantasy:
 
 ## Phase 4 — Alpha
 
-- [ ] Season framework.
-- [ ] Season 1 content.
+- [x] Season framework.
+- [x] Season 1 content.
 - [ ] Character presentation.
 - [ ] Achievement system.
 - [ ] Garage presets.

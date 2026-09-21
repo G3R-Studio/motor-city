@@ -328,6 +328,15 @@ namespace MotorCity.Bootstrap
                 reputation,
                 turbo);
 
+            SeasonSystem season =
+                systems.AddComponent<SeasonSystem>();
+
+            season.Initialize(
+                activityManager,
+                wallet,
+                reputation,
+                turbo);
+
             PhotoHuntSystem photoHunt =
                 systems.AddComponent<PhotoHuntSystem>();
 
@@ -369,7 +378,8 @@ namespace MotorCity.Bootstrap
                 turbo,
                 onboarding,
                 dailyAdventures,
-                story);
+                story,
+                season);
 
             AdminDebugPanel adminPanel =
                 systems.AddComponent<AdminDebugPanel>();
@@ -438,6 +448,7 @@ namespace MotorCity.Bootstrap
                 onboarding,
                 dailyAdventures,
                 story,
+                season,
                 photoHunt,
                 professions,
                 carWash,
@@ -1446,6 +1457,7 @@ namespace MotorCity.Bootstrap
             FirstSessionOnboardingSystem onboarding,
             DailyAdventureSystem dailyAdventures,
             StoryMissionSystem story,
+            SeasonSystem season,
             PhotoHuntSystem photoHunt,
             CityProfessionSystem professions,
             CarWashJobSystem carWash,
@@ -1480,6 +1492,7 @@ namespace MotorCity.Bootstrap
                 onboarding,
                 dailyAdventures,
                 story,
+                season,
                 photoHunt,
                 professions,
                 carWash,

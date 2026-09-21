@@ -143,7 +143,7 @@ namespace MotorCity.Gameplay
                         SelectedSkinKey,
                         0),
                     0,
-                    4);
+                    5);
 
             if (!IsSkinUnlocked(
                     selectedSkin))
@@ -197,7 +197,7 @@ namespace MotorCity.Gameplay
             int skinIndex)
         {
             if (skinIndex < 0 ||
-                skinIndex > 4)
+                skinIndex > 5)
             {
                 return false;
             }
@@ -211,7 +211,7 @@ namespace MotorCity.Gameplay
             int skinIndex)
         {
             if (skinIndex <= 0 ||
-                skinIndex > 4 ||
+                skinIndex > 5 ||
                 IsSkinUnlocked(
                     skinIndex))
             {
@@ -239,13 +239,13 @@ namespace MotorCity.Gameplay
         public void CycleSkin()
         {
             for (int offset = 1;
-                 offset <= 5;
+                 offset <= 6;
                  offset++)
             {
                 int candidate =
                     (selectedSkin +
                      offset) %
-                    5;
+                    6;
 
                 if (!IsSkinUnlocked(
                         candidate))
@@ -861,6 +861,12 @@ namespace MotorCity.Gameplay
                             0.78f,
                             0.16f,
                             1f),
+                    5 =>
+                        new Color(
+                            0.12f,
+                            1f,
+                            0.82f,
+                            1f),
                     _ =>
                         new Color(
                             0.92f,
@@ -911,6 +917,7 @@ namespace MotorCity.Gameplay
                     2 => "turbo.skin_orange",
                     3 => "turbo.skin_purple",
                     4 => "turbo.skin_gold",
+                    5 => "turbo.skin_season1",
                     _ => "turbo.skin_classic"
                 };
         }
