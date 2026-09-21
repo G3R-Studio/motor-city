@@ -1896,18 +1896,11 @@ namespace MotorCity.UI
 
         private void OnDestroy()
         {
-            if (minimapCamera != null)
+            if (schematicMap != null &&
+                schematicMap.Texture != null)
             {
-                minimapCamera.targetTexture = null;
                 Destroy(
-                    minimapCamera.gameObject);
-            }
-
-            if (minimapTexture != null)
-            {
-                minimapTexture.Release();
-                Destroy(
-                    minimapTexture);
+                    schematicMap.Texture);
             }
         }
 
