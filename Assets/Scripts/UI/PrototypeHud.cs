@@ -1,8 +1,8 @@
 using MotorCity.Gameplay;
+using MotorCity.Input;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace MotorCity.UI
@@ -1308,15 +1308,11 @@ namespace MotorCity.UI
 
         private void HandleActivityResultInput()
         {
-            Keyboard keyboard =
-                Keyboard.current;
-
-            if (keyboard == null ||
-                activityManager == null ||
+            if (activityManager == null ||
                 !activityManager.HasResult)
                 return;
 
-            if (keyboard.escapeKey.wasPressedThisFrame)
+            if (MotorCityInput.CancelPressed)
             {
                 activityManager.DismissResult();
                 car?.SetDrivingEnabled(true);
@@ -1324,8 +1320,7 @@ namespace MotorCity.UI
             }
 
             bool restart =
-                keyboard.enterKey.wasPressedThisFrame ||
-                keyboard.numpadEnterKey.wasPressedThisFrame;
+                MotorCityInput.RetryPressed;
 
             if (!restart)
                 return;

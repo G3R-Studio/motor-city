@@ -1,9 +1,9 @@
 using System;
+using MotorCity.Input;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace MotorCity.Gameplay
 {
@@ -205,15 +205,11 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            Keyboard keyboard =
-                Keyboard.current;
-
             if (isCountingDown)
             {
                 IsNearMeeting = false;
 
-                if (keyboard != null &&
-                    keyboard.escapeKey.wasPressedThisFrame)
+                if (MotorCityInput.CancelPressed)
                 {
                     CancelRun();
                     return;
@@ -253,8 +249,7 @@ namespace MotorCity.Gameplay
                 IsNearMeeting = false;
                 elapsedSeconds += Time.deltaTime;
 
-                if (keyboard != null &&
-                    keyboard.escapeKey.wasPressedThisFrame)
+                if (MotorCityInput.CancelPressed)
                 {
                     CancelRun();
                     return;
@@ -366,8 +361,7 @@ namespace MotorCity.Gameplay
 
             messageTimer = 0.25f;
 
-            if (keyboard != null &&
-                keyboard.eKey.wasPressedThisFrame)
+            if (MotorCityInput.InteractPressed)
             {
                 BeginPhysicalRun();
             }

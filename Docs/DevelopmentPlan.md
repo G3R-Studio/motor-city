@@ -56,7 +56,7 @@ Core fantasy:
 
 ### 0.4 Unified input
 - [x] Add MotorCityInput facade.
-- [ ] Replace direct Keyboard.current checks in gameplay systems.
+- [x] Replace direct Keyboard.current checks in gameplay systems.
 - [x] Keep keyboard controls through the facade.
 - [x] Prepare touch actions for mobile.
 - [x] Prepare contextual action input instead of hard-coded E/Shift combinations.
