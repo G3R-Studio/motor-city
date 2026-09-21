@@ -174,8 +174,8 @@ namespace MotorCity.Gameplay
 
             string eliteHint =
                 eliteUnlocked
-                    ? "   SHIFT+E — ELITE"
-                    : $"   ELITE: DRIFT {EliteRequiredLevel}";
+                    ? "   SHIFT+E — ЭЛИТА"
+                    : $"   ЭЛИТА: ДРИФТ {EliteRequiredLevel}";
 
             StatusText =
                 $"ДРИФТ-ЗАЕЗД   E — НАЧАТЬ   " +
@@ -262,7 +262,7 @@ namespace MotorCity.Gameplay
                         countdownRemaining));
 
             StatusText =
-                $"{(eliteMode ? "ELITE DRIFT" : "ДРИФТ")}   " +
+                $"{(eliteMode ? "ЭЛИТНЫЙ ДРИФТ" : "ДРИФТ")}   " +
                 $"СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
         }
 
@@ -434,7 +434,7 @@ namespace MotorCity.Gameplay
             activityManager.ShowResult(
                 ActivityId,
                 eliteMode
-                    ? "ELITE DRIFT"
+                    ? "ЭЛИТНЫЙ ДРИФТ"
                     : "ДРИФТ-ЗАЕЗД",
                 tier,
                 $"Очки: {finalScore:N0}   •   Время: {(eliteMode ? 48f : durationSeconds):0}с",

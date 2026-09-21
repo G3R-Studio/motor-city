@@ -138,7 +138,7 @@ namespace MotorCity.Gameplay
                 if (distance <= ExitRadius)
                 {
                     StatusText =
-                        $"DRIFT SPOT — {activeSpot.DisplayName}   " +
+                        $"ДРИФТ-ТОЧКА — {activeSpot.DisplayName}   " +
                         $"{liveScore:N0}   " +
                         $"Б {activeSpot.BronzeScore:N0}  " +
                         $"С {activeSpot.SilverScore:N0}  " +
@@ -168,7 +168,7 @@ namespace MotorCity.Gameplay
                 activeSpot = spot;
                 scoreAtEntry = drift.TotalScore;
                 StatusText =
-                    $"DRIFT SPOT — {spot.DisplayName}   " +
+                    $"ДРИФТ-ТОЧКА — {spot.DisplayName}   " +
                     $"Б {spot.BronzeScore:N0}  " +
                     $"С {spot.SilverScore:N0}  " +
                     $"З {spot.GoldScore:N0}";
@@ -243,11 +243,11 @@ namespace MotorCity.Gameplay
 
             string reward =
                 credits > 0 || rep > 0
-                    ? $"   +{credits:N0} КР   +{rep:N0} REP"
+                    ? $"   +{credits:N0} КР   +{rep:N0} РЕП"
                     : string.Empty;
 
             StatusText =
-                $"DRIFT SPOT — {spot.DisplayName}   " +
+                $"ДРИФТ-ТОЧКА — {spot.DisplayName}   " +
                 $"{score:N0}   {MedalName(medal)}" +
                 record +
                 reward;

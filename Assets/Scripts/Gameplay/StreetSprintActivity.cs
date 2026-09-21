@@ -176,8 +176,8 @@ namespace MotorCity.Gameplay
 
             string eliteHint =
                 eliteUnlocked
-                    ? "   SHIFT+E — ELITE"
-                    : $"   ELITE: RACING {EliteRequiredLevel}";
+                    ? "   SHIFT+E — ЭЛИТА"
+                    : $"   ЭЛИТА: ГОНКИ {EliteRequiredLevel}";
 
             StatusText =
                 $"СПРИНТ   E — НАЧАТЬ   " +
@@ -391,7 +391,7 @@ namespace MotorCity.Gameplay
             activityManager.ShowResult(
                 ActivityId,
                 eliteMode
-                    ? "ELITE STREET SPRINT"
+                    ? "ЭЛИТНЫЙ УЛИЧНЫЙ СПРИНТ"
                     : "УЛИЧНЫЙ СПРИНТ",
                 tier,
                 $"Время: {ElapsedSeconds:0.0}с   •   Бонус: {bonus:N0} КР{record}",

@@ -163,8 +163,8 @@ namespace MotorCity.Gameplay
 
             string eliteHint =
                 eliteUnlocked
-                    ? "   SHIFT+E — PREMIUM"
-                    : $"   PREMIUM: DELIVERY {EliteRequiredLevel}";
+                    ? "   SHIFT+E — ПРЕМИУМ"
+                    : $"   ПРЕМИУМ: ДОСТАВКА {EliteRequiredLevel}";
 
             StatusText =
                 $"ДОСТАВКА   E — НАЧАТЬ   " +
@@ -384,7 +384,7 @@ namespace MotorCity.Gameplay
             activityManager.ShowResult(
                 ActivityId,
                 eliteMode
-                    ? "PREMIUM DELIVERY"
+                    ? "ПРЕМИУМ-ДОСТАВКА"
                     : "ДОСТАВКА",
                 tier,
                 $"Время: {ElapsedSeconds:0.0}с{record}",

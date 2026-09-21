@@ -163,7 +163,7 @@ namespace MotorCity.UI
                 activityManager != null)
             {
                 reputationText.text =
-                    $"REP {activityManager.TotalReputation:N0}   •   УР. {activityManager.ReputationLevel}";
+                    $"РЕП {activityManager.TotalReputation:N0}   •   УР. {activityManager.ReputationLevel}";
             }
 
             if (upgradesText != null)
@@ -306,12 +306,12 @@ namespace MotorCity.UI
                             : string.Empty;
 
                     driftText.text =
-                        $"DRIFT   {drift.CurrentScore:N0}{combo}";
+                        $"ДРИФТ   {drift.CurrentScore:N0}{combo}";
                 }
                 else
                 {
                     driftText.text =
-                        $"DRIFT ЗАВЕРШЁН   +{drift.LastBankedCredits:N0} КР";
+                        $"ДРИФТ ЗАВЕРШЁН   +{drift.LastBankedCredits:N0} КР";
                 }
             }
 
@@ -505,7 +505,7 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             speedUnitText.text =
-                "KM/H";
+                "КМ/Ч";
         }
 
         private void BuildStatus(Transform canvas)
@@ -832,7 +832,7 @@ namespace MotorCity.UI
                 label =
                     underground.IsActive ||
                     underground.IsCountingDown
-                        ? "UNDERGROUND"
+                        ? "ПОДПОЛЬЕ"
                         : "ТАЙНАЯ ВСТРЕЧА";
                 return;
             }
@@ -966,7 +966,7 @@ namespace MotorCity.UI
                 {
                     ConsiderNavigationTarget(
                         driftSpots.GetSpotPosition(i),
-                        "DRIFT SPOT",
+                        "ДРИФТ-ТОЧКА",
                         true,
                         ref target,
                         ref label,
@@ -1260,7 +1260,7 @@ namespace MotorCity.UI
 
             resultRewardText.text =
                 hasCredits || hasReputation
-                    ? $"+{activityManager.ResultRewardCredits:N0} КР   +{activityManager.ResultReputationReward:N0} REP"
+                    ? $"+{activityManager.ResultRewardCredits:N0} КР   +{activityManager.ResultReputationReward:N0} РЕП"
                     : "БЕЗ НАГРАДЫ";
 
             Color accent =

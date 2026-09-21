@@ -249,13 +249,13 @@ namespace MotorCity.Gameplay
                 if (racingVictories >= driftVictories &&
                     racingVictories >= deliveryVictories)
                 {
-                    return "СТИЛЬ RACING";
+                    return "СТИЛЬ ГОНКИ";
                 }
 
                 if (driftVictories >= deliveryVictories)
-                    return "СТИЛЬ DRIFT";
+                    return "СТИЛЬ ДРИФТ";
 
-                return "СТИЛЬ DELIVERY";
+                return "СТИЛЬ ДОСТАВКА";
             }
         }
 
