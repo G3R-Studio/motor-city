@@ -517,7 +517,19 @@ namespace MotorCity.Localization
                 { "profession.progress", E("{0} • ТОЧКА {1}/{2} • {3} м • {4}", "{0} • STOP {1}/{2} • {3} m • {4}") },
                 { "profession.complete", E("РАБОТА ВЫПОЛНЕНА", "JOB COMPLETE") },
                 { "profession.result", E("ВРЕМЯ {0} • УР. ПРОФЕССИЙ {1}", "TIME {0} • JOB LVL {1}") },
-                { "profession.cancelled", E("{0} • работа отменена", "{0} • job cancelled") }
+                { "profession.cancelled", E("{0} • работа отменена", "{0} • job cancelled") },
+
+                { "carwash.title", E("АВТОМОЙКА", "CAR WASH") },
+                { "carwash.start", E("АВТОМОЙКА • остановись и нажми E", "CAR WASH • stop and press E") },
+                { "carwash.stop", E("АВТОМОЙКА • сначала остановись", "CAR WASH • stop first") },
+                { "carwash.busy", E("АВТОМОЙКА недоступна: заверши «{0}»", "CAR WASH unavailable: finish “{0}”") },
+                { "carwash.phase.water", E("ВОДА", "RINSE") },
+                { "carwash.phase.foam", E("ПЕНА", "FOAM") },
+                { "carwash.phase.polish", E("ПОЛИРОВКА", "POLISH") },
+                { "carwash.progress", E("МОЙКА {0}/3 • {1} • УДЕРЖИВАЙ E • {2}%", "WASH {0}/3 • {1} • HOLD E • {2}%") },
+                { "carwash.complete", E("МАШИНА СИЯЕТ!", "CAR IS SHINING!") },
+                { "carwash.result", E("УР. ПРОФЕССИЙ {0}", "JOB LVL {0}") },
+                { "carwash.cancelled", E("МОЙКА ОТМЕНЕНА", "CAR WASH CANCELLED") }
             };
 
         private static string language = Russian;

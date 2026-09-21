@@ -60,6 +60,12 @@ namespace MotorCity.Input
             VirtualPressed(
                 MotorCityInputAction.Interact);
 
+        public static bool InteractHeld =>
+            KeyHeld(
+                Key.E) ||
+            VirtualIsHeld(
+                MotorCityInputAction.Interact);
+
         public static bool CancelPressed =>
             KeyPressed(
                 Key.Escape) ||

@@ -346,6 +346,15 @@ namespace MotorCity.Bootstrap
                 wallet,
                 activityManager);
 
+            CarWashJobSystem carWash =
+                systems.AddComponent<CarWashJobSystem>();
+
+            carWash.Initialize(
+                car,
+                wallet,
+                activityManager,
+                professions);
+
             AdventureDirector adventureDirector =
                 systems.AddComponent<AdventureDirector>();
 
@@ -399,6 +408,7 @@ namespace MotorCity.Bootstrap
             CreateGarageMarker(garage);
             CreateUndergroundMarker(underground);
             CreateProfessionMarkers(professions);
+            CreateCarWashMarker(carWash);
 
             CreateCamera(car.transform);
             CreateHud(
@@ -430,6 +440,7 @@ namespace MotorCity.Bootstrap
                 story,
                 photoHunt,
                 professions,
+                carWash,
                 adventureDirector);
 
             MotorCityBootController bootController =
@@ -814,6 +825,59 @@ namespace MotorCity.Bootstrap
             }
 
             return root;
+        }
+
+        private static void CreateCarWashMarker(
+            CarWashJobSystem carWash)
+        {
+            if (carWash == null)
+                return;
+
+            Material material =
+                Material(
+                    new Color(
+                        0.16f,
+                        0.82f,
+                        1f),
+                    0.02f,
+                    0.55f);
+
+            GameObject root =
+                new(
+                    "Profession Car Wash");
+
+            root.transform.position =
+                carWash.StartPoint;
+
+            Primitive(
+                "Car Wash Base",
+                PrimitiveType.Cylinder,
+                root.transform,
+                new Vector3(
+                    2.5f,
+                    0.06f,
+                    2.5f),
+                new Vector3(
+                    0f,
+                    0.08f,
+                    0f),
+                material,
+                false);
+
+            Primitive(
+                "Car Wash Beacon",
+                PrimitiveType.Cube,
+                root.transform,
+                new Vector3(
+                    0.2f,
+                    2.4f,
+                    0.2f),
+                new Vector3(
+                    0f,
+                    2.4f,
+                    0f),
+                material,
+                false);
         }
 
         private static void CreateProfessionMarkers(
@@ -1384,6 +1448,7 @@ namespace MotorCity.Bootstrap
             StoryMissionSystem story,
             PhotoHuntSystem photoHunt,
             CityProfessionSystem professions,
+            CarWashJobSystem carWash,
             AdventureDirector adventureDirector)
         {
             GameObject hud = new("Prototype HUD");
@@ -1417,6 +1482,7 @@ namespace MotorCity.Bootstrap
                 story,
                 photoHunt,
                 professions,
+                carWash,
                 adventureDirector);
         }
 

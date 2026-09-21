@@ -181,7 +181,7 @@ Core fantasy:
 - [x] Taxi.
 - [x] Mail.
 - [x] Ice cream route.
-- [ ] Car wash mini-game.
+- [x] Car wash mini-game.
 - [ ] Tow-truck profession after suitable vehicle exists.
 - [ ] Vehicle passport/history screen.
 - [ ] Better contract mini-stories.

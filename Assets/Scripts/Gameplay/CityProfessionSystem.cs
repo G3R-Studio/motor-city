@@ -372,6 +372,20 @@ namespace MotorCity.Gameplay
             elapsed = 0f;
         }
 
+        public int RegisterExternalCompletion()
+        {
+            TotalCompleted++;
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                TotalCompletedKey,
+                TotalCompleted);
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            return
+                ProfessionLevel;
+        }
+
         public Vector3 GetStartPoint(
             int index)
         {

@@ -39,6 +39,7 @@ namespace MotorCity.UI
         private StoryMissionSystem story;
         private PhotoHuntSystem photoHunt;
         private CityProfessionSystem professions;
+        private CarWashJobSystem carWash;
         private AdventureDirector adventureDirector;
 
         private Font font;
@@ -147,6 +148,7 @@ namespace MotorCity.UI
             StoryMissionSystem storySystem,
             PhotoHuntSystem photoHuntSystem,
             CityProfessionSystem professionSystem,
+            CarWashJobSystem carWashSystem,
             AdventureDirector director)
         {
             car = controller;
@@ -177,6 +179,7 @@ namespace MotorCity.UI
             story = storySystem;
             photoHunt = photoHuntSystem;
             professions = professionSystem;
+            carWash = carWashSystem;
             adventureDirector = director;
 
             BuildUi();
@@ -1085,6 +1088,19 @@ namespace MotorCity.UI
                 return;
             }
 
+            if (carWash != null &&
+                carWash.IsActive)
+            {
+                target =
+                    carWash.CurrentTarget;
+
+                label =
+                    MotorCityLocalization.Text(
+                        "carwash.title");
+
+                return;
+            }
+
             if (professions != null &&
                 professions.IsActive)
             {
@@ -1270,6 +1286,18 @@ namespace MotorCity.UI
                         ref label,
                         ref bestDistance);
                 }
+            }
+
+            if (carWash != null)
+            {
+                ConsiderNavigationTarget(
+                    carWash.StartPoint,
+                    MotorCityLocalization.Text(
+                        "carwash.title"),
+                    true,
+                    ref target,
+                    ref label,
+                    ref bestDistance);
             }
 
             if (professions != null)
@@ -2118,6 +2146,8 @@ namespace MotorCity.UI
                         garage?.StatusText,
                     "underground" =>
                         underground?.StatusText,
+                    "profession_carwash" =>
+                        carWash?.StatusText,
                     _ =>
                         activityManager.ActiveId != null &&
                         activityManager.ActiveId.StartsWith(
@@ -2125,6 +2155,13 @@ namespace MotorCity.UI
                             ? professions?.StatusText
                             : activityManager.ActiveName
                 };
+            }
+
+            if (carWash != null &&
+                carWash.IsNearStart)
+            {
+                return
+                    carWash.StatusText;
             }
 
             if (professions != null &&
