@@ -1,7 +1,7 @@
+using MotorCity.Input;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace MotorCity.Gameplay
 {
@@ -113,10 +113,7 @@ namespace MotorCity.Gameplay
             if (IsOpen && (!IsNearGarage || car.SpeedKph > maxOpenSpeedKph))
                 CloseGarage();
 
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null) return;
-
-            if (IsNearGarage && keyboard.eKey.wasPressedThisFrame)
+            if (IsNearGarage && MotorCityInput.InteractPressed)
             {
                 if (IsOpen)
                     CloseGarage();
@@ -140,20 +137,20 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (keyboard.digit1Key.wasPressedThisFrame || keyboard.numpad1Key.wasPressedThisFrame)
+            if (MotorCityInput.Upgrade1Pressed)
                 TryBuy(UpgradeType.Engine);
-            if (keyboard.digit2Key.wasPressedThisFrame || keyboard.numpad2Key.wasPressedThisFrame)
+            if (MotorCityInput.Upgrade2Pressed)
                 TryBuy(UpgradeType.Grip);
-            if (keyboard.digit3Key.wasPressedThisFrame || keyboard.numpad3Key.wasPressedThisFrame)
+            if (MotorCityInput.Upgrade3Pressed)
                 TryBuy(UpgradeType.Stability);
 
-            if (keyboard.zKey.wasPressedThisFrame)
+            if (MotorCityInput.PreviousVehiclePressed)
                 TrySelectVehicle(-1);
 
-            if (keyboard.xKey.wasPressedThisFrame)
+            if (MotorCityInput.NextVehiclePressed)
                 TrySelectVehicle(1);
 
-            if (keyboard.escapeKey.wasPressedThisFrame)
+            if (MotorCityInput.CancelPressed)
                 CloseGarage();
         }
 

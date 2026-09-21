@@ -1,7 +1,7 @@
+using MotorCity.Input;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace MotorCity.Gameplay
 {
@@ -86,15 +86,11 @@ namespace MotorCity.Gameplay
                 activityManager == null)
                 return;
 
-            Keyboard keyboard =
-                Keyboard.current;
-
             if (isCountingDown)
             {
                 IsNearStart = false;
 
-                if (keyboard != null &&
-                    keyboard.escapeKey.wasPressedThisFrame)
+                if (MotorCityInput.CancelPressed)
                 {
                     CancelActivity();
                     return;
@@ -108,8 +104,7 @@ namespace MotorCity.Gameplay
             {
                 IsNearStart = false;
 
-                if (keyboard != null &&
-                    keyboard.escapeKey.wasPressedThisFrame)
+                if (MotorCityInput.CancelPressed)
                 {
                     CancelActivity();
                     return;
@@ -185,12 +180,10 @@ namespace MotorCity.Gameplay
                     legendaryScore,
                     eliteHint);
 
-            if (keyboard != null &&
-                keyboard.eKey.wasPressedThisFrame)
+            if (MotorCityInput.InteractPressed)
             {
                 bool wantsElite =
-                    keyboard.leftShiftKey.isPressed ||
-                    keyboard.rightShiftKey.isPressed;
+                    MotorCityInput.EliteModifierHeld;
 
                 eliteMode =
                     wantsElite &&

@@ -1,8 +1,8 @@
+using MotorCity.Input;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace MotorCity.Gameplay
 {
@@ -99,15 +99,11 @@ namespace MotorCity.Gameplay
                 route.Length < 4)
                 return;
 
-            Keyboard keyboard =
-                Keyboard.current;
-
             if (isCountingDown)
             {
                 IsNearStart = false;
 
-                if (keyboard != null &&
-                    keyboard.escapeKey.wasPressedThisFrame)
+                if (MotorCityInput.CancelPressed)
                 {
                     CancelActivity();
                     return;
@@ -121,8 +117,7 @@ namespace MotorCity.Gameplay
             {
                 IsNearStart = false;
 
-                if (keyboard != null &&
-                    keyboard.escapeKey.wasPressedThisFrame)
+                if (MotorCityInput.CancelPressed)
                 {
                     CancelActivity();
                     return;
@@ -194,8 +189,7 @@ namespace MotorCity.Gameplay
                     best,
                     string.Empty);
 
-            if (keyboard != null &&
-                keyboard.eKey.wasPressedThisFrame)
+            if (MotorCityInput.InteractPressed)
             {
                 BeginCountdown();
             }
