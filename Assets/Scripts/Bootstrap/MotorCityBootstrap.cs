@@ -354,7 +354,8 @@ namespace MotorCity.Bootstrap
             professions.Initialize(
                 car,
                 wallet,
-                activityManager);
+                activityManager,
+                turbo);
 
             CarWashJobSystem carWash =
                 systems.AddComponent<CarWashJobSystem>();
