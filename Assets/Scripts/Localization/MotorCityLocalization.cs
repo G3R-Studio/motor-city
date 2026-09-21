@@ -494,7 +494,16 @@ namespace MotorCity.Localization
                 { "story.09.title", E("КОНТРОЛЬНЫЙ ЗАЕЗД", "CHECK RUN") },
                 { "story.09.objective", E("заверши спринт перед фестивалем", "finish a sprint before the festival") },
                 { "story.10.title", E("ФЕСТИВАЛЬ MOTOR CITY", "MOTOR CITY FESTIVAL") },
-                { "story.10.objective", E("выиграй финальную кольцевую гонку", "win the final circuit race") }
+                { "story.10.objective", E("выиграй финальную кольцевую гонку", "win the final circuit race") },
+
+                { "photo.album_line", E("ФОТОАЛЬБОМ • МЕСТА {0}/{1} • СЕКРЕТЫ {2}/{3} • РЕДКИЕ МАШИНЫ {4}/{5} • СЕЗОН {6}/{7}", "PHOTO ALBUM • PLACES {0}/{1} • SECRETS {2}/{3} • RARE CARS {4}/{5} • SEASON {6}/{7}") },
+                { "photo.captured", E("ФОТООХОТА — {0} • +{1:N0} КР • +{2:N0} РЕП", "PHOTO HUNT — {0} • +{1:N0} CR • +{2:N0} REP") },
+                { "photo.landmark_name", E("ДОСТОПРИМЕЧАТЕЛЬНОСТЬ: {0}", "LANDMARK: {0}") },
+                { "photo.secret_name", E("СЕКРЕТНОЕ МЕСТО #{0}", "SECRET PLACE #{0}") },
+                { "photo.rare_name", E("РЕДКАЯ МАШИНА #{0}", "RARE CAR #{0}") },
+                { "photo.seasonal_name", E("СЕЗОННЫЙ КАДР", "SEASONAL SHOT") },
+                { "photo.rare_duplicate", E("Эта редкая машина уже есть в альбоме", "This rare car is already in the album") },
+                { "photo.no_subject", E("Турбо: попробуй взять в кадр интересное место или машину.", "Turbo: try framing an interesting place or car.") }
             };
 
         private static string language = Russian;

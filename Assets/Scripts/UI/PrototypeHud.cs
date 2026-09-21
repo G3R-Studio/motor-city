@@ -37,6 +37,7 @@ namespace MotorCity.UI
         private FirstSessionOnboardingSystem onboarding;
         private DailyAdventureSystem dailyAdventures;
         private StoryMissionSystem story;
+        private PhotoHuntSystem photoHunt;
         private AdventureDirector adventureDirector;
 
         private Font font;
@@ -143,6 +144,7 @@ namespace MotorCity.UI
             FirstSessionOnboardingSystem onboardingSystem,
             DailyAdventureSystem dailyAdventureSystem,
             StoryMissionSystem storySystem,
+            PhotoHuntSystem photoHuntSystem,
             AdventureDirector director)
         {
             car = controller;
@@ -171,6 +173,7 @@ namespace MotorCity.UI
             onboarding = onboardingSystem;
             dailyAdventures = dailyAdventureSystem;
             story = storySystem;
+            photoHunt = photoHuntSystem;
             adventureDirector = director;
 
             BuildUi();
@@ -1926,6 +1929,13 @@ namespace MotorCity.UI
             {
                 return
                     onboarding.StatusText;
+            }
+
+            if (photoHunt != null &&
+                photoHunt.ShowMessage)
+            {
+                return
+                    photoHunt.StatusText;
             }
 
             if (story != null &&

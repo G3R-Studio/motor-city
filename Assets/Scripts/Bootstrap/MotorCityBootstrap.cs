@@ -328,6 +328,16 @@ namespace MotorCity.Bootstrap
                 reputation,
                 turbo);
 
+            PhotoHuntSystem photoHunt =
+                systems.AddComponent<PhotoHuntSystem>();
+
+            photoHunt.Initialize(
+                car,
+                wallet,
+                reputation,
+                discoveries,
+                customization);
+
             AdventureDirector adventureDirector =
                 systems.AddComponent<AdventureDirector>();
 
@@ -409,6 +419,7 @@ namespace MotorCity.Bootstrap
                 onboarding,
                 dailyAdventures,
                 story,
+                photoHunt,
                 adventureDirector);
 
             MotorCityBootController bootController =
@@ -1295,6 +1306,7 @@ namespace MotorCity.Bootstrap
             FirstSessionOnboardingSystem onboarding,
             DailyAdventureSystem dailyAdventures,
             StoryMissionSystem story,
+            PhotoHuntSystem photoHunt,
             AdventureDirector adventureDirector)
         {
             GameObject hud = new("Prototype HUD");
@@ -1326,6 +1338,7 @@ namespace MotorCity.Bootstrap
                 onboarding,
                 dailyAdventures,
                 story,
+                photoHunt,
                 adventureDirector);
         }
 

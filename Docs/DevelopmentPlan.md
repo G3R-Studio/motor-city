@@ -167,11 +167,11 @@ Core fantasy:
 - [x] Photo button.
 
 ### Photo hunt
-- [ ] City album.
-- [ ] Landmarks.
-- [ ] Rare cars.
-- [ ] Secrets.
-- [ ] Seasonal collection slots.
+- [x] City album.
+- [x] Landmarks.
+- [x] Rare cars.
+- [x] Secrets.
+- [x] Seasonal collection slots.
 
 ---
 
