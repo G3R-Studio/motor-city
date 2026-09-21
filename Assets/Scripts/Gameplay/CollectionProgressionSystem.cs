@@ -326,12 +326,12 @@ namespace MotorCity.Gameplay
             MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
-        private int UnlockedVehicles()
+        private int OwnedVehicles()
         {
             return
                 roster == null
                     ? 0
-                    : roster.GetUnlockedVehicleCount();
+                    : roster.GetOwnedVehicleCount();
         }
 
         private int VehicleCount()
