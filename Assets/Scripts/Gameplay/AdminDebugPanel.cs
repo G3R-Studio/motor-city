@@ -19,6 +19,7 @@ namespace MotorCity.Gameplay
         private VehicleHistorySystem vehicleHistory;
         private VehicleSpecializationSystem vehicleSpecialization;
         private CollectionProgressionSystem collection;
+        private CityLegendSystem legends;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
         private ActivityManager activityManager;
@@ -48,6 +49,7 @@ namespace MotorCity.Gameplay
             VehicleHistorySystem historySystem,
             VehicleSpecializationSystem specializationSystem,
             CollectionProgressionSystem collectionSystem,
+            CityLegendSystem legendSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem,
             ActivityManager manager,
@@ -67,6 +69,7 @@ namespace MotorCity.Gameplay
             vehicleHistory = historySystem;
             vehicleSpecialization = specializationSystem;
             collection = collectionSystem;
+            legends = legendSystem;
             contracts = contractSystem;
             liveEvents = liveEventSystem;
             activityManager = manager;
@@ -121,6 +124,7 @@ namespace MotorCity.Gameplay
             DrawVehicles();
             DrawUpgradesAndMastery();
             DrawCollection();
+            DrawLegends();
             DrawCareer();
             DrawContracts();
             DrawLiveEvents();
@@ -176,6 +180,12 @@ namespace MotorCity.Gameplay
             {
                 GUILayout.Label(
                     collection.GarageLine);
+            }
+
+            if (legends != null)
+            {
+                GUILayout.Label(
+                    legends.AdminLine);
             }
 
             if (contracts != null)
@@ -417,6 +427,44 @@ namespace MotorCity.Gameplay
             GUILayout.Space(10f);
         }
 
+        private void DrawLegends()
+        {
+            GUILayout.Label("ЛЕГЕНДЫ ГОРОДА");
+
+            if (legends != null)
+            {
+                GUILayout.Label(
+                    legends.AdminLine);
+            }
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("РАЗБЛОКИРОВАТЬ"))
+            {
+                legends?.UnlockCurrentForTesting();
+                lastAction =
+                    "Текущая легенда разблокирована";
+            }
+
+            if (Button("ПОБЕДИТЬ"))
+            {
+                legends?.CompleteCurrentForTesting();
+                lastAction =
+                    "Текущая легенда завершена";
+            }
+
+            GUILayout.EndHorizontal();
+
+            if (Button("СБРОСИТЬ ЛЕГЕНД"))
+            {
+                legends?.ResetForTesting();
+                lastAction =
+                    "Легенды города сброшены";
+            }
+
+            GUILayout.Space(10f);
+        }
+
         private void DrawCareer()
         {
             GUILayout.Label("КАРЬЕРА");
@@ -642,6 +690,7 @@ namespace MotorCity.Gameplay
 
             vehicleHistory?.SetAllLegendaryForTesting();
             collection?.RecalculateForTesting();
+            legends?.UnlockCurrentForTesting();
             contracts?.SetCycleForTesting(5);
             liveEvents?.CompleteCurrentForTesting();
 
@@ -694,6 +743,7 @@ namespace MotorCity.Gameplay
 
             vehicleHistory?.ResetAllForTesting();
             collection?.ResetMilestonesForTesting();
+            legends?.ResetForTesting();
             contracts?.ResetForTesting();
             liveEvents?.ResetForTesting();
 

@@ -25,6 +25,7 @@ namespace MotorCity.UI
         private VehicleHistorySystem vehicleHistory;
         private VehicleSpecializationSystem vehicleSpecialization;
         private CollectionProgressionSystem collection;
+        private CityLegendSystem legends;
         private CityContractSystem contracts;
         private CityLiveEventSystem liveEvents;
 
@@ -47,6 +48,7 @@ namespace MotorCity.UI
         private Text contractText;
         private Text liveEventText;
         private Text collectionText;
+        private Text legendText;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -107,6 +109,7 @@ namespace MotorCity.UI
             VehicleHistorySystem historySystem,
             VehicleSpecializationSystem specializationSystem,
             CollectionProgressionSystem collectionSystem,
+            CityLegendSystem legendSystem,
             CityContractSystem contractSystem,
             CityLiveEventSystem liveEventSystem)
         {
@@ -127,6 +130,7 @@ namespace MotorCity.UI
             vehicleHistory = historySystem;
             vehicleSpecialization = specializationSystem;
             collection = collectionSystem;
+            legends = legendSystem;
             contracts = contractSystem;
             liveEvents = liveEventSystem;
 
@@ -197,6 +201,14 @@ namespace MotorCity.UI
                     collection == null
                         ? string.Empty
                         : collection.HudLine;
+            }
+
+            if (legendText != null)
+            {
+                legendText.text =
+                    legends == null
+                        ? string.Empty
+                        : legends.HudLine;
             }
 
             if (driveModeText != null &&
@@ -353,7 +365,7 @@ namespace MotorCity.UI
                     canvas,
                     "Player Card",
                     new Vector2(18f, -18f),
-                    new Vector2(420f, 222f),
+                    new Vector2(420f, 246f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     PanelColor);
@@ -362,7 +374,7 @@ namespace MotorCity.UI
                 card,
                 BlueAccent,
                 new Vector2(5f, -8f),
-                new Vector2(4f, 206f),
+                new Vector2(4f, 230f),
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f));
 
@@ -515,6 +527,23 @@ namespace MotorCity.UI
                         0.92f,
                         0.74f,
                         1f,
+                        1f));
+
+            legendText =
+                CreateText(
+                    card,
+                    "City Legend",
+                    10,
+                    FontStyle.Bold,
+                    TextAnchor.LowerLeft,
+                    new Vector2(20f, 141f),
+                    new Vector2(382f, 18f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Color(
+                        1f,
+                        0.84f,
+                        0.34f,
                         1f));
         }
 
@@ -1519,6 +1548,13 @@ namespace MotorCity.UI
 
         private string ResolveStatus()
         {
+            if (legends != null &&
+                legends.ShowMessage)
+            {
+                return
+                    legends.StatusText;
+            }
+
             if (collection != null &&
                 collection.ShowMessage)
             {

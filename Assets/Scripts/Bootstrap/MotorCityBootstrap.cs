@@ -152,6 +152,16 @@ namespace MotorCity.Bootstrap
                 vehicleMastery,
                 vehicleHistory);
 
+            CityLegendSystem legends =
+                systems.AddComponent<CityLegendSystem>();
+
+            legends.Initialize(
+                activityManager,
+                wallet,
+                reputation,
+                disciplineReputation,
+                vehicleMastery);
+
             positionPersistence.RestoreSavedPosition();
 
             DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
@@ -225,6 +235,7 @@ namespace MotorCity.Bootstrap
                 vehicleHistory,
                 vehicleSpecialization,
                 collection,
+                legends,
                 contracts,
                 liveEvents,
                 activityManager,
@@ -263,6 +274,7 @@ namespace MotorCity.Bootstrap
                 vehicleHistory,
                 vehicleSpecialization,
                 collection,
+                legends,
                 contracts,
                 liveEvents);
 
@@ -1066,6 +1078,7 @@ namespace MotorCity.Bootstrap
             VehicleHistorySystem vehicleHistory,
             VehicleSpecializationSystem vehicleSpecialization,
             CollectionProgressionSystem collection,
+            CityLegendSystem legends,
             CityContractSystem contracts,
             CityLiveEventSystem liveEvents)
         {
@@ -1089,6 +1102,7 @@ namespace MotorCity.Bootstrap
                 vehicleHistory,
                 vehicleSpecialization,
                 collection,
+                legends,
                 contracts,
                 liveEvents);
         }
