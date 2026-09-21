@@ -64,6 +64,8 @@ namespace MotorCity.UI
         private RectTransform minimapPlayerArrow;
         private Text minimapTargetText;
         private CitySchematicMap schematicMap;
+        private Texture2D minimapMaskTexture;
+        private Sprite minimapMaskSprite;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -513,6 +515,103 @@ namespace MotorCity.UI
                     TextColor);
         }
 
+        private Sprite CreateCircularMinimapSprite(
+            int size)
+        {
+            minimapMaskTexture =
+                new Texture2D(
+                    size,
+                    size,
+                    TextureFormat.RGBA32,
+                    false,
+                    true)
+                {
+                    name =
+                        "MotorCity_MinimapCircleMask",
+                    filterMode =
+                        FilterMode.Bilinear,
+                    wrapMode =
+                        TextureWrapMode.Clamp
+                };
+
+            Color[] pixels =
+                new Color[
+                    size *
+                    size];
+
+            float center =
+                (size - 1) *
+                0.5f;
+
+            float radius =
+                center -
+                1f;
+
+            float feather =
+                1.5f;
+
+            for (int y = 0;
+                 y < size;
+                 y++)
+            {
+                for (int x = 0;
+                     x < size;
+                     x++)
+                {
+                    float dx =
+                        x -
+                        center;
+
+                    float dy =
+                        y -
+                        center;
+
+                    float distance =
+                        Mathf.Sqrt(
+                            dx * dx +
+                            dy * dy);
+
+                    float alpha =
+                        Mathf.Clamp01(
+                            (radius -
+                             distance) /
+                            feather);
+
+                    pixels[
+                        y *
+                        size +
+                        x] =
+                        new Color(
+                            1f,
+                            1f,
+                            1f,
+                            alpha);
+                }
+            }
+
+            minimapMaskTexture.SetPixels(
+                pixels);
+
+            minimapMaskTexture.Apply(
+                false,
+                true);
+
+            return
+                Sprite.Create(
+                    minimapMaskTexture,
+                    new Rect(
+                        0f,
+                        0f,
+                        size,
+                        size),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    100f,
+                    0u,
+                    SpriteMeshType.FullRect);
+        }
+
         private void BuildSpeedometer(Transform canvas)
         {
             RectTransform panel =
@@ -603,23 +702,72 @@ namespace MotorCity.UI
                     canvas,
                     "Minimap",
                     new Vector2(20f, 20f),
-                    new Vector2(286f, 196f),
+                    new Vector2(220f, 220f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     new Color(
                         0.01f,
                         0.015f,
                         0.02f,
-                        0.82f));
+                        0.12f));
 
             navigatorPanel =
                 panel.gameObject;
+
+            minimapMaskSprite =
+                CreateCircularMinimapSprite(
+                    128);
+
+            GameObject rimObject =
+                new(
+                    "Minimap Rim",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            rimObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform rimRect =
+                rimObject.GetComponent<RectTransform>();
+
+            rimRect.anchorMin =
+                new Vector2(0.5f, 1f);
+
+            rimRect.anchorMax =
+                new Vector2(0.5f, 1f);
+
+            rimRect.pivot =
+                new Vector2(0.5f, 1f);
+
+            rimRect.anchoredPosition =
+                new Vector2(0f, -8f);
+
+            rimRect.sizeDelta =
+                new Vector2(188f, 188f);
+
+            Image rimImage =
+                rimObject.GetComponent<Image>();
+
+            rimImage.sprite =
+                minimapMaskSprite;
+
+            rimImage.color =
+                new Color(
+                    0.025f,
+                    0.035f,
+                    0.05f,
+                    0.92f);
+
+            rimImage.raycastTarget =
+                false;
 
             GameObject viewportObject =
                 new(
                     "Minimap Viewport",
                     typeof(RectTransform),
-                    typeof(RectMask2D));
+                    typeof(Image),
+                    typeof(Mask));
 
             viewportObject.transform.SetParent(
                 panel,
@@ -638,10 +786,28 @@ namespace MotorCity.UI
                 new Vector2(0.5f, 1f);
 
             viewportRect.anchoredPosition =
-                new Vector2(0f, -8f);
+                new Vector2(0f, -13f);
 
             viewportRect.sizeDelta =
-                new Vector2(270f, 158f);
+                new Vector2(178f, 178f);
+
+            Image viewportImage =
+                viewportObject.GetComponent<Image>();
+
+            viewportImage.sprite =
+                minimapMaskSprite;
+
+            viewportImage.color =
+                Color.white;
+
+            viewportImage.raycastTarget =
+                false;
+
+            Mask viewportMask =
+                viewportObject.GetComponent<Mask>();
+
+            viewportMask.showMaskGraphic =
+                false;
 
             GameObject mapObject =
                 new(
@@ -669,7 +835,7 @@ namespace MotorCity.UI
                 Vector2.zero;
 
             mapRect.sizeDelta =
-                new Vector2(270f, 270f);
+                new Vector2(258f, 258f);
 
             minimapImage =
                 mapObject.GetComponent<RawImage>();
@@ -697,12 +863,12 @@ namespace MotorCity.UI
 
             Text playerArrow =
                 CreateText(
-                    panel,
+                    viewportRect,
                     "Minimap Player",
                     22,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 11f),
+                    Vector2.zero,
                     new Vector2(34f, 34f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
@@ -720,7 +886,7 @@ namespace MotorCity.UI
 
             Text targetBlip =
                 CreateText(
-                    panel,
+                    viewportRect,
                     "Minimap Target",
                     24,
                     FontStyle.Bold,
@@ -748,8 +914,8 @@ namespace MotorCity.UI
                     11,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(10f, 10f),
-                    new Vector2(264f, 24f),
+                    new Vector2(10f, 8f),
+                    new Vector2(200f, 24f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     TextColor);
@@ -1949,6 +2115,18 @@ namespace MotorCity.UI
             {
                 Destroy(
                     schematicMap.Texture);
+            }
+
+            if (minimapMaskSprite != null)
+            {
+                Destroy(
+                    minimapMaskSprite);
+            }
+
+            if (minimapMaskTexture != null)
+            {
+                Destroy(
+                    minimapMaskTexture);
             }
         }
 
