@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -54,7 +55,7 @@ namespace MotorCity.Gameplay
                     route.Length - 1)];
 
         public string StatusText { get; private set; } =
-            "Зелёный маркер: уличный спринт";
+            MotorCityLocalization.Text("activity.marker.sprint");
 
         public void Initialize(
             ArcadeCarController targetCar,
@@ -135,7 +136,7 @@ namespace MotorCity.Gameplay
                 {
                     armed = true;
                     StatusText =
-                        "Зелёный маркер: уличный спринт";
+                        MotorCityLocalization.Text("activity.marker.sprint");
                 }
 
                 return;
@@ -144,7 +145,7 @@ namespace MotorCity.Gameplay
             if (!IsNearStart)
             {
                 StatusText =
-                    "Зелёный маркер: уличный спринт";
+                    MotorCityLocalization.Text("activity.marker.sprint");
                 return;
             }
 
@@ -152,7 +153,7 @@ namespace MotorCity.Gameplay
                 !activityManager.IsActive(ActivityId))
             {
                 StatusText =
-                    $"Спринт недоступен: активно «{activityManager.ActiveName}»";
+                    MotorCityLocalization.Format("activity.busy", MotorCityLocalization.Text("activity.sprint"), activityManager.ActiveName);
                 return;
             }
 
@@ -160,13 +161,13 @@ namespace MotorCity.Gameplay
                 maxStartSpeedKph)
             {
                 StatusText =
-                    $"СПРИНТ — остановись до {maxStartSpeedKph:0} км/ч";
+                    MotorCityLocalization.Format("activity.stop", MotorCityLocalization.Text("hud.sprint"), maxStartSpeedKph);
                 return;
             }
 
             string best =
                 BestTimeSeconds > 0f
-                    ? $"   РЕК {BestTimeSeconds:0.0}с"
+                    ? MotorCityLocalization.Format("activity.best_short", BestTimeSeconds)
                     : string.Empty;
 
             bool eliteUnlocked =
@@ -176,13 +177,16 @@ namespace MotorCity.Gameplay
 
             string eliteHint =
                 eliteUnlocked
-                    ? "   SHIFT+E — ЭЛИТА"
-                    : $"   ЭЛИТА: ГОНКИ {EliteRequiredLevel}";
+                    ? MotorCityLocalization.Text("activity.elite_hint")
+                    : MotorCityLocalization.Format("activity.elite_locked", MotorCityLocalization.Text("discipline.racing"), EliteRequiredLevel);
 
             StatusText =
-                $"СПРИНТ   E — НАЧАТЬ   " +
-                $"ЗОЛОТО ≤ {goldTimeSeconds:0}с{best}" +
-                eliteHint;
+                MotorCityLocalization.Format(
+                    "activity.start_time",
+                    MotorCityLocalization.Text("hud.sprint"),
+                    goldTimeSeconds,
+                    best,
+                    eliteHint);
 
             if (keyboard != null &&
                 keyboard.eKey.wasPressedThisFrame)
@@ -203,7 +207,7 @@ namespace MotorCity.Gameplay
         {
             if (!activityManager.TryBegin(
                     ActivityId,
-                    "Уличный спринт"))
+                    MotorCityLocalization.Text("activity.sprint")))
                 return;
 
             isCountingDown = true;
@@ -255,8 +259,12 @@ namespace MotorCity.Gameplay
                         countdownRemaining));
 
             StatusText =
-                $"{(eliteMode ? "ELITE СПРИНТ" : "СПРИНТ")}   " +
-                $"СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+                MotorCityLocalization.Format(
+                    "activity.countdown",
+                    eliteMode
+                        ? MotorCityLocalization.Text("activity.elite_sprint")
+                        : MotorCityLocalization.Text("hud.sprint"),
+                    shown);
         }
 
         private void UpdateActiveSprint()
@@ -291,9 +299,15 @@ namespace MotorCity.Gameplay
         private void UpdateStatus()
         {
             StatusText =
-                $"{(eliteMode ? "ELITE СПРИНТ" : "СПРИНТ")}  " +
-                $"ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
-                $"{ElapsedSeconds:0.0}с   {CurrentTierHint()}   ESC — ОТМЕНА";
+                MotorCityLocalization.Format(
+                    "activity.checkpoint",
+                    eliteMode
+                        ? MotorCityLocalization.Text("activity.elite_sprint")
+                        : MotorCityLocalization.Text("hud.sprint"),
+                    checkpointIndex + 1,
+                    route.Length,
+                    ElapsedSeconds,
+                    CurrentTierHint());
         }
 
         private string CurrentTierHint()
@@ -306,15 +320,15 @@ namespace MotorCity.Gameplay
                 eliteMode ? 70f : bronzeTimeSeconds;
 
             if (ElapsedSeconds <= gold)
-                return $"ЗОЛОТО ≤ {gold:0}с";
+                return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.gold"), gold);
 
             if (ElapsedSeconds <= silver)
-                return $"СЕРЕБРО ≤ {silver:0}с";
+                return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.silver"), silver);
 
             if (ElapsedSeconds <= bronze)
-                return $"БРОНЗА ≤ {bronze:0}с";
+                return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.bronze"), bronze);
 
-            return "ФИНИШИРУЙ";
+            return MotorCityLocalization.Text("activity.finish_now");
         }
 
         private void CompleteSprint()
@@ -349,12 +363,12 @@ namespace MotorCity.Gameplay
 
             string tier =
                 ElapsedSeconds <= gold
-                    ? "ЗОЛОТО"
+                    ? MotorCityLocalization.Text("medal.gold")
                     : ElapsedSeconds <= silver
-                        ? "СЕРЕБРО"
+                        ? MotorCityLocalization.Text("medal.silver")
                         : ElapsedSeconds <= bronze
-                            ? "БРОНЗА"
-                            : "ФИНИШ";
+                            ? MotorCityLocalization.Text("medal.bronze")
+                            : MotorCityLocalization.Text("common.finish");
 
             bool newBest =
                 BestTimeSeconds <= 0f ||
@@ -383,23 +397,23 @@ namespace MotorCity.Gameplay
 
             string record =
                 newBest
-                    ? "   •   НОВЫЙ РЕКОРД"
+                    ? MotorCityLocalization.Text("activity.new_record_inline")
                     : BestTimeSeconds > 0f
-                        ? $"   •   Рекорд: {BestTimeSeconds:0.0}с"
+                        ? MotorCityLocalization.Format("activity.record_inline", BestTimeSeconds)
                         : string.Empty;
 
             activityManager.ShowResult(
                 ActivityId,
                 eliteMode
-                    ? "ЭЛИТНЫЙ УЛИЧНЫЙ СПРИНТ"
-                    : "УЛИЧНЫЙ СПРИНТ",
+                    ? MotorCityLocalization.Text("activity.elite_sprint")
+                    : MotorCityLocalization.Text("activity.sprint"),
                 tier,
-                $"Время: {ElapsedSeconds:0.0}с   •   Бонус: {bonus:N0} КР{record}",
+                MotorCityLocalization.Format("activity.result_time_bonus", ElapsedSeconds, bonus, record),
                 reward,
                 true);
 
             StatusText =
-                $"Спринт: {tier}  +{reward} КР";
+                MotorCityLocalization.Format("activity.status_reward", MotorCityLocalization.Text("hud.sprint"), tier, reward);
         }
 
         public void RestartFromResult()
@@ -457,7 +471,7 @@ namespace MotorCity.Gameplay
             activityManager?.End(ActivityId);
 
             StatusText =
-                "Спринт отменён. Отъедь от старта, чтобы повторить.";
+                MotorCityLocalization.Text("activity.sprint_cancelled");
         }
 
         private void OnDisable()

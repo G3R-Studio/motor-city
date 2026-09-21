@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -62,7 +63,7 @@ namespace MotorCity.Gameplay
                     route.Length - 1)];
 
         public string StatusText { get; private set; } =
-            "Бирюзовый флаг: кольцевая гонка";
+            MotorCityLocalization.Text("activity.marker.circuit");
 
         public void Initialize(
             ArcadeCarController targetCar,
@@ -151,7 +152,7 @@ namespace MotorCity.Gameplay
                 {
                     armed = true;
                     StatusText =
-                        "Бирюзовый флаг: кольцевая гонка";
+                        MotorCityLocalization.Text("activity.marker.circuit");
                 }
 
                 return;
@@ -160,7 +161,7 @@ namespace MotorCity.Gameplay
             if (!IsNearStart)
             {
                 StatusText =
-                    "Бирюзовый флаг: кольцевая гонка";
+                    MotorCityLocalization.Text("activity.marker.circuit");
                 return;
             }
 
@@ -168,7 +169,7 @@ namespace MotorCity.Gameplay
                 !activityManager.IsActive(ActivityId))
             {
                 StatusText =
-                    $"Кольцо недоступно: активно «{activityManager.ActiveName}»";
+                    MotorCityLocalization.Format("activity.busy", MotorCityLocalization.Text("activity.circuit"), activityManager.ActiveName);
                 return;
             }
 
@@ -176,18 +177,22 @@ namespace MotorCity.Gameplay
                 maxStartSpeedKph)
             {
                 StatusText =
-                    $"КОЛЬЦО — остановись до {maxStartSpeedKph:0} км/ч";
+                    MotorCityLocalization.Format("activity.stop", MotorCityLocalization.Text("hud.circuit"), maxStartSpeedKph);
                 return;
             }
 
             string best =
                 BestTimeSeconds > 0f
-                    ? $"   РЕК {BestTimeSeconds:0.0}с"
+                    ? MotorCityLocalization.Format("activity.best_short", BestTimeSeconds)
                     : string.Empty;
 
             StatusText =
-                $"КОЛЬЦО   E — НАЧАТЬ   " +
-                $"ЗОЛОТО ≤ {goldTimeSeconds:0}с{best}";
+                MotorCityLocalization.Format(
+                    "activity.start_time",
+                    MotorCityLocalization.Text("hud.circuit"),
+                    goldTimeSeconds,
+                    best,
+                    string.Empty);
 
             if (keyboard != null &&
                 keyboard.eKey.wasPressedThisFrame)
@@ -200,7 +205,7 @@ namespace MotorCity.Gameplay
         {
             if (!activityManager.TryBegin(
                     ActivityId,
-                    "Кольцевая гонка"))
+                    MotorCityLocalization.Text("activity.circuit")))
                 return;
 
             isCountingDown = true;
@@ -258,7 +263,7 @@ namespace MotorCity.Gameplay
                         countdownRemaining));
 
             StatusText =
-                $"КОЛЬЦО   СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+                MotorCityLocalization.Format("activity.countdown", MotorCityLocalization.Text("hud.circuit"), shown);
         }
 
         private void UpdateActiveRace()
@@ -361,12 +366,12 @@ namespace MotorCity.Gameplay
 
             string tier =
                 ElapsedSeconds <= goldTimeSeconds
-                    ? "ЗОЛОТО"
+                    ? MotorCityLocalization.Text("medal.gold")
                     : ElapsedSeconds <= silverTimeSeconds
-                        ? "СЕРЕБРО"
+                        ? MotorCityLocalization.Text("medal.silver")
                         : ElapsedSeconds <= bronzeTimeSeconds
-                            ? "БРОНЗА"
-                            : "ФИНИШ";
+                            ? MotorCityLocalization.Text("medal.bronze")
+                            : MotorCityLocalization.Text("common.finish");
 
             bool newBest =
                 BestTimeSeconds <= 0f ||
@@ -396,26 +401,26 @@ namespace MotorCity.Gameplay
 
             string record =
                 newBest
-                    ? "НОВЫЙ РЕКОРД"
+                    ? MotorCityLocalization.Text("common.new_record")
                     : BestTimeSeconds > 0f
-                        ? $"Рекорд: {BestTimeSeconds:0.0}с"
+                        ? MotorCityLocalization.Format("common.record", BestTimeSeconds)
                         : string.Empty;
 
             string lap =
                 sessionBestLapSeconds > 0f
-                    ? $"   •   Лучший круг: {sessionBestLapSeconds:0.0}с"
+                    ? MotorCityLocalization.Format("activity.best_lap", sessionBestLapSeconds)
                     : string.Empty;
 
             activityManager.ShowResult(
                 ActivityId,
-                "КОЛЬЦЕВАЯ ГОНКА",
+                MotorCityLocalization.Text("activity.circuit"),
                 tier,
-                $"Время: {ElapsedSeconds:0.0}с   •   {record}{lap}   •   Бонус: {bonus:N0} КР",
+                MotorCityLocalization.Format("activity.circuit_result", ElapsedSeconds, record, lap, bonus),
                 reward,
                 true);
 
             StatusText =
-                $"Кольцо: {tier}  +{reward} КР";
+                MotorCityLocalization.Format("activity.status_reward", MotorCityLocalization.Text("hud.circuit"), tier, reward);
         }
 
         public void RestartFromResult()
@@ -476,7 +481,7 @@ namespace MotorCity.Gameplay
             activityManager?.End(ActivityId);
 
             StatusText =
-                "Кольцевая гонка отменена. Отъедь от старта, чтобы повторить.";
+                MotorCityLocalization.Text("activity.circuit_cancelled");
         }
 
         private void UpdateStatus()
@@ -497,14 +502,19 @@ namespace MotorCity.Gameplay
 
             string lapBest =
                 BestLapSeconds > 0f
-                    ? $"   ЛУЧШ КРУГ {BestLapSeconds:0.0}с"
+                    ? MotorCityLocalization.Format("activity.best_lap_short", BestLapSeconds)
                     : string.Empty;
 
             StatusText =
-                $"КОЛЬЦО  КРУГ {currentLap}/{lapCount}   " +
-                $"ТОЧКА {shownCheckpoint}/{total}   " +
-                $"КРУГ {currentLapTime:0.0}с   " +
-                $"ОБЩ {ElapsedSeconds:0.0}с{lapBest}   ESC — ОТМЕНА";
+                MotorCityLocalization.Format(
+                    "activity.circuit_status",
+                    currentLap,
+                    lapCount,
+                    shownCheckpoint,
+                    total,
+                    currentLapTime,
+                    ElapsedSeconds,
+                    lapBest);
         }
 
         private void OnDisable()

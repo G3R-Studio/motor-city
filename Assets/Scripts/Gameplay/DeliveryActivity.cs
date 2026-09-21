@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -56,7 +57,7 @@ namespace MotorCity.Gameplay
                     route.Length - 1)];
 
         public string StatusText { get; private set; } =
-            "Синий маркер: доставка";
+            MotorCityLocalization.Text("activity.marker.delivery");
 
         public void Initialize(
             ArcadeCarController targetCar,
@@ -131,7 +132,7 @@ namespace MotorCity.Gameplay
             if (!IsNearStart)
             {
                 StatusText =
-                    "Синий маркер: доставка";
+                    MotorCityLocalization.Text("activity.marker.delivery");
                 return;
             }
 
@@ -139,7 +140,7 @@ namespace MotorCity.Gameplay
                 !activityManager.IsActive(ActivityId))
             {
                 StatusText =
-                    $"Доставка недоступна: активно «{activityManager.ActiveName}»";
+                    MotorCityLocalization.Format("activity.busy", MotorCityLocalization.Text("activity.delivery"), activityManager.ActiveName);
                 return;
             }
 
@@ -147,13 +148,13 @@ namespace MotorCity.Gameplay
                 maxStartSpeedKph)
             {
                 StatusText =
-                    $"ДОСТАВКА — остановись до {maxStartSpeedKph:0} км/ч";
+                    MotorCityLocalization.Format("activity.stop", MotorCityLocalization.Text("activity.delivery"), maxStartSpeedKph);
                 return;
             }
 
             string best =
                 BestTimeSeconds > 0f
-                    ? $"   РЕК {BestTimeSeconds:0.0}с"
+                    ? MotorCityLocalization.Format("activity.best_short", BestTimeSeconds)
                     : string.Empty;
 
             bool eliteUnlocked =
@@ -163,13 +164,16 @@ namespace MotorCity.Gameplay
 
             string eliteHint =
                 eliteUnlocked
-                    ? "   SHIFT+E — ПРЕМИУМ"
-                    : $"   ПРЕМИУМ: ДОСТАВКА {EliteRequiredLevel}";
+                    ? MotorCityLocalization.Text("activity.premium_hint")
+                    : MotorCityLocalization.Format("activity.premium_locked", MotorCityLocalization.Text("discipline.delivery"), EliteRequiredLevel);
 
             StatusText =
-                $"ДОСТАВКА   E — НАЧАТЬ   " +
-                $"ЗОЛОТО ≤ {goldTimeSeconds:0}с{best}" +
-                eliteHint;
+                MotorCityLocalization.Format(
+                    "activity.start_time",
+                    MotorCityLocalization.Text("activity.delivery"),
+                    goldTimeSeconds,
+                    best,
+                    eliteHint);
 
             if (keyboard != null &&
                 keyboard.eKey.wasPressedThisFrame)
@@ -190,7 +194,7 @@ namespace MotorCity.Gameplay
         {
             if (!activityManager.TryBegin(
                     ActivityId,
-                    "Доставка"))
+                    MotorCityLocalization.Text("activity.delivery")))
                 return;
 
             isCountingDown = true;
@@ -240,8 +244,12 @@ namespace MotorCity.Gameplay
                         countdownRemaining));
 
             StatusText =
-                $"{(eliteMode ? "PREMIUM ДОСТАВКА" : "ДОСТАВКА")}   " +
-                $"СТАРТ ЧЕРЕЗ {shown}   ESC — ОТМЕНА";
+                MotorCityLocalization.Format(
+                    "activity.countdown",
+                    eliteMode
+                        ? MotorCityLocalization.Text("activity.premium_delivery")
+                        : MotorCityLocalization.Text("activity.delivery"),
+                    shown);
         }
 
         private void UpdateActiveDelivery()
@@ -276,9 +284,15 @@ namespace MotorCity.Gameplay
         private void UpdateStatus()
         {
             StatusText =
-                $"{(eliteMode ? "PREMIUM ДОСТАВКА" : "ДОСТАВКА")}  " +
-                $"ТОЧКА {checkpointIndex + 1}/{route.Length}   " +
-                $"{ElapsedSeconds:0.0}с   {CurrentTierHint()}   ESC — ОТМЕНА";
+                MotorCityLocalization.Format(
+                    "activity.checkpoint",
+                    eliteMode
+                        ? MotorCityLocalization.Text("activity.premium_delivery")
+                        : MotorCityLocalization.Text("activity.delivery"),
+                    checkpointIndex + 1,
+                    route.Length,
+                    ElapsedSeconds,
+                    CurrentTierHint());
         }
 
         private string CurrentTierHint()
@@ -291,15 +305,15 @@ namespace MotorCity.Gameplay
                 eliteMode ? 100f : bronzeTimeSeconds;
 
             if (ElapsedSeconds <= gold)
-                return $"ЗОЛОТО ≤ {gold:0}с";
+                return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.gold"), gold);
 
             if (ElapsedSeconds <= silver)
-                return $"СЕРЕБРО ≤ {silver:0}с";
+                return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.silver"), silver);
 
             if (ElapsedSeconds <= bronze)
-                return $"БРОНЗА ≤ {bronze:0}с";
+                return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.bronze"), bronze);
 
-            return "ДОСТАВЬ ГРУЗ";
+            return MotorCityLocalization.Text("activity.deliver_cargo");
         }
 
         private void CompleteDelivery()
@@ -317,27 +331,27 @@ namespace MotorCity.Gameplay
             if (ElapsedSeconds <=
                 gold)
             {
-                tier = "ЗОЛОТО";
+                tier = MotorCityLocalization.Text("medal.gold");
                 reward =
                     goldRewardCredits;
             }
             else if (ElapsedSeconds <=
                      silver)
             {
-                tier = "СЕРЕБРО";
+                tier = MotorCityLocalization.Text("medal.silver");
                 reward =
                     silverRewardCredits;
             }
             else if (ElapsedSeconds <=
                      bronze)
             {
-                tier = "БРОНЗА";
+                tier = MotorCityLocalization.Text("medal.bronze");
                 reward =
                     bronzeRewardCredits;
             }
             else
             {
-                tier = "ДОСТАВЛЕНО";
+                tier = MotorCityLocalization.Text("activity.delivered");
                 reward =
                     completionRewardCredits;
             }
@@ -376,23 +390,23 @@ namespace MotorCity.Gameplay
 
             string record =
                 newBest
-                    ? "   •   НОВЫЙ РЕКОРД"
+                    ? MotorCityLocalization.Text("activity.new_record_inline")
                     : BestTimeSeconds > 0f
-                        ? $"   •   Рекорд: {BestTimeSeconds:0.0}с"
+                        ? MotorCityLocalization.Format("activity.record_inline", BestTimeSeconds)
                         : string.Empty;
 
             activityManager.ShowResult(
                 ActivityId,
                 eliteMode
-                    ? "ПРЕМИУМ-ДОСТАВКА"
-                    : "ДОСТАВКА",
+                    ? MotorCityLocalization.Text("activity.premium_delivery")
+                    : MotorCityLocalization.Text("activity.delivery"),
                 tier,
-                $"Время: {ElapsedSeconds:0.0}с{record}",
+                MotorCityLocalization.Format("activity.result_time", ElapsedSeconds, record),
                 reward,
                 true);
 
             StatusText =
-                $"Доставка: {tier}  +{reward} КР";
+                MotorCityLocalization.Format("activity.status_reward", MotorCityLocalization.Text("activity.delivery"), tier, reward);
         }
 
         public void RestartFromResult()
@@ -447,7 +461,7 @@ namespace MotorCity.Gameplay
             activityManager?.End(ActivityId);
 
             StatusText =
-                "Доставка отменена";
+                MotorCityLocalization.Text("activity.delivery_cancelled");
         }
 
         private void OnDisable()

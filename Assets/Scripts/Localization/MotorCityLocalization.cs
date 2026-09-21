@@ -207,7 +207,37 @@ namespace MotorCity.Localization
                 { "garage.upgraded2", E("{0} улучшен до уровня {1}", "{0} upgraded to level {1}") },
                 { "garage.engine_name", E("Двигатель", "Engine") },
                 { "garage.grip_name", E("Сцепление", "Grip") },
-                { "garage.stability_name", E("Стабильность", "Stability") }
+                { "garage.stability_name", E("Стабильность", "Stability") },
+
+                { "activity.marker.delivery", E("Синий маркер: доставка", "Blue marker: delivery") },
+                { "activity.marker.sprint", E("Зелёный маркер: уличный спринт", "Green marker: street sprint") },
+                { "activity.marker.circuit", E("Бирюзовый флаг: кольцевая гонка", "Cyan flag: circuit race") },
+                { "activity.busy", E("{0} недоступно: активно «{1}»", "{0} unavailable: “{1}” is active") },
+                { "activity.stop", E("{0} — остановись до {1:0} км/ч", "{0} — slow below {1:0} km/h") },
+                { "activity.best_short", E("   РЕК {0:0.0}с", "   BEST {0:0.0}s") },
+                { "activity.elite_hint", E("   SHIFT+E — ЭЛИТА", "   SHIFT+E — ELITE") },
+                { "activity.premium_hint", E("   SHIFT+E — ПРЕМИУМ", "   SHIFT+E — PREMIUM") },
+                { "activity.elite_locked", E("   ЭЛИТА: {0} {1}", "   ELITE: {0} {1}") },
+                { "activity.premium_locked", E("   ПРЕМИУМ: {0} {1}", "   PREMIUM: {0} {1}") },
+                { "activity.start_time", E("{0}   E — НАЧАТЬ   ЗОЛОТО ≤ {1:0}с{2}{3}", "{0}   E — START   GOLD ≤ {1:0}s{2}{3}") },
+                { "activity.countdown", E("{0}   СТАРТ ЧЕРЕЗ {1}   ESC — ОТМЕНА", "{0}   START IN {1}   ESC — CANCEL") },
+                { "activity.checkpoint", E("{0}  ТОЧКА {1}/{2}   {3:0.0}с   {4}   ESC — ОТМЕНА", "{0}  POINT {1}/{2}   {3:0.0}s   {4}   ESC — CANCEL") },
+                { "activity.tier_time", E("{0} ≤ {1:0}с", "{0} ≤ {1:0}s") },
+                { "activity.deliver_cargo", E("ДОСТАВЬ ГРУЗ", "DELIVER THE CARGO") },
+                { "activity.finish_now", E("ФИНИШИРУЙ", "FINISH") },
+                { "activity.delivered", E("ДОСТАВЛЕНО", "DELIVERED") },
+                { "activity.new_record_inline", E("   •   НОВЫЙ РЕКОРД", "   •   NEW RECORD") },
+                { "activity.record_inline", E("   •   Рекорд: {0:0.0}с", "   •   Record: {0:0.0}s") },
+                { "activity.result_time", E("Время: {0:0.0}с{1}", "Time: {0:0.0}s{1}") },
+                { "activity.result_time_bonus", E("Время: {0:0.0}с   •   Бонус: {1:N0} КР{2}", "Time: {0:0.0}s   •   Bonus: {1:N0} CR{2}") },
+                { "activity.status_reward", E("{0}: {1}  +{2:N0} КР", "{0}: {1}  +{2:N0} CR") },
+                { "activity.delivery_cancelled", E("Доставка отменена", "Delivery cancelled") },
+                { "activity.sprint_cancelled", E("Спринт отменён. Отъедь от старта, чтобы повторить.", "Sprint cancelled. Leave the start area to retry.") },
+                { "activity.circuit_cancelled", E("Кольцевая гонка отменена. Отъедь от старта, чтобы повторить.", "Circuit race cancelled. Leave the start area to retry.") },
+                { "activity.best_lap", E("   •   Лучший круг: {0:0.0}с", "   •   Best lap: {0:0.0}s") },
+                { "activity.best_lap_short", E("   ЛУЧШ КРУГ {0:0.0}с", "   BEST LAP {0:0.0}s") },
+                { "activity.circuit_status", E("КОЛЬЦО  КРУГ {0}/{1}   ТОЧКА {2}/{3}   КРУГ {4:0.0}с   ОБЩ {5:0.0}с{6}   ESC — ОТМЕНА", "CIRCUIT  LAP {0}/{1}   POINT {2}/{3}   LAP {4:0.0}s   TOTAL {5:0.0}s{6}   ESC — CANCEL") },
+                { "activity.circuit_result", E("Время: {0:0.0}с   •   {1}{2}   •   Бонус: {3:N0} КР", "Time: {0:0.0}s   •   {1}{2}   •   Bonus: {3:N0} CR") }
             };
 
         private static string language = Russian;
