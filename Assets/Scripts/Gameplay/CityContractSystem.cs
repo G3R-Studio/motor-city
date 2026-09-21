@@ -441,7 +441,7 @@ namespace MotorCity.Gameplay
         {
             contractIndex =
                 Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         IndexKey,
                         0),
                     0,
@@ -449,7 +449,7 @@ namespace MotorCity.Gameplay
 
             cycle =
                 Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         CycleKey,
                         1),
                     1,
@@ -478,38 +478,38 @@ namespace MotorCity.Gameplay
             return
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         key,
                         0));
         }
 
         private void Save()
         {
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 IndexKey,
                 contractIndex);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 CycleKey,
                 cycle);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 RacingKey,
                 racingProgress);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DriftKey,
                 driftProgress);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DeliveryKey,
                 deliveryProgress);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 NightKey,
                 nightProgress);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
         private readonly struct ContractDefinition

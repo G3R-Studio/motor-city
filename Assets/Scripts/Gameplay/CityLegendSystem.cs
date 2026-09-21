@@ -107,7 +107,7 @@ namespace MotorCity.Gameplay
 
             legendIndex =
                 Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         LegendIndexKey,
                         0),
                     0,
@@ -569,27 +569,27 @@ namespace MotorCity.Gameplay
 
         private void Save()
         {
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 LegendIndexKey,
                 legendIndex);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 RacingProgressKey,
                 racingProgress);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DriftProgressKey,
                 driftProgress);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DeliveryProgressKey,
                 deliveryProgress);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 NightProgressKey,
                 nightProgress);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
         private static int LoadProgress(
@@ -598,7 +598,7 @@ namespace MotorCity.Gameplay
             return
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         key,
                         0));
         }

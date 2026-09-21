@@ -10,7 +10,7 @@ namespace MotorCity.Gameplay
 
         private void Awake()
         {
-            Credits = Mathf.Max(0, PlayerPrefs.GetInt(CreditsKey, 0));
+            Credits = Mathf.Max(0, MotorCity.Persistence.MotorCitySaveService.GetInt(CreditsKey, 0));
         }
 
         public void AddCredits(int amount)
@@ -50,8 +50,8 @@ namespace MotorCity.Gameplay
 
         private void Save()
         {
-            PlayerPrefs.SetInt(CreditsKey, Credits);
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.SetInt(CreditsKey, Credits);
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
     }
 }

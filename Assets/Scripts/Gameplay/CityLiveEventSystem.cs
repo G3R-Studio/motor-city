@@ -96,7 +96,7 @@ namespace MotorCity.Gameplay
 
             eventIndex =
                 Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         EventIndexKey,
                         0),
                     0,
@@ -105,7 +105,7 @@ namespace MotorCity.Gameplay
             completedEvents =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         CompletedKey,
                         0));
 
@@ -202,15 +202,15 @@ namespace MotorCity.Gameplay
             eventIndex = 0;
             completedEvents = 0;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 EventIndexKey,
                 eventIndex);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 CompletedKey,
                 completedEvents);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             StartCurrentEvent(
                 false);
@@ -285,11 +285,11 @@ namespace MotorCity.Gameplay
 
             completedEvents++;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 CompletedKey,
                 completedEvents);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             StatusText =
                 $"ГОРОДСКОЕ СОБЫТИЕ ВЫПОЛНЕНО — {current.Name}   " +
@@ -317,11 +317,11 @@ namespace MotorCity.Gameplay
                 (eventIndex + 1) %
                 EventCount;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 EventIndexKey,
                 eventIndex);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             StartCurrentEvent(
                 true);

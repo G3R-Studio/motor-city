@@ -350,7 +350,7 @@ namespace MotorCity.Gameplay
             return
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         key,
                         0));
         }
@@ -359,13 +359,13 @@ namespace MotorCity.Gameplay
             string key,
             int value)
         {
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 key,
                 Mathf.Max(
                     0,
                     value));
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
         private static string DisciplineName(

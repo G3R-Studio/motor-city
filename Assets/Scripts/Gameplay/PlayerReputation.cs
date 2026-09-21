@@ -21,7 +21,7 @@ namespace MotorCity.Gameplay
             Reputation =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         ReputationKey,
                         0));
         }
@@ -51,11 +51,11 @@ namespace MotorCity.Gameplay
 
         private void Save()
         {
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 ReputationKey,
                 Reputation);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
     }
 }

@@ -60,7 +60,7 @@ namespace MotorCity.Gameplay
 
             Stage =
                 Mathf.Clamp(
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         StageKey,
                         0),
                     0,
@@ -69,28 +69,28 @@ namespace MotorCity.Gameplay
             deliveryWins =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         DeliveryKey,
                         0));
 
             driftWins =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         DriftKey,
                         0));
 
             sprintWins =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         SprintKey,
                         0));
 
             circuitWins =
                 Mathf.Max(
                     0,
-                    PlayerPrefs.GetInt(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
                         CircuitKey,
                         0));
 
@@ -149,12 +149,12 @@ namespace MotorCity.Gameplay
             sprintWins = completedWins;
             circuitWins = completedWins;
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 StageKey,
                 Stage);
 
             SaveCounters();
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             messageTimer = 0f;
             StatusText = string.Empty;
@@ -206,11 +206,11 @@ namespace MotorCity.Gameplay
 
                 Stage++;
 
-                PlayerPrefs.SetInt(
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
                     StageKey,
                     Stage);
 
-                PlayerPrefs.Save();
+                MotorCity.Persistence.MotorCitySaveService.Save();
 
                 GrantStageReward(
                     completedStage,
@@ -315,23 +315,23 @@ namespace MotorCity.Gameplay
 
         private void SaveCounters()
         {
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DeliveryKey,
                 deliveryWins);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 DriftKey,
                 driftWins);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 SprintKey,
                 sprintWins);
 
-            PlayerPrefs.SetInt(
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
                 CircuitKey,
                 circuitWins);
 
-            PlayerPrefs.Save();
+            MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
         private const int StageCount = 3;
