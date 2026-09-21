@@ -160,7 +160,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 $"ОТКРЫТИЕ — {item.DisplayName}   " +
-                $"+{credits} КР   +{rep} REP   " +
+                $"+{credits} КР   +{rep} РЕП   " +
                 $"{FoundCount}/{DiscoveryCount}";
 
             messageTimer = MessageSeconds;

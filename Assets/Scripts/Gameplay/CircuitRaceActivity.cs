@@ -13,17 +13,17 @@ namespace MotorCity.Gameplay
         private const string BestLapKey =
             "MotorCity.Circuit.BestLap";
 
-        [Header("Race")]
+        [Header("Гонка")]
         [SerializeField] private int lapCount = 2;
         [SerializeField] private int baseRewardCredits = 800;
         [SerializeField] private int maximumTimeBonusCredits = 700;
 
-        [Header("Time tiers")]
+        [Header("Пороги времени")]
         [SerializeField] private float goldTimeSeconds = 105f;
         [SerializeField] private float silverTimeSeconds = 130f;
         [SerializeField] private float bronzeTimeSeconds = 160f;
 
-        [Header("Start")]
+        [Header("Старт")]
         [SerializeField] private float startRadius = 14f;
         [SerializeField] private float checkpointRadius = 14f;
         [SerializeField] private float maxStartSpeedKph = 8f;
