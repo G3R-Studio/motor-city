@@ -158,13 +158,13 @@ Core fantasy:
 
 ### Basic customization
 - [x] Body colors.
-- [ ] Stickers.
-- [ ] Simple vinyls.
-- [ ] Wheels.
-- [ ] Neon.
-- [ ] Plates.
-- [ ] Cosmetic presets.
-- [ ] Photo button.
+- [x] Stickers.
+- [x] Simple vinyls.
+- [x] Wheels.
+- [x] Neon.
+- [x] Plates.
+- [x] Cosmetic presets.
+- [x] Photo button.
 
 ### Photo hunt
 - [ ] City album.

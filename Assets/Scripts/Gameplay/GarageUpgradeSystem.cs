@@ -176,6 +176,77 @@ namespace MotorCity.Gameplay
                     customization.GarageLine;
             }
 
+            if (MotorCityInput.CycleStickerPressed &&
+                customization != null)
+            {
+                customization.CycleSticker();
+                StatusText =
+                    customization.GarageLine;
+            }
+
+            if (MotorCityInput.CycleVinylPressed &&
+                customization != null)
+            {
+                customization.CycleVinyl();
+                StatusText =
+                    customization.GarageLine;
+            }
+
+            if (MotorCityInput.CycleWheelsPressed &&
+                customization != null)
+            {
+                customization.CycleWheelStyle();
+                StatusText =
+                    customization.GarageLine;
+            }
+
+            if (MotorCityInput.CycleNeonPressed &&
+                customization != null)
+            {
+                customization.CycleNeon();
+                StatusText =
+                    customization.GarageLine;
+            }
+
+            if (MotorCityInput.CyclePlatePressed &&
+                customization != null)
+            {
+                customization.CyclePlate();
+                StatusText =
+                    customization.GarageLine;
+            }
+
+            if (MotorCityInput.SaveCustomizationPresetPressed &&
+                customization != null)
+            {
+                customization.SavePreset(0);
+                StatusText =
+                    MotorCityLocalization.Text(
+                        "customization.preset_saved");
+            }
+
+            if (MotorCityInput.LoadCustomizationPresetPressed &&
+                customization != null)
+            {
+                bool loaded =
+                    customization.LoadPreset(0);
+
+                StatusText =
+                    MotorCityLocalization.Text(
+                        loaded
+                            ? "customization.preset_loaded"
+                            : "customization.preset_empty");
+            }
+
+            if (MotorCityInput.TakePhotoPressed &&
+                customization != null)
+            {
+                customization.CapturePhoto();
+                StatusText =
+                    MotorCityLocalization.Text(
+                        "customization.photo_taken");
+            }
+
             if (MotorCityInput.CancelPressed)
                 CloseGarage();
         }

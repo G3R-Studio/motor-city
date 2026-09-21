@@ -24,16 +24,24 @@ namespace MotorCity.Input
         Handbrake = 16,
         BuyVehicle = 17,
         CyclePetSkin = 18,
-        CycleBodyColor = 19
+        CycleBodyColor = 19,
+        CycleSticker = 20,
+        CycleVinyl = 21,
+        CycleWheels = 22,
+        CycleNeon = 23,
+        CyclePlate = 24,
+        SaveCustomizationPreset = 25,
+        LoadCustomizationPreset = 26,
+        TakePhoto = 27
     }
 
     public static class MotorCityInput
     {
         private static readonly bool[] VirtualHeld =
-            new bool[20];
+            new bool[28];
 
         private static readonly int[] VirtualPressedFrame =
-            new int[20];
+            new int[28];
 
         static MotorCityInput()
         {
@@ -127,6 +135,38 @@ namespace MotorCity.Input
                 Key.V) ||
             VirtualPressed(
                 MotorCityInputAction.CycleBodyColor);
+
+        public static bool CycleStickerPressed =>
+            KeyPressed(Key.G) ||
+            VirtualPressed(MotorCityInputAction.CycleSticker);
+
+        public static bool CycleVinylPressed =>
+            KeyPressed(Key.H) ||
+            VirtualPressed(MotorCityInputAction.CycleVinyl);
+
+        public static bool CycleWheelsPressed =>
+            KeyPressed(Key.J) ||
+            VirtualPressed(MotorCityInputAction.CycleWheels);
+
+        public static bool CycleNeonPressed =>
+            KeyPressed(Key.N) ||
+            VirtualPressed(MotorCityInputAction.CycleNeon);
+
+        public static bool CyclePlatePressed =>
+            KeyPressed(Key.L) ||
+            VirtualPressed(MotorCityInputAction.CyclePlate);
+
+        public static bool SaveCustomizationPresetPressed =>
+            KeyPressed(Key.F5) ||
+            VirtualPressed(MotorCityInputAction.SaveCustomizationPreset);
+
+        public static bool LoadCustomizationPresetPressed =>
+            KeyPressed(Key.F6) ||
+            VirtualPressed(MotorCityInputAction.LoadCustomizationPreset);
+
+        public static bool TakePhotoPressed =>
+            KeyPressed(Key.P) ||
+            VirtualPressed(MotorCityInputAction.TakePhoto);
 
         public static bool CycleDriveModePressed =>
             KeyPressed(
