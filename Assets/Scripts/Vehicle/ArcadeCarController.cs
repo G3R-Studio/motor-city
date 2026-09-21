@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
+using MotorCity.Input;
 using MotorCity.Localization;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace MotorCity.Vehicle
 {
@@ -235,25 +235,12 @@ namespace MotorCity.Vehicle
 
         private void Update()
         {
-            Keyboard modeKeyboard =
-                Keyboard.current;
-
             bool conflictingControlPressed =
-                modeKeyboard != null &&
-                (modeKeyboard.spaceKey.isPressed ||
-                 modeKeyboard.wKey.isPressed ||
-                 modeKeyboard.sKey.isPressed ||
-                 modeKeyboard.aKey.isPressed ||
-                 modeKeyboard.dKey.isPressed ||
-                 modeKeyboard.upArrowKey.isPressed ||
-                 modeKeyboard.downArrowKey.isPressed ||
-                 modeKeyboard.leftArrowKey.isPressed ||
-                 modeKeyboard.rightArrowKey.isPressed);
+                MotorCityInput.DrivingControlHeld;
 
             if (drivingEnabled &&
                 resetHoldTimer <= 0f &&
-                modeKeyboard != null &&
-                modeKeyboard.qKey.wasPressedThisFrame &&
+                MotorCityInput.CycleDriveModePressed &&
                 !conflictingControlPressed &&
                 SpeedKph <= 1f)
             {
@@ -702,53 +689,20 @@ namespace MotorCity.Vehicle
             if (drivingEnabled &&
                 resetHoldTimer <= 0f)
             {
-                Keyboard keyboard =
-                    Keyboard.current;
+                throttle =
+                    MotorCityInput.ThrottleHeld;
 
-                if (keyboard != null)
-                {
-                    throttle =
-                        keyboard.wKey.isPressed ||
-                        keyboard.upArrowKey.isPressed;
+                reverse =
+                    MotorCityInput.ReverseHeld;
 
-                    reverse =
-                        keyboard.sKey.isPressed ||
-                        keyboard.downArrowKey.isPressed;
+                left =
+                    MotorCityInput.SteerLeftHeld;
 
-                    left =
-                        keyboard.aKey.isPressed ||
-                        keyboard.leftArrowKey.isPressed;
+                right =
+                    MotorCityInput.SteerRightHeld;
 
-                    right =
-                        keyboard.dKey.isPressed ||
-                        keyboard.rightArrowKey.isPressed;
-
-                    handbrake =
-                        keyboard.spaceKey.isPressed;
-                }
-
-                Gamepad gamepad =
-                    Gamepad.current;
-
-                if (gamepad != null)
-                {
-                    throttle |=
-                        gamepad.rightTrigger.ReadValue() >
-                        0.12f;
-
-                    reverse |=
-                        gamepad.leftTrigger.ReadValue() >
-                        0.12f;
-
-                    float steer =
-                        gamepad.leftStick.x.ReadValue();
-
-                    left |= steer < -0.16f;
-                    right |= steer > 0.16f;
-
-                    handbrake |=
-                        gamepad.buttonSouth.isPressed;
-                }
+                handbrake =
+                    MotorCityInput.HandbrakeHeld;
             }
 
             throttleHeld = throttle;

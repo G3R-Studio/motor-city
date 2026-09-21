@@ -1,7 +1,7 @@
+using MotorCity.Input;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace MotorCity.Gameplay
 {
@@ -88,14 +88,7 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
-            Keyboard keyboard =
-                Keyboard.current;
-
-            if (keyboard == null)
-                return;
-
-            if (keyboard.f10Key.wasPressedThisFrame ||
-                keyboard.backquoteKey.wasPressedThisFrame)
+            if (MotorCityInput.AdminTogglePressed)
             {
                 visible = !visible;
             }
