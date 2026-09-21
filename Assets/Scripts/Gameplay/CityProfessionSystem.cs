@@ -17,6 +17,7 @@ namespace MotorCity.Gameplay
         private ArcadeCarController car;
         private PlayerWallet wallet;
         private ActivityManager activities;
+        private TurboPetSystem turbo;
         private ProfessionDefinition[] definitions;
 
         private ProfessionDefinition active;
@@ -89,7 +90,8 @@ namespace MotorCity.Gameplay
         public void Initialize(
             ArcadeCarController targetCar,
             PlayerWallet targetWallet,
-            ActivityManager activityManager)
+            ActivityManager activityManager,
+            TurboPetSystem turboSystem)
         {
             car =
                 targetCar;
@@ -97,6 +99,8 @@ namespace MotorCity.Gameplay
                 targetWallet;
             activities =
                 activityManager;
+            turbo =
+                turboSystem;
 
             TotalCompleted =
                 Mathf.Max(
@@ -346,6 +350,9 @@ namespace MotorCity.Gameplay
                 details,
                 reward,
                 true);
+
+            turbo?.RegisterCityJobCompletion(
+                active.Id);
 
             active = null;
             targetIndex = 0;
