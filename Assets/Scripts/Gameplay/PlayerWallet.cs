@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -8,6 +9,9 @@ namespace MotorCity.Gameplay
 
         public int Credits { get; private set; }
 
+        public event Action<int> CreditsEarned;
+        public event Action<int> CreditsSpent;
+
         private void Awake()
         {
             Credits = Mathf.Max(0, MotorCity.Persistence.MotorCitySaveService.GetInt(CreditsKey, 0));
@@ -17,6 +21,7 @@ namespace MotorCity.Gameplay
         {
             if (amount <= 0) return;
             Credits += amount;
+            CreditsEarned?.Invoke(amount);
             Save();
         }
 
@@ -24,6 +29,7 @@ namespace MotorCity.Gameplay
         {
             if (amount <= 0 || Credits < amount) return false;
             Credits -= amount;
+            CreditsSpent?.Invoke(amount);
             Save();
             return true;
         }
