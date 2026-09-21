@@ -41,6 +41,7 @@ namespace MotorCity.UI
         private PhotoHuntSystem photoHunt;
         private CityProfessionSystem professions;
         private CarWashJobSystem carWash;
+        private TowTruckJobSystem towTruck;
         private ClubSystem club;
         private WeekendEventSystem weekendEvents;
         private RewardedBonusSystem rewardedBonus;
@@ -172,6 +173,7 @@ namespace MotorCity.UI
             PhotoHuntSystem photoHuntSystem,
             CityProfessionSystem professionSystem,
             CarWashJobSystem carWashSystem,
+            TowTruckJobSystem towTruckSystem,
             ClubSystem clubSystem,
             WeekendEventSystem weekendEventSystem,
             RewardedBonusSystem rewardedBonusSystem,
@@ -208,6 +210,7 @@ namespace MotorCity.UI
             photoHunt = photoHuntSystem;
             professions = professionSystem;
             carWash = carWashSystem;
+            towTruck = towTruckSystem;
             club = clubSystem;
             weekendEvents = weekendEventSystem;
             rewardedBonus = rewardedBonusSystem;
@@ -1337,6 +1340,19 @@ namespace MotorCity.UI
                 return;
             }
 
+            if (towTruck != null &&
+                towTruck.IsActive)
+            {
+                target =
+                    towTruck.CurrentTarget;
+
+                label =
+                    MotorCityLocalization.Text(
+                        "tow.title");
+
+                return;
+            }
+
             if (carWash != null &&
                 carWash.IsActive)
             {
@@ -1535,6 +1551,18 @@ namespace MotorCity.UI
                         ref label,
                         ref bestDistance);
                 }
+            }
+
+            if (towTruck != null)
+            {
+                ConsiderNavigationTarget(
+                    towTruck.StartPoint,
+                    MotorCityLocalization.Text(
+                        "tow.title"),
+                    true,
+                    ref target,
+                    ref label,
+                    ref bestDistance);
             }
 
             if (carWash != null)
@@ -2877,6 +2905,8 @@ namespace MotorCity.UI
                         underground?.StatusText,
                     "profession_carwash" =>
                         carWash?.StatusText,
+                    "profession_tow" =>
+                        towTruck?.StatusText,
                     _ =>
                         activityManager.ActiveId != null &&
                         activityManager.ActiveId.StartsWith(
@@ -2884,6 +2914,13 @@ namespace MotorCity.UI
                             ? professions?.StatusText
                             : activityManager.ActiveName
                 };
+            }
+
+            if (towTruck != null &&
+                towTruck.IsNearStart)
+            {
+                return
+                    towTruck.StatusText;
             }
 
             if (carWash != null &&

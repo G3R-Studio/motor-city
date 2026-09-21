@@ -364,6 +364,15 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 professions);
 
+            TowTruckJobSystem towTruck =
+                systems.AddComponent<TowTruckJobSystem>();
+
+            towTruck.Initialize(
+                car,
+                wallet,
+                activityManager,
+                professions);
+
             ClubSystem club =
                 systems.AddComponent<ClubSystem>();
 
@@ -463,6 +472,7 @@ namespace MotorCity.Bootstrap
             CreateUndergroundMarker(underground);
             CreateProfessionMarkers(professions);
             CreateCarWashMarker(carWash);
+            CreateTowTruckMarker(towTruck);
 
             CreateCamera(car.transform);
             CreateHud(
@@ -496,6 +506,7 @@ namespace MotorCity.Bootstrap
                 photoHunt,
                 professions,
                 carWash,
+                towTruck,
                 club,
                 weekendEvents,
                 rewardedBonus,
@@ -934,6 +945,59 @@ namespace MotorCity.Bootstrap
                 new Vector3(
                     0f,
                     2.4f,
+                    0f),
+                material,
+                false);
+        }
+
+        private static void CreateTowTruckMarker(
+            TowTruckJobSystem towTruck)
+        {
+            if (towTruck == null)
+                return;
+
+            Material material =
+                Material(
+                    new Color(
+                        1f,
+                        0.62f,
+                        0.08f),
+                    0.04f,
+                    0.62f);
+
+            GameObject root =
+                new(
+                    "Profession Tow Service");
+
+            root.transform.position =
+                towTruck.StartPoint;
+
+            Primitive(
+                "Tow Service Base",
+                PrimitiveType.Cylinder,
+                root.transform,
+                new Vector3(
+                    2.4f,
+                    0.06f,
+                    2.4f),
+                new Vector3(
+                    0f,
+                    0.08f,
+                    0f),
+                material,
+                false);
+
+            Primitive(
+                "Tow Service Beacon",
+                PrimitiveType.Cube,
+                root.transform,
+                new Vector3(
+                    0.22f,
+                    2.2f,
+                    0.22f),
+                new Vector3(
+                    0f,
+                    2.2f,
                     0f),
                 material,
                 false);
@@ -1509,6 +1573,7 @@ namespace MotorCity.Bootstrap
             PhotoHuntSystem photoHunt,
             CityProfessionSystem professions,
             CarWashJobSystem carWash,
+            TowTruckJobSystem towTruck,
             ClubSystem club,
             WeekendEventSystem weekendEvents,
             RewardedBonusSystem rewardedBonus,
@@ -1548,6 +1613,7 @@ namespace MotorCity.Bootstrap
                 photoHunt,
                 professions,
                 carWash,
+                towTruck,
                 club,
                 weekendEvents,
                 rewardedBonus,

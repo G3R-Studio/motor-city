@@ -182,7 +182,7 @@ Core fantasy:
 - [x] Mail.
 - [x] Ice cream route.
 - [x] Car wash mini-game.
-- [ ] Tow-truck profession after suitable vehicle exists. BLOCKED: no suitable tow/truck vehicle asset is tracked in main.
+- [x] Tow-truck / roadside-assistance profession with lightweight runtime service rig.
 - [x] Vehicle passport/history screen.
 - [x] Better contract mini-stories.
 - [x] Profession progression without adding extra currencies.
