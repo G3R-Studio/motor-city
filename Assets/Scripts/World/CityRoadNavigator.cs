@@ -152,7 +152,8 @@ namespace MotorCity.World
                             startNode,
                             endNode,
                             Nodes,
-                            Edges);
+                            Edges,
+                            out float graphPathCost);
 
                     if (path == null ||
                         path.Count == 0)
@@ -164,8 +165,7 @@ namespace MotorCity.World
                         FlatDistance(
                             start.Position,
                             Nodes[startNode]) +
-                        PathCost(
-                            path) +
+                        graphPathCost +
                         FlatDistance(
                             Nodes[endNode],
                             end.Position);
@@ -182,25 +182,6 @@ namespace MotorCity.World
             }
 
             return best;
-        }
-
-        private static float PathCost(
-            List<int> path)
-        {
-            float cost =
-                0f;
-
-            for (int i = 1;
-                 i < path.Count;
-                 i++)
-            {
-                cost +=
-                    FlatDistance(
-                        Nodes[path[i - 1]],
-                        Nodes[path[i]]);
-            }
-
-            return cost;
         }
 
         private static RoadProjection FindNearestRoadProjection(
@@ -908,10 +889,14 @@ namespace MotorCity.World
             int start,
             int end,
             List<Vector3> nodes,
-            List<Edge> edges)
+            List<Edge> edges,
+            out float pathCost)
         {
             if (start == end)
             {
+                pathCost =
+                    0f;
+
                 return new List<int>
                 {
                     start
@@ -1024,8 +1009,14 @@ namespace MotorCity.World
             if (previous[end] <
                 0)
             {
+                pathCost =
+                    float.PositiveInfinity;
+
                 return new List<int>();
             }
+
+            pathCost =
+                distance[end];
 
             List<int> path =
                 new();
