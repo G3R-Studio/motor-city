@@ -80,6 +80,7 @@ namespace MotorCity.UI
         private RawImage minimapImage;
         private RectTransform minimapTargetBlip;
         private RectTransform minimapPlayerArrow;
+        private RectTransform minimapViewportRect;
         private Text minimapTargetText;
         private readonly RectTransform[] minimapRouteDots =
             new RectTransform[36];
@@ -944,7 +945,11 @@ namespace MotorCity.UI
             HideRouteDots();
 
             if (!showRoadRoute ||
-                minimapRouteDots.Length == 0)
+                minimapRouteDots.Length == 0 ||
+                schematicMap == null ||
+                !schematicMap.IsValid ||
+                minimapImage == null ||
+                minimapViewportRect == null)
             {
                 return;
             }
@@ -960,23 +965,18 @@ namespace MotorCity.UI
                 return;
             }
 
-            const float markerRadius =
-                74f;
+            const float visibleRadius =
+                76f;
 
-            float mapScale =
-                78f /
-                worldRadius;
+            const float spacingMeters =
+                8f;
 
             int placed =
                 0;
 
-            bool reachedEdge =
-                false;
-
             for (int segment = 0;
                  segment < route.Count - 1 &&
-                 placed < minimapRouteDots.Length &&
-                 !reachedEdge;
+                 placed < minimapRouteDots.Length;
                  segment++)
             {
                 Vector3 a =
@@ -995,9 +995,9 @@ namespace MotorCity.UI
                         1,
                         Mathf.CeilToInt(
                             length /
-                            18f));
+                            spacingMeters));
 
-                for (int step = 1;
+                for (int step = 0;
                      step <= steps &&
                      placed < minimapRouteDots.Length;
                      step++)
@@ -1009,37 +1009,18 @@ namespace MotorCity.UI
                             step /
                             (float)steps);
 
-                    Vector3 delta =
-                        point -
-                        carPosition;
-
-                    delta.y =
-                        0f;
-
-                    Vector3 local =
-                        Quaternion.Euler(
-                            0f,
-                            -yaw,
-                            0f) *
-                        delta;
-
-                    Vector2 offset =
-                        new(
-                            local.x *
-                            mapScale,
-                            local.z *
-                            mapScale);
+                    if (!TryWorldToMinimapOffset(
+                            point,
+                            out Vector2 offset))
+                    {
+                        continue;
+                    }
 
                     if (offset.sqrMagnitude >
-                        markerRadius *
-                        markerRadius)
+                        visibleRadius *
+                        visibleRadius)
                     {
-                        offset =
-                            offset.normalized *
-                            markerRadius;
-
-                        reachedEdge =
-                            true;
+                        continue;
                     }
 
                     RectTransform dot =
@@ -1051,11 +1032,80 @@ namespace MotorCity.UI
 
                     dot.anchoredPosition =
                         offset;
-
-                    if (reachedEdge)
-                        break;
                 }
             }
+        }
+
+        private bool TryWorldToMinimapOffset(
+            Vector3 worldPosition,
+            out Vector2 offset)
+        {
+            offset =
+                Vector2.zero;
+
+            if (schematicMap == null ||
+                !schematicMap.IsValid ||
+                minimapImage == null ||
+                minimapViewportRect == null)
+            {
+                return false;
+            }
+
+            Rect uvRect =
+                minimapImage.uvRect;
+
+            if (uvRect.width <=
+                    0.00001f ||
+                uvRect.height <=
+                    0.00001f)
+            {
+                return false;
+            }
+
+            Vector2 uv =
+                schematicMap.WorldToUv(
+                    worldPosition);
+
+            float normalizedX =
+                (uv.x - uvRect.x) /
+                uvRect.width;
+
+            float normalizedY =
+                (uv.y - uvRect.y) /
+                uvRect.height;
+
+            RectTransform mapRect =
+                minimapImage.rectTransform;
+
+            Rect mapBounds =
+                mapRect.rect;
+
+            Vector3 mapLocal =
+                new(
+                    Mathf.Lerp(
+                        mapBounds.xMin,
+                        mapBounds.xMax,
+                        normalizedX),
+                    Mathf.Lerp(
+                        mapBounds.yMin,
+                        mapBounds.yMax,
+                        normalizedY),
+                    0f);
+
+            Vector3 world =
+                mapRect.TransformPoint(
+                    mapLocal);
+
+            Vector3 viewportLocal =
+                minimapViewportRect.InverseTransformPoint(
+                    world);
+
+            offset =
+                new Vector2(
+                    viewportLocal.x,
+                    viewportLocal.y);
+
+            return true;
         }
 
         private void HideRouteDots()
@@ -1721,6 +1771,9 @@ namespace MotorCity.UI
 
             RectTransform viewportRect =
                 viewportObject.GetComponent<RectTransform>();
+
+            minimapViewportRect =
+                viewportRect;
 
             viewportRect.anchorMin =
                 new Vector2(0.5f, 1f);
