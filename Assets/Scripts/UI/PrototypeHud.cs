@@ -110,7 +110,9 @@ namespace MotorCity.UI
         private bool cachedMinimapShowRoadRoute;
         private int lastMinimapDistance = int.MinValue;
         private string lastMinimapDistanceLabel = string.Empty;
+        private float minimapRouteUpdateTimer;
         private const float MinimapTargetResolveInterval = 0.10f;
+        private const float MinimapRouteUpdateInterval = 0.05f;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -1123,6 +1125,9 @@ namespace MotorCity.UI
             if (!showRoadRoute ||
                 minimapRouteDots.Length == 0)
             {
+                minimapRouteUpdateTimer =
+                    0f;
+
                 HideRouteDots();
                 ClearFixedRoadRoute();
                 return;
@@ -2789,12 +2794,21 @@ namespace MotorCity.UI
                     markerRadius;
             }
 
-            UpdateRoadRoute(
-                carPosition,
-                target,
-                yaw,
-                worldRadius,
-                showRoadRoute);
+            minimapRouteUpdateTimer -=
+                Time.unscaledDeltaTime;
+
+            if (minimapRouteUpdateTimer <= 0f)
+            {
+                minimapRouteUpdateTimer =
+                    MinimapRouteUpdateInterval;
+
+                UpdateRoadRoute(
+                    carPosition,
+                    target,
+                    yaw,
+                    worldRadius,
+                    showRoadRoute);
+            }
 
             if (minimapTargetBlip != null)
             {
