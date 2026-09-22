@@ -498,6 +498,11 @@ namespace MotorCity.Localization
             { "touch.drive.action", E("ДЕЙСТВИЕ", "ACTION") },
             { "touch.drive.handbrake", E("РУЧНИК", "HANDBRAKE") },
             { "touch.drive.rescue", E("СПАСТИ", "RESCUE") },
+            { "touch.drive.throttle", E("ГАЗ", "GAS") },
+            { "touch.drive.brake", E("ТОРМ / НАЗАД", "BRAKE / REV") },
+            { "touch.drive.handbrake_short", E("РУЧНИК", "HANDBRAKE") },
+            { "touch.drive.action_short", E("ДЕЙСТВИЕ", "ACTION") },
+            { "touch.drive.rescue_short", E("СПАСТИ", "RESCUE") },
 
                 { "daily.title", E("ЕЖЕДНЕВНЫЕ ПРИКЛЮЧЕНИЯ", "DAILY ADVENTURES") },
                 { "daily.any", E("ПРИКЛЮЧЕНИЕ • Выполни активности: {0}/{1}", "ADVENTURE • Complete activities: {0}/{1}") },
