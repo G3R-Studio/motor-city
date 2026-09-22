@@ -178,13 +178,12 @@ namespace MotorCity.Gameplay
 
             if (armedJump != null)
             {
-                float distance =
-                    Vector3.Distance(
-                        carPosition,
-                        Flat(armedJump.Position));
+                Vector3 armedDelta =
+                    carPosition -
+                    Flat(armedJump.Position);
 
-                if (distance >
-                    DisarmRadius)
+                if (armedDelta.sqrMagnitude >
+                    DisarmRadius * DisarmRadius)
                 {
                     armedJump = null;
                     return;
@@ -216,13 +215,12 @@ namespace MotorCity.Gameplay
             {
                 Jump jump = jumps[i];
 
-                float distance =
-                    Vector3.Distance(
-                        carPosition,
-                        Flat(jump.Position));
+                Vector3 jumpDelta =
+                    carPosition -
+                    Flat(jump.Position);
 
-                if (distance >
-                    ArmRadius)
+                if (jumpDelta.sqrMagnitude >
+                    ArmRadius * ArmRadius)
                     continue;
 
                 Vector3 forward =
