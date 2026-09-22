@@ -1817,15 +1817,19 @@ namespace MotorCity.World
 
             if (renderers.Length == 0)
             {
+                // Safe fallback for the current authored main district.
+                // Do not retain the obsolete remote/highway bounds from older
+                // city generations, otherwise invalid legacy coordinates can
+                // be treated as playable.
                 return new Bounds(
                     new Vector3(
                         0f,
                         80f,
-                        -766f),
+                        175f),
                     new Vector3(
-                        1532f,
+                        1200f,
                         170f,
-                        2764f));
+                        900f));
             }
 
             Bounds bounds =
