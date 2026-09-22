@@ -411,6 +411,64 @@ namespace MotorCity.Gameplay
             elapsed = 0f;
         }
 
+        public void RestartFromResult()
+        {
+            if (activities == null ||
+                !activities.HasResult ||
+                car == null ||
+                definitions == null)
+            {
+                return;
+            }
+
+            string resultId =
+                activities.ResultActivityId;
+
+            ProfessionDefinition definition =
+                null;
+
+            foreach (ProfessionDefinition candidate in
+                     definitions)
+            {
+                if (ActivityId(
+                        candidate.Id) ==
+                    resultId)
+                {
+                    definition =
+                        candidate;
+                    break;
+                }
+            }
+
+            if (definition == null)
+                return;
+
+            activities.DismissResult();
+
+            active =
+                null;
+
+            targetIndex =
+                0;
+
+            elapsed =
+                0f;
+
+            car.SetDrivingEnabled(
+                true);
+
+            car.TeleportTo(
+                definition.Start +
+                Vector3.up * 1.1f,
+                Quaternion.Euler(
+                    0f,
+                    car.transform.eulerAngles.y,
+                    0f));
+
+            StartProfession(
+                definition);
+        }
+
         public void CancelActive()
         {
             if (active == null)
