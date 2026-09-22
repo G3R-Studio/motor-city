@@ -655,7 +655,22 @@ namespace MotorCity.UI
                         MotorCityLocalization.Text(
                             "store.title") +
                         " • " +
-                        cosmeticStore.SelectedName,
+                        cosmeticStore.SelectedName +
+                        "   •   " +
+                        MotorCityLocalization.Format(
+                            "common.credits",
+                            wallet != null
+                                ? wallet.Credits
+                                : 0) +
+                        "   •   " +
+                        MotorCityLocalization.Format(
+                            "hud.rep",
+                            activityManager != null
+                                ? activityManager.TotalReputation
+                                : 0,
+                            activityManager != null
+                                ? activityManager.ReputationLevel
+                                : 1),
                         cosmeticStore.SelectedDescription,
                         cosmeticStore.SeasonPathLine +
                         " • " +
@@ -4797,7 +4812,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(28f, -28f),
-                    new Vector2(390f, 42f),
+                    new Vector2(300f, 42f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     TextColor);
@@ -4813,7 +4828,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
                     new Vector2(-28f, -28f),
-                    new Vector2(250f, 42f),
+                    new Vector2(410f, 42f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
@@ -5371,7 +5386,18 @@ namespace MotorCity.UI
             }
 
             garageMoneyText.text =
-                MotorCityLocalization.Format("common.credits", garage.Credits);
+                MotorCityLocalization.Format(
+                    "common.credits",
+                    garage.Credits) +
+                "   •   " +
+                MotorCityLocalization.Format(
+                    "hud.rep",
+                    activityManager != null
+                        ? activityManager.TotalReputation
+                        : 0,
+                    activityManager != null
+                        ? activityManager.ReputationLevel
+                        : 1);
 
             if (garageVehicleText != null)
             {
