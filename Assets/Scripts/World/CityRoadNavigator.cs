@@ -627,6 +627,30 @@ namespace MotorCity.World
             return null;
         }
 
+        private static int FindOrAddNode(
+            Vector3 point,
+            List<Vector3> nodes)
+        {
+            for (int i = 0;
+                 i < nodes.Count;
+                 i++)
+            {
+                if (FlatDistance(
+                        point,
+                        nodes[i]) <=
+                    MergeDistance)
+                {
+                    return i;
+                }
+            }
+
+            nodes.Add(
+                point);
+
+            return
+                nodes.Count - 1;
+        }
+
         private static void AddEdge(
             int a,
             int b,
