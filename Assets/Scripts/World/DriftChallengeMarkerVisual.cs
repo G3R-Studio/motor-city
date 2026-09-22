@@ -40,7 +40,8 @@ namespace MotorCity.World
                     1f,
                     0.48f,
                     0.06f),
-                false);
+                false,
+                CheckpointBeaconStyle.Drift);
         }
 
         private void CacheVisuals()
