@@ -26,6 +26,13 @@ namespace MotorCity.World
         private Material baseMaterial;
         private Material arrowMaterial;
         private bool initialized;
+        private bool requestedVisible = true;
+        private Transform observer;
+        private float observerResolveTimer;
+
+        private const float FullScaleDistance = 70f;
+        private const float FarScaleDistance = 280f;
+        private const float MaximumVisibleDistance = 420f;
 
         public void Initialize(
             Color color,
@@ -190,10 +197,66 @@ namespace MotorCity.World
 
         private void Update()
         {
-            if (emblemRoot == null ||
-                !emblemRoot.gameObject.activeInHierarchy)
+            ResolveObserver();
+
+            bool distanceVisible =
+                true;
+
+            float distance =
+                0f;
+
+            if (observer != null)
+            {
+                distance =
+                    Vector3.Distance(
+                        observer.position,
+                        transform.position);
+
+                distanceVisible =
+                    distance <=
+                    MaximumVisibleDistance;
+            }
+
+            bool shouldShow =
+                requestedVisible &&
+                distanceVisible;
+
+            if (visualRoot != null &&
+                visualRoot.gameObject.activeSelf !=
+                    shouldShow)
+            {
+                visualRoot.gameObject.SetActive(
+                    shouldShow);
+            }
+
+            if (!shouldShow ||
+                emblemRoot == null)
             {
                 return;
+            }
+
+            if (observer != null)
+            {
+                float farT =
+                    Mathf.InverseLerp(
+                        FullScaleDistance,
+                        FarScaleDistance,
+                        distance);
+
+                float scale =
+                    Mathf.Lerp(
+                        1.08f,
+                        0.68f,
+                        farT);
+
+                visualRoot.localScale =
+                    Vector3.one *
+                    scale;
+            }
+            else
+            {
+                visualRoot.localScale =
+                    Vector3.one;
             }
 
             float bob =
@@ -218,6 +281,42 @@ namespace MotorCity.World
                 Time.unscaledDeltaTime,
                 0f,
                 Space.Self);
+        }
+
+        private void ResolveObserver()
+        {
+            if (observer != null)
+                return;
+
+            observerResolveTimer -=
+                Time.unscaledDeltaTime;
+
+            if (observerResolveTimer > 0f)
+                return;
+
+            observerResolveTimer =
+                1f;
+
+            MotorCity.Vehicle.ArcadeCarController car =
+                Object.FindAnyObjectByType<
+                    MotorCity.Vehicle.ArcadeCarController>();
+
+            if (car != null)
+            {
+                observer =
+                    car.transform;
+
+                return;
+            }
+
+            Camera mainCamera =
+                Camera.main;
+
+            if (mainCamera != null)
+            {
+                observer =
+                    mainCamera.transform;
+            }
         }
 
         private void CreateEmblem(
@@ -572,12 +671,15 @@ namespace MotorCity.World
         public void SetVisible(
             bool visible)
         {
-            if (visualRoot != null &&
-                visualRoot.gameObject.activeSelf !=
-                    visible)
+            requestedVisible =
+                visible;
+
+            if (!visible &&
+                visualRoot != null &&
+                visualRoot.gameObject.activeSelf)
             {
                 visualRoot.gameObject.SetActive(
-                    visible);
+                    false);
             }
         }
 
