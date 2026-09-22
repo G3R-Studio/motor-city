@@ -480,14 +480,17 @@ namespace MotorCity.World
                             continue;
                         }
 
-                        float radius =
-                            Mathf.Sqrt(
-                                x * x +
-                                y * y);
+                        int radiusSquared =
+                            x * x +
+                            y * y;
+
+                        int edgeRadius =
+                            roadHalfWidth - 1;
 
                         pixels[row + px] =
-                            radius >=
-                                roadHalfWidth - 1
+                            radiusSquared >=
+                                edgeRadius *
+                                edgeRadius
                                 ? RoadEdge
                                 : Road;
                     }
