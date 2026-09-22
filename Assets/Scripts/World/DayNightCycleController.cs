@@ -29,9 +29,6 @@ namespace MotorCity.World
         private readonly List<Light> streetLights =
             new();
 
-        private readonly Dictionary<Material, Material> lampEmissionMaterials =
-            new();
-
         private DayNightSettings settings;
         private Light directionalLight;
         private Light moonLight;
@@ -153,17 +150,6 @@ namespace MotorCity.World
                 Destroy(
                     runtimeNightSkybox);
 
-            foreach (Material material in
-                     lampEmissionMaterials.Values)
-            {
-                if (material != null)
-                {
-                    Destroy(
-                        material);
-                }
-            }
-
-            lampEmissionMaterials.Clear();
         }
 
         private void CreateMoonLight()
@@ -566,170 +552,6 @@ namespace MotorCity.World
             }
         }
 
-        private void PrepareLampEmission(
-            GameObject cityRoot)
-        {
-            if (cityRoot == null)
-                return;
-
-            foreach (Transform lampRoot in
-                     cityRoot.GetComponentsInChildren<Transform>(true))
-            {
-                if (lampRoot == null ||
-                    !IsLampRoot(
-                        lampRoot))
-                {
-                    continue;
-                }
-
-                foreach (Renderer renderer in
-                         lampRoot.GetComponentsInChildren<Renderer>(true))
-                {
-                    if (renderer == null ||
-                        !LooksLikeLampBulb(
-                            renderer))
-                    {
-                        continue;
-                    }
-
-                    Material[] materials =
-                        renderer.sharedMaterials;
-
-                    bool changed =
-                        false;
-
-                    for (int i = 0;
-                         i < materials.Length;
-                         i++)
-                    {
-                        Material source =
-                            materials[i];
-
-                        if (source == null)
-                            continue;
-
-                        if (!lampEmissionMaterials.TryGetValue(
-                                source,
-                                out Material runtime))
-                        {
-                            runtime =
-                                new Material(
-                                    source)
-                                {
-                                    name =
-                                        source.name +
-                                        "_MotorCityLampEmission"
-                                };
-
-                            if (runtime.HasProperty(
-                                    "_EmissionColor"))
-                            {
-                                runtime.EnableKeyword(
-                                    "_EMISSION");
-                            }
-
-                            lampEmissionMaterials.Add(
-                                source,
-                                runtime);
-                        }
-
-                        materials[i] =
-                            runtime;
-
-                        changed =
-                            true;
-                    }
-
-                    if (changed)
-                    {
-                        renderer.sharedMaterials =
-                            materials;
-                    }
-                }
-            }
-
-            ApplyLampEmission();
-        }
-
-        private void ApplyLampEmission()
-        {
-            float amount =
-                Mathf.SmoothStep(
-                    0f,
-                    1f,
-                    Mathf.InverseLerp(
-                        0.30f,
-                        0.68f,
-                        NightAmount));
-
-            Color emission =
-                new Color(
-                    4.2f,
-                    2.15f,
-                    0.75f,
-                    1f) *
-                amount;
-
-            foreach (Material material in
-                     lampEmissionMaterials.Values)
-            {
-                if (material == null ||
-                    !material.HasProperty(
-                        "_EmissionColor"))
-                {
-                    continue;
-                }
-
-                material.SetColor(
-                    "_EmissionColor",
-                    emission);
-            }
-        }
-
-        private static bool LooksLikeLampBulb(
-            Renderer renderer)
-        {
-            if (renderer == null)
-                return false;
-
-            string rendererName =
-                NormalizeName(
-                    renderer.name);
-
-            if (rendererName.Contains(
-                    "lightv") ||
-                rendererName.Contains(
-                    "bulb") ||
-                rendererName.Contains(
-                    "lampglow"))
-            {
-                return true;
-            }
-
-            foreach (Material material in
-                     renderer.sharedMaterials)
-            {
-                if (material == null)
-                    continue;
-
-                string materialName =
-                    NormalizeName(
-                        material.name);
-
-                if (materialName.Contains(
-                        "lightv") ||
-                    materialName.Contains(
-                        "bulb") ||
-                    materialName.Contains(
-                        "lampglow"))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private void RefreshStreetLights()
         {
             streetLights.Clear();
@@ -744,11 +566,11 @@ namespace MotorCity.World
             if (cityRoot == null)
                 return;
 
-            var unique =
-                new HashSet<Light>();
-
             Transform[] transforms =
                 cityRoot.GetComponentsInChildren<Transform>(true);
+
+            var usedAnchors =
+                new HashSet<int>();
 
             foreach (Transform item in
                      transforms)
@@ -758,20 +580,25 @@ namespace MotorCity.World
                         item) ||
                     HasNamedLampDescendant(
                         item))
+                {
                     continue;
+                }
+
+                if (!usedAnchors.Add(
+                        item.GetInstanceID()))
+                {
+                    continue;
+                }
 
                 Light light =
-                    EnsureRuntimeLampLight(
-                        item);
+                    CreateRuntimeLampLight(
+                        item.position);
 
-                if (light == null)
-                    continue;
-
-                ConfigureLampLight(
-                    light);
-
-                unique.Add(
-                    light);
+                if (light != null)
+                {
+                    streetLights.Add(
+                        light);
+                }
             }
 
             foreach (Transform item in
@@ -781,27 +608,27 @@ namespace MotorCity.World
                     !IsLampRoot(item) ||
                     HasLampRootAncestor(item) ||
                     HasNamedLampDescendant(item))
+                {
                     continue;
+                }
+
+                if (!usedAnchors.Add(
+                        item.GetInstanceID()))
+                {
+                    continue;
+                }
 
                 Light light =
-                    EnsureFallbackLampLight(
-                        item);
+                    CreateRuntimeLampLight(
+                        ResolveLampWorldPosition(
+                            item));
 
-                if (light == null)
-                    continue;
-
-                ConfigureLampLight(
-                    light);
-
-                unique.Add(
-                    light);
+                if (light != null)
+                {
+                    streetLights.Add(
+                        light);
+                }
             }
-
-            PrepareLampEmission(
-                cityRoot);
-
-            streetLights.AddRange(
-                unique);
 
             ResolveLampObserver();
             ApplyStreetLights();
@@ -846,12 +673,6 @@ namespace MotorCity.World
                 bool shouldEnable =
                     NightAmount >= 0.38f &&
                     nearObserver;
-
-                if (shouldEnable)
-                {
-                    ActivateLightHierarchy(
-                        light.transform);
-                }
 
                 light.enabled =
                     shouldEnable;
@@ -900,143 +721,15 @@ namespace MotorCity.World
             }
         }
 
-        private static void ActivateLightHierarchy(
-            Transform lightTransform)
+        private Light CreateRuntimeLampLight(
+            Vector3 worldPosition)
         {
-            Transform current =
-                lightTransform;
-
-            while (current != null)
-            {
-                if (!current.gameObject.activeSelf)
-                {
-                    current.gameObject.SetActive(
-                        true);
-                }
-
-                if (IsLampRoot(
-                        current))
-                    return;
-
-                if (IsRuntimeCityRoot(
-                        current))
-                    return;
-
-                current =
-                    current.parent;
-            }
-        }
-
-        private Light EnsureRuntimeLampLight(
-            Transform anchor)
-        {
-            if (anchor == null)
-                return null;
-
-            Light runtimeLight =
-                null;
-
-            foreach (Light existing in
-                     anchor.GetComponentsInChildren<Light>(true))
-            {
-                if (existing == null ||
-                    existing.type ==
-                    LightType.Directional)
-                    continue;
-
-                if (string.Equals(
-                        existing.gameObject.name,
-                        "MotorCity_LampLight",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    runtimeLight =
-                        existing;
-
-                    continue;
-                }
-
-                existing.enabled =
-                    false;
-            }
-
-            if (runtimeLight != null)
-                return runtimeLight;
-
             GameObject lightObject =
                 new("MotorCity_LampLight");
 
             lightObject.transform.SetParent(
-                anchor,
+                transform,
                 false);
-
-            lightObject.transform.localPosition =
-                Vector3.zero;
-
-            runtimeLight =
-                lightObject.AddComponent<Light>();
-
-            autoCreatedStreetLights++;
-
-            return runtimeLight;
-        }
-
-        private Light EnsureFallbackLampLight(
-            Transform lampRoot)
-        {
-            if (lampRoot == null)
-                return null;
-
-            foreach (Light existing in
-                     lampRoot.GetComponentsInChildren<Light>(true))
-            {
-                if (existing == null ||
-                    existing.type ==
-                    LightType.Directional)
-                    continue;
-
-                if (string.Equals(
-                        existing.gameObject.name,
-                        "MotorCity_LampLight",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    return existing;
-                }
-            }
-
-            Renderer[] renderers =
-                lampRoot.GetComponentsInChildren<Renderer>(true);
-
-            if (renderers == null ||
-                renderers.Length == 0)
-                return null;
-
-            Bounds bounds =
-                renderers[0].bounds;
-
-            for (int i = 1;
-                 i < renderers.Length;
-                 i++)
-            {
-                Renderer renderer =
-                    renderers[i];
-
-                if (renderer != null)
-                    bounds.Encapsulate(
-                        renderer.bounds);
-            }
-
-            Vector3 worldPosition =
-                new(
-                    bounds.center.x,
-                    bounds.max.y - 0.08f,
-                    bounds.center.z);
-
-            GameObject lightObject =
-                new("MotorCity_LampLight");
-
-            lightObject.transform.SetParent(
-                lampRoot,
-                true);
 
             lightObject.transform.position =
                 worldPosition;
@@ -1044,9 +737,61 @@ namespace MotorCity.World
             Light runtimeLight =
                 lightObject.AddComponent<Light>();
 
+            ConfigureLampLight(
+                runtimeLight);
+
             autoCreatedStreetLights++;
 
             return runtimeLight;
+        }
+
+        private static Vector3 ResolveLampWorldPosition(
+            Transform lampRoot)
+        {
+            if (lampRoot == null)
+                return Vector3.zero;
+
+            Renderer[] renderers =
+                lampRoot.GetComponentsInChildren<Renderer>(true);
+
+            if (renderers == null ||
+                renderers.Length == 0)
+            {
+                return lampRoot.position;
+            }
+
+            bool hasBounds = false;
+            Bounds bounds =
+                default;
+
+            foreach (Renderer renderer in
+                     renderers)
+            {
+                if (renderer == null)
+                    continue;
+
+                if (!hasBounds)
+                {
+                    bounds =
+                        renderer.bounds;
+
+                    hasBounds = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(
+                        renderer.bounds);
+                }
+            }
+
+            if (!hasBounds)
+                return lampRoot.position;
+
+            return
+                new Vector3(
+                    bounds.center.x,
+                    bounds.max.y - 0.08f,
+                    bounds.center.z);
         }
 
         private static void ConfigureLampLight(
