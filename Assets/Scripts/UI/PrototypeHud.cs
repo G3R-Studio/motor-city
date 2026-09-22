@@ -62,6 +62,7 @@ namespace MotorCity.UI
         private Text hintText;
         private Text speedText;
         private Text speedUnitText;
+        private RectTransform speedNeedle;
         private Text statusText;
         private Text driftText;
         private Text navigatorArrowText;
@@ -382,6 +383,26 @@ namespace MotorCity.UI
             speedText.text =
                 Mathf.RoundToInt(speed)
                     .ToString("000");
+
+            if (speedNeedle != null)
+            {
+                float normalizedSpeed =
+                    Mathf.Clamp01(
+                        speed /
+                        240f);
+
+                float needleAngle =
+                    Mathf.Lerp(
+                        135f,
+                        -135f,
+                        normalizedSpeed);
+
+                speedNeedle.localRotation =
+                    Quaternion.Euler(
+                        0f,
+                        0f,
+                        needleAngle);
+            }
 
             bool resultOpen =
                 activityManager != null &&
@@ -1840,40 +1861,253 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Speedometer",
-                    new Vector2(-24f, 24f),
-                    new Vector2(196f, 82f),
-                    new Vector2(1f, 0f),
-                    new Vector2(1f, 0f),
+                    new Vector2(0f, 14f),
+                    new Vector2(250f, 184f),
+                    new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f),
                     new Color(
                         0.01f,
-                        0.015f,
-                        0.022f,
-                        0.54f));
+                        0.016f,
+                        0.026f,
+                        0.74f));
+
+            CreateAccent(
+                panel,
+                BlueAccent,
+                new Vector2(0f, 3f),
+                new Vector2(174f, 3f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f));
+
+            Vector2 gaugeCenter =
+                new(0f, 91f);
+
+            const float tickRadius = 67f;
+            const int tickCount = 13;
+
+            for (int i = 0;
+                 i < tickCount;
+                 i++)
+            {
+                float t =
+                    i /
+                    (float)(tickCount - 1);
+
+                float angle =
+                    Mathf.Lerp(
+                        -135f,
+                        135f,
+                        t);
+
+                float radians =
+                    angle *
+                    Mathf.Deg2Rad;
+
+                GameObject tickObject =
+                    new(
+                        "Speed Tick " + i,
+                        typeof(RectTransform),
+                        typeof(Image));
+
+                tickObject.transform.SetParent(
+                    panel,
+                    false);
+
+                RectTransform tick =
+                    tickObject.GetComponent<RectTransform>();
+
+                tick.anchorMin =
+                    new Vector2(0.5f, 0f);
+                tick.anchorMax =
+                    new Vector2(0.5f, 0f);
+                tick.pivot =
+                    new Vector2(0.5f, 0.5f);
+                tick.anchoredPosition =
+                    gaugeCenter +
+                    new Vector2(
+                        Mathf.Sin(radians) *
+                        tickRadius,
+                        Mathf.Cos(radians) *
+                        tickRadius);
+                tick.sizeDelta =
+                    new Vector2(
+                        i % 2 == 0
+                            ? 4f
+                            : 3f,
+                        i % 2 == 0
+                            ? 15f
+                            : 9f);
+                tick.localRotation =
+                    Quaternion.Euler(
+                        0f,
+                        0f,
+                        -angle);
+
+                Image tickImage =
+                    tickObject.GetComponent<Image>();
+
+                tickImage.color =
+                    i >= tickCount - 3
+                        ? new Color(
+                            1f,
+                            0.40f,
+                            0.16f,
+                            0.95f)
+                        : new Color(
+                            0.72f,
+                            0.82f,
+                            0.94f,
+                            0.82f);
+                tickImage.raycastTarget =
+                    false;
+            }
+
+            string[] dialLabels =
+            {
+                "0",
+                "40",
+                "80",
+                "120",
+                "160",
+                "200",
+                "240"
+            };
+
+            for (int i = 0;
+                 i < dialLabels.Length;
+                 i++)
+            {
+                float t =
+                    i /
+                    (float)(dialLabels.Length - 1);
+
+                float angle =
+                    Mathf.Lerp(
+                        -135f,
+                        135f,
+                        t);
+
+                float radians =
+                    angle *
+                    Mathf.Deg2Rad;
+
+                Text label =
+                    CreateText(
+                        panel,
+                        "Speed Dial " + dialLabels[i],
+                        10,
+                        FontStyle.Bold,
+                        TextAnchor.MiddleCenter,
+                        gaugeCenter +
+                        new Vector2(
+                            Mathf.Sin(radians) * 48f,
+                            Mathf.Cos(radians) * 48f),
+                        new Vector2(34f, 18f),
+                        new Vector2(0.5f, 0f),
+                        new Vector2(0.5f, 0.5f),
+                        SecondaryTextColor);
+
+                label.raycastTarget =
+                    false;
+            }
+
+            GameObject needleObject =
+                new(
+                    "Speed Needle",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            needleObject.transform.SetParent(
+                panel,
+                false);
+
+            speedNeedle =
+                needleObject.GetComponent<RectTransform>();
+
+            speedNeedle.anchorMin =
+                new Vector2(0.5f, 0f);
+            speedNeedle.anchorMax =
+                new Vector2(0.5f, 0f);
+            speedNeedle.pivot =
+                new Vector2(0.5f, 0f);
+            speedNeedle.anchoredPosition =
+                gaugeCenter;
+            speedNeedle.sizeDelta =
+                new Vector2(5f, 57f);
+            speedNeedle.localRotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    135f);
+
+            Image needleImage =
+                needleObject.GetComponent<Image>();
+
+            needleImage.color =
+                new Color(
+                    1f,
+                    0.30f,
+                    0.12f,
+                    1f);
+            needleImage.raycastTarget =
+                false;
+
+            GameObject hubObject =
+                new(
+                    "Speed Needle Hub",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            hubObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform hub =
+                hubObject.GetComponent<RectTransform>();
+
+            hub.anchorMin =
+                new Vector2(0.5f, 0f);
+            hub.anchorMax =
+                new Vector2(0.5f, 0f);
+            hub.pivot =
+                new Vector2(0.5f, 0.5f);
+            hub.anchoredPosition =
+                gaugeCenter;
+            hub.sizeDelta =
+                new Vector2(15f, 15f);
+
+            Image hubImage =
+                hubObject.GetComponent<Image>();
+
+            hubImage.color =
+                TextColor;
+            hubImage.raycastTarget =
+                false;
 
             speedText =
                 CreateText(
                     panel,
                     "Speed",
-                    46,
+                    38,
                     FontStyle.Bold,
-                    TextAnchor.MiddleRight,
-                    new Vector2(-18f, 12f),
-                    new Vector2(160f, 52f),
-                    new Vector2(1f, 0.5f),
-                    new Vector2(1f, 0.5f),
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, 29f),
+                    new Vector2(150f, 44f),
+                    new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0.5f),
                     TextColor);
 
             speedUnitText =
                 CreateText(
                     panel,
                     "Speed Unit",
-                    11,
+                    10,
                     FontStyle.Bold,
-                    TextAnchor.MiddleRight,
-                    new Vector2(-20f, -24f),
-                    new Vector2(120f, 18f),
-                    new Vector2(1f, 0.5f),
-                    new Vector2(1f, 0.5f),
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, 9f),
+                    new Vector2(90f, 16f),
+                    new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0.5f),
                     SecondaryTextColor);
 
             speedUnitText.text =
@@ -1887,7 +2121,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(0f, 26f),
+                    new Vector2(0f, 206f),
                     new Vector2(560f, 44f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
@@ -1923,10 +2157,10 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Minimap",
-                    new Vector2(20f, 20f),
+                    new Vector2(-20f, -20f),
                     new Vector2(220f, 220f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
                     new Color(
                         0.01f,
                         0.015f,
