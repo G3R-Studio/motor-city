@@ -609,11 +609,29 @@ namespace MotorCity.Bootstrap
                     maxVehiclesField.FieldType == typeof(int))
                 {
                     int trafficBudget =
+                        MotorCityQualityRuntime.CurrentPreset switch
+                        {
+                            MotorCityQualityPreset.Low =>
 #if UNITY_WEBGL && !UNITY_EDITOR
-                        18;
+                                10,
 #else
-                        28;
+                                16,
 #endif
+
+                            MotorCityQualityPreset.High =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                                24,
+#else
+                                32,
+#endif
+
+                            _ =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                                18
+#else
+                                28
+#endif
+                        };
 
                     maxVehiclesField.SetValue(
                         behaviour,
@@ -628,11 +646,29 @@ namespace MotorCity.Bootstrap
                     aroundField.FieldType == typeof(float))
                 {
                     float trafficRadius =
+                        MotorCityQualityRuntime.CurrentPreset switch
+                        {
+                            MotorCityQualityPreset.Low =>
 #if UNITY_WEBGL && !UNITY_EDITOR
-                        125f;
+                                105f,
 #else
-                        150f;
+                                120f,
 #endif
+
+                            MotorCityQualityPreset.High =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                                140f,
+#else
+                                165f,
+#endif
+
+                            _ =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                                125f
+#else
+                                150f
+#endif
+                        };
 
                     aroundField.SetValue(
                         behaviour,
