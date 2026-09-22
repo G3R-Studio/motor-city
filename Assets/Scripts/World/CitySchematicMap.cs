@@ -1,4 +1,7 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace MotorCity.World
@@ -206,6 +209,9 @@ namespace MotorCity.World
                     shape);
             }
 
+            DrawFcgTrafficRoads(
+                pixels);
+
             Texture.SetPixels(
                 pixels);
 
@@ -268,6 +274,232 @@ namespace MotorCity.World
                     y,
                     width,
                     height);
+        }
+
+        private void DrawFcgTrafficRoads(
+            Color[] pixels)
+        {
+            MonoBehaviour[] behaviours =
+                UnityEngine.Object.FindObjectsByType<MonoBehaviour>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+
+            foreach (MonoBehaviour behaviour in
+                     behaviours)
+            {
+                if (behaviour == null)
+                    continue;
+
+                FieldInfo waypointsField =
+                    FindField(
+                        behaviour.GetType(),
+                        "waypoints");
+
+                FieldInfo next0Field =
+                    FindField(
+                        behaviour.GetType(),
+                        "nextWay0");
+
+                FieldInfo next1Field =
+                    FindField(
+                        behaviour.GetType(),
+                        "nextWay1");
+
+                if (waypointsField == null ||
+                    next0Field == null ||
+                    next1Field == null)
+                {
+                    continue;
+                }
+
+                IEnumerable enumerable;
+
+                try
+                {
+                    enumerable =
+                        waypointsField.GetValue(
+                            behaviour) as IEnumerable;
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (enumerable == null)
+                    continue;
+
+                List<Vector3> roadPoints =
+                    new();
+
+                foreach (object item in
+                         enumerable)
+                {
+                    Transform transform =
+                        item as Transform;
+
+                    if (transform == null &&
+                        item is GameObject gameObject)
+                    {
+                        transform =
+                            gameObject.transform;
+                    }
+
+                    if (transform == null &&
+                        item is Component component)
+                    {
+                        transform =
+                            component.transform;
+                    }
+
+                    if (transform != null)
+                    {
+                        roadPoints.Add(
+                            transform.position);
+                    }
+                }
+
+                for (int i = 0;
+                     i < roadPoints.Count - 1;
+                     i++)
+                {
+                    DrawRoadSegment(
+                        pixels,
+                        roadPoints[i],
+                        roadPoints[i + 1]);
+                }
+            }
+        }
+
+        private void DrawRoadSegment(
+            Color[] pixels,
+            Vector3 worldA,
+            Vector3 worldB)
+        {
+            Vector2 uvA =
+                WorldToUv(
+                    worldA);
+
+            Vector2 uvB =
+                WorldToUv(
+                    worldB);
+
+            Vector2 pixelA =
+                new(
+                    uvA.x *
+                    (TextureSize - 1),
+                    uvA.y *
+                    (TextureSize - 1));
+
+            Vector2 pixelB =
+                new(
+                    uvB.x *
+                    (TextureSize - 1),
+                    uvB.y *
+                    (TextureSize - 1));
+
+            float length =
+                Vector2.Distance(
+                    pixelA,
+                    pixelB);
+
+            int steps =
+                Mathf.Max(
+                    1,
+                    Mathf.CeilToInt(
+                        length));
+
+            const int roadHalfWidth =
+                4;
+
+            for (int step = 0;
+                 step <= steps;
+                 step++)
+            {
+                Vector2 point =
+                    Vector2.Lerp(
+                        pixelA,
+                        pixelB,
+                        step /
+                        (float)steps);
+
+                int centerX =
+                    Mathf.RoundToInt(
+                        point.x);
+
+                int centerY =
+                    Mathf.RoundToInt(
+                        point.y);
+
+                for (int y =
+                         -roadHalfWidth;
+                     y <=
+                         roadHalfWidth;
+                     y++)
+                {
+                    int py =
+                        centerY + y;
+
+                    if (py < 0 ||
+                        py >= TextureSize)
+                    {
+                        continue;
+                    }
+
+                    int row =
+                        py *
+                        TextureSize;
+
+                    for (int x =
+                             -roadHalfWidth;
+                         x <=
+                             roadHalfWidth;
+                         x++)
+                    {
+                        int px =
+                            centerX + x;
+
+                        if (px < 0 ||
+                            px >= TextureSize)
+                        {
+                            continue;
+                        }
+
+                        float radius =
+                            Mathf.Sqrt(
+                                x * x +
+                                y * y);
+
+                        pixels[row + px] =
+                            radius >=
+                                roadHalfWidth - 1
+                                ? RoadEdge
+                                : Road;
+                    }
+                }
+            }
+        }
+
+        private static FieldInfo FindField(
+            Type type,
+            string fieldName)
+        {
+            while (type != null)
+            {
+                FieldInfo field =
+                    type.GetField(
+                        fieldName,
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic);
+
+                if (field != null)
+                    return field;
+
+                type =
+                    type.BaseType;
+            }
+
+            return null;
         }
 
         private Vector2 WorldToUv(
