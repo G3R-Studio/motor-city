@@ -948,6 +948,23 @@ namespace MotorCity.UI
             return true;
         }
 
+        private float MinimapWorldScale(
+            float worldRadius)
+        {
+            if (minimapImage == null ||
+                worldRadius <= 0.01f)
+            {
+                return 1f;
+            }
+
+            float diameter =
+                worldRadius * 2f;
+
+            return
+                minimapImage.rectTransform.rect.width /
+                diameter;
+        }
+
         private void UpdateRoadRoute(
             Vector3 carPosition,
             Vector3 target,
@@ -981,8 +998,8 @@ namespace MotorCity.UI
                 74f;
 
             float mapScale =
-                78f /
-                worldRadius;
+                MinimapWorldScale(
+                    worldRadius);
 
             int placed =
                 0;
@@ -2301,8 +2318,8 @@ namespace MotorCity.UI
                 78f;
 
             float mapScale =
-                markerRadius /
-                worldRadius;
+                MinimapWorldScale(
+                    worldRadius);
 
             Vector2 mapOffset =
                 new Vector2(
