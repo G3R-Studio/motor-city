@@ -193,7 +193,7 @@ namespace MotorCity.Gameplay
                         0));
 
             if (activities != null)
-                activities.ActivityResultShown += OnActivityResult;
+                activities.ActivityCompleted += OnActivityCompleted;
 
             if (!IsComplete &&
                 IsSeasonOneActive)
@@ -223,15 +223,13 @@ namespace MotorCity.Gameplay
         private void OnDestroy()
         {
             if (activities != null)
-                activities.ActivityResultShown -= OnActivityResult;
+                activities.ActivityCompleted -= OnActivityCompleted;
         }
 
-        private void OnActivityResult(
-            string activityId,
-            bool success)
+        private void OnActivityCompleted(
+            string activityId)
         {
-            if (!success ||
-                IsComplete ||
+            if (IsComplete ||
                 !IsSeasonOneActive)
             {
                 return;
@@ -396,14 +394,8 @@ namespace MotorCity.Gameplay
             if (expected == "*")
             {
                 return
-                    actual == "delivery" ||
-                    actual == "drift" ||
-                    actual == "sprint" ||
-                    actual == "circuit" ||
-                    (actual != null &&
-                     actual.StartsWith(
-                         "profession_",
-                         StringComparison.Ordinal));
+                    !string.IsNullOrWhiteSpace(
+                        actual);
             }
 
             return
