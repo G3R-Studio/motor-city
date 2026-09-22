@@ -121,6 +121,8 @@ namespace MotorCity.UI
         private GameObject garageOverlay;
         private GameObject garagePassportPanel;
         private GameObject activityResultOverlay;
+        private GameObject resultTouchControlsRoot;
+        private GameObject resultRetryTouchButton;
         private GameObject clubOverlay;
         private Text clubEmblemText;
         private Text clubNameText;
@@ -1781,6 +1783,7 @@ namespace MotorCity.UI
             BuildNavigatorMenu(safeAreaRoot);
             BuildDriftPanel(safeAreaRoot);
             BuildActivityResult(safeAreaRoot);
+            BuildResultTouchControls(safeAreaRoot);
             BuildGarage(safeAreaRoot);
             BuildClubOverlay(safeAreaRoot);
             BuildTouchControls(safeAreaRoot);
@@ -3637,6 +3640,53 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text("hud.result_controls");
         }
 
+        private void BuildResultTouchControls(
+            Transform canvas)
+        {
+            resultTouchControlsRoot =
+                new GameObject(
+                    "Result Touch Controls",
+                    typeof(RectTransform));
+
+            resultTouchControlsRoot.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform root =
+                resultTouchControlsRoot.GetComponent<RectTransform>();
+
+            root.anchorMin =
+                new Vector2(0.5f, 0f);
+            root.anchorMax =
+                new Vector2(0.5f, 0f);
+            root.pivot =
+                new Vector2(0.5f, 0f);
+            root.anchoredPosition =
+                new Vector2(0f, 42f);
+            root.sizeDelta =
+                new Vector2(380f, 56f);
+
+            resultRetryTouchButton =
+                CreateLocalizedTouchPulseButton(
+                    root,
+                    "Result Retry",
+                    "touch.result.retry",
+                    MotorCityInputAction.Retry,
+                    new Vector2(-95f, 4f),
+                    new Vector2(170f, 48f));
+
+            CreateLocalizedTouchPulseButton(
+                root,
+                "Result Continue",
+                "touch.result.continue",
+                MotorCityInputAction.Cancel,
+                new Vector2(95f, 4f),
+                new Vector2(170f, 48f));
+
+            resultTouchControlsRoot.SetActive(
+                false);
+        }
+
         private void UpdateActivityResult()
         {
             if (activityManager == null ||
@@ -3678,6 +3728,16 @@ namespace MotorCity.UI
                 activityManager.ResultReputationReward > 0
                     ? accent
                     : SecondaryTextColor;
+        }
+
+        private static bool IsReplayableResult(
+            string activityId)
+        {
+            return
+                activityId == "delivery" ||
+                activityId == "drift" ||
+                activityId == "sprint" ||
+                activityId == "circuit";
         }
 
         private void HandleActivityResultInput()
@@ -5662,6 +5722,10 @@ namespace MotorCity.UI
                     false);
 
                 SetActiveIfChanged(
+                    resultTouchControlsRoot,
+                    false);
+
+                SetActiveIfChanged(
                     navigatorTouchControlsRoot,
                     false);
 
@@ -5689,6 +5753,23 @@ namespace MotorCity.UI
                 !HasBlockingModalUi() &&
                 activityManager != null &&
                 activityManager.IsBusy);
+
+            bool resultOpen =
+                activityManager != null &&
+                activityManager.HasResult;
+
+            SetActiveIfChanged(
+                resultTouchControlsRoot,
+                resultOpen);
+
+            if (resultRetryTouchButton != null)
+            {
+                SetActiveIfChanged(
+                    resultRetryTouchButton,
+                    resultOpen &&
+                    IsReplayableResult(
+                        activityManager.ResultActivityId));
+            }
 
             SetActiveIfChanged(
                 navigatorTouchControlsRoot,
