@@ -705,10 +705,12 @@ namespace MotorCity.World
             Shader shader =
                 Shader.Find(
                     srp
-                        ? "Universal Render Pipeline/Lit"
-                        : "Standard") ??
+                        ? "Universal Render Pipeline/Unlit"
+                        : "Unlit/Transparent") ??
                 Shader.Find(
-                    "Sprites/Default");
+                    "Sprites/Default") ??
+                Shader.Find(
+                    "Standard");
 
             Material material =
                 new(
