@@ -37,6 +37,9 @@ namespace MotorCity.World
                 true,
                 CheckpointBeaconStyle.Sprint);
 
+            HideLegacyMarkerRenderers();
+
+
             SnapToTarget();
             mainCamera = Camera.main;
         }
@@ -53,6 +56,22 @@ namespace MotorCity.World
             }
 
             markerMaterials = materials.ToArray();
+        }
+
+        private void HideLegacyMarkerRenderers()
+        {
+            if (markerRenderers == null)
+                return;
+
+            foreach (Renderer renderer in
+                     markerRenderers)
+            {
+                if (renderer != null)
+                {
+                    renderer.enabled =
+                        false;
+                }
+            }
         }
 
         private void Update()
@@ -142,15 +161,6 @@ namespace MotorCity.World
 
         private void SetVisible(bool visible)
         {
-            if (markerRenderers != null)
-            {
-                foreach (Renderer renderer in markerRenderers)
-                {
-                    if (renderer != null)
-                        renderer.enabled = visible;
-                }
-            }
-
             checkpointBeacon?.SetVisible(
                 visible);
         }
