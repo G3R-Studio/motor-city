@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using MotorCity.Input;
 
 namespace MotorCity.Localization
 {
@@ -690,6 +691,26 @@ namespace MotorCity.Localization
                 { "store.status", E("{0}\n{1}\n{2}\n{3}", "{0}\n{1}\n{2}\n{3}") }
             };
 
+        private static readonly Dictionary<string, LocalizedEntry> TouchPromptOverrides =
+            new()
+            {
+                { "garage.prompt", E("ГАРАЖ — ДЕЙСТВИЕ", "GARAGE — ACTION") },
+                { "garage.open_cancel", E("ДЕЙСТВИЕ — открыть гараж и отменить «{0}»", "ACTION — open garage and cancel “{0}”") },
+                { "garage.stop_and_open", E("ГАРАЖ — остановись и нажми ДЕЙСТВИЕ", "GARAGE — stop and press ACTION") },
+                { "garage.open_prompt", E("ГАРАЖ — ДЕЙСТВИЕ", "GARAGE — ACTION") },
+                { "hud.garage_controls", E("Используй кнопки гаража ниже", "Use the garage buttons below") },
+                { "navigator.controls", E("◀ / ▶ — ВЫБОР • ДЕЙСТВИЕ — МАРШРУТ • ОТМЕНА — ЗАКРЫТЬ", "◀ / ▶ — SELECT • ACTION — ROUTE • CANCEL — CLOSE") },
+                { "activity.elite_hint", E("   УДЕРЖИВАЙ РУЧНИК + ДЕЙСТВИЕ — ЭЛИТА", "   HOLD HANDBRAKE + ACTION — ELITE") },
+                { "activity.premium_hint", E("   УДЕРЖИВАЙ РУЧНИК + ДЕЙСТВИЕ — ПРЕМИУМ", "   HOLD HANDBRAKE + ACTION — PREMIUM") },
+                { "activity.start_time", E("{0}   ДЕЙСТВИЕ — НАЧАТЬ   ЗОЛОТО ≤ {1:0}с{2}{3}", "{0}   ACTION — START   GOLD ≤ {1:0}s{2}{3}") },
+                { "activity.countdown", E("{0}   СТАРТ ЧЕРЕЗ {1}   ОТМЕНА", "{0}   START IN {1}   CANCEL") },
+                { "activity.checkpoint", E("{0}  ТОЧКА {1}/{2}   {3:0.0}с   {4}   ОТМЕНА", "{0}  POINT {1}/{2}   {3:0.0}s   {4}   CANCEL") },
+                { "activity.circuit_status", E("КОЛЬЦО  КРУГ {0}/{1}   ТОЧКА {2}/{3}   КРУГ {4:0.0}с   ОБЩ {5:0.0}с{6}   ОТМЕНА", "CIRCUIT  LAP {0}/{1}   POINT {2}/{3}   LAP {4:0.0}s   TOTAL {5:0.0}s{6}   CANCEL") },
+                { "activity.drift_start", E("ДРИФТ-ЗАЕЗД   ДЕЙСТВИЕ — НАЧАТЬ   БРОНЗА {0:N0}   ЛЕГЕНДА {1:N0}{2}", "DRIFT CHALLENGE   ACTION — START   BRONZE {0:N0}   LEGEND {1:N0}{2}") },
+                { "activity.drift_status", E("ДРИФТ  {0:N0}   {1}   {2:0.0}с   ОТМЕНА", "DRIFT  {0:N0}   {1}   {2:0.0}s   CANCEL") },
+                { "nightclub.start", E("НОЧНОЙ АВТОКЛУБ — {0}   ДЕЙСТВИЕ — НАЧАТЬ", "NIGHT CAR CLUB — {0}   ACTION — START") }
+            };
+
         private static string language = Russian;
 
         public static string LanguageCode =>
@@ -710,6 +731,16 @@ namespace MotorCity.Localization
                     key))
             {
                 return string.Empty;
+            }
+
+            if (MotorCityInput.PreferTouchPrompts &&
+                TouchPromptOverrides.TryGetValue(
+                    key,
+                    out LocalizedEntry touchEntry))
+            {
+                return language == English
+                    ? touchEntry.English
+                    : touchEntry.Russian;
             }
 
             if (!Entries.TryGetValue(
