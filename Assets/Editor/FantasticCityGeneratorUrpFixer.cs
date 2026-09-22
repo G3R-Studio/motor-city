@@ -1059,6 +1059,10 @@ public static class FantasticCityGeneratorUrpFixer
             source,
             material);
 
+        ConfigureVolumetricLightBeamMaterial(
+            source,
+            material);
+
         ConfigureSurfaceType(
             source,
             material);
@@ -1486,6 +1490,155 @@ public static class FantasticCityGeneratorUrpFixer
                     0.24f);
             }
         }
+    }
+
+    private static void ConfigureVolumetricLightBeamMaterial(
+        Material source,
+        Material destination)
+    {
+        if (source == null ||
+            destination == null ||
+            !string.Equals(
+                NormalizeMaterialName(source.name),
+                "volumetric",
+                StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        Color beamColor =
+            new Color(
+                0.60f,
+                0.60f,
+                0.60f,
+                0.075f);
+
+        if (destination.HasProperty(
+                "_BaseColor"))
+        {
+            destination.SetColor(
+                "_BaseColor",
+                beamColor);
+        }
+
+        if (destination.HasProperty(
+                "_Color"))
+        {
+            destination.SetColor(
+                "_Color",
+                beamColor);
+        }
+
+        if (destination.HasProperty(
+                "_EmissionColor"))
+        {
+            destination.SetColor(
+                "_EmissionColor",
+                new Color(
+                    0.42f,
+                    0.42f,
+                    0.42f,
+                    1f));
+        }
+
+        if (destination.HasProperty(
+                "_Surface"))
+        {
+            destination.SetFloat(
+                "_Surface",
+                1f);
+        }
+
+        if (destination.HasProperty(
+                "_Blend"))
+        {
+            destination.SetFloat(
+                "_Blend",
+                0f);
+        }
+
+        if (destination.HasProperty(
+                "_SrcBlend"))
+        {
+            destination.SetFloat(
+                "_SrcBlend",
+                (float)BlendMode.SrcAlpha);
+        }
+
+        if (destination.HasProperty(
+                "_DstBlend"))
+        {
+            destination.SetFloat(
+                "_DstBlend",
+                (float)BlendMode.OneMinusSrcAlpha);
+        }
+
+        if (destination.HasProperty(
+                "_ZWrite"))
+        {
+            destination.SetFloat(
+                "_ZWrite",
+                0f);
+        }
+
+        if (destination.HasProperty(
+                "_Smoothness"))
+        {
+            destination.SetFloat(
+                "_Smoothness",
+                0f);
+        }
+
+        if (destination.HasProperty(
+                "_Metallic"))
+        {
+            destination.SetFloat(
+                "_Metallic",
+                0f);
+        }
+
+        if (destination.HasProperty(
+                "_SpecularHighlights"))
+        {
+            destination.SetFloat(
+                "_SpecularHighlights",
+                0f);
+        }
+
+        if (destination.HasProperty(
+                "_EnvironmentReflections"))
+        {
+            destination.SetFloat(
+                "_EnvironmentReflections",
+                0f);
+        }
+
+        if (destination.HasProperty(
+                "_ReceiveShadows"))
+        {
+            destination.SetFloat(
+                "_ReceiveShadows",
+                0f);
+        }
+
+        destination.DisableKeyword(
+            "_ALPHAPREMULTIPLY_ON");
+
+        destination.EnableKeyword(
+            "_SURFACE_TYPE_TRANSPARENT");
+
+        destination.DisableKeyword(
+            "_SPECULARHIGHLIGHTS_ON");
+
+        destination.DisableKeyword(
+            "_ENVIRONMENTREFLECTIONS_ON");
+
+        destination.SetOverrideTag(
+            "RenderType",
+            "Transparent");
+
+        destination.renderQueue =
+            (int)RenderQueue.Transparent;
     }
 
     private static void ConfigureSurfaceType(
