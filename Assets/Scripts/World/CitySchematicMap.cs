@@ -49,6 +49,55 @@ namespace MotorCity.World
                 0.60f,
                 1f);
 
+        private static readonly string[] RoadNameParts =
+        {
+            "road",
+            "street",
+            "highway",
+            "avenue",
+            "intersection",
+            "crossroad",
+            "sidewalk",
+            "pavement",
+            "asphalt",
+            "parking"
+        };
+
+        private static readonly string[] BuildingNameParts =
+        {
+            "building",
+            "house",
+            "shop",
+            "store",
+            "office",
+            "garage",
+            "warehouse",
+            "apartment",
+            "hotel",
+            "wall"
+        };
+
+        private static readonly string[] IgnoreNameParts =
+        {
+            "traffic",
+            "carcontainer",
+            "vehicle",
+            "wheel",
+            "smoke",
+            "particle",
+            "skid",
+            "trail",
+            "light",
+            "lamp",
+            "tree",
+            "bush",
+            "grass",
+            "background",
+            "sky",
+            "cloud",
+            "water"
+        };
+
         private readonly List<MapShape> shapes =
             new();
 
@@ -703,16 +752,7 @@ namespace MotorCity.World
         {
             if (ContainsAny(
                     path,
-                    "road",
-                    "street",
-                    "highway",
-                    "avenue",
-                    "intersection",
-                    "crossroad",
-                    "sidewalk",
-                    "pavement",
-                    "asphalt",
-                    "parking"))
+                    RoadNameParts))
             {
                 return
                     ShapeType.Road;
@@ -720,16 +760,7 @@ namespace MotorCity.World
 
             if (ContainsAny(
                     path,
-                    "building",
-                    "house",
-                    "shop",
-                    "store",
-                    "office",
-                    "garage",
-                    "warehouse",
-                    "apartment",
-                    "hotel",
-                    "wall"))
+                    BuildingNameParts))
             {
                 return
                     ShapeType.Building;
@@ -773,23 +804,7 @@ namespace MotorCity.World
             return
                 ContainsAny(
                     path,
-                    "traffic",
-                    "carcontainer",
-                    "vehicle",
-                    "wheel",
-                    "smoke",
-                    "particle",
-                    "skid",
-                    "trail",
-                    "light",
-                    "lamp",
-                    "tree",
-                    "bush",
-                    "grass",
-                    "background",
-                    "sky",
-                    "cloud",
-                    "water");
+                    IgnoreNameParts);
         }
 
         private static string HierarchyName(
@@ -806,9 +821,9 @@ namespace MotorCity.World
             // that shift the whole builder for every parent.
             while (current != null)
             {
-                builder.Append(
-                    Normalize(
-                        current.name));
+                AppendNormalized(
+                    builder,
+                    current.name);
 
                 builder.Append(
                     '/');
@@ -823,7 +838,7 @@ namespace MotorCity.World
 
         private static bool ContainsAny(
             string value,
-            params string[] parts)
+            string[] parts)
         {
             foreach (string part in
                      parts)
@@ -838,19 +853,16 @@ namespace MotorCity.World
             return false;
         }
 
-        private static string Normalize(
+        private static void AppendNormalized(
+            System.Text.StringBuilder builder,
             string value)
         {
-            if (string.IsNullOrWhiteSpace(
+            if (builder == null ||
+                string.IsNullOrWhiteSpace(
                     value))
             {
-                return
-                    string.Empty;
+                return;
             }
-
-            System.Text.StringBuilder builder =
-                new(
-                    value.Length);
 
             foreach (char character in
                      value)
@@ -863,9 +875,6 @@ namespace MotorCity.World
                             character));
                 }
             }
-
-            return
-                builder.ToString();
         }
 
         private enum ShapeType
