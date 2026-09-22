@@ -445,6 +445,38 @@ namespace MotorCity.Gameplay
                 true);
         }
 
+        public void RestartFromResult()
+        {
+            if (activities == null ||
+                !activities.HasResult ||
+                activities.ResultActivityId !=
+                    ActivityId ||
+                car == null)
+            {
+                return;
+            }
+
+            activities.DismissResult();
+
+            CleanupVisuals();
+
+            stage =
+                TowStage.None;
+
+            car.SetDrivingEnabled(
+                true);
+
+            car.TeleportTo(
+                StartPoint +
+                Vector3.up * 1.1f,
+                Quaternion.Euler(
+                    0f,
+                    car.transform.eulerAngles.y,
+                    0f));
+
+            BeginJob();
+        }
+
         public void CancelJob()
         {
             if (!IsActive)
