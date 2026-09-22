@@ -182,7 +182,7 @@ namespace MotorCity.Gameplay
             nearestStartIndex = -1;
             IsNearStart = false;
 
-            float best =
+            float bestDistanceSquared =
                 float.PositiveInfinity;
 
             Vector3 position =
@@ -193,22 +193,29 @@ namespace MotorCity.Gameplay
                  i < definitions.Length;
                  i++)
             {
-                float distance =
-                    Vector3.Distance(
-                        position,
-                        Flat(
-                            definitions[i].Start));
+                Vector3 delta =
+                    position -
+                    Flat(
+                        definitions[i].Start);
 
-                if (distance >= best)
+                float distanceSquared =
+                    delta.sqrMagnitude;
+
+                if (distanceSquared >=
+                    bestDistanceSquared)
+                {
                     continue;
+                }
 
-                best = distance;
+                bestDistanceSquared =
+                    distanceSquared;
                 nearestStartIndex = i;
             }
 
             IsNearStart =
                 nearestStartIndex >= 0 &&
-                best <= StartRadius;
+                bestDistanceSquared <=
+                    StartRadius * StartRadius;
         }
 
         private void StartProfession(
