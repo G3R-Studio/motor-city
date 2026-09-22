@@ -136,8 +136,8 @@ namespace MotorCity.Gameplay
 
             if (activities != null)
             {
-                activities.ActivityResultShown +=
-                    OnActivityResult;
+                activities.ActivityCompleted +=
+                    OnActivityCompleted;
             }
 
             if (customization != null)
@@ -254,8 +254,8 @@ namespace MotorCity.Gameplay
         {
             if (activities != null)
             {
-                activities.ActivityResultShown -=
-                    OnActivityResult;
+                activities.ActivityCompleted -=
+                    OnActivityCompleted;
             }
 
             if (customization != null)
@@ -277,17 +277,16 @@ namespace MotorCity.Gameplay
                 "onboarding.customized");
         }
 
-        private void OnActivityResult(
-            string activityId,
-            bool success)
+        private void OnActivityCompleted(
+            string activityId)
         {
-            // Only count a result that happens while the onboarding is
-            // explicitly asking the player to complete an activity. Otherwise
-            // an activity finished earlier in the session would silently skip
-            // this teaching step once the player reaches it.
+            // Only count a completion that happens while onboarding is
+            // explicitly asking for an activity. This includes ambient
+            // challenges as well as activities with a result screen.
             if (!IsComplete &&
                 step == 4 &&
-                success)
+                !string.IsNullOrWhiteSpace(
+                    activityId))
             {
                 activitySucceeded =
                     true;
