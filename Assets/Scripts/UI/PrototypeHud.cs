@@ -2441,8 +2441,13 @@ namespace MotorCity.UI
                 new Vector2(1f, 0f);
             navigatorButtonRect.anchoredPosition =
                 new Vector2(-8f, 6f);
+            bool touchUi =
+                ShouldUseTouchUi();
+
             navigatorButtonRect.sizeDelta =
-                new Vector2(42f, 28f);
+                touchUi
+                    ? new Vector2(76f, 32f)
+                    : new Vector2(42f, 28f);
 
             Image navigatorButtonImage =
                 navigatorButtonObject.GetComponent<Image>();
@@ -2468,13 +2473,18 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(40f, 26f),
+                    touchUi
+                        ? new Vector2(72f, 28f)
+                        : new Vector2(40f, 26f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
 
             navigatorButtonLabel.text =
-                "M";
+                touchUi
+                    ? MotorCityLocalization.Text(
+                        "navigator.touch_button")
+                    : "M";
         }
 
         private void UpdateNavigator(
@@ -4607,6 +4617,8 @@ namespace MotorCity.UI
         private static bool ShouldUseTouchUi()
         {
             if (Application.isMobilePlatform ||
+                SystemInfo.deviceType ==
+                    DeviceType.Handheld ||
                 UnityEngine.Input.touchSupported)
             {
                 return true;
