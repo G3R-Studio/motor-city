@@ -3717,6 +3717,187 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text("hud.garage_controls") +
                 "   •   " +
                 MotorCityLocalization.Text("hud.passport_control");
+
+            if (ShouldUseTouchUi())
+            {
+                footer.gameObject.SetActive(
+                    false);
+
+                BuildGarageTouchControls(
+                    panel);
+            }
+        }
+
+        private void BuildGarageTouchControls(
+            RectTransform panel)
+        {
+            GameObject rootObject =
+                new(
+                    "Garage Touch Controls",
+                    typeof(RectTransform));
+
+            rootObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform root =
+                rootObject.GetComponent<RectTransform>();
+
+            root.anchorMin =
+                new Vector2(0.5f, 0f);
+            root.anchorMax =
+                new Vector2(0.5f, 0f);
+            root.pivot =
+                new Vector2(0.5f, 0f);
+            root.anchoredPosition =
+                new Vector2(0f, 12f);
+            root.sizeDelta =
+                new Vector2(700f, 108f);
+
+            MotorCityInputAction[] actions =
+            {
+                MotorCityInputAction.PreviousVehicle,
+                MotorCityInputAction.NextVehicle,
+                MotorCityInputAction.BuyVehicle,
+                MotorCityInputAction.Upgrade1,
+                MotorCityInputAction.Upgrade2,
+                MotorCityInputAction.Upgrade3,
+                MotorCityInputAction.CycleBodyColor,
+                MotorCityInputAction.CycleWheels,
+                MotorCityInputAction.CycleNeon,
+                MotorCityInputAction.Interact
+            };
+
+            string[] labels =
+            {
+                MotorCityLocalization.Text("touch.garage.prev"),
+                MotorCityLocalization.Text("touch.garage.next"),
+                MotorCityLocalization.Text("touch.garage.buy"),
+                MotorCityLocalization.Text("touch.garage.engine"),
+                MotorCityLocalization.Text("touch.garage.grip"),
+                MotorCityLocalization.Text("touch.garage.stability"),
+                MotorCityLocalization.Text("touch.garage.color"),
+                MotorCityLocalization.Text("touch.garage.wheels"),
+                MotorCityLocalization.Text("touch.garage.neon"),
+                MotorCityLocalization.Text("touch.garage.close")
+            };
+
+            const float buttonWidth = 132f;
+            const float buttonHeight = 46f;
+            const float gap = 6f;
+            const int columns = 5;
+
+            for (int i = 0;
+                 i < actions.Length;
+                 i++)
+            {
+                int row =
+                    i /
+                    columns;
+
+                int column =
+                    i %
+                    columns;
+
+                float totalWidth =
+                    columns *
+                    buttonWidth +
+                    (columns - 1) *
+                    gap;
+
+                float x =
+                    -totalWidth * 0.5f +
+                    buttonWidth * 0.5f +
+                    column *
+                    (buttonWidth + gap);
+
+                float y =
+                    56f -
+                    row *
+                    (buttonHeight + gap);
+
+                CreateTouchPulseButton(
+                    root,
+                    "Garage " + labels[i],
+                    labels[i],
+                    actions[i],
+                    new Vector2(x, y),
+                    new Vector2(
+                        buttonWidth,
+                        buttonHeight));
+            }
+        }
+
+        private void CreateTouchPulseButton(
+            Transform parent,
+            string name,
+            string label,
+            MotorCityInputAction action,
+            Vector2 anchoredPosition,
+            Vector2 size)
+        {
+            GameObject buttonObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(0.5f, 0f);
+            rect.anchorMax =
+                new Vector2(0.5f, 0f);
+            rect.pivot =
+                new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            image.color =
+                new Color(
+                    0.045f,
+                    0.075f,
+                    0.12f,
+                    0.94f);
+
+            Button button =
+                buttonObject.GetComponent<Button>();
+
+            button.targetGraphic =
+                image;
+
+            button.onClick.AddListener(
+                () =>
+                    MotorCityInput.PulseVirtual(
+                        action));
+
+            Text text =
+                CreateText(
+                    rect,
+                    "Label",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    size -
+                    new Vector2(8f, 6f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+
+            text.text =
+                label;
         }
 
         private void UpdateGarage()
@@ -4187,14 +4368,17 @@ namespace MotorCity.UI
             }
         }
 
+        private static bool ShouldUseTouchUi()
+        {
+            return
+                Application.isMobilePlatform ||
+                UnityEngine.Input.touchSupported;
+        }
+
         private void BuildTouchControls(
             Transform canvas)
         {
-            bool touchCapable =
-                Application.isMobilePlatform ||
-                UnityEngine.Input.touchSupported;
-
-            if (!touchCapable)
+            if (!ShouldUseTouchUi())
                 return;
 
             touchControlsRoot =
