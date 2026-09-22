@@ -127,8 +127,8 @@ namespace MotorCity.Gameplay
 
             if (activities != null)
             {
-                activities.ActivityResultShown +=
-                    OnActivityResult;
+                activities.ActivityCompleted +=
+                    OnActivityCompleted;
             }
         }
 
@@ -181,17 +181,15 @@ namespace MotorCity.Gameplay
         {
             if (activities != null)
             {
-                activities.ActivityResultShown -=
-                    OnActivityResult;
+                activities.ActivityCompleted -=
+                    OnActivityCompleted;
             }
         }
 
-        private void OnActivityResult(
-            string activityId,
-            bool success)
+        private void OnActivityCompleted(
+            string activityId)
         {
-            if (!success ||
-                dayCompleted)
+            if (dayCompleted)
             {
                 return;
             }
