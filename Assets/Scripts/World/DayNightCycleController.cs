@@ -292,24 +292,22 @@ namespace MotorCity.World
 
             Color nightSky =
                 settings != null
-                    ? settings.NightSkyColor *
-                      0.16f
+                    ? settings.NightSkyColor
                     : new Color(
-                        0.045f,
-                        0.06f,
-                        0.11f);
+                        0.585f,
+                        0.585f,
+                        0.585f);
 
             nightSky.a =
                 1f;
 
             Color nightEquator =
                 settings != null
-                    ? settings.NightEquatorColor *
-                      0.12f
+                    ? settings.NightEquatorColor
                     : new Color(
-                        0.018f,
-                        0.022f,
-                        0.04f);
+                        0.651f,
+                        0.651f,
+                        0.651f);
 
             nightEquator.a =
                 1f;
