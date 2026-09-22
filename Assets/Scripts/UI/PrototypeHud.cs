@@ -188,7 +188,9 @@ namespace MotorCity.UI
 
         private Image garageHeaderIcon;
         private Image garageCreditsIcon;
+        private Image garageReputationIcon;
         private Text garageMoneyText;
+        private Text garageReputationText;
         private Text garageStatusText;
         private Image garageVehicleStateIcon;
         private Text garageVehicleText;
@@ -5599,8 +5601,41 @@ namespace MotorCity.UI
                     22,
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
+                    new Vector2(-188f, -28f),
+                    new Vector2(120f, 42f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
+                    TextColor);
+
+            garageReputationIcon =
+                CreateHudIcon(
+                    panel,
+                    "Garage Reputation Icon",
+                    MotorCityIconLibrary.Reputation,
+                    new Vector2(
+                        -158f,
+                        -28f),
+                    new Vector2(
+                        22f,
+                        22f),
+                    new Vector2(
+                        1f,
+                        1f),
+                    new Color(
+                        0.72f,
+                        0.52f,
+                        1f,
+                        1f));
+
+            garageReputationText =
+                CreateText(
+                    panel,
+                    "Garage Reputation",
+                    18,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleRight,
                     new Vector2(-28f, -28f),
-                    new Vector2(380f, 42f),
+                    new Vector2(120f, 42f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
@@ -6216,18 +6251,21 @@ namespace MotorCity.UI
             }
 
             garageMoneyText.text =
-                MotorCityLocalization.Format(
-                    "common.credits",
-                    garage.Credits) +
-                "   •   " +
-                MotorCityLocalization.Format(
-                    "hud.rep",
-                    activityManager != null
-                        ? activityManager.TotalReputation
-                        : 0,
-                    activityManager != null
-                        ? activityManager.ReputationLevel
-                        : 1);
+                garage.Credits.ToString(
+                    "N0");
+
+            if (garageReputationText != null)
+            {
+                garageReputationText.text =
+                    MotorCityLocalization.Format(
+                        "hud.rep_short",
+                        activityManager != null
+                            ? activityManager.TotalReputation
+                            : 0,
+                        activityManager != null
+                            ? activityManager.ReputationLevel
+                            : 1);
+            }
 
             if (garageVehicleText != null)
             {
