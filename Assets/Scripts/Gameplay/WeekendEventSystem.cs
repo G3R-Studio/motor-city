@@ -10,7 +10,11 @@ namespace MotorCity.Gameplay
         private ActivityManager activities;
         private PlayerWallet wallet;
         private float messageTimer;
+        private float stateCheckTimer;
         private long currentWeek;
+
+        private const float StateCheckInterval =
+            1f;
 
         public bool IsActive { get; private set; }
         public bool ShowMessage => messageTimer > 0f;
@@ -46,6 +50,15 @@ namespace MotorCity.Gameplay
                 messageTimer = Mathf.Max(
                     0f,
                     messageTimer - Time.unscaledDeltaTime);
+
+            stateCheckTimer -=
+                Time.unscaledDeltaTime;
+
+            if (stateCheckTimer > 0f)
+                return;
+
+            stateCheckTimer =
+                StateCheckInterval;
 
             long week =
                 MotorCityPlatform.ServerUnixTime /
