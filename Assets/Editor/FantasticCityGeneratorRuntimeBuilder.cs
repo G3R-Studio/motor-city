@@ -515,6 +515,33 @@ public static class FantasticCityGeneratorRuntimeBuilder
         return bounds;
     }
 
+    private static string NormalizeName(
+        string value)
+    {
+        if (string.IsNullOrWhiteSpace(
+                value))
+        {
+            return string.Empty;
+        }
+
+        var result =
+            new System.Text.StringBuilder(
+                value.Length);
+
+        foreach (char character in
+                 value.ToLowerInvariant())
+        {
+            if (char.IsLetterOrDigit(
+                    character))
+            {
+                result.Append(
+                    character);
+            }
+        }
+
+        return result.ToString();
+    }
+
     private static GameObject FindSceneRoot(
         Scene scene,
         string wantedName)
