@@ -80,7 +80,7 @@ namespace MotorCity.Gameplay
             }
 
             if (activities != null)
-                activities.ActivityResultShown += OnActivityResult;
+                activities.ActivityCompleted += OnActivityCompleted;
 
             EvaluateAll();
         }
@@ -117,15 +117,13 @@ namespace MotorCity.Gameplay
         private void OnDestroy()
         {
             if (activities != null)
-                activities.ActivityResultShown -= OnActivityResult;
+                activities.ActivityCompleted -= OnActivityCompleted;
         }
 
-        private void OnActivityResult(
-            string activityId,
-            bool success)
+        private void OnActivityCompleted(
+            string activityId)
         {
-            if (!success ||
-                unlockedCount >=
+            if (unlockedCount >=
                     unlocked.Length)
             {
                 return;
