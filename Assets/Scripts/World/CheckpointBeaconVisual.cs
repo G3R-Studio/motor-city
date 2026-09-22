@@ -12,7 +12,8 @@ namespace MotorCity.World
         Drift = 4,
         Profession = 5,
         Tow = 6,
-        Underground = 7
+        Underground = 7,
+        Discovery = 8
     }
 
     public sealed class CheckpointBeaconVisual : MonoBehaviour
@@ -477,6 +478,35 @@ namespace MotorCity.World
                             -45f,
                             0f),
                         arrowMaterial);
+                    break;
+
+                case CheckpointBeaconStyle.Discovery:
+                    CreatePrimitive(
+                        "Discovery Diamond",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            1.10f,
+                            0.22f,
+                            1.10f),
+                        Vector3.zero,
+                        Quaternion.Euler(
+                            0f,
+                            45f,
+                            0f),
+                        arrowMaterial);
+
+                    CreatePrimitive(
+                        "Discovery Spark",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.24f,
+                            0.22f,
+                            1.72f),
+                        Vector3.zero,
+                        Quaternion.identity,
+                        baseMaterial);
                     break;
 
                 default:
