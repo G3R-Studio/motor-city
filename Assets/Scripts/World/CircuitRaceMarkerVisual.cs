@@ -16,6 +16,7 @@ namespace MotorCity.World
         private bool lastActive;
         private Vector3 baseScale;
         private Camera mainCamera;
+        private CheckpointBeaconVisual checkpointBeacon;
 
         public void Bind(
             CircuitRaceActivity activity,
@@ -24,6 +25,16 @@ namespace MotorCity.World
             race = activity;
             activityManager = manager;
             baseScale = transform.localScale;
+
+            checkpointBeacon =
+                gameObject.AddComponent<CheckpointBeaconVisual>();
+
+            checkpointBeacon.Initialize(
+                new Color(
+                    0.08f,
+                    0.9f,
+                    1f));
+
             CacheVisuals();
             SnapToTarget();
             mainCamera = Camera.main;
@@ -105,6 +116,18 @@ namespace MotorCity.World
                             Vector3.up);
                 }
             }
+
+            bool hasNext =
+                race.IsActive &&
+                race.TryGetNextTarget(
+                    out Vector3 nextTarget);
+
+            checkpointBeacon?.SetDirection(
+                race.CurrentTarget,
+                hasNext
+                    ? nextTarget
+                    : race.CurrentTarget,
+                hasNext);
 
             bool active =
                 race.IsActive;
