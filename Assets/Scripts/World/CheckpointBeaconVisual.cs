@@ -3,10 +3,24 @@ using UnityEngine.Rendering;
 
 namespace MotorCity.World
 {
+    public enum CheckpointBeaconStyle
+    {
+        Generic = 0,
+        Delivery = 1,
+        Sprint = 2,
+        Circuit = 3,
+        Drift = 4,
+        Profession = 5,
+        Tow = 6,
+        Underground = 7
+    }
+
     public sealed class CheckpointBeaconVisual : MonoBehaviour
     {
         private Transform visualRoot;
         private Transform directionRoot;
+        private Transform emblemRoot;
+        private float emblemBaseHeight;
         private Material pillarMaterial;
         private Material baseMaterial;
         private Material arrowMaterial;
@@ -14,7 +28,9 @@ namespace MotorCity.World
 
         public void Initialize(
             Color color,
-            bool createDirectionArrow = true)
+            bool createDirectionArrow = true,
+            CheckpointBeaconStyle style =
+                CheckpointBeaconStyle.Generic)
         {
             if (initialized)
                 return;
@@ -78,6 +94,9 @@ namespace MotorCity.World
                 Quaternion.identity,
                 baseMaterial);
 
+            CreateEmblem(
+                style);
+
             if (!createDirectionArrow)
                 return;
 
@@ -136,6 +155,358 @@ namespace MotorCity.World
 
             directionRoot.gameObject.SetActive(
                 false);
+        }
+
+        private void Update()
+        {
+            if (emblemRoot == null ||
+                !emblemRoot.gameObject.activeInHierarchy)
+            {
+                return;
+            }
+
+            float bob =
+                Mathf.Sin(
+                    Time.unscaledTime *
+                    2.2f) *
+                0.18f;
+
+            Vector3 localPosition =
+                emblemRoot.localPosition;
+
+            localPosition.y =
+                emblemBaseHeight +
+                bob;
+
+            emblemRoot.localPosition =
+                localPosition;
+
+            emblemRoot.Rotate(
+                0f,
+                20f *
+                Time.unscaledDeltaTime,
+                0f,
+                Space.Self);
+        }
+
+        private void CreateEmblem(
+            CheckpointBeaconStyle style)
+        {
+            GameObject emblemObject =
+                new(
+                    "Checkpoint Emblem");
+
+            emblemObject.transform.SetParent(
+                visualRoot,
+                false);
+
+            emblemRoot =
+                emblemObject.transform;
+
+            emblemBaseHeight =
+                7.35f;
+
+            emblemRoot.localPosition =
+                new Vector3(
+                    0f,
+                    emblemBaseHeight,
+                    0f);
+
+            switch (style)
+            {
+                case CheckpointBeaconStyle.Delivery:
+                    CreatePrimitive(
+                        "Package",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            1.45f,
+                            0.95f,
+                            1.15f),
+                        Vector3.zero,
+                        Quaternion.identity,
+                        arrowMaterial);
+
+                    CreatePrimitive(
+                        "Package Band",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.22f,
+                            1.08f,
+                            1.24f),
+                        Vector3.zero,
+                        Quaternion.identity,
+                        baseMaterial);
+                    break;
+
+                case CheckpointBeaconStyle.Sprint:
+                    CreateChevronEmblem(
+                        emblemRoot,
+                        0f);
+
+                    CreateChevronEmblem(
+                        emblemRoot,
+                        -0.9f);
+                    break;
+
+                case CheckpointBeaconStyle.Circuit:
+                    CreatePrimitive(
+                        "Circuit Top",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            1.55f,
+                            0.20f,
+                            0.24f),
+                        new Vector3(
+                            0f,
+                            0f,
+                            0.72f),
+                        Quaternion.identity,
+                        arrowMaterial);
+
+                    CreatePrimitive(
+                        "Circuit Bottom",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            1.55f,
+                            0.20f,
+                            0.24f),
+                        new Vector3(
+                            0f,
+                            0f,
+                            -0.72f),
+                        Quaternion.identity,
+                        arrowMaterial);
+
+                    CreatePrimitive(
+                        "Circuit Left",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.24f,
+                            0.20f,
+                            1.20f),
+                        new Vector3(
+                            -0.78f,
+                            0f,
+                            0f),
+                        Quaternion.identity,
+                        arrowMaterial);
+
+                    CreatePrimitive(
+                        "Circuit Right",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.24f,
+                            0.20f,
+                            1.20f),
+                        new Vector3(
+                            0.78f,
+                            0f,
+                            0f),
+                        Quaternion.identity,
+                        arrowMaterial);
+                    break;
+
+                case CheckpointBeaconStyle.Drift:
+                    CreatePrimitive(
+                        "Drift Slash Left",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.28f,
+                            0.22f,
+                            1.65f),
+                        new Vector3(
+                            -0.42f,
+                            0f,
+                            0f),
+                        Quaternion.Euler(
+                            0f,
+                            28f,
+                            0f),
+                        arrowMaterial);
+
+                    CreatePrimitive(
+                        "Drift Slash Right",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.28f,
+                            0.22f,
+                            1.65f),
+                        new Vector3(
+                            0.42f,
+                            0f,
+                            0f),
+                        Quaternion.Euler(
+                            0f,
+                            -28f,
+                            0f),
+                        arrowMaterial);
+                    break;
+
+                case CheckpointBeaconStyle.Profession:
+                    CreatePrimitive(
+                        "Profession Horizontal",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            1.65f,
+                            0.24f,
+                            0.30f),
+                        Vector3.zero,
+                        Quaternion.Euler(
+                            0f,
+                            32f,
+                            0f),
+                        arrowMaterial);
+
+                    CreatePrimitive(
+                        "Profession Vertical",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.30f,
+                            0.24f,
+                            1.65f),
+                        Vector3.zero,
+                        Quaternion.Euler(
+                            0f,
+                            32f,
+                            0f),
+                        arrowMaterial);
+                    break;
+
+                case CheckpointBeaconStyle.Tow:
+                    CreatePrimitive(
+                        "Tow Stem",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.28f,
+                            0.28f,
+                            1.55f),
+                        new Vector3(
+                            0f,
+                            0f,
+                            0.18f),
+                        Quaternion.identity,
+                        arrowMaterial);
+
+                    CreatePrimitive(
+                        "Tow Hook",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.85f,
+                            0.28f,
+                            0.28f),
+                        new Vector3(
+                            0.30f,
+                            0f,
+                            -0.55f),
+                        Quaternion.Euler(
+                            0f,
+                            -22f,
+                            0f),
+                        arrowMaterial);
+                    break;
+
+                case CheckpointBeaconStyle.Underground:
+                    CreatePrimitive(
+                        "Underground Slash A",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.28f,
+                            0.24f,
+                            1.75f),
+                        Vector3.zero,
+                        Quaternion.Euler(
+                            0f,
+                            45f,
+                            0f),
+                        arrowMaterial);
+
+                    CreatePrimitive(
+                        "Underground Slash B",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            0.28f,
+                            0.24f,
+                            1.75f),
+                        Vector3.zero,
+                        Quaternion.Euler(
+                            0f,
+                            -45f,
+                            0f),
+                        arrowMaterial);
+                    break;
+
+                default:
+                    CreatePrimitive(
+                        "Generic Diamond",
+                        PrimitiveType.Cube,
+                        emblemRoot,
+                        new Vector3(
+                            1.1f,
+                            0.24f,
+                            1.1f),
+                        Vector3.zero,
+                        Quaternion.Euler(
+                            0f,
+                            45f,
+                            0f),
+                        arrowMaterial);
+                    break;
+            }
+        }
+
+        private void CreateChevronEmblem(
+            Transform parent,
+            float zOffset)
+        {
+            CreatePrimitive(
+                "Sprint Chevron Left",
+                PrimitiveType.Cube,
+                parent,
+                new Vector3(
+                    0.26f,
+                    0.20f,
+                    1.15f),
+                new Vector3(
+                    -0.34f,
+                    0f,
+                    zOffset),
+                Quaternion.Euler(
+                    0f,
+                    42f,
+                    0f),
+                arrowMaterial);
+
+            CreatePrimitive(
+                "Sprint Chevron Right",
+                PrimitiveType.Cube,
+                parent,
+                new Vector3(
+                    0.26f,
+                    0.20f,
+                    1.15f),
+                new Vector3(
+                    0.34f,
+                    0f,
+                    zOffset),
+                Quaternion.Euler(
+                    0f,
+                    -42f,
+                    0f),
+                arrowMaterial);
         }
 
         public void SetVisible(
