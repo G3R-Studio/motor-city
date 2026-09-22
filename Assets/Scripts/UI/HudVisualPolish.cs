@@ -118,6 +118,8 @@ namespace MotorCity.UI
             PolishCoreText("Garage Credits", 0.80f);
             PolishCoreText("Garage Reputation", 0.75f);
             PolishCoreText("Garage Vehicle", 0.75f);
+            PolishCoreText("Garage Next Vehicle", 0.70f);
+            PolishCoreText("Garage Vehicle Stats", 0.60f);
 
             ApplyModalComposition(lastTouchLayout);
             PolishTouchButtons();
