@@ -23,6 +23,9 @@ namespace MotorCity.World
         private static readonly HashSet<ulong> EdgeKeys =
             new();
 
+        private static readonly Dictionary<Vector2Int, List<int>> NodeBuckets =
+            new();
+
         private static readonly Dictionary<MonoBehaviour, WayNetworkEntry>
             WayEntries =
                 new();
@@ -318,6 +321,7 @@ namespace MotorCity.World
             Nodes.Clear();
             Edges.Clear();
             EdgeKeys.Clear();
+            NodeBuckets.Clear();
             WayEntries.Clear();
 
             cachedSceneHandle =
@@ -645,24 +649,97 @@ namespace MotorCity.World
             Vector3 point,
             List<Vector3> nodes)
         {
-            for (int i = 0;
-                 i < nodes.Count;
-                 i++)
+            Vector2Int cell =
+                NodeCell(
+                    point);
+
+            int bestIndex =
+                int.MaxValue;
+
+            for (int y = -1;
+                 y <= 1;
+                 y++)
             {
-                if (FlatDistance(
-                        point,
-                        nodes[i]) <=
-                    MergeDistance)
+                for (int x = -1;
+                     x <= 1;
+                     x++)
                 {
-                    return i;
+                    Vector2Int neighbor =
+                        new(
+                            cell.x + x,
+                            cell.y + y);
+
+                    if (!NodeBuckets.TryGetValue(
+                            neighbor,
+                            out List<int> indices))
+                    {
+                        continue;
+                    }
+
+                    foreach (int index in
+                             indices)
+                    {
+                        if (index >=
+                            bestIndex)
+                        {
+                            continue;
+                        }
+
+                        if (FlatDistance(
+                                point,
+                                nodes[index]) <=
+                            MergeDistance)
+                        {
+                            bestIndex =
+                                index;
+                        }
+                    }
                 }
             }
+
+            if (bestIndex !=
+                int.MaxValue)
+            {
+                return
+                    bestIndex;
+            }
+
+            int newIndex =
+                nodes.Count;
 
             nodes.Add(
                 point);
 
+            if (!NodeBuckets.TryGetValue(
+                    cell,
+                    out List<int> bucket))
+            {
+                bucket =
+                    new List<int>();
+
+                NodeBuckets[
+                    cell] =
+                    bucket;
+            }
+
+            bucket.Add(
+                newIndex);
+
             return
-                nodes.Count - 1;
+                newIndex;
+        }
+
+        private static Vector2Int NodeCell(
+            Vector3 point)
+        {
+            return
+                new Vector2Int(
+                    Mathf.FloorToInt(
+                        point.x /
+                        MergeDistance),
+                    Mathf.FloorToInt(
+                        point.z /
+                        MergeDistance));
         }
 
         private static void AddEdge(
