@@ -160,6 +160,7 @@ namespace MotorCity.UI
         private GameObject touchControlsRoot;
         private GameObject touchUtilityRoot;
         private GameObject touchActivityCancelRoot;
+        private GameObject touchPauseRoot;
         private GameObject navigatorTouchControlsRoot;
         private GameObject storeTouchControlsRoot;
         private GameObject clubTouchControlsRoot;
@@ -1881,6 +1882,7 @@ namespace MotorCity.UI
             BuildTouchControls(safeAreaRoot);
             BuildTouchUtilityControls(safeAreaRoot);
             BuildTouchActivityCancelControl(safeAreaRoot);
+            BuildTouchPauseControl(safeAreaRoot);
             BuildModalTouchControls(safeAreaRoot);
 
             driftPanel.SetActive(false);
@@ -2051,7 +2053,134 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     "pause.controls");
 
+            BuildPauseTouchActions(
+                panel);
+
             RefreshPauseMenuText();
+        }
+
+        private void BuildPauseTouchActions(
+            Transform panel)
+        {
+            if (!ShouldUseTouchUi())
+                return;
+
+            CreatePauseButton(
+                panel,
+                "Pause Quality Previous",
+                "touch.modal.prev",
+                new Vector2(-165f, -82f),
+                new Vector2(96f, 44f),
+                () =>
+                    CycleQuality(-1));
+
+            CreatePauseButton(
+                panel,
+                "Pause Audio Toggle",
+                "pause.audio_touch",
+                new Vector2(-55f, -82f),
+                new Vector2(112f, 44f),
+                () =>
+                {
+                    ToggleAudioMute();
+                });
+
+            CreatePauseButton(
+                panel,
+                "Pause Quality Next",
+                "touch.modal.next",
+                new Vector2(65f, -82f),
+                new Vector2(96f, 44f),
+                () =>
+                    CycleQuality(1));
+
+            CreatePauseButton(
+                panel,
+                "Pause Resume",
+                "pause.resume",
+                new Vector2(175f, -82f),
+                new Vector2(112f, 44f),
+                ClosePauseMenu);
+        }
+
+        private void CreatePauseButton(
+            Transform parent,
+            string objectName,
+            string localizationKey,
+            Vector2 anchoredPosition,
+            Vector2 size,
+            UnityEngine.Events.UnityAction action)
+        {
+            GameObject buttonObject =
+                new(
+                    objectName,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(0.5f, 0.5f);
+
+            rect.anchorMax =
+                new Vector2(0.5f, 0.5f);
+
+            rect.pivot =
+                new Vector2(0.5f, 0.5f);
+
+            rect.anchoredPosition =
+                anchoredPosition;
+
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            image.color =
+                new Color(
+                    0.045f,
+                    0.075f,
+                    0.12f,
+                    0.96f);
+
+            Button button =
+                buttonObject.GetComponent<Button>();
+
+            button.targetGraphic =
+                image;
+
+            button.onClick.AddListener(
+                action);
+
+            Text text =
+                CreateText(
+                    rect,
+                    "Label",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    size -
+                    new Vector2(8f, 6f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+
+            text.text =
+                MotorCityLocalization.Text(
+                    localizationKey);
+
+            touchLocalizedLabels.Add(
+                new TouchLocalizedLabel(
+                    text,
+                    localizationKey));
         }
 
         private void OpenPauseMenu()
@@ -2075,6 +2204,9 @@ namespace MotorCity.UI
                 false);
 
             touchActivityCancelRoot?.SetActive(
+                false);
+
+            touchPauseRoot?.SetActive(
                 false);
 
             car?.SetDrivingEnabled(
@@ -2122,24 +2254,29 @@ namespace MotorCity.UI
 
             if (MotorCityInput.CycleBodyColorPressed)
             {
-                audioMuted =
-                    !audioMuted;
-
-                AudioListener.volume =
-                    audioMuted
-                        ? 0f
-                        : 1f;
-
-                MotorCitySaveService.SetInt(
-                    AudioMutedSaveKey,
-                    audioMuted
-                        ? 1
-                        : 0);
-
-                MotorCitySaveService.Save();
-
-                RefreshPauseMenuText();
+                ToggleAudioMute();
             }
+        }
+
+        private void ToggleAudioMute()
+        {
+            audioMuted =
+                !audioMuted;
+
+            AudioListener.volume =
+                audioMuted
+                    ? 0f
+                    : 1f;
+
+            MotorCitySaveService.SetInt(
+                AudioMutedSaveKey,
+                audioMuted
+                    ? 1
+                    : 0);
+
+            MotorCitySaveService.Save();
+
+            RefreshPauseMenuText();
         }
 
         private void CycleQuality(
@@ -7489,6 +7626,144 @@ namespace MotorCity.UI
                 new Vector2(100f, 40f));
         }
 
+        private void BuildTouchPauseControl(
+            Transform canvas)
+        {
+            touchPauseRoot =
+                new GameObject(
+                    "Touch Pause Control",
+                    typeof(RectTransform));
+
+            touchPauseRoot.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform root =
+                touchPauseRoot.GetComponent<RectTransform>();
+
+            root.anchorMin =
+                new Vector2(0f, 1f);
+
+            root.anchorMax =
+                new Vector2(0f, 1f);
+
+            root.pivot =
+                new Vector2(0f, 1f);
+
+            root.anchoredPosition =
+                new Vector2(
+                    18f,
+                    -18f);
+
+            root.sizeDelta =
+                new Vector2(
+                    54f,
+                    44f);
+
+            GameObject buttonObject =
+                new(
+                    "Touch Pause",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+
+            buttonObject.transform.SetParent(
+                root,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(0.5f, 0.5f);
+
+            rect.anchorMax =
+                new Vector2(0.5f, 0.5f);
+
+            rect.pivot =
+                new Vector2(0.5f, 0.5f);
+
+            rect.anchoredPosition =
+                Vector2.zero;
+
+            rect.sizeDelta =
+                new Vector2(50f, 40f);
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            image.color =
+                new Color(
+                    0.045f,
+                    0.075f,
+                    0.12f,
+                    0.94f);
+
+            Button button =
+                buttonObject.GetComponent<Button>();
+
+            button.targetGraphic =
+                image;
+
+            button.onClick.AddListener(
+                OpenPauseMenu);
+
+            CreatePauseGlyph(
+                rect);
+        }
+
+        private static void CreatePauseGlyph(
+            Transform parent)
+        {
+            for (int i = 0;
+                 i < 2;
+                 i++)
+            {
+                GameObject bar =
+                    new(
+                        "Pause Bar",
+                        typeof(RectTransform),
+                        typeof(Image));
+
+                bar.transform.SetParent(
+                    parent,
+                    false);
+
+                RectTransform rect =
+                    bar.GetComponent<RectTransform>();
+
+                rect.anchorMin =
+                    new Vector2(0.5f, 0.5f);
+
+                rect.anchorMax =
+                    new Vector2(0.5f, 0.5f);
+
+                rect.pivot =
+                    new Vector2(0.5f, 0.5f);
+
+                rect.anchoredPosition =
+                    new Vector2(
+                        i == 0
+                            ? -5f
+                            : 5f,
+                        0f);
+
+                rect.sizeDelta =
+                    new Vector2(
+                        4f,
+                        16f);
+
+                Image image =
+                    bar.GetComponent<Image>();
+
+                image.color =
+                    TextColor;
+
+                image.raycastTarget =
+                    false;
+            }
+        }
+
         private void BuildTouchActivityCancelControl(
             Transform canvas)
         {
@@ -7999,6 +8274,10 @@ namespace MotorCity.UI
                     false);
 
                 SetActiveIfChanged(
+                    touchPauseRoot,
+                    false);
+
+                SetActiveIfChanged(
                     resultTouchControlsRoot,
                     false);
 
@@ -8029,6 +8308,11 @@ namespace MotorCity.UI
 
             SetActiveIfChanged(
                 touchControlsRoot,
+                !HasBlockingModalUi());
+
+            SetActiveIfChanged(
+                touchPauseRoot,
+                !pauseMenuOpen &&
                 !HasBlockingModalUi());
 
             bool onboardingComplete =
