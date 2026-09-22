@@ -94,7 +94,10 @@ namespace MotorCity.Input
             KeyHeld(
                 Key.RightShift) ||
             VirtualIsHeld(
-                MotorCityInputAction.EliteModifier);
+                MotorCityInputAction.EliteModifier) ||
+            (PreferTouchPrompts &&
+             VirtualIsHeld(
+                 MotorCityInputAction.Handbrake));
 
         public static bool PreviousVehiclePressed =>
             KeyPressed(
