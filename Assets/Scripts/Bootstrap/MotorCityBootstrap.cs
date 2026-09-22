@@ -601,79 +601,18 @@ namespace MotorCity.Bootstrap
                     behaviour,
                     player);
 
-                System.Reflection.FieldInfo maxVehiclesField =
-                    type.GetField(
-                        "maxVehiclesWithPlayer");
+                TrafficQualityAdapter qualityAdapter =
+                    behaviour.GetComponent<TrafficQualityAdapter>();
 
-                if (maxVehiclesField != null &&
-                    maxVehiclesField.FieldType == typeof(int))
+                if (qualityAdapter == null)
                 {
-                    int trafficBudget =
-                        MotorCityQualityRuntime.CurrentPreset switch
-                        {
-                            MotorCityQualityPreset.Low =>
-#if UNITY_WEBGL && !UNITY_EDITOR
-                                10,
-#else
-                                16,
-#endif
-
-                            MotorCityQualityPreset.High =>
-#if UNITY_WEBGL && !UNITY_EDITOR
-                                24,
-#else
-                                32,
-#endif
-
-                            _ =>
-#if UNITY_WEBGL && !UNITY_EDITOR
-                                18
-#else
-                                28
-#endif
-                        };
-
-                    maxVehiclesField.SetValue(
-                        behaviour,
-                        trafficBudget);
+                    qualityAdapter =
+                        behaviour.gameObject.AddComponent<
+                            TrafficQualityAdapter>();
                 }
 
-                System.Reflection.FieldInfo aroundField =
-                    type.GetField(
-                        "around");
-
-                if (aroundField != null &&
-                    aroundField.FieldType == typeof(float))
-                {
-                    float trafficRadius =
-                        MotorCityQualityRuntime.CurrentPreset switch
-                        {
-                            MotorCityQualityPreset.Low =>
-#if UNITY_WEBGL && !UNITY_EDITOR
-                                105f,
-#else
-                                120f,
-#endif
-
-                            MotorCityQualityPreset.High =>
-#if UNITY_WEBGL && !UNITY_EDITOR
-                                140f,
-#else
-                                165f,
-#endif
-
-                            _ =>
-#if UNITY_WEBGL && !UNITY_EDITOR
-                                125f
-#else
-                                150f
-#endif
-                        };
-
-                    aroundField.SetValue(
-                        behaviour,
-                        trafficRadius);
-                }
+                qualityAdapter.Bind(
+                    behaviour);
 
                 return;
             }
