@@ -54,6 +54,33 @@ namespace MotorCity.Gameplay
                     0,
                     route.Length - 1)];
 
+        public bool TryGetNextTarget(
+            out Vector3 target)
+        {
+            target =
+                CurrentTarget;
+
+            if (route == null ||
+                route.Length < 2)
+            {
+                return false;
+            }
+
+            int nextIndex =
+                checkpointIndex + 1;
+
+            if (nextIndex < 0 ||
+                nextIndex >= route.Length)
+            {
+                return false;
+            }
+
+            target =
+                route[nextIndex];
+
+            return true;
+        }
+
         public string StatusText { get; private set; } =
             MotorCityLocalization.Text("activity.marker.sprint");
 
