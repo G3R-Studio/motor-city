@@ -1770,6 +1770,7 @@ namespace MotorCity.UI
         private void BuildUi()
         {
             EnsureUiEventSystem();
+            MotorCityIconLibrary.PrewarmCore();
 
             font =
                 Resources.GetBuiltinResource<Font>(
@@ -1915,6 +1916,25 @@ namespace MotorCity.UI
             label.text =
                 "MOTOR CITY";
 
+            CreateHudIcon(
+                card,
+                "Credits Icon",
+                MotorCityIconLibrary.Credits,
+                new Vector2(
+                    -218f,
+                    -10f),
+                new Vector2(
+                    18f,
+                    18f),
+                new Vector2(
+                    1f,
+                    1f),
+                new Color(
+                    1f,
+                    0.78f,
+                    0.20f,
+                    1f));
+
             moneyText =
                 CreateText(
                     card,
@@ -1935,6 +1955,21 @@ namespace MotorCity.UI
                         1f,
                         1f),
                     TextColor);
+
+            CreateHudIcon(
+                card,
+                "Reputation Icon",
+                MotorCityIconLibrary.Reputation,
+                new Vector2(
+                    -214f,
+                    -36f),
+                new Vector2(
+                    14f,
+                    14f),
+                new Vector2(
+                    1f,
+                    1f),
+                BlueAccent);
 
             reputationText =
                 CreateText(
