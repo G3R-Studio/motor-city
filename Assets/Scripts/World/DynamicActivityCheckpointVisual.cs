@@ -7,6 +7,7 @@ namespace MotorCity.World
     {
         private CityProfessionSystem profession;
         private TowTruckJobSystem towTruck;
+        private UndergroundSceneSystem underground;
         private CheckpointBeaconVisual beacon;
 
         private bool visibilityInitialized;
@@ -36,6 +37,19 @@ namespace MotorCity.World
                     1f,
                     0.58f,
                     0.08f));
+        }
+
+        public void BindUnderground(
+            UndergroundSceneSystem system)
+        {
+            underground =
+                system;
+
+            Setup(
+                new Color(
+                    0.72f,
+                    0.28f,
+                    1f));
         }
 
         private void Setup(
@@ -84,6 +98,20 @@ namespace MotorCity.World
                 hasNext =
                     visible &&
                     towTruck.TryGetNextTarget(
+                        out nextTarget);
+            }
+            else if (underground != null)
+            {
+                visible =
+                    underground.IsActive ||
+                    underground.IsCountingDown;
+
+                target =
+                    underground.CurrentTarget;
+
+                hasNext =
+                    visible &&
+                    underground.TryGetNextTarget(
                         out nextTarget);
             }
             else
