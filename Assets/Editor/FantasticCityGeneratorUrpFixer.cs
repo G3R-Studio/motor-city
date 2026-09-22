@@ -447,22 +447,6 @@ public static class FantasticCityGeneratorUrpFixer
 
                 }
 
-                foreach (Light light in
-                         clone.GetComponentsInChildren<Light>(true))
-                {
-                    if (light != null)
-                        light.enabled =
-                            false;
-                }
-
-                foreach (AudioSource audio in
-                         clone.GetComponentsInChildren<AudioSource>(true))
-                {
-                    if (audio != null)
-                        audio.enabled =
-                            false;
-                }
-
                 ApplyTrafficSignalEmission(
                     clone);
 
