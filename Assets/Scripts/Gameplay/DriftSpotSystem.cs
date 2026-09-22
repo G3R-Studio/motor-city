@@ -19,6 +19,7 @@ namespace MotorCity.Gameplay
         private Spot[] spots;
         private Spot activeSpot;
         private int scoreAtEntry;
+        private int lastLiveScore = int.MinValue;
         private float messageTimer;
 
         public bool ShowMessage => messageTimer > 0f;
@@ -128,24 +129,33 @@ namespace MotorCity.Gameplay
 
             if (activeSpot != null)
             {
-                float distance = Vector3.Distance(
-                    carPosition,
-                    Flat(activeSpot.Position));
+                Vector3 activeDelta =
+                    carPosition -
+                    Flat(activeSpot.Position);
 
                 int liveScore = Mathf.Max(
                     0,
                     drift.TotalScore - scoreAtEntry);
 
-                if (distance <= ExitRadius)
+                if (activeDelta.sqrMagnitude <=
+                    ExitRadius * ExitRadius)
                 {
-                    StatusText =
-                        MotorCityLocalization.Format(
-                            "driftspot.live",
-                            activeSpot.DisplayName,
-                            liveScore,
-                            activeSpot.BronzeScore,
-                            activeSpot.SilverScore,
-                            activeSpot.GoldScore);
+                    if (liveScore !=
+                        lastLiveScore)
+                    {
+                        lastLiveScore =
+                            liveScore;
+
+                        StatusText =
+                            MotorCityLocalization.Format(
+                                "driftspot.live",
+                                activeSpot.DisplayName,
+                                liveScore,
+                                activeSpot.BronzeScore,
+                                activeSpot.SilverScore,
+                                activeSpot.GoldScore);
+                    }
+
                     return;
                 }
 
@@ -154,6 +164,7 @@ namespace MotorCity.Gameplay
                     liveScore);
 
                 activeSpot = null;
+                lastLiveScore = int.MinValue;
                 return;
             }
 
@@ -161,15 +172,19 @@ namespace MotorCity.Gameplay
             {
                 Spot spot = spots[i];
 
-                float distance = Vector3.Distance(
-                    carPosition,
-                    Flat(spot.Position));
+                Vector3 spotDelta =
+                    carPosition -
+                    Flat(spot.Position);
 
-                if (distance > EnterRadius)
+                if (spotDelta.sqrMagnitude >
+                    EnterRadius * EnterRadius)
+                {
                     continue;
+                }
 
                 activeSpot = spot;
                 scoreAtEntry = drift.TotalScore;
+                lastLiveScore = int.MinValue;
                 StatusText =
                     MotorCityLocalization.Format(
                         "driftspot.prompt",
