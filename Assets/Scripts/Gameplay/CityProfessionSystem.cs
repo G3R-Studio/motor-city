@@ -456,6 +456,47 @@ namespace MotorCity.Gameplay
                     : Vector3.zero;
         }
 
+        public bool TryGetStartForActivity(
+            string activityId,
+            out Vector3 point,
+            out string label)
+        {
+            point =
+                Vector3.zero;
+
+            label =
+                string.Empty;
+
+            if (definitions == null ||
+                string.IsNullOrWhiteSpace(
+                    activityId))
+            {
+                return false;
+            }
+
+            foreach (ProfessionDefinition definition in
+                     definitions)
+            {
+                if (ActivityId(
+                        definition.Id) !=
+                    activityId)
+                {
+                    continue;
+                }
+
+                point =
+                    definition.Start;
+
+                label =
+                    MotorCityLocalization.Text(
+                        definition.NameKey);
+
+                return true;
+            }
+
+            return false;
+        }
+
         public string GetStartName(
             int index)
         {
