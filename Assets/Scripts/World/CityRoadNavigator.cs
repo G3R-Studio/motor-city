@@ -319,13 +319,7 @@ namespace MotorCity.World
             cachedSceneHandle =
                 sceneHandle;
 
-            bool builtFromTraffic =
-                BuildFromFcgAuthoredNetwork();
-
-            if (!builtFromTraffic)
-            {
-                BuildFallbackGraph();
-            }
+            BuildFromFcgAuthoredNetwork();
 
             graphReady =
                 true;
@@ -402,7 +396,7 @@ namespace MotorCity.World
             {
                 Debug.LogWarning(
                     "Motor City navigator: FCG authored Way containers were not found. " +
-                    "Using the fallback gameplay-road graph.");
+                    "Road navigation is disabled to avoid drawing an invalid route.");
 
                 return false;
             }
@@ -633,141 +627,6 @@ namespace MotorCity.World
             return null;
         }
 
-        private static void BuildFallbackGraph()
-        {
-            AddRoute(
-                CityAssetRuntimeInstaller.DeliveryRoute,
-                Nodes,
-                Edges);
-
-            AddRoute(
-                CityAssetRuntimeInstaller.SprintRoute,
-                Nodes,
-                Edges);
-
-            AddRoute(
-                CityAssetRuntimeInstaller.CircuitRoute,
-                Nodes,
-                Edges);
-
-            ConnectNearestFallbackRoads(
-                Nodes,
-                Edges);
-
-            Debug.LogWarning(
-                "Motor City navigator: using fallback gameplay-road graph.");
-        }
-
-        private static void AddRoute(
-            Vector3[] route,
-            List<Vector3> nodes,
-            List<Edge> edges)
-        {
-            if (route == null ||
-                route.Length == 0)
-            {
-                return;
-            }
-
-            int previous =
-                -1;
-
-            foreach (Vector3 point in
-                     route)
-            {
-                int current =
-                    FindOrAddNode(
-                        point,
-                        nodes);
-
-                if (previous >= 0 &&
-                    previous != current)
-                {
-                    AddEdge(
-                        previous,
-                        current,
-                        nodes,
-                        edges,
-                        true);
-                }
-
-                previous =
-                    current;
-            }
-        }
-
-        private static int FindOrAddNode(
-            Vector3 point,
-            List<Vector3> nodes)
-        {
-            for (int i = 0;
-                 i < nodes.Count;
-                 i++)
-            {
-                if (FlatDistance(
-                        point,
-                        nodes[i]) <=
-                    MergeDistance)
-                {
-                    return i;
-                }
-            }
-
-            nodes.Add(
-                point);
-
-            return
-                nodes.Count - 1;
-        }
-
-        private static void ConnectNearestFallbackRoads(
-            List<Vector3> nodes,
-            List<Edge> edges)
-        {
-            for (int i = 0;
-                 i < nodes.Count;
-                 i++)
-            {
-                int nearest =
-                    -1;
-
-                float best =
-                    175f;
-
-                for (int j = 0;
-                     j < nodes.Count;
-                     j++)
-                {
-                    if (i == j)
-                        continue;
-
-                    float distance =
-                        FlatDistance(
-                            nodes[i],
-                            nodes[j]);
-
-                    if (distance >= best)
-                        continue;
-
-                    best =
-                        distance;
-
-                    nearest =
-                        j;
-                }
-
-                if (nearest >= 0)
-                {
-                    AddEdge(
-                        i,
-                        nearest,
-                        nodes,
-                        edges,
-                        false);
-                }
-            }
-        }
-
         private static void AddEdge(
             int a,
             int b,
@@ -808,41 +667,6 @@ namespace MotorCity.World
                         nodes[low],
                         nodes[high]),
                     roadSegment));
-        }
-
-        private static int NearestNode(
-            Vector3 position,
-            List<Vector3> nodes)
-        {
-            int bestIndex =
-                0;
-
-            float best =
-                float.PositiveInfinity;
-
-            for (int i = 0;
-                 i < nodes.Count;
-                 i++)
-            {
-                float distance =
-                    FlatDistance(
-                        position,
-                        nodes[i]);
-
-                if (distance >=
-                    best)
-                {
-                    continue;
-                }
-
-                best =
-                    distance;
-
-                bestIndex =
-                    i;
-            }
-
-            return bestIndex;
         }
 
         private static List<int> FindShortestPath(
