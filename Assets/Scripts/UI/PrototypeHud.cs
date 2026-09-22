@@ -130,6 +130,7 @@ namespace MotorCity.UI
         private RectTransform safeAreaRoot;
         private GameObject touchControlsRoot;
         private GameObject touchUtilityRoot;
+        private GameObject touchActivityCancelRoot;
         private GameObject navigatorTouchControlsRoot;
         private GameObject storeTouchControlsRoot;
         private GameObject clubTouchControlsRoot;
@@ -1784,6 +1785,7 @@ namespace MotorCity.UI
             BuildClubOverlay(safeAreaRoot);
             BuildTouchControls(safeAreaRoot);
             BuildTouchUtilityControls(safeAreaRoot);
+            BuildTouchActivityCancelControl(safeAreaRoot);
             BuildModalTouchControls(safeAreaRoot);
 
             driftPanel.SetActive(false);
@@ -4544,7 +4546,7 @@ namespace MotorCity.UI
                 label;
         }
 
-        private Text CreateLocalizedTouchPulseButton(
+        private GameObject CreateLocalizedTouchPulseButton(
             Transform parent,
             string name,
             string localizationKey,
@@ -4622,7 +4624,7 @@ namespace MotorCity.UI
                     localizationKey));
 
             return
-                text;
+                buttonObject;
         }
 
         private void UpdateGarage()
@@ -5218,6 +5220,55 @@ namespace MotorCity.UI
                 new Vector2(100f, 40f));
         }
 
+        private void BuildTouchActivityCancelControl(
+            Transform canvas)
+        {
+            touchActivityCancelRoot =
+                new GameObject(
+                    "Touch Activity Cancel",
+                    typeof(RectTransform));
+
+            touchActivityCancelRoot.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform root =
+                touchActivityCancelRoot.GetComponent<RectTransform>();
+
+            root.anchorMin =
+                new Vector2(1f, 0f);
+            root.anchorMax =
+                new Vector2(1f, 0f);
+            root.pivot =
+                new Vector2(1f, 0f);
+            root.anchoredPosition =
+                new Vector2(-28f, 354f);
+            root.sizeDelta =
+                new Vector2(190f, 46f);
+
+            GameObject button =
+                CreateLocalizedTouchPulseButton(
+                    root,
+                    "Touch Cancel Activity",
+                    "touch.drive.cancel",
+                    MotorCityInputAction.Cancel,
+                    new Vector2(0f, 2f),
+                    new Vector2(180f, 42f));
+
+            RectTransform buttonRect =
+                button.GetComponent<RectTransform>();
+
+            buttonRect.anchorMin =
+                new Vector2(0.5f, 0f);
+            buttonRect.anchorMax =
+                new Vector2(0.5f, 0f);
+            buttonRect.pivot =
+                new Vector2(0.5f, 0f);
+
+            touchActivityCancelRoot.SetActive(
+                false);
+        }
+
         private void BuildModalTouchControls(
             Transform canvas)
         {
@@ -5607,6 +5658,10 @@ namespace MotorCity.UI
                     false);
 
                 SetActiveIfChanged(
+                    touchActivityCancelRoot,
+                    false);
+
+                SetActiveIfChanged(
                     navigatorTouchControlsRoot,
                     false);
 
@@ -5628,6 +5683,12 @@ namespace MotorCity.UI
             SetActiveIfChanged(
                 touchUtilityRoot,
                 !HasBlockingModalUi());
+
+            SetActiveIfChanged(
+                touchActivityCancelRoot,
+                !HasBlockingModalUi() &&
+                activityManager != null &&
+                activityManager.IsBusy);
 
             SetActiveIfChanged(
                 navigatorTouchControlsRoot,
