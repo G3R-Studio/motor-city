@@ -152,11 +152,13 @@ namespace MotorCity.Gameplay
                 Trap trap =
                     traps[i];
 
+                Vector3 trapDelta =
+                    carPosition -
+                    Flat(trap.Position);
+
                 bool inside =
-                    Vector3.Distance(
-                        carPosition,
-                        Flat(trap.Position)) <=
-                    TriggerRadius;
+                    trapDelta.sqrMagnitude <=
+                    TriggerRadius * TriggerRadius;
 
                 if (blocked)
                 {
