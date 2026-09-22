@@ -93,6 +93,9 @@ namespace MotorCity.Gameplay
             {
                 activityManager.ActivityResultShown +=
                     HandleActivityResult;
+
+                activityManager.ActivityCompleted +=
+                    HandleActivityCompleted;
             }
         }
 
@@ -114,6 +117,9 @@ namespace MotorCity.Gameplay
             {
                 activityManager.ActivityResultShown -=
                     HandleActivityResult;
+
+                activityManager.ActivityCompleted -=
+                    HandleActivityCompleted;
             }
 
             Save();
@@ -164,6 +170,46 @@ namespace MotorCity.Gameplay
             messageTimer =
                 MessageSeconds;
             Save();
+        }
+
+        private void HandleActivityCompleted(
+            string activityId)
+        {
+            if (activityId !=
+                "underground")
+            {
+                return;
+            }
+
+            ContractDefinition contract =
+                CurrentDefinition();
+
+            if (contract.NightRequired <= 0)
+                return;
+
+            nightProgress++;
+
+            if (IsComplete(
+                    contract))
+            {
+                CompleteContract(
+                    contract);
+
+                return;
+            }
+
+            Save();
+
+            StatusText =
+                MotorCityLocalization.Format(
+                    "contract.progress",
+                    contract.Client,
+                    contract.Name,
+                    ProgressText(
+                        contract));
+
+            messageTimer =
+                3f;
         }
 
         private void HandleActivityResult(
