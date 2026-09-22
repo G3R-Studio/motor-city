@@ -79,6 +79,15 @@ namespace MotorCity.UI
         private RectTransform minimapTargetBlip;
         private RectTransform minimapPlayerArrow;
         private Text minimapTargetText;
+        private readonly RectTransform[] minimapRouteDots =
+            new RectTransform[36];
+        private GameObject navigatorMenuOverlay;
+        private Text navigatorMenuText;
+        private bool navigatorMenuOpen;
+        private int navigatorSelection;
+        private bool manualNavigationActive;
+        private Vector3 manualNavigationTarget;
+        private string manualNavigationLabel;
         private CitySchematicMap schematicMap;
         private Texture2D minimapMaskTexture;
         private Sprite minimapMaskSprite;
@@ -229,6 +238,7 @@ namespace MotorCity.UI
             if (moneyText == null)
                 return;
 
+            HandleNavigatorMenu();
             HandleStoreInput();
             HandleClubInput();
 
@@ -566,6 +576,7 @@ namespace MotorCity.UI
             BuildSpeedometer(safeAreaRoot);
             BuildStatus(safeAreaRoot);
             BuildNavigator(safeAreaRoot);
+            BuildNavigatorMenu(safeAreaRoot);
             BuildDriftPanel(safeAreaRoot);
             BuildActivityResult(safeAreaRoot);
             BuildGarage(safeAreaRoot);
@@ -575,6 +586,7 @@ namespace MotorCity.UI
             activityResultOverlay.SetActive(false);
             garageOverlay.SetActive(false);
             clubOverlay.SetActive(false);
+            navigatorMenuOverlay.SetActive(false);
         }
 
         private void BuildPlayerCard(Transform canvas)
@@ -1198,6 +1210,49 @@ namespace MotorCity.UI
                         1f);
             }
 
+            for (int i = 0;
+                 i < minimapRouteDots.Length;
+                 i++)
+            {
+                GameObject dot =
+                    new(
+                        "Route Dot " + i,
+                        typeof(RectTransform),
+                        typeof(Image));
+
+                dot.transform.SetParent(
+                    viewportRect,
+                    false);
+
+                RectTransform dotRect =
+                    dot.GetComponent<RectTransform>();
+
+                dotRect.anchorMin =
+                    new Vector2(0.5f, 0.5f);
+                dotRect.anchorMax =
+                    new Vector2(0.5f, 0.5f);
+                dotRect.pivot =
+                    new Vector2(0.5f, 0.5f);
+                dotRect.sizeDelta =
+                    new Vector2(5f, 5f);
+
+                Image dotImage =
+                    dot.GetComponent<Image>();
+
+                dotImage.color =
+                    new Color(
+                        0.18f,
+                        0.76f,
+                        1f,
+                        0.88f);
+                dotImage.raycastTarget =
+                    false;
+
+                dot.SetActive(false);
+                minimapRouteDots[i] =
+                    dotRect;
+            }
+
             Text playerArrow =
                 CreateText(
                     viewportRect,
@@ -1312,7 +1367,8 @@ namespace MotorCity.UI
             ResolveMinimapTarget(
                 out Vector3 target,
                 out string label,
-                out bool hasTarget);
+                out bool hasTarget,
+                out bool showRoadRoute);
 
             if (!hasTarget)
             {
@@ -1322,6 +1378,7 @@ namespace MotorCity.UI
                 if (minimapTargetText != null)
                     minimapTargetText.text = string.Empty;
 
+                HideRouteDots();
                 return;
             }
 
@@ -1361,6 +1418,13 @@ namespace MotorCity.UI
                     markerRadius;
             }
 
+            UpdateRoadRoute(
+                carPosition,
+                target,
+                yaw,
+                worldRadius,
+                showRoadRoute);
+
             if (minimapTargetBlip != null)
             {
                 minimapTargetBlip.gameObject.SetActive(true);
@@ -1379,9 +1443,11 @@ namespace MotorCity.UI
         private void ResolveMinimapTarget(
             out Vector3 target,
             out string label,
-            out bool hasTarget)
+            out bool hasTarget,
+            out bool showRoadRoute)
         {
             hasTarget = true;
+            showRoadRoute = false;
 
             if (activityManager != null &&
                 !activityManager.IsBusy &&
@@ -1396,6 +1462,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.first_activity_target");
+                showRoadRoute = true;
                     return;
                 }
 
@@ -1407,6 +1474,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.garage");
+                showRoadRoute = true;
                     return;
                 }
             }
@@ -1429,6 +1497,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.story_delivery_target");
+                showRoadRoute = true;
                     return;
                 }
 
@@ -1440,6 +1509,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.story_drift_target");
+                showRoadRoute = true;
                     return;
                 }
 
@@ -1451,6 +1521,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.story_sprint_target");
+                showRoadRoute = true;
                     return;
                 }
 
@@ -1462,6 +1533,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.story_circuit_target");
+                showRoadRoute = true;
                     return;
                 }
             }
@@ -1480,6 +1552,7 @@ namespace MotorCity.UI
                             "hud.underground")
                         : MotorCityLocalization.Text(
                             "hud.secret_meeting");
+                showRoadRoute = true;
                 return;
             }
 
@@ -1492,6 +1565,7 @@ namespace MotorCity.UI
                 label =
                     MotorCityLocalization.Text(
                         "tow.title");
+                showRoadRoute = true;
 
                 return;
             }
@@ -1505,6 +1579,7 @@ namespace MotorCity.UI
                 label =
                     MotorCityLocalization.Text(
                         "carwash.title");
+                showRoadRoute = true;
 
                 return;
             }
@@ -1517,6 +1592,7 @@ namespace MotorCity.UI
 
                 label =
                     professions.CurrentLabel;
+                showRoadRoute = true;
 
                 return;
             }
@@ -1530,6 +1606,7 @@ namespace MotorCity.UI
                 label =
                     MotorCityLocalization.Text(
                         "activity.delivery");
+                showRoadRoute = true;
                 return;
             }
 
@@ -1542,6 +1619,7 @@ namespace MotorCity.UI
                 label =
                     MotorCityLocalization.Text(
                         "hud.sprint");
+                showRoadRoute = true;
                 return;
             }
 
@@ -1553,6 +1631,7 @@ namespace MotorCity.UI
                     circuitRace.CurrentTarget;
                 label =
                     MotorCityLocalization.Format("hud.circuit_lap", circuitRace.CurrentLap, circuitRace.LapCount);
+                showRoadRoute = true;
                 return;
             }
 
@@ -1565,7 +1644,31 @@ namespace MotorCity.UI
                 label =
                     MotorCityLocalization.Text(
                         "activity.drift");
+                showRoadRoute = true;
                 return;
+            }
+
+            if (manualNavigationActive)
+            {
+                target =
+                    manualNavigationTarget;
+                label =
+                    manualNavigationLabel;
+                showRoadRoute =
+                    true;
+
+                if (FlatDistance(
+                        car.transform.position,
+                        manualNavigationTarget) <=
+                    16f)
+                {
+                    manualNavigationActive =
+                        false;
+                }
+                else
+                {
+                    return;
+                }
             }
 
             ResolveNearestFreeRoamTarget(
