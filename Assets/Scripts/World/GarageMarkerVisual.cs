@@ -1,4 +1,5 @@
 using MotorCity.Gameplay;
+using MotorCity.UI;
 using UnityEngine;
 
 namespace MotorCity.World
@@ -26,11 +27,17 @@ namespace MotorCity.World
         private void BuildMarker()
         {
             Sprite sprite =
-                Resources.Load<Sprite>(
-                    "MotorCity/Markers/flag");
+                MotorCityIconLibrary.Garage;
+
+            if (sprite == null)
+            {
+                sprite =
+                    Resources.Load<Sprite>(
+                        "MotorCity/Markers/flag");
+            }
 
             GameObject visual =
-                new("Garage Marker Flag");
+                new("Garage Marker Icon");
             visual.transform.SetParent(
                 transform,
                 false);
