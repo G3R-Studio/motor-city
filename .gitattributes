@@ -23,3 +23,5 @@
 # Runtime audio clips must be real repository files so Unity Resources can
 # import them even on clones where Git LFS content has not been materialized.
 Assets/Resources/MotorCity/Audio/*.wav -filter -diff -merge -text
+
+Assets/Resources/MotorCity/Audio/*.ogg -filter -diff -merge -text
