@@ -80,7 +80,6 @@ namespace MotorCity.UI
         private RawImage minimapImage;
         private RectTransform minimapTargetBlip;
         private RectTransform minimapPlayerArrow;
-        private RectTransform minimapViewportRect;
         private Text minimapTargetText;
         private readonly RectTransform[] minimapRouteDots =
             new RectTransform[36];
@@ -735,6 +734,12 @@ namespace MotorCity.UI
                 return;
             }
 
+            if (activityManager != null &&
+                activityManager.IsBusy)
+            {
+                return;
+            }
+
             if (garage != null &&
                 garage.IsOpen)
             {
@@ -945,11 +950,7 @@ namespace MotorCity.UI
             HideRouteDots();
 
             if (!showRoadRoute ||
-                minimapRouteDots.Length == 0 ||
-                schematicMap == null ||
-                !schematicMap.IsValid ||
-                minimapImage == null ||
-                minimapViewportRect == null)
+                minimapRouteDots.Length == 0)
             {
                 return;
             }
@@ -965,15 +966,23 @@ namespace MotorCity.UI
                 return;
             }
 
-            const float spacingMeters =
-                8f;
+            const float markerRadius =
+                74f;
+
+            float mapScale =
+                78f /
+                worldRadius;
 
             int placed =
                 0;
 
+            bool reachedEdge =
+                false;
+
             for (int segment = 0;
                  segment < route.Count - 1 &&
-                 placed < minimapRouteDots.Length;
+                 placed < minimapRouteDots.Length &&
+                 !reachedEdge;
                  segment++)
             {
                 Vector3 a =
@@ -992,9 +1001,9 @@ namespace MotorCity.UI
                         1,
                         Mathf.CeilToInt(
                             length /
-                            spacingMeters));
+                            18f));
 
-                for (int step = 0;
+                for (int step = 1;
                      step <= steps &&
                      placed < minimapRouteDots.Length;
                      step++)
@@ -1006,11 +1015,37 @@ namespace MotorCity.UI
                             step /
                             (float)steps);
 
-                    if (!TryWorldToMinimapOffset(
-                            point,
-                            out Vector2 offset))
+                    Vector3 delta =
+                        point -
+                        carPosition;
+
+                    delta.y =
+                        0f;
+
+                    Vector3 local =
+                        Quaternion.Euler(
+                            0f,
+                            -yaw,
+                            0f) *
+                        delta;
+
+                    Vector2 offset =
+                        new(
+                            local.x *
+                            mapScale,
+                            local.z *
+                            mapScale);
+
+                    if (offset.sqrMagnitude >
+                        markerRadius *
+                        markerRadius)
                     {
-                        continue;
+                        offset =
+                            offset.normalized *
+                            markerRadius;
+
+                        reachedEdge =
+                            true;
                     }
 
                     RectTransform dot =
@@ -1022,80 +1057,11 @@ namespace MotorCity.UI
 
                     dot.anchoredPosition =
                         offset;
+
+                    if (reachedEdge)
+                        break;
                 }
             }
-        }
-
-        private bool TryWorldToMinimapOffset(
-            Vector3 worldPosition,
-            out Vector2 offset)
-        {
-            offset =
-                Vector2.zero;
-
-            if (schematicMap == null ||
-                !schematicMap.IsValid ||
-                minimapImage == null ||
-                minimapViewportRect == null)
-            {
-                return false;
-            }
-
-            Rect uvRect =
-                minimapImage.uvRect;
-
-            if (uvRect.width <=
-                    0.00001f ||
-                uvRect.height <=
-                    0.00001f)
-            {
-                return false;
-            }
-
-            Vector2 uv =
-                schematicMap.WorldToUv(
-                    worldPosition);
-
-            float normalizedX =
-                (uv.x - uvRect.x) /
-                uvRect.width;
-
-            float normalizedY =
-                (uv.y - uvRect.y) /
-                uvRect.height;
-
-            RectTransform mapRect =
-                minimapImage.rectTransform;
-
-            Rect mapBounds =
-                mapRect.rect;
-
-            Vector3 mapLocal =
-                new(
-                    Mathf.Lerp(
-                        mapBounds.xMin,
-                        mapBounds.xMax,
-                        normalizedX),
-                    Mathf.Lerp(
-                        mapBounds.yMin,
-                        mapBounds.yMax,
-                        normalizedY),
-                    0f);
-
-            Vector3 world =
-                mapRect.TransformPoint(
-                    mapLocal);
-
-            Vector3 viewportLocal =
-                minimapViewportRect.InverseTransformPoint(
-                    world);
-
-            offset =
-                new Vector2(
-                    viewportLocal.x,
-                    viewportLocal.y);
-
-            return true;
         }
 
         private void HideRouteDots()
@@ -1128,44 +1094,17 @@ namespace MotorCity.UI
 
         private static void EnsureUiEventSystem()
         {
-            EventSystem eventSystem =
-                Object.FindAnyObjectByType<EventSystem>();
-
-            if (eventSystem == null)
-            {
-                GameObject eventSystemObject =
-                    new(
-                        "Motor City UI EventSystem",
-                        typeof(EventSystem),
-                        typeof(InputSystemUIInputModule));
-
-                Object.DontDestroyOnLoad(
-                    eventSystemObject);
-
-                return;
-            }
-
-            InputSystemUIInputModule inputModule =
-                eventSystem.GetComponent<InputSystemUIInputModule>();
-
-            if (inputModule != null)
+            if (Object.FindAnyObjectByType<EventSystem>() != null)
                 return;
 
-            BaseInputModule[] modules =
-                eventSystem.GetComponents<BaseInputModule>();
+            GameObject eventSystemObject =
+                new(
+                    "Motor City UI EventSystem",
+                    typeof(EventSystem),
+                    typeof(InputSystemUIInputModule));
 
-            foreach (BaseInputModule module in
-                     modules)
-            {
-                if (module != null)
-                {
-                    module.enabled =
-                        false;
-                }
-            }
-
-            eventSystem.gameObject.AddComponent<
-                InputSystemUIInputModule>();
+            Object.DontDestroyOnLoad(
+                eventSystemObject);
         }
 
         private void BuildUi()
@@ -1762,9 +1701,6 @@ namespace MotorCity.UI
             RectTransform viewportRect =
                 viewportObject.GetComponent<RectTransform>();
 
-            minimapViewportRect =
-                viewportRect;
-
             viewportRect.anchorMin =
                 new Vector2(0.5f, 1f);
 
@@ -1823,12 +1759,8 @@ namespace MotorCity.UI
             mapRect.anchoredPosition =
                 Vector2.zero;
 
-            // The minimap is north-up now, so the map image no longer
-            // needs the oversized rotation buffer that was used before.
-            // Matching the circular viewport keeps world/route projection
-            // at the same scale as the visible roads.
             mapRect.sizeDelta =
-                new Vector2(178f, 178f);
+                new Vector2(258f, 258f);
 
             minimapImage =
                 mapObject.GetComponent<RawImage>();
@@ -2025,14 +1957,11 @@ namespace MotorCity.UI
 
             if (garageOpen)
             {
-                navigatorPanel.SetActive(
-                    false);
-
+                navigatorPanel.SetActive(false);
                 return;
             }
 
-            navigatorPanel.SetActive(
-                true);
+            navigatorPanel.SetActive(true);
 
             Vector3 carPosition =
                 car.transform.position;
@@ -2048,28 +1977,24 @@ namespace MotorCity.UI
                     schematicMap.UvWindow(
                         carPosition,
                         worldRadius);
-
-                // North-up minimap. Camera rotation must never affect
-                // the road image or the navigation route.
-                minimapImage.rectTransform.localEulerAngles =
-                    Vector3.zero;
             }
 
-            float carYaw =
+            float yaw =
                 car.transform.eulerAngles.y;
 
-            if (minimapPlayerArrow != null)
+            if (minimapImage != null)
             {
-                // The minimap view is always centered on the player.
-                minimapPlayerArrow.anchoredPosition =
-                    Vector2.zero;
-
-                // With north fixed at the top, only the player arrow rotates.
-                minimapPlayerArrow.localEulerAngles =
+                minimapImage.rectTransform.localEulerAngles =
                     new Vector3(
                         0f,
                         0f,
-                        -carYaw);
+                        yaw);
+            }
+
+            if (minimapPlayerArrow != null)
+            {
+                minimapPlayerArrow.localEulerAngles =
+                    Vector3.zero;
             }
 
             ResolveMinimapTarget(
@@ -2081,75 +2006,70 @@ namespace MotorCity.UI
             if (!hasTarget)
             {
                 if (minimapTargetBlip != null)
-                {
-                    minimapTargetBlip.gameObject.SetActive(
-                        false);
-                }
+                    minimapTargetBlip.gameObject.SetActive(false);
 
                 if (minimapTargetText != null)
-                {
-                    minimapTargetText.text =
-                        string.Empty;
-                }
+                    minimapTargetText.text = string.Empty;
 
                 HideRouteDots();
                 return;
             }
 
+            Vector3 delta =
+                target -
+                carPosition;
+
+            delta.y = 0f;
+
             float distance =
-                FlatDistance(
-                    carPosition,
-                    target);
+                delta.magnitude;
+
+            Vector3 local =
+                Quaternion.Euler(
+                    0f,
+                    -yaw,
+                    0f) *
+                delta;
+
+            const float markerRadius =
+                78f;
+
+            float mapScale =
+                markerRadius /
+                worldRadius;
+
+            Vector2 mapOffset =
+                new Vector2(
+                    local.x * mapScale,
+                    local.z * mapScale);
+
+            if (mapOffset.sqrMagnitude >
+                markerRadius * markerRadius)
+            {
+                mapOffset =
+                    mapOffset.normalized *
+                    markerRadius;
+            }
 
             UpdateRoadRoute(
                 carPosition,
                 target,
-                0f,
+                yaw,
                 worldRadius,
                 showRoadRoute);
 
             if (minimapTargetBlip != null)
             {
-                minimapTargetBlip.gameObject.SetActive(
-                    true);
-
-                Vector2 targetOffset;
-
-                if (!TryWorldToMinimapOffset(
-                        target,
-                        out targetOffset))
-                {
-                    targetOffset =
-                        Vector2.zero;
-                }
-
-                const float targetRadius =
-                    76f;
-
-                if (targetOffset.sqrMagnitude >
-                    targetRadius *
-                    targetRadius)
-                {
-                    targetOffset =
-                        targetOffset.normalized *
-                        targetRadius;
-                }
+                minimapTargetBlip.gameObject.SetActive(true);
 
                 minimapTargetBlip.anchoredPosition =
-                    targetOffset;
-
-                minimapTargetBlip.localEulerAngles =
-                    Vector3.zero;
+                    mapOffset;
             }
 
             if (minimapTargetText != null)
             {
                 minimapTargetText.text =
-                    MotorCityLocalization.Format(
-                        "hud.distance",
-                        label,
-                        Mathf.RoundToInt(
-                            distance));
+                    MotorCityLocalization.Format("hud.distance", label, Mathf.RoundToInt(distance));
             }
         }
 
