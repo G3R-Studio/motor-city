@@ -22,6 +22,8 @@ namespace MotorCity.Gameplay
             activity = targetActivity;
             activityManager = manager;
 
+            CacheVisuals();
+
             checkpointBeacon =
                 gameObject.AddComponent<CheckpointBeaconVisual>();
 
@@ -31,7 +33,6 @@ namespace MotorCity.Gameplay
                     0.58f,
                     1f));
 
-            CacheVisuals();
             baseScale = transform.localScale;
         }
 
@@ -114,10 +115,17 @@ namespace MotorCity.Gameplay
 
         private void SetVisible(bool visible)
         {
-            if (markerRenderers == null) return;
-            foreach (Renderer renderer in markerRenderers)
-                if (renderer != null)
-                    renderer.enabled = visible;
+            if (markerRenderers != null)
+            {
+                foreach (Renderer renderer in markerRenderers)
+                {
+                    if (renderer != null)
+                        renderer.enabled = visible;
+                }
+            }
+
+            checkpointBeacon?.SetVisible(
+                visible);
         }
 
         private void Tint(Color color)
