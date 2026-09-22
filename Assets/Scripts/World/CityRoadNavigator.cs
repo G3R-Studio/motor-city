@@ -1117,9 +1117,6 @@ namespace MotorCity.World
 
                 Cost =
                     cost;
-
-                IsRoadSegment =
-                    isRoadSegment;
             }
         }
 
@@ -1147,6 +1144,9 @@ namespace MotorCity.World
 
                 Cost =
                     cost;
+
+                IsRoadSegment =
+                    isRoadSegment;
             }
         }
     }
