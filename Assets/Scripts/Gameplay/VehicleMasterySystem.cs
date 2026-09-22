@@ -33,6 +33,13 @@ namespace MotorCity.Gameplay
 
         public int CurrentLevel { get; private set; } = 1;
         public int CurrentXp => currentXp;
+        public int CurrentLevelStartXp =>
+            LevelThresholds[
+                Mathf.Clamp(
+                    CurrentLevel - 1,
+                    0,
+                    LevelThresholds.Length - 1)];
+
         public int NextLevelXp =>
             CurrentLevel >= MaxLevel
                 ? LevelThresholds[MaxLevel - 1]
@@ -314,6 +321,7 @@ namespace MotorCity.Gameplay
             roster?.SetMasteryDisplay(
                 CurrentLevel,
                 currentXp,
+                CurrentLevelStartXp,
                 NextLevelXp);
         }
 
