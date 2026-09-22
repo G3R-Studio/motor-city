@@ -164,8 +164,8 @@ namespace MotorCity.Gameplay
 
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown +=
-                    OnActivityResult;
+                activityManager.ActivityCompleted +=
+                    OnActivityCompleted;
             }
         }
 
@@ -188,8 +188,8 @@ namespace MotorCity.Gameplay
         {
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown -=
-                    OnActivityResult;
+                activityManager.ActivityCompleted -=
+                    OnActivityCompleted;
             }
         }
 
@@ -313,39 +313,15 @@ namespace MotorCity.Gameplay
                 MessageSeconds;
         }
 
-        private void OnActivityResult(
-            string activityId,
-            bool success)
-        {
-            if (!success)
-                return;
-
-            if (!string.IsNullOrWhiteSpace(
-                    activityId) &&
-                activityId.StartsWith(
-                    "profession_",
-                    StringComparison.Ordinal))
-            {
-                return;
-            }
-
-            RegisterSuccessfulActivity(
-                activityId,
-                false);
-        }
-
-        public void RegisterCityJobCompletion(
-            string jobId)
+        private void OnActivityCompleted(
+            string activityId)
         {
             RegisterSuccessfulActivity(
-                "profession_" +
-                (jobId ?? string.Empty),
-                true);
+                activityId);
         }
 
         private void RegisterSuccessfulActivity(
-            string activityId,
-            bool forceDailyProgress)
+            string activityId)
         {
             AddXp(
                 18);
@@ -354,11 +330,11 @@ namespace MotorCity.Gameplay
                 return;
 
             bool counts =
-                forceDailyProgress ||
-                (dailyType switch
+                dailyType switch
                 {
                     0 =>
-                        true,
+                        !string.IsNullOrWhiteSpace(
+                            activityId),
                     1 =>
                         activityId == "sprint" ||
                         activityId == "circuit",
@@ -366,7 +342,7 @@ namespace MotorCity.Gameplay
                         activityId == "drift",
                     _ =>
                         false
-                });
+                };
 
             if (!counts)
                 return;
