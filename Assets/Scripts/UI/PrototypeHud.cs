@@ -139,6 +139,9 @@ namespace MotorCity.UI
         private float contextualStatusUpdateTimer;
         private string cachedContextualStatus = string.Empty;
         private const float SlowHudUpdateInterval = 0.10f;
+        private string lastHudLanguageCode = string.Empty;
+        private bool lastHudTouchPrompts;
+        private bool hudLocalizationStateInitialized;
 
         private readonly Queue<string> notificationQueue =
             new();
@@ -279,6 +282,68 @@ namespace MotorCity.UI
             }
         }
 
+        private void RefreshHudLocalizationState()
+        {
+            string languageCode =
+                MotorCityLocalization.LanguageCode;
+
+            bool touchPrompts =
+                MotorCityInput.PreferTouchPrompts;
+
+            if (hudLocalizationStateInitialized &&
+                string.Equals(
+                    lastHudLanguageCode,
+                    languageCode,
+                    System.StringComparison.Ordinal) &&
+                lastHudTouchPrompts ==
+                    touchPrompts)
+            {
+                return;
+            }
+
+            hudLocalizationStateInitialized =
+                true;
+
+            lastHudLanguageCode =
+                languageCode;
+
+            lastHudTouchPrompts =
+                touchPrompts;
+
+            lastDisplayedCredits =
+                int.MinValue;
+
+            lastDisplayedReputation =
+                int.MinValue;
+
+            lastDisplayedReputationLevel =
+                int.MinValue;
+
+            lastDisplayedDriveMode =
+                null;
+
+            lastMinimapDistance =
+                int.MinValue;
+
+            lastMinimapDistanceLabel =
+                string.Empty;
+
+            cachedMinimapLabel =
+                string.Empty;
+
+            cachedContextualStatus =
+                string.Empty;
+
+            slowHudUpdateTimer =
+                0f;
+
+            contextualStatusUpdateTimer =
+                0f;
+
+            minimapTargetResolveTimer =
+                0f;
+        }
+
         private void Update()
         {
             if (moneyText == null)
@@ -288,6 +353,7 @@ namespace MotorCity.UI
             HandleStoreInput();
             HandleClubInput();
             UpdateTouchControlsVisibility();
+            RefreshHudLocalizationState();
 
             if (MotorCityInput.RewardedBonusPressed)
             {
