@@ -445,11 +445,6 @@ public static class FantasticCityGeneratorUrpFixer
                             materials;
                     }
 
-                    renderer.shadowCastingMode =
-                        ShadowCastingMode.Off;
-
-                    renderer.receiveShadows =
-                        false;
                 }
 
                 foreach (Light light in
