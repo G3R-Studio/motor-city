@@ -3187,17 +3187,17 @@ namespace MotorCity.UI
                 dotRect.pivot =
                     new Vector2(0.5f, 0.5f);
                 dotRect.sizeDelta =
-                    new Vector2(5f, 5f);
+                    new Vector2(6f, 6f);
 
                 Image dotImage =
                     dot.GetComponent<Image>();
 
                 dotImage.color =
                     new Color(
-                        0.18f,
-                        0.76f,
+                        0.16f,
+                        0.82f,
                         1f,
-                        0.88f);
+                        0.96f);
                 dotImage.raycastTarget =
                     false;
 
@@ -3210,7 +3210,7 @@ namespace MotorCity.UI
                 CreateText(
                     viewportRect,
                     "Minimap Player",
-                    22,
+                    25,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
@@ -3218,8 +3218,8 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
-                        0.20f,
-                        0.62f,
+                        0.16f,
+                        0.72f,
                         1f,
                         1f));
 
@@ -3233,7 +3233,7 @@ namespace MotorCity.UI
                 CreateText(
                     viewportRect,
                     "Minimap Target",
-                    24,
+                    28,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
@@ -3242,8 +3242,8 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f),
                     new Color(
                         1f,
-                        0.78f,
-                        0.18f,
+                        0.70f,
+                        0.10f,
                         1f));
 
             targetBlip.text =
