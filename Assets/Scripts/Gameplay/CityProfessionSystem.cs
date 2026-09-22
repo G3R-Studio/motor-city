@@ -406,9 +406,6 @@ namespace MotorCity.Gameplay
                 reward,
                 true);
 
-            turbo?.RegisterCityJobCompletion(
-                active.Id);
-
             active = null;
             targetIndex = 0;
             elapsed = 0f;
