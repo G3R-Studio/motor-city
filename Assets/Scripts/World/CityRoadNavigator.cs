@@ -29,93 +29,272 @@ namespace MotorCity.World
         private static ulong cachedSceneHandle =
             ulong.MaxValue;
 
-        private static int cachedStartNode =
-            -1;
-
-        private static int cachedEndNode =
-            -1;
-
-        private static List<int> cachedNodePath =
-            new();
-
         public static List<Vector3> BuildRoute(
             Vector3 start,
             Vector3 destination)
         {
             EnsureGraph();
 
-            if (Nodes.Count == 0)
+            if (Nodes.Count == 0 ||
+                Edges.Count == 0)
             {
-                return new List<Vector3>
-                {
-                    start,
-                    destination
-                };
+                return new List<Vector3>();
             }
 
-            int startNode =
-                NearestNode(
-                    start,
-                    Nodes);
+            RoadProjection startProjection =
+                FindNearestRoadProjection(
+                    start);
 
-            int endNode =
-                NearestNode(
-                    destination,
-                    Nodes);
+            RoadProjection endProjection =
+                FindNearestRoadProjection(
+                    destination);
 
-            if (startNode !=
-                    cachedStartNode ||
-                endNode !=
-                    cachedEndNode ||
-                cachedNodePath == null ||
-                cachedNodePath.Count == 0)
+            if (!startProjection.IsValid ||
+                !endProjection.IsValid)
             {
-                cachedStartNode =
-                    startNode;
+                return new List<Vector3>();
+            }
 
-                cachedEndNode =
-                    endNode;
+            RouteCandidate best =
+                FindBestProjectedRoute(
+                    startProjection,
+                    endProjection);
 
-                cachedNodePath =
-                    FindShortestPath(
-                        startNode,
-                        endNode,
-                        Nodes,
-                        Edges);
+            if (!best.IsValid)
+            {
+                return new List<Vector3>();
             }
 
             List<Vector3> result =
-                new()
-                {
-                    start
-                };
+                new();
+
+            AppendIfDistinct(
+                result,
+                startProjection.Position);
 
             foreach (int index in
-                     cachedNodePath)
+                     best.NodePath)
             {
-                Vector3 point =
-                    Nodes[index];
+                AppendIfDistinct(
+                    result,
+                    Nodes[index]);
+            }
 
-                if (FlatDistance(
-                        result[result.Count - 1],
-                        point) >
-                    1.5f)
+            AppendIfDistinct(
+                result,
+                endProjection.Position);
+
+            return result;
+        }
+
+        private static RouteCandidate FindBestProjectedRoute(
+            RoadProjection start,
+            RoadProjection end)
+        {
+            if (start.EdgeIndex ==
+                end.EdgeIndex)
+            {
+                return new RouteCandidate(
+                    new List<int>(),
+                    FlatDistance(
+                        start.Position,
+                        end.Position));
+            }
+
+            RouteCandidate best =
+                RouteCandidate.Invalid;
+
+            int[] startNodes =
+            {
+                start.A,
+                start.B
+            };
+
+            int[] endNodes =
+            {
+                end.A,
+                end.B
+            };
+
+            foreach (int startNode in
+                     startNodes)
+            {
+                foreach (int endNode in
+                         endNodes)
                 {
-                    result.Add(
-                        point);
+                    List<int> path =
+                        FindShortestPath(
+                            startNode,
+                            endNode,
+                            Nodes,
+                            Edges);
+
+                    if (path == null ||
+                        path.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    float cost =
+                        FlatDistance(
+                            start.Position,
+                            Nodes[startNode]) +
+                        PathCost(
+                            path) +
+                        FlatDistance(
+                            Nodes[endNode],
+                            end.Position);
+
+                    if (!best.IsValid ||
+                        cost < best.Cost)
+                    {
+                        best =
+                            new RouteCandidate(
+                                path,
+                                cost);
+                    }
                 }
             }
 
-            if (FlatDistance(
-                    result[result.Count - 1],
-                    destination) >
-                1.5f)
+            return best;
+        }
+
+        private static float PathCost(
+            List<int> path)
+        {
+            float cost =
+                0f;
+
+            for (int i = 1;
+                 i < path.Count;
+                 i++)
             {
-                result.Add(
-                    destination);
+                cost +=
+                    FlatDistance(
+                        Nodes[path[i - 1]],
+                        Nodes[path[i]]);
             }
 
-            return result;
+            return cost;
+        }
+
+        private static RoadProjection FindNearestRoadProjection(
+            Vector3 position)
+        {
+            RoadProjection best =
+                RoadProjection.Invalid;
+
+            float bestSquared =
+                float.PositiveInfinity;
+
+            for (int i = 0;
+                 i < Edges.Count;
+                 i++)
+            {
+                Edge edge =
+                    Edges[i];
+
+                if (!edge.IsRoadSegment)
+                    continue;
+
+                Vector3 projected =
+                    ProjectToSegmentFlat(
+                        position,
+                        Nodes[edge.A],
+                        Nodes[edge.B]);
+
+                Vector3 delta =
+                    projected -
+                    position;
+
+                delta.y =
+                    0f;
+
+                float squared =
+                    delta.sqrMagnitude;
+
+                if (squared >= bestSquared)
+                    continue;
+
+                bestSquared =
+                    squared;
+
+                best =
+                    new RoadProjection(
+                        i,
+                        edge.A,
+                        edge.B,
+                        projected);
+            }
+
+            return best;
+        }
+
+        private static Vector3 ProjectToSegmentFlat(
+            Vector3 point,
+            Vector3 a,
+            Vector3 b)
+        {
+            Vector2 p =
+                new(
+                    point.x,
+                    point.z);
+
+            Vector2 av =
+                new(
+                    a.x,
+                    a.z);
+
+            Vector2 bv =
+                new(
+                    b.x,
+                    b.z);
+
+            Vector2 ab =
+                bv -
+                av;
+
+            float lengthSquared =
+                ab.sqrMagnitude;
+
+            float t =
+                lengthSquared <= 0.0001f
+                    ? 0f
+                    : Mathf.Clamp01(
+                        Vector2.Dot(
+                            p - av,
+                            ab) /
+                        lengthSquared);
+
+            return new Vector3(
+                Mathf.Lerp(
+                    a.x,
+                    b.x,
+                    t),
+                Mathf.Lerp(
+                    a.y,
+                    b.y,
+                    t),
+                Mathf.Lerp(
+                    a.z,
+                    b.z,
+                    t));
+        }
+
+        private static void AppendIfDistinct(
+            List<Vector3> points,
+            Vector3 point)
+        {
+            if (points.Count == 0 ||
+                FlatDistance(
+                    points[
+                        points.Count - 1],
+                    point) >
+                1.25f)
+            {
+                points.Add(
+                    point);
+            }
         }
 
         private static void EnsureGraph()
@@ -139,14 +318,6 @@ namespace MotorCity.World
 
             cachedSceneHandle =
                 sceneHandle;
-
-            cachedStartNode =
-                -1;
-
-            cachedEndNode =
-                -1;
-
-            cachedNodePath.Clear();
 
             bool builtFromTraffic =
                 BuildFromFcgAuthoredNetwork();
@@ -218,7 +389,8 @@ namespace MotorCity.World
                             previous,
                             current,
                             Nodes,
-                            Edges);
+                            Edges,
+                            true);
                     }
 
                     previous =
@@ -361,7 +533,8 @@ namespace MotorCity.World
                     sourceNode,
                     targetNode,
                     Nodes,
-                    Edges);
+                    Edges,
+                    false);
             }
         }
 
@@ -514,7 +687,8 @@ namespace MotorCity.World
                         previous,
                         current,
                         nodes,
-                        edges);
+                        edges,
+                        true);
                 }
 
                 previous =
@@ -588,7 +762,8 @@ namespace MotorCity.World
                         i,
                         nearest,
                         nodes,
-                        edges);
+                        edges,
+                        false);
                 }
             }
         }
@@ -597,7 +772,8 @@ namespace MotorCity.World
             int a,
             int b,
             List<Vector3> nodes,
-            List<Edge> edges)
+            List<Edge> edges,
+            bool roadSegment)
         {
             if (a == b)
                 return;
@@ -630,7 +806,8 @@ namespace MotorCity.World
                     high,
                     FlatDistance(
                         nodes[low],
-                        nodes[high])));
+                        nodes[high]),
+                    roadSegment));
         }
 
         private static int NearestNode(
@@ -778,11 +955,7 @@ namespace MotorCity.World
             if (previous[end] <
                 0)
             {
-                return new List<int>
-                {
-                    start,
-                    end
-                };
+                return new List<int>();
             }
 
             List<int> path =
@@ -848,6 +1021,70 @@ namespace MotorCity.World
             }
         }
 
+        private readonly struct RoadProjection
+        {
+            public static readonly RoadProjection Invalid =
+                new(
+                    -1,
+                    -1,
+                    -1,
+                    Vector3.zero);
+
+            public readonly int EdgeIndex;
+            public readonly int A;
+            public readonly int B;
+            public readonly Vector3 Position;
+
+            public bool IsValid =>
+                EdgeIndex >= 0 &&
+                A >= 0 &&
+                B >= 0;
+
+            public RoadProjection(
+                int edgeIndex,
+                int a,
+                int b,
+                Vector3 position)
+            {
+                EdgeIndex =
+                    edgeIndex;
+
+                A =
+                    a;
+
+                B =
+                    b;
+
+                Position =
+                    position;
+            }
+        }
+
+        private readonly struct RouteCandidate
+        {
+            public static readonly RouteCandidate Invalid =
+                new(
+                    null,
+                    float.PositiveInfinity);
+
+            public readonly List<int> NodePath;
+            public readonly float Cost;
+
+            public bool IsValid =>
+                NodePath != null;
+
+            public RouteCandidate(
+                List<int> nodePath,
+                float cost)
+            {
+                NodePath =
+                    nodePath;
+
+                Cost =
+                    cost;
+            }
+        }
+
         private readonly struct Edge
         {
             public readonly int A;
@@ -855,11 +1092,13 @@ namespace MotorCity.World
             public readonly int B;
 
             public readonly float Cost;
+            public readonly bool IsRoadSegment;
 
             public Edge(
                 int a,
                 int b,
-                float cost)
+                float cost,
+                bool isRoadSegment)
             {
                 A =
                     a;
@@ -869,6 +1108,9 @@ namespace MotorCity.World
 
                 Cost =
                     cost;
+
+                IsRoadSegment =
+                    isRoadSegment;
             }
         }
     }
