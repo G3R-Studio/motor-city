@@ -26,6 +26,8 @@ namespace MotorCity.World
             activityManager = manager;
             baseScale = transform.localScale;
 
+            CacheVisuals();
+
             checkpointBeacon =
                 gameObject.AddComponent<CheckpointBeaconVisual>();
 
@@ -35,7 +37,6 @@ namespace MotorCity.World
                     0.9f,
                     1f));
 
-            CacheVisuals();
             SnapToTarget();
             mainCamera = Camera.main;
         }
@@ -156,15 +157,18 @@ namespace MotorCity.World
         private void SetVisible(
             bool visible)
         {
-            if (markerRenderers == null)
-                return;
-
-            foreach (Renderer renderer in markerRenderers)
+            if (markerRenderers != null)
             {
-                if (renderer != null)
-                    renderer.enabled =
-                        visible;
+                foreach (Renderer renderer in markerRenderers)
+                {
+                    if (renderer != null)
+                        renderer.enabled =
+                            visible;
+                }
             }
+
+            checkpointBeacon?.SetVisible(
+                visible);
         }
 
         private void Tint(
