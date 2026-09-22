@@ -1,5 +1,6 @@
 using System;
 using MotorCity.Localization;
+using MotorCity.Input;
 using UnityEngine;
 
 namespace MotorCity.Platform
@@ -13,6 +14,8 @@ namespace MotorCity.Platform
 
         private void Awake()
         {
+            MotorCityInput.RefreshTouchPromptPreference();
+
             MotorCityLocalization.SetLanguage(
                 "ru");
         }
