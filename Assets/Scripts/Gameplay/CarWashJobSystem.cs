@@ -27,6 +27,8 @@ namespace MotorCity.Gameplay
 
         private int phase;
         private float phaseProgress;
+        private int lastStatusPhase = -1;
+        private int lastStatusPercent = -1;
 
         public bool IsActive { get; private set; }
         public bool IsNearStart { get; private set; }
@@ -75,16 +77,15 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            float distance =
-                Vector3.Distance(
-                    Flat(
-                        car.transform.position),
-                    Flat(
-                        StartPoint));
+            Vector3 startDelta =
+                Flat(
+                    car.transform.position) -
+                Flat(
+                    StartPoint);
 
             IsNearStart =
-                distance <=
-                StartRadius;
+                startDelta.sqrMagnitude <=
+                StartRadius * StartRadius;
 
             if (IsActive)
             {
@@ -141,6 +142,10 @@ namespace MotorCity.Gameplay
 
             phaseProgress =
                 0f;
+            lastStatusPhase =
+                -1;
+            lastStatusPercent =
+                -1;
 
             car.SetDrivingEnabled(
                 false);
@@ -198,6 +203,19 @@ namespace MotorCity.Gameplay
                 Mathf.RoundToInt(
                     normalized *
                     100f);
+
+            if (phase ==
+                    lastStatusPhase &&
+                percent ==
+                    lastStatusPercent)
+            {
+                return;
+            }
+
+            lastStatusPhase =
+                phase;
+            lastStatusPercent =
+                percent;
 
             string phaseName =
                 phase switch
