@@ -195,6 +195,8 @@ namespace MotorCity.UI
         private Image garageVehicleStateIcon;
         private Text garageVehicleText;
         private Text garageVehicleStatsText;
+        private Image garageMasteryTrack;
+        private Image garageMasteryFill;
         private Text garageVehicleHistoryText;
         private Text garageVehicleSpecializationText;
         private Text garageCollectionText;
@@ -5682,6 +5684,54 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
 
+            RectTransform masteryTrackRect =
+                CreatePanel(
+                    panel,
+                    "Garage Mastery Track",
+                    new Vector2(
+                        28f,
+                        -126f),
+                    new Vector2(
+                        704f,
+                        7f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Color(
+                        0.10f,
+                        0.13f,
+                        0.18f,
+                        0.92f));
+
+            garageMasteryTrack =
+                masteryTrackRect.GetComponent<Image>();
+
+            RectTransform masteryFillRect =
+                CreatePanel(
+                    masteryTrackRect,
+                    "Garage Mastery Fill",
+                    Vector2.zero,
+                    new Vector2(
+                        0f,
+                        7f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Color(
+                        0.42f,
+                        0.82f,
+                        1f,
+                        1f));
+
+            garageMasteryFill =
+                masteryFillRect.GetComponent<Image>();
+
             garageVehicleHistoryText =
                 CreateText(
                     panel,
@@ -6332,6 +6382,19 @@ namespace MotorCity.UI
             {
                 garageVehicleStatsText.text =
                     garage.VehicleStatsLine;
+            }
+
+            if (garageMasteryFill != null)
+            {
+                RectTransform fillRect =
+                    garageMasteryFill.rectTransform;
+
+                fillRect.sizeDelta =
+                    new Vector2(
+                        704f *
+                        Mathf.Clamp01(
+                            garage.VehicleMasteryProgress),
+                        7f);
             }
 
             if (garageVehicleHistoryText != null)
