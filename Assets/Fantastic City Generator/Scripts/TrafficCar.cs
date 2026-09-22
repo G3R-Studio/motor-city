@@ -636,20 +636,20 @@ namespace FCG
                     status = StatusCar.waitingForAnotherVehicleToPass;
 
 
-                if (speed < 2 && (status != StatusCar.stoppedAtTrafficLights || status != StatusCar.waitingForAnotherVehicleToPass))
+                if (speed < 2 &&
+                    status != StatusCar.stoppedAtTrafficLights &&
+                    status != StatusCar.waitingForAnotherVehicleToPass)
                 {
-
-
                     if (Time.time > timeStoped + 50)
                     {
                         Destroy(transform.gameObject);
                         return;
                     }
-
-
                 }
                 else
+                {
                     timeStoped = Time.time;
+                }
 
 
 
