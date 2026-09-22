@@ -19,8 +19,8 @@ namespace MotorCity.World
             new();
 
         private static bool graphReady;
-        private static int cachedSceneHandle =
-            int.MinValue;
+        private static ulong cachedSceneHandle =
+            ulong.MaxValue;
 
         public static List<Vector3> BuildRoute(
             Vector3 start,
@@ -89,7 +89,7 @@ namespace MotorCity.World
 
         private static void EnsureGraph()
         {
-            int sceneHandle =
+            ulong sceneHandle =
                 UnityEngine.SceneManagement.SceneManager
                     .GetActiveScene()
                     .handle
