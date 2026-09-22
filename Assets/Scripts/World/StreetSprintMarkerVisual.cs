@@ -33,7 +33,9 @@ namespace MotorCity.World
                 new Color(
                     0.18f,
                     1f,
-                    0.34f));
+                    0.34f),
+                true,
+                CheckpointBeaconStyle.Sprint);
 
             SnapToTarget();
             mainCamera = Camera.main;
