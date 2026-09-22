@@ -834,5 +834,142 @@ namespace MotorCity.World
                 false;
         }
 
+        private static bool HasNamedLampDescendant(
+            Transform item)
+        {
+            if (item == null)
+                return false;
+
+            foreach (Transform child in
+                     item.GetComponentsInChildren<Transform>(true))
+            {
+                if (child == null ||
+                    child == item)
+                {
+                    continue;
+                }
+
+                if (IsNamedFcgLampNode(
+                        child))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasLampRootAncestor(
+            Transform item)
+        {
+            if (item == null)
+                return false;
+
+            Transform current =
+                item.parent;
+
+            while (current != null)
+            {
+                if (IsLampRoot(
+                        current))
+                {
+                    return true;
+                }
+
+                if (IsRuntimeCityRoot(
+                        current))
+                {
+                    return false;
+                }
+
+                current =
+                    current.parent;
+            }
+
+            return false;
+        }
+
+        private static bool IsNamedFcgLampNode(
+            Transform item)
+        {
+            if (item == null)
+                return false;
+
+            string normalized =
+                NormalizeName(
+                    item.name);
+
+            return
+                normalized.StartsWith(
+                    "spotlight",
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsLampRoot(
+            Transform item)
+        {
+            if (item == null)
+                return false;
+
+            string normalized =
+                NormalizeName(
+                    item.name);
+
+            return
+                normalized.StartsWith(
+                    "streetlight") ||
+                normalized.StartsWith(
+                    "parklamp");
+        }
+
+        private static bool IsRuntimeCityRoot(
+            Transform item)
+        {
+            if (item == null)
+                return false;
+
+            return
+                string.Equals(
+                    item.name,
+                    "MotorCity_FCGCity",
+                    StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(
+                    item.name,
+                    "City-Maker",
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string NormalizeName(
+            string value)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    value))
+            {
+                return string.Empty;
+            }
+
+            char[] source =
+                value.ToLowerInvariant()
+                    .ToCharArray();
+
+            var chars =
+                new List<char>(
+                    source.Length);
+
+            foreach (char character in source)
+            {
+                if (char.IsLetterOrDigit(
+                        character))
+                {
+                    chars.Add(
+                        character);
+                }
+            }
+
+            return
+                new string(
+                    chars.ToArray());
+        }
+
     }
 }
