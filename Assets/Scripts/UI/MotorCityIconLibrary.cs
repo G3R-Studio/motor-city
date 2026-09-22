@@ -206,7 +206,8 @@ namespace MotorCity.UI
                     ForActivity(ActivityIcon.CarWash),
 
                 "towtruck" or
-                "tow_truck" =>
+                "tow_truck" or
+                "profession_tow" =>
                     ForActivity(ActivityIcon.TowTruck),
 
                 "profession" or
