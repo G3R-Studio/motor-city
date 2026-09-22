@@ -10,6 +10,10 @@ namespace MotorCity.World
         private ActivityManager activityManager;
         private Renderer[] markerRenderers;
         private Material[] markerMaterials;
+        private bool visibilityInitialized;
+        private bool lastVisible;
+        private bool tintInitialized;
+        private bool lastActive;
         private Vector3 baseScale;
         private Camera mainCamera;
 
@@ -56,8 +60,16 @@ namespace MotorCity.World
                 !activityManager.IsBusy ||
                 activityManager.IsActive("circuit");
 
-            SetVisible(
-                visible);
+            if (!visibilityInitialized ||
+                visible != lastVisible)
+            {
+                visibilityInitialized =
+                    true;
+                lastVisible =
+                    visible;
+                SetVisible(
+                    visible);
+            }
 
             if (!visible)
                 return;
@@ -94,10 +106,22 @@ namespace MotorCity.World
                 }
             }
 
-            Tint(
-                race.IsActive
-                    ? new Color(0.08f, 1f, 0.92f)
-                    : new Color(0.12f, 0.86f, 1f));
+            bool active =
+                race.IsActive;
+
+            if (!tintInitialized ||
+                active != lastActive)
+            {
+                tintInitialized =
+                    true;
+                lastActive =
+                    active;
+
+                Tint(
+                    active
+                        ? new Color(0.08f, 1f, 0.92f)
+                        : new Color(0.12f, 0.86f, 1f));
+            }
         }
 
         private void SnapToTarget()
