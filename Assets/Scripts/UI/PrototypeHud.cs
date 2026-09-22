@@ -84,6 +84,7 @@ namespace MotorCity.UI
         private Text minimapTargetText;
         private readonly RectTransform[] minimapRouteDots =
             new RectTransform[36];
+        private int visibleRouteDotCount;
         private readonly List<Vector3> fixedRoadRoute =
             new();
         private Vector3 fixedRoadRouteTarget;
@@ -997,11 +998,10 @@ namespace MotorCity.UI
             float worldRadius,
             bool showRoadRoute)
         {
-            HideRouteDots();
-
             if (!showRoadRoute ||
                 minimapRouteDots.Length == 0)
             {
+                HideRouteDots();
                 ClearFixedRoadRoute();
                 return;
             }
@@ -1120,8 +1120,11 @@ namespace MotorCity.UI
                         minimapRouteDots[
                             placed++];
 
-                    dot.gameObject.SetActive(
-                        true);
+                    if (!dot.gameObject.activeSelf)
+                    {
+                        dot.gameObject.SetActive(
+                            true);
+                    }
 
                     dot.anchoredPosition =
                         offset;
@@ -1130,6 +1133,25 @@ namespace MotorCity.UI
                         break;
                 }
             }
+
+            for (int i = placed;
+                 i < visibleRouteDotCount &&
+                 i < minimapRouteDots.Length;
+                 i++)
+            {
+                RectTransform dot =
+                    minimapRouteDots[i];
+
+                if (dot != null &&
+                    dot.gameObject.activeSelf)
+                {
+                    dot.gameObject.SetActive(
+                        false);
+                }
+            }
+
+            visibleRouteDotCount =
+                placed;
         }
 
         private void EnsureFixedRoadRoute(
@@ -1373,15 +1395,28 @@ namespace MotorCity.UI
 
         private void HideRouteDots()
         {
-            foreach (RectTransform dot in
-                     minimapRouteDots)
+            int count =
+                Mathf.Min(
+                    visibleRouteDotCount,
+                    minimapRouteDots.Length);
+
+            for (int i = 0;
+                 i < count;
+                 i++)
             {
-                if (dot != null)
+                RectTransform dot =
+                    minimapRouteDots[i];
+
+                if (dot != null &&
+                    dot.gameObject.activeSelf)
                 {
                     dot.gameObject.SetActive(
                         false);
                 }
             }
+
+            visibleRouteDotCount =
+                0;
         }
 
         private static float FlatDistance(
