@@ -1112,20 +1112,40 @@ namespace FCG
 
 
 
-        private float GetAngulo(Transform origem, Vector3 target)
+        private float GetAngulo(
+            Transform origem,
+            Vector3 target)
         {
-            float r;
+            Vector3 direction =
+                target -
+                origem.position;
 
-            GameObject compass = new GameObject("Compass");
-            compass.transform.parent = origem;
-            compass.transform.localPosition = new Vector3(0, 0, 0);
+            direction.y =
+                0f;
 
-            compass.transform.LookAt(target);
-            r = compass.transform.localEulerAngles.y;
+            if (direction.sqrMagnitude <=
+                0.0001f)
+            {
+                return 0f;
+            }
 
-            DestroyImmediate(compass);
-            return r;
+            Vector3 localDirection =
+                origem.InverseTransformDirection(
+                    direction.normalized);
 
+            float angle =
+                Mathf.Atan2(
+                    localDirection.x,
+                    localDirection.z) *
+                Mathf.Rad2Deg;
+
+            if (angle < 0f)
+            {
+                angle +=
+                    360f;
+            }
+
+            return angle;
         }
 
 
