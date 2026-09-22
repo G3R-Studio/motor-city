@@ -3426,6 +3426,141 @@ namespace MotorCity.UI
                     TextColor);
         }
 
+        private void CreateMinimapPlayerChevron(
+            Transform parent)
+        {
+            Color color =
+                new(
+                    0.16f,
+                    0.72f,
+                    1f,
+                    1f);
+
+            CreateChevronStroke(
+                parent,
+                "Player Arrow Left",
+                new Vector2(
+                    -4.5f,
+                    1f),
+                -42f,
+                color);
+
+            CreateChevronStroke(
+                parent,
+                "Player Arrow Right",
+                new Vector2(
+                    4.5f,
+                    1f),
+                42f,
+                color);
+
+            GameObject tail =
+                new(
+                    "Player Arrow Tail",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            tail.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform tailRect =
+                tail.GetComponent<RectTransform>();
+
+            tailRect.anchorMin =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            tailRect.anchorMax =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            tailRect.pivot =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            tailRect.anchoredPosition =
+                new Vector2(
+                    0f,
+                    -5f);
+
+            tailRect.sizeDelta =
+                new Vector2(
+                    4f,
+                    13f);
+
+            Image image =
+                tail.GetComponent<Image>();
+
+            image.color =
+                color;
+
+            image.raycastTarget =
+                false;
+        }
+
+        private static void CreateChevronStroke(
+            Transform parent,
+            string objectName,
+            Vector2 position,
+            float rotation,
+            Color color)
+        {
+            GameObject stroke =
+                new(
+                    objectName,
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            stroke.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                stroke.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            rect.anchorMax =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            rect.pivot =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            rect.anchoredPosition =
+                position;
+
+            rect.sizeDelta =
+                new Vector2(
+                    4f,
+                    15f);
+
+            rect.localRotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    rotation);
+
+            Image image =
+                stroke.GetComponent<Image>();
+
+            image.color =
+                color;
+
+            image.raycastTarget =
+                false;
+        }
+
         private void RefreshStatusActivityIcon()
         {
             if (statusActivityIcon == null)
@@ -3668,28 +3803,43 @@ namespace MotorCity.UI
                     dotRect;
             }
 
-            Text playerArrow =
-                CreateText(
-                    viewportRect,
+            GameObject playerArrowObject =
+                new(
                     "Minimap Player",
-                    25,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
-                    new Vector2(34f, 34f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
-                    new Color(
-                        0.16f,
-                        0.72f,
-                        1f,
-                        1f));
+                    typeof(RectTransform));
 
-            playerArrow.text =
-                "▲";
+            playerArrowObject.transform.SetParent(
+                viewportRect,
+                false);
 
             minimapPlayerArrow =
-                playerArrow.rectTransform;
+                playerArrowObject.GetComponent<RectTransform>();
+
+            minimapPlayerArrow.anchorMin =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            minimapPlayerArrow.anchorMax =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            minimapPlayerArrow.pivot =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            minimapPlayerArrow.anchoredPosition =
+                Vector2.zero;
+
+            minimapPlayerArrow.sizeDelta =
+                new Vector2(
+                    28f,
+                    28f);
+
+            CreateMinimapPlayerChevron(
+                minimapPlayerArrow);
 
             minimapTargetIcon =
                 CreateHudIcon(
