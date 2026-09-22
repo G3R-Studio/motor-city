@@ -282,6 +282,12 @@ namespace MotorCity.Gameplay
 
             messageTimer =
                 MessageSeconds;
+
+            if (medal > 0)
+            {
+                activityManager?.ReportCompletion(
+                    "speedtrap");
+            }
         }
 
         private static int ResolveMedal(
