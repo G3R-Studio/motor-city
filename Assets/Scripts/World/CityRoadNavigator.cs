@@ -26,6 +26,10 @@ namespace MotorCity.World
         private static readonly Dictionary<Vector2Int, List<int>> NodeBuckets =
             new();
 
+        private static readonly Dictionary<Type, Dictionary<string, FieldInfo>>
+            FieldCache =
+                new();
+
         private static readonly Dictionary<int, List<Edge>> Adjacency =
             new();
 
@@ -639,23 +643,66 @@ namespace MotorCity.World
             Type type,
             string fieldName)
         {
-            while (type != null)
+            if (type == null ||
+                string.IsNullOrEmpty(
+                    fieldName))
+            {
+                return null;
+            }
+
+            if (!FieldCache.TryGetValue(
+                    type,
+                    out Dictionary<string, FieldInfo> typeCache))
+            {
+                typeCache =
+                    new Dictionary<string, FieldInfo>(
+                        StringComparer.Ordinal);
+
+                FieldCache[
+                    type] =
+                    typeCache;
+            }
+
+            if (typeCache.TryGetValue(
+                    fieldName,
+                    out FieldInfo cached))
+            {
+                return
+                    cached;
+            }
+
+            Type current =
+                type;
+
+            while (current != null)
             {
                 FieldInfo field =
-                    type.GetField(
+                    current.GetField(
                         fieldName,
                         BindingFlags.Instance |
                         BindingFlags.Public |
                         BindingFlags.NonPublic);
 
                 if (field != null)
-                    return field;
+                {
+                    typeCache[
+                        fieldName] =
+                        field;
 
-                type =
-                    type.BaseType;
+                    return
+                        field;
+                }
+
+                current =
+                    current.BaseType;
             }
 
-            return null;
+            typeCache[
+                fieldName] =
+                null;
+
+            return
+                null;
         }
 
         private static int FindOrAddNode(
