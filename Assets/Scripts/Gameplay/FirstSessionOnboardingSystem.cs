@@ -372,7 +372,7 @@ namespace MotorCity.Gameplay
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(
                 StepKey,
-                6);
+                7);
 
             MotorCity.Persistence.MotorCitySaveService.Save();
         }
