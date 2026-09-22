@@ -68,7 +68,7 @@ namespace MotorCity.Gameplay
                     mission == null
                         ? string.Empty
                         : MotorCityLocalization.Text(
-                            mission.TitleKey);
+                            mission.ObjectiveKey);
             }
         }
 
