@@ -23,6 +23,9 @@ namespace MotorCity.World
         private static readonly HashSet<ulong> EdgeKeys =
             new();
 
+        private static readonly List<int> RoadEdgeIndices =
+            new();
+
         private static readonly Dictionary<Vector2Int, List<int>> NodeBuckets =
             new();
 
@@ -209,15 +212,11 @@ namespace MotorCity.World
             float bestSquared =
                 float.PositiveInfinity;
 
-            for (int i = 0;
-                 i < Edges.Count;
-                 i++)
+            foreach (int edgeIndex in
+                     RoadEdgeIndices)
             {
                 Edge edge =
-                    Edges[i];
-
-                if (!edge.IsRoadSegment)
-                    continue;
+                    Edges[edgeIndex];
 
                 Vector3 projected =
                     ProjectToSegmentFlat(
@@ -243,7 +242,7 @@ namespace MotorCity.World
 
                 best =
                     new RoadProjection(
-                        i,
+                        edgeIndex,
                         edge.A,
                         edge.B,
                         projected);
@@ -337,6 +336,7 @@ namespace MotorCity.World
             Nodes.Clear();
             Edges.Clear();
             EdgeKeys.Clear();
+            RoadEdgeIndices.Clear();
             NodeBuckets.Clear();
             Adjacency.Clear();
             WayEntries.Clear();
@@ -843,6 +843,12 @@ namespace MotorCity.World
 
             edges.Add(
                 edge);
+
+            if (roadSegment)
+            {
+                RoadEdgeIndices.Add(
+                    edges.Count - 1);
+            }
 
             AddAdjacency(
                 low,
