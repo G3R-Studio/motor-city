@@ -64,6 +64,7 @@ namespace MotorCity.UI
         private Text speedUnitText;
         private RectTransform speedNeedle;
         private Text statusText;
+        private Image statusActivityIcon;
         private Text driftText;
         private Text navigatorArrowText;
         private Text navigatorText;
@@ -93,6 +94,7 @@ namespace MotorCity.UI
         private Text characterLineText;
         private RawImage minimapImage;
         private RectTransform minimapTargetBlip;
+        private Image minimapTargetIcon;
         private RectTransform minimapPlayerArrow;
         private Text minimapTargetText;
         private readonly RectTransform[] minimapRouteDots =
@@ -725,7 +727,10 @@ namespace MotorCity.UI
                     status));
 
             if (statusPanel.activeSelf)
+            {
                 statusText.text = status;
+                RefreshStatusActivityIcon();
+            }
 
             bool showDrift =
                 drift != null &&
@@ -3391,18 +3396,67 @@ namespace MotorCity.UI
                 new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f));
 
+            statusActivityIcon =
+                CreateHudIcon(
+                    panel,
+                    "Status Activity Icon",
+                    MotorCityIconLibrary.Reward,
+                    new Vector2(
+                        20f,
+                        -2f),
+                    new Vector2(
+                        24f,
+                        24f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    BlueAccent);
+
             statusText =
                 CreateText(
                     panel,
                     "Status Text",
                     16,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(0f, -2f),
-                    new Vector2(530f, 32f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
+                    TextAnchor.MiddleLeft,
+                    new Vector2(52f, -2f),
+                    new Vector2(488f, 32f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
                     TextColor);
+        }
+
+        private void RefreshStatusActivityIcon()
+        {
+            if (statusActivityIcon == null)
+                return;
+
+            Sprite sprite;
+
+            if (storeOpen)
+            {
+                sprite =
+                    MotorCityIconLibrary.Store;
+            }
+            else if (activityManager != null &&
+                     !string.IsNullOrWhiteSpace(
+                         activityManager.ActiveId))
+            {
+                sprite =
+                    MotorCityIconLibrary.ForActivity(
+                        activityManager.ActiveId);
+            }
+            else
+            {
+                sprite =
+                    MotorCityIconLibrary.Reward;
+            }
+
+            statusActivityIcon.sprite =
+                sprite;
+
+            statusActivityIcon.enabled =
+                sprite != null;
         }
 
         private void BuildNavigator(Transform canvas)
@@ -3637,28 +3691,29 @@ namespace MotorCity.UI
             minimapPlayerArrow =
                 playerArrow.rectTransform;
 
-            Text targetBlip =
-                CreateText(
+            minimapTargetIcon =
+                CreateHudIcon(
                     viewportRect,
                     "Minimap Target",
-                    28,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
+                    MotorCityIconLibrary.ForActivity(
+                        activityManager != null
+                            ? activityManager.ActiveId
+                            : string.Empty),
                     Vector2.zero,
-                    new Vector2(34f, 34f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
+                    new Vector2(
+                        26f,
+                        26f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
                     new Color(
                         1f,
                         0.70f,
                         0.10f,
                         1f));
 
-            targetBlip.text =
-                "●";
-
             minimapTargetBlip =
-                targetBlip.rectTransform;
+                minimapTargetIcon.rectTransform;
 
             minimapTargetText =
                 CreateText(
@@ -3907,6 +3962,23 @@ namespace MotorCity.UI
 
                 minimapTargetBlip.anchoredPosition =
                     mapOffset;
+
+                if (minimapTargetIcon != null)
+                {
+                    Sprite targetSprite =
+                        MotorCityIconLibrary.ForActivity(
+                            activityManager != null
+                                ? activityManager.ActiveId
+                                : string.Empty);
+
+                    if (targetSprite != null &&
+                        minimapTargetIcon.sprite !=
+                            targetSprite)
+                    {
+                        minimapTargetIcon.sprite =
+                            targetSprite;
+                    }
+                }
             }
 
             if (minimapTargetText != null)
