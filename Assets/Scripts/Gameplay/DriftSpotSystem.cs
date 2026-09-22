@@ -276,6 +276,12 @@ namespace MotorCity.Gameplay
                     reward);
 
             messageTimer = MessageSeconds;
+
+            if (medal > 0)
+            {
+                activityManager?.ReportCompletion(
+                    "driftspot");
+            }
         }
 
         private static int ResolveMedal(
