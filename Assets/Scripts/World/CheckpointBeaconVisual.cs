@@ -7,6 +7,9 @@ namespace MotorCity.World
     {
         private Transform visualRoot;
         private Transform directionRoot;
+        private Material pillarMaterial;
+        private Material baseMaterial;
+        private Material arrowMaterial;
         private bool initialized;
 
         public void Initialize(
@@ -30,17 +33,17 @@ namespace MotorCity.World
             visualRoot =
                 visualRootObject.transform;
 
-            Material pillarMaterial =
+            pillarMaterial =
                 CreateTransparentMaterial(
                     color,
                     0.18f);
 
-            Material baseMaterial =
+            baseMaterial =
                 CreateTransparentMaterial(
                     color,
                     0.42f);
 
-            Material arrowMaterial =
+            arrowMaterial =
                 CreateTransparentMaterial(
                     color,
                     0.82f);
@@ -240,15 +243,39 @@ namespace MotorCity.World
                 go;
         }
 
+        private void OnDestroy()
+        {
+            if (pillarMaterial != null)
+            {
+                Destroy(
+                    pillarMaterial);
+            }
+
+            if (baseMaterial != null)
+            {
+                Destroy(
+                    baseMaterial);
+            }
+
+            if (arrowMaterial != null)
+            {
+                Destroy(
+                    arrowMaterial);
+            }
+        }
+
         private static Material CreateTransparentMaterial(
             Color color,
             float alpha)
         {
+            bool srp =
+                GraphicsSettings.currentRenderPipeline != null;
+
             Shader shader =
                 Shader.Find(
-                    "Universal Render Pipeline/Unlit") ??
-                Shader.Find(
-                    "Unlit/Color") ??
+                    srp
+                        ? "Universal Render Pipeline/Lit"
+                        : "Standard") ??
                 Shader.Find(
                     "Sprites/Default");
 
@@ -297,6 +324,14 @@ namespace MotorCity.World
             }
 
             if (material.HasProperty(
+                    "_Mode"))
+            {
+                material.SetFloat(
+                    "_Mode",
+                    3f);
+            }
+
+            if (material.HasProperty(
                     "_SrcBlend"))
             {
                 material.SetFloat(
@@ -322,6 +357,9 @@ namespace MotorCity.World
 
             material.EnableKeyword(
                 "_SURFACE_TYPE_TRANSPARENT");
+
+            material.EnableKeyword(
+                "_ALPHABLEND_ON");
 
             material.renderQueue =
                 (int)RenderQueue.Transparent;
