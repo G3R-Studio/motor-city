@@ -111,6 +111,7 @@ namespace MotorCity.UI
         private int lastMinimapDistance = int.MinValue;
         private string lastMinimapDistanceLabel = string.Empty;
         private float minimapRouteUpdateTimer;
+        private float minimapDistanceUpdateTimer;
         private const float MinimapTargetResolveInterval = 0.10f;
         private const float MinimapRouteUpdateInterval = 0.05f;
 
@@ -1192,6 +1193,8 @@ namespace MotorCity.UI
                 minimapRouteDots.Length == 0)
             {
                 minimapRouteUpdateTimer =
+                    0f;
+                minimapDistanceUpdateTimer =
                     0f;
 
                 HideRouteDots();
@@ -2830,9 +2833,6 @@ namespace MotorCity.UI
 
             delta.y = 0f;
 
-            float distance =
-                delta.magnitude;
-
             Vector3 local =
                 Quaternion.Euler(
                     0f,
@@ -2888,27 +2888,41 @@ namespace MotorCity.UI
 
             if (minimapTargetText != null)
             {
-                int roundedDistance =
-                    Mathf.RoundToInt(
-                        distance);
+                minimapDistanceUpdateTimer -=
+                    Time.unscaledDeltaTime;
 
-                if (roundedDistance !=
-                        lastMinimapDistance ||
+                bool labelChanged =
                     !string.Equals(
                         label,
                         lastMinimapDistanceLabel,
-                        System.StringComparison.Ordinal))
-                {
-                    lastMinimapDistance =
-                        roundedDistance;
-                    lastMinimapDistanceLabel =
-                        label ?? string.Empty;
+                        System.StringComparison.Ordinal);
 
-                    minimapTargetText.text =
-                        MotorCityLocalization.Format(
-                            "hud.distance",
-                            label,
-                            roundedDistance);
+                if (labelChanged ||
+                    minimapDistanceUpdateTimer <= 0f)
+                {
+                    minimapDistanceUpdateTimer =
+                        MinimapTargetResolveInterval;
+
+                    int roundedDistance =
+                        Mathf.RoundToInt(
+                            Mathf.Sqrt(
+                                delta.sqrMagnitude));
+
+                    if (roundedDistance !=
+                            lastMinimapDistance ||
+                        labelChanged)
+                    {
+                        lastMinimapDistance =
+                            roundedDistance;
+                        lastMinimapDistanceLabel =
+                            label ?? string.Empty;
+
+                        minimapTargetText.text =
+                            MotorCityLocalization.Format(
+                                "hud.distance",
+                                label,
+                                roundedDistance);
+                    }
                 }
             }
         }
