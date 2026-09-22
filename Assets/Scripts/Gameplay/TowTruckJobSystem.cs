@@ -33,6 +33,11 @@ namespace MotorCity.Gameplay
 
         private TowStage stage;
         private float hookProgress;
+        private float statusTextTimer;
+        private int lastHookPercent = -1;
+
+        private const float StatusTextInterval =
+            0.10f;
         private GameObject strandedCar;
         private GameObject towRig;
         private Material serviceMaterial;
@@ -236,6 +241,10 @@ namespace MotorCity.Gameplay
 
             hookProgress =
                 0f;
+            lastHookPercent =
+                -1;
+            statusTextTimer =
+                0f;
 
             SpawnStrandedCar();
 
@@ -278,11 +287,20 @@ namespace MotorCity.Gameplay
             if (distance >
                 PickupRadius)
             {
-                StatusText =
-                    MotorCityLocalization.Format(
-                        "tow.pickup_distance",
-                        Mathf.RoundToInt(
-                            distance));
+                statusTextTimer -=
+                    Time.deltaTime;
+
+                if (statusTextTimer <= 0f)
+                {
+                    statusTextTimer =
+                        StatusTextInterval;
+
+                    StatusText =
+                        MotorCityLocalization.Format(
+                            "tow.pickup_distance",
+                            Mathf.RoundToInt(
+                                distance));
+                }
 
                 return;
             }
@@ -307,6 +325,10 @@ namespace MotorCity.Gameplay
                     TowStage.Hooking;
 
                 hookProgress =
+                    0f;
+                lastHookPercent =
+                    -1;
+                statusTextTimer =
                     0f;
 
                 car.SetDrivingEnabled(
@@ -338,10 +360,17 @@ namespace MotorCity.Gameplay
                         HookSeconds) *
                     100f);
 
-            StatusText =
-                MotorCityLocalization.Format(
-                    "tow.hooking",
-                    percent);
+            if (percent !=
+                lastHookPercent)
+            {
+                lastHookPercent =
+                    percent;
+
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "tow.hooking",
+                        percent);
+            }
 
             if (hookProgress <
                 HookSeconds)
@@ -369,11 +398,20 @@ namespace MotorCity.Gameplay
                     car.transform.position,
                     ServicePoint);
 
-            StatusText =
-                MotorCityLocalization.Format(
-                    "tow.delivery_distance",
-                    Mathf.RoundToInt(
-                        distance));
+            statusTextTimer -=
+                Time.deltaTime;
+
+            if (statusTextTimer <= 0f)
+            {
+                statusTextTimer =
+                    StatusTextInterval;
+
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "tow.delivery_distance",
+                        Mathf.RoundToInt(
+                            distance));
+            }
 
             if (distance >
                 DeliveryRadius)
