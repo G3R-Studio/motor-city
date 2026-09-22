@@ -1329,18 +1329,25 @@ namespace MotorCity.Vehicle
                     36f,
                     angle);
 
+            float speedKph =
+                SpeedKph;
+
+            bool prometeoDrifting =
+                ReadPrometeoBool(
+                    "isDrifting");
+
             float speedIntensity =
                 Mathf.InverseLerp(
                     minimumDriftSpeedKph,
                     72f,
-                    SpeedKph);
+                    speedKph);
 
             DriftIntensity =
                 Mathf.Clamp01(
                     Mathf.Max(
                         slipIntensity *
                         angleIntensity,
-                        ReadPrometeoBool("isDrifting")
+                        prometeoDrifting
                             ? 0.65f
                             : 0f) *
                     Mathf.Lerp(
@@ -1350,7 +1357,7 @@ namespace MotorCity.Vehicle
 
             bool physicalSlide =
                 GroundedWheels >= 3 &&
-                SpeedKph >= minimumDriftSpeedKph &&
+                speedKph >= minimumDriftSpeedKph &&
                 RearSidewaysSlip >=
                     driftDetectionSideSlip &&
                 angle >=
@@ -1358,8 +1365,8 @@ namespace MotorCity.Vehicle
 
             IsSliding =
                 physicalSlide ||
-                (ReadPrometeoBool("isDrifting") &&
-                 SpeedKph >= minimumDriftSpeedKph);
+                (prometeoDrifting &&
+                 speedKph >= minimumDriftSpeedKph);
         }
 
         public void ApplyStraightLineStability()
