@@ -203,6 +203,8 @@ namespace MotorCity.UI
         private bool garagePassportOpen;
         private readonly Image[] garageUpgradeIcons =
             new Image[3];
+        private readonly Image[] garagePriceIcons =
+            new Image[3];
         private readonly Text[] garageTitleTexts =
             new Text[3];
         private readonly Text[] garagePriceTexts =
@@ -5752,6 +5754,22 @@ namespace MotorCity.UI
                         new Vector2(0f, 1f),
                         TextColor);
 
+                garagePriceIcons[i] =
+                    CreateHudIcon(
+                        row,
+                        "Upgrade Price Icon",
+                        MotorCityIconLibrary.Credits,
+                        new Vector2(
+                            -208f,
+                            -20f),
+                        new Vector2(
+                            20f,
+                            20f),
+                        new Vector2(
+                            1f,
+                            1f),
+                        accents[i]);
+
                 garagePriceTexts[i] =
                     CreateText(
                         row,
@@ -5760,7 +5778,7 @@ namespace MotorCity.UI
                         FontStyle.Bold,
                         TextAnchor.UpperRight,
                         new Vector2(-16f, -8f),
-                        new Vector2(210f, 26f),
+                        new Vector2(180f, 26f),
                         new Vector2(1f, 1f),
                         new Vector2(1f, 1f),
                         accents[i]);
@@ -6252,6 +6270,42 @@ namespace MotorCity.UI
 
                 garagePriceTexts[i].text =
                     garage.GetUpgradePrice(i);
+
+                bool maxed =
+                    garage.IsUpgradeMaxed(
+                        i);
+
+                bool affordable =
+                    garage.CanAffordUpgrade(
+                        i);
+
+                Color priceColor =
+                    maxed
+                        ? SecondaryTextColor
+                        : affordable
+                            ? new Color(
+                                0.35f,
+                                1f,
+                                0.58f,
+                                1f)
+                            : new Color(
+                                1f,
+                                0.45f,
+                                0.28f,
+                                1f);
+
+                garagePriceTexts[i].color =
+                    priceColor;
+
+                if (garagePriceIcons[i] != null)
+                {
+                    garagePriceIcons[i].enabled =
+                        !maxed &&
+                        garagePriceIcons[i].sprite != null;
+
+                    garagePriceIcons[i].color =
+                        priceColor;
+                }
 
                 garageDescriptionTexts[i].text =
                     garage.GetUpgradeDescription(i);
