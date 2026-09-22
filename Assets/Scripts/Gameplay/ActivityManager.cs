@@ -30,6 +30,7 @@ namespace MotorCity.Gameplay
         private DisciplineReputationSystem disciplineReputation;
 
         public event Action<string, bool> ActivityResultShown;
+        public event Action<string> ActivityCompleted;
 
         public string DisciplineHudLine =>
             disciplineReputation == null
@@ -127,6 +128,25 @@ namespace MotorCity.Gameplay
             ActivityResultShown?.Invoke(
                 activityId,
                 success);
+
+            if (success)
+            {
+                ActivityCompleted?.Invoke(
+                    activityId);
+            }
+        }
+
+        public void ReportCompletion(
+            string activityId)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    activityId))
+            {
+                return;
+            }
+
+            ActivityCompleted?.Invoke(
+                activityId);
         }
 
         public void DismissResult()
