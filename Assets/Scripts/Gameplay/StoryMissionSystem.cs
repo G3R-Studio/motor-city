@@ -25,6 +25,19 @@ namespace MotorCity.Gameplay
         public bool ShowMessage => messageTimer > 0f;
         public string StatusText { get; private set; }
 
+        public int CurrentMissionNumber =>
+            missions == null || missions.Length == 0
+                ? 0
+                : Mathf.Clamp(
+                    missionIndex + 1,
+                    1,
+                    missions.Length);
+
+        public int MissionCount =>
+            missions == null
+                ? 0
+                : missions.Length;
+
         public string RequiredActivityId
         {
             get
@@ -238,8 +251,11 @@ namespace MotorCity.Gameplay
             if (progress < mission.Target)
             {
                 StatusText = MotorCityLocalization.Format(
-                    "story.progress",
-                    MotorCityLocalization.Text(mission.CharacterKey),
+                    "story.character_progress",
+                    MotorCityLocalization.Text(
+                        mission.CharacterKey),
+                    MotorCityLocalization.Text(
+                        mission.ProgressKey),
                     progress,
                     mission.Target);
 
@@ -267,7 +283,11 @@ namespace MotorCity.Gameplay
                 MotorCity.Persistence.MotorCitySaveService.Save();
 
                 StatusText = MotorCityLocalization.Format(
-                    "story.final_complete",
+                    "story.character_reward",
+                    MotorCityLocalization.Text(
+                        mission.CharacterKey),
+                    MotorCityLocalization.Text(
+                        mission.CompletionKey),
                     mission.CreditsReward,
                     mission.ReputationReward);
 
@@ -276,9 +296,11 @@ namespace MotorCity.Gameplay
             }
 
             StatusText = MotorCityLocalization.Format(
-                "story.mission_complete",
-                missionIndex + 1,
-                MotorCityLocalization.Text(mission.CharacterKey),
+                "story.character_reward",
+                MotorCityLocalization.Text(
+                    mission.CharacterKey),
+                MotorCityLocalization.Text(
+                    mission.CompletionKey),
                 mission.CreditsReward,
                 mission.ReputationReward);
 
@@ -294,10 +316,11 @@ namespace MotorCity.Gameplay
             if (mission == null) return;
 
             StatusText = MotorCityLocalization.Format(
-                "story.new_mission",
-                missionIndex + 1,
-                MotorCityLocalization.Text(mission.CharacterKey),
-                MotorCityLocalization.Text(mission.TitleKey));
+                "story.character_intro",
+                MotorCityLocalization.Text(
+                    mission.CharacterKey),
+                MotorCityLocalization.Text(
+                    mission.ObjectiveKey));
 
             messageTimer = MessageSeconds;
         }
@@ -331,16 +354,16 @@ namespace MotorCity.Gameplay
         {
             missions = new[]
             {
-                new StoryMission("story.character.vitya","story.01.title","story.01.objective","delivery",1,300,40,15),
-                new StoryMission("story.character.turbo","story.02.title","story.02.objective","*",1,350,45,18),
-                new StoryMission("story.character.nika","story.03.title","story.03.objective","drift",1,420,55,20),
-                new StoryMission("story.character.vitya","story.04.title","story.04.objective","sprint",1,500,60,22),
-                new StoryMission("story.character.bublik","story.05.title","story.05.objective","delivery",1,540,65,22),
-                new StoryMission("story.character.turbo","story.06.title","story.06.objective","*",2,650,75,25),
-                new StoryMission("story.character.nika","story.07.title","story.07.objective","circuit",1,750,85,28),
-                new StoryMission("story.character.vitya","story.08.title","story.08.objective","*",2,850,95,30),
-                new StoryMission("story.character.bublik","story.09.title","story.09.objective","sprint",1,950,110,32),
-                new StoryMission("story.character.nika","story.10.title","story.10.objective","circuit",1,1600,180,55)
+                new StoryMission("story.character.vitya","story.01.title","story.01.objective","story.01.progress","story.01.complete","delivery",1,300,40,15),
+                new StoryMission("story.character.turbo","story.02.title","story.02.objective","story.02.progress","story.02.complete","*",1,350,45,18),
+                new StoryMission("story.character.nika","story.03.title","story.03.objective","story.03.progress","story.03.complete","drift",1,420,55,20),
+                new StoryMission("story.character.vitya","story.04.title","story.04.objective","story.04.progress","story.04.complete","sprint",1,500,60,22),
+                new StoryMission("story.character.bublik","story.05.title","story.05.objective","story.05.progress","story.05.complete","delivery",1,540,65,22),
+                new StoryMission("story.character.turbo","story.06.title","story.06.objective","story.06.progress","story.06.complete","*",2,650,75,25),
+                new StoryMission("story.character.nika","story.07.title","story.07.objective","story.07.progress","story.07.complete","circuit",1,750,85,28),
+                new StoryMission("story.character.vitya","story.08.title","story.08.objective","story.08.progress","story.08.complete","*",2,850,95,30),
+                new StoryMission("story.character.bublik","story.09.title","story.09.objective","story.09.progress","story.09.complete","sprint",1,950,110,32),
+                new StoryMission("story.character.nika","story.10.title","story.10.objective","story.10.progress","story.10.complete","circuit",1,1600,180,55)
             };
         }
 
@@ -364,6 +387,8 @@ namespace MotorCity.Gameplay
             public readonly string CharacterKey;
             public readonly string TitleKey;
             public readonly string ObjectiveKey;
+            public readonly string ProgressKey;
+            public readonly string CompletionKey;
             public readonly string ActivityId;
             public readonly int Target;
             public readonly int CreditsReward;
@@ -374,6 +399,8 @@ namespace MotorCity.Gameplay
                 string characterKey,
                 string titleKey,
                 string objectiveKey,
+                string progressKey,
+                string completionKey,
                 string activityId,
                 int target,
                 int creditsReward,
@@ -383,6 +410,8 @@ namespace MotorCity.Gameplay
                 CharacterKey = characterKey;
                 TitleKey = titleKey;
                 ObjectiveKey = objectiveKey;
+                ProgressKey = progressKey;
+                CompletionKey = completionKey;
                 ActivityId = activityId;
                 Target = Mathf.Max(1, target);
                 CreditsReward = Mathf.Max(0, creditsReward);
