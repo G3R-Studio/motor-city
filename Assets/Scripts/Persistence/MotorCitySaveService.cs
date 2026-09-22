@@ -391,9 +391,10 @@ namespace MotorCity.Persistence
             string key,
             int value)
         {
-            RemoveOtherTypes(
-                key,
-                SaveValueType.Int);
+            bool changed =
+                RemoveOtherTypes(
+                    key,
+                    SaveValueType.Int);
 
             IntEntry entry =
                 document.Ints.Find(
@@ -408,22 +409,27 @@ namespace MotorCity.Persistence
                         Key = key,
                         Value = value
                     });
+
+                changed = true;
             }
-            else
+            else if (entry.Value != value)
             {
                 entry.Value = value;
+                changed = true;
             }
 
-            Touch();
+            if (changed)
+                Touch();
         }
 
         private static void SetFloatInternal(
             string key,
             float value)
         {
-            RemoveOtherTypes(
-                key,
-                SaveValueType.Float);
+            bool changed =
+                RemoveOtherTypes(
+                    key,
+                    SaveValueType.Float);
 
             FloatEntry entry =
                 document.Floats.Find(
@@ -438,22 +444,30 @@ namespace MotorCity.Persistence
                         Key = key,
                         Value = value
                     });
+
+                changed = true;
             }
-            else
+            else if (entry.Value != value)
             {
                 entry.Value = value;
+                changed = true;
             }
 
-            Touch();
+            if (changed)
+                Touch();
         }
 
         private static void SetStringInternal(
             string key,
             string value)
         {
-            RemoveOtherTypes(
-                key,
-                SaveValueType.String);
+            bool changed =
+                RemoveOtherTypes(
+                    key,
+                    SaveValueType.String);
+
+            string normalizedValue =
+                value ?? string.Empty;
 
             StringEntry entry =
                 document.Strings.Find(
@@ -466,42 +480,59 @@ namespace MotorCity.Persistence
                     new StringEntry
                     {
                         Key = key,
-                        Value = value ?? string.Empty
+                        Value = normalizedValue
                     });
+
+                changed = true;
             }
-            else
+            else if (!string.Equals(
+                         entry.Value ?? string.Empty,
+                         normalizedValue,
+                         StringComparison.Ordinal))
             {
                 entry.Value =
-                    value ?? string.Empty;
+                    normalizedValue;
+
+                changed = true;
             }
 
-            Touch();
+            if (changed)
+                Touch();
         }
 
-        private static void RemoveOtherTypes(
+        private static bool RemoveOtherTypes(
             string key,
             SaveValueType keep)
         {
+            bool changed =
+                false;
+
             if (keep != SaveValueType.Int)
             {
-                document.Ints.RemoveAll(
-                    item =>
-                        item.Key == key);
+                changed |=
+                    document.Ints.RemoveAll(
+                        item =>
+                            item.Key == key) > 0;
             }
 
             if (keep != SaveValueType.Float)
             {
-                document.Floats.RemoveAll(
-                    item =>
-                        item.Key == key);
+                changed |=
+                    document.Floats.RemoveAll(
+                        item =>
+                            item.Key == key) > 0;
             }
 
             if (keep != SaveValueType.String)
             {
-                document.Strings.RemoveAll(
-                    item =>
-                        item.Key == key);
+                changed |=
+                    document.Strings.RemoveAll(
+                        item =>
+                            item.Key == key) > 0;
             }
+
+            return
+                changed;
         }
 
         private static void Touch()
