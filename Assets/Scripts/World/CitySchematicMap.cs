@@ -213,6 +213,11 @@ namespace MotorCity.World
                 }
             }
 
+            ExpandBoundsWithFcgTraffic(
+                cityRoot,
+                ref mapBounds,
+                ref boundsInitialized);
+
             if (!boundsInitialized ||
                 shapes.Count == 0)
             {
@@ -327,22 +332,12 @@ namespace MotorCity.World
                     WorldBounds.size.z);
 
             float x =
-                Mathf.Clamp(
-                    center.x -
-                    width * 0.5f,
-                    0f,
-                    Mathf.Max(
-                        0f,
-                        1f - width));
+                center.x -
+                width * 0.5f;
 
             float y =
-                Mathf.Clamp(
-                    center.y -
-                    height * 0.5f,
-                    0f,
-                    Mathf.Max(
-                        0f,
-                        1f - height));
+                center.y -
+                height * 0.5f;
 
             return
                 new Rect(
@@ -350,6 +345,116 @@ namespace MotorCity.World
                     y,
                     width,
                     height);
+        }
+
+        private void ExpandBoundsWithFcgTraffic(
+            GameObject cityRoot,
+            ref Bounds mapBounds,
+            ref bool boundsInitialized)
+        {
+            if (cityRoot == null)
+                return;
+
+            MonoBehaviour[] behaviours =
+                cityRoot.GetComponentsInChildren<MonoBehaviour>(
+                    true);
+
+            foreach (MonoBehaviour behaviour in
+                     behaviours)
+            {
+                if (behaviour == null)
+                    continue;
+
+                FieldInfo waypointsField =
+                    FindField(
+                        behaviour.GetType(),
+                        "waypoints");
+
+                FieldInfo next0Field =
+                    FindField(
+                        behaviour.GetType(),
+                        "nextWay0");
+
+                FieldInfo next1Field =
+                    FindField(
+                        behaviour.GetType(),
+                        "nextWay1");
+
+                if (waypointsField == null ||
+                    next0Field == null ||
+                    next1Field == null)
+                {
+                    continue;
+                }
+
+                IEnumerable enumerable;
+
+                try
+                {
+                    enumerable =
+                        waypointsField.GetValue(
+                            behaviour) as IEnumerable;
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (enumerable == null)
+                    continue;
+
+                foreach (object item in
+                         enumerable)
+                {
+                    Transform waypoint =
+                        item as Transform;
+
+                    if (waypoint == null &&
+                        item is GameObject gameObject)
+                    {
+                        waypoint =
+                            gameObject.transform;
+                    }
+
+                    if (waypoint == null &&
+                        item is Component component)
+                    {
+                        waypoint =
+                            component.transform;
+                    }
+
+                    if (waypoint == null)
+                        continue;
+
+                    Vector3 position =
+                        waypoint.position;
+
+                    Bounds pointBounds =
+                        new(
+                            new Vector3(
+                                position.x,
+                                0f,
+                                position.z),
+                            new Vector3(
+                                1f,
+                                1f,
+                                1f));
+
+                    if (!boundsInitialized)
+                    {
+                        mapBounds =
+                            pointBounds;
+
+                        boundsInitialized =
+                            true;
+                    }
+                    else
+                    {
+                        mapBounds.Encapsulate(
+                            pointBounds);
+                    }
+                }
+            }
         }
 
         private void DrawFcgTrafficRoads(
