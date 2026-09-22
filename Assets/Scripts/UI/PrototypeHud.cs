@@ -1801,6 +1801,7 @@ namespace MotorCity.UI
             canvas.renderMode =
                 RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
+            canvas.pixelPerfect = true;
 
             canvasScaler =
                 canvasObject.AddComponent<CanvasScaler>();
@@ -2309,15 +2310,15 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Source",
-                    9,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
                         84f,
                         -8f),
                     new Vector2(
-                        132f,
-                        14f),
+                        180f,
+                        18f),
                     new Vector2(
                         0f,
                         1f),
