@@ -69,10 +69,7 @@ namespace MotorCity.World
                     endProjection);
 
             List<Vector3> result =
-                new()
-                {
-                    start
-                };
+                new();
 
             AppendIfDistinct(
                 result,
@@ -89,10 +86,6 @@ namespace MotorCity.World
             AppendIfDistinct(
                 result,
                 endProjection.Position);
-
-            AppendIfDistinct(
-                result,
-                destination);
 
             return result;
         }
