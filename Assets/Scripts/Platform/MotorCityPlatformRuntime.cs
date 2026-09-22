@@ -90,6 +90,11 @@ namespace MotorCity.Platform
         private void OnApplicationPause(
             bool paused)
         {
+            if (paused)
+            {
+                MotorCityInput.ClearVirtualState();
+            }
+
             if (!MotorCityPlatform.IsInitialized)
                 return;
 
