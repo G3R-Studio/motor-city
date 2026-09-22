@@ -10,6 +10,10 @@ namespace MotorCity.World
         private ActivityManager activityManager;
         private Renderer[] markerRenderers;
         private Material[] markerMaterials;
+        private bool visibilityInitialized;
+        private bool lastVisible;
+        private bool tintInitialized;
+        private bool lastActive;
         private Vector3 baseScale;
         private Camera mainCamera;
 
@@ -46,7 +50,16 @@ namespace MotorCity.World
                 !activityManager.IsBusy ||
                 activityManager.IsActive("sprint");
 
-            SetVisible(visible);
+                        if (!visibilityInitialized ||
+                visible != lastVisible)
+            {
+                visibilityInitialized =
+                    true;
+                lastVisible =
+                    visible;
+                SetVisible(
+                    visible);
+            }
             if (!visible) return;
 
             SnapToTarget();
@@ -74,10 +87,22 @@ namespace MotorCity.World
                             Vector3.up);
             }
 
-            Tint(
-                sprint.IsActive
-                    ? new Color(0.12f, 1f, 0.48f)
-                    : new Color(0.22f, 1f, 0.34f));
+            bool active =
+                sprint.IsActive;
+
+            if (!tintInitialized ||
+                active != lastActive)
+            {
+                tintInitialized =
+                    true;
+                lastActive =
+                    active;
+
+                Tint(
+                    active
+                        ? new Color(0.12f, 1f, 0.48f)
+                        : new Color(0.22f, 1f, 0.34f));
+            }
         }
 
         private void SnapToTarget()
