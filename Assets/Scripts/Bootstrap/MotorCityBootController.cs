@@ -353,7 +353,7 @@ namespace MotorCity.Bootstrap
                     0.12f,
                     0.15f,
                     0.20f,
-                    1f);
+                    overlayAlpha);
 
             GUI.DrawTexture(
                 trackRect,
@@ -364,7 +364,7 @@ namespace MotorCity.Bootstrap
                     0.18f,
                     0.72f,
                     1f,
-                    1f);
+                    overlayAlpha);
 
             GUI.DrawTexture(
                 new Rect(
