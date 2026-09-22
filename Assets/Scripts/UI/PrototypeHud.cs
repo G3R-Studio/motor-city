@@ -179,6 +179,7 @@ namespace MotorCity.UI
         private float activeNotificationTimer;
 
         private Image resultActivityIcon;
+        private Image resultRewardIcon;
         private Text resultTitleText;
         private Text resultHeadlineText;
         private Text resultDetailsText;
@@ -4935,15 +4936,35 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
 
+            resultRewardIcon =
+                CreateHudIcon(
+                    panel,
+                    "Result Reward Icon",
+                    MotorCityIconLibrary.Reward,
+                    new Vector2(
+                        -178f,
+                        -210f),
+                    new Vector2(
+                        30f,
+                        30f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Color(
+                        1f,
+                        0.78f,
+                        0.20f,
+                        1f));
+
             resultRewardText =
                 CreateText(
                     panel,
                     "Result Reward",
                     28,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(0f, -210f),
-                    new Vector2(500f, 42f),
+                    TextAnchor.MiddleLeft,
+                    new Vector2(-154f, -210f),
+                    new Vector2(350f, 42f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
@@ -5062,11 +5083,29 @@ namespace MotorCity.UI
             }
 
             resultHeadlineText.color = accent;
-            resultRewardText.color =
+
+            bool hasReward =
                 activityManager.ResultRewardCredits > 0 ||
-                activityManager.ResultReputationReward > 0
-                    ? accent
+                activityManager.ResultReputationReward > 0;
+
+            resultRewardText.color =
+                hasReward
+                    ? new Color(
+                        1f,
+                        0.78f,
+                        0.20f,
+                        1f)
                     : SecondaryTextColor;
+
+            if (resultRewardIcon != null)
+            {
+                resultRewardIcon.enabled =
+                    hasReward &&
+                    resultRewardIcon.sprite != null;
+
+                resultRewardIcon.color =
+                    resultRewardText.color;
+            }
         }
 
         private static bool IsReplayableResult(
