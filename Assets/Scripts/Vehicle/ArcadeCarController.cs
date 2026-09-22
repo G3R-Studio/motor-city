@@ -338,7 +338,7 @@ namespace MotorCity.Vehicle
 
             AudioClip tireClip =
                 Resources.Load<AudioClip>(
-                    "MotorCity/Audio/TireScreech");
+                    "MotorCity/Audio/TireSkid");
 
             if (engineClip != null)
             {
@@ -366,12 +366,12 @@ namespace MotorCity.Vehicle
                     CreateRuntimeAudioSource(
                         "Motor City Tire Audio",
                         tireClip,
-                        0.42f);
+                        0f);
             }
             else
             {
                 Debug.LogWarning(
-                    "Motor City: runtime tire audio clip is missing from Resources/MotorCity/Audio/TireScreech.",
+                    "Motor City: runtime tire audio clip is missing from Resources/MotorCity/Audio/TireSkid.",
                     this);
             }
         }
@@ -471,20 +471,31 @@ namespace MotorCity.Vehicle
                  (handbrakeHeld &&
                   SpeedKph > 24f));
 
-            if (shouldScreech)
+            float targetTireVolume =
+                shouldScreech
+                    ? Mathf.Lerp(
+                        0.04f,
+                        0.24f,
+                        slideIntensity)
+                    : 0f;
+
+            tireAudioSource.volume =
+                Mathf.MoveTowards(
+                    tireAudioSource.volume,
+                    targetTireVolume,
+                    Time.deltaTime *
+                    (shouldScreech
+                        ? 0.70f
+                        : 1.20f));
+
+            tireAudioSource.pitch =
+                Mathf.Lerp(
+                    0.82f,
+                    0.98f,
+                    slideIntensity);
+
+            if (tireAudioSource.volume > 0.005f)
             {
-                tireAudioSource.volume =
-                    Mathf.Lerp(
-                        0.12f,
-                        0.48f,
-                        slideIntensity);
-
-                tireAudioSource.pitch =
-                    Mathf.Lerp(
-                        0.92f,
-                        1.10f,
-                        slideIntensity);
-
                 if (!tireAudioSource.isPlaying)
                 {
                     tireAudioSource.Play();
