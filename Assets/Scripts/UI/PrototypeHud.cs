@@ -1804,51 +1804,110 @@ namespace MotorCity.UI
             navigatorMenuOverlay.SetActive(false);
         }
 
-        private void BuildPlayerCard(Transform canvas)
+        private void BuildPlayerCard(
+            Transform canvas)
         {
             RectTransform card =
                 CreatePanel(
                     canvas,
                     "Player Card",
-                    new Vector2(18f, -18f),
-                    new Vector2(360f, 132f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
-                    PanelColor);
+                    new Vector2(
+                        18f,
+                        -18f),
+                    new Vector2(
+                        360f,
+                        124f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Color(
+                        0.018f,
+                        0.032f,
+                        0.052f,
+                        0.92f));
 
             CreateAccent(
                 card,
                 BlueAccent,
-                new Vector2(5f, -8f),
-                new Vector2(4f, 116f),
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f));
+                new Vector2(
+                    5f,
+                    -7f),
+                new Vector2(
+                    4f,
+                    110f),
+                new Vector2(
+                    0f,
+                    1f),
+                new Vector2(
+                    0f,
+                    1f));
+
+            CreateAccent(
+                card,
+                new Color(
+                    BlueAccent.r,
+                    BlueAccent.g,
+                    BlueAccent.b,
+                    0.20f),
+                new Vector2(
+                    18f,
+                    -76f),
+                new Vector2(
+                    324f,
+                    1f),
+                new Vector2(
+                    0f,
+                    1f),
+                new Vector2(
+                    0f,
+                    1f));
 
             Text label =
                 CreateText(
                     card,
                     "City Label",
-                    11,
+                    10,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(18f, -9f),
-                    new Vector2(120f, 18f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(
+                        18f,
+                        -8f),
+                    new Vector2(
+                        110f,
+                        16f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
                     SecondaryTextColor);
-            label.text = "MOTOR CITY";
+
+            label.text =
+                "MOTOR CITY";
 
             moneyText =
                 CreateText(
                     card,
                     "Credits",
-                    22,
+                    24,
                     FontStyle.Bold,
                     TextAnchor.UpperRight,
-                    new Vector2(-14f, -7f),
-                    new Vector2(190f, 28f),
-                    new Vector2(1f, 1f),
-                    new Vector2(1f, 1f),
+                    new Vector2(
+                        -14f,
+                        -5f),
+                    new Vector2(
+                        190f,
+                        30f),
+                    new Vector2(
+                        1f,
+                        1f),
+                    new Vector2(
+                        1f,
+                        1f),
                     TextColor);
 
             reputationText =
@@ -1858,24 +1917,85 @@ namespace MotorCity.UI
                     10,
                     FontStyle.Bold,
                     TextAnchor.UpperRight,
-                    new Vector2(-14f, -36f),
-                    new Vector2(190f, 18f),
-                    new Vector2(1f, 1f),
-                    new Vector2(1f, 1f),
+                    new Vector2(
+                        -14f,
+                        -35f),
+                    new Vector2(
+                        190f,
+                        17f),
+                    new Vector2(
+                        1f,
+                        1f),
+                    new Vector2(
+                        1f,
+                        1f),
                     SecondaryTextColor);
+
+            RectTransform driveChip =
+                CreatePanel(
+                    card,
+                    "Drive Mode Chip",
+                    new Vector2(
+                        16f,
+                        -45f),
+                    new Vector2(
+                        126f,
+                        24f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Color(
+                        0.035f,
+                        0.07f,
+                        0.11f,
+                        0.88f));
 
             driveModeText =
                 CreateText(
-                    card,
+                    driveChip,
                     "Drive Mode",
-                    12,
+                    11,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(18f, -52f),
-                    new Vector2(320f, 20f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 0.5f),
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(
+                        116f,
+                        20f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
                     BlueAccent);
+
+            Text objectiveLabel =
+                CreateText(
+                    card,
+                    "Objective Label",
+                    9,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(
+                        18f,
+                        -80f),
+                    new Vector2(
+                        60f,
+                        13f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    BlueAccent);
+
+            objectiveLabel.text =
+                MotorCityLocalization.Text(
+                    "hud.objective_label");
 
             objectiveText =
                 CreateText(
@@ -1884,10 +2004,18 @@ namespace MotorCity.UI
                     11,
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
-                    new Vector2(18f, 12f),
-                    new Vector2(324f, 42f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
+                    new Vector2(
+                        74f,
+                        8f),
+                    new Vector2(
+                        268f,
+                        38f),
+                    new Vector2(
+                        0f,
+                        0f),
+                    new Vector2(
+                        0f,
+                        0f),
                     TextColor);
         }
 
@@ -1900,7 +2028,7 @@ namespace MotorCity.UI
                     "Character Card",
                     new Vector2(
                         18f,
-                        -158f),
+                        -150f),
                     new Vector2(
                         360f,
                         82f),
