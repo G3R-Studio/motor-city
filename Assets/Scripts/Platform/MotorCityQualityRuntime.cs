@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace MotorCity.Platform
@@ -17,6 +18,70 @@ namespace MotorCity.Platform
         private static bool initialized;
 
         public static MotorCityQualityPreset CurrentPreset { get; private set; }
+
+        public static event Action PresetChanged;
+
+        public static int TrafficVehicleBudget
+        {
+            get
+            {
+                return
+                    CurrentPreset switch
+                    {
+                        MotorCityQualityPreset.Low =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                            10,
+#else
+                            16,
+#endif
+
+                        MotorCityQualityPreset.High =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                            24,
+#else
+                            32,
+#endif
+
+                        _ =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                            18
+#else
+                            28
+#endif
+                    };
+            }
+        }
+
+        public static float TrafficRadius
+        {
+            get
+            {
+                return
+                    CurrentPreset switch
+                    {
+                        MotorCityQualityPreset.Low =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                            105f,
+#else
+                            120f,
+#endif
+
+                        MotorCityQualityPreset.High =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                            140f,
+#else
+                            165f,
+#endif
+
+                        _ =>
+#if UNITY_WEBGL && !UNITY_EDITOR
+                            125f
+#else
+                            150f
+#endif
+                    };
+            }
+        }
 
         public static void Initialize()
         {
@@ -65,6 +130,8 @@ namespace MotorCity.Platform
                     ApplyMedium();
                     break;
             }
+
+            PresetChanged?.Invoke();
 
             if (!save)
                 return;
