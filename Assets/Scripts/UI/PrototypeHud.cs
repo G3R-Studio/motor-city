@@ -66,7 +66,6 @@ namespace MotorCity.UI
         private Text statusText;
         private Image statusActivityIcon;
         private Text driftText;
-        private Text navigatorArrowText;
         private Text navigatorText;
         private Text careerText;
         private Text disciplineText;
@@ -91,7 +90,9 @@ namespace MotorCity.UI
         private Image characterPortraitRightDetail;
         private Text characterSourceText;
         private Text characterNameText;
+        private Text characterMissionTitleText;
         private Text characterLineText;
+        private Text characterRewardText;
         private RawImage minimapImage;
         private RectTransform minimapTargetBlip;
         private Image minimapTargetIcon;
@@ -2104,7 +2105,7 @@ namespace MotorCity.UI
                         -18f),
                     new Vector2(
                         430f,
-                        112f),
+                        142f),
                     new Vector2(
                         0f,
                         1f),
@@ -2180,14 +2181,6 @@ namespace MotorCity.UI
                 LoadCharacterPortrait(
                     "bublik",
                     "MotorCity/UI/Characters/avatar_inspector");
-
-            Debug.Log(
-                "[MotorCity][Portrait] HUD portrait load summary: " +
-                $"Vitya={(characterPortraitVitya != null ? "OK" : "MISSING")}, " +
-                $"Turbo={(characterPortraitTurbo != null ? "OK" : "MISSING")}, " +
-                $"Nika={(characterPortraitNika != null ? "OK" : "MISSING")}, " +
-                $"Bublik={(characterPortraitBublik != null ? "OK" : "MISSING")}.",
-                this);
 
             characterPortraitAccent =
                 CreatePortraitLayer(
@@ -2350,6 +2343,27 @@ namespace MotorCity.UI
                         1f),
                     BlueAccent);
 
+            characterMissionTitleText =
+                CreateText(
+                    panel,
+                    "Character Mission Title",
+                    10,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(
+                        84f,
+                        -47f),
+                    new Vector2(
+                        324f,
+                        18f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    SecondaryTextColor);
+
             characterLineText =
                 CreateText(
                     panel,
@@ -2359,10 +2373,10 @@ namespace MotorCity.UI
                     TextAnchor.LowerLeft,
                     new Vector2(
                         84f,
-                        10f),
+                        27f),
                     new Vector2(
                         324f,
-                        58f),
+                        54f),
                     new Vector2(
                         0f,
                         0f),
@@ -2370,6 +2384,27 @@ namespace MotorCity.UI
                         0f,
                         0f),
                     TextColor);
+
+            characterRewardText =
+                CreateText(
+                    panel,
+                    "Character Reward",
+                    10,
+                    FontStyle.Bold,
+                    TextAnchor.LowerRight,
+                    new Vector2(
+                        -18f,
+                        8f),
+                    new Vector2(
+                        220f,
+                        17f),
+                    new Vector2(
+                        1f,
+                        0f),
+                    new Vector2(
+                        1f,
+                        0f),
+                    SecondaryTextColor);
 
             characterPanel.SetActive(
                 false);
@@ -2493,6 +2528,12 @@ namespace MotorCity.UI
             string line =
                 string.Empty;
 
+            string missionTitle =
+                string.Empty;
+
+            string rewardLine =
+                string.Empty;
+
             int style =
                 -1;
 
@@ -2532,6 +2573,15 @@ namespace MotorCity.UI
 
                 line =
                     story.CurrentCharacterLine;
+
+                missionTitle =
+                    story.CurrentMissionTitle;
+
+                rewardLine =
+                    MotorCityLocalization.Format(
+                        "hud.result_reward",
+                        story.CurrentCreditsReward,
+                        story.CurrentReputationReward);
 
                 style =
                     story.CurrentCharacterStyle;
@@ -2658,8 +2708,37 @@ namespace MotorCity.UI
             characterNameText.color =
                 accent;
 
+            if (characterMissionTitleText != null)
+            {
+                characterMissionTitleText.text =
+                    missionTitle;
+
+                characterMissionTitleText.color =
+                    new Color(
+                        accent.r,
+                        accent.g,
+                        accent.b,
+                        0.82f);
+            }
+
             characterLineText.text =
                 line;
+
+            if (characterRewardText != null)
+            {
+                characterRewardText.text =
+                    rewardLine;
+
+                characterRewardText.color =
+                    string.IsNullOrWhiteSpace(
+                        rewardLine)
+                        ? SecondaryTextColor
+                        : new Color(
+                            1f,
+                            0.78f,
+                            0.20f,
+                            1f);
+            }
         }
 
         private Sprite LoadCharacterPortrait(
@@ -2672,17 +2751,6 @@ namespace MotorCity.UI
 
             if (sprite != null)
             {
-                Texture2D texture =
-                    sprite.texture;
-
-                Debug.Log(
-                    "[MotorCity][Portrait] Loaded Sprite " +
-                    $"'{characterId}' from Resources/{resourcePath}: " +
-                    $"sprite='{sprite.name}', " +
-                    $"texture={(texture != null ? texture.width + "x" + texture.height : "null")}, " +
-                    $"rect={sprite.rect.width:0}x{sprite.rect.height:0}.",
-                    this);
-
                 return sprite;
             }
 
@@ -2783,15 +2851,6 @@ namespace MotorCity.UI
             {
                 lastPortraitDebugId =
                     portraitId;
-
-                Debug.Log(
-                    "[MotorCity][Portrait] HUD selection: " +
-                    $"portraitId='{portraitId}', style={style}, " +
-                    $"sprite={(portrait != null ? portrait.name : "NULL")}, " +
-                    $"image={(characterPortraitImage != null ? "OK" : "NULL")}, " +
-                    $"hasPortrait={hasPortrait}, " +
-                    $"panelActive={(characterPanel != null && characterPanel.activeInHierarchy)}.",
-                    this);
 
                 if (!hasPortrait &&
                     !string.IsNullOrEmpty(
@@ -4725,29 +4784,6 @@ namespace MotorCity.UI
                 candidate;
             label =
                 candidateLabel;
-        }
-
-        private static string DirectionArrow(
-            float signedAngle)
-        {
-            float absolute =
-                Mathf.Abs(
-                    signedAngle);
-
-            if (absolute <= 20f)
-                return "↑";
-
-            if (absolute >= 160f)
-                return "↓";
-
-            if (signedAngle > 0f)
-                return absolute <= 70f
-                    ? "↗"
-                    : "→";
-
-            return absolute <= 70f
-                ? "↖"
-                : "←";
         }
 
         private void BuildDriftPanel(Transform canvas)
