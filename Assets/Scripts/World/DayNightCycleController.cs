@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MotorCity.Platform;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -724,9 +725,22 @@ namespace MotorCity.World
             Vector3 observerPosition =
                 lampObserver.position;
 
+            float lampDistance =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low =>
+                        82f,
+
+                    MotorCityQualityPreset.High =>
+                        LampEnableDistance,
+
+                    _ =>
+                        98f
+                };
+
             float maximumDistanceSquared =
-                LampEnableDistance *
-                LampEnableDistance;
+                lampDistance *
+                lampDistance;
 
             lampCandidates.Clear();
 
@@ -758,8 +772,22 @@ namespace MotorCity.World
             lampCandidates.Sort(
                 CompareLampCandidates);
 
+            int qualityLightBudget =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low =>
+                        6,
+
+                    MotorCityQualityPreset.High =>
+                        MaxRuntimeStreetLights,
+
+                    _ =>
+                        10
+                };
+
             int enabledCount =
                 Mathf.Min(
+                    qualityLightBudget,
                     streetLights.Count,
                     lampCandidates.Count);
 
