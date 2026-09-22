@@ -26,6 +26,9 @@ namespace MotorCity.World
         private static readonly Dictionary<Vector2Int, List<int>> NodeBuckets =
             new();
 
+        private static readonly Dictionary<int, List<Edge>> Adjacency =
+            new();
+
         private static readonly Dictionary<MonoBehaviour, WayNetworkEntry>
             WayEntries =
                 new();
@@ -322,6 +325,7 @@ namespace MotorCity.World
             Edges.Clear();
             EdgeKeys.Clear();
             NodeBuckets.Clear();
+            Adjacency.Clear();
             WayEntries.Clear();
 
             cachedSceneHandle =
@@ -772,14 +776,45 @@ namespace MotorCity.World
                 return;
             }
 
-            edges.Add(
-                new Edge(
+            Edge edge =
+                new(
                     low,
                     high,
                     FlatDistance(
                         nodes[low],
                         nodes[high]),
-                    roadSegment));
+                    roadSegment);
+
+            edges.Add(
+                edge);
+
+            AddAdjacency(
+                low,
+                edge);
+
+            AddAdjacency(
+                high,
+                edge);
+        }
+
+        private static void AddAdjacency(
+            int node,
+            Edge edge)
+        {
+            if (!Adjacency.TryGetValue(
+                    node,
+                    out List<Edge> connected))
+            {
+                connected =
+                    new List<Edge>();
+
+                Adjacency[
+                    node] =
+                    connected;
+            }
+
+            connected.Add(
+                edge);
         }
 
         private static List<int> FindShortestPath(
@@ -857,18 +892,22 @@ namespace MotorCity.World
                 visited[current] =
                     true;
 
+                if (!Adjacency.TryGetValue(
+                        current,
+                        out List<Edge> connected))
+                {
+                    continue;
+                }
+
                 foreach (Edge edge in
-                         edges)
+                         connected)
                 {
                     int neighbor =
                         edge.A == current
                             ? edge.B
-                            : edge.B == current
-                                ? edge.A
-                                : -1;
+                            : edge.A;
 
-                    if (neighbor < 0 ||
-                        visited[neighbor])
+                    if (visited[neighbor])
                     {
                         continue;
                     }
