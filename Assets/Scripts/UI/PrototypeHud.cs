@@ -2301,8 +2301,28 @@ namespace MotorCity.UI
             int style =
                 -1;
 
-            if (story != null &&
-                !story.IsComplete)
+            if (onboarding != null &&
+                !onboarding.IsComplete)
+            {
+                bool turboStep =
+                    onboarding.CurrentStep >= 3;
+
+                name =
+                    MotorCityLocalization.Text(
+                        turboStep
+                            ? "story.character.turbo"
+                            : "story.character.vitya");
+
+                line =
+                    onboarding.ObjectiveLine;
+
+                style =
+                    turboStep
+                        ? 3
+                        : 0;
+            }
+            else if (story != null &&
+                     !story.IsComplete)
             {
                 name =
                     story.CurrentCharacterName;
@@ -2367,8 +2387,10 @@ namespace MotorCity.UI
                 };
 
             bool storySource =
-                story != null &&
-                !story.IsComplete;
+                (onboarding != null &&
+                 !onboarding.IsComplete) ||
+                (story != null &&
+                 !story.IsComplete);
 
             characterSourceText.text =
                 MotorCityLocalization.Text(
