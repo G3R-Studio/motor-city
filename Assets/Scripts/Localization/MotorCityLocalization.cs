@@ -449,6 +449,16 @@ namespace MotorCity.Localization
                 { "boot.loading", E("Загрузка города...", "Loading city...") },
                 { "boot.error", E("Ошибка загрузки города", "City loading error") },
 
+                { "pause.title", E("ПАУЗА", "PAUSED") },
+                { "pause.quality", E("КАЧЕСТВО: {0}", "QUALITY: {0}") },
+                { "pause.quality_low", E("НИЗКОЕ", "LOW") },
+                { "pause.quality_medium", E("СРЕДНЕЕ", "MEDIUM") },
+                { "pause.quality_high", E("ВЫСОКОЕ", "HIGH") },
+                { "pause.audio", E("ЗВУК: {0}", "AUDIO: {0}") },
+                { "pause.on", E("ВКЛ", "ON") },
+                { "pause.off", E("ВЫКЛ", "OFF") },
+                { "pause.controls", E("Z / X — КАЧЕСТВО   •   V — ЗВУК   •   ESC — ПРОДОЛЖИТЬ", "Z / X — QUALITY   •   V — AUDIO   •   ESC — RESUME") },
+
                 { "turbo.title", E("ТУРБО", "TURBO") },
                 { "turbo.hello", E("Турбо: Привет! Я твой напарник. Поехали исследовать Motor City!", "Turbo: Hi! I’m your co-pilot. Let’s explore Motor City!") },
                 { "turbo.reunion", E("Турбо: Я скучал! Ничего не потеряно — просто поехали кататься.", "Turbo: I missed you! Nothing was lost — let’s go for a drive.") },
