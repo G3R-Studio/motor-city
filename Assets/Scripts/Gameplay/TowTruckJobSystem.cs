@@ -196,53 +196,6 @@ namespace MotorCity.Gameplay
             }
         }
 
-        private void LateUpdate()
-        {
-            if (stage !=
-                    TowStage.Delivering ||
-                strandedCar == null ||
-                car == null)
-            {
-                return;
-            }
-
-            Vector3 desiredPosition =
-                car.transform.TransformPoint(
-                    new Vector3(
-                        0f,
-                        0.12f,
-                        -4.6f));
-
-            Quaternion desiredRotation =
-                Quaternion.LookRotation(
-                    car.transform.forward,
-                    Vector3.up);
-
-            float positionBlend =
-                1f -
-                Mathf.Exp(
-                    -8f *
-                    Time.deltaTime);
-
-            float rotationBlend =
-                1f -
-                Mathf.Exp(
-                    -10f *
-                    Time.deltaTime);
-
-            strandedCar.transform.position =
-                Vector3.Lerp(
-                    strandedCar.transform.position,
-                    desiredPosition,
-                    positionBlend);
-
-            strandedCar.transform.rotation =
-                Quaternion.Slerp(
-                    strandedCar.transform.rotation,
-                    desiredRotation,
-                    rotationBlend);
-        }
-
         private void BeginJob()
         {
             if (!activities.TryBegin(
@@ -527,13 +480,187 @@ namespace MotorCity.Gameplay
             strandedCar.transform.position =
                 BreakdownPoint +
                 Vector3.up *
-                0.55f;
+                0.08f;
 
             strandedCar.transform.rotation =
                 Quaternion.LookRotation(
                     Vector3.forward,
                     Vector3.up);
 
+            if (TryCreateTrafficCarVisual())
+            {
+                return;
+            }
+
+            CreateFallbackStrandedCarVisual();
+        }
+
+        private bool TryCreateTrafficCarVisual()
+        {
+            string[] resourcePaths =
+            {
+                "MotorCity/Environment/FCGTrafficCars/Fiat 147_04",
+                "MotorCity/Environment/FCGTrafficCars/Fiat 147-b_05"
+            };
+
+            int startIndex =
+                Random.Range(
+                    0,
+                    resourcePaths.Length);
+
+            GameObject prefab =
+                null;
+
+            for (int i = 0;
+                 i < resourcePaths.Length;
+                 i++)
+            {
+                string path =
+                    resourcePaths[
+                        (startIndex + i) %
+                        resourcePaths.Length];
+
+                prefab =
+                    Resources.Load<GameObject>(
+                        path);
+
+                if (prefab != null)
+                    break;
+            }
+
+            if (prefab == null)
+            {
+                return false;
+            }
+
+            GameObject visual =
+                Instantiate(
+                    prefab,
+                    strandedCar.transform);
+
+            visual.name =
+                "Traffic Car Visual";
+
+            visual.transform.localPosition =
+                Vector3.zero;
+
+            visual.transform.localRotation =
+                Quaternion.identity;
+
+            Rigidbody[] bodies =
+                visual.GetComponentsInChildren<Rigidbody>(
+                    true);
+
+            foreach (Rigidbody body in bodies)
+            {
+                Destroy(
+                    body);
+            }
+
+            Collider[] colliders =
+                visual.GetComponentsInChildren<Collider>(
+                    true);
+
+            foreach (Collider collider in colliders)
+            {
+                Destroy(
+                    collider);
+            }
+
+            MonoBehaviour[] behaviours =
+                visual.GetComponentsInChildren<MonoBehaviour>(
+                    true);
+
+            foreach (MonoBehaviour behaviour in behaviours)
+            {
+                behaviour.enabled =
+                    false;
+            }
+
+            FitTrafficCarVisual(
+                visual);
+
+            return true;
+        }
+
+        private static void FitTrafficCarVisual(
+            GameObject visual)
+        {
+            Renderer[] renderers =
+                visual.GetComponentsInChildren<Renderer>(
+                    true);
+
+            if (renderers.Length == 0)
+                return;
+
+            Bounds bounds =
+                renderers[0].bounds;
+
+            for (int i = 1;
+                 i < renderers.Length;
+                 i++)
+            {
+                bounds.Encapsulate(
+                    renderers[i].bounds);
+            }
+
+            float horizontalLength =
+                Mathf.Max(
+                    bounds.size.x,
+                    bounds.size.z);
+
+            if (horizontalLength >
+                0.01f)
+            {
+                float scale =
+                    Mathf.Clamp(
+                        3.8f /
+                        horizontalLength,
+                        0.65f,
+                        1.35f);
+
+                visual.transform.localScale *=
+                    scale;
+            }
+
+            renderers =
+                visual.GetComponentsInChildren<Renderer>(
+                    true);
+
+            bounds =
+                renderers[0].bounds;
+
+            for (int i = 1;
+                 i < renderers.Length;
+                 i++)
+            {
+                bounds.Encapsulate(
+                    renderers[i].bounds);
+            }
+
+            Transform parent =
+                visual.transform.parent;
+
+            Vector3 localCenter =
+                parent.InverseTransformPoint(
+                    bounds.center);
+
+            Vector3 localBottom =
+                parent.InverseTransformPoint(
+                    new Vector3(
+                        bounds.center.x,
+                        bounds.min.y,
+                        bounds.center.z));
+
+            visual.transform.localPosition -=
+                new Vector3(
+                    localCenter.x,
+                    localBottom.y,
+                    localCenter.z);
+        }
+
+        private void CreateFallbackStrandedCarVisual()
+        {
             CreatePart(
                 "Body",
                 PrimitiveType.Cube,
@@ -670,15 +797,18 @@ namespace MotorCity.Gameplay
                     -1.98f),
                 darkMaterial);
 
-            strandedCar.transform.position =
-                car.transform.TransformPoint(
-                    new Vector3(
-                        0f,
-                        0.12f,
-                        -4.6f));
+            strandedCar.transform.SetParent(
+                car.transform,
+                false);
 
-            strandedCar.transform.rotation =
-                car.transform.rotation;
+            strandedCar.transform.localPosition =
+                new Vector3(
+                    0f,
+                    0.12f,
+                    -4.6f);
+
+            strandedCar.transform.localRotation =
+                Quaternion.identity;
         }
 
         private GameObject CreatePart(
