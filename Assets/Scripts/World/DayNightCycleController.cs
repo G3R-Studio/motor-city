@@ -10,6 +10,9 @@ namespace MotorCity.World
         private const string SettingsResourcePath =
             "MotorCity/Environment/DayNightSettings";
 
+        private const float EnvironmentUpdateInterval =
+            0.05f;
+
         private const float LampUpdateInterval =
             0.25f;
 
@@ -47,6 +50,7 @@ namespace MotorCity.World
         private Material runtimeNightSkybox;
 
         private float time01;
+        private float environmentUpdateTimer;
         private float lampUpdateTimer;
         private float observerResolveTimer;
         private int autoCreatedStreetLights;
@@ -133,8 +137,17 @@ namespace MotorCity.World
                         1f);
             }
 
-            ApplyEnvironment(
-                false);
+            environmentUpdateTimer -=
+                Time.deltaTime;
+
+            if (environmentUpdateTimer <= 0f)
+            {
+                environmentUpdateTimer =
+                    EnvironmentUpdateInterval;
+
+                ApplyEnvironment(
+                    false);
+            }
 
             lampUpdateTimer -=
                 Time.deltaTime;
