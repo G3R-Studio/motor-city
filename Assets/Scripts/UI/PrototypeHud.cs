@@ -2696,16 +2696,16 @@ namespace MotorCity.UI
                     $"hasPortrait={hasPortrait}, " +
                     $"panelActive={(characterPanel != null && characterPanel.activeInHierarchy)}.",
                     this);
-            }
 
-            if (!hasPortrait &&
-                !string.IsNullOrEmpty(
-                    portraitId))
-            {
-                Debug.LogWarning(
-                    "[MotorCity][Portrait] Falling back to procedural portrait for " +
-                    $"'{portraitId}' because the Sprite or Image is missing.",
-                    this);
+                if (!hasPortrait &&
+                    !string.IsNullOrEmpty(
+                        portraitId))
+                {
+                    Debug.LogWarning(
+                        "[MotorCity][Portrait] Falling back to procedural portrait for " +
+                        $"'{portraitId}' because the Sprite or Image is missing.",
+                        this);
+                }
             }
 
             if (characterPortraitImage != null)
