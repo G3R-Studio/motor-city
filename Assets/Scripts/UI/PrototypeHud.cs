@@ -120,6 +120,11 @@ namespace MotorCity.UI
         private GameObject touchControlsRoot;
         private CanvasScaler canvasScaler;
         private bool lastPortraitLayout;
+        private int lastDisplayedCredits = int.MinValue;
+        private int lastDisplayedReputation = int.MinValue;
+        private int lastDisplayedReputationLevel = int.MinValue;
+        private int lastDisplayedSpeed = int.MinValue;
+        private DriveMode? lastDisplayedDriveMode;
 
         private readonly Queue<string> notificationQueue =
             new();
@@ -268,19 +273,44 @@ namespace MotorCity.UI
                     ? 0
                     : wallet.Credits;
 
-            moneyText.text =
-                MotorCityLocalization.Format(
-                    "common.credits",
-                    credits);
+            if (credits !=
+                lastDisplayedCredits)
+            {
+                lastDisplayedCredits =
+                    credits;
+
+                moneyText.text =
+                    MotorCityLocalization.Format(
+                        "common.credits",
+                        credits);
+            }
 
             if (reputationText != null &&
                 activityManager != null)
             {
-                reputationText.text =
-                    MotorCityLocalization.Format(
-                        "hud.rep",
-                        activityManager.TotalReputation,
-                        activityManager.ReputationLevel);
+                int totalReputation =
+                    activityManager.TotalReputation;
+
+                int reputationLevel =
+                    activityManager.ReputationLevel;
+
+                if (totalReputation !=
+                        lastDisplayedReputation ||
+                    reputationLevel !=
+                        lastDisplayedReputationLevel)
+                {
+                    lastDisplayedReputation =
+                        totalReputation;
+
+                    lastDisplayedReputationLevel =
+                        reputationLevel;
+
+                    reputationText.text =
+                        MotorCityLocalization.Format(
+                            "hud.rep",
+                            totalReputation,
+                            reputationLevel);
+                }
             }
 
             if (upgradesText != null)
@@ -353,8 +383,14 @@ namespace MotorCity.UI
             UpdateCharacterCard();
 
             if (driveModeText != null &&
-                car != null)
+                car != null &&
+                (!lastDisplayedDriveMode.HasValue ||
+                 lastDisplayedDriveMode.Value !=
+                    car.CurrentDriveMode))
             {
+                lastDisplayedDriveMode =
+                    car.CurrentDriveMode;
+
                 driveModeText.text =
                     MotorCityLocalization.Format(
                         "hud.drive_mode",
@@ -381,9 +417,20 @@ namespace MotorCity.UI
                     ? 0f
                     : car.SpeedKph;
 
-            speedText.text =
-                Mathf.RoundToInt(speed)
-                    .ToString("000");
+            int roundedSpeed =
+                Mathf.RoundToInt(
+                    speed);
+
+            if (roundedSpeed !=
+                lastDisplayedSpeed)
+            {
+                lastDisplayedSpeed =
+                    roundedSpeed;
+
+                speedText.text =
+                    roundedSpeed.ToString(
+                        "000");
+            }
 
             if (speedNeedle != null)
             {
