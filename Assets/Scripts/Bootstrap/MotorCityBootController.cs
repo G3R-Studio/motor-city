@@ -22,6 +22,8 @@ namespace MotorCity.Bootstrap
         private AsyncOperation sceneLoadOperation;
         private float overlayAlpha = 1f;
         private bool fadingOut;
+        private bool gameSceneLoadRequested;
+        private float platformWatchdogRemaining = 12f;
 
         [RuntimeInitializeOnLoadMethod(
             RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -145,6 +147,12 @@ namespace MotorCity.Bootstrap
 
         private void LoadGameScene()
         {
+            if (gameSceneLoadRequested)
+                return;
+
+            gameSceneLoadRequested =
+                true;
+
             status =
                 MotorCityLocalization.Text(
                     "boot.loading");
@@ -174,6 +182,26 @@ namespace MotorCity.Bootstrap
         {
             if (!loading)
                 return;
+
+            if (!gameSceneLoadRequested &&
+                platformWatchdogRemaining > 0f)
+            {
+                platformWatchdogRemaining -=
+                    Time.unscaledDeltaTime;
+
+                if (platformWatchdogRemaining <= 0f)
+                {
+                    Debug.LogWarning(
+                        "Motor City: platform startup timed out. Continuing with local startup.");
+
+                    status =
+                        MotorCityLocalization.Text(
+                            "boot.loading");
+
+                    LoadGameScene();
+                    return;
+                }
+            }
 
             if (fadingOut)
             {
