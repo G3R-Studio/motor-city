@@ -801,7 +801,17 @@ namespace MotorCity.UI
             }
 
             if (garageOpen)
+            {
+                SetActiveIfChanged(
+                    statusPanel,
+                    false);
+
+                SetActiveIfChanged(
+                    driftPanel,
+                    false);
+
                 UpdateGarage();
+            }
 
             UpdateNavigator(
                 garageOpen);
@@ -5651,7 +5661,7 @@ namespace MotorCity.UI
                     MotorCityIconLibrary.Unlocked,
                     new Vector2(
                         28f,
-                        -76f),
+                        -98f),
                     new Vector2(
                         22f,
                         22f),
@@ -5680,8 +5690,8 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -98f),
-                    new Vector2(704f, 22f),
+                    new Vector2(58f, -98f),
+                    new Vector2(674f, 22f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     GarageAccent);
