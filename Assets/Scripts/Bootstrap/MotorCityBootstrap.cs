@@ -19,9 +19,31 @@ namespace MotorCity.Bootstrap
             new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void BuildPrototype()
+        private static void InitializeBootstrap()
         {
-            if (SceneManager.GetActiveScene().name !=
+            SceneManager.sceneLoaded -=
+                OnSceneLoaded;
+
+            SceneManager.sceneLoaded +=
+                OnSceneLoaded;
+
+            TryBuildPrototype(
+                SceneManager.GetActiveScene());
+        }
+
+        private static void OnSceneLoaded(
+            Scene scene,
+            LoadSceneMode mode)
+        {
+            TryBuildPrototype(
+                scene);
+        }
+
+        private static void TryBuildPrototype(
+            Scene scene)
+        {
+            if (!scene.IsValid() ||
+                scene.name !=
                 "Prototype")
             {
                 return;
