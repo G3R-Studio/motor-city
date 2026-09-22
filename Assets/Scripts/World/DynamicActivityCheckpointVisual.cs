@@ -23,7 +23,8 @@ namespace MotorCity.World
                 new Color(
                     1f,
                     0.72f,
-                    0.16f));
+                    0.16f),
+                CheckpointBeaconStyle.Profession);
         }
 
         public void BindTowTruck(
@@ -36,7 +37,8 @@ namespace MotorCity.World
                 new Color(
                     1f,
                     0.58f,
-                    0.08f));
+                    0.08f),
+                CheckpointBeaconStyle.Tow);
         }
 
         public void BindUnderground(
@@ -49,17 +51,21 @@ namespace MotorCity.World
                 new Color(
                     0.72f,
                     0.28f,
-                    1f));
+                    1f),
+                CheckpointBeaconStyle.Underground);
         }
 
         private void Setup(
-            Color color)
+            Color color,
+            CheckpointBeaconStyle style)
         {
             beacon =
                 gameObject.AddComponent<CheckpointBeaconVisual>();
 
             beacon.Initialize(
-                color);
+                color,
+                true,
+                style);
 
             beacon.SetVisible(
                 false);
