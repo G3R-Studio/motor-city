@@ -17,6 +17,7 @@ namespace MotorCity.Gameplay
         private ArcadeCarController car;
         private PlayerWallet wallet;
         private PlayerReputation reputation;
+        private ActivityManager activities;
         private DiscoverySystem discoveries;
         private VehicleCustomizationSystem customization;
 
@@ -60,12 +61,14 @@ namespace MotorCity.Gameplay
             ArcadeCarController targetCar,
             PlayerWallet targetWallet,
             PlayerReputation targetReputation,
+            ActivityManager activityManager,
             DiscoverySystem discoverySystem,
             VehicleCustomizationSystem customizationSystem)
         {
             car = targetCar;
             wallet = targetWallet;
             reputation = targetReputation;
+            activities = activityManager;
             discoveries = discoverySystem;
             customization = customizationSystem;
 
