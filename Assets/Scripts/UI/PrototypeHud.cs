@@ -3134,6 +3134,118 @@ namespace MotorCity.UI
                 }
             }
 
+            if (activityManager != null &&
+                !activityManager.IsBusy &&
+                (onboarding == null ||
+                 onboarding.IsComplete) &&
+                (story == null ||
+                 story.IsComplete) &&
+                season != null &&
+                !season.IsComplete &&
+                season.IsSeasonOneActive)
+            {
+                string required =
+                    season.RequiredActivityId;
+
+                if (required == "delivery" &&
+                    delivery != null)
+                {
+                    target =
+                        delivery.CurrentTarget;
+
+                    label =
+                        MotorCityLocalization.Text(
+                            "activity.delivery");
+
+                    showRoadRoute =
+                        true;
+
+                    return;
+                }
+
+                if (required == "drift" &&
+                    driftChallenge != null)
+                {
+                    target =
+                        driftChallenge.ZoneCenter;
+
+                    label =
+                        MotorCityLocalization.Text(
+                            "activity.drift");
+
+                    showRoadRoute =
+                        true;
+
+                    return;
+                }
+
+                if (required == "sprint" &&
+                    streetSprint != null)
+                {
+                    target =
+                        streetSprint.CurrentTarget;
+
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.sprint");
+
+                    showRoadRoute =
+                        true;
+
+                    return;
+                }
+
+                if (required == "circuit" &&
+                    circuitRace != null)
+                {
+                    target =
+                        circuitRace.CurrentTarget;
+
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.circuit");
+
+                    showRoadRoute =
+                        true;
+
+                    return;
+                }
+
+                if (required == "profession_carwash" &&
+                    carWash != null)
+                {
+                    target =
+                        carWash.StartPoint;
+
+                    label =
+                        MotorCityLocalization.Text(
+                            "carwash.title");
+
+                    showRoadRoute =
+                        true;
+
+                    return;
+                }
+
+                if (professions != null &&
+                    professions.TryGetStartForActivity(
+                        required,
+                        out Vector3 professionTarget,
+                        out string professionLabel))
+                {
+                    target =
+                        professionTarget;
+
+                    label =
+                        professionLabel;
+
+                    showRoadRoute =
+                        true;
+
+                    return;
+                }
+            }
+
             if (underground != null &&
                 (underground.HasActiveInvitation ||
                  underground.IsActive ||
