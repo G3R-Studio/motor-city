@@ -280,13 +280,11 @@ namespace MotorCity.Gameplay
         private void OnActivityCompleted(
             string activityId)
         {
-            // Only count a completion that happens while onboarding is
-            // explicitly asking for an activity. This includes ambient
-            // challenges as well as activities with a result screen.
+            // The first job deliberately teaches the blue delivery
+            // marker, so unrelated ambient challenges must not skip it.
             if (!IsComplete &&
                 step == 4 &&
-                !string.IsNullOrWhiteSpace(
-                    activityId))
+                activityId == "delivery")
             {
                 activitySucceeded =
                     true;
