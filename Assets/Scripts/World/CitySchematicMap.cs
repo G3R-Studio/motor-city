@@ -93,9 +93,15 @@ namespace MotorCity.World
             foreach (Renderer renderer in
                      renderers)
             {
-                if (renderer == null ||
-                    ShouldIgnore(
-                        renderer.transform))
+                if (renderer == null)
+                    continue;
+
+                string hierarchyPath =
+                    HierarchyName(
+                        renderer.transform);
+
+                if (ShouldIgnore(
+                        hierarchyPath))
                 {
                     continue;
                 }
@@ -105,8 +111,8 @@ namespace MotorCity.World
 
                 ShapeType type =
                     Classify(
-                        renderer,
-                        bounds);
+                        bounds,
+                        hierarchyPath);
 
                 if (type ==
                     ShapeType.Ignore)
@@ -640,13 +646,9 @@ namespace MotorCity.World
         }
 
         private static ShapeType Classify(
-            Renderer renderer,
-            Bounds bounds)
+            Bounds bounds,
+            string path)
         {
-            string path =
-                HierarchyName(
-                    renderer.transform);
-
             if (ContainsAny(
                     path,
                     "road",
@@ -714,12 +716,8 @@ namespace MotorCity.World
         }
 
         private static bool ShouldIgnore(
-            Transform item)
+            string path)
         {
-            string path =
-                HierarchyName(
-                    item);
-
             return
                 ContainsAny(
                     path,
