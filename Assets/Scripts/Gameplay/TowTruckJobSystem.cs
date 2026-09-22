@@ -72,6 +72,26 @@ namespace MotorCity.Gameplay
             }
         }
 
+        public bool TryGetNextTarget(
+            out Vector3 target)
+        {
+            target =
+                CurrentTarget;
+
+            if (stage ==
+                    TowStage.DriveToBreakdown ||
+                stage ==
+                    TowStage.Hooking)
+            {
+                target =
+                    ServicePoint;
+
+                return true;
+            }
+
+            return false;
+        }
+
         public string StatusText { get; private set; }
 
         public void Initialize(
