@@ -734,12 +734,6 @@ namespace MotorCity.UI
                 return;
             }
 
-            if (activityManager != null &&
-                activityManager.IsBusy)
-            {
-                return;
-            }
-
             if (garage != null &&
                 garage.IsOpen)
             {
@@ -1094,17 +1088,44 @@ namespace MotorCity.UI
 
         private static void EnsureUiEventSystem()
         {
-            if (Object.FindAnyObjectByType<EventSystem>() != null)
+            EventSystem eventSystem =
+                Object.FindAnyObjectByType<EventSystem>();
+
+            if (eventSystem == null)
+            {
+                GameObject eventSystemObject =
+                    new(
+                        "Motor City UI EventSystem",
+                        typeof(EventSystem),
+                        typeof(InputSystemUIInputModule));
+
+                Object.DontDestroyOnLoad(
+                    eventSystemObject);
+
+                return;
+            }
+
+            InputSystemUIInputModule inputModule =
+                eventSystem.GetComponent<InputSystemUIInputModule>();
+
+            if (inputModule != null)
                 return;
 
-            GameObject eventSystemObject =
-                new(
-                    "Motor City UI EventSystem",
-                    typeof(EventSystem),
-                    typeof(InputSystemUIInputModule));
+            BaseInputModule[] modules =
+                eventSystem.GetComponents<BaseInputModule>();
 
-            Object.DontDestroyOnLoad(
-                eventSystemObject);
+            foreach (BaseInputModule module in
+                     modules)
+            {
+                if (module != null)
+                {
+                    module.enabled =
+                        false;
+                }
+            }
+
+            eventSystem.gameObject.AddComponent<
+                InputSystemUIInputModule>();
         }
 
         private void BuildUi()
