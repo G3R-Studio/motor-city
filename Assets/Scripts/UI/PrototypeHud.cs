@@ -1869,7 +1869,7 @@ namespace MotorCity.UI
                         0.01f,
                         0.016f,
                         0.026f,
-                        0.42f));
+                        0.24f));
 
             CreateAccent(
                 panel,
