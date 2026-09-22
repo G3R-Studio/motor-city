@@ -1085,9 +1085,8 @@ namespace MotorCity.Vehicle
                         0f);
             }
 
-            Debug.Log(
-                "Motor City: ARCADE visual forward resolved without rotating " +
-                $"the PlayerCar physics root. Visual flipped={shouldFlip}.");
+            // Successful visual alignment is routine and intentionally silent.
+            // Warnings/errors in the installer remain visible in Console.
         }
 
         private static bool LooksLikeFrontPart(
