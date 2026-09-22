@@ -266,12 +266,14 @@ namespace MotorCity.Gameplay
             Vector3 target =
                 CurrentTarget;
 
-            float distance =
-                Vector3.Distance(
-                    Flat(
-                        car.transform.position),
-                    Flat(
-                        target));
+            Vector3 targetDelta =
+                Flat(
+                    car.transform.position) -
+                Flat(
+                    target);
+
+            float distanceSquared =
+                targetDelta.sqrMagnitude;
 
             progressTextTimer -=
                 Time.deltaTime;
@@ -280,6 +282,10 @@ namespace MotorCity.Gameplay
             {
                 progressTextTimer =
                     ProgressTextInterval;
+
+                float distance =
+                    Mathf.Sqrt(
+                        distanceSquared);
 
                 StatusText =
                     MotorCityLocalization.Format(
@@ -294,8 +300,8 @@ namespace MotorCity.Gameplay
                             elapsed));
             }
 
-            if (distance >
-                TargetRadius)
+            if (distanceSquared >
+                TargetRadius * TargetRadius)
             {
                 return;
             }
