@@ -75,7 +75,13 @@ namespace MotorCity.UI
         private Text legendText;
         private Text objectiveText;
         private GameObject characterPanel;
-        private Text characterAvatarText;
+        private GameObject characterPortraitRoot;
+        private Image characterPortraitFace;
+        private Image characterPortraitHair;
+        private Image characterPortraitAccent;
+        private Image characterPortraitLeftDetail;
+        private Image characterPortraitRightDetail;
+        private Text characterSourceText;
         private Text characterNameText;
         private Text characterLineText;
         private RawImage minimapImage;
@@ -1897,52 +1903,169 @@ namespace MotorCity.UI
                         -158f),
                     new Vector2(
                         360f,
-                        64f),
+                        82f),
                     new Vector2(
                         0f,
                         1f),
                     new Vector2(
                         0f,
                         1f),
-                    PanelSoftColor);
+                    new Color(
+                        0.025f,
+                        0.04f,
+                        0.065f,
+                        0.91f));
 
             characterPanel =
                 panel.gameObject;
 
-            characterAvatarText =
-                CreateText(
+            CreateAccent(
+                panel,
+                BlueAccent,
+                new Vector2(
+                    5f,
+                    -7f),
+                new Vector2(
+                    4f,
+                    68f),
+                new Vector2(
+                    0f,
+                    1f),
+                new Vector2(
+                    0f,
+                    1f));
+
+            RectTransform portraitFrame =
+                CreatePanel(
                     panel,
-                    "Character Avatar",
-                    24,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
+                    "Character Portrait Frame",
+                    new Vector2(
+                        14f,
+                        -11f),
+                    new Vector2(
+                        58f,
+                        58f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Color(
+                        0.05f,
+                        0.075f,
+                        0.11f,
+                        1f));
+
+            characterPortraitRoot =
+                portraitFrame.gameObject;
+
+            characterPortraitAccent =
+                CreatePortraitLayer(
+                    portraitFrame,
+                    "Portrait Accent",
+                    new Vector2(
+                        5f,
+                        -5f),
+                    new Vector2(
+                        48f,
+                        48f),
+                    new Color(
+                        0.15f,
+                        0.55f,
+                        1f,
+                        0.30f));
+
+            characterPortraitFace =
+                CreatePortraitLayer(
+                    portraitFrame,
+                    "Portrait Face",
+                    new Vector2(
+                        14f,
+                        -15f),
+                    new Vector2(
+                        30f,
+                        34f),
+                    new Color(
+                        0.88f,
+                        0.70f,
+                        0.56f,
+                        1f));
+
+            characterPortraitHair =
+                CreatePortraitLayer(
+                    portraitFrame,
+                    "Portrait Hair",
                     new Vector2(
                         12f,
                         -10f),
                     new Vector2(
-                        46f,
-                        46f),
+                        34f,
+                        13f),
+                    new Color(
+                        0.12f,
+                        0.13f,
+                        0.15f,
+                        1f));
+
+            characterPortraitLeftDetail =
+                CreatePortraitLayer(
+                    portraitFrame,
+                    "Portrait Detail Left",
                     new Vector2(
-                        0f,
-                        1f),
+                        17f,
+                        -28f),
                     new Vector2(
-                        0f,
-                        1f),
+                        5f,
+                        5f),
                     TextColor);
+
+            characterPortraitRightDetail =
+                CreatePortraitLayer(
+                    portraitFrame,
+                    "Portrait Detail Right",
+                    new Vector2(
+                        36f,
+                        -28f),
+                    new Vector2(
+                        5f,
+                        5f),
+                    TextColor);
+
+            characterSourceText =
+                CreateText(
+                    panel,
+                    "Character Source",
+                    9,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(
+                        84f,
+                        -7f),
+                    new Vector2(
+                        86f,
+                        14f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    SecondaryTextColor);
 
             characterNameText =
                 CreateText(
                     panel,
                     "Character Name",
-                    13,
+                    15,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        68f,
-                        -10f),
+                        84f,
+                        -22f),
                     new Vector2(
-                        270f,
-                        20f),
+                        254f,
+                        23f),
                     new Vector2(
                         0f,
                         1f),
@@ -1959,11 +2082,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
                     new Vector2(
-                        68f,
-                        10f),
+                        84f,
+                        9f),
                     new Vector2(
-                        270f,
-                        28f),
+                        254f,
+                        31f),
                     new Vector2(
                         0f,
                         0f),
@@ -1974,6 +2097,59 @@ namespace MotorCity.UI
 
             characterPanel.SetActive(
                 false);
+        }
+
+        private Image CreatePortraitLayer(
+            Transform parent,
+            string name,
+            Vector2 anchoredPosition,
+            Vector2 size,
+            Color color)
+        {
+            GameObject layer =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            layer.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                layer.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(0f, 1f);
+            rect.anchorMax =
+                new Vector2(0f, 1f);
+            rect.pivot =
+                new Vector2(0f, 1f);
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                layer.GetComponent<Image>();
+
+            image.color =
+                color;
+
+            image.raycastTarget =
+                false;
+
+            if (panelSprite != null)
+            {
+                image.sprite =
+                    panelSprite;
+
+                image.type =
+                    Image.Type.Sliced;
+            }
+
+            return
+                image;
         }
 
         private void UpdateCharacterCard()
@@ -2055,13 +2231,26 @@ namespace MotorCity.UI
                             1f)
                 };
 
-            characterAvatarText.text =
-                name.Substring(
-                    0,
-                    1);
+            bool storySource =
+                story != null &&
+                !story.IsComplete;
 
-            characterAvatarText.color =
-                accent;
+            characterSourceText.text =
+                MotorCityLocalization.Text(
+                    storySource
+                        ? "hud.character.story"
+                        : "hud.character.season");
+
+            characterSourceText.color =
+                new Color(
+                    accent.r,
+                    accent.g,
+                    accent.b,
+                    0.78f);
+
+            ApplyCharacterPortrait(
+                style,
+                accent);
 
             characterNameText.text =
                 name;
@@ -2071,6 +2260,220 @@ namespace MotorCity.UI
 
             characterLineText.text =
                 line;
+        }
+
+        private void ApplyCharacterPortrait(
+            int style,
+            Color accent)
+        {
+            if (characterPortraitRoot == null ||
+                characterPortraitFace == null)
+            {
+                return;
+            }
+
+            characterPortraitAccent.color =
+                new Color(
+                    accent.r,
+                    accent.g,
+                    accent.b,
+                    0.30f);
+
+            Color face =
+                new(
+                    0.88f,
+                    0.69f,
+                    0.54f,
+                    1f);
+
+            Color hair =
+                new(
+                    0.13f,
+                    0.14f,
+                    0.17f,
+                    1f);
+
+            Vector2 facePosition =
+                new(
+                    14f,
+                    -15f);
+
+            Vector2 faceSize =
+                new(
+                    30f,
+                    34f);
+
+            Vector2 hairPosition =
+                new(
+                    12f,
+                    -10f);
+
+            Vector2 hairSize =
+                new(
+                    34f,
+                    13f);
+
+            Vector2 leftDetailPosition =
+                new(
+                    17f,
+                    -28f);
+
+            Vector2 rightDetailPosition =
+                new(
+                    36f,
+                    -28f);
+
+            Color detailColor =
+                new(
+                    0.08f,
+                    0.09f,
+                    0.11f,
+                    1f);
+
+            switch (style)
+            {
+                case 1:
+                    face =
+                        new Color(
+                            0.93f,
+                            0.70f,
+                            0.60f,
+                            1f);
+
+                    hair =
+                        new Color(
+                            0.74f,
+                            0.18f,
+                            0.43f,
+                            1f);
+
+                    hairPosition =
+                        new Vector2(
+                            10f,
+                            -8f);
+
+                    hairSize =
+                        new Vector2(
+                            38f,
+                            16f);
+                    break;
+
+                case 2:
+                    face =
+                        new Color(
+                            0.85f,
+                            0.66f,
+                            0.50f,
+                            1f);
+
+                    hair =
+                        new Color(
+                            0.18f,
+                            0.22f,
+                            0.28f,
+                            1f);
+
+                    hairPosition =
+                        new Vector2(
+                            9f,
+                            -7f);
+
+                    hairSize =
+                        new Vector2(
+                            40f,
+                            12f);
+
+                    detailColor =
+                        new Color(
+                            0.12f,
+                            0.16f,
+                            0.20f,
+                            1f);
+                    break;
+
+                case 3:
+                    face =
+                        new Color(
+                            0.19f,
+                            0.25f,
+                            0.30f,
+                            1f);
+
+                    hair =
+                        accent;
+
+                    facePosition =
+                        new Vector2(
+                            12f,
+                            -16f);
+
+                    faceSize =
+                        new Vector2(
+                            34f,
+                            31f);
+
+                    hairPosition =
+                        new Vector2(
+                            8f,
+                            -8f);
+
+                    hairSize =
+                        new Vector2(
+                            42f,
+                            9f);
+
+                    detailColor =
+                        new Color(
+                            0.45f,
+                            0.95f,
+                            1f,
+                            1f);
+
+                    leftDetailPosition =
+                        new Vector2(
+                            15f,
+                            -28f);
+
+                    rightDetailPosition =
+                        new Vector2(
+                            38f,
+                            -28f);
+                    break;
+            }
+
+            characterPortraitFace.color =
+                face;
+
+            RectTransform faceRect =
+                characterPortraitFace.rectTransform;
+
+            faceRect.anchoredPosition =
+                facePosition;
+            faceRect.sizeDelta =
+                faceSize;
+
+            characterPortraitHair.color =
+                hair;
+
+            RectTransform hairRect =
+                characterPortraitHair.rectTransform;
+
+            hairRect.anchoredPosition =
+                hairPosition;
+            hairRect.sizeDelta =
+                hairSize;
+
+            characterPortraitLeftDetail.color =
+                detailColor;
+
+            characterPortraitRightDetail.color =
+                detailColor;
+
+            characterPortraitLeftDetail.rectTransform.anchoredPosition =
+                leftDetailPosition;
+
+            characterPortraitRightDetail.rectTransform.anchoredPosition =
+                rightDetailPosition;
         }
 
         private Sprite CreateCircularMinimapSprite(
