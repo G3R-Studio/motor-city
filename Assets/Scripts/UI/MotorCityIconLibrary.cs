@@ -277,6 +277,9 @@ namespace MotorCity.UI
         public static Sprite Store =>
             ForSystem(SystemIcon.Shop);
 
+        public static Sprite Upgrades =>
+            ForSystem(SystemIcon.Upgrades);
+
         public static Sprite Credits =>
             ForSystem(SystemIcon.Credits);
 
@@ -335,7 +338,7 @@ namespace MotorCity.UI
                 return;
             }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             Debug.LogWarning(
                 "[MotorCity][Icons] Missing icon: " +
                 Root +
