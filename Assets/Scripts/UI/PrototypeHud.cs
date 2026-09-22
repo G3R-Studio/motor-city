@@ -566,6 +566,21 @@ namespace MotorCity.UI
 
             if (resultOpen)
             {
+                if (navigatorMenuOpen)
+                {
+                    CloseNavigatorMenuVisualOnly();
+                }
+
+                storeOpen =
+                    false;
+
+                if (clubOverlay != null &&
+                    clubOverlay.activeSelf)
+                {
+                    clubOverlay.SetActive(
+                        false);
+                }
+
                 SetActiveIfChanged(
                     statusPanel,
                     false);
@@ -5275,12 +5290,14 @@ namespace MotorCity.UI
 
             if (!ShouldUseTouchUi())
             {
-                touchControlsRoot.SetActive(
+                SetActiveIfChanged(
+                    touchControlsRoot,
                     false);
                 return;
             }
 
-            touchControlsRoot.SetActive(
+            SetActiveIfChanged(
+                touchControlsRoot,
                 !HasBlockingModalUi());
         }
 
