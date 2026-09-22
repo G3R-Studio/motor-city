@@ -142,6 +142,8 @@ namespace MotorCity.UI
         private GameObject navigatorTouchControlsRoot;
         private GameObject storeTouchControlsRoot;
         private GameObject clubTouchControlsRoot;
+        private GameObject garageTouchControlsRoot;
+        private Text garageControlsText;
         private CanvasScaler canvasScaler;
         private bool lastPortraitLayout;
         private int lastDisplayedCredits = int.MinValue;
@@ -5083,7 +5085,7 @@ namespace MotorCity.UI
                     new Vector2(0f, 0f),
                     SecondaryTextColor);
 
-            Text footer =
+            garageControlsText =
                 CreateText(
                     panel,
                     "Garage Controls",
@@ -5096,32 +5098,29 @@ namespace MotorCity.UI
                     new Vector2(1f, 0f),
                     SecondaryTextColor);
 
-            footer.text =
+            garageControlsText.text =
                 MotorCityLocalization.Text("hud.garage_controls") +
                 "   •   " +
                 MotorCityLocalization.Text("hud.passport_control");
 
             BuildGarageTouchControls(
                 panel);
-
-            if (ShouldUseTouchUi())
-            {
-                footer.gameObject.SetActive(
-                    false);
-            }
         }
 
         private void BuildGarageTouchControls(
             RectTransform panel)
         {
-            GameObject rootObject =
-                new(
+            garageTouchControlsRoot =
+                new GameObject(
                     "Garage Touch Controls",
                     typeof(RectTransform));
 
-            rootObject.transform.SetParent(
+            garageTouchControlsRoot.transform.SetParent(
                 panel,
                 false);
+
+            GameObject rootObject =
+                garageTouchControlsRoot;
 
             RectTransform root =
                 rootObject.GetComponent<RectTransform>();
@@ -5211,6 +5210,9 @@ namespace MotorCity.UI
                         buttonWidth,
                         buttonHeight));
             }
+
+            garageTouchControlsRoot.SetActive(
+                false);
         }
 
         private void CreateTouchPulseButton(
@@ -6427,6 +6429,16 @@ namespace MotorCity.UI
                     clubTouchControlsRoot,
                     false);
 
+                SetActiveIfChanged(
+                    garageTouchControlsRoot,
+                    false);
+
+                if (garageControlsText != null)
+                {
+                    garageControlsText.gameObject.SetActive(
+                        true);
+                }
+
                 return;
             }
 
@@ -6475,6 +6487,20 @@ namespace MotorCity.UI
                 clubTouchControlsRoot,
                 clubOverlay != null &&
                 clubOverlay.activeSelf);
+
+            bool garageOpen =
+                garage != null &&
+                garage.IsOpen;
+
+            SetActiveIfChanged(
+                garageTouchControlsRoot,
+                garageOpen);
+
+            if (garageControlsText != null)
+            {
+                garageControlsText.gameObject.SetActive(
+                    !garageOpen);
+            }
         }
 
         private RectTransform CreateSafeAreaRoot(
