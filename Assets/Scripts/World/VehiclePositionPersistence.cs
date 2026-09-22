@@ -20,6 +20,7 @@ namespace MotorCity.World
 
         [SerializeField] private float saveIntervalSeconds = 2f;
         [SerializeField] private float minimumValidY = -5f;
+        [SerializeField] private float maximumRestoreRoadDistance = 70f;
 
         private ArcadeCarController car;
         private Rigidbody body;
@@ -67,6 +68,40 @@ namespace MotorCity.World
             if (!IsFinite(position) ||
                 position.y < minimumValidY)
                 return;
+
+            CityAssetRuntimeInstaller.ResolveNearestRoadResetPose(
+                position,
+                Quaternion.Euler(
+                    0f,
+                    yaw,
+                    0f) *
+                Vector3.forward,
+                out Vector3 nearestRoadPosition,
+                out _);
+
+            Vector3 flatSaved =
+                position;
+
+            flatSaved.y = 0f;
+
+            Vector3 flatRoad =
+                nearestRoadPosition;
+
+            flatRoad.y = 0f;
+
+            if (Vector3.Distance(
+                    flatSaved,
+                    flatRoad) >
+                maximumRestoreRoadDistance)
+            {
+                position =
+                    CityAssetRuntimeInstaller.PlayerSpawnPoint +
+                    Vector3.up * 1.1f;
+
+                yaw =
+                    CityAssetRuntimeInstaller.PlayerSpawnRotation
+                        .eulerAngles.y;
+            }
 
             Quaternion rotation =
                 Quaternion.Euler(
