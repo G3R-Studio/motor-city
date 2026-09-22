@@ -6,7 +6,7 @@ namespace MotorCity.World
 {
     internal static class RoadSearchDebug
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && MOTORCITY_ROAD_DIAGNOSTICS
         private static string LogPath
         {
             get
@@ -31,7 +31,7 @@ namespace MotorCity.World
             bool hasBounds,
             string cityName)
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && MOTORCITY_ROAD_DIAGNOSTICS
             try
             {
                 Directory.CreateDirectory(
@@ -65,11 +65,7 @@ namespace MotorCity.World
         public static void Log(
             string message)
         {
-            Debug.Log(
-                "Motor City Road: " +
-                message);
-
-#if UNITY_EDITOR
+#if UNITY_EDITOR && MOTORCITY_ROAD_DIAGNOSTICS
             try
             {
                 Directory.CreateDirectory(
