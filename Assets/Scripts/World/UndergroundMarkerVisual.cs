@@ -10,6 +10,8 @@ namespace MotorCity.World
         private Vector3 baseScale;
         private DayNightCycleController dayNight;
         private float dayNightResolveTimer;
+        private bool visibilityInitialized;
+        private bool lastVisible;
 
         public void Bind(
             UndergroundSceneSystem target)
@@ -37,10 +39,20 @@ namespace MotorCity.World
                  underground.IsCountingDown ||
                  IsNight());
 
-            foreach (Renderer renderer in renderers)
+            if (!visibilityInitialized ||
+                visible != lastVisible)
             {
-                if (renderer != null)
-                    renderer.enabled = visible;
+                visibilityInitialized =
+                    true;
+                lastVisible =
+                    visible;
+
+                foreach (Renderer renderer in renderers)
+                {
+                    if (renderer != null)
+                        renderer.enabled =
+                            visible;
+                }
             }
 
             if (!visible)
