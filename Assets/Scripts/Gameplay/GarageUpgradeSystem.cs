@@ -306,6 +306,58 @@ namespace MotorCity.Gameplay
                     Price(type, level));
         }
 
+        public int GetUpgradeCost(
+            int index)
+        {
+            UpgradeType type =
+                (UpgradeType)Mathf.Clamp(
+                    index,
+                    0,
+                    2);
+
+            int level =
+                GetLevel(
+                    type);
+
+            return
+                level >= MaxLevel
+                    ? 0
+                    : Price(
+                        type,
+                        level);
+        }
+
+        public bool IsUpgradeMaxed(
+            int index)
+        {
+            UpgradeType type =
+                (UpgradeType)Mathf.Clamp(
+                    index,
+                    0,
+                    2);
+
+            return
+                GetLevel(
+                    type) >=
+                MaxLevel;
+        }
+
+        public bool CanAffordUpgrade(
+            int index)
+        {
+            if (wallet == null)
+                return false;
+
+            int cost =
+                GetUpgradeCost(
+                    index);
+
+            return
+                cost > 0 &&
+                wallet.Credits >=
+                    cost;
+        }
+
         public string GetUpgradeDescription(int index)
         {
             UpgradeType type =
