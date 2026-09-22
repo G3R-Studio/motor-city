@@ -2031,11 +2031,14 @@ namespace MotorCity.UI
 
             if (garageOpen)
             {
-                navigatorPanel.SetActive(false);
+                navigatorPanel.SetActive(
+                    false);
+
                 return;
             }
 
-            navigatorPanel.SetActive(true);
+            navigatorPanel.SetActive(
+                true);
 
             Vector3 carPosition =
                 car.transform.position;
@@ -2051,24 +2054,49 @@ namespace MotorCity.UI
                     schematicMap.UvWindow(
                         carPosition,
                         worldRadius);
-            }
 
-            float yaw =
-                car.transform.eulerAngles.y;
-
-            if (minimapImage != null)
-            {
+                // North-up minimap. Camera rotation must never affect
+                // the road image or the navigation route.
                 minimapImage.rectTransform.localEulerAngles =
-                    new Vector3(
-                        0f,
-                        0f,
-                        yaw);
+                    Vector3.zero;
             }
+
+            float carYaw =
+                car.transform.eulerAngles.y;
 
             if (minimapPlayerArrow != null)
             {
+                if (TryWorldToMinimapOffset(
+                        carPosition,
+                        out Vector2 playerOffset))
+                {
+                    const float playerRadius =
+                        74f;
+
+                    if (playerOffset.sqrMagnitude >
+                        playerRadius *
+                        playerRadius)
+                    {
+                        playerOffset =
+                            playerOffset.normalized *
+                            playerRadius;
+                    }
+
+                    minimapPlayerArrow.anchoredPosition =
+                        playerOffset;
+                }
+                else
+                {
+                    minimapPlayerArrow.anchoredPosition =
+                        Vector2.zero;
+                }
+
+                // With north fixed at the top, only the player arrow rotates.
                 minimapPlayerArrow.localEulerAngles =
-                    Vector3.zero;
+                    new Vector3(
+                        0f,
+                        0f,
+                        -carYaw);
             }
 
             ResolveMinimapTarget(
@@ -2080,70 +2108,75 @@ namespace MotorCity.UI
             if (!hasTarget)
             {
                 if (minimapTargetBlip != null)
-                    minimapTargetBlip.gameObject.SetActive(false);
+                {
+                    minimapTargetBlip.gameObject.SetActive(
+                        false);
+                }
 
                 if (minimapTargetText != null)
-                    minimapTargetText.text = string.Empty;
+                {
+                    minimapTargetText.text =
+                        string.Empty;
+                }
 
                 HideRouteDots();
                 return;
             }
 
-            Vector3 delta =
-                target -
-                carPosition;
-
-            delta.y = 0f;
-
             float distance =
-                delta.magnitude;
-
-            Vector3 local =
-                Quaternion.Euler(
-                    0f,
-                    -yaw,
-                    0f) *
-                delta;
-
-            const float markerRadius =
-                78f;
-
-            float mapScale =
-                markerRadius /
-                worldRadius;
-
-            Vector2 mapOffset =
-                new Vector2(
-                    local.x * mapScale,
-                    local.z * mapScale);
-
-            if (mapOffset.sqrMagnitude >
-                markerRadius * markerRadius)
-            {
-                mapOffset =
-                    mapOffset.normalized *
-                    markerRadius;
-            }
+                FlatDistance(
+                    carPosition,
+                    target);
 
             UpdateRoadRoute(
                 carPosition,
                 target,
-                yaw,
+                0f,
                 worldRadius,
                 showRoadRoute);
 
             if (minimapTargetBlip != null)
             {
-                minimapTargetBlip.gameObject.SetActive(true);
+                minimapTargetBlip.gameObject.SetActive(
+                    true);
+
+                Vector2 targetOffset;
+
+                if (!TryWorldToMinimapOffset(
+                        target,
+                        out targetOffset))
+                {
+                    targetOffset =
+                        Vector2.zero;
+                }
+
+                const float targetRadius =
+                    76f;
+
+                if (targetOffset.sqrMagnitude >
+                    targetRadius *
+                    targetRadius)
+                {
+                    targetOffset =
+                        targetOffset.normalized *
+                        targetRadius;
+                }
 
                 minimapTargetBlip.anchoredPosition =
-                    mapOffset;
+                    targetOffset;
+
+                minimapTargetBlip.localEulerAngles =
+                    Vector3.zero;
             }
 
             if (minimapTargetText != null)
             {
                 minimapTargetText.text =
-                    MotorCityLocalization.Format("hud.distance", label, Mathf.RoundToInt(distance));
+                    MotorCityLocalization.Format(
+                        "hud.distance",
+                        label,
+                        Mathf.RoundToInt(
+                            distance));
             }
         }
 
