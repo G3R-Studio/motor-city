@@ -67,6 +67,32 @@ namespace MotorCity.Gameplay
                 ? string.Empty
                 : vehicleRoster.GetMasteryShort();
 
+        public bool HasNextVehicle =>
+            vehicleRoster != null &&
+            vehicleRoster.HasNextVehicle;
+
+        public bool NextVehicleUnlocked =>
+            vehicleRoster != null &&
+            vehicleRoster.NextVehicleUnlocked;
+
+        public bool NextVehicleOwned =>
+            vehicleRoster != null &&
+            vehicleRoster.NextVehicleOwned;
+
+        public bool CanAffordNextVehicle =>
+            vehicleRoster != null &&
+            vehicleRoster.CanAffordNextVehicle;
+
+        public int NextVehiclePrice =>
+            vehicleRoster == null
+                ? 0
+                : vehicleRoster.NextVehiclePrice;
+
+        public int NextVehicleRequiredRep =>
+            vehicleRoster == null
+                ? 0
+                : vehicleRoster.NextVehicleRequiredRep;
+
         public bool MasteryShowMessage =>
             vehicleMastery != null &&
             vehicleMastery.ShowMessage;
