@@ -1376,8 +1376,18 @@ namespace MotorCity.UI
 
         private static void EnsureUiEventSystem()
         {
-            if (Object.FindAnyObjectByType<EventSystem>() != null)
+            EventSystem existing =
+                Object.FindAnyObjectByType<EventSystem>();
+
+            if (existing != null)
+            {
+                if (existing.GetComponent<InputSystemUIInputModule>() == null)
+                {
+                    existing.gameObject.AddComponent<InputSystemUIInputModule>();
+                }
+
                 return;
+            }
 
             GameObject eventSystemObject =
                 new(
