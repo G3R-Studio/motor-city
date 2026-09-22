@@ -270,7 +270,7 @@ namespace MotorCity.World
                     height);
         }
 
-        private Vector2 WorldToUv(
+        public Vector2 WorldToUv(
             Vector3 position)
         {
             Bounds bounds =
