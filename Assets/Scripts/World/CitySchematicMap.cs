@@ -52,6 +52,13 @@ namespace MotorCity.World
         private readonly List<MapShape> shapes =
             new();
 
+        private readonly List<Vector3> roadPoints =
+            new();
+
+        private static readonly Dictionary<Type, Dictionary<string, FieldInfo>>
+            FieldCache =
+                new();
+
         public Texture2D Texture { get; private set; }
 
         public Bounds WorldBounds { get; private set; }
@@ -344,8 +351,7 @@ namespace MotorCity.World
                 if (enumerable == null)
                     continue;
 
-                List<Vector3> roadPoints =
-                    new();
+                roadPoints.Clear();
 
                 foreach (object item in
                          enumerable)
@@ -502,23 +508,66 @@ namespace MotorCity.World
             Type type,
             string fieldName)
         {
-            while (type != null)
+            if (type == null ||
+                string.IsNullOrEmpty(
+                    fieldName))
+            {
+                return null;
+            }
+
+            if (!FieldCache.TryGetValue(
+                    type,
+                    out Dictionary<string, FieldInfo> typeCache))
+            {
+                typeCache =
+                    new Dictionary<string, FieldInfo>(
+                        StringComparer.Ordinal);
+
+                FieldCache[
+                    type] =
+                    typeCache;
+            }
+
+            if (typeCache.TryGetValue(
+                    fieldName,
+                    out FieldInfo cached))
+            {
+                return
+                    cached;
+            }
+
+            Type current =
+                type;
+
+            while (current != null)
             {
                 FieldInfo field =
-                    type.GetField(
+                    current.GetField(
                         fieldName,
                         BindingFlags.Instance |
                         BindingFlags.Public |
                         BindingFlags.NonPublic);
 
                 if (field != null)
-                    return field;
+                {
+                    typeCache[
+                        fieldName] =
+                        field;
 
-                type =
-                    type.BaseType;
+                    return
+                        field;
+                }
+
+                current =
+                    current.BaseType;
             }
 
-            return null;
+            typeCache[
+                fieldName] =
+                null;
+
+            return
+                null;
         }
 
         private Vector2 WorldToUv(
@@ -752,13 +801,17 @@ namespace MotorCity.World
             Transform current =
                 item;
 
+            // Classification only searches for name fragments, so hierarchy
+            // order is irrelevant. Appending avoids repeated front-inserts
+            // that shift the whole builder for every parent.
             while (current != null)
             {
-                builder.Insert(
-                    0,
+                builder.Append(
                     Normalize(
-                        current.name) +
-                    "/");
+                        current.name));
+
+                builder.Append(
+                    '/');
 
                 current =
                     current.parent;
@@ -800,13 +853,14 @@ namespace MotorCity.World
                     value.Length);
 
             foreach (char character in
-                     value.ToLowerInvariant())
+                     value)
             {
                 if (char.IsLetterOrDigit(
                         character))
                 {
                     builder.Append(
-                        character);
+                        char.ToLowerInvariant(
+                            character));
                 }
             }
 
