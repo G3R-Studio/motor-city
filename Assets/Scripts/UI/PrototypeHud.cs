@@ -187,6 +187,7 @@ namespace MotorCity.UI
         private Text resultControlsText;
 
         private Image garageHeaderIcon;
+        private Image garageCreditsIcon;
         private Text garageMoneyText;
         private Text garageStatusText;
         private Text garageVehicleText;
@@ -200,6 +201,8 @@ namespace MotorCity.UI
         private Text garagePassportMasteryText;
         private Text garagePassportSpecializationText;
         private bool garagePassportOpen;
+        private readonly Image[] garageUpgradeIcons =
+            new Image[3];
         private readonly Text[] garageTitleTexts =
             new Text[3];
         private readonly Text[] garagePriceTexts =
@@ -5565,6 +5568,26 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     "hud.garage_title");
 
+            garageCreditsIcon =
+                CreateHudIcon(
+                    panel,
+                    "Garage Credits Icon",
+                    MotorCityIconLibrary.Credits,
+                    new Vector2(
+                        -238f,
+                        -28f),
+                    new Vector2(
+                        24f,
+                        24f),
+                    new Vector2(
+                        1f,
+                        1f),
+                    new Color(
+                        1f,
+                        0.78f,
+                        0.20f,
+                        1f));
+
             garageMoneyText =
                 CreateText(
                     panel,
@@ -5573,7 +5596,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
                     new Vector2(-28f, -28f),
-                    new Vector2(410f, 42f),
+                    new Vector2(380f, 42f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
@@ -5689,6 +5712,32 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f));
 
+                Sprite upgradeSprite =
+                    i switch
+                    {
+                        0 => MotorCityIconLibrary.Upgrades,
+                        1 => MotorCityIconLibrary.ForActivity(
+                            ActivityIcon.Drift),
+                        _ => MotorCityIconLibrary.ForActivity(
+                            ActivityIcon.SpeedTrap)
+                    };
+
+                garageUpgradeIcons[i] =
+                    CreateHudIcon(
+                        row,
+                        "Upgrade Icon",
+                        upgradeSprite,
+                        new Vector2(
+                            20f,
+                            -40f),
+                        new Vector2(
+                            30f,
+                            30f),
+                        new Vector2(
+                            0f,
+                            1f),
+                        accents[i]);
+
                 garageTitleTexts[i] =
                     CreateText(
                         row,
@@ -5696,8 +5745,8 @@ namespace MotorCity.UI
                         18,
                         FontStyle.Bold,
                         TextAnchor.UpperLeft,
-                        new Vector2(18f, -8f),
-                        new Vector2(440f, 26f),
+                        new Vector2(60f, -8f),
+                        new Vector2(398f, 26f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
                         TextColor);
@@ -5722,8 +5771,8 @@ namespace MotorCity.UI
                         14,
                         FontStyle.Normal,
                         TextAnchor.LowerLeft,
-                        new Vector2(18f, 9f),
-                        new Vector2(650f, 28f),
+                        new Vector2(60f, 9f),
+                        new Vector2(608f, 28f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
                         SecondaryTextColor);
