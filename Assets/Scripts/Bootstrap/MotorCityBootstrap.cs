@@ -470,6 +470,7 @@ namespace MotorCity.Bootstrap
             CreateStuntJumpRamps(stuntJumps);
             CreateGarageMarker(garage);
             CreateUndergroundMarker(underground);
+            CreateUndergroundCheckpointMarker(underground);
             CreateProfessionMarkers(professions);
             CreateProfessionCheckpointMarker(professions);
             CreateCarWashMarker(carWash);
@@ -1070,6 +1071,23 @@ namespace MotorCity.Bootstrap
                     material,
                     false);
             }
+        }
+
+        private static void CreateUndergroundCheckpointMarker(
+            UndergroundSceneSystem underground)
+        {
+            if (underground == null)
+                return;
+
+            GameObject root =
+                new(
+                    "Underground Active Checkpoint");
+
+            DynamicActivityCheckpointVisual visual =
+                root.AddComponent<DynamicActivityCheckpointVisual>();
+
+            visual.BindUnderground(
+                underground);
         }
 
         private static void CreateProfessionCheckpointMarker(
