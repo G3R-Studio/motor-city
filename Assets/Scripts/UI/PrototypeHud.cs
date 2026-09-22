@@ -6375,15 +6375,6 @@ namespace MotorCity.UI
                     MotorCityInputAction.Interact =>
                         MotorCityIconLibrary.Confirm,
 
-                    MotorCityInputAction.Retry =>
-                        MotorCityIconLibrary.ForActivity(
-                            ActivityIcon.Sprint),
-
-                    MotorCityInputAction.PreviousVehicle or
-                    MotorCityInputAction.NextVehicle =>
-                        MotorCityIconLibrary.ForActivity(
-                            ActivityIcon.Delivery),
-
                     MotorCityInputAction.BuyVehicle =>
                         MotorCityIconLibrary.Store,
 
