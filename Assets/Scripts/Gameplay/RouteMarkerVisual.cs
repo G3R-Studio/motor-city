@@ -77,10 +77,13 @@ namespace MotorCity.Gameplay
             transform.position =
                 target;
 
+            Vector3 nextTarget =
+                activity.CurrentTarget;
+
             bool hasNext =
                 activity.IsActive &&
                 activity.TryGetNextTarget(
-                    out Vector3 nextTarget);
+                    out nextTarget);
 
             checkpointBeacon?.SetDirection(
                 target,
