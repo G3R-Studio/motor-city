@@ -715,6 +715,34 @@ namespace MotorCity.UI
                 garageOpen);
         }
 
+        private bool HasBlockingModalUi()
+        {
+            return
+                navigatorMenuOpen ||
+                storeOpen ||
+                (clubOverlay != null &&
+                 clubOverlay.activeSelf) ||
+                (garage != null &&
+                 garage.IsOpen) ||
+                (activityManager != null &&
+                 activityManager.HasResult);
+        }
+
+        private void RefreshDrivingEnabledForUi()
+        {
+            car?.SetDrivingEnabled(
+                !HasBlockingModalUi());
+        }
+
+        private void CloseNavigatorMenuVisualOnly()
+        {
+            navigatorMenuOpen =
+                false;
+
+            navigatorMenuOverlay?.SetActive(
+                false);
+        }
+
         private void HandleStoreInput()
         {
             if (cosmeticStore == null)
@@ -722,15 +750,34 @@ namespace MotorCity.UI
 
             if (MotorCityInput.ToggleStorePressed)
             {
-                storeOpen =
+                bool opening =
                     !storeOpen;
 
-                if (storeOpen &&
-                    clubOverlay != null)
+                if (opening &&
+                    ((activityManager != null &&
+                      (activityManager.IsBusy ||
+                       activityManager.HasResult)) ||
+                     (garage != null &&
+                      garage.IsOpen)))
                 {
-                    clubOverlay.SetActive(
-                        false);
+                    return;
                 }
+
+                storeOpen =
+                    opening;
+
+                if (storeOpen)
+                {
+                    CloseNavigatorMenuVisualOnly();
+
+                    if (clubOverlay != null)
+                    {
+                        clubOverlay.SetActive(
+                            false);
+                    }
+                }
+
+                RefreshDrivingEnabledForUi();
             }
 
             if (!storeOpen)
@@ -738,7 +785,10 @@ namespace MotorCity.UI
 
             if (MotorCityInput.CancelPressed)
             {
-                storeOpen = false;
+                storeOpen =
+                    false;
+
+                RefreshDrivingEnabledForUi();
                 return;
             }
 
@@ -983,26 +1033,15 @@ namespace MotorCity.UI
             storeOpen =
                 false;
 
-            car?.SetDrivingEnabled(
-                false);
+            RefreshDrivingEnabledForUi();
 
             UpdateNavigatorMenuText();
         }
 
         private void CloseNavigatorMenu()
         {
-            navigatorMenuOpen =
-                false;
-
-            navigatorMenuOverlay?.SetActive(
-                false);
-
-            if (activityManager == null ||
-                !activityManager.HasResult)
-            {
-                car?.SetDrivingEnabled(
-                    true);
-            }
+            CloseNavigatorMenuVisualOnly();
+            RefreshDrivingEnabledForUi();
         }
 
         private int NavigatorDestinationCount()
@@ -3840,26 +3879,33 @@ namespace MotorCity.UI
                 bool open =
                     !clubOverlay.activeSelf;
 
+                if (open &&
+                    ((activityManager != null &&
+                      (activityManager.IsBusy ||
+                       activityManager.HasResult)) ||
+                     (garage != null &&
+                      garage.IsOpen)))
+                {
+                    return;
+                }
+
                 clubOverlay.SetActive(
                     open);
 
                 if (open)
                 {
-                    garageOverlay?.SetActive(
-                        false);
+                    CloseNavigatorMenuVisualOnly();
 
-                    car?.SetDrivingEnabled(
+                    storeOpen =
+                        false;
+
+                    garageOverlay?.SetActive(
                         false);
 
                     UpdateClubOverlay();
                 }
-                else if (activityManager == null ||
-                         !activityManager.HasResult)
-                {
-                    car?.SetDrivingEnabled(
-                        true);
-                }
 
+                RefreshDrivingEnabledForUi();
                 return;
             }
 
@@ -3871,9 +3917,7 @@ namespace MotorCity.UI
                 clubOverlay.SetActive(
                     false);
 
-                car?.SetDrivingEnabled(
-                    true);
-
+                RefreshDrivingEnabledForUi();
                 return;
             }
 
@@ -5236,18 +5280,8 @@ namespace MotorCity.UI
                 return;
             }
 
-            bool blocked =
-                navigatorMenuOpen ||
-                storeOpen ||
-                (clubOverlay != null &&
-                 clubOverlay.activeSelf) ||
-                (garage != null &&
-                 garage.IsOpen) ||
-                (activityManager != null &&
-                 activityManager.HasResult);
-
             touchControlsRoot.SetActive(
-                !blocked);
+                !HasBlockingModalUi());
         }
 
         private RectTransform CreateSafeAreaRoot(
