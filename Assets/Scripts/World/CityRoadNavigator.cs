@@ -327,10 +327,24 @@ namespace MotorCity.World
 
         private static bool BuildFromFcgAuthoredNetwork()
         {
+            GameObject cityRoot =
+                GameObject.Find(
+                    "MotorCity_FCGCity") ??
+                GameObject.Find(
+                    "City-Maker");
+
+            if (cityRoot == null)
+            {
+                Debug.LogWarning(
+                    "Motor City navigator: authored city root was not found. " +
+                    "Road navigation is disabled.");
+
+                return false;
+            }
+
             MonoBehaviour[] behaviours =
-                UnityEngine.Object.FindObjectsByType<MonoBehaviour>(
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.None);
+                cityRoot.GetComponentsInChildren<MonoBehaviour>(
+                    true);
 
             foreach (MonoBehaviour behaviour in
                      behaviours)
@@ -414,10 +428,6 @@ namespace MotorCity.World
                     "nextWay1",
                     false);
             }
-
-            Debug.Log(
-                "Motor City navigator: built from authored FCG traffic graph. " +
-                $"Ways={WayEntries.Count}, Nodes={Nodes.Count}, Edges={Edges.Count}.");
 
             return
                 Nodes.Count >= 2 &&
