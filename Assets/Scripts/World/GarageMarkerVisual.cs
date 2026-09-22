@@ -10,8 +10,8 @@ namespace MotorCity.World
         private Vector3 baseScale;
         private Camera mainCamera;
 
-        private const float TargetMarkerSize = 2.8f;
-        private const float MarkerHeight = 3.9f;
+        private const float TargetMarkerSize = 1.85f;
+        private const float MarkerHeight = 3.35f;
 
         public void Bind(GarageUpgradeSystem target)
         {
@@ -55,7 +55,7 @@ namespace MotorCity.World
 
             marker.sprite = sprite;
             marker.color =
-                new Color(0.72f, 0.2f, 1f, 1f);
+                new Color(0.16f, 0.66f, 1f, 0.92f);
             marker.sortingOrder = 200;
 
             float spriteSize =
@@ -110,8 +110,8 @@ namespace MotorCity.World
 
             marker.color =
                 garage.IsOpen
-                    ? new Color(0.95f, 0.55f, 1f, 1f)
-                    : new Color(0.72f, 0.2f, 1f, 1f);
+                    ? new Color(0.42f, 0.86f, 1f, 1f)
+                    : new Color(0.16f, 0.66f, 1f, 0.92f);
         }
     }
 }
