@@ -1279,57 +1279,19 @@ namespace MotorCity.Bootstrap
             if (discoveries == null)
                 return;
 
-            Material beaconMaterial =
-                Material(
-                    new Color(
-                        0.72f,
-                        0.28f,
-                        1f),
-                    0.02f,
-                    0.72f);
-
             for (int i = 0;
                  i < discoveries.DiscoveryCount;
                  i++)
             {
-                if (discoveries.IsFound(i))
-                    continue;
-
                 GameObject root =
                     new($"Discovery {i + 1}");
 
-                root.transform.position =
-                    discoveries.GetDiscoveryPosition(i);
+                DiscoveryMarkerVisual visual =
+                    root.AddComponent<DiscoveryMarkerVisual>();
 
-                Primitive(
-                    "Discovery Base",
-                    PrimitiveType.Cylinder,
-                    root.transform,
-                    new Vector3(
-                        1.3f,
-                        0.08f,
-                        1.3f),
-                    new Vector3(
-                        0f,
-                        0.08f,
-                        0f),
-                    beaconMaterial,
-                    false);
-
-                Primitive(
-                    "Discovery Beacon",
-                    PrimitiveType.Cylinder,
-                    root.transform,
-                    new Vector3(
-                        0.13f,
-                        2.4f,
-                        0.13f),
-                    new Vector3(
-                        0f,
-                        2.4f,
-                        0f),
-                    beaconMaterial,
-                    false);
+                visual.Bind(
+                    discoveries,
+                    i);
             }
         }
 
