@@ -16,12 +16,23 @@ namespace MotorCity.World
         private bool lastActive;
         private Vector3 baseScale;
         private Camera mainCamera;
+        private CheckpointBeaconVisual checkpointBeacon;
 
         public void Bind(StreetSprintActivity activity, ActivityManager manager)
         {
             sprint = activity;
             activityManager = manager;
             baseScale = transform.localScale;
+
+            checkpointBeacon =
+                gameObject.AddComponent<CheckpointBeaconVisual>();
+
+            checkpointBeacon.Initialize(
+                new Color(
+                    0.18f,
+                    1f,
+                    0.34f));
+
             CacheVisuals();
             SnapToTarget();
             mainCamera = Camera.main;
@@ -86,6 +97,18 @@ namespace MotorCity.World
                             direction.normalized,
                             Vector3.up);
             }
+
+            bool hasNext =
+                sprint.IsActive &&
+                sprint.TryGetNextTarget(
+                    out Vector3 nextTarget);
+
+            checkpointBeacon?.SetDirection(
+                sprint.CurrentTarget,
+                hasNext
+                    ? nextTarget
+                    : sprint.CurrentTarget,
+                hasNext);
 
             bool active =
                 sprint.IsActive;
