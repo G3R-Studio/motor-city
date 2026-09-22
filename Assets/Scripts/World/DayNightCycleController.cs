@@ -31,7 +31,7 @@ namespace MotorCity.World
         private readonly List<Light> streetLights =
             new();
 
-        private readonly List<Vector3> streetLampPositions =
+        private readonly List<LampAnchor> streetLampAnchors =
             new();
 
         private readonly List<LampCandidate> lampCandidates =
@@ -54,7 +54,7 @@ namespace MotorCity.World
         public bool IsNight { get; private set; }
         public float NightAmount { get; private set; }
         public float TimeOfDay01 => time01;
-        public int StreetLightCount => streetLampPositions.Count;
+        public int StreetLightCount => streetLampAnchors.Count;
         public int AutoCreatedStreetLightCount => autoCreatedStreetLights;
         public int EnabledStreetLightCount { get; private set; }
 
@@ -570,7 +570,7 @@ namespace MotorCity.World
             }
 
             streetLights.Clear();
-            streetLampPositions.Clear();
+            streetLampAnchors.Clear();
             lampCandidates.Clear();
             autoCreatedStreetLights = 0;
 
@@ -583,60 +583,44 @@ namespace MotorCity.World
             if (cityRoot == null)
                 return;
 
-            Transform[] transforms =
-                cityRoot.GetComponentsInChildren<Transform>(true);
+            Light[] sourceLights =
+                cityRoot.GetComponentsInChildren<Light>(true);
 
-            var usedAnchors =
+            var usedLights =
                 new HashSet<EntityId>();
 
-            foreach (Transform item in
-                     transforms)
+            foreach (Light sourceLight in
+                     sourceLights)
             {
-                if (item == null ||
-                    !IsNamedFcgLampNode(
-                        item) ||
-                    HasNamedLampDescendant(
-                        item))
+                if (sourceLight == null ||
+                    sourceLight.type ==
+                    LightType.Directional ||
+                    !IsFcgStreetLampLight(
+                        sourceLight))
                 {
                     continue;
                 }
 
-                if (!usedAnchors.Add(
-                        item.GetEntityId()))
+                if (!usedLights.Add(
+                        sourceLight.GetEntityId()))
                 {
                     continue;
                 }
 
-                streetLampPositions.Add(
-                    item.position);
-            }
-
-            foreach (Transform item in
-                     transforms)
-            {
-                if (item == null ||
-                    !IsLampRoot(item) ||
-                    HasLampRootAncestor(item) ||
-                    HasNamedLampDescendant(item))
-                {
-                    continue;
-                }
-
-                if (!usedAnchors.Add(
-                        item.GetEntityId()))
-                {
-                    continue;
-                }
-
-                streetLampPositions.Add(
-                    ResolveLampWorldPosition(
-                        item));
+                streetLampAnchors.Add(
+                    new LampAnchor
+                    {
+                        Position =
+                            sourceLight.transform.position,
+                        Rotation =
+                            sourceLight.transform.rotation
+                    });
             }
 
             int poolSize =
                 Mathf.Min(
                     MaxRuntimeStreetLights,
-                    streetLampPositions.Count);
+                    streetLampAnchors.Count);
 
             for (int i = 0;
                  i < poolSize;
@@ -693,11 +677,11 @@ namespace MotorCity.World
 
             lampCandidates.Clear();
 
-            foreach (Vector3 position in
-                     streetLampPositions)
+            foreach (LampAnchor anchor in
+                     streetLampAnchors)
             {
                 float distanceSquared =
-                    (position -
+                    (anchor.Position -
                      observerPosition).sqrMagnitude;
 
                 if (distanceSquared >
@@ -709,7 +693,10 @@ namespace MotorCity.World
                 lampCandidates.Add(
                     new LampCandidate
                     {
-                        Position = position,
+                        Position =
+                            anchor.Position,
+                        Rotation =
+                            anchor.Rotation,
                         DistanceSquared =
                             distanceSquared
                     });
@@ -739,8 +726,9 @@ namespace MotorCity.World
 
                 if (enable)
                 {
-                    light.transform.position =
-                        lampCandidates[i].Position;
+                    light.transform.SetPositionAndRotation(
+                        lampCandidates[i].Position,
+                        lampCandidates[i].Rotation);
                 }
 
                 light.enabled =
@@ -820,145 +808,46 @@ namespace MotorCity.World
             return runtimeLight;
         }
 
-        private static Vector3 ResolveLampWorldPosition(
-            Transform lampRoot)
-        {
-            if (lampRoot == null)
-                return Vector3.zero;
-
-            Renderer[] renderers =
-                lampRoot.GetComponentsInChildren<Renderer>(true);
-
-            if (renderers == null ||
-                renderers.Length == 0)
-            {
-                return lampRoot.position;
-            }
-
-            bool hasBounds = false;
-            Bounds bounds =
-                default;
-
-            foreach (Renderer renderer in
-                     renderers)
-            {
-                if (renderer == null)
-                    continue;
-
-                if (!hasBounds)
-                {
-                    bounds =
-                        renderer.bounds;
-
-                    hasBounds = true;
-                }
-                else
-                {
-                    bounds.Encapsulate(
-                        renderer.bounds);
-                }
-            }
-
-            if (!hasBounds)
-                return lampRoot.position;
-
-            return
-                new Vector3(
-                    bounds.center.x,
-                    bounds.max.y - 0.08f,
-                    bounds.center.z);
-        }
-
-        private static void ConfigureLampLight(
+        private static bool IsFcgStreetLampLight(
             Light light)
         {
             if (light == null)
-                return;
-
-            light.type =
-                LightType.Point;
-
-            light.lightmapBakeType =
-                LightmapBakeType.Realtime;
-
-            light.shadows =
-                LightShadows.None;
-
-            light.cullingMask =
-                ~0;
-
-            light.color =
-                new Color(
-                    1f,
-                    0.72f,
-                    0.42f);
-
-            light.intensity =
-                Mathf.Max(
-                    light.intensity,
-                    66f);
-
-            light.range =
-                Mathf.Max(
-                    light.range,
-                    32f);
-
-            light.bounceIntensity =
-                0f;
-
-            // Point lights avoid relying on FCG source rotations after bake.
-            // The runtime anchor/fallback is placed at the luminaire itself,
-            // so the road and nearby sidewalk receive a visible pool of light.
-            light.enabled =
-                false;
-        }
-
-        private static bool HasNamedLampDescendant(
-            Transform item)
-        {
-            if (item == null)
                 return false;
 
-            foreach (Transform child in
-                     item.GetComponentsInChildren<Transform>(true))
-            {
-                if (child == null ||
-                    child == item)
-                {
-                    continue;
-                }
+            string name =
+                NormalizeName(
+                    light.gameObject.name);
 
-                if (IsNamedFcgLampNode(
-                        child))
-                {
-                    return true;
-                }
+            if (name !=
+                "spotlight")
+            {
+                return false;
             }
 
-            return false;
-        }
-
-        private static bool HasLampRootAncestor(
-            Transform item)
-        {
-            if (item == null)
-                return false;
-
             Transform current =
-                item.parent;
+                light.transform.parent;
 
             while (current != null)
             {
-                if (IsLampRoot(
-                        current))
+                string parentName =
+                    NormalizeName(
+                        current.name);
+
+                if (parentName.StartsWith(
+                        "streetlight",
+                        StringComparison.Ordinal) ||
+                    parentName ==
+                        "lightv")
                 {
                     return true;
                 }
 
-                if (IsRuntimeCityRoot(
-                        current))
+                if (parentName ==
+                        "motorcityfcgcity" ||
+                    parentName ==
+                        "citymaker")
                 {
-                    return false;
+                    break;
                 }
 
                 current =
@@ -966,56 +855,6 @@ namespace MotorCity.World
             }
 
             return false;
-        }
-
-        private static bool IsNamedFcgLampNode(
-            Transform item)
-        {
-            if (item == null)
-                return false;
-
-            string normalized =
-                NormalizeName(
-                    item.name);
-
-            return
-                normalized.StartsWith(
-                    "spotlight",
-                    StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static bool IsLampRoot(
-            Transform item)
-        {
-            if (item == null)
-                return false;
-
-            string normalized =
-                NormalizeName(
-                    item.name);
-
-            return
-                normalized.StartsWith(
-                    "streetlight") ||
-                normalized.StartsWith(
-                    "parklamp");
-        }
-
-        private static bool IsRuntimeCityRoot(
-            Transform item)
-        {
-            if (item == null)
-                return false;
-
-            return
-                string.Equals(
-                    item.name,
-                    "MotorCity_FCGCity",
-                    StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(
-                    item.name,
-                    "City-Maker",
-                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static string NormalizeName(
@@ -1050,9 +889,16 @@ namespace MotorCity.World
                     chars.ToArray());
         }
 
+        private struct LampAnchor
+        {
+            public Vector3 Position;
+            public Quaternion Rotation;
+        }
+
         private struct LampCandidate
         {
             public Vector3 Position;
+            public Quaternion Rotation;
             public float DistanceSquared;
         }
 
