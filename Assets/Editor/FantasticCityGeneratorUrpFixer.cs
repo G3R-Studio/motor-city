@@ -399,6 +399,24 @@ public static class FantasticCityGeneratorUrpFixer
             if (source == null)
                 continue;
 
+            string sourcePath =
+                AssetDatabase.GetAssetPath(
+                    source);
+
+            if (!string.IsNullOrWhiteSpace(
+                    sourcePath) &&
+                sourcePath.StartsWith(
+                    TrafficCarRoot + "/",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                // Already a Motor City URP traffic prefab. Reuse it instead
+                // of producing recursive _00_00_00 copies on every fixer run.
+                prefabMap[source] =
+                    source;
+
+                continue;
+            }
+
             GameObject clone =
                 UnityEngine.Object.Instantiate(
                     source);
