@@ -69,33 +69,63 @@ namespace MotorCity.World
                 PrimitiveType.Cylinder,
                 visualRoot,
                 new Vector3(
-                    3.2f,
-                    4.5f,
-                    3.2f),
+                    2.55f,
+                    4.1f,
+                    2.55f),
                 new Vector3(
                     0f,
-                    4.5f,
+                    4.1f,
                     0f),
                 Quaternion.identity,
                 pillarMaterial);
 
             CreatePrimitive(
-                "Checkpoint Ground Ring",
+                "Checkpoint Ground Ring Outer",
                 PrimitiveType.Cylinder,
                 visualRoot,
                 new Vector3(
-                    4f,
-                    0.035f,
-                    4f),
+                    4.15f,
+                    0.030f,
+                    4.15f),
                 new Vector3(
                     0f,
-                    0.07f,
+                    0.055f,
                     0f),
                 Quaternion.identity,
                 baseMaterial);
 
+            CreatePrimitive(
+                "Checkpoint Ground Ring Inner",
+                PrimitiveType.Cylinder,
+                visualRoot,
+                new Vector3(
+                    2.75f,
+                    0.045f,
+                    2.75f),
+                new Vector3(
+                    0f,
+                    0.09f,
+                    0f),
+                Quaternion.identity,
+                arrowMaterial);
+
             CreateEmblem(
                 style);
+
+            CreatePrimitive(
+                "Emblem Core",
+                PrimitiveType.Sphere,
+                emblemRoot,
+                new Vector3(
+                    0.42f,
+                    0.18f,
+                    0.42f),
+                new Vector3(
+                    0f,
+                    -0.18f,
+                    0f),
+                Quaternion.identity,
+                baseMaterial);
 
             if (!createDirectionArrow)
                 return;
@@ -114,7 +144,7 @@ namespace MotorCity.World
             directionRoot.localPosition =
                 new Vector3(
                     0f,
-                    6.3f,
+                    6.0f,
                     0f);
 
             CreatePrimitive(
@@ -168,8 +198,8 @@ namespace MotorCity.World
             float bob =
                 Mathf.Sin(
                     Time.unscaledTime *
-                    2.2f) *
-                0.18f;
+                    2.0f) *
+                0.12f;
 
             Vector3 localPosition =
                 emblemRoot.localPosition;
@@ -183,7 +213,7 @@ namespace MotorCity.World
 
             emblemRoot.Rotate(
                 0f,
-                20f *
+                14f *
                 Time.unscaledDeltaTime,
                 0f,
                 Space.Self);
@@ -204,7 +234,7 @@ namespace MotorCity.World
                 emblemObject.transform;
 
             emblemBaseHeight =
-                7.35f;
+                6.95f;
 
             emblemRoot.localPosition =
                 new Vector3(
