@@ -126,24 +126,24 @@ namespace MotorCity.World
             RouteCandidate best =
                 RouteCandidate.Invalid;
 
-            int[] startNodes =
+            for (int startSlot = 0;
+                 startSlot < 2;
+                 startSlot++)
             {
-                start.A,
-                start.B
-            };
+                int startNode =
+                    startSlot == 0
+                        ? start.A
+                        : start.B;
 
-            int[] endNodes =
-            {
-                end.A,
-                end.B
-            };
-
-            foreach (int startNode in
-                     startNodes)
-            {
-                foreach (int endNode in
-                         endNodes)
+                for (int endSlot = 0;
+                     endSlot < 2;
+                     endSlot++)
                 {
+                    int endNode =
+                        endSlot == 0
+                            ? end.A
+                            : end.B;
+
                     List<int> path =
                         FindShortestPath(
                             startNode,
