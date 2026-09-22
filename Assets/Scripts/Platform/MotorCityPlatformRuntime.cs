@@ -69,6 +69,11 @@ namespace MotorCity.Platform
         private void OnApplicationFocus(
             bool hasFocus)
         {
+            if (!hasFocus)
+            {
+                MotorCityInput.ClearVirtualState();
+            }
+
             if (!MotorCityPlatform.IsInitialized)
                 return;
 
