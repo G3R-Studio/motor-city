@@ -175,12 +175,14 @@ namespace MotorCity.UI
         private string activeNotification;
         private float activeNotificationTimer;
 
+        private Image resultActivityIcon;
         private Text resultTitleText;
         private Text resultHeadlineText;
         private Text resultDetailsText;
         private Text resultRewardText;
         private Text resultControlsText;
 
+        private Image garageHeaderIcon;
         private Text garageMoneyText;
         private Text garageStatusText;
         private Text garageVehicleText;
@@ -2331,6 +2333,60 @@ namespace MotorCity.UI
 
             characterPanel.SetActive(
                 false);
+        }
+
+        private Image CreateHudIcon(
+            Transform parent,
+            string name,
+            Sprite sprite,
+            Vector2 anchoredPosition,
+            Vector2 size,
+            Vector2 anchor,
+            Color color)
+        {
+            GameObject iconObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            iconObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                iconObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                anchor;
+            rect.anchorMax =
+                anchor;
+            rect.pivot =
+                anchor;
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                iconObject.GetComponent<Image>();
+
+            image.sprite =
+                sprite;
+
+            image.preserveAspect =
+                true;
+
+            image.raycastTarget =
+                false;
+
+            image.color =
+                color;
+
+            image.enabled =
+                sprite != null;
+
+            return image;
         }
 
         private Image CreatePortraitLayer(
@@ -4531,6 +4587,22 @@ namespace MotorCity.UI
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f));
 
+            resultActivityIcon =
+                CreateHudIcon(
+                    panel,
+                    "Result Activity Icon",
+                    MotorCityIconLibrary.Achievement,
+                    new Vector2(
+                        -258f,
+                        -34f),
+                    new Vector2(
+                        30f,
+                        30f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    SecondaryTextColor);
+
             resultTitleText =
                 CreateText(
                     panel,
@@ -4681,6 +4753,20 @@ namespace MotorCity.UI
                 activityManager.ResultSuccess
                     ? new Color(0.20f, 1f, 0.58f, 1f)
                     : new Color(1f, 0.38f, 0.22f, 1f);
+
+            if (resultActivityIcon != null)
+            {
+                resultActivityIcon.sprite =
+                    MotorCityIconLibrary.ForActivity(
+                        activityManager.ResultActivityId,
+                        activityManager.ResultSuccess);
+
+                resultActivityIcon.enabled =
+                    resultActivityIcon.sprite != null;
+
+                resultActivityIcon.color =
+                    accent;
+            }
 
             resultHeadlineText.color = accent;
             resultRewardText.color =
@@ -5085,6 +5171,22 @@ namespace MotorCity.UI
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f));
 
+            garageHeaderIcon =
+                CreateHudIcon(
+                    panel,
+                    "Garage Header Icon",
+                    MotorCityIconLibrary.Garage,
+                    new Vector2(
+                        28f,
+                        -29f),
+                    new Vector2(
+                        30f,
+                        30f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    GarageAccent);
+
             Text title =
                 CreateText(
                     panel,
@@ -5092,8 +5194,8 @@ namespace MotorCity.UI
                     27,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -28f),
-                    new Vector2(300f, 42f),
+                    new Vector2(70f, -28f),
+                    new Vector2(258f, 42f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     TextColor);
