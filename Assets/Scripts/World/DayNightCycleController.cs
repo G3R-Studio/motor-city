@@ -668,18 +668,19 @@ namespace MotorCity.World
 
         private void ApplyStreetLights()
         {
-            bool glowEnabled =
-                NightAmount >= 0.38f;
-
+            // FCG's LightV renderers are visible cone meshes, not subtle
+            // lamp emissive details. They were previously enabled at night and
+            // appeared in Game View as large translucent white pyramids.
+            // Keep those helper meshes hidden and let the pooled realtime Spot
+            // Lights provide the actual street illumination.
             foreach (Renderer glowRenderer in
                      streetLampGlowRenderers)
             {
                 if (glowRenderer != null &&
-                    glowRenderer.enabled !=
-                    glowEnabled)
+                    glowRenderer.enabled)
                 {
                     glowRenderer.enabled =
-                        glowEnabled;
+                        false;
                 }
             }
 
