@@ -40,6 +40,15 @@ namespace MotorCity.Persistence
             }
         }
 
+        private void OnApplicationFocus(
+            bool hasFocus)
+        {
+            if (!hasFocus)
+            {
+                MotorCitySaveService.FlushNow();
+            }
+        }
+
         private void OnApplicationQuit()
         {
             MotorCitySaveService.FlushNow();
