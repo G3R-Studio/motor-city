@@ -67,6 +67,11 @@ namespace MotorCity.Gameplay
                 ? string.Empty
                 : vehicleRoster.GetMasteryShort();
 
+        public float VehicleMasteryProgress =>
+            vehicleRoster == null
+                ? 0f
+                : vehicleRoster.MasteryProgress;
+
         public bool HasNextVehicle =>
             vehicleRoster != null &&
             vehicleRoster.HasNextVehicle;
