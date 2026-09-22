@@ -4928,18 +4928,16 @@ namespace MotorCity.UI
 
         private static bool ShouldUseTouchUi()
         {
-            if (Application.isMobilePlatform ||
-                SystemInfo.deviceType ==
-                    DeviceType.Handheld ||
-                UnityEngine.Input.touchSupported)
+            if (MotorCityInput.PreferTouchPrompts)
             {
                 return true;
             }
 
 #if UNITY_EDITOR
-            // Device Simulator still runs as Editor, so mobile platform/touch
-            // flags can stay false. A portrait game surface is a reliable
-            // signal for testing the phone HUD in-editor.
+            // Device Simulator can still run as Editor with platform/touch
+            // flags unavailable. Keep the portrait fallback for quick phone
+            // HUD testing while the shared runtime preference handles actual
+            // mobile devices and landscape simulator sessions.
             return
                 Screen.height > Screen.width;
 #else
