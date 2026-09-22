@@ -129,6 +129,10 @@ namespace MotorCity.UI
         private Text clubControlsText;
         private RectTransform safeAreaRoot;
         private GameObject touchControlsRoot;
+        private GameObject touchUtilityRoot;
+        private GameObject navigatorTouchControlsRoot;
+        private GameObject storeTouchControlsRoot;
+        private GameObject clubTouchControlsRoot;
         private CanvasScaler canvasScaler;
         private bool lastPortraitLayout;
         private int lastDisplayedCredits = int.MinValue;
@@ -1760,6 +1764,8 @@ namespace MotorCity.UI
             BuildGarage(safeAreaRoot);
             BuildClubOverlay(safeAreaRoot);
             BuildTouchControls(safeAreaRoot);
+            BuildTouchUtilityControls(safeAreaRoot);
+            BuildModalTouchControls(safeAreaRoot);
 
             driftPanel.SetActive(false);
             activityResultOverlay.SetActive(false);
@@ -4382,6 +4388,7 @@ namespace MotorCity.UI
                 MotorCityInputAction.CycleBodyColor,
                 MotorCityInputAction.CycleWheels,
                 MotorCityInputAction.CycleNeon,
+                MotorCityInputAction.ToggleVehiclePassport,
                 MotorCityInputAction.Interact
             };
 
@@ -4396,13 +4403,14 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text("touch.garage.color"),
                 MotorCityLocalization.Text("touch.garage.wheels"),
                 MotorCityLocalization.Text("touch.garage.neon"),
+                MotorCityLocalization.Text("touch.garage.passport"),
                 MotorCityLocalization.Text("touch.garage.close")
             };
 
-            const float buttonWidth = 132f;
+            const float buttonWidth = 110f;
             const float buttonHeight = 46f;
             const float gap = 6f;
-            const int columns = 5;
+            const int columns = 6;
 
             for (int i = 0;
                  i < actions.Length;
@@ -5034,6 +5042,202 @@ namespace MotorCity.UI
                     : 0.5f;
         }
 
+        private void BuildTouchUtilityControls(
+            Transform canvas)
+        {
+            touchUtilityRoot =
+                new GameObject(
+                    "Touch Utility Controls",
+                    typeof(RectTransform));
+
+            touchUtilityRoot.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform root =
+                touchUtilityRoot.GetComponent<RectTransform>();
+
+            root.anchorMin =
+                new Vector2(0.5f, 1f);
+            root.anchorMax =
+                new Vector2(0.5f, 1f);
+            root.pivot =
+                new Vector2(0.5f, 1f);
+            root.anchoredPosition =
+                new Vector2(0f, -18f);
+            root.sizeDelta =
+                new Vector2(440f, 48f);
+
+            CreateTouchPulseButton(
+                root,
+                "Touch Photo",
+                MotorCityLocalization.Text(
+                    "touch.utility.photo"),
+                MotorCityInputAction.TakePhoto,
+                new Vector2(-165f, 0f),
+                new Vector2(100f, 40f));
+
+            CreateTouchPulseButton(
+                root,
+                "Touch Club",
+                MotorCityLocalization.Text(
+                    "touch.utility.club"),
+                MotorCityInputAction.ToggleClub,
+                new Vector2(-55f, 0f),
+                new Vector2(100f, 40f));
+
+            CreateTouchPulseButton(
+                root,
+                "Touch Store",
+                MotorCityLocalization.Text(
+                    "touch.utility.store"),
+                MotorCityInputAction.ToggleStore,
+                new Vector2(55f, 0f),
+                new Vector2(100f, 40f));
+
+            CreateTouchPulseButton(
+                root,
+                "Touch Bonus",
+                MotorCityLocalization.Text(
+                    "touch.utility.bonus"),
+                MotorCityInputAction.RewardedBonus,
+                new Vector2(165f, 0f),
+                new Vector2(100f, 40f));
+        }
+
+        private void BuildModalTouchControls(
+            Transform canvas)
+        {
+            navigatorTouchControlsRoot =
+                BuildTouchModalRow(
+                    canvas,
+                    "Navigator Touch Controls",
+                    MotorCityLocalization.Text(
+                        "touch.modal.prev"),
+                    MotorCityInputAction.PreviousVehicle,
+                    MotorCityLocalization.Text(
+                        "touch.modal.select"),
+                    MotorCityInputAction.Retry,
+                    MotorCityLocalization.Text(
+                        "touch.modal.next"),
+                    MotorCityInputAction.NextVehicle,
+                    MotorCityLocalization.Text(
+                        "touch.modal.close"),
+                    MotorCityInputAction.ToggleNavigator);
+
+            storeTouchControlsRoot =
+                BuildTouchModalRow(
+                    canvas,
+                    "Store Touch Controls",
+                    MotorCityLocalization.Text(
+                        "touch.modal.prev"),
+                    MotorCityInputAction.PreviousVehicle,
+                    MotorCityLocalization.Text(
+                        "touch.store.buy"),
+                    MotorCityInputAction.Interact,
+                    MotorCityLocalization.Text(
+                        "touch.modal.next"),
+                    MotorCityInputAction.NextVehicle,
+                    MotorCityLocalization.Text(
+                        "touch.modal.close"),
+                    MotorCityInputAction.ToggleStore);
+
+            clubTouchControlsRoot =
+                BuildTouchModalRow(
+                    canvas,
+                    "Club Touch Controls",
+                    MotorCityLocalization.Text(
+                        "touch.modal.prev"),
+                    MotorCityInputAction.PreviousVehicle,
+                    MotorCityLocalization.Text(
+                        "touch.club.join"),
+                    MotorCityInputAction.Interact,
+                    MotorCityLocalization.Text(
+                        "touch.modal.next"),
+                    MotorCityInputAction.NextVehicle,
+                    MotorCityLocalization.Text(
+                        "touch.modal.close"),
+                    MotorCityInputAction.ToggleClub);
+
+            navigatorTouchControlsRoot.SetActive(
+                false);
+            storeTouchControlsRoot.SetActive(
+                false);
+            clubTouchControlsRoot.SetActive(
+                false);
+        }
+
+        private GameObject BuildTouchModalRow(
+            Transform canvas,
+            string name,
+            string leftLabel,
+            MotorCityInputAction leftAction,
+            string centerLabel,
+            MotorCityInputAction centerAction,
+            string rightLabel,
+            MotorCityInputAction rightAction,
+            string closeLabel,
+            MotorCityInputAction closeAction)
+        {
+            GameObject rootObject =
+                new(
+                    name,
+                    typeof(RectTransform));
+
+            rootObject.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform root =
+                rootObject.GetComponent<RectTransform>();
+
+            root.anchorMin =
+                new Vector2(0.5f, 0f);
+            root.anchorMax =
+                new Vector2(0.5f, 0f);
+            root.pivot =
+                new Vector2(0.5f, 0f);
+            root.anchoredPosition =
+                new Vector2(0f, 28f);
+            root.sizeDelta =
+                new Vector2(620f, 58f);
+
+            CreateTouchPulseButton(
+                root,
+                name + " Prev",
+                leftLabel,
+                leftAction,
+                new Vector2(-225f, 26f),
+                new Vector2(130f, 50f));
+
+            CreateTouchPulseButton(
+                root,
+                name + " Action",
+                centerLabel,
+                centerAction,
+                new Vector2(-75f, 26f),
+                new Vector2(150f, 50f));
+
+            CreateTouchPulseButton(
+                root,
+                name + " Next",
+                rightLabel,
+                rightAction,
+                new Vector2(85f, 26f),
+                new Vector2(130f, 50f));
+
+            CreateTouchPulseButton(
+                root,
+                name + " Close",
+                closeLabel,
+                closeAction,
+                new Vector2(230f, 26f),
+                new Vector2(130f, 50f));
+
+            return
+                rootObject;
+        }
+
         private void BuildTouchControls(
             Transform canvas)
         {
@@ -5288,17 +5492,54 @@ namespace MotorCity.UI
             if (touchControlsRoot == null)
                 return;
 
-            if (!ShouldUseTouchUi())
+            bool touchUi =
+                ShouldUseTouchUi();
+
+            if (!touchUi)
             {
                 SetActiveIfChanged(
                     touchControlsRoot,
                     false);
+
+                SetActiveIfChanged(
+                    touchUtilityRoot,
+                    false);
+
+                SetActiveIfChanged(
+                    navigatorTouchControlsRoot,
+                    false);
+
+                SetActiveIfChanged(
+                    storeTouchControlsRoot,
+                    false);
+
+                SetActiveIfChanged(
+                    clubTouchControlsRoot,
+                    false);
+
                 return;
             }
 
             SetActiveIfChanged(
                 touchControlsRoot,
                 !HasBlockingModalUi());
+
+            SetActiveIfChanged(
+                touchUtilityRoot,
+                !HasBlockingModalUi());
+
+            SetActiveIfChanged(
+                navigatorTouchControlsRoot,
+                navigatorMenuOpen);
+
+            SetActiveIfChanged(
+                storeTouchControlsRoot,
+                storeOpen);
+
+            SetActiveIfChanged(
+                clubTouchControlsRoot,
+                clubOverlay != null &&
+                clubOverlay.activeSelf);
         }
 
         private RectTransform CreateSafeAreaRoot(
