@@ -118,10 +118,13 @@ namespace MotorCity.World
                 }
             }
 
+            Vector3 nextTarget =
+                race.CurrentTarget;
+
             bool hasNext =
                 race.IsActive &&
                 race.TryGetNextTarget(
-                    out Vector3 nextTarget);
+                    out nextTarget);
 
             checkpointBeacon?.SetDirection(
                 race.CurrentTarget,
