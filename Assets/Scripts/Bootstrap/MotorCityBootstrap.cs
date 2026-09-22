@@ -471,8 +471,10 @@ namespace MotorCity.Bootstrap
             CreateGarageMarker(garage);
             CreateUndergroundMarker(underground);
             CreateProfessionMarkers(professions);
+            CreateProfessionCheckpointMarker(professions);
             CreateCarWashMarker(carWash);
             CreateTowTruckMarker(towTruck);
+            CreateTowCheckpointMarker(towTruck);
 
             CreateCamera(car.transform);
             CreateHud(
@@ -1068,6 +1070,40 @@ namespace MotorCity.Bootstrap
                     material,
                     false);
             }
+        }
+
+        private static void CreateProfessionCheckpointMarker(
+            CityProfessionSystem professions)
+        {
+            if (professions == null)
+                return;
+
+            GameObject root =
+                new(
+                    "Profession Active Checkpoint");
+
+            DynamicActivityCheckpointVisual visual =
+                root.AddComponent<DynamicActivityCheckpointVisual>();
+
+            visual.BindProfession(
+                professions);
+        }
+
+        private static void CreateTowCheckpointMarker(
+            TowTruckJobSystem towTruck)
+        {
+            if (towTruck == null)
+                return;
+
+            GameObject root =
+                new(
+                    "Tow Active Checkpoint");
+
+            DynamicActivityCheckpointVisual visual =
+                root.AddComponent<DynamicActivityCheckpointVisual>();
+
+            visual.BindTowTruck(
+                towTruck);
         }
 
         private static void CreateSpeedTrapMarkers(
