@@ -81,6 +81,8 @@ namespace MotorCity.UI
         private Sprite characterPortraitTurbo;
         private Sprite characterPortraitNika;
         private Sprite characterPortraitBublik;
+        private string lastPortraitDebugId =
+            string.Empty;
         private Image characterPortraitFace;
         private Image characterPortraitHair;
         private Image characterPortraitAccent;
@@ -2118,20 +2120,32 @@ namespace MotorCity.UI
                 portraitFrame.gameObject;
 
             characterPortraitVitya =
-                Resources.Load<Sprite>(
+                LoadCharacterPortrait(
+                    "vitya",
                     "MotorCity/UI/Characters/avatar_vitya");
 
             characterPortraitTurbo =
-                Resources.Load<Sprite>(
+                LoadCharacterPortrait(
+                    "turbo",
                     "MotorCity/UI/Characters/avatar_turbo");
 
             characterPortraitNika =
-                Resources.Load<Sprite>(
+                LoadCharacterPortrait(
+                    "nika",
                     "MotorCity/UI/Characters/avatar_nika");
 
             characterPortraitBublik =
-                Resources.Load<Sprite>(
+                LoadCharacterPortrait(
+                    "bublik",
                     "MotorCity/UI/Characters/avatar_bublik");
+
+            Debug.Log(
+                "[MotorCity][Portrait] HUD portrait load summary: " +
+                $"Vitya={(characterPortraitVitya != null ? "OK" : "MISSING")}, " +
+                $"Turbo={(characterPortraitTurbo != null ? "OK" : "MISSING")}, " +
+                $"Nika={(characterPortraitNika != null ? "OK" : "MISSING")}, " +
+                $"Bublik={(characterPortraitBublik != null ? "OK" : "MISSING")}.",
+                this);
 
             characterPortraitAccent =
                 CreatePortraitLayer(
@@ -2552,6 +2566,86 @@ namespace MotorCity.UI
                 line;
         }
 
+        private Sprite LoadCharacterPortrait(
+            string characterId,
+            string resourcePath)
+        {
+            Sprite sprite =
+                Resources.Load<Sprite>(
+                    resourcePath);
+
+            if (sprite != null)
+            {
+                Texture2D texture =
+                    sprite.texture;
+
+                Debug.Log(
+                    "[MotorCity][Portrait] Loaded Sprite " +
+                    $"'{characterId}' from Resources/{resourcePath}: " +
+                    $"sprite='{sprite.name}', " +
+                    $"texture={(texture != null ? texture.width + "x" + texture.height : "null")}, " +
+                    $"rect={sprite.rect.width:0}x{sprite.rect.height:0}.",
+                    this);
+
+                return sprite;
+            }
+
+            Texture2D fallbackTexture =
+                Resources.Load<Texture2D>(
+                    resourcePath);
+
+            if (fallbackTexture != null)
+            {
+                Debug.LogWarning(
+                    "[MotorCity][Portrait] Resource " +
+                    $"'{characterId}' exists as Texture2D but not Sprite at " +
+                    $"Resources/{resourcePath}. Creating runtime Sprite. " +
+                    $"Texture={fallbackTexture.width}x{fallbackTexture.height}. " +
+                    "Check Texture Type = Sprite (2D and UI) in Unity importer.",
+                    this);
+
+                return
+                    Sprite.Create(
+                        fallbackTexture,
+                        new Rect(
+                            0f,
+                            0f,
+                            fallbackTexture.width,
+                            fallbackTexture.height),
+                        new Vector2(
+                            0.5f,
+                            0.5f),
+                        100f);
+            }
+
+            Object[] matches =
+                Resources.LoadAll(
+                    "MotorCity/UI/Characters");
+
+            string found =
+                matches == null ||
+                matches.Length == 0
+                    ? "none"
+                    : string.Join(
+                        ", ",
+                        System.Array.ConvertAll(
+                            matches,
+                            item =>
+                                item == null
+                                    ? "null"
+                                    : item.name +
+                                      ":" +
+                                      item.GetType().Name));
+
+            Debug.LogError(
+                "[MotorCity][Portrait] FAILED to load " +
+                $"'{characterId}' at Resources/{resourcePath}. " +
+                $"Objects visible in Resources/MotorCity/UI/Characters: {found}.",
+                this);
+
+            return null;
+        }
+
         private void ApplyCharacterPortrait(
             int style,
             Color accent,
@@ -2588,6 +2682,31 @@ namespace MotorCity.UI
             bool hasPortrait =
                 characterPortraitImage != null &&
                 portrait != null;
+
+            if (lastPortraitDebugId != portraitId)
+            {
+                lastPortraitDebugId =
+                    portraitId;
+
+                Debug.Log(
+                    "[MotorCity][Portrait] HUD selection: " +
+                    $"portraitId='{portraitId}', style={style}, " +
+                    $"sprite={(portrait != null ? portrait.name : "NULL")}, " +
+                    $"image={(characterPortraitImage != null ? "OK" : "NULL")}, " +
+                    $"hasPortrait={hasPortrait}, " +
+                    $"panelActive={(characterPanel != null && characterPanel.activeInHierarchy)}.",
+                    this);
+            }
+
+            if (!hasPortrait &&
+                !string.IsNullOrEmpty(
+                    portraitId))
+            {
+                Debug.LogWarning(
+                    "[MotorCity][Portrait] Falling back to procedural portrait for " +
+                    $"'{portraitId}' because the Sprite or Image is missing.",
+                    this);
+            }
 
             if (characterPortraitImage != null)
             {
