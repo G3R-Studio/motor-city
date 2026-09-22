@@ -7695,8 +7695,13 @@ namespace MotorCity.UI
                 touchControlsRoot,
                 !HasBlockingModalUi());
 
+            bool onboardingComplete =
+                onboarding == null ||
+                onboarding.IsComplete;
+
             SetActiveIfChanged(
                 touchUtilityRoot,
+                onboardingComplete &&
                 !HasBlockingModalUi() &&
                 (activityManager == null ||
                  !activityManager.IsBusy));
