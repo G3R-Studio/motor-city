@@ -125,6 +125,8 @@ namespace MotorCity.UI
         private int lastDisplayedReputationLevel = int.MinValue;
         private int lastDisplayedSpeed = int.MinValue;
         private DriveMode? lastDisplayedDriveMode;
+        private float slowHudUpdateTimer;
+        private const float SlowHudUpdateInterval = 0.10f;
 
         private readonly Queue<string> notificationQueue =
             new();
@@ -268,148 +270,159 @@ namespace MotorCity.UI
                 rewardedBonus?.TryShow();
             }
 
-            int credits =
-                wallet == null
-                    ? 0
-                    : wallet.Credits;
+            slowHudUpdateTimer -=
+                Time.unscaledDeltaTime;
 
-            if (credits !=
-                lastDisplayedCredits)
+            if (slowHudUpdateTimer <= 0f)
             {
-                lastDisplayedCredits =
-                    credits;
+                slowHudUpdateTimer =
+                    SlowHudUpdateInterval;
 
-                moneyText.text =
-                    MotorCityLocalization.Format(
-                        "common.credits",
-                        credits);
-            }
-
-            if (reputationText != null &&
-                activityManager != null)
-            {
-                int totalReputation =
-                    activityManager.TotalReputation;
-
-                int reputationLevel =
-                    activityManager.ReputationLevel;
-
-                if (totalReputation !=
-                        lastDisplayedReputation ||
-                    reputationLevel !=
-                        lastDisplayedReputationLevel)
+                int credits =
+                    wallet == null
+                        ? 0
+                        : wallet.Credits;
+    
+                if (credits !=
+                    lastDisplayedCredits)
                 {
-                    lastDisplayedReputation =
-                        totalReputation;
-
-                    lastDisplayedReputationLevel =
-                        reputationLevel;
-
-                    reputationText.text =
+                    lastDisplayedCredits =
+                        credits;
+    
+                    moneyText.text =
                         MotorCityLocalization.Format(
-                            "hud.rep",
-                            totalReputation,
-                            reputationLevel);
+                            "common.credits",
+                            credits);
                 }
-            }
-
-            if (upgradesText != null)
-            {
-                upgradesText.text =
-                    garage == null
-                        ? string.Empty
-                        : MotorCityLocalization.Format(
-                            "hud.upgrades",
-                            garage.EngineLevel,
-                            garage.GripLevel,
-                            garage.StabilityLevel,
-                            garage.VehicleMasteryShort);
-            }
-
-            if (careerText != null)
-            {
-                careerText.text =
-                    career == null
-                        ? string.Empty
-                        : career.HudLine;
-            }
-
-            if (disciplineText != null)
-            {
-                disciplineText.text =
-                    activityManager == null
-                        ? string.Empty
-                        : activityManager.DisciplineHudLine;
-            }
-
-            if (contractText != null)
-            {
-                contractText.text =
-                    contracts == null
-                        ? string.Empty
-                        : contracts.HudLine;
-            }
-
-            if (liveEventText != null)
-            {
-                liveEventText.text =
-                    liveEvents == null
-                        ? string.Empty
-                        : liveEvents.HudLine;
-            }
-
-            if (collectionText != null)
-            {
-                collectionText.text =
-                    collection == null
-                        ? string.Empty
-                        : collection.HudLine;
-            }
-
-            if (legendText != null)
-            {
-                legendText.text =
-                    legends == null
-                        ? string.Empty
-                        : legends.HudLine;
-            }
-
-            if (objectiveText != null)
-            {
-                objectiveText.text =
-                    ResolveObjectiveLine();
-            }
-
-            UpdateCharacterCard();
-
-            if (driveModeText != null &&
-                car != null &&
-                (!lastDisplayedDriveMode.HasValue ||
-                 lastDisplayedDriveMode.Value !=
-                    car.CurrentDriveMode))
-            {
-                lastDisplayedDriveMode =
-                    car.CurrentDriveMode;
-
-                driveModeText.text =
-                    MotorCityLocalization.Format(
-                        "hud.drive_mode",
-                        car.DriveModeDisplayName);
-
-                driveModeText.color =
-                    car.CurrentDriveMode switch
+    
+                if (reputationText != null &&
+                    activityManager != null)
+                {
+                    int totalReputation =
+                        activityManager.TotalReputation;
+    
+                    int reputationLevel =
+                        activityManager.ReputationLevel;
+    
+                    if (totalReputation !=
+                            lastDisplayedReputation ||
+                        reputationLevel !=
+                            lastDisplayedReputationLevel)
                     {
-                        DriveMode.Sport =>
-                            new Color(
-                                0.30f,
-                                1f,
-                                0.54f,
-                                1f),
-                        DriveMode.Drift =>
-                            DriftAccent,
-                        _ =>
-                            BlueAccent
-                    };
+                        lastDisplayedReputation =
+                            totalReputation;
+    
+                        lastDisplayedReputationLevel =
+                            reputationLevel;
+    
+                        reputationText.text =
+                            MotorCityLocalization.Format(
+                                "hud.rep",
+                                totalReputation,
+                                reputationLevel);
+                    }
+                }
+    
+                if (upgradesText != null)
+                {
+                    upgradesText.text =
+                        garage == null
+                            ? string.Empty
+                            : MotorCityLocalization.Format(
+                                "hud.upgrades",
+                                garage.EngineLevel,
+                                garage.GripLevel,
+                                garage.StabilityLevel,
+                                garage.VehicleMasteryShort);
+                }
+    
+                if (careerText != null)
+                {
+                    careerText.text =
+                        career == null
+                            ? string.Empty
+                            : career.HudLine;
+                }
+    
+                if (disciplineText != null)
+                {
+                    disciplineText.text =
+                        activityManager == null
+                            ? string.Empty
+                            : activityManager.DisciplineHudLine;
+                }
+    
+                if (contractText != null)
+                {
+                    contractText.text =
+                        contracts == null
+                            ? string.Empty
+                            : contracts.HudLine;
+                }
+    
+                if (liveEventText != null)
+                {
+                    liveEventText.text =
+                        liveEvents == null
+                            ? string.Empty
+                            : liveEvents.HudLine;
+                }
+    
+                if (collectionText != null)
+                {
+                    collectionText.text =
+                        collection == null
+                            ? string.Empty
+                            : collection.HudLine;
+                }
+    
+                if (legendText != null)
+                {
+                    legendText.text =
+                        legends == null
+                            ? string.Empty
+                            : legends.HudLine;
+                }
+    
+                if (objectiveText != null)
+                {
+                    objectiveText.text =
+                        ResolveObjectiveLine();
+                }
+    
+                UpdateCharacterCard();
+    
+                if (driveModeText != null &&
+                    car != null &&
+                    (!lastDisplayedDriveMode.HasValue ||
+                     lastDisplayedDriveMode.Value !=
+                        car.CurrentDriveMode))
+                {
+                    lastDisplayedDriveMode =
+                        car.CurrentDriveMode;
+    
+                    driveModeText.text =
+                        MotorCityLocalization.Format(
+                            "hud.drive_mode",
+                            car.DriveModeDisplayName);
+    
+                    driveModeText.color =
+                        car.CurrentDriveMode switch
+                        {
+                            DriveMode.Sport =>
+                                new Color(
+                                    0.30f,
+                                    1f,
+                                    0.54f,
+                                    1f),
+                            DriveMode.Drift =>
+                                DriftAccent,
+                            _ =>
+                                BlueAccent
+                        };
+                }
+    
+    
             }
 
             float speed =
