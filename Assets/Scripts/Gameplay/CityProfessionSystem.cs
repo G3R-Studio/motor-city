@@ -23,7 +23,11 @@ namespace MotorCity.Gameplay
         private ProfessionDefinition active;
         private int targetIndex;
         private float elapsed;
+        private float progressTextTimer;
         private int nearestStartIndex = -1;
+
+        private const float ProgressTextInterval =
+            0.10f;
 
         public bool IsActive =>
             active != null;
@@ -238,6 +242,7 @@ namespace MotorCity.Gameplay
 
             targetIndex = 0;
             elapsed = 0f;
+            progressTextTimer = 0f;
             IsNearStart = false;
 
             StatusText =
@@ -268,17 +273,26 @@ namespace MotorCity.Gameplay
                     Flat(
                         target));
 
-            StatusText =
-                MotorCityLocalization.Format(
-                    "profession.progress",
-                    MotorCityLocalization.Text(
-                        active.NameKey),
-                    targetIndex + 1,
-                    active.Route.Length,
-                    Mathf.RoundToInt(
-                        distance),
-                    FormatTime(
-                        elapsed));
+            progressTextTimer -=
+                Time.deltaTime;
+
+            if (progressTextTimer <= 0f)
+            {
+                progressTextTimer =
+                    ProgressTextInterval;
+
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "profession.progress",
+                        MotorCityLocalization.Text(
+                            active.NameKey),
+                        targetIndex + 1,
+                        active.Route.Length,
+                        Mathf.RoundToInt(
+                            distance),
+                        FormatTime(
+                            elapsed));
+            }
 
             if (distance >
                 TargetRadius)
