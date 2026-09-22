@@ -47,6 +47,26 @@ namespace MotorCity.Gameplay
                     0,
                     MissionCount);
 
+        public string RequiredActivityId
+        {
+            get
+            {
+                if (IsComplete)
+                {
+                    return
+                        string.Empty;
+                }
+
+                SeasonMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? string.Empty
+                        : mission.ActivityId;
+            }
+        }
+
         public bool IsSeasonOneActive
         {
             get
