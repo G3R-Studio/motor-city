@@ -15,6 +15,7 @@ namespace MotorCity.Gameplay
         private int lastCollection = -1;
         private int lastWins = -1;
         private float submitTimer;
+        private bool submissionPending;
 
         public void Initialize(
             PlayerReputation playerReputation,
@@ -72,21 +73,28 @@ namespace MotorCity.Gameplay
 
         private void SubmitChanged()
         {
-            if (!MotorCityPlatform.SupportsLeaderboards)
+            if (submissionPending ||
+                !MotorCityPlatform.SupportsLeaderboards)
+            {
                 return;
+            }
 
-            int rep = reputation != null
-                ? reputation.Reputation
-                : 0;
+            int rep =
+                reputation != null
+                    ? reputation.Reputation
+                    : 0;
 
-            int collectionRating = collection != null
-                ? collection.Rating
-                : 0;
+            int collectionRating =
+                collection != null
+                    ? collection.Rating
+                    : 0;
 
             if (rep != lastRep)
             {
                 int submittedRep =
                     rep;
+
+                submissionPending = true;
 
                 MotorCityPlatform.SubmitLeaderboard(
                     MotorCityRemoteConfigRuntime.GetString(
@@ -95,18 +103,29 @@ namespace MotorCity.Gameplay
                     submittedRep,
                     success =>
                     {
+                        submissionPending = false;
+
                         if (success)
                         {
                             lastRep =
                                 submittedRep;
                         }
+
+                        submitTimer =
+                            Mathf.Min(
+                                submitTimer,
+                                0.25f);
                     });
+
+                return;
             }
 
             if (collectionRating != lastCollection)
             {
                 int submittedCollection =
                     collectionRating;
+
+                submissionPending = true;
 
                 MotorCityPlatform.SubmitLeaderboard(
                     MotorCityRemoteConfigRuntime.GetString(
@@ -115,18 +134,29 @@ namespace MotorCity.Gameplay
                     submittedCollection,
                     success =>
                     {
+                        submissionPending = false;
+
                         if (success)
                         {
                             lastCollection =
                                 submittedCollection;
                         }
+
+                        submitTimer =
+                            Mathf.Min(
+                                submitTimer,
+                                0.25f);
                     });
+
+                return;
             }
 
             if (activityWins != lastWins)
             {
                 int submittedWins =
                     activityWins;
+
+                submissionPending = true;
 
                 MotorCityPlatform.SubmitLeaderboard(
                     MotorCityRemoteConfigRuntime.GetString(
@@ -135,11 +165,18 @@ namespace MotorCity.Gameplay
                     submittedWins,
                     success =>
                     {
+                        submissionPending = false;
+
                         if (success)
                         {
                             lastWins =
                                 submittedWins;
                         }
+
+                        submitTimer =
+                            Mathf.Min(
+                                submitTimer,
+                                0.25f);
                     });
             }
         }
