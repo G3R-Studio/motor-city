@@ -94,7 +94,9 @@ namespace MotorCity.UI
             PolishCoreText("Reputation", 0.65f);
             PolishCoreText("Active Objective", 0.75f);
             PolishCoreText("Character Name", 0.75f);
+            PolishCoreText("Character Mission Title", 0.60f);
             PolishCoreText("Character Line", 0.70f);
+            PolishCoreText("Character Reward", 0.70f);
             PolishCoreText("Status Text", 0.70f);
             PolishCoreText("Speed", 0.90f);
             PolishCoreText("Minimap Target Label", 0.70f);
@@ -153,7 +155,7 @@ namespace MotorCity.UI
             if (touchLayout)
             {
                 SetRect(playerCard, new Vector2(14f, -14f), new Vector2(340f, 116f), 1f);
-                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(390f, 104f), 1f);
+                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(390f, 136f), 1f);
                 SetRect(speedometer, new Vector2(0f, 6f), new Vector2(226f, 166f), 0.90f);
                 SetRect(status, new Vector2(0f, 182f), new Vector2(520f, 46f), 0.94f);
                 SetRect(minimap, new Vector2(-14f, -14f), new Vector2(202f, 202f), 0.92f);
@@ -161,7 +163,7 @@ namespace MotorCity.UI
             else
             {
                 SetRect(playerCard, new Vector2(22f, -22f), new Vector2(392f, 132f), 1f);
-                SetRect(characterCard, new Vector2(22f, -22f), new Vector2(430f, 112f), 1f);
+                SetRect(characterCard, new Vector2(22f, -22f), new Vector2(430f, 142f), 1f);
                 SetRect(speedometer, new Vector2(0f, 16f), new Vector2(258f, 190f), 1f);
                 SetRect(status, new Vector2(0f, 218f), new Vector2(620f, 50f), 1f);
                 SetRect(minimap, new Vector2(-22f, -22f), new Vector2(232f, 232f), 1f);
