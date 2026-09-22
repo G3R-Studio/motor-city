@@ -82,8 +82,8 @@ namespace MotorCity.UI
             ApplyPanelTreatment("Player Card", new Color(0.016f, 0.026f, 0.043f, 0.96f), true);
             ApplyPanelTreatment("Character Card", new Color(0.020f, 0.034f, 0.052f, 0.94f), true);
             ApplyPanelTreatment("Activity Status", new Color(0.020f, 0.030f, 0.046f, 0.92f), false);
-            ApplyPanelTreatment("Speedometer", new Color(0.010f, 0.017f, 0.029f, 0.58f), false);
-            ApplyPanelTreatment("Minimap", new Color(0.010f, 0.017f, 0.027f, 0.44f), false);
+            ClearPanelBackdrop("Speedometer");
+            ClearPanelBackdrop("Minimap");
             ApplyPanelTreatment("Drift HUD", new Color(0.080f, 0.038f, 0.018f, 0.92f), true);
             ApplyPanelTreatment("Activity Result", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
             ApplyPanelTreatment("Navigator Menu", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
@@ -410,6 +410,47 @@ namespace MotorCity.UI
             // parent RectTransforms makes legacy Unity Text rasterize softer
             // after resolution/aspect changes, especially on small labels.
             rect.localScale = Vector3.one;
+        }
+
+        private void ClearPanelBackdrop(
+            string objectName)
+        {
+            RectTransform rect =
+                FindRect(objectName);
+
+            if (rect == null)
+                return;
+
+            Image image =
+                rect.GetComponent<Image>();
+
+            if (image != null)
+            {
+                image.color =
+                    Color.clear;
+
+                image.raycastTarget =
+                    false;
+            }
+
+            Outline outline =
+                rect.GetComponent<Outline>();
+
+            if (outline != null)
+            {
+                outline.enabled =
+                    false;
+            }
+
+            Transform highlight =
+                rect.Find(
+                    "Visual Polish Highlight");
+
+            if (highlight != null)
+            {
+                highlight.gameObject.SetActive(
+                    false);
+            }
         }
 
         private void ApplyPanelTreatment(
