@@ -11,6 +11,7 @@ namespace MotorCity.Gameplay
         private PlayerWallet wallet;
         private float messageTimer;
         private float stateCheckTimer;
+        private long currentDay;
         private long currentWeek;
 
         private const float StateCheckInterval =
@@ -60,11 +61,13 @@ namespace MotorCity.Gameplay
             stateCheckTimer =
                 StateCheckInterval;
 
-            long week =
-                MotorCityPlatform.ServerUnixTime /
-                604800L;
+            long day =
+                Math.Max(
+                    1L,
+                    MotorCityPlatform.ServerUnixTime /
+                    86400L);
 
-            if (week != currentWeek)
+            if (day != currentDay)
                 RefreshState(true);
         }
 
@@ -86,8 +89,17 @@ namespace MotorCity.Gameplay
                 date.DayOfWeek == DayOfWeek.Saturday ||
                 date.DayOfWeek == DayOfWeek.Sunday;
 
+            long serverTime =
+                Math.Max(
+                    1L,
+                    MotorCityPlatform.ServerUnixTime);
+
+            currentDay =
+                serverTime /
+                86400L;
+
             currentWeek =
-                MotorCityPlatform.ServerUnixTime /
+                serverTime /
                 604800L;
 
             if (IsActive && announce)
