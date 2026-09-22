@@ -199,7 +199,7 @@ namespace MotorCity.Gameplay
             if (saveTimer >= 2f)
             {
                 saveTimer = 0f;
-                Save();
+                MarkSaveDirty();
             }
         }
 
@@ -390,11 +390,16 @@ namespace MotorCity.Gameplay
                 3.5f;
         }
 
-        private void Save()
+        private void MarkSaveDirty()
         {
             MotorCity.Persistence.MotorCitySaveService.SetFloat(
                 AttentionKey,
                 attention);
+        }
+
+        private void Save()
+        {
+            MarkSaveDirty();
 
             MotorCity.Persistence.MotorCitySaveService.Save();
         }
