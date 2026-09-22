@@ -57,7 +57,7 @@ namespace MotorCity.Gameplay
                 CreateJump(
                     "highway",
                     MotorCityLocalization.Text("world.highway"),
-                    new Vector3(-300f, 0f, -1400f),
+                    new Vector3(-450f, 0f, 360f),
                     new Vector3(0f, 0f, -1f),
                     -1f,
                     18f,
@@ -67,8 +67,8 @@ namespace MotorCity.Gameplay
                 CreateJump(
                     "remote",
                     MotorCityLocalization.Text("world.remote_district"),
-                    new Vector3(-300f, 0f, -2010f),
-                    new Vector3(0f, 0f, 1f),
+                    new Vector3(150f, 0f, 450f),
+                    new Vector3(1f, 0f, 0f),
                     1f,
                     15f,
                     28f,
