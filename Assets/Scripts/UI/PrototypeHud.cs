@@ -533,6 +533,558 @@ namespace MotorCity.UI
             }
         }
 
+        private void BuildNavigatorMenu(
+            Transform canvas)
+        {
+            navigatorMenuOverlay =
+                new GameObject(
+                    "Navigator Menu Overlay",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            navigatorMenuOverlay.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform overlay =
+                navigatorMenuOverlay.GetComponent<RectTransform>();
+
+            overlay.anchorMin =
+                Vector2.zero;
+            overlay.anchorMax =
+                Vector2.one;
+            overlay.offsetMin =
+                Vector2.zero;
+            overlay.offsetMax =
+                Vector2.zero;
+
+            Image backdrop =
+                navigatorMenuOverlay.GetComponent<Image>();
+
+            backdrop.color =
+                new Color(
+                    0.005f,
+                    0.008f,
+                    0.012f,
+                    0.72f);
+            backdrop.raycastTarget =
+                false;
+
+            RectTransform panel =
+                CreatePanel(
+                    navigatorMenuOverlay.transform,
+                    "Navigator Menu",
+                    Vector2.zero,
+                    new Vector2(
+                        520f,
+                        250f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Color(
+                        0.02f,
+                        0.03f,
+                        0.045f,
+                        0.98f));
+
+            Text title =
+                CreateText(
+                    panel,
+                    "Navigator Title",
+                    27,
+                    FontStyle.Bold,
+                    TextAnchor.UpperCenter,
+                    new Vector2(
+                        0f,
+                        -24f),
+                    new Vector2(
+                        470f,
+                        42f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    TextColor);
+
+            title.text =
+                MotorCityLocalization.Text(
+                    "navigator.title");
+
+            navigatorMenuText =
+                CreateText(
+                    panel,
+                    "Navigator Selection",
+                    18,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        -4f),
+                    new Vector2(
+                        460f,
+                        112f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    TextColor);
+
+            Text controls =
+                CreateText(
+                    panel,
+                    "Navigator Controls",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.LowerCenter,
+                    new Vector2(
+                        0f,
+                        22f),
+                    new Vector2(
+                        470f,
+                        28f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    SecondaryTextColor);
+
+            controls.text =
+                MotorCityLocalization.Text(
+                    "navigator.controls");
+
+            UpdateNavigatorMenuText();
+        }
+
+        private void HandleNavigatorMenu()
+        {
+            if (MotorCityInput.ToggleNavigatorPressed)
+            {
+                if (navigatorMenuOpen)
+                {
+                    CloseNavigatorMenu();
+                    return;
+                }
+
+                if (activityManager != null &&
+                    activityManager.IsBusy)
+                {
+                    return;
+                }
+
+                if (garage != null &&
+                    garage.IsOpen)
+                {
+                    return;
+                }
+
+                navigatorMenuOpen =
+                    true;
+
+                navigatorMenuOverlay?.SetActive(
+                    true);
+
+                clubOverlay?.SetActive(
+                    false);
+
+                storeOpen =
+                    false;
+
+                car?.SetDrivingEnabled(
+                    false);
+
+                UpdateNavigatorMenuText();
+                return;
+            }
+
+            if (!navigatorMenuOpen)
+                return;
+
+            if (MotorCityInput.CancelPressed)
+            {
+                CloseNavigatorMenu();
+                return;
+            }
+
+            int count =
+                NavigatorDestinationCount();
+
+            if (count <= 0)
+                return;
+
+            if (MotorCityInput.PreviousVehiclePressed)
+            {
+                navigatorSelection =
+                    (navigatorSelection - 1 + count) %
+                    count;
+
+                UpdateNavigatorMenuText();
+            }
+
+            if (MotorCityInput.NextVehiclePressed)
+            {
+                navigatorSelection =
+                    (navigatorSelection + 1) %
+                    count;
+
+                UpdateNavigatorMenuText();
+            }
+
+            if (MotorCityInput.RetryPressed)
+            {
+                if (TryResolveNavigatorDestination(
+                        navigatorSelection,
+                        out Vector3 target,
+                        out string label))
+                {
+                    manualNavigationTarget =
+                        target;
+                    manualNavigationLabel =
+                        label;
+                    manualNavigationActive =
+                        true;
+                }
+
+                CloseNavigatorMenu();
+            }
+        }
+
+        private void CloseNavigatorMenu()
+        {
+            navigatorMenuOpen =
+                false;
+
+            navigatorMenuOverlay?.SetActive(
+                false);
+
+            if (activityManager == null ||
+                !activityManager.HasResult)
+            {
+                car?.SetDrivingEnabled(
+                    true);
+            }
+        }
+
+        private int NavigatorDestinationCount()
+        {
+            return
+                7 +
+                (professions != null
+                    ? professions.StartCount
+                    : 0);
+        }
+
+        private void UpdateNavigatorMenuText()
+        {
+            if (navigatorMenuText == null)
+                return;
+
+            int count =
+                NavigatorDestinationCount();
+
+            if (count <= 0)
+            {
+                navigatorMenuText.text =
+                    MotorCityLocalization.Text(
+                        "navigator.empty");
+                return;
+            }
+
+            navigatorSelection =
+                Mathf.Clamp(
+                    navigatorSelection,
+                    0,
+                    count - 1);
+
+            TryResolveNavigatorDestination(
+                navigatorSelection,
+                out _,
+                out string label);
+
+            navigatorMenuText.text =
+                MotorCityLocalization.Format(
+                    "navigator.selection",
+                    navigatorSelection + 1,
+                    count,
+                    label);
+        }
+
+        private bool TryResolveNavigatorDestination(
+            int index,
+            out Vector3 target,
+            out string label)
+        {
+            target =
+                car != null
+                    ? car.transform.position
+                    : Vector3.zero;
+
+            label =
+                MotorCityLocalization.Text(
+                    "hud.free_drive");
+
+            switch (index)
+            {
+                case 0:
+                    if (garage == null)
+                        return false;
+
+                    target =
+                        garage.GarageCenter;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.garage");
+                    return true;
+
+                case 1:
+                    if (delivery == null)
+                        return false;
+
+                    target =
+                        delivery.CurrentTarget;
+                    label =
+                        MotorCityLocalization.Text(
+                            "activity.delivery");
+                    return true;
+
+                case 2:
+                    if (driftChallenge == null)
+                        return false;
+
+                    target =
+                        driftChallenge.ZoneCenter;
+                    label =
+                        MotorCityLocalization.Text(
+                            "activity.drift");
+                    return true;
+
+                case 3:
+                    if (streetSprint == null)
+                        return false;
+
+                    target =
+                        streetSprint.CurrentTarget;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.sprint");
+                    return true;
+
+                case 4:
+                    if (circuitRace == null)
+                        return false;
+
+                    target =
+                        circuitRace.CurrentTarget;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.circuit");
+                    return true;
+
+                case 5:
+                    if (towTruck == null)
+                        return false;
+
+                    target =
+                        towTruck.StartPoint;
+                    label =
+                        MotorCityLocalization.Text(
+                            "tow.title");
+                    return true;
+
+                case 6:
+                    if (carWash == null)
+                        return false;
+
+                    target =
+                        carWash.StartPoint;
+                    label =
+                        MotorCityLocalization.Text(
+                            "carwash.title");
+                    return true;
+            }
+
+            int professionIndex =
+                index - 7;
+
+            if (professions == null ||
+                professionIndex < 0 ||
+                professionIndex >=
+                professions.StartCount)
+            {
+                return false;
+            }
+
+            target =
+                professions.GetStartPoint(
+                    professionIndex);
+
+            label =
+                professions.GetStartName(
+                    professionIndex);
+
+            return true;
+        }
+
+        private void UpdateRoadRoute(
+            Vector3 carPosition,
+            Vector3 target,
+            float yaw,
+            float worldRadius,
+            bool showRoadRoute)
+        {
+            HideRouteDots();
+
+            if (!showRoadRoute ||
+                minimapRouteDots.Length == 0)
+            {
+                return;
+            }
+
+            List<Vector3> route =
+                CityRoadNavigator.BuildRoute(
+                    carPosition,
+                    target);
+
+            if (route == null ||
+                route.Count < 2)
+            {
+                return;
+            }
+
+            const float markerRadius =
+                74f;
+
+            float mapScale =
+                78f /
+                worldRadius;
+
+            int placed =
+                0;
+
+            bool reachedEdge =
+                false;
+
+            for (int segment = 0;
+                 segment < route.Count - 1 &&
+                 placed < minimapRouteDots.Length &&
+                 !reachedEdge;
+                 segment++)
+            {
+                Vector3 a =
+                    route[segment];
+
+                Vector3 b =
+                    route[segment + 1];
+
+                float length =
+                    FlatDistance(
+                        a,
+                        b);
+
+                int steps =
+                    Mathf.Max(
+                        1,
+                        Mathf.CeilToInt(
+                            length /
+                            18f));
+
+                for (int step = 1;
+                     step <= steps &&
+                     placed < minimapRouteDots.Length;
+                     step++)
+                {
+                    Vector3 point =
+                        Vector3.Lerp(
+                            a,
+                            b,
+                            step /
+                            (float)steps);
+
+                    Vector3 delta =
+                        point -
+                        carPosition;
+
+                    delta.y =
+                        0f;
+
+                    Vector3 local =
+                        Quaternion.Euler(
+                            0f,
+                            -yaw,
+                            0f) *
+                        delta;
+
+                    Vector2 offset =
+                        new(
+                            local.x *
+                            mapScale,
+                            local.z *
+                            mapScale);
+
+                    if (offset.sqrMagnitude >
+                        markerRadius *
+                        markerRadius)
+                    {
+                        offset =
+                            offset.normalized *
+                            markerRadius;
+
+                        reachedEdge =
+                            true;
+                    }
+
+                    RectTransform dot =
+                        minimapRouteDots[
+                            placed++];
+
+                    dot.gameObject.SetActive(
+                        true);
+
+                    dot.anchoredPosition =
+                        offset;
+
+                    if (reachedEdge)
+                        break;
+                }
+            }
+        }
+
+        private void HideRouteDots()
+        {
+            foreach (RectTransform dot in
+                     minimapRouteDots)
+            {
+                if (dot != null)
+                {
+                    dot.gameObject.SetActive(
+                        false);
+                }
+            }
+        }
+
+        private static float FlatDistance(
+            Vector3 a,
+            Vector3 b)
+        {
+            a.y =
+                0f;
+            b.y =
+                0f;
+
+            return
+                Vector3.Distance(
+                    a,
+                    b);
+        }
+
         private void BuildUi()
         {
             font =
@@ -1462,7 +2014,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.first_activity_target");
-                showRoadRoute = true;
+                    showRoadRoute = true;
                     return;
                 }
 
@@ -1474,7 +2026,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.garage");
-                showRoadRoute = true;
+                    showRoadRoute = true;
                     return;
                 }
             }
@@ -1497,7 +2049,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.story_delivery_target");
-                showRoadRoute = true;
+                    showRoadRoute = true;
                     return;
                 }
 
@@ -1509,7 +2061,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.story_drift_target");
-                showRoadRoute = true;
+                    showRoadRoute = true;
                     return;
                 }
 
@@ -1521,7 +2073,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.story_sprint_target");
-                showRoadRoute = true;
+                    showRoadRoute = true;
                     return;
                 }
 
@@ -1533,7 +2085,7 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.story_circuit_target");
-                showRoadRoute = true;
+                    showRoadRoute = true;
                     return;
                 }
             }
