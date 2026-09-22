@@ -561,7 +561,7 @@ namespace MotorCity.Localization
                 { "story.09.title", E("КОНТРОЛЬНЫЙ ЗАЕЗД", "CHECK RUN") },
                 { "story.09.objective", E("заверши спринт перед фестивалем", "finish a sprint before the festival") },
                 { "story.10.title", E("ФЕСТИВАЛЬ MOTOR CITY", "MOTOR CITY FESTIVAL") },
-                { "story.10.objective", E("выиграй финальную кольцевую гонку", "win the final circuit race") },
+                { "story.10.objective", E("финишируй в финальной кольцевой гонке", "finish the final circuit race") },
 
                 { "season1.title", E("СЕЗОН 1 • БОЛЬШОЙ ФЕСТИВАЛЬ", "SEASON 1 • BIG FESTIVAL") },
                 { "season1.welcome", E("СЕЗОН 1 НАЧАЛСЯ • до конца {0} дн. • 10 миссий и уникальный скин Турбо", "SEASON 1 STARTED • {0} days left • 10 missions and a unique Turbo skin") },
