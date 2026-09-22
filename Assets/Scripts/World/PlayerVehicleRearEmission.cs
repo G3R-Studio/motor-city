@@ -111,6 +111,8 @@ namespace MotorCity.World
                 return;
             }
 
+            RemoveExistingOverlays();
+
             MeshRenderer[] renderers =
                 currentVisual.GetComponentsInChildren<
                     MeshRenderer>(
@@ -298,6 +300,35 @@ namespace MotorCity.World
 
             overlayRenderer.sharedMaterials =
                 overlayMaterials;
+        }
+
+        private void RemoveExistingOverlays()
+        {
+            if (currentVisual == null)
+                return;
+
+            Transform[] transforms =
+                currentVisual.GetComponentsInChildren<
+                    Transform>(
+                    true);
+
+            foreach (Transform item in
+                     transforms)
+            {
+                if (item == null ||
+                    item == currentVisual ||
+                    item.name !=
+                    OverlayName)
+                {
+                    continue;
+                }
+
+                item.gameObject.SetActive(
+                    false);
+
+                Destroy(
+                    item.gameObject);
+            }
         }
 
         private void ClearRuntimeMaterials()
