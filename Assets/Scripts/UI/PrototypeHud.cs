@@ -965,9 +965,6 @@ namespace MotorCity.UI
                 return;
             }
 
-            const float visibleRadius =
-                76f;
-
             const float spacingMeters =
                 8f;
 
@@ -1012,13 +1009,6 @@ namespace MotorCity.UI
                     if (!TryWorldToMinimapOffset(
                             point,
                             out Vector2 offset))
-                    {
-                        continue;
-                    }
-
-                    if (offset.sqrMagnitude >
-                        visibleRadius *
-                        visibleRadius)
                     {
                         continue;
                     }
@@ -1833,8 +1823,12 @@ namespace MotorCity.UI
             mapRect.anchoredPosition =
                 Vector2.zero;
 
+            // The minimap is north-up now, so the map image no longer
+            // needs the oversized rotation buffer that was used before.
+            // Matching the circular viewport keeps world/route projection
+            // at the same scale as the visible roads.
             mapRect.sizeDelta =
-                new Vector2(258f, 258f);
+                new Vector2(178f, 178f);
 
             minimapImage =
                 mapObject.GetComponent<RawImage>();
