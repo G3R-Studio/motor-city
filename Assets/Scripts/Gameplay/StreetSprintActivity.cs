@@ -18,9 +18,9 @@ namespace MotorCity.Gameplay
         [SerializeField] private int maximumTimeBonusCredits = 450;
 
         [Header("Пороги времени")]
-        [SerializeField] private float goldTimeSeconds = 45f;
-        [SerializeField] private float silverTimeSeconds = 60f;
-        [SerializeField] private float bronzeTimeSeconds = 80f;
+        [SerializeField] private float goldTimeSeconds = 200f;
+        [SerializeField] private float silverTimeSeconds = 230f;
+        [SerializeField] private float bronzeTimeSeconds = 270f;
 
         [Header("Старт")]
         [SerializeField] private float startRadius = 14f;
@@ -333,11 +333,11 @@ namespace MotorCity.Gameplay
         private string CurrentTierHint()
         {
             float gold =
-                eliteMode ? 39f : goldTimeSeconds;
+                eliteMode ? 180f : goldTimeSeconds;
             float silver =
-                eliteMode ? 52f : silverTimeSeconds;
+                eliteMode ? 205f : silverTimeSeconds;
             float bronze =
-                eliteMode ? 70f : bronzeTimeSeconds;
+                eliteMode ? 240f : bronzeTimeSeconds;
 
             if (ElapsedSeconds <= gold)
                 return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.gold"), gold);
@@ -359,8 +359,8 @@ namespace MotorCity.Gameplay
                         maximumTimeBonusCredits,
                         0f,
                         Mathf.InverseLerp(
-                            38f,
-                            80f,
+                            eliteMode ? 165f : 185f,
+                            eliteMode ? 240f : bronzeTimeSeconds,
                             ElapsedSeconds)));
 
             int reward =
@@ -375,11 +375,11 @@ namespace MotorCity.Gameplay
             }
 
             float gold =
-                eliteMode ? 39f : goldTimeSeconds;
+                eliteMode ? 180f : goldTimeSeconds;
             float silver =
-                eliteMode ? 52f : silverTimeSeconds;
+                eliteMode ? 205f : silverTimeSeconds;
             float bronze =
-                eliteMode ? 70f : bronzeTimeSeconds;
+                eliteMode ? 240f : bronzeTimeSeconds;
 
             string tier =
                 ElapsedSeconds <= gold
