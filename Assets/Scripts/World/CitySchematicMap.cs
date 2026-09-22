@@ -227,8 +227,11 @@ namespace MotorCity.World
             Vector3 size =
                 mapBounds.size;
 
+            // Keep enough empty schematic texture around the authored road
+            // network for the 260 m minimap window to stay centered on the
+            // player even at the outermost playable streets.
             const float padding =
-                24f;
+                300f;
 
             size.x +=
                 padding * 2f;
@@ -332,12 +335,22 @@ namespace MotorCity.World
                     WorldBounds.size.z);
 
             float x =
-                center.x -
-                width * 0.5f;
+                Mathf.Clamp(
+                    center.x -
+                    width * 0.5f,
+                    0f,
+                    Mathf.Max(
+                        0f,
+                        1f - width));
 
             float y =
-                center.y -
-                height * 0.5f;
+                Mathf.Clamp(
+                    center.y -
+                    height * 0.5f,
+                    0f,
+                    Mathf.Max(
+                        0f,
+                        1f - height));
 
             return
                 new Rect(
