@@ -20,6 +20,8 @@ namespace MotorCity.Bootstrap
         private float visualProgress = 0.04f;
         private float targetProgress = 0.08f;
         private AsyncOperation sceneLoadOperation;
+        private float overlayAlpha = 1f;
+        private bool fadingOut;
 
         [RuntimeInitializeOnLoadMethod(
             RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -173,6 +175,24 @@ namespace MotorCity.Bootstrap
             if (!loading)
                 return;
 
+            if (fadingOut)
+            {
+                overlayAlpha =
+                    Mathf.MoveTowards(
+                        overlayAlpha,
+                        0f,
+                        Time.unscaledDeltaTime *
+                        2.8f);
+
+                if (overlayAlpha <= 0.001f)
+                {
+                    overlayAlpha = 0f;
+                    loading = false;
+                }
+
+                return;
+            }
+
             if (sceneLoadOperation != null)
             {
                 float sceneProgress =
@@ -205,7 +225,11 @@ namespace MotorCity.Bootstrap
             targetProgress =
                 1f;
 
-            loading = false;
+            status =
+                string.Empty;
+
+            fadingOut =
+                true;
         }
 
         private void OnGUI()
@@ -236,7 +260,7 @@ namespace MotorCity.Bootstrap
                     0.035f,
                     0.045f,
                     0.065f,
-                    1f);
+                    overlayAlpha);
 
             GUI.DrawTexture(
                 new Rect(
@@ -247,7 +271,12 @@ namespace MotorCity.Bootstrap
                 Texture2D.whiteTexture);
 
             GUI.color =
-                oldColor;
+                new Color(
+                    oldColor.r,
+                    oldColor.g,
+                    oldColor.b,
+                    oldColor.a *
+                    overlayAlpha);
 
             float width =
                 Mathf.Min(
