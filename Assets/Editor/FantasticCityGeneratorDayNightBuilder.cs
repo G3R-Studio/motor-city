@@ -5,6 +5,7 @@ using System.Linq;
 using MotorCity.World;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [InitializeOnLoad]
 public static class FantasticCityGeneratorDayNightBuilder
@@ -213,6 +214,59 @@ public static class FantasticCityGeneratorDayNightBuilder
             "moonIntensity",
             0.28f);
 
+        if (GraphicsSettings.currentRenderPipeline != null)
+        {
+            // The installed FCG source in this project is the Standard
+            // variant. Keep its skybox references, but use the lighting
+            // values shipped with the FCG URP package so rebuilding these
+            // settings cannot silently restore the weaker Standard profile.
+            SetColor(
+                destination,
+                "nightSkyColor",
+                new Color(
+                    0.5849056f,
+                    0.5849056f,
+                    0.5849056f,
+                    1f));
+
+            SetColor(
+                destination,
+                "nightEquatorColor",
+                new Color(
+                    0.6509434f,
+                    0.6509434f,
+                    0.6509434f,
+                    1f));
+
+            SetColor(
+                destination,
+                "sunColor",
+                new Color(
+                    0.7921569f,
+                    0.627451f,
+                    0.38431373f,
+                    1f));
+
+            SetColor(
+                destination,
+                "moonColor",
+                new Color(
+                    0.6167675f,
+                    0.6167675f,
+                    0.7924528f,
+                    1f));
+
+            SetFloat(
+                destination,
+                "sunIntensity",
+                1.1842105f);
+
+            SetFloat(
+                destination,
+                "moonIntensity",
+                0.2090909f);
+        }
+
         destination.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(
@@ -368,6 +422,38 @@ public static class FantasticCityGeneratorDayNightBuilder
                 value,
                 0.02f,
                 2.5f);
+    }
+
+    private static void SetColor(
+        SerializedObject destination,
+        string propertyName,
+        Color value)
+    {
+        SerializedProperty property =
+            destination.FindProperty(
+                propertyName);
+
+        if (property != null)
+        {
+            property.colorValue =
+                value;
+        }
+    }
+
+    private static void SetFloat(
+        SerializedObject destination,
+        string propertyName,
+        float value)
+    {
+        SerializedProperty property =
+            destination.FindProperty(
+                propertyName);
+
+        if (property != null)
+        {
+            property.floatValue =
+                value;
+        }
     }
 
     private static void SetObject(
