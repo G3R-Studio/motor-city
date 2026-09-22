@@ -5,6 +5,8 @@ using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace MotorCity.UI
@@ -1090,8 +1092,25 @@ namespace MotorCity.UI
                     b);
         }
 
+        private static void EnsureUiEventSystem()
+        {
+            if (Object.FindAnyObjectByType<EventSystem>() != null)
+                return;
+
+            GameObject eventSystemObject =
+                new(
+                    "Motor City UI EventSystem",
+                    typeof(EventSystem),
+                    typeof(InputSystemUIInputModule));
+
+            Object.DontDestroyOnLoad(
+                eventSystemObject);
+        }
+
         private void BuildUi()
         {
+            EnsureUiEventSystem();
+
             font =
                 Resources.GetBuiltinResource<Font>(
                     "LegacyRuntime.ttf");
