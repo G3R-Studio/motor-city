@@ -458,6 +458,9 @@ namespace MotorCity.Localization
                 { "pause.on", E("ВКЛ", "ON") },
                 { "pause.off", E("ВЫКЛ", "OFF") },
                 { "pause.controls", E("Z / X — КАЧЕСТВО   •   V — ЗВУК   •   ESC — ПРОДОЛЖИТЬ", "Z / X — QUALITY   •   V — AUDIO   •   ESC — RESUME") },
+                { "pause.controls_touch", E("НАСТРОЙКИ И ПРОДОЛЖЕНИЕ", "SETTINGS AND RESUME") },
+                { "pause.audio_touch", E("ЗВУК", "AUDIO") },
+                { "pause.resume", E("ДАЛЬШЕ", "RESUME") },
 
                 { "turbo.title", E("ТУРБО", "TURBO") },
                 { "turbo.hello", E("Турбо: Привет! Я твой напарник. Поехали исследовать Motor City!", "Turbo: Hi! I’m your co-pilot. Let’s explore Motor City!") },
