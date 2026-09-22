@@ -2409,11 +2409,32 @@ namespace MotorCity.UI
                 (story != null &&
                  !story.IsComplete);
 
-            characterSourceText.text =
-                MotorCityLocalization.Text(
-                    storySource
-                        ? "hud.character.story"
-                        : "hud.character.season");
+            if (storySource)
+            {
+                if (story != null &&
+                    !story.IsComplete &&
+                    (onboarding == null ||
+                     onboarding.IsComplete))
+                {
+                    characterSourceText.text =
+                        MotorCityLocalization.Format(
+                            "hud.character.story_progress",
+                            story.CurrentMissionNumber,
+                            story.MissionCount);
+                }
+                else
+                {
+                    characterSourceText.text =
+                        MotorCityLocalization.Text(
+                            "hud.character.story");
+                }
+            }
+            else
+            {
+                characterSourceText.text =
+                    MotorCityLocalization.Text(
+                        "hud.character.season");
+            }
 
             characterSourceText.color =
                 new Color(
