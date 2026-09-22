@@ -16,6 +16,10 @@ namespace MotorCity.Gameplay
         private int watchedToday;
         private float cooldown;
         private float messageTimer;
+        private float dayCheckTimer;
+
+        private const float DayCheckInterval =
+            1f;
         private bool requestRunning;
 
         public bool ShowMessage => messageTimer > 0f;
@@ -68,7 +72,16 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
-            ResolveDay();
+            dayCheckTimer -=
+                Time.unscaledDeltaTime;
+
+            if (dayCheckTimer <= 0f)
+            {
+                dayCheckTimer =
+                    DayCheckInterval;
+
+                ResolveDay();
+            }
 
             if (cooldown > 0f)
                 cooldown = Mathf.Max(
