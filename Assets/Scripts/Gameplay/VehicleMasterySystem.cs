@@ -60,8 +60,8 @@ namespace MotorCity.Gameplay
 
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown +=
-                    HandleActivityResult;
+                activityManager.ActivityCompleted +=
+                    HandleActivityCompleted;
             }
 
             if (roster != null)
@@ -89,8 +89,8 @@ namespace MotorCity.Gameplay
         {
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown -=
-                    HandleActivityResult;
+                activityManager.ActivityCompleted -=
+                    HandleActivityCompleted;
             }
 
             if (roster != null)
@@ -210,12 +210,12 @@ namespace MotorCity.Gameplay
             LoadCurrentVehicle();
         }
 
-        private void HandleActivityResult(
-            string activityId,
-            bool success)
+        private void HandleActivityCompleted(
+            string activityId)
         {
-            if (!success ||
-                roster == null)
+            if (roster == null ||
+                string.IsNullOrWhiteSpace(
+                    activityId))
             {
                 return;
             }
@@ -227,6 +227,16 @@ namespace MotorCity.Gameplay
                     "drift" => 80,
                     "sprint" => 90,
                     "circuit" => 110,
+                    "speedtrap" => 25,
+                    "driftspot" => 35,
+                    "stuntjump" => 45,
+                    "profession_pizza" => 45,
+                    "profession_taxi" => 50,
+                    "profession_mail" => 55,
+                    "profession_icecream" => 50,
+                    "profession_carwash" => 35,
+                    "profession_tow" => 60,
+                    "underground" => 85,
                     _ => 0
                 };
 
