@@ -244,23 +244,17 @@ namespace MotorCity.World
                     worldRadius * 2f /
                     WorldBounds.size.z);
 
+            // Keep the player exactly at the center of the minimap.
+            // RawImage supports UV rectangles outside 0..1 and the texture
+            // uses Clamp wrapping, so the view must not shift away from the
+            // player when approaching the schematic-map bounds.
             float x =
-                Mathf.Clamp(
-                    center.x -
-                    width * 0.5f,
-                    0f,
-                    Mathf.Max(
-                        0f,
-                        1f - width));
+                center.x -
+                width * 0.5f;
 
             float y =
-                Mathf.Clamp(
-                    center.y -
-                    height * 0.5f,
-                    0f,
-                    Mathf.Max(
-                        0f,
-                        1f - height));
+                center.y -
+                height * 0.5f;
 
             return
                 new Rect(
