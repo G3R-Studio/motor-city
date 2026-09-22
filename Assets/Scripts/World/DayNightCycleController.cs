@@ -16,6 +16,9 @@ namespace MotorCity.World
         private const float LampEnableDistance =
             110f;
 
+        private const int MaxRuntimeStreetLights =
+            16;
+
         [SerializeField] private float fullCycleSeconds =
             480f;
 
@@ -26,6 +29,12 @@ namespace MotorCity.World
             -28f;
 
         private readonly List<Light> streetLights =
+            new();
+
+        private readonly List<Vector3> streetLampPositions =
+            new();
+
+        private readonly List<LampCandidate> lampCandidates =
             new();
 
         private DayNightSettings settings;
@@ -45,7 +54,7 @@ namespace MotorCity.World
         public bool IsNight { get; private set; }
         public float NightAmount { get; private set; }
         public float TimeOfDay01 => time01;
-        public int StreetLightCount => streetLights.Count;
+        public int StreetLightCount => streetLampPositions.Count;
         public int AutoCreatedStreetLightCount => autoCreatedStreetLights;
         public int EnabledStreetLightCount { get; private set; }
 
@@ -550,7 +559,19 @@ namespace MotorCity.World
 
         private void RefreshStreetLights()
         {
+            foreach (Light light in
+                     streetLights)
+            {
+                if (light != null)
+                {
+                    Destroy(
+                        light.gameObject);
+                }
+            }
+
             streetLights.Clear();
+            streetLampPositions.Clear();
+            lampCandidates.Clear();
             autoCreatedStreetLights = 0;
 
             GameObject cityRoot =
@@ -586,15 +607,8 @@ namespace MotorCity.World
                     continue;
                 }
 
-                Light light =
-                    CreateRuntimeLampLight(
-                        item.position);
-
-                if (light != null)
-                {
-                    streetLights.Add(
-                        light);
-                }
+                streetLampPositions.Add(
+                    item.position);
             }
 
             foreach (Transform item in
@@ -614,10 +628,23 @@ namespace MotorCity.World
                     continue;
                 }
 
+                streetLampPositions.Add(
+                    ResolveLampWorldPosition(
+                        item));
+            }
+
+            int poolSize =
+                Mathf.Min(
+                    MaxRuntimeStreetLights,
+                    streetLampPositions.Count);
+
+            for (int i = 0;
+                 i < poolSize;
+                 i++)
+            {
                 Light light =
                     CreateRuntimeLampLight(
-                        ResolveLampWorldPosition(
-                            item));
+                        Vector3.zero);
 
                 if (light != null)
                 {
@@ -632,53 +659,105 @@ namespace MotorCity.World
 
         private void ApplyStreetLights()
         {
+            if (streetLights.Count == 0)
+            {
+                EnabledStreetLightCount = 0;
+                return;
+            }
+
+            bool nightActive =
+                NightAmount >= 0.38f &&
+                lampObserver != null;
+
+            if (!nightActive)
+            {
+                foreach (Light light in
+                         streetLights)
+                {
+                    if (light != null)
+                    {
+                        light.enabled = false;
+                    }
+                }
+
+                EnabledStreetLightCount = 0;
+                return;
+            }
+
             Vector3 observerPosition =
-                lampObserver != null
-                    ? lampObserver.position
-                    : Vector3.zero;
+                lampObserver.position;
 
             float maximumDistanceSquared =
                 LampEnableDistance *
                 LampEnableDistance;
 
-            int enabledCount = 0;
+            lampCandidates.Clear();
 
-            for (int i =
-                     streetLights.Count -
-                     1;
-                 i >= 0;
-                 i--)
+            foreach (Vector3 position in
+                     streetLampPositions)
+            {
+                float distanceSquared =
+                    (position -
+                     observerPosition).sqrMagnitude;
+
+                if (distanceSquared >
+                    maximumDistanceSquared)
+                {
+                    continue;
+                }
+
+                lampCandidates.Add(
+                    new LampCandidate
+                    {
+                        Position = position,
+                        DistanceSquared =
+                            distanceSquared
+                    });
+            }
+
+            lampCandidates.Sort(
+                CompareLampCandidates);
+
+            int enabledCount =
+                Mathf.Min(
+                    streetLights.Count,
+                    lampCandidates.Count);
+
+            for (int i = 0;
+                 i < streetLights.Count;
+                 i++)
             {
                 Light light =
                     streetLights[i];
 
                 if (light == null)
-                {
-                    streetLights.RemoveAt(
-                        i);
-
                     continue;
+
+                bool enable =
+                    i <
+                    enabledCount;
+
+                if (enable)
+                {
+                    light.transform.position =
+                        lampCandidates[i].Position;
                 }
 
-                bool nearObserver =
-                    lampObserver == null ||
-                    (light.transform.position -
-                     observerPosition).sqrMagnitude <=
-                    maximumDistanceSquared;
-
-                bool shouldEnable =
-                    NightAmount >= 0.38f &&
-                    nearObserver;
-
                 light.enabled =
-                    shouldEnable;
-
-                if (shouldEnable)
-                    enabledCount++;
+                    enable;
             }
 
             EnabledStreetLightCount =
                 enabledCount;
+        }
+
+        private static int CompareLampCandidates(
+            LampCandidate a,
+            LampCandidate b)
+        {
+            return
+                a.DistanceSquared.CompareTo(
+                    b.DistanceSquared);
         }
 
         private void ResolveLampObserver()
@@ -969,6 +1048,12 @@ namespace MotorCity.World
             return
                 new string(
                     chars.ToArray());
+        }
+
+        private struct LampCandidate
+        {
+            public Vector3 Position;
+            public float DistanceSquared;
         }
 
     }
