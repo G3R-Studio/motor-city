@@ -16,6 +16,7 @@ namespace MotorCity.World
         private bool lastVisible;
         private bool tintInitialized;
         private bool lastActive;
+        private CheckpointBeaconVisual checkpointBeacon;
 
         public void Bind(DriftChallenge target, ActivityManager manager)
         {
@@ -28,6 +29,17 @@ namespace MotorCity.World
 
             basePosition = transform.position;
             baseScale = transform.localScale;
+
+            checkpointBeacon =
+                gameObject.AddComponent<CheckpointBeaconVisual>();
+
+            checkpointBeacon.Initialize(
+                new Color(
+                    1f,
+                    0.48f,
+                    0.06f),
+                false);
+
             CacheVisuals();
         }
 
