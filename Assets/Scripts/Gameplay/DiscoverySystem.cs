@@ -180,6 +180,9 @@ namespace MotorCity.Gameplay
                     DiscoveryCount);
 
             messageTimer = MessageSeconds;
+
+            activityManager?.ReportCompletion(
+                "discovery");
         }
 
         public Vector3 GetDiscoveryPosition(int index)
