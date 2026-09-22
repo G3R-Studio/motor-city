@@ -29,6 +29,10 @@ namespace MotorCity.Gameplay
         private int completedDays;
         private bool dayCompleted;
         private float messageTimer;
+        private float dayCheckTimer;
+
+        private const float DayCheckInterval =
+            1f;
 
         public bool ShowMessage =>
             messageTimer > 0f;
@@ -138,6 +142,15 @@ namespace MotorCity.Gameplay
                         messageTimer -
                         Time.unscaledDeltaTime);
             }
+
+            dayCheckTimer -=
+                Time.unscaledDeltaTime;
+
+            if (dayCheckTimer > 0f)
+                return;
+
+            dayCheckTimer =
+                DayCheckInterval;
 
             long serverDay =
                 Math.Max(
