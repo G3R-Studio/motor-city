@@ -367,6 +367,17 @@ namespace MotorCity.World
                         0.4f),
                     daylight);
 
+            // Keep daytime materials intact, but reduce environment reflection
+            // energy at night. Without this, URP/Lit surfaces keep broad cold
+            // highlights and roads, pavements and the car read like wet plastic.
+            // Direct headlights, street lights and emissive windows remain
+            // unaffected, which gives the night scene more material separation.
+            RenderSettings.reflectionIntensity =
+                Mathf.Lerp(
+                    0.18f,
+                    1f,
+                    daylight);
+
             RenderSettings.fog =
                 true;
 
@@ -869,10 +880,13 @@ namespace MotorCity.World
 
             // Fantastic City Generator URP StreetLight-01 reference.
             light.color =
-                Color.white;
+                new Color(
+                    1f,
+                    0.82f,
+                    0.62f);
 
             light.intensity =
-                20f;
+                15f;
 
             light.range =
                 20f;
