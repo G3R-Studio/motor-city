@@ -808,6 +808,50 @@ namespace MotorCity.World
             return runtimeLight;
         }
 
+        private static void ConfigureLampLight(
+            Light light)
+        {
+            if (light == null)
+                return;
+
+            light.type =
+                LightType.Spot;
+
+            light.lightmapBakeType =
+                LightmapBakeType.Realtime;
+
+            light.shadows =
+                LightShadows.None;
+
+            light.cullingMask =
+                ~0;
+
+            // Fantastic City Generator URP StreetLight-01 reference.
+            light.color =
+                Color.white;
+
+            light.intensity =
+                20f;
+
+            light.range =
+                20f;
+
+            light.spotAngle =
+                105.661575f;
+
+            light.innerSpotAngle =
+                87.358116f;
+
+            light.bounceIntensity =
+                1f;
+
+            light.useColorTemperature =
+                false;
+
+            light.enabled =
+                false;
+        }
+
         private static bool IsFcgStreetLampLight(
             Light light)
         {
