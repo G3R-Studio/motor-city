@@ -48,6 +48,8 @@ namespace MotorCity.Input
         private static readonly int[] VirtualPressedFrame =
             new int[33];
 
+        private static bool preferTouchPrompts;
+
         static MotorCityInput()
         {
             for (int i = 0;
@@ -270,10 +272,23 @@ namespace MotorCity.Input
             HandbrakeHeld;
 
         public static bool PreferTouchPrompts =>
-            Application.isMobilePlatform ||
-            SystemInfo.deviceType ==
-                DeviceType.Handheld ||
-            UnityEngine.Input.touchSupported;
+            preferTouchPrompts;
+
+        public static void RefreshTouchPromptPreference()
+        {
+            preferTouchPrompts =
+                Application.isMobilePlatform ||
+                SystemInfo.deviceType ==
+                    DeviceType.Handheld ||
+                UnityEngine.Input.touchSupported;
+        }
+
+        public static void SetTouchPromptPreference(
+            bool enabled)
+        {
+            preferTouchPrompts =
+                enabled;
+        }
 
         public static void PressVirtual(
             MotorCityInputAction action)
