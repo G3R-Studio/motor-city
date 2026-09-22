@@ -9,7 +9,7 @@ UserSettings/
 MemoryCaptures/
 Recordings/
 
-# IDE
+# IDE-generated files
 .vs/
 .idea/
 .vscode/
@@ -22,78 +22,13 @@ Recordings/
 *.booproj
 *.svd
 
-# OS
+# OS-generated files
 .DS_Store
 Thumbs.db
 
 # Crash reports
 sysinfo.txt
 
-# Unity Asset Store tools
+# Unity Asset Store download/import helper cache.
+# Imported packages inside Assets/ are intentionally tracked for full recovery.
 /Assets/AssetStoreTools*
-
-# ---------------------------------------------------------------------------
-# AI review snapshot
-# ---------------------------------------------------------------------------
-# The generated Motor City state below is intentionally NOT ignored anymore:
-# - Assets/Resources/MotorCity/Environment/
-# - Assets/Resources/MotorCity/PlayerCarVisual.prefab
-# - Assets/Resources/MotorCity/UI/
-# - Assets/Resources/MotorCity/Markers/
-# - Assets/LocalGenerated/
-# - MotorCity_CityAssetReport.txt
-# - MotorCity_FCGSceneReport.txt
-#
-# These files are useful when another model/reviewer needs to inspect the
-# actual generated city, runtime prefab structure and current generated state.
-# They may reference third-party assets that are intentionally omitted below.
-
-# Generated local vehicle audio bindings (audio is not part of the current game)
-/Assets/Resources/MotorCity/Audio/
-/Assets/Resources/MotorCity/Audio.meta
-
-# User-provided local audio files
-/Assets/LocalAudio/
-/Assets/LocalAudio.meta
-
-# Local Nox_Sound Vehicle - Essentials package
-/Assets/Nox_Sound/
-/Assets/Nox_Sound.meta
-/Assets/Nox Sound/
-/Assets/Nox Sound.meta
-/Assets/Vehicle - Essentials/
-/Assets/Vehicle - Essentials.meta
-/Assets/Vehicle Essentials/
-/Assets/Vehicle Essentials.meta
-/Assets/Vehicle_Essentials/
-/Assets/Vehicle_Essentials.meta
-
-# Third-party city packages kept local and not redistributed
-/Assets/MCP/
-/Assets/MCP.meta
-/Assets/CubexCube - Free City Pack I/
-/Assets/CubexCube - Free City Pack I.meta
-/Assets/Versatile Studio Assets/
-/Assets/Versatile Studio Assets.meta
-
-# Local Asset Store vehicle packages stay local and are not redistributed.
-/Assets/ARCADE - FREE Racing Car/
-/Assets/ARCADE - FREE Racing Car.meta
-/Assets/PROMETEO - Car Controller/
-/Assets/PROMETEO - Car Controller.meta
-
-# Local Vehicles - PolyPack source package stays local; Motor City copies
-# selected runtime prefabs into Assets/Resources/MotorCity/Vehicles/.
-/Assets/Vehicles - PolyPack/
-/Assets/Vehicles - PolyPack.meta
-/Assets/Vehicles-PolyPack/
-/Assets/Vehicles-PolyPack.meta
-/Assets/Vehicles PolyPack/
-/Assets/Vehicles PolyPack.meta
-/Assets/*PolyPack*Vehicles*/
-/Assets/*PolyPack*Vehicles*.meta
-
-# Fantastic City Generator source package stays local.
-/Assets/Fantastic City Generator/
-/Assets/Fantastic City Generator.meta
-/Assets/City/Fantastic City Generator*.rar
