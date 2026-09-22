@@ -79,6 +79,12 @@ namespace MotorCity.Gameplay
 
         private void RefreshState(bool announce)
         {
+            bool wasActive =
+                IsActive;
+
+            long previousWeek =
+                currentWeek;
+
             DateTimeOffset date =
                 DateTimeOffset.FromUnixTimeSeconds(
                     Math.Max(
@@ -102,7 +108,10 @@ namespace MotorCity.Gameplay
                 serverTime /
                 604800L;
 
-            if (IsActive && announce)
+            if (IsActive &&
+                announce &&
+                (!wasActive ||
+                 currentWeek != previousWeek))
             {
                 StatusText =
                     MotorCityLocalization.Format(
