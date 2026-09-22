@@ -93,6 +93,7 @@ namespace MotorCity.UI
             PolishCoreText("Credits", 1.0f);
             PolishCoreText("Reputation", 0.65f);
             PolishCoreText("Active Objective", 0.75f);
+            PolishCoreText("Character Source", 0.55f);
             PolishCoreText("Character Name", 0.75f);
             PolishCoreText("Character Mission Title", 0.60f);
             PolishCoreText("Character Line", 0.70f);
@@ -523,8 +524,12 @@ namespace MotorCity.UI
             if (text == null)
                 return;
 
+            text.resizeTextForBestFit = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
+
+            rect.localScale =
+                Vector3.one;
 
             Shadow shadow = rect.GetComponent<Shadow>();
             if (shadow == null || shadow is Outline)
