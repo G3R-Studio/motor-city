@@ -44,6 +44,12 @@ namespace MotorCity.Gameplay
         public int StepCount =>
             7;
 
+        public int CurrentRewardCredits =>
+            !IsComplete &&
+            step == 2
+                ? 250
+                : 0;
+
         public bool ShowMessage =>
             messageTimer > 0f;
 
