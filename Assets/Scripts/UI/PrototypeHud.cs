@@ -103,6 +103,14 @@ namespace MotorCity.UI
         private CitySchematicMap schematicMap;
         private Texture2D minimapMaskTexture;
         private Sprite minimapMaskSprite;
+        private float minimapTargetResolveTimer;
+        private Vector3 cachedMinimapTarget;
+        private string cachedMinimapLabel = string.Empty;
+        private bool cachedMinimapHasTarget;
+        private bool cachedMinimapShowRoadRoute;
+        private int lastMinimapDistance = int.MinValue;
+        private string lastMinimapDistanceLabel = string.Empty;
+        private const float MinimapTargetResolveInterval = 0.10f;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
@@ -2653,7 +2661,9 @@ namespace MotorCity.UI
                 return;
             }
 
-            navigatorPanel.SetActive(true);
+            SetActiveIfChanged(
+                navigatorPanel,
+                true);
 
             Vector3 carPosition =
                 car.transform.position;
@@ -2689,19 +2699,54 @@ namespace MotorCity.UI
                     Vector3.zero;
             }
 
-            ResolveMinimapTarget(
-                out Vector3 target,
-                out string label,
-                out bool hasTarget,
-                out bool showRoadRoute);
+            minimapTargetResolveTimer -=
+                Time.unscaledDeltaTime;
+
+            if (minimapTargetResolveTimer <= 0f)
+            {
+                minimapTargetResolveTimer =
+                    MinimapTargetResolveInterval;
+
+                ResolveMinimapTarget(
+                    out cachedMinimapTarget,
+                    out cachedMinimapLabel,
+                    out cachedMinimapHasTarget,
+                    out cachedMinimapShowRoadRoute);
+            }
+
+            Vector3 target =
+                cachedMinimapTarget;
+
+            string label =
+                cachedMinimapLabel;
+
+            bool hasTarget =
+                cachedMinimapHasTarget;
+
+            bool showRoadRoute =
+                cachedMinimapShowRoadRoute;
 
             if (!hasTarget)
             {
                 if (minimapTargetBlip != null)
-                    minimapTargetBlip.gameObject.SetActive(false);
+                {
+                    SetActiveIfChanged(
+                        minimapTargetBlip.gameObject,
+                        false);
+                }
 
-                if (minimapTargetText != null)
-                    minimapTargetText.text = string.Empty;
+                if (minimapTargetText != null &&
+                    !string.IsNullOrEmpty(
+                        minimapTargetText.text))
+                {
+                    minimapTargetText.text =
+                        string.Empty;
+                }
+
+                lastMinimapDistance =
+                    int.MinValue;
+                lastMinimapDistanceLabel =
+                    string.Empty;
 
                 HideRouteDots();
                 ClearFixedRoadRoute();
@@ -2753,7 +2798,9 @@ namespace MotorCity.UI
 
             if (minimapTargetBlip != null)
             {
-                minimapTargetBlip.gameObject.SetActive(true);
+                SetActiveIfChanged(
+                    minimapTargetBlip.gameObject,
+                    true);
 
                 minimapTargetBlip.anchoredPosition =
                     mapOffset;
@@ -2761,8 +2808,28 @@ namespace MotorCity.UI
 
             if (minimapTargetText != null)
             {
-                minimapTargetText.text =
-                    MotorCityLocalization.Format("hud.distance", label, Mathf.RoundToInt(distance));
+                int roundedDistance =
+                    Mathf.RoundToInt(
+                        distance);
+
+                if (roundedDistance !=
+                        lastMinimapDistance ||
+                    !string.Equals(
+                        label,
+                        lastMinimapDistanceLabel,
+                        System.StringComparison.Ordinal))
+                {
+                    lastMinimapDistance =
+                        roundedDistance;
+                    lastMinimapDistanceLabel =
+                        label ?? string.Empty;
+
+                    minimapTargetText.text =
+                        MotorCityLocalization.Format(
+                            "hud.distance",
+                            label,
+                            roundedDistance);
+                }
             }
         }
 
