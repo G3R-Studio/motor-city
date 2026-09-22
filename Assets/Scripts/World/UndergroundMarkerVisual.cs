@@ -8,6 +8,8 @@ namespace MotorCity.World
         private UndergroundSceneSystem underground;
         private Renderer[] renderers;
         private Vector3 baseScale;
+        private DayNightCycleController dayNight;
+        private float dayNightResolveTimer;
 
         public void Bind(
             UndergroundSceneSystem target)
@@ -18,6 +20,9 @@ namespace MotorCity.World
                     true);
             baseScale =
                 transform.localScale;
+
+            dayNight =
+                Object.FindAnyObjectByType<DayNightCycleController>();
         }
 
         private void Update()
@@ -51,14 +56,25 @@ namespace MotorCity.World
                 baseScale * pulse;
         }
 
-        private static bool IsNight()
+        private bool IsNight()
         {
-            DayNightCycleController cycle =
-                Object.FindAnyObjectByType<DayNightCycleController>();
+            if (dayNight == null)
+            {
+                dayNightResolveTimer -=
+                    Time.unscaledDeltaTime;
+
+                if (dayNightResolveTimer <= 0f)
+                {
+                    dayNightResolveTimer = 1f;
+
+                    dayNight =
+                        Object.FindAnyObjectByType<DayNightCycleController>();
+                }
+            }
 
             return
-                cycle != null &&
-                cycle.IsNight;
+                dayNight != null &&
+                dayNight.IsNight;
         }
     }
 }
