@@ -65,15 +65,10 @@ namespace MotorCity.CameraSystem
             {
                 lastTargetPosition =
                     target.position;
+            }
 
-                hasLastTargetPosition =
-                    true;
-            }
-            else
-            {
-                hasLastTargetPosition =
-                    false;
-            }
+            hasLastTargetPosition =
+                false;
         }
 
         private void Awake()
@@ -338,17 +333,26 @@ namespace MotorCity.CameraSystem
                 cameraPivot +
                 orbitOffset;
 
-            Vector3 collisionSafePosition =
-                ResolveStableCameraPosition(
-                    cameraPivot,
-                    desiredPosition);
-
             bool snapAfterTeleport =
-                hasLastTargetPosition &&
+                !hasLastTargetPosition ||
                 Vector3.Distance(
                     lastTargetPosition,
                     target.position) >=
                 teleportSnapDistance;
+
+            if (snapAfterTeleport)
+            {
+                currentCollisionDistance =
+                    dynamicDistance;
+
+                collisionDistanceVelocity =
+                    0f;
+            }
+
+            Vector3 collisionSafePosition =
+                ResolveStableCameraPosition(
+                    cameraPivot,
+                    desiredPosition);
 
             transform.position =
                 snapAfterTeleport
