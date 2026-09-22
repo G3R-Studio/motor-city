@@ -108,6 +108,42 @@ namespace MotorCity.Gameplay
             return count;
         }
 
+        public bool HasNextVehicle =>
+            Valid(
+                SelectedIndex + 1) &&
+            HasVisual(
+                SelectedIndex + 1);
+
+        public bool NextVehicleUnlocked =>
+            HasNextVehicle &&
+            IsUnlocked(
+                SelectedIndex + 1);
+
+        public bool NextVehicleOwned =>
+            HasNextVehicle &&
+            IsOwned(
+                SelectedIndex + 1);
+
+        public int NextVehiclePrice =>
+            HasNextVehicle
+                ? profiles[
+                    SelectedIndex + 1]
+                    .PurchasePrice
+                : 0;
+
+        public int NextVehicleRequiredRep =>
+            HasNextVehicle
+                ? profiles[
+                    SelectedIndex + 1]
+                    .RequiredRep
+                : 0;
+
+        public bool CanAffordNextVehicle =>
+            HasNextVehicle &&
+            wallet != null &&
+            wallet.Credits >=
+                NextVehiclePrice;
+
         public string GetVehicleId(
             int index)
         {
