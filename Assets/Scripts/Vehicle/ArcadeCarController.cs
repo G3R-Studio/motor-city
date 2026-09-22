@@ -80,6 +80,10 @@ namespace MotorCity.Vehicle
         private Component rightInputProxy;
         private Component handbrakeInputProxy;
         private Type prometeoTouchInputType;
+        private FieldInfo inputProxyPressedField;
+        private PropertyInfo inputProxyPressedProperty;
+        private FieldInfo prometeoTractionLockedField;
+        private FieldInfo prometeoDriftingField;
 
         private bool wheelRigReady;
         private bool drivingEnabled = true;
@@ -533,6 +537,11 @@ namespace MotorCity.Vehicle
                     prometeo =
                         gameObject.AddComponent(
                             prometeoType);
+
+                prometeoTractionLockedField =
+                    null;
+                prometeoDriftingField =
+                    null;
             }
 
             bool complete =
@@ -627,6 +636,23 @@ namespace MotorCity.Vehicle
                 !typeof(Component).IsAssignableFrom(
                     prometeoTouchInputType))
                 return false;
+
+            inputProxyPressedField =
+                prometeoTouchInputType.GetField(
+                    "buttonPressed",
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic);
+
+            if (inputProxyPressedField == null)
+            {
+                inputProxyPressedProperty =
+                    prometeoTouchInputType.GetProperty(
+                        "buttonPressed",
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic);
+            }
 
             throttleInputProxy =
                 CreateInputProxy(
@@ -769,44 +795,27 @@ namespace MotorCity.Vehicle
                 handbrake);
         }
 
-        private static void SetInputProxyPressed(
+        private void SetInputProxyPressed(
             Component proxy,
             bool pressed)
         {
             if (proxy == null)
                 return;
 
-            Type type =
-                proxy.GetType();
-
-            FieldInfo field =
-                type.GetField(
-                    "buttonPressed",
-                    BindingFlags.Instance |
-                    BindingFlags.Public |
-                    BindingFlags.NonPublic);
-
-            if (field != null &&
-                field.FieldType == typeof(bool))
+            if (inputProxyPressedField != null &&
+                inputProxyPressedField.FieldType == typeof(bool))
             {
-                field.SetValue(
+                inputProxyPressedField.SetValue(
                     proxy,
                     pressed);
                 return;
             }
 
-            PropertyInfo property =
-                type.GetProperty(
-                    "buttonPressed",
-                    BindingFlags.Instance |
-                    BindingFlags.Public |
-                    BindingFlags.NonPublic);
-
-            if (property != null &&
-                property.CanWrite &&
-                property.PropertyType == typeof(bool))
+            if (inputProxyPressedProperty != null &&
+                inputProxyPressedProperty.CanWrite &&
+                inputProxyPressedProperty.PropertyType == typeof(bool))
             {
-                property.SetValue(
+                inputProxyPressedProperty.SetValue(
                     proxy,
                     pressed);
             }
@@ -1915,14 +1924,22 @@ namespace MotorCity.Vehicle
                 return false;
 
             FieldInfo field =
-                prometeo.GetType().GetField(
-                    fieldName,
-                    BindingFlags.Instance |
-                    BindingFlags.Public |
-                    BindingFlags.NonPublic);
+                fieldName switch
+                {
+                    "isTractionLocked" =>
+                        prometeoTractionLockedField ??=
+                            ResolvePrometeoBoolField(
+                                "isTractionLocked"),
+                    "isDrifting" =>
+                        prometeoDriftingField ??=
+                            ResolvePrometeoBoolField(
+                                "isDrifting"),
+                    _ =>
+                        ResolvePrometeoBoolField(
+                            fieldName)
+                };
 
-            if (field == null ||
-                field.FieldType != typeof(bool))
+            if (field == null)
                 return false;
 
             try
@@ -1934,6 +1951,26 @@ namespace MotorCity.Vehicle
             {
                 return false;
             }
+        }
+
+        private FieldInfo ResolvePrometeoBoolField(
+            string fieldName)
+        {
+            if (prometeo == null)
+                return null;
+
+            FieldInfo field =
+                prometeo.GetType().GetField(
+                    fieldName,
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic);
+
+            return
+                field != null &&
+                field.FieldType == typeof(bool)
+                    ? field
+                    : null;
         }
 
         private static Type FindPrometeoType()
