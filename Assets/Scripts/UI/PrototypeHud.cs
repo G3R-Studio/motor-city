@@ -6299,6 +6299,28 @@ namespace MotorCity.UI
                     MotorCityInput.PulseVirtual(
                         action));
 
+            Sprite actionIcon =
+                TouchActionIcon(
+                    action);
+
+            if (actionIcon != null)
+            {
+                CreateHudIcon(
+                    rect,
+                    "Action Icon",
+                    actionIcon,
+                    new Vector2(
+                        -size.x * 0.5f + 18f,
+                        0f),
+                    new Vector2(
+                        19f,
+                        19f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    TextColor);
+            }
+
             Text text =
                 CreateText(
                     rect,
@@ -6306,9 +6328,17 @@ namespace MotorCity.UI
                     12,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    Vector2.zero,
+                    actionIcon != null
+                        ? new Vector2(
+                            9f,
+                            0f)
+                        : Vector2.zero,
                     size -
-                    new Vector2(8f, 6f),
+                    new Vector2(
+                        actionIcon != null
+                            ? 30f
+                            : 8f,
+                        6f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
@@ -6324,6 +6354,77 @@ namespace MotorCity.UI
 
             return
                 buttonObject;
+        }
+
+        private static Sprite TouchActionIcon(
+            MotorCityInputAction action)
+        {
+            return
+                action switch
+                {
+                    MotorCityInputAction.Interact =>
+                        MotorCityIconLibrary.Confirm,
+
+                    MotorCityInputAction.Retry =>
+                        MotorCityIconLibrary.ForActivity(
+                            ActivityIcon.Sprint),
+
+                    MotorCityInputAction.PreviousVehicle or
+                    MotorCityInputAction.NextVehicle =>
+                        MotorCityIconLibrary.ForActivity(
+                            ActivityIcon.Delivery),
+
+                    MotorCityInputAction.BuyVehicle =>
+                        MotorCityIconLibrary.Store,
+
+                    MotorCityInputAction.Upgrade1 or
+                    MotorCityInputAction.Upgrade2 or
+                    MotorCityInputAction.Upgrade3 =>
+                        MotorCityIconLibrary.Upgrades,
+
+                    MotorCityInputAction.CycleDriveMode or
+                    MotorCityInputAction.CycleWheels or
+                    MotorCityInputAction.CycleNeon =>
+                        MotorCityIconLibrary.Garage,
+
+                    MotorCityInputAction.CyclePetSkin or
+                    MotorCityInputAction.CycleBodyColor or
+                    MotorCityInputAction.CycleSticker or
+                    MotorCityInputAction.CycleVinyl or
+                    MotorCityInputAction.CyclePlate =>
+                        MotorCityIconLibrary.Reputation,
+
+                    MotorCityInputAction.SaveCustomizationPreset =>
+                        MotorCityIconLibrary.Confirm,
+
+                    MotorCityInputAction.LoadCustomizationPreset =>
+                        MotorCityIconLibrary.Unlocked,
+
+                    MotorCityInputAction.TakePhoto =>
+                        MotorCityIconLibrary.ForActivity(
+                            ActivityIcon.PhotoHunt),
+
+                    MotorCityInputAction.ToggleVehiclePassport =>
+                        MotorCityIconLibrary.ForSystem(
+                            SystemIcon.VehicleHistory),
+
+                    MotorCityInputAction.ToggleClub =>
+                        MotorCityIconLibrary.ForSystem(
+                            SystemIcon.Club),
+
+                    MotorCityInputAction.RewardedBonus =>
+                        MotorCityIconLibrary.Reward,
+
+                    MotorCityInputAction.ToggleStore =>
+                        MotorCityIconLibrary.Store,
+
+                    MotorCityInputAction.ToggleNavigator =>
+                        MotorCityIconLibrary.ForActivity(
+                            ActivityIcon.Discovery),
+
+                    _ =>
+                        null
+                };
         }
 
         private void UpdateGarage()
