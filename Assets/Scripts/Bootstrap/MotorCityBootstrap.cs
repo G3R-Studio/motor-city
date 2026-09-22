@@ -458,8 +458,12 @@ namespace MotorCity.Bootstrap
             CreateDriftChallengeMarker(driftChallenge, activityManager);
             CreateStreetSprintMarker(streetSprint, activityManager);
             CreateCircuitRaceMarker(circuitRace, activityManager);
-            CreateSpeedTrapMarkers(speedTraps);
-            CreateDriftSpotMarkers(driftSpots);
+            // Speed traps and drift spots are passive drive-through systems.
+            // Their old primitive frames/rings added permanent visual clutter and
+            // overlapped the primary activity markers, so keep the gameplay but
+            // do not spawn separate world geometry for them.
+            // CreateSpeedTrapMarkers(speedTraps);
+            // CreateDriftSpotMarkers(driftSpots);
             CreateDiscoveryMarkers(discoveries);
             CreateStuntJumpRamps(stuntJumps);
             CreateGarageMarker(garage);
