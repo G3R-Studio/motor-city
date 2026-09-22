@@ -17,6 +17,9 @@ namespace MotorCity.Bootstrap
         private string status =
             "...";
         private bool loading = true;
+        private float visualProgress = 0.04f;
+        private float targetProgress = 0.08f;
+        private AsyncOperation sceneLoadOperation;
 
         [RuntimeInitializeOnLoadMethod(
             RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -76,7 +79,11 @@ namespace MotorCity.Bootstrap
                 gameObject.AddComponent<MotorCityPurchaseRuntime>();
 
             status =
-                "...";
+                MotorCityLocalization.Text(
+                    "boot.connecting");
+
+            targetProgress =
+                0.16f;
 
             platformRuntime.InitializePlatform(
                 success =>
@@ -98,18 +105,23 @@ namespace MotorCity.Bootstrap
 
                     status =
                         MotorCityLocalization.Text(
-                            "boot.connecting");
-
-                    status =
-                        MotorCityLocalization.Text(
                             "boot.sync");
+
+                    targetProgress =
+                        0.34f;
 
                     remoteConfig.Load(
                         () =>
                         {
+                            targetProgress =
+                                0.46f;
+
                             purchaseRuntime.RefreshPending(
                                 () =>
                                 {
+                                    targetProgress =
+                                        0.58f;
+
                                     if (!MotorCityPlatform.SupportsCloudSave)
                                     {
                                         LoadGameScene();
@@ -117,7 +129,13 @@ namespace MotorCity.Bootstrap
                                     }
 
                                     cloudRuntime.ResolveInitialCloud(
-                                        LoadGameScene);
+                                        () =>
+                                        {
+                                            targetProgress =
+                                                0.70f;
+
+                                            LoadGameScene();
+                                        });
                                 });
                         });
                 });
@@ -129,12 +147,15 @@ namespace MotorCity.Bootstrap
                 MotorCityLocalization.Text(
                     "boot.loading");
 
-            AsyncOperation operation =
+            sceneLoadOperation =
                 SceneManager.LoadSceneAsync(
                     GameSceneName,
                     LoadSceneMode.Single);
 
-            if (operation == null)
+            targetProgress =
+                0.74f;
+
+            if (sceneLoadOperation == null)
             {
                 Debug.LogError(
                     "Motor City: Prototype scene could not be loaded.");
@@ -147,8 +168,43 @@ namespace MotorCity.Bootstrap
 
         }
 
+        private void Update()
+        {
+            if (!loading)
+                return;
+
+            if (sceneLoadOperation != null)
+            {
+                float sceneProgress =
+                    Mathf.Clamp01(
+                        sceneLoadOperation.progress /
+                        0.9f);
+
+                targetProgress =
+                    Mathf.Max(
+                        targetProgress,
+                        Mathf.Lerp(
+                            0.74f,
+                            0.96f,
+                            sceneProgress));
+            }
+
+            visualProgress =
+                Mathf.MoveTowards(
+                    visualProgress,
+                    targetProgress,
+                    Time.unscaledDeltaTime *
+                    0.32f);
+        }
+
         public void NotifyGameplayBuilt()
         {
+            visualProgress =
+                1f;
+
+            targetProgress =
+                1f;
+
             loading = false;
         }
 
@@ -172,6 +228,27 @@ namespace MotorCity.Bootstrap
                     alignment = TextAnchor.MiddleCenter
                 };
 
+            Color oldColor =
+                GUI.color;
+
+            GUI.color =
+                new Color(
+                    0.035f,
+                    0.045f,
+                    0.065f,
+                    1f);
+
+            GUI.DrawTexture(
+                new Rect(
+                    0f,
+                    0f,
+                    Screen.width,
+                    Screen.height),
+                Texture2D.whiteTexture);
+
+            GUI.color =
+                oldColor;
+
             float width =
                 Mathf.Min(
                     560f,
@@ -180,16 +257,23 @@ namespace MotorCity.Bootstrap
             Rect titleRect =
                 new(
                     (Screen.width - width) * 0.5f,
-                    Screen.height * 0.40f,
+                    Screen.height * 0.38f,
                     width,
                     54f);
 
             Rect statusRect =
                 new(
                     (Screen.width - width) * 0.5f,
-                    titleRect.yMax + 8f,
+                    titleRect.yMax + 10f,
                     width,
                     40f);
+
+            Rect trackRect =
+                new(
+                    (Screen.width - width) * 0.5f,
+                    statusRect.yMax + 18f,
+                    width,
+                    8f);
 
             GUI.Label(
                 titleRect,
@@ -200,6 +284,37 @@ namespace MotorCity.Bootstrap
                 statusRect,
                 status,
                 text);
+
+            GUI.color =
+                new Color(
+                    0.12f,
+                    0.15f,
+                    0.20f,
+                    1f);
+
+            GUI.DrawTexture(
+                trackRect,
+                Texture2D.whiteTexture);
+
+            GUI.color =
+                new Color(
+                    0.18f,
+                    0.72f,
+                    1f,
+                    1f);
+
+            GUI.DrawTexture(
+                new Rect(
+                    trackRect.x,
+                    trackRect.y,
+                    trackRect.width *
+                    Mathf.Clamp01(
+                        visualProgress),
+                    trackRect.height),
+                Texture2D.whiteTexture);
+
+            GUI.color =
+                oldColor;
         }
     }
 }
