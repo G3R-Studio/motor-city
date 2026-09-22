@@ -579,6 +579,44 @@ namespace MotorCity.Bootstrap
                     behaviour,
                     player);
 
+                System.Reflection.FieldInfo maxVehiclesField =
+                    type.GetField(
+                        "maxVehiclesWithPlayer");
+
+                if (maxVehiclesField != null &&
+                    maxVehiclesField.FieldType == typeof(int))
+                {
+                    int trafficBudget =
+#if UNITY_WEBGL && !UNITY_EDITOR
+                        18;
+#else
+                        28;
+#endif
+
+                    maxVehiclesField.SetValue(
+                        behaviour,
+                        trafficBudget);
+                }
+
+                System.Reflection.FieldInfo aroundField =
+                    type.GetField(
+                        "around");
+
+                if (aroundField != null &&
+                    aroundField.FieldType == typeof(float))
+                {
+                    float trafficRadius =
+#if UNITY_WEBGL && !UNITY_EDITOR
+                        125f;
+#else
+                        150f;
+#endif
+
+                    aroundField.SetValue(
+                        behaviour,
+                        trafficRadius);
+                }
+
                 return;
             }
         }
