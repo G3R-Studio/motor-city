@@ -14,10 +14,15 @@ namespace MotorCity.Platform
         private const string SaveKey =
             "MotorCity.Settings.QualityPreset";
 
+        private static bool initialized;
+
         public static MotorCityQualityPreset CurrentPreset { get; private set; }
 
         public static void Initialize()
         {
+            if (initialized)
+                return;
+
             int stored =
                 MotorCity.Persistence.MotorCitySaveService.GetInt(
                     SaveKey,
@@ -32,6 +37,9 @@ namespace MotorCity.Platform
             Apply(
                 preset,
                 false);
+
+            initialized =
+                true;
         }
 
         public static void Apply(
