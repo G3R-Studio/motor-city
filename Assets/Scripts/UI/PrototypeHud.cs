@@ -194,6 +194,7 @@ namespace MotorCity.UI
         private Text garageStatusText;
         private Image garageVehicleStateIcon;
         private Text garageVehicleText;
+        private Text garageNextVehicleText;
         private Text garageVehicleStatsText;
         private Image garageMasteryIcon;
         private Image garageMasteryTrack;
@@ -5663,14 +5664,27 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Garage Vehicle",
-                    17,
+                    18,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(58f, -76f),
-                    new Vector2(674f, 24f),
+                    new Vector2(58f, -70f),
+                    new Vector2(674f, 26f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     TextColor);
+
+            garageNextVehicleText =
+                CreateText(
+                    panel,
+                    "Garage Next Vehicle",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(28f, -98f),
+                    new Vector2(704f, 22f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    GarageAccent);
 
             garageVehicleStatsText =
                 CreateText(
@@ -5679,7 +5693,7 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -101f),
+                    new Vector2(28f, -123f),
                     new Vector2(704f, 22f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -5692,7 +5706,7 @@ namespace MotorCity.UI
                     MotorCityIconLibrary.Reputation,
                     new Vector2(
                         28f,
-                        -126f),
+                        -149f),
                     new Vector2(
                         18f,
                         18f),
@@ -5711,7 +5725,7 @@ namespace MotorCity.UI
                     "Garage Mastery Track",
                     new Vector2(
                         54f,
-                        -126f),
+                        -149f),
                     new Vector2(
                         678f,
                         7f),
@@ -5818,7 +5832,7 @@ namespace MotorCity.UI
             for (int i = 0; i < 3; i++)
             {
                 float y =
-                    -142f - i * 96f;
+                    -172f - i * 96f;
 
                 RectTransform row =
                     CreatePanel(
@@ -6342,6 +6356,12 @@ namespace MotorCity.UI
             {
                 garageVehicleText.text =
                     garage.VehicleLine;
+            }
+
+            if (garageNextVehicleText != null)
+            {
+                garageNextVehicleText.text =
+                    garage.NextVehicleLine;
             }
 
             if (garageVehicleStateIcon != null)
