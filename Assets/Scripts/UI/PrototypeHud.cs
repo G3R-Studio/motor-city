@@ -2066,30 +2066,9 @@ namespace MotorCity.UI
 
             if (minimapPlayerArrow != null)
             {
-                if (TryWorldToMinimapOffset(
-                        carPosition,
-                        out Vector2 playerOffset))
-                {
-                    const float playerRadius =
-                        74f;
-
-                    if (playerOffset.sqrMagnitude >
-                        playerRadius *
-                        playerRadius)
-                    {
-                        playerOffset =
-                            playerOffset.normalized *
-                            playerRadius;
-                    }
-
-                    minimapPlayerArrow.anchoredPosition =
-                        playerOffset;
-                }
-                else
-                {
-                    minimapPlayerArrow.anchoredPosition =
-                        Vector2.zero;
-                }
+                // The minimap view is always centered on the player.
+                minimapPlayerArrow.anchoredPosition =
+                    Vector2.zero;
 
                 // With north fixed at the top, only the player arrow rotates.
                 minimapPlayerArrow.localEulerAngles =
