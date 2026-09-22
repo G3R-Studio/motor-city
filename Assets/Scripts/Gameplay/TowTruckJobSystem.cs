@@ -279,13 +279,13 @@ namespace MotorCity.Gameplay
 
         private void UpdatePickupApproach()
         {
-            float distance =
-                FlatDistance(
+            float distanceSquared =
+                FlatDistanceSquared(
                     car.transform.position,
                     BreakdownPoint);
 
-            if (distance >
-                PickupRadius)
+            if (distanceSquared >
+                PickupRadius * PickupRadius)
             {
                 statusTextTimer -=
                     Time.deltaTime;
@@ -299,7 +299,8 @@ namespace MotorCity.Gameplay
                         MotorCityLocalization.Format(
                             "tow.pickup_distance",
                             Mathf.RoundToInt(
-                                distance));
+                                Mathf.Sqrt(
+                                    distanceSquared)));
                 }
 
                 return;
@@ -393,8 +394,8 @@ namespace MotorCity.Gameplay
 
         private void UpdateDelivery()
         {
-            float distance =
-                FlatDistance(
+            float distanceSquared =
+                FlatDistanceSquared(
                     car.transform.position,
                     ServicePoint);
 
@@ -410,11 +411,12 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Format(
                         "tow.delivery_distance",
                         Mathf.RoundToInt(
-                            distance));
+                            Mathf.Sqrt(
+                                distanceSquared)));
             }
 
-            if (distance >
-                DeliveryRadius)
+            if (distanceSquared >
+                DeliveryRadius * DeliveryRadius)
             {
                 return;
             }
@@ -820,13 +822,22 @@ namespace MotorCity.Gameplay
             Vector3 a,
             Vector3 b)
         {
+            return
+                Mathf.Sqrt(
+                    FlatDistanceSquared(
+                        a,
+                        b));
+        }
+
+        private static float FlatDistanceSquared(
+            Vector3 a,
+            Vector3 b)
+        {
             a.y = 0f;
             b.y = 0f;
 
             return
-                Vector3.Distance(
-                    a,
-                    b);
+                (a - b).sqrMagnitude;
         }
 
         private enum TowStage
