@@ -14,13 +14,16 @@ namespace MotorCity.Persistence
         private static SaveDocument document;
         private static bool initialized;
         private static bool dirty;
+        private static bool needsFlush;
 
         public static bool IsDirty
         {
             get
             {
                 EnsureLoaded();
-                return dirty;
+                return
+                    dirty ||
+                    needsFlush;
             }
         }
 
@@ -241,7 +244,11 @@ namespace MotorCity.Persistence
                 return;
             }
 
+            if (!needsFlush)
+                return;
+
             PlayerPrefs.Save();
+            needsFlush = false;
         }
 
         public static string ExportJson()
@@ -520,10 +527,12 @@ namespace MotorCity.Persistence
                 json);
 
             dirty = false;
+            needsFlush = true;
 
             if (flushToDisk)
             {
                 PlayerPrefs.Save();
+                needsFlush = false;
             }
         }
 
