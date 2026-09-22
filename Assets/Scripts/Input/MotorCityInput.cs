@@ -276,15 +276,39 @@ namespace MotorCity.Input
             HandbrakeHeld;
 
         public static bool PreferTouchPrompts =>
-            preferTouchPrompts;
+            preferTouchPrompts ||
+            IsTouchCapableDevice();
 
         public static void RefreshTouchPromptPreference()
         {
             preferTouchPrompts =
+                IsTouchCapableDevice();
+        }
+
+        private static bool IsTouchCapableDevice()
+        {
+            bool touchCapable =
                 Application.isMobilePlatform ||
                 SystemInfo.deviceType ==
                     DeviceType.Handheld ||
-                UnityEngine.Input.touchSupported;
+                UnityEngine.Input.touchSupported ||
+                Touchscreen.current != null;
+
+#if UNITY_EDITOR
+            // Unity Device Simulator exposes the simulated phone/tablet
+            // through UnityEngine.Device.* rather than the ordinary
+            // Application/SystemInfo APIs. Without this check a landscape
+            // simulated phone is treated as desktop and driving controls
+            // stay hidden.
+            touchCapable =
+                touchCapable ||
+                UnityEngine.Device.Application.isMobilePlatform ||
+                UnityEngine.Device.SystemInfo.deviceType ==
+                    DeviceType.Handheld;
+#endif
+
+            return
+                touchCapable;
         }
 
         public static void SetTouchPromptPreference(
