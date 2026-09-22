@@ -61,14 +61,6 @@ namespace MotorCity.Bootstrap
             BindFcgTrafficPlayer(
                 car.transform);
 
-            FcgTrafficPerformanceOptimizer trafficOptimizer =
-                new GameObject(
-                    "FCG Traffic Performance Optimizer")
-                    .AddComponent<FcgTrafficPerformanceOptimizer>();
-
-            trafficOptimizer.Initialize(
-                car);
-
             VehiclePositionPersistence positionPersistence =
                 car.gameObject.AddComponent<VehiclePositionPersistence>();
 
