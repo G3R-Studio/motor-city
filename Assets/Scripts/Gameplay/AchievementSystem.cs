@@ -96,6 +96,12 @@ namespace MotorCity.Gameplay
                         Time.unscaledDeltaTime);
             }
 
+            if (unlockedCount >=
+                unlocked.Length)
+            {
+                return;
+            }
+
             checkTimer -=
                 Time.unscaledDeltaTime;
 
@@ -118,8 +124,12 @@ namespace MotorCity.Gameplay
             string activityId,
             bool success)
         {
-            if (!success)
+            if (!success ||
+                unlockedCount >=
+                    unlocked.Length)
+            {
                 return;
+            }
 
             activityWins++;
             SaveCounter("Activities", activityWins);
@@ -152,6 +162,12 @@ namespace MotorCity.Gameplay
 
         private void EvaluateAll()
         {
+            if (unlockedCount >=
+                unlocked.Length)
+            {
+                return;
+            }
+
             TryUnlock(
                 0,
                 activityWins >= 1,
