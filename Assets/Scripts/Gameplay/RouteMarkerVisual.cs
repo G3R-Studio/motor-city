@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MotorCity.World;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -14,11 +15,22 @@ namespace MotorCity.Gameplay
         private bool tintInitialized;
         private bool lastActive;
         private Vector3 baseScale;
+        private CheckpointBeaconVisual checkpointBeacon;
 
         public void Bind(DeliveryActivity targetActivity, ActivityManager manager)
         {
             activity = targetActivity;
             activityManager = manager;
+
+            checkpointBeacon =
+                gameObject.AddComponent<CheckpointBeaconVisual>();
+
+            checkpointBeacon.Initialize(
+                new Color(
+                    0.12f,
+                    0.58f,
+                    1f));
+
             CacheVisuals();
             baseScale = transform.localScale;
         }
@@ -58,8 +70,23 @@ namespace MotorCity.Gameplay
             }
             if (!visible) return;
 
-            Vector3 target = activity.CurrentTarget;
-            transform.position = target;
+            Vector3 target =
+                activity.CurrentTarget;
+
+            transform.position =
+                target;
+
+            bool hasNext =
+                activity.IsActive &&
+                activity.TryGetNextTarget(
+                    out Vector3 nextTarget);
+
+            checkpointBeacon?.SetDirection(
+                target,
+                hasNext
+                    ? nextTarget
+                    : target,
+                hasNext);
 
             float pulse =
                 1f + Mathf.Sin(Time.time * 2.8f) * 0.015f;
