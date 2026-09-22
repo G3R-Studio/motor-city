@@ -157,7 +157,7 @@ namespace MotorCity.World
             saveTimer = 0f;
 
             SaveCurrentPosition(
-                false);
+                true);
         }
 
         public void SaveNow()
@@ -208,7 +208,10 @@ namespace MotorCity.World
                 HasPositionKey,
                 1);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            if (force)
+            {
+                MotorCity.Persistence.MotorCitySaveService.FlushNow();
+            }
         }
 
         private void OnApplicationPause(
@@ -216,13 +219,13 @@ namespace MotorCity.World
         {
             if (paused)
                 SaveCurrentPosition(
-                    false);
+                    true);
         }
 
         private void OnApplicationQuit()
         {
             SaveCurrentPosition(
-                false);
+                true);
         }
 
         private void OnDisable()
