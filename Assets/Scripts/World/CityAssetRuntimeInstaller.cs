@@ -1686,27 +1686,70 @@ namespace MotorCity.World
             GameObject city)
         {
             Renderer[] allRenderers =
-                city.GetComponentsInChildren<Renderer>(true);
+                city.GetComponentsInChildren<Renderer>(
+                    true);
 
-            var cityRenderers =
-                new List<Renderer>();
+            bool hasFcgRenderer =
+                false;
 
-            foreach (Renderer renderer in allRenderers)
+            bool boundsInitialized =
+                false;
+
+            Bounds bounds =
+                default;
+
+            foreach (Renderer renderer in
+                     allRenderers)
             {
-                if (IsFcgCityRenderer(
+                if (!IsFcgCityRenderer(
                         renderer))
                 {
-                    cityRenderers.Add(
-                        renderer);
+                    continue;
+                }
+
+                if (!boundsInitialized)
+                {
+                    bounds =
+                        renderer.bounds;
+
+                    boundsInitialized =
+                        true;
+                }
+                else
+                {
+                    bounds.Encapsulate(
+                        renderer.bounds);
+                }
+
+                hasFcgRenderer =
+                    true;
+            }
+
+            if (!hasFcgRenderer)
+            {
+                foreach (Renderer renderer in
+                         allRenderers)
+                {
+                    if (renderer == null)
+                        continue;
+
+                    if (!boundsInitialized)
+                    {
+                        bounds =
+                            renderer.bounds;
+
+                        boundsInitialized =
+                            true;
+                    }
+                    else
+                    {
+                        bounds.Encapsulate(
+                            renderer.bounds);
+                    }
                 }
             }
 
-            Renderer[] renderers =
-                cityRenderers.Count > 0
-                    ? cityRenderers.ToArray()
-                    : allRenderers;
-
-            if (renderers.Length == 0)
+            if (!boundsInitialized)
             {
                 // Safe fallback for the current authored main district.
                 // Do not retain the obsolete remote/highway bounds from older
@@ -1723,18 +1766,8 @@ namespace MotorCity.World
                         900f));
             }
 
-            Bounds bounds =
-                renderers[0].bounds;
-
-            for (int i = 1;
-                 i < renderers.Length;
-                 i++)
-            {
-                bounds.Encapsulate(
-                    renderers[i].bounds);
-            }
-
-            return bounds;
+            return
+                bounds;
         }
 
         private static float RayStartY()
