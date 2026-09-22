@@ -2579,6 +2579,10 @@ namespace MotorCity.UI
                 line =
                     onboarding.ObjectiveLine;
 
+                missionTitle =
+                    MotorCityLocalization.Text(
+                        "onboarding.title");
+
                 style =
                     turboStep
                         ? 3
@@ -2712,8 +2716,14 @@ namespace MotorCity.UI
                 else
                 {
                     characterSourceText.text =
-                        MotorCityLocalization.Text(
-                            "hud.character.story");
+                        onboarding != null &&
+                        !onboarding.IsComplete
+                            ? MotorCityLocalization.Format(
+                                "hud.character.story_progress",
+                                onboarding.CurrentStepNumber,
+                                onboarding.StepCount)
+                            : MotorCityLocalization.Text(
+                                "hud.character.story");
                 }
             }
             else
