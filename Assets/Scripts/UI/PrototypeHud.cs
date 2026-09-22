@@ -668,40 +668,7 @@ namespace MotorCity.UI
         {
             if (MotorCityInput.ToggleNavigatorPressed)
             {
-                if (navigatorMenuOpen)
-                {
-                    CloseNavigatorMenu();
-                    return;
-                }
-
-                if (activityManager != null &&
-                    activityManager.IsBusy)
-                {
-                    return;
-                }
-
-                if (garage != null &&
-                    garage.IsOpen)
-                {
-                    return;
-                }
-
-                navigatorMenuOpen =
-                    true;
-
-                navigatorMenuOverlay?.SetActive(
-                    true);
-
-                clubOverlay?.SetActive(
-                    false);
-
-                storeOpen =
-                    false;
-
-                car?.SetDrivingEnabled(
-                    false);
-
-                UpdateNavigatorMenuText();
+                ToggleNavigatorMenu();
                 return;
             }
 
@@ -755,6 +722,44 @@ namespace MotorCity.UI
 
                 CloseNavigatorMenu();
             }
+        }
+
+        private void ToggleNavigatorMenu()
+        {
+            if (navigatorMenuOpen)
+            {
+                CloseNavigatorMenu();
+                return;
+            }
+
+            if (activityManager != null &&
+                activityManager.IsBusy)
+            {
+                return;
+            }
+
+            if (garage != null &&
+                garage.IsOpen)
+            {
+                return;
+            }
+
+            navigatorMenuOpen =
+                true;
+
+            navigatorMenuOverlay?.SetActive(
+                true);
+
+            clubOverlay?.SetActive(
+                false);
+
+            storeOpen =
+                false;
+
+            car?.SetDrivingEnabled(
+                false);
+
+            UpdateNavigatorMenuText();
         }
 
         private void CloseNavigatorMenu()
@@ -1859,10 +1864,67 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(10f, 8f),
-                    new Vector2(200f, 24f),
+                    new Vector2(160f, 24f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     TextColor);
+
+            GameObject navigatorButtonObject =
+                new(
+                    "Navigator Button",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+
+            navigatorButtonObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform navigatorButtonRect =
+                navigatorButtonObject.GetComponent<RectTransform>();
+
+            navigatorButtonRect.anchorMin =
+                new Vector2(1f, 0f);
+            navigatorButtonRect.anchorMax =
+                new Vector2(1f, 0f);
+            navigatorButtonRect.pivot =
+                new Vector2(1f, 0f);
+            navigatorButtonRect.anchoredPosition =
+                new Vector2(-8f, 6f);
+            navigatorButtonRect.sizeDelta =
+                new Vector2(42f, 28f);
+
+            Image navigatorButtonImage =
+                navigatorButtonObject.GetComponent<Image>();
+
+            navigatorButtonImage.color =
+                new Color(
+                    0.08f,
+                    0.34f,
+                    0.58f,
+                    0.92f);
+
+            Button navigatorButton =
+                navigatorButtonObject.GetComponent<Button>();
+
+            navigatorButton.onClick.AddListener(
+                ToggleNavigatorMenu);
+
+            Text navigatorButtonLabel =
+                CreateText(
+                    navigatorButtonRect,
+                    "Navigator Button Label",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(40f, 26f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+
+            navigatorButtonLabel.text =
+                "M";
         }
 
         private void UpdateNavigator(
@@ -2027,6 +2089,31 @@ namespace MotorCity.UI
                         MotorCityLocalization.Text(
                             "hud.garage");
                     showRoadRoute = true;
+                    return;
+                }
+            }
+
+            if ((activityManager == null ||
+                 !activityManager.IsBusy) &&
+                manualNavigationActive)
+            {
+                target =
+                    manualNavigationTarget;
+                label =
+                    manualNavigationLabel;
+                showRoadRoute =
+                    true;
+
+                if (FlatDistance(
+                        car.transform.position,
+                        manualNavigationTarget) <=
+                    16f)
+                {
+                    manualNavigationActive =
+                        false;
+                }
+                else
+                {
                     return;
                 }
             }
@@ -2198,29 +2285,6 @@ namespace MotorCity.UI
                         "activity.drift");
                 showRoadRoute = true;
                 return;
-            }
-
-            if (manualNavigationActive)
-            {
-                target =
-                    manualNavigationTarget;
-                label =
-                    manualNavigationLabel;
-                showRoadRoute =
-                    true;
-
-                if (FlatDistance(
-                        car.transform.position,
-                        manualNavigationTarget) <=
-                    16f)
-                {
-                    manualNavigationActive =
-                        false;
-                }
-                else
-                {
-                    return;
-                }
             }
 
             ResolveNearestFreeRoamTarget(
