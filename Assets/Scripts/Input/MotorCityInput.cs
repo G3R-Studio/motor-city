@@ -269,6 +269,12 @@ namespace MotorCity.Input
             SteerRightHeld ||
             HandbrakeHeld;
 
+        public static bool PreferTouchPrompts =>
+            Application.isMobilePlatform ||
+            SystemInfo.deviceType ==
+                DeviceType.Handheld ||
+            UnityEngine.Input.touchSupported;
+
         public static void PressVirtual(
             MotorCityInputAction action)
         {
