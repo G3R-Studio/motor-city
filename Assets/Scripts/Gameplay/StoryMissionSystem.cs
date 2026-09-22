@@ -85,6 +85,63 @@ namespace MotorCity.Gameplay
             }
         }
 
+        public string CurrentMissionTitle
+        {
+            get
+            {
+                StoryMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? string.Empty
+                        : MotorCityLocalization.Text(
+                            mission.TitleKey);
+            }
+        }
+
+        public int CurrentCreditsReward
+        {
+            get
+            {
+                StoryMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? 0
+                        : mission.CreditsReward;
+            }
+        }
+
+        public int CurrentReputationReward
+        {
+            get
+            {
+                StoryMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? 0
+                        : mission.ReputationReward;
+            }
+        }
+
+        public int CurrentTurboXpReward
+        {
+            get
+            {
+                StoryMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? 0
+                        : mission.TurboXpReward;
+            }
+        }
+
         public int CurrentCharacterStyle
         {
             get
