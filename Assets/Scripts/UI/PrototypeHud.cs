@@ -116,6 +116,8 @@ namespace MotorCity.UI
         private Text clubControlsText;
         private RectTransform safeAreaRoot;
         private GameObject touchControlsRoot;
+        private CanvasScaler canvasScaler;
+        private bool lastPortraitLayout;
 
         private readonly Queue<string> notificationQueue =
             new();
@@ -1425,15 +1427,15 @@ namespace MotorCity.UI
                 RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
 
-            CanvasScaler scaler =
+            canvasScaler =
                 canvasObject.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode =
+            canvasScaler.uiScaleMode =
                 CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution =
-                new Vector2(1600f, 900f);
-            scaler.screenMatchMode =
+            canvasScaler.screenMatchMode =
                 CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+
+            ApplyResponsiveCanvasScale(
+                true);
 
             canvasObject.AddComponent<GraphicRaycaster>();
 
@@ -3718,13 +3720,13 @@ namespace MotorCity.UI
                 "   •   " +
                 MotorCityLocalization.Text("hud.passport_control");
 
+            BuildGarageTouchControls(
+                panel);
+
             if (ShouldUseTouchUi())
             {
                 footer.gameObject.SetActive(
                     false);
-
-                BuildGarageTouchControls(
-                    panel);
             }
         }
 
@@ -4370,16 +4372,56 @@ namespace MotorCity.UI
 
         private static bool ShouldUseTouchUi()
         {
+            if (Application.isMobilePlatform ||
+                UnityEngine.Input.touchSupported)
+            {
+                return true;
+            }
+
+#if UNITY_EDITOR
+            // Device Simulator still runs as Editor, so mobile platform/touch
+            // flags can stay false. A portrait game surface is a reliable
+            // signal for testing the phone HUD in-editor.
             return
-                Application.isMobilePlatform ||
-                UnityEngine.Input.touchSupported;
+                Screen.height > Screen.width;
+#else
+            return false;
+#endif
+        }
+
+        private void ApplyResponsiveCanvasScale(
+            bool force)
+        {
+            if (canvasScaler == null)
+                return;
+
+            bool portrait =
+                Screen.height > Screen.width;
+
+            if (!force &&
+                portrait ==
+                lastPortraitLayout)
+            {
+                return;
+            }
+
+            lastPortraitLayout =
+                portrait;
+
+            canvasScaler.referenceResolution =
+                portrait
+                    ? new Vector2(900f, 1600f)
+                    : new Vector2(1600f, 900f);
+
+            canvasScaler.matchWidthOrHeight =
+                portrait
+                    ? 0.35f
+                    : 0.5f;
         }
 
         private void BuildTouchControls(
             Transform canvas)
         {
-            if (!ShouldUseTouchUi())
-                return;
 
             touchControlsRoot =
                 new GameObject(
@@ -4526,8 +4568,18 @@ namespace MotorCity.UI
 
         private void UpdateTouchControlsVisibility()
         {
+            ApplyResponsiveCanvasScale(
+                false);
+
             if (touchControlsRoot == null)
                 return;
+
+            if (!ShouldUseTouchUi())
+            {
+                touchControlsRoot.SetActive(
+                    false);
+                return;
+            }
 
             bool blocked =
                 navigatorMenuOpen ||
