@@ -1,0 +1,11 @@
+Kenney Game Icons / Game Icons Expansion
+
+Source:
+https://kenney.nl/assets/game-icons
+https://kenney.nl/assets/game-icons-expansion
+
+License:
+Creative Commons CC0 1.0 Universal (public domain dedication).
+Commercial use and modification are allowed. Attribution is not required.
+
+This Motor City repository contains a curated subset of the original icon packs.
