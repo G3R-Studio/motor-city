@@ -413,57 +413,60 @@ namespace MotorCity.Gameplay
             VehicleProfile current =
                 profiles[SelectedIndex];
 
-            string nextText =
-                string.Empty;
+            return
+                MotorCityLocalization.Format(
+                    "vehicle.garage_current",
+                    SelectedIndex + 1,
+                    profiles.Length,
+                    current.DisplayName,
+                    masteryLevel);
+        }
 
+        public string GetNextVehicleLine()
+        {
             int next =
                 SelectedIndex + 1;
 
-            if (Valid(next))
+            if (!Valid(next))
             {
-                VehicleProfile nextProfile =
-                    profiles[next];
+                return
+                    MotorCityLocalization.Text(
+                        "vehicle.next_none");
+            }
 
-                if (!HasVisual(next))
-                {
-                    nextText =
-                        MotorCityLocalization.Format(
-                            "vehicle.next_missing",
-                            nextProfile.DisplayName);
-                }
-                else if (!IsUnlocked(next))
-                {
-                    nextText =
-                        MotorCityLocalization.Format(
-                            "vehicle.next_rep",
-                            nextProfile.DisplayName,
-                            nextProfile.RequiredRep);
-                }
-                else if (!IsOwned(next))
-                {
-                    nextText =
-                        MotorCityLocalization.Format(
-                            "vehicle.next_buy",
-                            nextProfile.DisplayName,
-                            nextProfile.PurchasePrice);
-                }
-                else
-                {
-                    nextText =
-                        MotorCityLocalization.Format(
-                            "vehicle.next_available",
-                            nextProfile.DisplayName);
-                }
+            VehicleProfile nextProfile =
+                profiles[next];
+
+            if (!HasVisual(next))
+            {
+                return
+                    MotorCityLocalization.Format(
+                        "vehicle.next_missing",
+                        nextProfile.DisplayName);
+            }
+
+            if (!IsUnlocked(next))
+            {
+                return
+                    MotorCityLocalization.Format(
+                        "vehicle.next_rep",
+                        nextProfile.DisplayName,
+                        nextProfile.RequiredRep);
+            }
+
+            if (!IsOwned(next))
+            {
+                return
+                    MotorCityLocalization.Format(
+                        "vehicle.next_buy",
+                        nextProfile.DisplayName,
+                        nextProfile.PurchasePrice);
             }
 
             return
                 MotorCityLocalization.Format(
-                    "vehicle.garage_line",
-                    SelectedIndex + 1,
-                    profiles.Length,
-                    current.DisplayName,
-                    masteryLevel,
-                    nextText);
+                    "vehicle.next_available",
+                    nextProfile.DisplayName);
         }
 
         public bool TryPurchaseNextVehicle(
