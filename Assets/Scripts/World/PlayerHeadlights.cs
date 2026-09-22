@@ -1,3 +1,4 @@
+using MotorCity.Vehicle;
 using UnityEngine;
 
 namespace MotorCity.World
@@ -8,9 +9,13 @@ namespace MotorCity.World
         private Light left;
         private Light right;
         private float dayNightResolveTimer;
+        private ArcadeCarController car;
 
         private void Awake()
         {
+            car =
+                GetComponent<ArcadeCarController>();
+
             dayNight =
                 Object.FindAnyObjectByType<DayNightCycleController>();
 
@@ -130,18 +135,29 @@ namespace MotorCity.World
         private void ApplyLights(
             float amount)
         {
+            float speed01 =
+                car == null
+                    ? 0f
+                    : Mathf.InverseLerp(
+                        25f,
+                        180f,
+                        car.SpeedKph);
+
             Configure(
                 left,
-                amount);
+                amount,
+                speed01);
 
             Configure(
                 right,
-                amount);
+                amount,
+                speed01);
         }
 
         private static void Configure(
             Light light,
-            float amount)
+            float amount,
+            float speed01)
         {
             if (light == null)
                 return;
@@ -151,8 +167,29 @@ namespace MotorCity.World
                 0.02f;
 
             light.intensity =
-                8.5f *
+                Mathf.Lerp(
+                    8.0f,
+                    10.2f,
+                    speed01) *
                 amount;
+
+            light.range =
+                Mathf.Lerp(
+                    46f,
+                    72f,
+                    speed01);
+
+            light.spotAngle =
+                Mathf.Lerp(
+                    54f,
+                    44f,
+                    speed01);
+
+            light.innerSpotAngle =
+                Mathf.Lerp(
+                    28f,
+                    24f,
+                    speed01);
         }
     }
 }
