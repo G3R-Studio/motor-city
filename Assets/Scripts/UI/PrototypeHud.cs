@@ -4411,19 +4411,19 @@ namespace MotorCity.UI
                 MotorCityInputAction.Interact
             };
 
-            string[] labels =
+            string[] localizationKeys =
             {
-                MotorCityLocalization.Text("touch.garage.prev"),
-                MotorCityLocalization.Text("touch.garage.next"),
-                MotorCityLocalization.Text("touch.garage.buy"),
-                MotorCityLocalization.Text("touch.garage.engine"),
-                MotorCityLocalization.Text("touch.garage.grip"),
-                MotorCityLocalization.Text("touch.garage.stability"),
-                MotorCityLocalization.Text("touch.garage.color"),
-                MotorCityLocalization.Text("touch.garage.wheels"),
-                MotorCityLocalization.Text("touch.garage.neon"),
-                MotorCityLocalization.Text("touch.garage.passport"),
-                MotorCityLocalization.Text("touch.garage.close")
+                "touch.garage.prev",
+                "touch.garage.next",
+                "touch.garage.buy",
+                "touch.garage.engine",
+                "touch.garage.grip",
+                "touch.garage.stability",
+                "touch.garage.color",
+                "touch.garage.wheels",
+                "touch.garage.neon",
+                "touch.garage.passport",
+                "touch.garage.close"
             };
 
             const float buttonWidth = 110f;
@@ -4460,10 +4460,10 @@ namespace MotorCity.UI
                     row *
                     (buttonHeight + gap);
 
-                CreateTouchPulseButton(
+                CreateLocalizedTouchPulseButton(
                     root,
-                    "Garage " + labels[i],
-                    labels[i],
+                    "Garage Touch " + i,
+                    localizationKeys[i],
                     actions[i],
                     new Vector2(x, y),
                     new Vector2(
@@ -5225,51 +5225,39 @@ namespace MotorCity.UI
                 BuildTouchModalRow(
                     canvas,
                     "Navigator Touch Controls",
-                    MotorCityLocalization.Text(
-                        "touch.modal.prev"),
+                    "touch.modal.prev",
                     MotorCityInputAction.PreviousVehicle,
-                    MotorCityLocalization.Text(
-                        "touch.modal.select"),
+                    "touch.modal.select",
                     MotorCityInputAction.Retry,
-                    MotorCityLocalization.Text(
-                        "touch.modal.next"),
+                    "touch.modal.next",
                     MotorCityInputAction.NextVehicle,
-                    MotorCityLocalization.Text(
-                        "touch.modal.close"),
+                    "touch.modal.close",
                     MotorCityInputAction.ToggleNavigator);
 
             storeTouchControlsRoot =
                 BuildTouchModalRow(
                     canvas,
                     "Store Touch Controls",
-                    MotorCityLocalization.Text(
-                        "touch.modal.prev"),
+                    "touch.modal.prev",
                     MotorCityInputAction.PreviousVehicle,
-                    MotorCityLocalization.Text(
-                        "touch.store.buy"),
+                    "touch.store.buy",
                     MotorCityInputAction.Interact,
-                    MotorCityLocalization.Text(
-                        "touch.modal.next"),
+                    "touch.modal.next",
                     MotorCityInputAction.NextVehicle,
-                    MotorCityLocalization.Text(
-                        "touch.modal.close"),
+                    "touch.modal.close",
                     MotorCityInputAction.ToggleStore);
 
             clubTouchControlsRoot =
                 BuildTouchModalRow(
                     canvas,
                     "Club Touch Controls",
-                    MotorCityLocalization.Text(
-                        "touch.modal.prev"),
+                    "touch.modal.prev",
                     MotorCityInputAction.PreviousVehicle,
-                    MotorCityLocalization.Text(
-                        "touch.club.join"),
+                    "touch.club.join",
                     MotorCityInputAction.Interact,
-                    MotorCityLocalization.Text(
-                        "touch.modal.next"),
+                    "touch.modal.next",
                     MotorCityInputAction.NextVehicle,
-                    MotorCityLocalization.Text(
-                        "touch.modal.close"),
+                    "touch.modal.close",
                     MotorCityInputAction.ToggleClub);
 
             navigatorTouchControlsRoot.SetActive(
@@ -5283,13 +5271,13 @@ namespace MotorCity.UI
         private GameObject BuildTouchModalRow(
             Transform canvas,
             string name,
-            string leftLabel,
+            string leftLocalizationKey,
             MotorCityInputAction leftAction,
-            string centerLabel,
+            string centerLocalizationKey,
             MotorCityInputAction centerAction,
-            string rightLabel,
+            string rightLocalizationKey,
             MotorCityInputAction rightAction,
-            string closeLabel,
+            string closeLocalizationKey,
             MotorCityInputAction closeAction)
         {
             GameObject rootObject =
@@ -5315,34 +5303,34 @@ namespace MotorCity.UI
             root.sizeDelta =
                 new Vector2(620f, 58f);
 
-            CreateTouchPulseButton(
+            CreateLocalizedTouchPulseButton(
                 root,
                 name + " Prev",
-                leftLabel,
+                leftLocalizationKey,
                 leftAction,
                 new Vector2(-225f, 26f),
                 new Vector2(130f, 50f));
 
-            CreateTouchPulseButton(
+            CreateLocalizedTouchPulseButton(
                 root,
                 name + " Action",
-                centerLabel,
+                centerLocalizationKey,
                 centerAction,
                 new Vector2(-75f, 26f),
                 new Vector2(150f, 50f));
 
-            CreateTouchPulseButton(
+            CreateLocalizedTouchPulseButton(
                 root,
                 name + " Next",
-                rightLabel,
+                rightLocalizationKey,
                 rightAction,
                 new Vector2(85f, 26f),
                 new Vector2(130f, 50f));
 
-            CreateTouchPulseButton(
+            CreateLocalizedTouchPulseButton(
                 root,
                 name + " Close",
-                closeLabel,
+                closeLocalizationKey,
                 closeAction,
                 new Vector2(230f, 26f),
                 new Vector2(130f, 50f));
