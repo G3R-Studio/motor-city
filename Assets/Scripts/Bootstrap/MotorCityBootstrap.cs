@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MotorCity.CameraSystem;
 using MotorCity.Gameplay;
+using MotorCity.Input;
 using MotorCity.Persistence;
 using MotorCity.Platform;
 using MotorCity.UI;
@@ -30,6 +31,7 @@ namespace MotorCity.Bootstrap
                 return;
 
             MotorCityQualityRuntime.Initialize();
+            MotorCityInput.RefreshTouchPromptPreference();
 
             Time.fixedDeltaTime = 0.02f;
             Physics.gravity = new Vector3(0f, -9.81f, 0f);
