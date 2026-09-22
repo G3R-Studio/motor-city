@@ -37,6 +37,7 @@ namespace MotorCity.Localization
 
                 { "hud.rep", E("РЕП {0:N0}   •   УР. {1}", "REP {0:N0}   •   LVL {1}") },
                 { "hud.rep_short", E("{0:N0} • УР. {1}", "{0:N0} • LVL {1}") },
+                { "hud.reward_credits_only", E("+{0:N0} КР", "+{0:N0} CR") },
                 { "hud.upgrades", E("ДВИГ {0}   •   СЦЕП {1}   •   СТАБ {2}   •   {3}", "ENGINE {0}   •   GRIP {1}   •   STAB {2}   •   {3}") },
                 { "hud.drive_mode", E("РЕЖИМ  {0}", "MODE  {0}") },
                 { "hud.drift", E("ДРИФТ   {0:N0}{1}", "DRIFT   {0:N0}{1}") },
