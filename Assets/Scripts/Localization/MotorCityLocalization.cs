@@ -508,6 +508,7 @@ namespace MotorCity.Localization
             { "touch.modal.close", E("ЗАКРЫТЬ", "CLOSE") },
             { "touch.store.buy", E("КУПИТЬ", "BUY") },
             { "touch.club.join", E("ВЫБРАТЬ", "SELECT") },
+            { "touch.drive.cancel", E("ОТМЕНА", "CANCEL") },
             { "touch.drive.action", E("ДЕЙСТВИЕ", "ACTION") },
             { "touch.drive.handbrake", E("РУЧНИК", "HANDBRAKE") },
             { "touch.drive.rescue", E("СПАСТИ", "RESCUE") },
