@@ -481,8 +481,6 @@ namespace MotorCity.World
                 DynamicGI.UpdateEnvironment();
             }
 
-            ApplyLampEmission();
-
             if (force ||
                 IsNight !=
                 lastNightState)
