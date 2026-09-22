@@ -106,10 +106,10 @@ namespace MotorCity.World
                 new Vector3(
                     -0.52f,
                     0f,
-                    -0.42f),
+                    0.42f),
                 Quaternion.Euler(
                     0f,
-                    -43f,
+                    43f,
                     0f),
                 arrowMaterial);
 
@@ -124,10 +124,10 @@ namespace MotorCity.World
                 new Vector3(
                     0.52f,
                     0f,
-                    -0.42f),
+                    0.42f),
                 Quaternion.Euler(
                     0f,
-                    43f,
+                    -43f,
                     0f),
                 arrowMaterial);
 
