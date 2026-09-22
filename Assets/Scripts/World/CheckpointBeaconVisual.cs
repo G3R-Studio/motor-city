@@ -5,6 +5,7 @@ namespace MotorCity.World
 {
     public sealed class CheckpointBeaconVisual : MonoBehaviour
     {
+        private Transform visualRoot;
         private Transform directionRoot;
         private bool initialized;
 
@@ -17,6 +18,17 @@ namespace MotorCity.World
 
             initialized =
                 true;
+
+            GameObject visualRootObject =
+                new(
+                    "Checkpoint Beacon Visuals");
+
+            visualRootObject.transform.SetParent(
+                transform,
+                false);
+
+            visualRoot =
+                visualRootObject.transform;
 
             Material pillarMaterial =
                 CreateTransparentMaterial(
@@ -36,7 +48,7 @@ namespace MotorCity.World
             CreatePrimitive(
                 "Checkpoint Pillar",
                 PrimitiveType.Cylinder,
-                transform,
+                visualRoot,
                 new Vector3(
                     3.2f,
                     4.5f,
@@ -51,7 +63,7 @@ namespace MotorCity.World
             CreatePrimitive(
                 "Checkpoint Ground Ring",
                 PrimitiveType.Cylinder,
-                transform,
+                visualRoot,
                 new Vector3(
                     4f,
                     0.035f,
@@ -71,7 +83,7 @@ namespace MotorCity.World
                     "Checkpoint Direction");
 
             directionObject.transform.SetParent(
-                transform,
+                visualRoot,
                 false);
 
             directionRoot =
@@ -121,6 +133,18 @@ namespace MotorCity.World
 
             directionRoot.gameObject.SetActive(
                 false);
+        }
+
+        public void SetVisible(
+            bool visible)
+        {
+            if (visualRoot != null &&
+                visualRoot.gameObject.activeSelf !=
+                    visible)
+            {
+                visualRoot.gameObject.SetActive(
+                    visible);
+            }
         }
 
         public void SetDirection(
