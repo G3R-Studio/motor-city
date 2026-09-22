@@ -198,7 +198,13 @@ namespace MotorCity.Bootstrap
                         MotorCityLocalization.Text(
                             "boot.loading");
 
-                    LoadGameScene();
+                    MotorCityPlatform.SetService(
+                        new LocalPlatformService());
+
+                    MotorCityPlatform.Initialize(
+                        ignored =>
+                            LoadGameScene());
+
                     return;
                 }
             }
