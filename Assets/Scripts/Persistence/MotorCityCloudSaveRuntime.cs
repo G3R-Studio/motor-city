@@ -114,6 +114,17 @@ namespace MotorCity.Persistence
                 true);
         }
 
+        private void OnApplicationFocus(
+            bool hasFocus)
+        {
+            if (hasFocus)
+                return;
+
+            MotorCitySaveService.FlushNow();
+            TryUpload(
+                true);
+        }
+
         private void OnApplicationQuit()
         {
             MotorCitySaveService.FlushNow();
