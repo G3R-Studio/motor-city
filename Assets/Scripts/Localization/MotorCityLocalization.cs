@@ -241,6 +241,7 @@ namespace MotorCity.Localization
                 { "navigator.controls", E("Z / X — ВЫБОР • ENTER — ПРОЛОЖИТЬ МАРШРУТ • ESC / M — ЗАКРЫТЬ", "Z / X — SELECT • ENTER — SET ROUTE • ESC / M — CLOSE") },
                 { "navigator.selection", E("{0}/{1}\n{2}", "{0}/{1}\n{2}") },
                 { "navigator.empty", E("Нет доступных точек", "No destinations available") },
+                { "navigator.touch_button", E("КАРТА", "MAP") },
                 { "hud.target", E("ЦЕЛЬ: {0}", "TARGET: {0}") },
 
                 { "garage.marker_text", E("Фиолетовый маркер: гараж", "Purple marker: garage") },
