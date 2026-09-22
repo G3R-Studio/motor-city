@@ -276,16 +276,9 @@ namespace MotorCity.Input
             HandbrakeHeld;
 
         public static bool PreferTouchPrompts =>
-            preferTouchPrompts ||
-            IsTouchCapableDevice();
+            preferTouchPrompts;
 
         public static void RefreshTouchPromptPreference()
-        {
-            preferTouchPrompts =
-                IsTouchCapableDevice();
-        }
-
-        private static bool IsTouchCapableDevice()
         {
             bool touchCapable =
                 Application.isMobilePlatform ||
@@ -295,11 +288,9 @@ namespace MotorCity.Input
                 Touchscreen.current != null;
 
 #if UNITY_EDITOR
-            // Unity Device Simulator exposes the simulated phone/tablet
-            // through UnityEngine.Device.* rather than the ordinary
-            // Application/SystemInfo APIs. Without this check a landscape
-            // simulated phone is treated as desktop and driving controls
-            // stay hidden.
+            // Device Simulator exposes the simulated device through
+            // UnityEngine.Device.*. This method is called from runtime
+            // initialization, never from MonoBehaviour field initializers.
             touchCapable =
                 touchCapable ||
                 UnityEngine.Device.Application.isMobilePlatform ||
@@ -307,7 +298,7 @@ namespace MotorCity.Input
                     DeviceType.Handheld;
 #endif
 
-            return
+            preferTouchPrompts =
                 touchCapable;
         }
 
