@@ -103,6 +103,10 @@ namespace MotorCity.Vehicle
         private float turboAssistMultiplier = 1f;
         private float turboAssistTimer;
 
+        private AudioSource engineAudioSource;
+        private AudioSource tireAudioSource;
+        private float baseEnginePitch = 0.78f;
+
         private int engineUpgradeLevel;
         private int gripUpgradeLevel;
         private int stabilityUpgradeLevel;
@@ -242,6 +246,7 @@ namespace MotorCity.Vehicle
             activeSuspensionTargetPosition =
                 suspensionTargetPosition;
 
+            SetupRuntimeAudio();
         }
 
         private void Update()
@@ -266,6 +271,8 @@ namespace MotorCity.Vehicle
                         driveModeMessageTimer -
                         Time.deltaTime);
             }
+
+            UpdateRuntimeAudio();
 
             if (turboAssistTimer > 0f)
             {
@@ -320,6 +327,172 @@ namespace MotorCity.Vehicle
                     SetPrometeoEnabled(true);
                     ReleaseResetBrakes();
                 }
+            }
+        }
+
+        private void SetupRuntimeAudio()
+        {
+            AudioClip engineClip =
+                Resources.Load<AudioClip>(
+                    "MotorCity/Audio/CarEngine");
+
+            AudioClip tireClip =
+                Resources.Load<AudioClip>(
+                    "MotorCity/Audio/TireScreech");
+
+            if (engineClip != null)
+            {
+                engineAudioSource =
+                    CreateRuntimeAudioSource(
+                        "Motor City Engine Audio",
+                        engineClip,
+                        0.30f);
+
+                engineAudioSource.pitch =
+                    baseEnginePitch;
+
+                engineAudioSource.Play();
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "Motor City: runtime engine audio clip is missing from Resources/MotorCity/Audio/CarEngine.",
+                    this);
+            }
+
+            if (tireClip != null)
+            {
+                tireAudioSource =
+                    CreateRuntimeAudioSource(
+                        "Motor City Tire Audio",
+                        tireClip,
+                        0.42f);
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "Motor City: runtime tire audio clip is missing from Resources/MotorCity/Audio/TireScreech.",
+                    this);
+            }
+        }
+
+        private AudioSource CreateRuntimeAudioSource(
+            string objectName,
+            AudioClip clip,
+            float volume)
+        {
+            GameObject audioObject =
+                new(
+                    objectName);
+
+            audioObject.transform.SetParent(
+                transform,
+                false);
+
+            AudioSource source =
+                audioObject.AddComponent<AudioSource>();
+
+            source.clip =
+                clip;
+
+            source.loop =
+                true;
+
+            source.playOnAwake =
+                false;
+
+            source.volume =
+                volume;
+
+            source.spatialBlend =
+                0.12f;
+
+            source.dopplerLevel =
+                0f;
+
+            source.minDistance =
+                2f;
+
+            source.maxDistance =
+                40f;
+
+            return
+                source;
+        }
+
+        private void UpdateRuntimeAudio()
+        {
+            if (engineAudioSource != null)
+            {
+                float speed01 =
+                    Mathf.InverseLerp(
+                        0f,
+                        220f,
+                        SpeedKph);
+
+                float throttleBoost =
+                    throttleHeld
+                        ? 0.12f
+                        : 0f;
+
+                engineAudioSource.pitch =
+                    Mathf.Lerp(
+                        baseEnginePitch,
+                        1.72f,
+                        speed01) +
+                    throttleBoost;
+
+                engineAudioSource.volume =
+                    Mathf.Lerp(
+                        0.22f,
+                        0.38f,
+                        speed01);
+
+                if (!engineAudioSource.isPlaying)
+                {
+                    engineAudioSource.Play();
+                }
+            }
+
+            if (tireAudioSource == null)
+                return;
+
+            float slideIntensity =
+                Mathf.Clamp01(
+                    Mathf.Max(
+                        DriftIntensity,
+                        Mathf.Abs(
+                            RearSidewaysSlip) *
+                        1.8f));
+
+            bool shouldScreech =
+                SpeedKph > 16f &&
+                (IsSliding ||
+                 (handbrakeHeld &&
+                  SpeedKph > 24f));
+
+            if (shouldScreech)
+            {
+                tireAudioSource.volume =
+                    Mathf.Lerp(
+                        0.12f,
+                        0.48f,
+                        slideIntensity);
+
+                tireAudioSource.pitch =
+                    Mathf.Lerp(
+                        0.92f,
+                        1.10f,
+                        slideIntensity);
+
+                if (!tireAudioSource.isPlaying)
+                {
+                    tireAudioSource.Play();
+                }
+            }
+            else if (tireAudioSource.isPlaying)
+            {
+                tireAudioSource.Stop();
             }
         }
 
