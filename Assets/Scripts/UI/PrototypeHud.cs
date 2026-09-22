@@ -5746,7 +5746,9 @@ namespace MotorCity.UI
 
             SetActiveIfChanged(
                 touchUtilityRoot,
-                !HasBlockingModalUi());
+                !HasBlockingModalUi() &&
+                (activityManager == null ||
+                 !activityManager.IsBusy));
 
             SetActiveIfChanged(
                 touchActivityCancelRoot,
