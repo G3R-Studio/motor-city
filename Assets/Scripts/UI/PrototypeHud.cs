@@ -255,6 +255,18 @@ namespace MotorCity.UI
             BuildUi();
         }
 
+        private static void SetActiveIfChanged(
+            GameObject target,
+            bool active)
+        {
+            if (target != null &&
+                target.activeSelf != active)
+            {
+                target.SetActive(
+                    active);
+            }
+        }
+
         private void Update()
         {
             if (moneyText == null)
@@ -469,15 +481,24 @@ namespace MotorCity.UI
                 activityManager != null &&
                 activityManager.HasResult;
 
-            activityResultOverlay.SetActive(
+            SetActiveIfChanged(
+                activityResultOverlay,
                 resultOpen);
 
             if (resultOpen)
             {
-                statusPanel.SetActive(false);
-                driftPanel.SetActive(false);
-                garageOverlay.SetActive(false);
-                navigatorPanel.SetActive(false);
+                SetActiveIfChanged(
+                    statusPanel,
+                    false);
+                SetActiveIfChanged(
+                    driftPanel,
+                    false);
+                SetActiveIfChanged(
+                    garageOverlay,
+                    false);
+                SetActiveIfChanged(
+                    navigatorPanel,
+                    false);
                 UpdateActivityResult();
                 HandleActivityResultInput();
                 return;
@@ -492,9 +513,15 @@ namespace MotorCity.UI
             if (storeOpen &&
                 cosmeticStore != null)
             {
-                garageOverlay.SetActive(false);
-                navigatorPanel.SetActive(false);
-                driftPanel.SetActive(false);
+                SetActiveIfChanged(
+                    garageOverlay,
+                    false);
+                SetActiveIfChanged(
+                    navigatorPanel,
+                    false);
+                SetActiveIfChanged(
+                    driftPanel,
+                    false);
                 statusPanel.SetActive(true);
                 statusText.text =
                     MotorCityLocalization.Format(
@@ -520,7 +547,8 @@ namespace MotorCity.UI
                     ? activeNotification
                     : ResolveContextualStatus();
 
-            statusPanel.SetActive(
+            SetActiveIfChanged(
+                statusPanel,
                 !string.IsNullOrWhiteSpace(
                     status));
 
@@ -533,7 +561,9 @@ namespace MotorCity.UI
                  drift.CurrentScore > 0 ||
                  drift.ShowRewardMessage);
 
-            driftPanel.SetActive(showDrift);
+            SetActiveIfChanged(
+                driftPanel,
+                showDrift);
 
             if (showDrift)
             {
@@ -564,7 +594,9 @@ namespace MotorCity.UI
                 garage != null &&
                 garage.IsOpen;
 
-            garageOverlay.SetActive(garageOpen);
+            SetActiveIfChanged(
+                garageOverlay,
+                garageOpen);
 
             if (!garageOpen)
             {
@@ -2593,7 +2625,9 @@ namespace MotorCity.UI
 
             if (garageOpen)
             {
-                navigatorPanel.SetActive(false);
+                SetActiveIfChanged(
+                    navigatorPanel,
+                    false);
                 return;
             }
 
