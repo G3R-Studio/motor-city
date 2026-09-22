@@ -142,7 +142,7 @@ namespace MotorCity.World
             undergroundRoute != null &&
             undergroundRoute.Length > 0
                 ? undergroundRoute[0]
-                : new Vector3(-630f, 0.2f, -1832f);
+                : PlayerSpawnPoint;
 
         public static Vector3[] UndergroundRoute =>
             (Vector3[])undergroundRoute.Clone();
@@ -698,23 +698,32 @@ namespace MotorCity.World
 
             if (!found)
             {
-                best =
-                    preferred;
+                Vector3 safeFallback =
+                    PlayerSpawnPoint;
 
-                best.y =
-                    Mathf.Max(
-                        0.2f,
-                        preferred.y);
+                if (TryGetRoadHit(
+                        PlayerSpawnPoint.x,
+                        PlayerSpawnPoint.z,
+                        out Vector3 spawnRoad))
+                {
+                    safeFallback =
+                        spawnRoad;
+
+                    safeFallback.y +=
+                        MarkerLift;
+                }
 
                 RoadSearchDebug.Log(
                     "[ROAD SNAP] " +
                     context +
-                    " FALLBACK preferred=" +
+                    " FALLBACK_TO_SPAWN preferred=" +
                     preferred.ToString("F2") +
                     " radius=" +
-                    searchRadius.ToString("F1"));
+                    searchRadius.ToString("F1") +
+                    " chosen=" +
+                    safeFallback.ToString("F2"));
 
-                return best;
+                return safeFallback;
             }
 
             best.y +=
