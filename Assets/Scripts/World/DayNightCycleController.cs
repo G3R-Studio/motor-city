@@ -284,7 +284,7 @@ namespace MotorCity.World
                         0.20f,
                         0.22f);
 
-            Color nightSky =
+            Color authoredNightSky =
                 settings != null
                     ? settings.NightSkyColor
                     : new Color(
@@ -292,10 +292,14 @@ namespace MotorCity.World
                         0.585f,
                         0.585f);
 
-            nightSky.a =
-                1f;
+            Color nightSky =
+                new Color(
+                    authoredNightSky.r * 0.22f,
+                    authoredNightSky.g * 0.28f,
+                    authoredNightSky.b * 0.40f,
+                    1f);
 
-            Color nightEquator =
+            Color authoredNightEquator =
                 settings != null
                     ? settings.NightEquatorColor
                     : new Color(
@@ -303,8 +307,12 @@ namespace MotorCity.World
                         0.651f,
                         0.651f);
 
-            nightEquator.a =
-                1f;
+            Color nightEquator =
+                new Color(
+                    authoredNightEquator.r * 0.22f,
+                    authoredNightEquator.g * 0.27f,
+                    authoredNightEquator.b * 0.35f,
+                    1f);
 
             RenderSettings.ambientMode =
                 AmbientMode.Trilight;
