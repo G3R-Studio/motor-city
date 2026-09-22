@@ -31,7 +31,9 @@ namespace MotorCity.Gameplay
                 new Color(
                     0.12f,
                     0.58f,
-                    1f));
+                    1f),
+                true,
+                CheckpointBeaconStyle.Delivery);
 
             baseScale = transform.localScale;
         }
