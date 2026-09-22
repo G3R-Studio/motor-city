@@ -20,6 +20,9 @@ namespace MotorCity.World
         private static readonly List<Edge> Edges =
             new();
 
+        private static readonly HashSet<ulong> EdgeKeys =
+            new();
+
         private static readonly Dictionary<MonoBehaviour, WayNetworkEntry>
             WayEntries =
                 new();
@@ -314,6 +317,7 @@ namespace MotorCity.World
 
             Nodes.Clear();
             Edges.Clear();
+            EdgeKeys.Clear();
             WayEntries.Clear();
 
             cachedSceneHandle =
@@ -681,16 +685,14 @@ namespace MotorCity.World
                     a,
                     b);
 
-            foreach (Edge edge in
-                     edges)
+            ulong edgeKey =
+                ((ulong)(uint)low << 32) |
+                (uint)high;
+
+            if (!EdgeKeys.Add(
+                    edgeKey))
             {
-                if (edge.A ==
-                        low &&
-                    edge.B ==
-                        high)
-                {
-                    return;
-                }
+                return;
             }
 
             edges.Add(
