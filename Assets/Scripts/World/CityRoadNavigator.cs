@@ -12,7 +12,7 @@ namespace MotorCity.World
             1.5f;
 
         private const float MaximumAuthoredLinkDistance =
-            90f;
+            30f;
 
         private static readonly List<Vector3> Nodes =
             new();
@@ -67,6 +67,11 @@ namespace MotorCity.World
                 FindBestProjectedRoute(
                     startProjection,
                     endProjection);
+
+            if (!best.IsValid)
+            {
+                return new List<Vector3>();
+            }
 
             List<Vector3> result =
                 new();
@@ -175,17 +180,7 @@ namespace MotorCity.World
                 }
             }
 
-            return best.IsValid
-                ? best
-                : new RouteCandidate(
-                    new List<int>
-                    {
-                        start.A,
-                        end.A
-                    },
-                    FlatDistance(
-                        start.Position,
-                        end.Position));
+            return best;
         }
 
         private static float PathCost(
@@ -222,6 +217,9 @@ namespace MotorCity.World
             {
                 Edge edge =
                     Edges[i];
+
+                if (!edge.IsRoadSegment)
+                    continue;
 
                 Vector3 a =
                     Nodes[edge.A];
@@ -422,7 +420,8 @@ namespace MotorCity.World
                             previous,
                             current,
                             Nodes,
-                            Edges);
+                            Edges,
+                            true);
                     }
 
                     previous =
@@ -565,7 +564,8 @@ namespace MotorCity.World
                     sourceNode,
                     targetNode,
                     Nodes,
-                    Edges);
+                    Edges,
+                    false);
             }
         }
 
@@ -718,7 +718,8 @@ namespace MotorCity.World
                         previous,
                         current,
                         nodes,
-                        edges);
+                        edges,
+                        true);
                 }
 
                 previous =
@@ -792,7 +793,8 @@ namespace MotorCity.World
                         i,
                         nearest,
                         nodes,
-                        edges);
+                        edges,
+                        false);
                 }
             }
         }
@@ -801,7 +803,8 @@ namespace MotorCity.World
             int a,
             int b,
             List<Vector3> nodes,
-            List<Edge> edges)
+            List<Edge> edges,
+            bool roadSegment)
         {
             if (a == b)
                 return;
@@ -834,7 +837,8 @@ namespace MotorCity.World
                     high,
                     FlatDistance(
                         nodes[low],
-                        nodes[high])));
+                        nodes[high]),
+                    roadSegment));
         }
 
         private static int NearestNode(
@@ -1113,6 +1117,9 @@ namespace MotorCity.World
 
                 Cost =
                     cost;
+
+                IsRoadSegment =
+                    isRoadSegment;
             }
         }
 
@@ -1124,10 +1131,13 @@ namespace MotorCity.World
 
             public readonly float Cost;
 
+            public readonly bool IsRoadSegment;
+
             public Edge(
                 int a,
                 int b,
-                float cost)
+                float cost,
+                bool isRoadSegment)
             {
                 A =
                     a;
