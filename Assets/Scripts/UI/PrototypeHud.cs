@@ -126,6 +126,8 @@ namespace MotorCity.UI
         private int lastDisplayedSpeed = int.MinValue;
         private DriveMode? lastDisplayedDriveMode;
         private float slowHudUpdateTimer;
+        private float contextualStatusUpdateTimer;
+        private string cachedContextualStatus = string.Empty;
         private const float SlowHudUpdateInterval = 0.10f;
 
         private readonly Queue<string> notificationQueue =
@@ -541,11 +543,31 @@ namespace MotorCity.UI
 
             UpdateNotificationQueue();
 
-            string status =
-                !string.IsNullOrWhiteSpace(
-                    activeNotification)
-                    ? activeNotification
-                    : ResolveContextualStatus();
+            string status;
+
+            if (!string.IsNullOrWhiteSpace(
+                    activeNotification))
+            {
+                status =
+                    activeNotification;
+            }
+            else
+            {
+                contextualStatusUpdateTimer -=
+                    Time.unscaledDeltaTime;
+
+                if (contextualStatusUpdateTimer <= 0f)
+                {
+                    contextualStatusUpdateTimer =
+                        SlowHudUpdateInterval;
+
+                    cachedContextualStatus =
+                        ResolveContextualStatus();
+                }
+
+                status =
+                    cachedContextualStatus;
+            }
 
             SetActiveIfChanged(
                 statusPanel,
