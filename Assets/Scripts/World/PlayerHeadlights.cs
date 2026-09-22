@@ -7,6 +7,7 @@ namespace MotorCity.World
         private DayNightCycleController dayNight;
         private Light left;
         private Light right;
+        private float dayNightResolveTimer;
 
         private void Awake()
         {
@@ -37,8 +38,16 @@ namespace MotorCity.World
         {
             if (dayNight == null)
             {
-                dayNight =
-                    Object.FindAnyObjectByType<DayNightCycleController>();
+                dayNightResolveTimer -=
+                    Time.unscaledDeltaTime;
+
+                if (dayNightResolveTimer <= 0f)
+                {
+                    dayNightResolveTimer = 1f;
+
+                    dayNight =
+                        Object.FindAnyObjectByType<DayNightCycleController>();
+                }
             }
 
             float night =
