@@ -37,16 +37,17 @@ namespace MotorCity.Input
         ToggleClub = 29,
         RewardedBonus = 30,
         ToggleStore = 31,
-        ToggleNavigator = 32
+        ToggleNavigator = 32,
+        Count = 33
     }
 
     public static class MotorCityInput
     {
         private static readonly bool[] VirtualHeld =
-            new bool[33];
+            new bool[(int)MotorCityInputAction.Count];
 
         private static readonly int[] VirtualPressedFrame =
-            new int[33];
+            new int[(int)MotorCityInputAction.Count];
 
         private static bool preferTouchPrompts;
 
@@ -288,6 +289,20 @@ namespace MotorCity.Input
         {
             preferTouchPrompts =
                 enabled;
+        }
+
+        public static void ClearVirtualState()
+        {
+            for (int i = 0;
+                 i < VirtualHeld.Length;
+                 i++)
+            {
+                VirtualHeld[i] =
+                    false;
+
+                VirtualPressedFrame[i] =
+                    int.MinValue;
+            }
         }
 
         public static void PressVirtual(
