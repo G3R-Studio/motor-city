@@ -292,10 +292,12 @@ namespace MotorCity.Gameplay
         {
             if (expected == "*")
             {
-                return actual == "delivery" ||
-                       actual == "drift" ||
-                       actual == "sprint" ||
-                       actual == "circuit";
+                // Wildcard story steps say "any activity", so every
+                // successful ActivityManager result must count — including
+                // city professions such as profession_icecream.
+                return
+                    !string.IsNullOrWhiteSpace(
+                        actual);
             }
 
             return expected == actual;
