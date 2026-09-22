@@ -8,8 +8,11 @@ namespace MotorCity.World
 {
     public sealed class CitySchematicMap
     {
+        // The minimap is displayed at roughly 178 px in the HUD. A 256 px
+        // source keeps it crisp while cutting CPU work and texture memory to
+        // one quarter of the previous 512 px runtime-generated map.
         private const int TextureSize =
-            512;
+            256;
 
         private static readonly Color Background =
             new(
@@ -210,7 +213,8 @@ namespace MotorCity.World
             }
 
             DrawFcgTrafficRoads(
-                pixels);
+                pixels,
+                cityRoot);
 
             Texture.SetPixels(
                 pixels);
@@ -277,12 +281,18 @@ namespace MotorCity.World
         }
 
         private void DrawFcgTrafficRoads(
-            Color[] pixels)
+            Color[] pixels,
+            GameObject cityRoot)
         {
+            if (cityRoot == null)
+                return;
+
+            // Traffic data lives under the authored FCG city. Restricting the
+            // lookup to that hierarchy avoids scanning every MonoBehaviour in
+            // the scene during HUD startup.
             MonoBehaviour[] behaviours =
-                UnityEngine.Object.FindObjectsByType<MonoBehaviour>(
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.None);
+                cityRoot.GetComponentsInChildren<MonoBehaviour>(
+                    true);
 
             foreach (MonoBehaviour behaviour in
                      behaviours)
