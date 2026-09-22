@@ -52,6 +52,11 @@ namespace MotorCity.Gameplay
                     "garage.vehicles_unavailable")
                 : vehicleRoster.GetGarageLine();
 
+        public string NextVehicleLine =>
+            vehicleRoster == null
+                ? string.Empty
+                : vehicleRoster.GetNextVehicleLine();
+
         public string VehicleStatsLine =>
             vehicleRoster == null
                 ? string.Empty
