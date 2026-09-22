@@ -18,3 +18,8 @@
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.rar filter=lfs diff=lfs merge=lfs -text
 *.7z filter=lfs diff=lfs merge=lfs -text
+
+
+# Runtime audio clips must be real repository files so Unity Resources can
+# import them even on clones where Git LFS content has not been materialized.
+Assets/Resources/MotorCity/Audio/*.wav -filter -diff -merge -text
