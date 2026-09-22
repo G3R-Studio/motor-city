@@ -2017,6 +2017,13 @@ namespace MotorCity.UI
                         0f,
                         0f),
                     TextColor);
+
+            // Keep these references alive for the existing HUD update loop,
+            // but remove the persistent economy/mode/objective block from
+            // gameplay. Credits and progression remain available in purchase
+            // surfaces such as the garage/store.
+            card.gameObject.SetActive(
+                false);
         }
 
         private void BuildCharacterCard(
@@ -2028,10 +2035,10 @@ namespace MotorCity.UI
                     "Character Card",
                     new Vector2(
                         18f,
-                        -150f),
+                        -18f),
                     new Vector2(
-                        360f,
-                        82f),
+                        430f,
+                        112f),
                     new Vector2(
                         0f,
                         1f),
@@ -2055,7 +2062,7 @@ namespace MotorCity.UI
                     -7f),
                 new Vector2(
                     4f,
-                    68f),
+                    98f),
                 new Vector2(
                     0f,
                     1f),
@@ -2169,9 +2176,9 @@ namespace MotorCity.UI
                     TextAnchor.UpperLeft,
                     new Vector2(
                         84f,
-                        -7f),
+                        -8f),
                     new Vector2(
-                        86f,
+                        132f,
                         14f),
                     new Vector2(
                         0f,
@@ -2190,9 +2197,9 @@ namespace MotorCity.UI
                     TextAnchor.UpperLeft,
                     new Vector2(
                         84f,
-                        -22f),
+                        -24f),
                     new Vector2(
-                        254f,
+                        324f,
                         23f),
                     new Vector2(
                         0f,
@@ -2211,10 +2218,10 @@ namespace MotorCity.UI
                     TextAnchor.LowerLeft,
                     new Vector2(
                         84f,
-                        9f),
+                        10f),
                     new Vector2(
-                        254f,
-                        31f),
+                        324f,
+                        58f),
                     new Vector2(
                         0f,
                         0f),
@@ -2716,14 +2723,6 @@ namespace MotorCity.UI
                         0.016f,
                         0.026f,
                         0.24f));
-
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(0f, 3f),
-                new Vector2(174f, 3f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f));
 
             Vector2 gaugeCenter =
                 new(0f, 91f);
