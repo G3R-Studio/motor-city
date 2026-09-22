@@ -234,6 +234,7 @@ namespace MotorCity.Localization
                 { "hud.garage_title", E("ГАРАЖ · УЛУЧШЕНИЯ", "GARAGE · UPGRADES") },
                 { "hud.garage_vehicle", E("МАШИНА: {0}", "CAR: {0}") },
                 { "hud.first_activity_target", E("ПЕРВАЯ АКТИВНОСТЬ · ДОСТАВКА", "FIRST ACTIVITY · DELIVERY") },
+                { "hud.objective_label", E("ЦЕЛЬ", "OBJECTIVE") },
                 { "hud.character.story", E("ИСТОРИЯ", "STORY") },
                 { "hud.character.season", E("СЕЗОН", "SEASON") },
                 { "hud.story_delivery_target", E("ДЕЛО · ДОСТАВКА", "JOB · DELIVERY") },
