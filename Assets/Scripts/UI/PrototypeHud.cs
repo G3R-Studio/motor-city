@@ -2822,7 +2822,7 @@ namespace MotorCity.UI
                 car.transform.position;
 
             const float worldRadius =
-                88f;
+                120f;
 
             if (schematicMap != null &&
                 schematicMap.IsValid &&
