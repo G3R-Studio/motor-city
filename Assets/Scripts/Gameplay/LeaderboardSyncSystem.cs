@@ -85,35 +85,62 @@ namespace MotorCity.Gameplay
 
             if (rep != lastRep)
             {
-                lastRep = rep;
+                int submittedRep =
+                    rep;
 
                 MotorCityPlatform.SubmitLeaderboard(
                     MotorCityRemoteConfigRuntime.GetString(
                         "leaderboard_rep_id",
                         "motor_city_rep"),
-                    rep);
+                    submittedRep,
+                    success =>
+                    {
+                        if (success)
+                        {
+                            lastRep =
+                                submittedRep;
+                        }
+                    });
             }
 
             if (collectionRating != lastCollection)
             {
-                lastCollection = collectionRating;
+                int submittedCollection =
+                    collectionRating;
 
                 MotorCityPlatform.SubmitLeaderboard(
                     MotorCityRemoteConfigRuntime.GetString(
                         "leaderboard_collection_id",
                         "motor_city_collection"),
-                    collectionRating);
+                    submittedCollection,
+                    success =>
+                    {
+                        if (success)
+                        {
+                            lastCollection =
+                                submittedCollection;
+                        }
+                    });
             }
 
             if (activityWins != lastWins)
             {
-                lastWins = activityWins;
+                int submittedWins =
+                    activityWins;
 
                 MotorCityPlatform.SubmitLeaderboard(
                     MotorCityRemoteConfigRuntime.GetString(
                         "leaderboard_activities_id",
                         "motor_city_activities"),
-                    activityWins);
+                    submittedWins,
+                    success =>
+                    {
+                        if (success)
+                        {
+                            lastWins =
+                                submittedWins;
+                        }
+                    });
             }
         }
     }
