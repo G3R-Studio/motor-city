@@ -83,6 +83,14 @@ namespace MotorCity.UI
         private Text minimapTargetText;
         private readonly RectTransform[] minimapRouteDots =
             new RectTransform[36];
+        private readonly List<Vector3> fixedRoadRoute =
+            new();
+        private Vector3 fixedRoadRouteTarget;
+        private bool fixedRoadRouteValid;
+        private int fixedRoadRouteProgress;
+        private const float RouteTargetChangeDistance = 8f;
+        private const float RouteRebuildOffPathDistance = 32f;
+        private const float RouteAdvanceDistance = 18f;
         private GameObject navigatorMenuOverlay;
         private Text navigatorMenuText;
         private bool navigatorMenuOpen;
@@ -952,19 +960,22 @@ namespace MotorCity.UI
             if (!showRoadRoute ||
                 minimapRouteDots.Length == 0)
             {
+                ClearFixedRoadRoute();
                 return;
             }
 
-            List<Vector3> route =
-                CityRoadNavigator.BuildRoute(
-                    carPosition,
-                    target);
+            EnsureFixedRoadRoute(
+                carPosition,
+                target);
 
-            if (route == null ||
-                route.Count < 2)
+            if (!fixedRoadRouteValid ||
+                fixedRoadRoute.Count < 2)
             {
                 return;
             }
+
+            AdvanceFixedRoadRouteProgress(
+                carPosition);
 
             const float markerRadius =
                 74f;
@@ -979,17 +990,32 @@ namespace MotorCity.UI
             bool reachedEdge =
                 false;
 
-            for (int segment = 0;
-                 segment < route.Count - 1 &&
+            int firstSegment =
+                Mathf.Clamp(
+                    fixedRoadRouteProgress,
+                    0,
+                    fixedRoadRoute.Count - 2);
+
+            for (int segment = firstSegment;
+                 segment < fixedRoadRoute.Count - 1 &&
                  placed < minimapRouteDots.Length &&
                  !reachedEdge;
                  segment++)
             {
                 Vector3 a =
-                    route[segment];
+                    fixedRoadRoute[segment];
 
                 Vector3 b =
-                    route[segment + 1];
+                    fixedRoadRoute[segment + 1];
+
+                if (segment == firstSegment)
+                {
+                    a =
+                        ClosestPointOnFlatSegment(
+                            carPosition,
+                            a,
+                            b);
+                }
 
                 float length =
                     FlatDistance(
@@ -1001,9 +1027,9 @@ namespace MotorCity.UI
                         1,
                         Mathf.CeilToInt(
                             length /
-                            18f));
+                            12f));
 
-                for (int step = 1;
+                for (int step = 0;
                      step <= steps &&
                      placed < minimapRouteDots.Length;
                      step++)
@@ -1062,6 +1088,245 @@ namespace MotorCity.UI
                         break;
                 }
             }
+        }
+
+        private void EnsureFixedRoadRoute(
+            Vector3 carPosition,
+            Vector3 target)
+        {
+            bool targetChanged =
+                !fixedRoadRouteValid ||
+                FlatDistance(
+                    fixedRoadRouteTarget,
+                    target) >
+                RouteTargetChangeDistance;
+
+            bool offRoute =
+                fixedRoadRouteValid &&
+                DistanceToRemainingRoute(
+                    carPosition) >
+                RouteRebuildOffPathDistance;
+
+            if (!targetChanged &&
+                !offRoute)
+            {
+                return;
+            }
+
+            List<Vector3> route =
+                CityRoadNavigator.BuildRoute(
+                    carPosition,
+                    target);
+
+            fixedRoadRoute.Clear();
+
+            if (route == null ||
+                route.Count < 2)
+            {
+                fixedRoadRouteValid =
+                    false;
+
+                return;
+            }
+
+            foreach (Vector3 point in route)
+            {
+                if (fixedRoadRoute.Count == 0 ||
+                    FlatDistance(
+                        fixedRoadRoute[
+                            fixedRoadRoute.Count - 1],
+                        point) >
+                    1.5f)
+                {
+                    fixedRoadRoute.Add(
+                        point);
+                }
+            }
+
+            fixedRoadRouteTarget =
+                target;
+
+            fixedRoadRouteProgress =
+                0;
+
+            fixedRoadRouteValid =
+                fixedRoadRoute.Count >= 2;
+        }
+
+        private void AdvanceFixedRoadRouteProgress(
+            Vector3 carPosition)
+        {
+            if (!fixedRoadRouteValid ||
+                fixedRoadRoute.Count < 2)
+            {
+                return;
+            }
+
+            int maxSegment =
+                fixedRoadRoute.Count - 2;
+
+            int searchEnd =
+                Mathf.Min(
+                    maxSegment,
+                    fixedRoadRouteProgress + 6);
+
+            int bestSegment =
+                fixedRoadRouteProgress;
+
+            float bestDistance =
+                float.PositiveInfinity;
+
+            for (int segment =
+                     fixedRoadRouteProgress;
+                 segment <= searchEnd;
+                 segment++)
+            {
+                Vector3 closest =
+                    ClosestPointOnFlatSegment(
+                        carPosition,
+                        fixedRoadRoute[segment],
+                        fixedRoadRoute[segment + 1]);
+
+                float distance =
+                    FlatDistance(
+                        carPosition,
+                        closest);
+
+                if (distance <
+                    bestDistance)
+                {
+                    bestDistance =
+                        distance;
+
+                    bestSegment =
+                        segment;
+                }
+            }
+
+            fixedRoadRouteProgress =
+                bestSegment;
+
+            while (fixedRoadRouteProgress <
+                   maxSegment &&
+                   FlatDistance(
+                       carPosition,
+                       fixedRoadRoute[
+                           fixedRoadRouteProgress + 1]) <=
+                   RouteAdvanceDistance)
+            {
+                fixedRoadRouteProgress++;
+            }
+        }
+
+        private float DistanceToRemainingRoute(
+            Vector3 carPosition)
+        {
+            if (!fixedRoadRouteValid ||
+                fixedRoadRoute.Count < 2)
+            {
+                return
+                    float.PositiveInfinity;
+            }
+
+            float best =
+                float.PositiveInfinity;
+
+            int startSegment =
+                Mathf.Clamp(
+                    fixedRoadRouteProgress,
+                    0,
+                    fixedRoadRoute.Count - 2);
+
+            int endSegment =
+                Mathf.Min(
+                    fixedRoadRoute.Count - 2,
+                    startSegment + 10);
+
+            for (int segment = startSegment;
+                 segment <= endSegment;
+                 segment++)
+            {
+                Vector3 closest =
+                    ClosestPointOnFlatSegment(
+                        carPosition,
+                        fixedRoadRoute[segment],
+                        fixedRoadRoute[segment + 1]);
+
+                best =
+                    Mathf.Min(
+                        best,
+                        FlatDistance(
+                            carPosition,
+                            closest));
+            }
+
+            return best;
+        }
+
+        private static Vector3 ClosestPointOnFlatSegment(
+            Vector3 point,
+            Vector3 a,
+            Vector3 b)
+        {
+            Vector2 p =
+                new(
+                    point.x,
+                    point.z);
+
+            Vector2 av =
+                new(
+                    a.x,
+                    a.z);
+
+            Vector2 bv =
+                new(
+                    b.x,
+                    b.z);
+
+            Vector2 ab =
+                bv -
+                av;
+
+            float lengthSquared =
+                ab.sqrMagnitude;
+
+            float t =
+                lengthSquared <=
+                    0.0001f
+                    ? 0f
+                    : Mathf.Clamp01(
+                        Vector2.Dot(
+                            p - av,
+                            ab) /
+                        lengthSquared);
+
+            return new Vector3(
+                Mathf.Lerp(
+                    a.x,
+                    b.x,
+                    t),
+                Mathf.Lerp(
+                    a.y,
+                    b.y,
+                    t),
+                Mathf.Lerp(
+                    a.z,
+                    b.z,
+                    t));
+        }
+
+        private void ClearFixedRoadRoute()
+        {
+            fixedRoadRoute.Clear();
+
+            fixedRoadRouteValid =
+                false;
+
+            fixedRoadRouteProgress =
+                0;
+
+            fixedRoadRouteTarget =
+                Vector3.zero;
         }
 
         private void HideRouteDots()
@@ -2012,6 +2277,7 @@ namespace MotorCity.UI
                     minimapTargetText.text = string.Empty;
 
                 HideRouteDots();
+                ClearFixedRoadRoute();
                 return;
             }
 
