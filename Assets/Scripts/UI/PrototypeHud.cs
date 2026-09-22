@@ -148,6 +148,9 @@ namespace MotorCity.UI
         private bool lastHudTouchPrompts;
         private bool hudLocalizationStateInitialized;
 
+        private readonly List<TouchLocalizedLabel> touchLocalizedLabels =
+            new();
+
         private readonly Queue<string> notificationQueue =
             new();
         private string lastNotificationCandidate;
@@ -347,6 +350,22 @@ namespace MotorCity.UI
 
             minimapTargetResolveTimer =
                 0f;
+
+            RefreshTouchLocalizedLabels();
+        }
+
+        private void RefreshTouchLocalizedLabels()
+        {
+            foreach (TouchLocalizedLabel binding in
+                     touchLocalizedLabels)
+            {
+                if (binding.Text == null)
+                    continue;
+
+                binding.Text.text =
+                    MotorCityLocalization.Text(
+                        binding.LocalizationKey);
+            }
         }
 
         private void Update()
@@ -4525,6 +4544,87 @@ namespace MotorCity.UI
                 label;
         }
 
+        private Text CreateLocalizedTouchPulseButton(
+            Transform parent,
+            string name,
+            string localizationKey,
+            MotorCityInputAction action,
+            Vector2 anchoredPosition,
+            Vector2 size)
+        {
+            GameObject buttonObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(0.5f, 0f);
+            rect.anchorMax =
+                new Vector2(0.5f, 0f);
+            rect.pivot =
+                new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            image.color =
+                new Color(
+                    0.045f,
+                    0.075f,
+                    0.12f,
+                    0.94f);
+
+            Button button =
+                buttonObject.GetComponent<Button>();
+
+            button.targetGraphic =
+                image;
+
+            button.onClick.AddListener(
+                () =>
+                    MotorCityInput.PulseVirtual(
+                        action));
+
+            Text text =
+                CreateText(
+                    rect,
+                    "Label",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    size -
+                    new Vector2(8f, 6f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+
+            text.text =
+                MotorCityLocalization.Text(
+                    localizationKey);
+
+            touchLocalizedLabels.Add(
+                new TouchLocalizedLabel(
+                    text,
+                    localizationKey));
+
+            return
+                text;
+        }
+
         private void UpdateGarage()
         {
             if (MotorCityInput.ToggleVehiclePassportPressed)
@@ -4971,6 +5071,23 @@ namespace MotorCity.UI
                 adventureDirector.ObjectiveLine;
         }
 
+        private sealed class TouchLocalizedLabel
+        {
+            public readonly Text Text;
+            public readonly string LocalizationKey;
+
+            public TouchLocalizedLabel(
+                Text text,
+                string localizationKey)
+            {
+                Text =
+                    text;
+
+                LocalizationKey =
+                    localizationKey;
+            }
+        }
+
         private void OnDestroy()
         {
             if (schematicMap != null &&
@@ -5068,38 +5185,34 @@ namespace MotorCity.UI
             root.sizeDelta =
                 new Vector2(440f, 48f);
 
-            CreateTouchPulseButton(
+            CreateLocalizedTouchPulseButton(
                 root,
                 "Touch Photo",
-                MotorCityLocalization.Text(
-                    "touch.utility.photo"),
+                "touch.utility.photo",
                 MotorCityInputAction.TakePhoto,
                 new Vector2(-165f, 0f),
                 new Vector2(100f, 40f));
 
-            CreateTouchPulseButton(
+            CreateLocalizedTouchPulseButton(
                 root,
                 "Touch Club",
-                MotorCityLocalization.Text(
-                    "touch.utility.club"),
+                "touch.utility.club",
                 MotorCityInputAction.ToggleClub,
                 new Vector2(-55f, 0f),
                 new Vector2(100f, 40f));
 
-            CreateTouchPulseButton(
+            CreateLocalizedTouchPulseButton(
                 root,
                 "Touch Store",
-                MotorCityLocalization.Text(
-                    "touch.utility.store"),
+                "touch.utility.store",
                 MotorCityInputAction.ToggleStore,
                 new Vector2(55f, 0f),
                 new Vector2(100f, 40f));
 
-            CreateTouchPulseButton(
+            CreateLocalizedTouchPulseButton(
                 root,
                 "Touch Bonus",
-                MotorCityLocalization.Text(
-                    "touch.utility.bonus"),
+                "touch.utility.bonus",
                 MotorCityInputAction.RewardedBonus,
                 new Vector2(165f, 0f),
                 new Vector2(100f, 40f));
