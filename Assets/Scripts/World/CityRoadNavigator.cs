@@ -92,7 +92,8 @@ namespace MotorCity.World
             int sceneHandle =
                 UnityEngine.SceneManagement.SceneManager
                     .GetActiveScene()
-                    .handle;
+                    .handle
+                    .GetRawData();
 
             if (graphReady &&
                 cachedSceneHandle ==
