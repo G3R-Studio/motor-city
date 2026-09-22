@@ -2606,15 +2606,24 @@ namespace MotorCity.UI
                 line =
                     season.CurrentCharacterLine;
 
-                style =
+                int seasonStyle =
                     season.CurrentCharacterStyle;
+
+                style =
+                    seasonStyle switch
+                    {
+                        1 => 3,
+                        2 => 1,
+                        3 => 2,
+                        _ => 0
+                    };
 
                 portraitId =
                     style switch
                     {
-                        1 => "turbo",
-                        2 => "nika",
-                        3 => "bublik",
+                        1 => "nika",
+                        2 => "bublik",
+                        3 => "turbo",
                         _ => "vitya"
                     };
             }
