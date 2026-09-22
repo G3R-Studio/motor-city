@@ -66,18 +66,18 @@ namespace MotorCity.Gameplay
 
                 CreateDiscovery(
                     "highway_mid",
-                    MotorCityLocalization.Text("world.highway_mid"),
-                    new Vector3(-300f, 0f, -1000f)),
+                    MotorCityLocalization.Text("world.central_avenue"),
+                    new Vector3(150f, 0f, -100f)),
 
                 CreateDiscovery(
                     "remote_east",
-                    MotorCityLocalization.Text("world.remote_east"),
-                    new Vector3(20f, 0f, -1832f)),
+                    MotorCityLocalization.Text("world.north_quarter"),
+                    new Vector3(150f, 0f, 450f)),
 
                 CreateDiscovery(
                     "remote_south",
-                    MotorCityLocalization.Text("world.remote_south"),
-                    new Vector3(-300f, 0f, -2010f))
+                    MotorCityLocalization.Text("world.west_turn"),
+                    new Vector3(-450f, 0f, 150f))
             };
         }
 
