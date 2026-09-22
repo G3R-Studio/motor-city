@@ -325,8 +325,6 @@ namespace FCG
 
             bool invert = (Random.Range(1, 20) < 10);
 
-            Transform test = new GameObject("verify").transform;
-
             for (int j = 0; j < n; j++)
             {
 
@@ -392,11 +390,6 @@ namespace FCG
 
 
             }
-
-            if (Application.isPlaying)
-                Destroy(test.gameObject);
-            else
-                DestroyImmediate(test.gameObject);
 
 
             if (nVehicles > 0)
