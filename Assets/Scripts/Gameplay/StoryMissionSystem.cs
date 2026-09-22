@@ -350,6 +350,77 @@ namespace MotorCity.Gameplay
             MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
+        public void ResetForTesting()
+        {
+            if (missions == null ||
+                missions.Length == 0)
+            {
+                BuildMissions();
+            }
+
+            IsComplete =
+                false;
+
+            missionIndex =
+                0;
+
+            progress =
+                0;
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                CompleteKey,
+                0);
+
+            Save();
+            AnnounceCurrentMission();
+        }
+
+        public void AdvanceMissionForTesting()
+        {
+            if (missions == null ||
+                missions.Length == 0)
+            {
+                BuildMissions();
+            }
+
+            if (IsComplete)
+                return;
+
+            progress =
+                0;
+
+            if (missionIndex >=
+                missions.Length - 1)
+            {
+                IsComplete =
+                    true;
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    CompleteKey,
+                    1);
+
+                MotorCity.Persistence.MotorCitySaveService.Save();
+
+                StatusText =
+                    MotorCityLocalization.Text(
+                        "story.complete_hud");
+
+                messageTimer =
+                    MessageSeconds;
+
+                return;
+            }
+
+            missionIndex++;
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                CompleteKey,
+                0);
+
+            Save();
+            AnnounceCurrentMission();
+        }
+
         private void BuildMissions()
         {
             missions = new[]
