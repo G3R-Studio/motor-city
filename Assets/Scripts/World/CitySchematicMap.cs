@@ -16,37 +16,37 @@ namespace MotorCity.World
 
         private static readonly Color Background =
             new(
-                0.86f,
-                0.88f,
-                0.87f,
+                0.80f,
+                0.82f,
+                0.84f,
                 1f);
 
         private static readonly Color Road =
             new(
-                0.96f,
-                0.965f,
-                0.96f,
+                0.985f,
+                0.99f,
+                1f,
                 1f);
 
         private static readonly Color RoadEdge =
             new(
-                0.72f,
-                0.75f,
-                0.74f,
+                0.88f,
+                0.91f,
+                0.94f,
                 1f);
 
         private static readonly Color Building =
             new(
-                0.73f,
-                0.76f,
-                0.75f,
+                0.60f,
+                0.63f,
+                0.67f,
                 1f);
 
         private static readonly Color BuildingEdge =
             new(
-                0.57f,
-                0.61f,
-                0.60f,
+                0.49f,
+                0.53f,
+                0.58f,
                 1f);
 
         private static readonly string[] RoadNameParts =
@@ -490,7 +490,7 @@ namespace MotorCity.World
                         length));
 
             const int roadHalfWidth =
-                4;
+                7;
 
             for (int step = 0;
                  step <= steps;
