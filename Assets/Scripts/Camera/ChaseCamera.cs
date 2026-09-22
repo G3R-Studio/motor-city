@@ -17,6 +17,9 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float baseFieldOfView = 62f;
         [SerializeField] private float highSpeedFieldOfView = 72f;
         [SerializeField] private float fieldOfViewSharpness = 4.5f;
+        [SerializeField] private float driftLookInfluence = 0.45f;
+        [SerializeField] private float maxDriftLookAngle = 22f;
+        [SerializeField] private float teleportSnapDistance = 28f;
 
         [Header("Obstacle Avoidance")]
         [SerializeField] private float collisionRadius = 0.32f;
@@ -44,6 +47,8 @@ namespace MotorCity.CameraSystem
         private Camera cameraComponent;
         private float currentCollisionDistance;
         private float collisionDistanceVelocity;
+        private Vector3 lastTargetPosition;
+        private bool hasLastTargetPosition;
 
         private readonly RaycastHit[] collisionHits =
             new RaycastHit[32];
@@ -55,6 +60,20 @@ namespace MotorCity.CameraSystem
             targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
             currentCollisionDistance = targetDistance;
             collisionDistanceVelocity = 0f;
+
+            if (target != null)
+            {
+                lastTargetPosition =
+                    target.position;
+
+                hasLastTargetPosition =
+                    true;
+            }
+            else
+            {
+                hasLastTargetPosition =
+                    false;
+            }
         }
 
         private void Awake()
@@ -324,11 +343,20 @@ namespace MotorCity.CameraSystem
                     cameraPivot,
                     desiredPosition);
 
+            bool snapAfterTeleport =
+                hasLastTargetPosition &&
+                Vector3.Distance(
+                    lastTargetPosition,
+                    target.position) >=
+                teleportSnapDistance;
+
             transform.position =
-                Vector3.Lerp(
-                    transform.position,
-                    collisionSafePosition,
-                    positionT);
+                snapAfterTeleport
+                    ? collisionSafePosition
+                    : Vector3.Lerp(
+                        transform.position,
+                        collisionSafePosition,
+                        positionT);
 
             // A final clamp keeps the interpolated camera outside geometry
             // without repeatedly snapping it in and out every frame.
@@ -363,9 +391,29 @@ namespace MotorCity.CameraSystem
                     speedLookAhead,
                     speed01);
 
+            Vector3 lookDirection =
+                target.forward;
+
+            if (car != null &&
+                car.SpeedKph >= 25f)
+            {
+                float driftLookAngle =
+                    Mathf.Clamp(
+                        car.SlipAngleDegrees,
+                        -maxDriftLookAngle,
+                        maxDriftLookAngle) *
+                    driftLookInfluence;
+
+                lookDirection =
+                    Quaternion.AngleAxis(
+                        driftLookAngle,
+                        Vector3.up) *
+                    target.forward;
+            }
+
             Vector3 lookPoint =
                 target.position +
-                target.forward * dynamicLookAhead +
+                lookDirection * dynamicLookAhead +
                 Vector3.up * 0.92f;
 
             Quaternion desiredRotation =
@@ -374,10 +422,18 @@ namespace MotorCity.CameraSystem
                     Vector3.up);
 
             transform.rotation =
-                Quaternion.Slerp(
-                    transform.rotation,
-                    desiredRotation,
-                    rotationT);
+                snapAfterTeleport
+                    ? desiredRotation
+                    : Quaternion.Slerp(
+                        transform.rotation,
+                        desiredRotation,
+                        rotationT);
+
+            lastTargetPosition =
+                target.position;
+
+            hasLastTargetPosition =
+                true;
 
             if (cameraComponent != null)
             {
