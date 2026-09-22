@@ -362,7 +362,9 @@ namespace MotorCity.Gameplay
             VehicleChanged?.Invoke();
 
             status =
-                $"АДМИН: выбрана {profiles[SelectedIndex].DisplayName}";
+                MotorCityLocalization.Format(
+                    "vehicle.selected",
+                    profiles[SelectedIndex].DisplayName);
 
             return true;
         }
