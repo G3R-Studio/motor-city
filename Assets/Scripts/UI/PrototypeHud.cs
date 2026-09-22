@@ -190,6 +190,7 @@ namespace MotorCity.UI
         private Image garageCreditsIcon;
         private Text garageMoneyText;
         private Text garageStatusText;
+        private Image garageVehicleStateIcon;
         private Text garageVehicleText;
         private Text garageVehicleStatsText;
         private Text garageVehicleHistoryText;
@@ -5604,6 +5605,22 @@ namespace MotorCity.UI
                     new Vector2(1f, 1f),
                     TextColor);
 
+            garageVehicleStateIcon =
+                CreateHudIcon(
+                    panel,
+                    "Garage Vehicle State Icon",
+                    MotorCityIconLibrary.Unlocked,
+                    new Vector2(
+                        28f,
+                        -76f),
+                    new Vector2(
+                        22f,
+                        22f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    GarageAccent);
+
             garageVehicleText =
                 CreateText(
                     panel,
@@ -5611,8 +5628,8 @@ namespace MotorCity.UI
                     17,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -76f),
-                    new Vector2(704f, 24f),
+                    new Vector2(58f, -76f),
+                    new Vector2(674f, 24f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     TextColor);
@@ -6215,9 +6232,62 @@ namespace MotorCity.UI
             if (garageVehicleText != null)
             {
                 garageVehicleText.text =
-                    MotorCityLocalization.Format(
-                        "hud.garage_vehicle",
-                        garage.VehicleName);
+                    garage.VehicleLine;
+            }
+
+            if (garageVehicleStateIcon != null)
+            {
+                Sprite stateSprite =
+                    MotorCityIconLibrary.Unlocked;
+
+                Color stateColor =
+                    new Color(
+                        0.35f,
+                        1f,
+                        0.58f,
+                        1f);
+
+                if (garage.HasNextVehicle &&
+                    !garage.NextVehicleUnlocked)
+                {
+                    stateSprite =
+                        MotorCityIconLibrary.Locked;
+
+                    stateColor =
+                        new Color(
+                            1f,
+                            0.52f,
+                            0.24f,
+                            1f);
+                }
+                else if (garage.HasNextVehicle &&
+                         !garage.NextVehicleOwned)
+                {
+                    stateSprite =
+                        MotorCityIconLibrary.Credits;
+
+                    stateColor =
+                        garage.CanAffordNextVehicle
+                            ? new Color(
+                                1f,
+                                0.78f,
+                                0.20f,
+                                1f)
+                            : new Color(
+                                1f,
+                                0.42f,
+                                0.28f,
+                                1f);
+                }
+
+                garageVehicleStateIcon.sprite =
+                    stateSprite;
+
+                garageVehicleStateIcon.enabled =
+                    stateSprite != null;
+
+                garageVehicleStateIcon.color =
+                    stateColor;
             }
 
             if (garageVehicleStatsText != null)
