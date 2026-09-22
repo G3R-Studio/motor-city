@@ -81,7 +81,7 @@ namespace MotorCity.Localization
                 { "vehicle.mastery_short", E("МАСТ {0}/10", "MAST {0}/10") },
                 { "vehicle.stats", E("БАЗА: СКОРОСТЬ {0}   •   РАЗГОН {1}   •   СЦЕП {2}%   •   СТАБ {3}   •   {4}", "BASE: SPEED {0}   •   ACCEL {1}   •   GRIP {2}%   •   STAB {3}   •   {4}") },
                 { "history.passport_title", E("ПАСПОРТ МАШИНЫ • {0}", "VEHICLE PASSPORT • {0}") },
-                { "history.passport_summary", E("ПРОБЕГ {0:0.0} КМ   •   ПОБЕДЫ {1}   •   ЗАРАБОТАНО {2:N0} КР   •   СТАТУС {3}", "DISTANCE {0:0.0} KM   •   WINS {1}   •   EARNED {2:N0} CR   •   STATUS {3}") },
+                { "history.passport_summary", E("ПРОБЕГ {0:0.0} КМ   •   УСПЕХИ {1}   •   ЗАРАБОТАНО {2:N0} КР   •   СТАТУС {3}", "DISTANCE {0:0.0} KM   •   COMPLETIONS {1}   •   EARNED {2:N0} CR   •   STATUS {3}") },
                 { "history.passport_disciplines", E("ГОНКИ {0}   •   ДРИФТ {1}   •   ДОСТАВКИ {2}   •   ЛЮБИМОЕ: {3}", "RACING {0}   •   DRIFT {1}   •   DELIVERIES {2}   •   FAVORITE: {3}") },
                 { "hud.passport_control", E("K ПАСПОРТ", "K PASSPORT") },
 
@@ -188,7 +188,7 @@ namespace MotorCity.Localization
                 { "history.style_racing", E("СТИЛЬ ГОНКИ", "STYLE RACING") },
                 { "history.style_drift", E("СТИЛЬ ДРИФТ", "STYLE DRIFT") },
                 { "history.style_delivery", E("СТИЛЬ ДОСТАВКА", "STYLE DELIVERY") },
-                { "history.garage_line", E("ИСТОРИЯ: {0:0.0} КМ   •   ПОБЕДЫ {1}   •   ЗАРАБОТАНО {2:N0} КР   •   {3}   •   {4}", "HISTORY: {0:0.0} KM   •   WINS {1}   •   EARNED {2:N0} CR   •   {3}   •   {4}") },
+                { "history.garage_line", E("ИСТОРИЯ: {0:0.0} КМ   •   УСПЕХИ {1}   •   ЗАРАБОТАНО {2:N0} КР   •   {3}   •   {4}", "HISTORY: {0:0.0} KM   •   COMPLETIONS {1}   •   EARNED {2:N0} CR   •   {3}   •   {4}") },
 
                 { "specialization.garage_line", E("СПЕЦИАЛИЗАЦИЯ: {0}   •   {1}", "SPECIALIZATION: {0}   •   {1}") },
                 { "specialization.reward", E("{0} — {1}   +{2:N0} КР   +{3} ОПЫТ МАСТЕРСТВА", "{0} — {1}   +{2:N0} CR   +{3} MASTERY XP") },
