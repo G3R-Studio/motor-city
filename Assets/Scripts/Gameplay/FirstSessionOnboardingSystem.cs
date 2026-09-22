@@ -35,6 +35,15 @@ namespace MotorCity.Gameplay
         public int CurrentStep =>
             step;
 
+        public int CurrentStepNumber =>
+            Mathf.Clamp(
+                step + 1,
+                1,
+                7);
+
+        public int StepCount =>
+            7;
+
         public bool ShowMessage =>
             messageTimer > 0f;
 
