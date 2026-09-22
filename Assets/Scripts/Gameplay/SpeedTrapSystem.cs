@@ -52,22 +52,22 @@ namespace MotorCity.Gameplay
 
                     CreateTrap(
                         "highway",
-                        MotorCityLocalization.Text("world.highway"),
+                        MotorCityLocalization.Text("world.main_north"),
                         new Vector3(
-                            -300f,
+                            450f,
                             0f,
-                            -1200f),
+                            360f),
                         150f,
                         190f,
                         225f),
 
                     CreateTrap(
                         "remote_district",
-                        MotorCityLocalization.Text("world.remote_district"),
+                        MotorCityLocalization.Text("world.main_west"),
                         new Vector3(
-                            -300f,
+                            -450f,
                             0f,
-                            -1832f),
+                            -100f),
                         125f,
                         165f,
                         200f)
