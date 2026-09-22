@@ -82,6 +82,35 @@ namespace MotorCity.Gameplay
             }
         }
 
+        public bool TryGetNextTarget(
+            out Vector3 target)
+        {
+            target =
+                CurrentTarget;
+
+            if (route == null ||
+                route.Length < 2 ||
+                (!IsActive &&
+                 !isCountingDown))
+            {
+                return false;
+            }
+
+            int nextIndex =
+                checkpointIndex + 1;
+
+            if (nextIndex < 0 ||
+                nextIndex >= route.Length)
+            {
+                return false;
+            }
+
+            target =
+                route[nextIndex];
+
+            return true;
+        }
+
         public int StreetCred =>
             streetCred;
 
