@@ -55,7 +55,9 @@ namespace MotorCity.World
         {
             bool visible;
             Vector3 target;
-            Vector3 nextTarget;
+            Vector3 nextTarget =
+                Vector3.zero;
+
             bool hasNext;
 
             if (profession != null)
