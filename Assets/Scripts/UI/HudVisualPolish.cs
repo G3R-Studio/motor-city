@@ -84,6 +84,11 @@ namespace MotorCity.UI
             ApplyPanelTreatment("Activity Status", new Color(0.020f, 0.030f, 0.046f, 0.92f), false);
             ApplyPanelTreatment("Speedometer", new Color(0.010f, 0.017f, 0.029f, 0.58f), false);
             ApplyPanelTreatment("Minimap", new Color(0.010f, 0.017f, 0.027f, 0.44f), false);
+            ApplyPanelTreatment("Drift HUD", new Color(0.080f, 0.038f, 0.018f, 0.92f), true);
+            ApplyPanelTreatment("Activity Result", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
+            ApplyPanelTreatment("Navigator Menu", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
+            ApplyPanelTreatment("Club Panel", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
+            ApplyPanelTreatment("Garage Panel", new Color(0.014f, 0.022f, 0.036f, 0.985f), true);
 
             PolishCoreText("Credits", 1.0f);
             PolishCoreText("Reputation", 0.65f);
@@ -93,6 +98,25 @@ namespace MotorCity.UI
             PolishCoreText("Status Text", 0.70f);
             PolishCoreText("Speed", 0.90f);
             PolishCoreText("Minimap Target Label", 0.70f);
+            PolishCoreText("Drift Score", 0.85f);
+            PolishCoreText("Result Title", 0.55f);
+            PolishCoreText("Result Headline", 0.90f);
+            PolishCoreText("Result Details", 0.65f);
+            PolishCoreText("Result Reward", 0.90f);
+            PolishCoreText("Result Controls", 0.55f);
+            PolishCoreText("Navigator Title", 0.80f);
+            PolishCoreText("Navigator Selection", 0.80f);
+            PolishCoreText("Navigator Controls", 0.55f);
+            PolishCoreText("Club Title", 0.80f);
+            PolishCoreText("Club Name", 0.80f);
+            PolishCoreText("Club Description", 0.55f);
+            PolishCoreText("Club Weekly", 0.75f);
+            PolishCoreText("Garage Title", 0.80f);
+            PolishCoreText("Garage Credits", 0.80f);
+            PolishCoreText("Garage Vehicle", 0.75f);
+
+            ApplyModalComposition(lastTouchLayout);
+            PolishTouchButtons();
 
             RectTransform objective = FindRect("Active Objective");
             if (objective != null && !lastTouchLayout)
@@ -141,6 +165,232 @@ namespace MotorCity.UI
                 SetRect(speedometer, new Vector2(0f, 16f), new Vector2(258f, 190f), 1f);
                 SetRect(status, new Vector2(0f, 218f), new Vector2(620f, 50f), 1f);
                 SetRect(minimap, new Vector2(-22f, -22f), new Vector2(232f, 232f), 1f);
+            }
+        }
+
+        private void ApplyModalComposition(
+            bool touchLayout)
+        {
+            RectTransform result =
+                FindRect("Activity Result");
+
+            RectTransform navigator =
+                FindRect("Navigator Menu");
+
+            RectTransform club =
+                FindRect("Club Panel");
+
+            RectTransform garage =
+                FindRect("Garage Panel");
+
+            if (touchLayout)
+            {
+                SetRect(
+                    result,
+                    Vector2.zero,
+                    new Vector2(560f, 302f),
+                    0.94f);
+
+                SetRect(
+                    navigator,
+                    Vector2.zero,
+                    new Vector2(480f, 232f),
+                    0.94f);
+
+                SetRect(
+                    club,
+                    Vector2.zero,
+                    new Vector2(520f, 334f),
+                    0.94f);
+
+                SetRect(
+                    garage,
+                    Vector2.zero,
+                    new Vector2(720f, 544f),
+                    0.92f);
+            }
+            else
+            {
+                SetRect(
+                    result,
+                    Vector2.zero,
+                    new Vector2(650f, 350f),
+                    1f);
+
+                SetRect(
+                    navigator,
+                    Vector2.zero,
+                    new Vector2(540f, 270f),
+                    1f);
+
+                SetRect(
+                    club,
+                    Vector2.zero,
+                    new Vector2(580f, 380f),
+                    1f);
+
+                SetRect(
+                    garage,
+                    Vector2.zero,
+                    new Vector2(780f, 594f),
+                    1f);
+            }
+
+            RectTransform resultDetails =
+                FindRect("Result Details");
+
+            if (resultDetails != null)
+            {
+                resultDetails.sizeDelta =
+                    new Vector2(
+                        touchLayout ? 500f : 570f,
+                        58f);
+            }
+
+            RectTransform resultReward =
+                FindRect("Result Reward");
+
+            if (resultReward != null)
+            {
+                resultReward.sizeDelta =
+                    new Vector2(
+                        touchLayout ? 470f : 530f,
+                        46f);
+            }
+        }
+
+        private void PolishTouchButtons()
+        {
+            if (!MotorCityInput.PreferTouchPrompts)
+                return;
+
+            PolishTouchGroup(
+                "Touch Driving Controls",
+                new Color(
+                    0.025f,
+                    0.075f,
+                    0.12f,
+                    0.82f));
+
+            PolishTouchGroup(
+                "Touch Utility Controls",
+                new Color(
+                    0.025f,
+                    0.075f,
+                    0.12f,
+                    0.90f));
+
+            PolishTouchGroup(
+                "Result Touch Controls",
+                new Color(
+                    0.025f,
+                    0.075f,
+                    0.12f,
+                    0.94f));
+
+            PolishTouchGroup(
+                "Navigator Touch Controls",
+                new Color(
+                    0.025f,
+                    0.075f,
+                    0.12f,
+                    0.94f));
+
+            PolishTouchGroup(
+                "Store Touch Controls",
+                new Color(
+                    0.025f,
+                    0.075f,
+                    0.12f,
+                    0.94f));
+
+            PolishTouchGroup(
+                "Club Touch Controls",
+                new Color(
+                    0.025f,
+                    0.075f,
+                    0.12f,
+                    0.94f));
+        }
+
+        private void PolishTouchGroup(
+            string rootName,
+            Color baseColor)
+        {
+            RectTransform root =
+                FindRect(rootName);
+
+            if (root == null)
+                return;
+
+            Image[] images =
+                root.GetComponentsInChildren<Image>(
+                    true);
+
+            foreach (Image image in images)
+            {
+                if (image == null ||
+                    !image.raycastTarget)
+                {
+                    continue;
+                }
+
+                image.color =
+                    baseColor;
+
+                Outline outline =
+                    image.GetComponent<Outline>();
+
+                if (outline == null)
+                {
+                    outline =
+                        image.gameObject
+                            .AddComponent<Outline>();
+                }
+
+                outline.effectColor =
+                    new Color(
+                        0.18f,
+                        0.62f,
+                        1f,
+                        0.30f);
+
+                outline.effectDistance =
+                    new Vector2(1f, -1f);
+
+                outline.useGraphicAlpha =
+                    true;
+            }
+
+            Text[] labels =
+                root.GetComponentsInChildren<Text>(
+                    true);
+
+            foreach (Text label in labels)
+            {
+                if (label == null)
+                    continue;
+
+                Shadow shadow =
+                    label.GetComponent<Shadow>();
+
+                if (shadow == null ||
+                    shadow is Outline)
+                {
+                    shadow =
+                        label.gameObject
+                            .AddComponent<Shadow>();
+                }
+
+                shadow.effectColor =
+                    new Color(
+                        0f,
+                        0f,
+                        0f,
+                        0.85f);
+
+                shadow.effectDistance =
+                    new Vector2(1f, -2f);
             }
         }
 
