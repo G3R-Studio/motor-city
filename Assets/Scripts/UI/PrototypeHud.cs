@@ -5124,7 +5124,9 @@ namespace MotorCity.UI
                 activityId == "delivery" ||
                 activityId == "drift" ||
                 activityId == "sprint" ||
-                activityId == "circuit";
+                activityId == "circuit" ||
+                activityId == "profession_carwash" ||
+                activityId == "profession_tow";
         }
 
         private void HandleActivityResultInput()
@@ -5162,6 +5164,14 @@ namespace MotorCity.UI
 
                 case "circuit":
                     circuitRace?.RestartFromResult();
+                    break;
+
+                case "profession_carwash":
+                    carWash?.RestartFromResult();
+                    break;
+
+                case "profession_tow":
+                    towTruck?.RestartFromResult();
                     break;
             }
         }
