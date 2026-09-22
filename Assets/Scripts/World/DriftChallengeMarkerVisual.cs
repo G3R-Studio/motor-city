@@ -12,6 +12,10 @@ namespace MotorCity.World
         private Vector3 baseScale;
         private Renderer[] markerRenderers;
         private Material[] markerMaterials;
+        private bool visibilityInitialized;
+        private bool lastVisible;
+        private bool tintInitialized;
+        private bool lastActive;
 
         public void Bind(DriftChallenge target, ActivityManager manager)
         {
@@ -50,7 +54,16 @@ namespace MotorCity.World
                 !activityManager.IsBusy ||
                 activityManager.IsActive("drift");
 
-            SetVisible(visible);
+                        if (!visibilityInitialized ||
+                visible != lastVisible)
+            {
+                visibilityInitialized =
+                    true;
+                lastVisible =
+                    visible;
+                SetVisible(
+                    visible);
+            }
             if (!visible) return;
 
             float pulse =
@@ -63,11 +76,24 @@ namespace MotorCity.World
 
             transform.position = basePosition;
 
-            Color tint = challenge.IsActive
-                ? new Color(1f, 0.42f, 0.08f)
-                : new Color(0.95f, 0.5f, 0.1f);
+            bool active =
+                challenge.IsActive;
 
-            Tint(tint);
+            if (!tintInitialized ||
+                active != lastActive)
+            {
+                tintInitialized =
+                    true;
+                lastActive =
+                    active;
+
+                Color tint =
+                    active
+                        ? new Color(1f, 0.42f, 0.08f)
+                        : new Color(0.95f, 0.5f, 0.1f);
+
+                Tint(tint);
+            }
         }
 
         private void SetVisible(bool visible)
