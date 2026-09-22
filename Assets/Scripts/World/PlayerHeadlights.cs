@@ -1,3 +1,4 @@
+using MotorCity.Platform;
 using MotorCity.Vehicle;
 using UnityEngine;
 
@@ -166,18 +167,46 @@ namespace MotorCity.World
                 amount >
                 0.02f;
 
+            float qualityIntensity =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low =>
+                        0.72f,
+
+                    MotorCityQualityPreset.High =>
+                        1.08f,
+
+                    _ =>
+                        0.90f
+                };
+
+            float qualityRange =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low =>
+                        0.78f,
+
+                    MotorCityQualityPreset.High =>
+                        1.08f,
+
+                    _ =>
+                        0.92f
+                };
+
             light.intensity =
                 Mathf.Lerp(
                     8.0f,
                     10.2f,
                     speed01) *
-                amount;
+                amount *
+                qualityIntensity;
 
             light.range =
                 Mathf.Lerp(
                     46f,
                     72f,
-                    speed01);
+                    speed01) *
+                qualityRange;
 
             light.spotAngle =
                 Mathf.Lerp(
