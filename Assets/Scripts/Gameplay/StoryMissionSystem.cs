@@ -8,6 +8,8 @@ namespace MotorCity.Gameplay
         private const string MissionKey = "MotorCity.Story.Mission";
         private const string ProgressKey = "MotorCity.Story.Progress";
         private const string CompleteKey = "MotorCity.Story.Complete";
+        private const string WildcardProfessionFixKey =
+            "MotorCity.Story.WildcardProfessionFix.v1";
         private const float MessageSeconds = 4.5f;
 
         private ActivityManager activities;
@@ -145,11 +147,62 @@ namespace MotorCity.Gameplay
                     ProgressKey,
                     0));
 
+            ApplyWildcardProfessionCompatibility();
+
             if (activities != null)
                 activities.ActivityResultShown += OnActivityResult;
 
             if (!IsComplete)
                 AnnounceCurrentMission();
+        }
+
+        private void ApplyWildcardProfessionCompatibility()
+        {
+            if (MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    WildcardProfessionFixKey,
+                    0) != 0)
+            {
+                return;
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                WildcardProfessionFixKey,
+                1);
+
+            StoryMission mission =
+                CurrentMission();
+
+            bool canRepair =
+                !IsComplete &&
+                missionIndex == 5 &&
+                mission != null &&
+                mission.ActivityId == "*" &&
+                progress < mission.Target &&
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    "MotorCity.Profession.icecream.Completed",
+                    0) > 0;
+
+            if (!canRepair)
+            {
+                MotorCity.Persistence.MotorCitySaveService.Save();
+                return;
+            }
+
+            progress =
+                Mathf.Min(
+                    mission.Target,
+                    progress + 1);
+
+            if (progress >=
+                mission.Target)
+            {
+                CompleteCurrentMission(
+                    mission);
+
+                return;
+            }
+
+            Save();
         }
 
         private void Update()
