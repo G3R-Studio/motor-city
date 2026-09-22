@@ -405,7 +405,11 @@ namespace MotorCity.UI
 
             rect.anchoredPosition = position;
             rect.sizeDelta = size;
-            rect.localScale = new Vector3(scale, scale, 1f);
+
+            // Keep UI text on an unscaled transform. Fractional scaling of
+            // parent RectTransforms makes legacy Unity Text rasterize softer
+            // after resolution/aspect changes, especially on small labels.
+            rect.localScale = Vector3.one;
         }
 
         private void ApplyPanelTreatment(
