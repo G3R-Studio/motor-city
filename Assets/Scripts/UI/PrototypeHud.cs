@@ -1948,7 +1948,7 @@ namespace MotorCity.UI
                     Vector2.zero,
                     new Vector2(
                         520f,
-                        280f),
+                        330f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -1995,7 +1995,7 @@ namespace MotorCity.UI
                     TextAnchor.MiddleCenter,
                     new Vector2(
                         0f,
-                        28f),
+                        45f),
                     new Vector2(
                         460f,
                         42f),
@@ -2016,7 +2016,7 @@ namespace MotorCity.UI
                     TextAnchor.MiddleCenter,
                     new Vector2(
                         0f,
-                        -18f),
+                        0f),
                     new Vector2(
                         460f,
                         42f),
@@ -2051,7 +2051,9 @@ namespace MotorCity.UI
 
             controls.text =
                 MotorCityLocalization.Text(
-                    "pause.controls");
+                    ShouldUseTouchUi()
+                        ? "pause.controls_touch"
+                        : "pause.controls");
 
             BuildPauseTouchActions(
                 panel);
@@ -2069,7 +2071,7 @@ namespace MotorCity.UI
                 panel,
                 "Pause Quality Previous",
                 "touch.modal.prev",
-                new Vector2(-165f, -82f),
+                new Vector2(-165f, -70f),
                 new Vector2(96f, 44f),
                 () =>
                     CycleQuality(-1));
@@ -2078,7 +2080,7 @@ namespace MotorCity.UI
                 panel,
                 "Pause Audio Toggle",
                 "pause.audio_touch",
-                new Vector2(-55f, -82f),
+                new Vector2(-55f, -70f),
                 new Vector2(112f, 44f),
                 () =>
                 {
@@ -2089,7 +2091,7 @@ namespace MotorCity.UI
                 panel,
                 "Pause Quality Next",
                 "touch.modal.next",
-                new Vector2(65f, -82f),
+                new Vector2(65f, -70f),
                 new Vector2(96f, 44f),
                 () =>
                     CycleQuality(1));
@@ -2098,7 +2100,7 @@ namespace MotorCity.UI
                 panel,
                 "Pause Resume",
                 "pause.resume",
-                new Vector2(175f, -82f),
+                new Vector2(175f, -70f),
                 new Vector2(112f, 44f),
                 ClosePauseMenu);
         }
@@ -7653,7 +7655,7 @@ namespace MotorCity.UI
             root.anchoredPosition =
                 new Vector2(
                     18f,
-                    -18f);
+                    -154f);
 
             root.sizeDelta =
                 new Vector2(
