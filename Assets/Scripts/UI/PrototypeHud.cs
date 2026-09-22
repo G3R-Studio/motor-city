@@ -2068,6 +2068,15 @@ namespace MotorCity.UI
             pauseOverlay?.SetActive(
                 true);
 
+            touchControlsRoot?.SetActive(
+                false);
+
+            touchUtilityRoot?.SetActive(
+                false);
+
+            touchActivityCancelRoot?.SetActive(
+                false);
+
             car?.SetDrivingEnabled(
                 false);
 
@@ -2087,6 +2096,8 @@ namespace MotorCity.UI
 
             car?.SetDrivingEnabled(
                 true);
+
+            UpdateTouchControlsVisibility();
         }
 
         private void HandlePauseMenuInput()
