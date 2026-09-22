@@ -418,8 +418,7 @@ namespace MotorCity.Gameplay
                     "vehicle.garage_current",
                     SelectedIndex + 1,
                     profiles.Length,
-                    current.DisplayName,
-                    masteryLevel);
+                    current.DisplayName);
         }
 
         public string GetNextVehicleLine()
