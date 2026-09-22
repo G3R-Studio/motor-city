@@ -269,6 +269,16 @@ namespace MotorCity.World
             foreach (MapShape shape in
                      shapes)
             {
+                // Road renderer bounds are coarse rectangles and become very
+                // obvious once the minimap is zoomed out. The authored FCG
+                // traffic graph below provides the actual road network, so
+                // only draw non-road world shapes here.
+                if (shape.Type ==
+                    ShapeType.Road)
+                {
+                    continue;
+                }
+
                 DrawShape(
                     pixels,
                     shape);
