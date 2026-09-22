@@ -81,6 +81,7 @@ namespace MotorCity.Bootstrap
             ArcadeCarController car = CreateCar();
             ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
             car.gameObject.AddComponent<PlayerHeadlights>();
+            car.gameObject.AddComponent<PlayerRearLights>();
 
             BindFcgTrafficPlayer(
                 car.transform);
