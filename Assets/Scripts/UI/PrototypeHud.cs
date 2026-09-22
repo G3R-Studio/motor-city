@@ -5126,7 +5126,11 @@ namespace MotorCity.UI
                 activityId == "sprint" ||
                 activityId == "circuit" ||
                 activityId == "profession_carwash" ||
-                activityId == "profession_tow";
+                activityId == "profession_tow" ||
+                activityId == "profession_pizza" ||
+                activityId == "profession_taxi" ||
+                activityId == "profession_mail" ||
+                activityId == "profession_icecream";
         }
 
         private void HandleActivityResultInput()
@@ -5172,6 +5176,13 @@ namespace MotorCity.UI
 
                 case "profession_tow":
                     towTruck?.RestartFromResult();
+                    break;
+
+                case "profession_pizza":
+                case "profession_taxi":
+                case "profession_mail":
+                case "profession_icecream":
+                    professions?.RestartFromResult();
                     break;
             }
         }
