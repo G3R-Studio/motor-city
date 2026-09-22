@@ -29,6 +29,7 @@ namespace MotorCity.Gameplay
 
         private int masteryLevel = 1;
         private int masteryXp;
+        private int masteryLevelStartXp;
         private int masteryNextXp = 100;
 
         public string SelectedName =>
@@ -603,18 +604,24 @@ namespace MotorCity.Gameplay
                 if (masteryLevel >= 10)
                     return 1f;
 
+                int span =
+                    Mathf.Max(
+                        1,
+                        masteryNextXp -
+                        masteryLevelStartXp);
+
                 return
-                    masteryNextXp <= 0
-                        ? 0f
-                        : Mathf.Clamp01(
-                            masteryXp /
-                            (float)masteryNextXp);
+                    Mathf.Clamp01(
+                        (masteryXp -
+                         masteryLevelStartXp) /
+                        (float)span);
             }
         }
 
         public void SetMasteryDisplay(
             int level,
             int xp,
+            int levelStartXp,
             int nextXp)
         {
             masteryLevel =
@@ -628,9 +635,15 @@ namespace MotorCity.Gameplay
                     0,
                     xp);
 
+            masteryLevelStartXp =
+                Mathf.Clamp(
+                    levelStartXp,
+                    0,
+                    masteryXp);
+
             masteryNextXp =
                 Mathf.Max(
-                    masteryXp,
+                    masteryLevelStartXp + 1,
                     nextXp);
         }
 
