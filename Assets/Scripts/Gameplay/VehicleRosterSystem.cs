@@ -601,24 +601,12 @@ namespace MotorCity.Gameplay
                 if (masteryLevel >= 10)
                     return 1f;
 
-                int previousThreshold =
-                    masteryLevel <= 1
-                        ? 0
-                        : Mathf.Min(
-                            masteryXp,
-                            masteryNextXp);
-
-                int span =
-                    Mathf.Max(
-                        1,
-                        masteryNextXp -
-                        previousThreshold);
-
                 return
-                    Mathf.Clamp01(
-                        (masteryXp -
-                         previousThreshold) /
-                        (float)span);
+                    masteryNextXp <= 0
+                        ? 0f
+                        : Mathf.Clamp01(
+                            masteryXp /
+                            (float)masteryNextXp);
             }
         }
 
