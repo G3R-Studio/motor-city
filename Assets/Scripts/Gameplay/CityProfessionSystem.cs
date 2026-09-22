@@ -89,6 +89,34 @@ namespace MotorCity.Gameplay
                     : MotorCityLocalization.Text(
                         "profession.title");
 
+        public bool TryGetNextTarget(
+            out Vector3 target)
+        {
+            target =
+                CurrentTarget;
+
+            if (active == null ||
+                active.Route == null ||
+                active.Route.Length < 2)
+            {
+                return false;
+            }
+
+            int nextIndex =
+                targetIndex + 1;
+
+            if (nextIndex < 0 ||
+                nextIndex >= active.Route.Length)
+            {
+                return false;
+            }
+
+            target =
+                active.Route[nextIndex];
+
+            return true;
+        }
+
         public string StatusText { get; private set; }
 
         public void Initialize(
