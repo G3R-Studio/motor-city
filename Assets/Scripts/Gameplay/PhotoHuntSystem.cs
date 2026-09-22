@@ -483,6 +483,9 @@ namespace MotorCity.Gameplay
                     displayName,
                     credits,
                     rep));
+
+            activities?.ReportCompletion(
+                "photo_hunt");
         }
 
         private void Load()
