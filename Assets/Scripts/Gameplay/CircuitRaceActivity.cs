@@ -62,6 +62,34 @@ namespace MotorCity.Gameplay
                     0,
                     route.Length - 1)];
 
+        public bool TryGetNextTarget(
+            out Vector3 target)
+        {
+            target =
+                CurrentTarget;
+
+            if (route == null ||
+                route.Length < 2)
+            {
+                return false;
+            }
+
+            int currentIndex =
+                Mathf.Clamp(
+                    checkpointIndex,
+                    0,
+                    route.Length - 1);
+
+            int nextIndex =
+                (currentIndex + 1) %
+                route.Length;
+
+            target =
+                route[nextIndex];
+
+            return true;
+        }
+
         public string StatusText { get; private set; } =
             MotorCityLocalization.Text("activity.marker.circuit");
 
