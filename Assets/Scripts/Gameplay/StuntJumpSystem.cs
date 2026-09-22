@@ -378,6 +378,12 @@ namespace MotorCity.Gameplay
 
             messageTimer =
                 MessageSeconds;
+
+            if (medal > 0)
+            {
+                activityManager?.ReportCompletion(
+                    "stuntjump");
+            }
         }
 
         private void CancelAttempt()
