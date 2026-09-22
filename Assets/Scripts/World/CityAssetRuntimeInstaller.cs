@@ -896,10 +896,22 @@ namespace MotorCity.World
 
             if (!found)
             {
-                preferred.y =
-                    0.4f;
+                Vector3 roadFallback =
+                    FindRoadPointNear(
+                        preferred,
+                        Mathf.Max(
+                            60f,
+                            searchRadius),
+                        "garage parking fallback",
+                        false);
 
-                return preferred;
+                RoadSearchDebug.Log(
+                    "[PARKING] FALLBACK_TO_ROAD preferred=" +
+                    preferred.ToString("F2") +
+                    " chosen=" +
+                    roadFallback.ToString("F2"));
+
+                return roadFallback;
             }
 
             best.y +=
