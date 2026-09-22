@@ -132,15 +132,18 @@ namespace MotorCity.Gameplay
                 if (item.Found)
                     continue;
 
-                float distance = Vector3.Distance(
-                    carPosition,
-                    Flat(item.Position));
-
-                if (distance >
+                float radius =
                     DiscoverRadius +
                     Mathf.Max(
                         0f,
-                        BonusDiscoveryRadius))
+                        BonusDiscoveryRadius);
+
+                Vector3 delta =
+                    carPosition -
+                    Flat(item.Position);
+
+                if (delta.sqrMagnitude >
+                    radius * radius)
                 {
                     continue;
                 }
