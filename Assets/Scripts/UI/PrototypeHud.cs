@@ -4439,112 +4439,120 @@ namespace MotorCity.UI
             root.offsetMin = Vector2.zero;
             root.offsetMax = Vector2.zero;
 
+            BuildLandscapeDrivingControls(
+                root);
+        }
+
+        private void BuildLandscapeDrivingControls(
+            RectTransform root)
+        {
+            // Steering lives on the left. Throttle/brake live on the right.
+            // This mirrors common mobile driving layouts and avoids a
+            // keyboard-like WASD cross on landscape screens.
             CreateTouchControlBackdrop(
                 root,
-                "Driving D-Pad Backdrop",
-                new Vector2(112f, 356f),
-                new Vector2(226f, 226f),
+                "Steering Backdrop",
+                new Vector2(34f, 26f),
+                new Vector2(286f, 112f),
                 new Vector2(0f, 0f),
-                new Vector2(0.5f, 0.5f));
-
-            const float dPadCenterX = 112f;
-            const float dPadCenterY = 356f;
-            const float dPadOffset = 74f;
-
-            CreateTouchHoldButton(
-                root,
-                "Throttle",
-                "▲",
-                MotorCityInputAction.Throttle,
-                new Vector2(
-                    dPadCenterX,
-                    dPadCenterY + dPadOffset),
-                new Vector2(0f, 0f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(74f, 74f),
-                27);
+                new Vector2(0f, 0f));
 
             CreateTouchHoldButton(
                 root,
                 "Steer Left",
                 "◀",
                 MotorCityInputAction.SteerLeft,
-                new Vector2(
-                    dPadCenterX - dPadOffset,
-                    dPadCenterY),
+                new Vector2(42f, 34f),
                 new Vector2(0f, 0f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(74f, 74f),
-                27);
+                new Vector2(0f, 0f),
+                new Vector2(116f, 88f),
+                34);
 
             CreateTouchHoldButton(
                 root,
                 "Steer Right",
                 "▶",
                 MotorCityInputAction.SteerRight,
-                new Vector2(
-                    dPadCenterX + dPadOffset,
-                    dPadCenterY),
+                new Vector2(166f, 34f),
                 new Vector2(0f, 0f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(74f, 74f),
-                27);
+                new Vector2(0f, 0f),
+                new Vector2(116f, 88f),
+                34);
+
+            CreateTouchControlBackdrop(
+                root,
+                "Pedals Backdrop",
+                new Vector2(-28f, 26f),
+                new Vector2(256f, 196f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f));
+
+            CreateTouchHoldButton(
+                root,
+                "Throttle",
+                MotorCityLocalization.Text(
+                    "touch.drive.throttle"),
+                MotorCityInputAction.Throttle,
+                new Vector2(-40f, 122f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(104f, 88f),
+                16);
 
             CreateTouchHoldButton(
                 root,
                 "Reverse",
-                "▼",
-                MotorCityInputAction.Reverse,
-                new Vector2(
-                    dPadCenterX,
-                    dPadCenterY - dPadOffset),
-                new Vector2(0f, 0f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(74f, 74f),
-                27);
-
-            CreateTouchControlBackdrop(
-                root,
-                "Driving Actions Backdrop",
-                new Vector2(-22f, 302f),
-                new Vector2(176f, 230f),
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0.5f));
-
-            CreateTouchHoldButton(
-                root,
-                "Interact",
                 MotorCityLocalization.Text(
-                    "touch.drive.action"),
-                MotorCityInputAction.Interact,
-                new Vector2(-34f, 372f),
+                    "touch.drive.brake"),
+                MotorCityInputAction.Reverse,
+                new Vector2(-40f, 28f),
                 new Vector2(1f, 0f),
-                new Vector2(1f, 0.5f),
-                new Vector2(150f, 62f),
-                14);
+                new Vector2(1f, 0f),
+                new Vector2(104f, 88f),
+                15);
 
             CreateTouchHoldButton(
                 root,
                 "Handbrake",
                 MotorCityLocalization.Text(
-                    "touch.drive.handbrake"),
+                    "touch.drive.handbrake_short"),
                 MotorCityInputAction.Handbrake,
-                new Vector2(-34f, 302f),
+                new Vector2(-154f, 28f),
                 new Vector2(1f, 0f),
-                new Vector2(1f, 0.5f),
-                new Vector2(150f, 62f),
-                14);
+                new Vector2(1f, 0f),
+                new Vector2(88f, 70f),
+                13);
+
+            CreateTouchControlBackdrop(
+                root,
+                "Action Backdrop",
+                new Vector2(-28f, 232f),
+                new Vector2(190f, 112f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f));
+
+            CreateTouchHoldButton(
+                root,
+                "Interact",
+                MotorCityLocalization.Text(
+                    "touch.drive.action_short"),
+                MotorCityInputAction.Interact,
+                new Vector2(-40f, 242f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(86f, 80f),
+                13);
 
             CreateTouchHoldButton(
                 root,
                 "Rescue",
                 MotorCityLocalization.Text(
-                    "touch.drive.rescue"),
+                    "touch.drive.rescue_short"),
                 MotorCityInputAction.Rescue,
-                new Vector2(-34f, 232f),
+                new Vector2(-132f, 242f),
                 new Vector2(1f, 0f),
-                new Vector2(1f, 0.5f),
-                new Vector2(150f, 62f),
+                new Vector2(1f, 0f),
+                new Vector2(86f, 80f),
                 13);
         }
 
@@ -4585,7 +4593,7 @@ namespace MotorCity.UI
                     0.015f,
                     0.035f,
                     0.06f,
-                    0.28f);
+                    0.24f);
 
             image.raycastTarget =
                 false;
@@ -4629,10 +4637,10 @@ namespace MotorCity.UI
 
             image.color =
                 new Color(
-                    0.03f,
-                    0.08f,
+                    0.035f,
+                    0.085f,
                     0.13f,
-                    0.82f);
+                    0.76f);
 
             TouchHoldInputButton input =
                 buttonObject.GetComponent<TouchHoldInputButton>();
@@ -4648,7 +4656,7 @@ namespace MotorCity.UI
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
                     size -
-                    new Vector2(8f, 8f),
+                    new Vector2(10f, 10f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
