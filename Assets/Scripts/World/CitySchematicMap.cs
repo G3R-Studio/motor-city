@@ -740,17 +740,25 @@ namespace MotorCity.World
             Bounds bounds =
                 WorldBounds;
 
+            float width =
+                Mathf.Max(
+                    0.001f,
+                    bounds.size.x);
+
+            float height =
+                Mathf.Max(
+                    0.001f,
+                    bounds.size.z);
+
             float u =
-                Mathf.InverseLerp(
-                    bounds.min.x,
-                    bounds.max.x,
-                    position.x);
+                (position.x -
+                 bounds.min.x) /
+                width;
 
             float v =
-                Mathf.InverseLerp(
-                    bounds.min.z,
-                    bounds.max.z,
-                    position.z);
+                (position.z -
+                 bounds.min.z) /
+                height;
 
             return
                 new Vector2(
