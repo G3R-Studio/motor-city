@@ -195,6 +195,7 @@ namespace MotorCity.UI
         private Image garageVehicleStateIcon;
         private Text garageVehicleText;
         private Text garageVehicleStatsText;
+        private Image garageMasteryIcon;
         private Image garageMasteryTrack;
         private Image garageMasteryFill;
         private Text garageVehicleHistoryText;
@@ -5684,15 +5685,35 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
 
+            garageMasteryIcon =
+                CreateHudIcon(
+                    panel,
+                    "Garage Mastery Icon",
+                    MotorCityIconLibrary.Reputation,
+                    new Vector2(
+                        28f,
+                        -126f),
+                    new Vector2(
+                        18f,
+                        18f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Color(
+                        0.42f,
+                        0.82f,
+                        1f,
+                        1f));
+
             RectTransform masteryTrackRect =
                 CreatePanel(
                     panel,
                     "Garage Mastery Track",
                     new Vector2(
-                        28f,
+                        54f,
                         -126f),
                     new Vector2(
-                        704f,
+                        678f,
                         7f),
                     new Vector2(
                         0f,
@@ -6381,7 +6402,9 @@ namespace MotorCity.UI
             if (garageVehicleStatsText != null)
             {
                 garageVehicleStatsText.text =
-                    garage.VehicleStatsLine;
+                    garage.VehicleStatsLine +
+                    "   •   " +
+                    garage.VehicleMasteryShort;
             }
 
             if (garageMasteryFill != null)
@@ -6391,7 +6414,7 @@ namespace MotorCity.UI
 
                 fillRect.sizeDelta =
                     new Vector2(
-                        704f *
+                        678f *
                         Mathf.Clamp01(
                             garage.VehicleMasteryProgress),
                         7f);
