@@ -76,6 +76,11 @@ namespace MotorCity.UI
         private Text objectiveText;
         private GameObject characterPanel;
         private GameObject characterPortraitRoot;
+        private Image characterPortraitImage;
+        private Sprite characterPortraitVitya;
+        private Sprite characterPortraitTurbo;
+        private Sprite characterPortraitNika;
+        private Sprite characterPortraitBublik;
         private Image characterPortraitFace;
         private Image characterPortraitHair;
         private Image characterPortraitAccent;
@@ -2112,6 +2117,22 @@ namespace MotorCity.UI
             characterPortraitRoot =
                 portraitFrame.gameObject;
 
+            characterPortraitVitya =
+                Resources.Load<Sprite>(
+                    "MotorCity/UI/Characters/avatar_vitya");
+
+            characterPortraitTurbo =
+                Resources.Load<Sprite>(
+                    "MotorCity/UI/Characters/avatar_turbo");
+
+            characterPortraitNika =
+                Resources.Load<Sprite>(
+                    "MotorCity/UI/Characters/avatar_nika");
+
+            characterPortraitBublik =
+                Resources.Load<Sprite>(
+                    "MotorCity/UI/Characters/avatar_bublik");
+
             characterPortraitAccent =
                 CreatePortraitLayer(
                     portraitFrame,
@@ -2183,6 +2204,53 @@ namespace MotorCity.UI
                         5f,
                         5f),
                     TextColor);
+
+            GameObject portraitObject =
+                new(
+                    "Character Portrait",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            portraitObject.transform.SetParent(
+                portraitFrame,
+                false);
+
+            RectTransform portraitRect =
+                portraitObject.GetComponent<RectTransform>();
+
+            portraitRect.anchorMin =
+                Vector2.zero;
+
+            portraitRect.anchorMax =
+                Vector2.one;
+
+            portraitRect.offsetMin =
+                new Vector2(
+                    3f,
+                    3f);
+
+            portraitRect.offsetMax =
+                new Vector2(
+                    -3f,
+                    -3f);
+
+            characterPortraitImage =
+                portraitObject.GetComponent<Image>();
+
+            characterPortraitImage.raycastTarget =
+                false;
+
+            characterPortraitImage.preserveAspect =
+                true;
+
+            characterPortraitImage.type =
+                Image.Type.Simple;
+
+            characterPortraitImage.color =
+                Color.white;
+
+            characterPortraitImage.enabled =
+                false;
 
             characterSourceText =
                 CreateText(
@@ -2318,6 +2386,9 @@ namespace MotorCity.UI
             int style =
                 -1;
 
+            string portraitId =
+                string.Empty;
+
             if (onboarding != null &&
                 !onboarding.IsComplete)
             {
@@ -2337,6 +2408,11 @@ namespace MotorCity.UI
                     turboStep
                         ? 3
                         : 0;
+
+                portraitId =
+                    turboStep
+                        ? "turbo"
+                        : "vitya";
             }
             else if (story != null &&
                      !story.IsComplete)
@@ -2349,6 +2425,15 @@ namespace MotorCity.UI
 
                 style =
                     story.CurrentCharacterStyle;
+
+                portraitId =
+                    style switch
+                    {
+                        1 => "nika",
+                        2 => "bublik",
+                        3 => "turbo",
+                        _ => "vitya"
+                    };
             }
             else if (season != null &&
                      season.IsSeasonOneActive &&
@@ -2362,6 +2447,15 @@ namespace MotorCity.UI
 
                 style =
                     season.CurrentCharacterStyle;
+
+                portraitId =
+                    style switch
+                    {
+                        1 => "turbo",
+                        2 => "nika",
+                        3 => "bublik",
+                        _ => "vitya"
+                    };
             }
 
             bool visible =
@@ -2445,7 +2539,8 @@ namespace MotorCity.UI
 
             ApplyCharacterPortrait(
                 style,
-                accent);
+                accent,
+                portraitId);
 
             characterNameText.text =
                 name;
@@ -2459,7 +2554,8 @@ namespace MotorCity.UI
 
         private void ApplyCharacterPortrait(
             int style,
-            Color accent)
+            Color accent,
+            string portraitId)
         {
             if (characterPortraitRoot == null ||
                 characterPortraitFace == null)
@@ -2473,6 +2569,49 @@ namespace MotorCity.UI
                     accent.g,
                     accent.b,
                     0.30f);
+
+            Sprite portrait =
+                portraitId switch
+                {
+                    "vitya" =>
+                        characterPortraitVitya,
+                    "turbo" =>
+                        characterPortraitTurbo,
+                    "nika" =>
+                        characterPortraitNika,
+                    "bublik" =>
+                        characterPortraitBublik,
+                    _ =>
+                        null
+                };
+
+            bool hasPortrait =
+                characterPortraitImage != null &&
+                portrait != null;
+
+            if (characterPortraitImage != null)
+            {
+                characterPortraitImage.sprite =
+                    portrait;
+
+                characterPortraitImage.enabled =
+                    hasPortrait;
+            }
+
+            characterPortraitFace.gameObject.SetActive(
+                !hasPortrait);
+
+            characterPortraitHair.gameObject.SetActive(
+                !hasPortrait);
+
+            characterPortraitLeftDetail.gameObject.SetActive(
+                !hasPortrait);
+
+            characterPortraitRightDetail.gameObject.SetActive(
+                !hasPortrait);
+
+            if (hasPortrait)
+                return;
 
             Color face =
                 new(
