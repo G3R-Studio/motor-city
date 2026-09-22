@@ -2583,6 +2583,14 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text(
                         "onboarding.title");
 
+                if (onboarding.CurrentRewardCredits > 0)
+                {
+                    rewardLine =
+                        MotorCityLocalization.Format(
+                            "hud.reward_credits_only",
+                            onboarding.CurrentRewardCredits);
+                }
+
                 style =
                     turboStep
                         ? 3
