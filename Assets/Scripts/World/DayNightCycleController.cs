@@ -935,6 +935,12 @@ namespace MotorCity.World
                 if (parentName.StartsWith(
                         "streetlight",
                         StringComparison.Ordinal) ||
+                    parentName.StartsWith(
+                        "parklamp",
+                        StringComparison.Ordinal) ||
+                    parentName.StartsWith(
+                        "parklight",
+                        StringComparison.Ordinal) ||
                     parentName ==
                         "lightv")
                 {
