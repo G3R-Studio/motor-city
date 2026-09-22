@@ -455,6 +455,9 @@ namespace MotorCity.Gameplay
             activityManager?.End(
                 "underground");
 
+            activityManager?.ReportCompletion(
+                "underground");
+
             StatusText =
                 MotorCityLocalization.Format(
                     "nightclub.finish",
