@@ -9,6 +9,10 @@ namespace MotorCity.Gameplay
         private ActivityManager activityManager;
         private Renderer[] markerRenderers;
         private Material[] markerMaterials;
+        private bool visibilityInitialized;
+        private bool lastVisible;
+        private bool tintInitialized;
+        private bool lastActive;
         private Vector3 baseScale;
 
         public void Bind(DeliveryActivity targetActivity, ActivityManager manager)
@@ -42,7 +46,16 @@ namespace MotorCity.Gameplay
                 !activityManager.IsBusy ||
                 activityManager.IsActive("delivery");
 
-            SetVisible(visible);
+                        if (!visibilityInitialized ||
+                visible != lastVisible)
+            {
+                visibilityInitialized =
+                    true;
+                lastVisible =
+                    visible;
+                SetVisible(
+                    visible);
+            }
             if (!visible) return;
 
             Vector3 target = activity.CurrentTarget;
@@ -52,11 +65,24 @@ namespace MotorCity.Gameplay
                 1f + Mathf.Sin(Time.time * 2.8f) * 0.015f;
             transform.localScale = baseScale * pulse;
 
-            Color tint = activity.IsActive
-                ? new Color(0.18f, 0.78f, 1f)
-                : new Color(0.16f, 0.52f, 0.95f);
+            bool active =
+                activity.IsActive;
 
-            Tint(tint);
+            if (!tintInitialized ||
+                active != lastActive)
+            {
+                tintInitialized =
+                    true;
+                lastActive =
+                    active;
+
+                Color tint =
+                    active
+                        ? new Color(0.18f, 0.78f, 1f)
+                        : new Color(0.16f, 0.52f, 0.95f);
+
+                Tint(tint);
+            }
         }
 
         private void SetVisible(bool visible)
