@@ -77,7 +77,7 @@ namespace MotorCity.Localization
                 { "vehicle.buy_credits", E("Для покупки «{0}» нужно {1:N0} КР", "You need {1:N0} CR to buy “{0}”") },
                 { "vehicle.purchased", E("Куплена машина {0} за {1:N0} КР", "Bought {0} for {1:N0} CR") },
                 { "vehicle.garage_line", E("МАШИНА {0}/{1}: {2}   •   МАСТЕРСТВО {3}/10{4}", "CAR {0}/{1}: {2}   •   MASTERY {3}/10{4}") },
-                { "vehicle.garage_current", E("МАШИНА {0}/{1} • {2} • МАСТЕРСТВО {3}/10", "CAR {0}/{1} • {2} • MASTERY {3}/10") },
+                { "vehicle.garage_current", E("МАШИНА {0}/{1} • {2}", "CAR {0}/{1} • {2}") },
                 { "vehicle.next_none", E("ВСЕ МАШИНЫ ОТКРЫТЫ", "ALL CARS UNLOCKED") },
                 { "vehicle.mastery_max", E("МАСТЕРСТВО: УР. 10/10   •   {0:N0} ОПЫТ   •   МАКСИМУМ", "MASTERY: LVL 10/10   •   {0:N0} XP   •   MAX") },
                 { "vehicle.mastery", E("МАСТЕРСТВО: УР. {0}/10   •   {1:N0}/{2:N0} ОПЫТ", "MASTERY: LVL {0}/10   •   {1:N0}/{2:N0} XP") },
