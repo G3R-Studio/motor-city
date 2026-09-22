@@ -6923,27 +6923,37 @@ namespace MotorCity.UI
                 new Vector2(0f, 0f),
                 new Vector2(0f, 0f));
 
-            CreateTouchHoldButton(
-                root,
-                "Steer Left",
-                "◀",
-                MotorCityInputAction.SteerLeft,
-                new Vector2(42f, 34f),
-                new Vector2(0f, 0f),
-                new Vector2(0f, 0f),
-                new Vector2(116f, 88f),
-                34);
+            RectTransform steerLeft =
+                CreateTouchHoldButton(
+                    root,
+                    "Steer Left",
+                    string.Empty,
+                    MotorCityInputAction.SteerLeft,
+                    new Vector2(42f, 34f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Vector2(116f, 88f),
+                    34);
 
-            CreateTouchHoldButton(
-                root,
-                "Steer Right",
-                "▶",
-                MotorCityInputAction.SteerRight,
-                new Vector2(166f, 34f),
-                new Vector2(0f, 0f),
-                new Vector2(0f, 0f),
-                new Vector2(116f, 88f),
-                34);
+            CreateTouchDirectionGlyph(
+                steerLeft,
+                90f);
+
+            RectTransform steerRight =
+                CreateTouchHoldButton(
+                    root,
+                    "Steer Right",
+                    string.Empty,
+                    MotorCityInputAction.SteerRight,
+                    new Vector2(166f, 34f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Vector2(116f, 88f),
+                    34);
+
+            CreateTouchDirectionGlyph(
+                steerRight,
+                -90f);
 
             CreateTouchControlBackdrop(
                 root,
@@ -7065,7 +7075,7 @@ namespace MotorCity.UI
                 false;
         }
 
-        private void CreateTouchHoldButton(
+        private RectTransform CreateTouchHoldButton(
             Transform parent,
             string name,
             string label,
@@ -7129,6 +7139,64 @@ namespace MotorCity.UI
 
             text.text =
                 label;
+
+            text.gameObject.SetActive(
+                !string.IsNullOrWhiteSpace(
+                    label));
+
+            return rect;
+        }
+
+        private void CreateTouchDirectionGlyph(
+            Transform parent,
+            float rotation)
+        {
+            if (parent == null)
+                return;
+
+            GameObject glyph =
+                new(
+                    "Direction Glyph",
+                    typeof(RectTransform));
+
+            glyph.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                glyph.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            rect.anchorMax =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            rect.pivot =
+                new Vector2(
+                    0.5f,
+                    0.5f);
+
+            rect.anchoredPosition =
+                Vector2.zero;
+
+            rect.sizeDelta =
+                new Vector2(
+                    34f,
+                    34f);
+
+            rect.localRotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    rotation);
+
+            CreateMinimapPlayerChevron(
+                rect);
         }
 
         private void UpdateTouchControlsVisibility()
