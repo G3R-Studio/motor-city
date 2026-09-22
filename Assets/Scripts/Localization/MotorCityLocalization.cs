@@ -495,6 +495,9 @@ namespace MotorCity.Localization
             { "touch.garage.wheels", E("ДИСКИ", "WHEELS") },
             { "touch.garage.neon", E("НЕОН", "NEON") },
             { "touch.garage.close", E("ЗАКРЫТЬ", "CLOSE") },
+            { "touch.drive.action", E("ДЕЙСТВИЕ", "ACTION") },
+            { "touch.drive.handbrake", E("РУЧНИК", "HANDBRAKE") },
+            { "touch.drive.rescue", E("СПАСТИ", "RESCUE") },
 
                 { "daily.title", E("ЕЖЕДНЕВНЫЕ ПРИКЛЮЧЕНИЯ", "DAILY ADVENTURES") },
                 { "daily.any", E("ПРИКЛЮЧЕНИЕ • Выполни активности: {0}/{1}", "ADVENTURE • Complete activities: {0}/{1}") },
