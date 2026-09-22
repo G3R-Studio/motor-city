@@ -99,10 +99,13 @@ namespace MotorCity.World
                             Vector3.up);
             }
 
+            Vector3 nextTarget =
+                sprint.CurrentTarget;
+
             bool hasNext =
                 sprint.IsActive &&
                 sprint.TryGetNextTarget(
-                    out Vector3 nextTarget);
+                    out nextTarget);
 
             checkpointBeacon?.SetDirection(
                 sprint.CurrentTarget,
