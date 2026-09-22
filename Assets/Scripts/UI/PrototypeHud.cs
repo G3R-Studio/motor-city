@@ -2137,7 +2137,7 @@ namespace MotorCity.UI
             characterPortraitBublik =
                 LoadCharacterPortrait(
                     "bublik",
-                    "MotorCity/UI/Characters/avatar_bublik");
+                    "MotorCity/UI/Characters/avatar_inspector");
 
             Debug.Log(
                 "[MotorCity][Portrait] HUD portrait load summary: " +
