@@ -2181,7 +2181,7 @@ namespace MotorCity.UI
             characterPortraitBublik =
                 LoadCharacterPortrait(
                     "bublik",
-                    "MotorCity/UI/Characters/avatar_inspector");
+                    "MotorCity/UI/Characters/avatar_bublik");
 
             characterPortraitAccent =
                 CreatePortraitLayer(
