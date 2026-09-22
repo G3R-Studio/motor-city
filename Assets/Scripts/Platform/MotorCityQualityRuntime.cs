@@ -76,25 +76,30 @@ namespace MotorCity.Platform
             int graphicsMemoryMb =
                 SystemInfo.graphicsMemorySize;
 
-            if (Application.isMobilePlatform)
+            bool lowMemory =
+                (memoryMb > 0 &&
+                 memoryMb <= 4096) ||
+                (graphicsMemoryMb > 0 &&
+                 graphicsMemoryMb <= 1024);
+
+            if (Application.isMobilePlatform ||
+                Application.platform ==
+                RuntimePlatform.WebGLPlayer)
             {
-                if ((memoryMb > 0 &&
-                     memoryMb <= 4096) ||
-                    (graphicsMemoryMb > 0 &&
-                     graphicsMemoryMb <= 1024))
+                if (lowMemory)
                 {
                     return
                         MotorCityQualityPreset.Low;
                 }
 
+                // Browsers often report zero/unknown hardware memory values.
+                // Default WebGL to Medium instead of accidentally selecting
+                // expensive High rendering on unknown devices.
                 return
                     MotorCityQualityPreset.Medium;
             }
 
-            if ((memoryMb > 0 &&
-                 memoryMb <= 4096) ||
-                (graphicsMemoryMb > 0 &&
-                 graphicsMemoryMb <= 1024))
+            if (lowMemory)
             {
                 return
                     MotorCityQualityPreset.Low;
