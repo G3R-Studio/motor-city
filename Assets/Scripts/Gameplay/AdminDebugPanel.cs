@@ -30,6 +30,7 @@ namespace MotorCity.Gameplay
         private DriftChallenge driftChallenge;
         private StreetSprintActivity sprint;
         private CircuitRaceActivity circuit;
+        private StoryMissionSystem story;
         private DayNightCycleController dayNight;
 
         private bool visible;
@@ -61,7 +62,8 @@ namespace MotorCity.Gameplay
             DeliveryActivity deliveryActivity,
             DriftChallenge driftActivity,
             StreetSprintActivity sprintActivity,
-            CircuitRaceActivity circuitActivity)
+            CircuitRaceActivity circuitActivity,
+            StoryMissionSystem storySystem)
         {
             wallet = playerWallet;
             reputation = playerReputation;
@@ -84,6 +86,7 @@ namespace MotorCity.Gameplay
             driftChallenge = driftActivity;
             sprint = sprintActivity;
             circuit = circuitActivity;
+            story = storySystem;
         }
 
         private void Update()
@@ -125,6 +128,7 @@ namespace MotorCity.Gameplay
             DrawCollection();
             DrawLegends();
             DrawCareer();
+            DrawRookiePath();
             DrawContracts();
             DrawLiveEvents();
             DrawUnderground();
@@ -483,6 +487,49 @@ namespace MotorCity.Gameplay
 
             if (Button("ГОТОВО"))
                 career?.SetStageForTesting(3);
+
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10f);
+        }
+
+        private void DrawRookiePath()
+        {
+            GUILayout.Label(
+                "ПУТЬ НОВИЧКА");
+
+            if (story == null)
+            {
+                GUILayout.Label(
+                    "Система пути не найдена");
+
+                GUILayout.Space(10f);
+                return;
+            }
+
+            GUILayout.Label(
+                story.IsComplete
+                    ? "СТАТУС: ЗАВЕРШЁН"
+                    : $"ЭТАП {story.CurrentMissionNumber}/{story.MissionCount}");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("+1 ЭТАП"))
+            {
+                story.AdvanceMissionForTesting();
+
+                lastAction =
+                    story.IsComplete
+                        ? "Путь новичка завершён"
+                        : $"Путь новичка: этап {story.CurrentMissionNumber}/{story.MissionCount}";
+            }
+
+            if (Button("СБРОСИТЬ ПУТЬ"))
+            {
+                story.ResetForTesting();
+
+                lastAction =
+                    "Путь новичка сброшен на этап 1";
+            }
 
             GUILayout.EndHorizontal();
             GUILayout.Space(10f);
