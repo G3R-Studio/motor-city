@@ -150,7 +150,7 @@ namespace MotorCity.Gameplay
             ApplyWildcardProfessionCompatibility();
 
             if (activities != null)
-                activities.ActivityResultShown += OnActivityResult;
+                activities.ActivityCompleted += OnActivityCompleted;
 
             if (!IsComplete)
                 AnnounceCurrentMission();
@@ -214,14 +214,17 @@ namespace MotorCity.Gameplay
         private void OnDestroy()
         {
             if (activities != null)
-                activities.ActivityResultShown -= OnActivityResult;
+                activities.ActivityCompleted -= OnActivityCompleted;
         }
 
-        private void OnActivityResult(string activityId, bool success)
+        private void OnActivityCompleted(
+            string activityId)
         {
-            if (!success || IsComplete) return;
+            if (IsComplete)
+                return;
 
-            StoryMission mission = CurrentMission();
+            StoryMission mission =
+                CurrentMission();
 
             if (mission == null ||
                 !Matches(mission.ActivityId, activityId))
