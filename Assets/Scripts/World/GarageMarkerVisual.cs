@@ -55,7 +55,7 @@ namespace MotorCity.World
 
             marker.sprite = sprite;
             marker.color =
-                new Color(0.16f, 0.66f, 1f, 0.92f);
+                new Color(0.72f, 0.2f, 1f, 1f);
             marker.sortingOrder = 200;
 
             float spriteSize =
@@ -110,8 +110,8 @@ namespace MotorCity.World
 
             marker.color =
                 garage.IsOpen
-                    ? new Color(0.42f, 0.86f, 1f, 1f)
-                    : new Color(0.16f, 0.66f, 1f, 0.92f);
+                    ? new Color(0.95f, 0.55f, 1f, 1f)
+                    : new Color(0.72f, 0.2f, 1f, 1f);
         }
     }
 }
