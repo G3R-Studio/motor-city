@@ -332,6 +332,7 @@ namespace MotorCity.Bootstrap
                 car,
                 wallet,
                 reputation,
+                activityManager,
                 discoveries,
                 customization);
 
