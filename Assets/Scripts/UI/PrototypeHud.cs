@@ -4292,7 +4292,7 @@ namespace MotorCity.UI
                     name,
                     typeof(RectTransform),
                     typeof(Image),
-                    typeof(TouchHoldButton));
+                    typeof(TouchHoldInputButton));
 
             buttonObject.transform.SetParent(
                 parent,
@@ -4319,8 +4319,8 @@ namespace MotorCity.UI
                     0.13f,
                     0.72f);
 
-            TouchHoldButton input =
-                buttonObject.GetComponent<TouchHoldButton>();
+            TouchHoldInputButton input =
+                buttonObject.GetComponent<TouchHoldInputButton>();
 
             input.Bind(action);
 
@@ -4357,60 +4357,6 @@ namespace MotorCity.UI
 
             touchControlsRoot.SetActive(
                 !blocked);
-        }
-
-        private sealed class TouchHoldButton :
-            MonoBehaviour,
-            IPointerDownHandler,
-            IPointerUpHandler,
-            IPointerExitHandler
-        {
-            private MotorCityInputAction action;
-            private bool held;
-
-            public void Bind(
-                MotorCityInputAction inputAction)
-            {
-                action = inputAction;
-            }
-
-            public void OnPointerDown(
-                PointerEventData eventData)
-            {
-                held = true;
-                MotorCityInput.SetVirtualHeld(
-                    action,
-                    true);
-            }
-
-            public void OnPointerUp(
-                PointerEventData eventData)
-            {
-                Release();
-            }
-
-            public void OnPointerExit(
-                PointerEventData eventData)
-            {
-                Release();
-            }
-
-            private void OnDisable()
-            {
-                Release();
-            }
-
-            private void Release()
-            {
-                if (!held)
-                    return;
-
-                held = false;
-
-                MotorCityInput.SetVirtualHeld(
-                    action,
-                    false);
-            }
         }
 
         private RectTransform CreateSafeAreaRoot(
