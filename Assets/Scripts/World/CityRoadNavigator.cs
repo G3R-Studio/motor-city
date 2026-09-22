@@ -29,6 +29,15 @@ namespace MotorCity.World
         private static readonly Dictionary<int, List<Edge>> Adjacency =
             new();
 
+        private static float[] distanceBuffer =
+            Array.Empty<float>();
+
+        private static int[] previousBuffer =
+            Array.Empty<int>();
+
+        private static bool[] visitedBuffer =
+            Array.Empty<bool>();
+
         private static readonly Dictionary<MonoBehaviour, WayNetworkEntry>
             WayEntries =
                 new();
@@ -817,6 +826,31 @@ namespace MotorCity.World
                 edge);
         }
 
+        private static void EnsurePathBuffers(
+            int count)
+        {
+            if (distanceBuffer.Length >=
+                count)
+            {
+                return;
+            }
+
+            int capacity =
+                Mathf.NextPowerOfTwo(
+                    Mathf.Max(
+                        16,
+                        count));
+
+            distanceBuffer =
+                new float[capacity];
+
+            previousBuffer =
+                new int[capacity];
+
+            visitedBuffer =
+                new bool[capacity];
+        }
+
         private static List<int> FindShortestPath(
             int start,
             int end,
@@ -834,14 +868,17 @@ namespace MotorCity.World
             int count =
                 nodes.Count;
 
+            EnsurePathBuffers(
+                count);
+
             float[] distance =
-                new float[count];
+                distanceBuffer;
 
             int[] previous =
-                new int[count];
+                previousBuffer;
 
             bool[] visited =
-                new bool[count];
+                visitedBuffer;
 
             for (int i = 0;
                  i < count;
@@ -852,6 +889,9 @@ namespace MotorCity.World
 
                 previous[i] =
                     -1;
+
+                visited[i] =
+                    false;
             }
 
             distance[start] =
