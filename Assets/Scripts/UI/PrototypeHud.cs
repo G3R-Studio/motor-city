@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using MotorCity.Gameplay;
 using MotorCity.Input;
 using MotorCity.Localization;
+using MotorCity.Persistence;
+using MotorCity.Platform;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
@@ -49,6 +51,15 @@ namespace MotorCity.UI
         private RewardedBonusSystem rewardedBonus;
         private CosmeticStoreSystem cosmeticStore;
         private bool storeOpen;
+        private GameObject pauseOverlay;
+        private Text pauseQualityText;
+        private Text pauseAudioText;
+        private bool pauseMenuOpen;
+        private bool audioMuted;
+        private float pauseStoredTimeScale = 1f;
+        private const string AudioMutedSaveKey =
+            "MotorCity.Settings.AudioMuted";
+
         private AchievementSystem achievements;
         private AdventureDirector adventureDirector;
 
@@ -409,9 +420,26 @@ namespace MotorCity.UI
             if (moneyText == null)
                 return;
 
+            bool hadBlockingModal =
+                HasBlockingModalUi();
+
+            if (pauseMenuOpen)
+            {
+                HandlePauseMenuInput();
+                return;
+            }
+
             HandleNavigatorMenu();
             HandleStoreInput();
             HandleClubInput();
+
+            if (MotorCityInput.CancelPressed &&
+                !hadBlockingModal &&
+                !HasBlockingModalUi())
+            {
+                OpenPauseMenu();
+                return;
+            }
             UpdateTouchControlsVisibility();
             RefreshHudLocalizationState();
 
@@ -1844,6 +1872,7 @@ namespace MotorCity.UI
             BuildStatus(safeAreaRoot);
             BuildNavigator(safeAreaRoot);
             BuildNavigatorMenu(safeAreaRoot);
+            BuildPauseMenu(safeAreaRoot);
             BuildDriftPanel(safeAreaRoot);
             BuildActivityResult(safeAreaRoot);
             BuildResultTouchControls(safeAreaRoot);
@@ -1859,6 +1888,302 @@ namespace MotorCity.UI
             garageOverlay.SetActive(false);
             clubOverlay.SetActive(false);
             navigatorMenuOverlay.SetActive(false);
+            pauseOverlay.SetActive(false);
+
+            audioMuted =
+                MotorCitySaveService.GetInt(
+                    AudioMutedSaveKey,
+                    0) != 0;
+
+            AudioListener.volume =
+                audioMuted
+                    ? 0f
+                    : 1f;
+        }
+
+        private void BuildPauseMenu(
+            Transform canvas)
+        {
+            pauseOverlay =
+                new GameObject(
+                    "Pause Overlay",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            pauseOverlay.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform overlay =
+                pauseOverlay.GetComponent<RectTransform>();
+
+            overlay.anchorMin =
+                Vector2.zero;
+            overlay.anchorMax =
+                Vector2.one;
+            overlay.offsetMin =
+                Vector2.zero;
+            overlay.offsetMax =
+                Vector2.zero;
+
+            Image backdrop =
+                pauseOverlay.GetComponent<Image>();
+
+            backdrop.color =
+                new Color(
+                    0.005f,
+                    0.008f,
+                    0.012f,
+                    0.82f);
+
+            backdrop.raycastTarget =
+                true;
+
+            RectTransform panel =
+                CreatePanel(
+                    pauseOverlay.transform,
+                    "Pause Panel",
+                    Vector2.zero,
+                    new Vector2(
+                        520f,
+                        280f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Color(
+                        0.02f,
+                        0.03f,
+                        0.045f,
+                        0.98f));
+
+            Text title =
+                CreateText(
+                    panel,
+                    "Pause Title",
+                    29,
+                    FontStyle.Bold,
+                    TextAnchor.UpperCenter,
+                    new Vector2(
+                        0f,
+                        -24f),
+                    new Vector2(
+                        470f,
+                        42f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    TextColor);
+
+            title.text =
+                MotorCityLocalization.Text(
+                    "pause.title");
+
+            pauseQualityText =
+                CreateText(
+                    panel,
+                    "Pause Quality",
+                    18,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        28f),
+                    new Vector2(
+                        460f,
+                        42f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    TextColor);
+
+            pauseAudioText =
+                CreateText(
+                    panel,
+                    "Pause Audio",
+                    18,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        -18f),
+                    new Vector2(
+                        460f,
+                        42f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    TextColor);
+
+            Text controls =
+                CreateText(
+                    panel,
+                    "Pause Controls",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.LowerCenter,
+                    new Vector2(
+                        0f,
+                        22f),
+                    new Vector2(
+                        470f,
+                        34f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    SecondaryTextColor);
+
+            controls.text =
+                MotorCityLocalization.Text(
+                    "pause.controls");
+
+            RefreshPauseMenuText();
+        }
+
+        private void OpenPauseMenu()
+        {
+            pauseMenuOpen =
+                true;
+
+            pauseStoredTimeScale =
+                Time.timeScale;
+
+            Time.timeScale =
+                0f;
+
+            pauseOverlay?.SetActive(
+                true);
+
+            car?.SetDrivingEnabled(
+                false);
+
+            RefreshPauseMenuText();
+        }
+
+        private void ClosePauseMenu()
+        {
+            pauseMenuOpen =
+                false;
+
+            pauseOverlay?.SetActive(
+                false);
+
+            Time.timeScale =
+                pauseStoredTimeScale;
+
+            car?.SetDrivingEnabled(
+                true);
+        }
+
+        private void HandlePauseMenuInput()
+        {
+            if (MotorCityInput.CancelPressed)
+            {
+                ClosePauseMenu();
+                return;
+            }
+
+            if (MotorCityInput.PreviousVehiclePressed)
+            {
+                CycleQuality(
+                    -1);
+            }
+
+            if (MotorCityInput.NextVehiclePressed)
+            {
+                CycleQuality(
+                    1);
+            }
+
+            if (MotorCityInput.CycleBodyColorPressed)
+            {
+                audioMuted =
+                    !audioMuted;
+
+                AudioListener.volume =
+                    audioMuted
+                        ? 0f
+                        : 1f;
+
+                MotorCitySaveService.SetInt(
+                    AudioMutedSaveKey,
+                    audioMuted
+                        ? 1
+                        : 0);
+
+                MotorCitySaveService.Save();
+
+                RefreshPauseMenuText();
+            }
+        }
+
+        private void CycleQuality(
+            int direction)
+        {
+            int current =
+                (int)MotorCityQualityRuntime.CurrentPreset;
+
+            int next =
+                (current + direction + 3) %
+                3;
+
+            MotorCityQualityRuntime.Apply(
+                (MotorCityQualityPreset)next,
+                true);
+
+            RefreshPauseMenuText();
+        }
+
+        private void RefreshPauseMenuText()
+        {
+            if (pauseQualityText != null)
+            {
+                string quality =
+                    MotorCityQualityRuntime.CurrentPreset switch
+                    {
+                        MotorCityQualityPreset.Low =>
+                            MotorCityLocalization.Text(
+                                "pause.quality_low"),
+
+                        MotorCityQualityPreset.High =>
+                            MotorCityLocalization.Text(
+                                "pause.quality_high"),
+
+                        _ =>
+                            MotorCityLocalization.Text(
+                                "pause.quality_medium")
+                    };
+
+                pauseQualityText.text =
+                    MotorCityLocalization.Format(
+                        "pause.quality",
+                        quality);
+            }
+
+            if (pauseAudioText != null)
+            {
+                pauseAudioText.text =
+                    MotorCityLocalization.Format(
+                        "pause.audio",
+                        MotorCityLocalization.Text(
+                            audioMuted
+                                ? "pause.off"
+                                : "pause.on"));
+            }
         }
 
         private void BuildPlayerCard(
