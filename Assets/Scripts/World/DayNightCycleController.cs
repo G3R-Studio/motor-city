@@ -587,7 +587,7 @@ namespace MotorCity.World
                 cityRoot.GetComponentsInChildren<Transform>(true);
 
             var usedAnchors =
-                new HashSet<int>();
+                new HashSet<EntityId>();
 
             foreach (Transform item in
                      transforms)
@@ -602,7 +602,7 @@ namespace MotorCity.World
                 }
 
                 if (!usedAnchors.Add(
-                        item.GetInstanceID()))
+                        item.GetEntityId()))
                 {
                     continue;
                 }
@@ -623,7 +623,7 @@ namespace MotorCity.World
                 }
 
                 if (!usedAnchors.Add(
-                        item.GetInstanceID()))
+                        item.GetEntityId()))
                 {
                     continue;
                 }
