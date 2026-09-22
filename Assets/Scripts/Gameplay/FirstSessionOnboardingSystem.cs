@@ -281,7 +281,12 @@ namespace MotorCity.Gameplay
             string activityId,
             bool success)
         {
+            // Only count a result that happens while the onboarding is
+            // explicitly asking the player to complete an activity. Otherwise
+            // an activity finished earlier in the session would silently skip
+            // this teaching step once the player reaches it.
             if (!IsComplete &&
+                step == 4 &&
                 success)
             {
                 activitySucceeded =
