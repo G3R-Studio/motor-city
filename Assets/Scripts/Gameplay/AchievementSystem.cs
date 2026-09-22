@@ -22,6 +22,9 @@ namespace MotorCity.Gameplay
         private int raceWins;
         private int driftWins;
         private int professionWins;
+        private readonly bool[] unlocked =
+            new bool[9];
+        private int unlockedCount;
         private float checkTimer;
         private float messageTimer;
 
@@ -30,21 +33,8 @@ namespace MotorCity.Gameplay
 
         public string StatusText { get; private set; }
 
-        public int UnlockedCount
-        {
-            get
-            {
-                int count = 0;
-
-                for (int i = 0; i < 9; i++)
-                {
-                    if (IsUnlocked(i))
-                        count++;
-                }
-
-                return count;
-            }
-        }
+        public int UnlockedCount =>
+            unlockedCount;
 
         public void Initialize(
             PlayerWallet targetWallet,
@@ -71,6 +61,23 @@ namespace MotorCity.Gameplay
             raceWins = LoadCounter("Races");
             driftWins = LoadCounter("Drifts");
             professionWins = LoadCounter("Professions");
+
+            unlockedCount = 0;
+
+            for (int i = 0;
+                 i < unlocked.Length;
+                 i++)
+            {
+                unlocked[i] =
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        UnlockKey(i),
+                        0) != 0;
+
+                if (unlocked[i])
+                {
+                    unlockedCount++;
+                }
+            }
 
             if (activities != null)
                 activities.ActivityResultShown += OnActivityResult;
@@ -224,10 +231,17 @@ namespace MotorCity.Gameplay
             int rep)
         {
             if (!condition ||
-                IsUnlocked(index))
+                index < 0 ||
+                index >= unlocked.Length ||
+                unlocked[index])
             {
                 return;
             }
+
+            unlocked[index] =
+                true;
+
+            unlockedCount++;
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(
                 UnlockKey(index),
@@ -249,15 +263,6 @@ namespace MotorCity.Gameplay
 
             messageTimer =
                 MessageSeconds;
-        }
-
-        private bool IsUnlocked(
-            int index)
-        {
-            return
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
-                    UnlockKey(index),
-                    0) != 0;
         }
 
         private static int LoadCounter(
