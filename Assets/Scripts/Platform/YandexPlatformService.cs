@@ -17,6 +17,8 @@ namespace MotorCity.Platform
         private bool isAuthenticated;
         private long initializedServerUnixTime;
         private float initializedRealtime;
+        private float pausedTimeScale = 1f;
+        private bool localGameplayPaused;
 
         public bool IsInitialized { get; private set; }
 
@@ -246,12 +248,14 @@ namespace MotorCity.Platform
                 return;
             }
 
+            PauseLocalGameplay();
             GameplayStop();
 
             bridge.ShowRewarded(
                 placementId,
                 rewarded =>
                 {
+                    ResumeLocalGameplay();
                     GameplayStart();
                     completed?.Invoke(
                         rewarded);
@@ -268,12 +272,14 @@ namespace MotorCity.Platform
                 return;
             }
 
+            PauseLocalGameplay();
             GameplayStop();
 
             bridge.ShowInterstitial(
                 placementId,
                 () =>
                 {
+                    ResumeLocalGameplay();
                     GameplayStart();
                     completed?.Invoke();
                 });
@@ -293,17 +299,52 @@ namespace MotorCity.Platform
                 return;
             }
 
+            PauseLocalGameplay();
             GameplayStop();
 
             bridge.Purchase(
                 productId,
                 (success, token) =>
                 {
+                    ResumeLocalGameplay();
                     GameplayStart();
                     completed?.Invoke(
                         success,
                         token);
                 });
+        }
+
+        private void PauseLocalGameplay()
+        {
+            if (localGameplayPaused)
+                return;
+
+            localGameplayPaused =
+                true;
+
+            pausedTimeScale =
+                Time.timeScale;
+
+            Time.timeScale =
+                0f;
+
+            AudioListener.pause =
+                true;
+        }
+
+        private void ResumeLocalGameplay()
+        {
+            if (!localGameplayPaused)
+                return;
+
+            localGameplayPaused =
+                false;
+
+            Time.timeScale =
+                pausedTimeScale;
+
+            AudioListener.pause =
+                false;
         }
 
         public void ConsumePurchase(
