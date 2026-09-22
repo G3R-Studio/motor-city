@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace MotorCity.World
@@ -7,10 +9,10 @@ namespace MotorCity.World
     public static class CityRoadNavigator
     {
         private const float MergeDistance =
-            2.5f;
+            1.5f;
 
-        private const float IntersectionDistance =
-            16f;
+        private const float MaximumAuthoredLinkDistance =
+            90f;
 
         private static readonly List<Vector3> Nodes =
             new();
@@ -18,9 +20,23 @@ namespace MotorCity.World
         private static readonly List<Edge> Edges =
             new();
 
+        private static readonly Dictionary<MonoBehaviour, WayNetworkEntry>
+            WayEntries =
+                new();
+
         private static bool graphReady;
+
         private static ulong cachedSceneHandle =
             ulong.MaxValue;
+
+        private static int cachedStartNode =
+            -1;
+
+        private static int cachedEndNode =
+            -1;
+
+        private static List<int> cachedNodePath =
+            new();
 
         public static List<Vector3> BuildRoute(
             Vector3 start,
@@ -47,12 +63,26 @@ namespace MotorCity.World
                     destination,
                     Nodes);
 
-            List<int> nodePath =
-                FindShortestPath(
-                    startNode,
-                    endNode,
-                    Nodes,
-                    Edges);
+            if (startNode !=
+                    cachedStartNode ||
+                endNode !=
+                    cachedEndNode ||
+                cachedNodePath == null ||
+                cachedNodePath.Count == 0)
+            {
+                cachedStartNode =
+                    startNode;
+
+                cachedEndNode =
+                    endNode;
+
+                cachedNodePath =
+                    FindShortestPath(
+                        startNode,
+                        endNode,
+                        Nodes,
+                        Edges);
+            }
 
             List<Vector3> result =
                 new()
@@ -60,7 +90,8 @@ namespace MotorCity.World
                     start
                 };
 
-            foreach (int index in nodePath)
+            foreach (int index in
+                     cachedNodePath)
             {
                 Vector3 point =
                     Nodes[index];
@@ -104,12 +135,21 @@ namespace MotorCity.World
 
             Nodes.Clear();
             Edges.Clear();
+            WayEntries.Clear();
 
             cachedSceneHandle =
                 sceneHandle;
 
+            cachedStartNode =
+                -1;
+
+            cachedEndNode =
+                -1;
+
+            cachedNodePath.Clear();
+
             bool builtFromTraffic =
-                BuildFromTrafficWays();
+                BuildFromFcgAuthoredNetwork();
 
             if (!builtFromTraffic)
             {
@@ -120,262 +160,304 @@ namespace MotorCity.World
                 true;
         }
 
-        private static bool BuildFromTrafficWays()
+        private static bool BuildFromFcgAuthoredNetwork()
         {
-            Transform[] transforms =
-                UnityEngine.Object.FindObjectsByType<Transform>(
+            MonoBehaviour[] behaviours =
+                UnityEngine.Object.FindObjectsByType<MonoBehaviour>(
                     FindObjectsInactive.Include,
                     FindObjectsSortMode.None);
 
-            Dictionary<int, List<WayPoint>> groups =
-                new();
-
-            foreach (Transform item in
-                     transforms)
+            foreach (MonoBehaviour behaviour in
+                     behaviours)
             {
-                if (item == null ||
-                    !TryParseWayName(
-                        item.name,
-                        out int group,
-                        out int order))
+                if (behaviour == null ||
+                    !LooksLikeFcgWayContainer(
+                        behaviour))
                 {
                     continue;
                 }
 
-                if (!groups.TryGetValue(
-                        group,
-                        out List<WayPoint> points))
+                List<Transform> waypoints =
+                    ReadTransformList(
+                        behaviour,
+                        "waypoints");
+
+                if (waypoints.Count < 2)
+                    continue;
+
+                WayNetworkEntry entry =
+                    new(
+                        behaviour,
+                        waypoints);
+
+                WayEntries[
+                    behaviour] =
+                    entry;
+
+                int previous =
+                    -1;
+
+                foreach (Transform waypoint in
+                         waypoints)
                 {
-                    points =
-                        new List<WayPoint>();
+                    if (waypoint == null)
+                        continue;
 
-                    groups.Add(
-                        group,
-                        points);
+                    int current =
+                        FindOrAddNode(
+                            waypoint.position,
+                            Nodes);
+
+                    entry.NodeIndices.Add(
+                        current);
+
+                    if (previous >= 0 &&
+                        previous != current)
+                    {
+                        AddEdge(
+                            previous,
+                            current,
+                            Nodes,
+                            Edges);
+                    }
+
+                    previous =
+                        current;
                 }
-
-                points.Add(
-                    new WayPoint(
-                        group,
-                        order,
-                        item.position));
             }
 
-            if (groups.Count == 0)
+            if (WayEntries.Count == 0)
             {
                 Debug.LogWarning(
-                    "Motor City navigator: FCG Way points were not found. " +
+                    "Motor City navigator: FCG authored Way containers were not found. " +
                     "Using the fallback gameplay-road graph.");
 
                 return false;
             }
 
-            Dictionary<WayKey, int> nodeByWay =
-                new();
-
-            foreach (KeyValuePair<int, List<WayPoint>> pair in
-                     groups)
+            foreach (WayNetworkEntry entry in
+                     WayEntries.Values)
             {
-                List<WayPoint> points =
-                    pair.Value;
+                ConnectAuthoredLinks(
+                    entry,
+                    "nextWay0",
+                    true);
 
-                points.Sort(
-                    (a, b) =>
-                        a.Order.CompareTo(
-                            b.Order));
-
-                int previousNode =
-                    -1;
-
-                foreach (WayPoint point in
-                         points)
-                {
-                    int node =
-                        FindOrAddNode(
-                            point.Position,
-                            Nodes);
-
-                    nodeByWay[
-                        new WayKey(
-                            point.Group,
-                            point.Order)] =
-                        node;
-
-                    if (previousNode >= 0 &&
-                        previousNode != node)
-                    {
-                        AddEdge(
-                            previousNode,
-                            node,
-                            Nodes,
-                            Edges);
-                    }
-
-                    previousNode =
-                        node;
-                }
+                ConnectAuthoredLinks(
+                    entry,
+                    "nextWay1",
+                    false);
             }
 
-            ConnectTrafficIntersections(
-                groups,
-                nodeByWay);
-
             Debug.Log(
-                "Motor City navigator: built from FCG traffic Ways. " +
-                $"Groups={groups.Count}, Nodes={Nodes.Count}, Edges={Edges.Count}.");
+                "Motor City navigator: built from authored FCG traffic graph. " +
+                $"Ways={WayEntries.Count}, Nodes={Nodes.Count}, Edges={Edges.Count}.");
 
             return
                 Nodes.Count >= 2 &&
                 Edges.Count >= 1;
         }
 
-        private static void ConnectTrafficIntersections(
-            Dictionary<int, List<WayPoint>> groups,
-            Dictionary<WayKey, int> nodeByWay)
+        private static bool LooksLikeFcgWayContainer(
+            MonoBehaviour behaviour)
         {
-            List<WayPoint> all =
-                new();
+            Type type =
+                behaviour.GetType();
 
-            foreach (List<WayPoint> group in
-                     groups.Values)
+            return
+                FindField(
+                    type,
+                    "waypoints") != null &&
+                FindField(
+                    type,
+                    "nextWay0") != null &&
+                FindField(
+                    type,
+                    "nextWay1") != null;
+        }
+
+        private static void ConnectAuthoredLinks(
+            WayNetworkEntry source,
+            string fieldName,
+            bool sourceAtFirstWaypoint)
+        {
+            if (source == null ||
+                source.NodeIndices.Count == 0)
             {
-                all.AddRange(
-                    group);
+                return;
             }
 
-            float maximumSquared =
-                IntersectionDistance *
-                IntersectionDistance;
+            int sourceNode =
+                sourceAtFirstWaypoint
+                    ? source.NodeIndices[0]
+                    : source.NodeIndices[
+                        source.NodeIndices.Count - 1];
 
-            for (int i = 0;
-                 i < all.Count;
-                 i++)
+            IEnumerable linked =
+                ReadEnumerable(
+                    source.Component,
+                    fieldName);
+
+            if (linked == null)
+                return;
+
+            foreach (object item in
+                     linked)
             {
-                WayPoint a =
-                    all[i];
+                MonoBehaviour targetComponent =
+                    item as MonoBehaviour;
 
-                for (int j = i + 1;
-                     j < all.Count;
-                     j++)
+                if (targetComponent == null &&
+                    item is Component component)
                 {
-                    WayPoint b =
-                        all[j];
-
-                    if (a.Group ==
-                        b.Group)
-                    {
-                        continue;
-                    }
-
-                    Vector3 delta =
-                        a.Position -
-                        b.Position;
-
-                    delta.y =
-                        0f;
-
-                    if (delta.sqrMagnitude >
-                        maximumSquared)
-                    {
-                        continue;
-                    }
-
-                    if (!nodeByWay.TryGetValue(
-                            new WayKey(
-                                a.Group,
-                                a.Order),
-                            out int aNode) ||
-                        !nodeByWay.TryGetValue(
-                            new WayKey(
-                                b.Group,
-                                b.Order),
-                            out int bNode))
-                    {
-                        continue;
-                    }
-
-                    AddEdge(
-                        aNode,
-                        bNode,
-                        Nodes,
-                        Edges);
+                    targetComponent =
+                        component as MonoBehaviour;
                 }
+
+                if (targetComponent == null ||
+                    !WayEntries.TryGetValue(
+                        targetComponent,
+                        out WayNetworkEntry target) ||
+                    target.NodeIndices.Count == 0)
+                {
+                    continue;
+                }
+
+                int first =
+                    target.NodeIndices[0];
+
+                int last =
+                    target.NodeIndices[
+                        target.NodeIndices.Count - 1];
+
+                float firstDistance =
+                    FlatDistance(
+                        Nodes[sourceNode],
+                        Nodes[first]);
+
+                float lastDistance =
+                    FlatDistance(
+                        Nodes[sourceNode],
+                        Nodes[last]);
+
+                int targetNode =
+                    firstDistance <=
+                        lastDistance
+                        ? first
+                        : last;
+
+                float distance =
+                    Mathf.Min(
+                        firstDistance,
+                        lastDistance);
+
+                if (distance >
+                    MaximumAuthoredLinkDistance)
+                {
+                    continue;
+                }
+
+                AddEdge(
+                    sourceNode,
+                    targetNode,
+                    Nodes,
+                    Edges);
             }
         }
 
-        private static bool TryParseWayName(
-            string name,
-            out int group,
-            out int order)
+        private static List<Transform> ReadTransformList(
+            MonoBehaviour behaviour,
+            string fieldName)
         {
-            group =
-                -1;
+            List<Transform> result =
+                new();
 
-            order =
-                -1;
+            IEnumerable enumerable =
+                ReadEnumerable(
+                    behaviour,
+                    fieldName);
 
-            if (string.IsNullOrWhiteSpace(
-                    name))
+            if (enumerable == null)
+                return result;
+
+            foreach (object item in
+                     enumerable)
             {
-                return false;
+                switch (item)
+                {
+                    case Transform transform:
+                        result.Add(
+                            transform);
+                        break;
+
+                    case GameObject gameObject:
+                        result.Add(
+                            gameObject.transform);
+                        break;
+
+                    case Component component:
+                        result.Add(
+                            component.transform);
+                        break;
+                }
             }
 
-            string trimmed =
-                name.Trim();
+            return result;
+        }
 
-            int wayIndex =
-                trimmed.IndexOf(
-                    "Way",
-                    StringComparison.OrdinalIgnoreCase);
+        private static IEnumerable ReadEnumerable(
+            MonoBehaviour behaviour,
+            string fieldName)
+        {
+            if (behaviour == null)
+                return null;
 
-            int open =
-                trimmed.IndexOf(
-                    '(',
-                    wayIndex >= 0
-                        ? wayIndex
-                        : 0);
+            FieldInfo field =
+                FindField(
+                    behaviour.GetType(),
+                    fieldName);
 
-            int close =
-                open >= 0
-                    ? trimmed.IndexOf(
-                        ')',
-                        open + 1)
-                    : -1;
+            if (field == null)
+                return null;
 
-            int dash =
-                close >= 0
-                    ? trimmed.IndexOf(
-                        '-',
-                        close + 1)
-                    : -1;
+            object value;
 
-            if (wayIndex < 0 ||
-                open < 0 ||
-                close <= open + 1 ||
-                dash < 0 ||
-                dash >= trimmed.Length - 1)
+            try
             {
-                return false;
+                value =
+                    field.GetValue(
+                        behaviour);
             }
-
-            string groupText =
-                trimmed.Substring(
-                        open + 1,
-                        close - open - 1)
-                    .Trim();
-
-            string orderText =
-                trimmed.Substring(
-                        dash + 1)
-                    .Trim();
+            catch
+            {
+                return null;
+            }
 
             return
-                int.TryParse(
-                    groupText,
-                    out group) &&
-                int.TryParse(
-                    orderText,
-                    out order);
+                value as IEnumerable;
+        }
+
+        private static FieldInfo FindField(
+            Type type,
+            string fieldName)
+        {
+            while (type != null)
+            {
+                FieldInfo field =
+                    type.GetField(
+                        fieldName,
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic);
+
+                if (field != null)
+                    return field;
+
+                type =
+                    type.BaseType;
+            }
+
+            return null;
         }
 
         private static void BuildFallbackGraph()
@@ -398,6 +480,9 @@ namespace MotorCity.World
             ConnectNearestFallbackRoads(
                 Nodes,
                 Edges);
+
+            Debug.LogWarning(
+                "Motor City navigator: using fallback gameplay-road graph.");
         }
 
         private static void AddRoute(
@@ -492,6 +577,7 @@ namespace MotorCity.World
 
                     best =
                         distance;
+
                     nearest =
                         j;
                 }
@@ -529,8 +615,10 @@ namespace MotorCity.World
             foreach (Edge edge in
                      edges)
             {
-                if (edge.A == low &&
-                    edge.B == high)
+                if (edge.A ==
+                        low &&
+                    edge.B ==
+                        high)
                 {
                     return;
                 }
@@ -564,8 +652,11 @@ namespace MotorCity.World
                         position,
                         nodes[i]);
 
-                if (distance >= best)
+                if (distance >=
+                    best)
+                {
                     continue;
+                }
 
                 best =
                     distance;
@@ -583,6 +674,14 @@ namespace MotorCity.World
             List<Vector3> nodes,
             List<Edge> edges)
         {
+            if (start == end)
+            {
+                return new List<int>
+                {
+                    start
+                };
+            }
+
             int count =
                 nodes.Count;
 
@@ -624,7 +723,8 @@ namespace MotorCity.World
                      i++)
                 {
                     if (!visited[i] &&
-                        distance[i] < best)
+                        distance[i] <
+                        best)
                     {
                         best =
                             distance[i];
@@ -675,6 +775,16 @@ namespace MotorCity.World
                 }
             }
 
+            if (previous[end] <
+                0)
+            {
+                return new List<int>
+                {
+                    start,
+                    end
+                };
+            }
+
             List<int> path =
                 new();
 
@@ -694,17 +804,6 @@ namespace MotorCity.World
 
                 cursor =
                     previous[cursor];
-            }
-
-            if (path.Count == 0 ||
-                path[path.Count - 1] !=
-                start)
-            {
-                return new List<int>
-                {
-                    start,
-                    end
-                };
             }
 
             path.Reverse();
@@ -728,79 +827,33 @@ namespace MotorCity.World
                     b);
         }
 
-        private readonly struct WayPoint
+        private sealed class WayNetworkEntry
         {
-            public readonly int Group;
-            public readonly int Order;
-            public readonly Vector3 Position;
+            public readonly MonoBehaviour Component;
 
-            public WayPoint(
-                int group,
-                int order,
-                Vector3 position)
+            public readonly List<Transform> Waypoints;
+
+            public readonly List<int> NodeIndices =
+                new();
+
+            public WayNetworkEntry(
+                MonoBehaviour component,
+                List<Transform> waypoints)
             {
-                Group =
-                    group;
+                Component =
+                    component;
 
-                Order =
-                    order;
-
-                Position =
-                    position;
-            }
-        }
-
-        private readonly struct WayKey :
-            IEquatable<WayKey>
-        {
-            public readonly int Group;
-            public readonly int Order;
-
-            public WayKey(
-                int group,
-                int order)
-            {
-                Group =
-                    group;
-
-                Order =
-                    order;
-            }
-
-            public bool Equals(
-                WayKey other)
-            {
-                return
-                    Group ==
-                        other.Group &&
-                    Order ==
-                        other.Order;
-            }
-
-            public override bool Equals(
-                object obj)
-            {
-                return
-                    obj is WayKey other &&
-                    Equals(
-                        other);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return
-                        Group * 397 ^
-                        Order;
-                }
+                Waypoints =
+                    waypoints;
             }
         }
 
         private readonly struct Edge
         {
             public readonly int A;
+
             public readonly int B;
+
             public readonly float Cost;
 
             public Edge(
