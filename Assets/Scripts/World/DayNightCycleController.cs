@@ -31,6 +31,9 @@ namespace MotorCity.World
         private readonly List<Light> streetLights =
             new();
 
+        private readonly List<Renderer> streetLampGlowRenderers =
+            new();
+
         private readonly List<LampAnchor> streetLampAnchors =
             new();
 
@@ -261,15 +264,6 @@ namespace MotorCity.World
                 "_MotorCityNightEmission",
                 NightAmount);
 
-            // Keep daytime reflections intact, but reduce environment
-            // reflections at night so URP Lit surfaces do not look like
-            // wet plastic under dense realtime street lighting.
-            RenderSettings.reflectionIntensity =
-                Mathf.Lerp(
-                    1f,
-                    0.22f,
-                    NightAmount);
-
             IsNight =
                 NightAmount >=
                 0.58f;
@@ -351,16 +345,18 @@ namespace MotorCity.World
                     duskEquator,
                     twilight * 0.36f);
 
+            // Match FCG URP DayNight.UpdateColor(): 0.07 at night,
+            // 0.40 during day, blended here for Motor City's smooth cycle.
             RenderSettings.ambientGroundColor =
                 Color.Lerp(
                     new Color(
-                        0.01f,
-                        0.012f,
-                        0.02f),
-                    new Color(
-                        0.075f,
-                        0.072f,
+                        0.07f,
+                        0.07f,
                         0.07f),
+                    new Color(
+                        0.4f,
+                        0.4f,
+                        0.4f),
                     daylight);
 
             RenderSettings.fog =
@@ -568,6 +564,7 @@ namespace MotorCity.World
             }
 
             streetLights.Clear();
+            streetLampGlowRenderers.Clear();
             streetLampAnchors.Clear();
             lampCandidates.Clear();
             autoCreatedStreetLights = 0;
@@ -580,6 +577,21 @@ namespace MotorCity.World
 
             if (cityRoot == null)
                 return;
+
+            foreach (Renderer renderer in
+                     cityRoot.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null ||
+                    NormalizeName(
+                        renderer.gameObject.name) !=
+                    "lightv")
+                {
+                    continue;
+                }
+
+                streetLampGlowRenderers.Add(
+                    renderer);
+            }
 
             Light[] sourceLights =
                 cityRoot.GetComponentsInChildren<Light>(true);
@@ -641,6 +653,21 @@ namespace MotorCity.World
 
         private void ApplyStreetLights()
         {
+            bool glowEnabled =
+                NightAmount >= 0.38f;
+
+            foreach (Renderer glowRenderer in
+                     streetLampGlowRenderers)
+            {
+                if (glowRenderer != null &&
+                    glowRenderer.enabled !=
+                    glowEnabled)
+                {
+                    glowRenderer.enabled =
+                        glowEnabled;
+                }
+            }
+
             if (streetLights.Count == 0)
             {
                 EnabledStreetLightCount = 0;
