@@ -611,6 +611,13 @@ namespace MotorCity.World
                     continue;
                 }
 
+                // The authored FCG light is used only as a transform
+                // anchor. Motor City owns the active night lighting through
+                // the bounded realtime pool below, so leaving the source
+                // component enabled can double-light the street and defeat
+                // the WebGL light budget.
+                sourceLight.enabled = false;
+
                 if (!usedLights.Add(
                         sourceLight.GetEntityId()))
                 {
