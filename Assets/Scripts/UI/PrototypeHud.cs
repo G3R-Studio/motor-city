@@ -115,6 +115,7 @@ namespace MotorCity.UI
         private Text clubWeeklyText;
         private Text clubControlsText;
         private RectTransform safeAreaRoot;
+        private GameObject touchControlsRoot;
 
         private readonly Queue<string> notificationQueue =
             new();
@@ -251,6 +252,7 @@ namespace MotorCity.UI
             HandleNavigatorMenu();
             HandleStoreInput();
             HandleClubInput();
+            UpdateTouchControlsVisibility();
 
             if (MotorCityInput.RewardedBonusPressed)
             {
@@ -1449,6 +1451,7 @@ namespace MotorCity.UI
             BuildActivityResult(safeAreaRoot);
             BuildGarage(safeAreaRoot);
             BuildClubOverlay(safeAreaRoot);
+            BuildTouchControls(safeAreaRoot);
 
             driftPanel.SetActive(false);
             activityResultOverlay.SetActive(false);
@@ -4181,6 +4184,232 @@ namespace MotorCity.UI
             {
                 Destroy(
                     minimapMaskTexture);
+            }
+        }
+
+        private void BuildTouchControls(
+            Transform canvas)
+        {
+            bool touchCapable =
+                Application.isMobilePlatform ||
+                UnityEngine.Input.touchSupported;
+
+            if (!touchCapable)
+                return;
+
+            touchControlsRoot =
+                new GameObject(
+                    "Touch Driving Controls",
+                    typeof(RectTransform));
+
+            touchControlsRoot.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform root =
+                touchControlsRoot.GetComponent<RectTransform>();
+
+            root.anchorMin = Vector2.zero;
+            root.anchorMax = Vector2.one;
+            root.offsetMin = Vector2.zero;
+            root.offsetMax = Vector2.zero;
+
+            CreateTouchHoldButton(
+                root,
+                "Steer Left",
+                "◀",
+                MotorCityInputAction.SteerLeft,
+                new Vector2(48f, 110f),
+                new Vector2(0f, 0f),
+                new Vector2(0f, 0f));
+
+            CreateTouchHoldButton(
+                root,
+                "Steer Right",
+                "▶",
+                MotorCityInputAction.SteerRight,
+                new Vector2(132f, 110f),
+                new Vector2(0f, 0f),
+                new Vector2(0f, 0f));
+
+            CreateTouchHoldButton(
+                root,
+                "Throttle",
+                "▲",
+                MotorCityInputAction.Throttle,
+                new Vector2(-48f, 278f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f));
+
+            CreateTouchHoldButton(
+                root,
+                "Reverse",
+                "▼",
+                MotorCityInputAction.Reverse,
+                new Vector2(-48f, 194f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f));
+
+            CreateTouchHoldButton(
+                root,
+                "Handbrake",
+                "HB",
+                MotorCityInputAction.Handbrake,
+                new Vector2(-132f, 194f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f));
+
+            CreateTouchHoldButton(
+                root,
+                "Interact",
+                "E",
+                MotorCityInputAction.Interact,
+                new Vector2(-132f, 278f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f));
+
+            CreateTouchHoldButton(
+                root,
+                "Rescue",
+                "R",
+                MotorCityInputAction.Rescue,
+                new Vector2(48f, 194f),
+                new Vector2(0f, 0f),
+                new Vector2(0f, 0f));
+        }
+
+        private void CreateTouchHoldButton(
+            Transform parent,
+            string name,
+            string label,
+            MotorCityInputAction action,
+            Vector2 anchoredPosition,
+            Vector2 anchor,
+            Vector2 pivot)
+        {
+            GameObject buttonObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(TouchHoldButton));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = pivot;
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                new Vector2(72f, 72f);
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            image.color =
+                new Color(
+                    0.03f,
+                    0.08f,
+                    0.13f,
+                    0.72f);
+
+            TouchHoldButton input =
+                buttonObject.GetComponent<TouchHoldButton>();
+
+            input.Bind(action);
+
+            Text text =
+                CreateText(
+                    rect,
+                    "Label",
+                    24,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(68f, 68f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+
+            text.text = label;
+        }
+
+        private void UpdateTouchControlsVisibility()
+        {
+            if (touchControlsRoot == null)
+                return;
+
+            bool blocked =
+                navigatorMenuOpen ||
+                storeOpen ||
+                (clubOverlay != null &&
+                 clubOverlay.activeSelf) ||
+                (garage != null &&
+                 garage.IsOpen) ||
+                (activityManager != null &&
+                 activityManager.HasResult);
+
+            touchControlsRoot.SetActive(
+                !blocked);
+        }
+
+        private sealed class TouchHoldButton :
+            MonoBehaviour,
+            IPointerDownHandler,
+            IPointerUpHandler,
+            IPointerExitHandler
+        {
+            private MotorCityInputAction action;
+            private bool held;
+
+            public void Bind(
+                MotorCityInputAction inputAction)
+            {
+                action = inputAction;
+            }
+
+            public void OnPointerDown(
+                PointerEventData eventData)
+            {
+                held = true;
+                MotorCityInput.SetVirtualHeld(
+                    action,
+                    true);
+            }
+
+            public void OnPointerUp(
+                PointerEventData eventData)
+            {
+                Release();
+            }
+
+            public void OnPointerExit(
+                PointerEventData eventData)
+            {
+                Release();
+            }
+
+            private void OnDisable()
+            {
+                Release();
+            }
+
+            private void Release()
+            {
+                if (!held)
+                    return;
+
+                held = false;
+
+                MotorCityInput.SetVirtualHeld(
+                    action,
+                    false);
             }
         }
 
