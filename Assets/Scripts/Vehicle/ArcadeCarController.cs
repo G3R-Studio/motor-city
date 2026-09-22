@@ -84,6 +84,11 @@ namespace MotorCity.Vehicle
         private PropertyInfo inputProxyPressedProperty;
         private FieldInfo prometeoTractionLockedField;
         private FieldInfo prometeoDriftingField;
+        private bool? lastThrottleProxyPressed;
+        private bool? lastReverseProxyPressed;
+        private bool? lastLeftProxyPressed;
+        private bool? lastRightProxyPressed;
+        private bool? lastHandbrakeProxyPressed;
 
         private bool wheelRigReady;
         private bool drivingEnabled = true;
@@ -684,6 +689,17 @@ namespace MotorCity.Vehicle
             if (!ready)
                 return false;
 
+            lastThrottleProxyPressed =
+                null;
+            lastReverseProxyPressed =
+                null;
+            lastLeftProxyPressed =
+                null;
+            lastRightProxyPressed =
+                null;
+            lastHandbrakeProxyPressed =
+                null;
+
             SetPrometeoField(
                 "throttleButton",
                 throttleInputProxy.gameObject);
@@ -774,25 +790,49 @@ namespace MotorCity.Vehicle
                 left ||
                 right;
 
-            SetInputProxyPressed(
+            SetInputProxyPressedIfChanged(
                 throttleInputProxy,
-                throttle);
+                throttle,
+                ref lastThrottleProxyPressed);
 
-            SetInputProxyPressed(
+            SetInputProxyPressedIfChanged(
                 reverseInputProxy,
-                reverse);
+                reverse,
+                ref lastReverseProxyPressed);
 
-            SetInputProxyPressed(
+            SetInputProxyPressedIfChanged(
                 leftInputProxy,
-                left);
+                left,
+                ref lastLeftProxyPressed);
 
-            SetInputProxyPressed(
+            SetInputProxyPressedIfChanged(
                 rightInputProxy,
-                right);
+                right,
+                ref lastRightProxyPressed);
+
+            SetInputProxyPressedIfChanged(
+                handbrakeInputProxy,
+                handbrake,
+                ref lastHandbrakeProxyPressed);
+        }
+
+        private void SetInputProxyPressedIfChanged(
+            Component proxy,
+            bool pressed,
+            ref bool? lastPressed)
+        {
+            if (lastPressed.HasValue &&
+                lastPressed.Value == pressed)
+            {
+                return;
+            }
+
+            lastPressed =
+                pressed;
 
             SetInputProxyPressed(
-                handbrakeInputProxy,
-                handbrake);
+                proxy,
+                pressed);
         }
 
         private void SetInputProxyPressed(
