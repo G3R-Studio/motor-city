@@ -280,7 +280,7 @@ namespace MotorCity.Input
 
             VirtualHeld[index] = true;
             VirtualPressedFrame[index] =
-                Time.frameCount;
+                Time.frameCount + 1;
         }
 
         public static void ReleaseVirtual(
@@ -309,7 +309,7 @@ namespace MotorCity.Input
                 !VirtualHeld[index])
             {
                 VirtualPressedFrame[index] =
-                    Time.frameCount;
+                Time.frameCount + 1;
             }
 
             VirtualHeld[index] =
@@ -326,7 +326,7 @@ namespace MotorCity.Input
                 return;
 
             VirtualPressedFrame[index] =
-                Time.frameCount;
+                Time.frameCount + 1;
         }
 
         public static bool VirtualIsHeld(
