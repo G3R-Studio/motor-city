@@ -157,7 +157,7 @@ namespace MotorCity.World
             saveTimer = 0f;
 
             SaveCurrentPosition(
-                true);
+                false);
         }
 
         public void SaveNow()
@@ -234,7 +234,7 @@ namespace MotorCity.World
                 return;
 
             SaveCurrentPosition(
-                false);
+                true);
         }
 
         private static bool IsFinite(
