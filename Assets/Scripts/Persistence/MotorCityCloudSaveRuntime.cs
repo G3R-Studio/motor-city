@@ -34,11 +34,14 @@ namespace MotorCity.Persistence
                     MotorCitySaveService.CloudSaveMetadata local =
                         MotorCitySaveService.GetCloudMetadata();
 
+                    MotorCitySaveService.CloudSaveMetadata remote =
+                        default;
+
                     bool remoteParsed =
                         success &&
                         MotorCitySaveService.TryReadCloudMetadata(
                             remoteJson,
-                            out MotorCitySaveService.CloudSaveMetadata remote);
+                            out remote);
 
                     bool remoteHasSave =
                         remoteParsed &&
@@ -247,7 +250,7 @@ namespace MotorCity.Persistence
             long serverUnixTime =
                 Math.Max(
                     0L,
-                    MotorCityPlatform.ServerUnixTime);
+                    MotorCityPlatform.TrustedServerUnixTime);
 
             string json =
                 MotorCitySaveService.ExportCloudJson(
