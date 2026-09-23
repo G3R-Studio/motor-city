@@ -636,6 +636,30 @@ namespace MotorCity.World
                 out float minimum,
                 out float maximum);
 
+            Vector3 lateralAxis =
+                sourceRenderer.transform
+                    .InverseTransformDirection(
+                        transform.right)
+                    .normalized;
+
+            Vector3 upAxis =
+                sourceRenderer.transform
+                    .InverseTransformDirection(
+                        transform.up)
+                    .normalized;
+
+            ResolveProjectionRange(
+                filter.sharedMesh.bounds,
+                lateralAxis,
+                out float lateralMinimum,
+                out float lateralMaximum);
+
+            ResolveProjectionRange(
+                filter.sharedMesh.bounds,
+                upAxis,
+                out float upMinimum,
+                out float upMaximum);
+
             float span =
                 Mathf.Max(
                     0.001f,
@@ -664,6 +688,34 @@ namespace MotorCity.World
                     0.008f,
                     span *
                     rearSoftnessFraction);
+
+            bool clubSpatialMask =
+                vehicleId == "club";
+
+            float lateralMaxAbs =
+                Mathf.Max(
+                    Mathf.Abs(lateralMinimum),
+                    Mathf.Abs(lateralMaximum));
+
+            float upSpan =
+                Mathf.Max(
+                    0.001f,
+                    upMaximum -
+                    upMinimum);
+
+            float lateralLampMin =
+                lateralMaxAbs * 0.50f;
+
+            float lateralLampMax =
+                lateralMaxAbs * 1.02f;
+
+            float upLampMin =
+                upMinimum +
+                upSpan * 0.34f;
+
+            float upLampMax =
+                upMinimum +
+                upSpan * 0.72f;
 
             for (int i = 0;
                  i < sourceMaterials.Length;
@@ -701,6 +753,22 @@ namespace MotorCity.World
                         rearAxis.z,
                         0f));
 
+                overlay.SetVector(
+                    "_LateralAxisOS",
+                    new Vector4(
+                        lateralAxis.x,
+                        lateralAxis.y,
+                        lateralAxis.z,
+                        0f));
+
+                overlay.SetVector(
+                    "_UpAxisOS",
+                    new Vector4(
+                        upAxis.x,
+                        upAxis.y,
+                        upAxis.z,
+                        0f));
+
                 overlay.SetFloat(
                     "_RearCutoff",
                     cutoff);
@@ -733,6 +801,24 @@ namespace MotorCity.World
                 overlay.SetFloat(
                     "_BlueHigh",
                     blueHigh);
+
+                overlay.SetFloat(
+                    "_SpatialMask",
+                    clubSpatialMask
+                        ? 1f
+                        : 0f);
+                overlay.SetFloat(
+                    "_LateralMin",
+                    lateralLampMin);
+                overlay.SetFloat(
+                    "_LateralMax",
+                    lateralLampMax);
+                overlay.SetFloat(
+                    "_UpMin",
+                    upLampMin);
+                overlay.SetFloat(
+                    "_UpMax",
+                    upLampMax);
 
                 overlay.SetColor(
                     "_EmissionColor",
@@ -861,16 +947,16 @@ namespace MotorCity.World
                 // texels. Restrict the effect to the very back of the mesh so
                 // we can safely use a looser colour mask without lighting the
                 // whole red body.
-                rearCutoffFraction = 0.86f;
-                rearSoftnessFraction = 0.018f;
-                chromaLow = 0.08f;
-                chromaHigh = 0.24f;
-                redLow = 0.30f;
-                redHigh = 0.58f;
-                greenLow = 0.28f;
-                greenHigh = 0.58f;
-                blueLow = 0.26f;
-                blueHigh = 0.54f;
+                rearCutoffFraction = 0.82f;
+                rearSoftnessFraction = 0.022f;
+                chromaLow = 0.01f;
+                chromaHigh = 0.10f;
+                redLow = 0.10f;
+                redHigh = 0.34f;
+                greenLow = 0.34f;
+                greenHigh = 0.72f;
+                blueLow = 0.32f;
+                blueHigh = 0.68f;
             }
             else if (apex)
             {
