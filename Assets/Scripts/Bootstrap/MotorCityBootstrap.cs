@@ -454,6 +454,7 @@ namespace MotorCity.Bootstrap
                 story,
                 season);
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             AdminDebugPanel adminPanel =
                 systems.AddComponent<AdminDebugPanel>();
 
@@ -480,6 +481,7 @@ namespace MotorCity.Bootstrap
                 streetSprint,
                 circuitRace,
                 story);
+#endif
 
             CreateDeliveryMarker(delivery, activityManager);
             CreateDriftChallengeMarker(driftChallenge, activityManager);
