@@ -206,7 +206,7 @@ namespace MotorCity.Gameplay
                     ResolveVisualAnchor();
             }
 
-            // Turbo is a companion attached to the player vehicle, not a free
+            // Byte is a companion attached to the player vehicle, not a free
             // world object. Keep it close to the car even after changing
             // vehicles or rebuilding the runtime visual/wheel rig.
             visualRoot.transform.localPosition =
@@ -628,7 +628,7 @@ namespace MotorCity.Gameplay
 
             visualRoot =
                 new GameObject(
-                    "Turbo Robo Cat");
+                    "Byte Robo Cat");
 
             visualRoot.transform.SetParent(
                 car.transform,
