@@ -554,7 +554,7 @@ namespace FCG
 
 
 
-            speed = myRigidbody.linearVelocity.magnitude * 3.6f;
+            speed = myRigidbody.velocity.magnitude * 3.6f;
 
             VerificaPoints();
 
@@ -636,20 +636,20 @@ namespace FCG
                     status = StatusCar.waitingForAnotherVehicleToPass;
 
 
-                if (speed < 2 &&
-                    status != StatusCar.stoppedAtTrafficLights &&
-                    status != StatusCar.waitingForAnotherVehicleToPass)
+                if (speed < 2 && (status != StatusCar.stoppedAtTrafficLights || status != StatusCar.waitingForAnotherVehicleToPass))
                 {
+
+
                     if (Time.time > timeStoped + 50)
                     {
                         Destroy(transform.gameObject);
                         return;
                     }
+
+
                 }
                 else
-                {
                     timeStoped = Time.time;
-                }
 
 
 
@@ -1112,40 +1112,20 @@ namespace FCG
 
 
 
-        private float GetAngulo(
-            Transform origem,
-            Vector3 target)
+        private float GetAngulo(Transform origem, Vector3 target)
         {
-            Vector3 direction =
-                target -
-                origem.position;
+            float r;
 
-            direction.y =
-                0f;
+            GameObject compass = new GameObject("Compass");
+            compass.transform.parent = origem;
+            compass.transform.localPosition = new Vector3(0, 0, 0);
 
-            if (direction.sqrMagnitude <=
-                0.0001f)
-            {
-                return 0f;
-            }
+            compass.transform.LookAt(target);
+            r = compass.transform.localEulerAngles.y;
 
-            Vector3 localDirection =
-                origem.InverseTransformDirection(
-                    direction.normalized);
+            DestroyImmediate(compass);
+            return r;
 
-            float angle =
-                Mathf.Atan2(
-                    localDirection.x,
-                    localDirection.z) *
-                Mathf.Rad2Deg;
-
-            if (angle < 0f)
-            {
-                angle +=
-                    360f;
-            }
-
-            return angle;
         }
 
 
