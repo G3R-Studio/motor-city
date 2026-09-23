@@ -41,7 +41,9 @@ namespace MotorCity.Gameplay
         private Animator externalAnimator;
         private bool usingHaonVisual;
         private Vector3 visualAnchorLocal;
+        private Vector3 visualFollowVelocity;
         private float visualAnchorRefreshTimer;
+        private float hoverPhase;
         private float messageTimer;
         private float activeSeconds;
         private string observedActivityId;
@@ -209,20 +211,59 @@ namespace MotorCity.Gameplay
                     ResolveVisualAnchor();
             }
 
-            // Byte is a companion attached to the player vehicle, not a free
-            // world object. Keep it close to the car even after changing
-            // vehicles or rebuilding the runtime visual/wheel rig.
-            visualRoot.transform.localPosition =
-                Vector3.Lerp(
-                    visualRoot.transform.localPosition,
-                    visualAnchorLocal,
+            hoverPhase +=
+                Time.unscaledDeltaTime *
+                2.25f;
+
+            Vector3 targetWorld =
+                car.transform.TransformPoint(
+                    visualAnchorLocal);
+
+            targetWorld +=
+                Vector3.up *
+                Mathf.Sin(
+                    hoverPhase) *
+                0.16f;
+
+            float distance =
+                Vector3.Distance(
+                    visualRoot.transform.position,
+                    targetWorld);
+
+            if (distance > 22f)
+            {
+                visualRoot.transform.position =
+                    targetWorld;
+
+                visualFollowVelocity =
+                    Vector3.zero;
+            }
+            else
+            {
+                // Byte is an independent flying companion. SmoothDamp gives
+                // him visible inertia so he follows the car instead of looking
+                // welded to a fixed point on the body.
+                visualRoot.transform.position =
+                    Vector3.SmoothDamp(
+                        visualRoot.transform.position,
+                        targetWorld,
+                        ref visualFollowVelocity,
+                        0.42f,
+                        24f,
+                        Time.unscaledDeltaTime);
+            }
+
+            Quaternion targetRotation =
+                car.transform.rotation;
+
+            visualRoot.transform.rotation =
+                Quaternion.Slerp(
+                    visualRoot.transform.rotation,
+                    targetRotation,
                     1f -
                     Mathf.Exp(
-                        -12f *
+                        -4.5f *
                         Time.unscaledDeltaTime));
-
-            visualRoot.transform.localRotation =
-                Quaternion.identity;
         }
 
         private void OnDestroy()
@@ -634,14 +675,18 @@ namespace MotorCity.Gameplay
                     "Byte Companion");
 
             visualRoot.transform.SetParent(
-                car.transform,
+                null,
                 false);
 
             visualAnchorLocal =
                 ResolveVisualAnchor();
 
-            visualRoot.transform.localPosition =
-                visualAnchorLocal;
+            visualRoot.transform.position =
+                car.transform.TransformPoint(
+                    visualAnchorLocal);
+
+            visualRoot.transform.rotation =
+                car.transform.rotation;
 
             GameObject haonPrefab =
                 Resources.Load<GameObject>(
@@ -668,7 +713,7 @@ namespace MotorCity.Gameplay
                         0f);
 
                 externalVisual.transform.localScale =
-                    Vector3.one * 0.42f;
+                    Vector3.one * 0.66f;
 
                 externalAnimator =
                     externalVisual.GetComponentInChildren<Animator>(
@@ -693,9 +738,9 @@ namespace MotorCity.Gameplay
 
             float scale =
                 Mathf.Clamp(
-                    carWidth * 0.11f,
-                    0.16f,
-                    0.28f);
+                    carWidth * 0.15f,
+                    0.24f,
+                    0.40f);
 
             visualRoot.transform.localScale =
                 Vector3.one *
@@ -859,19 +904,28 @@ namespace MotorCity.Gameplay
                 Vector3 size =
                     chassis.size;
 
-                // Hover just outside the passenger-side upper body. Using the
-                // physical chassis instead of aggregate renderer bounds avoids
-                // distant wheel/overlay/runtime renderers pushing Turbo far
-                // away from the actual vehicle.
+                float followDistance =
+                    Mathf.Clamp(
+                        size.z * 0.52f + 0.9f,
+                        2.4f,
+                        4.4f);
+
+                // Fly behind the vehicle, slightly offset to the passenger
+                // side so Byte remains visible without looking mounted to the
+                // body. The world-space follower adds natural lag on top.
                 return
                     new Vector3(
                         center.x +
-                        size.x * 0.50f +
-                        0.42f,
+                        Mathf.Clamp(
+                            size.x * 0.30f,
+                            0.45f,
+                            0.85f),
                         center.y +
-                        size.y * 0.22f,
+                        Mathf.Max(
+                            0.75f,
+                            size.y * 0.58f),
                         center.z -
-                        size.z * 0.08f);
+                        followDistance);
             }
 
             Bounds bounds =
@@ -879,12 +933,18 @@ namespace MotorCity.Gameplay
 
             return
                 new Vector3(
-                    bounds.max.x +
-                    0.18f,
-                    bounds.max.y -
-                    bounds.size.y * 0.18f,
-                    bounds.center.z +
-                    bounds.size.z * 0.08f);
+                    bounds.center.x +
+                    Mathf.Clamp(
+                        bounds.size.x * 0.30f,
+                        0.45f,
+                        0.85f),
+                    bounds.max.y +
+                    0.25f,
+                    bounds.min.z -
+                    Mathf.Clamp(
+                        bounds.size.z * 0.18f,
+                        0.7f,
+                        1.4f));
         }
 
         private Bounds ResolveCarLocalBounds()
