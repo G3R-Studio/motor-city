@@ -1096,15 +1096,27 @@ namespace MotorCity.Gameplay
             float transitionSeconds)
         {
             if (externalAnimator == null ||
+                externalAnimator.runtimeAnimatorController == null ||
                 string.IsNullOrWhiteSpace(
                     state))
             {
                 return;
             }
 
+            string fullStateName =
+                "Base Layer." +
+                state;
+
             int hash =
                 Animator.StringToHash(
-                    state);
+                    fullStateName);
+
+            if (!externalAnimator.HasState(
+                    0,
+                    hash))
+            {
+                return;
+            }
 
             if (hash ==
                 currentAnimatorStateHash)
