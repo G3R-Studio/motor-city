@@ -454,7 +454,7 @@ namespace MotorCity.Bootstrap
                 story,
                 season);
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR
             AdminDebugPanel adminPanel =
                 systems.AddComponent<AdminDebugPanel>();
 
