@@ -350,6 +350,13 @@ namespace MotorCity.Gameplay
             if (visual == null)
                 return;
 
+            if (VehicleId() == "street" &&
+                ApplyAuthoredStarterPaint(
+                    visual))
+            {
+                return;
+            }
+
             Renderer[] renderers =
                 visual.GetComponentsInChildren<Renderer>(
                     true);
@@ -431,6 +438,100 @@ namespace MotorCity.Gameplay
                     i,
                     color);
             }
+        }
+
+        private bool ApplyAuthoredStarterPaint(
+            Transform visual)
+        {
+            Material paint =
+                Resources.Load<Material>(
+                    "MotorCity/VehiclePaints/StarterPaint_" +
+                    (SelectedColorIndex % 5));
+
+            if (paint == null)
+                return false;
+
+            bool applied = false;
+
+            foreach (Renderer renderer in
+                     visual.GetComponentsInChildren<Renderer>(
+                         true))
+            {
+                if (renderer == null ||
+                    IsWheelLike(
+                        renderer.transform.name))
+                {
+                    continue;
+                }
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                bool changed = false;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    Material material =
+                        materials[i];
+
+                    if (!IsStarterPaintMaterial(
+                            material))
+                    {
+                        continue;
+                    }
+
+                    materials[i] =
+                        paint;
+
+                    changed = true;
+                    applied = true;
+                }
+
+                if (changed)
+                {
+                    renderer.sharedMaterials =
+                        materials;
+
+                    // Remove any old tint left by the previous generic paint
+                    // implementation so the authored texture is shown exactly.
+                    renderer.SetPropertyBlock(
+                        null);
+                }
+            }
+
+            return applied;
+        }
+
+        private static bool IsStarterPaintMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string name =
+                material.name
+                    .ToLowerInvariant();
+
+            if (name.Contains("emission") ||
+                name.Contains("emissive") ||
+                name.Contains("env") ||
+                name.Contains("glass") ||
+                name.Contains("window") ||
+                name.Contains("mirror"))
+            {
+                return false;
+            }
+
+            return
+                name.Contains("afrc_mat") ||
+                name.Contains("starterpaint") ||
+                name.Contains("col1") ||
+                name.Contains("col2") ||
+                name.Contains("col3") ||
+                name.Contains("col4") ||
+                name.Contains("col5");
         }
 
         private void ApplyWheelStyle()
