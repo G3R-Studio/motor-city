@@ -24,7 +24,7 @@ public static class HaonByteVisualImporter
         "Assets/Haons SD series Pack/Prefab/CharacterSet/prf_Set Costume01 Unity-Chan.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.HaonByteVisualBuilt.V4";
+        "MotorCity.HaonByteVisualBuilt.V5";
 
     static HaonByteVisualImporter()
     {
@@ -387,46 +387,33 @@ public static class HaonByteVisualImporter
 
     private static RuntimeAnimatorController BuildAnimatorController()
     {
-        string[] clipGuids =
-            AssetDatabase.FindAssets(
-                "t:AnimationClip");
-
-        var clips =
-            new List<AnimationClip>();
-
-        foreach (string guid in clipGuids)
-        {
-            string path =
-                AssetDatabase.GUIDToAssetPath(
-                    guid);
-
-            if (!IsHaonPath(path))
-                continue;
-
-            AnimationClip[] assets =
-                AssetDatabase.LoadAllAssetsAtPath(
-                    path)
-                    .OfType<AnimationClip>()
-                    .Where(
-                        clip =>
-                            clip != null &&
-                            !clip.name.StartsWith(
-                                "__preview__",
-                                StringComparison.OrdinalIgnoreCase))
-                    .ToArray();
-
-            clips.AddRange(
-                assets);
-        }
-
         AnimationClip idle =
-            clips
-                .OrderByDescending(
-                    IdleScore)
-                .FirstOrDefault();
+            LoadClip(
+                "Assets/Haons SD series Pack/Animation/Common/StandA_idleA.FBX");
+
+        AnimationClip follow =
+            LoadClip(
+                "Assets/Haons SD series Pack/Animation/Common/RunA_Front.FBX");
+
+        AnimationClip clap =
+            LoadClip(
+                "Assets/Haons SD series Pack/Animation/Action Adventure(Adv)/Emotion_Clap(StandC).FBX");
+
+        AnimationClip victory =
+            LoadClip(
+                "Assets/Haons SD series Pack/Animation/Action Adventure(Adv)/VictoryPose_UTCStyleSpin.fbx");
+
+        AnimationClip jump =
+            LoadClip(
+                "Assets/Haons SD series Pack/Animation/Action Adventure(Adv)/Jump_One-cycle-Type(root).FBX");
 
         if (idle == null)
+        {
+            Debug.LogWarning(
+                "Motor City: HAON idle animation was not found for Byte.");
+
             return null;
+        }
 
         if (AssetDatabase.LoadAssetAtPath<AnimatorController>(
                 OutputController) != null)
@@ -442,21 +429,69 @@ public static class HaonByteVisualImporter
         AnimatorStateMachine machine =
             controller.layers[0].stateMachine;
 
-        AnimatorState state =
-            machine.AddState(
-                "Byte Hover Idle");
+        AnimatorState idleState =
+            AddState(
+                machine,
+                "Byte Idle",
+                idle);
 
-        state.motion =
-            idle;
+        AddState(
+            machine,
+            "Byte Follow",
+            follow ?? idle);
+
+        AddState(
+            machine,
+            "Byte Clap",
+            clap ?? idle);
+
+        AddState(
+            machine,
+            "Byte Victory",
+            victory ?? clap ?? idle);
+
+        AddState(
+            machine,
+            "Byte Boost",
+            jump ?? follow ?? idle);
 
         machine.defaultState =
-            state;
+            idleState;
 
         EditorUtility.SetDirty(
             controller);
 
+        return controller;
+    }
+
+    private static AnimatorState AddState(
+        AnimatorStateMachine machine,
+        string name,
+        Motion motion)
+    {
+        AnimatorState state =
+            machine.AddState(
+                name);
+
+        state.motion =
+            motion;
+
+        return state;
+    }
+
+    private static AnimationClip LoadClip(
+        string assetPath)
+    {
         return
-            controller;
+            AssetDatabase.LoadAllAssetsAtPath(
+                    assetPath)
+                .OfType<AnimationClip>()
+                .FirstOrDefault(
+                    clip =>
+                        clip != null &&
+                        !clip.name.StartsWith(
+                            "__preview__",
+                            StringComparison.OrdinalIgnoreCase));
     }
 
     private static int IdleScore(
