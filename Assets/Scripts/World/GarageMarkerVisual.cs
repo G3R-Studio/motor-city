@@ -13,11 +13,11 @@ namespace MotorCity.World
         private Transform observer;
         private float observerResolveTimer;
 
-        private const float TargetMarkerSize = 1.85f;
-        private const float MarkerHeight = 3.35f;
-        private const float FullScaleDistance = 70f;
-        private const float FarScaleDistance = 280f;
-        private const float MaximumVisibleDistance = 420f;
+        private const float TargetMarkerSize = 0.82f;
+        private const float MarkerHeight = 2.65f;
+        private const float FullScaleDistance = 38f;
+        private const float FarScaleDistance = 160f;
+        private const float MaximumVisibleDistance = 230f;
 
         public void Bind(GarageUpgradeSystem target)
         {
