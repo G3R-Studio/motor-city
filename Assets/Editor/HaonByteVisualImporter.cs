@@ -160,11 +160,16 @@ public static class HaonByteVisualImporter
             if (controller != null)
             {
                 // CharacterSet prefabs can ship with their own controller.
-                // Byte must always use our generated controller because the
-                // runtime code addresses Pixie-specific state names.
+                // Pixie uses Motor City state names, so keep the authored
+                // Avatar/rig but replace only the controller.
                 animator.runtimeAnimatorController =
                     controller;
             }
+
+            // Pixie is positioned by TurboPetSystem. Root motion from HAON
+            // clips must never move the companion hierarchy independently.
+            animator.applyRootMotion =
+                false;
 
             EnsureCompleteCharacterVisible(
                 instance);
@@ -369,13 +374,14 @@ public static class HaonByteVisualImporter
             string typeName =
                 behaviour.GetType().Name;
 
-            // Keep visual-only spring/dynamic-bone style behaviours.
-            if (typeName.IndexOf(
-                    "spring",
-                    StringComparison.OrdinalIgnoreCase) >= 0 ||
-                typeName.IndexOf(
-                    "bone",
-                    StringComparison.OrdinalIgnoreCase) >= 0)
+            // Preserve only HAON's authored UnityChan SpringBone
+            // runtime. The selected CharacterSet contains a SpringManager,
+            // SpringBone components and Spring*Collider helpers that define
+            // the skirt/hair secondary motion. Do not use broad "bone"
+            // substring matching, which can accidentally retain unrelated
+            // gameplay scripts.
+            if (IsHaonSpringRuntimeComponent(
+                    typeName))
             {
                 continue;
             }
@@ -383,6 +389,22 @@ public static class HaonByteVisualImporter
             UnityEngine.Object.DestroyImmediate(
                 behaviour);
         }
+    }
+
+    private static bool IsHaonSpringRuntimeComponent(
+        string typeName)
+    {
+        if (string.IsNullOrWhiteSpace(
+                typeName))
+            return false;
+
+        return
+            typeName == "SpringManager" ||
+            typeName == "SpringBone" ||
+            typeName == "SpringBonePivot" ||
+            typeName == "SpringCapsuleCollider" ||
+            typeName == "SpringSphereCollider" ||
+            typeName == "SpringPanelCollider";
     }
 
     private static RuntimeAnimatorController BuildAnimatorController()
