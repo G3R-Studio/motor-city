@@ -75,6 +75,24 @@ public static class HaonByteVisualImporter
         if (!HasHaonAssets())
             return;
 
+        GameObject existingPrefab =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                OutputPrefab);
+
+        AnimatorController existingController =
+            AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                OutputController);
+
+        // Generated Pixie assets are committed to the repository. A normal
+        // Editor launch must not rewrite them or recreate sub-assets, because
+        // that produces non-deterministic YAML diffs. Auto-build is only a
+        // recovery path when a generated output is genuinely missing.
+        if (existingPrefab != null &&
+            existingController != null)
+        {
+            return;
+        }
+
         if (SessionState.GetBool(
                 BuildSessionKey,
                 false))
@@ -86,8 +104,6 @@ public static class HaonByteVisualImporter
             BuildSessionKey,
             true);
 
-        // Rebuild once per editor session so fixes to the selected HAON
-        // character set propagate even when an older generated prefab exists.
         Build(false);
     }
 
@@ -155,7 +171,7 @@ public static class HaonByteVisualImporter
             }
 
             RuntimeAnimatorController controller =
-                BuildAnimatorController();
+                BuildAnimatorController(verbose);
 
             if (controller != null)
             {
@@ -407,7 +423,8 @@ public static class HaonByteVisualImporter
             typeName == "SpringPanelCollider";
     }
 
-    private static RuntimeAnimatorController BuildAnimatorController()
+    private static RuntimeAnimatorController BuildAnimatorController(
+        bool forceRebuild)
     {
         AnimationClip idle =
             LoadClip(
@@ -441,8 +458,17 @@ public static class HaonByteVisualImporter
             return null;
         }
 
-        if (AssetDatabase.LoadAssetAtPath<AnimatorController>(
-                OutputController) != null)
+        AnimatorController existing =
+            AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                OutputController);
+
+        if (existing != null &&
+            !forceRebuild)
+        {
+            return existing;
+        }
+
+        if (existing != null)
         {
             AssetDatabase.DeleteAsset(
                 OutputController);
