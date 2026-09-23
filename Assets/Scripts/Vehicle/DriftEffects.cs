@@ -391,10 +391,53 @@ namespace MotorCity.Vehicle
             if (material.HasProperty("_MainTex"))
                 material.SetTexture("_MainTex", texture);
 
+            if (material.HasProperty("_BaseColor"))
+            {
+                material.SetColor(
+                    "_BaseColor",
+                    new Color(
+                        1f,
+                        1f,
+                        1f,
+                        0.72f));
+            }
+
+            if (material.HasProperty("_Color"))
+            {
+                material.SetColor(
+                    "_Color",
+                    new Color(
+                        1f,
+                        1f,
+                        1f,
+                        0.72f));
+            }
+
             if (material.HasProperty("_Surface"))
                 material.SetFloat("_Surface", 1f);
+
+            if (material.HasProperty("_Blend"))
+                material.SetFloat("_Blend", 0f);
+
+            if (material.HasProperty("_SrcBlend"))
+                material.SetFloat(
+                    "_SrcBlend",
+                    (float)BlendMode.SrcAlpha);
+
+            if (material.HasProperty("_DstBlend"))
+                material.SetFloat(
+                    "_DstBlend",
+                    (float)BlendMode.OneMinusSrcAlpha);
+
             if (material.HasProperty("_ZWrite"))
                 material.SetFloat("_ZWrite", 0f);
+
+            material.EnableKeyword(
+                "_SURFACE_TYPE_TRANSPARENT");
+
+            material.SetOverrideTag(
+                "RenderType",
+                "Transparent");
 
             material.renderQueue =
                 (int)RenderQueue.Transparent +
