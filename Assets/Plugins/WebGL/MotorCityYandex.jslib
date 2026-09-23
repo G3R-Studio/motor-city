@@ -1,4 +1,29 @@
 mergeInto(LibraryManager.library, {
+  MotorCityWebConfigureBrowser: function() {
+    try {
+      var canvas =
+        (typeof Module !== 'undefined' && Module.canvas)
+          ? Module.canvas
+          : document.querySelector('canvas');
+
+      if (!canvas || canvas.dataset.motorCityBrowserConfigured === '1') {
+        return;
+      }
+
+      canvas.dataset.motorCityBrowserConfigured = '1';
+
+      canvas.addEventListener('contextmenu', function(event) {
+        event.preventDefault();
+      }, false);
+
+      canvas.addEventListener('dragstart', function(event) {
+        event.preventDefault();
+      }, false);
+    } catch (error) {
+      console.warn('Motor City: browser canvas configuration failed', error);
+    }
+  },
+
   MotorCityYandexInitialize: function(gameObjectNamePtr) {
     var gameObjectName = UTF8ToString(gameObjectNamePtr);
 
