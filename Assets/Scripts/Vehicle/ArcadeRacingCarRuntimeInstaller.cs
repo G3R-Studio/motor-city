@@ -249,14 +249,18 @@ namespace MotorCity.Vehicle
 
             if (chassis != null)
             {
-                if (rotateLeft90)
+                if (rotateLeft90 ||
+                    flipYaw180 ||
+                    targetLength >
+                    TargetLength + 0.1f)
                 {
                     ConfigureChassisFromVisual(
                         chassis,
                         carTransform,
                         visual.transform,
                         ordered,
-                        measuredRadius);
+                        measuredRadius,
+                        targetLength);
                 }
 
                 chassis.enabled =
@@ -362,7 +366,8 @@ namespace MotorCity.Vehicle
             Transform carRoot,
             Transform visualRoot,
             Transform[] wheels,
-            float wheelRadius)
+            float wheelRadius,
+            float targetLength = TargetLength)
         {
             if (chassis == null ||
                 carRoot == null ||
@@ -448,23 +453,42 @@ namespace MotorCity.Vehicle
             if (!hasBounds)
                 return;
 
+            bool largeVehicle =
+                targetLength >
+                TargetLength + 0.1f;
+
             float width =
-                Mathf.Clamp(
-                    localBounds.size.x * 0.88f,
-                    1.35f,
-                    2.35f);
+                largeVehicle
+                    ? Mathf.Clamp(
+                        localBounds.size.x * 0.94f,
+                        1.8f,
+                        2.75f)
+                    : Mathf.Clamp(
+                        localBounds.size.x * 0.88f,
+                        1.35f,
+                        2.35f);
 
             float length =
-                Mathf.Clamp(
-                    localBounds.size.z * 0.88f,
-                    2.7f,
-                    4.75f);
+                largeVehicle
+                    ? Mathf.Clamp(
+                        localBounds.size.z * 0.96f,
+                        targetLength * 0.82f,
+                        targetLength * 1.02f)
+                    : Mathf.Clamp(
+                        localBounds.size.z * 0.88f,
+                        2.7f,
+                        4.75f);
 
             float bodyHeight =
-                Mathf.Clamp(
-                    localBounds.size.y * 0.58f,
-                    0.52f,
-                    1.05f);
+                largeVehicle
+                    ? Mathf.Clamp(
+                        localBounds.size.y * 0.82f,
+                        1.25f,
+                        2.85f)
+                    : Mathf.Clamp(
+                        localBounds.size.y * 0.58f,
+                        0.52f,
+                        1.05f);
 
             float wheelBottom =
                 TargetWheelCenterLocalY -
