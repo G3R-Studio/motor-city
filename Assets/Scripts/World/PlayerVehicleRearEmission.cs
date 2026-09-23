@@ -211,6 +211,12 @@ namespace MotorCity.World
 
             RemoveLegacyOverlays();
 
+            // SuvV1/Apex has no authored rear lamp geometry. Do not project a
+            // synthetic brake-light mask onto its body: it looks like floating
+            // or painted-on lights that the source vehicle does not actually have.
+            if (vehicleId == "apex")
+                return;
+
             Renderer[] renderers =
                 currentVisual.GetComponentsInChildren<
                     Renderer>(
@@ -1307,9 +1313,6 @@ namespace MotorCity.World
             bool ranger =
                 vehicleId == "muscle";
 
-            bool apex =
-                vehicleId == "apex";
-
             if (club)
             {
                 // Swifto/Club stores its rear lamps as comparatively dark red
@@ -1343,20 +1346,6 @@ namespace MotorCity.World
                 greenHigh = 0.58f;
                 blueLow = 0.24f;
                 blueHigh = 0.56f;
-            }
-            else if (apex)
-            {
-                // SuvV1/Apex lamps are also darker in the shared atlas.
-                rearCutoffFraction = 0.70f;
-                rearSoftnessFraction = 0.035f;
-                chromaLow = 0.12f;
-                chromaHigh = 0.32f;
-                redLow = 0.42f;
-                redHigh = 0.72f;
-                greenLow = 0.26f;
-                greenHigh = 0.54f;
-                blueLow = 0.24f;
-                blueHigh = 0.50f;
             }
         }
 
