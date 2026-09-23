@@ -13,10 +13,11 @@ public static class PolyPackVehicleImporter
     {
         "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/SwiftoV2.prefab",
         "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/PickupV2.prefab",
-        "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/MuscleCarV2.prefab",
-        // Keep the existing authored Apex resource untouched.
-        null
+        "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/MuscleCarV2.prefab"
     };
+
+    private const string BusSourcePath =
+        "Assets/Fantastic City Generator/Traffic System/Vehicles/Prefabs/BusMirim.prefab";
 
     static PolyPackVehicleImporter()
     {
@@ -36,7 +37,7 @@ public static class PolyPackVehicleImporter
         int valid = 0;
 
         for (int i = 0;
-             i < 4;
+             i < 5;
              i++)
         {
             string outputPath =
@@ -65,7 +66,7 @@ public static class PolyPackVehicleImporter
             return;
 
         const string SessionKey =
-            "MotorCity.CuratedGarageBuilt.V2";
+            "MotorCity.CuratedGarageBuilt.V3";
 
         if (SessionState.GetBool(
                 SessionKey,
@@ -167,19 +168,122 @@ public static class PolyPackVehicleImporter
             }
         }
 
+        if (BuildBusVehicle(force))
+        {
+            written++;
+        }
+
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        if (written < 3)
+        if (written < 4)
         {
             Debug.LogWarning(
-                $"Motor City: rebuilt only {written}/3 curated garage cars. " +
-                "Check that the Alstra PolyPack source prefabs are imported.");
+                $"Motor City: rebuilt only {written}/4 curated garage vehicles. " +
+                "Check the PolyPack cars and Fantastic City Generator bus assets.");
         }
         else if (force)
         {
             Debug.Log(
-                "Motor City: rebuilt all 3 curated garage cars. Apex was kept unchanged.");
+                "Motor City: rebuilt 3 curated cars plus the unlockable bus. Apex was kept unchanged.");
         }
     }
+    private static bool BuildBusVehicle(
+        bool force)
+    {
+        GameObject source =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                BusSourcePath);
+
+        if (source == null)
+        {
+            Debug.LogError(
+                "Motor City: traffic bus source prefab is missing: " +
+                BusSourcePath);
+            return false;
+        }
+
+        GameObject instance =
+            PrefabUtility.InstantiatePrefab(
+                source) as GameObject;
+
+        if (instance == null)
+        {
+            instance =
+                UnityEngine.Object.Instantiate(
+                    source);
+        }
+
+        if (instance == null)
+            return false;
+
+        const string outputPath =
+            OutputDirectory + "/Vehicle_05.prefab";
+
+        instance.name =
+            "MotorCityVehicle_05_Bus";
+
+        try
+        {
+            // The traffic prefab is reused only as a visual. Remove its AI,
+            // traffic physics and colliders so the player car controller owns
+            // all driving behaviour at runtime.
+            foreach (MonoBehaviour behaviour in
+                     instance.GetComponentsInChildren<MonoBehaviour>(
+                         true))
+            {
+                if (behaviour != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(
+                        behaviour);
+                }
+            }
+
+            foreach (Rigidbody body in
+                     instance.GetComponentsInChildren<Rigidbody>(
+                         true))
+            {
+                if (body != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(
+                        body);
+                }
+            }
+
+            foreach (Collider collider in
+                     instance.GetComponentsInChildren<Collider>(
+                         true))
+            {
+                if (collider != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(
+                        collider);
+                }
+            }
+
+            GameObject saved =
+                PrefabUtility.SaveAsPrefabAsset(
+                    instance,
+                    outputPath);
+
+            if (saved == null)
+                return false;
+
+            if (force)
+            {
+                Debug.Log(
+                    "Motor City: rebuilt final unlock bus from traffic prefab '" +
+                    BusSourcePath +
+                    "'.");
+            }
+
+            return true;
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(
+                instance);
+        }
+    }
+
 }
