@@ -1390,8 +1390,13 @@ namespace MotorCity.Vehicle
             foreach (Renderer renderer in
                      car.GetComponentsInChildren<Renderer>(true))
             {
-                if (FallbackVisualNames.Contains(renderer.transform.name))
-                    renderer.enabled = false;
+                if (IsPrimitiveFallbackRenderer(
+                        car,
+                        renderer.transform))
+                {
+                    renderer.enabled =
+                        false;
+                }
             }
         }
 
@@ -1400,11 +1405,70 @@ namespace MotorCity.Vehicle
             foreach (Renderer renderer in
                      car.GetComponentsInChildren<Renderer>(true))
             {
-                string n = renderer.transform.name;
-                if (n.StartsWith("Wheel_", StringComparison.Ordinal)) continue;
-                if (FallbackVisualNames.Contains(n))
-                    renderer.enabled = false;
+                if (!IsPrimitiveFallbackRenderer(
+                        car,
+                        renderer.transform))
+                {
+                    continue;
+                }
+
+                Transform root =
+                    RootChildUnder(
+                        car,
+                        renderer.transform);
+
+                if (root != null &&
+                    root.name.StartsWith(
+                        "Wheel_",
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                renderer.enabled =
+                    false;
             }
+        }
+
+        private static bool IsPrimitiveFallbackRenderer(
+            Transform car,
+            Transform item)
+        {
+            Transform root =
+                RootChildUnder(
+                    car,
+                    item);
+
+            return
+                root != null &&
+                FallbackVisualNames.Contains(
+                    root.name);
+        }
+
+        private static Transform RootChildUnder(
+            Transform root,
+            Transform item)
+        {
+            if (root == null ||
+                item == null ||
+                item == root)
+            {
+                return null;
+            }
+
+            Transform cursor =
+                item;
+
+            while (cursor.parent != null &&
+                   cursor.parent != root)
+            {
+                cursor =
+                    cursor.parent;
+            }
+
+            return cursor.parent == root
+                ? cursor
+                : null;
         }
     }
 }
