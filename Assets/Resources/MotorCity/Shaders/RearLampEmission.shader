@@ -89,18 +89,39 @@ Shader "MotorCity/RearLampEmission"
                         sampler_BaseMap,
                         input.uv);
 
+                // PolyPack uses a shared atlas: on red/orange cars the body
+                // itself is red, so a simple "red pixel" test lights the whole
+                // rear quarter. Real tail-lamp texels are substantially
+                // brighter and more saturated than the painted body.
+                half chroma =
+                    source.r -
+                    max(source.g, source.b);
+
                 half redDominance =
-                    saturate(
-                        (source.r -
-                         max(source.g, source.b) -
-                         0.06) *
-                        7.5);
+                    smoothstep(
+                        0.22,
+                        0.46,
+                        chroma);
 
                 half redBrightness =
                     smoothstep(
-                        0.18,
-                        0.50,
+                        0.62,
+                        0.90,
                         source.r);
+
+                half lowGreen =
+                    1.0 -
+                    smoothstep(
+                        0.20,
+                        0.42,
+                        source.g);
+
+                half lowBlue =
+                    1.0 -
+                    smoothstep(
+                        0.18,
+                        0.38,
+                        source.b);
 
                 half rearMask =
                     smoothstep(
@@ -113,6 +134,8 @@ Shader "MotorCity/RearLampEmission"
                 half mask =
                     redDominance *
                     redBrightness *
+                    lowGreen *
+                    lowBlue *
                     rearMask *
                     source.a;
 
