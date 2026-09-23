@@ -13,7 +13,8 @@ public static class PolyPackVehicleImporter
     {
         "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/SwiftoV2.prefab",
         "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/PickupV2.prefab",
-        "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/MuscleCarV2.prefab"
+        "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/MuscleCarV2.prefab",
+        "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/SuvV1.prefab"
     };
 
     private const string BusSourcePath =
@@ -57,7 +58,7 @@ public static class PolyPackVehicleImporter
         }
 
         Debug.Log(
-            $"Motor City: curated garage vehicles available: {valid}/4.");
+            $"Motor City: curated garage vehicles available: {valid}/5.");
     }
 
     private static void EnsureCuratedGarageCars()
@@ -66,7 +67,7 @@ public static class PolyPackVehicleImporter
             return;
 
         const string SessionKey =
-            "MotorCity.CuratedGarageBuilt.V3";
+            "MotorCity.CuratedGarageBuilt.V4";
 
         if (SessionState.GetBool(
                 SessionKey,
@@ -76,7 +77,7 @@ public static class PolyPackVehicleImporter
         }
 
         // Rebuild once per Editor session so changes to the curated source
-        // selection are actually propagated even when Vehicle_01..03 already
+        // selection are actually propagated even when Vehicle_01..04 already
         // exist from an older lineup.
         Build(false);
 
@@ -94,7 +95,7 @@ public static class PolyPackVehicleImporter
         int written = 0;
 
         for (int i = 0;
-             i < 3;
+             i < SourcePaths.Length;
              i++)
         {
             string sourcePath =
@@ -176,16 +177,16 @@ public static class PolyPackVehicleImporter
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        if (written < 4)
+        if (written < 5)
         {
             Debug.LogWarning(
-                $"Motor City: rebuilt only {written}/4 curated garage vehicles. " +
-                "Check the PolyPack cars and Fantastic City Generator bus assets.");
+                $"Motor City: rebuilt only {written}/5 curated garage vehicles. " +
+                "Check the four PolyPack cars and Fantastic City Generator bus assets.");
         }
         else if (force)
         {
             Debug.Log(
-                "Motor City: rebuilt 3 curated cars plus the unlockable bus. Apex was kept unchanged.");
+                "Motor City: rebuilt 4 curated PolyPack cars plus the unlockable bus.");
         }
     }
     private static bool BuildBusVehicle(
