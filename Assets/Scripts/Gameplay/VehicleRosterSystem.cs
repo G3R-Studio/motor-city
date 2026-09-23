@@ -1,6 +1,7 @@
 using System;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
+using MotorCity.World;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -731,6 +732,14 @@ namespace MotorCity.Gameplay
                 profile.BrakeMultiplier,
                 profile.PowerMultiplier,
                 profile.DriftMultiplier);
+
+            PlayerVehicleRearEmission rearEmission =
+                car.GetComponent<PlayerVehicleRearEmission>();
+
+            if (rearEmission != null)
+            {
+                rearEmission.SetVehicleId(profile.Id);
+            }
 
         }
 
