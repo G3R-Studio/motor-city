@@ -109,6 +109,21 @@ namespace MotorCity.Vehicle
             visual.transform.localRotation = Quaternion.identity;
             visual.transform.localScale = Vector3.one;
 
+            bool useAuthoredBusRig =
+                flipYaw180;
+
+            Transform[] authoredBusWheels =
+                useAuthoredBusRig
+                    ? FindAuthoredBusWheels(
+                        visual.transform)
+                    : Array.Empty<Transform>();
+
+            float authoredBusWheelRadius =
+                useAuthoredBusRig
+                    ? MeasureAuthoredBusWheelRadius(
+                        visual.transform)
+                    : 0f;
+
             StripImportedPhysics(visual);
 
             if (rotateLeft90)
@@ -123,21 +138,18 @@ namespace MotorCity.Vehicle
                         -90f,
                         0f);
             }
-            else if (flipYaw180)
+            else if (useAuthoredBusRig)
             {
-                // BusMirim is authored lengthwise on local X with its nose
-                // toward +X. Use one fixed transform instead of guessing from
-                // renderer bounds; bounds changed as runtime pieces were
-                // rebuilt and could leave the bus sideways.
+                // FCG BusMirim is authored correctly already: its wheelbase
+                // runs along local Z, the front axle is +Z and the rear axle
+                // is -Z. Keep that source orientation instead of applying any
+                // guessed quarter/half turn.
                 NormalizeScaleOnly(
                     visual.transform,
                     targetLength);
 
                 visual.transform.localRotation =
-                    Quaternion.Euler(
-                        0f,
-                        -90f,
-                        0f);
+                    Quaternion.identity;
             }
             else
             {
@@ -149,7 +161,13 @@ namespace MotorCity.Vehicle
             UpgradeMaterialsForCurrentPipeline(visual);
             FixMirrorMaterialsForCurrentPipeline(visual);
 
-            List<Transform> wheelAnchors = FindWheelAnchors(visual.transform);
+            List<Transform> wheelAnchors =
+                useAuthoredBusRig &&
+                authoredBusWheels.Length == 4
+                    ? authoredBusWheels.ToList()
+                    : FindWheelAnchors(
+                        visual.transform);
+
             if (wheelAnchors.Count < 4)
             {
                 Debug.LogWarning(
@@ -160,7 +178,7 @@ namespace MotorCity.Vehicle
             }
 
             if (!rotateLeft90 &&
-                !flipYaw180)
+                !useAuthoredBusRig)
             {
                 AlignWheelbaseWithCarForward(
                     visual.transform,
@@ -189,12 +207,15 @@ namespace MotorCity.Vehicle
                 carTransform,
                 wheelAnchors);
 
-            // Re-evaluate the anchors after all visual rotations. The Prometeo
-            // contract is explicit: indices 0/1 are the physical front axle
-            // (+Z in PlayerCar local space), 2/3 are the rear axle.
-            wheelAnchors =
-                FindWheelAnchors(
-                    visual.transform);
+            // Re-evaluate normal cars after all visual transforms. For the
+            // FCG bus keep the source FL/FR/BL/BR transforms explicitly; its
+            // names do not contain "wheel" and geometric guessing is needless.
+            if (!useAuthoredBusRig)
+            {
+                wheelAnchors =
+                    FindWheelAnchors(
+                        visual.transform);
+            }
 
             Transform[] ordered =
                 OrderWheels(
@@ -235,10 +256,29 @@ namespace MotorCity.Vehicle
                 ordered[i].SetParent(spinRoots[i], true);
             }
 
-            float measuredRadius =
-                rotateLeft90
-                    ? StarterPhysicsWheelRadius
-                    : radiusSum / 4f;
+            float measuredRadius;
+
+            if (rotateLeft90)
+            {
+                measuredRadius =
+                    StarterPhysicsWheelRadius;
+            }
+            else if (useAuthoredBusRig &&
+                     authoredBusWheelRadius > 0.01f)
+            {
+                measuredRadius =
+                    Mathf.Clamp(
+                        authoredBusWheelRadius *
+                        Mathf.Abs(
+                            visual.transform.lossyScale.y),
+                        0.26f,
+                        0.58f);
+            }
+            else
+            {
+                measuredRadius =
+                    radiusSum / 4f;
+            }
 
             SymmetrizePhysicalWheelCenters(
                 centerLocal);
@@ -251,7 +291,7 @@ namespace MotorCity.Vehicle
             if (chassis != null)
             {
                 if (rotateLeft90 ||
-                    flipYaw180 ||
+                    useAuthoredBusRig ||
                     targetLength >
                     TargetLength + 0.1f)
                 {
@@ -270,7 +310,7 @@ namespace MotorCity.Vehicle
 
             bool needsExternalWheelSync =
                 rotateLeft90 ||
-                flipYaw180;
+                useAuthoredBusRig;
 
             car.ConfigurePrometeoRig(
                 spinRoots,
@@ -663,6 +703,86 @@ namespace MotorCity.Vehicle
                 "Motor City: using the built-in fallback wheel rig.");
 
             return true;
+        }
+
+        private static Transform[] FindAuthoredBusWheels(
+            Transform root)
+        {
+            if (root == null)
+                return Array.Empty<Transform>();
+
+            // Native FCG BusMirim naming and axle contract:
+            // FL/FR are the +Z front axle, BL/BR are the -Z rear axle.
+            string[] names =
+            {
+                "FL",
+                "FR",
+                "BL",
+                "BR"
+            };
+
+            Transform[] result =
+                new Transform[4];
+
+            Transform[] all =
+                root.GetComponentsInChildren<Transform>(
+                    true);
+
+            for (int i = 0;
+                 i < names.Length;
+                 i++)
+            {
+                result[i] =
+                    all.FirstOrDefault(
+                        item =>
+                            item != null &&
+                            string.Equals(
+                                item.name,
+                                names[i],
+                                StringComparison.OrdinalIgnoreCase));
+
+                if (result[i] == null ||
+                    result[i].GetComponentInChildren<Renderer>(
+                        true) == null)
+                {
+                    return Array.Empty<Transform>();
+                }
+            }
+
+            return result;
+        }
+
+        private static float MeasureAuthoredBusWheelRadius(
+            Transform root)
+        {
+            if (root == null)
+                return 0f;
+
+            WheelCollider[] colliders =
+                root.GetComponentsInChildren<WheelCollider>(
+                    true);
+
+            if (colliders == null ||
+                colliders.Length < 4)
+                return 0f;
+
+            float sum = 0f;
+            int count = 0;
+
+            foreach (WheelCollider wheel in
+                     colliders)
+            {
+                if (wheel == null ||
+                    wheel.radius <= 0.01f)
+                    continue;
+
+                sum += wheel.radius;
+                count++;
+            }
+
+            return count > 0
+                ? sum / count
+                : 0f;
         }
 
         private static List<Transform> FindWheelAnchors(
