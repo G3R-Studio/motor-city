@@ -37,6 +37,9 @@ namespace MotorCity.Gameplay
         private DiscoverySystem discoveries;
 
         private GameObject visualRoot;
+        private GameObject externalVisual;
+        private Animator externalAnimator;
+        private bool usingHaonVisual;
         private Vector3 visualAnchorLocal;
         private float visualAnchorRefreshTimer;
         private float messageTimer;
@@ -628,7 +631,7 @@ namespace MotorCity.Gameplay
 
             visualRoot =
                 new GameObject(
-                    "Byte Robo Cat");
+                    "Byte Companion");
 
             visualRoot.transform.SetParent(
                 car.transform,
@@ -639,6 +642,44 @@ namespace MotorCity.Gameplay
 
             visualRoot.transform.localPosition =
                 visualAnchorLocal;
+
+            GameObject haonPrefab =
+                Resources.Load<GameObject>(
+                    "MotorCity/Byte/HaonByteVisual");
+
+            if (haonPrefab != null)
+            {
+                externalVisual =
+                    Instantiate(
+                        haonPrefab,
+                        visualRoot.transform,
+                        false);
+
+                externalVisual.name =
+                    "Byte Haon SD Visual";
+
+                externalVisual.transform.localPosition =
+                    Vector3.zero;
+
+                externalVisual.transform.localRotation =
+                    Quaternion.Euler(
+                        0f,
+                        180f,
+                        0f);
+
+                externalVisual.transform.localScale =
+                    Vector3.one * 0.42f;
+
+                externalAnimator =
+                    externalVisual.GetComponentInChildren<Animator>(
+                        true);
+
+                usingHaonVisual =
+                    true;
+
+                RefreshVisualSkin();
+                return;
+            }
 
             BoxCollider chassis =
                 car.GetComponent<BoxCollider>();
@@ -917,6 +958,12 @@ namespace MotorCity.Gameplay
             if (visualRoot == null)
                 return;
 
+            if (usingHaonVisual)
+            {
+                ApplyHaonSkinVariant();
+                return;
+            }
+
             Color bodyColor =
                 selectedSkin switch
                 {
@@ -998,6 +1045,60 @@ namespace MotorCity.Gameplay
 
                 renderer.material.color =
                     bodyColor;
+            }
+        }
+
+        private void ApplyHaonSkinVariant()
+        {
+            if (externalVisual == null)
+                return;
+
+            // The free HAON bundle is modular. If the imported prefab exposes
+            // variant/skin roots, cycle those without destroying the author's
+            // original materials. The editor integration names discovered
+            // variant roots "ByteSkin_XX".
+            Transform[] children =
+                externalVisual.GetComponentsInChildren<Transform>(
+                    true);
+
+            int variantCount = 0;
+
+            foreach (Transform child in children)
+            {
+                if (child == null ||
+                    !child.name.StartsWith(
+                        "ByteSkin_",
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                variantCount++;
+            }
+
+            if (variantCount <= 0)
+                return;
+
+            int wanted =
+                selectedSkin %
+                variantCount;
+
+            int current = 0;
+
+            foreach (Transform child in children)
+            {
+                if (child == null ||
+                    !child.name.StartsWith(
+                        "ByteSkin_",
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                child.gameObject.SetActive(
+                    current == wanted);
+
+                current++;
             }
         }
 
