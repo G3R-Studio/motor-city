@@ -108,8 +108,10 @@ public static class ArcadeStarterPaintImporter
                         ? source.GetFloat("_Glossiness")
                         : 0.3f);
 
+            // Keep the Unity object name identical to the .mat filename.
+            // Unity 6.6 otherwise emits a warning on every editor start.
             target.name =
-                $"MotorCity_StarterPaint_{i + 1}";
+                $"StarterPaint_{i}";
 
             EditorUtility.SetDirty(target);
         }
