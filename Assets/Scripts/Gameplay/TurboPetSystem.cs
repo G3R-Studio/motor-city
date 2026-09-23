@@ -37,6 +37,8 @@ namespace MotorCity.Gameplay
         private DiscoverySystem discoveries;
 
         private GameObject visualRoot;
+        private Vector3 visualAnchorLocal;
+        private float visualAnchorRefreshTimer;
         private float messageTimer;
         private float activeSeconds;
         private string observedActivityId;
@@ -182,6 +184,42 @@ namespace MotorCity.Gameplay
 
             UpdateActivityAssist();
             RefreshDayIfNeeded();
+        }
+
+        private void LateUpdate()
+        {
+            if (visualRoot == null ||
+                car == null)
+            {
+                return;
+            }
+
+            visualAnchorRefreshTimer -=
+                Time.unscaledDeltaTime;
+
+            if (visualAnchorRefreshTimer <= 0f)
+            {
+                visualAnchorRefreshTimer =
+                    0.25f;
+
+                visualAnchorLocal =
+                    ResolveVisualAnchor();
+            }
+
+            // Turbo is a companion attached to the player vehicle, not a free
+            // world object. Keep it close to the car even after changing
+            // vehicles or rebuilding the runtime visual/wheel rig.
+            visualRoot.transform.localPosition =
+                Vector3.Lerp(
+                    visualRoot.transform.localPosition,
+                    visualAnchorLocal,
+                    1f -
+                    Mathf.Exp(
+                        -12f *
+                        Time.unscaledDeltaTime));
+
+            visualRoot.transform.localRotation =
+                Quaternion.identity;
         }
 
         private void OnDestroy()
@@ -596,31 +634,21 @@ namespace MotorCity.Gameplay
                 car.transform,
                 false);
 
-            Bounds localBounds =
-                ResolveCarLocalBounds();
-
-            float carWidth =
-                Mathf.Max(
-                    1.4f,
-                    localBounds.size.x);
-
-            float carHeight =
-                Mathf.Max(
-                    1.1f,
-                    localBounds.size.y);
-
-            float carLength =
-                Mathf.Max(
-                    2.6f,
-                    localBounds.size.z);
+            visualAnchorLocal =
+                ResolveVisualAnchor();
 
             visualRoot.transform.localPosition =
-                new Vector3(
-                    carWidth * 0.18f,
-                    localBounds.max.y -
-                    carHeight * 0.20f,
-                    localBounds.center.z +
-                    carLength * 0.04f);
+                visualAnchorLocal;
+
+            BoxCollider chassis =
+                car.GetComponent<BoxCollider>();
+
+            float carWidth =
+                chassis != null
+                    ? Mathf.Max(
+                        1.4f,
+                        chassis.size.x)
+                    : 1.8f;
 
             float scale =
                 Mathf.Clamp(
@@ -765,6 +793,56 @@ namespace MotorCity.Gameplay
             }
 
             return part;
+        }
+
+        private Vector3 ResolveVisualAnchor()
+        {
+            if (car == null)
+            {
+                return
+                    new Vector3(
+                        1.1f,
+                        1.35f,
+                        0.15f);
+            }
+
+            BoxCollider chassis =
+                car.GetComponent<BoxCollider>();
+
+            if (chassis != null &&
+                chassis.enabled)
+            {
+                Vector3 center =
+                    chassis.center;
+
+                Vector3 size =
+                    chassis.size;
+
+                // Hover just outside the passenger-side upper body. Using the
+                // physical chassis instead of aggregate renderer bounds avoids
+                // distant wheel/overlay/runtime renderers pushing Turbo far
+                // away from the actual vehicle.
+                return
+                    new Vector3(
+                        center.x +
+                        size.x * 0.56f,
+                        center.y +
+                        size.y * 0.62f,
+                        center.z +
+                        size.z * 0.08f);
+            }
+
+            Bounds bounds =
+                ResolveCarLocalBounds();
+
+            return
+                new Vector3(
+                    bounds.max.x +
+                    0.18f,
+                    bounds.max.y -
+                    bounds.size.y * 0.18f,
+                    bounds.center.z +
+                    bounds.size.z * 0.08f);
         }
 
         private Bounds ResolveCarLocalBounds()
