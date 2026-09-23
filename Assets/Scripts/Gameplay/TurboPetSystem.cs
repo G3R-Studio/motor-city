@@ -44,6 +44,8 @@ namespace MotorCity.Gameplay
         private Vector3 visualFollowVelocity;
         private float visualAnchorRefreshTimer;
         private float hoverPhase;
+        private float animationReactionTimer;
+        private int currentAnimatorStateHash;
         private float messageTimer;
         private float activeSeconds;
         private string observedActivityId;
@@ -188,6 +190,7 @@ namespace MotorCity.Gameplay
             }
 
             UpdateActivityAssist();
+            UpdateByteAnimation();
             RefreshDayIfNeeded();
         }
 
@@ -385,6 +388,9 @@ namespace MotorCity.Gameplay
 
             ApplyAbilities();
             RefreshVisualSkin();
+            PlayByteReaction(
+                "Byte Victory",
+                2.2f);
 
             StatusText =
                 MotorCityLocalization.Format(
@@ -398,6 +404,10 @@ namespace MotorCity.Gameplay
         private void OnActivityCompleted(
             string activityId)
         {
+            PlayByteReaction(
+                "Byte Clap",
+                1.8f);
+
             RegisterSuccessfulActivity(
                 activityId);
         }
@@ -615,6 +625,10 @@ namespace MotorCity.Gameplay
                         1.30f,
                         3.2f);
 
+                    PlayByteReaction(
+                        "Byte Boost",
+                        1.25f);
+
                     StatusText =
                         MotorCityLocalization.Text(
                             "turbo.boost");
@@ -721,6 +735,16 @@ namespace MotorCity.Gameplay
 
                 usingHaonVisual =
                     true;
+
+                if (externalAnimator != null)
+                {
+                    externalAnimator.applyRootMotion =
+                        false;
+
+                    PlayAnimatorState(
+                        "Byte Idle",
+                        0f);
+                }
 
                 RefreshVisualSkin();
                 return;
@@ -1014,6 +1038,97 @@ namespace MotorCity.Gameplay
             }
 
             return local;
+        }
+
+        private void UpdateByteAnimation()
+        {
+            if (!usingHaonVisual ||
+                externalAnimator == null)
+            {
+                return;
+            }
+
+            if (animationReactionTimer > 0f)
+            {
+                animationReactionTimer =
+                    Mathf.Max(
+                        0f,
+                        animationReactionTimer -
+                        Time.unscaledDeltaTime);
+
+                if (animationReactionTimer > 0f)
+                    return;
+            }
+
+            string state =
+                car != null &&
+                car.SpeedKph > 8f
+                    ? "Byte Follow"
+                    : "Byte Idle";
+
+            PlayAnimatorState(
+                state,
+                0.16f);
+        }
+
+        private void PlayByteReaction(
+            string state,
+            float seconds)
+        {
+            if (!usingHaonVisual ||
+                externalAnimator == null)
+            {
+                return;
+            }
+
+            animationReactionTimer =
+                Mathf.Max(
+                    animationReactionTimer,
+                    seconds);
+
+            PlayAnimatorState(
+                state,
+                0.08f);
+        }
+
+        private void PlayAnimatorState(
+            string state,
+            float transitionSeconds)
+        {
+            if (externalAnimator == null ||
+                string.IsNullOrWhiteSpace(
+                    state))
+            {
+                return;
+            }
+
+            int hash =
+                Animator.StringToHash(
+                    state);
+
+            if (hash ==
+                currentAnimatorStateHash)
+            {
+                return;
+            }
+
+            currentAnimatorStateHash =
+                hash;
+
+            if (transitionSeconds <= 0f)
+            {
+                externalAnimator.Play(
+                    hash,
+                    0,
+                    0f);
+            }
+            else
+            {
+                externalAnimator.CrossFadeInFixedTime(
+                    hash,
+                    transitionSeconds,
+                    0);
+            }
         }
 
         private void RefreshVisualSkin()
