@@ -13,6 +13,7 @@ namespace MotorCity.Platform
         bool SupportsPurchases { get; }
         string LanguageCode { get; }
         long ServerUnixTime { get; }
+        long TrustedServerUnixTime { get; }
 
         void Initialize(
             Action<bool> completed);
@@ -77,6 +78,9 @@ namespace MotorCity.Platform
 
         public static long ServerUnixTime =>
             Service.ServerUnixTime;
+
+        public static long TrustedServerUnixTime =>
+            Service.TrustedServerUnixTime;
 
         public static bool IsAuthenticated =>
             Service.IsAuthenticated;
@@ -247,6 +251,9 @@ namespace MotorCity.Platform
         public long ServerUnixTime =>
             DateTimeOffset.UtcNow
                 .ToUnixTimeSeconds();
+
+        public long TrustedServerUnixTime =>
+            0L;
 
         public void Initialize(
             Action<bool> completed)
