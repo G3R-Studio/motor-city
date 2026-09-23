@@ -766,6 +766,14 @@ namespace MotorCity.Gameplay
                 rearEmission.SetVehicleId(profile.Id);
             }
 
+            PlayerHeadlights headlights =
+                car.GetComponent<PlayerHeadlights>();
+
+            if (headlights != null)
+            {
+                headlights.SetVehicleId(profile.Id);
+            }
+
         }
 
         private bool IsUnlocked(
