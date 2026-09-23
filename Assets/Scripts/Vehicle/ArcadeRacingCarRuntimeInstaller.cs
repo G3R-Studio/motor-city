@@ -63,7 +63,8 @@ namespace MotorCity.Vehicle
             ArcadeCarController car,
             string resourcePath,
             bool rotateLeft90 = false,
-            float targetLength = TargetLength)
+            float targetLength = TargetLength,
+            bool flipYaw180 = false)
         {
             if (car == null ||
                 string.IsNullOrWhiteSpace(
@@ -89,14 +90,16 @@ namespace MotorCity.Vehicle
                 car,
                 prefab,
                 rotateLeft90,
-                targetLength);
+                targetLength,
+                flipYaw180);
         }
 
         private static bool Install(
             ArcadeCarController car,
             GameObject prefab,
             bool rotateLeft90,
-            float targetLength = TargetLength)
+            float targetLength = TargetLength,
+            bool flipYaw180 = false)
         {
             Transform carTransform = car.transform;
 
@@ -151,6 +154,21 @@ namespace MotorCity.Vehicle
                     visual.transform,
                     carTransform,
                     wheelAnchors);
+            }
+
+            // Some imported traffic vehicles have no reliable front/rear
+            // naming, so automatic nose detection cannot determine their
+            // orientation. Apply an explicit half-turn before wheel ordering:
+            // that keeps the visual facing forward and also makes the actual
+            // front axle become the steering axle instead of the rear one.
+            if (flipYaw180)
+            {
+                visual.transform.localRotation =
+                    visual.transform.localRotation *
+                    Quaternion.Euler(
+                        0f,
+                        180f,
+                        0f);
             }
 
             if (rotateLeft90)
