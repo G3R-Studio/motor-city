@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Platform;
 using UnityEngine;
 
 namespace MotorCity.Persistence
@@ -11,43 +12,50 @@ namespace MotorCity.Persistence
 
         private bool ready;
         private bool saving;
+        private bool uploadQueued;
+        private bool queuedForce;
+        private bool needsMetadataMigration;
         private float uploadTimer;
-        private long lastUploadedModifiedTicks;
+        private long knownCloudRevision;
 
         public void ResolveInitialCloud(
             Action completed)
         {
-            if (!MotorCity.Platform.MotorCityPlatform.SupportsCloudSave)
+            if (!MotorCityPlatform.SupportsCloudSave)
             {
                 ready = true;
-                lastUploadedModifiedTicks =
-                    MotorCitySaveService.ModifiedUtcTicks;
-
                 completed?.Invoke();
                 return;
             }
 
-            MotorCity.Platform.MotorCityPlatform.LoadCloudSave(
+            MotorCityPlatform.LoadCloudSave(
                 (success, remoteJson) =>
                 {
-                    long localTicks =
-                        MotorCitySaveService.ModifiedUtcTicks;
+                    MotorCitySaveService.CloudSaveMetadata local =
+                        MotorCitySaveService.GetCloudMetadata();
 
-                    long remoteTicks =
-                        MotorCitySaveService.ReadModifiedUtcTicks(
-                            remoteJson);
+                    bool remoteParsed =
+                        success &&
+                        MotorCitySaveService.TryReadCloudMetadata(
+                            remoteJson,
+                            out MotorCitySaveService.CloudSaveMetadata remote);
 
                     bool remoteHasSave =
-                        success &&
-                        !string.IsNullOrWhiteSpace(
-                            remoteJson) &&
-                        remoteTicks > 0L;
+                        remoteParsed &&
+                        remote.HasData;
 
                     bool useRemote =
                         remoteHasSave &&
-                        (!MotorCitySaveService.HasData ||
-                         localTicks <= 0L ||
-                         remoteTicks > localTicks);
+                        ShouldUseRemote(
+                            local,
+                            remote);
+
+                    knownCloudRevision =
+                        Math.Max(
+                            local.CloudRevision,
+                            remoteParsed
+                                ? remote.CloudRevision
+                                : 0L);
 
                     if (useRemote)
                     {
@@ -58,37 +66,98 @@ namespace MotorCity.Persistence
 
                         if (imported)
                         {
-                            lastUploadedModifiedTicks =
-                                MotorCitySaveService.ModifiedUtcTicks;
+                            MotorCitySaveService.MarkImportedCloudSnapshot(
+                                remote.CloudRevision,
+                                remote.ServerModifiedUnixTime);
+
+                            needsMetadataMigration =
+                                !remote.HasTrustedCloudMetadata;
                         }
-                    }
-                    else if (remoteHasSave)
-                    {
-                        lastUploadedModifiedTicks =
-                            remoteTicks;
                     }
                     else
                     {
-                        lastUploadedModifiedTicks =
-                            0L;
+                        needsMetadataMigration =
+                            local.HasData &&
+                            !local.HasTrustedCloudMetadata;
                     }
 
                     ready = true;
+
+                    MotorCitySaveService.CloudSaveMetadata resolved =
+                        MotorCitySaveService.GetCloudMetadata();
+
                     uploadTimer =
-                        UploadIntervalSeconds;
+                        resolved.HasUnsyncedChanges ||
+                        needsMetadataMigration
+                            ? 0.5f
+                            : UploadIntervalSeconds;
 
                     completed?.Invoke();
                 });
         }
 
+        private static bool ShouldUseRemote(
+            MotorCitySaveService.CloudSaveMetadata local,
+            MotorCitySaveService.CloudSaveMetadata remote)
+        {
+            if (!remote.HasData)
+                return false;
+
+            if (!local.HasData)
+                return true;
+
+            bool localTrusted =
+                local.HasTrustedCloudMetadata;
+
+            bool remoteTrusted =
+                remote.HasTrustedCloudMetadata;
+
+            if (localTrusted ||
+                remoteTrusted)
+            {
+                if (remote.CloudRevision !=
+                    local.CloudRevision)
+                {
+                    return
+                        remote.CloudRevision >
+                        local.CloudRevision;
+                }
+
+                // Local edits made on top of the same cloud revision
+                // must not be discarded by the unchanged remote copy.
+                if (local.HasUnsyncedChanges)
+                    return false;
+
+                if (remote.ServerModifiedUnixTime !=
+                    local.ServerModifiedUnixTime)
+                {
+                    return
+                        remote.ServerModifiedUnixTime >
+                        local.ServerModifiedUnixTime;
+                }
+
+                return
+                    remote.Revision >
+                    local.Revision;
+            }
+
+            // One-time compatibility path for v1 saves.
+            // Client UTC ticks are never used after cloud metadata exists.
+            return
+                remote.LegacyModifiedUtcTicks >
+                local.LegacyModifiedUtcTicks;
+        }
+
         private void Update()
         {
             if (!ready ||
-                saving ||
-                !MotorCity.Platform.MotorCityPlatform.SupportsCloudSave)
+                !MotorCityPlatform.SupportsCloudSave)
             {
                 return;
             }
+
+            if (saving)
+                return;
 
             uploadTimer -=
                 Time.unscaledDeltaTime;
@@ -143,27 +212,48 @@ namespace MotorCity.Persistence
             bool force)
         {
             if (!ready ||
-                saving ||
-                !MotorCity.Platform.MotorCityPlatform.SupportsCloudSave)
+                !MotorCityPlatform.SupportsCloudSave)
             {
                 return;
             }
 
-            long modified =
-                MotorCitySaveService.ModifiedUtcTicks;
-
-            if (modified <= 0L)
-                return;
-
-            if (!force &&
-                modified ==
-                lastUploadedModifiedTicks)
+            if (saving)
             {
+                uploadQueued = true;
+                queuedForce |=
+                    force;
                 return;
             }
+
+            MotorCitySaveService.CloudSaveMetadata metadata =
+                MotorCitySaveService.GetCloudMetadata();
+
+            bool needsUpload =
+                metadata.HasUnsyncedChanges ||
+                needsMetadataMigration;
+
+            if (!needsUpload)
+                return;
+
+            if (!metadata.HasData)
+                return;
+
+            long nextCloudRevision =
+                Math.Max(
+                    knownCloudRevision,
+                    metadata.CloudRevision) +
+                1L;
+
+            long serverUnixTime =
+                Math.Max(
+                    0L,
+                    MotorCityPlatform.ServerUnixTime);
 
             string json =
-                MotorCitySaveService.ExportJson();
+                MotorCitySaveService.ExportCloudJson(
+                    nextCloudRevision,
+                    serverUnixTime,
+                    out long attemptedRevision);
 
             if (string.IsNullOrWhiteSpace(
                     json))
@@ -172,10 +262,8 @@ namespace MotorCity.Persistence
             }
 
             saving = true;
-            long attemptedTicks =
-                modified;
 
-            MotorCity.Platform.MotorCityPlatform.SaveCloudSave(
+            MotorCityPlatform.SaveCloudSave(
                 json,
                 success =>
                 {
@@ -183,8 +271,42 @@ namespace MotorCity.Persistence
 
                     if (success)
                     {
-                        lastUploadedModifiedTicks =
-                            attemptedTicks;
+                        knownCloudRevision =
+                            Math.Max(
+                                knownCloudRevision,
+                                nextCloudRevision);
+
+                        needsMetadataMigration =
+                            false;
+
+                        MotorCitySaveService.MarkCloudUploadSucceeded(
+                            attemptedRevision,
+                            nextCloudRevision,
+                            serverUnixTime);
+                    }
+
+                    MotorCitySaveService.CloudSaveMetadata latest =
+                        MotorCitySaveService.GetCloudMetadata();
+
+                    bool contentChangedDuringUpload =
+                        latest.Revision >
+                        attemptedRevision;
+
+                    bool runQueued =
+                        uploadQueued ||
+                        (success &&
+                         contentChangedDuringUpload);
+
+                    bool forceQueued =
+                        queuedForce;
+
+                    uploadQueued = false;
+                    queuedForce = false;
+
+                    if (runQueued)
+                    {
+                        TryUpload(
+                            forceQueued);
                     }
                 });
         }
