@@ -41,12 +41,17 @@ namespace MotorCity.World
         private ArcadeCarController car;
         private DayNightCycleController dayNight;
         private Transform currentVisual;
+        private Shader maskedRearShader;
         private float dayNightResolveTimer;
 
         private void Awake()
         {
             car =
                 GetComponent<ArcadeCarController>();
+
+            maskedRearShader =
+                Resources.Load<Shader>(
+                    "MotorCity/Shaders/RearLampEmission");
         }
 
         private void Start()
@@ -159,8 +164,18 @@ namespace MotorCity.World
                     continue;
                 }
 
+                int bindingCountBefore =
+                    lampBindings.Count;
+
                 BindExistingLampMaterials(
                     renderer);
+
+                if (lampBindings.Count ==
+                    bindingCountBefore)
+                {
+                    CreateTexturedRearLampOverlay(
+                        renderer);
+                }
             }
         }
 
@@ -553,6 +568,318 @@ namespace MotorCity.World
 
             return
                 value.ToLowerInvariant();
+        }
+
+
+        private void CreateTexturedRearLampOverlay(
+            Renderer sourceRenderer)
+        {
+            if (maskedRearShader == null ||
+                sourceRenderer == null)
+            {
+                return;
+            }
+
+            MeshFilter filter =
+                sourceRenderer.GetComponent<MeshFilter>();
+
+            if (filter == null ||
+                filter.sharedMesh == null)
+            {
+                return;
+            }
+
+            Material[] sourceMaterials =
+                sourceRenderer.sharedMaterials;
+
+            if (sourceMaterials == null ||
+                sourceMaterials.Length == 0)
+            {
+                return;
+            }
+
+            Material[] overlayMaterials =
+                new Material[sourceMaterials.Length];
+
+            bool any = false;
+
+            Vector3 rearAxis =
+                sourceRenderer.transform
+                    .InverseTransformDirection(
+                        -transform.forward)
+                    .normalized;
+
+            ResolveProjectionRange(
+                filter.sharedMesh.bounds,
+                rearAxis,
+                out float minimum,
+                out float maximum);
+
+            float span =
+                Mathf.Max(
+                    0.001f,
+                    maximum - minimum);
+
+            float cutoff =
+                Mathf.Lerp(
+                    minimum,
+                    maximum,
+                    0.70f);
+
+            float softness =
+                Mathf.Max(
+                    0.01f,
+                    span * 0.035f);
+
+            for (int i = 0;
+                 i < sourceMaterials.Length;
+                 i++)
+            {
+                Material source =
+                    sourceMaterials[i];
+
+                Texture texture =
+                    ResolveBaseTexture(
+                        source);
+
+                if (texture == null)
+                    continue;
+
+                Material overlay =
+                    new(maskedRearShader)
+                    {
+                        name =
+                            "MotorCity_ModelRearLampMask_Runtime"
+                    };
+
+                overlay.SetTexture(
+                    "_BaseMap",
+                    texture);
+
+                CopyTextureTransform(
+                    source,
+                    overlay);
+
+                overlay.SetVector(
+                    "_RearAxisOS",
+                    new Vector4(
+                        rearAxis.x,
+                        rearAxis.y,
+                        rearAxis.z,
+                        0f));
+
+                overlay.SetFloat(
+                    "_RearCutoff",
+                    cutoff);
+
+                overlay.SetFloat(
+                    "_RearSoftness",
+                    softness);
+
+                overlay.SetColor(
+                    "_EmissionColor",
+                    new Color(
+                        1f,
+                        0.035f,
+                        0.015f,
+                        1f));
+
+                overlay.SetFloat(
+                    "_Intensity",
+                    0.2f);
+
+                overlayMaterials[i] =
+                    overlay;
+
+                runtimeMaterials.Add(
+                    overlay);
+
+                lampBindings.Add(
+                    new LampBinding
+                    {
+                        Renderer = null,
+                        MaterialIndex = -1,
+                        Material = overlay,
+                        OriginalMaterial = null,
+                        BaseEmission =
+                            new Color(
+                                1f,
+                                0.035f,
+                                0.015f,
+                                1f),
+                        RearSpecific = true
+                    });
+
+                any = true;
+            }
+
+            if (!any)
+                return;
+
+            GameObject overlayObject =
+                new(
+                    LegacyOverlayName,
+                    typeof(MeshFilter),
+                    typeof(MeshRenderer));
+
+            overlayObject.transform.SetParent(
+                sourceRenderer.transform,
+                false);
+
+            overlayObject.transform.localPosition =
+                Vector3.zero;
+
+            overlayObject.transform.localRotation =
+                Quaternion.identity;
+
+            overlayObject.transform.localScale =
+                Vector3.one;
+
+            MeshFilter overlayFilter =
+                overlayObject.GetComponent<MeshFilter>();
+
+            overlayFilter.sharedMesh =
+                filter.sharedMesh;
+
+            MeshRenderer overlayRenderer =
+                overlayObject.GetComponent<MeshRenderer>();
+
+            overlayRenderer.shadowCastingMode =
+                UnityEngine.Rendering.ShadowCastingMode.Off;
+
+            overlayRenderer.receiveShadows =
+                false;
+
+            overlayRenderer.lightProbeUsage =
+                UnityEngine.Rendering.LightProbeUsage.Off;
+
+            overlayRenderer.reflectionProbeUsage =
+                UnityEngine.Rendering.ReflectionProbeUsage.Off;
+
+            overlayRenderer.motionVectorGenerationMode =
+                UnityEngine.Rendering.MotionVectorGenerationMode.ForceNoMotion;
+
+            overlayRenderer.sharedMaterials =
+                overlayMaterials;
+        }
+
+        private static Texture ResolveBaseTexture(
+            Material material)
+        {
+            if (material == null)
+                return null;
+
+            if (material.HasProperty(
+                    "_BaseMap"))
+            {
+                Texture texture =
+                    material.GetTexture(
+                        "_BaseMap");
+
+                if (texture != null)
+                    return texture;
+            }
+
+            if (material.HasProperty(
+                    "_MainTex"))
+            {
+                return
+                    material.GetTexture(
+                        "_MainTex");
+            }
+
+            return null;
+        }
+
+        private static void CopyTextureTransform(
+            Material source,
+            Material destination)
+        {
+            if (source == null ||
+                destination == null)
+            {
+                return;
+            }
+
+            string property =
+                source.HasProperty(
+                    "_BaseMap")
+                    ? "_BaseMap"
+                    : "_MainTex";
+
+            if (!source.HasProperty(
+                    property))
+            {
+                return;
+            }
+
+            destination.SetTextureScale(
+                "_BaseMap",
+                source.GetTextureScale(
+                    property));
+
+            destination.SetTextureOffset(
+                "_BaseMap",
+                source.GetTextureOffset(
+                    property));
+        }
+
+        private static void ResolveProjectionRange(
+            Bounds bounds,
+            Vector3 axis,
+            out float minimum,
+            out float maximum)
+        {
+            minimum =
+                float.PositiveInfinity;
+
+            maximum =
+                float.NegativeInfinity;
+
+            Vector3 center =
+                bounds.center;
+
+            Vector3 extents =
+                bounds.extents;
+
+            for (int x = -1;
+                 x <= 1;
+                 x += 2)
+            {
+                for (int y = -1;
+                     y <= 1;
+                     y += 2)
+                {
+                    for (int z = -1;
+                         z <= 1;
+                         z += 2)
+                    {
+                        Vector3 corner =
+                            center +
+                            Vector3.Scale(
+                                extents,
+                                new Vector3(
+                                    x,
+                                    y,
+                                    z));
+
+                        float projection =
+                            Vector3.Dot(
+                                corner,
+                                axis);
+
+                        minimum =
+                            Mathf.Min(
+                                minimum,
+                                projection);
+
+                        maximum =
+                            Mathf.Max(
+                                maximum,
+                                projection);
+                    }
+                }
+            }
         }
 
         private void RemoveLegacyOverlays()
