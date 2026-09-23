@@ -123,6 +123,32 @@ namespace MotorCity.Vehicle
                         -90f,
                         0f);
             }
+            else if (flipYaw180)
+            {
+                // The FCG bus must have one deterministic orientation on every
+                // rebuild/spawn. Do not let later wheel/bounds heuristics choose
+                // its yaw. The source's long axis is normalized to PlayerCar Z,
+                // then the known source-facing direction is corrected by 180°.
+                Bounds sourceBounds =
+                    RendererBounds(
+                        visual.transform);
+
+                NormalizeScaleOnly(
+                    visual.transform,
+                    targetLength);
+
+                float axisYaw =
+                    sourceBounds.size.x >
+                    sourceBounds.size.z
+                        ? 90f
+                        : 0f;
+
+                visual.transform.localRotation =
+                    Quaternion.Euler(
+                        0f,
+                        axisYaw + 180f,
+                        0f);
+            }
             else
             {
                 NormalizeHorizontalScaleAndRotation(
@@ -143,33 +169,18 @@ namespace MotorCity.Vehicle
                 return ConfigureFallbackRig(car);
             }
 
-            if (!rotateLeft90)
+            if (!rotateLeft90 &&
+                !flipYaw180)
             {
                 AlignWheelbaseWithCarForward(
                     visual.transform,
                     carTransform,
                     wheelAnchors);
 
-                if (flipYaw180)
-                {
-                    // Traffic-bus prefabs do not expose trustworthy front/rear
-                    // names. Do not run the generic nose detector here because
-                    // it can flip the bus once and then our explicit correction
-                    // flips it back. Use one deterministic half-turn instead.
-                    visual.transform.localRotation =
-                        visual.transform.localRotation *
-                        Quaternion.Euler(
-                            0f,
-                            180f,
-                            0f);
-                }
-                else
-                {
-                    EnsureVisualNoseFacesPositiveZ(
-                        visual.transform,
-                        carTransform,
-                        wheelAnchors);
-                }
+                EnsureVisualNoseFacesPositiveZ(
+                    visual.transform,
+                    carTransform,
+                    wheelAnchors);
             }
 
             if (rotateLeft90)
