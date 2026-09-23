@@ -45,11 +45,25 @@ namespace MotorCity.Platform
         {
             get
             {
-                if (!IsInitialized)
-                {
-                    return
-                        DateTimeOffset.UtcNow
+                long trusted =
+                    TrustedServerUnixTime;
+
+                return
+                    trusted > 0L
+                        ? trusted
+                        : DateTimeOffset.UtcNow
                             .ToUnixTimeSeconds();
+            }
+        }
+
+        public long TrustedServerUnixTime
+        {
+            get
+            {
+                if (!IsInitialized ||
+                    initializedServerUnixTime <= 0L)
+                {
+                    return 0L;
                 }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -122,8 +136,7 @@ namespace MotorCity.Platform
                     initializedServerUnixTime =
                         result.ServerTimeMilliseconds > 0L
                             ? result.ServerTimeMilliseconds / 1000L
-                            : DateTimeOffset.UtcNow
-                                .ToUnixTimeSeconds();
+                            : 0L;
 
                     initializedRealtime =
                         Time.realtimeSinceStartup;
