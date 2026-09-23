@@ -551,7 +551,6 @@ namespace MotorCity.Bootstrap
 
             MotorCityPlatform.GameReady();
             platformRuntime.MarkGameplayRunning();
-            MotorCityPlatform.GameplayStart();
         }
 
         private static void BindFcgTrafficPlayer(
