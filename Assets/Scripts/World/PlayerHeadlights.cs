@@ -16,6 +16,7 @@ namespace MotorCity.World
         private float anchorRefreshTimer;
         private ArcadeCarController car;
         private Transform currentVisual;
+        private string vehicleId = "street";
 
         private void Awake()
         {
@@ -79,6 +80,18 @@ namespace MotorCity.World
 
             ApplyLights(
                 amount);
+        }
+
+        public void SetVehicleId(
+            string id)
+        {
+            vehicleId =
+                string.IsNullOrWhiteSpace(id)
+                    ? "street"
+                    : id.ToLowerInvariant();
+
+            anchorRefreshTimer = 0f;
+            RefreshAnchorsIfNeeded();
         }
 
         private void RefreshAnchorsIfNeeded()
@@ -206,9 +219,30 @@ namespace MotorCity.World
                     localBounds.max.y,
                     0.34f);
 
-            float lightZ =
-                localBounds.max.z +
-                0.08f;
+            float lightZ;
+
+            if (vehicleId == "apex")
+            {
+                // SuvV1 has a tall, blunt nose. Bounds.max.z sits noticeably
+                // ahead of the actual lamp face after runtime normalization,
+                // so place the spotlights inside the front fascia instead of
+                // floating in front of the bumper.
+                float inset =
+                    Mathf.Clamp(
+                        localBounds.size.z * 0.12f,
+                        0.28f,
+                        0.55f);
+
+                lightZ =
+                    localBounds.max.z -
+                    inset;
+            }
+            else
+            {
+                lightZ =
+                    localBounds.max.z +
+                    0.08f;
+            }
 
             left.transform.localPosition =
                 new Vector3(
