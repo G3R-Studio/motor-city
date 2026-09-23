@@ -82,16 +82,10 @@ namespace MotorCity.World
                 (car != null &&
                  car.HandbrakeInputHeld);
 
-            float runningMultiplier =
-                Mathf.Lerp(
-                    0.28f,
-                    1.15f,
-                    night);
-
             float brakeMultiplier =
                 Mathf.Lerp(
-                    1.6f,
-                    2.65f,
+                    1.8f,
+                    3.0f,
                     night);
 
             for (int i = 0;
@@ -107,16 +101,14 @@ namespace MotorCity.World
                     continue;
                 }
 
-                // If a model has one shared emissive material for both front
-                // and rear lamps (the starter ARCADE car does), keep the
-                // original texture colours and only apply night-time glow.
-                // Brake boosting is limited to materials/renderers that are
-                // explicitly identifiable as rear lamps.
+                // Rear lamps are brake lights: no permanent running glow.
+                // This also fixes the starter ARCADE car, whose shared
+                // emissive material previously made the tail lamps glow all
+                // the time.
                 float multiplier =
-                    braking &&
-                    binding.RearSpecific
+                    braking
                         ? brakeMultiplier
-                        : runningMultiplier;
+                        : 0f;
 
                 Color emission =
                     binding.BaseEmission *
@@ -648,6 +640,16 @@ namespace MotorCity.World
                     0.01f,
                     span * 0.035f);
 
+            ResolveRearMaskPreset(
+                out float chromaLow,
+                out float chromaHigh,
+                out float redLow,
+                out float redHigh,
+                out float greenLow,
+                out float greenHigh,
+                out float blueLow,
+                out float blueHigh);
+
             for (int i = 0;
                  i < sourceMaterials.Length;
                  i++)
@@ -691,6 +693,31 @@ namespace MotorCity.World
                 overlay.SetFloat(
                     "_RearSoftness",
                     softness);
+
+                overlay.SetFloat(
+                    "_ChromaLow",
+                    chromaLow);
+                overlay.SetFloat(
+                    "_ChromaHigh",
+                    chromaHigh);
+                overlay.SetFloat(
+                    "_RedLow",
+                    redLow);
+                overlay.SetFloat(
+                    "_RedHigh",
+                    redHigh);
+                overlay.SetFloat(
+                    "_GreenLow",
+                    greenLow);
+                overlay.SetFloat(
+                    "_GreenHigh",
+                    greenHigh);
+                overlay.SetFloat(
+                    "_BlueLow",
+                    blueLow);
+                overlay.SetFloat(
+                    "_BlueHigh",
+                    blueHigh);
 
                 overlay.SetColor(
                     "_EmissionColor",
@@ -780,6 +807,97 @@ namespace MotorCity.World
 
             overlayRenderer.sharedMaterials =
                 overlayMaterials;
+        }
+
+        private void ResolveRearMaskPreset(
+            out float chromaLow,
+            out float chromaHigh,
+            out float redLow,
+            out float redHigh,
+            out float greenLow,
+            out float greenHigh,
+            out float blueLow,
+            out float blueHigh)
+        {
+            // Strict preset is known to work on the red MuscleCar without
+            // lighting its painted body.
+            chromaLow = 0.22f;
+            chromaHigh = 0.46f;
+            redLow = 0.62f;
+            redHigh = 0.90f;
+            greenLow = 0.20f;
+            greenHigh = 0.42f;
+            blueLow = 0.18f;
+            blueHigh = 0.38f;
+
+            if (currentVisual == null)
+                return;
+
+            string hierarchy =
+                BuildVisualHierarchySignature(
+                    currentVisual);
+
+            bool club =
+                hierarchy.Contains("swifto");
+
+            bool apex =
+                hierarchy.Contains("suvv1") ||
+                hierarchy.Contains("suv_v1") ||
+                hierarchy.Contains("suv v1");
+
+            if (club)
+            {
+                // Swifto tail pixels are darker/less saturated than the
+                // MuscleCar atlas. Keep the body rejection, but lower the
+                // brightness requirement enough for its lamp texture.
+                chromaLow = 0.14f;
+                chromaHigh = 0.34f;
+                redLow = 0.46f;
+                redHigh = 0.76f;
+                greenLow = 0.24f;
+                greenHigh = 0.50f;
+                blueLow = 0.22f;
+                blueHigh = 0.46f;
+            }
+            else if (apex)
+            {
+                // SuvV1/Apex lamps are also darker in the shared atlas.
+                chromaLow = 0.12f;
+                chromaHigh = 0.32f;
+                redLow = 0.42f;
+                redHigh = 0.72f;
+                greenLow = 0.26f;
+                greenHigh = 0.54f;
+                blueLow = 0.24f;
+                blueHigh = 0.50f;
+            }
+        }
+
+        private static string BuildVisualHierarchySignature(
+            Transform root)
+        {
+            if (root == null)
+                return string.Empty;
+
+            System.Text.StringBuilder builder =
+                new();
+
+            Transform[] items =
+                root.GetComponentsInChildren<Transform>(
+                    true);
+
+            foreach (Transform item in
+                     items)
+            {
+                if (item == null)
+                    continue;
+
+                builder.Append(
+                    item.name.ToLowerInvariant());
+                builder.Append('/');
+            }
+
+            return builder.ToString();
         }
 
         private bool IsBodySizedRenderer(
