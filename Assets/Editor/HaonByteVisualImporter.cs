@@ -24,7 +24,7 @@ public static class HaonByteVisualImporter
         "Assets/Haons SD series Pack/Prefab/CharacterSet/prf_Set Costume03 Misaki.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.HaonByteVisualBuilt.V8";
+        "MotorCity.HaonByteVisualBuilt.V9";
 
     static HaonByteVisualImporter()
     {
@@ -393,7 +393,11 @@ public static class HaonByteVisualImporter
 
         AnimationClip follow =
             LoadClip(
-                "Assets/Haons SD series Pack/Animation/Common/RunA_Front.FBX");
+                "Assets/Haons SD series Pack/Animation/Common/StandB.FBX");
+
+        AnimationClip idleAlt =
+            LoadClip(
+                "Assets/Haons SD series Pack/Animation/Common/StandC.FBX");
 
         AnimationClip clap =
             LoadClip(
@@ -432,27 +436,32 @@ public static class HaonByteVisualImporter
         AnimatorState idleState =
             AddState(
                 machine,
-                "Byte Idle",
+                "Pixie Idle",
                 idle);
 
         AddState(
             machine,
-            "Byte Follow",
+            "Pixie Idle Alt",
+            idleAlt ?? idle);
+
+        AddState(
+            machine,
+            "Pixie Follow",
             follow ?? idle);
 
         AddState(
             machine,
-            "Byte Clap",
+            "Pixie Clap",
             clap ?? idle);
 
         AddState(
             machine,
-            "Byte Victory",
+            "Pixie Victory",
             victory ?? clap ?? idle);
 
         AddState(
             machine,
-            "Byte Boost",
+            "Pixie Boost",
             jump ?? follow ?? idle);
 
         machine.defaultState =
