@@ -66,24 +66,26 @@ public static class PolyPackVehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        const string SessionKey =
-            "MotorCity.CuratedGarageBuilt.V4";
-
-        if (SessionState.GetBool(
-                SessionKey,
-                false))
+        // Generated garage prefabs are committed to the repository. Do not
+        // rewrite healthy assets on every Editor launch: that creates noisy
+        // YAML diffs and makes a clean clone non-deterministic. Auto-build is
+        // only a recovery path for a missing or unreadable generated prefab.
+        for (int i = 0;
+             i < 5;
+             i++)
         {
+            string outputPath =
+                $"{OutputDirectory}/Vehicle_{i + 1:00}.prefab";
+
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                    outputPath) != null)
+            {
+                continue;
+            }
+
+            Build(false);
             return;
         }
-
-        // Rebuild once per Editor session so changes to the curated source
-        // selection are actually propagated even when Vehicle_01..04 already
-        // exist from an older lineup.
-        Build(false);
-
-        SessionState.SetBool(
-            SessionKey,
-            true);
     }
 
     private static void Build(
