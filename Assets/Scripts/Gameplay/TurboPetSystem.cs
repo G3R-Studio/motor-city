@@ -248,8 +248,8 @@ namespace MotorCity.Gameplay
                         visualRoot.transform.position,
                         targetWorld,
                         ref visualFollowVelocity,
-                        0.42f,
-                        24f,
+                        0.16f,
+                        42f,
                         Time.unscaledDeltaTime);
             }
 
@@ -904,28 +904,31 @@ namespace MotorCity.Gameplay
                 Vector3 size =
                     chassis.size;
 
-                float followDistance =
+                float sideOffset =
                     Mathf.Clamp(
-                        size.z * 0.52f + 0.9f,
-                        2.4f,
-                        4.4f);
+                        size.x * 0.72f + 0.35f,
+                        1.35f,
+                        2.35f);
 
-                // Fly behind the vehicle, slightly offset to the passenger
-                // side so Byte remains visible without looking mounted to the
-                // body. The world-space follower adds natural lag on top.
+                float longitudinalOffset =
+                    Mathf.Clamp(
+                        size.z * 0.04f,
+                        0.12f,
+                        0.35f);
+
+                // Fly alongside the passenger side, roughly level with the
+                // cabin. Byte remains independent in world space, but the
+                // target itself is now beside the car rather than behind it.
                 return
                     new Vector3(
                         center.x +
-                        Mathf.Clamp(
-                            size.x * 0.30f,
-                            0.45f,
-                            0.85f),
+                        sideOffset,
                         center.y +
                         Mathf.Max(
-                            0.75f,
-                            size.y * 0.58f),
+                            0.72f,
+                            size.y * 0.54f),
                         center.z -
-                        followDistance);
+                        longitudinalOffset);
             }
 
             Bounds bounds =
@@ -935,16 +938,16 @@ namespace MotorCity.Gameplay
                 new Vector3(
                     bounds.center.x +
                     Mathf.Clamp(
-                        bounds.size.x * 0.30f,
-                        0.45f,
-                        0.85f),
+                        bounds.size.x * 0.72f + 0.35f,
+                        1.35f,
+                        2.35f),
                     bounds.max.y +
-                    0.25f,
-                    bounds.min.z -
+                    0.18f,
+                    bounds.center.z -
                     Mathf.Clamp(
-                        bounds.size.z * 0.18f,
-                        0.7f,
-                        1.4f));
+                        bounds.size.z * 0.04f,
+                        0.12f,
+                        0.35f));
         }
 
         private Bounds ResolveCarLocalBounds()
