@@ -24,7 +24,7 @@ public static class HaonByteVisualImporter
         "Assets/Haons SD series Pack/Prefab/CharacterSet/prf_Set Costume03 Misaki.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.HaonByteVisualBuilt.V9";
+        "MotorCity.HaonByteVisualBuilt.V10";
 
     static HaonByteVisualImporter()
     {
@@ -393,7 +393,7 @@ public static class HaonByteVisualImporter
 
         AnimationClip follow =
             LoadClip(
-                "Assets/Haons SD series Pack/Animation/Common/StandB.FBX");
+                "Assets/Haons SD series Pack/Animation/Common/WalkA_Front.FBX");
 
         AnimationClip idleAlt =
             LoadClip(
