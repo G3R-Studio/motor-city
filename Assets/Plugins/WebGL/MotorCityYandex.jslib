@@ -38,7 +38,7 @@ mergeInto(LibraryManager.library, {
           language = ysdk.environment.i18n.lang;
         }
 
-        var serverTime = Date.now();
+        var serverTime = 0;
         if (typeof ysdk.serverTime === 'function') {
           serverTime = ysdk.serverTime();
         }
@@ -121,7 +121,7 @@ mergeInto(LibraryManager.library, {
       console.warn('Motor City: serverTime failed', error);
     }
 
-    return Date.now();
+    return 0;
   },
 
   MotorCityYandexLoadCloudSave: function(gameObjectNamePtr) {
