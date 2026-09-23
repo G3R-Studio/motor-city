@@ -547,10 +547,16 @@ namespace MotorCity.Bootstrap
             MotorCityBootController bootController =
                 Object.FindAnyObjectByType<MotorCityBootController>();
 
-            bootController?.NotifyGameplayBuilt();
-
-            MotorCityPlatform.GameReady();
-            platformRuntime.MarkGameplayRunning();
+            if (bootController != null)
+            {
+                bootController.NotifyGameplayBuilt();
+            }
+            else
+            {
+                // Direct Prototype launches have no boot overlay.
+                MotorCityPlatform.GameReady();
+                platformRuntime.MarkGameplayRunning();
+            }
         }
 
         private static void BindFcgTrafficPlayer(
