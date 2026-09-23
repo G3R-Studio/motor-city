@@ -21,6 +21,16 @@ namespace FCG
 
         public GameObject[] IaCars;
 
+        // Keep city traffic visually varied. The source FCG array contains
+        // several bus variants, so uniform random selection makes buses
+        // dominate even though they should be occasional traffic.
+        private GameObject[] passengerTraffic;
+        private GameObject[] busTraffic;
+
+        [Range(0f, 1f)]
+        [SerializeField]
+        private float busSpawnChance = 0.12f;
+
         public int nVehicles = 0;
         public int maxVehiclesWithPlayer = 50;
 
@@ -175,6 +185,7 @@ namespace FCG
 
         public void LoadCars(int right_Hand)
         {
+            BuildVehiclePools();
 
             if (maxVehiclesWithPlayer == 0)
             {
@@ -364,7 +375,17 @@ namespace FCG
                     if (go)
                     {
 
-                        vehicle = (GameObject)Instantiate(IaCars[Mathf.Clamp(Random.Range(0, IaCars.Length), 0, IaCars.Length - 1)], wpDataSpawn[i].position + Vector3.up * 0.1f, wpDataSpawn[i].rotation); ;
+                        GameObject trafficPrefab =
+                            PickTrafficVehicle();
+
+                        if (trafficPrefab == null)
+                            continue;
+
+                        vehicle =
+                            (GameObject)Instantiate(
+                                trafficPrefab,
+                                wpDataSpawn[i].position + Vector3.up * 0.1f,
+                                wpDataSpawn[i].rotation);
                         vehicle.transform.SetParent(CarContainer.transform);
                         vehicle.GetComponent<TrafficCar>().sideAtual = (wpDataSpawn[i].wayScript.oneway && wpDataSpawn[i].wayScript.doubleLine && wpDataSpawn[i].wayScript.rightHand != 0) ? ((wpDataSpawn[i].side == 1) ? 0 : 1) : wpDataSpawn[i].side;
                         vehicle.GetComponent<TrafficCar>().atualWay = wpDataSpawn[i].wayScript.transform;
@@ -408,6 +429,106 @@ namespace FCG
             }
 
 
+        }
+
+
+        private void BuildVehiclePools()
+        {
+            if (IaCars == null ||
+                IaCars.Length == 0)
+            {
+                passengerTraffic =
+                    System.Array.Empty<GameObject>();
+
+                busTraffic =
+                    System.Array.Empty<GameObject>();
+
+                return;
+            }
+
+            List<GameObject> cars =
+                new();
+
+            List<GameObject> buses =
+                new();
+
+            foreach (GameObject prefab in
+                     IaCars)
+            {
+                if (prefab == null)
+                    continue;
+
+                string prefabName =
+                    prefab.name
+                        .ToLowerInvariant();
+
+                if (prefabName.Contains(
+                        "bus"))
+                {
+                    buses.Add(
+                        prefab);
+                }
+                else
+                {
+                    cars.Add(
+                        prefab);
+                }
+            }
+
+            passengerTraffic =
+                cars.ToArray();
+
+            busTraffic =
+                buses.ToArray();
+        }
+
+        private GameObject PickTrafficVehicle()
+        {
+            if (passengerTraffic == null ||
+                busTraffic == null)
+            {
+                BuildVehiclePools();
+            }
+
+            bool canSpawnCars =
+                passengerTraffic != null &&
+                passengerTraffic.Length > 0;
+
+            bool canSpawnBuses =
+                busTraffic != null &&
+                busTraffic.Length > 0;
+
+            if (!canSpawnCars &&
+                !canSpawnBuses)
+            {
+                return null;
+            }
+
+            bool chooseBus =
+                canSpawnBuses &&
+                (!canSpawnCars ||
+                 Random.value <
+                 busSpawnChance);
+
+            GameObject[] pool =
+                chooseBus
+                    ? busTraffic
+                    : passengerTraffic;
+
+            if (pool == null ||
+                pool.Length == 0)
+            {
+                pool =
+                    chooseBus
+                        ? passengerTraffic
+                        : busTraffic;
+            }
+
+            return
+                pool[
+                    Random.Range(
+                        0,
+                        pool.Length)];
         }
 
 
