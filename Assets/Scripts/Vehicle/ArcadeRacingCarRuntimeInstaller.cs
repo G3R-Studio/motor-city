@@ -125,28 +125,18 @@ namespace MotorCity.Vehicle
             }
             else if (flipYaw180)
             {
-                // The FCG bus must have one deterministic orientation on every
-                // rebuild/spawn. Do not let later wheel/bounds heuristics choose
-                // its yaw. The source's long axis is normalized to PlayerCar Z,
-                // then the known source-facing direction is corrected by 180°.
-                Bounds sourceBounds =
-                    RendererBounds(
-                        visual.transform);
-
+                // BusMirim is authored lengthwise on local X with its nose
+                // toward +X. Use one fixed transform instead of guessing from
+                // renderer bounds; bounds changed as runtime pieces were
+                // rebuilt and could leave the bus sideways.
                 NormalizeScaleOnly(
                     visual.transform,
                     targetLength);
 
-                float axisYaw =
-                    sourceBounds.size.x >
-                    sourceBounds.size.z
-                        ? 90f
-                        : 0f;
-
                 visual.transform.localRotation =
                     Quaternion.Euler(
                         0f,
-                        axisYaw + 180f,
+                        -90f,
                         0f);
             }
             else
@@ -278,16 +268,20 @@ namespace MotorCity.Vehicle
                     true;
             }
 
+            bool needsExternalWheelSync =
+                rotateLeft90 ||
+                flipYaw180;
+
             car.ConfigurePrometeoRig(
                 spinRoots,
                 centerLocal,
                 measuredRadius,
-                rotateLeft90);
+                needsExternalWheelSync);
 
             VehicleWheelVisualSync wheelSync =
                 car.GetComponent<VehicleWheelVisualSync>();
 
-            if (rotateLeft90)
+            if (needsExternalWheelSync)
             {
                 if (wheelSync == null)
                 {
