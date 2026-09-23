@@ -22,6 +22,27 @@ namespace MotorCity.Vehicle
             "Wheel_FL_Rim", "Wheel_FR_Rim", "Wheel_RL_Rim", "Wheel_RR_Rim"
         };
 
+        // Runtime-created Materials are UnityEngine.Objects and are not reclaimed
+        // by managed GC merely because an old vehicle visual is destroyed.
+        // Keep one converted material per unique source material instead of
+        // allocating a fresh copy on every vehicle switch.
+        private static readonly Dictionary<Material, Material>
+            RuntimeUrpMaterialCache = new();
+
+        private static readonly Dictionary<Material, Material>
+            RuntimeMirrorMaterialCache = new();
+
+        private static Material runtimeNullMirrorMaterial;
+
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetRuntimeMaterialCaches()
+        {
+            RuntimeUrpMaterialCache.Clear();
+            RuntimeMirrorMaterialCache.Clear();
+            runtimeNullMirrorMaterial = null;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void ScheduleInstall()
         {
@@ -1586,8 +1607,6 @@ namespace MotorCity.Vehicle
             Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
             if (urpLit == null) return;
 
-            var cache = new Dictionary<Material, Material>();
-
             foreach (Renderer renderer in
                      root.GetComponentsInChildren<Renderer>(true))
             {
@@ -1613,7 +1632,10 @@ namespace MotorCity.Vehicle
                         continue;
                     }
 
-                    if (cache.TryGetValue(old, out Material cached))
+                    if (RuntimeUrpMaterialCache.TryGetValue(
+                            old,
+                            out Material cached) &&
+                        cached != null)
                     {
                         upgraded[i] = cached;
                         continue;
@@ -1657,7 +1679,8 @@ namespace MotorCity.Vehicle
                     Material material = new(urpLit)
                     {
                         name = old.name + "_URP",
-                        enableInstancing = true
+                        enableInstancing = true,
+                        hideFlags = HideFlags.DontSave
                     };
 
                     if (baseTexture != null &&
@@ -1727,7 +1750,9 @@ namespace MotorCity.Vehicle
                             "_EMISSION");
                     }
 
-                    cache.Add(old, material);
+                    RuntimeUrpMaterialCache[old] =
+                        material;
+
                     upgraded[i] = material;
                 }
 
@@ -1782,76 +1807,112 @@ namespace MotorCity.Vehicle
                     Material old =
                         source[materialIndex];
 
-                    Material material =
-                        new(urpLit)
-                        {
-                            name =
-                                (old != null
-                                    ? old.name
-                                    : "Mirror") +
-                                "_MotorCityMirrorURP",
-                            enableInstancing = true
-                        };
-
-                    // Do not reuse the imported emissive/magenta atlas on
-                    // mirrors. The ARCADE source packs the mirror glass into a
-                    // light/emission material, which becomes neon pink after
-                    // the runtime Standard -> URP conversion.
-                    if (material.HasProperty(
-                            "_BaseMap"))
-                    {
-                        material.SetTexture(
-                            "_BaseMap",
-                            null);
-                    }
-
-                    if (material.HasProperty(
-                            "_BaseColor"))
-                    {
-                        material.SetColor(
-                            "_BaseColor",
-                            new Color(
-                                0.075f,
-                                0.095f,
-                                0.12f,
-                                1f));
-                    }
-
-                    if (material.HasProperty(
-                            "_Metallic"))
-                    {
-                        material.SetFloat(
-                            "_Metallic",
-                            0.55f);
-                    }
-
-                    if (material.HasProperty(
-                            "_Smoothness"))
-                    {
-                        material.SetFloat(
-                            "_Smoothness",
-                            0.82f);
-                    }
-
-                    if (material.HasProperty(
-                            "_EmissionColor"))
-                    {
-                        material.SetColor(
-                            "_EmissionColor",
-                            Color.black);
-                    }
-
-                    material.DisableKeyword(
-                        "_EMISSION");
-
                     fixedMaterials[
                         materialIndex] =
-                        material;
+                        GetOrCreateMirrorMaterial(
+                            urpLit,
+                            old);
                 }
 
                 renderer.sharedMaterials =
                     fixedMaterials;
             }
+        }
+
+        private static Material GetOrCreateMirrorMaterial(
+            Shader urpLit,
+            Material source)
+        {
+            if (source != null &&
+                RuntimeMirrorMaterialCache.TryGetValue(
+                    source,
+                    out Material cached) &&
+                cached != null)
+            {
+                return cached;
+            }
+
+            if (source == null &&
+                runtimeNullMirrorMaterial != null)
+            {
+                return
+                    runtimeNullMirrorMaterial;
+            }
+
+            Material material =
+                new(urpLit)
+                {
+                    name =
+                        (source != null
+                            ? source.name
+                            : "Mirror") +
+                        "_MotorCityMirrorURP",
+                    enableInstancing = true,
+                    hideFlags = HideFlags.DontSave
+                };
+
+            // Do not reuse the imported emissive/magenta atlas on mirrors.
+            // Some source packs share lamp/emission materials with mirror glass.
+            if (material.HasProperty(
+                    "_BaseMap"))
+            {
+                material.SetTexture(
+                    "_BaseMap",
+                    null);
+            }
+
+            if (material.HasProperty(
+                    "_BaseColor"))
+            {
+                material.SetColor(
+                    "_BaseColor",
+                    new Color(
+                        0.075f,
+                        0.095f,
+                        0.12f,
+                        1f));
+            }
+
+            if (material.HasProperty(
+                    "_Metallic"))
+            {
+                material.SetFloat(
+                    "_Metallic",
+                    0.55f);
+            }
+
+            if (material.HasProperty(
+                    "_Smoothness"))
+            {
+                material.SetFloat(
+                    "_Smoothness",
+                    0.82f);
+            }
+
+            if (material.HasProperty(
+                    "_EmissionColor"))
+            {
+                material.SetColor(
+                    "_EmissionColor",
+                    Color.black);
+            }
+
+            material.DisableKeyword(
+                "_EMISSION");
+
+            if (source != null)
+            {
+                RuntimeMirrorMaterialCache[source] =
+                    material;
+            }
+            else
+            {
+                runtimeNullMirrorMaterial =
+                    material;
+            }
+
+            return
+                material;
         }
 
         private static bool LooksLikeMirrorPart(
