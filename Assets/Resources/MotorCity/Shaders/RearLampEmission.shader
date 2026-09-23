@@ -16,6 +16,13 @@ Shader "MotorCity/RearLampEmission"
         _GreenHigh ("Green High", Float) = 0.42
         _BlueLow ("Blue Low", Float) = 0.18
         _BlueHigh ("Blue High", Float) = 0.38
+        _SpatialMask ("Spatial Mask", Float) = 0
+        _LateralAxisOS ("Lateral Axis OS", Vector) = (1, 0, 0, 0)
+        _UpAxisOS ("Up Axis OS", Vector) = (0, 1, 0, 0)
+        _LateralMin ("Lateral Min", Float) = 0
+        _LateralMax ("Lateral Max", Float) = 100
+        _UpMin ("Up Min", Float) = -100
+        _UpMax ("Up Max", Float) = 100
     }
 
     SubShader
@@ -62,6 +69,13 @@ Shader "MotorCity/RearLampEmission"
                 float _GreenHigh;
                 float _BlueLow;
                 float _BlueHigh;
+                float _SpatialMask;
+                float4 _LateralAxisOS;
+                float4 _UpAxisOS;
+                float _LateralMin;
+                float _LateralMax;
+                float _UpMin;
+                float _UpMax;
             CBUFFER_END
 
             struct Attributes
@@ -75,6 +89,8 @@ Shader "MotorCity/RearLampEmission"
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float rearCoord : TEXCOORD1;
+                float lateralCoord : TEXCOORD2;
+                float upCoord : TEXCOORD3;
             };
 
             Varyings Vert(Attributes input)
@@ -93,6 +109,16 @@ Shader "MotorCity/RearLampEmission"
                     dot(
                         input.positionOS.xyz,
                         _RearAxisOS.xyz);
+
+                output.lateralCoord =
+                    dot(
+                        input.positionOS.xyz,
+                        _LateralAxisOS.xyz);
+
+                output.upCoord =
+                    dot(
+                        input.positionOS.xyz,
+                        _UpAxisOS.xyz);
 
                 return output;
             }
@@ -147,12 +173,45 @@ Shader "MotorCity/RearLampEmission"
                         _RearSoftness,
                         input.rearCoord);
 
+                half lateral =
+                    abs(
+                        input.lateralCoord);
+
+                half lateralMask =
+                    smoothstep(
+                        _LateralMin,
+                        _LateralMin + 0.03,
+                        lateral) *
+                    (1.0 -
+                     smoothstep(
+                        _LateralMax - 0.03,
+                        _LateralMax,
+                        lateral));
+
+                half upMask =
+                    smoothstep(
+                        _UpMin,
+                        _UpMin + 0.03,
+                        input.upCoord) *
+                    (1.0 -
+                     smoothstep(
+                        _UpMax - 0.03,
+                        _UpMax,
+                        input.upCoord));
+
+                half spatialMask =
+                    lerp(
+                        1.0,
+                        lateralMask * upMask,
+                        saturate(_SpatialMask));
+
                 half mask =
                     redDominance *
                     redBrightness *
                     lowGreen *
                     lowBlue *
                     rearMask *
+                    spatialMask *
                     source.a;
 
                 clip(
