@@ -17,8 +17,6 @@ namespace MotorCity.Platform
         private bool isAuthenticated;
         private long initializedServerUnixTime;
         private float initializedRealtime;
-        private float pausedTimeScale = 1f;
-        private bool localGameplayPaused;
 
         public bool IsInitialized { get; private set; }
 
@@ -248,15 +246,16 @@ namespace MotorCity.Platform
                 return;
             }
 
-            PauseLocalGameplay();
-            GameplayStop();
+            MotorCityPlatformRuntime.SetPlatformModalPaused(
+                true);
 
             bridge.ShowRewarded(
                 placementId,
                 rewarded =>
                 {
-                    ResumeLocalGameplay();
-                    GameplayStart();
+                    MotorCityPlatformRuntime.SetPlatformModalPaused(
+                        false);
+
                     completed?.Invoke(
                         rewarded);
                 });
@@ -272,15 +271,16 @@ namespace MotorCity.Platform
                 return;
             }
 
-            PauseLocalGameplay();
-            GameplayStop();
+            MotorCityPlatformRuntime.SetPlatformModalPaused(
+                true);
 
             bridge.ShowInterstitial(
                 placementId,
                 () =>
                 {
-                    ResumeLocalGameplay();
-                    GameplayStart();
+                    MotorCityPlatformRuntime.SetPlatformModalPaused(
+                        false);
+
                     completed?.Invoke();
                 });
         }
@@ -299,52 +299,20 @@ namespace MotorCity.Platform
                 return;
             }
 
-            PauseLocalGameplay();
-            GameplayStop();
+            MotorCityPlatformRuntime.SetPlatformModalPaused(
+                true);
 
             bridge.Purchase(
                 productId,
                 (success, token) =>
                 {
-                    ResumeLocalGameplay();
-                    GameplayStart();
+                    MotorCityPlatformRuntime.SetPlatformModalPaused(
+                        false);
+
                     completed?.Invoke(
                         success,
                         token);
                 });
-        }
-
-        private void PauseLocalGameplay()
-        {
-            if (localGameplayPaused)
-                return;
-
-            localGameplayPaused =
-                true;
-
-            pausedTimeScale =
-                Time.timeScale;
-
-            Time.timeScale =
-                0f;
-
-            AudioListener.pause =
-                true;
-        }
-
-        private void ResumeLocalGameplay()
-        {
-            if (!localGameplayPaused)
-                return;
-
-            localGameplayPaused =
-                false;
-
-            Time.timeScale =
-                pausedTimeScale;
-
-            AudioListener.pause =
-                false;
         }
 
         public void ConsumePurchase(
