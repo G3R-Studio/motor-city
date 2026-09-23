@@ -757,7 +757,7 @@ namespace MotorCity.World
                 UnityEngine.Rendering.ReflectionProbeUsage.Off;
 
             overlayRenderer.motionVectorGenerationMode =
-                UnityEngine.Rendering.MotionVectorGenerationMode.ForceNoMotion;
+                MotionVectorGenerationMode.ForceNoMotion;
 
             overlayRenderer.sharedMaterials =
                 overlayMaterials;
