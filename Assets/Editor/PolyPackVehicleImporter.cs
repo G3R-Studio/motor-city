@@ -225,41 +225,11 @@ public static class PolyPackVehicleImporter
 
         try
         {
-            // The traffic prefab is reused only as a visual. Remove its AI,
-            // traffic physics and colliders so the player car controller owns
-            // all driving behaviour at runtime.
-            foreach (MonoBehaviour behaviour in
-                     instance.GetComponentsInChildren<MonoBehaviour>(
-                         true))
-            {
-                if (behaviour != null)
-                {
-                    UnityEngine.Object.DestroyImmediate(
-                        behaviour);
-                }
-            }
-
-            foreach (Rigidbody body in
-                     instance.GetComponentsInChildren<Rigidbody>(
-                         true))
-            {
-                if (body != null)
-                {
-                    UnityEngine.Object.DestroyImmediate(
-                        body);
-                }
-            }
-
-            foreach (Collider collider in
-                     instance.GetComponentsInChildren<Collider>(
-                         true))
-            {
-                if (collider != null)
-                {
-                    UnityEngine.Object.DestroyImmediate(
-                        collider);
-                }
-            }
+            // Keep the original FCG bus rig intact in the generated resource.
+            // The runtime installer reads its authored FL/FR/BL/BR axle layout,
+            // WheelCollider radius and body dimensions before disabling imported
+            // traffic physics. Stripping these here forced runtime heuristics to
+            // reconstruct a rig that the source asset already defines correctly.
 
             GameObject saved =
                 PrefabUtility.SaveAsPrefabAsset(
