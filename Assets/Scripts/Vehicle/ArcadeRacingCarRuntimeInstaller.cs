@@ -62,7 +62,8 @@ namespace MotorCity.Vehicle
         public static bool InstallVehicleVisual(
             ArcadeCarController car,
             string resourcePath,
-            bool rotateLeft90 = false)
+            bool rotateLeft90 = false,
+            float targetLength = TargetLength)
         {
             if (car == null ||
                 string.IsNullOrWhiteSpace(
@@ -87,13 +88,15 @@ namespace MotorCity.Vehicle
             return Install(
                 car,
                 prefab,
-                rotateLeft90);
+                rotateLeft90,
+                targetLength);
         }
 
         private static bool Install(
             ArcadeCarController car,
             GameObject prefab,
-            bool rotateLeft90)
+            bool rotateLeft90,
+            float targetLength = TargetLength)
         {
             Transform carTransform = car.transform;
 
@@ -108,7 +111,8 @@ namespace MotorCity.Vehicle
             if (rotateLeft90)
             {
                 NormalizeScaleOnly(
-                    visual.transform);
+                    visual.transform,
+                    targetLength);
 
                 visual.transform.localRotation =
                     Quaternion.Euler(
@@ -119,7 +123,8 @@ namespace MotorCity.Vehicle
             else
             {
                 NormalizeHorizontalScaleAndRotation(
-                    visual.transform);
+                    visual.transform,
+                    targetLength);
             }
 
             UpgradeMaterialsForCurrentPipeline(visual);
@@ -831,7 +836,8 @@ namespace MotorCity.Vehicle
         }
 
         private static void NormalizeScaleOnly(
-            Transform visual)
+            Transform visual,
+            float targetLength)
         {
             Bounds bounds =
                 RendererBounds(
@@ -846,7 +852,9 @@ namespace MotorCity.Vehicle
                 return;
 
             visual.localScale *=
-                TargetLength /
+                Mathf.Max(
+                    1f,
+                    targetLength) /
                 length;
         }
 
@@ -896,7 +904,9 @@ namespace MotorCity.Vehicle
                 scale;
         }
 
-        private static void NormalizeHorizontalScaleAndRotation(Transform visual)
+        private static void NormalizeHorizontalScaleAndRotation(
+            Transform visual,
+            float targetLength)
         {
             Bounds bounds = RendererBounds(visual);
 
@@ -909,7 +919,11 @@ namespace MotorCity.Vehicle
             float length = Mathf.Max(bounds.size.x, bounds.size.z);
             if (length < 0.01f) return;
 
-            visual.localScale *= TargetLength / length;
+            visual.localScale *=
+                Mathf.Max(
+                    1f,
+                    targetLength) /
+                length;
             bounds = RendererBounds(visual);
 
             Transform parent = visual.parent;
