@@ -23,6 +23,7 @@ namespace MotorCity.Bootstrap
         private float overlayAlpha = 1f;
         private bool fadingOut;
         private bool gameSceneLoadRequested;
+        private bool gameplayPresented;
         private float platformWatchdogRemaining = 12f;
 
         [RuntimeInitializeOnLoadMethod(
@@ -222,6 +223,8 @@ namespace MotorCity.Bootstrap
                 {
                     overlayAlpha = 0f;
                     loading = false;
+
+                    CompleteGameplayPresentation();
                 }
 
                 return;
@@ -264,6 +267,27 @@ namespace MotorCity.Bootstrap
 
             fadingOut =
                 true;
+
+            if (!loading)
+            {
+                CompleteGameplayPresentation();
+            }
+        }
+
+        private void CompleteGameplayPresentation()
+        {
+            if (gameplayPresented)
+                return;
+
+            gameplayPresented =
+                true;
+
+            MotorCityPlatform.GameReady();
+
+            MotorCityPlatformRuntime platformRuntime =
+                Object.FindAnyObjectByType<MotorCityPlatformRuntime>();
+
+            platformRuntime?.MarkGameplayRunning();
         }
 
         private void OnGUI()
