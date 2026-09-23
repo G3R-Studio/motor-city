@@ -720,8 +720,7 @@ namespace MotorCity.Gameplay
                 ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                     car,
                     profile.ResourcePath,
-                    SelectedIndex != 0 &&
-                    !isBus,
+                    SelectedIndex != 0,
                     isBus
                         ? 7.4f
                         : 4.35f);
