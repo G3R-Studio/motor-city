@@ -243,7 +243,7 @@ namespace MotorCity.Gameplay
             }
             else
             {
-                // Byte is an independent flying companion. SmoothDamp gives
+                // Pixie is an independent flying companion. SmoothDamp gives
                 // him visible inertia so he follows the car instead of looking
                 // welded to a fixed point on the body.
                 visualRoot.transform.position =
@@ -686,7 +686,7 @@ namespace MotorCity.Gameplay
 
             visualRoot =
                 new GameObject(
-                    "Byte Companion");
+                    "Pixie Companion");
 
             visualRoot.transform.SetParent(
                 null,
@@ -715,7 +715,7 @@ namespace MotorCity.Gameplay
                         false);
 
                 externalVisual.name =
-                    "Byte Haon SD Visual";
+                    "Pixie Haon SD Visual";
 
                 externalVisual.transform.localPosition =
                     Vector3.zero;
@@ -941,7 +941,7 @@ namespace MotorCity.Gameplay
                         0.35f);
 
                 // Fly alongside the passenger side, roughly level with the
-                // cabin. Byte remains independent in world space, but the
+                // cabin. Pixie remains independent in world space, but the
                 // target itself is now beside the car rather than behind it.
                 return
                     new Vector3(
@@ -1101,7 +1101,7 @@ namespace MotorCity.Gameplay
                     state))
             {
                 Debug.LogWarning(
-                    $"Motor City Byte animation skipped: state='{state}', animator/controller missing.",
+                    $"Motor City Pixie animation skipped: state='{state}', animator/controller missing.",
                     this);
 
                 return;
@@ -1120,7 +1120,7 @@ namespace MotorCity.Gameplay
                     hash))
             {
                 Debug.LogWarning(
-                    $"Motor City Byte animation state not found: '{fullStateName}'. Controller='{externalAnimator.runtimeAnimatorController.name}'.",
+                    $"Motor City Pixie animation state not found: '{fullStateName}'. Controller='{externalAnimator.runtimeAnimatorController.name}'.",
                     this);
 
                 return;
@@ -1130,7 +1130,7 @@ namespace MotorCity.Gameplay
                 currentAnimatorStateHash)
             {
                 Debug.Log(
-                    $"Motor City Byte animation already active: '{fullStateName}'.",
+                    $"Motor City Pixie animation already active: '{fullStateName}'.",
                     this);
 
                 return;
@@ -1145,7 +1145,7 @@ namespace MotorCity.Gameplay
                 hash;
 
             Debug.Log(
-                $"Motor City Byte animation play: '{fullStateName}' transition={transitionSeconds:0.00}s previousHash={previousState} speed={car?.SpeedKph ?? 0f:0.0}kph reactionTimer={animationReactionTimer:0.00}s",
+                $"Motor City Pixie animation play: '{fullStateName}' transition={transitionSeconds:0.00}s previousHash={previousState} speed={car?.SpeedKph ?? 0f:0.0}kph reactionTimer={animationReactionTimer:0.00}s",
                 this);
 
             if (transitionSeconds <= 0f)
