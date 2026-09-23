@@ -9,7 +9,7 @@ namespace MotorCity.Persistence
         private const string StorageKey =
             "MotorCity.Save.Json.v1";
 
-        private const int CurrentVersion = 1;
+        private const int CurrentVersion = 2;
 
         private static SaveDocument document;
         private static bool initialized;
@@ -34,6 +34,15 @@ namespace MotorCity.Persistence
                 EnsureLoaded();
                 return document.ModifiedUtcTicks;
             }
+        }
+
+        public static CloudSaveMetadata GetCloudMetadata()
+        {
+            EnsureLoaded();
+
+            return
+                CreateCloudMetadata(
+                    document);
         }
 
         public static bool HasData
@@ -263,10 +272,25 @@ namespace MotorCity.Persistence
         public static long ReadModifiedUtcTicks(
             string json)
         {
+            return
+                TryReadCloudMetadata(
+                    json,
+                    out CloudSaveMetadata metadata)
+                    ? metadata.LegacyModifiedUtcTicks
+                    : 0L;
+        }
+
+        public static bool TryReadCloudMetadata(
+            string json,
+            out CloudSaveMetadata metadata)
+        {
+            metadata =
+                default;
+
             if (string.IsNullOrWhiteSpace(
                     json))
             {
-                return 0L;
+                return false;
             }
 
             try
@@ -275,15 +299,110 @@ namespace MotorCity.Persistence
                     JsonUtility.FromJson<SaveDocument>(
                         json);
 
-                return
-                    parsed == null
-                        ? 0L
-                        : parsed.ModifiedUtcTicks;
+                if (parsed == null)
+                    return false;
+
+                metadata =
+                    CreateCloudMetadata(
+                        parsed);
+
+                return true;
             }
             catch
             {
-                return 0L;
+                return false;
             }
+        }
+
+        public static string ExportCloudJson(
+            long cloudRevision,
+            long serverModifiedUnixTime,
+            out long revision)
+        {
+            EnsureLoaded();
+
+            SaveDocument snapshot =
+                JsonUtility.FromJson<SaveDocument>(
+                    JsonUtility.ToJson(
+                        document));
+
+            snapshot =
+                Normalize(
+                    snapshot);
+
+            revision =
+                snapshot.Revision;
+
+            snapshot.Version =
+                CurrentVersion;
+
+            snapshot.CloudRevision =
+                Math.Max(
+                    0L,
+                    cloudRevision);
+
+            snapshot.ServerModifiedUnixTime =
+                Math.Max(
+                    0L,
+                    serverModifiedUnixTime);
+
+            snapshot.LastSyncedRevision =
+                snapshot.Revision;
+
+            return
+                JsonUtility.ToJson(
+                    snapshot);
+        }
+
+        public static void MarkCloudUploadSucceeded(
+            long uploadedRevision,
+            long cloudRevision,
+            long serverModifiedUnixTime)
+        {
+            EnsureLoaded();
+
+            document.CloudRevision =
+                Math.Max(
+                    document.CloudRevision,
+                    cloudRevision);
+
+            document.ServerModifiedUnixTime =
+                Math.Max(
+                    document.ServerModifiedUnixTime,
+                    serverModifiedUnixTime);
+
+            document.LastSyncedRevision =
+                Math.Max(
+                    document.LastSyncedRevision,
+                    Math.Min(
+                        uploadedRevision,
+                        document.Revision));
+
+            StoreJson(
+                true);
+        }
+
+        public static void MarkImportedCloudSnapshot(
+            long cloudRevision,
+            long serverModifiedUnixTime)
+        {
+            EnsureLoaded();
+
+            document.CloudRevision =
+                Math.Max(
+                    0L,
+                    cloudRevision);
+
+            document.ServerModifiedUnixTime =
+                Math.Max(
+                    0L,
+                    serverModifiedUnixTime);
+
+            document.LastSyncedRevision =
+                document.Revision;
+
+            StoreJson(
+                true);
         }
 
         public static bool ImportJson(
@@ -383,6 +502,34 @@ namespace MotorCity.Persistence
 
             source.Strings ??=
                 new List<StringEntry>();
+
+            bool hasData =
+                source.Ints.Count > 0 ||
+                source.Floats.Count > 0 ||
+                source.Strings.Count > 0;
+
+            if (source.Revision <= 0L &&
+                hasData)
+            {
+                source.Revision = 1L;
+            }
+
+            source.LastSyncedRevision =
+                Math.Max(
+                    0L,
+                    Math.Min(
+                        source.LastSyncedRevision,
+                        source.Revision));
+
+            source.CloudRevision =
+                Math.Max(
+                    0L,
+                    source.CloudRevision);
+
+            source.ServerModifiedUnixTime =
+                Math.Max(
+                    0L,
+                    source.ServerModifiedUnixTime);
 
             return source;
         }
@@ -539,6 +686,12 @@ namespace MotorCity.Persistence
         {
             dirty = true;
 
+            if (document.Revision <
+                long.MaxValue)
+            {
+                document.Revision++;
+            }
+
             document.ModifiedUtcTicks =
                 DateTime.UtcNow.Ticks;
         }
@@ -546,8 +699,8 @@ namespace MotorCity.Persistence
         private static void StoreJson(
             bool flushToDisk)
         {
-            document.ModifiedUtcTicks =
-                DateTime.UtcNow.Ticks;
+            document.Version =
+                CurrentVersion;
 
             string json =
                 JsonUtility.ToJson(
@@ -567,6 +720,92 @@ namespace MotorCity.Persistence
             }
         }
 
+        public readonly struct CloudSaveMetadata
+        {
+            public readonly int Version;
+            public readonly bool HasData;
+            public readonly long Revision;
+            public readonly long LastSyncedRevision;
+            public readonly long CloudRevision;
+            public readonly long ServerModifiedUnixTime;
+            public readonly long LegacyModifiedUtcTicks;
+
+            public bool HasUnsyncedChanges =>
+                Revision >
+                LastSyncedRevision;
+
+            public bool HasTrustedCloudMetadata =>
+                CloudRevision > 0L;
+
+            public CloudSaveMetadata(
+                int version,
+                bool hasData,
+                long revision,
+                long lastSyncedRevision,
+                long cloudRevision,
+                long serverModifiedUnixTime,
+                long legacyModifiedUtcTicks)
+            {
+                Version = version;
+                HasData = hasData;
+                Revision = revision;
+                LastSyncedRevision =
+                    lastSyncedRevision;
+                CloudRevision =
+                    cloudRevision;
+                ServerModifiedUnixTime =
+                    serverModifiedUnixTime;
+                LegacyModifiedUtcTicks =
+                    legacyModifiedUtcTicks;
+            }
+        }
+
+        private static CloudSaveMetadata CreateCloudMetadata(
+            SaveDocument source)
+        {
+            if (source == null)
+                return default;
+
+            bool hasData =
+                (source.Ints != null &&
+                 source.Ints.Count > 0) ||
+                (source.Floats != null &&
+                 source.Floats.Count > 0) ||
+                (source.Strings != null &&
+                 source.Strings.Count > 0);
+
+            long revision =
+                source.Revision;
+
+            if (revision <= 0L &&
+                hasData)
+            {
+                revision = 1L;
+            }
+
+            return
+                new CloudSaveMetadata(
+                    source.Version,
+                    hasData,
+                    Math.Max(
+                        0L,
+                        revision),
+                    Math.Max(
+                        0L,
+                        Math.Min(
+                            source.LastSyncedRevision,
+                            revision)),
+                    Math.Max(
+                        0L,
+                        source.CloudRevision),
+                    Math.Max(
+                        0L,
+                        source.ServerModifiedUnixTime),
+                    Math.Max(
+                        0L,
+                        source.ModifiedUtcTicks));
+        }
+
         private enum SaveValueType
         {
             Int,
@@ -581,6 +820,11 @@ namespace MotorCity.Persistence
                 CurrentVersion;
 
             public long ModifiedUtcTicks;
+
+            public long Revision;
+            public long LastSyncedRevision;
+            public long CloudRevision;
+            public long ServerModifiedUnixTime;
 
             public List<IntEntry> Ints =
                 new();
