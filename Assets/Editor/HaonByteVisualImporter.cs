@@ -20,6 +20,12 @@ public static class HaonByteVisualImporter
         OutputDirectory +
         "/HaonByte.controller";
 
+    private const string PreferredSource =
+        "Assets/Haons SD series Pack/Prefab/CharacterSet/prf_Set Costume02 UTC.prefab";
+
+    private const string BuildSessionKey =
+        "MotorCity.HaonByteVisualBuilt.V2";
+
     static HaonByteVisualImporter()
     {
         EditorApplication.delayCall +=
@@ -66,15 +72,22 @@ public static class HaonByteVisualImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(
-                OutputPrefab) != null)
+        if (!HasHaonAssets())
+            return;
+
+        if (SessionState.GetBool(
+                BuildSessionKey,
+                false))
         {
             return;
         }
 
-        if (!HasHaonAssets())
-            return;
+        SessionState.SetBool(
+            BuildSessionKey,
+            true);
 
+        // Rebuild once per editor session so fixes to the selected HAON
+        // character set propagate even when an older generated prefab exists.
         Build(false);
     }
 
@@ -153,7 +166,7 @@ public static class HaonByteVisualImporter
                 }
             }
 
-            LabelMaterialVariants(
+            EnsureCompleteCharacterVisible(
                 instance);
 
             GameObject saved =
@@ -193,6 +206,17 @@ public static class HaonByteVisualImporter
 
     private static string FindBestSourcePath()
     {
+        GameObject preferred =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                PreferredSource);
+
+        if (preferred != null &&
+            preferred.GetComponentsInChildren<SkinnedMeshRenderer>(
+                true).Length >= 3)
+        {
+            return PreferredSource;
+        }
+
         string[] guids =
             AssetDatabase.FindAssets(
                 "t:GameObject");
@@ -229,6 +253,20 @@ public static class HaonByteVisualImporter
                     StringComparison.OrdinalIgnoreCase))
             {
                 score += 40;
+            }
+
+            if (path.IndexOf(
+                    "/Prefab/CharacterSet/",
+                    StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                score += 200;
+            }
+
+            if (path.IndexOf(
+                    "/Prefab/CharacterPart/",
+                    StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                score -= 180;
             }
 
             if (prefab.GetComponentInChildren<Animator>(
@@ -459,50 +497,31 @@ public static class HaonByteVisualImporter
         return score;
     }
 
-    private static void LabelMaterialVariants(
+    private static void EnsureCompleteCharacterVisible(
         GameObject root)
     {
         if (root == null)
             return;
 
-        Transform[] transforms =
-            root.GetComponentsInChildren<Transform>(
-                true);
-
-        var variantRoots =
-            transforms
-                .Where(
-                    item =>
-                        item != null &&
-                        item != root.transform &&
-                        LooksLikeVariantRoot(
-                            item.name))
-                .Take(10)
-                .ToArray();
-
-        for (int i = 0;
-             i < variantRoots.Length;
-             i++)
+        // CharacterSet prefabs are already assembled by the asset author.
+        // Do not treat costume/body nodes as mutually-exclusive "skins":
+        // disabling those nodes can remove arms, legs, or other body pieces.
+        foreach (SkinnedMeshRenderer renderer in
+                 root.GetComponentsInChildren<SkinnedMeshRenderer>(
+                     true))
         {
-            variantRoots[i].name =
-                $"ByteSkin_{i:00}_" +
-                variantRoots[i].name;
+            if (renderer == null)
+                continue;
+
+            renderer.enabled =
+                true;
+
+            if (!renderer.gameObject.activeSelf)
+            {
+                renderer.gameObject.SetActive(
+                    true);
+            }
         }
     }
 
-    private static bool LooksLikeVariantRoot(
-        string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            return false;
-
-        string lower =
-            name.ToLowerInvariant();
-
-        return
-            lower.Contains("costume") ||
-            lower.Contains("outfit") ||
-            lower.Contains("variant") ||
-            lower.Contains("skin");
-    }
 }
