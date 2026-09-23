@@ -11,11 +11,22 @@ namespace MotorCity.Vehicle
         private readonly Transform[] visualRoots =
             new Transform[4];
 
+        private readonly Transform[] additionalVisualRoots =
+            new Transform[2];
+
+        private readonly int[] additionalSourceWheelIndices =
+            new int[2];
+
+        private readonly Vector3[] additionalOffsetsLocal =
+            new Vector3[2];
+
+        private Transform carTransform;
         private bool ready;
 
         public void Clear()
         {
             ready = false;
+            carTransform = null;
 
             for (int i = 0;
                  i < 4;
@@ -24,18 +35,30 @@ namespace MotorCity.Vehicle
                 wheels[i] = null;
                 visualRoots[i] = null;
             }
+
+            for (int i = 0;
+                 i < additionalVisualRoots.Length;
+                 i++)
+            {
+                additionalVisualRoots[i] = null;
+                additionalSourceWheelIndices[i] = -1;
+                additionalOffsetsLocal[i] = Vector3.zero;
+            }
         }
 
         public void Bind(
             ArcadeCarController car,
             Transform[] roots)
         {
-            ready = false;
+            Clear();
 
             if (car == null ||
                 roots == null ||
                 roots.Length < 4)
                 return;
+
+            carTransform =
+                car.transform;
 
             for (int i = 0;
                  i < 4;
@@ -60,6 +83,34 @@ namespace MotorCity.Vehicle
 
             if (ready)
                 ApplyPose();
+        }
+
+        public void BindAdditionalVisual(
+            int slot,
+            Transform visualRoot,
+            int sourceWheelIndex,
+            Vector3 offsetLocal)
+        {
+            if (slot < 0 ||
+                slot >= additionalVisualRoots.Length ||
+                visualRoot == null ||
+                sourceWheelIndex < 0 ||
+                sourceWheelIndex >= wheels.Length)
+            {
+                return;
+            }
+
+            additionalVisualRoots[slot] =
+                visualRoot;
+
+            additionalSourceWheelIndices[slot] =
+                sourceWheelIndex;
+
+            additionalOffsetsLocal[slot] =
+                offsetLocal;
+
+            if (ready)
+                ApplyAdditionalPose(slot);
         }
 
         private void LateUpdate()
@@ -94,6 +145,55 @@ namespace MotorCity.Vehicle
                     position,
                     rotation);
             }
+
+            for (int i = 0;
+                 i < additionalVisualRoots.Length;
+                 i++)
+            {
+                ApplyAdditionalPose(i);
+            }
+        }
+
+        private void ApplyAdditionalPose(
+            int slot)
+        {
+            if (carTransform == null ||
+                slot < 0 ||
+                slot >= additionalVisualRoots.Length)
+            {
+                return;
+            }
+
+            Transform visual =
+                additionalVisualRoots[slot];
+
+            int sourceIndex =
+                additionalSourceWheelIndices[slot];
+
+            if (visual == null ||
+                sourceIndex < 0 ||
+                sourceIndex >= wheels.Length)
+            {
+                return;
+            }
+
+            WheelCollider wheel =
+                wheels[sourceIndex];
+
+            if (wheel == null)
+                return;
+
+            wheel.GetWorldPose(
+                out Vector3 position,
+                out Quaternion rotation);
+
+            position +=
+                carTransform.TransformVector(
+                    additionalOffsetsLocal[slot]);
+
+            visual.SetPositionAndRotation(
+                position,
+                rotation);
         }
     }
 }
