@@ -1,8 +1,6 @@
 # Git LFS for large Unity project assets.
 # Text-based Unity YAML files can become very large in generated/authored city
 # content, so scenes and prefabs are stored through LFS for reliable backup.
-*.unity filter=lfs diff=lfs merge=lfs -text
-*.prefab filter=lfs diff=lfs merge=lfs -text
 
 # Large binary source/content assets.
 *.fbx filter=lfs diff=lfs merge=lfs -text
