@@ -93,13 +93,13 @@ Shader "MotorCity/RearLampEmission"
                     saturate(
                         (source.r -
                          max(source.g, source.b) -
-                         0.06h) *
-                        7.5h);
+                         0.06) *
+                        7.5);
 
                 half redBrightness =
                     smoothstep(
-                        0.18h,
-                        0.50h,
+                        0.18,
+                        0.50,
                         source.r);
 
                 half rearMask =
@@ -118,12 +118,12 @@ Shader "MotorCity/RearLampEmission"
 
                 clip(
                     mask -
-                    0.015h);
+                    0.015);
 
                 return half4(
                     _EmissionColor.rgb *
                     (_Intensity * mask),
-                    0h);
+                    0.0);
             }
             ENDHLSL
         }
