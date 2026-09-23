@@ -436,6 +436,8 @@ namespace MotorCity.Platform
                 completed;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityWebConfigureBrowser();
+
             MotorCityYandexInitialize(
                 gameObject.name);
 #else
@@ -897,6 +899,9 @@ namespace MotorCity.Platform
         }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        private static extern void MotorCityWebConfigureBrowser();
+
         [DllImport("__Internal")]
         private static extern void MotorCityYandexInitialize(
             string gameObjectName);
