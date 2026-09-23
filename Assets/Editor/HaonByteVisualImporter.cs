@@ -21,10 +21,10 @@ public static class HaonByteVisualImporter
         "/HaonByte.controller";
 
     private const string PreferredSource =
-        "Assets/Haons SD series Pack/Prefab/CharacterSet/prf_Set Costume02 UTC.prefab";
+        "Assets/Haons SD series Pack/Prefab/CharacterSet/prf_Set Costume02 UTC WTD.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.HaonByteVisualBuilt.V2";
+        "MotorCity.HaonByteVisualBuilt.V3";
 
     static HaonByteVisualImporter()
     {
