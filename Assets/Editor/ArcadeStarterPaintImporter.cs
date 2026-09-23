@@ -45,6 +45,7 @@ public static class ArcadeStarterPaintImporter
     private static void Build()
     {
         Directory.CreateDirectory(OutputDirectory);
+        AssetDatabase.Refresh();
 
         Shader urp =
             Shader.Find("Universal Render Pipeline/Lit");
