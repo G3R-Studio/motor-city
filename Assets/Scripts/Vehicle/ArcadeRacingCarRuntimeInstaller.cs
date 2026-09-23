@@ -123,6 +123,7 @@ namespace MotorCity.Vehicle
             }
 
             UpgradeMaterialsForCurrentPipeline(visual);
+            FixMirrorMaterialsForCurrentPipeline(visual);
 
             List<Transform> wheelAnchors = FindWheelAnchors(visual.transform);
             if (wheelAnchors.Count < 4)
@@ -1383,6 +1384,155 @@ namespace MotorCity.Vehicle
 
                 renderer.sharedMaterials = upgraded;
             }
+        }
+
+        private static void FixMirrorMaterialsForCurrentPipeline(
+            GameObject root)
+        {
+            if (root == null ||
+                GraphicsSettings.currentRenderPipeline == null)
+            {
+                return;
+            }
+
+            Shader urpLit =
+                Shader.Find(
+                    "Universal Render Pipeline/Lit");
+
+            if (urpLit == null)
+                return;
+
+            foreach (Renderer renderer in
+                     root.GetComponentsInChildren<Renderer>(
+                         true))
+            {
+                if (renderer == null ||
+                    !LooksLikeMirrorPart(
+                        renderer.transform,
+                        root.transform))
+                {
+                    continue;
+                }
+
+                Material[] source =
+                    renderer.sharedMaterials;
+
+                if (source == null ||
+                    source.Length == 0)
+                {
+                    continue;
+                }
+
+                Material[] fixedMaterials =
+                    new Material[source.Length];
+
+                for (int materialIndex = 0;
+                     materialIndex < source.Length;
+                     materialIndex++)
+                {
+                    Material old =
+                        source[materialIndex];
+
+                    Material material =
+                        new(urpLit)
+                        {
+                            name =
+                                (old != null
+                                    ? old.name
+                                    : "Mirror") +
+                                "_MotorCityMirrorURP",
+                            enableInstancing = true
+                        };
+
+                    // Do not reuse the imported emissive/magenta atlas on
+                    // mirrors. The ARCADE source packs the mirror glass into a
+                    // light/emission material, which becomes neon pink after
+                    // the runtime Standard -> URP conversion.
+                    if (material.HasProperty(
+                            "_BaseMap"))
+                    {
+                        material.SetTexture(
+                            "_BaseMap",
+                            null);
+                    }
+
+                    if (material.HasProperty(
+                            "_BaseColor"))
+                    {
+                        material.SetColor(
+                            "_BaseColor",
+                            new Color(
+                                0.075f,
+                                0.095f,
+                                0.12f,
+                                1f));
+                    }
+
+                    if (material.HasProperty(
+                            "_Metallic"))
+                    {
+                        material.SetFloat(
+                            "_Metallic",
+                            0.55f);
+                    }
+
+                    if (material.HasProperty(
+                            "_Smoothness"))
+                    {
+                        material.SetFloat(
+                            "_Smoothness",
+                            0.82f);
+                    }
+
+                    if (material.HasProperty(
+                            "_EmissionColor"))
+                    {
+                        material.SetColor(
+                            "_EmissionColor",
+                            Color.black);
+                    }
+
+                    material.DisableKeyword(
+                        "_EMISSION");
+
+                    fixedMaterials[
+                        materialIndex] =
+                        material;
+                }
+
+                renderer.sharedMaterials =
+                    fixedMaterials;
+            }
+        }
+
+        private static bool LooksLikeMirrorPart(
+            Transform item,
+            Transform stopAt)
+        {
+            Transform cursor =
+                item;
+
+            while (cursor != null &&
+                   cursor != stopAt)
+            {
+                string name =
+                    cursor.name
+                        .ToLowerInvariant();
+
+                if (name.Contains("mirror") ||
+                    name.Contains("rearview") ||
+                    name.Contains("rear_view") ||
+                    name.Contains("sideview") ||
+                    name.Contains("side_view"))
+                {
+                    return true;
+                }
+
+                cursor =
+                    cursor.parent;
+            }
+
+            return false;
         }
 
         private static void HidePrimitiveFallback(Transform car)
