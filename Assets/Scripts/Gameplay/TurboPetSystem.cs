@@ -742,9 +742,26 @@ namespace MotorCity.Gameplay
                 {
                     externalAnimator.applyRootMotion =
                         false;
+                    externalAnimator.cullingMode =
+                        AnimatorCullingMode.AlwaysAnimate;
+                    externalAnimator.updateMode =
+                        AnimatorUpdateMode.Normal;
+
+                    // HAON 2026.8 ships the CharacterSet with an authored
+                    // humanoid Avatar. After swapping its controller in the
+                    // generated Pixie prefab Unity can keep the instantiated
+                    // Animator in bind pose until it is explicitly rebound.
+                    // Rebind here so the first Pixie state drives the humanoid
+                    // immediately instead of leaving her in a T-pose.
+                    externalAnimator.Rebind();
+                    externalAnimator.Update(
+                        0f);
 
                     PlayAnimatorState(
                         "Pixie Idle",
+                        0f);
+
+                    externalAnimator.Update(
                         0f);
                 }
 
