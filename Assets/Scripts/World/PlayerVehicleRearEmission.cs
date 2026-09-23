@@ -30,6 +30,14 @@ namespace MotorCity.World
             public Material OriginalMaterial;
             public Color BaseEmission;
             public bool RearSpecific;
+            public bool SuppressOnly;
+        }
+
+        private sealed class StarterLampOverlay
+        {
+            public GameObject Root;
+            public Material RearMaterial;
+            public Material FrontMaterial;
         }
 
         private readonly List<LampBinding> lampBindings =
@@ -38,10 +46,14 @@ namespace MotorCity.World
         private readonly List<Material> runtimeMaterials =
             new();
 
+        private readonly List<StarterLampOverlay> starterLampOverlays =
+            new();
+
         private ArcadeCarController car;
         private DayNightCycleController dayNight;
         private Transform currentVisual;
         private Shader maskedRearShader;
+        private Shader starterLampShader;
         private string vehicleId = "street";
         private float dayNightResolveTimer;
 
@@ -53,6 +65,10 @@ namespace MotorCity.World
             maskedRearShader =
                 Resources.Load<Shader>(
                     "MotorCity/Shaders/RearLampEmission");
+
+            starterLampShader =
+                Resources.Load<Shader>(
+                    "MotorCity/Shaders/StarterLampEmission");
         }
 
         private void Start()
@@ -102,10 +118,15 @@ namespace MotorCity.World
                     continue;
                 }
 
-                // Rear lamps are brake lights: no permanent running glow.
-                // This also fixes the starter ARCADE car, whose shared
-                // emissive material previously made the tail lamps glow all
-                // the time.
+                if (binding.SuppressOnly)
+                {
+                    binding.Material.SetColor(
+                        "_EmissionColor",
+                        Color.black);
+
+                    continue;
+                }
+
                 float multiplier =
                     braking
                         ? brakeMultiplier
@@ -122,11 +143,47 @@ namespace MotorCity.World
                 binding.Material.EnableKeyword(
                     "_EMISSION");
             }
+
+            float frontIntensity =
+                Mathf.SmoothStep(
+                    0f,
+                    3.6f,
+                    Mathf.InverseLerp(
+                        0.30f,
+                        0.70f,
+                        night));
+
+            float rearIntensity =
+                braking
+                    ? Mathf.Lerp(
+                        2.2f,
+                        4.2f,
+                        night)
+                    : 0f;
+
+            foreach (StarterLampOverlay overlay in
+                     starterLampOverlays)
+            {
+                if (overlay?.FrontMaterial != null)
+                {
+                    overlay.FrontMaterial.SetFloat(
+                        "_Intensity",
+                        frontIntensity);
+                }
+
+                if (overlay?.RearMaterial != null)
+                {
+                    overlay.RearMaterial.SetFloat(
+                        "_Intensity",
+                        rearIntensity);
+                }
+            }
         }
 
         private void OnDestroy()
         {
-            ClearRuntimeMaterials();
+            ClearStarterLampOverlays();
+            RestoreAndClearBindings();
         }
 
         public void SetVehicleId(
@@ -143,6 +200,7 @@ namespace MotorCity.World
         public void RefreshVisual()
         {
             RestoreAndClearBindings();
+            ClearStarterLampOverlays();
 
             currentVisual =
                 transform.Find(
@@ -170,17 +228,19 @@ namespace MotorCity.World
                     continue;
                 }
 
+                if (vehicleId == "street" &&
+                    BindStarterLampMaterials(
+                        renderer))
+                {
+                    continue;
+                }
+
                 BindExistingLampMaterials(
                     renderer);
             }
 
-            // The starter ARCADE car already contains a proper emissive light
-            // submesh/material. Never put the texture-mask fallback over any
-            // of its other parts (mirrors, spoiler, body, etc.).
-            //
-            // PolyPack garage cars use one atlas/material for the whole body,
-            // so only those cars reach this fallback path.
-            if (lampBindings.Count == 0)
+            if (lampBindings.Count == 0 &&
+                starterLampOverlays.Count == 0)
             {
                 foreach (Renderer renderer in
                          renderers)
@@ -196,6 +256,311 @@ namespace MotorCity.World
                         renderer);
                 }
             }
+        }
+
+        private bool BindStarterLampMaterials(
+            Renderer renderer)
+        {
+            if (renderer == null ||
+                starterLampShader == null)
+            {
+                return false;
+            }
+
+            MeshFilter filter =
+                renderer.GetComponent<MeshFilter>();
+
+            if (filter == null ||
+                filter.sharedMesh == null)
+            {
+                return false;
+            }
+
+            Material[] sourceMaterials =
+                renderer.sharedMaterials;
+
+            bool found = false;
+            Material[] assigned = null;
+
+            for (int i = 0;
+                 i < sourceMaterials.Length;
+                 i++)
+            {
+                Material source =
+                    sourceMaterials[i];
+
+                if (!IsStarterSharedEmission(
+                        source))
+                {
+                    continue;
+                }
+
+                found = true;
+
+                Material muted =
+                    new(source)
+                    {
+                        name =
+                            source.name +
+                            "_MotorCityMuted"
+                    };
+
+                if (muted.HasProperty(
+                        "_EmissionColor"))
+                {
+                    muted.SetColor(
+                        "_EmissionColor",
+                        Color.black);
+                }
+
+                muted.EnableKeyword(
+                    "_EMISSION");
+
+                assigned ??=
+                    (Material[])sourceMaterials.Clone();
+
+                assigned[i] =
+                    muted;
+
+                runtimeMaterials.Add(
+                    muted);
+
+                lampBindings.Add(
+                    new LampBinding
+                    {
+                        Renderer = renderer,
+                        MaterialIndex = i,
+                        Material = muted,
+                        OriginalMaterial = source,
+                        BaseEmission = Color.black,
+                        RearSpecific = false,
+                        SuppressOnly = true
+                    });
+
+                CreateStarterLampOverlay(
+                    renderer,
+                    filter.sharedMesh,
+                    source,
+                    i,
+                    sourceMaterials.Length);
+            }
+
+            if (assigned != null)
+            {
+                renderer.sharedMaterials =
+                    assigned;
+            }
+
+            return found;
+        }
+
+        private static bool IsStarterSharedEmission(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string name =
+                material.name
+                    .ToLowerInvariant();
+
+            return
+                name.Contains("afrc_emission") ||
+                name.Contains("afrc emission");
+        }
+
+        private void CreateStarterLampOverlay(
+            Renderer sourceRenderer,
+            Mesh mesh,
+            Material sourceMaterial,
+            int materialIndex,
+            int materialCount)
+        {
+            Texture texture =
+                ResolveEmissionTexture(
+                    sourceMaterial,
+                    false);
+
+            if (texture == null)
+                return;
+
+            Vector3 forwardAxis =
+                sourceRenderer.transform
+                    .InverseTransformDirection(
+                        transform.forward)
+                    .normalized;
+
+            ResolveProjectionRange(
+                mesh.bounds,
+                forwardAxis,
+                out float minimum,
+                out float maximum);
+
+            float cutoff =
+                (minimum + maximum) *
+                0.5f;
+
+            float softness =
+                Mathf.Max(
+                    0.03f,
+                    (maximum - minimum) *
+                    0.04f);
+
+            Material rear =
+                CreateStarterOverlayMaterial(
+                    sourceMaterial,
+                    texture,
+                    forwardAxis,
+                    cutoff,
+                    softness,
+                    false);
+
+            Material front =
+                CreateStarterOverlayMaterial(
+                    sourceMaterial,
+                    texture,
+                    forwardAxis,
+                    cutoff,
+                    softness,
+                    true);
+
+            Material[] rearSlots =
+                new Material[materialCount];
+
+            Material[] frontSlots =
+                new Material[materialCount];
+
+            rearSlots[materialIndex] = rear;
+            frontSlots[materialIndex] = front;
+
+            GameObject root =
+                new(
+                    "MotorCityStarterLampOverlays");
+
+            root.transform.SetParent(
+                sourceRenderer.transform.parent,
+                false);
+
+            root.transform.localPosition =
+                sourceRenderer.transform.localPosition;
+
+            root.transform.localRotation =
+                sourceRenderer.transform.localRotation;
+
+            root.transform.localScale =
+                sourceRenderer.transform.localScale;
+
+            GameObject rearObject =
+                new(
+                    "Rear Brake Lamps",
+                    typeof(MeshFilter),
+                    typeof(MeshRenderer));
+
+            rearObject.transform.SetParent(
+                root.transform,
+                false);
+
+            rearObject.GetComponent<MeshFilter>()
+                .sharedMesh = mesh;
+
+            rearObject.GetComponent<MeshRenderer>()
+                .sharedMaterials = rearSlots;
+
+            GameObject frontObject =
+                new(
+                    "Front Headlamps",
+                    typeof(MeshFilter),
+                    typeof(MeshRenderer));
+
+            frontObject.transform.SetParent(
+                root.transform,
+                false);
+
+            frontObject.GetComponent<MeshFilter>()
+                .sharedMesh = mesh;
+
+            frontObject.GetComponent<MeshRenderer>()
+                .sharedMaterials = frontSlots;
+
+            runtimeMaterials.Add(
+                rear);
+
+            runtimeMaterials.Add(
+                front);
+
+            starterLampOverlays.Add(
+                new StarterLampOverlay
+                {
+                    Root = root,
+                    RearMaterial = rear,
+                    FrontMaterial = front
+                });
+        }
+
+        private Material CreateStarterOverlayMaterial(
+            Material source,
+            Texture texture,
+            Vector3 axis,
+            float cutoff,
+            float softness,
+            bool front)
+        {
+            Material material =
+                new(starterLampShader)
+                {
+                    name =
+                        front
+                            ? "MotorCity_StarterFrontLamp_Runtime"
+                            : "MotorCity_StarterRearBrake_Runtime"
+                };
+
+            material.SetTexture(
+                "_BaseMap",
+                texture);
+
+            CopyTextureTransform(
+                source,
+                material);
+
+            material.SetVector(
+                "_AxisOS",
+                new Vector4(
+                    axis.x,
+                    axis.y,
+                    axis.z,
+                    0f));
+
+            material.SetFloat(
+                "_Cutoff",
+                cutoff);
+
+            material.SetFloat(
+                "_Softness",
+                softness);
+
+            material.SetFloat(
+                "_Mode",
+                front ? 1f : 0f);
+
+            material.SetColor(
+                "_EmissionColor",
+                front
+                    ? new Color(
+                        0.92f,
+                        0.96f,
+                        1f,
+                        1f)
+                    : new Color(
+                        1f,
+                        0.025f,
+                        0.012f,
+                        1f));
+
+            material.SetFloat(
+                "_Intensity",
+                0f);
+
+            return material;
         }
 
         private void BindExistingLampMaterials(
@@ -1194,6 +1559,21 @@ namespace MotorCity.World
                 Destroy(
                     item.gameObject);
             }
+        }
+
+        private void ClearStarterLampOverlays()
+        {
+            foreach (StarterLampOverlay overlay in
+                     starterLampOverlays)
+            {
+                if (overlay?.Root != null)
+                {
+                    Destroy(
+                        overlay.Root);
+                }
+            }
+
+            starterLampOverlays.Clear();
         }
 
         private void RestoreAndClearBindings()
