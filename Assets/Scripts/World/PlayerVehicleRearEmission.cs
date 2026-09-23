@@ -1,19 +1,38 @@
+using System;
 using System.Collections.Generic;
 using MotorCity.Input;
 using MotorCity.Vehicle;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace MotorCity.World
 {
-    public sealed class PlayerVehicleRearEmission :
-        MonoBehaviour
+    /// <summary>
+    /// Drives emission on the lamp geometry/materials that already exist in the
+    /// selected vehicle model. No extra quads, boxes or replacement lamp meshes
+    /// are created.
+    /// </summary>
+    public sealed class PlayerVehicleRearEmission : MonoBehaviour
     {
         private const string RuntimeVisualName =
             "MotorCityVehicleVisual_Runtime";
 
-        private const string OverlayName =
+        // Name used by the old implementation that projected red geometry over
+        // the rear of every renderer. Keep this only so old runtime objects are
+        // cleaned up when entering play mode after the fix.
+        private const string LegacyOverlayName =
             "MotorCityRearLampEmission";
+
+        private sealed class LampBinding
+        {
+            public Renderer Renderer;
+            public int MaterialIndex;
+            public Material Material;
+            public Color BaseEmission;
+            public bool RearSpecific;
+        }
+
+        private readonly List<LampBinding> lampBindings =
+            new();
 
         private readonly List<Material> runtimeMaterials =
             new();
@@ -21,17 +40,12 @@ namespace MotorCity.World
         private ArcadeCarController car;
         private DayNightCycleController dayNight;
         private Transform currentVisual;
-        private Shader emissionShader;
         private float dayNightResolveTimer;
 
         private void Awake()
         {
             car =
                 GetComponent<ArcadeCarController>();
-
-            emissionShader =
-                Resources.Load<Shader>(
-                    "MotorCity/Shaders/RearLampEmission");
         }
 
         private void Start()
@@ -62,33 +76,52 @@ namespace MotorCity.World
                 (car != null &&
                  car.HandbrakeInputHeld);
 
-            float runningIntensity =
+            float runningMultiplier =
                 Mathf.Lerp(
-                    0.14f,
-                    0.62f,
+                    0.28f,
+                    1.15f,
                     night);
 
-            float targetIntensity =
-                braking
-                    ? Mathf.Lerp(
-                        2.4f,
-                        3.6f,
-                        night)
-                    : runningIntensity;
+            float brakeMultiplier =
+                Mathf.Lerp(
+                    1.6f,
+                    2.65f,
+                    night);
 
             for (int i = 0;
-                 i < runtimeMaterials.Count;
+                 i < lampBindings.Count;
                  i++)
             {
-                Material material =
-                    runtimeMaterials[i];
+                LampBinding binding =
+                    lampBindings[i];
 
-                if (material == null)
+                if (binding == null ||
+                    binding.Material == null)
+                {
                     continue;
+                }
 
-                material.SetFloat(
-                    "_Intensity",
-                    targetIntensity);
+                // If a model has one shared emissive material for both front
+                // and rear lamps (the starter ARCADE car does), keep the
+                // original texture colours and only apply night-time glow.
+                // Brake boosting is limited to materials/renderers that are
+                // explicitly identifiable as rear lamps.
+                float multiplier =
+                    braking &&
+                    binding.RearSpecific
+                        ? brakeMultiplier
+                        : runningMultiplier;
+
+                Color emission =
+                    binding.BaseEmission *
+                    multiplier;
+
+                binding.Material.SetColor(
+                    "_EmissionColor",
+                    emission);
+
+                binding.Material.EnableKeyword(
+                    "_EMISSION");
             }
         }
 
@@ -99,26 +132,23 @@ namespace MotorCity.World
 
         public void RefreshVisual()
         {
-            ClearRuntimeMaterials();
+            RestoreAndClearBindings();
 
             currentVisual =
                 transform.Find(
                     RuntimeVisualName);
 
-            if (currentVisual == null ||
-                emissionShader == null)
-            {
+            if (currentVisual == null)
                 return;
-            }
 
-            RemoveExistingOverlays();
+            RemoveLegacyOverlays();
 
-            MeshRenderer[] renderers =
+            Renderer[] renderers =
                 currentVisual.GetComponentsInChildren<
-                    MeshRenderer>(
+                    Renderer>(
                     true);
 
-            foreach (MeshRenderer renderer in
+            foreach (Renderer renderer in
                      renderers)
             {
                 if (renderer == null ||
@@ -128,27 +158,16 @@ namespace MotorCity.World
                     continue;
                 }
 
-                MeshFilter filter =
-                    renderer.GetComponent<MeshFilter>();
-
-                if (filter == null ||
-                    filter.sharedMesh == null)
-                {
-                    continue;
-                }
-
-                CreateEmissionOverlay(
-                    renderer,
-                    filter.sharedMesh);
+                BindExistingLampMaterials(
+                    renderer);
             }
         }
 
-        private void CreateEmissionOverlay(
-            MeshRenderer sourceRenderer,
-            Mesh mesh)
+        private void BindExistingLampMaterials(
+            Renderer renderer)
         {
             Material[] sourceMaterials =
-                sourceRenderer.sharedMaterials;
+                renderer.sharedMaterials;
 
             if (sourceMaterials == null ||
                 sourceMaterials.Length == 0)
@@ -156,82 +175,17 @@ namespace MotorCity.World
                 return;
             }
 
-            GameObject overlay =
-                new(
-                    OverlayName,
-                    typeof(MeshFilter),
-                    typeof(MeshRenderer));
+            string rendererName =
+                BuildHierarchyName(
+                    renderer.transform,
+                    currentVisual);
 
-            overlay.transform.SetParent(
-                sourceRenderer.transform,
-                false);
+            bool rendererRearSpecific =
+                LooksLikeRearLampName(
+                    rendererName);
 
-            overlay.transform.localPosition =
-                Vector3.zero;
-
-            overlay.transform.localRotation =
-                Quaternion.identity;
-
-            overlay.transform.localScale =
-                Vector3.one;
-
-            MeshFilter overlayFilter =
-                overlay.GetComponent<MeshFilter>();
-
-            overlayFilter.sharedMesh =
-                mesh;
-
-            MeshRenderer overlayRenderer =
-                overlay.GetComponent<MeshRenderer>();
-
-            overlayRenderer.shadowCastingMode =
-                ShadowCastingMode.Off;
-
-            overlayRenderer.receiveShadows =
-                false;
-
-            overlayRenderer.lightProbeUsage =
-                LightProbeUsage.Off;
-
-            overlayRenderer.reflectionProbeUsage =
-                ReflectionProbeUsage.Off;
-
-            overlayRenderer.motionVectorGenerationMode =
-                MotionVectorGenerationMode.ForceNoMotion;
-
-            Vector3 rearAxis =
-                sourceRenderer.transform
-                    .InverseTransformDirection(
-                        -transform.forward)
-                    .normalized;
-
-            ResolveProjectionRange(
-                mesh.bounds,
-                rearAxis,
-                out float minimum,
-                out float maximum);
-
-            float span =
-                Mathf.Max(
-                    0.001f,
-                    maximum -
-                    minimum);
-
-            float cutoff =
-                Mathf.Lerp(
-                    minimum,
-                    maximum,
-                    0.64f);
-
-            float softness =
-                Mathf.Max(
-                    0.015f,
-                    span *
-                    0.045f);
-
-            Material[] overlayMaterials =
-                new Material[
-                    sourceMaterials.Length];
+            Material[] assigned =
+                null;
 
             for (int i = 0;
                  i < sourceMaterials.Length;
@@ -240,69 +194,366 @@ namespace MotorCity.World
                 Material source =
                     sourceMaterials[i];
 
-                Material material =
-                    new(
-                        emissionShader)
-                    {
-                        name =
-                            "MotorCity_RearLampEmission_Runtime"
-                    };
+                if (source == null)
+                    continue;
 
-                Texture texture =
-                    ResolveBaseTexture(
+                string materialName =
+                    source.name == null
+                        ? string.Empty
+                        : source.name.ToLowerInvariant();
+
+                bool materialRearSpecific =
+                    LooksLikeRearLampName(
+                        materialName);
+
+                bool genericLampMaterial =
+                    LooksLikeLampMaterial(
+                        materialName,
                         source);
 
-                if (texture != null)
+                if (!rendererRearSpecific &&
+                    !materialRearSpecific &&
+                    !genericLampMaterial)
                 {
-                    material.SetTexture(
-                        "_BaseMap",
-                        texture);
-
-                    CopyTextureTransform(
-                        source,
-                        material);
+                    continue;
                 }
 
-                material.SetVector(
-                    "_RearAxisOS",
-                    new Vector4(
-                        rearAxis.x,
-                        rearAxis.y,
-                        rearAxis.z,
-                        0f));
+                bool rearSpecific =
+                    rendererRearSpecific ||
+                    materialRearSpecific;
 
-                material.SetFloat(
-                    "_RearCutoff",
-                    cutoff);
+                Material runtime =
+                    new(source)
+                    {
+                        name =
+                            source.name +
+                            "_MotorCityLampRuntime"
+                    };
 
-                material.SetFloat(
-                    "_RearSoftness",
-                    softness);
+                ConfigureEmission(
+                    runtime,
+                    source,
+                    rearSpecific);
 
-                material.SetColor(
-                    "_EmissionColor",
-                    new Color(
-                        1f,
-                        0.025f,
-                        0.012f,
-                        1f));
+                if (assigned == null)
+                {
+                    assigned =
+                        (Material[])sourceMaterials.Clone();
+                }
 
-                material.SetFloat(
-                    "_Intensity",
-                    0.2f);
+                assigned[i] =
+                    runtime;
 
                 runtimeMaterials.Add(
-                    material);
+                    runtime);
 
-                overlayMaterials[i] =
-                    material;
+                lampBindings.Add(
+                    new LampBinding
+                    {
+                        Renderer = renderer,
+                        MaterialIndex = i,
+                        Material = runtime,
+                        BaseEmission =
+                            ResolveBaseEmission(
+                                runtime,
+                                source),
+                        RearSpecific =
+                            rearSpecific
+                    });
             }
 
-            overlayRenderer.sharedMaterials =
-                overlayMaterials;
+            if (assigned != null)
+            {
+                renderer.sharedMaterials =
+                    assigned;
+            }
         }
 
-        private void RemoveExistingOverlays()
+        private static void ConfigureEmission(
+            Material runtime,
+            Material source,
+            bool rearSpecific)
+        {
+            if (runtime == null ||
+                source == null)
+            {
+                return;
+            }
+
+            Texture emissionMap =
+                ResolveEmissionTexture(
+                    source,
+                    rearSpecific);
+
+            if (emissionMap != null &&
+                runtime.HasProperty(
+                    "_EmissionMap"))
+            {
+                runtime.SetTexture(
+                    "_EmissionMap",
+                    emissionMap);
+            }
+
+            Color sourceEmission =
+                ResolveSourceEmission(
+                    source);
+
+            if (sourceEmission.maxColorComponent <=
+                0.001f)
+            {
+                sourceEmission =
+                    rearSpecific
+                        ? new Color(
+                            1f,
+                            0.08f,
+                            0.035f,
+                            1f)
+                        : Color.white;
+            }
+
+            if (runtime.HasProperty(
+                    "_EmissionColor"))
+            {
+                runtime.SetColor(
+                    "_EmissionColor",
+                    sourceEmission);
+            }
+
+            runtime.EnableKeyword(
+                "_EMISSION");
+
+            if (runtime.HasProperty(
+                    "_Surface"))
+            {
+                // Existing lamp geometry should remain opaque. We only change
+                // its emissive response, never its shape or placement.
+                runtime.SetFloat(
+                    "_Surface",
+                    0f);
+            }
+        }
+
+        private static Texture ResolveEmissionTexture(
+            Material material,
+            bool rearSpecific)
+        {
+            if (material == null)
+                return null;
+
+            if (material.HasProperty(
+                    "_EmissionMap"))
+            {
+                Texture map =
+                    material.GetTexture(
+                        "_EmissionMap");
+
+                if (map != null)
+                    return map;
+            }
+
+            // Some imported car packs store lamp colour directly in the base
+            // texture and only flag the material as emissive.
+            if (material.HasProperty(
+                    "_BaseMap"))
+            {
+                Texture map =
+                    material.GetTexture(
+                        "_BaseMap");
+
+                if (map != null &&
+                    (rearSpecific ||
+                     LooksLikeEmissionMaterial(
+                         material)))
+                {
+                    return map;
+                }
+            }
+
+            if (material.HasProperty(
+                    "_MainTex"))
+            {
+                Texture map =
+                    material.GetTexture(
+                        "_MainTex");
+
+                if (map != null &&
+                    (rearSpecific ||
+                     LooksLikeEmissionMaterial(
+                         material)))
+                {
+                    return map;
+                }
+            }
+
+            return null;
+        }
+
+        private static Color ResolveBaseEmission(
+            Material runtime,
+            Material source)
+        {
+            Color emission =
+                ResolveSourceEmission(
+                    runtime);
+
+            if (emission.maxColorComponent >
+                0.001f)
+            {
+                return emission;
+            }
+
+            emission =
+                ResolveSourceEmission(
+                    source);
+
+            return emission.maxColorComponent >
+                   0.001f
+                ? emission
+                : Color.white;
+        }
+
+        private static Color ResolveSourceEmission(
+            Material material)
+        {
+            if (material != null &&
+                material.HasProperty(
+                    "_EmissionColor"))
+            {
+                return
+                    material.GetColor(
+                        "_EmissionColor");
+            }
+
+            return Color.black;
+        }
+
+        private static bool LooksLikeLampMaterial(
+            string materialName,
+            Material material)
+        {
+            if (LooksLikeRearLampName(
+                    materialName))
+            {
+                return true;
+            }
+
+            if (materialName.Contains(
+                    "lamp") ||
+                materialName.Contains(
+                    "light"))
+            {
+                return true;
+            }
+
+            // Asset packs commonly use names such as AFRC_Emission for the
+            // model's actual light submesh. Preserve that submesh instead of
+            // drawing substitute rectangles.
+            if (materialName.Contains(
+                    "emission") ||
+                materialName.Contains(
+                    "emissive"))
+            {
+                return true;
+            }
+
+            return
+                LooksLikeEmissionMaterial(
+                    material);
+        }
+
+        private static bool LooksLikeEmissionMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            if (material.IsKeywordEnabled(
+                    "_EMISSION"))
+            {
+                return true;
+            }
+
+            if (material.HasProperty(
+                    "_EmissionMap") &&
+                material.GetTexture(
+                    "_EmissionMap") != null)
+            {
+                return true;
+            }
+
+            if (material.HasProperty(
+                    "_EmissionColor"))
+            {
+                Color emission =
+                    material.GetColor(
+                        "_EmissionColor");
+
+                return
+                    emission.maxColorComponent >
+                    0.05f;
+            }
+
+            return false;
+        }
+
+        private static bool LooksLikeRearLampName(
+            string value)
+        {
+            if (string.IsNullOrEmpty(
+                    value))
+            {
+                return false;
+            }
+
+            string name =
+                value.ToLowerInvariant();
+
+            bool rear =
+                name.Contains("tail") ||
+                name.Contains("rear") ||
+                name.Contains("back") ||
+                name.Contains("brake") ||
+                name.Contains("stop");
+
+            bool lamp =
+                name.Contains("light") ||
+                name.Contains("lamp") ||
+                name.Contains("emission") ||
+                name.Contains("emissive");
+
+            return rear &&
+                   lamp;
+        }
+
+        private static string BuildHierarchyName(
+            Transform item,
+            Transform stopAt)
+        {
+            if (item == null)
+                return string.Empty;
+
+            string value =
+                item.name ?? string.Empty;
+
+            Transform cursor =
+                item.parent;
+
+            while (cursor != null &&
+                   cursor != stopAt)
+            {
+                value +=
+                    "/" +
+                    cursor.name;
+
+                cursor =
+                    cursor.parent;
+            }
+
+            return
+                value.ToLowerInvariant();
+        }
+
+        private void RemoveLegacyOverlays()
         {
             if (currentVisual == null)
                 return;
@@ -318,7 +569,7 @@ namespace MotorCity.World
                 if (item == null ||
                     item == currentVisual ||
                     item.name !=
-                    OverlayName)
+                    LegacyOverlayName)
                 {
                     continue;
                 }
@@ -329,6 +580,52 @@ namespace MotorCity.World
                 Destroy(
                     item.gameObject);
             }
+        }
+
+        private void RestoreAndClearBindings()
+        {
+            for (int i = 0;
+                 i < lampBindings.Count;
+                 i++)
+            {
+                LampBinding binding =
+                    lampBindings[i];
+
+                if (binding == null ||
+                    binding.Renderer == null)
+                {
+                    continue;
+                }
+
+                Material[] materials =
+                    binding.Renderer.sharedMaterials;
+
+                if (binding.MaterialIndex < 0 ||
+                    binding.MaterialIndex >=
+                    materials.Length)
+                {
+                    continue;
+                }
+
+                if (materials[
+                        binding.MaterialIndex] ==
+                    binding.Material)
+                {
+                    // The whole runtime visual is normally replaced when the
+                    // player changes car. Do not try to reconstruct imported
+                    // materials here; simply detach the runtime material before
+                    // destroying it.
+                    materials[
+                        binding.MaterialIndex] =
+                        null;
+
+                    binding.Renderer.sharedMaterials =
+                        materials;
+                }
+            }
+
+            lampBindings.Clear();
+            ClearRuntimeMaterials();
         }
 
         private void ClearRuntimeMaterials()
@@ -365,69 +662,8 @@ namespace MotorCity.World
                 1f;
 
             dayNight =
-                Object.FindAnyObjectByType<
+                UnityEngine.Object.FindAnyObjectByType<
                     DayNightCycleController>();
-        }
-
-        private static Texture ResolveBaseTexture(
-            Material material)
-        {
-            if (material == null)
-                return null;
-
-            if (material.HasProperty(
-                    "_BaseMap"))
-            {
-                Texture baseMap =
-                    material.GetTexture(
-                        "_BaseMap");
-
-                if (baseMap != null)
-                    return baseMap;
-            }
-
-            if (material.HasProperty(
-                    "_MainTex"))
-            {
-                return
-                    material.GetTexture(
-                        "_MainTex");
-            }
-
-            return null;
-        }
-
-        private static void CopyTextureTransform(
-            Material source,
-            Material destination)
-        {
-            if (source == null ||
-                destination == null)
-            {
-                return;
-            }
-
-            string property =
-                source.HasProperty(
-                    "_BaseMap")
-                    ? "_BaseMap"
-                    : "_MainTex";
-
-            if (!source.HasProperty(
-                    property))
-            {
-                return;
-            }
-
-            destination.SetTextureScale(
-                "_BaseMap",
-                source.GetTextureScale(
-                    property));
-
-            destination.SetTextureOffset(
-                "_BaseMap",
-                source.GetTextureOffset(
-                    property));
         }
 
         private static bool IsWheelRenderer(
@@ -455,64 +691,6 @@ namespace MotorCity.World
             }
 
             return false;
-        }
-
-        private static void ResolveProjectionRange(
-            Bounds bounds,
-            Vector3 axis,
-            out float minimum,
-            out float maximum)
-        {
-            minimum =
-                float.PositiveInfinity;
-
-            maximum =
-                float.NegativeInfinity;
-
-            Vector3 center =
-                bounds.center;
-
-            Vector3 extents =
-                bounds.extents;
-
-            for (int x = -1;
-                 x <= 1;
-                 x += 2)
-            {
-                for (int y = -1;
-                     y <= 1;
-                     y += 2)
-                {
-                    for (int z = -1;
-                         z <= 1;
-                         z += 2)
-                    {
-                        Vector3 corner =
-                            center +
-                            Vector3.Scale(
-                                extents,
-                                new Vector3(
-                                    x,
-                                    y,
-                                    z));
-
-                        float projection =
-                            Vector3.Dot(
-                                corner,
-                                axis);
-
-                        minimum =
-                            Mathf.Min(
-                                minimum,
-                                projection);
-
-                        maximum =
-                            Mathf.Max(
-                                maximum,
-                                projection);
-                    }
-                }
-            }
         }
     }
 }
