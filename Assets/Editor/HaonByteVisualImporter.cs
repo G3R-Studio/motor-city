@@ -24,7 +24,7 @@ public static class HaonByteVisualImporter
         "Assets/Haons SD series Pack/Prefab/CharacterSet/prf_Set Costume01 Unity-Chan.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.HaonByteVisualBuilt.V5";
+        "MotorCity.HaonByteVisualBuilt.V6";
 
     static HaonByteVisualImporter()
     {
@@ -154,16 +154,16 @@ public static class HaonByteVisualImporter
                     instance.AddComponent<Animator>();
             }
 
-            if (animator.runtimeAnimatorController == null)
-            {
-                RuntimeAnimatorController controller =
-                    BuildAnimatorController();
+            RuntimeAnimatorController controller =
+                BuildAnimatorController();
 
-                if (controller != null)
-                {
-                    animator.runtimeAnimatorController =
-                        controller;
-                }
+            if (controller != null)
+            {
+                // CharacterSet prefabs can ship with their own controller.
+                // Byte must always use our generated controller because the
+                // runtime code addresses Byte-specific state names.
+                animator.runtimeAnimatorController =
+                    controller;
             }
 
             EnsureCompleteCharacterVisible(
