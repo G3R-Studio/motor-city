@@ -6087,11 +6087,11 @@ namespace MotorCity.UI
                     "Garage Credits Icon",
                     MotorCityIconLibrary.Credits,
                     new Vector2(
-                        -238f,
-                        -28f),
+                        -368f,
+                        -27f),
                     new Vector2(
-                        24f,
-                        24f),
+                        22f,
+                        22f),
                     new Vector2(
                         1f,
                         1f),
@@ -6109,7 +6109,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
                     new Vector2(-188f, -28f),
-                    new Vector2(120f, 42f),
+                    new Vector2(170f, 42f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
@@ -6121,10 +6121,10 @@ namespace MotorCity.UI
                     MotorCityIconLibrary.Reputation,
                     new Vector2(
                         -158f,
-                        -28f),
+                        -27f),
                     new Vector2(
-                        22f,
-                        22f),
+                        20f,
+                        20f),
                     new Vector2(
                         1f,
                         1f),
@@ -6372,10 +6372,10 @@ namespace MotorCity.UI
                         upgradeSprite,
                         new Vector2(
                             20f,
-                            -40f),
+                            -26f),
                         new Vector2(
-                            30f,
-                            30f),
+                            28f,
+                            28f),
                         new Vector2(
                             0f,
                             1f),
@@ -6401,10 +6401,10 @@ namespace MotorCity.UI
                         MotorCityIconLibrary.Credits,
                         new Vector2(
                             -208f,
-                            -20f),
+                            -12f),
                         new Vector2(
-                            20f,
-                            20f),
+                            18f,
+                            18f),
                         new Vector2(
                             1f,
                             1f),
