@@ -45,6 +45,8 @@ namespace MotorCity.Gameplay
         private float visualAnchorRefreshTimer;
         private float hoverPhase;
         private float animationReactionTimer;
+        private float idleVariantTimer;
+        private bool alternateIdle;
         private int currentAnimatorStateHash;
         private float messageTimer;
         private float activeSeconds;
@@ -190,7 +192,7 @@ namespace MotorCity.Gameplay
             }
 
             UpdateActivityAssist();
-            UpdateByteAnimation();
+            UpdatePixieAnimation();
             RefreshDayIfNeeded();
         }
 
@@ -388,8 +390,8 @@ namespace MotorCity.Gameplay
 
             ApplyAbilities();
             RefreshVisualSkin();
-            PlayByteReaction(
-                "Byte Victory",
+            PlayPixieReaction(
+                "Pixie Victory",
                 2.2f);
 
             StatusText =
@@ -404,8 +406,8 @@ namespace MotorCity.Gameplay
         private void OnActivityCompleted(
             string activityId)
         {
-            PlayByteReaction(
-                "Byte Clap",
+            PlayPixieReaction(
+                "Pixie Clap",
                 1.8f);
 
             RegisterSuccessfulActivity(
@@ -625,8 +627,8 @@ namespace MotorCity.Gameplay
                         1.30f,
                         3.2f);
 
-                    PlayByteReaction(
-                        "Byte Boost",
+                    PlayPixieReaction(
+                        "Pixie Boost",
                         1.25f);
 
                     StatusText =
@@ -742,7 +744,7 @@ namespace MotorCity.Gameplay
                         false;
 
                     PlayAnimatorState(
-                        "Byte Idle",
+                        "Pixie Idle",
                         0f);
                 }
 
@@ -1040,7 +1042,7 @@ namespace MotorCity.Gameplay
             return local;
         }
 
-        private void UpdateByteAnimation()
+        private void UpdatePixieAnimation()
         {
             if (!usingHaonVisual ||
                 externalAnimator == null)
@@ -1060,18 +1062,54 @@ namespace MotorCity.Gameplay
                     return;
             }
 
-            string state =
-                car != null &&
-                car.SpeedKph > 8f
-                    ? "Byte Follow"
-                    : "Byte Idle";
+            float speed =
+                car == null
+                    ? 0f
+                    : car.SpeedKph;
+
+            string state;
+
+            if (speed > 7f)
+            {
+                idleVariantTimer = 0f;
+                alternateIdle = false;
+                state = "Pixie Follow";
+            }
+            else
+            {
+                idleVariantTimer +=
+                    Time.unscaledDeltaTime;
+
+                if (idleVariantTimer >= 5.5f)
+                {
+                    idleVariantTimer = 0f;
+                    alternateIdle =
+                        !alternateIdle;
+                }
+
+                state =
+                    alternateIdle
+                        ? "Pixie Idle Alt"
+                        : "Pixie Idle";
+            }
+
+            externalAnimator.speed =
+                speed > 7f
+                    ? Mathf.Lerp(
+                        0.95f,
+                        1.18f,
+                        Mathf.InverseLerp(
+                            7f,
+                            150f,
+                            speed))
+                    : 1f;
 
             PlayAnimatorState(
                 state,
-                0.16f);
+                0.18f);
         }
 
-        private void PlayByteReaction(
+        private void PlayPixieReaction(
             string state,
             float seconds)
         {
@@ -1080,6 +1118,8 @@ namespace MotorCity.Gameplay
             {
                 return;
             }
+
+            externalAnimator.speed = 1f;
 
             animationReactionTimer =
                 Mathf.Max(
