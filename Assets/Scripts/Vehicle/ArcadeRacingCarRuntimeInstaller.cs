@@ -1274,10 +1274,25 @@ namespace MotorCity.Vehicle
                             ? old.GetTexture("_MainTex")
                             : null;
 
+                    Texture emissionTexture =
+                        old.HasProperty("_EmissionMap")
+                            ? old.GetTexture("_EmissionMap")
+                            : null;
+
                     Color oldColor =
                         old.HasProperty("_Color")
                             ? old.GetColor("_Color")
                             : Color.white;
+
+                    Color emissionColor =
+                        old.HasProperty("_EmissionColor")
+                            ? old.GetColor("_EmissionColor")
+                            : Color.black;
+
+                    bool hadEmission =
+                        old.IsKeywordEnabled("_EMISSION") ||
+                        emissionTexture != null ||
+                        emissionColor.maxColorComponent > 0.001f;
 
                     float metallic =
                         old.HasProperty("_Metallic")
@@ -1317,6 +1332,50 @@ namespace MotorCity.Vehicle
 
                     if (material.HasProperty("_Smoothness"))
                         material.SetFloat("_Smoothness", smoothness);
+
+                    // Preserve the imported model's real emissive lamp
+                    // submeshes/materials when converting Standard -> URP.
+                    // Previously this conversion discarded _EmissionMap and
+                    // _EmissionColor, which is why the actual taillights went
+                    // dark and a fake projected overlay had been added later.
+                    if (hadEmission)
+                    {
+                        if (emissionTexture == null &&
+                            baseTexture != null &&
+                            (old.name.IndexOf(
+                                 "emission",
+                                 StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             old.name.IndexOf(
+                                 "light",
+                                 StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             old.name.IndexOf(
+                                 "lamp",
+                                 StringComparison.OrdinalIgnoreCase) >= 0))
+                        {
+                            emissionTexture =
+                                baseTexture;
+                        }
+
+                        if (emissionTexture != null &&
+                            material.HasProperty("_EmissionMap"))
+                        {
+                            material.SetTexture(
+                                "_EmissionMap",
+                                emissionTexture);
+                        }
+
+                        if (material.HasProperty("_EmissionColor"))
+                        {
+                            material.SetColor(
+                                "_EmissionColor",
+                                emissionColor.maxColorComponent > 0.001f
+                                    ? emissionColor
+                                    : Color.white);
+                        }
+
+                        material.EnableKeyword(
+                            "_EMISSION");
+                    }
 
                     cache.Add(old, material);
                     upgraded[i] = material;
