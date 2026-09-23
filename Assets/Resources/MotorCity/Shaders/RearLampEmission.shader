@@ -8,6 +8,14 @@ Shader "MotorCity/RearLampEmission"
         _RearAxisOS ("Rear Axis Object Space", Vector) = (0, 0, -1, 0)
         _RearCutoff ("Rear Cutoff", Float) = 0
         _RearSoftness ("Rear Softness", Float) = 0.1
+        _ChromaLow ("Chroma Low", Float) = 0.22
+        _ChromaHigh ("Chroma High", Float) = 0.46
+        _RedLow ("Red Low", Float) = 0.62
+        _RedHigh ("Red High", Float) = 0.90
+        _GreenLow ("Green Low", Float) = 0.20
+        _GreenHigh ("Green High", Float) = 0.42
+        _BlueLow ("Blue Low", Float) = 0.18
+        _BlueHigh ("Blue High", Float) = 0.38
     }
 
     SubShader
@@ -46,6 +54,14 @@ Shader "MotorCity/RearLampEmission"
                 float _Intensity;
                 float _RearCutoff;
                 float _RearSoftness;
+                float _ChromaLow;
+                float _ChromaHigh;
+                float _RedLow;
+                float _RedHigh;
+                float _GreenLow;
+                float _GreenHigh;
+                float _BlueLow;
+                float _BlueHigh;
             CBUFFER_END
 
             struct Attributes
@@ -99,28 +115,28 @@ Shader "MotorCity/RearLampEmission"
 
                 half redDominance =
                     smoothstep(
-                        0.22,
-                        0.46,
+                        _ChromaLow,
+                        _ChromaHigh,
                         chroma);
 
                 half redBrightness =
                     smoothstep(
-                        0.62,
-                        0.90,
+                        _RedLow,
+                        _RedHigh,
                         source.r);
 
                 half lowGreen =
                     1.0 -
                     smoothstep(
-                        0.20,
-                        0.42,
+                        _GreenLow,
+                        _GreenHigh,
                         source.g);
 
                 half lowBlue =
                     1.0 -
                     smoothstep(
-                        0.18,
-                        0.38,
+                        _BlueLow,
+                        _BlueHigh,
                         source.b);
 
                 half rearMask =
