@@ -1100,6 +1100,10 @@ namespace MotorCity.Gameplay
                 string.IsNullOrWhiteSpace(
                     state))
             {
+                Debug.LogWarning(
+                    $"Motor City Byte animation skipped: state='{state}', animator/controller missing.",
+                    this);
+
                 return;
             }
 
@@ -1115,17 +1119,34 @@ namespace MotorCity.Gameplay
                     0,
                     hash))
             {
+                Debug.LogWarning(
+                    $"Motor City Byte animation state not found: '{fullStateName}'. Controller='{externalAnimator.runtimeAnimatorController.name}'.",
+                    this);
+
                 return;
             }
 
             if (hash ==
                 currentAnimatorStateHash)
             {
+                Debug.Log(
+                    $"Motor City Byte animation already active: '{fullStateName}'.",
+                    this);
+
                 return;
             }
 
+            string previousState =
+                currentAnimatorStateHash == 0
+                    ? "<none>"
+                    : currentAnimatorStateHash.ToString();
+
             currentAnimatorStateHash =
                 hash;
+
+            Debug.Log(
+                $"Motor City Byte animation play: '{fullStateName}' transition={transitionSeconds:0.00}s previousHash={previousState} speed={car?.SpeedKph ?? 0f:0.0}kph reactionTimer={animationReactionTimer:0.00}s",
+                this);
 
             if (transitionSeconds <= 0f)
             {
