@@ -150,25 +150,26 @@ namespace MotorCity.Vehicle
                     carTransform,
                     wheelAnchors);
 
-                EnsureVisualNoseFacesPositiveZ(
-                    visual.transform,
-                    carTransform,
-                    wheelAnchors);
-            }
-
-            // Some imported traffic vehicles have no reliable front/rear
-            // naming, so automatic nose detection cannot determine their
-            // orientation. Apply an explicit half-turn before wheel ordering:
-            // that keeps the visual facing forward and also makes the actual
-            // front axle become the steering axle instead of the rear one.
-            if (flipYaw180)
-            {
-                visual.transform.localRotation =
-                    visual.transform.localRotation *
-                    Quaternion.Euler(
-                        0f,
-                        180f,
-                        0f);
+                if (flipYaw180)
+                {
+                    // Traffic-bus prefabs do not expose trustworthy front/rear
+                    // names. Do not run the generic nose detector here because
+                    // it can flip the bus once and then our explicit correction
+                    // flips it back. Use one deterministic half-turn instead.
+                    visual.transform.localRotation =
+                        visual.transform.localRotation *
+                        Quaternion.Euler(
+                            0f,
+                            180f,
+                            0f);
+                }
+                else
+                {
+                    EnsureVisualNoseFacesPositiveZ(
+                        visual.transform,
+                        carTransform,
+                        wheelAnchors);
+                }
             }
 
             if (rotateLeft90)
@@ -198,6 +199,21 @@ namespace MotorCity.Vehicle
                 OrderWheels(
                     carTransform,
                     wheelAnchors);
+
+            if (flipYaw180 &&
+                ordered.Length >= 4)
+            {
+                // FCG buses carry wheel hierarchy/orientation authored for the
+                // traffic controller. After correcting the body direction,
+                // swap the axle pairs once so Prometeo steers the visible
+                // front axle rather than the rear axle.
+                (ordered[0], ordered[2]) =
+                    (ordered[2], ordered[0]);
+
+                (ordered[1], ordered[3]) =
+                    (ordered[3], ordered[1]);
+            }
+
             if (ordered.Length < 4)
             {
                 Debug.LogError(
