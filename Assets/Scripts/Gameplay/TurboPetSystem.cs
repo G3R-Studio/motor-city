@@ -1023,7 +1023,10 @@ namespace MotorCity.Gameplay
 
             if (usingHaonVisual)
             {
-                ApplyHaonSkinVariant();
+                // HAON CharacterSet prefabs are assembled characters. Their
+                // costume/body hierarchy must stay intact; toggling arbitrary
+                // child roots can hide limbs. Skin selection will be mapped to
+                // complete authored character sets separately.
                 return;
             }
 
@@ -1108,60 +1111,6 @@ namespace MotorCity.Gameplay
 
                 renderer.material.color =
                     bodyColor;
-            }
-        }
-
-        private void ApplyHaonSkinVariant()
-        {
-            if (externalVisual == null)
-                return;
-
-            // The free HAON bundle is modular. If the imported prefab exposes
-            // variant/skin roots, cycle those without destroying the author's
-            // original materials. The editor integration names discovered
-            // variant roots "ByteSkin_XX".
-            Transform[] children =
-                externalVisual.GetComponentsInChildren<Transform>(
-                    true);
-
-            int variantCount = 0;
-
-            foreach (Transform child in children)
-            {
-                if (child == null ||
-                    !child.name.StartsWith(
-                        "ByteSkin_",
-                        StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                variantCount++;
-            }
-
-            if (variantCount <= 0)
-                return;
-
-            int wanted =
-                selectedSkin %
-                variantCount;
-
-            int current = 0;
-
-            foreach (Transform child in children)
-            {
-                if (child == null ||
-                    !child.name.StartsWith(
-                        "ByteSkin_",
-                        StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                child.gameObject.SetActive(
-                    current == wanted);
-
-                current++;
             }
         }
 
