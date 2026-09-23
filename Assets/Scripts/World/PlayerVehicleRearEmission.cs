@@ -164,15 +164,28 @@ namespace MotorCity.World
                     continue;
                 }
 
-                int bindingCountBefore =
-                    lampBindings.Count;
-
                 BindExistingLampMaterials(
                     renderer);
+            }
 
-                if (lampBindings.Count ==
-                    bindingCountBefore)
+            // The starter ARCADE car already contains a proper emissive light
+            // submesh/material. Never put the texture-mask fallback over any
+            // of its other parts (mirrors, spoiler, body, etc.).
+            //
+            // PolyPack garage cars use one atlas/material for the whole body,
+            // so only those cars reach this fallback path.
+            if (lampBindings.Count == 0)
+            {
+                foreach (Renderer renderer in
+                         renderers)
                 {
+                    if (renderer == null ||
+                        IsWheelRenderer(
+                            renderer.transform))
+                    {
+                        continue;
+                    }
+
                     CreateTexturedRearLampOverlay(
                         renderer);
                 }
