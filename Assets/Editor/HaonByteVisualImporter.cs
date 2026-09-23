@@ -18,13 +18,13 @@ public static class HaonByteVisualImporter
 
     private const string OutputController =
         OutputDirectory +
-        "/HaonByte.controller";
+        "/HaonPixie.controller";
 
     private const string PreferredSource =
-        "Assets/Haons SD series Pack/Prefab/CharacterSet/prf_Set Costume01 Unity-Chan.prefab";
+        "Assets/Haons SD series Pack/Prefab/CharacterSet/prf_Set Costume03 Yuko.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.HaonByteVisualBuilt.V6";
+        "MotorCity.HaonByteVisualBuilt.V7";
 
     static HaonByteVisualImporter()
     {
@@ -32,13 +32,13 @@ public static class HaonByteVisualImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Byte/Rebuild From HAON SD Bundle")]
+    [MenuItem("Motor City/Pixie/Rebuild From HAON SD Bundle")]
     private static void RebuildFromMenu()
     {
         Build(true);
     }
 
-    [MenuItem("Motor City/Byte/Locate HAON SD Bundle")]
+    [MenuItem("Motor City/Pixie/Locate HAON SD Bundle")]
     private static void LocateBundle()
     {
         string path =
@@ -161,7 +161,7 @@ public static class HaonByteVisualImporter
             {
                 // CharacterSet prefabs can ship with their own controller.
                 // Byte must always use our generated controller because the
-                // runtime code addresses Byte-specific state names.
+                // runtime code addresses Pixie-specific state names.
                 animator.runtimeAnimatorController =
                     controller;
             }
@@ -183,7 +183,7 @@ public static class HaonByteVisualImporter
             if (verbose)
             {
                 Debug.Log(
-                    "Motor City: Byte HAON SD visual built from '" +
+                    "Motor City: Pixie HAON SD visual built from '" +
                     sourcePath +
                     "'. Runtime path: MotorCity/Byte/HaonByteVisual");
             }
@@ -410,7 +410,7 @@ public static class HaonByteVisualImporter
         if (idle == null)
         {
             Debug.LogWarning(
-                "Motor City: HAON idle animation was not found for Byte.");
+                "Motor City: HAON idle animation was not found for Pixie.");
 
             return null;
         }
