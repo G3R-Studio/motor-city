@@ -295,9 +295,6 @@ namespace MotorCity.World
             light.type =
                 LightType.Spot;
 
-            light.lightmapBakeType =
-                LightmapBakeType.Realtime;
-
             light.shadows =
                 LightShadows.None;
 
