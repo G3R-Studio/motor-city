@@ -1054,8 +1054,9 @@ namespace MotorCity.World
                     span *
                     rearSoftnessFraction);
 
-            bool clubSpatialMask =
-                vehicleId == "club";
+            bool spatialLampMask =
+                vehicleId == "club" ||
+                vehicleId == "muscle";
 
             float lateralMaxAbs =
                 Mathf.Max(
@@ -1169,7 +1170,7 @@ namespace MotorCity.World
 
                 overlay.SetFloat(
                     "_SpatialMask",
-                    clubSpatialMask
+                    spatialLampMask
                         ? 1f
                         : 0f);
                 overlay.SetFloat(
@@ -1303,6 +1304,9 @@ namespace MotorCity.World
             bool club =
                 vehicleId == "club";
 
+            bool ranger =
+                vehicleId == "muscle";
+
             bool apex =
                 vehicleId == "apex";
 
@@ -1322,6 +1326,23 @@ namespace MotorCity.World
                 greenHigh = 0.72f;
                 blueLow = 0.32f;
                 blueHigh = 0.68f;
+            }
+            else if (ranger)
+            {
+                // RANGER is PickupV2. Its tail lamps live in the shared
+                // PolyPack atlas and are darker/smaller than the MuscleCar
+                // lamps, so use a looser red mask but constrain it to the
+                // outer rear corners of the body.
+                rearCutoffFraction = 0.74f;
+                rearSoftnessFraction = 0.028f;
+                chromaLow = 0.05f;
+                chromaHigh = 0.22f;
+                redLow = 0.28f;
+                redHigh = 0.62f;
+                greenLow = 0.26f;
+                greenHigh = 0.58f;
+                blueLow = 0.24f;
+                blueHigh = 0.56f;
             }
             else if (apex)
             {
