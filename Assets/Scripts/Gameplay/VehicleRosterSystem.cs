@@ -250,7 +250,24 @@ namespace MotorCity.Gameplay
                         1.18f,
                         1.16f,
                         0.82f,
-                        MotorCityLocalization.Text("vehicle.apex.desc"))
+                        MotorCityLocalization.Text("vehicle.apex.desc")),
+
+                    new VehicleProfile(
+                        "bus",
+                        MotorCityLocalization.Text("vehicle.bus.name"),
+                        "MotorCity/Vehicles/Vehicle_05",
+                        5000,
+                        30000,
+                        -18,
+                        -2,
+                        0.86f,
+                        0.08f,
+                        1.45f,
+                        0.72f,
+                        1.30f,
+                        0.82f,
+                        0.68f,
+                        MotorCityLocalization.Text("vehicle.bus.desc"))
                 };
 
             MigrateLegacyOwnership();
@@ -696,11 +713,18 @@ namespace MotorCity.Gameplay
             VehicleProfile profile =
                 profiles[SelectedIndex];
 
+            bool isBus =
+                profile.Id == "bus";
+
             bool installed =
                 ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                     car,
                     profile.ResourcePath,
-                    SelectedIndex != 0);
+                    SelectedIndex != 0 &&
+                    !isBus,
+                    isBus
+                        ? 7.4f
+                        : 4.35f);
 
             if (!installed &&
                 SelectedIndex != 0)
