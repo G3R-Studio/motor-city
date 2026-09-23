@@ -13,7 +13,7 @@ public static class PolyPackVehicleImporter
     {
         "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/SwiftoV2.prefab",
         "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/PickupV2.prefab",
-        "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/MuscleCarV4.prefab",
+        "Assets/Alstra Infinite/Vehicles LowPoly/Prefabs/Version 1.2/MuscleCarV2.prefab",
         // Keep the existing authored Apex resource untouched.
         null
     };
@@ -64,27 +64,24 @@ public static class PolyPackVehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        bool needsBuild = false;
+        const string SessionKey =
+            "MotorCity.CuratedGarageBuilt.V2";
 
-        for (int i = 0;
-             i < 3;
-             i++)
+        if (SessionState.GetBool(
+                SessionKey,
+                false))
         {
-            string outputPath =
-                $"{OutputDirectory}/Vehicle_{i + 1:00}.prefab";
-
-            if (AssetDatabase.LoadAssetAtPath<GameObject>(
-                    outputPath) == null)
-            {
-                needsBuild = true;
-                break;
-            }
+            return;
         }
 
-        if (needsBuild)
-        {
-            Build(false);
-        }
+        // Rebuild once per Editor session so changes to the curated source
+        // selection are actually propagated even when Vehicle_01..03 already
+        // exist from an older lineup.
+        Build(false);
+
+        SessionState.SetBool(
+            SessionKey,
+            true);
     }
 
     private static void Build(
