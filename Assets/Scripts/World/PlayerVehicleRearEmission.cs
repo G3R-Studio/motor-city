@@ -42,6 +42,7 @@ namespace MotorCity.World
         private DayNightCycleController dayNight;
         private Transform currentVisual;
         private Shader maskedRearShader;
+        private string vehicleId = "street";
         private float dayNightResolveTimer;
 
         private void Awake()
@@ -126,6 +127,17 @@ namespace MotorCity.World
         private void OnDestroy()
         {
             ClearRuntimeMaterials();
+        }
+
+        public void SetVehicleId(
+            string id)
+        {
+            vehicleId =
+                string.IsNullOrWhiteSpace(id)
+                    ? "street"
+                    : id.ToLowerInvariant();
+
+            RefreshVisual();
         }
 
         public void RefreshVisual()
@@ -830,20 +842,11 @@ namespace MotorCity.World
             blueLow = 0.18f;
             blueHigh = 0.38f;
 
-            if (currentVisual == null)
-                return;
-
-            string hierarchy =
-                BuildVisualHierarchySignature(
-                    currentVisual);
-
             bool club =
-                hierarchy.Contains("swifto");
+                vehicleId == "club";
 
             bool apex =
-                hierarchy.Contains("suvv1") ||
-                hierarchy.Contains("suv_v1") ||
-                hierarchy.Contains("suv v1");
+                vehicleId == "apex";
 
             if (club)
             {
@@ -871,33 +874,6 @@ namespace MotorCity.World
                 blueLow = 0.24f;
                 blueHigh = 0.50f;
             }
-        }
-
-        private static string BuildVisualHierarchySignature(
-            Transform root)
-        {
-            if (root == null)
-                return string.Empty;
-
-            System.Text.StringBuilder builder =
-                new();
-
-            Transform[] items =
-                root.GetComponentsInChildren<Transform>(
-                    true);
-
-            foreach (Transform item in
-                     items)
-            {
-                if (item == null)
-                    continue;
-
-                builder.Append(
-                    item.name.ToLowerInvariant());
-                builder.Append('/');
-            }
-
-            return builder.ToString();
         }
 
         private bool IsBodySizedRenderer(
