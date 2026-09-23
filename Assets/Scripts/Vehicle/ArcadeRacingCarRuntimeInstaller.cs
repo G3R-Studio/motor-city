@@ -167,12 +167,21 @@ namespace MotorCity.Vehicle
             UpgradeMaterialsForCurrentPipeline(visual);
             FixMirrorMaterialsForCurrentPipeline(visual);
 
+            Transform[] authoredPolyPackWheels =
+                rotateLeft90
+                    ? FindAuthoredPolyPackWheels(
+                        visual.transform)
+                    : Array.Empty<Transform>();
+
             List<Transform> wheelAnchors =
                 useAuthoredBusRig &&
                 authoredBusWheels.Length == 4
                     ? authoredBusWheels.ToList()
-                    : FindWheelAnchors(
-                        visual.transform);
+                    : rotateLeft90 &&
+                      authoredPolyPackWheels.Length == 4
+                        ? authoredPolyPackWheels.ToList()
+                        : FindWheelAnchors(
+                            visual.transform);
 
             if (wheelAnchors.Count < 4)
             {
@@ -197,13 +206,6 @@ namespace MotorCity.Vehicle
                     wheelAnchors);
             }
 
-            if (rotateLeft90)
-            {
-                MatchVisualWheelRadiusToStarter(
-                    visual.transform,
-                    wheelAnchors);
-            }
-
             CenterVisualHorizontally(
                 visual.transform,
                 carTransform);
@@ -216,7 +218,9 @@ namespace MotorCity.Vehicle
             // Re-evaluate normal cars after all visual transforms. For the
             // FCG bus keep the source FL/FR/BL/BR transforms explicitly; its
             // names do not contain "wheel" and geometric guessing is needless.
-            if (!useAuthoredBusRig)
+            if (!useAuthoredBusRig &&
+                !(rotateLeft90 &&
+                  authoredPolyPackWheels.Length == 4))
             {
                 wheelAnchors =
                     FindWheelAnchors(
@@ -228,10 +232,9 @@ namespace MotorCity.Vehicle
                     carTransform,
                     wheelAnchors);
 
-            // After the explicit bus half-turn the visual front is already on
-            // PlayerCar +Z, so the normal Z-based ordering now correctly
-            // identifies the front axle. Do not swap the axle pairs here:
-            // doing so makes Prometeo steer the visible rear axle.
+            // All visual rigs are now in PlayerCar space before ordering.
+            // PolyPack authored +X has already been rotated to +Z, while the
+            // FCG bus is natively +Z, so Z-based axle ordering is reliable.
 
             if (ordered.Length < 4)
             {
@@ -264,12 +267,7 @@ namespace MotorCity.Vehicle
 
             float measuredRadius;
 
-            if (rotateLeft90)
-            {
-                measuredRadius =
-                    StarterPhysicsWheelRadius;
-            }
-            else if (useAuthoredBusRig &&
+            if (useAuthoredBusRig &&
                      authoredBusWheelRadius > 0.01f)
             {
                 measuredRadius =
@@ -711,6 +709,53 @@ namespace MotorCity.Vehicle
             return true;
         }
 
+        private static Transform[] FindAuthoredPolyPackWheels(
+            Transform root)
+        {
+            if (root == null)
+                return Array.Empty<Transform>();
+
+            // Vehicles PolyPack 1.2 is authored lengthwise on local X.
+            // Its deterministic suffixes identify the four visual wheels:
+            // FL/FR are +X (front), BL/BR are -X (rear). The installer then
+            // rotates the complete visual -90 degrees so authored +X maps to
+            // Motor City's +Z forward axis.
+            string[] suffixes =
+            {
+                "_TireFL",
+                "_TireFR",
+                "_TireBL",
+                "_TireBR"
+            };
+
+            Transform[] all =
+                root.GetComponentsInChildren<Transform>(
+                    true);
+
+            Transform[] result =
+                new Transform[4];
+
+            for (int i = 0;
+                 i < suffixes.Length;
+                 i++)
+            {
+                result[i] =
+                    all.FirstOrDefault(
+                        item =>
+                            item != null &&
+                            item.name.EndsWith(
+                                suffixes[i],
+                                StringComparison.OrdinalIgnoreCase) &&
+                            item.GetComponentInChildren<Renderer>(
+                                true) != null);
+
+                if (result[i] == null)
+                    return Array.Empty<Transform>();
+            }
+
+            return result;
+        }
+
         private static Transform[] FindAuthoredBusWheels(
             Transform root)
         {
@@ -1036,52 +1081,6 @@ namespace MotorCity.Vehicle
                     1f,
                     targetLength) /
                 length;
-        }
-
-        private static void MatchVisualWheelRadiusToStarter(
-            Transform visual,
-            List<Transform> wheels)
-        {
-            if (visual == null ||
-                wheels == null ||
-                wheels.Count < 4)
-                return;
-
-            float sum = 0f;
-            int count = 0;
-
-            foreach (Transform wheel in wheels)
-            {
-                if (wheel == null)
-                    continue;
-
-                float radius =
-                    MeasureWheelRadius(
-                        RendererBounds(
-                            wheel));
-
-                if (radius <= 0.01f)
-                    continue;
-
-                sum += radius;
-                count++;
-            }
-
-            if (count == 0)
-                return;
-
-            float average =
-                sum / count;
-
-            float scale =
-                Mathf.Clamp(
-                    StarterPhysicsWheelRadius /
-                    average,
-                    0.72f,
-                    1.35f);
-
-            visual.localScale *=
-                scale;
         }
 
         private static void NormalizeHorizontalScaleAndRotation(
