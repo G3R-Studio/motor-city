@@ -200,19 +200,10 @@ namespace MotorCity.Vehicle
                     carTransform,
                     wheelAnchors);
 
-            if (flipYaw180 &&
-                ordered.Length >= 4)
-            {
-                // FCG buses carry wheel hierarchy/orientation authored for the
-                // traffic controller. After correcting the body direction,
-                // swap the axle pairs once so Prometeo steers the visible
-                // front axle rather than the rear axle.
-                (ordered[0], ordered[2]) =
-                    (ordered[2], ordered[0]);
-
-                (ordered[1], ordered[3]) =
-                    (ordered[3], ordered[1]);
-            }
+            // After the explicit bus half-turn the visual front is already on
+            // PlayerCar +Z, so the normal Z-based ordering now correctly
+            // identifies the front axle. Do not swap the axle pairs here:
+            // doing so makes Prometeo steer the visible rear axle.
 
             if (ordered.Length < 4)
             {
