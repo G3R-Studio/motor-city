@@ -825,10 +825,11 @@ namespace MotorCity.Gameplay
                 return
                     new Vector3(
                         center.x +
-                        size.x * 0.56f,
+                        size.x * 0.50f +
+                        0.42f,
                         center.y +
-                        size.y * 0.62f,
-                        center.z +
+                        size.y * 0.22f,
+                        center.z -
                         size.z * 0.08f);
             }
 
