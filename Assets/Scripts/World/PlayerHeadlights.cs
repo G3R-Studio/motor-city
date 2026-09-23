@@ -13,10 +13,9 @@ namespace MotorCity.World
             "MotorCityVehicleVisual_Runtime";
 
         private float dayNightResolveTimer;
-        private float anchorRefreshTimer;
         private ArcadeCarController car;
         private Transform currentVisual;
-        private string vehicleId = "street";
+        private bool anchorsDirty = true;
 
         private void Awake()
         {
@@ -85,34 +84,29 @@ namespace MotorCity.World
         public void SetVehicleId(
             string id)
         {
-            vehicleId =
-                string.IsNullOrWhiteSpace(id)
-                    ? "street"
-                    : id.ToLowerInvariant();
-
-            anchorRefreshTimer = 0f;
+            // Vehicle-specific IDs are intentionally not used for positioning.
+            // Headlight anchors are derived from the currently installed body,
+            // so every vehicle follows the same geometry-based rule.
+            anchorsDirty = true;
             RefreshAnchorsIfNeeded();
         }
 
         private void RefreshAnchorsIfNeeded()
         {
-            anchorRefreshTimer -=
-                Time.unscaledDeltaTime;
-
             Transform visual =
                 transform.Find(
                     RuntimeVisualName);
 
             if (visual == currentVisual &&
-                anchorRefreshTimer > 0f)
+                !anchorsDirty)
             {
                 return;
             }
 
             currentVisual =
                 visual;
-            anchorRefreshTimer =
-                0.35f;
+            anchorsDirty =
+                false;
 
             if (currentVisual == null ||
                 left == null ||
@@ -219,30 +213,21 @@ namespace MotorCity.World
                     localBounds.max.y,
                     0.34f);
 
-            float lightZ;
+            // Renderer bounds end at the outermost front body surface
+            // (usually the bumper). Placing a Spot Light at max.z or beyond it
+            // makes the source visibly float in front of the car. Keep both
+            // lamps slightly inside the front fascia instead. Scaling the inset
+            // with body length works for compact cars, the six-wheel Apex and
+            // the longer bus without per-vehicle magic numbers.
+            float frontInset =
+                Mathf.Clamp(
+                    localBounds.size.z * 0.10f,
+                    0.20f,
+                    0.48f);
 
-            if (vehicleId == "apex")
-            {
-                // SuvV1 has a tall, blunt nose. Bounds.max.z sits noticeably
-                // ahead of the actual lamp face after runtime normalization,
-                // so place the spotlights inside the front fascia instead of
-                // floating in front of the bumper.
-                float inset =
-                    Mathf.Clamp(
-                        localBounds.size.z * 0.12f,
-                        0.28f,
-                        0.55f);
-
-                lightZ =
-                    localBounds.max.z -
-                    inset;
-            }
-            else
-            {
-                lightZ =
-                    localBounds.max.z +
-                    0.08f;
-            }
+            float lightZ =
+                localBounds.max.z -
+                frontInset;
 
             left.transform.localPosition =
                 new Vector3(
