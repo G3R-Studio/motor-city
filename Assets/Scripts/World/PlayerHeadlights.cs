@@ -9,8 +9,13 @@ namespace MotorCity.World
         private DayNightCycleController dayNight;
         private Light left;
         private Light right;
+        private const string RuntimeVisualName =
+            "MotorCityVehicleVisual_Runtime";
+
         private float dayNightResolveTimer;
+        private float anchorRefreshTimer;
         private ArcadeCarController car;
+        private Transform currentVisual;
 
         private void Awake()
         {
@@ -56,6 +61,8 @@ namespace MotorCity.World
                 }
             }
 
+            RefreshAnchorsIfNeeded();
+
             float night =
                 dayNight != null
                     ? dayNight.NightAmount
@@ -72,6 +79,175 @@ namespace MotorCity.World
 
             ApplyLights(
                 amount);
+        }
+
+        private void RefreshAnchorsIfNeeded()
+        {
+            anchorRefreshTimer -=
+                Time.unscaledDeltaTime;
+
+            Transform visual =
+                transform.Find(
+                    RuntimeVisualName);
+
+            if (visual == currentVisual &&
+                anchorRefreshTimer > 0f)
+            {
+                return;
+            }
+
+            currentVisual =
+                visual;
+            anchorRefreshTimer =
+                0.35f;
+
+            if (currentVisual == null ||
+                left == null ||
+                right == null)
+            {
+                return;
+            }
+
+            Renderer[] renderers =
+                currentVisual.GetComponentsInChildren<Renderer>(
+                    true);
+
+            bool initialized =
+                false;
+
+            Bounds localBounds =
+                new(
+                    Vector3.zero,
+                    Vector3.zero);
+
+            foreach (Renderer renderer in
+                     renderers)
+            {
+                if (renderer == null ||
+                    IsWheelRenderer(
+                        renderer.transform))
+                {
+                    continue;
+                }
+
+                Bounds world =
+                    renderer.bounds;
+
+                Vector3 min =
+                    world.min;
+                Vector3 max =
+                    world.max;
+
+                for (int x = 0;
+                     x < 2;
+                     x++)
+                {
+                    for (int y = 0;
+                         y < 2;
+                         y++)
+                    {
+                        for (int z = 0;
+                             z < 2;
+                             z++)
+                        {
+                            Vector3 corner =
+                                new(
+                                    x == 0
+                                        ? min.x
+                                        : max.x,
+                                    y == 0
+                                        ? min.y
+                                        : max.y,
+                                    z == 0
+                                        ? min.z
+                                        : max.z);
+
+                            Vector3 local =
+                                transform.InverseTransformPoint(
+                                    corner);
+
+                            if (!initialized)
+                            {
+                                localBounds =
+                                    new Bounds(
+                                        local,
+                                        Vector3.zero);
+
+                                initialized =
+                                    true;
+                            }
+                            else
+                            {
+                                localBounds.Encapsulate(
+                                    local);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!initialized)
+                return;
+
+            float halfWidth =
+                Mathf.Max(
+                    0.45f,
+                    localBounds.extents.x);
+
+            float xOffset =
+                Mathf.Clamp(
+                    halfWidth * 0.58f,
+                    0.52f,
+                    0.92f);
+
+            float y =
+                Mathf.Lerp(
+                    localBounds.min.y,
+                    localBounds.max.y,
+                    0.34f);
+
+            float z =
+                localBounds.max.z +
+                0.08f;
+
+            left.transform.localPosition =
+                new Vector3(
+                    -xOffset,
+                    y,
+                    z);
+
+            right.transform.localPosition =
+                new Vector3(
+                    xOffset,
+                    y,
+                    z);
+        }
+
+        private static bool IsWheelRenderer(
+            Transform item)
+        {
+            Transform cursor =
+                item;
+
+            while (cursor != null)
+            {
+                string name =
+                    cursor.name
+                        .ToLowerInvariant();
+
+                if (name.Contains("wheel") ||
+                    name.Contains("tire") ||
+                    name.Contains("tyre") ||
+                    name.Contains("rim"))
+                {
+                    return true;
+                }
+
+                cursor =
+                    cursor.parent;
+            }
+
+            return false;
         }
 
         private Light CreateHeadlight(
