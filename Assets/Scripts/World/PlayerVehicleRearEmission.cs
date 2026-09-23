@@ -575,7 +575,9 @@ namespace MotorCity.World
             Renderer sourceRenderer)
         {
             if (maskedRearShader == null ||
-                sourceRenderer == null)
+                !maskedRearShader.isSupported ||
+                sourceRenderer == null ||
+                !IsBodySizedRenderer(sourceRenderer))
             {
                 return;
             }
@@ -642,9 +644,6 @@ namespace MotorCity.World
                     ResolveBaseTexture(
                         source);
 
-                if (texture == null)
-                    continue;
-
                 Material overlay =
                     new(maskedRearShader)
                     {
@@ -654,7 +653,9 @@ namespace MotorCity.World
 
                 overlay.SetTexture(
                     "_BaseMap",
-                    texture);
+                    texture != null
+                        ? texture
+                        : Texture2D.blackTexture);
 
                 CopyTextureTransform(
                     source,
@@ -694,23 +695,26 @@ namespace MotorCity.World
                 runtimeMaterials.Add(
                     overlay);
 
-                lampBindings.Add(
-                    new LampBinding
-                    {
-                        Renderer = null,
-                        MaterialIndex = -1,
-                        Material = overlay,
-                        OriginalMaterial = null,
-                        BaseEmission =
-                            new Color(
-                                1f,
-                                0.035f,
-                                0.015f,
-                                1f),
-                        RearSpecific = true
-                    });
+                if (texture != null)
+                {
+                    lampBindings.Add(
+                        new LampBinding
+                        {
+                            Renderer = null,
+                            MaterialIndex = -1,
+                            Material = overlay,
+                            OriginalMaterial = null,
+                            BaseEmission =
+                                new Color(
+                                    1f,
+                                    0.035f,
+                                    0.015f,
+                                    1f),
+                            RearSpecific = true
+                        });
 
-                any = true;
+                    any = true;
+                }
             }
 
             if (!any)
@@ -761,6 +765,80 @@ namespace MotorCity.World
 
             overlayRenderer.sharedMaterials =
                 overlayMaterials;
+        }
+
+        private bool IsBodySizedRenderer(
+            Renderer renderer)
+        {
+            if (renderer == null ||
+                currentVisual == null)
+            {
+                return false;
+            }
+
+            Bounds full =
+                new(
+                    currentVisual.position,
+                    Vector3.zero);
+
+            bool initialized = false;
+
+            foreach (Renderer item in
+                     currentVisual.GetComponentsInChildren<Renderer>(
+                         true))
+            {
+                if (item == null ||
+                    IsWheelRenderer(
+                        item.transform))
+                {
+                    continue;
+                }
+
+                if (!initialized)
+                {
+                    full =
+                        item.bounds;
+
+                    initialized = true;
+                }
+                else
+                {
+                    full.Encapsulate(
+                        item.bounds);
+                }
+            }
+
+            if (!initialized)
+                return false;
+
+            Bounds candidate =
+                renderer.bounds;
+
+            float fullHorizontal =
+                Mathf.Max(
+                    full.size.x,
+                    full.size.z);
+
+            float candidateHorizontal =
+                Mathf.Max(
+                    candidate.size.x,
+                    candidate.size.z);
+
+            float fullWidth =
+                Mathf.Min(
+                    full.size.x,
+                    full.size.z);
+
+            float candidateWidth =
+                Mathf.Min(
+                    candidate.size.x,
+                    candidate.size.z);
+
+            return
+                candidateHorizontal >=
+                    fullHorizontal * 0.58f &&
+                candidateWidth >=
+                    fullWidth * 0.45f;
         }
 
         private static Texture ResolveBaseTexture(
