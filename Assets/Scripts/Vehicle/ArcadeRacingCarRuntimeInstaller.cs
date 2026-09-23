@@ -124,6 +124,12 @@ namespace MotorCity.Vehicle
                         visual.transform)
                     : 0f;
 
+            if (useAuthoredBusRig)
+            {
+                StripImportedTrafficBehaviour(
+                    visual);
+            }
+
             StripImportedPhysics(visual);
 
             if (rotateLeft90)
@@ -1376,6 +1382,40 @@ namespace MotorCity.Vehicle
                 bounds.Encapsulate(renderers[i].bounds);
 
             return bounds;
+        }
+
+        private static void StripImportedTrafficBehaviour(
+            GameObject visual)
+        {
+            if (visual == null)
+                return;
+
+            foreach (MonoBehaviour behaviour in
+                     visual.GetComponentsInChildren<MonoBehaviour>(
+                         true))
+            {
+                if (behaviour == null)
+                    continue;
+
+                Type type =
+                    behaviour.GetType();
+
+                // FCG player visuals must not keep the TrafficCar AI running
+                // inside the Motor City player vehicle. Match by type name so
+                // this runtime code does not depend on the third-party class at
+                // compile time.
+                if (string.Equals(
+                        type.Name,
+                        "TrafficCar",
+                        StringComparison.Ordinal))
+                {
+                    behaviour.enabled =
+                        false;
+
+                    UnityEngine.Object.Destroy(
+                        behaviour);
+                }
+            }
         }
 
         private static void StripImportedPhysics(
