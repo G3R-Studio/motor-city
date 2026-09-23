@@ -159,6 +159,8 @@ namespace MotorCity.World
             {
                 if (renderer == null ||
                     IsWheelRenderer(
+                        renderer.transform) ||
+                    IsMirrorRenderer(
                         renderer.transform))
                 {
                     continue;
@@ -1080,6 +1082,34 @@ namespace MotorCity.World
             dayNight =
                 UnityEngine.Object.FindAnyObjectByType<
                     DayNightCycleController>();
+        }
+
+        private static bool IsMirrorRenderer(
+            Transform item)
+        {
+            Transform cursor =
+                item;
+
+            while (cursor != null)
+            {
+                string name =
+                    cursor.name
+                        .ToLowerInvariant();
+
+                if (name.Contains("mirror") ||
+                    name.Contains("rearview") ||
+                    name.Contains("rear_view") ||
+                    name.Contains("sideview") ||
+                    name.Contains("side_view"))
+                {
+                    return true;
+                }
+
+                cursor =
+                    cursor.parent;
+            }
+
+            return false;
         }
 
         private static bool IsWheelRenderer(
