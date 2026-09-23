@@ -27,6 +27,7 @@ namespace MotorCity.World
             public Renderer Renderer;
             public int MaterialIndex;
             public Material Material;
+            public Material OriginalMaterial;
             public Color BaseEmission;
             public bool RearSpecific;
         }
@@ -253,6 +254,7 @@ namespace MotorCity.World
                         Renderer = renderer,
                         MaterialIndex = i,
                         Material = runtime,
+                        OriginalMaterial = source,
                         BaseEmission =
                             ResolveBaseEmission(
                                 runtime,
@@ -611,13 +613,9 @@ namespace MotorCity.World
                         binding.MaterialIndex] ==
                     binding.Material)
                 {
-                    // The whole runtime visual is normally replaced when the
-                    // player changes car. Do not try to reconstruct imported
-                    // materials here; simply detach the runtime material before
-                    // destroying it.
                     materials[
                         binding.MaterialIndex] =
-                        null;
+                        binding.OriginalMaterial;
 
                     binding.Renderer.sharedMaterials =
                         materials;
