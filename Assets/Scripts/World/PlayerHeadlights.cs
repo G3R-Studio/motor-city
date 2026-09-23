@@ -200,27 +200,27 @@ namespace MotorCity.World
                     0.52f,
                     0.92f);
 
-            float y =
+            float lightY =
                 Mathf.Lerp(
                     localBounds.min.y,
                     localBounds.max.y,
                     0.34f);
 
-            float z =
+            float lightZ =
                 localBounds.max.z +
                 0.08f;
 
             left.transform.localPosition =
                 new Vector3(
                     -xOffset,
-                    y,
-                    z);
+                    lightY,
+                    lightZ);
 
             right.transform.localPosition =
                 new Vector3(
                     xOffset,
-                    y,
-                    z);
+                    lightY,
+                    lightZ);
         }
 
         private static bool IsWheelRenderer(
