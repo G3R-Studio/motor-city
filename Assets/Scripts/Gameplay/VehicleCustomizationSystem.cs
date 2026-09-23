@@ -102,7 +102,7 @@ namespace MotorCity.Gameplay
         {
             SelectedColorIndex =
                 (SelectedColorIndex + 1) %
-                BodyColors.Length;
+                BodyColorCountForCurrentVehicle();
 
             Changed();
         }
@@ -289,7 +289,11 @@ namespace MotorCity.Gameplay
                 VehicleId();
 
             SelectedColorIndex =
-                GetInt(id, "Color", 0, BodyColors.Length - 1);
+                GetInt(
+                    id,
+                    "Color",
+                    0,
+                    BodyColorCountForCurrentVehicle() - 1);
 
             SelectedStickerIndex = 0;
             SelectedVinylIndex = 0;
@@ -301,6 +305,14 @@ namespace MotorCity.Gameplay
                 GetInt(id, "Neon", 0, AccentColors.Length);
 
             SelectedPlateIndex = 0;
+        }
+
+        private int BodyColorCountForCurrentVehicle()
+        {
+            return
+                VehicleId() == "street"
+                    ? 5
+                    : BodyColors.Length;
         }
 
         private int GetInt(
