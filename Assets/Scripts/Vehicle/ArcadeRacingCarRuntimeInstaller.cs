@@ -167,11 +167,22 @@ namespace MotorCity.Vehicle
             UpgradeMaterialsForCurrentPipeline(visual);
             FixMirrorMaterialsForCurrentPipeline(visual);
 
-            Transform[] authoredPolyPackWheels =
+            Transform[] authoredSixWheelPolyPackWheels =
                 rotateLeft90
-                    ? FindAuthoredPolyPackWheels(
+                    ? FindAuthoredSixWheelPolyPackWheels(
                         visual.transform)
                     : Array.Empty<Transform>();
+
+            Transform[] authoredPolyPackWheels =
+                rotateLeft90 &&
+                authoredSixWheelPolyPackWheels.Length == 6
+                    ? authoredSixWheelPolyPackWheels
+                        .Take(4)
+                        .ToArray()
+                    : rotateLeft90
+                        ? FindAuthoredPolyPackWheels(
+                            visual.transform)
+                        : Array.Empty<Transform>();
 
             List<Transform> wheelAnchors =
                 useAuthoredBusRig &&
@@ -265,6 +276,53 @@ namespace MotorCity.Vehicle
                 ordered[i].SetParent(spinRoots[i], true);
             }
 
+            Transform[] additionalSpinRoots =
+                Array.Empty<Transform>();
+
+            Vector3[] additionalOffsetsLocal =
+                Array.Empty<Vector3>();
+
+            if (authoredSixWheelPolyPackWheels.Length == 6)
+            {
+                additionalSpinRoots =
+                    new Transform[2];
+
+                additionalOffsetsLocal =
+                    new Vector3[2];
+
+                for (int i = 0;
+                     i < additionalSpinRoots.Length;
+                     i++)
+                {
+                    Transform authoredWheel =
+                        authoredSixWheelPolyPackWheels[4 + i];
+
+                    Bounds bounds =
+                        RendererBounds(
+                            authoredWheel);
+
+                    additionalSpinRoots[i] =
+                        CreateWheelRoot(
+                            carTransform,
+                            $"ArcadeRacingWheelSpin_{4 + i}",
+                            bounds.center);
+
+                    int sourceWheelIndex =
+                        i == 0
+                            ? RearLeftIndex
+                            : RearRightIndex;
+
+                    additionalOffsetsLocal[i] =
+                        carTransform.InverseTransformVector(
+                            additionalSpinRoots[i].position -
+                            spinRoots[sourceWheelIndex].position);
+
+                    authoredWheel.SetParent(
+                        additionalSpinRoots[i],
+                        true);
+                }
+            }
+
             float measuredRadius;
 
             if (useAuthoredBusRig &&
@@ -336,6 +394,22 @@ namespace MotorCity.Vehicle
                 wheelSync.Bind(
                     car,
                     spinRoots);
+
+                if (additionalSpinRoots.Length == 2 &&
+                    additionalOffsetsLocal.Length == 2)
+                {
+                    wheelSync.BindAdditionalVisual(
+                        0,
+                        additionalSpinRoots[0],
+                        RearLeftIndex,
+                        additionalOffsetsLocal[0]);
+
+                    wheelSync.BindAdditionalVisual(
+                        1,
+                        additionalSpinRoots[1],
+                        RearRightIndex,
+                        additionalOffsetsLocal[1]);
+                }
             }
             else if (wheelSync != null)
             {
@@ -707,6 +781,54 @@ namespace MotorCity.Vehicle
                 "Motor City: using the built-in fallback wheel rig.");
 
             return true;
+        }
+
+        private static Transform[] FindAuthoredSixWheelPolyPackWheels(
+            Transform root)
+        {
+            if (root == null)
+                return Array.Empty<Transform>();
+
+            // SuvV1 is a six-wheel PolyPack vehicle. Use the real authored
+            // naming instead of geometric guessing:
+            // FL/FR = steering axle, BL2/BR2 = physical rear axle,
+            // BL1/BR1 = tandem visual axle that follows the rear colliders.
+            string[] suffixes =
+            {
+                "_TireFL",
+                "_TireFR",
+                "_TireBL2",
+                "_TireBR2",
+                "_TireBL1",
+                "_TireBR1"
+            };
+
+            Transform[] all =
+                root.GetComponentsInChildren<Transform>(
+                    true);
+
+            Transform[] result =
+                new Transform[suffixes.Length];
+
+            for (int i = 0;
+                 i < suffixes.Length;
+                 i++)
+            {
+                result[i] =
+                    all.FirstOrDefault(
+                        item =>
+                            item != null &&
+                            item.name.EndsWith(
+                                suffixes[i],
+                                StringComparison.OrdinalIgnoreCase) &&
+                            item.GetComponentInChildren<Renderer>(
+                                true) != null);
+
+                if (result[i] == null)
+                    return Array.Empty<Transform>();
+            }
+
+            return result;
         }
 
         private static Transform[] FindAuthoredPolyPackWheels(
