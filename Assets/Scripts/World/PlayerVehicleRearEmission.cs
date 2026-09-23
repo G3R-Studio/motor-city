@@ -641,18 +641,9 @@ namespace MotorCity.World
                     0.001f,
                     maximum - minimum);
 
-            float cutoff =
-                Mathf.Lerp(
-                    minimum,
-                    maximum,
-                    0.70f);
-
-            float softness =
-                Mathf.Max(
-                    0.01f,
-                    span * 0.035f);
-
             ResolveRearMaskPreset(
+                out float rearCutoffFraction,
+                out float rearSoftnessFraction,
                 out float chromaLow,
                 out float chromaHigh,
                 out float redLow,
@@ -661,6 +652,18 @@ namespace MotorCity.World
                 out float greenHigh,
                 out float blueLow,
                 out float blueHigh);
+
+            float cutoff =
+                Mathf.Lerp(
+                    minimum,
+                    maximum,
+                    rearCutoffFraction);
+
+            float softness =
+                Mathf.Max(
+                    0.008f,
+                    span *
+                    rearSoftnessFraction);
 
             for (int i = 0;
                  i < sourceMaterials.Length;
@@ -822,6 +825,8 @@ namespace MotorCity.World
         }
 
         private void ResolveRearMaskPreset(
+            out float rearCutoffFraction,
+            out float rearSoftnessFraction,
             out float chromaLow,
             out float chromaHigh,
             out float redLow,
@@ -833,6 +838,8 @@ namespace MotorCity.World
         {
             // Strict preset is known to work on the red MuscleCar without
             // lighting its painted body.
+            rearCutoffFraction = 0.70f;
+            rearSoftnessFraction = 0.035f;
             chromaLow = 0.22f;
             chromaHigh = 0.46f;
             redLow = 0.62f;
@@ -850,21 +857,26 @@ namespace MotorCity.World
 
             if (club)
             {
-                // Swifto tail pixels are darker/less saturated than the
-                // MuscleCar atlas. Keep the body rejection, but lower the
-                // brightness requirement enough for its lamp texture.
-                chromaLow = 0.14f;
-                chromaHigh = 0.34f;
-                redLow = 0.46f;
-                redHigh = 0.76f;
-                greenLow = 0.24f;
-                greenHigh = 0.50f;
-                blueLow = 0.22f;
-                blueHigh = 0.46f;
+                // Swifto/Club stores its rear lamps as comparatively dark red
+                // texels. Restrict the effect to the very back of the mesh so
+                // we can safely use a looser colour mask without lighting the
+                // whole red body.
+                rearCutoffFraction = 0.86f;
+                rearSoftnessFraction = 0.018f;
+                chromaLow = 0.08f;
+                chromaHigh = 0.24f;
+                redLow = 0.30f;
+                redHigh = 0.58f;
+                greenLow = 0.28f;
+                greenHigh = 0.58f;
+                blueLow = 0.26f;
+                blueHigh = 0.54f;
             }
             else if (apex)
             {
                 // SuvV1/Apex lamps are also darker in the shared atlas.
+                rearCutoffFraction = 0.70f;
+                rearSoftnessFraction = 0.035f;
                 chromaLow = 0.12f;
                 chromaHigh = 0.32f;
                 redLow = 0.42f;
