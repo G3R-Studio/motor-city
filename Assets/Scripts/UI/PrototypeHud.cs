@@ -25,7 +25,6 @@ namespace MotorCity.UI
         private SpeedTrapSystem speedTraps;
         private DriftSpotSystem driftSpots;
         private DiscoverySystem discoveries;
-        private StuntJumpSystem stuntJumps;
         private ActivityManager activityManager;
         private GarageUpgradeSystem garage;
         private CareerProgressionSystem career;
@@ -257,7 +256,6 @@ namespace MotorCity.UI
             SpeedTrapSystem speedTrapSystem,
             DriftSpotSystem driftSpotSystem,
             DiscoverySystem discoverySystem,
-            StuntJumpSystem stuntJumpSystem,
             ActivityManager manager,
             GarageUpgradeSystem garageSystem,
             CareerProgressionSystem careerSystem,
@@ -295,7 +293,6 @@ namespace MotorCity.UI
             speedTraps = speedTrapSystem;
             driftSpots = driftSpotSystem;
             discoveries = discoverySystem;
-            stuntJumps = stuntJumpSystem;
             activityManager = manager;
             garage = garageSystem;
             career = careerSystem;
@@ -5214,22 +5211,6 @@ namespace MotorCity.UI
                 }
             }
 
-            if (stuntJumps != null)
-            {
-                for (int i = 0;
-                     i < stuntJumps.JumpCount;
-                     i++)
-                {
-                    ConsiderNavigationTarget(
-                        stuntJumps.GetJumpPosition(i),
-                        MotorCityLocalization.Text("hud.stunt"),
-                        true,
-                        ref target,
-                        ref label,
-                        ref bestDistance);
-                }
-            }
-
             if (towTruck != null)
             {
                 ConsiderNavigationTarget(
@@ -7353,13 +7334,6 @@ namespace MotorCity.UI
                     career.StatusText;
             }
 
-            if (stuntJumps != null &&
-                stuntJumps.ShowMessage)
-            {
-                return
-                    stuntJumps.StatusText;
-            }
-
             if (driftSpots != null &&
                 driftSpots.ShowMessage)
             {
@@ -7460,13 +7434,6 @@ namespace MotorCity.UI
             if (circuitRace != null &&
                 circuitRace.IsNearStart)
                 return circuitRace.StatusText;
-
-            if (stuntJumps != null &&
-                stuntJumps.IsAttemptActive)
-            {
-                return
-                    stuntJumps.StatusText;
-            }
 
             return
                 string.Empty;
