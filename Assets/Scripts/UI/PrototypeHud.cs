@@ -3976,22 +3976,7 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f),
                     TextColor);
 
-            speedUnitText =
-                CreateText(
-                    panel,
-                    "Speed Unit",
-                    10,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(0f, 42f),
-                    new Vector2(90f, 16f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0.5f),
-                    SecondaryTextColor);
-
-            speedUnitText.text =
-                MotorCityLocalization.Text(
-                    "common.kmh");
+            speedUnitText = null;
 
             RectTransform driveModeChip;
 
