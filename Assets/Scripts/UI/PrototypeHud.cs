@@ -3854,7 +3854,7 @@ namespace MotorCity.UI
                         gaugeCenter +
                             new Vector2(
                                 0f,
-                                18f),
+                                24f),
                         new Vector2(
                             42f,
                             16f),
@@ -3865,10 +3865,10 @@ namespace MotorCity.UI
                             0.5f,
                             0.5f),
                         new Color(
-                            0.055f,
-                            0.05f,
-                            0.085f,
-                            0.98f));
+                            0.10f,
+                            0.10f,
+                            0.10f,
+                            0.88f));
 
                 Text dialUnit =
                     CreateText(
