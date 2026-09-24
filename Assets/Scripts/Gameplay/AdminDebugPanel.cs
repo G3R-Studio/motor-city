@@ -580,7 +580,9 @@ namespace MotorCity.Gameplay
                 Teleport(CityAssetRuntimeInstaller.PlayerSpawnPoint, CityAssetRuntimeInstaller.PlayerSpawnRotation);
 
             if (Button("ГАРАЖ"))
-                Teleport(CityAssetRuntimeInstaller.GaragePoint, Quaternion.identity);
+                Teleport(
+                    CityAssetRuntimeInstaller.GaragePoint,
+                    CityAssetRuntimeInstaller.GarageSpawnRotation);
 
             if (Button("ДРИФТ"))
                 Teleport(CityAssetRuntimeInstaller.DriftChallengePoint, Quaternion.identity);
@@ -644,7 +646,7 @@ namespace MotorCity.Gameplay
             DrawTeleportPoint(
                 "ГАРАЖ",
                 CityAssetRuntimeInstaller.GaragePoint,
-                Quaternion.identity,
+                CityAssetRuntimeInstaller.GarageSpawnRotation,
                 ref column);
 
             DrawTeleportPoint(
