@@ -24,7 +24,10 @@ namespace FCG
 
         [Header("Motor City traffic mix")]
         [Range(0f, 100f)]
-        public float busSpawnPercent = 5f;
+        public float busSpawnPercent = 3f;
+
+        [Range(1f, 20f)]
+        public float busTrafficCapPercent = 6f;
 
         public int nVehicles = 0;
         public int maxVehiclesWithPlayer = 50;
@@ -307,9 +310,8 @@ namespace FCG
                 if (prefab == null)
                     continue;
 
-                if (prefab.name.IndexOf(
-                        "Bus",
-                        System.StringComparison.OrdinalIgnoreCase) >= 0)
+                if (IsBusLike(
+                        prefab.name))
                 {
                     buses.Add(
                         prefab);
@@ -331,8 +333,22 @@ namespace FCG
                     : null;
             }
 
+            int busCount =
+                CountLiveBuses();
+
+            int busCap =
+                Mathf.Max(
+                    1,
+                    Mathf.FloorToInt(
+                        Mathf.Max(
+                            1,
+                            maxVehiclesWithPlayer) *
+                        busTrafficCapPercent /
+                        100f));
+
             bool spawnBus =
                 buses.Count > 0 &&
+                busCount < busCap &&
                 Random.Range(
                     0f,
                     100f) <
@@ -347,6 +363,115 @@ namespace FCG
                 Random.Range(
                     0,
                     pool.Count)];
+        }
+
+        private static bool IsBusLike(
+            string vehicleName)
+        {
+            if (string.IsNullOrEmpty(
+                    vehicleName))
+            {
+                return false;
+            }
+
+            string name =
+                vehicleName.ToLowerInvariant();
+
+            return
+                name.Contains("bus") ||
+                name.Contains("gontijo") ||
+                name.Contains("caio") ||
+                name.Contains("climm") ||
+                name.Contains("mirim");
+        }
+
+        private int CountLiveBuses()
+        {
+            GameObject container =
+                GameObject.Find(
+                    "CarContainer");
+
+            if (container == null)
+                return 0;
+
+            int count =
+                0;
+
+            for (int i = 0;
+                 i < container.transform.childCount;
+                 i++)
+            {
+                Transform child =
+                    container.transform.GetChild(
+                        i);
+
+                if (child != null &&
+                    IsBusLike(
+                        child.name))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private void TrimExcessBuses(
+            GameObject container)
+        {
+            if (container == null)
+                return;
+
+            int busCap =
+                Mathf.Max(
+                    1,
+                    Mathf.FloorToInt(
+                        Mathf.Max(
+                            1,
+                            maxVehiclesWithPlayer) *
+                        busTrafficCapPercent /
+                        100f));
+
+            int busesSeen =
+                0;
+
+            for (int i =
+                     container.transform.childCount - 1;
+                 i >= 0;
+                 i--)
+            {
+                Transform child =
+                    container.transform.GetChild(
+                        i);
+
+                if (child == null ||
+                    !IsBusLike(
+                        child.name))
+                {
+                    continue;
+                }
+
+                busesSeen++;
+
+                if (busesSeen <= busCap)
+                    continue;
+
+                if (Application.isPlaying)
+                {
+                    Destroy(
+                        child.gameObject);
+                }
+                else
+                {
+                    DestroyImmediate(
+                        child.gameObject);
+                }
+
+                nVehicles =
+                    Mathf.Max(
+                        0,
+                        nVehicles - 1);
+            }
         }
 
         public void LoadCars2()
@@ -374,7 +499,15 @@ namespace FCG
 
             GameObject CarContainer = GameObject.Find("CarContainer");
             if (CarContainer)
+            {
                 nVehicles = CarContainer.transform.childCount;
+
+                TrimExcessBuses(
+                    CarContainer);
+
+                nVehicles =
+                    CarContainer.transform.childCount;
+            }
             else
                 nVehicles = 0;
 
