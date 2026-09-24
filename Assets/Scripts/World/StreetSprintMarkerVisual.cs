@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MotorCity.Gameplay;
 using UnityEngine;
 
@@ -6,65 +5,86 @@ namespace MotorCity.World
 {
     public sealed class StreetSprintMarkerVisual : MonoBehaviour
     {
+        private const string SprintVfxResourcePath =
+            "MotorCity/Markers/SprintMarkerVfx";
+
         private StreetSprintActivity sprint;
         private ActivityManager activityManager;
-        private Renderer[] markerRenderers;
-        private Material[] markerMaterials;
+        private Renderer[] legacyRenderers;
+        private GameObject sprintVfx;
+        private CheckpointBeaconVisual fallbackBeacon;
         private bool visibilityInitialized;
         private bool lastVisible;
-        private bool tintInitialized;
-        private bool lastActive;
-        private Vector3 baseScale;
-        private Camera mainCamera;
-        private CheckpointBeaconVisual checkpointBeacon;
 
-        public void Bind(StreetSprintActivity activity, ActivityManager manager)
+        public void Bind(
+            StreetSprintActivity activity,
+            ActivityManager manager)
         {
-            sprint = activity;
-            activityManager = manager;
-            baseScale = transform.localScale;
+            sprint =
+                activity;
 
-            CacheVisuals();
+            activityManager =
+                manager;
 
-            checkpointBeacon =
-                gameObject.AddComponent<CheckpointBeaconVisual>();
+            legacyRenderers =
+                GetComponentsInChildren<Renderer>(
+                    true);
 
-            checkpointBeacon.Initialize(
-                new Color(
-                    0.18f,
-                    1f,
-                    0.34f),
-                true,
-                CheckpointBeaconStyle.Sprint);
+            HideLegacyVisuals();
 
-            HideLegacyMarkerRenderers();
-
-
-            SnapToTarget();
-            mainCamera = Camera.main;
-        }
-
-        private void CacheVisuals()
-        {
-            markerRenderers = GetComponentsInChildren<Renderer>(true);
-            List<Material> materials = new();
-
-            foreach (Renderer renderer in markerRenderers)
+            if (!TryCreateSprintVfx())
             {
-                if (renderer == null) continue;
-                materials.AddRange(renderer.materials);
+                CreateFallbackBeacon();
             }
 
-            markerMaterials = materials.ToArray();
+            SnapToTarget();
+
+            RefreshVisibility(
+                true);
         }
 
-        private void HideLegacyMarkerRenderers()
+        private void Update()
         {
-            if (markerRenderers == null)
+            if (sprint == null)
+                return;
+
+            SnapToTarget();
+
+            if (fallbackBeacon != null)
+            {
+                Vector3 nextTarget =
+                    sprint.CurrentTarget;
+
+                bool hasNext =
+                    sprint.IsActive &&
+                    sprint.TryGetNextTarget(
+                        out nextTarget);
+
+                fallbackBeacon.SetDirection(
+                    sprint.CurrentTarget,
+                    hasNext
+                        ? nextTarget
+                        : sprint.CurrentTarget,
+                    hasNext);
+            }
+
+            RefreshVisibility(
+                false);
+        }
+
+        private void SnapToTarget()
+        {
+            transform.position =
+                sprint.CurrentTarget;
+        }
+
+        private void HideLegacyVisuals()
+        {
+            if (legacyRenderers == null)
                 return;
 
             foreach (Renderer renderer in
-                     markerRenderers)
+                     legacyRenderers)
             {
                 if (renderer != null)
                 {
@@ -74,109 +94,81 @@ namespace MotorCity.World
             }
         }
 
-        private void Update()
+        private bool TryCreateSprintVfx()
         {
-            if (sprint == null) return;
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    SprintVfxResourcePath);
 
+            if (prefab == null)
+                return false;
+
+            sprintVfx =
+                Instantiate(
+                    prefab,
+                    transform);
+
+            sprintVfx.name =
+                "Sprint Marker VFX Runtime";
+
+            sprintVfx.transform.localPosition =
+                Vector3.zero;
+
+            sprintVfx.transform.localRotation =
+                Quaternion.identity;
+
+            sprintVfx.transform.localScale =
+                Vector3.one;
+
+            return
+                true;
+        }
+
+        private void CreateFallbackBeacon()
+        {
+            fallbackBeacon =
+                gameObject.AddComponent<
+                    CheckpointBeaconVisual>();
+
+            fallbackBeacon.Initialize(
+                new Color(
+                    0.18f,
+                    1f,
+                    0.34f),
+                true,
+                CheckpointBeaconStyle.Sprint);
+        }
+
+        private void RefreshVisibility(
+            bool force)
+        {
             bool visible =
                 activityManager == null ||
                 !activityManager.IsBusy ||
-                activityManager.IsActive("sprint");
+                activityManager.IsActive(
+                    "sprint");
 
-                        if (!visibilityInitialized ||
-                visible != lastVisible)
+            if (!force &&
+                visibilityInitialized &&
+                visible == lastVisible)
             {
-                visibilityInitialized =
-                    true;
-                lastVisible =
-                    visible;
-                SetVisible(
+                return;
+            }
+
+            visibilityInitialized =
+                true;
+
+            lastVisible =
+                visible;
+
+            if (sprintVfx != null)
+            {
+                sprintVfx.SetActive(
                     visible);
             }
-            if (!visible) return;
 
-            SnapToTarget();
-
-            float pulse =
-                1f + Mathf.Sin(Time.time * 3.4f) * 0.015f;
-
-            transform.localScale =
-                baseScale * pulse;
-
-            if (mainCamera == null)
-                mainCamera = Camera.main;
-
-            if (mainCamera != null)
-            {
-                Vector3 direction =
-                    mainCamera.transform.position -
-                    transform.position;
-                direction.y = 0f;
-
-                if (direction.sqrMagnitude > 0.01f)
-                    transform.rotation =
-                        Quaternion.LookRotation(
-                            direction.normalized,
-                            Vector3.up);
-            }
-
-            Vector3 nextTarget =
-                sprint.CurrentTarget;
-
-            bool hasNext =
-                sprint.IsActive &&
-                sprint.TryGetNextTarget(
-                    out nextTarget);
-
-            checkpointBeacon?.SetDirection(
-                sprint.CurrentTarget,
-                hasNext
-                    ? nextTarget
-                    : sprint.CurrentTarget,
-                hasNext);
-
-            bool active =
-                sprint.IsActive;
-
-            if (!tintInitialized ||
-                active != lastActive)
-            {
-                tintInitialized =
-                    true;
-                lastActive =
-                    active;
-
-                Tint(
-                    active
-                        ? new Color(0.12f, 1f, 0.48f)
-                        : new Color(0.22f, 1f, 0.34f));
-            }
-        }
-
-        private void SnapToTarget()
-        {
-            Vector3 target = sprint.CurrentTarget;
-            transform.position = target;
-        }
-
-        private void SetVisible(bool visible)
-        {
-            checkpointBeacon?.SetVisible(
+            fallbackBeacon?.SetVisible(
                 visible);
-        }
-
-        private void Tint(Color color)
-        {
-            if (markerMaterials == null) return;
-
-            foreach (Material material in markerMaterials)
-            {
-                if (material == null) continue;
-                if (material.HasProperty("_BaseColor"))
-                    material.SetColor("_BaseColor", color);
-                else if (material.HasProperty("_Color"))
-                    material.color = color;
-            }
         }
     }
 }
