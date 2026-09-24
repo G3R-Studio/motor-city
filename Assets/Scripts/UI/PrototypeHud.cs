@@ -8808,49 +8808,28 @@ namespace MotorCity.UI
             }
         }
 
-        private static Rect VillePanelUvFor(
+        private Texture2D ResolveVillePanelTexture(
             string panelName)
         {
-            // These normalized regions correspond to panel elements in the
-            // flattened Ville Seppanen Racing UI Kit PSD. Using the authored
-            // panel artwork directly avoids deforming rectangle.png with
-            // 9-slicing.
+            if (uiThemeAssets == null)
+                return null;
+
             return panelName switch
             {
                 "Character Card" =>
-                    new Rect(
-                        0.493f,
-                        0.490f,
-                        0.122f,
-                        0.040f),
+                    uiThemeAssets.characterPanel,
 
                 "Activity Status" =>
-                    new Rect(
-                        0.037f,
-                        0.870f,
-                        0.370f,
-                        0.022f),
+                    uiThemeAssets.statusPanel,
 
                 "Drift HUD" =>
-                    new Rect(
-                        0.037f,
-                        0.870f,
-                        0.370f,
-                        0.022f),
+                    uiThemeAssets.driftPanel,
 
                 "Navigation Target Strip" =>
-                    new Rect(
-                        0.037f,
-                        0.644f,
-                        0.144f,
-                        0.022f),
+                    uiThemeAssets.targetPanel,
 
                 _ =>
-                    new Rect(
-                        0.493f,
-                        0.490f,
-                        0.122f,
-                        0.040f)
+                    uiThemeAssets.rectanglePanel
             };
         }
 
@@ -8864,22 +8843,11 @@ namespace MotorCity.UI
             ClearPanelChrome(
                 panel);
 
-            Texture2D atlas =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.racingUiAtlas;
+            Texture2D texture =
+                ResolveVillePanelTexture(
+                    panel.name);
 
-            if (atlas == null)
-            {
-                // Keep a safe fallback if the PSD is not imported locally,
-                // for example when Git LFS has not been pulled yet.
-                atlas =
-                    uiThemeAssets == null
-                        ? null
-                        : uiThemeAssets.rectanglePanel;
-            }
-
-            if (atlas == null)
+            if (texture == null)
                 return;
 
             GameObject backgroundObject =
@@ -8910,28 +8878,19 @@ namespace MotorCity.UI
                 backgroundObject.GetComponent<RawImage>();
 
             image.texture =
-                atlas;
-
+                texture;
             image.uvRect =
-                atlas ==
-                (uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.racingUiAtlas)
-                    ? VillePanelUvFor(
-                        panel.name)
-                    : new Rect(
-                        0f,
-                        0f,
-                        1f,
-                        1f);
-
+                new Rect(
+                    0f,
+                    0f,
+                    1f,
+                    1f);
             image.color =
                 new Color(
                     1f,
                     1f,
                     1f,
                     Mathf.Clamp01(alpha));
-
             image.raycastTarget =
                 false;
         }
