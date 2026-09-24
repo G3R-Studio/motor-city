@@ -74,7 +74,9 @@ namespace MotorCity.UI
         private Text speedText;
         private Text speedUnitText;
         private RectTransform speedNeedle;
-        private Outline speedNeedleGlow;
+        private RectTransform speedNeedleGlowRect;
+        private RawImage speedNeedleGlow;
+        private static Texture2D speedNeedleGlowTexture;
         private DayNightCycleController dayNightCycle;
         private float dayNightResolveTimer;
         private Text statusText;
@@ -639,11 +641,20 @@ namespace MotorCity.UI
                         -135f,
                         normalizedSpeed);
 
-                speedNeedle.localRotation =
+                Quaternion needleRotation =
                     Quaternion.Euler(
                         0f,
                         0f,
                         needleAngle);
+
+                speedNeedle.localRotation =
+                    needleRotation;
+
+                if (speedNeedleGlowRect != null)
+                {
+                    speedNeedleGlowRect.localRotation =
+                        needleRotation;
+                }
             }
 
             UpdateSpeedNeedleGlow();
@@ -3866,6 +3877,49 @@ namespace MotorCity.UI
                 }
             }
 
+            GameObject needleGlowObject =
+                new(
+                    "Speed Needle Glow",
+                    typeof(RectTransform),
+                    typeof(RawImage));
+
+            needleGlowObject.transform.SetParent(
+                panel,
+                false);
+
+            speedNeedleGlowRect =
+                needleGlowObject.GetComponent<RectTransform>();
+
+            speedNeedleGlowRect.anchorMin =
+                new Vector2(0.5f, 0f);
+            speedNeedleGlowRect.anchorMax =
+                new Vector2(0.5f, 0f);
+            speedNeedleGlowRect.pivot =
+                new Vector2(0.5f, 4f / 88f);
+            speedNeedleGlowRect.anchoredPosition =
+                gaugeCenter;
+            speedNeedleGlowRect.sizeDelta =
+                new Vector2(15f, 88f);
+            speedNeedleGlowRect.localRotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    135f);
+
+            speedNeedleGlow =
+                needleGlowObject.GetComponent<RawImage>();
+
+            speedNeedleGlow.texture =
+                GetSpeedNeedleGlowTexture();
+            speedNeedleGlow.color =
+                new Color(
+                    0.32f,
+                    0.68f,
+                    1f,
+                    0f);
+            speedNeedleGlow.raycastTarget =
+                false;
+
             GameObject needleObject =
                 new(
                     "Speed Needle",
@@ -3906,24 +3960,6 @@ namespace MotorCity.UI
                     0xFF);
             needleImage.raycastTarget =
                 false;
-
-            speedNeedleGlow =
-                needleObject.AddComponent<Outline>();
-
-            speedNeedleGlow.effectColor =
-                new Color(
-                    0.32f,
-                    0.68f,
-                    1f,
-                    0f);
-
-            speedNeedleGlow.effectDistance =
-                new Vector2(
-                    2f,
-                    -2f);
-
-            speedNeedleGlow.useGraphicAlpha =
-                true;
 
             speedText =
                 CreateText(
@@ -4017,6 +4053,93 @@ namespace MotorCity.UI
                 null;
         }
 
+        private static Texture2D GetSpeedNeedleGlowTexture()
+        {
+            if (speedNeedleGlowTexture != null)
+                return speedNeedleGlowTexture;
+
+            const int width = 32;
+            const int height = 128;
+
+            Texture2D texture =
+                new(
+                    width,
+                    height,
+                    TextureFormat.RGBA32,
+                    false);
+
+            texture.name =
+                "Motor City Speed Needle Soft Glow";
+            texture.wrapMode =
+                TextureWrapMode.Clamp;
+            texture.filterMode =
+                FilterMode.Bilinear;
+            texture.hideFlags =
+                HideFlags.DontSave;
+
+            Color[] pixels =
+                new Color[width * height];
+
+            for (int y = 0; y < height; y++)
+            {
+                float v =
+                    y / (height - 1f);
+
+                float endFade =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        Mathf.InverseLerp(
+                            0f,
+                            0.10f,
+                            v)) *
+                    (1f -
+                     Mathf.SmoothStep(
+                         0f,
+                         1f,
+                         Mathf.InverseLerp(
+                             0.86f,
+                             1f,
+                             v)));
+
+                for (int x = 0; x < width; x++)
+                {
+                    float u =
+                        x / (width - 1f);
+                    float distanceFromCenter =
+                        Mathf.Abs(u - 0.5f) * 2f;
+
+                    float sideFade =
+                        Mathf.Exp(
+                            -distanceFromCenter *
+                            distanceFromCenter *
+                            4.5f);
+
+                    float alpha =
+                        sideFade *
+                        endFade;
+
+                    pixels[y * width + x] =
+                        new Color(
+                            1f,
+                            1f,
+                            1f,
+                            alpha);
+                }
+            }
+
+            texture.SetPixels(
+                pixels);
+            texture.Apply(
+                false,
+                true);
+
+            speedNeedleGlowTexture =
+                texture;
+
+            return speedNeedleGlowTexture;
+        }
+
         private void UpdateSpeedNeedleGlow()
         {
             if (speedNeedleGlow == null)
@@ -4052,7 +4175,7 @@ namespace MotorCity.UI
                         0.92f,
                         nightAmount));
 
-            speedNeedleGlow.effectColor =
+            speedNeedleGlow.color =
                 new Color(
                     0.32f,
                     0.68f,
