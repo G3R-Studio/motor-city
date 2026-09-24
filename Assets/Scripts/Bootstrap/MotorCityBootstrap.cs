@@ -955,15 +955,6 @@ namespace MotorCity.Bootstrap
             if (carWash == null)
                 return;
 
-            Material material =
-                Material(
-                    new Color(
-                        0.16f,
-                        0.82f,
-                        1f),
-                    0.02f,
-                    0.55f);
-
             GameObject root =
                 new(
                     "Profession Car Wash");
@@ -971,35 +962,17 @@ namespace MotorCity.Bootstrap
             root.transform.position =
                 carWash.StartPoint;
 
-            Primitive(
-                "Car Wash Base",
-                PrimitiveType.Cylinder,
-                root.transform,
-                new Vector3(
-                    2.5f,
-                    0.06f,
-                    2.5f),
-                new Vector3(
-                    0f,
-                    0.08f,
-                    0f),
-                material,
-                false);
+            StaticActivityMarkerVisual visual =
+                root.AddComponent<
+                    StaticActivityMarkerVisual>();
 
-            Primitive(
-                "Car Wash Beacon",
-                PrimitiveType.Cube,
-                root.transform,
-                new Vector3(
-                    0.2f,
-                    2.4f,
-                    0.2f),
-                new Vector3(
-                    0f,
-                    2.4f,
-                    0f),
-                material,
-                false);
+            visual.Bind(
+                "MotorCity/Markers/CarWashMarkerVfx",
+                new Color(
+                    0.10f,
+                    0.82f,
+                    1f),
+                CheckpointBeaconStyle.Profession);
         }
 
         private static void CreateTowTruckMarker(
@@ -1008,15 +981,6 @@ namespace MotorCity.Bootstrap
             if (towTruck == null)
                 return;
 
-            Material material =
-                Material(
-                    new Color(
-                        1f,
-                        0.62f,
-                        0.08f),
-                    0.04f,
-                    0.62f);
-
             GameObject root =
                 new(
                     "Profession Tow Service");
@@ -1024,35 +988,17 @@ namespace MotorCity.Bootstrap
             root.transform.position =
                 towTruck.StartPoint;
 
-            Primitive(
-                "Tow Service Base",
-                PrimitiveType.Cylinder,
-                root.transform,
-                new Vector3(
-                    2.4f,
-                    0.06f,
-                    2.4f),
-                new Vector3(
-                    0f,
-                    0.08f,
-                    0f),
-                material,
-                false);
+            StaticActivityMarkerVisual visual =
+                root.AddComponent<
+                    StaticActivityMarkerVisual>();
 
-            Primitive(
-                "Tow Service Beacon",
-                PrimitiveType.Cube,
-                root.transform,
-                new Vector3(
-                    0.22f,
-                    2.2f,
-                    0.22f),
-                new Vector3(
-                    0f,
-                    2.2f,
-                    0f),
-                material,
-                false);
+            visual.Bind(
+                "MotorCity/Markers/TowMarkerVfx",
+                new Color(
+                    1f,
+                    0.56f,
+                    0.06f),
+                CheckpointBeaconStyle.Tow);
         }
 
         private static void CreateProfessionMarkers(
@@ -1061,26 +1007,10 @@ namespace MotorCity.Bootstrap
             if (professions == null)
                 return;
 
-            Color[] colors =
-            {
-                new(1f, 0.42f, 0.12f),
-                new(0.18f, 0.72f, 1f),
-                new(0.28f, 0.92f, 0.42f),
-                new(1f, 0.78f, 0.18f)
-            };
-
             for (int i = 0;
                  i < professions.StartCount;
                  i++)
             {
-                Material material =
-                    Material(
-                        colors[
-                            i %
-                            colors.Length],
-                        0.02f,
-                        0.55f);
-
                 GameObject root =
                     new(
                         "Profession " +
@@ -1089,35 +1019,17 @@ namespace MotorCity.Bootstrap
                 root.transform.position =
                     professions.GetStartPoint(i);
 
-                Primitive(
-                    "Profession Base",
-                    PrimitiveType.Cylinder,
-                    root.transform,
-                    new Vector3(
-                        2.2f,
-                        0.06f,
-                        2.2f),
-                    new Vector3(
-                        0f,
-                        0.08f,
-                        0f),
-                    material,
-                    false);
+                StaticActivityMarkerVisual visual =
+                    root.AddComponent<
+                        StaticActivityMarkerVisual>();
 
-                Primitive(
-                    "Profession Beacon",
-                    PrimitiveType.Cylinder,
-                    root.transform,
-                    new Vector3(
-                        0.12f,
-                        1.8f,
-                        0.12f),
-                    new Vector3(
-                        0f,
-                        1.8f,
-                        0f),
-                    material,
-                    false);
+                visual.Bind(
+                    "MotorCity/Markers/ProfessionMarkerVfx",
+                    new Color(
+                        1f,
+                        0.68f,
+                        0.10f),
+                    CheckpointBeaconStyle.Profession);
             }
         }
 
@@ -1437,61 +1349,15 @@ namespace MotorCity.Bootstrap
                 return;
 
             GameObject root =
-                new("Underground Marker");
+                new(
+                    "Underground Marker");
 
             root.transform.position =
                 CityAssetRuntimeInstaller.UndergroundMeetingPoint;
 
-            Material baseMaterial =
-                Material(
-                    new Color(
-                        0.26f,
-                        0.03f,
-                        0.34f),
-                    0.08f,
-                    0.66f);
-
-            Material glowMaterial =
-                Material(
-                    new Color(
-                        0.74f,
-                        0.12f,
-                        1f),
-                    0.02f,
-                    0.78f);
-
-            Primitive(
-                "Underground Ring",
-                PrimitiveType.Cylinder,
-                root.transform,
-                new Vector3(
-                    5.6f,
-                    0.035f,
-                    5.6f),
-                new Vector3(
-                    0f,
-                    0.07f,
-                    0f),
-                baseMaterial,
-                false);
-
-            Primitive(
-                "Underground Beacon",
-                PrimitiveType.Cylinder,
-                root.transform,
-                new Vector3(
-                    0.12f,
-                    2.8f,
-                    0.12f),
-                new Vector3(
-                    0f,
-                    2.8f,
-                    0f),
-                glowMaterial,
-                false);
-
             UndergroundMarkerVisual visual =
-                root.AddComponent<UndergroundMarkerVisual>();
+                root.AddComponent<
+                    UndergroundMarkerVisual>();
 
             visual.Bind(
                 underground);
