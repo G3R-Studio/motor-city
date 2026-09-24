@@ -65,8 +65,6 @@ namespace MotorCity.UI
         private Font font;
         private Sprite panelSprite;
         private MotorCityUiThemeAssets uiThemeAssets;
-        private static Sprite villePanelSprite;
-        private static Texture2D villePanelSpriteSource;
 
         private Text moneyText;
         private Text reputationText;
@@ -3920,20 +3918,9 @@ namespace MotorCity.UI
             float needleHeight =
                 84f;
 
-            float needleWidth =
-                needleTexture != null &&
-                needleTexture.height > 0
-                    ? Mathf.Clamp(
-                        needleHeight *
-                        needleTexture.width /
-                        needleTexture.height,
-                        8f,
-                        24f)
-                    : 12f;
-
             speedNeedle.sizeDelta =
                 new Vector2(
-                    needleWidth,
+                    7f,
                     needleHeight);
             speedNeedle.localRotation =
                 Quaternion.Euler(
@@ -8821,58 +8808,50 @@ namespace MotorCity.UI
             }
         }
 
-        private static Sprite GetVillePanelSprite(
-            Texture2D texture)
+        private static Rect VillePanelUvFor(
+            string panelName)
         {
-            if (texture == null)
-                return null;
-
-            if (villePanelSprite != null &&
-                villePanelSpriteSource == texture)
+            // These normalized regions correspond to panel elements in the
+            // flattened Ville Seppanen Racing UI Kit PSD. Using the authored
+            // panel artwork directly avoids deforming rectangle.png with
+            // 9-slicing.
+            return panelName switch
             {
-                return villePanelSprite;
-            }
-
-            float borderX =
-                Mathf.Clamp(
-                    texture.width * 0.18f,
-                    8f,
-                    texture.width * 0.32f);
-
-            float borderY =
-                Mathf.Clamp(
-                    texture.height * 0.22f,
-                    4f,
-                    texture.height * 0.40f);
-
-            villePanelSprite =
-                Sprite.Create(
-                    texture,
+                "Character Card" =>
                     new Rect(
-                        0f,
-                        0f,
-                        texture.width,
-                        texture.height),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    100f,
-                    0,
-                    SpriteMeshType.FullRect,
-                    new Vector4(
-                        borderX,
-                        borderY,
-                        borderX,
-                        borderY));
+                        0.493f,
+                        0.490f,
+                        0.122f,
+                        0.040f),
 
-            villePanelSprite.name =
-                "Motor City Ville Panel Sliced";
-            villePanelSprite.hideFlags =
-                HideFlags.DontSave;
-            villePanelSpriteSource =
-                texture;
+                "Activity Status" =>
+                    new Rect(
+                        0.037f,
+                        0.870f,
+                        0.370f,
+                        0.022f),
 
-            return villePanelSprite;
+                "Drift HUD" =>
+                    new Rect(
+                        0.037f,
+                        0.870f,
+                        0.370f,
+                        0.022f),
+
+                "Navigation Target Strip" =>
+                    new Rect(
+                        0.037f,
+                        0.644f,
+                        0.144f,
+                        0.022f),
+
+                _ =>
+                    new Rect(
+                        0.493f,
+                        0.490f,
+                        0.122f,
+                        0.040f)
+            };
         }
 
         private void ApplyVillePanelTexture(
@@ -8885,23 +8864,29 @@ namespace MotorCity.UI
             ClearPanelChrome(
                 panel);
 
-            Texture2D texture =
+            Texture2D atlas =
                 uiThemeAssets == null
                     ? null
-                    : uiThemeAssets.rectanglePanel;
+                    : uiThemeAssets.racingUiAtlas;
 
-            Sprite sprite =
-                GetVillePanelSprite(
-                    texture);
+            if (atlas == null)
+            {
+                // Keep a safe fallback if the PSD is not imported locally,
+                // for example when Git LFS has not been pulled yet.
+                atlas =
+                    uiThemeAssets == null
+                        ? null
+                        : uiThemeAssets.rectanglePanel;
+            }
 
-            if (sprite == null)
+            if (atlas == null)
                 return;
 
             GameObject backgroundObject =
                 new(
                     "Ville Panel Background",
                     typeof(RectTransform),
-                    typeof(Image));
+                    typeof(RawImage));
 
             backgroundObject.transform.SetParent(
                 panel,
@@ -8921,21 +8906,32 @@ namespace MotorCity.UI
             rect.offsetMax =
                 Vector2.zero;
 
-            Image image =
-                backgroundObject.GetComponent<Image>();
+            RawImage image =
+                backgroundObject.GetComponent<RawImage>();
 
-            image.sprite =
-                sprite;
-            image.type =
-                Image.Type.Sliced;
-            image.preserveAspect =
-                false;
+            image.texture =
+                atlas;
+
+            image.uvRect =
+                atlas ==
+                (uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.racingUiAtlas)
+                    ? VillePanelUvFor(
+                        panel.name)
+                    : new Rect(
+                        0f,
+                        0f,
+                        1f,
+                        1f);
+
             image.color =
                 new Color(
                     1f,
                     1f,
                     1f,
                     Mathf.Clamp01(alpha));
+
             image.raycastTarget =
                 false;
         }
