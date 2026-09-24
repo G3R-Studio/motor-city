@@ -12,7 +12,10 @@ namespace MotorCity.UI
         public Texture2D speedometerSecondary;
         public Texture2D needleLong;
         public Texture2D rectanglePanel;
-        public Texture2D racingUiAtlas;
+        public Texture2D characterPanel;
+        public Texture2D statusPanel;
+        public Texture2D driftPanel;
+        public Texture2D targetPanel;
         public Texture2D warning;
         public Texture2D engine;
         public Texture2D nitrous;
