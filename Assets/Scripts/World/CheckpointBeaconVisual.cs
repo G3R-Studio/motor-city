@@ -30,9 +30,9 @@ namespace MotorCity.World
         private Transform observer;
         private float observerResolveTimer;
 
-        private const float FullScaleDistance = 55f;
-        private const float FarScaleDistance = 190f;
-        private const float MaximumVisibleDistance = 300f;
+        private const float FullScaleDistance = 70f;
+        private const float FarScaleDistance = 280f;
+        private const float MaximumVisibleDistance = 420f;
 
         public void Initialize(
             Color color,
@@ -60,59 +60,62 @@ namespace MotorCity.World
             pillarMaterial =
                 CreateTransparentMaterial(
                     color,
-                    0.16f);
+                    0.18f);
 
             baseMaterial =
                 CreateTransparentMaterial(
                     color,
-                    0.34f);
+                    0.42f);
 
             arrowMaterial =
                 CreateTransparentMaterial(
                     color,
-                    0.78f);
+                    0.82f);
 
             CreatePrimitive(
-                "Activity Ground Pad",
+                "Checkpoint Pillar",
                 PrimitiveType.Cylinder,
                 visualRoot,
                 new Vector3(
-                    3.15f,
-                    0.028f,
-                    3.15f),
+                    2.55f,
+                    4.1f,
+                    2.55f),
                 new Vector3(
                     0f,
-                    0.045f,
+                    4.1f,
+                    0f),
+                Quaternion.identity,
+                pillarMaterial);
+
+            CreatePrimitive(
+                "Checkpoint Ground Ring Outer",
+                PrimitiveType.Cylinder,
+                visualRoot,
+                new Vector3(
+                    4.15f,
+                    0.030f,
+                    4.15f),
+                new Vector3(
+                    0f,
+                    0.055f,
                     0f),
                 Quaternion.identity,
                 baseMaterial);
 
             CreatePrimitive(
-                "Activity Ground Core",
+                "Checkpoint Ground Ring Inner",
                 PrimitiveType.Cylinder,
                 visualRoot,
                 new Vector3(
-                    2.15f,
-                    0.035f,
-                    2.15f),
+                    2.75f,
+                    0.045f,
+                    2.75f),
                 new Vector3(
                     0f,
-                    0.075f,
+                    0.09f,
                     0f),
                 Quaternion.identity,
-                pillarMaterial);
-
-            CreateCornerPost(
-                new Vector3(-2.25f, 0f, -2.25f));
-
-            CreateCornerPost(
-                new Vector3(2.25f, 0f, -2.25f));
-
-            CreateCornerPost(
-                new Vector3(-2.25f, 0f, 2.25f));
-
-            CreateCornerPost(
-                new Vector3(2.25f, 0f, 2.25f));
+                arrowMaterial);
 
             CreateEmblem(
                 style);
@@ -149,7 +152,7 @@ namespace MotorCity.World
             directionRoot.localPosition =
                 new Vector3(
                     0f,
-                    4.05f,
+                    6.0f,
                     0f);
 
             CreatePrimitive(
@@ -242,8 +245,8 @@ namespace MotorCity.World
 
                 float scale =
                     Mathf.Lerp(
-                        1.0f,
-                        0.74f,
+                        1.08f,
+                        0.68f,
                         farT);
 
                 visualRoot.localScale =
@@ -316,26 +319,6 @@ namespace MotorCity.World
             }
         }
 
-        private void CreateCornerPost(
-            Vector3 localPosition)
-        {
-            CreatePrimitive(
-                "Activity Corner Post",
-                PrimitiveType.Cylinder,
-                visualRoot,
-                new Vector3(
-                    0.13f,
-                    0.75f,
-                    0.13f),
-                localPosition +
-                new Vector3(
-                    0f,
-                    0.75f,
-                    0f),
-                Quaternion.identity,
-                arrowMaterial);
-        }
-
         private void CreateEmblem(
             CheckpointBeaconStyle style)
         {
@@ -351,7 +334,7 @@ namespace MotorCity.World
                 emblemObject.transform;
 
             emblemBaseHeight =
-                3.35f;
+                6.95f;
 
             emblemRoot.localPosition =
                 new Vector3(
