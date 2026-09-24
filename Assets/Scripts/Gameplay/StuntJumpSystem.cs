@@ -495,6 +495,12 @@ namespace MotorCity.Gameplay
                 jump.RoofRewardCollected =
                     true;
 
+                if (jump.RewardMarker != null)
+                {
+                    jump.RewardMarker.SetActive(
+                        false);
+                }
+
                 MotorCity.Persistence.MotorCitySaveService.SetInt(
                     jump.KeyPrefix + ".RoofReward",
                     1);
@@ -758,6 +764,27 @@ namespace MotorCity.Gameplay
                 jumps[index].RoofRewardCollected;
         }
 
+        public void RegisterRewardMarker(
+            int index,
+            GameObject marker)
+        {
+            if (!Valid(index) ||
+                marker == null)
+            {
+                return;
+            }
+
+            Jump jump =
+                jumps[index];
+
+            jump.RewardMarker =
+                marker;
+
+            marker.SetActive(
+                jump.HasLandingTarget &&
+                !jump.RoofRewardCollected);
+        }
+
         public float GetBestDistance(
             int index)
         {
@@ -802,6 +829,7 @@ namespace MotorCity.Gameplay
             public Vector3 LandingPosition;
             public float RecommendedSpeedKph;
             public bool RoofRewardCollected;
+            public GameObject RewardMarker;
             public float BronzeDistance;
             public float SilverDistance;
             public float GoldDistance;
