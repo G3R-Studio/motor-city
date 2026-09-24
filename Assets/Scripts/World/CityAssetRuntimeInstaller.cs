@@ -120,9 +120,9 @@ namespace MotorCity.World
         public static Quaternion PlayerSpawnRotation { get; private set; } =
             Quaternion.identity;
 
-        // Dedicated player garage site on the western BB-E01 parking pad.
+        // Dedicated player garage on the authored parking apron.
         public static Vector3 GaragePoint { get; private set; } =
-            new(-263.9998f, 0.4f, -114.0002f);
+            new(-585.822f, 0.4f, 505.109f);
 
         // Western broad junction in the large district, kept separate from
         // the street sprint start on the eastern side.
@@ -486,9 +486,9 @@ namespace MotorCity.World
             GaragePoint =
                 FindParkingPointNear(
                     new Vector3(
-                        -263.9998f,
+                        -585.822f,
                         0f,
-                        -114.0002f),
+                        505.109f),
                     16f);
 
             DriftChallengePoint =
