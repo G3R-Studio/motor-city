@@ -64,6 +64,7 @@ namespace MotorCity.UI
 
         private Font font;
         private Sprite panelSprite;
+        private MotorCityUiThemeAssets uiThemeAssets;
 
         private Text moneyText;
         private Text reputationText;
@@ -230,20 +231,21 @@ namespace MotorCity.UI
         private readonly Text[] garageDescriptionTexts =
             new Text[3];
 
+        // Motor City racing UI palette, tuned to the imported Ville Seppanen kit.
         private static readonly Color PanelColor =
-            new(0.025f, 0.032f, 0.045f, 0.90f);
+            new(0.075f, 0.07f, 0.12f, 0.94f);
         private static readonly Color PanelSoftColor =
-            new(0.035f, 0.045f, 0.06f, 0.82f);
+            new(0.105f, 0.095f, 0.16f, 0.88f);
         private static readonly Color TextColor =
-            new(0.95f, 0.97f, 1f, 1f);
+            new(0.98f, 0.985f, 1f, 1f);
         private static readonly Color SecondaryTextColor =
-            new(0.66f, 0.72f, 0.8f, 1f);
+            new(0.72f, 0.75f, 0.86f, 1f);
         private static readonly Color BlueAccent =
-            new(0.12f, 0.58f, 1f, 1f);
+            new(0.34f, 0.53f, 1f, 1f);
         private static readonly Color DriftAccent =
-            new(1f, 0.55f, 0.12f, 1f);
+            new(1f, 0.48f, 0.13f, 1f);
         private static readonly Color GarageAccent =
-            new(0.66f, 0.3f, 1f, 1f);
+            new(0.62f, 0.42f, 1f, 1f);
 
         public void Bind(
             ArcadeCarController controller,
@@ -1834,6 +1836,10 @@ namespace MotorCity.UI
             panelSprite =
                 Resources.Load<Sprite>(
                     "MotorCity/UI/grey_panel");
+
+            uiThemeAssets =
+                Resources.Load<MotorCityUiThemeAssets>(
+                    "MotorCity/UI/MotorCityUiThemeAssets");
 
             GameObject canvasObject =
                 new("Motor City HUD");
@@ -3710,146 +3716,133 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Speedometer",
-                    new Vector2(0f, 14f),
-                    new Vector2(250f, 184f),
+                    new Vector2(0f, 12f),
+                    new Vector2(250f, 210f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
                     new Color(
-                        0.01f,
-                        0.016f,
-                        0.026f,
-                        0.24f));
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
+                        0.34f));
 
             Vector2 gaugeCenter =
-                new(0f, 91f);
+                new(0f, 121f);
 
-            const float tickRadius = 67f;
-            const int tickCount = 13;
+            Texture2D racingFace =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.speedometerPrimary;
 
-            for (int i = 0;
-                 i < tickCount;
-                 i++)
+            if (racingFace != null)
             {
-                float t =
-                    i /
-                    (float)(tickCount - 1);
-
-                float angle =
-                    Mathf.Lerp(
-                        -135f,
-                        135f,
-                        t);
-
-                float radians =
-                    angle *
-                    Mathf.Deg2Rad;
-
-                GameObject tickObject =
+                GameObject faceObject =
                     new(
-                        "Speed Tick " + i,
+                        "Racing Speedometer Face",
                         typeof(RectTransform),
-                        typeof(Image));
+                        typeof(RawImage));
 
-                tickObject.transform.SetParent(
+                faceObject.transform.SetParent(
                     panel,
                     false);
 
-                RectTransform tick =
-                    tickObject.GetComponent<RectTransform>();
+                RectTransform face =
+                    faceObject.GetComponent<RectTransform>();
 
-                tick.anchorMin =
+                face.anchorMin =
                     new Vector2(0.5f, 0f);
-                tick.anchorMax =
+                face.anchorMax =
                     new Vector2(0.5f, 0f);
-                tick.pivot =
+                face.pivot =
                     new Vector2(0.5f, 0.5f);
-                tick.anchoredPosition =
-                    gaugeCenter +
-                    new Vector2(
-                        Mathf.Sin(radians) *
-                        tickRadius,
-                        Mathf.Cos(radians) *
-                        tickRadius);
-                tick.sizeDelta =
-                    new Vector2(
-                        i % 2 == 0
-                            ? 4f
-                            : 3f,
-                        i % 2 == 0
-                            ? 15f
-                            : 9f);
-                tick.localRotation =
-                    Quaternion.Euler(
-                        0f,
-                        0f,
-                        -angle);
+                face.anchoredPosition =
+                    gaugeCenter;
+                face.sizeDelta =
+                    new Vector2(174f, 174f);
 
-                Image tickImage =
-                    tickObject.GetComponent<Image>();
+                RawImage faceImage =
+                    faceObject.GetComponent<RawImage>();
 
-                tickImage.color =
-                    i >= tickCount - 3
-                        ? new Color(
-                            1f,
-                            0.40f,
-                            0.16f,
-                            0.95f)
-                        : new Color(
-                            0.72f,
-                            0.82f,
-                            0.94f,
-                            0.82f);
-                tickImage.raycastTarget =
+                faceImage.texture =
+                    racingFace;
+                faceImage.color =
+                    Color.white;
+                faceImage.raycastTarget =
                     false;
             }
-
-            string[] dialLabels =
+            else
             {
-                "0",
-                "40",
-                "80",
-                "120",
-                "160",
-                "200",
-                "240"
-            };
+                const float tickRadius = 67f;
+                const int tickCount = 13;
 
-            for (int i = 0;
-                 i < dialLabels.Length;
-                 i++)
-            {
-                float t =
-                    i /
-                    (float)(dialLabels.Length - 1);
+                for (int i = 0;
+                     i < tickCount;
+                     i++)
+                {
+                    float t =
+                        i /
+                        (float)(tickCount - 1);
 
-                float angle =
-                    Mathf.Lerp(
-                        -135f,
-                        135f,
-                        t);
+                    float angle =
+                        Mathf.Lerp(
+                            -135f,
+                            135f,
+                            t);
 
-                float radians =
-                    angle *
-                    Mathf.Deg2Rad;
+                    float radians =
+                        angle *
+                        Mathf.Deg2Rad;
 
-                Text label =
-                    CreateText(
+                    GameObject tickObject =
+                        new(
+                            "Speed Tick " + i,
+                            typeof(RectTransform),
+                            typeof(Image));
+
+                    tickObject.transform.SetParent(
                         panel,
-                        "Speed Dial " + dialLabels[i],
-                        10,
-                        FontStyle.Bold,
-                        TextAnchor.MiddleCenter,
+                        false);
+
+                    RectTransform tick =
+                        tickObject.GetComponent<RectTransform>();
+
+                    tick.anchorMin =
+                        new Vector2(0.5f, 0f);
+                    tick.anchorMax =
+                        new Vector2(0.5f, 0f);
+                    tick.pivot =
+                        new Vector2(0.5f, 0.5f);
+                    tick.anchoredPosition =
                         gaugeCenter +
                         new Vector2(
-                            Mathf.Sin(radians) * 48f,
-                            Mathf.Cos(radians) * 48f),
-                        new Vector2(34f, 18f),
-                        new Vector2(0.5f, 0f),
-                        new Vector2(0.5f, 0.5f),
-                        SecondaryTextColor);
+                            Mathf.Sin(radians) *
+                            tickRadius,
+                            Mathf.Cos(radians) *
+                            tickRadius);
+                    tick.sizeDelta =
+                        new Vector2(
+                            i % 2 == 0
+                                ? 4f
+                                : 3f,
+                            i % 2 == 0
+                                ? 15f
+                                : 9f);
+                    tick.localRotation =
+                        Quaternion.Euler(
+                            0f,
+                            0f,
+                            -angle);
 
-                label.raycastTarget =
-                    false;
+                    Image tickImage =
+                        tickObject.GetComponent<Image>();
+
+                    tickImage.color =
+                        i >= tickCount - 3
+                            ? DriftAccent
+                            : SecondaryTextColor;
+                    tickImage.raycastTarget =
+                        false;
+                }
             }
 
             GameObject needleObject =
@@ -3874,7 +3867,7 @@ namespace MotorCity.UI
             speedNeedle.anchoredPosition =
                 gaugeCenter;
             speedNeedle.sizeDelta =
-                new Vector2(5f, 57f);
+                new Vector2(4f, 59f);
             speedNeedle.localRotation =
                 Quaternion.Euler(
                     0f,
@@ -3885,11 +3878,7 @@ namespace MotorCity.UI
                 needleObject.GetComponent<Image>();
 
             needleImage.color =
-                new Color(
-                    1f,
-                    0.30f,
-                    0.12f,
-                    1f);
+                DriftAccent;
             needleImage.raycastTarget =
                 false;
 
@@ -3915,7 +3904,7 @@ namespace MotorCity.UI
             hub.anchoredPosition =
                 gaugeCenter;
             hub.sizeDelta =
-                new Vector2(15f, 15f);
+                new Vector2(13f, 13f);
 
             Image hubImage =
                 hubObject.GetComponent<Image>();
@@ -3929,11 +3918,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Speed",
-                    38,
+                    36,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 29f),
-                    new Vector2(150f, 44f),
+                    new Vector2(0f, 61f),
+                    new Vector2(128f, 42f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
@@ -3945,7 +3934,7 @@ namespace MotorCity.UI
                     10,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 9f),
+                    new Vector2(0f, 42f),
                     new Vector2(90f, 16f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0.5f),
@@ -3955,27 +3944,61 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     "common.kmh");
 
-            RectTransform driveModeChip =
-                CreatePanel(
+            RectTransform driveModeChip;
+
+            Texture2D chipTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.rectanglePanel;
+
+            if (chipTexture != null)
+            {
+                GameObject chipObject =
+                    new(
+                        "Drive Mode Indicator",
+                        typeof(RectTransform),
+                        typeof(RawImage));
+
+                chipObject.transform.SetParent(
                     panel,
-                    "Drive Mode Indicator",
-                    new Vector2(
-                        0f,
-                        -12f),
-                    new Vector2(
-                        132f,
-                        26f),
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    new Color(
-                        0.018f,
-                        0.038f,
-                        0.062f,
-                        0.94f));
+                    false);
+
+                driveModeChip =
+                    chipObject.GetComponent<RectTransform>();
+
+                driveModeChip.anchorMin =
+                    new Vector2(0.5f, 0f);
+                driveModeChip.anchorMax =
+                    new Vector2(0.5f, 0f);
+                driveModeChip.pivot =
+                    new Vector2(0.5f, 0.5f);
+                driveModeChip.anchoredPosition =
+                    new Vector2(0f, 17f);
+                driveModeChip.sizeDelta =
+                    new Vector2(146f, 31f);
+
+                RawImage chipImage =
+                    chipObject.GetComponent<RawImage>();
+
+                chipImage.texture =
+                    chipTexture;
+                chipImage.color =
+                    Color.white;
+                chipImage.raycastTarget =
+                    false;
+            }
+            else
+            {
+                driveModeChip =
+                    CreatePanel(
+                        panel,
+                        "Drive Mode Indicator",
+                        new Vector2(0f, 17f),
+                        new Vector2(146f, 31f),
+                        new Vector2(0.5f, 0f),
+                        new Vector2(0.5f, 0.5f),
+                        PanelColor);
+            }
 
             driveModeText =
                 CreateText(
@@ -3985,15 +4008,9 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(
-                        122f,
-                        22f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
+                    new Vector2(132f, 23f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
                     BlueAccent);
 
             lastDisplayedDriveMode =
@@ -8556,10 +8573,10 @@ namespace MotorCity.UI
 
             outline.effectColor =
                 new Color(
-                    0.35f,
-                    0.5f,
-                    0.72f,
-                    0.14f);
+                    BlueAccent.r,
+                    BlueAccent.g,
+                    BlueAccent.b,
+                    0.22f);
 
             outline.effectDistance =
                 new Vector2(1f, -1f);
