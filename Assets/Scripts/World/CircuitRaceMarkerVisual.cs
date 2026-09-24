@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MotorCity.Gameplay;
 using UnityEngine;
 
@@ -6,74 +5,86 @@ namespace MotorCity.World
 {
     public sealed class CircuitRaceMarkerVisual : MonoBehaviour
     {
+        private const string CircuitVfxResourcePath =
+            "MotorCity/Markers/CircuitMarkerVfx";
+
         private CircuitRaceActivity race;
         private ActivityManager activityManager;
-        private Renderer[] markerRenderers;
-        private Material[] markerMaterials;
+        private Renderer[] legacyRenderers;
+        private GameObject circuitVfx;
+        private CheckpointBeaconVisual fallbackBeacon;
         private bool visibilityInitialized;
         private bool lastVisible;
-        private bool tintInitialized;
-        private bool lastActive;
-        private Vector3 baseScale;
-        private Camera mainCamera;
-        private CheckpointBeaconVisual checkpointBeacon;
 
         public void Bind(
             CircuitRaceActivity activity,
             ActivityManager manager)
         {
-            race = activity;
-            activityManager = manager;
-            baseScale = transform.localScale;
+            race =
+                activity;
 
-            CacheVisuals();
+            activityManager =
+                manager;
 
-            checkpointBeacon =
-                gameObject.AddComponent<CheckpointBeaconVisual>();
+            legacyRenderers =
+                GetComponentsInChildren<Renderer>(
+                    true);
 
-            checkpointBeacon.Initialize(
-                new Color(
-                    0.08f,
-                    0.9f,
-                    1f),
-                true,
-                CheckpointBeaconStyle.Circuit);
+            HideLegacyVisuals();
 
-            HideLegacyMarkerRenderers();
-
-
-            SnapToTarget();
-            mainCamera = Camera.main;
-        }
-
-        private void CacheVisuals()
-        {
-            markerRenderers =
-                GetComponentsInChildren<Renderer>(true);
-
-            List<Material> materials =
-                new();
-
-            foreach (Renderer renderer in markerRenderers)
+            if (!TryCreateCircuitVfx())
             {
-                if (renderer == null)
-                    continue;
-
-                materials.AddRange(
-                    renderer.materials);
+                CreateFallbackBeacon();
             }
 
-            markerMaterials =
-                materials.ToArray();
+            SnapToTarget();
+
+            RefreshVisibility(
+                true);
         }
 
-        private void HideLegacyMarkerRenderers()
+        private void Update()
         {
-            if (markerRenderers == null)
+            if (race == null)
+                return;
+
+            SnapToTarget();
+
+            if (fallbackBeacon != null)
+            {
+                Vector3 nextTarget =
+                    race.CurrentTarget;
+
+                bool hasNext =
+                    race.IsActive &&
+                    race.TryGetNextTarget(
+                        out nextTarget);
+
+                fallbackBeacon.SetDirection(
+                    race.CurrentTarget,
+                    hasNext
+                        ? nextTarget
+                        : race.CurrentTarget,
+                    hasNext);
+            }
+
+            RefreshVisibility(
+                false);
+        }
+
+        private void SnapToTarget()
+        {
+            transform.position =
+                race.CurrentTarget;
+        }
+
+        private void HideLegacyVisuals()
+        {
+            if (legacyRenderers == null)
                 return;
 
             foreach (Renderer renderer in
-                     markerRenderers)
+                     legacyRenderers)
             {
                 if (renderer != null)
                 {
@@ -83,124 +94,81 @@ namespace MotorCity.World
             }
         }
 
-        private void Update()
+        private bool TryCreateCircuitVfx()
         {
-            if (race == null)
-                return;
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    CircuitVfxResourcePath);
 
+            if (prefab == null)
+                return false;
+
+            circuitVfx =
+                Instantiate(
+                    prefab,
+                    transform);
+
+            circuitVfx.name =
+                "Circuit Marker VFX Runtime";
+
+            circuitVfx.transform.localPosition =
+                Vector3.zero;
+
+            circuitVfx.transform.localRotation =
+                Quaternion.identity;
+
+            circuitVfx.transform.localScale =
+                Vector3.one;
+
+            return
+                true;
+        }
+
+        private void CreateFallbackBeacon()
+        {
+            fallbackBeacon =
+                gameObject.AddComponent<
+                    CheckpointBeaconVisual>();
+
+            fallbackBeacon.Initialize(
+                new Color(
+                    0.08f,
+                    0.9f,
+                    1f),
+                true,
+                CheckpointBeaconStyle.Circuit);
+        }
+
+        private void RefreshVisibility(
+            bool force)
+        {
             bool visible =
                 activityManager == null ||
                 !activityManager.IsBusy ||
-                activityManager.IsActive("circuit");
+                activityManager.IsActive(
+                    "circuit");
 
-            if (!visibilityInitialized ||
-                visible != lastVisible)
+            if (!force &&
+                visibilityInitialized &&
+                visible == lastVisible)
             {
-                visibilityInitialized =
-                    true;
-                lastVisible =
-                    visible;
-                SetVisible(
+                return;
+            }
+
+            visibilityInitialized =
+                true;
+
+            lastVisible =
+                visible;
+
+            if (circuitVfx != null)
+            {
+                circuitVfx.SetActive(
                     visible);
             }
 
-            if (!visible)
-                return;
-
-            SnapToTarget();
-
-            float pulse =
-                1f +
-                Mathf.Sin(
-                    Time.time * 3.7f) *
-                0.018f;
-
-            transform.localScale =
-                baseScale *
-                pulse;
-
-            if (mainCamera == null)
-                mainCamera = Camera.main;
-
-            if (mainCamera != null)
-            {
-                Vector3 direction =
-                    mainCamera.transform.position -
-                    transform.position;
-
-                direction.y = 0f;
-
-                if (direction.sqrMagnitude > 0.01f)
-                {
-                    transform.rotation =
-                        Quaternion.LookRotation(
-                            direction.normalized,
-                            Vector3.up);
-                }
-            }
-
-            Vector3 nextTarget =
-                race.CurrentTarget;
-
-            bool hasNext =
-                race.IsActive &&
-                race.TryGetNextTarget(
-                    out nextTarget);
-
-            checkpointBeacon?.SetDirection(
-                race.CurrentTarget,
-                hasNext
-                    ? nextTarget
-                    : race.CurrentTarget,
-                hasNext);
-
-            bool active =
-                race.IsActive;
-
-            if (!tintInitialized ||
-                active != lastActive)
-            {
-                tintInitialized =
-                    true;
-                lastActive =
-                    active;
-
-                Tint(
-                    active
-                        ? new Color(0.08f, 1f, 0.92f)
-                        : new Color(0.12f, 0.86f, 1f));
-            }
-        }
-
-        private void SnapToTarget()
-        {
-            transform.position =
-                race.CurrentTarget;
-        }
-
-        private void SetVisible(
-            bool visible)
-        {
-            checkpointBeacon?.SetVisible(
+            fallbackBeacon?.SetVisible(
                 visible);
-        }
-
-        private void Tint(
-            Color color)
-        {
-            if (markerMaterials == null)
-                return;
-
-            foreach (Material material in markerMaterials)
-            {
-                if (material == null)
-                    continue;
-
-                if (material.HasProperty("_BaseColor"))
-                    material.SetColor("_BaseColor", color);
-                else if (material.HasProperty("_Color"))
-                    material.color = color;
-            }
         }
     }
 }
