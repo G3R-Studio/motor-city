@@ -21,6 +21,7 @@ namespace MotorCity.Gameplay
             "МАШИНЫ",
             "АКТИВНОСТИ",
             "МИР",
+            "ТЕЛЕПОРТЫ",
             "СИСТЕМЫ"
         };
 
@@ -188,6 +189,9 @@ namespace MotorCity.Gameplay
                     break;
                 case 4:
                     DrawWorld();
+                    break;
+                case 5:
+                    DrawTeleports();
                     break;
                 default:
                     DrawSystems();
@@ -623,6 +627,657 @@ namespace MotorCity.Gameplay
             DrawNamedSystem("WeekendEventSystem");
         }
 
+        private void DrawTeleports()
+        {
+            DrawMarkerVfxStatus();
+
+            Section("ОСНОВНЫЕ ТОЧКИ");
+
+            int column = 0;
+
+            DrawTeleportPoint(
+                "СТАРТ",
+                CityAssetRuntimeInstaller.PlayerSpawnPoint,
+                CityAssetRuntimeInstaller.PlayerSpawnRotation,
+                ref column);
+
+            DrawTeleportPoint(
+                "ГАРАЖ",
+                CityAssetRuntimeInstaller.GaragePoint,
+                Quaternion.identity,
+                ref column);
+
+            DrawTeleportPoint(
+                "ДРИФТ",
+                driftChallenge != null
+                    ? driftChallenge.ZoneCenter
+                    : CityAssetRuntimeInstaller.DriftChallengePoint,
+                Quaternion.identity,
+                ref column);
+
+            DrawRouteStartPoint(
+                "ДОСТАВКА",
+                CityAssetRuntimeInstaller.DeliveryRoute,
+                ref column);
+
+            DrawRouteStartPoint(
+                "СПРИНТ",
+                CityAssetRuntimeInstaller.SprintRoute,
+                ref column);
+
+            DrawRouteStartPoint(
+                "КОЛЬЦО",
+                CityAssetRuntimeInstaller.CircuitRoute,
+                ref column);
+
+            CityProfessionSystem professions =
+                FindSystem("CityProfessionSystem") as
+                    CityProfessionSystem;
+
+            CarWashJobSystem carWash =
+                FindSystem("CarWashJobSystem") as
+                    CarWashJobSystem;
+
+            TowTruckJobSystem towTruck =
+                FindSystem("TowTruckJobSystem") as
+                    TowTruckJobSystem;
+
+            DiscoverySystem discoveries =
+                FindSystem("DiscoverySystem") as
+                    DiscoverySystem;
+
+            StuntJumpSystem stuntJumps =
+                FindSystem("StuntJumpSystem") as
+                    StuntJumpSystem;
+
+            SpeedTrapSystem speedTraps =
+                FindSystem("SpeedTrapSystem") as
+                    SpeedTrapSystem;
+
+            DriftSpotSystem driftSpots =
+                FindSystem("DriftSpotSystem") as
+                    DriftSpotSystem;
+
+            if (carWash != null)
+            {
+                DrawTeleportPoint(
+                    "МОЙКА",
+                    carWash.StartPoint,
+                    Quaternion.identity,
+                    ref column);
+            }
+
+            if (towTruck != null)
+            {
+                DrawTeleportPoint(
+                    "ЭВАКУАТОР",
+                    towTruck.StartPoint,
+                    Quaternion.identity,
+                    ref column);
+            }
+
+            DrawTeleportPoint(
+                "ПОДПОЛЬЕ",
+                CityAssetRuntimeInstaller.UndergroundMeetingPoint,
+                Quaternion.identity,
+                ref column);
+
+            EndTeleportRow(
+                ref column);
+
+            DrawRouteTeleportGrid(
+                "МАРШРУТ ДОСТАВКИ",
+                "ДОСТ",
+                CityAssetRuntimeInstaller.DeliveryRoute);
+
+            DrawRouteTeleportGrid(
+                "МАРШРУТ СПРИНТА",
+                "СПРИНТ",
+                CityAssetRuntimeInstaller.SprintRoute);
+
+            DrawRouteTeleportGrid(
+                "МАРШРУТ КОЛЬЦА",
+                "КОЛЬЦО",
+                CityAssetRuntimeInstaller.CircuitRoute);
+
+            if (discoveries != null &&
+                discoveries.DiscoveryCount > 0)
+            {
+                Section(
+                    "DISCOVERY " +
+                    discoveries.FoundCount +
+                    "/" +
+                    discoveries.DiscoveryCount);
+
+                column = 0;
+
+                for (int i = 0;
+                     i < discoveries.DiscoveryCount;
+                     i++)
+                {
+                    int index = i;
+
+                    string label =
+                        "D" +
+                        (index + 1) +
+                        " " +
+                        ShortLabel(
+                            discoveries.GetDiscoveryName(
+                                index),
+                            18);
+
+                    DrawTeleportPoint(
+                        label,
+                        discoveries.GetDiscoveryPosition(
+                            index),
+                        Quaternion.identity,
+                        ref column);
+                }
+
+                EndTeleportRow(
+                    ref column);
+            }
+
+            if (professions != null &&
+                professions.StartCount > 0)
+            {
+                Section("ПРОФЕССИИ — СТАРТЫ");
+
+                column = 0;
+
+                for (int i = 0;
+                     i < professions.StartCount;
+                     i++)
+                {
+                    int index = i;
+
+                    DrawTeleportPoint(
+                        "РАБОТА " +
+                        (index + 1) +
+                        " " +
+                        ShortLabel(
+                            professions.GetStartName(
+                                index),
+                            16),
+                        professions.GetStartPoint(
+                            index),
+                        Quaternion.identity,
+                        ref column);
+                }
+
+                EndTeleportRow(
+                    ref column);
+            }
+
+            if (towTruck != null)
+            {
+                Section("ЭВАКУАТОР — ТОЧКИ");
+
+                column = 0;
+
+                DrawTeleportPoint(
+                    "СТАРТ ЭВАКУАТОРА",
+                    towTruck.StartPoint,
+                    Quaternion.identity,
+                    ref column);
+
+                DrawTeleportPoint(
+                    "ПОЛОМКА",
+                    towTruck.BreakdownPoint,
+                    Quaternion.identity,
+                    ref column);
+
+                DrawTeleportPoint(
+                    "СЕРВИС",
+                    towTruck.ServicePoint,
+                    Quaternion.identity,
+                    ref column);
+
+                EndTeleportRow(
+                    ref column);
+            }
+
+            DrawDynamicCheckpointTeleports(
+                professions,
+                carWash,
+                towTruck);
+
+            if (stuntJumps != null &&
+                stuntJumps.JumpCount > 0)
+            {
+                Section("STUNT JUMPS");
+
+                column = 0;
+
+                for (int i = 0;
+                     i < stuntJumps.JumpCount;
+                     i++)
+                {
+                    int index = i;
+
+                    DrawTeleportPoint(
+                        "J" +
+                        (index + 1) +
+                        " " +
+                        ShortLabel(
+                            stuntJumps.GetJumpName(
+                                index),
+                            18),
+                        stuntJumps.GetJumpPosition(
+                            index),
+                        stuntJumps.GetJumpRotation(
+                            index),
+                        ref column);
+                }
+
+                EndTeleportRow(
+                    ref column);
+            }
+
+            if (speedTraps != null &&
+                speedTraps.TrapCount > 0)
+            {
+                Section("SPEED TRAPS");
+
+                column = 0;
+
+                for (int i = 0;
+                     i < speedTraps.TrapCount;
+                     i++)
+                {
+                    int index = i;
+
+                    DrawTeleportPoint(
+                        "RADAR " +
+                        (index + 1) +
+                        " " +
+                        ShortLabel(
+                            speedTraps.GetTrapName(
+                                index),
+                            16),
+                        speedTraps.GetTrapPosition(
+                            index),
+                        speedTraps.GetTrapRotation(
+                            index),
+                        ref column);
+                }
+
+                EndTeleportRow(
+                    ref column);
+            }
+
+            if (driftSpots != null &&
+                driftSpots.SpotCount > 0)
+            {
+                Section("DRIFT SPOTS");
+
+                column = 0;
+
+                for (int i = 0;
+                     i < driftSpots.SpotCount;
+                     i++)
+                {
+                    int index = i;
+
+                    DrawTeleportPoint(
+                        "DS" +
+                        (index + 1) +
+                        " " +
+                        ShortLabel(
+                            driftSpots.GetSpotName(
+                                index),
+                            18),
+                        driftSpots.GetSpotPosition(
+                            index),
+                        Quaternion.identity,
+                        ref column);
+                }
+
+                EndTeleportRow(
+                    ref column);
+            }
+        }
+
+        private void DrawMarkerVfxStatus()
+        {
+            string[] names =
+            {
+                "Drift",
+                "Delivery",
+                "Sprint",
+                "Circuit",
+                "Discovery",
+                "Underground",
+                "Profession",
+                "CarWash",
+                "Tow"
+            };
+
+            int ready = 0;
+            List<string> missing =
+                new();
+
+            foreach (string name in names)
+            {
+                GameObject prefab =
+                    Resources.Load<GameObject>(
+                        "MotorCity/Markers/" +
+                        name +
+                        "MarkerVfx");
+
+                if (prefab != null)
+                {
+                    ready++;
+                }
+                else
+                {
+                    missing.Add(
+                        name);
+                }
+            }
+
+            Section("MARKER VFX");
+
+            GUILayout.Label(
+                "ГОТОВО: " +
+                ready +
+                "/" +
+                names.Length);
+
+            if (missing.Count > 0)
+            {
+                GUILayout.Label(
+                    "НЕТ PREFAB: " +
+                    string.Join(
+                        ", ",
+                        missing));
+            }
+            else
+            {
+                GUILayout.Label(
+                    "Все 9 типов VFX доступны через Resources.");
+            }
+        }
+
+        private void DrawRouteStartPoint(
+            string label,
+            Vector3[] route,
+            ref int column)
+        {
+            if (route == null ||
+                route.Length == 0)
+            {
+                return;
+            }
+
+            DrawTeleportPoint(
+                label,
+                route[0],
+                RoutePointRotation(
+                    route,
+                    0),
+                ref column);
+        }
+
+        private void DrawRouteTeleportGrid(
+            string section,
+            string prefix,
+            Vector3[] route)
+        {
+            if (route == null ||
+                route.Length == 0)
+            {
+                return;
+            }
+
+            Section(section);
+
+            int column = 0;
+
+            for (int i = 0;
+                 i < route.Length;
+                 i++)
+            {
+                int index = i;
+
+                DrawTeleportPoint(
+                    prefix +
+                    " " +
+                    (index + 1),
+                    route[index],
+                    RoutePointRotation(
+                        route,
+                        index),
+                    ref column);
+            }
+
+            EndTeleportRow(
+                ref column);
+        }
+
+        private void DrawDynamicCheckpointTeleports(
+            CityProfessionSystem professions,
+            CarWashJobSystem carWash,
+            TowTruckJobSystem towTruck)
+        {
+            bool hasAny =
+                (professions != null &&
+                 professions.IsActive) ||
+                (carWash != null &&
+                 carWash.IsActive) ||
+                (towTruck != null &&
+                 towTruck.IsActive) ||
+                (underground != null &&
+                 (underground.IsActive ||
+                  underground.IsCountingDown));
+
+            if (!hasAny)
+                return;
+
+            Section("АКТИВНЫЕ CHECKPOINT-МЕТКИ");
+
+            int column = 0;
+
+            if (professions != null &&
+                professions.IsActive)
+            {
+                DrawTeleportPointKeepingActivity(
+                    "РАБОТА: CURRENT",
+                    professions.CurrentTarget,
+                    Quaternion.identity,
+                    ref column);
+
+                if (professions.TryGetNextTarget(
+                        out Vector3 professionNext))
+                {
+                    DrawTeleportPointKeepingActivity(
+                        "РАБОТА: NEXT",
+                        professionNext,
+                        Quaternion.identity,
+                        ref column);
+                }
+            }
+
+            if (carWash != null &&
+                carWash.IsActive)
+            {
+                DrawTeleportPointKeepingActivity(
+                    "МОЙКА: CURRENT",
+                    carWash.CurrentTarget,
+                    Quaternion.identity,
+                    ref column);
+            }
+
+            if (towTruck != null &&
+                towTruck.IsActive)
+            {
+                DrawTeleportPointKeepingActivity(
+                    "ЭВАК: CURRENT",
+                    towTruck.CurrentTarget,
+                    Quaternion.identity,
+                    ref column);
+
+                if (towTruck.TryGetNextTarget(
+                        out Vector3 towNext))
+                {
+                    DrawTeleportPointKeepingActivity(
+                        "ЭВАК: NEXT",
+                        towNext,
+                        Quaternion.identity,
+                        ref column);
+                }
+            }
+
+            if (underground != null &&
+                (underground.IsActive ||
+                 underground.IsCountingDown))
+            {
+                DrawTeleportPointKeepingActivity(
+                    "ПОДПОЛЬЕ: CURRENT",
+                    underground.CurrentTarget,
+                    Quaternion.identity,
+                    ref column);
+
+                if (underground.TryGetNextTarget(
+                        out Vector3 undergroundNext))
+                {
+                    DrawTeleportPointKeepingActivity(
+                        "ПОДПОЛЬЕ: NEXT",
+                        undergroundNext,
+                        Quaternion.identity,
+                        ref column);
+                }
+            }
+
+            EndTeleportRow(
+                ref column);
+
+            GUILayout.Label(
+                "CURRENT/NEXT сохраняют активную миссию, чтобы checkpoint не исчезал.");
+        }
+
+        private void DrawTeleportPoint(
+            string label,
+            Vector3 position,
+            Quaternion rotation,
+            ref int column)
+        {
+            if (column == 0)
+                GUILayout.BeginHorizontal();
+
+            if (Button(label))
+            {
+                Teleport(
+                    position,
+                    rotation);
+            }
+
+            column++;
+
+            if (column >= 3)
+            {
+                GUILayout.EndHorizontal();
+                column = 0;
+            }
+        }
+
+        private void DrawTeleportPointKeepingActivity(
+            string label,
+            Vector3 position,
+            Quaternion rotation,
+            ref int column)
+        {
+            if (column == 0)
+                GUILayout.BeginHorizontal();
+
+            if (Button(label))
+            {
+                TeleportKeepingActivity(
+                    position,
+                    rotation);
+            }
+
+            column++;
+
+            if (column >= 3)
+            {
+                GUILayout.EndHorizontal();
+                column = 0;
+            }
+        }
+
+        private static void EndTeleportRow(
+            ref int column)
+        {
+            if (column == 0)
+                return;
+
+            GUILayout.EndHorizontal();
+            column = 0;
+        }
+
+        private static Quaternion RoutePointRotation(
+            Vector3[] route,
+            int index)
+        {
+            if (route == null ||
+                route.Length < 2)
+            {
+                return Quaternion.identity;
+            }
+
+            int safeIndex =
+                Mathf.Clamp(
+                    index,
+                    0,
+                    route.Length - 1);
+
+            int otherIndex =
+                safeIndex < route.Length - 1
+                    ? safeIndex + 1
+                    : safeIndex - 1;
+
+            Vector3 forward =
+                route[otherIndex] -
+                route[safeIndex];
+
+            if (safeIndex == route.Length - 1)
+                forward = -forward;
+
+            forward.y = 0f;
+
+            return
+                forward.sqrMagnitude > 0.01f
+                    ? Quaternion.LookRotation(
+                        forward.normalized,
+                        Vector3.up)
+                    : Quaternion.identity;
+        }
+
+        private static string ShortLabel(
+            string value,
+            int maxLength)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    value))
+            {
+                return "—";
+            }
+
+            string compact =
+                value.Trim();
+
+            return
+                compact.Length <= maxLength
+                    ? compact
+                    : compact.Substring(
+                        0,
+                        Mathf.Max(
+                            1,
+                            maxLength - 1)) +
+                      "…";
+        }
+
         private void DrawWorld()
         {
             Section("ВРЕМЯ СУТОК");
@@ -952,10 +1607,32 @@ namespace MotorCity.Gameplay
             Vector3 position,
             Quaternion rotation)
         {
+            TeleportInternal(
+                position,
+                rotation,
+                true);
+        }
+
+        private void TeleportKeepingActivity(
+            Vector3 position,
+            Quaternion rotation)
+        {
+            TeleportInternal(
+                position,
+                rotation,
+                false);
+        }
+
+        private void TeleportInternal(
+            Vector3 position,
+            Quaternion rotation,
+            bool cancelActivities)
+        {
             if (car == null)
                 return;
 
-            CancelActivities();
+            if (cancelActivities)
+                CancelActivities();
 
             car.TeleportTo(
                 position + Vector3.up * 1.1f,
@@ -964,7 +1641,9 @@ namespace MotorCity.Gameplay
             car.SetDrivingEnabled(true);
 
             lastAction =
-                "Телепорт: " +
+                (cancelActivities
+                    ? "Телепорт: "
+                    : "Телепорт без отмены: ") +
                 position.x.ToString("0") +
                 ", " +
                 position.z.ToString("0");
