@@ -688,10 +688,6 @@ namespace MotorCity.Gameplay
                 FindSystem("DiscoverySystem") as
                     DiscoverySystem;
 
-            StuntJumpSystem stuntJumps =
-                FindSystem("StuntJumpSystem") as
-                    StuntJumpSystem;
-
             SpeedTrapSystem speedTraps =
                 FindSystem("SpeedTrapSystem") as
                     SpeedTrapSystem;
@@ -843,55 +839,6 @@ namespace MotorCity.Gameplay
                 professions,
                 carWash,
                 towTruck);
-
-            if (stuntJumps != null &&
-                stuntJumps.JumpCount > 0)
-            {
-                Section("STUNT JUMPS");
-
-                column = 0;
-
-                for (int i = 0;
-                     i < stuntJumps.JumpCount;
-                     i++)
-                {
-                    int index = i;
-
-                    DrawTeleportPoint(
-                        "J" +
-                        (index + 1) +
-                        " " +
-                        ShortLabel(
-                            stuntJumps.GetJumpName(
-                                index),
-                            18),
-                        stuntJumps.GetJumpPosition(
-                            index),
-                        stuntJumps.GetJumpRotation(
-                            index),
-                        ref column);
-
-                    if (stuntJumps.HasLandingTarget(
-                            index))
-                    {
-                        DrawTeleportPoint(
-                            "J" +
-                            (index + 1) +
-                            " ROOF " +
-                            stuntJumps.GetRecommendedSpeedKph(
-                                index).ToString("0") +
-                            " KM/H",
-                            stuntJumps.GetLandingPosition(
-                                index),
-                            stuntJumps.GetJumpRotation(
-                                index),
-                            ref column);
-                    }
-                }
-
-                EndTeleportRow(
-                    ref column);
-            }
 
             if (speedTraps != null &&
                 speedTraps.TrapCount > 0)
