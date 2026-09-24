@@ -12,14 +12,21 @@ public static class MotorCityActivityMarkerBuilder
     private const string DriftIconPath =
         "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/return.png";
 
+    private const string DeliveryIconPath =
+        "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/export.png";
+
     private const string OutputRoot =
         "Assets/Resources/MotorCity/Markers";
 
-    private const string OutputPrefabPath =
+    private const string DriftPrefabPath =
         OutputRoot +
         "/DriftMarkerVfx.prefab";
 
-    private const string OutputMaterialPath =
+    private const string DeliveryPrefabPath =
+        OutputRoot +
+        "/DeliveryMarkerVfx.prefab";
+
+    private const string LegacyDriftMaterialPath =
         OutputRoot +
         "/DriftMarker_Hologram.mat";
 
@@ -30,22 +37,80 @@ public static class MotorCityActivityMarkerBuilder
             0.035f,
             1f);
 
+    private static readonly Color DeliveryBlue =
+        new(
+            0.06f,
+            0.48f,
+            1f,
+            1f);
+
     [MenuItem(
         "Motor City/Markers/1 - Build Drift Marker VFX")]
     private static void BuildDriftMarker()
     {
+        AssetDatabase.DeleteAsset(
+            LegacyDriftMaterialPath);
+
+        BuildMarker(
+            "MotorCity_DriftMarkerVfx",
+            DriftPrefabPath,
+            DriftIconPath,
+            "Drift",
+            DriftOrange,
+            0.62f,
+            2.85f,
+            1.82f);
+    }
+
+    [MenuItem(
+        "Motor City/Markers/2 - Build Delivery Marker VFX")]
+    private static void BuildDeliveryMarker()
+    {
+        BuildMarker(
+            "MotorCity_DeliveryMarkerVfx",
+            DeliveryPrefabPath,
+            DeliveryIconPath,
+            "Delivery",
+            DeliveryBlue,
+            0.58f,
+            3.05f,
+            1.68f);
+    }
+
+    [MenuItem(
+        "Motor City/Markers/Build All Marker VFX")]
+    private static void BuildAllMarkers()
+    {
+        BuildDriftMarker();
+        BuildDeliveryMarker();
+    }
+
+    private static void BuildMarker(
+        string rootName,
+        string outputPrefabPath,
+        string iconPath,
+        string iconLabel,
+        Color color,
+        float groundScale,
+        float iconHeight,
+        float iconScale)
+    {
         Directory.CreateDirectory(
             OutputRoot);
 
-        PrepareDriftIcon();
+        if (!PrepareIcon(
+                iconPath))
+        {
+            return;
+        }
 
         GameObject sourceVfx =
             AssetDatabase.LoadAssetAtPath<GameObject>(
                 SourceMagicCirclePath);
 
-        Sprite driftIcon =
+        Sprite icon =
             AssetDatabase.LoadAssetAtPath<Sprite>(
-                DriftIconPath);
+                iconPath);
 
         if (sourceVfx == null)
         {
@@ -56,21 +121,18 @@ public static class MotorCityActivityMarkerBuilder
             return;
         }
 
-        if (driftIcon == null)
+        if (icon == null)
         {
             Debug.LogError(
-                "Motor City: drift icon could not be imported as a Sprite: " +
-                DriftIconPath);
+                "Motor City: marker icon could not be imported as a Sprite: " +
+                iconPath);
 
             return;
         }
 
-        AssetDatabase.DeleteAsset(
-            OutputMaterialPath);
-
         GameObject root =
             new(
-                "MotorCity_DriftMarkerVfx");
+                rootName);
 
         try
         {
@@ -110,15 +172,20 @@ public static class MotorCityActivityMarkerBuilder
 
             groundVfx.transform.localScale =
                 Vector3.one *
-                0.62f;
+                groundScale;
 
             ConfigureGroundVfx(
-                groundVfx);
+                groundVfx,
+                color);
 
             Transform iconRoot =
                 CreateMissionIcon(
                     root.transform,
-                    driftIcon);
+                    icon,
+                    iconLabel,
+                    color,
+                    iconHeight,
+                    iconScale);
 
             ActivityMarkerVfxAnimator animator =
                 root.AddComponent<
@@ -130,12 +197,13 @@ public static class MotorCityActivityMarkerBuilder
             GameObject saved =
                 PrefabUtility.SaveAsPrefabAsset(
                     root,
-                    OutputPrefabPath);
+                    outputPrefabPath);
 
             if (saved == null)
             {
                 Debug.LogError(
-                    "Motor City: failed to save drift marker VFX prefab.");
+                    "Motor City: failed to save activity marker VFX prefab: " +
+                    outputPrefabPath);
 
                 return;
             }
@@ -144,8 +212,8 @@ public static class MotorCityActivityMarkerBuilder
             AssetDatabase.Refresh();
 
             Debug.Log(
-                "Motor City: built drift marker VFX at '" +
-                OutputPrefabPath +
+                "Motor City: built activity marker VFX at '" +
+                outputPrefabPath +
                 "'.");
         }
         finally
@@ -155,20 +223,22 @@ public static class MotorCityActivityMarkerBuilder
         }
     }
 
-    private static void PrepareDriftIcon()
+    private static bool PrepareIcon(
+        string iconPath)
     {
         TextureImporter importer =
             AssetImporter.GetAtPath(
-                DriftIconPath) as
+                iconPath) as
                 TextureImporter;
 
         if (importer == null)
         {
             Debug.LogError(
-                "Motor City: drift icon TextureImporter is unavailable: " +
-                DriftIconPath);
+                "Motor City: marker icon TextureImporter is unavailable: " +
+                iconPath);
 
-            return;
+            return
+                false;
         }
 
         bool changed =
@@ -181,35 +251,39 @@ public static class MotorCityActivityMarkerBuilder
             importer.maxTextureSize !=
                 256;
 
-        if (!changed)
-            return;
+        if (changed)
+        {
+            importer.textureType =
+                TextureImporterType.Sprite;
 
-        importer.textureType =
-            TextureImporterType.Sprite;
+            importer.spriteImportMode =
+                SpriteImportMode.Single;
 
-        importer.spriteImportMode =
-            SpriteImportMode.Single;
+            importer.mipmapEnabled =
+                false;
 
-        importer.mipmapEnabled =
-            false;
+            importer.alphaIsTransparency =
+                true;
 
-        importer.alphaIsTransparency =
+            importer.wrapMode =
+                TextureWrapMode.Clamp;
+
+            importer.filterMode =
+                FilterMode.Bilinear;
+
+            importer.maxTextureSize =
+                256;
+
+            importer.SaveAndReimport();
+        }
+
+        return
             true;
-
-        importer.wrapMode =
-            TextureWrapMode.Clamp;
-
-        importer.filterMode =
-            FilterMode.Bilinear;
-
-        importer.maxTextureSize =
-            256;
-
-        importer.SaveAndReimport();
     }
 
     private static void ConfigureGroundVfx(
-        GameObject groundVfx)
+        GameObject groundVfx,
+        Color color)
     {
         foreach (Collider collider in
                  groundVfx.GetComponentsInChildren<Collider>(
@@ -232,15 +306,12 @@ public static class MotorCityActivityMarkerBuilder
             ParticleSystem.MainModule main =
                 particles.main;
 
-            Color particleColor =
-                new(
-                    DriftOrange.r,
-                    DriftOrange.g,
-                    DriftOrange.b,
-                    0.86f);
-
             main.startColor =
-                particleColor;
+                new Color(
+                    color.r,
+                    color.g,
+                    color.b,
+                    0.86f);
         }
 
         foreach (Renderer renderer in
@@ -260,7 +331,11 @@ public static class MotorCityActivityMarkerBuilder
 
     private static Transform CreateMissionIcon(
         Transform parent,
-        Sprite sprite)
+        Sprite sprite,
+        string label,
+        Color color,
+        float height,
+        float scale)
     {
         GameObject iconObject =
             new(
@@ -273,7 +348,7 @@ public static class MotorCityActivityMarkerBuilder
         iconObject.transform.localPosition =
             new Vector3(
                 0f,
-                2.85f,
+                height,
                 0f);
 
         iconObject.transform.localRotation =
@@ -284,26 +359,29 @@ public static class MotorCityActivityMarkerBuilder
 
         CreateIconPlane(
             iconObject.transform,
-            "Drift Icon Glow",
+            label +
+            " Icon Glow",
             sprite,
             new Color(
-                1f,
-                0.24f,
-                0.015f,
+                color.r,
+                color.g,
+                color.b,
                 0.22f),
-            2.18f,
+            scale *
+            1.20f,
             44);
 
         CreateIconPlane(
             iconObject.transform,
-            "Drift Icon Core",
+            label +
+            " Icon Core",
             sprite,
             new Color(
-                1f,
-                0.36f,
-                0.025f,
+                color.r,
+                color.g,
+                color.b,
                 1f),
-            1.82f,
+            scale,
             45);
 
         return
