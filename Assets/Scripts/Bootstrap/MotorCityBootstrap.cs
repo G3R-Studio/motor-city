@@ -655,7 +655,10 @@ namespace MotorCity.Bootstrap
         private static void CreatePrototypeCity()
         {
             if (CityAssetRuntimeInstaller.TryInstall())
+            {
+                PlayerGarageRuntimeInstaller.TryInstall();
                 return;
+            }
 
             Debug.LogWarning(
                 "Motor City: Fantastic City Generator runtime city is missing. " +
