@@ -484,12 +484,10 @@ namespace MotorCity.World
                     Vector3.up);
 
             GaragePoint =
-                FindParkingPointNear(
-                    new Vector3(
-                        -585.822f,
-                        0f,
-                        505.109f),
-                    16f);
+                new Vector3(
+                    -585.822f,
+                    0.2f,
+                    505.109f);
 
             DriftChallengePoint =
                 FindRoadPointNear(
