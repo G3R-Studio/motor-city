@@ -994,10 +994,10 @@ namespace MotorCity.UI
                         0.5f,
                         0.5f),
                     new Color(
-                        0.02f,
-                        0.03f,
-                        0.045f,
-                        0.98f));
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
+                        0.985f));
 
             Text title =
                 CreateText(
@@ -1961,10 +1961,10 @@ namespace MotorCity.UI
                         0.5f,
                         0.5f),
                     new Color(
-                        0.02f,
-                        0.03f,
-                        0.045f,
-                        0.98f));
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
+                        0.985f));
 
             Text title =
                 CreateText(
@@ -2151,11 +2151,7 @@ namespace MotorCity.UI
                 buttonObject.GetComponent<Image>();
 
             image.color =
-                new Color(
-                    0.075f,
-                    0.07f,
-                    0.12f,
-                    0.96f);
+                PanelSoftColor;
 
             Button button =
                 buttonObject.GetComponent<Button>();
@@ -5485,34 +5481,10 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
-                        0.055f,
-                        0.05f,
-                        0.095f,
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
                         0.985f));
-
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(0f, -5f),
-                new Vector2(530f, 4f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f));
-
-            CreateAccent(
-                panel,
-                DriftAccent,
-                new Vector2(
-                    -150f,
-                    -5f),
-                new Vector2(
-                    120f,
-                    4f),
-                new Vector2(
-                    0.5f,
-                    1f),
-                new Vector2(
-                    0.5f,
-                    1f));
 
             resultActivityIcon =
                 CreateHudIcon(
@@ -5860,10 +5832,10 @@ namespace MotorCity.UI
                         0.5f,
                         0.5f),
                     new Color(
-                        0.02f,
-                        0.03f,
-                        0.05f,
-                        0.98f));
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
+                        0.985f));
 
             Text title =
                 CreateText(
@@ -6144,34 +6116,10 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
-                        0.055f,
-                        0.05f,
-                        0.095f,
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
                         0.985f));
-
-            CreateAccent(
-                panel,
-                GarageAccent,
-                new Vector2(0f, -5f),
-                new Vector2(676f, 4f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f));
-
-            CreateAccent(
-                panel,
-                DriftAccent,
-                new Vector2(
-                    -220f,
-                    -5f),
-                new Vector2(
-                    150f,
-                    4f),
-                new Vector2(
-                    0.5f,
-                    1f),
-                new Vector2(
-                    0.5f,
-                    1f));
 
             garageHeaderIcon =
                 CreateHudIcon(
