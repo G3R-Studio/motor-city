@@ -139,6 +139,12 @@ namespace MotorCity.Vehicle
                         visual.transform)
                     : Array.Empty<Transform>();
 
+            Transform[] authoredSixWheelBusWheels =
+                useAuthoredBusRig
+                    ? FindAuthoredSixWheelBusWheels(
+                        visual.transform)
+                    : Array.Empty<Transform>();
+
             float authoredBusWheelRadius =
                 useAuthoredBusRig
                     ? MeasureAuthoredBusWheelRadius(
@@ -167,14 +173,9 @@ namespace MotorCity.Vehicle
             }
             else if (useAuthoredBusRig)
             {
-                // FCG BusMirim is authored correctly already: its wheelbase
-                // runs along local Z, the front axle is +Z and the rear axle
-                // is -Z. Keep that source orientation instead of applying any
-                // guessed quarter/half turn.
-                NormalizeScaleOnly(
-                    visual.transform,
-                    targetLength);
-
+                // FCG buses are authored at the same real-world scale used by
+                // city traffic. Preserve scale 1:1 so the player BusClimm has
+                // exactly the same visual dimensions as traffic BusClimm.
                 visual.transform.localRotation =
                     Quaternion.identity;
             }
@@ -204,6 +205,11 @@ namespace MotorCity.Vehicle
                         ? FindAuthoredPolyPackWheels(
                             visual.transform)
                         : Array.Empty<Transform>();
+
+            Transform[] authoredSixWheelVisuals =
+                authoredSixWheelBusWheels.Length == 6
+                    ? authoredSixWheelBusWheels
+                    : authoredSixWheelPolyPackWheels;
 
             List<Transform> wheelAnchors =
                 useAuthoredBusRig &&
@@ -303,7 +309,7 @@ namespace MotorCity.Vehicle
             Vector3[] additionalOffsetsLocal =
                 Array.Empty<Vector3>();
 
-            if (authoredSixWheelPolyPackWheels.Length == 6)
+            if (authoredSixWheelVisuals.Length == 6)
             {
                 additionalSpinRoots =
                     new Transform[2];
@@ -316,7 +322,7 @@ namespace MotorCity.Vehicle
                      i++)
                 {
                     Transform authoredWheel =
-                        authoredSixWheelPolyPackWheels[4 + i];
+                        authoredSixWheelVisuals[4 + i];
 
                     Bounds bounds =
                         RendererBounds(
@@ -905,8 +911,8 @@ namespace MotorCity.Vehicle
             if (root == null)
                 return Array.Empty<Transform>();
 
-            // Native FCG BusMirim naming and axle contract:
-            // FL/FR are the +Z front axle, BL/BR are the -Z rear axle.
+            // Native FCG bus naming and axle contract:
+            // FL/FR are the +Z front axle, BL/BR are the rearmost axle.
             string[] names =
             {
                 "FL",
@@ -941,6 +947,53 @@ namespace MotorCity.Vehicle
                 {
                     return Array.Empty<Transform>();
                 }
+            }
+
+            return result;
+        }
+
+        private static Transform[] FindAuthoredSixWheelBusWheels(
+            Transform root)
+        {
+            if (root == null)
+                return Array.Empty<Transform>();
+
+            // BusClimm uses a tandem rear axle. BL/BR remain the physical rear
+            // axle while BL2/BR2 are synced as the additional visual axle.
+            string[] names =
+            {
+                "FL",
+                "FR",
+                "BL",
+                "BR",
+                "BL2",
+                "BR2"
+            };
+
+            Transform[] all =
+                root.GetComponentsInChildren<Transform>(
+                    true);
+
+            Transform[] result =
+                new Transform[names.Length];
+
+            for (int i = 0;
+                 i < names.Length;
+                 i++)
+            {
+                result[i] =
+                    all.FirstOrDefault(
+                        item =>
+                            item != null &&
+                            string.Equals(
+                                item.name,
+                                names[i],
+                                StringComparison.OrdinalIgnoreCase) &&
+                            item.GetComponentInChildren<Renderer>(
+                                true) != null);
+
+                if (result[i] == null)
+                    return Array.Empty<Transform>();
             }
 
             return result;
