@@ -65,6 +65,8 @@ namespace MotorCity.UI
         private Font font;
         private Sprite panelSprite;
         private MotorCityUiThemeAssets uiThemeAssets;
+        private static Sprite villePanelSprite;
+        private static Texture2D villePanelSpriteSource;
 
         private Text moneyText;
         private Text reputationText;
@@ -2814,7 +2816,7 @@ namespace MotorCity.UI
                         78f,
                         -9f),
                     new Vector2(
-                        180f,
+                        150f,
                         18f),
                     new Vector2(
                         0f,
@@ -2835,7 +2837,7 @@ namespace MotorCity.UI
                         78f,
                         -27f),
                     new Vector2(
-                        266f,
+                        232f,
                         22f),
                     new Vector2(
                         0f,
@@ -2856,7 +2858,7 @@ namespace MotorCity.UI
                         78f,
                         -49f),
                     new Vector2(
-                        266f,
+                        232f,
                         17f),
                     new Vector2(
                         0f,
@@ -2877,8 +2879,8 @@ namespace MotorCity.UI
                         78f,
                         11f),
                     new Vector2(
-                        266f,
-                        41f),
+                        232f,
+                        32f),
                     new Vector2(
                         0f,
                         0f),
@@ -2898,7 +2900,7 @@ namespace MotorCity.UI
                         -18f,
                         8f),
                     new Vector2(
-                        220f,
+                        170f,
                         17f),
                     new Vector2(
                         1f,
@@ -3863,11 +3865,11 @@ namespace MotorCity.UI
             speedNeedleGlowRect.anchorMax =
                 new Vector2(0.5f, 0f);
             speedNeedleGlowRect.pivot =
-                new Vector2(0.5f, 4f / 88f);
+                new Vector2(0.5f, 0.08f);
             speedNeedleGlowRect.anchoredPosition =
                 gaugeCenter;
             speedNeedleGlowRect.sizeDelta =
-                new Vector2(19f, 90f);
+                new Vector2(22f, 96f);
             speedNeedleGlowRect.localRotation =
                 Quaternion.Euler(
                     0f,
@@ -3892,7 +3894,7 @@ namespace MotorCity.UI
                 new(
                     "Speed Needle",
                     typeof(RectTransform),
-                    typeof(Image));
+                    typeof(RawImage));
 
             needleObject.transform.SetParent(
                 panel,
@@ -3906,20 +3908,44 @@ namespace MotorCity.UI
             speedNeedle.anchorMax =
                 new Vector2(0.5f, 0f);
             speedNeedle.pivot =
-                new Vector2(0.5f, 0f);
+                new Vector2(0.5f, 0.08f);
             speedNeedle.anchoredPosition =
                 gaugeCenter;
+
+            Texture2D needleTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.needleLong;
+
+            float needleHeight =
+                84f;
+
+            float needleWidth =
+                needleTexture != null &&
+                needleTexture.height > 0
+                    ? Mathf.Clamp(
+                        needleHeight *
+                        needleTexture.width /
+                        needleTexture.height,
+                        8f,
+                        24f)
+                    : 12f;
+
             speedNeedle.sizeDelta =
-                new Vector2(3f, 80f);
+                new Vector2(
+                    needleWidth,
+                    needleHeight);
             speedNeedle.localRotation =
                 Quaternion.Euler(
                     0f,
                     0f,
                     135f);
 
-            Image needleImage =
-                needleObject.GetComponent<Image>();
+            RawImage needleImage =
+                needleObject.GetComponent<RawImage>();
 
+            needleImage.texture =
+                needleTexture;
             needleImage.color =
                 new Color32(
                     0xB9,
@@ -4645,8 +4671,8 @@ namespace MotorCity.UI
                         8f,
                         6f),
                     new Vector2(
-                        146f,
-                        26f),
+                        176f,
+                        28f),
                     new Vector2(
                         0f,
                         0f),
@@ -4667,10 +4693,10 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(
-                        8f,
+                        14f,
                         0f),
                     new Vector2(
-                        130f,
+                        148f,
                         22f),
                     new Vector2(
                         0f,
@@ -5520,7 +5546,7 @@ namespace MotorCity.UI
                     canvas,
                     "Drift HUD",
                     new Vector2(0f, -58f),
-                    new Vector2(272f, 48f),
+                    new Vector2(304f, 48f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     Color.clear);
@@ -5539,7 +5565,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, -2f),
-                    new Vector2(246f, 32f),
+                    new Vector2(268f, 32f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
@@ -8795,6 +8821,60 @@ namespace MotorCity.UI
             }
         }
 
+        private static Sprite GetVillePanelSprite(
+            Texture2D texture)
+        {
+            if (texture == null)
+                return null;
+
+            if (villePanelSprite != null &&
+                villePanelSpriteSource == texture)
+            {
+                return villePanelSprite;
+            }
+
+            float borderX =
+                Mathf.Clamp(
+                    texture.width * 0.18f,
+                    8f,
+                    texture.width * 0.32f);
+
+            float borderY =
+                Mathf.Clamp(
+                    texture.height * 0.22f,
+                    4f,
+                    texture.height * 0.40f);
+
+            villePanelSprite =
+                Sprite.Create(
+                    texture,
+                    new Rect(
+                        0f,
+                        0f,
+                        texture.width,
+                        texture.height),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    100f,
+                    0,
+                    SpriteMeshType.FullRect,
+                    new Vector4(
+                        borderX,
+                        borderY,
+                        borderX,
+                        borderY));
+
+            villePanelSprite.name =
+                "Motor City Ville Panel Sliced";
+            villePanelSprite.hideFlags =
+                HideFlags.DontSave;
+            villePanelSpriteSource =
+                texture;
+
+            return villePanelSprite;
+        }
+
         private void ApplyVillePanelTexture(
             RectTransform panel,
             float alpha)
@@ -8810,14 +8890,18 @@ namespace MotorCity.UI
                     ? null
                     : uiThemeAssets.rectanglePanel;
 
-            if (texture == null)
+            Sprite sprite =
+                GetVillePanelSprite(
+                    texture);
+
+            if (sprite == null)
                 return;
 
             GameObject backgroundObject =
                 new(
                     "Ville Panel Background",
                     typeof(RectTransform),
-                    typeof(RawImage));
+                    typeof(Image));
 
             backgroundObject.transform.SetParent(
                 panel,
@@ -8837,11 +8921,15 @@ namespace MotorCity.UI
             rect.offsetMax =
                 Vector2.zero;
 
-            RawImage image =
-                backgroundObject.GetComponent<RawImage>();
+            Image image =
+                backgroundObject.GetComponent<Image>();
 
-            image.texture =
-                texture;
+            image.sprite =
+                sprite;
+            image.type =
+                Image.Type.Sliced;
+            image.preserveAspect =
+                false;
             image.color =
                 new Color(
                     1f,
@@ -8936,7 +9024,7 @@ namespace MotorCity.UI
 
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize =
-                Mathf.Max(10, fontSize - 5);
+                Mathf.Max(8, fontSize - 7);
             text.resizeTextMaxSize = fontSize;
 
             Shadow shadow =
