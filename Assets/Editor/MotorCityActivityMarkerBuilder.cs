@@ -248,10 +248,10 @@ public static class MotorCityActivityMarkerBuilder
             material.SetColor(
                 "Color_7C878D04",
                 new Color(
-                    3.2f,
-                    0.72f,
-                    0.06f,
-                    1f));
+                    1.45f,
+                    0.34f,
+                    0.035f,
+                    0.92f));
         }
 
         if (material.HasProperty(
@@ -259,7 +259,7 @@ public static class MotorCityActivityMarkerBuilder
         {
             material.SetFloat(
                 "Vector1_990D825D",
-                0.34f);
+                0.12f);
         }
 
         if (material.HasProperty(
@@ -268,8 +268,8 @@ public static class MotorCityActivityMarkerBuilder
             material.SetVector(
                 "Vector2_C409DFC2",
                 new Vector4(
-                    8f,
-                    13f,
+                    3f,
+                    5f,
                     0f,
                     0f));
         }
@@ -359,20 +359,10 @@ public static class MotorCityActivityMarkerBuilder
 
         CreateIconPlane(
             iconObject.transform,
-            "Drift Hologram A",
+            "Drift Hologram",
             sprite,
             material,
             Quaternion.identity);
-
-        CreateIconPlane(
-            iconObject.transform,
-            "Drift Hologram B",
-            sprite,
-            material,
-            Quaternion.Euler(
-                0f,
-                90f,
-                0f));
 
         return
             iconObject.transform;
@@ -400,7 +390,7 @@ public static class MotorCityActivityMarkerBuilder
 
         plane.transform.localScale =
             Vector3.one *
-            1.78f;
+            1.62f;
 
         SpriteRenderer renderer =
             plane.AddComponent<SpriteRenderer>();
