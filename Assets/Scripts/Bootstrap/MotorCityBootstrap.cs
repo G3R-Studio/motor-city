@@ -286,14 +286,6 @@ namespace MotorCity.Bootstrap
                 wallet,
                 turbo);
 
-            StuntJumpSystem stuntJumps =
-                systems.AddComponent<StuntJumpSystem>();
-            stuntJumps.Initialize(
-                car,
-                wallet,
-                reputation,
-                activityManager);
-
             GarageUpgradeSystem garage = systems.AddComponent<GarageUpgradeSystem>();
             garage.Initialize(
                 car,
@@ -494,7 +486,6 @@ namespace MotorCity.Bootstrap
             // CreateSpeedTrapMarkers(speedTraps);
             // CreateDriftSpotMarkers(driftSpots);
             CreateDiscoveryMarkers(discoveries);
-            CreateStuntJumpRamps(stuntJumps);
             CreateGarageMarker(garage);
             CreateUndergroundMarker(underground);
             CreateUndergroundCheckpointMarker(underground);
@@ -516,7 +507,6 @@ namespace MotorCity.Bootstrap
                 speedTraps,
                 driftSpots,
                 discoveries,
-                stuntJumps,
                 activityManager,
                 garage,
                 career,
@@ -1253,239 +1243,6 @@ namespace MotorCity.Bootstrap
             }
         }
 
-        private static void CreateStuntJumpRamps(
-            StuntJumpSystem stuntJumps)
-        {
-            if (stuntJumps == null)
-                return;
-
-            Material rampMaterial =
-                Material(
-                    new Color(
-                        0.92f,
-                        0.72f,
-                        0.08f),
-                    0.10f,
-                    0.54f);
-
-            Material stripeMaterial =
-                Material(
-                    new Color(
-                        0.08f,
-                        0.09f,
-                        0.11f),
-                    0.04f,
-                    0.42f);
-
-            for (int i = 0;
-                 i < stuntJumps.JumpCount;
-                 i++)
-            {
-                GameObject root =
-                    new(
-                        $"Stunt Jump {i + 1}");
-
-                root.transform.position =
-                    stuntJumps.GetJumpPosition(i);
-
-                root.transform.rotation =
-                    stuntJumps.GetJumpRotation(i);
-
-                GameObject ramp =
-                    Primitive(
-                        "Ramp",
-                        PrimitiveType.Cube,
-                        root.transform,
-                        new Vector3(
-                            5.2f,
-                            0.52f,
-                            10.5f),
-                        new Vector3(
-                            0f,
-                            0.92f,
-                            0f),
-                        rampMaterial,
-                        true);
-
-                ramp.transform.localRotation =
-                    Quaternion.Euler(
-                        -15.5f,
-                        0f,
-                        0f);
-
-                for (int stripe = -1;
-                     stripe <= 1;
-                     stripe++)
-                {
-                    GameObject marker =
-                        Primitive(
-                            "Ramp Stripe",
-                            PrimitiveType.Cube,
-                            root.transform,
-                            new Vector3(
-                                0.38f,
-                                0.055f,
-                                9.4f),
-                            new Vector3(
-                                stripe * 1.55f,
-                                1.47f,
-                                0.08f),
-                            stripeMaterial,
-                            false);
-
-                    marker.transform.localRotation =
-                        Quaternion.Euler(
-                            -15.5f,
-                            0f,
-                            0f);
-                }
-
-                if (!stuntJumps.HasLandingTarget(i))
-                    continue;
-
-                GameObject rewardMarker =
-                    CreateStuntRewardMarker(
-                        i,
-                        stuntJumps.GetLandingPosition(i));
-
-                stuntJumps.RegisterRewardMarker(
-                    i,
-                    rewardMarker);
-            }
-        }
-
-        private static GameObject CreateStuntRewardMarker(
-            int index,
-            Vector3 position)
-        {
-            GameObject root =
-                new(
-                    $"Stunt Roof Reward {index + 1}");
-
-            root.transform.position =
-                position;
-
-            Material padMaterial =
-                Material(
-                    new Color(
-                        0.08f,
-                        0.76f,
-                        1f),
-                    0.04f,
-                    0.72f);
-
-            GameObject pad =
-                Primitive(
-                    "Landing Reward Pad",
-                    PrimitiveType.Cylinder,
-                    root.transform,
-                    new Vector3(
-                        3.2f,
-                        0.06f,
-                        3.2f),
-                    new Vector3(
-                        0f,
-                        0.04f,
-                        0f),
-                    padMaterial,
-                    false);
-
-            pad.transform.localRotation =
-                Quaternion.identity;
-
-            GameObject iconRoot =
-                new(
-                    "Mission Icon");
-
-            iconRoot.transform.SetParent(
-                root.transform,
-                false);
-
-            iconRoot.transform.localPosition =
-                new Vector3(
-                    0f,
-                    2.15f,
-                    0f);
-
-            Sprite[] sprites =
-                Resources.LoadAll<Sprite>(
-                    "MotorCity/Markers/flag");
-
-            Sprite sprite =
-                sprites != null &&
-                sprites.Length > 0
-                    ? sprites[0]
-                    : null;
-
-            if (sprite != null)
-            {
-                GameObject glow =
-                    new(
-                        "Reward Icon Glow");
-
-                glow.transform.SetParent(
-                    iconRoot.transform,
-                    false);
-
-                glow.transform.localScale =
-                    Vector3.one *
-                    1.65f;
-
-                SpriteRenderer glowRenderer =
-                    glow.AddComponent<SpriteRenderer>();
-
-                glowRenderer.sprite =
-                    sprite;
-
-                glowRenderer.color =
-                    new Color(
-                        0.08f,
-                        0.78f,
-                        1f,
-                        0.24f);
-
-                glowRenderer.sortingOrder =
-                    46;
-
-                GameObject core =
-                    new(
-                        "Reward Icon Core");
-
-                core.transform.SetParent(
-                    iconRoot.transform,
-                    false);
-
-                core.transform.localScale =
-                    Vector3.one *
-                    1.35f;
-
-                SpriteRenderer coreRenderer =
-                    core.AddComponent<SpriteRenderer>();
-
-                coreRenderer.sprite =
-                    sprite;
-
-                coreRenderer.color =
-                    new Color(
-                        0.18f,
-                        0.92f,
-                        1f,
-                        1f);
-
-                coreRenderer.sortingOrder =
-                    47;
-            }
-
-            ActivityMarkerVfxAnimator animator =
-                root.AddComponent<
-                    ActivityMarkerVfxAnimator>();
-
-            animator.Configure(
-                iconRoot.transform);
-
-            return root;
-        }
-
         private static void CreateUndergroundMarker(
             UndergroundSceneSystem underground)
         {
@@ -1629,7 +1386,6 @@ namespace MotorCity.Bootstrap
             SpeedTrapSystem speedTraps,
             DriftSpotSystem driftSpots,
             DiscoverySystem discoveries,
-            StuntJumpSystem stuntJumps,
             ActivityManager activityManager,
             GarageUpgradeSystem garage,
             CareerProgressionSystem career,
@@ -1670,7 +1426,6 @@ namespace MotorCity.Bootstrap
                 speedTraps,
                 driftSpots,
                 discoveries,
-                stuntJumps,
                 activityManager,
                 garage,
                 career,
