@@ -2622,54 +2622,22 @@ namespace MotorCity.UI
                         18f,
                         -18f),
                     new Vector2(
-                        374f,
-                        112f),
+                        348f,
+                        96f),
                     new Vector2(
                         0f,
                         1f),
                     new Vector2(
                         0f,
                         1f),
-                    new Color(
-                        0.055f,
-                        0.05f,
-                        0.095f,
-                        0.95f));
+                    Color.clear);
 
             characterPanel =
                 panel.gameObject;
 
-            CreateAccent(
+            ApplyVillePanelTexture(
                 panel,
-                DriftAccent,
-                new Vector2(
-                    0f,
-                    -3f),
-                new Vector2(
-                    332f,
-                    3f),
-                new Vector2(
-                    0.5f,
-                    1f),
-                new Vector2(
-                    0.5f,
-                    1f));
-
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(
-                    5f,
-                    -7f),
-                new Vector2(
-                    4f,
-                    98f),
-                new Vector2(
-                    0f,
-                    1f),
-                new Vector2(
-                    0f,
-                    1f));
+                0.94f);
 
             RectTransform portraitFrame =
                 CreatePanel(
@@ -2679,8 +2647,8 @@ namespace MotorCity.UI
                         14f,
                         -11f),
                     new Vector2(
-                        50f,
-                        50f),
+                        54f,
+                        54f),
                     new Vector2(
                         0f,
                         1f),
@@ -2843,8 +2811,8 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        72f,
-                        -7f),
+                        78f,
+                        -9f),
                     new Vector2(
                         180f,
                         18f),
@@ -2864,8 +2832,8 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        72f,
-                        -23f),
+                        78f,
+                        -27f),
                     new Vector2(
                         266f,
                         22f),
@@ -2885,8 +2853,8 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        72f,
-                        -45f),
+                        78f,
+                        -49f),
                     new Vector2(
                         266f,
                         17f),
@@ -2906,8 +2874,8 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
                     new Vector2(
-                        72f,
-                        19f),
+                        78f,
+                        11f),
                     new Vector2(
                         266f,
                         41f),
@@ -4189,37 +4157,17 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(0f, 202f),
-                    new Vector2(520f, 42f),
+                    new Vector2(0f, 208f),
+                    new Vector2(470f, 42f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
-                    PanelSoftColor);
+                    Color.clear);
 
             statusPanel = panel.gameObject;
 
-            CreateAccent(
+            ApplyVillePanelTexture(
                 panel,
-                DriftAccent,
-                new Vector2(
-                    0f,
-                    4f),
-                new Vector2(
-                    118f,
-                    3f),
-                new Vector2(
-                    0.5f,
-                    0f),
-                new Vector2(
-                    0.5f,
-                    0f));
-
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(0f, 4f),
-                new Vector2(458f, 3f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f));
+                0.90f);
 
             statusActivityIcon =
                 CreateHudIcon(
@@ -4245,7 +4193,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(50f, -2f),
-                    new Vector2(448f, 30f),
+                    new Vector2(398f, 30f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     TextColor);
@@ -4429,30 +4377,13 @@ namespace MotorCity.UI
                     new Vector2(204f, 218f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
-                    new Color(
-                        PanelColor.r,
-                        PanelColor.g,
-                        PanelColor.b,
-                        0.56f));
+                    Color.clear);
 
             navigatorPanel =
                 panel.gameObject;
 
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(
-                    0f,
-                    -4f),
-                new Vector2(
-                    174f,
-                    3f),
-                new Vector2(
-                    0.5f,
-                    1f),
-                new Vector2(
-                    0.5f,
-                    1f));
+            ClearPanelChrome(
+                panel);
 
             minimapMaskSprite =
                 CreateCircularMinimapSprite(
@@ -4722,11 +4653,11 @@ namespace MotorCity.UI
                     new Vector2(
                         0f,
                         0f),
-                    new Color(
-                        0.055f,
-                        0.05f,
-                        0.095f,
-                        0.96f));
+                    Color.clear);
+
+            ApplyVillePanelTexture(
+                targetStrip,
+                0.96f);
 
             minimapTargetText =
                 CreateText(
@@ -5588,25 +5519,17 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Drift HUD",
-                    new Vector2(0f, -62f),
-                    new Vector2(296f, 46f),
+                    new Vector2(0f, -58f),
+                    new Vector2(272f, 48f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
-                    new Color(
-                        0.075f,
-                        0.065f,
-                        0.12f,
-                        0.96f));
+                    Color.clear);
 
             driftPanel = panel.gameObject;
 
-            CreateAccent(
+            ApplyVillePanelTexture(
                 panel,
-                DriftAccent,
-                new Vector2(0f, -4f),
-                new Vector2(260f, 4f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f));
+                0.96f);
 
             driftText =
                 CreateText(
@@ -5616,7 +5539,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, -2f),
-                    new Vector2(268f, 32f),
+                    new Vector2(246f, 32f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
@@ -8843,6 +8766,90 @@ namespace MotorCity.UI
 
             outline.useGraphicAlpha = true;
             return rect;
+        }
+
+        private void ClearPanelChrome(
+            RectTransform panel)
+        {
+            if (panel == null)
+                return;
+
+            Image image =
+                panel.GetComponent<Image>();
+
+            if (image != null)
+            {
+                image.color =
+                    Color.clear;
+                image.raycastTarget =
+                    false;
+            }
+
+            Outline outline =
+                panel.GetComponent<Outline>();
+
+            if (outline != null)
+            {
+                outline.enabled =
+                    false;
+            }
+        }
+
+        private void ApplyVillePanelTexture(
+            RectTransform panel,
+            float alpha)
+        {
+            if (panel == null)
+                return;
+
+            ClearPanelChrome(
+                panel);
+
+            Texture2D texture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.rectanglePanel;
+
+            if (texture == null)
+                return;
+
+            GameObject backgroundObject =
+                new(
+                    "Ville Panel Background",
+                    typeof(RectTransform),
+                    typeof(RawImage));
+
+            backgroundObject.transform.SetParent(
+                panel,
+                false);
+
+            backgroundObject.transform.SetAsFirstSibling();
+
+            RectTransform rect =
+                backgroundObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                Vector2.zero;
+            rect.anchorMax =
+                Vector2.one;
+            rect.offsetMin =
+                Vector2.zero;
+            rect.offsetMax =
+                Vector2.zero;
+
+            RawImage image =
+                backgroundObject.GetComponent<RawImage>();
+
+            image.texture =
+                texture;
+            image.color =
+                new Color(
+                    1f,
+                    1f,
+                    1f,
+                    Mathf.Clamp01(alpha));
+            image.raycastTarget =
+                false;
         }
 
         private static void CreateAccent(
