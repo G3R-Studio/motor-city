@@ -74,6 +74,9 @@ namespace MotorCity.UI
         private Text speedText;
         private Text speedUnitText;
         private RectTransform speedNeedle;
+        private Outline speedNeedleGlow;
+        private DayNightCycleController dayNightCycle;
+        private float dayNightResolveTimer;
         private Text statusText;
         private Image statusActivityIcon;
         private Text driftText;
@@ -642,6 +645,8 @@ namespace MotorCity.UI
                         0f,
                         needleAngle);
             }
+
+            UpdateSpeedNeedleGlow();
 
             bool resultOpen =
                 activityManager != null &&
@@ -3861,55 +3866,6 @@ namespace MotorCity.UI
                 }
             }
 
-            if (racingFace != null)
-            {
-                RectTransform unitPlate =
-                    CreatePanel(
-                        panel,
-                        "Speed Unit Plate",
-                        gaugeCenter +
-                            new Vector2(
-                                0f,
-                                24f),
-                        new Vector2(
-                            42f,
-                            16f),
-                        new Vector2(
-                            0.5f,
-                            0f),
-                        new Vector2(
-                            0.5f,
-                            0.5f),
-                        new Color(
-                            0.10f,
-                            0.10f,
-                            0.10f,
-                            0.88f));
-
-                Text dialUnit =
-                    CreateText(
-                        unitPlate,
-                        "Dial Unit",
-                        8,
-                        FontStyle.Bold,
-                        TextAnchor.MiddleCenter,
-                        Vector2.zero,
-                        new Vector2(
-                            38f,
-                            13f),
-                        new Vector2(
-                            0.5f,
-                            0.5f),
-                        new Vector2(
-                            0.5f,
-                            0.5f),
-                        SecondaryTextColor);
-
-                dialUnit.text =
-                    MotorCityLocalization.Text(
-                        "common.kmh");
-            }
-
             GameObject needleObject =
                 new(
                     "Speed Needle",
@@ -3932,7 +3888,7 @@ namespace MotorCity.UI
             speedNeedle.anchoredPosition =
                 gaugeCenter;
             speedNeedle.sizeDelta =
-                new Vector2(4f, 59f);
+                new Vector2(3f, 80f);
             speedNeedle.localRotation =
                 Quaternion.Euler(
                     0f,
@@ -3943,41 +3899,31 @@ namespace MotorCity.UI
                 needleObject.GetComponent<Image>();
 
             needleImage.color =
-                DriftAccent;
+                new Color32(
+                    0xB9,
+                    0xB8,
+                    0xB7,
+                    0xFF);
             needleImage.raycastTarget =
                 false;
 
-            GameObject hubObject =
-                new(
-                    "Speed Needle Hub",
-                    typeof(RectTransform),
-                    typeof(Image));
+            speedNeedleGlow =
+                needleObject.AddComponent<Outline>();
 
-            hubObject.transform.SetParent(
-                panel,
-                false);
+            speedNeedleGlow.effectColor =
+                new Color(
+                    0.32f,
+                    0.68f,
+                    1f,
+                    0f);
 
-            RectTransform hub =
-                hubObject.GetComponent<RectTransform>();
+            speedNeedleGlow.effectDistance =
+                new Vector2(
+                    2f,
+                    -2f);
 
-            hub.anchorMin =
-                new Vector2(0.5f, 0f);
-            hub.anchorMax =
-                new Vector2(0.5f, 0f);
-            hub.pivot =
-                new Vector2(0.5f, 0.5f);
-            hub.anchoredPosition =
-                gaugeCenter;
-            hub.sizeDelta =
-                new Vector2(13f, 13f);
-
-            Image hubImage =
-                hubObject.GetComponent<Image>();
-
-            hubImage.color =
-                TextColor;
-            hubImage.raycastTarget =
-                false;
+            speedNeedleGlow.useGraphicAlpha =
+                true;
 
             speedText =
                 CreateText(
@@ -3986,11 +3932,15 @@ namespace MotorCity.UI
                     36,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 62f),
+                    new Vector2(0f, 68f),
                     new Vector2(128f, 42f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0.5f),
-                    TextColor);
+                    new Color32(
+                        0xE4,
+                        0xE5,
+                        0xED,
+                        0xFF));
 
             speedUnitText = null;
 
@@ -4065,6 +4015,49 @@ namespace MotorCity.UI
 
             lastDisplayedDriveMode =
                 null;
+        }
+
+        private void UpdateSpeedNeedleGlow()
+        {
+            if (speedNeedleGlow == null)
+                return;
+
+            if (dayNightCycle == null)
+            {
+                dayNightResolveTimer -=
+                    Time.unscaledDeltaTime;
+
+                if (dayNightResolveTimer <= 0f)
+                {
+                    dayNightResolveTimer =
+                        1f;
+
+                    dayNightCycle =
+                        Object.FindAnyObjectByType<
+                            DayNightCycleController>();
+                }
+            }
+
+            float nightAmount =
+                dayNightCycle == null
+                    ? 0f
+                    : dayNightCycle.NightAmount;
+
+            float glow =
+                Mathf.SmoothStep(
+                    0f,
+                    0.22f,
+                    Mathf.InverseLerp(
+                        0.42f,
+                        0.92f,
+                        nightAmount));
+
+            speedNeedleGlow.effectColor =
+                new Color(
+                    0.32f,
+                    0.68f,
+                    1f,
+                    glow);
         }
 
         private void BuildStatus(Transform canvas)
