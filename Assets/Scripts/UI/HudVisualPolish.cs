@@ -79,12 +79,12 @@ namespace MotorCity.UI
             lastTouchLayout = UseLandscapeTouchLayout();
 
             ApplyDesktopOrTouchComposition(lastTouchLayout);
-            ApplyPanelTreatment("Player Card", new Color(0.016f, 0.026f, 0.043f, 0.96f), true);
-            ApplyPanelTreatment("Character Card", new Color(0.020f, 0.034f, 0.052f, 0.94f), true);
-            ApplyPanelTreatment("Activity Status", new Color(0.020f, 0.030f, 0.046f, 0.92f), false);
+            ClearPanelBackdrop("Player Card");
+            ClearPanelBackdrop("Character Card");
+            ClearPanelBackdrop("Activity Status");
             ClearPanelBackdrop("Speedometer");
             ClearPanelBackdrop("Minimap");
-            ApplyPanelTreatment("Drift HUD", new Color(0.080f, 0.038f, 0.018f, 0.92f), true);
+            ClearPanelBackdrop("Drift HUD");
             ApplyPanelTreatment("Activity Result", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
             ApplyPanelTreatment("Navigator Menu", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
             ApplyPanelTreatment("Club Panel", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
@@ -159,18 +159,18 @@ namespace MotorCity.UI
             if (touchLayout)
             {
                 SetRect(playerCard, new Vector2(14f, -14f), new Vector2(340f, 116f), 1f);
-                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(390f, 136f), 1f);
+                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(330f, 92f), 1f);
                 SetRect(speedometer, new Vector2(0f, 6f), new Vector2(226f, 166f), 0.90f);
-                SetRect(status, new Vector2(0f, 182f), new Vector2(520f, 46f), 0.94f);
-                SetRect(minimap, new Vector2(-14f, -14f), new Vector2(202f, 202f), 0.92f);
+                SetRect(status, new Vector2(0f, 182f), new Vector2(450f, 42f), 0.94f);
+                SetRect(minimap, new Vector2(-14f, -14f), new Vector2(202f, 218f), 0.92f);
             }
             else
             {
                 SetRect(playerCard, new Vector2(22f, -22f), new Vector2(392f, 132f), 1f);
-                SetRect(characterCard, new Vector2(22f, -22f), new Vector2(430f, 142f), 1f);
+                SetRect(characterCard, new Vector2(22f, -22f), new Vector2(348f, 96f), 1f);
                 SetRect(speedometer, new Vector2(0f, 16f), new Vector2(258f, 190f), 1f);
-                SetRect(status, new Vector2(0f, 218f), new Vector2(620f, 50f), 1f);
-                SetRect(minimap, new Vector2(-22f, -22f), new Vector2(232f, 232f), 1f);
+                SetRect(status, new Vector2(0f, 218f), new Vector2(470f, 42f), 1f);
+                SetRect(minimap, new Vector2(-22f, -22f), new Vector2(214f, 218f), 1f);
             }
         }
 
