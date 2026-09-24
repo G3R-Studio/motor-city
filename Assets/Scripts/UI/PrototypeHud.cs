@@ -2606,8 +2606,8 @@ namespace MotorCity.UI
                         18f,
                         -18f),
                     new Vector2(
-                        392f,
-                        118f),
+                        374f,
+                        112f),
                     new Vector2(
                         0f,
                         1f),
@@ -2615,13 +2615,29 @@ namespace MotorCity.UI
                         0f,
                         1f),
                     new Color(
-                        0.06f,
                         0.055f,
-                        0.105f,
-                        0.94f));
+                        0.05f,
+                        0.095f,
+                        0.95f));
 
             characterPanel =
                 panel.gameObject;
+
+            CreateAccent(
+                panel,
+                DriftAccent,
+                new Vector2(
+                    0f,
+                    -3f),
+                new Vector2(
+                    332f,
+                    3f),
+                new Vector2(
+                    0.5f,
+                    1f),
+                new Vector2(
+                    0.5f,
+                    1f));
 
             CreateAccent(
                 panel,
@@ -2647,8 +2663,8 @@ namespace MotorCity.UI
                         14f,
                         -11f),
                     new Vector2(
-                        52f,
-                        52f),
+                        50f,
+                        50f),
                     new Vector2(
                         0f,
                         1f),
@@ -2811,8 +2827,8 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        76f,
-                        -8f),
+                        72f,
+                        -7f),
                     new Vector2(
                         180f,
                         18f),
@@ -2832,11 +2848,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        76f,
-                        -24f),
+                        72f,
+                        -23f),
                     new Vector2(
-                        278f,
-                        23f),
+                        266f,
+                        22f),
                     new Vector2(
                         0f,
                         1f),
@@ -2853,11 +2869,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        76f,
-                        -46f),
+                        72f,
+                        -45f),
                     new Vector2(
-                        278f,
-                        18f),
+                        266f,
+                        17f),
                     new Vector2(
                         0f,
                         1f),
@@ -2874,11 +2890,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
                     new Vector2(
-                        76f,
-                        21f),
+                        72f,
+                        19f),
                     new Vector2(
-                        278f,
-                        44f),
+                        266f,
+                        41f),
                     new Vector2(
                         0f,
                         0f),
@@ -4067,6 +4083,22 @@ namespace MotorCity.UI
 
             CreateAccent(
                 panel,
+                DriftAccent,
+                new Vector2(
+                    0f,
+                    4f),
+                new Vector2(
+                    118f,
+                    3f),
+                new Vector2(
+                    0.5f,
+                    0f),
+                new Vector2(
+                    0.5f,
+                    0f));
+
+            CreateAccent(
+                panel,
                 BlueAccent,
                 new Vector2(0f, 4f),
                 new Vector2(458f, 3f),
@@ -4278,7 +4310,7 @@ namespace MotorCity.UI
                     canvas,
                     "Minimap",
                     new Vector2(-18f, -18f),
-                    new Vector2(212f, 224f),
+                    new Vector2(204f, 218f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     new Color(
@@ -4336,7 +4368,7 @@ namespace MotorCity.UI
                 new Vector2(0f, -10f);
 
             rimRect.sizeDelta =
-                new Vector2(184f, 184f);
+                new Vector2(178f, 178f);
 
             Image rimImage =
                 rimObject.GetComponent<Image>();
@@ -4381,7 +4413,7 @@ namespace MotorCity.UI
                 new Vector2(0f, -15f);
 
             viewportRect.sizeDelta =
-                new Vector2(174f, 174f);
+                new Vector2(168f, 168f);
 
             Image viewportImage =
                 viewportObject.GetComponent<Image>();
@@ -4566,8 +4598,8 @@ namespace MotorCity.UI
                         8f,
                         6f),
                     new Vector2(
-                        154f,
-                        27f),
+                        146f,
+                        26f),
                     new Vector2(
                         0f,
                         0f),
@@ -4591,8 +4623,8 @@ namespace MotorCity.UI
                         8f,
                         0f),
                     new Vector2(
-                        138f,
-                        23f),
+                        130f,
+                        22f),
                     new Vector2(
                         0f,
                         0.5f),
@@ -5440,8 +5472,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Drift HUD",
-                    new Vector2(0f, -68f),
-                    new Vector2(304f, 48f),
+                    new Vector2(0f, -62f),
+                    new Vector2(296f, 46f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     new Color(
@@ -5456,7 +5488,7 @@ namespace MotorCity.UI
                 panel,
                 DriftAccent,
                 new Vector2(0f, -4f),
-                new Vector2(268f, 4f),
+                new Vector2(260f, 4f),
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f));
 
@@ -5468,7 +5500,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, -2f),
-                    new Vector2(276f, 34f),
+                    new Vector2(268f, 32f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
