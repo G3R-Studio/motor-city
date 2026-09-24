@@ -3899,7 +3899,7 @@ namespace MotorCity.UI
             speedNeedleGlowRect.anchoredPosition =
                 gaugeCenter;
             speedNeedleGlowRect.sizeDelta =
-                new Vector2(15f, 88f);
+                new Vector2(19f, 90f);
             speedNeedleGlowRect.localRotation =
                 Quaternion.Euler(
                     0f,
@@ -3913,8 +3913,8 @@ namespace MotorCity.UI
                 GetSpeedNeedleGlowTexture();
             speedNeedleGlow.color =
                 new Color(
-                    0.32f,
-                    0.68f,
+                    0.08f,
+                    0.46f,
                     1f,
                     0f);
             speedNeedleGlow.raycastTarget =
@@ -4169,7 +4169,7 @@ namespace MotorCity.UI
             float glow =
                 Mathf.SmoothStep(
                     0f,
-                    0.22f,
+                    0.38f,
                     Mathf.InverseLerp(
                         0.42f,
                         0.92f,
@@ -4177,8 +4177,8 @@ namespace MotorCity.UI
 
             speedNeedleGlow.color =
                 new Color(
-                    0.32f,
-                    0.68f,
+                    0.08f,
+                    0.46f,
                     1f,
                     glow);
         }
