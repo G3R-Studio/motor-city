@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MotorCity.World;
 using UnityEngine;
 
@@ -6,145 +5,158 @@ namespace MotorCity.Gameplay
 {
     public sealed class RouteMarkerVisual : MonoBehaviour
     {
+        private const string DeliveryVfxResourcePath =
+            "MotorCity/Markers/DeliveryMarkerVfx";
+
         private DeliveryActivity activity;
         private ActivityManager activityManager;
-        private Renderer[] markerRenderers;
-        private Material[] markerMaterials;
+        private Renderer[] legacyRenderers;
+        private GameObject deliveryVfx;
+        private CheckpointBeaconVisual fallbackBeacon;
         private bool visibilityInitialized;
         private bool lastVisible;
-        private bool tintInitialized;
-        private bool lastActive;
-        private Vector3 baseScale;
-        private CheckpointBeaconVisual checkpointBeacon;
 
-        public void Bind(DeliveryActivity targetActivity, ActivityManager manager)
+        public void Bind(
+            DeliveryActivity targetActivity,
+            ActivityManager manager)
         {
-            activity = targetActivity;
-            activityManager = manager;
+            activity =
+                targetActivity;
 
-            CacheVisuals();
+            activityManager =
+                manager;
 
-            checkpointBeacon =
-                gameObject.AddComponent<CheckpointBeaconVisual>();
+            legacyRenderers =
+                GetComponentsInChildren<Renderer>(
+                    true);
 
-            checkpointBeacon.Initialize(
+            if (!TryCreateDeliveryVfx())
+            {
+                CreateFallbackBeacon();
+            }
+
+            RefreshVisibility(
+                true);
+        }
+
+        private void Update()
+        {
+            if (activity == null)
+                return;
+
+            transform.position =
+                activity.CurrentTarget;
+
+            if (fallbackBeacon != null)
+            {
+                Vector3 nextTarget =
+                    activity.CurrentTarget;
+
+                bool hasNext =
+                    activity.IsActive &&
+                    activity.TryGetNextTarget(
+                        out nextTarget);
+
+                fallbackBeacon.SetDirection(
+                    activity.CurrentTarget,
+                    hasNext
+                        ? nextTarget
+                        : activity.CurrentTarget,
+                    hasNext);
+            }
+
+            RefreshVisibility(
+                false);
+        }
+
+        private bool TryCreateDeliveryVfx()
+        {
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    DeliveryVfxResourcePath);
+
+            if (prefab == null)
+                return false;
+
+            deliveryVfx =
+                Instantiate(
+                    prefab,
+                    transform);
+
+            deliveryVfx.name =
+                "Delivery Marker VFX Runtime";
+
+            deliveryVfx.transform.localPosition =
+                Vector3.zero;
+
+            deliveryVfx.transform.localRotation =
+                Quaternion.identity;
+
+            deliveryVfx.transform.localScale =
+                Vector3.one;
+
+            return
+                true;
+        }
+
+        private void CreateFallbackBeacon()
+        {
+            fallbackBeacon =
+                gameObject.AddComponent<
+                    CheckpointBeaconVisual>();
+
+            fallbackBeacon.Initialize(
                 new Color(
                     0.12f,
                     0.58f,
                     1f),
                 true,
                 CheckpointBeaconStyle.Delivery);
-
-            baseScale = transform.localScale;
         }
 
-        private void CacheVisuals()
+        private void RefreshVisibility(
+            bool force)
         {
-            markerRenderers = GetComponentsInChildren<Renderer>(true);
-            List<Material> materials = new();
-
-            foreach (Renderer renderer in markerRenderers)
-            {
-                if (renderer == null) continue;
-                materials.AddRange(renderer.materials);
-            }
-
-            markerMaterials = materials.ToArray();
-        }
-
-        private void Update()
-        {
-            if (activity == null) return;
-
             bool visible =
                 activityManager == null ||
                 !activityManager.IsBusy ||
-                activityManager.IsActive("delivery");
+                activityManager.IsActive(
+                    "delivery");
 
-                        if (!visibilityInitialized ||
-                visible != lastVisible)
+            if (!force &&
+                visibilityInitialized &&
+                visible == lastVisible)
             {
-                visibilityInitialized =
-                    true;
-                lastVisible =
-                    visible;
-                SetVisible(
-                    visible);
+                return;
             }
-            if (!visible) return;
 
-            Vector3 target =
-                activity.CurrentTarget;
+            visibilityInitialized =
+                true;
 
-            transform.position =
-                target;
+            lastVisible =
+                visible;
 
-            Vector3 nextTarget =
-                activity.CurrentTarget;
-
-            bool hasNext =
-                activity.IsActive &&
-                activity.TryGetNextTarget(
-                    out nextTarget);
-
-            checkpointBeacon?.SetDirection(
-                target,
-                hasNext
-                    ? nextTarget
-                    : target,
-                hasNext);
-
-            float pulse =
-                1f + Mathf.Sin(Time.time * 2.8f) * 0.015f;
-            transform.localScale = baseScale * pulse;
-
-            bool active =
-                activity.IsActive;
-
-            if (!tintInitialized ||
-                active != lastActive)
+            if (legacyRenderers != null)
             {
-                tintInitialized =
-                    true;
-                lastActive =
-                    active;
-
-                Color tint =
-                    active
-                        ? new Color(0.18f, 0.78f, 1f)
-                        : new Color(0.16f, 0.52f, 0.95f);
-
-                Tint(tint);
-            }
-        }
-
-        private void SetVisible(bool visible)
-        {
-            if (markerRenderers != null)
-            {
-                foreach (Renderer renderer in markerRenderers)
+                foreach (Renderer renderer in
+                         legacyRenderers)
                 {
                     if (renderer != null)
-                        renderer.enabled = visible;
+                    {
+                        renderer.enabled =
+                            visible;
+                    }
                 }
             }
 
-            checkpointBeacon?.SetVisible(
-                visible);
-        }
-
-        private void Tint(Color color)
-        {
-            if (markerMaterials == null) return;
-
-            foreach (Material material in markerMaterials)
+            if (deliveryVfx != null)
             {
-                if (material == null) continue;
-                if (material.HasProperty("_BaseColor"))
-                    material.SetColor("_BaseColor", color);
-                else if (material.HasProperty("_Color"))
-                    material.color = color;
+                deliveryVfx.SetActive(
+                    visible);
             }
+
+            fallbackBeacon?.SetVisible(
+                visible);
         }
     }
 }
