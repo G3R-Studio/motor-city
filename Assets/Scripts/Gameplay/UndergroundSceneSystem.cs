@@ -539,6 +539,17 @@ namespace MotorCity.Gameplay
                 current);
         }
 
+#if UNITY_EDITOR
+        public void CancelRunForTesting()
+        {
+            if (IsActive ||
+                isCountingDown)
+            {
+                CancelRun();
+            }
+        }
+
+#endif
         public void ResetForTesting()
         {
             streetCred = 0;
