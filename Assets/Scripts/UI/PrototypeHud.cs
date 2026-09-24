@@ -4072,8 +4072,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(0f, 206f),
-                    new Vector2(560f, 44f),
+                    new Vector2(0f, 202f),
+                    new Vector2(520f, 42f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
                     PanelSoftColor);
@@ -4084,7 +4084,7 @@ namespace MotorCity.UI
                 panel,
                 BlueAccent,
                 new Vector2(0f, 4f),
-                new Vector2(500f, 3f),
+                new Vector2(458f, 3f),
                 new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f));
 
@@ -4111,8 +4111,8 @@ namespace MotorCity.UI
                     16,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(52f, -2f),
-                    new Vector2(488f, 32f),
+                    new Vector2(50f, -2f),
+                    new Vector2(448f, 30f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     TextColor);
@@ -4292,18 +4292,34 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Minimap",
-                    new Vector2(-20f, -20f),
-                    new Vector2(220f, 220f),
+                    new Vector2(-18f, -18f),
+                    new Vector2(212f, 224f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     new Color(
-                        0.01f,
-                        0.015f,
-                        0.02f,
-                        0.12f));
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
+                        0.56f));
 
             navigatorPanel =
                 panel.gameObject;
+
+            CreateAccent(
+                panel,
+                BlueAccent,
+                new Vector2(
+                    0f,
+                    -4f),
+                new Vector2(
+                    174f,
+                    3f),
+                new Vector2(
+                    0.5f,
+                    1f),
+                new Vector2(
+                    0.5f,
+                    1f));
 
             minimapMaskSprite =
                 CreateCircularMinimapSprite(
@@ -4332,10 +4348,10 @@ namespace MotorCity.UI
                 new Vector2(0.5f, 1f);
 
             rimRect.anchoredPosition =
-                new Vector2(0f, -8f);
+                new Vector2(0f, -10f);
 
             rimRect.sizeDelta =
-                new Vector2(188f, 188f);
+                new Vector2(184f, 184f);
 
             Image rimImage =
                 rimObject.GetComponent<Image>();
@@ -4345,10 +4361,10 @@ namespace MotorCity.UI
 
             rimImage.color =
                 new Color(
-                    0.025f,
-                    0.035f,
-                    0.05f,
-                    0.92f);
+                    0.09f,
+                    0.08f,
+                    0.14f,
+                    0.98f);
 
             rimImage.raycastTarget =
                 false;
@@ -4377,10 +4393,10 @@ namespace MotorCity.UI
                 new Vector2(0.5f, 1f);
 
             viewportRect.anchoredPosition =
-                new Vector2(0f, -13f);
+                new Vector2(0f, -15f);
 
             viewportRect.sizeDelta =
-                new Vector2(178f, 178f);
+                new Vector2(174f, 174f);
 
             Image viewportImage =
                 viewportObject.GetComponent<Image>();
@@ -4557,17 +4573,47 @@ namespace MotorCity.UI
             minimapTargetBlip =
                 minimapTargetIcon.rectTransform;
 
+            RectTransform targetStrip =
+                CreatePanel(
+                    panel,
+                    "Navigation Target Strip",
+                    new Vector2(
+                        8f,
+                        6f),
+                    new Vector2(
+                        154f,
+                        27f),
+                    new Vector2(
+                        0f,
+                        0f),
+                    new Vector2(
+                        0f,
+                        0f),
+                    new Color(
+                        0.055f,
+                        0.05f,
+                        0.095f,
+                        0.96f));
+
             minimapTargetText =
                 CreateText(
-                    panel,
+                    targetStrip,
                     "Minimap Target Label",
-                    11,
+                    10,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(10f, 8f),
-                    new Vector2(160f, 24f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
+                    new Vector2(
+                        8f,
+                        0f),
+                    new Vector2(
+                        138f,
+                        23f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Vector2(
+                        0f,
+                        0.5f),
                     TextColor);
 
             GameObject navigatorButtonObject =
@@ -4605,10 +4651,10 @@ namespace MotorCity.UI
 
             navigatorButtonImage.color =
                 new Color(
-                    0.08f,
-                    0.34f,
-                    0.58f,
-                    0.92f);
+                    BlueAccent.r,
+                    BlueAccent.g,
+                    BlueAccent.b,
+                    0.94f);
 
             Button navigatorButton =
                 navigatorButtonObject.GetComponent<Button>();
