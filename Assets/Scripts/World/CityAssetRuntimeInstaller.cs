@@ -120,9 +120,9 @@ namespace MotorCity.World
         public static Quaternion PlayerSpawnRotation { get; private set; } =
             Quaternion.identity;
 
-        // Park-06 beside the lower central road network in the large district.
+        // Dedicated player garage site on the western BB-E01 parking pad.
         public static Vector3 GaragePoint { get; private set; } =
-            new(368.91f, 0.4f, 183.37f);
+            new(-263.9998f, 0.4f, -114.0002f);
 
         // Western broad junction in the large district, kept separate from
         // the street sprint start on the eastern side.
@@ -180,6 +180,9 @@ namespace MotorCity.World
                 cityBounds.size.x > 10f &&
                 cityBounds.size.z > 10f;
 
+            Physics.SyncTransforms();
+
+            PreparePlayerGarageSite();
             Physics.SyncTransforms();
 
             RoadSearchDebug.BeginSession(
@@ -484,12 +487,11 @@ namespace MotorCity.World
                     Vector3.up);
 
             GaragePoint =
-                FindParkingPointNear(
+                ResolvePlayerGaragePoint(
                     new Vector3(
-                        368.91f,
+                        -263.9998f,
                         0f,
-                        183.37f),
-                    30f);
+                        -114.0002f));
 
             DriftChallengePoint =
                 FindRoadPointNear(
@@ -833,6 +835,190 @@ namespace MotorCity.World
             }
 
             return count;
+        }
+
+        private static Vector3 ResolvePlayerGaragePoint(
+            Vector3 preferred)
+        {
+            RaycastHit[] hits =
+                Physics.RaycastAll(
+                    new Vector3(
+                        preferred.x,
+                        RayStartY(),
+                        preferred.z),
+                    Vector3.down,
+                    RayDistance(),
+                    Physics.DefaultRaycastLayers,
+                    QueryTriggerInteraction.Ignore);
+
+            if (hits != null &&
+                hits.Length > 0)
+            {
+                Array.Sort(
+                    hits,
+                    (a, b) =>
+                        a.distance.CompareTo(
+                            b.distance));
+
+                foreach (RaycastHit hit in hits)
+                {
+                    if (hit.collider == null)
+                        continue;
+
+                    Transform cursor =
+                        hit.collider.transform;
+
+                    bool belongsToGaragePad =
+                        false;
+
+                    while (cursor != null)
+                    {
+                        if (string.Equals(
+                                cursor.name,
+                                "BB-E01(Clone)",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            belongsToGaragePad =
+                                true;
+                            break;
+                        }
+
+                        cursor =
+                            cursor.parent;
+                    }
+
+                    if (!belongsToGaragePad)
+                        continue;
+
+                    Vector3 point =
+                        hit.point;
+
+                    point.y +=
+                        MarkerLift;
+
+                    return
+                        point;
+                }
+            }
+
+            // Keep the requested X/Z even if the authored collider hierarchy
+            // changes later; only fall back to generic parking height lookup.
+            Vector3 fallback =
+                FindParkingPointNear(
+                    preferred,
+                    16f);
+
+            fallback.x =
+                preferred.x;
+
+            fallback.z =
+                preferred.z;
+
+            return
+                fallback;
+        }
+
+        private static void PreparePlayerGarageSite()
+        {
+            if (activeCity == null)
+                return;
+
+            Transform[] transforms =
+                activeCity.GetComponentsInChildren<Transform>(
+                    true);
+
+            Transform best =
+                null;
+
+            float bestDistanceSquared =
+                float.PositiveInfinity;
+
+            Vector2 target =
+                new(
+                    -263.9998f,
+                    -114.0002f);
+
+            foreach (Transform item in transforms)
+            {
+                if (item == null ||
+                    !string.Equals(
+                        item.name,
+                        "BB-E01(Clone)",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                Vector3 position =
+                    item.position;
+
+                float dx =
+                    position.x -
+                    target.x;
+
+                float dz =
+                    position.z -
+                    target.y;
+
+                float distanceSquared =
+                    dx * dx +
+                    dz * dz;
+
+                if (distanceSquared >=
+                    bestDistanceSquared)
+                {
+                    continue;
+                }
+
+                best =
+                    item;
+
+                bestDistanceSquared =
+                    distanceSquared;
+            }
+
+            if (best == null ||
+                bestDistanceSquared >
+                80f * 80f)
+            {
+                Debug.LogWarning(
+                    "Motor City: player garage BB-E01 parking pad was not found near the configured site.");
+
+                return;
+            }
+
+            for (int i =
+                     best.childCount - 1;
+                 i >= 0;
+                 i--)
+            {
+                Transform child =
+                    best.GetChild(i);
+
+                if (child == null)
+                    continue;
+
+                // Preserve the large parking collider so the garage apron
+                // remains driveable. Everything else is old parking clutter
+                // that would overlap the authored garage building.
+                bool keep =
+                    string.Equals(
+                        child.name,
+                        "Base-40m-01-Collider",
+                        StringComparison.OrdinalIgnoreCase);
+
+                if (keep)
+                    continue;
+
+                child.gameObject.SetActive(
+                    false);
+            }
+
+            Renderer rootRenderer =
+                best.GetComponent<Renderer>();
+
+            if (rootRenderer != null)
+                rootRenderer.enabled = true;
         }
 
         private static Vector3 FindParkingPointNear(
