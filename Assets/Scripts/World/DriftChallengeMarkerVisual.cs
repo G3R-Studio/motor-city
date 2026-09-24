@@ -43,8 +43,6 @@ namespace MotorCity.World
                 false,
                 CheckpointBeaconStyle.Drift);
 
-            HideLegacyMarkerRenderers();
-
         }
 
         private void CacheVisuals()
@@ -98,15 +96,11 @@ namespace MotorCity.World
             }
             if (!visible) return;
 
-            float pulse =
-                1f + Mathf.Sin(Time.time * 3.1f) * 0.028f;
+            transform.localScale =
+                baseScale;
 
-            transform.localScale = new Vector3(
-                baseScale.x * pulse,
-                baseScale.y * pulse,
-                baseScale.z * pulse);
-
-            transform.position = basePosition;
+            transform.position =
+                basePosition;
 
             bool active =
                 challenge.IsActive;
