@@ -723,7 +723,7 @@ namespace MotorCity.Gameplay
                     SelectedIndex != 0 &&
                     !isBus,
                     isBus
-                        ? 7.4f
+                        ? 11.47f
                         : 4.35f,
                     isBus);
 
