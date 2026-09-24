@@ -3954,6 +3954,50 @@ namespace MotorCity.UI
             speedUnitText.text =
                 MotorCityLocalization.Text(
                     "common.kmh");
+
+            RectTransform driveModeChip =
+                CreatePanel(
+                    panel,
+                    "Drive Mode Indicator",
+                    new Vector2(
+                        0f,
+                        -12f),
+                    new Vector2(
+                        132f,
+                        26f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Color(
+                        0.018f,
+                        0.038f,
+                        0.062f,
+                        0.94f));
+
+            driveModeText =
+                CreateText(
+                    driveModeChip,
+                    "Drive Mode",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(
+                        122f,
+                        22f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    BlueAccent);
+
+            lastDisplayedDriveMode =
+                null;
         }
 
         private void BuildStatus(Transform canvas)
