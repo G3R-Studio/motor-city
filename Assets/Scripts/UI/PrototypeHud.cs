@@ -231,21 +231,23 @@ namespace MotorCity.UI
         private readonly Text[] garageDescriptionTexts =
             new Text[3];
 
-        // Motor City racing UI palette, tuned to the imported Ville Seppanen kit.
+        // Shared Motor City racing UI palette. The values deliberately stay
+        // close to the imported Ville Seppanen HUD: graphite/navy surfaces,
+        // cool cyan for navigation/focus and warm orange for live driving events.
         private static readonly Color PanelColor =
-            new(0.075f, 0.07f, 0.12f, 0.94f);
+            new(0.030f, 0.042f, 0.066f, 0.96f);
         private static readonly Color PanelSoftColor =
-            new(0.105f, 0.095f, 0.16f, 0.88f);
+            new(0.050f, 0.064f, 0.094f, 0.92f);
         private static readonly Color TextColor =
             new(0.98f, 0.985f, 1f, 1f);
         private static readonly Color SecondaryTextColor =
-            new(0.72f, 0.75f, 0.86f, 1f);
+            new(0.70f, 0.76f, 0.86f, 1f);
         private static readonly Color BlueAccent =
-            new(0.34f, 0.53f, 1f, 1f);
+            new(0.18f, 0.72f, 1f, 1f);
         private static readonly Color DriftAccent =
             new(1f, 0.48f, 0.13f, 1f);
         private static readonly Color GarageAccent =
-            new(0.62f, 0.42f, 1f, 1f);
+            new(0.56f, 0.48f, 1f, 1f);
 
         public void Bind(
             ArcadeCarController controller,
@@ -2606,8 +2608,8 @@ namespace MotorCity.UI
                         18f,
                         -18f),
                     new Vector2(
-                        374f,
-                        112f),
+                        342f,
+                        96f),
                     new Vector2(
                         0f,
                         1f),
@@ -2615,39 +2617,23 @@ namespace MotorCity.UI
                         0f,
                         1f),
                     new Color(
-                        0.055f,
-                        0.05f,
-                        0.095f,
-                        0.95f));
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
+                        0.96f));
 
             characterPanel =
                 panel.gameObject;
 
             CreateAccent(
                 panel,
-                DriftAccent,
-                new Vector2(
-                    0f,
-                    -3f),
-                new Vector2(
-                    332f,
-                    3f),
-                new Vector2(
-                    0.5f,
-                    1f),
-                new Vector2(
-                    0.5f,
-                    1f));
-
-            CreateAccent(
-                panel,
                 BlueAccent,
                 new Vector2(
-                    5f,
-                    -7f),
-                new Vector2(
                     4f,
-                    98f),
+                    -10f),
+                new Vector2(
+                    3f,
+                    76f),
                 new Vector2(
                     0f,
                     1f),
@@ -2660,11 +2646,11 @@ namespace MotorCity.UI
                     panel,
                     "Character Portrait Frame",
                     new Vector2(
-                        14f,
-                        -11f),
+                        13f,
+                        -12f),
                     new Vector2(
-                        50f,
-                        50f),
+                        52f,
+                        52f),
                     new Vector2(
                         0f,
                         1f),
@@ -2823,15 +2809,15 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Source",
-                    11,
+                    10,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        72f,
-                        -7f),
+                        76f,
+                        -8f),
                     new Vector2(
-                        180f,
-                        18f),
+                        150f,
+                        16f),
                     new Vector2(
                         0f,
                         1f),
@@ -2844,15 +2830,15 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Name",
-                    15,
+                    14,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        72f,
+                        76f,
                         -23f),
                     new Vector2(
-                        266f,
-                        22f),
+                        238f,
+                        20f),
                     new Vector2(
                         0f,
                         1f),
@@ -2869,11 +2855,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        72f,
-                        -45f),
+                        76f,
+                        -42f),
                     new Vector2(
-                        266f,
-                        17f),
+                        238f,
+                        16f),
                     new Vector2(
                         0f,
                         1f),
@@ -2890,11 +2876,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
                     new Vector2(
-                        72f,
-                        19f),
+                        76f,
+                        18f),
                     new Vector2(
-                        266f,
-                        41f),
+                        238f,
+                        31f),
                     new Vector2(
                         0f,
                         0f),
@@ -2911,11 +2897,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.LowerRight,
                     new Vector2(
-                        -18f,
-                        8f),
+                        -14f,
+                        6f),
                     new Vector2(
-                        220f,
-                        17f),
+                        178f,
+                        15f),
                     new Vector2(
                         1f,
                         0f),
@@ -3740,7 +3726,7 @@ namespace MotorCity.UI
                         PanelColor.r,
                         PanelColor.g,
                         PanelColor.b,
-                        0.34f));
+                        0.74f));
 
             Vector2 gaugeCenter =
                 new(0f, 132f);
@@ -3870,7 +3856,7 @@ namespace MotorCity.UI
                         gaugeCenter +
                             new Vector2(
                                 0f,
-                                24f),
+                                31f),
                         new Vector2(
                             42f,
                             16f),
@@ -3881,10 +3867,10 @@ namespace MotorCity.UI
                             0.5f,
                             0.5f),
                         new Color(
-                            0.10f,
-                            0.10f,
-                            0.10f,
-                            0.88f));
+                            PanelColor.r,
+                            PanelColor.g,
+                            PanelColor.b,
+                            0.72f));
 
                 Text dialUnit =
                     CreateText(
@@ -4073,37 +4059,17 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(0f, 202f),
-                    new Vector2(520f, 42f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f),
-                    PanelSoftColor);
+                    new Vector2(0f, -18f),
+                    new Vector2(430f, 40f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    new Color(
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
+                        0.94f));
 
             statusPanel = panel.gameObject;
-
-            CreateAccent(
-                panel,
-                DriftAccent,
-                new Vector2(
-                    0f,
-                    4f),
-                new Vector2(
-                    118f,
-                    3f),
-                new Vector2(
-                    0.5f,
-                    0f),
-                new Vector2(
-                    0.5f,
-                    0f));
-
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(0f, 4f),
-                new Vector2(458f, 3f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f));
 
             statusActivityIcon =
                 CreateHudIcon(
@@ -4111,11 +4077,11 @@ namespace MotorCity.UI
                     "Status Activity Icon",
                     MotorCityIconLibrary.Reward,
                     new Vector2(
-                        20f,
-                        -2f),
+                        16f,
+                        0f),
                     new Vector2(
-                        24f,
-                        24f),
+                        22f,
+                        22f),
                     new Vector2(
                         0f,
                         0.5f),
@@ -4125,11 +4091,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Status Text",
-                    16,
+                    14,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(50f, -2f),
-                    new Vector2(448f, 30f),
+                    new Vector2(44f, 0f),
+                    new Vector2(368f, 28f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     TextColor);
@@ -4310,33 +4276,17 @@ namespace MotorCity.UI
                     canvas,
                     "Minimap",
                     new Vector2(-18f, -18f),
-                    new Vector2(204f, 218f),
+                    new Vector2(218f, 230f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     new Color(
                         PanelColor.r,
                         PanelColor.g,
                         PanelColor.b,
-                        0.56f));
+                        0.94f));
 
             navigatorPanel =
                 panel.gameObject;
-
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(
-                    0f,
-                    -4f),
-                new Vector2(
-                    174f,
-                    3f),
-                new Vector2(
-                    0.5f,
-                    1f),
-                new Vector2(
-                    0.5f,
-                    1f));
 
             minimapMaskSprite =
                 CreateCircularMinimapSprite(
@@ -4368,7 +4318,7 @@ namespace MotorCity.UI
                 new Vector2(0f, -10f);
 
             rimRect.sizeDelta =
-                new Vector2(178f, 178f);
+                new Vector2(184f, 184f);
 
             Image rimImage =
                 rimObject.GetComponent<Image>();
@@ -4413,7 +4363,7 @@ namespace MotorCity.UI
                 new Vector2(0f, -15f);
 
             viewportRect.sizeDelta =
-                new Vector2(168f, 168f);
+                new Vector2(174f, 174f);
 
             Image viewportImage =
                 viewportObject.GetComponent<Image>();
@@ -4459,7 +4409,7 @@ namespace MotorCity.UI
                 Vector2.zero;
 
             mapRect.sizeDelta =
-                new Vector2(258f, 258f);
+                new Vector2(266f, 266f);
 
             minimapImage =
                 mapObject.GetComponent<RawImage>();
@@ -4596,10 +4546,10 @@ namespace MotorCity.UI
                     "Navigation Target Strip",
                     new Vector2(
                         8f,
-                        6f),
+                        7f),
                     new Vector2(
-                        146f,
-                        26f),
+                        148f,
+                        30f),
                     new Vector2(
                         0f,
                         0f),
@@ -4616,15 +4566,15 @@ namespace MotorCity.UI
                 CreateText(
                     targetStrip,
                     "Minimap Target Label",
-                    10,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(
                         8f,
                         0f),
                     new Vector2(
-                        130f,
-                        22f),
+                        132f,
+                        26f),
                     new Vector2(
                         0f,
                         0.5f),
@@ -4654,14 +4604,12 @@ namespace MotorCity.UI
             navigatorButtonRect.pivot =
                 new Vector2(1f, 0f);
             navigatorButtonRect.anchoredPosition =
-                new Vector2(-8f, 6f);
+                new Vector2(-8f, 7f);
             bool touchUi =
                 ShouldUseTouchUi();
 
             navigatorButtonRect.sizeDelta =
-                touchUi
-                    ? new Vector2(76f, 32f)
-                    : new Vector2(42f, 28f);
+                new Vector2(48f, 32f);
 
             Image navigatorButtonImage =
                 navigatorButtonObject.GetComponent<Image>();
@@ -4687,9 +4635,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    touchUi
-                        ? new Vector2(72f, 28f)
-                        : new Vector2(40f, 26f),
+                    new Vector2(44f, 28f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
@@ -5472,38 +5418,30 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Drift HUD",
-                    new Vector2(0f, -62f),
-                    new Vector2(296f, 46f),
+                    new Vector2(0f, -66f),
+                    new Vector2(258f, 40f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     new Color(
-                        0.075f,
-                        0.065f,
-                        0.12f,
-                        0.96f));
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
+                        0.94f));
 
             driftPanel = panel.gameObject;
-
-            CreateAccent(
-                panel,
-                DriftAccent,
-                new Vector2(0f, -4f),
-                new Vector2(260f, 4f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f));
 
             driftText =
                 CreateText(
                     panel,
                     "Drift Score",
-                    20,
+                    18,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -2f),
-                    new Vector2(268f, 32f),
+                    Vector2.zero,
+                    new Vector2(232f, 30f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
-                    TextColor);
+                    DriftAccent);
         }
 
         private void BuildActivityResult(Transform canvas)
@@ -8720,7 +8658,7 @@ namespace MotorCity.UI
                     BlueAccent.r,
                     BlueAccent.g,
                     BlueAccent.b,
-                    0.22f);
+                    0.12f);
 
             outline.effectDistance =
                 new Vector2(1f, -1f);
