@@ -1061,6 +1061,18 @@ namespace MotorCity.Gameplay
             TowTruckJobSystem towTruck)
         {
             bool hasAny =
+                (delivery != null &&
+                 (delivery.IsActive ||
+                  delivery.IsCountingDown)) ||
+                (driftChallenge != null &&
+                 (driftChallenge.IsActive ||
+                  driftChallenge.IsCountingDown)) ||
+                (sprint != null &&
+                 (sprint.IsActive ||
+                  sprint.IsCountingDown)) ||
+                (circuit != null &&
+                 (circuit.IsActive ||
+                  circuit.IsCountingDown)) ||
                 (professions != null &&
                  professions.IsActive) ||
                 (carWash != null &&
@@ -1077,6 +1089,80 @@ namespace MotorCity.Gameplay
             Section("АКТИВНЫЕ CHECKPOINT-МЕТКИ");
 
             int column = 0;
+
+            if (delivery != null &&
+                (delivery.IsActive ||
+                 delivery.IsCountingDown))
+            {
+                DrawTeleportPointKeepingActivity(
+                    "ДОСТ: CURRENT",
+                    delivery.CurrentTarget,
+                    Quaternion.identity,
+                    ref column);
+
+                if (delivery.TryGetNextTarget(
+                        out Vector3 deliveryNext))
+                {
+                    DrawTeleportPointKeepingActivity(
+                        "ДОСТ: NEXT",
+                        deliveryNext,
+                        Quaternion.identity,
+                        ref column);
+                }
+            }
+
+            if (driftChallenge != null &&
+                (driftChallenge.IsActive ||
+                 driftChallenge.IsCountingDown))
+            {
+                DrawTeleportPointKeepingActivity(
+                    "ДРИФТ: ЗОНА",
+                    driftChallenge.ZoneCenter,
+                    Quaternion.identity,
+                    ref column);
+            }
+
+            if (sprint != null &&
+                (sprint.IsActive ||
+                 sprint.IsCountingDown))
+            {
+                DrawTeleportPointKeepingActivity(
+                    "СПРИНТ: CURRENT",
+                    sprint.CurrentTarget,
+                    Quaternion.identity,
+                    ref column);
+
+                if (sprint.TryGetNextTarget(
+                        out Vector3 sprintNext))
+                {
+                    DrawTeleportPointKeepingActivity(
+                        "СПРИНТ: NEXT",
+                        sprintNext,
+                        Quaternion.identity,
+                        ref column);
+                }
+            }
+
+            if (circuit != null &&
+                (circuit.IsActive ||
+                 circuit.IsCountingDown))
+            {
+                DrawTeleportPointKeepingActivity(
+                    "КОЛЬЦО: CURRENT",
+                    circuit.CurrentTarget,
+                    Quaternion.identity,
+                    ref column);
+
+                if (circuit.TryGetNextTarget(
+                        out Vector3 circuitNext))
+                {
+                    DrawTeleportPointKeepingActivity(
+                        "КОЛЬЦО: NEXT",
+                        circuitNext,
+                        Quaternion.identity,
+                        ref column);
+                }
+            }
 
             if (professions != null &&
                 professions.IsActive)
@@ -1670,6 +1756,23 @@ namespace MotorCity.Gameplay
             sprint?.CancelActivity();
             circuit?.CancelActivity();
 
+            CityProfessionSystem professions =
+                FindSystem("CityProfessionSystem") as
+                    CityProfessionSystem;
+
+            CarWashJobSystem carWash =
+                FindSystem("CarWashJobSystem") as
+                    CarWashJobSystem;
+
+            TowTruckJobSystem towTruck =
+                FindSystem("TowTruckJobSystem") as
+                    TowTruckJobSystem;
+
+            professions?.CancelActive();
+            carWash?.CancelWash();
+            towTruck?.CancelJob();
+            underground?.CancelRunForTesting();
+
             if (activityManager != null)
             {
                 if (activityManager.HasResult)
@@ -1680,7 +1783,7 @@ namespace MotorCity.Gameplay
             }
 
             car?.SetDrivingEnabled(true);
-            lastAction = "Активности отменены";
+            lastAction = "Все активности отменены";
         }
 
         private void InvokeNoArg(
