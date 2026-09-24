@@ -1297,19 +1297,19 @@ namespace MotorCity.Bootstrap
                         PrimitiveType.Cube,
                         root.transform,
                         new Vector3(
-                            4.4f,
-                            0.45f,
-                            8.2f),
+                            5.2f,
+                            0.52f,
+                            10.5f),
                         new Vector3(
                             0f,
-                            0.72f,
+                            0.92f,
                             0f),
                         rampMaterial,
                         true);
 
                 ramp.transform.localRotation =
                     Quaternion.Euler(
-                        -11.5f,
+                        -15.5f,
                         0f,
                         0f);
 
@@ -1323,23 +1323,167 @@ namespace MotorCity.Bootstrap
                             PrimitiveType.Cube,
                             root.transform,
                             new Vector3(
-                                0.34f,
-                                0.05f,
-                                7.5f),
+                                0.38f,
+                                0.055f,
+                                9.4f),
                             new Vector3(
-                                stripe * 1.35f,
-                                1.13f,
-                                0.05f),
+                                stripe * 1.55f,
+                                1.47f,
+                                0.08f),
                             stripeMaterial,
                             false);
 
                     marker.transform.localRotation =
                         Quaternion.Euler(
-                            -11.5f,
+                            -15.5f,
                             0f,
                             0f);
                 }
+
+                if (!stuntJumps.HasLandingTarget(i))
+                    continue;
+
+                GameObject rewardMarker =
+                    CreateStuntRewardMarker(
+                        i,
+                        stuntJumps.GetLandingPosition(i));
+
+                stuntJumps.RegisterRewardMarker(
+                    i,
+                    rewardMarker);
             }
+        }
+
+        private static GameObject CreateStuntRewardMarker(
+            int index,
+            Vector3 position)
+        {
+            GameObject root =
+                new(
+                    $"Stunt Roof Reward {index + 1}");
+
+            root.transform.position =
+                position;
+
+            Material padMaterial =
+                Material(
+                    new Color(
+                        0.08f,
+                        0.76f,
+                        1f),
+                    0.04f,
+                    0.72f);
+
+            GameObject pad =
+                Primitive(
+                    "Landing Reward Pad",
+                    PrimitiveType.Cylinder,
+                    root.transform,
+                    new Vector3(
+                        3.2f,
+                        0.06f,
+                        3.2f),
+                    new Vector3(
+                        0f,
+                        0.04f,
+                        0f),
+                    padMaterial,
+                    false);
+
+            pad.transform.localRotation =
+                Quaternion.identity;
+
+            GameObject iconRoot =
+                new(
+                    "Mission Icon");
+
+            iconRoot.transform.SetParent(
+                root.transform,
+                false);
+
+            iconRoot.transform.localPosition =
+                new Vector3(
+                    0f,
+                    2.15f,
+                    0f);
+
+            Sprite[] sprites =
+                Resources.LoadAll<Sprite>(
+                    "MotorCity/Markers/flag");
+
+            Sprite sprite =
+                sprites != null &&
+                sprites.Length > 0
+                    ? sprites[0]
+                    : null;
+
+            if (sprite != null)
+            {
+                GameObject glow =
+                    new(
+                        "Reward Icon Glow");
+
+                glow.transform.SetParent(
+                    iconRoot.transform,
+                    false);
+
+                glow.transform.localScale =
+                    Vector3.one *
+                    1.65f;
+
+                SpriteRenderer glowRenderer =
+                    glow.AddComponent<SpriteRenderer>();
+
+                glowRenderer.sprite =
+                    sprite;
+
+                glowRenderer.color =
+                    new Color(
+                        0.08f,
+                        0.78f,
+                        1f,
+                        0.24f);
+
+                glowRenderer.sortingOrder =
+                    46;
+
+                GameObject core =
+                    new(
+                        "Reward Icon Core");
+
+                core.transform.SetParent(
+                    iconRoot.transform,
+                    false);
+
+                core.transform.localScale =
+                    Vector3.one *
+                    1.35f;
+
+                SpriteRenderer coreRenderer =
+                    core.AddComponent<SpriteRenderer>();
+
+                coreRenderer.sprite =
+                    sprite;
+
+                coreRenderer.color =
+                    new Color(
+                        0.18f,
+                        0.92f,
+                        1f,
+                        1f);
+
+                coreRenderer.sortingOrder =
+                    47;
+            }
+
+            ActivityMarkerVfxAnimator animator =
+                root.AddComponent<
+                    ActivityMarkerVfxAnimator>();
+
+            animator.Configure(
+                iconRoot.transform);
+
+            return root;
         }
 
         private static void CreateUndergroundMarker(
