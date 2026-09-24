@@ -6,27 +6,42 @@ using UnityEngine.UI;
 namespace MotorCity.UI
 {
     /// <summary>
-    /// Non-invasive visual pass for the runtime-built PrototypeHud.
-    /// Keeps gameplay/UI logic in PrototypeHud untouched and only refines
-    /// composition, spacing, contrast and responsive sizing.
+    /// Shared presentation layer for the runtime-built PrototypeHud.
+    /// PrototypeHud owns gameplay state and element construction; this component
+    /// only keeps the visual language and responsive composition consistent.
     /// </summary>
     public sealed class HudVisualPolish : MonoBehaviour
     {
         private const string HudRootName = "Motor City HUD";
+
+        private static readonly Color Surface =
+            new(0.030f, 0.042f, 0.066f, 0.94f);
+
+        private static readonly Color SurfaceStrong =
+            new(0.024f, 0.034f, 0.056f, 0.975f);
+
+        private static readonly Color SurfaceSoft =
+            new(0.050f, 0.064f, 0.094f, 0.92f);
+
+        private static readonly Color Cyan =
+            new(0.18f, 0.72f, 1f, 1f);
 
         private Transform hudRoot;
         private int lastScreenWidth;
         private int lastScreenHeight;
         private bool lastTouchLayout;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
         {
-            GameObject host = new(
-                "Motor City HUD Visual Polish",
-                typeof(HudVisualPolish));
+            GameObject host =
+                new(
+                    "Motor City HUD Visual Polish",
+                    typeof(HudVisualPolish));
 
-            Object.DontDestroyOnLoad(host);
+            Object.DontDestroyOnLoad(
+                host);
         }
 
         private IEnumerator Start()
@@ -34,7 +49,9 @@ namespace MotorCity.UI
             while (hudRoot == null)
             {
                 TryBind();
-                yield return new WaitForSecondsRealtime(0.25f);
+                yield return
+                    new WaitForSecondsRealtime(
+                        0.25f);
             }
 
             ApplyVisualPass();
@@ -48,7 +65,8 @@ namespace MotorCity.UI
                 return;
             }
 
-            bool touchLayout = UseLandscapeTouchLayout();
+            bool touchLayout =
+                UseLandscapeTouchLayout();
 
             if (lastScreenWidth != Screen.width ||
                 lastScreenHeight != Screen.height ||
@@ -60,12 +78,16 @@ namespace MotorCity.UI
 
         private void TryBind()
         {
-            GameObject root = GameObject.Find(HudRootName);
+            GameObject root =
+                GameObject.Find(
+                    HudRootName);
 
             if (root == null)
                 return;
 
-            hudRoot = root.transform;
+            hudRoot =
+                root.transform;
+
             ApplyVisualPass();
         }
 
@@ -74,194 +96,277 @@ namespace MotorCity.UI
             if (hudRoot == null)
                 return;
 
-            lastScreenWidth = Screen.width;
-            lastScreenHeight = Screen.height;
-            lastTouchLayout = UseLandscapeTouchLayout();
+            lastScreenWidth =
+                Screen.width;
 
-            ApplyDesktopOrTouchComposition(lastTouchLayout);
-            ApplyPanelTreatment("Player Card", new Color(0.016f, 0.026f, 0.043f, 0.96f), true);
-            ApplyPanelTreatment("Character Card", new Color(0.020f, 0.034f, 0.052f, 0.94f), true);
-            ApplyPanelTreatment("Activity Status", new Color(0.020f, 0.030f, 0.046f, 0.92f), false);
-            ClearPanelBackdrop("Speedometer");
-            ClearPanelBackdrop("Minimap");
-            ApplyPanelTreatment("Drift HUD", new Color(0.080f, 0.038f, 0.018f, 0.92f), true);
-            ApplyPanelTreatment("Activity Result", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
-            ApplyPanelTreatment("Navigator Menu", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
-            ApplyPanelTreatment("Club Panel", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
-            ApplyPanelTreatment("Garage Panel", new Color(0.014f, 0.022f, 0.036f, 0.985f), true);
+            lastScreenHeight =
+                Screen.height;
 
-            PolishCoreText("Credits", 1.0f);
-            PolishCoreText("Reputation", 0.65f);
-            PolishCoreText("Active Objective", 0.75f);
-            PolishCoreText("Character Source", 0.55f);
-            PolishCoreText("Character Name", 0.75f);
-            PolishCoreText("Character Mission Title", 0.60f);
-            PolishCoreText("Character Line", 0.70f);
-            PolishCoreText("Character Reward", 0.70f);
-            PolishCoreText("Status Text", 0.70f);
-            PolishCoreText("Speed", 0.90f);
-            PolishCoreText("Minimap Target Label", 0.70f);
-            PolishCoreText("Drift Score", 0.85f);
-            PolishCoreText("Result Title", 0.55f);
-            PolishCoreText("Result Headline", 0.90f);
-            PolishCoreText("Result Details", 0.65f);
-            PolishCoreText("Result Reward", 0.90f);
-            PolishCoreText("Result Controls", 0.55f);
-            PolishCoreText("Navigator Title", 0.80f);
-            PolishCoreText("Navigator Selection", 0.80f);
-            PolishCoreText("Navigator Controls", 0.55f);
-            PolishCoreText("Club Title", 0.80f);
-            PolishCoreText("Club Name", 0.80f);
-            PolishCoreText("Club Description", 0.55f);
-            PolishCoreText("Club Weekly", 0.75f);
-            PolishCoreText("Garage Title", 0.80f);
-            PolishCoreText("Garage Credits", 0.80f);
-            PolishCoreText("Garage Reputation", 0.75f);
-            PolishCoreText("Garage Vehicle", 0.75f);
-            PolishCoreText("Garage Next Vehicle", 0.70f);
-            PolishCoreText("Garage Vehicle Stats", 0.60f);
+            lastTouchLayout =
+                UseLandscapeTouchLayout();
 
-            ApplyModalComposition(lastTouchLayout);
+            ApplyDrivingHudComposition(
+                lastTouchLayout);
+
+            // One surface family for all driving clusters. Information hierarchy
+            // comes from spacing, icons and content accents, not decorative bars.
+            ApplyPanelTreatment(
+                "Character Card",
+                SurfaceStrong);
+
+            ApplyPanelTreatment(
+                "Character Portrait Frame",
+                SurfaceSoft);
+
+            ApplyPanelTreatment(
+                "Activity Status",
+                Surface);
+
+            ApplyPanelTreatment(
+                "Drift HUD",
+                Surface);
+
+            ApplyPanelTreatment(
+                "Speedometer",
+                new Color(
+                    Surface.r,
+                    Surface.g,
+                    Surface.b,
+                    0.74f));
+
+            ApplyPanelTreatment(
+                "Minimap",
+                Surface);
+
+            ApplyPanelTreatment(
+                "Navigation Target Strip",
+                SurfaceStrong);
+
+            ApplyPanelTreatment(
+                "Speed Unit Plate",
+                new Color(
+                    Surface.r,
+                    Surface.g,
+                    Surface.b,
+                    0.72f));
+
+            ApplyPanelTreatment(
+                "Activity Result",
+                SurfaceStrong);
+
+            ApplyPanelTreatment(
+                "Navigator Menu",
+                SurfaceStrong);
+
+            ApplyPanelTreatment(
+                "Club Panel",
+                SurfaceStrong);
+
+            ApplyPanelTreatment(
+                "Garage Panel",
+                SurfaceStrong);
+
+            RemoveLegacyHighlights();
+
+            PolishCoreText(
+                "Character Source",
+                0.45f);
+            PolishCoreText(
+                "Character Name",
+                0.55f);
+            PolishCoreText(
+                "Character Mission Title",
+                0.45f);
+            PolishCoreText(
+                "Character Line",
+                0.55f);
+            PolishCoreText(
+                "Character Reward",
+                0.45f);
+            PolishCoreText(
+                "Status Text",
+                0.55f);
+            PolishCoreText(
+                "Speed",
+                0.70f);
+            PolishCoreText(
+                "Drive Mode",
+                0.55f);
+            PolishCoreText(
+                "Dial Unit",
+                0.45f);
+            PolishCoreText(
+                "Minimap Target Label",
+                0.55f);
+            PolishCoreText(
+                "Drift Score",
+                0.70f);
+            PolishCoreText(
+                "Result Title",
+                0.45f);
+            PolishCoreText(
+                "Result Headline",
+                0.70f);
+            PolishCoreText(
+                "Result Details",
+                0.55f);
+            PolishCoreText(
+                "Result Reward",
+                0.70f);
+            PolishCoreText(
+                "Result Controls",
+                0.45f);
+            PolishCoreText(
+                "Navigator Title",
+                0.60f);
+            PolishCoreText(
+                "Navigator Selection",
+                0.55f);
+            PolishCoreText(
+                "Navigator Controls",
+                0.45f);
+            PolishCoreText(
+                "Club Title",
+                0.60f);
+            PolishCoreText(
+                "Club Name",
+                0.60f);
+            PolishCoreText(
+                "Club Description",
+                0.45f);
+            PolishCoreText(
+                "Club Weekly",
+                0.55f);
+            PolishCoreText(
+                "Garage Title",
+                0.60f);
+            PolishCoreText(
+                "Garage Credits",
+                0.55f);
+            PolishCoreText(
+                "Garage Reputation",
+                0.55f);
+            PolishCoreText(
+                "Garage Vehicle",
+                0.55f);
+            PolishCoreText(
+                "Garage Next Vehicle",
+                0.50f);
+            PolishCoreText(
+                "Garage Vehicle Stats",
+                0.45f);
+
+            ApplyModalComposition(
+                lastTouchLayout);
+
             PolishTouchButtons();
-
-            RectTransform objective = FindRect("Active Objective");
-            if (objective != null && !lastTouchLayout)
-            {
-                objective.sizeDelta =
-                    new Vector2(294f, objective.sizeDelta.y);
-            }
-
-            RectTransform statusText = FindRect("Status Text");
-            if (statusText != null)
-            {
-                statusText.sizeDelta =
-                    new Vector2(
-                        lastTouchLayout ? 486f : 590f,
-                        34f);
-            }
-
-            RectTransform minimapTarget = FindRect("Minimap Target Label");
-            if (minimapTarget != null && !lastTouchLayout)
-            {
-                minimapTarget.sizeDelta =
-                    new Vector2(176f, minimapTarget.sizeDelta.y);
-            }
         }
 
-        private void ApplyDesktopOrTouchComposition(bool touchLayout)
+        private void ApplyDrivingHudComposition(
+            bool touchLayout)
         {
-            RectTransform playerCard = FindRect("Player Card");
-            RectTransform characterCard = FindRect("Character Card");
-            RectTransform speedometer = FindRect("Speedometer");
-            RectTransform status = FindRect("Activity Status");
-            RectTransform minimap = FindRect("Minimap");
-
             if (touchLayout)
             {
-                SetRect(playerCard, new Vector2(14f, -14f), new Vector2(340f, 116f), 1f);
-                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(390f, 136f), 1f);
-                SetRect(speedometer, new Vector2(0f, 6f), new Vector2(226f, 166f), 0.90f);
-                SetRect(status, new Vector2(0f, 182f), new Vector2(520f, 46f), 0.94f);
-                SetRect(minimap, new Vector2(-14f, -14f), new Vector2(202f, 202f), 0.92f);
+                SetRect(
+                    "Character Card",
+                    new Vector2(14f, -14f),
+                    new Vector2(316f, 90f));
+
+                SetRect(
+                    "Speedometer",
+                    new Vector2(0f, 8f),
+                    new Vector2(246f, 210f));
+
+                SetRect(
+                    "Activity Status",
+                    new Vector2(0f, -14f),
+                    new Vector2(392f, 38f));
+
+                SetRect(
+                    "Drift HUD",
+                    new Vector2(0f, -58f),
+                    new Vector2(236f, 38f));
+
+                SetRect(
+                    "Minimap",
+                    new Vector2(-14f, -14f),
+                    new Vector2(198f, 210f));
             }
             else
             {
-                SetRect(playerCard, new Vector2(22f, -22f), new Vector2(392f, 132f), 1f);
-                SetRect(characterCard, new Vector2(22f, -22f), new Vector2(430f, 142f), 1f);
-                SetRect(speedometer, new Vector2(0f, 16f), new Vector2(258f, 190f), 1f);
-                SetRect(status, new Vector2(0f, 218f), new Vector2(620f, 50f), 1f);
-                SetRect(minimap, new Vector2(-22f, -22f), new Vector2(232f, 232f), 1f);
+                SetRect(
+                    "Character Card",
+                    new Vector2(18f, -18f),
+                    new Vector2(342f, 96f));
+
+                SetRect(
+                    "Speedometer",
+                    new Vector2(0f, 12f),
+                    new Vector2(264f, 224f));
+
+                SetRect(
+                    "Activity Status",
+                    new Vector2(0f, -18f),
+                    new Vector2(430f, 40f));
+
+                SetRect(
+                    "Drift HUD",
+                    new Vector2(0f, -66f),
+                    new Vector2(258f, 40f));
+
+                SetRect(
+                    "Minimap",
+                    new Vector2(-18f, -18f),
+                    new Vector2(218f, 230f));
             }
         }
 
         private void ApplyModalComposition(
             bool touchLayout)
         {
-            RectTransform result =
-                FindRect("Activity Result");
-
-            RectTransform navigator =
-                FindRect("Navigator Menu");
-
-            RectTransform club =
-                FindRect("Club Panel");
-
-            RectTransform garage =
-                FindRect("Garage Panel");
-
             if (touchLayout)
             {
                 SetRect(
-                    result,
+                    "Activity Result",
                     Vector2.zero,
-                    new Vector2(560f, 302f),
-                    0.94f);
+                    new Vector2(560f, 302f));
 
                 SetRect(
-                    navigator,
+                    "Navigator Menu",
                     Vector2.zero,
-                    new Vector2(480f, 232f),
-                    0.94f);
+                    new Vector2(480f, 232f));
 
                 SetRect(
-                    club,
+                    "Club Panel",
                     Vector2.zero,
-                    new Vector2(520f, 334f),
-                    0.94f);
+                    new Vector2(520f, 334f));
 
                 SetRect(
-                    garage,
+                    "Garage Panel",
                     Vector2.zero,
-                    new Vector2(720f, 544f),
-                    0.92f);
+                    new Vector2(720f, 544f));
             }
             else
             {
                 SetRect(
-                    result,
+                    "Activity Result",
                     Vector2.zero,
-                    new Vector2(650f, 350f),
-                    1f);
+                    new Vector2(600f, 316f));
 
                 SetRect(
-                    navigator,
+                    "Navigator Menu",
                     Vector2.zero,
-                    new Vector2(540f, 270f),
-                    1f);
+                    new Vector2(520f, 250f));
 
                 SetRect(
-                    club,
+                    "Club Panel",
                     Vector2.zero,
-                    new Vector2(580f, 380f),
-                    1f);
+                    new Vector2(580f, 380f));
 
                 SetRect(
-                    garage,
+                    "Garage Panel",
                     Vector2.zero,
-                    new Vector2(780f, 594f),
-                    1f);
-            }
-
-            RectTransform resultDetails =
-                FindRect("Result Details");
-
-            if (resultDetails != null)
-            {
-                resultDetails.sizeDelta =
-                    new Vector2(
-                        touchLayout ? 500f : 570f,
-                        58f);
-            }
-
-            RectTransform resultReward =
-                FindRect("Result Reward");
-
-            if (resultReward != null)
-            {
-                resultReward.sizeDelta =
-                    new Vector2(
-                        touchLayout ? 470f : 530f,
-                        46f);
+                    new Vector2(760f, 570f));
             }
         }
 
@@ -270,53 +375,36 @@ namespace MotorCity.UI
             if (!MotorCityInput.PreferTouchPrompts)
                 return;
 
+            Color touchSurface =
+                new(
+                    0.030f,
+                    0.060f,
+                    0.090f,
+                    0.90f);
+
             PolishTouchGroup(
                 "Touch Driving Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.82f));
+                touchSurface);
 
             PolishTouchGroup(
                 "Touch Utility Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.90f));
+                touchSurface);
 
             PolishTouchGroup(
                 "Result Touch Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.94f));
+                touchSurface);
 
             PolishTouchGroup(
                 "Navigator Touch Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.94f));
+                touchSurface);
 
             PolishTouchGroup(
                 "Store Touch Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.94f));
+                touchSurface);
 
             PolishTouchGroup(
                 "Club Touch Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.94f));
+                touchSurface);
         }
 
         private void PolishTouchGroup(
@@ -324,7 +412,8 @@ namespace MotorCity.UI
             Color baseColor)
         {
             RectTransform root =
-                FindRect(rootName);
+                FindRect(
+                    rootName);
 
             if (root == null)
                 return;
@@ -356,13 +445,15 @@ namespace MotorCity.UI
 
                 outline.effectColor =
                     new Color(
-                        0.18f,
-                        0.62f,
-                        1f,
-                        0.30f);
+                        Cyan.r,
+                        Cyan.g,
+                        Cyan.b,
+                        0.18f);
 
                 outline.effectDistance =
-                    new Vector2(1f, -1f);
+                    new Vector2(
+                        1f,
+                        -1f);
 
                 outline.useGraphicAlpha =
                     true;
@@ -377,52 +468,42 @@ namespace MotorCity.UI
                 if (label == null)
                     continue;
 
-                Shadow shadow =
-                    label.GetComponent<Shadow>();
-
-                if (shadow == null ||
-                    shadow is Outline)
-                {
-                    shadow =
-                        label.gameObject
-                            .AddComponent<Shadow>();
-                }
-
-                shadow.effectColor =
-                    new Color(
-                        0f,
-                        0f,
-                        0f,
-                        0.85f);
-
-                shadow.effectDistance =
-                    new Vector2(1f, -2f);
+                ApplyTextShadow(
+                    label,
+                    0.60f);
             }
         }
 
-        private static void SetRect(
-            RectTransform rect,
+        private void SetRect(
+            string objectName,
             Vector2 position,
-            Vector2 size,
-            float scale)
+            Vector2 size)
         {
+            RectTransform rect =
+                FindRect(
+                    objectName);
+
             if (rect == null)
                 return;
 
-            rect.anchoredPosition = position;
-            rect.sizeDelta = size;
+            rect.anchoredPosition =
+                position;
 
-            // Keep UI text on an unscaled transform. Fractional scaling of
-            // parent RectTransforms makes legacy Unity Text rasterize softer
-            // after resolution/aspect changes, especially on small labels.
-            rect.localScale = Vector3.one;
+            rect.sizeDelta =
+                size;
+
+            // Parent scaling makes Legacy Text visibly softer in WebGL.
+            rect.localScale =
+                Vector3.one;
         }
 
-        private void ClearPanelBackdrop(
-            string objectName)
+        private void ApplyPanelTreatment(
+            string objectName,
+            Color color)
         {
             RectTransform rect =
-                FindRect(objectName);
+                FindRect(
+                    objectName);
 
             if (rect == null)
                 return;
@@ -433,7 +514,7 @@ namespace MotorCity.UI
             if (image != null)
             {
                 image.color =
-                    Color.clear;
+                    color;
 
                 image.raycastTarget =
                     false;
@@ -442,113 +523,131 @@ namespace MotorCity.UI
             Outline outline =
                 rect.GetComponent<Outline>();
 
-            if (outline != null)
+            if (outline == null)
             {
-                outline.enabled =
-                    false;
+                outline =
+                    rect.gameObject
+                        .AddComponent<Outline>();
             }
 
-            Transform highlight =
-                rect.Find(
-                    "Visual Polish Highlight");
+            outline.enabled =
+                true;
 
-            if (highlight != null)
+            outline.effectColor =
+                new Color(
+                    Cyan.r,
+                    Cyan.g,
+                    Cyan.b,
+                    0.10f);
+
+            outline.effectDistance =
+                new Vector2(
+                    1f,
+                    -1f);
+
+            outline.useGraphicAlpha =
+                true;
+        }
+
+        private void RemoveLegacyHighlights()
+        {
+            if (hudRoot == null)
+                return;
+
+            Image[] images =
+                hudRoot.GetComponentsInChildren<Image>(
+                    true);
+
+            foreach (Image image in images)
             {
-                highlight.gameObject.SetActive(
+                if (image == null ||
+                    image.gameObject.name !=
+                        "Visual Polish Highlight")
+                {
+                    continue;
+                }
+
+                image.gameObject.SetActive(
                     false);
             }
-        }
-
-        private void ApplyPanelTreatment(
-            string objectName,
-            Color color,
-            bool addTopHighlight)
-        {
-            RectTransform rect = FindRect(objectName);
-
-            if (rect == null)
-                return;
-
-            Image image = rect.GetComponent<Image>();
-            if (image != null)
-            {
-                image.color = color;
-                image.raycastTarget = false;
-            }
-
-            Outline outline = rect.GetComponent<Outline>();
-            if (outline == null)
-                outline = rect.gameObject.AddComponent<Outline>();
-
-            outline.effectColor = new Color(0.18f, 0.50f, 0.82f, 0.18f);
-            outline.effectDistance = new Vector2(1f, -1f);
-            outline.useGraphicAlpha = true;
-
-            if (addTopHighlight)
-                EnsureTopHighlight(rect);
-        }
-
-        private static void EnsureTopHighlight(RectTransform parent)
-        {
-            const string highlightName = "Visual Polish Highlight";
-
-            Transform existing = parent.Find(highlightName);
-            if (existing != null)
-                return;
-
-            GameObject lineObject = new(
-                highlightName,
-                typeof(RectTransform),
-                typeof(Image));
-
-            lineObject.transform.SetParent(parent, false);
-
-            RectTransform line = lineObject.GetComponent<RectTransform>();
-            line.anchorMin = new Vector2(0f, 1f);
-            line.anchorMax = new Vector2(1f, 1f);
-            line.pivot = new Vector2(0.5f, 1f);
-            line.anchoredPosition = new Vector2(0f, -1f);
-            line.sizeDelta = new Vector2(-20f, 2f);
-
-            Image image = lineObject.GetComponent<Image>();
-            image.color = new Color(0.16f, 0.62f, 1f, 0.32f);
-            image.raycastTarget = false;
         }
 
         private void PolishCoreText(
             string objectName,
             float shadowAlpha)
         {
-            RectTransform rect = FindRect(objectName);
+            RectTransform rect =
+                FindRect(
+                    objectName);
+
             if (rect == null)
                 return;
 
-            Text text = rect.GetComponent<Text>();
+            Text text =
+                rect.GetComponent<Text>();
+
             if (text == null)
                 return;
 
-            text.resizeTextForBestFit = false;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit =
+                false;
+
+            text.horizontalOverflow =
+                HorizontalWrapMode.Wrap;
+
+            text.verticalOverflow =
+                VerticalWrapMode.Truncate;
 
             rect.localScale =
                 Vector3.one;
 
-            Shadow shadow = rect.GetComponent<Shadow>();
-            if (shadow == null || shadow is Outline)
-                shadow = rect.gameObject.AddComponent<Shadow>();
-
-            shadow.effectColor = new Color(0f, 0f, 0f, shadowAlpha);
-            shadow.effectDistance = new Vector2(1f, -2f);
-            shadow.useGraphicAlpha = true;
+            ApplyTextShadow(
+                text,
+                shadowAlpha);
         }
 
-        private RectTransform FindRect(string objectName)
+        private static void ApplyTextShadow(
+            Text text,
+            float alpha)
+        {
+            Shadow shadow =
+                text.GetComponent<Shadow>();
+
+            if (shadow == null ||
+                shadow is Outline)
+            {
+                shadow =
+                    text.gameObject
+                        .AddComponent<Shadow>();
+            }
+
+            shadow.effectColor =
+                new Color(
+                    0f,
+                    0f,
+                    0f,
+                    alpha);
+
+            shadow.effectDistance =
+                new Vector2(
+                    1f,
+                    -1f);
+
+            shadow.useGraphicAlpha =
+                true;
+        }
+
+        private RectTransform FindRect(
+            string objectName)
         {
             if (hudRoot == null)
                 return null;
 
-            Transform target = FindRecursive(hudRoot, objectName);
+            Transform target =
+                FindRecursive(
+                    hudRoot,
+                    objectName);
+
             return target == null
                 ? null
                 : target as RectTransform;
@@ -561,10 +660,17 @@ namespace MotorCity.UI
             if (parent.name == objectName)
                 return parent;
 
-            for (int i = 0; i < parent.childCount; i++)
+            for (int i = 0;
+                 i < parent.childCount;
+                 i++)
             {
-                Transform child = parent.GetChild(i);
-                Transform found = FindRecursive(child, objectName);
+                Transform child =
+                    parent.GetChild(i);
+
+                Transform found =
+                    FindRecursive(
+                        child,
+                        objectName);
 
                 if (found != null)
                     return found;
@@ -582,7 +688,8 @@ namespace MotorCity.UI
                 return true;
 
             float aspect =
-                Screen.width / (float)Screen.height;
+                Screen.width /
+                (float)Screen.height;
 
             return aspect >= 1.25f;
         }
