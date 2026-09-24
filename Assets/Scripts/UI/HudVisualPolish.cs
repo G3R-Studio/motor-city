@@ -136,15 +136,17 @@ namespace MotorCity.UI
             {
                 statusText.sizeDelta =
                     new Vector2(
-                        lastTouchLayout ? 486f : 590f,
-                        34f);
+                        lastTouchLayout ? 372f : 392f,
+                        30f);
             }
 
             RectTransform minimapTarget = FindRect("Minimap Target Label");
-            if (minimapTarget != null && !lastTouchLayout)
+            if (minimapTarget != null)
             {
                 minimapTarget.sizeDelta =
-                    new Vector2(176f, minimapTarget.sizeDelta.y);
+                    new Vector2(
+                        lastTouchLayout ? 142f : 148f,
+                        22f);
             }
         }
 
@@ -527,9 +529,17 @@ namespace MotorCity.UI
             if (text == null)
                 return;
 
-            text.resizeTextForBestFit = false;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize =
+                Mathf.Max(
+                    8,
+                    text.fontSize - 7);
+            text.resizeTextMaxSize =
+                text.fontSize;
+            text.horizontalOverflow =
+                HorizontalWrapMode.Wrap;
+            text.verticalOverflow =
+                VerticalWrapMode.Truncate;
 
             rect.localScale =
                 Vector3.one;
