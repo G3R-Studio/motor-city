@@ -22,6 +22,10 @@ namespace FCG
 
         public GameObject[] IaCars;
 
+        [Header("Motor City traffic mix")]
+        [Range(0f, 100f)]
+        public float busSpawnPercent = 5f;
+
         public int nVehicles = 0;
         public int maxVehiclesWithPlayer = 50;
 
@@ -279,6 +283,72 @@ namespace FCG
         }
 
 
+        private GameObject SelectTrafficPrefab()
+        {
+            if (IaCars == null ||
+                IaCars.Length == 0)
+            {
+                return null;
+            }
+
+            List<GameObject> buses =
+                new List<GameObject>();
+
+            List<GameObject> regularCars =
+                new List<GameObject>();
+
+            for (int i = 0;
+                 i < IaCars.Length;
+                 i++)
+            {
+                GameObject prefab =
+                    IaCars[i];
+
+                if (prefab == null)
+                    continue;
+
+                if (prefab.name.IndexOf(
+                        "Bus",
+                        System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    buses.Add(
+                        prefab);
+                }
+                else
+                {
+                    regularCars.Add(
+                        prefab);
+                }
+            }
+
+            if (regularCars.Count == 0)
+            {
+                return buses.Count > 0
+                    ? buses[
+                        Random.Range(
+                            0,
+                            buses.Count)]
+                    : null;
+            }
+
+            bool spawnBus =
+                buses.Count > 0 &&
+                Random.Range(
+                    0f,
+                    100f) <
+                busSpawnPercent;
+
+            List<GameObject> pool =
+                spawnBus
+                    ? buses
+                    : regularCars;
+
+            return pool[
+                Random.Range(
+                    0,
+                    pool.Count)];
+        }
+
         public void LoadCars2()
         {
 
@@ -367,7 +437,16 @@ namespace FCG
                     if (go)
                     {
 
-                        vehicle = (GameObject)Instantiate(IaCars[Mathf.Clamp(Random.Range(0, IaCars.Length), 0, IaCars.Length - 1)], wpDataSpawn[i].position + Vector3.up * 0.1f, wpDataSpawn[i].rotation); ;
+                        GameObject selectedPrefab =
+                            SelectTrafficPrefab();
+
+                        if (selectedPrefab == null)
+                            continue;
+
+                        vehicle = (GameObject)Instantiate(
+                            selectedPrefab,
+                            wpDataSpawn[i].position + Vector3.up * 0.1f,
+                            wpDataSpawn[i].rotation);
                         vehicle.transform.SetParent(CarContainer.transform);
                         vehicle.GetComponent<TrafficCar>().sideAtual = (wpDataSpawn[i].wayScript.oneway && wpDataSpawn[i].wayScript.doubleLine && wpDataSpawn[i].wayScript.rightHand != 0) ? ((wpDataSpawn[i].side == 1) ? 0 : 1) : wpDataSpawn[i].side;
                         vehicle.GetComponent<TrafficCar>().atualWay = wpDataSpawn[i].wayScript.transform;
