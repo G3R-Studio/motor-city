@@ -23,3 +23,6 @@
 Assets/Resources/MotorCity/Audio/*.wav -filter -diff -merge -text
 
 Assets/Resources/MotorCity/Audio/*.ogg -filter -diff -merge -text
+
+# High-resolution player garage source textures.
+Assets/Art/MotorCity/Garage/*.jpg filter=lfs diff=lfs merge=lfs -text
