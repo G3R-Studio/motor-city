@@ -870,6 +870,23 @@ namespace MotorCity.Gameplay
                         stuntJumps.GetJumpRotation(
                             index),
                         ref column);
+
+                    if (stuntJumps.HasLandingTarget(
+                            index))
+                    {
+                        DrawTeleportPoint(
+                            "J" +
+                            (index + 1) +
+                            " ROOF " +
+                            stuntJumps.GetRecommendedSpeedKph(
+                                index).ToString("0") +
+                            " KM/H",
+                            stuntJumps.GetLandingPosition(
+                                index),
+                            stuntJumps.GetJumpRotation(
+                                index),
+                            ref column);
+                    }
                 }
 
                 EndTeleportRow(
