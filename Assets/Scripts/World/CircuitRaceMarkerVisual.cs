@@ -39,11 +39,7 @@ namespace MotorCity.World
                 true,
                 CheckpointBeaconStyle.Circuit);
 
-            HideLegacyMarkerRenderers();
-
-
             SnapToTarget();
-            mainCamera = Camera.main;
         }
 
         private void CacheVisuals()
@@ -109,35 +105,8 @@ namespace MotorCity.World
 
             SnapToTarget();
 
-            float pulse =
-                1f +
-                Mathf.Sin(
-                    Time.time * 3.7f) *
-                0.018f;
-
             transform.localScale =
-                baseScale *
-                pulse;
-
-            if (mainCamera == null)
-                mainCamera = Camera.main;
-
-            if (mainCamera != null)
-            {
-                Vector3 direction =
-                    mainCamera.transform.position -
-                    transform.position;
-
-                direction.y = 0f;
-
-                if (direction.sqrMagnitude > 0.01f)
-                {
-                    transform.rotation =
-                        Quaternion.LookRotation(
-                            direction.normalized,
-                            Vector3.up);
-                }
-            }
+                baseScale;
 
             Vector3 nextTarget =
                 race.CurrentTarget;
