@@ -5,9 +5,13 @@ namespace MotorCity.World
 {
     public sealed class DiscoveryMarkerVisual : MonoBehaviour
     {
+        private const string ResourcePath =
+            "MotorCity/Markers/DiscoveryMarkerVfx";
+
         private DiscoverySystem discoveries;
         private int discoveryIndex;
-        private CheckpointBeaconVisual beacon;
+        private GameObject markerVfx;
+        private CheckpointBeaconVisual fallbackBeacon;
         private bool visibilityInitialized;
         private bool lastVisible;
 
@@ -28,16 +32,20 @@ namespace MotorCity.World
                         discoveryIndex);
             }
 
-            beacon =
-                gameObject.AddComponent<CheckpointBeaconVisual>();
+            if (!TryCreateVfx())
+            {
+                fallbackBeacon =
+                    gameObject.AddComponent<
+                        CheckpointBeaconVisual>();
 
-            beacon.Initialize(
-                new Color(
-                    0.72f,
-                    0.28f,
-                    1f),
-                false,
-                CheckpointBeaconStyle.Discovery);
+                fallbackBeacon.Initialize(
+                    new Color(
+                        0.72f,
+                        0.28f,
+                        1f),
+                    false,
+                    CheckpointBeaconStyle.Discovery);
+            }
 
             RefreshVisibility(
                 true);
@@ -54,6 +62,35 @@ namespace MotorCity.World
 
             RefreshVisibility(
                 false);
+        }
+
+        private bool TryCreateVfx()
+        {
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    ResourcePath);
+
+            if (prefab == null)
+                return false;
+
+            markerVfx =
+                Instantiate(
+                    prefab,
+                    transform);
+
+            markerVfx.name =
+                "Discovery Marker VFX Runtime";
+
+            markerVfx.transform.localPosition =
+                Vector3.zero;
+
+            markerVfx.transform.localRotation =
+                Quaternion.identity;
+
+            markerVfx.transform.localScale =
+                Vector3.one;
+
+            return true;
         }
 
         private void RefreshVisibility(
@@ -77,7 +114,13 @@ namespace MotorCity.World
             lastVisible =
                 visible;
 
-            beacon?.SetVisible(
+            if (markerVfx != null)
+            {
+                markerVfx.SetActive(
+                    visible);
+            }
+
+            fallbackBeacon?.SetVisible(
                 visible);
         }
     }
