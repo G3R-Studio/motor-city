@@ -30,6 +30,8 @@ namespace MotorCity.Gameplay
                 GetComponentsInChildren<Renderer>(
                     true);
 
+            HideLegacyVisuals();
+
             if (!TryCreateDeliveryVfx())
             {
                 CreateFallbackBeacon();
@@ -67,6 +69,22 @@ namespace MotorCity.Gameplay
 
             RefreshVisibility(
                 false);
+        }
+
+        private void HideLegacyVisuals()
+        {
+            if (legacyRenderers == null)
+                return;
+
+            foreach (Renderer renderer in
+                     legacyRenderers)
+            {
+                if (renderer != null)
+                {
+                    renderer.enabled =
+                        false;
+                }
+            }
         }
 
         private bool TryCreateDeliveryVfx()
@@ -135,19 +153,6 @@ namespace MotorCity.Gameplay
 
             lastVisible =
                 visible;
-
-            if (legacyRenderers != null)
-            {
-                foreach (Renderer renderer in
-                         legacyRenderers)
-                {
-                    if (renderer != null)
-                    {
-                        renderer.enabled =
-                            visible;
-                    }
-                }
-            }
 
             if (deliveryVfx != null)
             {
