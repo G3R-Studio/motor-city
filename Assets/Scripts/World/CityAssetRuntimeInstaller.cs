@@ -115,14 +115,23 @@ namespace MotorCity.World
         private static bool hasCityBounds;
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
-            new(0f, 0.2f, 100f);
+            new(-585.822f, 0.2f, 505.109f);
 
         public static Quaternion PlayerSpawnRotation { get; private set; } =
-            Quaternion.identity;
+            Quaternion.Euler(
+                7.40436444e-05f,
+                89.9998322f,
+                -4.8625111e-06f);
 
         // Dedicated player garage on the authored parking apron.
         public static Vector3 GaragePoint { get; private set; } =
-            new(-585.822f, 0.4f, 505.109f);
+            new(-585.822f, 0.2f, 505.109f);
+
+        public static Quaternion GarageSpawnRotation { get; private set; } =
+            Quaternion.Euler(
+                7.40436444e-05f,
+                89.9998322f,
+                -4.8625111e-06f);
 
         // Western broad junction in the large district, kept separate from
         // the street sprint start on the eastern side.
@@ -467,27 +476,23 @@ namespace MotorCity.World
 
         private static void ResolveGameplayLayout()
         {
-            PlayerSpawnPoint =
-                FindRoadPointNear(
-                    new Vector3(
-                        0f,
-                        0f,
-                        100f),
-                    90f,
-                    "player spawn",
-                    false);
-
-            PlayerSpawnRotation =
-                Quaternion.LookRotation(
-                    EstimateRoadDirection(
-                        PlayerSpawnPoint),
-                    Vector3.up);
-
             GaragePoint =
                 new Vector3(
                     -585.822f,
                     0.2f,
                     505.109f);
+
+            GarageSpawnRotation =
+                Quaternion.Euler(
+                    7.40436444e-05f,
+                    89.9998322f,
+                    -4.8625111e-06f);
+
+            PlayerSpawnPoint =
+                GaragePoint;
+
+            PlayerSpawnRotation =
+                GarageSpawnRotation;
 
             DriftChallengePoint =
                 FindRoadPointNear(
