@@ -5,9 +5,12 @@ namespace MotorCity.World
 {
     public sealed class UndergroundMarkerVisual : MonoBehaviour
     {
+        private const string ResourcePath =
+            "MotorCity/Markers/UndergroundMarkerVfx";
+
         private UndergroundSceneSystem underground;
-        private Renderer[] renderers;
-        private Vector3 baseScale;
+        private GameObject markerVfx;
+        private CheckpointBeaconVisual fallbackBeacon;
         private DayNightCycleController dayNight;
         private float dayNightResolveTimer;
         private bool visibilityInitialized;
@@ -16,15 +19,30 @@ namespace MotorCity.World
         public void Bind(
             UndergroundSceneSystem target)
         {
-            underground = target;
-            renderers =
-                GetComponentsInChildren<Renderer>(
-                    true);
-            baseScale =
-                transform.localScale;
+            underground =
+                target;
 
             dayNight =
-                Object.FindAnyObjectByType<DayNightCycleController>();
+                Object.FindAnyObjectByType<
+                    DayNightCycleController>();
+
+            if (!TryCreateVfx())
+            {
+                fallbackBeacon =
+                    gameObject.AddComponent<
+                        CheckpointBeaconVisual>();
+
+                fallbackBeacon.Initialize(
+                    new Color(
+                        0.78f,
+                        0.18f,
+                        1f),
+                    false,
+                    CheckpointBeaconStyle.Underground);
+            }
+
+            RefreshVisibility(
+                true);
         }
 
         private void Update()
@@ -32,40 +50,71 @@ namespace MotorCity.World
             if (underground == null)
                 return;
 
+            RefreshVisibility(
+                false);
+        }
+
+        private bool TryCreateVfx()
+        {
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    ResourcePath);
+
+            if (prefab == null)
+                return false;
+
+            markerVfx =
+                Instantiate(
+                    prefab,
+                    transform);
+
+            markerVfx.name =
+                "Underground Marker VFX Runtime";
+
+            markerVfx.transform.localPosition =
+                Vector3.zero;
+
+            markerVfx.transform.localRotation =
+                Quaternion.identity;
+
+            markerVfx.transform.localScale =
+                Vector3.one;
+
+            return true;
+        }
+
+        private void RefreshVisibility(
+            bool force)
+        {
             bool visible =
+                underground != null &&
                 underground.HasActiveInvitation &&
                 (underground.IsNearMeeting ||
                  underground.IsActive ||
                  underground.IsCountingDown ||
                  IsNight());
 
-            if (!visibilityInitialized ||
-                visible != lastVisible)
+            if (!force &&
+                visibilityInitialized &&
+                visible == lastVisible)
             {
-                visibilityInitialized =
-                    true;
-                lastVisible =
-                    visible;
-
-                foreach (Renderer renderer in renderers)
-                {
-                    if (renderer != null)
-                        renderer.enabled =
-                            visible;
-                }
+                return;
             }
 
-            if (!visible)
-                return;
+            visibilityInitialized =
+                true;
 
-            float pulse =
-                1f +
-                Mathf.Sin(
-                    Time.time * 3.6f) *
-                0.045f;
+            lastVisible =
+                visible;
 
-            transform.localScale =
-                baseScale * pulse;
+            if (markerVfx != null)
+            {
+                markerVfx.SetActive(
+                    visible);
+            }
+
+            fallbackBeacon?.SetVisible(
+                visible);
         }
 
         private bool IsNight()
@@ -77,10 +126,12 @@ namespace MotorCity.World
 
                 if (dayNightResolveTimer <= 0f)
                 {
-                    dayNightResolveTimer = 1f;
+                    dayNightResolveTimer =
+                        1f;
 
                     dayNight =
-                        Object.FindAnyObjectByType<DayNightCycleController>();
+                        Object.FindAnyObjectByType<
+                            DayNightCycleController>();
                 }
             }
 
