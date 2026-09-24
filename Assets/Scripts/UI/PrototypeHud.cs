@@ -2150,8 +2150,8 @@ namespace MotorCity.UI
 
             image.color =
                 new Color(
-                    0.045f,
                     0.075f,
+                    0.07f,
                     0.12f,
                     0.96f);
 
@@ -5531,10 +5531,10 @@ namespace MotorCity.UI
 
             backdrop.color =
                 new Color(
-                    0.005f,
-                    0.008f,
-                    0.014f,
-                    0.72f);
+                    0.012f,
+                    0.010f,
+                    0.022f,
+                    0.78f);
 
             backdrop.raycastTarget = false;
 
@@ -5543,22 +5543,38 @@ namespace MotorCity.UI
                     activityResultOverlay.transform,
                     "Activity Result",
                     Vector2.zero,
-                    new Vector2(620f, 330f),
+                    new Vector2(600f, 316f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
-                        0.02f,
-                        0.028f,
-                        0.042f,
-                        0.98f));
+                        0.055f,
+                        0.05f,
+                        0.095f,
+                        0.985f));
 
             CreateAccent(
                 panel,
                 BlueAccent,
                 new Vector2(0f, -5f),
-                new Vector2(550f, 5f),
+                new Vector2(530f, 4f),
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f));
+
+            CreateAccent(
+                panel,
+                DriftAccent,
+                new Vector2(
+                    -150f,
+                    -5f),
+                new Vector2(
+                    120f,
+                    4f),
+                new Vector2(
+                    0.5f,
+                    1f),
+                new Vector2(
+                    0.5f,
+                    1f));
 
             resultActivityIcon =
                 CreateHudIcon(
@@ -5566,8 +5582,8 @@ namespace MotorCity.UI
                     "Result Activity Icon",
                     MotorCityIconLibrary.Achievement,
                     new Vector2(
-                        -258f,
-                        -34f),
+                        -246f,
+                        -32f),
                     new Vector2(
                         30f,
                         30f),
@@ -5583,8 +5599,8 @@ namespace MotorCity.UI
                     16,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -34f),
-                    new Vector2(540f, 28f),
+                    new Vector2(0f, -32f),
+                    new Vector2(520f, 26f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
@@ -5593,11 +5609,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Result Headline",
-                    34,
+                    32,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -84f),
-                    new Vector2(550f, 52f),
+                    new Vector2(0f, -80f),
+                    new Vector2(520f, 48f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
@@ -5609,8 +5625,8 @@ namespace MotorCity.UI
                     18,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -150f),
-                    new Vector2(550f, 52f),
+                    new Vector2(0f, -142f),
+                    new Vector2(520f, 48f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
@@ -5621,8 +5637,8 @@ namespace MotorCity.UI
                     "Result Reward Icon",
                     MotorCityIconLibrary.Reward,
                     new Vector2(
-                        -178f,
-                        -210f),
+                        -166f,
+                        -198f),
                     new Vector2(
                         30f,
                         30f),
@@ -5642,8 +5658,8 @@ namespace MotorCity.UI
                     28,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(-154f, -210f),
-                    new Vector2(350f, 42f),
+                    new Vector2(-142f, -198f),
+                    new Vector2(330f, 40f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
@@ -6178,7 +6194,7 @@ namespace MotorCity.UI
             Image backdrop =
                 garageOverlay.GetComponent<Image>();
             backdrop.color =
-                new Color(0.005f, 0.008f, 0.012f, 0.68f);
+                new Color(0.012f, 0.010f, 0.022f, 0.76f);
             backdrop.raycastTarget = false;
 
             RectTransform panel =
@@ -6190,18 +6206,34 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
-                        0.02f,
-                        0.026f,
-                        0.038f,
-                        0.98f));
+                        0.055f,
+                        0.05f,
+                        0.095f,
+                        0.985f));
 
             CreateAccent(
                 panel,
                 GarageAccent,
                 new Vector2(0f, -5f),
-                new Vector2(690f, 5f),
+                new Vector2(676f, 4f),
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f));
+
+            CreateAccent(
+                panel,
+                DriftAccent,
+                new Vector2(
+                    -220f,
+                    -5f),
+                new Vector2(
+                    150f,
+                    4f),
+                new Vector2(
+                    0.5f,
+                    1f),
+                new Vector2(
+                    0.5f,
+                    1f));
 
             garageHeaderIcon =
                 CreateHudIcon(
@@ -6393,10 +6425,10 @@ namespace MotorCity.UI
                         0f,
                         1f),
                     new Color(
-                        0.10f,
-                        0.13f,
-                        0.18f,
-                        0.92f));
+                        0.09f,
+                        0.08f,
+                        0.14f,
+                        0.94f));
 
             garageMasteryTrack =
                 masteryTrackRect.GetComponent<Image>();
@@ -6600,9 +6632,9 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Color(
-                        0.028f,
-                        0.036f,
-                        0.052f,
+                        0.065f,
+                        0.058f,
+                        0.11f,
                         0.99f)).gameObject;
 
             RectTransform passportRect =
@@ -6858,8 +6890,8 @@ namespace MotorCity.UI
 
             image.color =
                 new Color(
-                    0.045f,
                     0.075f,
+                    0.07f,
                     0.12f,
                     0.94f);
 
@@ -6930,8 +6962,8 @@ namespace MotorCity.UI
 
             image.color =
                 new Color(
-                    0.045f,
                     0.075f,
+                    0.07f,
                     0.12f,
                     0.94f);
 
@@ -7836,8 +7868,8 @@ namespace MotorCity.UI
 
             image.color =
                 new Color(
-                    0.045f,
                     0.075f,
+                    0.07f,
                     0.12f,
                     0.94f);
 
