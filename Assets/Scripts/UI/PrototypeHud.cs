@@ -2602,47 +2602,79 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Character Card",
-                    new Vector2(18f, -18f),
-                    new Vector2(306f, 88f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(
+                        18f,
+                        -18f),
+                    new Vector2(
+                        374f,
+                        112f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
                     new Color(
-                        0.045f,
-                        0.042f,
-                        0.075f,
-                        0.94f));
+                        0.055f,
+                        0.05f,
+                        0.095f,
+                        0.95f));
 
             characterPanel =
                 panel.gameObject;
 
             CreateAccent(
                 panel,
-                BlueAccent,
-                new Vector2(0f, -3f),
-                new Vector2(274f, 3f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f));
+                DriftAccent,
+                new Vector2(
+                    0f,
+                    -3f),
+                new Vector2(
+                    332f,
+                    3f),
+                new Vector2(
+                    0.5f,
+                    1f),
+                new Vector2(
+                    0.5f,
+                    1f));
 
             CreateAccent(
                 panel,
-                DriftAccent,
-                new Vector2(4f, -8f),
-                new Vector2(3f, 66f),
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f));
+                BlueAccent,
+                new Vector2(
+                    5f,
+                    -7f),
+                new Vector2(
+                    4f,
+                    98f),
+                new Vector2(
+                    0f,
+                    1f),
+                new Vector2(
+                    0f,
+                    1f));
 
             RectTransform portraitFrame =
                 CreatePanel(
                     panel,
                     "Character Portrait Frame",
-                    new Vector2(12f, -12f),
-                    new Vector2(44f, 44f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(
+                        14f,
+                        -11f),
+                    new Vector2(
+                        50f,
+                        50f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
                     new Color(
+                        0.05f,
                         0.075f,
-                        0.07f,
-                        0.12f,
+                        0.11f,
                         1f));
 
             characterPortraitRoot =
@@ -2672,20 +2704,28 @@ namespace MotorCity.UI
                 CreatePortraitLayer(
                     portraitFrame,
                     "Portrait Accent",
-                    new Vector2(4f, -4f),
-                    new Vector2(36f, 36f),
+                    new Vector2(
+                        5f,
+                        -5f),
+                    new Vector2(
+                        48f,
+                        48f),
                     new Color(
                         0.15f,
                         0.55f,
                         1f,
-                        0.28f));
+                        0.30f));
 
             characterPortraitFace =
                 CreatePortraitLayer(
                     portraitFrame,
                     "Portrait Face",
-                    new Vector2(11f, -12f),
-                    new Vector2(23f, 27f),
+                    new Vector2(
+                        14f,
+                        -15f),
+                    new Vector2(
+                        30f,
+                        34f),
                     new Color(
                         0.88f,
                         0.70f,
@@ -2696,8 +2736,12 @@ namespace MotorCity.UI
                 CreatePortraitLayer(
                     portraitFrame,
                     "Portrait Hair",
-                    new Vector2(10f, -8f),
-                    new Vector2(26f, 10f),
+                    new Vector2(
+                        12f,
+                        -10f),
+                    new Vector2(
+                        34f,
+                        13f),
                     new Color(
                         0.12f,
                         0.13f,
@@ -2708,16 +2752,24 @@ namespace MotorCity.UI
                 CreatePortraitLayer(
                     portraitFrame,
                     "Portrait Detail Left",
-                    new Vector2(13f, -23f),
-                    new Vector2(4f, 4f),
+                    new Vector2(
+                        17f,
+                        -28f),
+                    new Vector2(
+                        5f,
+                        5f),
                     TextColor);
 
             characterPortraitRightDetail =
                 CreatePortraitLayer(
                     portraitFrame,
                     "Portrait Detail Right",
-                    new Vector2(27f, -23f),
-                    new Vector2(4f, 4f),
+                    new Vector2(
+                        36f,
+                        -28f),
+                    new Vector2(
+                        5f,
+                        5f),
                     TextColor);
 
             GameObject portraitObject =
@@ -2735,24 +2787,35 @@ namespace MotorCity.UI
 
             portraitRect.anchorMin =
                 Vector2.zero;
+
             portraitRect.anchorMax =
                 Vector2.one;
+
             portraitRect.offsetMin =
-                new Vector2(2f, 2f);
+                new Vector2(
+                    3f,
+                    3f);
+
             portraitRect.offsetMax =
-                new Vector2(-2f, -2f);
+                new Vector2(
+                    -3f,
+                    -3f);
 
             characterPortraitImage =
                 portraitObject.GetComponent<Image>();
 
             characterPortraitImage.raycastTarget =
                 false;
+
             characterPortraitImage.preserveAspect =
                 true;
+
             characterPortraitImage.type =
                 Image.Type.Simple;
+
             characterPortraitImage.color =
                 Color.white;
+
             characterPortraitImage.enabled =
                 false;
 
@@ -2760,26 +2823,42 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Source",
-                    9,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(64f, -8f),
-                    new Vector2(74f, 14f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(
+                        72f,
+                        -7f),
+                    new Vector2(
+                        180f,
+                        18f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
                     SecondaryTextColor);
 
             characterNameText =
                 CreateText(
                     panel,
                     "Character Name",
-                    14,
+                    15,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(64f, -23f),
-                    new Vector2(212f, 20f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(
+                        72f,
+                        -23f),
+                    new Vector2(
+                        266f,
+                        22f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
                     BlueAccent);
 
             characterMissionTitleText =
@@ -2789,36 +2868,60 @@ namespace MotorCity.UI
                     10,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(64f, -45f),
-                    new Vector2(220f, 15f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(
+                        72f,
+                        -45f),
+                    new Vector2(
+                        266f,
+                        17f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
                     SecondaryTextColor);
 
             characterLineText =
                 CreateText(
                     panel,
                     "Character Line",
-                    11,
+                    12,
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
-                    new Vector2(64f, 8f),
-                    new Vector2(224f, 26f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
+                    new Vector2(
+                        72f,
+                        19f),
+                    new Vector2(
+                        266f,
+                        41f),
+                    new Vector2(
+                        0f,
+                        0f),
+                    new Vector2(
+                        0f,
+                        0f),
                     TextColor);
 
             characterRewardText =
                 CreateText(
                     panel,
                     "Character Reward",
-                    9,
+                    10,
                     FontStyle.Bold,
                     TextAnchor.LowerRight,
-                    new Vector2(-10f, 6f),
-                    new Vector2(150f, 14f),
-                    new Vector2(1f, 0f),
-                    new Vector2(1f, 0f),
+                    new Vector2(
+                        -18f,
+                        8f),
+                    new Vector2(
+                        220f,
+                        17f),
+                    new Vector2(
+                        1f,
+                        0f),
+                    new Vector2(
+                        1f,
+                        0f),
                     SecondaryTextColor);
 
             characterPanel.SetActive(
@@ -3625,40 +3728,22 @@ namespace MotorCity.UI
 
         private void BuildSpeedometer(Transform canvas)
         {
-            bool touchUi =
-                ShouldUseTouchUi();
-
-            Vector2 anchor =
-                touchUi
-                    ? new Vector2(0.5f, 0f)
-                    : new Vector2(1f, 0f);
-
-            Vector2 pivot =
-                touchUi
-                    ? new Vector2(0.5f, 0f)
-                    : new Vector2(1f, 0f);
-
-            Vector2 position =
-                touchUi
-                    ? new Vector2(0f, 14f)
-                    : new Vector2(-24f, 18f);
-
             RectTransform panel =
                 CreatePanel(
                     canvas,
                     "Speedometer",
-                    position,
-                    new Vector2(188f, 164f),
-                    anchor,
-                    pivot,
+                    new Vector2(0f, 12f),
+                    new Vector2(264f, 224f),
+                    new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f),
                     new Color(
                         PanelColor.r,
                         PanelColor.g,
                         PanelColor.b,
-                        0.30f));
+                        0.34f));
 
             Vector2 gaugeCenter =
-                new(0f, 94f);
+                new(0f, 132f);
 
             Texture2D racingFace =
                 uiThemeAssets == null
@@ -3689,7 +3774,7 @@ namespace MotorCity.UI
                 face.anchoredPosition =
                     gaugeCenter;
                 face.sizeDelta =
-                    new Vector2(142f, 142f);
+                    new Vector2(188f, 188f);
 
                 RawImage faceImage =
                     faceObject.GetComponent<RawImage>();
@@ -3701,6 +3786,80 @@ namespace MotorCity.UI
                 faceImage.raycastTarget =
                     false;
             }
+            else
+            {
+                const float tickRadius = 67f;
+                const int tickCount = 13;
+
+                for (int i = 0;
+                     i < tickCount;
+                     i++)
+                {
+                    float t =
+                        i /
+                        (float)(tickCount - 1);
+
+                    float angle =
+                        Mathf.Lerp(
+                            -135f,
+                            135f,
+                            t);
+
+                    float radians =
+                        angle *
+                        Mathf.Deg2Rad;
+
+                    GameObject tickObject =
+                        new(
+                            "Speed Tick " + i,
+                            typeof(RectTransform),
+                            typeof(Image));
+
+                    tickObject.transform.SetParent(
+                        panel,
+                        false);
+
+                    RectTransform tick =
+                        tickObject.GetComponent<RectTransform>();
+
+                    tick.anchorMin =
+                        new Vector2(0.5f, 0f);
+                    tick.anchorMax =
+                        new Vector2(0.5f, 0f);
+                    tick.pivot =
+                        new Vector2(0.5f, 0.5f);
+                    tick.anchoredPosition =
+                        gaugeCenter +
+                        new Vector2(
+                            Mathf.Sin(radians) *
+                            tickRadius,
+                            Mathf.Cos(radians) *
+                            tickRadius);
+                    tick.sizeDelta =
+                        new Vector2(
+                            i % 2 == 0
+                                ? 4f
+                                : 3f,
+                            i % 2 == 0
+                                ? 15f
+                                : 9f);
+                    tick.localRotation =
+                        Quaternion.Euler(
+                            0f,
+                            0f,
+                            -angle);
+
+                    Image tickImage =
+                        tickObject.GetComponent<Image>();
+
+                    tickImage.color =
+                        i >= tickCount - 3
+                            ? DriftAccent
+                            : SecondaryTextColor;
+                    tickImage.raycastTarget =
+                        false;
+                }
+            }
 
             if (racingFace != null)
             {
@@ -3709,27 +3868,41 @@ namespace MotorCity.UI
                         panel,
                         "Speed Unit Plate",
                         gaugeCenter +
-                            new Vector2(0f, 18f),
-                        new Vector2(34f, 13f),
-                        new Vector2(0.5f, 0f),
-                        new Vector2(0.5f, 0.5f),
+                            new Vector2(
+                                0f,
+                                24f),
+                        new Vector2(
+                            42f,
+                            16f),
+                        new Vector2(
+                            0.5f,
+                            0f),
+                        new Vector2(
+                            0.5f,
+                            0.5f),
                         new Color(
-                            0.105f,
-                            0.105f,
-                            0.105f,
-                            0.90f));
+                            0.10f,
+                            0.10f,
+                            0.10f,
+                            0.88f));
 
                 Text dialUnit =
                     CreateText(
                         unitPlate,
                         "Dial Unit",
-                        7,
+                        8,
                         FontStyle.Bold,
                         TextAnchor.MiddleCenter,
                         Vector2.zero,
-                        new Vector2(31f, 11f),
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0.5f, 0.5f),
+                        new Vector2(
+                            38f,
+                            13f),
+                        new Vector2(
+                            0.5f,
+                            0.5f),
+                        new Vector2(
+                            0.5f,
+                            0.5f),
                         SecondaryTextColor);
 
                 dialUnit.text =
@@ -3759,7 +3932,7 @@ namespace MotorCity.UI
             speedNeedle.anchoredPosition =
                 gaugeCenter;
             speedNeedle.sizeDelta =
-                new Vector2(3f, 44f);
+                new Vector2(4f, 59f);
             speedNeedle.localRotation =
                 Quaternion.Euler(
                     0f,
@@ -3796,7 +3969,7 @@ namespace MotorCity.UI
             hub.anchoredPosition =
                 gaugeCenter;
             hub.sizeDelta =
-                new Vector2(10f, 10f);
+                new Vector2(13f, 13f);
 
             Image hubImage =
                 hubObject.GetComponent<Image>();
@@ -3810,39 +3983,72 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Speed",
-                    30,
+                    36,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 38f),
-                    new Vector2(104f, 36f),
+                    new Vector2(0f, 62f),
+                    new Vector2(128f, 42f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
 
-            speedUnitText =
-                null;
+            speedUnitText = null;
 
-            RectTransform driveModeChip =
-                CreatePanel(
+            RectTransform driveModeChip;
+
+            Texture2D chipTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.rectanglePanel;
+
+            if (chipTexture != null)
+            {
+                GameObject chipObject =
+                    new(
+                        "Drive Mode Indicator",
+                        typeof(RectTransform),
+                        typeof(RawImage));
+
+                chipObject.transform.SetParent(
                     panel,
-                    "Drive Mode Indicator",
-                    new Vector2(0f, 8f),
-                    new Vector2(150f, 28f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f),
-                    new Color(
-                        0.055f,
-                        0.05f,
-                        0.095f,
-                        0.97f));
+                    false);
 
-            CreateAccent(
-                driveModeChip,
-                DriftAccent,
-                new Vector2(4f, 0f),
-                new Vector2(3f, 20f),
-                new Vector2(0f, 0.5f),
-                new Vector2(0f, 0.5f));
+                driveModeChip =
+                    chipObject.GetComponent<RectTransform>();
+
+                driveModeChip.anchorMin =
+                    new Vector2(0.5f, 0f);
+                driveModeChip.anchorMax =
+                    new Vector2(0.5f, 0f);
+                driveModeChip.pivot =
+                    new Vector2(0.5f, 0.5f);
+                driveModeChip.anchoredPosition =
+                    new Vector2(0f, 18f);
+                driveModeChip.sizeDelta =
+                    new Vector2(172f, 34f);
+
+                RawImage chipImage =
+                    chipObject.GetComponent<RawImage>();
+
+                chipImage.texture =
+                    chipTexture;
+                chipImage.color =
+                    Color.white;
+                chipImage.raycastTarget =
+                    false;
+            }
+            else
+            {
+                driveModeChip =
+                    CreatePanel(
+                        panel,
+                        "Drive Mode Indicator",
+                        new Vector2(0f, 18f),
+                        new Vector2(172f, 34f),
+                        new Vector2(0.5f, 0f),
+                        new Vector2(0.5f, 0.5f),
+                        PanelColor);
+            }
 
             driveModeText =
                 CreateText(
@@ -3852,7 +4058,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(136f, 22f),
+                    new Vector2(158f, 26f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     BlueAccent);
@@ -4104,7 +4310,7 @@ namespace MotorCity.UI
                     canvas,
                     "Minimap",
                     new Vector2(-18f, -18f),
-                    new Vector2(194f, 206f),
+                    new Vector2(204f, 218f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     new Color(
@@ -4123,7 +4329,7 @@ namespace MotorCity.UI
                     0f,
                     -4f),
                 new Vector2(
-                    164f,
+                    174f,
                     3f),
                 new Vector2(
                     0.5f,
@@ -4162,7 +4368,7 @@ namespace MotorCity.UI
                 new Vector2(0f, -10f);
 
             rimRect.sizeDelta =
-                new Vector2(166f, 166f);
+                new Vector2(178f, 178f);
 
             Image rimImage =
                 rimObject.GetComponent<Image>();
@@ -4207,7 +4413,7 @@ namespace MotorCity.UI
                 new Vector2(0f, -15f);
 
             viewportRect.sizeDelta =
-                new Vector2(156f, 156f);
+                new Vector2(168f, 168f);
 
             Image viewportImage =
                 viewportObject.GetComponent<Image>();
@@ -4392,7 +4598,7 @@ namespace MotorCity.UI
                         8f,
                         6f),
                     new Vector2(
-                        132f,
+                        146f,
                         26f),
                     new Vector2(
                         0f,
@@ -4417,7 +4623,7 @@ namespace MotorCity.UI
                         8f,
                         0f),
                     new Vector2(
-                        116f,
+                        130f,
                         22f),
                     new Vector2(
                         0f,
@@ -4454,8 +4660,8 @@ namespace MotorCity.UI
 
             navigatorButtonRect.sizeDelta =
                 touchUi
-                    ? new Vector2(62f, 30f)
-                    : new Vector2(34f, 26f);
+                    ? new Vector2(76f, 32f)
+                    : new Vector2(42f, 28f);
 
             Image navigatorButtonImage =
                 navigatorButtonObject.GetComponent<Image>();
@@ -4482,8 +4688,8 @@ namespace MotorCity.UI
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
                     touchUi
-                        ? new Vector2(58f, 26f)
-                        : new Vector2(32f, 24f),
+                        ? new Vector2(72f, 28f)
+                        : new Vector2(40f, 26f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
@@ -5266,24 +5472,23 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Drift HUD",
-                    new Vector2(0f, -20f),
-                    new Vector2(250f, 40f),
+                    new Vector2(0f, -62f),
+                    new Vector2(296f, 46f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     new Color(
-                        0.05f,
-                        0.045f,
-                        0.08f,
-                        0.94f));
+                        0.075f,
+                        0.065f,
+                        0.12f,
+                        0.96f));
 
-            driftPanel =
-                panel.gameObject;
+            driftPanel = panel.gameObject;
 
             CreateAccent(
                 panel,
                 DriftAccent,
-                new Vector2(0f, -3f),
-                new Vector2(218f, 3f),
+                new Vector2(0f, -4f),
+                new Vector2(260f, 4f),
                 new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f));
 
@@ -5291,11 +5496,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Drift Score",
-                    18,
+                    20,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -1f),
-                    new Vector2(222f, 30f),
+                    new Vector2(0f, -2f),
+                    new Vector2(268f, 32f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
