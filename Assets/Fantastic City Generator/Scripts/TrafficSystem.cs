@@ -22,13 +22,6 @@ namespace FCG
 
         public GameObject[] IaCars;
 
-        [Header("Motor City traffic mix")]
-        [Range(0f, 100f)]
-        public float busSpawnPercent = 3f;
-
-        [Range(1f, 20f)]
-        public float busTrafficCapPercent = 6f;
-
         public int nVehicles = 0;
         public int maxVehiclesWithPlayer = 50;
 
@@ -286,194 +279,6 @@ namespace FCG
         }
 
 
-        private GameObject SelectTrafficPrefab()
-        {
-            if (IaCars == null ||
-                IaCars.Length == 0)
-            {
-                return null;
-            }
-
-            List<GameObject> buses =
-                new List<GameObject>();
-
-            List<GameObject> regularCars =
-                new List<GameObject>();
-
-            for (int i = 0;
-                 i < IaCars.Length;
-                 i++)
-            {
-                GameObject prefab =
-                    IaCars[i];
-
-                if (prefab == null)
-                    continue;
-
-                if (IsBusLike(
-                        prefab.name))
-                {
-                    buses.Add(
-                        prefab);
-                }
-                else
-                {
-                    regularCars.Add(
-                        prefab);
-                }
-            }
-
-            if (regularCars.Count == 0)
-            {
-                return buses.Count > 0
-                    ? buses[
-                        Random.Range(
-                            0,
-                            buses.Count)]
-                    : null;
-            }
-
-            int busCount =
-                CountLiveBuses();
-
-            int busCap =
-                Mathf.Max(
-                    1,
-                    Mathf.FloorToInt(
-                        Mathf.Max(
-                            1,
-                            maxVehiclesWithPlayer) *
-                        busTrafficCapPercent /
-                        100f));
-
-            bool spawnBus =
-                buses.Count > 0 &&
-                busCount < busCap &&
-                Random.Range(
-                    0f,
-                    100f) <
-                busSpawnPercent;
-
-            List<GameObject> pool =
-                spawnBus
-                    ? buses
-                    : regularCars;
-
-            return pool[
-                Random.Range(
-                    0,
-                    pool.Count)];
-        }
-
-        private static bool IsBusLike(
-            string vehicleName)
-        {
-            if (string.IsNullOrEmpty(
-                    vehicleName))
-            {
-                return false;
-            }
-
-            string name =
-                vehicleName.ToLowerInvariant();
-
-            return
-                name.Contains("bus") ||
-                name.Contains("gontijo") ||
-                name.Contains("caio") ||
-                name.Contains("climm") ||
-                name.Contains("mirim");
-        }
-
-        private int CountLiveBuses()
-        {
-            GameObject container =
-                GameObject.Find(
-                    "CarContainer");
-
-            if (container == null)
-                return 0;
-
-            int count =
-                0;
-
-            for (int i = 0;
-                 i < container.transform.childCount;
-                 i++)
-            {
-                Transform child =
-                    container.transform.GetChild(
-                        i);
-
-                if (child != null &&
-                    IsBusLike(
-                        child.name))
-                {
-                    count++;
-                }
-            }
-
-            return count;
-        }
-
-        private void TrimExcessBuses(
-            GameObject container)
-        {
-            if (container == null)
-                return;
-
-            int busCap =
-                Mathf.Max(
-                    1,
-                    Mathf.FloorToInt(
-                        Mathf.Max(
-                            1,
-                            maxVehiclesWithPlayer) *
-                        busTrafficCapPercent /
-                        100f));
-
-            int busesSeen =
-                0;
-
-            for (int i =
-                     container.transform.childCount - 1;
-                 i >= 0;
-                 i--)
-            {
-                Transform child =
-                    container.transform.GetChild(
-                        i);
-
-                if (child == null ||
-                    !IsBusLike(
-                        child.name))
-                {
-                    continue;
-                }
-
-                busesSeen++;
-
-                if (busesSeen <= busCap)
-                    continue;
-
-                if (Application.isPlaying)
-                {
-                    Destroy(
-                        child.gameObject);
-                }
-                else
-                {
-                    DestroyImmediate(
-                        child.gameObject);
-                }
-
-                nVehicles =
-                    Mathf.Max(
-                        0,
-                        nVehicles - 1);
-            }
-        }
-
         public void LoadCars2()
         {
 
@@ -499,15 +304,7 @@ namespace FCG
 
             GameObject CarContainer = GameObject.Find("CarContainer");
             if (CarContainer)
-            {
                 nVehicles = CarContainer.transform.childCount;
-
-                TrimExcessBuses(
-                    CarContainer);
-
-                nVehicles =
-                    CarContainer.transform.childCount;
-            }
             else
                 nVehicles = 0;
 
@@ -570,16 +367,7 @@ namespace FCG
                     if (go)
                     {
 
-                        GameObject selectedPrefab =
-                            SelectTrafficPrefab();
-
-                        if (selectedPrefab == null)
-                            continue;
-
-                        vehicle = (GameObject)Instantiate(
-                            selectedPrefab,
-                            wpDataSpawn[i].position + Vector3.up * 0.1f,
-                            wpDataSpawn[i].rotation);
+                        vehicle = (GameObject)Instantiate(IaCars[Mathf.Clamp(Random.Range(0, IaCars.Length), 0, IaCars.Length - 1)], wpDataSpawn[i].position + Vector3.up * 0.1f, wpDataSpawn[i].rotation); ;
                         vehicle.transform.SetParent(CarContainer.transform);
                         vehicle.GetComponent<TrafficCar>().sideAtual = (wpDataSpawn[i].wayScript.oneway && wpDataSpawn[i].wayScript.doubleLine && wpDataSpawn[i].wayScript.rightHand != 0) ? ((wpDataSpawn[i].side == 1) ? 0 : 1) : wpDataSpawn[i].side;
                         vehicle.GetComponent<TrafficCar>().atualWay = wpDataSpawn[i].wayScript.transform;
