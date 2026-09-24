@@ -18,7 +18,7 @@ public static class PolyPackVehicleImporter
     };
 
     private const string BusSourcePath =
-        "Assets/Fantastic City Generator/Traffic System/Vehicles/Prefabs/BusMirim.prefab";
+        "Assets/Fantastic City Generator/Traffic System/Vehicles/Prefabs/BusClimm.prefab";
 
     static PolyPackVehicleImporter()
     {
@@ -245,7 +245,7 @@ public static class PolyPackVehicleImporter
             if (force)
             {
                 Debug.Log(
-                    "Motor City: rebuilt final unlock bus from traffic prefab '" +
+                    "Motor City: rebuilt final unlock bus from full-size traffic prefab '" +
                     BusSourcePath +
                     "'.");
             }
