@@ -155,6 +155,10 @@ namespace MotorCity.UI
                 SurfaceStrong);
 
             ApplyPanelTreatment(
+                "Pause Panel",
+                SurfaceStrong);
+
+            ApplyPanelTreatment(
                 "Navigator Menu",
                 SurfaceStrong);
 
@@ -217,6 +221,18 @@ namespace MotorCity.UI
                 "Result Controls",
                 0.45f);
             PolishCoreText(
+                "Pause Title",
+                0.60f);
+            PolishCoreText(
+                "Pause Quality",
+                0.55f);
+            PolishCoreText(
+                "Pause Audio",
+                0.55f);
+            PolishCoreText(
+                "Pause Controls",
+                0.45f);
+            PolishCoreText(
                 "Navigator Title",
                 0.60f);
             PolishCoreText(
@@ -238,6 +254,9 @@ namespace MotorCity.UI
                 "Club Weekly",
                 0.55f);
             PolishCoreText(
+                "Club Controls",
+                0.45f);
+            PolishCoreText(
                 "Garage Title",
                 0.60f);
             PolishCoreText(
@@ -254,6 +273,12 @@ namespace MotorCity.UI
                 0.50f);
             PolishCoreText(
                 "Garage Vehicle Stats",
+                0.45f);
+            PolishCoreText(
+                "Garage Status",
+                0.45f);
+            PolishCoreText(
+                "Garage Controls",
                 0.45f);
 
             ApplyModalComposition(
@@ -332,6 +357,11 @@ namespace MotorCity.UI
                     new Vector2(560f, 302f));
 
                 SetRect(
+                    "Pause Panel",
+                    Vector2.zero,
+                    new Vector2(480f, 310f));
+
+                SetRect(
                     "Navigator Menu",
                     Vector2.zero,
                     new Vector2(480f, 232f));
@@ -352,6 +382,11 @@ namespace MotorCity.UI
                     "Activity Result",
                     Vector2.zero,
                     new Vector2(600f, 316f));
+
+                SetRect(
+                    "Pause Panel",
+                    Vector2.zero,
+                    new Vector2(520f, 330f));
 
                 SetRect(
                     "Navigator Menu",
@@ -404,6 +439,10 @@ namespace MotorCity.UI
 
             PolishTouchGroup(
                 "Club Touch Controls",
+                touchSurface);
+
+            PolishTouchGroup(
+                "Garage Touch Controls",
                 touchSurface);
         }
 
