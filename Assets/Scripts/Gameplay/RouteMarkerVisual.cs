@@ -94,8 +94,9 @@ namespace MotorCity.Gameplay
                     : target,
                 hasNext);
 
-            transform.localScale =
-                baseScale;
+            float pulse =
+                1f + Mathf.Sin(Time.time * 2.8f) * 0.015f;
+            transform.localScale = baseScale * pulse;
 
             bool active =
                 activity.IsActive;
