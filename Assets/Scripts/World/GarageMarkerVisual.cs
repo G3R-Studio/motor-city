@@ -14,7 +14,7 @@ namespace MotorCity.World
         private float observerResolveTimer;
 
         private const float TargetMarkerSize = 0.82f;
-        private const float MarkerHeight = 2.65f;
+        private const float MarkerHeight = 1.55f;
         private const float FullScaleDistance = 38f;
         private const float FarScaleDistance = 160f;
         private const float MaximumVisibleDistance = 230f;
