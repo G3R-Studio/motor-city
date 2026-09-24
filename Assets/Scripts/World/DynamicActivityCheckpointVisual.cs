@@ -8,8 +8,8 @@ namespace MotorCity.World
         private CityProfessionSystem profession;
         private TowTruckJobSystem towTruck;
         private UndergroundSceneSystem underground;
-        private CheckpointBeaconVisual beacon;
-
+        private GameObject markerVfx;
+        private CheckpointBeaconVisual fallbackBeacon;
         private bool visibilityInitialized;
         private bool lastVisible;
 
@@ -20,10 +20,11 @@ namespace MotorCity.World
                 system;
 
             Setup(
+                "MotorCity/Markers/ProfessionMarkerVfx",
                 new Color(
                     1f,
-                    0.72f,
-                    0.16f),
+                    0.68f,
+                    0.10f),
                 CheckpointBeaconStyle.Profession);
         }
 
@@ -34,10 +35,11 @@ namespace MotorCity.World
                 system;
 
             Setup(
+                "MotorCity/Markers/TowMarkerVfx",
                 new Color(
                     1f,
-                    0.58f,
-                    0.08f),
+                    0.56f,
+                    0.06f),
                 CheckpointBeaconStyle.Tow);
         }
 
@@ -48,26 +50,58 @@ namespace MotorCity.World
                 system;
 
             Setup(
+                "MotorCity/Markers/UndergroundMarkerVfx",
                 new Color(
-                    0.72f,
-                    0.28f,
+                    0.78f,
+                    0.18f,
                     1f),
                 CheckpointBeaconStyle.Underground);
         }
 
         private void Setup(
-            Color color,
-            CheckpointBeaconStyle style)
+            string resourcePath,
+            Color fallbackColor,
+            CheckpointBeaconStyle fallbackStyle)
         {
-            beacon =
-                gameObject.AddComponent<CheckpointBeaconVisual>();
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    resourcePath);
 
-            beacon.Initialize(
-                color,
+            if (prefab != null)
+            {
+                markerVfx =
+                    Instantiate(
+                        prefab,
+                        transform);
+
+                markerVfx.name =
+                    "Dynamic Marker VFX Runtime";
+
+                markerVfx.transform.localPosition =
+                    Vector3.zero;
+
+                markerVfx.transform.localRotation =
+                    Quaternion.identity;
+
+                markerVfx.transform.localScale =
+                    Vector3.one;
+
+                markerVfx.SetActive(
+                    false);
+
+                return;
+            }
+
+            fallbackBeacon =
+                gameObject.AddComponent<
+                    CheckpointBeaconVisual>();
+
+            fallbackBeacon.Initialize(
+                fallbackColor,
                 true,
-                style);
+                fallbackStyle);
 
-            beacon.SetVisible(
+            fallbackBeacon.SetVisible(
                 false);
         }
 
@@ -144,7 +178,13 @@ namespace MotorCity.World
                 lastVisible =
                     visible;
 
-                beacon?.SetVisible(
+                if (markerVfx != null)
+                {
+                    markerVfx.SetActive(
+                        visible);
+                }
+
+                fallbackBeacon?.SetVisible(
                     visible);
             }
 
@@ -154,7 +194,7 @@ namespace MotorCity.World
             transform.position =
                 target;
 
-            beacon?.SetDirection(
+            fallbackBeacon?.SetDirection(
                 target,
                 hasNext
                     ? nextTarget
