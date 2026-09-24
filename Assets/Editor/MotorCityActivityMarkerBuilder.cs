@@ -18,6 +18,9 @@ public static class MotorCityActivityMarkerBuilder
     private const string SprintIconPath =
         "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/fastForward.png";
 
+    private const string CircuitIconPath =
+        "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/trophy.png";
+
     private const string OutputRoot =
         "Assets/Resources/MotorCity/Markers";
 
@@ -32,6 +35,10 @@ public static class MotorCityActivityMarkerBuilder
     private const string SprintPrefabPath =
         OutputRoot +
         "/SprintMarkerVfx.prefab";
+
+    private const string CircuitPrefabPath =
+        OutputRoot +
+        "/CircuitMarkerVfx.prefab";
 
     private const string LegacyDriftMaterialPath =
         OutputRoot +
@@ -56,6 +63,13 @@ public static class MotorCityActivityMarkerBuilder
             0.08f,
             1f,
             0.28f,
+            1f);
+
+    private static readonly Color CircuitCyan =
+        new(
+            0.04f,
+            0.86f,
+            1f,
             1f);
 
     [MenuItem(
@@ -107,12 +121,28 @@ public static class MotorCityActivityMarkerBuilder
     }
 
     [MenuItem(
+        "Motor City/Markers/4 - Build Circuit Marker VFX")]
+    private static void BuildCircuitMarker()
+    {
+        BuildMarker(
+            "MotorCity_CircuitMarkerVfx",
+            CircuitPrefabPath,
+            CircuitIconPath,
+            "Circuit",
+            CircuitCyan,
+            0.60f,
+            3.00f,
+            1.72f);
+    }
+
+    [MenuItem(
         "Motor City/Markers/Build All Marker VFX")]
     private static void BuildAllMarkers()
     {
         BuildDriftMarker();
         BuildDeliveryMarker();
         BuildSprintMarker();
+        BuildCircuitMarker();
     }
 
     private static void BuildMarker(
