@@ -9,9 +9,6 @@ public static class MotorCityActivityMarkerBuilder
     private const string SourceMagicCirclePath =
         "Assets/Eric VFX Studio/Game VFX - Magic Circle(Free)/Prefabs/FX_MagicCircle_Icearrow01.prefab";
 
-    private const string SourceHologramMaterialPath =
-        "Assets/VOiD1 Gaming - 2D Hologram Shader Unity URP/Material/Shader Graphs_2D Dissolve Shader.mat";
-
     private const string DriftIconPath =
         "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/return.png";
 
@@ -46,10 +43,6 @@ public static class MotorCityActivityMarkerBuilder
             AssetDatabase.LoadAssetAtPath<GameObject>(
                 SourceMagicCirclePath);
 
-        Material sourceHologram =
-            AssetDatabase.LoadAssetAtPath<Material>(
-                SourceHologramMaterialPath);
-
         Sprite driftIcon =
             AssetDatabase.LoadAssetAtPath<Sprite>(
                 DriftIconPath);
@@ -63,15 +56,6 @@ public static class MotorCityActivityMarkerBuilder
             return;
         }
 
-        if (sourceHologram == null)
-        {
-            Debug.LogError(
-                "Motor City: hologram source material was not found: " +
-                SourceHologramMaterialPath);
-
-            return;
-        }
-
         if (driftIcon == null)
         {
             Debug.LogError(
@@ -81,12 +65,8 @@ public static class MotorCityActivityMarkerBuilder
             return;
         }
 
-        Material hologramMaterial =
-            BuildHologramMaterial(
-                sourceHologram);
-
-        if (hologramMaterial == null)
-            return;
+        AssetDatabase.DeleteAsset(
+            OutputMaterialPath);
 
         GameObject root =
             new(
@@ -138,8 +118,7 @@ public static class MotorCityActivityMarkerBuilder
             Transform iconRoot =
                 CreateMissionIcon(
                     root.transform,
-                    driftIcon,
-                    hologramMaterial);
+                    driftIcon);
 
             ActivityMarkerVfxAnimator animator =
                 root.AddComponent<
@@ -229,59 +208,6 @@ public static class MotorCityActivityMarkerBuilder
         importer.SaveAndReimport();
     }
 
-    private static Material BuildHologramMaterial(
-        Material source)
-    {
-        AssetDatabase.DeleteAsset(
-            OutputMaterialPath);
-
-        Material material =
-            new(source)
-            {
-                name =
-                    "MotorCity_DriftMarker_Hologram"
-            };
-
-        if (material.HasProperty(
-                "Color_7C878D04"))
-        {
-            material.SetColor(
-                "Color_7C878D04",
-                new Color(
-                    1.45f,
-                    0.34f,
-                    0.035f,
-                    0.92f));
-        }
-
-        if (material.HasProperty(
-                "Vector1_990D825D"))
-        {
-            material.SetFloat(
-                "Vector1_990D825D",
-                0.12f);
-        }
-
-        if (material.HasProperty(
-                "Vector2_C409DFC2"))
-        {
-            material.SetVector(
-                "Vector2_C409DFC2",
-                new Vector4(
-                    3f,
-                    5f,
-                    0f,
-                    0f));
-        }
-
-        AssetDatabase.CreateAsset(
-            material,
-            OutputMaterialPath);
-
-        return
-            material;
-    }
-
     private static void ConfigureGroundVfx(
         GameObject groundVfx)
     {
@@ -334,8 +260,7 @@ public static class MotorCityActivityMarkerBuilder
 
     private static Transform CreateMissionIcon(
         Transform parent,
-        Sprite sprite,
-        Material material)
+        Sprite sprite)
     {
         GameObject iconObject =
             new(
@@ -348,7 +273,7 @@ public static class MotorCityActivityMarkerBuilder
         iconObject.transform.localPosition =
             new Vector3(
                 0f,
-                2.75f,
+                2.85f,
                 0f);
 
         iconObject.transform.localRotation =
@@ -359,10 +284,27 @@ public static class MotorCityActivityMarkerBuilder
 
         CreateIconPlane(
             iconObject.transform,
-            "Drift Hologram",
+            "Drift Icon Glow",
             sprite,
-            material,
-            Quaternion.identity);
+            new Color(
+                1f,
+                0.24f,
+                0.015f,
+                0.22f),
+            2.18f,
+            44);
+
+        CreateIconPlane(
+            iconObject.transform,
+            "Drift Icon Core",
+            sprite,
+            new Color(
+                1f,
+                0.36f,
+                0.025f,
+                1f),
+            1.82f,
+            45);
 
         return
             iconObject.transform;
@@ -372,8 +314,9 @@ public static class MotorCityActivityMarkerBuilder
         Transform parent,
         string name,
         Sprite sprite,
-        Material material,
-        Quaternion localRotation)
+        Color color,
+        float scale,
+        int sortingOrder)
     {
         GameObject plane =
             new(name);
@@ -386,11 +329,11 @@ public static class MotorCityActivityMarkerBuilder
             Vector3.zero;
 
         plane.transform.localRotation =
-            localRotation;
+            Quaternion.identity;
 
         plane.transform.localScale =
             Vector3.one *
-            1.62f;
+            scale;
 
         SpriteRenderer renderer =
             plane.AddComponent<SpriteRenderer>();
@@ -398,11 +341,8 @@ public static class MotorCityActivityMarkerBuilder
         renderer.sprite =
             sprite;
 
-        renderer.sharedMaterial =
-            material;
-
         renderer.color =
-            Color.white;
+            color;
 
         renderer.shadowCastingMode =
             ShadowCastingMode.Off;
@@ -411,6 +351,6 @@ public static class MotorCityActivityMarkerBuilder
             false;
 
         renderer.sortingOrder =
-            45;
+            sortingOrder;
     }
 }
