@@ -9,68 +9,15 @@ public static class MotorCityActivityMarkerBuilder
     private const string SourceMagicCirclePath =
         "Assets/Eric VFX Studio/Game VFX - Magic Circle(Free)/Prefabs/FX_MagicCircle_Icearrow01.prefab";
 
-    private const string DriftIconPath =
-        "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/return.png";
-
-    private const string DeliveryIconPath =
-        "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/export.png";
-
-    private const string SprintIconPath =
-        "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/fastForward.png";
-
-    private const string CircuitIconPath =
-        "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/trophy.png";
+    private const string IconRoot =
+        "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/";
 
     private const string OutputRoot =
         "Assets/Resources/MotorCity/Markers";
 
-    private const string DriftPrefabPath =
-        OutputRoot +
-        "/DriftMarkerVfx.prefab";
-
-    private const string DeliveryPrefabPath =
-        OutputRoot +
-        "/DeliveryMarkerVfx.prefab";
-
-    private const string SprintPrefabPath =
-        OutputRoot +
-        "/SprintMarkerVfx.prefab";
-
-    private const string CircuitPrefabPath =
-        OutputRoot +
-        "/CircuitMarkerVfx.prefab";
-
     private const string LegacyDriftMaterialPath =
         OutputRoot +
         "/DriftMarker_Hologram.mat";
-
-    private static readonly Color DriftOrange =
-        new(
-            1f,
-            0.30f,
-            0.035f,
-            1f);
-
-    private static readonly Color DeliveryBlue =
-        new(
-            0.06f,
-            0.48f,
-            1f,
-            1f);
-
-    private static readonly Color SprintGreen =
-        new(
-            0.08f,
-            1f,
-            0.28f,
-            1f);
-
-    private static readonly Color CircuitCyan =
-        new(
-            0.04f,
-            0.86f,
-            1f,
-            1f);
 
     [MenuItem(
         "Motor City/Markers/1 - Build Drift Marker VFX")]
@@ -80,11 +27,9 @@ public static class MotorCityActivityMarkerBuilder
             LegacyDriftMaterialPath);
 
         BuildMarker(
-            "MotorCity_DriftMarkerVfx",
-            DriftPrefabPath,
-            DriftIconPath,
             "Drift",
-            DriftOrange,
+            "return.png",
+            new Color(1f, 0.30f, 0.035f, 1f),
             0.62f,
             2.85f,
             1.82f);
@@ -95,11 +40,9 @@ public static class MotorCityActivityMarkerBuilder
     private static void BuildDeliveryMarker()
     {
         BuildMarker(
-            "MotorCity_DeliveryMarkerVfx",
-            DeliveryPrefabPath,
-            DeliveryIconPath,
             "Delivery",
-            DeliveryBlue,
+            "export.png",
+            new Color(0.06f, 0.48f, 1f, 1f),
             0.58f,
             3.05f,
             1.68f);
@@ -110,11 +53,9 @@ public static class MotorCityActivityMarkerBuilder
     private static void BuildSprintMarker()
     {
         BuildMarker(
-            "MotorCity_SprintMarkerVfx",
-            SprintPrefabPath,
-            SprintIconPath,
             "Sprint",
-            SprintGreen,
+            "fastForward.png",
+            new Color(0.08f, 1f, 0.28f, 1f),
             0.60f,
             2.95f,
             1.74f);
@@ -125,14 +66,77 @@ public static class MotorCityActivityMarkerBuilder
     private static void BuildCircuitMarker()
     {
         BuildMarker(
-            "MotorCity_CircuitMarkerVfx",
-            CircuitPrefabPath,
-            CircuitIconPath,
             "Circuit",
-            CircuitCyan,
+            "trophy.png",
+            new Color(0.04f, 0.86f, 1f, 1f),
             0.60f,
             3.00f,
             1.72f);
+    }
+
+    [MenuItem(
+        "Motor City/Markers/5 - Build Discovery Marker VFX")]
+    private static void BuildDiscoveryMarker()
+    {
+        BuildMarker(
+            "Discovery",
+            "target.png",
+            new Color(0.72f, 0.28f, 1f, 1f),
+            0.52f,
+            2.65f,
+            1.45f);
+    }
+
+    [MenuItem(
+        "Motor City/Markers/6 - Build Underground Marker VFX")]
+    private static void BuildUndergroundMarker()
+    {
+        BuildMarker(
+            "Underground",
+            "warning.png",
+            new Color(0.78f, 0.18f, 1f, 1f),
+            0.64f,
+            2.95f,
+            1.72f);
+    }
+
+    [MenuItem(
+        "Motor City/Markers/7 - Build Profession Marker VFX")]
+    private static void BuildProfessionMarker()
+    {
+        BuildMarker(
+            "Profession",
+            "gear.png",
+            new Color(1f, 0.68f, 0.10f, 1f),
+            0.56f,
+            2.80f,
+            1.58f);
+    }
+
+    [MenuItem(
+        "Motor City/Markers/8 - Build Car Wash Marker VFX")]
+    private static void BuildCarWashMarker()
+    {
+        BuildMarker(
+            "CarWash",
+            "star.png",
+            new Color(0.10f, 0.82f, 1f, 1f),
+            0.58f,
+            2.85f,
+            1.56f);
+    }
+
+    [MenuItem(
+        "Motor City/Markers/9 - Build Tow Marker VFX")]
+    private static void BuildTowMarker()
+    {
+        BuildMarker(
+            "Tow",
+            "wrench.png",
+            new Color(1f, 0.56f, 0.06f, 1f),
+            0.58f,
+            2.85f,
+            1.58f);
     }
 
     [MenuItem(
@@ -143,13 +147,16 @@ public static class MotorCityActivityMarkerBuilder
         BuildDeliveryMarker();
         BuildSprintMarker();
         BuildCircuitMarker();
+        BuildDiscoveryMarker();
+        BuildUndergroundMarker();
+        BuildProfessionMarker();
+        BuildCarWashMarker();
+        BuildTowMarker();
     }
 
     private static void BuildMarker(
-        string rootName,
-        string outputPrefabPath,
-        string iconPath,
-        string iconLabel,
+        string markerName,
+        string iconFileName,
         Color color,
         float groundScale,
         float iconHeight,
@@ -157,6 +164,10 @@ public static class MotorCityActivityMarkerBuilder
     {
         Directory.CreateDirectory(
             OutputRoot);
+
+        string iconPath =
+            IconRoot +
+            iconFileName;
 
         if (!PrepareIcon(
                 iconPath))
@@ -172,27 +183,28 @@ public static class MotorCityActivityMarkerBuilder
             AssetDatabase.LoadAssetAtPath<Sprite>(
                 iconPath);
 
-        if (sourceVfx == null)
+        if (sourceVfx == null ||
+            icon == null)
         {
             Debug.LogError(
-                "Motor City: Magic Circle source prefab was not found: " +
-                SourceMagicCirclePath);
+                "Motor City: marker VFX source is missing for " +
+                markerName +
+                ".");
 
             return;
         }
 
-        if (icon == null)
-        {
-            Debug.LogError(
-                "Motor City: marker icon could not be imported as a Sprite: " +
-                iconPath);
-
-            return;
-        }
+        string outputPrefabPath =
+            OutputRoot +
+            "/" +
+            markerName +
+            "MarkerVfx.prefab";
 
         GameObject root =
             new(
-                rootName);
+                "MotorCity_" +
+                markerName +
+                "MarkerVfx");
 
         try
         {
@@ -211,12 +223,7 @@ public static class MotorCityActivityMarkerBuilder
             }
 
             if (groundVfx == null)
-            {
-                Debug.LogError(
-                    "Motor City: failed to instantiate Magic Circle source.");
-
                 return;
-            }
 
             groundVfx.name =
                 "Ground VFX";
@@ -242,7 +249,7 @@ public static class MotorCityActivityMarkerBuilder
                 CreateMissionIcon(
                     root.transform,
                     icon,
-                    iconLabel,
+                    markerName,
                     color,
                     iconHeight,
                     iconScale);
@@ -262,7 +269,7 @@ public static class MotorCityActivityMarkerBuilder
             if (saved == null)
             {
                 Debug.LogError(
-                    "Motor City: failed to save activity marker VFX prefab: " +
+                    "Motor City: failed to save marker VFX: " +
                     outputPrefabPath);
 
                 return;
@@ -272,7 +279,7 @@ public static class MotorCityActivityMarkerBuilder
             AssetDatabase.Refresh();
 
             Debug.Log(
-                "Motor City: built activity marker VFX at '" +
+                "Motor City: built marker VFX at '" +
                 outputPrefabPath +
                 "'.");
         }
@@ -292,14 +299,7 @@ public static class MotorCityActivityMarkerBuilder
                 TextureImporter;
 
         if (importer == null)
-        {
-            Debug.LogError(
-                "Motor City: marker icon TextureImporter is unavailable: " +
-                iconPath);
-
-            return
-                false;
-        }
+            return false;
 
         bool changed =
             importer.textureType !=
@@ -337,8 +337,7 @@ public static class MotorCityActivityMarkerBuilder
             importer.SaveAndReimport();
         }
 
-        return
-            true;
+        return true;
     }
 
     private static void ConfigureGroundVfx(
@@ -411,12 +410,6 @@ public static class MotorCityActivityMarkerBuilder
                 height,
                 0f);
 
-        iconObject.transform.localRotation =
-            Quaternion.identity;
-
-        iconObject.transform.localScale =
-            Vector3.one;
-
         CreateIconPlane(
             iconObject.transform,
             label +
@@ -436,11 +429,7 @@ public static class MotorCityActivityMarkerBuilder
             label +
             " Icon Core",
             sprite,
-            new Color(
-                color.r,
-                color.g,
-                color.b,
-                1f),
+            color,
             scale,
             45);
 
@@ -462,12 +451,6 @@ public static class MotorCityActivityMarkerBuilder
         plane.transform.SetParent(
             parent,
             false);
-
-        plane.transform.localPosition =
-            Vector3.zero;
-
-        plane.transform.localRotation =
-            Quaternion.identity;
 
         plane.transform.localScale =
             Vector3.one *
