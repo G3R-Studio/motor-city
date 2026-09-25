@@ -17,6 +17,7 @@ namespace MotorCity.UI
         public Texture2D driftPanel;
         public Texture2D targetPanel;
         public Texture2D driveModePanel;
+        public Texture2D minimapPlayerPointer;
         public Texture2D warning;
         public Texture2D engine;
         public Texture2D nitrous;
