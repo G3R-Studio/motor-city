@@ -383,6 +383,14 @@ namespace MotorCity.Input
                 Time.frameCount + 1;
         }
 
+        public static bool WasVirtualPressed(
+            MotorCityInputAction action)
+        {
+            return
+                VirtualPressed(
+                    action);
+        }
+
         public static bool VirtualIsHeld(
             MotorCityInputAction action)
         {
