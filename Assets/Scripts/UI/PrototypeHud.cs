@@ -65,6 +65,8 @@ namespace MotorCity.UI
         private Font font;
         private Sprite panelSprite;
         private MotorCityUiThemeAssets uiThemeAssets;
+        private static Sprite modalButtonSprite;
+        private static Texture2D modalButtonSpriteSource;
 
         private Text moneyText;
         private Text reputationText;
@@ -1009,11 +1011,10 @@ namespace MotorCity.UI
                     new Vector2(
                         0.5f,
                         0.5f),
-                    new Color(
-                        0.02f,
-                        0.03f,
-                        0.045f,
-                        0.98f));
+                    Color.clear);
+
+            ApplyModalPanelTexture(
+                panel);
 
             Text title =
                 CreateText(
@@ -2169,11 +2170,10 @@ namespace MotorCity.UI
                     new Vector2(
                         0.5f,
                         0.5f),
-                    new Color(
-                        0.02f,
-                        0.03f,
-                        0.045f,
-                        0.98f));
+                    Color.clear);
+
+            ApplyModalPanelTexture(
+                panel);
 
             Text title =
                 CreateText(
@@ -5759,35 +5759,10 @@ namespace MotorCity.UI
                     new Vector2(600f, 316f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
-                    new Color(
-                        0.055f,
-                        0.05f,
-                        0.095f,
-                        0.985f));
+                    Color.clear);
 
-            CreateAccent(
-                panel,
-                BlueAccent,
-                new Vector2(0f, -5f),
-                new Vector2(530f, 4f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f));
-
-            CreateAccent(
-                panel,
-                DriftAccent,
-                new Vector2(
-                    -150f,
-                    -5f),
-                new Vector2(
-                    120f,
-                    4f),
-                new Vector2(
-                    0.5f,
-                    1f),
-                new Vector2(
-                    0.5f,
-                    1f));
+            ApplyModalPanelTexture(
+                panel);
 
             resultActivityIcon =
                 CreateHudIcon(
@@ -6134,11 +6109,10 @@ namespace MotorCity.UI
                     new Vector2(
                         0.5f,
                         0.5f),
-                    new Color(
-                        0.02f,
-                        0.03f,
-                        0.05f,
-                        0.98f));
+                    Color.clear);
+
+            ApplyModalPanelTexture(
+                panel);
 
             Text title =
                 CreateText(
@@ -6418,35 +6392,10 @@ namespace MotorCity.UI
                     new Vector2(760f, 574f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
-                    new Color(
-                        0.055f,
-                        0.05f,
-                        0.095f,
-                        0.985f));
+                    Color.clear);
 
-            CreateAccent(
-                panel,
-                GarageAccent,
-                new Vector2(0f, -5f),
-                new Vector2(676f, 4f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f));
-
-            CreateAccent(
-                panel,
-                DriftAccent,
-                new Vector2(
-                    -220f,
-                    -5f),
-                new Vector2(
-                    150f,
-                    4f),
-                new Vector2(
-                    0.5f,
-                    1f),
-                new Vector2(
-                    0.5f,
-                    1f));
+            ApplyModalPanelTexture(
+                panel);
 
             garageHeaderIcon =
                 CreateHudIcon(
@@ -7173,12 +7122,35 @@ namespace MotorCity.UI
             Image image =
                 buttonObject.GetComponent<Image>();
 
-            image.color =
-                new Color(
-                    0.075f,
-                    0.07f,
-                    0.12f,
-                    0.94f);
+            Texture2D buttonTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalButton;
+
+            Sprite buttonSprite =
+                GetModalButtonSprite(
+                    buttonTexture);
+
+            if (buttonSprite != null)
+            {
+                image.sprite =
+                    buttonSprite;
+                image.type =
+                    Image.Type.Simple;
+                image.preserveAspect =
+                    false;
+                image.color =
+                    Color.white;
+            }
+            else
+            {
+                image.color =
+                    new Color(
+                        0.075f,
+                        0.07f,
+                        0.12f,
+                        0.94f);
+            }
 
             Button button =
                 buttonObject.GetComponent<Button>();
@@ -8992,6 +8964,95 @@ namespace MotorCity.UI
                 _ =>
                     uiThemeAssets.rectanglePanel
             };
+        }
+
+        private static Sprite GetModalButtonSprite(
+            Texture2D texture)
+        {
+            if (texture == null)
+                return null;
+
+            if (modalButtonSprite != null &&
+                modalButtonSpriteSource == texture)
+            {
+                return modalButtonSprite;
+            }
+
+            modalButtonSprite =
+                Sprite.Create(
+                    texture,
+                    new Rect(
+                        0f,
+                        0f,
+                        texture.width,
+                        texture.height),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    100f,
+                    0,
+                    SpriteMeshType.FullRect);
+
+            modalButtonSprite.name =
+                "Motor City Ville Modal Button";
+            modalButtonSprite.hideFlags =
+                HideFlags.DontSave;
+            modalButtonSpriteSource =
+                texture;
+
+            return modalButtonSprite;
+        }
+
+        private void ApplyModalPanelTexture(
+            RectTransform panel)
+        {
+            if (panel == null)
+                return;
+
+            ClearPanelChrome(
+                panel);
+
+            Texture2D texture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalPanel;
+
+            if (texture == null)
+                return;
+
+            GameObject backgroundObject =
+                new(
+                    "Ville Modal Background",
+                    typeof(RectTransform),
+                    typeof(RawImage));
+
+            backgroundObject.transform.SetParent(
+                panel,
+                false);
+
+            backgroundObject.transform.SetAsFirstSibling();
+
+            RectTransform rect =
+                backgroundObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                Vector2.zero;
+            rect.anchorMax =
+                Vector2.one;
+            rect.offsetMin =
+                Vector2.zero;
+            rect.offsetMax =
+                Vector2.zero;
+
+            RawImage image =
+                backgroundObject.GetComponent<RawImage>();
+
+            image.texture =
+                texture;
+            image.color =
+                Color.white;
+            image.raycastTarget =
+                false;
         }
 
         private void ApplyVillePanelTexture(
