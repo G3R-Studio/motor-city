@@ -7252,6 +7252,67 @@ namespace MotorCity.UI
                 ApplyGarageRowTexture(
                     row);
 
+                Image rowImage =
+                    row.GetComponent<Image>();
+
+                Button rowButton =
+                    row.gameObject.AddComponent<Button>();
+
+                rowButton.targetGraphic =
+                    rowImage;
+
+                ColorBlock rowColors =
+                    rowButton.colors;
+
+                rowColors.normalColor =
+                    Color.white;
+
+                rowColors.highlightedColor =
+                    new Color(
+                        1.08f,
+                        1.08f,
+                        1.08f,
+                        1f);
+
+                rowColors.pressedColor =
+                    new Color(
+                        0.86f,
+                        0.86f,
+                        0.86f,
+                        1f);
+
+                rowColors.selectedColor =
+                    rowColors.highlightedColor;
+
+                rowColors.disabledColor =
+                    new Color(
+                        0.55f,
+                        0.55f,
+                        0.55f,
+                        0.75f);
+
+                rowColors.colorMultiplier =
+                    1f;
+
+                rowColors.fadeDuration =
+                    0.08f;
+
+                rowButton.colors =
+                    rowColors;
+
+                MotorCityInputAction upgradeAction =
+                    i switch
+                    {
+                        0 => MotorCityInputAction.Upgrade1,
+                        1 => MotorCityInputAction.Upgrade2,
+                        _ => MotorCityInputAction.Upgrade3
+                    };
+
+                rowButton.onClick.AddListener(
+                    () =>
+                        MotorCityInput.PulseVirtual(
+                            upgradeAction));
+
                 Sprite upgradeSprite =
                     i switch
                     {
@@ -7502,17 +7563,13 @@ namespace MotorCity.UI
             {
                 MotorCityInputAction.PreviousVehicle,
                 MotorCityInputAction.NextVehicle,
-                MotorCityInputAction.Upgrade1,
-                MotorCityInputAction.Upgrade2,
-                MotorCityInputAction.Upgrade3,
                 MotorCityInputAction.CycleBodyColor,
-
                 MotorCityInputAction.CycleWheels,
                 MotorCityInputAction.CycleNeon,
                 MotorCityInputAction.Count,
-                MotorCityInputAction.Count,
-                MotorCityInputAction.Count,
 
+                MotorCityInputAction.Count,
+                MotorCityInputAction.Count,
                 MotorCityInputAction.SaveCustomizationPreset,
                 MotorCityInputAction.LoadCustomizationPreset,
                 MotorCityInputAction.ToggleVehiclePassport,
@@ -7523,17 +7580,13 @@ namespace MotorCity.UI
             {
                 "touch.garage.prev",
                 "touch.garage.next",
-                "touch.garage.engine",
-                "touch.garage.grip",
-                "touch.garage.stability",
                 "touch.garage.color",
-
                 "touch.garage.wheels",
                 "touch.garage.neon",
                 "touch.garage.preset1",
+
                 "touch.garage.preset2",
                 "touch.garage.preset3",
-
                 "touch.garage.save",
                 "touch.garage.load",
                 "touch.garage.passport",
@@ -7542,9 +7595,8 @@ namespace MotorCity.UI
 
             int[] presetSlots =
             {
-                -1, -1, -1, -1, -1, -1,
-                -1, -1, 0, 1, 2,
-                -1, -1, -1, -1
+                -1, -1, -1, -1, -1, 0,
+                1, 2, -1, -1, -1, -1
             };
 
             const float buttonWidth = 111f;
