@@ -4430,7 +4430,7 @@ namespace MotorCity.UI
                     canvas,
                     "Activity Status",
                     new Vector2(0f, -112f),
-                    new Vector2(560f, 44f),
+                    new Vector2(760f, 46f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     Color.clear);
@@ -4461,11 +4461,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Status Text",
-                    16,
+                    14,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(54f, 1f),
-                    new Vector2(482f, 30f),
+                    new Vector2(682f, 32f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     TextColor);
