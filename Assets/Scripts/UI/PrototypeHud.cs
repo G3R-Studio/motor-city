@@ -4950,39 +4950,107 @@ namespace MotorCity.UI
             Image navigatorButtonImage =
                 navigatorButtonObject.GetComponent<Image>();
 
-            navigatorButtonImage.color =
-                new Color(
-                    BlueAccent.r,
-                    BlueAccent.g,
-                    BlueAccent.b,
-                    0.94f);
+            Texture2D navigatorButtonTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalButton;
+
+            Sprite navigatorButtonSprite =
+                GetModalButtonSprite(
+                    navigatorButtonTexture);
+
+            if (navigatorButtonSprite != null)
+            {
+                navigatorButtonImage.sprite =
+                    navigatorButtonSprite;
+                navigatorButtonImage.type =
+                    Image.Type.Simple;
+                navigatorButtonImage.preserveAspect =
+                    false;
+                navigatorButtonImage.color =
+                    Color.white;
+            }
+            else
+            {
+                navigatorButtonImage.color =
+                    new Color(
+                        PanelColor.r,
+                        PanelColor.g,
+                        PanelColor.b,
+                        0.94f);
+            }
 
             Button navigatorButton =
                 navigatorButtonObject.GetComponent<Button>();
 
+            navigatorButton.targetGraphic =
+                navigatorButtonImage;
+
+            ColorBlock navigatorColors =
+                navigatorButton.colors;
+
+            navigatorColors.normalColor =
+                Color.white;
+            navigatorColors.highlightedColor =
+                new Color(
+                    0.88f,
+                    0.94f,
+                    1f,
+                    1f);
+            navigatorColors.pressedColor =
+                new Color(
+                    0.68f,
+                    0.78f,
+                    0.96f,
+                    1f);
+            navigatorColors.selectedColor =
+                navigatorColors.highlightedColor;
+
+            navigatorButton.colors =
+                navigatorColors;
+
             navigatorButton.onClick.AddListener(
                 ToggleNavigatorMenu);
 
-            Text navigatorButtonLabel =
-                CreateText(
+            Sprite navigatorIcon =
+                MotorCityIconLibrary.Get(
+                    "target");
+
+            if (navigatorIcon != null)
+            {
+                CreateHudIcon(
                     navigatorButtonRect,
-                    "Navigator Button Label",
-                    13,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
+                    "Navigator Icon",
+                    navigatorIcon,
                     touchUi
-                        ? new Vector2(72f, 28f)
-                        : new Vector2(40f, 26f),
-                    new Vector2(0.5f, 0.5f),
+                        ? new Vector2(-22f, 0f)
+                        : Vector2.zero,
+                    touchUi
+                        ? new Vector2(18f, 18f)
+                        : new Vector2(17f, 17f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
+            }
 
-            navigatorButtonLabel.text =
-                touchUi
-                    ? MotorCityLocalization.Text(
-                        "navigator.touch_button")
-                    : "M";
+            if (touchUi)
+            {
+                Text navigatorButtonLabel =
+                    CreateText(
+                        navigatorButtonRect,
+                        "Navigator Button Label",
+                        11,
+                        FontStyle.Bold,
+                        TextAnchor.MiddleCenter,
+                        new Vector2(9f, 0f),
+                        new Vector2(48f, 26f),
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f),
+                        TextColor);
+
+                navigatorButtonLabel.text =
+                    MotorCityLocalization.Text(
+                        "navigator.touch_button");
+            }
         }
 
         private void UpdateNavigator(
