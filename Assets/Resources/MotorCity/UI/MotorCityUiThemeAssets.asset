@@ -16,10 +16,11 @@ MonoBehaviour:
   speedometerSecondary: {fileID: 2800000, guid: 981360dcc9d97db4595c234a092f7932, type: 3}
   needleLong: {fileID: 2800000, guid: 5ecd34f947bde9f42ac731c5eb08e8b7, type: 3}
   rectanglePanel: {fileID: 2800000, guid: 65a80eb5c0b525d4daf1227c1bebbe88, type: 3}
-  characterPanel: {fileID: 2800000, guid: 6ecfd31ee4a6a764a807a04c64b02dd4, type: 3}
+  characterPanel: {fileID: 2800000, guid: cd82d6aeef063f64e8729ee5d1971728, type: 3}
   statusPanel: {fileID: 2800000, guid: ab5484d58cca50345bac5d6f9fb55fd6, type: 3}
   driftPanel: {fileID: 2800000, guid: 38393fe24669c304a8af8fb579d60016, type: 3}
   targetPanel: {fileID: 2800000, guid: 1b8dac2f7896f5d48b6dfaa82b0b096f, type: 3}
+  driveModePanel: {fileID: 2800000, guid: 54afa2cb96633904093df59e235c5b97, type: 3}
   warning: {fileID: 2800000, guid: 9759e1b5aa0fa00439ea2b350ad903fa, type: 3}
   engine: {fileID: 2800000, guid: de7540e732cfd8345bd489072d604106, type: 3}
   nitrous: {fileID: 2800000, guid: a5bcbc8737868d94cb43be30e19a133c, type: 3}
