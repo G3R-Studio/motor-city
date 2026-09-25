@@ -6759,10 +6759,7 @@ namespace MotorCity.UI
                 cosmeticStore.SelectedDescription;
 
             storePathText.text =
-                cosmeticStore.SelectedProduct == 0
-                    ? cosmeticStore.SeasonPathLine
-                    : MotorCityLocalization.Text(
-                        "store.turbo_path");
+                cosmeticStore.ProductDetailsLine;
 
             storeOwnershipText.text =
                 cosmeticStore.SelectedOwnershipLine;
