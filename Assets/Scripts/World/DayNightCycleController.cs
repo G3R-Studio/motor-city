@@ -44,6 +44,7 @@ namespace MotorCity.World
         private float observerResolveTimer;
         private int streetLightSourceCount;
         private int parkLampSourceCount;
+        private Light garageLight;
         private Transform lampObserver;
         private bool lastNightState;
         private bool initialized;
@@ -579,6 +580,7 @@ namespace MotorCity.World
             lampSources.Clear();
             streetLightSourceCount = 0;
             parkLampSourceCount = 0;
+            garageLight = null;
 
             GameObject cityRoot =
                 GameObject.Find(
@@ -615,8 +617,25 @@ namespace MotorCity.World
             {
                 if (sourceLight == null ||
                     sourceLight.type ==
-                    LightType.Directional ||
-                    !IsFcgStreetLampLight(
+                    LightType.Directional)
+                {
+                    continue;
+                }
+
+                if (NormalizeName(
+                        sourceLight.gameObject.name) ==
+                    "garagelight")
+                {
+                    garageLight =
+                        sourceLight;
+
+                    garageLight.enabled =
+                        false;
+
+                    continue;
+                }
+
+                if (!IsFcgStreetLampLight(
                         sourceLight) ||
                     !usedLights.Add(
                         sourceLight.GetEntityId()))
@@ -671,6 +690,15 @@ namespace MotorCity.World
 
         private void ApplyStreetLights()
         {
+            bool night =
+                NightAmount >= 0.38f;
+
+            if (garageLight != null)
+            {
+                garageLight.enabled =
+                    night;
+            }
+
             if (lampSources.Count == 0)
             {
                 EnabledStreetLightCount = 0;
@@ -678,7 +706,7 @@ namespace MotorCity.World
             }
 
             bool nightActive =
-                NightAmount >= 0.38f &&
+                night &&
                 lampObserver != null;
 
             if (!nightActive)
