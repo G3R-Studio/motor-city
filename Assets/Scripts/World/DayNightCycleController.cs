@@ -23,6 +23,9 @@ namespace MotorCity.World
         private const int MaxRuntimeStreetLights =
             16;
 
+        private const int MaxRuntimeLampGlows =
+            64;
+
         [SerializeField] private float fullCycleSeconds =
             480f;
 
@@ -38,6 +41,9 @@ namespace MotorCity.World
         private readonly List<Renderer> streetLampGlowRenderers =
             new();
 
+        private readonly List<Renderer> runtimeLampGlowRenderers =
+            new();
+
         private readonly List<LampAnchor> streetLampAnchors =
             new();
 
@@ -49,6 +55,7 @@ namespace MotorCity.World
         private Light moonLight;
         private Material runtimeDaySkybox;
         private Material runtimeNightSkybox;
+        private Material runtimeLampGlowMaterial;
 
         private float time01;
         private float environmentUpdateTimer;
@@ -173,6 +180,10 @@ namespace MotorCity.World
             if (runtimeNightSkybox != null)
                 Destroy(
                     runtimeNightSkybox);
+
+            if (runtimeLampGlowMaterial != null)
+                Destroy(
+                    runtimeLampGlowMaterial);
 
         }
 
@@ -597,6 +608,18 @@ namespace MotorCity.World
             }
 
             streetLights.Clear();
+
+            foreach (Renderer renderer in
+                     runtimeLampGlowRenderers)
+            {
+                if (renderer != null)
+                {
+                    Destroy(
+                        renderer.gameObject);
+                }
+            }
+
+            runtimeLampGlowRenderers.Clear();
             streetLampGlowRenderers.Clear();
             streetLampAnchors.Clear();
             lampCandidates.Clear();
@@ -690,6 +713,25 @@ namespace MotorCity.World
                 }
             }
 
+            int glowPoolSize =
+                Mathf.Min(
+                    MaxRuntimeLampGlows,
+                    streetLampAnchors.Count);
+
+            for (int i = 0;
+                 i < glowPoolSize;
+                 i++)
+            {
+                Renderer glow =
+                    CreateRuntimeLampGlow();
+
+                if (glow != null)
+                {
+                    runtimeLampGlowRenderers.Add(
+                        glow);
+                }
+            }
+
             ResolveLampObserver();
             ApplyStreetLights();
         }
@@ -697,7 +739,8 @@ namespace MotorCity.World
         private void ApplyStreetLights()
         {
             // FCG LightV helper meshes are disabled once during refresh.
-            if (streetLights.Count == 0)
+            if (streetLights.Count == 0 &&
+                runtimeLampGlowRenderers.Count == 0)
             {
                 EnabledStreetLightCount = 0;
                 return;
@@ -715,6 +758,15 @@ namespace MotorCity.World
                     if (light != null)
                     {
                         light.enabled = false;
+                    }
+                }
+
+                foreach (Renderer glow in
+                         runtimeLampGlowRenderers)
+                {
+                    if (glow != null)
+                    {
+                        glow.enabled = false;
                     }
                 }
 
@@ -818,6 +870,135 @@ namespace MotorCity.World
 
             EnabledStreetLightCount =
                 enabledCount;
+
+            int glowBudget =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low =>
+                        20,
+
+                    MotorCityQualityPreset.High =>
+                        MaxRuntimeLampGlows,
+
+                    _ =>
+                        40
+                };
+
+            int glowCount =
+                Mathf.Min(
+                    glowBudget,
+                    runtimeLampGlowRenderers.Count,
+                    lampCandidates.Count);
+
+            for (int i = 0;
+                 i < runtimeLampGlowRenderers.Count;
+                 i++)
+            {
+                Renderer glow =
+                    runtimeLampGlowRenderers[i];
+
+                if (glow == null)
+                    continue;
+
+                bool enable =
+                    i <
+                    glowCount;
+
+                if (enable)
+                {
+                    glow.transform.position =
+                        lampCandidates[i].Position;
+
+                    glow.transform.rotation =
+                        Quaternion.identity;
+                }
+
+                glow.enabled =
+                    enable;
+            }
+        }
+
+        private Renderer CreateRuntimeLampGlow()
+        {
+            if (runtimeLampGlowMaterial == null)
+            {
+                Shader shader =
+                    Shader.Find(
+                        "MotorCity/StreetLampBulbGlow");
+
+                if (shader == null)
+                    return null;
+
+                runtimeLampGlowMaterial =
+                    new Material(
+                        shader)
+                    {
+                        name =
+                            "MotorCity_LampBulbGlow_Runtime"
+                    };
+
+                runtimeLampGlowMaterial.SetColor(
+                    "_GlowColor",
+                    new Color(
+                        1f,
+                        0.64f,
+                        0.31f,
+                        1f));
+
+                runtimeLampGlowMaterial.SetFloat(
+                    "_Intensity",
+                    3.5f);
+            }
+
+            GameObject glowObject =
+                GameObject.CreatePrimitive(
+                    PrimitiveType.Sphere);
+
+            glowObject.name =
+                "MotorCity_LampBulbGlow";
+
+            glowObject.transform.SetParent(
+                transform,
+                false);
+
+            glowObject.transform.localScale =
+                Vector3.one *
+                0.19f;
+
+            Collider collider =
+                glowObject.GetComponent<Collider>();
+
+            if (collider != null)
+            {
+                Destroy(
+                    collider);
+            }
+
+            Renderer renderer =
+                glowObject.GetComponent<Renderer>();
+
+            if (renderer != null)
+            {
+                renderer.sharedMaterial =
+                    runtimeLampGlowMaterial;
+
+                renderer.shadowCastingMode =
+                    ShadowCastingMode.Off;
+
+                renderer.receiveShadows =
+                    false;
+
+                renderer.lightProbeUsage =
+                    LightProbeUsage.Off;
+
+                renderer.reflectionProbeUsage =
+                    ReflectionProbeUsage.Off;
+
+                renderer.enabled =
+                    false;
+            }
+
+            return renderer;
         }
 
         private static int CompareLampCandidates(
