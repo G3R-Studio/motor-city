@@ -168,7 +168,8 @@ namespace MotorCity.Vehicle
 
             StripImportedPhysics(visual);
 
-            if (visualEulerCorrection.HasValue)
+            if (!preserveAuthoredTransform &&
+                visualEulerCorrection.HasValue)
             {
                 visual.transform.localRotation =
                     Quaternion.Euler(
@@ -318,12 +319,25 @@ namespace MotorCity.Vehicle
                     MeasureWheelRadius(
                         bounds);
 
-                spinRoots[i] = CreateWheelRoot(
-                    carTransform,
-                    $"ArcadeRacingWheelSpin_{i}",
-                    centerWorld[i]);
+                if (preserveAuthoredTransform)
+                {
+                    // Imported player cars keep the exact prefab hierarchy.
+                    // Prometeo will use invisible proxy meshes instead of
+                    // taking ownership of the authored wheel transforms.
+                    spinRoots[i] =
+                        ordered[i];
+                }
+                else
+                {
+                    spinRoots[i] = CreateWheelRoot(
+                        carTransform,
+                        $"ArcadeRacingWheelSpin_{i}",
+                        centerWorld[i]);
 
-                ordered[i].SetParent(spinRoots[i], true);
+                    ordered[i].SetParent(
+                        spinRoots[i],
+                        true);
+                }
             }
 
             Transform[] additionalSpinRoots =
@@ -424,11 +438,15 @@ namespace MotorCity.Vehicle
                 rotateLeft90 ||
                 useAuthoredBusRig;
 
+            bool usePhysicsProxyMeshes =
+                needsExternalWheelSync ||
+                preserveAuthoredTransform;
+
             car.ConfigurePrometeoRig(
                 spinRoots,
                 centerLocal,
                 measuredRadius,
-                needsExternalWheelSync);
+                usePhysicsProxyMeshes);
 
             VehicleWheelVisualSync wheelSync =
                 car.GetComponent<VehicleWheelVisualSync>();
