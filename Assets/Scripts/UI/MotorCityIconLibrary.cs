@@ -316,6 +316,11 @@ namespace MotorCity.UI
             string normalized =
                 markerId.Trim().ToLowerInvariant();
 
+            if (normalized == "garage")
+            {
+                return Garage;
+            }
+
             string resourceName =
                 normalized switch
                 {
@@ -339,8 +344,7 @@ namespace MotorCity.UI
                     "underground" =>
                         "UndergroundMarkerVfx",
 
-                    "profession" or
-                    "garage" =>
+                    "profession" =>
                         "ProfessionMarkerVfx",
 
                     "carwash" =>
@@ -393,9 +397,9 @@ namespace MotorCity.UI
                         continue;
                     }
 
-                    if (renderer.name.Contains(
+                    if (renderer.name.IndexOf(
                             "Icon Core",
-                            StringComparison.OrdinalIgnoreCase))
+                            StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         sprite =
                             renderer.sprite;
@@ -414,6 +418,54 @@ namespace MotorCity.UI
                 sprite;
 
             return sprite;
+        }
+
+        public static Color WorldMarkerColor(
+            string markerId)
+        {
+            string normalized =
+                string.IsNullOrWhiteSpace(markerId)
+                    ? string.Empty
+                    : markerId.Trim().ToLowerInvariant();
+
+            return normalized switch
+            {
+                "drift" =>
+                    new Color(1f, 0.30f, 0.035f, 1f),
+
+                "delivery" =>
+                    new Color(0.06f, 0.48f, 1f, 1f),
+
+                "sprint" =>
+                    new Color(0.08f, 1f, 0.28f, 1f),
+
+                "circuit" =>
+                    new Color(0.04f, 0.86f, 1f, 1f),
+
+                "discovery" or
+                "speedtrap" or
+                "driftspot" =>
+                    new Color(0.72f, 0.28f, 1f, 1f),
+
+                "underground" =>
+                    new Color(0.78f, 0.18f, 1f, 1f),
+
+                "profession" =>
+                    new Color(1f, 0.68f, 0.10f, 1f),
+
+                "carwash" =>
+                    new Color(0.10f, 0.82f, 1f, 1f),
+
+                "tow" or
+                "towtruck" =>
+                    new Color(1f, 0.56f, 0.06f, 1f),
+
+                "garage" =>
+                    new Color(0.72f, 0.20f, 1f, 1f),
+
+                _ =>
+                    new Color(1f, 0.70f, 0.10f, 1f)
+            };
         }
 
         private static Sprite GetFallback()
