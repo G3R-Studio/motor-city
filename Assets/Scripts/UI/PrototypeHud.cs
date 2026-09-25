@@ -72,9 +72,7 @@ namespace MotorCity.UI
         private Text reputationText;
         private Text upgradesText;
         private Text driveModeText;
-        private Text hintText;
         private Text speedText;
-        private Text speedUnitText;
         private RectTransform speedNeedle;
         private RectTransform speedNeedleGlowRect;
         private RawImage speedNeedleGlow;
@@ -84,7 +82,6 @@ namespace MotorCity.UI
         private Text statusText;
         private Image statusActivityIcon;
         private Text driftText;
-        private Text navigatorText;
         private Text careerText;
         private Text disciplineText;
         private Text contractText;
@@ -171,7 +168,6 @@ namespace MotorCity.UI
         private Text clubNameText;
         private Text clubDescriptionText;
         private Text clubWeeklyText;
-        private Text clubControlsText;
         private RectTransform safeAreaRoot;
         private GameObject touchControlsRoot;
         private GameObject touchUtilityRoot;
@@ -216,9 +212,6 @@ namespace MotorCity.UI
         private Text resultRewardText;
         private Text resultControlsText;
 
-        private Image garageHeaderIcon;
-        private Image garageCreditsIcon;
-        private Image garageReputationIcon;
         private Text garageMoneyText;
         private Text garageReputationText;
         private Text garageLevelText;
@@ -227,8 +220,6 @@ namespace MotorCity.UI
         private Text garageVehicleText;
         private Text garageNextVehicleText;
         private Text garageVehicleStatsText;
-        private Image garageMasteryIcon;
-        private Image garageMasteryTrack;
         private Image garageMasteryFill;
         private Text garageVehicleHistoryText;
         private Text garageVehicleSpecializationText;
@@ -239,8 +230,6 @@ namespace MotorCity.UI
         private Text garagePassportMasteryText;
         private Text garagePassportSpecializationText;
         private bool garagePassportOpen;
-        private readonly Image[] garageUpgradeIcons =
-            new Image[3];
         private readonly Image[] garagePriceIcons =
             new Image[3];
         private readonly Text[] garageTitleTexts =
@@ -4234,8 +4223,6 @@ namespace MotorCity.UI
                         0xED,
                         0xFF));
 
-            speedUnitText = null;
-
             RectTransform driveModeChip;
 
             Texture2D chipTexture =
@@ -6375,7 +6362,6 @@ namespace MotorCity.UI
                         1f,
                         1f));
 
-            clubControlsText = null;
         }
 
         private void HandleClubInput()
@@ -6838,8 +6824,7 @@ namespace MotorCity.UI
             ApplyModalPanelTexture(
                 panel);
 
-            garageHeaderIcon =
-                CreateHudIcon(
+            CreateHudIcon(
                     panel,
                     "Garage Header Icon",
                     MotorCityIconLibrary.Garage,
@@ -6897,8 +6882,7 @@ namespace MotorCity.UI
                     124f,
                     34f);
 
-            garageCreditsIcon =
-                CreateHudIcon(
+            CreateHudIcon(
                     creditsGroup,
                     "Garage Credits Icon",
                     MotorCityIconLibrary.Credits,
@@ -6963,8 +6947,7 @@ namespace MotorCity.UI
                     96f,
                     34f);
 
-            garageReputationIcon =
-                CreateHudIcon(
+            CreateHudIcon(
                     reputationGroup,
                     "Garage Reputation Icon",
                     MotorCityIconLibrary.Reputation,
@@ -7104,8 +7087,7 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
 
-            garageMasteryIcon =
-                CreateHudIcon(
+            CreateHudIcon(
                     panel,
                     "Garage Mastery Icon",
                     MotorCityIconLibrary.Achievement,
@@ -7145,9 +7127,6 @@ namespace MotorCity.UI
                         0.08f,
                         0.14f,
                         0.94f));
-
-            garageMasteryTrack =
-                masteryTrackRect.GetComponent<Image>();
 
             RectTransform masteryFillRect =
                 CreatePanel(
@@ -7334,8 +7313,7 @@ namespace MotorCity.UI
                             "target")
                     };
 
-                garageUpgradeIcons[i] =
-                    CreateHudIcon(
+                CreateHudIcon(
                         row,
                         "Upgrade Icon",
                         upgradeSprite,
