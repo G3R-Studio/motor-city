@@ -445,13 +445,6 @@ namespace MotorCity.UI
             HandleStoreInput();
             HandleClubInput();
 
-            if (MotorCityInput.CancelPressed &&
-                !hadBlockingModal &&
-                !HasBlockingModalUi())
-            {
-                OpenPauseMenu();
-                return;
-            }
             UpdateTouchControlsVisibility();
             RefreshHudLocalizationState();
 
