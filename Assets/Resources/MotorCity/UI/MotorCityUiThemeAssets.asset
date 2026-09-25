@@ -24,6 +24,7 @@ MonoBehaviour:
   minimapPlayerPointer: {fileID: 2800000, guid: 111f944690711f843bc0dd807bed35ae, type: 3}
   modalPanel: {fileID: 2800000, guid: 6339f5c7479c607408237dd63d79bf2e, type: 3}
   modalButton: {fileID: 2800000, guid: f340aa0b6927238499a9256a887c48b3, type: 3}
+  passportPanel: {fileID: 2800000, guid: c8a7ac821d316ef4dbc0eec7f34b093c, type: 3}
   warning: {fileID: 2800000, guid: 9759e1b5aa0fa00439ea2b350ad903fa, type: 3}
   engine: {fileID: 2800000, guid: de7540e732cfd8345bd489072d604106, type: 3}
   nitrous: {fileID: 2800000, guid: a5bcbc8737868d94cb43be30e19a133c, type: 3}
