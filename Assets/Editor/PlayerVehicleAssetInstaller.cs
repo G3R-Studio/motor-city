@@ -15,15 +15,12 @@ namespace MotorCity.EditorTools
         private const string GeneratedMaterialRoot =
             OutputRoot + "/GeneratedMaterials";
 
-        private const string MuscleColorTexturePath =
-            "Assets/Vehicles/Imported/Fbx_MuscleCar/Fbx/Texture/Color.png";
-
         private static readonly VehicleAsset[] Assets =
         {
             new("Assets/Vehicles/Imported/Designersoup_CarPack2/Exports/Tois08_GT.fbx", "Tois08GT"),
             new("Assets/Vehicles/Imported/Designersoup_CarPack2/Exports/Toro86.fbx", "Toro86"),
             new("Assets/Vehicles/Imported/Designersoup_CarPack2/Exports/Stuttgart996.fbx", "Stuttgart996"),
-            new("Assets/Vehicles/Imported/Fbx_MuscleCar/Fbx/N_Muscle Car_10.fbx", "MuscleCar10"),
+            new("Assets/Vehicles/Imported/Designersoup_CarPack1/Beatall.fbx", "Beatall"),
             new("Assets/Gudamore/Free Sports Car/Prefabs/Mesh Only/Sports Car.prefab", "Hybrid"),
             new("Assets/Vehicles/Imported/Designersoup_CarPack1/Tristar Racer.fbx", "TristarRacer"),
             new("Assets/Vehicles/Imported/CityTransport/Van.fbx", "Van"),
@@ -140,8 +137,6 @@ namespace MotorCity.EditorTools
                 return;
             }
 
-            if (outputName == "MuscleCar10")
-                ConvertMuscleCarMaterials(instance);
         }
 
         private static void ConvertHybridMaterials(GameObject instance)
@@ -199,134 +194,6 @@ namespace MotorCity.EditorTools
                 if (changed)
                     renderer.sharedMaterials = materials;
             }
-        }
-
-        private static void ConvertMuscleCarMaterials(GameObject instance)
-        {
-            Shader lit = UrpLitShader();
-
-            if (lit == null)
-            {
-                Debug.LogError(
-                    "[MotorCity][Vehicles] URP/Lit shader was not found while preparing MuscleCar10.");
-                return;
-            }
-
-            Renderer bodyRenderer =
-                FindLargestNonWheelRenderer(instance);
-
-            Material bodyPaint =
-                GetOrCreateGeneratedMaterial(
-                    "MuscleCar10_BodyPaint",
-                    lit);
-
-            // Color.png is a palette/atlas used by the original FBX. It must not
-            // be used as the body albedo map: most of the car UVs land on its
-            // white area while the red area is used by the lamps.
-            ResetUrpMaterial(
-                bodyPaint,
-                new Color(0.68f, 0.055f, 0.04f, 1f),
-                null,
-                0.10f,
-                0.58f);
-
-            var detailMaterials =
-                new Dictionary<Material, Material>();
-
-            foreach (Renderer renderer in
-                     instance.GetComponentsInChildren<Renderer>(true))
-            {
-                if (renderer == null)
-                    continue;
-
-                Material[] materials = renderer.sharedMaterials;
-
-                if (materials == null ||
-                    materials.Length == 0)
-                {
-                    continue;
-                }
-
-                bool wheel =
-                    IsWheelLike(renderer.transform.name);
-
-                for (int i = 0; i < materials.Length; i++)
-                {
-                    Material source = materials[i];
-
-                    if (source == null)
-                        continue;
-
-                    // The main visible shell of this particular FBX is the first
-                    // material slot on the largest non-wheel renderer. The same
-                    // source material is also reused by separate tire renderers,
-                    // so we only replace it on the body renderer itself.
-                    if (!wheel &&
-                        renderer == bodyRenderer &&
-                        i == 0)
-                    {
-                        materials[i] = bodyPaint;
-                        continue;
-                    }
-
-                    if (!detailMaterials.TryGetValue(
-                            source,
-                            out Material detail))
-                    {
-                        string detailName =
-                            wheel
-                                ? "MuscleCar10_Wheel_" + SafeName(source.name)
-                                : "MuscleCar10_Detail_" + SafeName(source.name);
-
-                        detail =
-                            GetOrCreateGeneratedMaterial(
-                                detailName,
-                                lit);
-
-                        CopyToUrpMaterial(
-                            source,
-                            detail,
-                            detailName);
-
-                        detailMaterials.Add(
-                            source,
-                            detail);
-                    }
-
-                    materials[i] = detail;
-                }
-
-                renderer.sharedMaterials = materials;
-            }
-        }
-
-        private static Renderer FindLargestNonWheelRenderer(
-            GameObject instance)
-        {
-            Renderer best = null;
-            float bestVolume = -1f;
-
-            foreach (Renderer renderer in
-                     instance.GetComponentsInChildren<Renderer>(true))
-            {
-                if (renderer == null ||
-                    IsWheelLike(renderer.transform.name))
-                {
-                    continue;
-                }
-
-                Vector3 size = renderer.bounds.size;
-                float volume =
-                    Mathf.Abs(size.x * size.y * size.z);
-
-                if (volume <= bestVolume)
-                    continue;
-
-                best = renderer;
-                bestVolume = volume;
-            }
-
-            return best;
         }
 
         private static Material GetOrCreateGeneratedMaterial(
