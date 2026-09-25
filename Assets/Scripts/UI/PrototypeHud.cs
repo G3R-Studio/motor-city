@@ -166,6 +166,7 @@ namespace MotorCity.UI
         private Text storePathText;
         private Text storeOwnershipText;
         private Text storeWalletText;
+        private Image storeProductIcon;
         private Text clubEmblemText;
         private Text clubNameText;
         private Text clubDescriptionText;
@@ -6513,17 +6514,17 @@ namespace MotorCity.UI
                     0.005f,
                     0.008f,
                     0.014f,
-                    0.78f);
+                    0.84f);
 
             backdrop.raycastTarget =
-                false;
+                true;
 
             RectTransform panel =
                 CreatePanel(
                     storeOverlay.transform,
                     "Store Panel",
-                    Vector2.zero,
-                    new Vector2(620f, 390f),
+                    new Vector2(0f, 18f),
+                    new Vector2(760f, 470f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     Color.clear);
@@ -6531,12 +6532,13 @@ namespace MotorCity.UI
             ApplyModalPanelTexture(
                 panel);
 
+            // Header: icon/title on the left, account summary on the right.
             CreateHudIcon(
                 panel,
                 "Store Header Icon",
                 MotorCityIconLibrary.Store,
-                new Vector2(-244f, -31f),
-                new Vector2(28f, 28f),
+                new Vector2(-314f, -34f),
+                new Vector2(30f, 30f),
                 new Vector2(0.5f, 1f),
                 TextColor);
 
@@ -6544,11 +6546,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Store Title",
-                    25,
+                    26,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(-212f, -24f),
-                    new Vector2(430f, 38f),
+                    new Vector2(-276f, -27f),
+                    new Vector2(360f, 40f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
@@ -6564,77 +6566,181 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Bold,
                     TextAnchor.UpperRight,
-                    new Vector2(0f, -29f),
-                    new Vector2(270f, 30f),
+                    new Vector2(316f, -31f),
+                    new Vector2(320f, 34f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
 
-            RectTransform productCard =
+            RectTransform divider =
                 CreatePanel(
                     panel,
-                    "Store Product Card",
-                    new Vector2(0f, -15f),
-                    new Vector2(540f, 228f),
+                    "Store Header Divider",
+                    new Vector2(0f, 168f),
+                    new Vector2(668f, 2f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        0.28f,
+                        0.55f,
+                        1f,
+                        0.20f));
+
+            Image dividerImage =
+                divider.GetComponent<Image>();
+            if (dividerImage != null)
+            {
+                dividerImage.raycastTarget =
+                    false;
+            }
+
+            // Left hero tile gives the product a visual anchor instead of
+            // presenting the whole store as one large block of text.
+            RectTransform heroCard =
+                CreatePanel(
+                    panel,
+                    "Store Hero Card",
+                    new Vector2(-220f, -15f),
+                    new Vector2(230f, 290f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        0.065f,
+                        0.075f,
+                        0.14f,
+                        0.92f));
+
+            storeProductIcon =
+                CreateHudIcon(
+                    heroCard,
+                    "Store Product Icon",
+                    MotorCityIconLibrary.Reward,
+                    new Vector2(0f, 38f),
+                    new Vector2(88f, 88f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        0.50f,
+                        0.72f,
+                        1f,
+                        1f));
+
+            Text selectionHint =
+                CreateText(
+                    heroCard,
+                    "Store Selection Hint",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.LowerCenter,
+                    new Vector2(0f, 22f),
+                    new Vector2(190f, 28f),
+                    new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f),
+                    SecondaryTextColor);
+
+            selectionHint.text =
+                MotorCityLocalization.Text(
+                    "store.selection_hint");
+
+            // Right side is a clean information stack.
+            RectTransform detailCard =
+                CreatePanel(
+                    panel,
+                    "Store Detail Card",
+                    new Vector2(135f, -15f),
+                    new Vector2(438f, 290f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
                         PanelSoftColor.r,
                         PanelSoftColor.g,
                         PanelSoftColor.b,
-                        0.78f));
+                        0.82f));
 
             storeNameText =
                 CreateText(
-                    productCard,
+                    detailCard,
                     "Store Product Name",
-                    22,
+                    23,
                     FontStyle.Bold,
-                    TextAnchor.UpperCenter,
-                    new Vector2(0f, -22f),
-                    new Vector2(480f, 34f),
-                    new Vector2(0.5f, 1f),
-                    new Vector2(0.5f, 1f),
+                    TextAnchor.UpperLeft,
+                    new Vector2(24f, -24f),
+                    new Vector2(382f, 42f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
                     TextColor);
 
             storeDescriptionText =
                 CreateText(
-                    productCard,
+                    detailCard,
                     "Store Product Description",
-                    15,
+                    14,
                     FontStyle.Normal,
-                    TextAnchor.UpperCenter,
-                    new Vector2(0f, -68f),
-                    new Vector2(460f, 64f),
-                    new Vector2(0.5f, 1f),
-                    new Vector2(0.5f, 1f),
+                    TextAnchor.UpperLeft,
+                    new Vector2(24f, -78f),
+                    new Vector2(382f, 76f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
                     SecondaryTextColor);
 
             storePathText =
                 CreateText(
-                    productCard,
+                    detailCard,
                     "Store Season Path",
                     14,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(0f, -23f),
-                    new Vector2(470f, 36f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
+                    TextAnchor.MiddleLeft,
+                    new Vector2(24f, -4f),
+                    new Vector2(382f, 40f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
                     new Color(0.24f, 0.88f, 1f, 1f));
 
             storeOwnershipText =
                 CreateText(
-                    productCard,
+                    detailCard,
                     "Store Ownership",
                     16,
                     FontStyle.Bold,
-                    TextAnchor.LowerCenter,
-                    new Vector2(0f, 24f),
-                    new Vector2(470f, 34f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f),
+                    TextAnchor.LowerLeft,
+                    new Vector2(24f, 26f),
+                    new Vector2(382f, 38f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
                     DriftAccent);
+
+            // Store-specific footer lives inside the modal, so controls no
+            // longer float detached below the window.
+            CreateLocalizedTouchPulseButton(
+                panel,
+                "Store Previous",
+                "touch.modal.prev",
+                MotorCityInputAction.PreviousVehicle,
+                new Vector2(-252f, 34f),
+                new Vector2(118f, 44f));
+
+            CreateLocalizedTouchPulseButton(
+                panel,
+                "Store Buy",
+                "touch.store.buy",
+                MotorCityInputAction.Interact,
+                new Vector2(-84f, 34f),
+                new Vector2(150f, 44f));
+
+            CreateLocalizedTouchPulseButton(
+                panel,
+                "Store Next",
+                "touch.modal.next",
+                MotorCityInputAction.NextVehicle,
+                new Vector2(86f, 34f),
+                new Vector2(118f, 44f));
+
+            CreateLocalizedTouchPulseButton(
+                panel,
+                "Store Close",
+                "touch.modal.close",
+                MotorCityInputAction.ToggleStore,
+                new Vector2(252f, 34f),
+                new Vector2(126f, 44f));
         }
 
         private void UpdateStoreOverlay()
@@ -6653,7 +6759,10 @@ namespace MotorCity.UI
                 cosmeticStore.SelectedDescription;
 
             storePathText.text =
-                cosmeticStore.SeasonPathLine;
+                cosmeticStore.SelectedProduct == 0
+                    ? cosmeticStore.SeasonPathLine
+                    : MotorCityLocalization.Text(
+                        "store.turbo_path");
 
             storeOwnershipText.text =
                 cosmeticStore.SelectedOwnershipLine;
@@ -6670,6 +6779,28 @@ namespace MotorCity.UI
                     activityManager != null
                         ? activityManager.ReputationLevel
                         : 1);
+
+            if (storeProductIcon != null)
+            {
+                storeProductIcon.sprite =
+                    cosmeticStore.SelectedProduct == 0
+                        ? MotorCityIconLibrary.Reward
+                        : MotorCityIconLibrary.Get(
+                            "star");
+
+                storeProductIcon.color =
+                    cosmeticStore.SelectedProduct == 0
+                        ? new Color(
+                            0.50f,
+                            0.72f,
+                            1f,
+                            1f)
+                        : new Color(
+                            1f,
+                            0.58f,
+                            0.16f,
+                            1f);
+            }
         }
 
         private void BuildGarage(Transform canvas)
@@ -8898,18 +9029,7 @@ namespace MotorCity.UI
                     "touch.modal.close",
                     MotorCityInputAction.ToggleNavigator);
 
-            storeTouchControlsRoot =
-                BuildTouchModalRow(
-                    canvas,
-                    "Store Touch Controls",
-                    "touch.modal.prev",
-                    MotorCityInputAction.PreviousVehicle,
-                    "touch.store.buy",
-                    MotorCityInputAction.Interact,
-                    "touch.modal.next",
-                    MotorCityInputAction.NextVehicle,
-                    "touch.modal.close",
-                    MotorCityInputAction.ToggleStore);
+            storeTouchControlsRoot = null;
 
             clubTouchControlsRoot =
                 BuildTouchModalRow(
@@ -8926,7 +9046,7 @@ namespace MotorCity.UI
 
             navigatorTouchControlsRoot.SetActive(
                 false);
-            storeTouchControlsRoot.SetActive(
+            storeTouchControlsRoot?.SetActive(
                 false);
             clubTouchControlsRoot.SetActive(
                 false);
