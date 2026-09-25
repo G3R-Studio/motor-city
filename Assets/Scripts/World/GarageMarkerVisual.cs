@@ -8,6 +8,9 @@ namespace MotorCity.World
     {
         private GarageUpgradeSystem garage;
         private SpriteRenderer marker;
+        private SpriteRenderer markerShadow;
+        private SpriteRenderer markerHighlight;
+        private SpriteRenderer markerGlow;
         private Vector3 baseScale;
         private Camera mainCamera;
         private Transform observer;
@@ -47,9 +50,6 @@ namespace MotorCity.World
                 transform,
                 false);
 
-            marker =
-                visual.AddComponent<SpriteRenderer>();
-
             if (sprite == null)
             {
                 sprite = Sprite.Create(
@@ -65,10 +65,70 @@ namespace MotorCity.World
                     Quaternion.Euler(0f, 0f, 45f);
             }
 
-            marker.sprite = sprite;
-            marker.color =
-                new Color(0.72f, 0.2f, 1f, 1f);
-            marker.sortingOrder = 200;
+            markerGlow =
+                CreateLayer(
+                    visual.transform,
+                    "Garage Marker Glow",
+                    sprite,
+                    new Color(
+                        0.78f,
+                        0.28f,
+                        1f,
+                        0.18f),
+                    new Vector3(
+                        0f,
+                        -0.015f,
+                        0.03f),
+                    1.22f,
+                    197);
+
+            markerShadow =
+                CreateLayer(
+                    visual.transform,
+                    "Garage Marker Shadow",
+                    sprite,
+                    new Color(
+                        0.12f,
+                        0.035f,
+                        0.18f,
+                        0.82f),
+                    new Vector3(
+                        0.045f,
+                        -0.055f,
+                        0.02f),
+                    1.02f,
+                    198);
+
+            marker =
+                CreateLayer(
+                    visual.transform,
+                    "Garage Marker Core",
+                    sprite,
+                    new Color(
+                        0.72f,
+                        0.20f,
+                        1f,
+                        1f),
+                    Vector3.zero,
+                    1f,
+                    200);
+
+            markerHighlight =
+                CreateLayer(
+                    visual.transform,
+                    "Garage Marker Highlight",
+                    sprite,
+                    new Color(
+                        1f,
+                        0.72f,
+                        1f,
+                        0.22f),
+                    new Vector3(
+                        -0.025f,
+                        0.035f,
+                        -0.01f),
+                    0.98f,
+                    201);
 
             float spriteSize =
                 Mathf.Max(
@@ -86,6 +146,52 @@ namespace MotorCity.World
                 visual.transform.localScale;
 
             mainCamera = Camera.main;
+        }
+
+        private static SpriteRenderer CreateLayer(
+            Transform parent,
+            string name,
+            Sprite sprite,
+            Color color,
+            Vector3 localPosition,
+            float scale,
+            int sortingOrder)
+        {
+            GameObject layer =
+                new(name);
+
+            layer.transform.SetParent(
+                parent,
+                false);
+
+            layer.transform.localPosition =
+                localPosition;
+
+            layer.transform.localRotation =
+                Quaternion.identity;
+
+            layer.transform.localScale =
+                Vector3.one * scale;
+
+            SpriteRenderer renderer =
+                layer.AddComponent<SpriteRenderer>();
+
+            renderer.sprite =
+                sprite;
+
+            renderer.color =
+                color;
+
+            renderer.sortingOrder =
+                sortingOrder;
+
+            renderer.shadowCastingMode =
+                UnityEngine.Rendering.ShadowCastingMode.Off;
+
+            renderer.receiveShadows =
+                false;
+
+            return renderer;
         }
 
         private void ResolveObserver()
@@ -151,6 +257,18 @@ namespace MotorCity.World
             marker.enabled =
                 visible;
 
+            if (markerShadow != null)
+                markerShadow.enabled =
+                    visible;
+
+            if (markerHighlight != null)
+                markerHighlight.enabled =
+                    visible;
+
+            if (markerGlow != null)
+                markerGlow.enabled =
+                    visible;
+
             if (!visible)
                 return;
 
@@ -192,10 +310,76 @@ namespace MotorCity.World
                 distanceScale *
                 pulse;
 
+            bool open =
+                garage.IsOpen;
+
             marker.color =
-                garage.IsOpen
-                    ? new Color(0.95f, 0.55f, 1f, 1f)
-                    : new Color(0.72f, 0.2f, 1f, 1f);
+                open
+                    ? new Color(
+                        0.95f,
+                        0.55f,
+                        1f,
+                        1f)
+                    : new Color(
+                        0.72f,
+                        0.20f,
+                        1f,
+                        1f);
+
+            if (markerShadow != null)
+            {
+                markerShadow.color =
+                    open
+                        ? new Color(
+                            0.24f,
+                            0.08f,
+                            0.30f,
+                            0.88f)
+                        : new Color(
+                            0.12f,
+                            0.035f,
+                            0.18f,
+                            0.82f);
+            }
+
+            if (markerHighlight != null)
+            {
+                markerHighlight.color =
+                    open
+                        ? new Color(
+                            1f,
+                            0.86f,
+                            1f,
+                            0.30f)
+                        : new Color(
+                            1f,
+                            0.72f,
+                            1f,
+                            0.22f);
+            }
+
+            if (markerGlow != null)
+            {
+                float glowPulse =
+                    0.16f +
+                    (Mathf.Sin(
+                        Time.time * 3.1f) +
+                     1f) *
+                    0.045f;
+
+                markerGlow.color =
+                    open
+                        ? new Color(
+                            0.98f,
+                            0.55f,
+                            1f,
+                            glowPulse + 0.07f)
+                        : new Color(
+                            0.78f,
+                            0.28f,
+                            1f,
+                            glowPulse);
+            }
         }
     }
 }
