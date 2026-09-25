@@ -557,11 +557,38 @@ namespace MotorCity.Gameplay
             bool preserveAuthoredTransform =
                 profile.Id == "hybrid";
 
+            if (profile.Id == "hybrid")
+            {
+                // Hybrid is a compact Asset Store model, so scale it to a
+                // normal city-car footprint and use a short, well-damped
+                // suspension instead of the bouncy generic setup.
+                car.ApplySuspensionPreset(
+                    0.15f,
+                    42000f,
+                    7600f,
+                    0.44f,
+                    0.42f);
+            }
+            else
+            {
+                car.ApplySuspensionPreset(
+                    0.24f,
+                    36000f,
+                    4400f,
+                    0.50f,
+                    0.30f);
+            }
+
+            float targetLength =
+                profile.Id == "hybrid"
+                    ? 4.45f
+                    : 4.35f;
+
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
                 profile.ResourcePath,
                 false,
-                4.35f,
+                targetLength,
                 false,
                 null,
                 preserveAuthoredTransform);
