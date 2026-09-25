@@ -6899,19 +6899,34 @@ namespace MotorCity.UI
                 CreatePanel(
                     panel,
                     "Vehicle Passport",
-                    new Vector2(28f, -168f),
-                    new Vector2(704f, 258f),
+                    new Vector2(28f, -154f),
+                    new Vector2(704f, 270f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    new Color(
-                        0.065f,
-                        0.058f,
-                        0.11f,
-                        0.99f)).gameObject;
+                    Color.clear).gameObject;
 
             RectTransform passportRect =
                 garagePassportPanel
                     .GetComponent<RectTransform>();
+
+            ApplyGaragePassportTexture(
+                passportRect);
+
+            CreateHudIcon(
+                passportRect,
+                "Passport Vehicle Icon",
+                MotorCityIconLibrary.Get(
+                    "car"),
+                new Vector2(
+                    22f,
+                    -22f),
+                new Vector2(
+                    22f,
+                    22f),
+                new Vector2(
+                    0f,
+                    1f),
+                GarageAccent);
 
             garagePassportTitleText =
                 CreateText(
@@ -6920,8 +6935,8 @@ namespace MotorCity.UI
                     23,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(22f, -18f),
-                    new Vector2(640f, 34f),
+                    new Vector2(54f, -15f),
+                    new Vector2(618f, 32f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     TextColor);
@@ -6930,11 +6945,11 @@ namespace MotorCity.UI
                 CreateText(
                     passportRect,
                     "Passport Summary",
-                    16,
+                    15,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(22f, -66f),
-                    new Vector2(650f, 64f),
+                    new Vector2(24f, -58f),
+                    new Vector2(656f, 54f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Color(0.82f, 0.72f, 1f, 1f));
@@ -6943,11 +6958,11 @@ namespace MotorCity.UI
                 CreateText(
                     passportRect,
                     "Passport Disciplines",
-                    15,
+                    14,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(22f, -132f),
-                    new Vector2(650f, 54f),
+                    new Vector2(24f, -120f),
+                    new Vector2(656f, 44f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
@@ -6956,11 +6971,11 @@ namespace MotorCity.UI
                 CreateText(
                     passportRect,
                     "Passport Mastery",
-                    15,
+                    14,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(22f, -186f),
-                    new Vector2(650f, 28f),
+                    new Vector2(24f, -176f),
+                    new Vector2(656f, 24f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Color(0.52f, 1f, 0.68f, 1f));
@@ -6972,8 +6987,8 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(22f, -220f),
-                    new Vector2(650f, 34f),
+                    new Vector2(24f, -214f),
+                    new Vector2(656f, 30f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     GarageAccent);
@@ -9120,6 +9135,78 @@ namespace MotorCity.UI
                 texture;
 
             return modalButtonSprite;
+        }
+
+        private void ApplyGaragePassportTexture(
+            RectTransform panel)
+        {
+            if (panel == null)
+                return;
+
+            ClearPanelChrome(
+                panel);
+
+            Texture2D texture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.passportPanel;
+
+            if (texture == null)
+                return;
+
+            GameObject backgroundObject =
+                new(
+                    "Ville Passport Background",
+                    typeof(RectTransform),
+                    typeof(RawImage));
+
+            backgroundObject.transform.SetParent(
+                panel,
+                false);
+
+            backgroundObject.transform.SetAsFirstSibling();
+
+            RectTransform rect =
+                backgroundObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                Vector2.zero;
+            rect.anchorMax =
+                Vector2.one;
+            rect.offsetMin =
+                Vector2.zero;
+            rect.offsetMax =
+                Vector2.zero;
+
+            RawImage image =
+                backgroundObject.GetComponent<RawImage>();
+
+            image.texture =
+                texture;
+            image.color =
+                Color.white;
+            image.raycastTarget =
+                false;
+
+            CreateAccent(
+                panel,
+                new Color(
+                    0.52f,
+                    1f,
+                    0.68f,
+                    0.85f),
+                new Vector2(
+                    24f,
+                    -48f),
+                new Vector2(
+                    656f,
+                    2f),
+                new Vector2(
+                    0f,
+                    1f),
+                new Vector2(
+                    0f,
+                    1f));
         }
 
         private void ApplyGarageRowTexture(
