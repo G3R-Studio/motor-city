@@ -7589,7 +7589,8 @@ namespace MotorCity.UI
 
         private void UpdateGarage()
         {
-            if (MotorCityInput.ToggleVehiclePassportPressed)
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.ToggleVehiclePassport))
             {
                 garagePassportOpen =
                     !garagePassportOpen;
