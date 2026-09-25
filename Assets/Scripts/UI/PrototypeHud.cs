@@ -2279,9 +2279,6 @@ namespace MotorCity.UI
         private void BuildPauseTouchActions(
             Transform panel)
         {
-            if (!ShouldUseTouchUi())
-                return;
-
             CreatePauseButton(
                 panel,
                 "Pause Quality Previous",
@@ -2469,10 +2466,6 @@ namespace MotorCity.UI
                     1);
             }
 
-            if (MotorCityInput.CycleBodyColorPressed)
-            {
-                ToggleAudioMute();
-            }
         }
 
         private void ToggleAudioMute()
@@ -8933,15 +8926,16 @@ namespace MotorCity.UI
 
                 SetActiveIfChanged(
                     navigatorTouchControlsRoot,
-                    false);
+                    navigatorMenuOpen);
 
                 SetActiveIfChanged(
                     storeTouchControlsRoot,
-                    false);
+                    storeOpen);
 
                 SetActiveIfChanged(
                     clubTouchControlsRoot,
-                    false);
+                    clubOverlay != null &&
+                    clubOverlay.activeSelf);
 
                 SetActiveIfChanged(
                     garageTouchControlsRoot,
