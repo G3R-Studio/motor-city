@@ -677,23 +677,6 @@ namespace MotorCity.Gameplay
             bool preserveImportedTransform =
                 profile.Id != "street";
 
-            Vector3 visualRotation =
-                profile.Id switch
-                {
-                    // Existing street visual is the AMG GT.
-                    "street" or
-                    "tois08" or
-                    "stuttgart996" or
-                    "toro86" =>
-                        new Vector3(90f, 180f, 0f),
-
-                    "doclorean" =>
-                        new Vector3(90f, -90f, 0f),
-
-                    _ =>
-                        new Vector3(90f, 0f, 0f)
-                };
-
             bool installed =
                 ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                     car,
@@ -701,7 +684,7 @@ namespace MotorCity.Gameplay
                     false,
                     4.35f,
                     false,
-                    visualRotation,
+                    null,
                     preserveImportedTransform);
 
             if (!installed &&
