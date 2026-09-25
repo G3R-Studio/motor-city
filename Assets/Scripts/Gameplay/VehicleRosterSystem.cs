@@ -379,10 +379,14 @@ namespace MotorCity.Gameplay
             if (!IsUnlocked(candidate))
             {
                 status =
-                    MotorCityLocalization.Format(
-                        "vehicle.rep_required",
-                        profile.DisplayName,
-                        profile.RequiredRep);
+                    profile.SupporterOnly
+                        ? MotorCityLocalization.Format(
+                            "vehicle.supporter_required",
+                            profile.DisplayName)
+                        : MotorCityLocalization.Format(
+                            "vehicle.rep_required",
+                            profile.DisplayName,
+                            profile.RequiredRep);
 
                 return false;
             }
@@ -494,10 +498,14 @@ namespace MotorCity.Gameplay
             if (!IsUnlocked(next))
             {
                 return
-                    MotorCityLocalization.Format(
-                        "vehicle.next_rep",
-                        nextProfile.DisplayName,
-                        nextProfile.RequiredRep);
+                    nextProfile.SupporterOnly
+                        ? MotorCityLocalization.Format(
+                            "vehicle.next_supporter",
+                            nextProfile.DisplayName)
+                        : MotorCityLocalization.Format(
+                            "vehicle.next_rep",
+                            nextProfile.DisplayName,
+                            nextProfile.RequiredRep);
             }
 
             return
