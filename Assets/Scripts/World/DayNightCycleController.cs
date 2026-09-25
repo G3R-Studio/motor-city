@@ -690,15 +690,18 @@ namespace MotorCity.World
                 Vector3 glowPosition =
                     sourceLight.transform.position;
 
-                if (isParkLamp)
+                if (isParkLamp &&
+                    sourceLight.transform.parent != null)
                 {
-                    // ParkLamp's authored spot-light sits inside the opaque
-                    // lantern housing. Move only the visible emissive bulb a
-                    // little downward so it appears in the glass/plafond
-                    // instead of being fully occluded by the mesh.
-                    glowPosition +=
-                        sourceLight.transform.forward *
-                        0.20f;
+                    Vector3 localGlowPosition =
+                        sourceLight.transform.localPosition;
+
+                    localGlowPosition.y =
+                        3.3f;
+
+                    glowPosition =
+                        sourceLight.transform.parent.TransformPoint(
+                            localGlowPosition);
                 }
 
                 streetLampAnchors.Add(
@@ -944,7 +947,7 @@ namespace MotorCity.World
                     glow.transform.localScale =
                         Vector3.one *
                         (candidate.IsParkLamp
-                            ? 0.31f
+                            ? 0.47f
                             : 0.19f);
                 }
 
