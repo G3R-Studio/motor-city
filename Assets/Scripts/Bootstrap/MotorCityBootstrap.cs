@@ -404,8 +404,7 @@ namespace MotorCity.Bootstrap
                 systems.AddComponent<CosmeticStoreSystem>();
 
             cosmeticStore.Initialize(
-                turbo,
-                season);
+                turbo);
 
             LeaderboardSyncSystem leaderboardSync =
                 systems.AddComponent<LeaderboardSyncSystem>();
