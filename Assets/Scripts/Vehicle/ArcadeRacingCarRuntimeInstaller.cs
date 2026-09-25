@@ -176,7 +176,15 @@ namespace MotorCity.Vehicle
                     visual.transform.localRotation;
             }
 
-            if (!preserveAuthoredTransform)
+            if (preserveAuthoredTransform)
+            {
+                // Keep the prefab hierarchy and orientation, but normalize
+                // overall vehicle size so imported visuals match city traffic.
+                NormalizeScaleOnly(
+                    visual.transform,
+                    targetLength);
+            }
+            else
             {
                 if (rotateLeft90)
                 {
