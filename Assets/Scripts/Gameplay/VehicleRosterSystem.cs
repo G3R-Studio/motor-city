@@ -152,9 +152,6 @@ namespace MotorCity.Gameplay
             profiles =
                 new[]
                 {
-                    // Clean baseline: the authored street car is the only
-                    // gameplay vehicle. Imported FBX cars remain source assets
-                    // only and are not connected to physics or runtime rigs.
                     new VehicleProfile(
                         "street",
                         MotorCityLocalization.Text("vehicle.street.name"),
@@ -170,7 +167,26 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.street.desc"))
+                        MotorCityLocalization.Text("vehicle.street.desc")),
+
+                    // Temporary clean test vehicle. Uses the authored Asset
+                    // Store hierarchy and only borrows PlayerCar physics.
+                    new VehicleProfile(
+                        "hybrid",
+                        MotorCityLocalization.Text("vehicle.hybrid.name"),
+                        "MotorCity/Vehicles/Player/Hybrid",
+                        0,
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.hybrid.desc"))
                 };
 
             MigrateLegacyOwnership();
@@ -538,10 +554,17 @@ namespace MotorCity.Gameplay
             VehicleProfile profile =
                 profiles[SelectedIndex];
 
+            bool preserveAuthoredTransform =
+                profile.Id == "hybrid";
+
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
                 profile.ResourcePath,
-                false);
+                false,
+                4.35f,
+                false,
+                null,
+                preserveAuthoredTransform);
 
             car.ApplyVehicleProfile(
                 profile.SpeedBonus,
