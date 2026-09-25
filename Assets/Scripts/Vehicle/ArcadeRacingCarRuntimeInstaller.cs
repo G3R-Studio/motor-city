@@ -168,16 +168,16 @@ namespace MotorCity.Vehicle
 
             StripImportedPhysics(visual);
 
+            if (visualEulerCorrection.HasValue)
+            {
+                visual.transform.localRotation =
+                    Quaternion.Euler(
+                        visualEulerCorrection.Value) *
+                    visual.transform.localRotation;
+            }
+
             if (!preserveAuthoredTransform)
             {
-                if (visualEulerCorrection.HasValue)
-                {
-                    visual.transform.localRotation =
-                        Quaternion.Euler(
-                            visualEulerCorrection.Value) *
-                        visual.transform.localRotation;
-                }
-
                 if (rotateLeft90)
                 {
                     NormalizeScaleOnly(
