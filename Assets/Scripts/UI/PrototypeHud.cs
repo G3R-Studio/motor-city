@@ -160,6 +160,12 @@ namespace MotorCity.UI
         private GameObject resultTouchControlsRoot;
         private GameObject resultRetryTouchButton;
         private GameObject clubOverlay;
+        private GameObject storeOverlay;
+        private Text storeNameText;
+        private Text storeDescriptionText;
+        private Text storePathText;
+        private Text storeOwnershipText;
+        private Text storeWalletText;
         private Text clubEmblemText;
         private Text clubNameText;
         private Text clubDescriptionText;
@@ -716,37 +722,20 @@ namespace MotorCity.UI
                 SetActiveIfChanged(
                     driftPanel,
                     false);
-                statusPanel.SetActive(true);
-                statusText.text =
-                    MotorCityLocalization.Format(
-                        "store.status",
-                        MotorCityLocalization.Text(
-                            "store.title") +
-                        " • " +
-                        cosmeticStore.SelectedName +
-                        "   •   " +
-                        MotorCityLocalization.Format(
-                            "common.credits",
-                            wallet != null
-                                ? wallet.Credits
-                                : 0) +
-                        "   •   " +
-                        MotorCityLocalization.Format(
-                            "hud.rep",
-                            activityManager != null
-                                ? activityManager.TotalReputation
-                                : 0,
-                            activityManager != null
-                                ? activityManager.ReputationLevel
-                                : 1),
-                        cosmeticStore.SelectedDescription,
-                        cosmeticStore.SeasonPathLine +
-                        " • " +
-                        cosmeticStore.SelectedOwnershipLine,
-                        MotorCityLocalization.Text(
-                            "store.controls"));
+                SetActiveIfChanged(
+                    statusPanel,
+                    false);
+                SetActiveIfChanged(
+                    storeOverlay,
+                    true);
+
+                UpdateStoreOverlay();
                 return;
             }
+
+            SetActiveIfChanged(
+                storeOverlay,
+                false);
 
             UpdateNotificationQueue();
 
@@ -909,6 +898,10 @@ namespace MotorCity.UI
                 storeOpen =
                     opening;
 
+                SetActiveIfChanged(
+                    storeOverlay,
+                    storeOpen);
+
                 if (storeOpen)
                 {
                     CloseNavigatorMenuVisualOnly();
@@ -918,6 +911,8 @@ namespace MotorCity.UI
                         clubOverlay.SetActive(
                             false);
                     }
+
+                    UpdateStoreOverlay();
                 }
 
                 RefreshDrivingEnabledForUi();
@@ -931,6 +926,10 @@ namespace MotorCity.UI
                 storeOpen =
                     false;
 
+                SetActiveIfChanged(
+                    storeOverlay,
+                    false);
+
                 RefreshDrivingEnabledForUi();
                 return;
             }
@@ -939,12 +938,16 @@ namespace MotorCity.UI
             {
                 cosmeticStore.CycleProduct(
                     -1);
+
+                UpdateStoreOverlay();
             }
 
             if (MotorCityInput.NextVehiclePressed)
             {
                 cosmeticStore.CycleProduct(
                     1);
+
+                UpdateStoreOverlay();
             }
 
             if (MotorCityInput.InteractPressed)
@@ -1015,12 +1018,12 @@ namespace MotorCity.UI
                     "Navigator Title",
                     27,
                     FontStyle.Bold,
-                    TextAnchor.UpperCenter,
+                    TextAnchor.UpperLeft,
                     new Vector2(
-                        0f,
-                        -24f),
+                        28f,
+                        -25f),
                     new Vector2(
-                        470f,
+                        420f,
                         42f),
                     new Vector2(
                         0.5f,
@@ -2087,6 +2090,7 @@ namespace MotorCity.UI
             BuildResultTouchControls(safeAreaRoot);
             BuildGarage(safeAreaRoot);
             BuildClubOverlay(safeAreaRoot);
+            BuildStoreOverlay(safeAreaRoot);
             BuildTouchControls(safeAreaRoot);
             BuildTouchUtilityControls(safeAreaRoot);
             BuildTouchActivityCancelControl(safeAreaRoot);
@@ -2097,6 +2101,7 @@ namespace MotorCity.UI
             activityResultOverlay.SetActive(false);
             garageOverlay.SetActive(false);
             clubOverlay.SetActive(false);
+            storeOverlay.SetActive(false);
             navigatorMenuOverlay.SetActive(false);
             pauseOverlay.SetActive(false);
 
@@ -2155,8 +2160,8 @@ namespace MotorCity.UI
                     "Pause Panel",
                     Vector2.zero,
                     new Vector2(
-                        520f,
-                        330f),
+                        540f,
+                        370f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -2193,18 +2198,55 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     "pause.title");
 
+            CreateHudIcon(
+                panel,
+                "Pause Header Icon",
+                MotorCityIconLibrary.Pause,
+                new Vector2(-224f, -31f),
+                new Vector2(28f, 28f),
+                new Vector2(0.5f, 1f),
+                TextColor);
+
+            RectTransform qualityCard =
+                CreatePanel(
+                    panel,
+                    "Pause Quality Card",
+                    new Vector2(0f, 42f),
+                    new Vector2(450f, 58f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        PanelSoftColor.r,
+                        PanelSoftColor.g,
+                        PanelSoftColor.b,
+                        0.76f));
+
+            RectTransform audioCard =
+                CreatePanel(
+                    panel,
+                    "Pause Audio Card",
+                    new Vector2(0f, -28f),
+                    new Vector2(450f, 58f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        PanelSoftColor.r,
+                        PanelSoftColor.g,
+                        PanelSoftColor.b,
+                        0.76f));
+
             pauseQualityText =
                 CreateText(
-                    panel,
+                    qualityCard,
                     "Pause Quality",
                     18,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
+                    TextAnchor.MiddleLeft,
                     new Vector2(
-                        0f,
-                        45f),
+                        18f,
+                        0f),
                     new Vector2(
-                        460f,
+                        410f,
                         42f),
                     new Vector2(
                         0.5f,
@@ -2216,16 +2258,16 @@ namespace MotorCity.UI
 
             pauseAudioText =
                 CreateText(
-                    panel,
+                    audioCard,
                     "Pause Audio",
                     18,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
+                    TextAnchor.MiddleLeft,
                     new Vector2(
-                        0f,
+                        18f,
                         0f),
                     new Vector2(
-                        460f,
+                        410f,
                         42f),
                     new Vector2(
                         0.5f,
@@ -2234,33 +2276,6 @@ namespace MotorCity.UI
                         0.5f,
                         0.5f),
                     TextColor);
-
-            Text controls =
-                CreateText(
-                    panel,
-                    "Pause Controls",
-                    14,
-                    FontStyle.Bold,
-                    TextAnchor.LowerCenter,
-                    new Vector2(
-                        0f,
-                        22f),
-                    new Vector2(
-                        470f,
-                        34f),
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    SecondaryTextColor);
-
-            controls.text =
-                MotorCityLocalization.Text(
-                    ShouldUseTouchUi()
-                        ? "pause.controls_touch"
-                        : "pause.controls");
 
             BuildPauseTouchActions(
                 panel);
@@ -2275,7 +2290,7 @@ namespace MotorCity.UI
                 panel,
                 "Pause Quality Previous",
                 "touch.modal.prev",
-                new Vector2(-165f, -70f),
+                new Vector2(-168f, -116f),
                 new Vector2(96f, 44f),
                 () =>
                     CycleQuality(-1));
@@ -2284,7 +2299,7 @@ namespace MotorCity.UI
                 panel,
                 "Pause Audio Toggle",
                 "pause.audio_touch",
-                new Vector2(-55f, -70f),
+                new Vector2(-56f, -116f),
                 new Vector2(112f, 44f),
                 () =>
                 {
@@ -2295,7 +2310,7 @@ namespace MotorCity.UI
                 panel,
                 "Pause Quality Next",
                 "touch.modal.next",
-                new Vector2(65f, -70f),
+                new Vector2(64f, -116f),
                 new Vector2(96f, 44f),
                 () =>
                     CycleQuality(1));
@@ -2304,7 +2319,7 @@ namespace MotorCity.UI
                 panel,
                 "Pause Resume",
                 "pause.resume",
-                new Vector2(175f, -70f),
+                new Vector2(182f, -116f),
                 new Vector2(112f, 44f),
                 ClosePauseMenu);
         }
@@ -6359,26 +6374,7 @@ namespace MotorCity.UI
                         1f,
                         1f));
 
-            clubControlsText =
-                CreateText(
-                    panel,
-                    "Club Controls",
-                    13,
-                    FontStyle.Bold,
-                    TextAnchor.LowerCenter,
-                    new Vector2(
-                        0f,
-                        18f),
-                    new Vector2(
-                        500f,
-                        28f),
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    SecondaryTextColor);
+            clubControlsText = null;
         }
 
         private void HandleClubInput()
@@ -6484,11 +6480,196 @@ namespace MotorCity.UI
                     : MotorCityLocalization.Text(
                         "club.join_prompt");
 
-            clubControlsText.text =
+            // Navigation/join actions are represented by the buttons below.
+
+        }
+
+        private void BuildStoreOverlay(
+            Transform canvas)
+        {
+            storeOverlay =
+                new GameObject(
+                    "Store Overlay",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            storeOverlay.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform overlay =
+                storeOverlay.GetComponent<RectTransform>();
+
+            overlay.anchorMin = Vector2.zero;
+            overlay.anchorMax = Vector2.one;
+            overlay.offsetMin = Vector2.zero;
+            overlay.offsetMax = Vector2.zero;
+
+            Image backdrop =
+                storeOverlay.GetComponent<Image>();
+
+            backdrop.color =
+                new Color(
+                    0.005f,
+                    0.008f,
+                    0.014f,
+                    0.78f);
+
+            backdrop.raycastTarget =
+                false;
+
+            RectTransform panel =
+                CreatePanel(
+                    storeOverlay.transform,
+                    "Store Panel",
+                    Vector2.zero,
+                    new Vector2(620f, 390f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    Color.clear);
+
+            ApplyModalPanelTexture(
+                panel);
+
+            CreateHudIcon(
+                panel,
+                "Store Header Icon",
+                MotorCityIconLibrary.Store,
+                new Vector2(-244f, -31f),
+                new Vector2(28f, 28f),
+                new Vector2(0.5f, 1f),
+                TextColor);
+
+            Text title =
+                CreateText(
+                    panel,
+                    "Store Title",
+                    25,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(-212f, -24f),
+                    new Vector2(430f, 38f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    TextColor);
+
+            title.text =
                 MotorCityLocalization.Text(
-                    club.HasClub
-                        ? "club.controls_member"
-                        : "club.controls_join");
+                    "store.title");
+
+            storeWalletText =
+                CreateText(
+                    panel,
+                    "Store Wallet",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.UpperRight,
+                    new Vector2(0f, -29f),
+                    new Vector2(270f, 30f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    SecondaryTextColor);
+
+            RectTransform productCard =
+                CreatePanel(
+                    panel,
+                    "Store Product Card",
+                    new Vector2(0f, -15f),
+                    new Vector2(540f, 228f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        PanelSoftColor.r,
+                        PanelSoftColor.g,
+                        PanelSoftColor.b,
+                        0.78f));
+
+            storeNameText =
+                CreateText(
+                    productCard,
+                    "Store Product Name",
+                    22,
+                    FontStyle.Bold,
+                    TextAnchor.UpperCenter,
+                    new Vector2(0f, -22f),
+                    new Vector2(480f, 34f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    TextColor);
+
+            storeDescriptionText =
+                CreateText(
+                    productCard,
+                    "Store Product Description",
+                    15,
+                    FontStyle.Normal,
+                    TextAnchor.UpperCenter,
+                    new Vector2(0f, -68f),
+                    new Vector2(460f, 64f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    SecondaryTextColor);
+
+            storePathText =
+                CreateText(
+                    productCard,
+                    "Store Season Path",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -23f),
+                    new Vector2(470f, 36f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(0.24f, 0.88f, 1f, 1f));
+
+            storeOwnershipText =
+                CreateText(
+                    productCard,
+                    "Store Ownership",
+                    16,
+                    FontStyle.Bold,
+                    TextAnchor.LowerCenter,
+                    new Vector2(0f, 24f),
+                    new Vector2(470f, 34f),
+                    new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f),
+                    DriftAccent);
+        }
+
+        private void UpdateStoreOverlay()
+        {
+            if (cosmeticStore == null ||
+                storeOverlay == null ||
+                !storeOpen)
+            {
+                return;
+            }
+
+            storeNameText.text =
+                cosmeticStore.SelectedName;
+
+            storeDescriptionText.text =
+                cosmeticStore.SelectedDescription;
+
+            storePathText.text =
+                cosmeticStore.SeasonPathLine;
+
+            storeOwnershipText.text =
+                cosmeticStore.SelectedOwnershipLine;
+
+            storeWalletText.text =
+                MotorCityLocalization.Format(
+                    "store.wallet",
+                    wallet != null
+                        ? wallet.Credits
+                        : 0,
+                    activityManager != null
+                        ? activityManager.TotalReputation
+                        : 0,
+                    activityManager != null
+                        ? activityManager.ReputationLevel
+                        : 1);
         }
 
         private void BuildGarage(Transform canvas)
