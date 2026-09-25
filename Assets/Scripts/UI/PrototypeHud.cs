@@ -4189,7 +4189,7 @@ namespace MotorCity.UI
                     MotorCityIconLibrary.Reward,
                     new Vector2(
                         22f,
-                        -2f),
+                        0f),
                     new Vector2(
                         24f,
                         24f),
@@ -4205,7 +4205,7 @@ namespace MotorCity.UI
                     16,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(54f, -2f),
+                    new Vector2(54f, 1f),
                     new Vector2(482f, 30f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
@@ -5551,7 +5551,7 @@ namespace MotorCity.UI
                     20,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -2f),
+                    new Vector2(0f, 1f),
                     new Vector2(268f, 32f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
