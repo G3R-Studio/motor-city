@@ -304,6 +304,12 @@ namespace MotorCity.UI
         public static Sprite Add =>
             ForSystem(SystemIcon.Add);
 
+        public static Sprite Pause =>
+            Get("pause");
+
+        public static Sprite More =>
+            Get("menu_grid");
+
         public static Sprite ForWorldMarker(
             string markerId)
         {
