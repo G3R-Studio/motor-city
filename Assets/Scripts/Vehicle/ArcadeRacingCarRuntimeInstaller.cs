@@ -417,6 +417,7 @@ namespace MotorCity.Vehicle
             {
                 if (rotateLeft90 ||
                     useAuthoredBusRig ||
+                    preserveAuthoredTransform ||
                     targetLength >
                     TargetLength + 0.1f)
                 {
@@ -435,7 +436,8 @@ namespace MotorCity.Vehicle
 
             bool needsExternalWheelSync =
                 rotateLeft90 ||
-                useAuthoredBusRig;
+                useAuthoredBusRig ||
+                preserveAuthoredTransform;
 
             bool usePhysicsProxyMeshes =
                 needsExternalWheelSync ||
