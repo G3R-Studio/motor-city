@@ -168,6 +168,8 @@ namespace MotorCity.UI
         private RectTransform safeAreaRoot;
         private GameObject touchControlsRoot;
         private GameObject touchUtilityRoot;
+        private GameObject hudQuickMenuRoot;
+        private bool hudQuickMenuOpen;
         private GameObject touchActivityCancelRoot;
         private GameObject touchPauseRoot;
         private GameObject navigatorTouchControlsRoot;
@@ -2415,6 +2417,12 @@ namespace MotorCity.UI
                 false);
 
             touchUtilityRoot?.SetActive(
+                false);
+
+            hudQuickMenuOpen =
+                false;
+
+            hudQuickMenuRoot?.SetActive(
                 false);
 
             touchActivityCancelRoot?.SetActive(
@@ -7445,8 +7453,20 @@ namespace MotorCity.UI
 
             button.onClick.AddListener(
                 () =>
+                {
                     MotorCityInput.PulseVirtual(
-                        action));
+                        action);
+
+                    if (hudQuickMenuRoot != null &&
+                        parent == hudQuickMenuRoot.transform)
+                    {
+                        hudQuickMenuOpen =
+                            false;
+
+                        hudQuickMenuRoot.SetActive(
+                            false);
+                    }
+                });
 
             Sprite actionIcon =
                 TouchActionIcon(
@@ -8221,84 +8241,147 @@ namespace MotorCity.UI
             RectTransform root =
                 touchUtilityRoot.GetComponent<RectTransform>();
 
+            // Full safe-area overlay: individual controls can live near the
+            // speedometer and screen edge without creating a toolbar across
+            // the middle of the HUD.
             root.anchorMin =
-                new Vector2(0.5f, 1f);
+                Vector2.zero;
             root.anchorMax =
-                new Vector2(0.5f, 1f);
+                Vector2.one;
             root.pivot =
-                new Vector2(0.5f, 1f);
+                new Vector2(0.5f, 0.5f);
             root.anchoredPosition =
-                new Vector2(0f, -18f);
+                Vector2.zero;
             root.sizeDelta =
-                new Vector2(720f, 82f);
+                Vector2.zero;
 
-            const float buttonWidth =
-                96f;
-
-            const float buttonHeight =
-                34f;
-
-            const float gap =
-                6f;
-
-            float startX =
-                -306f;
-
+            // Driving mode is the only always-visible gameplay utility.
+            // Keep it next to the speedometer so the top-centre remains free
+            // for dialogue, mission notifications and XP feedback.
             CreateLocalizedTouchPulseButton(
                 root,
                 "HUD Drive Mode",
                 "touch.utility.mode",
                 MotorCityInputAction.CycleDriveMode,
-                new Vector2(startX, -18f),
-                new Vector2(buttonWidth, buttonHeight));
+                new Vector2(166f, 38f),
+                new Vector2(92f, 36f));
 
-            CreateLocalizedTouchPulseButton(
+            GameObject railObject =
+                new(
+                    "HUD Utility Rail",
+                    typeof(RectTransform));
+
+            railObject.transform.SetParent(
                 root,
-                "HUD Rescue",
-                "touch.utility.rescue",
-                MotorCityInputAction.Rescue,
-                new Vector2(startX + (buttonWidth + gap), -18f),
-                new Vector2(buttonWidth, buttonHeight));
+                false);
+
+            RectTransform rail =
+                railObject.GetComponent<RectTransform>();
+
+            rail.anchorMin =
+                new Vector2(1f, 1f);
+            rail.anchorMax =
+                new Vector2(1f, 1f);
+            rail.pivot =
+                new Vector2(1f, 1f);
+            rail.anchoredPosition =
+                new Vector2(-18f, -250f);
+            rail.sizeDelta =
+                new Vector2(104f, 132f);
 
             CreatePauseButton(
-                root,
+                rail,
                 "HUD Pause",
                 "touch.utility.pause",
-                new Vector2(startX + (buttonWidth + gap) * 2f, -18f),
-                new Vector2(buttonWidth, buttonHeight),
+                new Vector2(0f, 44f),
+                new Vector2(96f, 34f),
                 OpenPauseMenu);
 
             CreateLocalizedTouchPulseButton(
-                root,
-                "HUD Store",
-                "touch.utility.store",
-                MotorCityInputAction.ToggleStore,
-                new Vector2(startX + (buttonWidth + gap) * 3f, -18f),
-                new Vector2(buttonWidth, buttonHeight));
-
-            CreateLocalizedTouchPulseButton(
-                root,
-                "HUD Club",
-                "touch.utility.club",
-                MotorCityInputAction.ToggleClub,
-                new Vector2(startX + (buttonWidth + gap) * 4f, -18f),
-                new Vector2(buttonWidth, buttonHeight));
-
-            CreateLocalizedTouchPulseButton(
-                root,
-                "HUD Bonus",
-                "touch.utility.bonus",
-                MotorCityInputAction.RewardedBonus,
-                new Vector2(startX + (buttonWidth + gap) * 5f, -18f),
-                new Vector2(buttonWidth, buttonHeight));
-
-            CreateLocalizedTouchPulseButton(
-                root,
+                rail,
                 "HUD Photo",
                 "touch.utility.photo",
                 MotorCityInputAction.TakePhoto,
-                new Vector2(startX + (buttonWidth + gap) * 6f, -18f),
-                new Vector2(buttonWidth, buttonHeight));
+                new Vector2(0f, 0f),
+                new Vector2(96f, 34f));
+
+            CreatePauseButton(
+                rail,
+                "HUD More",
+                "touch.utility.more",
+                new Vector2(0f, -44f),
+                new Vector2(96f, 34f),
+                ToggleHudQuickMenu);
+
+            hudQuickMenuRoot =
+                new GameObject(
+                    "HUD Secondary Actions",
+                    typeof(RectTransform));
+
+            hudQuickMenuRoot.transform.SetParent(
+                root,
+                false);
+
+            RectTransform menu =
+                hudQuickMenuRoot.GetComponent<RectTransform>();
+
+            menu.anchorMin =
+                new Vector2(1f, 1f);
+            menu.anchorMax =
+                new Vector2(1f, 1f);
+            menu.pivot =
+                new Vector2(1f, 1f);
+            menu.anchoredPosition =
+                new Vector2(-128f, -250f);
+            menu.sizeDelta =
+                new Vector2(116f, 166f);
+
+            CreateLocalizedTouchPulseButton(
+                menu,
+                "HUD Rescue",
+                "touch.utility.rescue",
+                MotorCityInputAction.Rescue,
+                new Vector2(0f, 18f),
+                new Vector2(108f, 34f));
+
+            CreateLocalizedTouchPulseButton(
+                menu,
+                "HUD Store",
+                "touch.utility.store",
+                MotorCityInputAction.ToggleStore,
+                new Vector2(0f, 58f),
+                new Vector2(108f, 34f));
+
+            CreateLocalizedTouchPulseButton(
+                menu,
+                "HUD Club",
+                "touch.utility.club",
+                MotorCityInputAction.ToggleClub,
+                new Vector2(0f, 98f),
+                new Vector2(108f, 34f));
+
+            CreateLocalizedTouchPulseButton(
+                menu,
+                "HUD Bonus",
+                "touch.utility.bonus",
+                MotorCityInputAction.RewardedBonus,
+                new Vector2(0f, 138f),
+                new Vector2(108f, 34f));
+
+            hudQuickMenuOpen =
+                false;
+
+            hudQuickMenuRoot.SetActive(
+                false);
+        }
+
+        private void ToggleHudQuickMenu()
+        {
+            hudQuickMenuOpen =
+                !hudQuickMenuOpen;
+
+            hudQuickMenuRoot?.SetActive(
+                hudQuickMenuOpen);
         }
 
         private void BuildTouchPauseControl(
