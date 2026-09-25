@@ -747,7 +747,7 @@ namespace MotorCity.Localization
                 { "store.supporter.desc", E("Постоянный набор для тех, кто хочет поддержать игру. Сразу начисляет 5 000 кредитов на аккаунт.", "A permanent pack for players who want to support the game. Grants 5,000 credits immediately.") },
                 { "store.supporter.details", E("5 000 КРЕДИТОВ • ПОКУПКА НАВСЕГДА", "5,000 CREDITS • PERMANENT PURCHASE") },
                 { "store.pixie_kisora.name", E("ПИКСИ: КИСОРА", "PIXIE: KISORA") },
-                { "store.pixie_kisora.desc", E("Эксклюзивный облик Пикси на основе Amane Kisora-chan. После покупки новый персонаж-компаньон включается автоматически.", "An exclusive Pixie appearance based on Amane Kisora-chan. The new companion appearance activates automatically after purchase.") },
+                { "store.pixie_kisora.desc", E("Эксклюзивный облик Пикси. После покупки новый персонаж-компаньон включается автоматически.", "An exclusive Pixie appearance. The new companion appearance activates automatically after purchase.") },
                 { "store.pixie_kisora.details", E("ЭКСКЛЮЗИВНЫЙ ПЕРСОНАЖ • АНИМАЦИИ • БЕЗ ИГРОВЫХ ПРЕИМУЩЕСТВ", "EXCLUSIVE CHARACTER • ANIMATIONS • NO GAMEPLAY ADVANTAGE") },
                 { "store.owned", E("УЖЕ КУПЛЕНО", "OWNED") },
                 { "store.buy", E("КУПИТЬ", "BUY") },
