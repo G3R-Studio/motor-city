@@ -11,6 +11,12 @@ namespace MotorCity.Vehicle
         private readonly Transform[] visualRoots =
             new Transform[4];
 
+        private readonly Vector3[] visualPositionOffsets =
+            new Vector3[4];
+
+        private readonly Quaternion[] visualRotationOffsets =
+            new Quaternion[4];
+
         private readonly Transform[] additionalVisualRoots =
             new Transform[2];
 
@@ -34,6 +40,8 @@ namespace MotorCity.Vehicle
             {
                 wheels[i] = null;
                 visualRoots[i] = null;
+                visualPositionOffsets[i] = Vector3.zero;
+                visualRotationOffsets[i] = Quaternion.identity;
             }
 
             for (int i = 0;
@@ -69,6 +77,25 @@ namespace MotorCity.Vehicle
 
                 visualRoots[i] =
                     roots[i];
+
+                if (wheels[i] != null &&
+                    visualRoots[i] != null)
+                {
+                    wheels[i].GetWorldPose(
+                        out Vector3 posePosition,
+                        out Quaternion poseRotation);
+
+                    visualPositionOffsets[i] =
+                        Quaternion.Inverse(
+                            poseRotation) *
+                        (visualRoots[i].position -
+                         posePosition);
+
+                    visualRotationOffsets[i] =
+                        Quaternion.Inverse(
+                            poseRotation) *
+                        visualRoots[i].rotation;
+                }
             }
 
             ready =
@@ -142,8 +169,11 @@ namespace MotorCity.Vehicle
                     out Quaternion rotation);
 
                 visual.SetPositionAndRotation(
-                    position,
-                    rotation);
+                    position +
+                    rotation *
+                    visualPositionOffsets[i],
+                    rotation *
+                    visualRotationOffsets[i]);
             }
 
             for (int i = 0;
