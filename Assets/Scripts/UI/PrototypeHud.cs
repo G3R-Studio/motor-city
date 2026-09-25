@@ -7062,18 +7062,17 @@ namespace MotorCity.UI
             {
                 MotorCityInputAction.PreviousVehicle,
                 MotorCityInputAction.NextVehicle,
-                MotorCityInputAction.BuyVehicle,
                 MotorCityInputAction.Upgrade1,
                 MotorCityInputAction.Upgrade2,
                 MotorCityInputAction.Upgrade3,
-
                 MotorCityInputAction.CycleBodyColor,
+
                 MotorCityInputAction.CycleWheels,
                 MotorCityInputAction.CycleNeon,
                 MotorCityInputAction.Count,
                 MotorCityInputAction.Count,
-
                 MotorCityInputAction.Count,
+
                 MotorCityInputAction.SaveCustomizationPreset,
                 MotorCityInputAction.LoadCustomizationPreset,
                 MotorCityInputAction.TakePhoto,
@@ -7085,18 +7084,17 @@ namespace MotorCity.UI
             {
                 "touch.garage.prev",
                 "touch.garage.next",
-                "touch.garage.buy",
                 "touch.garage.engine",
                 "touch.garage.grip",
                 "touch.garage.stability",
-
                 "touch.garage.color",
+
                 "touch.garage.wheels",
                 "touch.garage.neon",
                 "touch.garage.preset1",
                 "touch.garage.preset2",
-
                 "touch.garage.preset3",
+
                 "touch.garage.save",
                 "touch.garage.load",
                 "touch.utility.photo",
@@ -7107,8 +7105,8 @@ namespace MotorCity.UI
             int[] presetSlots =
             {
                 -1, -1, -1, -1, -1, -1,
-                -1, -1, -1, 0, 1,
-                2, -1, -1, -1, -1, -1
+                -1, -1, 0, 1, 2,
+                -1, -1, -1, -1, -1
             };
 
             const float buttonWidth = 111f;
@@ -7666,26 +7664,6 @@ namespace MotorCity.UI
                             0.24f,
                             1f);
                 }
-                else if (garage.HasNextVehicle &&
-                         !garage.NextVehicleOwned)
-                {
-                    stateSprite =
-                        MotorCityIconLibrary.Credits;
-
-                    stateColor =
-                        garage.CanAffordNextVehicle
-                            ? new Color(
-                                1f,
-                                0.78f,
-                                0.20f,
-                                1f)
-                            : new Color(
-                                1f,
-                                0.42f,
-                                0.28f,
-                                1f);
-                }
-
                 garageVehicleStateIcon.sprite =
                     stateSprite;
 
