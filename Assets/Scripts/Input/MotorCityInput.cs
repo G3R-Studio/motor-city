@@ -159,15 +159,12 @@ namespace MotorCity.Input
             VirtualPressed(MotorCityInputAction.ToggleVehiclePassport);
 
         public static bool ToggleClubPressed =>
-            KeyPressed(Key.U) ||
             VirtualPressed(MotorCityInputAction.ToggleClub);
 
         public static bool RewardedBonusPressed =>
-            KeyPressed(Key.Y) ||
             VirtualPressed(MotorCityInputAction.RewardedBonus);
 
         public static bool ToggleStorePressed =>
-            KeyPressed(Key.T) ||
             VirtualPressed(MotorCityInputAction.ToggleStore);
 
         public static bool ToggleNavigatorPressed =>
@@ -181,8 +178,6 @@ namespace MotorCity.Input
                 MotorCityInputAction.CycleDriveMode);
 
         public static bool RescuePressed =>
-            KeyPressed(
-                Key.R) ||
             VirtualPressed(
                 MotorCityInputAction.Rescue);
 
