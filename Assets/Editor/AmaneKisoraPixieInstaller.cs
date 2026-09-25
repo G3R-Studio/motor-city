@@ -12,6 +12,12 @@ namespace MotorCity.Editor
         private const string SourceController =
             "Assets/SapphiArt/SapphiArtchan/Animation/SapphiArtchanAnimController.controller";
 
+        private const string RunningClip =
+            "Assets/SapphiArt/SapphiArtchan/Animation/running.anim";
+
+        private const string IdleClip =
+            "Assets/SapphiArt/SapphiArtchan/Animation/idle.anim";
+
         private const string OutputFolder =
             "Assets/Resources/MotorCity/Pixie";
 
@@ -36,6 +42,11 @@ namespace MotorCity.Editor
                 return;
             }
 
+            ConfigureLoopingClip(
+                RunningClip);
+            ConfigureLoopingClip(
+                IdleClip);
+
             if (AssetDatabase.LoadAssetAtPath<GameObject>(
                     OutputPrefab) != null)
             {
@@ -54,9 +65,44 @@ namespace MotorCity.Editor
                 true);
         }
 
+        private static void ConfigureLoopingClip(
+            string assetPath)
+        {
+            AnimationClip clip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    assetPath);
+
+            if (clip == null)
+                return;
+
+            AnimationClipSettings settings =
+                AnimationUtility.GetAnimationClipSettings(
+                    clip);
+
+            if (settings.loopTime)
+                return;
+
+            settings.loopTime =
+                true;
+
+            AnimationUtility.SetAnimationClipSettings(
+                clip,
+                settings);
+
+            EditorUtility.SetDirty(
+                clip);
+
+            AssetDatabase.SaveAssets();
+        }
+
         private static void InstallInternal(
             bool showDialogs)
         {
+            ConfigureLoopingClip(
+                RunningClip);
+            ConfigureLoopingClip(
+                IdleClip);
+
             GameObject source =
                 AssetDatabase.LoadAssetAtPath<GameObject>(
                     SourceModel);
