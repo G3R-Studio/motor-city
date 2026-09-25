@@ -538,6 +538,54 @@ namespace MotorCity.Vehicle
             ApplyPowerAssist();
         }
 
+        public void ApplySuspensionPreset(
+            float distance,
+            float spring,
+            float damper,
+            float targetPosition,
+            float dampingRate)
+        {
+            suspensionDistance =
+                Mathf.Clamp(
+                    distance,
+                    0.08f,
+                    0.35f);
+
+            suspensionSpring =
+                Mathf.Clamp(
+                    spring,
+                    18000f,
+                    70000f);
+
+            suspensionDamper =
+                Mathf.Clamp(
+                    damper,
+                    2500f,
+                    12000f);
+
+            suspensionTargetPosition =
+                Mathf.Clamp01(
+                    targetPosition);
+
+            wheelDampingRate =
+                Mathf.Clamp(
+                    dampingRate,
+                    0.1f,
+                    1.5f);
+
+            activeSuspensionDistance =
+                suspensionDistance;
+
+            activeSuspensionSpring =
+                suspensionSpring;
+
+            activeSuspensionDamper =
+                suspensionDamper;
+
+            activeSuspensionTargetPosition =
+                suspensionTargetPosition;
+        }
+
         public void ConfigurePrometeoRig(
             Transform[] visualWheelRoots,
             Vector3[] wheelCentersLocal,
