@@ -724,8 +724,11 @@ namespace MotorCity.Gameplay
                     externalVisual.GetComponentInChildren<Animator>(
                         true);
 
+                // Both the default HAON companion and Kisora are authored
+                // animated character prefabs. Keep the shared animation path
+                // enabled and map state names per character below.
                 usingHaonVisual =
-                    selectedSkin != 9;
+                    true;
 
                 if (externalAnimator != null)
                 {
@@ -1149,9 +1152,17 @@ namespace MotorCity.Gameplay
                 return;
             }
 
+            string mappedState =
+                selectedSkin == 9
+                    ? MapKisoraState(
+                        state)
+                    : state;
+
             string fullStateName =
-                "Base Layer." +
-                state;
+                (selectedSkin == 9
+                    ? "Body Animation Layer."
+                    : "Base Layer.") +
+                mappedState;
 
             int hash =
                 Animator.StringToHash(
@@ -1183,6 +1194,30 @@ namespace MotorCity.Gameplay
                     transitionSeconds,
                     0);
             }
+        }
+
+        private static string MapKisoraState(
+            string pixieState)
+        {
+            return pixieState switch
+            {
+                "Pixie Follow" =>
+                    "running",
+
+                "Pixie Victory" or
+                "Pixie Clap" =>
+                    "winpose",
+
+                "Pixie Boost" =>
+                    "jump",
+
+                "Pixie Idle Alt" or
+                "Pixie Idle" =>
+                    "idle",
+
+                _ =>
+                    "idle"
+            };
         }
 
         private void RebuildVisual()
