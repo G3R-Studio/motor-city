@@ -149,6 +149,30 @@ namespace MotorCity.Gameplay
             ApplyUpgrades();
         }
 
+        public void SelectCustomizationPresetSlot(
+            int slot)
+        {
+            if (!IsOpen ||
+                customization == null)
+            {
+                return;
+            }
+
+            int clampedSlot =
+                Mathf.Clamp(
+                    slot,
+                    0,
+                    2);
+
+            customization.SelectPresetSlot(
+                clampedSlot);
+
+            StatusText =
+                MotorCityLocalization.Format(
+                    "customization.preset_selected",
+                    clampedSlot + 1);
+        }
+
         private void Update()
         {
             if (car == null || wallet == null || activityManager == null) return;
