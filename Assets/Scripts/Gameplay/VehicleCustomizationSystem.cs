@@ -36,14 +36,14 @@ namespace MotorCity.Gameplay
             new(0.93f, 0.93f, 0.90f, 1f)  // Championship White
         };
 
-        private static readonly Color[] MuscleBodyColors =
+        private static readonly Color[] BeatallBodyColors =
         {
-            new(0.68f, 0.055f, 0.04f, 1f),
-            new(0.92f, 0.30f, 0.035f, 1f),
-            new(0.055f, 0.22f, 0.64f, 1f),
-            new(0.025f, 0.028f, 0.035f, 1f),
-            new(0.72f, 0.74f, 0.76f, 1f),
-            new(0.94f, 0.93f, 0.89f, 1f)
+            new(0.18f, 0.52f, 0.42f, 1f), // Seafoam Green
+            new(0.92f, 0.84f, 0.64f, 1f), // Vintage Cream
+            new(0.72f, 0.055f, 0.055f, 1f), // Cherry Red
+            new(0.12f, 0.42f, 0.72f, 1f), // Atlantic Blue
+            new(0.88f, 0.58f, 0.08f, 1f), // Mustard Yellow
+            new(0.16f, 0.18f, 0.20f, 1f)  // Graphite
         };
 
         private static readonly Color[] HybridBodyColors =
@@ -390,8 +390,8 @@ namespace MotorCity.Gameplay
                     "stuttgart996" =>
                         DesignersoupBodyColors,
 
-                    "muscle10" =>
-                        MuscleBodyColors,
+                    "beatall" =>
+                        BeatallBodyColors,
 
                     "hybrid" =>
                         HybridBodyColors,
@@ -1458,8 +1458,8 @@ namespace MotorCity.Gameplay
             string prefix =
                 vehicleId switch
                 {
-                    "muscle10" =>
-                        "customization.muscle.",
+                    "beatall" =>
+                        "customization.beatall.",
 
                     "hybrid" =>
                         "customization.hybrid.",
