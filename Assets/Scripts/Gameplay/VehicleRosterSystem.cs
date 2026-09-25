@@ -15,7 +15,6 @@ namespace MotorCity.Gameplay
 
         private ArcadeCarController car;
         private PlayerReputation reputation;
-        private PlayerWallet wallet;
         private VehicleProfile[] profiles;
 
         public int SelectedIndex { get; private set; }
@@ -145,7 +144,7 @@ namespace MotorCity.Gameplay
         {
             car = targetCar;
             reputation = playerReputation;
-            wallet = playerWallet;
+            _ = playerWallet;
 
             profiles =
                 new[]
