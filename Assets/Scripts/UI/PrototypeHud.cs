@@ -67,8 +67,6 @@ namespace MotorCity.UI
         private MotorCityUiThemeAssets uiThemeAssets;
         private static Sprite modalButtonSprite;
         private static Texture2D modalButtonSpriteSource;
-        private static Sprite garageEngineSprite;
-        private static Texture2D garageEngineSpriteSource;
 
         private Text moneyText;
         private Text reputationText;
@@ -6437,7 +6435,7 @@ namespace MotorCity.UI
                     "Garage Credits Icon",
                     MotorCityIconLibrary.Credits,
                     new Vector2(
-                        -302f,
+                        -246f,
                         -22f),
                     new Vector2(
                         18f,
@@ -6458,8 +6456,8 @@ namespace MotorCity.UI
                     22,
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
-                    new Vector2(-184f, -22f),
-                    new Vector2(108f, 28f),
+                    new Vector2(-174f, -22f),
+                    new Vector2(64f, 28f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
@@ -6470,7 +6468,7 @@ namespace MotorCity.UI
                     "Garage Reputation Icon",
                     MotorCityIconLibrary.Reputation,
                     new Vector2(
-                        -116f,
+                        -88f,
                         -22f),
                     new Vector2(
                         16f,
@@ -6491,8 +6489,8 @@ namespace MotorCity.UI
                     18,
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
-                    new Vector2(-24f, -22f),
-                    new Vector2(82f, 28f),
+                    new Vector2(-18f, -22f),
+                    new Vector2(58f, 28f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
@@ -6704,7 +6702,8 @@ namespace MotorCity.UI
                 Sprite upgradeSprite =
                     i switch
                     {
-                        0 => GetGarageEngineSprite(),
+                        0 => MotorCityIconLibrary.Get(
+                            "wrench"),
                         1 => MotorCityIconLibrary.Get(
                             "gear"),
                         _ => MotorCityIconLibrary.Get(
@@ -8964,49 +8963,6 @@ namespace MotorCity.UI
             };
         }
 
-        private Sprite GetGarageEngineSprite()
-        {
-            Texture2D texture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.engine;
-
-            if (texture == null)
-            {
-                return MotorCityIconLibrary.Get(
-                    "gear");
-            }
-
-            if (garageEngineSprite != null &&
-                garageEngineSpriteSource == texture)
-            {
-                return garageEngineSprite;
-            }
-
-            garageEngineSprite =
-                Sprite.Create(
-                    texture,
-                    new Rect(
-                        0f,
-                        0f,
-                        texture.width,
-                        texture.height),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    100f,
-                    0,
-                    SpriteMeshType.FullRect);
-
-            garageEngineSprite.name =
-                "Motor City Garage Engine Icon";
-            garageEngineSprite.hideFlags =
-                HideFlags.DontSave;
-            garageEngineSpriteSource =
-                texture;
-
-            return garageEngineSprite;
-        }
 
         private static Sprite GetModalButtonSprite(
             Texture2D texture)
