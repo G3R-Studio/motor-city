@@ -282,12 +282,6 @@ namespace MotorCity.Gameplay
             }
 
             if (MotorCityInput.WasVirtualPressed(
-                    MotorCityInputAction.BuyVehicle))
-            {
-                TryPurchaseNextVehicle();
-            }
-
-            if (MotorCityInput.WasVirtualPressed(
                     MotorCityInputAction.CyclePetSkin) &&
                 turbo != null)
             {
