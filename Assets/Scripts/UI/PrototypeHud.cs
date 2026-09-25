@@ -212,6 +212,7 @@ namespace MotorCity.UI
         private Image garageReputationIcon;
         private Text garageMoneyText;
         private Text garageReputationText;
+        private Text garageLevelText;
         private Text garageStatusText;
         private Image garageVehicleStateIcon;
         private Text garageVehicleText;
@@ -6429,20 +6430,45 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     "hud.garage_title");
 
+            GameObject creditsGroupObject =
+                new(
+                    "Garage Credits Group",
+                    typeof(RectTransform));
+
+            creditsGroupObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform creditsGroup =
+                creditsGroupObject.GetComponent<RectTransform>();
+
+            creditsGroup.anchorMin =
+                Vector2.one;
+            creditsGroup.anchorMax =
+                Vector2.one;
+            creditsGroup.pivot =
+                Vector2.one;
+            creditsGroup.anchoredPosition =
+                new Vector2(
+                    -206f,
+                    -10f);
+            creditsGroup.sizeDelta =
+                new Vector2(
+                    102f,
+                    30f);
+
             garageCreditsIcon =
                 CreateHudIcon(
-                    panel,
+                    creditsGroup,
                     "Garage Credits Icon",
                     MotorCityIconLibrary.Credits,
-                    new Vector2(
-                        -214f,
-                        -22f),
+                    Vector2.zero,
                     new Vector2(
                         18f,
                         18f),
                     new Vector2(
-                        1f,
-                        1f),
+                        0f,
+                        0.5f),
                     new Color(
                         1f,
                         0.78f,
@@ -6451,31 +6477,64 @@ namespace MotorCity.UI
 
             garageMoneyText =
                 CreateText(
-                    panel,
+                    creditsGroup,
                     "Garage Credits",
-                    22,
+                    21,
                     FontStyle.Bold,
-                    TextAnchor.MiddleRight,
-                    new Vector2(-174f, -22f),
-                    new Vector2(112f, 28f),
-                    new Vector2(1f, 1f),
-                    new Vector2(1f, 1f),
+                    TextAnchor.MiddleLeft,
+                    new Vector2(
+                        24f,
+                        0f),
+                    new Vector2(
+                        76f,
+                        28f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Vector2(
+                        0f,
+                        0.5f),
                     TextColor);
+
+            GameObject reputationGroupObject =
+                new(
+                    "Garage Reputation Group",
+                    typeof(RectTransform));
+
+            reputationGroupObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform reputationGroup =
+                reputationGroupObject.GetComponent<RectTransform>();
+
+            reputationGroup.anchorMin =
+                Vector2.one;
+            reputationGroup.anchorMax =
+                Vector2.one;
+            reputationGroup.pivot =
+                Vector2.one;
+            reputationGroup.anchoredPosition =
+                new Vector2(
+                    -108f,
+                    -10f);
+            reputationGroup.sizeDelta =
+                new Vector2(
+                    86f,
+                    30f);
 
             garageReputationIcon =
                 CreateHudIcon(
-                    panel,
+                    reputationGroup,
                     "Garage Reputation Icon",
                     MotorCityIconLibrary.Reputation,
-                    new Vector2(
-                        -82f,
-                        -22f),
+                    Vector2.zero,
                     new Vector2(
                         16f,
                         16f),
                     new Vector2(
-                        1f,
-                        1f),
+                        0f,
+                        0.5f),
                     new Color(
                         0.72f,
                         0.52f,
@@ -6484,16 +6543,70 @@ namespace MotorCity.UI
 
             garageReputationText =
                 CreateText(
-                    panel,
+                    reputationGroup,
                     "Garage Reputation",
                     18,
                     FontStyle.Bold,
-                    TextAnchor.MiddleRight,
-                    new Vector2(-18f, -22f),
-                    new Vector2(112f, 28f),
-                    new Vector2(1f, 1f),
-                    new Vector2(1f, 1f),
+                    TextAnchor.MiddleLeft,
+                    new Vector2(
+                        22f,
+                        0f),
+                    new Vector2(
+                        62f,
+                        28f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Vector2(
+                        0f,
+                        0.5f),
                     TextColor);
+
+            GameObject levelGroupObject =
+                new(
+                    "Garage Level Group",
+                    typeof(RectTransform));
+
+            levelGroupObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform levelGroup =
+                levelGroupObject.GetComponent<RectTransform>();
+
+            levelGroup.anchorMin =
+                Vector2.one;
+            levelGroup.anchorMax =
+                Vector2.one;
+            levelGroup.pivot =
+                Vector2.one;
+            levelGroup.anchoredPosition =
+                new Vector2(
+                    -18f,
+                    -10f);
+            levelGroup.sizeDelta =
+                new Vector2(
+                    70f,
+                    30f);
+
+            garageLevelText =
+                CreateText(
+                    levelGroup,
+                    "Garage Level",
+                    16,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(
+                        70f,
+                        28f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    SecondaryTextColor);
 
             garageVehicleStateIcon =
                 CreateHudIcon(
@@ -7279,55 +7392,6 @@ namespace MotorCity.UI
                 };
         }
 
-        private void AlignGarageBalanceIcons()
-        {
-            const float gap =
-                7f;
-
-            if (garageCreditsIcon != null &&
-                garageMoneyText != null)
-            {
-                RectTransform iconRect =
-                    garageCreditsIcon.rectTransform;
-
-                RectTransform textRect =
-                    garageMoneyText.rectTransform;
-
-                float textWidth =
-                    Mathf.Max(
-                        1f,
-                        garageMoneyText.preferredWidth);
-
-                iconRect.anchoredPosition =
-                    new Vector2(
-                        textRect.anchoredPosition.x -
-                        textWidth -
-                        gap,
-                        textRect.anchoredPosition.y);
-            }
-
-            if (garageReputationIcon != null &&
-                garageReputationText != null)
-            {
-                RectTransform iconRect =
-                    garageReputationIcon.rectTransform;
-
-                RectTransform textRect =
-                    garageReputationText.rectTransform;
-
-                float textWidth =
-                    Mathf.Max(
-                        1f,
-                        garageReputationText.preferredWidth);
-
-                iconRect.anchoredPosition =
-                    new Vector2(
-                        textRect.anchoredPosition.x -
-                        textWidth -
-                        gap,
-                        textRect.anchoredPosition.y);
-            }
-        }
 
         private void UpdateGarage()
         {
@@ -7355,17 +7419,22 @@ namespace MotorCity.UI
             if (garageReputationText != null)
             {
                 garageReputationText.text =
-                    MotorCityLocalization.Format(
-                        "hud.rep_short",
-                        activityManager != null
-                            ? activityManager.TotalReputation
-                            : 0,
-                        activityManager != null
-                            ? activityManager.ReputationLevel
-                            : 1);
+                    (activityManager != null
+                        ? activityManager.TotalReputation
+                        : 0).ToString(
+                            "N0");
             }
 
-            AlignGarageBalanceIcons();
+            if (garageLevelText != null)
+            {
+                garageLevelText.text =
+                    MotorCityLocalization.Text(
+                        "common.level") +
+                    " " +
+                    (activityManager != null
+                        ? activityManager.ReputationLevel
+                        : 1);
+            }
 
             if (garageVehicleText != null)
             {
