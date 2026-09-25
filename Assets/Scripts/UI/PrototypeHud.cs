@@ -132,12 +132,14 @@ namespace MotorCity.UI
         private bool manualNavigationActive;
         private Vector3 manualNavigationTarget;
         private string manualNavigationLabel;
+        private string manualNavigationMarkerId;
         private CitySchematicMap schematicMap;
         private Texture2D minimapMaskTexture;
         private Sprite minimapMaskSprite;
         private float minimapTargetResolveTimer;
         private Vector3 cachedMinimapTarget;
         private string cachedMinimapLabel = string.Empty;
+        private string cachedMinimapMarkerId = string.Empty;
         private bool cachedMinimapHasTarget;
         private bool cachedMinimapShowRoadRoute;
         private int lastMinimapDistance = int.MinValue;
@@ -1139,6 +1141,9 @@ namespace MotorCity.UI
                         target;
                     manualNavigationLabel =
                         label;
+                    manualNavigationMarkerId =
+                        NavigatorMarkerId(
+                            navigatorSelection);
                     manualNavigationActive =
                         true;
                 }
@@ -1348,6 +1353,196 @@ namespace MotorCity.UI
                     professionIndex);
 
             return true;
+        }
+
+        private string NavigatorMarkerId(
+            int index)
+        {
+            return index switch
+            {
+                0 => "garage",
+                1 => "delivery",
+                2 => "drift",
+                3 => "sprint",
+                4 => "circuit",
+                5 => "tow",
+                6 => "carwash",
+                _ => "profession"
+            };
+        }
+
+        private string ResolveMinimapMarkerId(
+            Vector3 target)
+        {
+            const float matchDistance =
+                12f;
+
+            if (manualNavigationActive &&
+                FlatDistance(
+                    target,
+                    manualNavigationTarget) <=
+                matchDistance)
+            {
+                return string.IsNullOrWhiteSpace(
+                        manualNavigationMarkerId)
+                    ? "profession"
+                    : manualNavigationMarkerId;
+            }
+
+            if (towTruck != null &&
+                towTruck.IsActive)
+            {
+                return "tow";
+            }
+
+            if (carWash != null &&
+                carWash.IsActive)
+            {
+                return "carwash";
+            }
+
+            if (professions != null &&
+                professions.IsActive)
+            {
+                return "profession";
+            }
+
+            if (underground != null &&
+                (underground.HasActiveInvitation ||
+                 underground.IsActive ||
+                 underground.IsCountingDown))
+            {
+                return "underground";
+            }
+
+            if (delivery != null &&
+                FlatDistance(
+                    target,
+                    delivery.CurrentTarget) <=
+                matchDistance)
+            {
+                return "delivery";
+            }
+
+            if (driftChallenge != null &&
+                FlatDistance(
+                    target,
+                    driftChallenge.ZoneCenter) <=
+                matchDistance)
+            {
+                return "drift";
+            }
+
+            if (streetSprint != null &&
+                FlatDistance(
+                    target,
+                    streetSprint.CurrentTarget) <=
+                matchDistance)
+            {
+                return "sprint";
+            }
+
+            if (circuitRace != null &&
+                FlatDistance(
+                    target,
+                    circuitRace.CurrentTarget) <=
+                matchDistance)
+            {
+                return "circuit";
+            }
+
+            if (towTruck != null &&
+                FlatDistance(
+                    target,
+                    towTruck.StartPoint) <=
+                matchDistance)
+            {
+                return "tow";
+            }
+
+            if (carWash != null &&
+                FlatDistance(
+                    target,
+                    carWash.StartPoint) <=
+                matchDistance)
+            {
+                return "carwash";
+            }
+
+            if (garage != null &&
+                FlatDistance(
+                    target,
+                    garage.GarageCenter) <=
+                matchDistance)
+            {
+                return "garage";
+            }
+
+            if (speedTraps != null)
+            {
+                for (int i = 0;
+                     i < speedTraps.TrapCount;
+                     i++)
+                {
+                    if (FlatDistance(
+                            target,
+                            speedTraps.GetTrapPosition(i)) <=
+                        matchDistance)
+                    {
+                        return "speedtrap";
+                    }
+                }
+            }
+
+            if (driftSpots != null)
+            {
+                for (int i = 0;
+                     i < driftSpots.SpotCount;
+                     i++)
+                {
+                    if (FlatDistance(
+                            target,
+                            driftSpots.GetSpotPosition(i)) <=
+                        matchDistance)
+                    {
+                        return "driftspot";
+                    }
+                }
+            }
+
+            if (discoveries != null)
+            {
+                for (int i = 0;
+                     i < discoveries.DiscoveryCount;
+                     i++)
+                {
+                    if (FlatDistance(
+                            target,
+                            discoveries.GetDiscoveryPosition(i)) <=
+                        matchDistance)
+                    {
+                        return "discovery";
+                    }
+                }
+            }
+
+            if (professions != null)
+            {
+                for (int i = 0;
+                     i < professions.StartCount;
+                     i++)
+                {
+                    if (FlatDistance(
+                            target,
+                            professions.GetStartPoint(i)) <=
+                        matchDistance)
+                    {
+                        return "profession";
+                    }
+                }
+            }
+
+            return "discovery";
         }
 
         private float MinimapWorldScale(
@@ -4215,136 +4410,91 @@ namespace MotorCity.UI
         private void CreateMinimapPlayerChevron(
             Transform parent)
         {
-            Color color =
-                new(
-                    0.16f,
-                    0.72f,
-                    1f,
-                    1f);
+            Texture2D pointerTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.minimapPlayerPointer;
 
-            CreateChevronStroke(
-                parent,
-                "Player Arrow Left",
-                new Vector2(
-                    -4.5f,
-                    1f),
-                -42f,
-                color);
+            if (pointerTexture != null)
+            {
+                GameObject pointerObject =
+                    new(
+                        "Minimap Player Pointer",
+                        typeof(RectTransform),
+                        typeof(RawImage));
 
-            CreateChevronStroke(
-                parent,
-                "Player Arrow Right",
-                new Vector2(
-                    4.5f,
-                    1f),
-                42f,
-                color);
+                pointerObject.transform.SetParent(
+                    parent,
+                    false);
 
-            GameObject tail =
-                new(
-                    "Player Arrow Tail",
-                    typeof(RectTransform),
-                    typeof(Image));
+                RectTransform rect =
+                    pointerObject.GetComponent<RectTransform>();
 
-            tail.transform.SetParent(
-                parent,
-                false);
+                rect.anchorMin =
+                    new Vector2(
+                        0.5f,
+                        0.5f);
+                rect.anchorMax =
+                    new Vector2(
+                        0.5f,
+                        0.5f);
+                rect.pivot =
+                    new Vector2(
+                        0.5f,
+                        0.5f);
+                rect.anchoredPosition =
+                    Vector2.zero;
+                rect.sizeDelta =
+                    new Vector2(
+                        24f,
+                        24f);
+                rect.localRotation =
+                    Quaternion.Euler(
+                        0f,
+                        0f,
+                        -45f);
 
-            RectTransform tailRect =
-                tail.GetComponent<RectTransform>();
+                RawImage image =
+                    pointerObject.GetComponent<RawImage>();
 
-            tailRect.anchorMin =
-                new Vector2(
-                    0.5f,
-                    0.5f);
+                image.texture =
+                    pointerTexture;
+                image.color =
+                    new Color(
+                        0.12f,
+                        0.78f,
+                        1f,
+                        1f);
+                image.raycastTarget =
+                    false;
 
-            tailRect.anchorMax =
-                new Vector2(
-                    0.5f,
-                    0.5f);
+                return;
+            }
 
-            tailRect.pivot =
-                new Vector2(
-                    0.5f,
-                    0.5f);
+            Image fallback =
+                CreateHudIcon(
+                    parent,
+                    "Minimap Player Icon",
+                    MotorCityIconLibrary.Get(
+                        "car"),
+                    Vector2.zero,
+                    new Vector2(
+                        24f,
+                        24f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Color(
+                        0.12f,
+                        0.78f,
+                        1f,
+                        1f));
 
-            tailRect.anchoredPosition =
-                new Vector2(
-                    0f,
-                    -5f);
-
-            tailRect.sizeDelta =
-                new Vector2(
-                    4f,
-                    13f);
-
-            Image image =
-                tail.GetComponent<Image>();
-
-            image.color =
-                color;
-
-            image.raycastTarget =
-                false;
-        }
-
-        private static void CreateChevronStroke(
-            Transform parent,
-            string objectName,
-            Vector2 position,
-            float rotation,
-            Color color)
-        {
-            GameObject stroke =
-                new(
-                    objectName,
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            stroke.transform.SetParent(
-                parent,
-                false);
-
-            RectTransform rect =
-                stroke.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                new Vector2(
-                    0.5f,
-                    0.5f);
-
-            rect.anchorMax =
-                new Vector2(
-                    0.5f,
-                    0.5f);
-
-            rect.pivot =
-                new Vector2(
-                    0.5f,
-                    0.5f);
-
-            rect.anchoredPosition =
-                position;
-
-            rect.sizeDelta =
-                new Vector2(
-                    4f,
-                    15f);
-
-            rect.localRotation =
-                Quaternion.Euler(
-                    0f,
-                    0f,
-                    rotation);
-
-            Image image =
-                stroke.GetComponent<Image>();
-
-            image.color =
-                color;
-
-            image.raycastTarget =
-                false;
+            if (fallback != null)
+            {
+                fallback.raycastTarget =
+                    false;
+            }
         }
 
         private void RefreshStatusActivityIcon()
@@ -4829,6 +4979,12 @@ namespace MotorCity.UI
                     out cachedMinimapLabel,
                     out cachedMinimapHasTarget,
                     out cachedMinimapShowRoadRoute);
+
+                cachedMinimapMarkerId =
+                    cachedMinimapHasTarget
+                        ? ResolveMinimapMarkerId(
+                            cachedMinimapTarget)
+                        : string.Empty;
             }
 
             Vector3 target =
@@ -4842,6 +4998,9 @@ namespace MotorCity.UI
 
             bool showRoadRoute =
                 cachedMinimapShowRoadRoute;
+
+            string markerId =
+                cachedMinimapMarkerId;
 
             if (!hasTarget)
             {
@@ -4931,10 +5090,8 @@ namespace MotorCity.UI
                 if (minimapTargetIcon != null)
                 {
                     Sprite targetSprite =
-                        MotorCityIconLibrary.ForActivity(
-                            activityManager != null
-                                ? activityManager.ActiveId
-                                : string.Empty);
+                        MotorCityIconLibrary.ForWorldMarker(
+                            markerId);
 
                     if (targetSprite != null &&
                         minimapTargetIcon.sprite !=
