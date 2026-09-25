@@ -2622,8 +2622,8 @@ namespace MotorCity.UI
                         18f,
                         -18f),
                     new Vector2(
-                        348f,
-                        96f),
+                        372f,
+                        118f),
                     new Vector2(
                         0f,
                         1f),
@@ -2645,10 +2645,10 @@ namespace MotorCity.UI
                     "Character Portrait Frame",
                     new Vector2(
                         14f,
-                        -11f),
+                        -15f),
                     new Vector2(
-                        54f,
-                        54f),
+                        56f,
+                        56f),
                     new Vector2(
                         0f,
                         1f),
@@ -2811,11 +2811,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        78f,
-                        -9f),
+                        82f,
+                        -11f),
                     new Vector2(
-                        150f,
-                        18f),
+                        250f,
+                        16f),
                     new Vector2(
                         0f,
                         1f),
@@ -2832,10 +2832,10 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        78f,
+                        82f,
                         -27f),
                     new Vector2(
-                        232f,
+                        250f,
                         22f),
                     new Vector2(
                         0f,
@@ -2853,11 +2853,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        78f,
-                        -49f),
+                        82f,
+                        -50f),
                     new Vector2(
-                        232f,
-                        17f),
+                        250f,
+                        16f),
                     new Vector2(
                         0f,
                         1f),
@@ -2874,11 +2874,11 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
                     new Vector2(
-                        78f,
-                        11f),
+                        82f,
+                        25f),
                     new Vector2(
-                        232f,
-                        32f),
+                        250f,
+                        34f),
                     new Vector2(
                         0f,
                         0f),
@@ -2898,8 +2898,8 @@ namespace MotorCity.UI
                         -18f,
                         8f),
                     new Vector2(
-                        170f,
-                        17f),
+                        205f,
+                        16f),
                     new Vector2(
                         1f,
                         0f),
@@ -3966,7 +3966,7 @@ namespace MotorCity.UI
             Texture2D chipTexture =
                 uiThemeAssets == null
                     ? null
-                    : uiThemeAssets.rectanglePanel;
+                    : uiThemeAssets.driveModePanel;
 
             if (chipTexture != null)
             {
@@ -3992,7 +3992,7 @@ namespace MotorCity.UI
                 driveModeChip.anchoredPosition =
                     new Vector2(0f, 18f);
                 driveModeChip.sizeDelta =
-                    new Vector2(172f, 34f);
+                    new Vector2(158f, 32f);
 
                 RawImage chipImage =
                     chipObject.GetComponent<RawImage>();
@@ -4025,7 +4025,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(158f, 26f),
+                    new Vector2(138f, 24f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     BlueAccent);
@@ -4170,10 +4170,10 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(0f, 208f),
-                    new Vector2(470f, 42f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f),
+                    new Vector2(0f, -112f),
+                    new Vector2(560f, 44f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
                     Color.clear);
 
             statusPanel = panel.gameObject;
@@ -4188,7 +4188,7 @@ namespace MotorCity.UI
                     "Status Activity Icon",
                     MotorCityIconLibrary.Reward,
                     new Vector2(
-                        20f,
+                        22f,
                         -2f),
                     new Vector2(
                         24f,
@@ -4205,8 +4205,8 @@ namespace MotorCity.UI
                     16,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(50f, -2f),
-                    new Vector2(398f, 30f),
+                    new Vector2(54f, -2f),
+                    new Vector2(482f, 30f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     TextColor);
