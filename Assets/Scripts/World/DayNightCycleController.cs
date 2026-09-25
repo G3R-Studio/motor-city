@@ -683,13 +683,35 @@ namespace MotorCity.World
                     continue;
                 }
 
+                bool isParkLamp =
+                    IsParkLamp(
+                        sourceLight.transform);
+
+                Vector3 glowPosition =
+                    sourceLight.transform.position;
+
+                if (isParkLamp)
+                {
+                    // ParkLamp's authored spot-light sits inside the opaque
+                    // lantern housing. Move only the visible emissive bulb a
+                    // little downward so it appears in the glass/plafond
+                    // instead of being fully occluded by the mesh.
+                    glowPosition +=
+                        sourceLight.transform.forward *
+                        0.20f;
+                }
+
                 streetLampAnchors.Add(
                     new LampAnchor
                     {
                         Position =
                             sourceLight.transform.position,
+                        GlowPosition =
+                            glowPosition,
                         Rotation =
-                            sourceLight.transform.rotation
+                            sourceLight.transform.rotation,
+                        IsParkLamp =
+                            isParkLamp
                     });
             }
 
@@ -814,8 +836,12 @@ namespace MotorCity.World
                     {
                         Position =
                             anchor.Position,
+                        GlowPosition =
+                            anchor.GlowPosition,
                         Rotation =
                             anchor.Rotation,
+                        IsParkLamp =
+                            anchor.IsParkLamp,
                         DistanceSquared =
                             distanceSquared
                     });
@@ -906,11 +932,20 @@ namespace MotorCity.World
 
                 if (enable)
                 {
+                    LampCandidate candidate =
+                        lampCandidates[i];
+
                     glow.transform.position =
-                        lampCandidates[i].Position;
+                        candidate.GlowPosition;
 
                     glow.transform.rotation =
                         Quaternion.identity;
+
+                    glow.transform.localScale =
+                        Vector3.one *
+                        (candidate.IsParkLamp
+                            ? 0.31f
+                            : 0.19f);
                 }
 
                 glow.enabled =
@@ -1114,6 +1149,43 @@ namespace MotorCity.World
                 false;
         }
 
+        private static bool IsParkLamp(
+            Transform transform)
+        {
+            Transform current =
+                transform;
+
+            while (current != null)
+            {
+                string name =
+                    NormalizeName(
+                        current.name);
+
+                if (name.StartsWith(
+                        "parklamp",
+                        StringComparison.Ordinal) ||
+                    name.StartsWith(
+                        "parklight",
+                        StringComparison.Ordinal))
+                {
+                    return true;
+                }
+
+                if (name ==
+                        "motorcityfcgcity" ||
+                    name ==
+                        "citymaker")
+                {
+                    break;
+                }
+
+                current =
+                    current.parent;
+            }
+
+            return false;
+        }
+
         private static bool IsFcgStreetLampLight(
             Light light)
         {
@@ -1204,13 +1276,17 @@ namespace MotorCity.World
         private struct LampAnchor
         {
             public Vector3 Position;
+            public Vector3 GlowPosition;
             public Quaternion Rotation;
+            public bool IsParkLamp;
         }
 
         private struct LampCandidate
         {
             public Vector3 Position;
+            public Vector3 GlowPosition;
             public Quaternion Rotation;
+            public bool IsParkLamp;
             public float DistanceSquared;
         }
 
