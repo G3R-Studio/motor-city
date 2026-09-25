@@ -67,26 +67,18 @@ namespace MotorCity.Gameplay
         public bool IsOwned(
             int index)
         {
-            if (!Valid(index))
-                return false;
-
-            if (index == 0)
-                return true;
-
+            // Vehicle ownership is reputation-based now:
+            // once unlocked, the vehicle is immediately available.
             return
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
-                    OwnershipKey(
-                        profiles[index].Id),
-                    0) != 0;
+                IsUnlocked(
+                    index);
         }
 
         public int GetPurchasePrice(
             int index)
         {
-            return
-                Valid(index)
-                    ? profiles[index].PurchasePrice
-                    : 0;
+            // Kept for compatibility with older callers.
+            return 0;
         }
 
         public int GetUnlockedVehicleCount()
@@ -122,16 +114,10 @@ namespace MotorCity.Gameplay
                 SelectedIndex + 1);
 
         public bool NextVehicleOwned =>
-            HasNextVehicle &&
-            IsOwned(
-                SelectedIndex + 1);
+            NextVehicleUnlocked;
 
         public int NextVehiclePrice =>
-            HasNextVehicle
-                ? profiles[
-                    SelectedIndex + 1]
-                    .PurchasePrice
-                : 0;
+            0;
 
         public int NextVehicleRequiredRep =>
             HasNextVehicle
@@ -141,10 +127,7 @@ namespace MotorCity.Gameplay
                 : 0;
 
         public bool CanAffordNextVehicle =>
-            HasNextVehicle &&
-            wallet != null &&
-            wallet.Credits >=
-                NextVehiclePrice;
+            NextVehicleUnlocked;
 
         public string GetVehicleId(
             int index)
@@ -348,17 +331,6 @@ namespace MotorCity.Gameplay
                 return false;
             }
 
-            if (!IsOwned(candidate))
-            {
-                status =
-                    MotorCityLocalization.Format(
-                        "vehicle.not_owned",
-                        profile.DisplayName,
-                        profile.PurchasePrice);
-
-                return false;
-            }
-
             SelectedIndex =
                 candidate;
 
@@ -472,15 +444,6 @@ namespace MotorCity.Gameplay
                         nextProfile.RequiredRep);
             }
 
-            if (!IsOwned(next))
-            {
-                return
-                    MotorCityLocalization.Format(
-                        "vehicle.next_buy",
-                        nextProfile.DisplayName,
-                        nextProfile.PurchasePrice);
-            }
-
             return
                 MotorCityLocalization.Format(
                     "vehicle.next_available",
@@ -490,78 +453,12 @@ namespace MotorCity.Gameplay
         public bool TryPurchaseNextVehicle(
             out string status)
         {
-            status =
-                string.Empty;
-
-            int candidate =
-                SelectedIndex + 1;
-
-            if (!Valid(candidate) ||
-                !HasVisual(candidate))
-            {
-                status =
-                    MotorCityLocalization.Text(
-                        "vehicle.buy_none");
-                return false;
-            }
-
-            VehicleProfile profile =
-                profiles[candidate];
-
-            if (IsOwned(candidate))
-            {
-                status =
-                    MotorCityLocalization.Format(
-                        "vehicle.next_available",
-                        profile.DisplayName);
-                return false;
-            }
-
-            if (!IsUnlocked(candidate))
-            {
-                status =
-                    MotorCityLocalization.Format(
-                        "vehicle.buy_rep",
-                        profile.DisplayName,
-                        profile.RequiredRep);
-                return false;
-            }
-
-            if (wallet == null ||
-                !wallet.TrySpendCredits(
-                    profile.PurchasePrice))
-            {
-                status =
-                    MotorCityLocalization.Format(
-                        "vehicle.buy_credits",
-                        profile.DisplayName,
-                        profile.PurchasePrice);
-                return false;
-            }
-
-            SetOwned(
-                candidate,
-                true);
-
-            SelectedIndex =
-                candidate;
-
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
-                SelectedKey,
-                SelectedIndex);
-
-            MotorCity.Persistence.MotorCitySaveService.Save();
-
-            ApplySelectedVehicle();
-            VehicleChanged?.Invoke();
-
-            status =
-                MotorCityLocalization.Format(
-                    "vehicle.purchased",
-                    profile.DisplayName,
-                    profile.PurchasePrice);
-
-            return true;
+            // Legacy compatibility: vehicles are no longer purchased.
+            // Selecting the next vehicle is enough once reputation unlocks it.
+            return
+                TrySelectOffset(
+                    1,
+                    out status);
         }
 
         public void SetAllOwnedForTesting(
