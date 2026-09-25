@@ -143,10 +143,25 @@ namespace MotorCity.Gameplay
                         0));
 
             unlockedSkinMask =
-                1;
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    SkinMaskKey,
+                    1);
+
+            unlockedSkinMask =
+                (unlockedSkinMask & (1 << 9)) != 0
+                    ? 1 | (1 << 9)
+                    : 1;
 
             selectedSkin =
-                0;
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    SelectedSkinKey,
+                    0);
+
+            if (selectedSkin != 9 ||
+                !IsSkinUnlocked(9))
+            {
+                selectedSkin = 0;
+            }
 
             currentDay =
                 Math.Max(
@@ -283,19 +298,36 @@ namespace MotorCity.Gameplay
         public void UnlockSkin(
             int skinIndex)
         {
-            // Pixie uses one fixed authored appearance.
-            unlockedSkinMask =
-                1;
+            if (skinIndex != 9)
+                return;
+
+            unlockedSkinMask |=
+                1 << 9;
 
             selectedSkin =
-                0;
+                9;
+
+            SaveSkin();
+            RebuildVisual();
         }
 
         public void CycleSkin()
         {
-            // Pixie uses one fixed authored appearance.
+            if (!IsSkinUnlocked(9))
+            {
+                selectedSkin =
+                    0;
+
+                return;
+            }
+
             selectedSkin =
-                0;
+                selectedSkin == 9
+                    ? 0
+                    : 9;
+
+            SaveSkin();
+            RebuildVisual();
         }
 
 
@@ -645,20 +677,33 @@ namespace MotorCity.Gameplay
             visualRoot.transform.rotation =
                 car.transform.rotation;
 
-            GameObject haonPrefab =
-                Resources.Load<GameObject>(
-                    "MotorCity/Byte/HaonByteVisual");
+            GameObject authoredPrefab =
+                selectedSkin == 9
+                    ? Resources.Load<GameObject>(
+                        "MotorCity/Pixie/AmaneKisoraVisual")
+                    : Resources.Load<GameObject>(
+                        "MotorCity/Byte/HaonByteVisual");
 
-            if (haonPrefab != null)
+            if (authoredPrefab == null &&
+                selectedSkin == 9)
+            {
+                authoredPrefab =
+                    Resources.Load<GameObject>(
+                        "MotorCity/Byte/HaonByteVisual");
+            }
+
+            if (authoredPrefab != null)
             {
                 externalVisual =
                     Instantiate(
-                        haonPrefab,
+                        authoredPrefab,
                         visualRoot.transform,
                         false);
 
                 externalVisual.name =
-                    "Pixie Haon SD Visual";
+                    selectedSkin == 9
+                        ? "Pixie Amane Kisora Visual"
+                        : "Pixie Haon SD Visual";
 
                 externalVisual.transform.localPosition =
                     Vector3.zero;
@@ -670,14 +715,17 @@ namespace MotorCity.Gameplay
                         0f);
 
                 externalVisual.transform.localScale =
-                    Vector3.one * 0.66f;
+                    Vector3.one *
+                    (selectedSkin == 9
+                        ? 0.58f
+                        : 0.66f);
 
                 externalAnimator =
                     externalVisual.GetComponentInChildren<Animator>(
                         true);
 
                 usingHaonVisual =
-                    true;
+                    selectedSkin != 9;
 
                 if (externalAnimator != null)
                 {
@@ -1137,6 +1185,28 @@ namespace MotorCity.Gameplay
             }
         }
 
+        private void RebuildVisual()
+        {
+            if (visualRoot != null)
+            {
+                Destroy(
+                    visualRoot);
+            }
+
+            visualRoot =
+                null;
+            externalVisual =
+                null;
+            externalAnimator =
+                null;
+            usingHaonVisual =
+                false;
+            currentAnimatorStateHash =
+                0;
+
+            BuildVisual();
+        }
+
         private void RefreshVisualSkin()
         {
             if (visualRoot == null)
@@ -1262,7 +1332,7 @@ namespace MotorCity.Gameplay
                     6 => "turbo.skin_premium_1",
                     7 => "turbo.skin_premium_2",
                     8 => "turbo.skin_premium_3",
-                    9 => "turbo.skin_cosmetic_pack",
+                    9 => "turbo.skin_kisora",
                     _ => "turbo.skin_classic"
                 };
         }
