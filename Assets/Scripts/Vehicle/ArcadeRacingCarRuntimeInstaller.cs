@@ -84,7 +84,8 @@ namespace MotorCity.Vehicle
             string resourcePath,
             bool rotateLeft90 = false,
             float targetLength = TargetLength,
-            bool flipYaw180 = false)
+            bool flipYaw180 = false,
+            Vector3? visualEulerCorrection = null)
         {
             if (car == null ||
                 string.IsNullOrWhiteSpace(
@@ -111,7 +112,8 @@ namespace MotorCity.Vehicle
                 prefab,
                 rotateLeft90,
                 targetLength,
-                flipYaw180);
+                flipYaw180,
+                visualEulerCorrection);
         }
 
         private static bool Install(
@@ -119,7 +121,8 @@ namespace MotorCity.Vehicle
             GameObject prefab,
             bool rotateLeft90,
             float targetLength = TargetLength,
-            bool flipYaw180 = false)
+            bool flipYaw180 = false,
+            Vector3? visualEulerCorrection = null)
         {
             Transform carTransform = car.transform;
 
@@ -165,14 +168,13 @@ namespace MotorCity.Vehicle
 
             StripImportedPhysics(visual);
 
-            // Some third-party FBX files keep a valid-looking prefab root but
-            // still arrive in PlayerCar space with their wheel plane vertical.
-            // Detect the wheel-center plane and rotate the complete visual so
-            // the body's "up" axis becomes Motor City's +Y. Cars that are
-            // already upright (Beatall, Hybrid, Van) are left untouched.
-            CorrectVehicleUpAxis(
-                visual.transform,
-                carTransform);
+            if (visualEulerCorrection.HasValue)
+            {
+                visual.transform.localRotation =
+                    Quaternion.Euler(
+                        visualEulerCorrection.Value) *
+                    visual.transform.localRotation;
+            }
 
             if (rotateLeft90)
             {
@@ -1269,129 +1271,6 @@ namespace MotorCity.Vehicle
             root.rotation = car.rotation;
             root.localScale = Vector3.one;
             return root;
-        }
-
-        private static void CorrectVehicleUpAxis(
-            Transform visual,
-            Transform carRoot)
-        {
-            if (visual == null ||
-                carRoot == null)
-                return;
-
-            List<Transform> wheels =
-                FindWheelAnchors(
-                    visual);
-
-            if (wheels == null ||
-                wheels.Count < 4)
-                return;
-
-            Vector3 min =
-                new(
-                    float.PositiveInfinity,
-                    float.PositiveInfinity,
-                    float.PositiveInfinity);
-
-            Vector3 max =
-                new(
-                    float.NegativeInfinity,
-                    float.NegativeInfinity,
-                    float.NegativeInfinity);
-
-            Vector3 wheelAverage =
-                Vector3.zero;
-
-            foreach (Transform wheel in wheels)
-            {
-                Vector3 center =
-                    carRoot.InverseTransformPoint(
-                        RendererBounds(wheel).center);
-
-                min =
-                    Vector3.Min(
-                        min,
-                        center);
-
-                max =
-                    Vector3.Max(
-                        max,
-                        center);
-
-                wheelAverage +=
-                    center;
-            }
-
-            wheelAverage /=
-                wheels.Count;
-
-            Vector3 span =
-                max - min;
-
-            // The four wheel centers are nearly coplanar. Their smallest
-            // spread identifies the source model's vertical axis.
-            int verticalAxis = 1;
-            float smallest =
-                span.y;
-
-            if (span.x < smallest)
-            {
-                verticalAxis = 0;
-                smallest = span.x;
-            }
-
-            if (span.z < smallest)
-            {
-                verticalAxis = 2;
-                smallest = span.z;
-            }
-
-            if (verticalAxis == 1)
-                return;
-
-            Bounds bodyBounds =
-                RendererBounds(
-                    visual);
-
-            Vector3 bodyCenter =
-                carRoot.InverseTransformPoint(
-                    bodyBounds.center);
-
-            Vector3 sourceUp;
-
-            if (verticalAxis == 0)
-            {
-                float sign =
-                    bodyCenter.x >=
-                    wheelAverage.x
-                        ? 1f
-                        : -1f;
-
-                sourceUp =
-                    Vector3.right *
-                    sign;
-            }
-            else
-            {
-                float sign =
-                    bodyCenter.z >=
-                    wheelAverage.z
-                        ? 1f
-                        : -1f;
-
-                sourceUp =
-                    Vector3.forward *
-                    sign;
-            }
-
-            Quaternion correction =
-                Quaternion.FromToRotation(
-                    sourceUp,
-                    Vector3.up);
-
-            visual.localRotation =
-                correction *
-                visual.localRotation;
         }
 
         private static void NormalizeScaleOnly(
