@@ -6450,12 +6450,12 @@ namespace MotorCity.UI
                 Vector2.one;
             creditsGroup.anchoredPosition =
                 new Vector2(
-                    -206f,
-                    -10f);
+                    -228f,
+                    -15f);
             creditsGroup.sizeDelta =
                 new Vector2(
-                    102f,
-                    30f);
+                    124f,
+                    34f);
 
             garageCreditsIcon =
                 CreateHudIcon(
@@ -6464,8 +6464,8 @@ namespace MotorCity.UI
                     MotorCityIconLibrary.Credits,
                     Vector2.zero,
                     new Vector2(
-                        18f,
-                        18f),
+                        21f,
+                        21f),
                     new Vector2(
                         0f,
                         0.5f),
@@ -6479,15 +6479,15 @@ namespace MotorCity.UI
                 CreateText(
                     creditsGroup,
                     "Garage Credits",
-                    21,
+                    24,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(
-                        24f,
+                        28f,
                         0f),
                     new Vector2(
-                        76f,
-                        28f),
+                        94f,
+                        32f),
                     new Vector2(
                         0f,
                         0.5f),
@@ -6516,12 +6516,12 @@ namespace MotorCity.UI
                 Vector2.one;
             reputationGroup.anchoredPosition =
                 new Vector2(
-                    -108f,
-                    -10f);
+                    -112f,
+                    -15f);
             reputationGroup.sizeDelta =
                 new Vector2(
-                    86f,
-                    30f);
+                    96f,
+                    34f);
 
             garageReputationIcon =
                 CreateHudIcon(
@@ -6530,8 +6530,8 @@ namespace MotorCity.UI
                     MotorCityIconLibrary.Reputation,
                     Vector2.zero,
                     new Vector2(
-                        16f,
-                        16f),
+                        19f,
+                        19f),
                     new Vector2(
                         0f,
                         0.5f),
@@ -6545,15 +6545,15 @@ namespace MotorCity.UI
                 CreateText(
                     reputationGroup,
                     "Garage Reputation",
-                    18,
+                    21,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(
-                        22f,
+                        26f,
                         0f),
                     new Vector2(
-                        62f,
-                        28f),
+                        68f,
+                        32f),
                     new Vector2(
                         0f,
                         0.5f),
@@ -6582,24 +6582,24 @@ namespace MotorCity.UI
                 Vector2.one;
             levelGroup.anchoredPosition =
                 new Vector2(
-                    -18f,
-                    -10f);
+                    -16f,
+                    -15f);
             levelGroup.sizeDelta =
                 new Vector2(
-                    70f,
-                    30f);
+                    78f,
+                    34f);
 
             garageLevelText =
                 CreateText(
                     levelGroup,
                     "Garage Level",
-                    16,
+                    18,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
                     new Vector2(
-                        70f,
-                        28f),
+                        78f,
+                        32f),
                     new Vector2(
                         0.5f,
                         0.5f),
