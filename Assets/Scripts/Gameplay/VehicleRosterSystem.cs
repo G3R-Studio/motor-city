@@ -26,7 +26,7 @@ namespace MotorCity.Gameplay
         public string SelectedId =>
             Valid(SelectedIndex)
                 ? profiles[SelectedIndex].Id
-                : "tois08";
+                : "street";
 
         public event Action VehicleChanged;
 
@@ -38,7 +38,7 @@ namespace MotorCity.Gameplay
         public string SelectedName =>
             Valid(SelectedIndex)
                 ? profiles[SelectedIndex].DisplayName
-                : MotorCityLocalization.Text("vehicle.tois08.name");
+                : MotorCityLocalization.Text("vehicle.street.name");
 
         public int SelectedRequiredRep =>
             Valid(SelectedIndex)
@@ -152,29 +152,14 @@ namespace MotorCity.Gameplay
             profiles =
                 new[]
                 {
-                    new VehicleProfile(
-                        "tois08",
-                        MotorCityLocalization.Text("vehicle.tois08.name"),
-                        "MotorCity/Vehicles/Player/Tois08GT",
-                        0,
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.tois08.desc")),
-
-                    // Keep the existing authored street car completely intact.
+                    // Clean baseline: the authored street car is the only
+                    // gameplay vehicle. Imported FBX cars remain source assets
+                    // only and are not connected to physics or runtime rigs.
                     new VehicleProfile(
                         "street",
                         MotorCityLocalization.Text("vehicle.street.name"),
                         "MotorCity/PlayerCarVisual",
-                        500,
+                        0,
                         0,
                         0,
                         0,
@@ -185,128 +170,7 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.street.desc")),
-
-                    new VehicleProfile(
-                        "toro86",
-                        MotorCityLocalization.Text("vehicle.toro86.name"),
-                        "MotorCity/Vehicles/Player/Toro86",
-                        1200,
-                        0,
-                        8,
-                        1,
-                        0.98f,
-                        0.015f,
-                        0.98f,
-                        1.03f,
-                        1.02f,
-                        1.05f,
-                        1.08f,
-                        MotorCityLocalization.Text("vehicle.toro86.desc")),
-
-                    new VehicleProfile(
-                        "stuttgart996",
-                        MotorCityLocalization.Text("vehicle.stuttgart996.name"),
-                        "MotorCity/Vehicles/Player/Stuttgart996",
-                        2200,
-                        0,
-                        16,
-                        2,
-                        1.02f,
-                        0.025f,
-                        1.00f,
-                        1.04f,
-                        1.06f,
-                        1.08f,
-                        1.03f,
-                        MotorCityLocalization.Text("vehicle.stuttgart996.desc")),
-
-                    new VehicleProfile(
-                        "beatall",
-                        MotorCityLocalization.Text("vehicle.beatall.name"),
-                        "MotorCity/Vehicles/Player/Beatall",
-                        3500,
-                        0,
-                        22,
-                        2,
-                        0.99f,
-                        0.01f,
-                        1.03f,
-                        1.02f,
-                        1.00f,
-                        1.06f,
-                        1.04f,
-                        MotorCityLocalization.Text("vehicle.beatall.desc")),
-
-                    new VehicleProfile(
-                        "hybrid",
-                        MotorCityLocalization.Text("vehicle.hybrid.name"),
-                        "MotorCity/Vehicles/Player/Hybrid",
-                        5000,
-                        0,
-                        28,
-                        3,
-                        1.05f,
-                        0.035f,
-                        0.94f,
-                        1.07f,
-                        1.10f,
-                        1.12f,
-                        0.94f,
-                        MotorCityLocalization.Text("vehicle.hybrid.desc")),
-
-                    new VehicleProfile(
-                        "tristar",
-                        MotorCityLocalization.Text("vehicle.tristar.name"),
-                        "MotorCity/Vehicles/Player/TristarRacer",
-                        7000,
-                        0,
-                        34,
-                        3,
-                        1.07f,
-                        0.045f,
-                        0.91f,
-                        1.09f,
-                        1.14f,
-                        1.15f,
-                        0.88f,
-                        MotorCityLocalization.Text("vehicle.tristar.desc")),
-
-                    new VehicleProfile(
-                        "van",
-                        MotorCityLocalization.Text("vehicle.van.name"),
-                        "MotorCity/Vehicles/Player/Van",
-                        9000,
-                        0,
-                        -8,
-                        0,
-                        0.92f,
-                        0.03f,
-                        1.28f,
-                        0.84f,
-                        1.14f,
-                        0.94f,
-                        0.82f,
-                        MotorCityLocalization.Text("vehicle.van.desc")),
-
-                    new VehicleProfile(
-                        "doclorean",
-                        MotorCityLocalization.Text("vehicle.doclorean.name"),
-                        "MotorCity/Vehicles/Player/DocLorean",
-                        0,
-                        0,
-                        30,
-                        3,
-                        1.04f,
-                        0.04f,
-                        0.96f,
-                        1.06f,
-                        1.08f,
-                        1.12f,
-                        0.94f,
-                        MotorCityLocalization.Text("vehicle.doclorean.desc"),
-                        true)
-
+                        MotorCityLocalization.Text("vehicle.street.desc"))
                 };
 
             MigrateLegacyOwnership();
@@ -674,43 +538,10 @@ namespace MotorCity.Gameplay
             VehicleProfile profile =
                 profiles[SelectedIndex];
 
-            bool preserveImportedTransform =
-                profile.Id != "street";
-
-            Vector3? visualRotation =
-                profile.Id == "beatall"
-                    ? new Vector3(0f, 0f, 90f)
-                    : null;
-
-            bool installed =
-                ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
-                    car,
-                    profile.ResourcePath,
-                    false,
-                    4.35f,
-                    false,
-                    visualRotation,
-                    preserveImportedTransform);
-
-            if (!installed &&
-                SelectedIndex != 0)
-            {
-                SelectedIndex = 0;
-
-                MotorCity.Persistence.MotorCitySaveService.SetInt(
-                    SelectedKey,
-                    0);
-
-                MotorCity.Persistence.MotorCitySaveService.Save();
-
-                profile =
-                    profiles[0];
-
-                ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
-                    car,
-                    profile.ResourcePath,
-                    false);
-            }
+            ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
+                car,
+                profile.ResourcePath,
+                false);
 
             car.ApplyVehicleProfile(
                 profile.SpeedBonus,
@@ -727,18 +558,13 @@ namespace MotorCity.Gameplay
                 car.GetComponent<PlayerVehicleRearEmission>();
 
             if (rearEmission != null)
-            {
                 rearEmission.SetVehicleId(profile.Id);
-            }
 
             PlayerHeadlights headlights =
                 car.GetComponent<PlayerHeadlights>();
 
             if (headlights != null)
-            {
                 headlights.SetVehicleId(profile.Id);
-            }
-
         }
 
         private bool IsUnlocked(
