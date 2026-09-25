@@ -143,24 +143,10 @@ namespace MotorCity.Gameplay
                         0));
 
             unlockedSkinMask =
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
-                    SkinMaskKey,
-                    1) |
                 1;
 
             selectedSkin =
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(
-                        SelectedSkinKey,
-                        0),
-                    0,
-                    9);
-
-            if (!IsSkinUnlocked(
-                    selectedSkin))
-            {
-                selectedSkin = 0;
-            }
+                0;
 
             currentDay =
                 Math.Max(
@@ -297,66 +283,21 @@ namespace MotorCity.Gameplay
         public void UnlockSkin(
             int skinIndex)
         {
-            if (skinIndex <= 0 ||
-                skinIndex > 9 ||
-                IsSkinUnlocked(
-                    skinIndex))
-            {
-                return;
-            }
-
-            unlockedSkinMask |=
-                1 << skinIndex;
+            // Pixie uses one fixed authored appearance.
+            unlockedSkinMask =
+                1;
 
             selectedSkin =
-                skinIndex;
-
-            SaveSkin();
-            RefreshVisualSkin();
-
-            StatusText =
-                MotorCityLocalization.Format(
-                    "turbo.skin_unlocked",
-                    SkinName);
-
-            messageTimer =
-                MessageSeconds + 1f;
+                0;
         }
 
         public void CycleSkin()
         {
-            for (int offset = 1;
-                 offset <= 10;
-                 offset++)
-            {
-                int candidate =
-                    (selectedSkin +
-                     offset) %
-                    10;
-
-                if (!IsSkinUnlocked(
-                        candidate))
-                {
-                    continue;
-                }
-
-                selectedSkin =
-                    candidate;
-
-                SaveSkin();
-                RefreshVisualSkin();
-
-                StatusText =
-                    MotorCityLocalization.Format(
-                        "turbo.skin_selected",
-                        SkinName);
-
-                messageTimer =
-                    MessageSeconds;
-
-                return;
-            }
+            // Pixie uses one fixed authored appearance.
+            selectedSkin =
+                0;
         }
+
 
         public void AddXp(
             int amount)
