@@ -85,7 +85,8 @@ namespace MotorCity.Vehicle
             bool rotateLeft90 = false,
             float targetLength = TargetLength,
             bool flipYaw180 = false,
-            Vector3? visualEulerCorrection = null)
+            Vector3? visualEulerCorrection = null,
+            bool preserveAuthoredTransform = false)
         {
             if (car == null ||
                 string.IsNullOrWhiteSpace(
@@ -113,7 +114,8 @@ namespace MotorCity.Vehicle
                 rotateLeft90,
                 targetLength,
                 flipYaw180,
-                visualEulerCorrection);
+                visualEulerCorrection,
+                preserveAuthoredTransform);
         }
 
         private static bool Install(
@@ -122,15 +124,20 @@ namespace MotorCity.Vehicle
             bool rotateLeft90,
             float targetLength = TargetLength,
             bool flipYaw180 = false,
-            Vector3? visualEulerCorrection = null)
+            Vector3? visualEulerCorrection = null,
+            bool preserveAuthoredTransform = false)
         {
             Transform carTransform = car.transform;
 
             GameObject visual = Instantiate(prefab, carTransform);
             visual.name = RuntimeVisualName;
-            visual.transform.localPosition = Vector3.zero;
-            visual.transform.localRotation = Quaternion.identity;
-            visual.transform.localScale = Vector3.one;
+
+            if (!preserveAuthoredTransform)
+            {
+                visual.transform.localPosition = Vector3.zero;
+                visual.transform.localRotation = Quaternion.identity;
+                visual.transform.localScale = Vector3.one;
+            }
 
             bool useAuthoredBusRig =
                 flipYaw180;
@@ -161,39 +168,42 @@ namespace MotorCity.Vehicle
 
             StripImportedPhysics(visual);
 
-            if (visualEulerCorrection.HasValue)
+            if (!preserveAuthoredTransform)
             {
-                visual.transform.localRotation =
-                    Quaternion.Euler(
-                        visualEulerCorrection.Value) *
-                    visual.transform.localRotation;
-            }
+                if (visualEulerCorrection.HasValue)
+                {
+                    visual.transform.localRotation =
+                        Quaternion.Euler(
+                            visualEulerCorrection.Value) *
+                        visual.transform.localRotation;
+                }
 
-            if (rotateLeft90)
-            {
-                NormalizeScaleOnly(
-                    visual.transform,
-                    targetLength);
+                if (rotateLeft90)
+                {
+                    NormalizeScaleOnly(
+                        visual.transform,
+                        targetLength);
 
-                visual.transform.localRotation =
-                    Quaternion.Euler(
-                        0f,
-                        -90f,
-                        0f);
-            }
-            else if (useAuthoredBusRig)
-            {
-                // FCG buses are authored at the same real-world scale used by
-                // city traffic. Preserve scale 1:1 so the player BusClimm has
-                // exactly the same visual dimensions as traffic BusClimm.
-                visual.transform.localRotation =
-                    Quaternion.identity;
-            }
-            else
-            {
-                NormalizeHorizontalScaleAndRotation(
-                    visual.transform,
-                    targetLength);
+                    visual.transform.localRotation =
+                        Quaternion.Euler(
+                            0f,
+                            -90f,
+                            0f);
+                }
+                else if (useAuthoredBusRig)
+                {
+                    // FCG buses are authored at the same real-world scale used by
+                    // city traffic. Preserve scale 1:1 so the player BusClimm has
+                    // exactly the same visual dimensions as traffic BusClimm.
+                    visual.transform.localRotation =
+                        Quaternion.identity;
+                }
+                else
+                {
+                    NormalizeHorizontalScaleAndRotation(
+                        visual.transform,
+                        targetLength);
+                }
             }
 
             UpgradeMaterialsForCurrentPipeline(visual);
@@ -240,28 +250,31 @@ namespace MotorCity.Vehicle
                 return ConfigureFallbackRig(car);
             }
 
-            if (!rotateLeft90 &&
-                !useAuthoredBusRig)
+            if (!preserveAuthoredTransform)
             {
-                AlignWheelbaseWithCarForward(
-                    visual.transform,
-                    carTransform,
-                    wheelAnchors);
+                if (!rotateLeft90 &&
+                    !useAuthoredBusRig)
+                {
+                    AlignWheelbaseWithCarForward(
+                        visual.transform,
+                        carTransform,
+                        wheelAnchors);
 
-                EnsureVisualNoseFacesPositiveZ(
+                    EnsureVisualNoseFacesPositiveZ(
+                        visual.transform,
+                        carTransform,
+                        wheelAnchors);
+                }
+
+                CenterVisualHorizontally(
+                    visual.transform,
+                    carTransform);
+
+                AlignBodyToWheelCenters(
                     visual.transform,
                     carTransform,
                     wheelAnchors);
             }
-
-            CenterVisualHorizontally(
-                visual.transform,
-                carTransform);
-
-            AlignBodyToWheelCenters(
-                visual.transform,
-                carTransform,
-                wheelAnchors);
 
             // Re-evaluate normal cars after all visual transforms. For the
             // FCG bus keep the source FL/FR/BL/BR transforms explicitly; its
