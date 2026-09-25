@@ -677,6 +677,11 @@ namespace MotorCity.Gameplay
             bool preserveImportedTransform =
                 profile.Id != "street";
 
+            Vector3? visualRotation =
+                profile.Id == "beatall"
+                    ? new Vector3(0f, 0f, 90f)
+                    : null;
+
             bool installed =
                 ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                     car,
@@ -684,7 +689,7 @@ namespace MotorCity.Gameplay
                     false,
                     4.35f,
                     false,
-                    null,
+                    visualRotation,
                     preserveImportedTransform);
 
             if (!installed &&
