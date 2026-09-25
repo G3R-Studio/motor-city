@@ -7075,7 +7075,6 @@ namespace MotorCity.UI
 
                 MotorCityInputAction.SaveCustomizationPreset,
                 MotorCityInputAction.LoadCustomizationPreset,
-                MotorCityInputAction.TakePhoto,
                 MotorCityInputAction.ToggleVehiclePassport,
                 MotorCityInputAction.Interact
             };
@@ -7097,7 +7096,6 @@ namespace MotorCity.UI
 
                 "touch.garage.save",
                 "touch.garage.load",
-                "touch.utility.photo",
                 "touch.garage.passport",
                 "touch.garage.close"
             };
@@ -7106,7 +7104,7 @@ namespace MotorCity.UI
             {
                 -1, -1, -1, -1, -1, -1,
                 -1, -1, 0, 1, 2,
-                -1, -1, -1, -1, -1
+                -1, -1, -1, -1
             };
 
             const float buttonWidth = 111f;
