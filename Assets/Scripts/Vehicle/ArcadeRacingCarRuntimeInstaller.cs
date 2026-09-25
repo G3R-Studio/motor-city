@@ -125,8 +125,15 @@ namespace MotorCity.Vehicle
 
             GameObject visual = Instantiate(prefab, carTransform);
             visual.name = RuntimeVisualName;
+
+            // Imported FBX prefabs can carry a corrective root rotation that
+            // converts the source package axes into Unity's Y-up space. Losing
+            // it makes otherwise valid cars stand on their side in game.
+            Quaternion authoredRootRotation =
+                visual.transform.localRotation;
+
             visual.transform.localPosition = Vector3.zero;
-            visual.transform.localRotation = Quaternion.identity;
+            visual.transform.localRotation = authoredRootRotation;
             visual.transform.localScale = Vector3.one;
 
             bool useAuthoredBusRig =
@@ -1286,7 +1293,12 @@ namespace MotorCity.Vehicle
 
             if (bounds.size.x > bounds.size.z * 1.12f)
             {
-                visual.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                // Rotate around the already-corrected local up axis instead of
+                // replacing the authored FBX orientation.
+                visual.localRotation =
+                    visual.localRotation *
+                    Quaternion.Euler(0f, 90f, 0f);
+
                 bounds = RendererBounds(visual);
             }
 
