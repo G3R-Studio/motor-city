@@ -1076,6 +1076,14 @@ namespace MotorCity.Gameplay
                     ? 0f
                     : car.SpeedKph;
 
+            if (selectedSkin == 9 &&
+                externalAnimator != null)
+            {
+                externalAnimator.SetBool(
+                    "param_idletorunning",
+                    speed > 7f);
+            }
+
             string state;
 
             if (speed > 7f)
@@ -1178,20 +1186,34 @@ namespace MotorCity.Gameplay
             if (hash ==
                 currentAnimatorStateHash)
             {
-                // The imported Kisora running clip is authored as a one-shot.
-                // While the player's car is moving, restart it as soon as it
-                // reaches the end so the companion never freezes in the final
-                // running pose.
-                if (selectedSkin == 9 &&
-                    mappedState == "running")
+                if (selectedSkin == 9)
                 {
                     AnimatorStateInfo currentState =
                         externalAnimator.GetCurrentAnimatorStateInfo(
                             0);
 
-                    if (currentState.shortNameHash ==
-                            Animator.StringToHash(
-                                mappedState) &&
+                    int shortHash =
+                        Animator.StringToHash(
+                            mappedState);
+
+                    // Kisora's bundled controller can transition back to idle
+                    // when its original bool is false. If the game still wants
+                    // another state, immediately restore it instead of leaving
+                    // the companion frozen or idle while the car keeps moving.
+                    if (currentState.shortNameHash !=
+                        shortHash)
+                    {
+                        externalAnimator.Play(
+                            hash,
+                            0,
+                            0f);
+
+                        return;
+                    }
+
+                    // Fallback for old/non-loop-imported copies of the running
+                    // clip. The editor installer also marks this clip loopable.
+                    if (mappedState == "running" &&
                         currentState.normalizedTime >= 0.98f)
                     {
                         externalAnimator.Play(
