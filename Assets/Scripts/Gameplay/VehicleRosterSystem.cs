@@ -676,7 +676,7 @@ namespace MotorCity.Gameplay
 
             float targetLength =
                 profile.Id == "van"
-                    ? 5.15f
+                    ? 10.30f
                     : 4.35f;
 
             bool installed =
