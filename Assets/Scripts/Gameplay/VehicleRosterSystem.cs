@@ -674,37 +674,18 @@ namespace MotorCity.Gameplay
             VehicleProfile profile =
                 profiles[SelectedIndex];
 
-            float targetLength =
-                profile.Id == "van"
-                    ? 10.30f
-                    : 4.35f;
-
-            Vector3 visualCorrection =
-                profile.Id switch
-                {
-                    // Designersoup packs use FBX axes that need an explicit
-                    // quarter-turn into Motor City's Y-up/Z-forward rig.
-                    "tois08" or
-                    "toro86" or
-                    "stuttgart996" =>
-                        new Vector3(0f, 0f, -90f),
-
-                    "tristar" or
-                    "doclorean" =>
-                        new Vector3(0f, 0f, -90f),
-
-                    _ =>
-                        Vector3.zero
-                };
+            bool preserveImportedTransform =
+                profile.Id != "street";
 
             bool installed =
                 ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                     car,
                     profile.ResourcePath,
                     false,
-                    targetLength,
+                    4.35f,
                     false,
-                    visualCorrection);
+                    null,
+                    preserveImportedTransform);
 
             if (!installed &&
                 SelectedIndex != 0)
