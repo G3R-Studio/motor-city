@@ -20,6 +20,7 @@ namespace MotorCity.UI
         public Texture2D minimapPlayerPointer;
         public Texture2D modalPanel;
         public Texture2D modalButton;
+        public Texture2D passportPanel;
         public Texture2D warning;
         public Texture2D engine;
         public Texture2D nitrous;
