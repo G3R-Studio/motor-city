@@ -168,12 +168,9 @@ namespace MotorCity.Input
             VirtualPressed(MotorCityInputAction.ToggleStore);
 
         public static bool ToggleNavigatorPressed =>
-            KeyPressed(Key.M) ||
             VirtualPressed(MotorCityInputAction.ToggleNavigator);
 
         public static bool CycleDriveModePressed =>
-            KeyPressed(
-                Key.Q) ||
             VirtualPressed(
                 MotorCityInputAction.CycleDriveMode);
 
