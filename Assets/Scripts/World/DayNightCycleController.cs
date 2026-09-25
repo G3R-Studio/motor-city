@@ -690,18 +690,10 @@ namespace MotorCity.World
                 Vector3 glowPosition =
                     sourceLight.transform.position;
 
-                if (isParkLamp &&
-                    sourceLight.transform.parent != null)
+                if (isParkLamp)
                 {
-                    Vector3 localGlowPosition =
-                        sourceLight.transform.localPosition;
-
-                    localGlowPosition.y =
-                        3.3f;
-
-                    glowPosition =
-                        sourceLight.transform.parent.TransformPoint(
-                            localGlowPosition);
+                    glowPosition.y =
+                        3.17f;
                 }
 
                 streetLampAnchors.Add(
