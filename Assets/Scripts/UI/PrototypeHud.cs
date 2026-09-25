@@ -7255,6 +7255,16 @@ namespace MotorCity.UI
                 Image rowImage =
                     row.GetComponent<Image>();
 
+                // CreatePanel/ApplyGarageRowTexture disable raycasts by
+                // default because most panels are decorative. Upgrade cards
+                // are interactive, so the full row image must participate in
+                // UI raycasting for the parent Button to receive clicks.
+                if (rowImage != null)
+                {
+                    rowImage.raycastTarget =
+                        true;
+                }
+
                 Button rowButton =
                     row.gameObject.AddComponent<Button>();
 
