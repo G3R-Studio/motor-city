@@ -8302,7 +8302,7 @@ namespace MotorCity.UI
                 "HUD Photo",
                 "touch.utility.photo",
                 MotorCityInputAction.TakePhoto,
-                new Vector2(0f, 0f),
+                new Vector2(0f, 66f),
                 new Vector2(96f, 34f));
 
             CreatePauseButton(
