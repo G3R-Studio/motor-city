@@ -100,93 +100,62 @@ namespace MotorCity.Input
                  MotorCityInputAction.Handbrake));
 
         public static bool PreviousVehiclePressed =>
-            KeyPressed(
-                Key.Z) ||
             VirtualPressed(
                 MotorCityInputAction.PreviousVehicle);
 
         public static bool NextVehiclePressed =>
-            KeyPressed(
-                Key.X) ||
             VirtualPressed(
                 MotorCityInputAction.NextVehicle);
 
         public static bool Upgrade1Pressed =>
-            KeyPressed(
-                Key.Digit1) ||
-            KeyPressed(
-                Key.Numpad1) ||
             VirtualPressed(
                 MotorCityInputAction.Upgrade1);
 
         public static bool Upgrade2Pressed =>
-            KeyPressed(
-                Key.Digit2) ||
-            KeyPressed(
-                Key.Numpad2) ||
             VirtualPressed(
                 MotorCityInputAction.Upgrade2);
 
         public static bool Upgrade3Pressed =>
-            KeyPressed(
-                Key.Digit3) ||
-            KeyPressed(
-                Key.Numpad3) ||
             VirtualPressed(
                 MotorCityInputAction.Upgrade3);
 
         public static bool BuyVehiclePressed =>
-            KeyPressed(
-                Key.B) ||
             VirtualPressed(
                 MotorCityInputAction.BuyVehicle);
 
         public static bool CyclePetSkinPressed =>
-            KeyPressed(
-                Key.C) ||
             VirtualPressed(
                 MotorCityInputAction.CyclePetSkin);
 
         public static bool CycleBodyColorPressed =>
-            KeyPressed(
-                Key.V) ||
             VirtualPressed(
                 MotorCityInputAction.CycleBodyColor);
 
         public static bool CycleStickerPressed =>
-            KeyPressed(Key.G) ||
             VirtualPressed(MotorCityInputAction.CycleSticker);
 
         public static bool CycleVinylPressed =>
-            KeyPressed(Key.H) ||
             VirtualPressed(MotorCityInputAction.CycleVinyl);
 
         public static bool CycleWheelsPressed =>
-            KeyPressed(Key.J) ||
             VirtualPressed(MotorCityInputAction.CycleWheels);
 
         public static bool CycleNeonPressed =>
-            KeyPressed(Key.N) ||
             VirtualPressed(MotorCityInputAction.CycleNeon);
 
         public static bool CyclePlatePressed =>
-            KeyPressed(Key.L) ||
             VirtualPressed(MotorCityInputAction.CyclePlate);
 
         public static bool SaveCustomizationPresetPressed =>
-            KeyPressed(Key.F5) ||
             VirtualPressed(MotorCityInputAction.SaveCustomizationPreset);
 
         public static bool LoadCustomizationPresetPressed =>
-            KeyPressed(Key.F6) ||
             VirtualPressed(MotorCityInputAction.LoadCustomizationPreset);
 
         public static bool TakePhotoPressed =>
-            KeyPressed(Key.P) ||
             VirtualPressed(MotorCityInputAction.TakePhoto);
 
         public static bool ToggleVehiclePassportPressed =>
-            KeyPressed(Key.K) ||
             VirtualPressed(MotorCityInputAction.ToggleVehiclePassport);
 
         public static bool ToggleClubPressed =>
