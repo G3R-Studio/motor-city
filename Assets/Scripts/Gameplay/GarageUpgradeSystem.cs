@@ -175,138 +175,172 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
-            if (car == null || wallet == null || activityManager == null) return;
-
-            float distance = Vector3.Distance(
-                Flat(car.transform.position),
-                Flat(garageCenter));
-
-            IsNearGarage = distance <= interactRadius;
-
-            if (IsOpen && (!IsNearGarage || car.SpeedKph > maxOpenSpeedKph))
-                CloseGarage();
-
-            if (IsNearGarage && MotorCityInput.InteractPressed)
+            if (car == null ||
+                wallet == null ||
+                activityManager == null)
             {
-                if (IsOpen)
-                    CloseGarage();
-                else if (car.SpeedKph <= maxOpenSpeedKph)
-                    OpenGarage();
-                else
-                    StatusText = MotorCityLocalization.Text("garage.stop_first");
+                return;
+            }
+
+            float distance =
+                Vector3.Distance(
+                    Flat(
+                        car.transform.position),
+                    Flat(
+                        garageCenter));
+
+            IsNearGarage =
+                distance <=
+                interactRadius;
+
+            if (IsOpen &&
+                (!IsNearGarage ||
+                 car.SpeedKph >
+                 maxOpenSpeedKph))
+            {
+                CloseGarage();
             }
 
             if (!IsOpen)
             {
-                StatusText = IsNearGarage
-                    ? (activityManager.IsBusy
-                        ? MotorCityLocalization.Format(
-                            "garage.open_cancel",
-                            activityManager.ActiveName)
-                        : MotorCityLocalization.Text(
-                            "garage.stop_and_open"))
-                    : MotorCityLocalization.Text(
-                        "garage.marker_text");
+                if (IsNearGarage &&
+                    MotorCityInput.InteractPressed)
+                {
+                    if (car.SpeedKph <=
+                        maxOpenSpeedKph)
+                    {
+                        OpenGarage();
+                    }
+                    else
+                    {
+                        StatusText =
+                            MotorCityLocalization.Text(
+                                "garage.stop_first");
+                    }
+                }
+
+                if (!IsOpen)
+                {
+                    StatusText =
+                        IsNearGarage
+                            ? (activityManager.IsBusy
+                                ? MotorCityLocalization.Format(
+                                    "garage.open_cancel",
+                                    activityManager.ActiveName)
+                                : MotorCityLocalization.Text(
+                                    "garage.stop_and_open"))
+                            : MotorCityLocalization.Text(
+                                "garage.marker_text");
+
+                    return;
+                }
+            }
+
+            // Once the garage is open, all garage actions are UI-only.
+            // Keyboard shortcuts remain available elsewhere in the game,
+            // but are intentionally ignored by the garage.
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.Interact))
+            {
+                CloseGarage();
                 return;
             }
 
-            bool upgrade1 =
-                MotorCityInput.Upgrade1Pressed;
-
-            bool upgrade2 =
-                MotorCityInput.Upgrade2Pressed;
-
-            bool upgrade3 =
-                MotorCityInput.Upgrade3Pressed;
-
-            bool presetShortcut =
-                MotorCityInput.EliteModifierHeld &&
-                (upgrade1 ||
-                 upgrade2 ||
-                 upgrade3);
-
-            if (presetShortcut &&
-                customization != null)
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.Upgrade1))
             {
-                int slot =
-                    upgrade1
-                        ? 0
-                        : upgrade2
-                            ? 1
-                            : 2;
-
-                customization.SelectPresetSlot(
-                    slot);
-
-                StatusText =
-                    MotorCityLocalization.Format(
-                        "customization.preset_selected",
-                        slot + 1);
-            }
-            else
-            {
-                if (upgrade1)
-                    TryBuy(UpgradeType.Engine);
-
-                if (upgrade2)
-                    TryBuy(UpgradeType.Grip);
-
-                if (upgrade3)
-                    TryBuy(UpgradeType.Stability);
+                TryBuy(
+                    UpgradeType.Engine);
             }
 
-            if (MotorCityInput.PreviousVehiclePressed)
-                TrySelectVehicle(-1);
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.Upgrade2))
+            {
+                TryBuy(
+                    UpgradeType.Grip);
+            }
 
-            if (MotorCityInput.NextVehiclePressed)
-                TrySelectVehicle(1);
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.Upgrade3))
+            {
+                TryBuy(
+                    UpgradeType.Stability);
+            }
 
-            if (MotorCityInput.BuyVehiclePressed)
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.PreviousVehicle))
+            {
+                TrySelectVehicle(
+                    -1);
+            }
+
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.NextVehicle))
+            {
+                TrySelectVehicle(
+                    1);
+            }
+
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.BuyVehicle))
+            {
                 TryPurchaseNextVehicle();
+            }
 
-            if (MotorCityInput.CyclePetSkinPressed &&
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.CyclePetSkin) &&
                 turbo != null)
             {
                 turbo.CycleSkin();
+
                 StatusText =
                     turbo.GarageLine;
             }
 
-            if (MotorCityInput.CycleBodyColorPressed &&
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.CycleBodyColor) &&
                 customization != null)
             {
                 customization.CycleBodyColor();
+
                 StatusText =
                     customization.GarageLine;
             }
 
-            if (MotorCityInput.CycleWheelsPressed &&
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.CycleWheels) &&
                 customization != null)
             {
                 customization.CycleWheelStyle();
+
                 StatusText =
                     customization.GarageLine;
             }
 
-            if (MotorCityInput.CycleNeonPressed &&
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.CycleNeon) &&
                 customization != null)
             {
                 customization.CycleNeon();
+
                 StatusText =
                     customization.GarageLine;
             }
 
-            if (MotorCityInput.SaveCustomizationPresetPressed &&
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.SaveCustomizationPreset) &&
                 customization != null)
             {
                 customization.SaveSelectedPreset();
+
                 StatusText =
                     MotorCityLocalization.Format(
                         "customization.preset_saved",
                         customization.PresetSlotNumber);
             }
 
-            if (MotorCityInput.LoadCustomizationPresetPressed &&
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.LoadCustomizationPreset) &&
                 customization != null)
             {
                 bool loaded =
@@ -320,17 +354,16 @@ namespace MotorCity.Gameplay
                         customization.PresetSlotNumber);
             }
 
-            if (MotorCityInput.TakePhotoPressed &&
+            if (MotorCityInput.WasVirtualPressed(
+                    MotorCityInputAction.TakePhoto) &&
                 customization != null)
             {
                 customization.CapturePhoto();
+
                 StatusText =
                     MotorCityLocalization.Text(
                         "customization.photo_taken");
             }
-
-            if (MotorCityInput.CancelPressed)
-                CloseGarage();
         }
 
         public string GetUpgradeTitle(int index)
