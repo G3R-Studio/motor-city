@@ -17,10 +17,13 @@ namespace MotorCity.Gameplay
 
         private static readonly Color[] BodyColors =
         {
-            new(0.86f, 0.10f, 0.12f, 1f),
-            new(0.08f, 0.42f, 0.95f, 1f),
+            // Keep the authored Street car paints untouched. These generic
+            // colors are used by the other vehicles and mirror the names/order
+            // established by the Street car's real authored paint variants.
             new(0.95f, 0.70f, 0.08f, 1f),
-            new(0.10f, 0.72f, 0.34f, 1f),
+            new(0.08f, 0.42f, 0.95f, 1f),
+            new(0.86f, 0.10f, 0.12f, 1f),
+            new(0.42f, 0.44f, 0.48f, 1f),
             new(0.58f, 0.18f, 0.92f, 1f),
             new(0.96f, 0.96f, 0.98f, 1f),
             new(0.08f, 0.09f, 0.11f, 1f)
@@ -1329,13 +1332,14 @@ namespace MotorCity.Gameplay
             return
                 index switch
                 {
+                    0 => "customization.color_yellow",
                     1 => "customization.color_blue",
-                    2 => "customization.color_yellow",
-                    3 => "customization.color_green",
+                    2 => "customization.color_red",
+                    3 => "customization.color_gray",
                     4 => "customization.color_purple",
                     5 => "customization.color_white",
                     6 => "customization.color_black",
-                    _ => "customization.color_red"
+                    _ => "customization.color_yellow"
                 };
         }
 
