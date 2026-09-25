@@ -348,16 +348,6 @@ namespace MotorCity.Gameplay
                         customization.PresetSlotNumber);
             }
 
-            if (MotorCityInput.WasVirtualPressed(
-                    MotorCityInputAction.TakePhoto) &&
-                customization != null)
-            {
-                customization.CapturePhoto();
-
-                StatusText =
-                    MotorCityLocalization.Text(
-                        "customization.photo_taken");
-            }
         }
 
         public string GetUpgradeTitle(int index)
