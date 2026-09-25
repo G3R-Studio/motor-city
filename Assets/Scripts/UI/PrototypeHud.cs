@@ -5100,6 +5100,10 @@ namespace MotorCity.UI
                         minimapTargetIcon.sprite =
                             targetSprite;
                     }
+
+                    minimapTargetIcon.color =
+                        MotorCityIconLibrary.WorldMarkerColor(
+                            markerId);
                 }
             }
 
