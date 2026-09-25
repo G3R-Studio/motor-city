@@ -15,18 +15,78 @@ namespace MotorCity.Gameplay
         private const string CosmeticsRootName =
             "MotorCityCosmetics_Runtime";
 
-        private static readonly Color[] BodyColors =
+        private static readonly Color[] StreetBodyColors =
         {
-            // Keep the authored Street car paints untouched. These generic
-            // colors are used by the other vehicles and mirror the names/order
-            // established by the Street car's real authored paint variants.
+            // Street uses its existing authored StarterPaint_0..4 materials.
+            // These values are only a fallback if an authored material is missing.
             new(0.95f, 0.70f, 0.08f, 1f),
             new(0.08f, 0.42f, 0.95f, 1f),
             new(0.86f, 0.10f, 0.12f, 1f),
             new(0.42f, 0.44f, 0.48f, 1f),
-            new(0.58f, 0.18f, 0.92f, 1f),
-            new(0.96f, 0.96f, 0.98f, 1f),
-            new(0.08f, 0.09f, 0.11f, 1f)
+            new(0.58f, 0.18f, 0.92f, 1f)
+        };
+
+        private static readonly Color[] DesignersoupBodyColors =
+        {
+            new(0.78f, 0.035f, 0.045f, 1f), // Rallye Red
+            new(1.00f, 0.64f, 0.035f, 1f), // Pheonix Yellow
+            new(0.055f, 0.30f, 0.78f, 1f), // Boost Pearl Blue
+            new(0.018f, 0.022f, 0.028f, 1f), // Black Pearl
+            new(0.33f, 0.36f, 0.39f, 1f), // Sonic Grey Pearl
+            new(0.93f, 0.93f, 0.90f, 1f)  // Championship White
+        };
+
+        private static readonly Color[] MuscleBodyColors =
+        {
+            new(0.68f, 0.055f, 0.04f, 1f),
+            new(0.92f, 0.30f, 0.035f, 1f),
+            new(0.055f, 0.22f, 0.64f, 1f),
+            new(0.025f, 0.028f, 0.035f, 1f),
+            new(0.72f, 0.74f, 0.76f, 1f),
+            new(0.94f, 0.93f, 0.89f, 1f)
+        };
+
+        private static readonly Color[] HybridBodyColors =
+        {
+            new(0.025f, 0.028f, 0.035f, 1f),
+            new(0.045f, 0.28f, 0.80f, 1f),
+            new(0.85f, 0.56f, 0.08f, 1f),
+            new(0.06f, 0.52f, 0.20f, 1f),
+            new(0.12f, 0.62f, 0.92f, 1f),
+            new(0.46f, 0.12f, 0.72f, 1f),
+            new(0.78f, 0.045f, 0.04f, 1f),
+            new(0.62f, 0.65f, 0.70f, 1f),
+            new(0.94f, 0.94f, 0.92f, 1f),
+            new(0.96f, 0.66f, 0.04f, 1f)
+        };
+
+        private static readonly Color[] TristarBodyColors =
+        {
+            new(0.80f, 0.035f, 0.035f, 1f),
+            new(0.96f, 0.62f, 0.025f, 1f),
+            new(0.03f, 0.32f, 0.86f, 1f),
+            new(0.018f, 0.022f, 0.03f, 1f),
+            new(0.36f, 0.39f, 0.44f, 1f),
+            new(0.94f, 0.94f, 0.92f, 1f)
+        };
+
+        private static readonly Color[] VanBodyColors =
+        {
+            new(0.93f, 0.93f, 0.90f, 1f),
+            new(0.055f, 0.34f, 0.75f, 1f),
+            new(0.72f, 0.045f, 0.035f, 1f),
+            new(0.95f, 0.63f, 0.035f, 1f),
+            new(0.23f, 0.25f, 0.28f, 1f),
+            new(0.20f, 0.66f, 0.50f, 1f)
+        };
+
+        private static readonly Color[] DocLoreanBodyColors =
+        {
+            new(0.58f, 0.61f, 0.64f, 1f),
+            new(0.018f, 0.022f, 0.03f, 1f),
+            new(0.025f, 0.34f, 0.82f, 1f),
+            new(0.72f, 0.045f, 0.035f, 1f),
+            new(0.94f, 0.94f, 0.92f, 1f)
         };
 
         private static readonly Color[] AccentColors =
@@ -223,7 +283,7 @@ namespace MotorCity.Gameplay
                 Mathf.Clamp(
                     MotorCity.Persistence.MotorCitySaveService.GetInt(prefix + ".Color", 0),
                     0,
-                    BodyColors.Length - 1);
+                    BodyColorCountForCurrentVehicle() - 1);
 
             SelectedStickerIndex = 0;
             SelectedVinylIndex = 0;
@@ -313,9 +373,41 @@ namespace MotorCity.Gameplay
         private int BodyColorCountForCurrentVehicle()
         {
             return
-                VehicleId() == "street"
-                    ? 5
-                    : BodyColors.Length;
+                BodyColorsForCurrentVehicle()
+                    .Length;
+        }
+
+        private Color[] BodyColorsForCurrentVehicle()
+        {
+            return
+                VehicleId() switch
+                {
+                    "street" =>
+                        StreetBodyColors,
+
+                    "tois08" or
+                    "toro86" or
+                    "stuttgart996" =>
+                        DesignersoupBodyColors,
+
+                    "muscle10" =>
+                        MuscleBodyColors,
+
+                    "hybrid" =>
+                        HybridBodyColors,
+
+                    "tristar" =>
+                        TristarBodyColors,
+
+                    "van" =>
+                        VanBodyColors,
+
+                    "doclorean" =>
+                        DocLoreanBodyColors,
+
+                    _ =>
+                        DesignersoupBodyColors
+                };
         }
 
         private int GetInt(
@@ -376,9 +468,15 @@ namespace MotorCity.Gameplay
                 visual.GetComponentsInChildren<Renderer>(
                     true);
 
+            Color[] bodyColors =
+                BodyColorsForCurrentVehicle();
+
             Color color =
-                BodyColors[
-                    SelectedColorIndex];
+                bodyColors[
+                    Mathf.Clamp(
+                        SelectedColorIndex,
+                        0,
+                        bodyColors.Length - 1)];
 
             int paintedSlots =
                 0;
@@ -1326,21 +1424,65 @@ namespace MotorCity.Gameplay
                         plates.Length - 1)];
         }
 
-        private static string ColorNameKey(
+        private string ColorNameKey(
             int index)
         {
-            return
-                index switch
+            string vehicleId =
+                VehicleId();
+
+            if (vehicleId == "street")
+            {
+                return
+                    index switch
+                    {
+                        0 => "customization.color_yellow",
+                        1 => "customization.color_blue",
+                        2 => "customization.color_red",
+                        3 => "customization.color_gray",
+                        _ => "customization.color_purple"
+                    };
+            }
+
+            if (vehicleId == "tois08" ||
+                vehicleId == "toro86" ||
+                vehicleId == "stuttgart996")
+            {
+                return
+                    "customization.designersoup." +
+                    Mathf.Clamp(
+                        index,
+                        0,
+                        DesignersoupBodyColors.Length - 1);
+            }
+
+            string prefix =
+                vehicleId switch
                 {
-                    0 => "customization.color_yellow",
-                    1 => "customization.color_blue",
-                    2 => "customization.color_red",
-                    3 => "customization.color_gray",
-                    4 => "customization.color_purple",
-                    5 => "customization.color_white",
-                    6 => "customization.color_black",
-                    _ => "customization.color_yellow"
+                    "muscle10" =>
+                        "customization.muscle.",
+
+                    "hybrid" =>
+                        "customization.hybrid.",
+
+                    "tristar" =>
+                        "customization.tristar.",
+
+                    "van" =>
+                        "customization.van.",
+
+                    "doclorean" =>
+                        "customization.doclorean.",
+
+                    _ =>
+                        "customization.designersoup."
                 };
+
+            return
+                prefix +
+                Mathf.Clamp(
+                    index,
+                    0,
+                    BodyColorCountForCurrentVehicle() - 1);
         }
 
         private static string StickerNameKey(
