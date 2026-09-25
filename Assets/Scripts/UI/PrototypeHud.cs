@@ -6435,7 +6435,7 @@ namespace MotorCity.UI
                     "Garage Credits Icon",
                     MotorCityIconLibrary.Credits,
                     new Vector2(
-                        -246f,
+                        -214f,
                         -22f),
                     new Vector2(
                         18f,
@@ -6457,7 +6457,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
                     new Vector2(-174f, -22f),
-                    new Vector2(64f, 28f),
+                    new Vector2(112f, 28f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
@@ -6468,7 +6468,7 @@ namespace MotorCity.UI
                     "Garage Reputation Icon",
                     MotorCityIconLibrary.Reputation,
                     new Vector2(
-                        -88f,
+                        -82f,
                         -22f),
                     new Vector2(
                         16f,
@@ -6490,7 +6490,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
                     new Vector2(-18f, -22f),
-                    new Vector2(58f, 28f),
+                    new Vector2(112f, 28f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     TextColor);
@@ -7279,6 +7279,56 @@ namespace MotorCity.UI
                 };
         }
 
+        private void AlignGarageBalanceIcons()
+        {
+            const float gap =
+                7f;
+
+            if (garageCreditsIcon != null &&
+                garageMoneyText != null)
+            {
+                RectTransform iconRect =
+                    garageCreditsIcon.rectTransform;
+
+                RectTransform textRect =
+                    garageMoneyText.rectTransform;
+
+                float textWidth =
+                    Mathf.Max(
+                        1f,
+                        garageMoneyText.preferredWidth);
+
+                iconRect.anchoredPosition =
+                    new Vector2(
+                        textRect.anchoredPosition.x -
+                        textWidth -
+                        gap,
+                        textRect.anchoredPosition.y);
+            }
+
+            if (garageReputationIcon != null &&
+                garageReputationText != null)
+            {
+                RectTransform iconRect =
+                    garageReputationIcon.rectTransform;
+
+                RectTransform textRect =
+                    garageReputationText.rectTransform;
+
+                float textWidth =
+                    Mathf.Max(
+                        1f,
+                        garageReputationText.preferredWidth);
+
+                iconRect.anchoredPosition =
+                    new Vector2(
+                        textRect.anchoredPosition.x -
+                        textWidth -
+                        gap,
+                        textRect.anchoredPosition.y);
+            }
+        }
+
         private void UpdateGarage()
         {
             if (MotorCityInput.ToggleVehiclePassportPressed)
@@ -7314,6 +7364,8 @@ namespace MotorCity.UI
                             ? activityManager.ReputationLevel
                             : 1);
             }
+
+            AlignGarageBalanceIcons();
 
             if (garageVehicleText != null)
             {
