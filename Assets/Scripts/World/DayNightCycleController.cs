@@ -20,6 +20,11 @@ namespace MotorCity.World
         private const float LampEnableDistance =
             110f;
 
+        private const int MaxRuntimeStreetLights =
+            16;
+
+        private const int MaxRuntimeLampGlows =
+            64;
 
         [SerializeField] private float fullCycleSeconds =
             480f;
@@ -30,13 +35,19 @@ namespace MotorCity.World
         [SerializeField] private float sunYawDegrees =
             -28f;
 
-        private readonly List<LampSource> lampSources =
-            new();
-
-        private readonly List<LampCandidate> lampCandidates =
+        private readonly List<Light> streetLights =
             new();
 
         private readonly List<Renderer> streetLampGlowRenderers =
+            new();
+
+        private readonly List<Renderer> runtimeLampGlowRenderers =
+            new();
+
+        private readonly List<LampAnchor> streetLampAnchors =
+            new();
+
+        private readonly List<LampCandidate> lampCandidates =
             new();
 
         private DayNightSettings settings;
@@ -44,13 +55,13 @@ namespace MotorCity.World
         private Light moonLight;
         private Material runtimeDaySkybox;
         private Material runtimeNightSkybox;
+        private Material runtimeLampGlowMaterial;
 
         private float time01;
         private float environmentUpdateTimer;
         private float lampUpdateTimer;
         private float observerResolveTimer;
-        private int streetLightSourceCount;
-        private int parkLampSourceCount;
+        private int autoCreatedStreetLights;
         private Transform lampObserver;
         private bool lastNightState;
         private bool initialized;
@@ -58,9 +69,8 @@ namespace MotorCity.World
         public bool IsNight { get; private set; }
         public float NightAmount { get; private set; }
         public float TimeOfDay01 => time01;
-        public int StreetLightCount => streetLightSourceCount;
-        public int ParkLampCount => parkLampSourceCount;
-        public int AutoCreatedStreetLightCount => 0;
+        public int StreetLightCount => streetLampAnchors.Count;
+        public int AutoCreatedStreetLightCount => autoCreatedStreetLights;
         public int EnabledStreetLightCount { get; private set; }
 
         public void SetTimeOfDay(
@@ -170,6 +180,10 @@ namespace MotorCity.World
             if (runtimeNightSkybox != null)
                 Destroy(
                     runtimeNightSkybox);
+
+            if (runtimeLampGlowMaterial != null)
+                Destroy(
+                    runtimeLampGlowMaterial);
 
         }
 
@@ -583,11 +597,33 @@ namespace MotorCity.World
 
         private void RefreshStreetLights()
         {
-            lampSources.Clear();
-            lampCandidates.Clear();
+            foreach (Light light in
+                     streetLights)
+            {
+                if (light != null)
+                {
+                    Destroy(
+                        light.gameObject);
+                }
+            }
+
+            streetLights.Clear();
+
+            foreach (Renderer renderer in
+                     runtimeLampGlowRenderers)
+            {
+                if (renderer != null)
+                {
+                    Destroy(
+                        renderer.gameObject);
+                }
+            }
+
+            runtimeLampGlowRenderers.Clear();
             streetLampGlowRenderers.Clear();
-            streetLightSourceCount = 0;
-            parkLampSourceCount = 0;
+            streetLampAnchors.Clear();
+            lampCandidates.Clear();
+            autoCreatedStreetLights = 0;
 
             GameObject cityRoot =
                 GameObject.Find(
@@ -598,8 +634,6 @@ namespace MotorCity.World
             if (cityRoot == null)
                 return;
 
-            // Keep the FCG visual lamp helpers authored in the scene. They are
-            // toggled together with their own nearby Light component.
             foreach (Renderer renderer in
                      cityRoot.GetComponentsInChildren<Renderer>(true))
             {
@@ -631,8 +665,19 @@ namespace MotorCity.World
                     sourceLight.type ==
                     LightType.Directional ||
                     !IsFcgStreetLampLight(
-                        sourceLight) ||
-                    !usedLights.Add(
+                        sourceLight))
+                {
+                    continue;
+                }
+
+                // The authored FCG light is used only as a transform
+                // anchor. Motor City owns the active night lighting through
+                // the bounded realtime pool below, so leaving the source
+                // component enabled can double-light the street and defeat
+                // the WebGL light budget.
+                sourceLight.enabled = false;
+
+                if (!usedLights.Add(
                         sourceLight.GetEntityId()))
                 {
                     continue;
@@ -642,43 +687,66 @@ namespace MotorCity.World
                     IsParkLamp(
                         sourceLight.transform);
 
-                ConfigureAuthoredLampLight(
-                    sourceLight,
-                    isParkLamp);
-
-                sourceLight.enabled =
-                    false;
-
-                lampSources.Add(
-                    new LampSource
-                    {
-                        Light =
-                            sourceLight,
-                        Position =
-                            sourceLight.transform.position,
-                        IsParkLamp =
-                            isParkLamp
-                    });
+                Vector3 glowPosition =
+                    sourceLight.transform.position;
 
                 if (isParkLamp)
                 {
-                    parkLampSourceCount++;
+                    glowPosition.y =
+                        3.17f;
                 }
-                else
+
+                streetLampAnchors.Add(
+                    new LampAnchor
+                    {
+                        Position =
+                            sourceLight.transform.position,
+                        GlowPosition =
+                            glowPosition,
+                        Rotation =
+                            sourceLight.transform.rotation,
+                        IsParkLamp =
+                            isParkLamp
+                    });
+            }
+
+            int poolSize =
+                Mathf.Min(
+                    MaxRuntimeStreetLights,
+                    streetLampAnchors.Count);
+
+            for (int i = 0;
+                 i < poolSize;
+                 i++)
+            {
+                Light light =
+                    CreateRuntimeLampLight(
+                        Vector3.zero);
+
+                if (light != null)
                 {
-                    streetLightSourceCount++;
+                    streetLights.Add(
+                        light);
                 }
             }
 
-            if (streetLightSourceCount != 489 ||
-                parkLampSourceCount != 288)
+            int glowPoolSize =
+                Mathf.Min(
+                    MaxRuntimeLampGlows,
+                    streetLampAnchors.Count);
+
+            for (int i = 0;
+                 i < glowPoolSize;
+                 i++)
             {
-                Debug.LogWarning(
-                    "[MotorCity][Lighting] Expected 489 StreetLight and 288 ParkLamp sources, found " +
-                    streetLightSourceCount +
-                    " StreetLight and " +
-                    parkLampSourceCount +
-                    " ParkLamp.");
+                Renderer glow =
+                    CreateRuntimeLampGlow();
+
+                if (glow != null)
+                {
+                    runtimeLampGlowRenderers.Add(
+                        glow);
+                }
             }
 
             ResolveLampObserver();
@@ -687,7 +755,9 @@ namespace MotorCity.World
 
         private void ApplyStreetLights()
         {
-            if (lampSources.Count == 0)
+            // FCG LightV helper meshes are disabled once during refresh.
+            if (streetLights.Count == 0 &&
+                runtimeLampGlowRenderers.Count == 0)
             {
                 EnabledStreetLightCount = 0;
                 return;
@@ -699,23 +769,21 @@ namespace MotorCity.World
 
             if (!nightActive)
             {
-                foreach (LampSource source in
-                         lampSources)
+                foreach (Light light in
+                         streetLights)
                 {
-                    if (source.Light != null)
+                    if (light != null)
                     {
-                        source.Light.enabled =
-                            false;
+                        light.enabled = false;
                     }
                 }
 
-                foreach (Renderer renderer in
-                         streetLampGlowRenderers)
+                foreach (Renderer glow in
+                         runtimeLampGlowRenderers)
                 {
-                    if (renderer != null)
+                    if (glow != null)
                     {
-                        renderer.enabled =
-                            false;
+                        glow.enabled = false;
                     }
                 }
 
@@ -743,51 +811,233 @@ namespace MotorCity.World
                 lampDistance *
                 lampDistance;
 
-            int enabledCount = 0;
+            lampCandidates.Clear();
 
-            foreach (LampSource source in
-                     lampSources)
+            foreach (LampAnchor anchor in
+                     streetLampAnchors)
             {
-                if (source.Light == null)
-                    continue;
-
                 float distanceSquared =
-                    (source.Position -
+                    (anchor.Position -
                      observerPosition).sqrMagnitude;
 
-                bool enable =
-                    distanceSquared <=
-                    maximumDistanceSquared;
+                if (distanceSquared >
+                    maximumDistanceSquared)
+                {
+                    continue;
+                }
 
-                source.Light.enabled =
-                    enable;
+                lampCandidates.Add(
+                    new LampCandidate
+                    {
+                        Position =
+                            anchor.Position,
+                        GlowPosition =
+                            anchor.GlowPosition,
+                        Rotation =
+                            anchor.Rotation,
+                        IsParkLamp =
+                            anchor.IsParkLamp,
+                        DistanceSquared =
+                            distanceSquared
+                    });
+            }
+
+            lampCandidates.Sort(
+                CompareLampCandidates);
+
+            int qualityLightBudget =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low =>
+                        6,
+
+                    MotorCityQualityPreset.High =>
+                        MaxRuntimeStreetLights,
+
+                    _ =>
+                        10
+                };
+
+            int enabledCount =
+                Mathf.Min(
+                    qualityLightBudget,
+                    streetLights.Count,
+                    lampCandidates.Count);
+
+            for (int i = 0;
+                 i < streetLights.Count;
+                 i++)
+            {
+                Light light =
+                    streetLights[i];
+
+                if (light == null)
+                    continue;
+
+                bool enable =
+                    i <
+                    enabledCount;
 
                 if (enable)
                 {
-                    enabledCount++;
+                    light.transform.SetPositionAndRotation(
+                        lampCandidates[i].Position,
+                        lampCandidates[i].Rotation);
                 }
-            }
 
-            // StreetLight's authored _LightV mesh is the visible luminous
-            // plafond. Enable it only when its nearby authored Spot Light is
-            // also close enough to the player.
-            foreach (Renderer renderer in
-                     streetLampGlowRenderers)
-            {
-                if (renderer == null)
-                    continue;
-
-                float distanceSquared =
-                    (renderer.transform.position -
-                     observerPosition).sqrMagnitude;
-
-                renderer.enabled =
-                    distanceSquared <=
-                    maximumDistanceSquared;
+                light.enabled =
+                    enable;
             }
 
             EnabledStreetLightCount =
                 enabledCount;
+
+            int glowBudget =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low =>
+                        20,
+
+                    MotorCityQualityPreset.High =>
+                        MaxRuntimeLampGlows,
+
+                    _ =>
+                        40
+                };
+
+            int glowCount =
+                Mathf.Min(
+                    glowBudget,
+                    runtimeLampGlowRenderers.Count,
+                    lampCandidates.Count);
+
+            for (int i = 0;
+                 i < runtimeLampGlowRenderers.Count;
+                 i++)
+            {
+                Renderer glow =
+                    runtimeLampGlowRenderers[i];
+
+                if (glow == null)
+                    continue;
+
+                bool enable =
+                    i <
+                    glowCount;
+
+                if (enable)
+                {
+                    LampCandidate candidate =
+                        lampCandidates[i];
+
+                    glow.transform.position =
+                        candidate.GlowPosition;
+
+                    glow.transform.rotation =
+                        Quaternion.identity;
+
+                    glow.transform.localScale =
+                        Vector3.one *
+                        (candidate.IsParkLamp
+                            ? 0.47f
+                            : 0.19f);
+                }
+
+                glow.enabled =
+                    enable;
+            }
+        }
+
+        private Renderer CreateRuntimeLampGlow()
+        {
+            if (runtimeLampGlowMaterial == null)
+            {
+                Shader shader =
+                    Shader.Find(
+                        "MotorCity/StreetLampBulbGlow");
+
+                if (shader == null)
+                    return null;
+
+                runtimeLampGlowMaterial =
+                    new Material(
+                        shader)
+                    {
+                        name =
+                            "MotorCity_LampBulbGlow_Runtime"
+                    };
+
+                runtimeLampGlowMaterial.SetColor(
+                    "_GlowColor",
+                    new Color(
+                        1f,
+                        0.64f,
+                        0.31f,
+                        1f));
+
+                runtimeLampGlowMaterial.SetFloat(
+                    "_Intensity",
+                    3.5f);
+            }
+
+            GameObject glowObject =
+                GameObject.CreatePrimitive(
+                    PrimitiveType.Sphere);
+
+            glowObject.name =
+                "MotorCity_LampBulbGlow";
+
+            glowObject.transform.SetParent(
+                transform,
+                false);
+
+            glowObject.transform.localScale =
+                Vector3.one *
+                0.19f;
+
+            Collider collider =
+                glowObject.GetComponent<Collider>();
+
+            if (collider != null)
+            {
+                Destroy(
+                    collider);
+            }
+
+            Renderer renderer =
+                glowObject.GetComponent<Renderer>();
+
+            if (renderer != null)
+            {
+                renderer.sharedMaterial =
+                    runtimeLampGlowMaterial;
+
+                renderer.shadowCastingMode =
+                    ShadowCastingMode.Off;
+
+                renderer.receiveShadows =
+                    false;
+
+                renderer.lightProbeUsage =
+                    LightProbeUsage.Off;
+
+                renderer.reflectionProbeUsage =
+                    ReflectionProbeUsage.Off;
+
+                renderer.enabled =
+                    false;
+            }
+
+            return renderer;
+        }
+
+        private static int CompareLampCandidates(
+            LampCandidate a,
+            LampCandidate b)
+        {
+            return
+                a.DistanceSquared.CompareTo(
+                    b.DistanceSquared);
         }
 
         private void ResolveLampObserver()
@@ -826,9 +1076,32 @@ namespace MotorCity.World
             }
         }
 
-        private static void ConfigureAuthoredLampLight(
-            Light light,
-            bool isParkLamp)
+        private Light CreateRuntimeLampLight(
+            Vector3 worldPosition)
+        {
+            GameObject lightObject =
+                new("MotorCity_LampLight");
+
+            lightObject.transform.SetParent(
+                transform,
+                false);
+
+            lightObject.transform.position =
+                worldPosition;
+
+            Light runtimeLight =
+                lightObject.AddComponent<Light>();
+
+            ConfigureLampLight(
+                runtimeLight);
+
+            autoCreatedStreetLights++;
+
+            return runtimeLight;
+        }
+
+        private static void ConfigureLampLight(
+            Light light)
         {
             if (light == null)
                 return;
@@ -842,33 +1115,33 @@ namespace MotorCity.World
             light.cullingMask =
                 ~0;
 
+            // Fantastic City Generator URP StreetLight-01 reference.
+            light.color =
+                new Color(
+                    1f,
+                    0.82f,
+                    0.62f);
+
+            light.intensity =
+                15f;
+
+            light.range =
+                20f;
+
+            light.spotAngle =
+                105.661575f;
+
+            light.innerSpotAngle =
+                87.358116f;
+
             light.bounceIntensity =
                 1f;
 
             light.useColorTemperature =
                 false;
 
-            if (isParkLamp)
-            {
-                // ParkLamp / _Spot_Light
-                light.intensity =
-                    12f;
-            }
-            else
-            {
-                // StreetLight / Spot Light
-                light.innerSpotAngle =
-                    90f;
-
-                light.spotAngle =
-                    179f;
-
-                light.intensity =
-                    50f;
-
-                light.range =
-                    20f;
-            }
+            light.enabled =
+                false;
         }
 
         private static bool IsParkLamp(
@@ -995,13 +1268,22 @@ namespace MotorCity.World
                     chars.ToArray());
         }
 
-        private struct LampSource
+        private struct LampAnchor
         {
-            public Light Light;
             public Vector3 Position;
+            public Vector3 GlowPosition;
+            public Quaternion Rotation;
             public bool IsParkLamp;
         }
 
+        private struct LampCandidate
+        {
+            public Vector3 Position;
+            public Vector3 GlowPosition;
+            public Quaternion Rotation;
+            public bool IsParkLamp;
+            public float DistanceSquared;
+        }
 
     }
 }
