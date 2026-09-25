@@ -194,6 +194,8 @@ namespace MotorCity.Gameplay
                     "activity.start_time",
                     MotorCityLocalization.Text("activity.delivery"),
                     goldTimeSeconds,
+                    silverTimeSeconds,
+                    bronzeTimeSeconds,
                     best,
                     eliteHint);
 
