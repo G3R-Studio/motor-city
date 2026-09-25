@@ -8211,7 +8211,7 @@ namespace MotorCity.UI
         {
             touchUtilityRoot =
                 new GameObject(
-                    "Touch Utility Controls",
+                    "Main HUD Quick Actions",
                     typeof(RectTransform));
 
             touchUtilityRoot.transform.SetParent(
@@ -8230,39 +8230,75 @@ namespace MotorCity.UI
             root.anchoredPosition =
                 new Vector2(0f, -18f);
             root.sizeDelta =
-                new Vector2(440f, 48f);
+                new Vector2(720f, 82f);
+
+            const float buttonWidth =
+                96f;
+
+            const float buttonHeight =
+                34f;
+
+            const float gap =
+                6f;
+
+            float startX =
+                -306f;
 
             CreateLocalizedTouchPulseButton(
                 root,
-                "Touch Photo",
-                "touch.utility.photo",
-                MotorCityInputAction.TakePhoto,
-                new Vector2(-165f, 0f),
-                new Vector2(100f, 40f));
+                "HUD Drive Mode",
+                "touch.utility.mode",
+                MotorCityInputAction.CycleDriveMode,
+                new Vector2(startX, -18f),
+                new Vector2(buttonWidth, buttonHeight));
 
             CreateLocalizedTouchPulseButton(
                 root,
-                "Touch Club",
-                "touch.utility.club",
-                MotorCityInputAction.ToggleClub,
-                new Vector2(-55f, 0f),
-                new Vector2(100f, 40f));
+                "HUD Rescue",
+                "touch.utility.rescue",
+                MotorCityInputAction.Rescue,
+                new Vector2(startX + (buttonWidth + gap), -18f),
+                new Vector2(buttonWidth, buttonHeight));
+
+            CreatePauseButton(
+                root,
+                "HUD Pause",
+                "touch.utility.pause",
+                new Vector2(startX + (buttonWidth + gap) * 2f, -18f),
+                new Vector2(buttonWidth, buttonHeight),
+                OpenPauseMenu);
 
             CreateLocalizedTouchPulseButton(
                 root,
-                "Touch Store",
+                "HUD Store",
                 "touch.utility.store",
                 MotorCityInputAction.ToggleStore,
-                new Vector2(55f, 0f),
-                new Vector2(100f, 40f));
+                new Vector2(startX + (buttonWidth + gap) * 3f, -18f),
+                new Vector2(buttonWidth, buttonHeight));
 
             CreateLocalizedTouchPulseButton(
                 root,
-                "Touch Bonus",
+                "HUD Club",
+                "touch.utility.club",
+                MotorCityInputAction.ToggleClub,
+                new Vector2(startX + (buttonWidth + gap) * 4f, -18f),
+                new Vector2(buttonWidth, buttonHeight));
+
+            CreateLocalizedTouchPulseButton(
+                root,
+                "HUD Bonus",
                 "touch.utility.bonus",
                 MotorCityInputAction.RewardedBonus,
-                new Vector2(165f, 0f),
-                new Vector2(100f, 40f));
+                new Vector2(startX + (buttonWidth + gap) * 5f, -18f),
+                new Vector2(buttonWidth, buttonHeight));
+
+            CreateLocalizedTouchPulseButton(
+                root,
+                "HUD Photo",
+                "touch.utility.photo",
+                MotorCityInputAction.TakePhoto,
+                new Vector2(startX + (buttonWidth + gap) * 6f, -18f),
+                new Vector2(buttonWidth, buttonHeight));
         }
 
         private void BuildTouchPauseControl(
@@ -8910,7 +8946,8 @@ namespace MotorCity.UI
 
                 SetActiveIfChanged(
                     touchUtilityRoot,
-                    false);
+                    !pauseMenuOpen &&
+                    !HasBlockingModalUi());
 
                 SetActiveIfChanged(
                     touchActivityCancelRoot,
@@ -8956,8 +8993,7 @@ namespace MotorCity.UI
 
             SetActiveIfChanged(
                 touchPauseRoot,
-                !pauseMenuOpen &&
-                !HasBlockingModalUi());
+                false);
 
             bool onboardingComplete =
                 onboarding == null ||
@@ -8966,9 +9002,8 @@ namespace MotorCity.UI
             SetActiveIfChanged(
                 touchUtilityRoot,
                 onboardingComplete &&
-                !HasBlockingModalUi() &&
-                (activityManager == null ||
-                 !activityManager.IsBusy));
+                !pauseMenuOpen &&
+                !HasBlockingModalUi());
 
             SetActiveIfChanged(
                 touchActivityCancelRoot,
