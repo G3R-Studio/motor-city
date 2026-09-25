@@ -1,0 +1,32 @@
+Asset Pack License Agreement
+Royalty-Free Commercial & Personal Use License (No Attribution Required)
+
+Summary
+You are free to use these 3D models in personal, commercial, and educational projects (games, renders, animations, apps, media) without providing attribution. You may not resell, redistribute, sub-license, host, or share the raw asset files or modified versions of the source files, nor claim original ownership of the models.
+
+1. Grant of License
+By downloading or using the 3D models included in this asset pack (the "Assets"), you are granted a non-exclusive, worldwide, perpetual, royalty-free license to use, modify, and incorporate the Assets into end-use projects subject to the terms in this Agreement.
+
+2. Permitted Uses
+Commercial & Personal Projects: Integrate the Assets into commercial or non-commercial games, interactive applications, renders, animations, film/video productions, visual effects, software, physical 3D prints, or marketing materials.
+
+No Attribution Required: You are not required to give credit or attribution to the Licensor in your final product, credits screen, documentation, or promotional materials.
+
+Modification & Adaptation: You may modify, tweak, re-texture, rig, or adapt the 3D geometry and materials to fit your project's technical or aesthetic needs.
+
+Embedded Distributable Content: You may distribute compiled binary files of your end product (e.g., a compiled game build) that include the Assets, provided the raw Assets cannot be easily extracted by third parties.
+
+3. Restrictions & Prohibited Uses
+No Redistribution or Resale: You may NOT sell, sub-license, host, re-distribute, share, or make available the Assets (in original or modified formats) as standalone 3D models, asset packs, stock elements, or source files under any circumstances.
+
+No Direct File Sharing: You may NOT upload the source files to open repositories, peer-to-peer networks, public cloud folders, or online asset stores where third parties can access or download the raw 3D models.
+
+No Ownership Claims: You may NOT claim copyright or trademark ownership over the original 3D geometry, designs, or base assets, nor represent yourself as the original creator of the models.
+
+NFTs & Dataset Inclusion: You may NOT mint, list, or sell the raw Assets or rendered images of standalone Assets as Non-Fungible Tokens (NFTs), nor include the source files in machine learning / AI dataset compilations for generative asset creation.
+
+4. Intellectual Property
+All title, ownership rights, and intellectual property rights in and to the Assets remain exclusively with the Licensor. This Agreement grants you specific rights to use the Assets as outlined above, but does not transfer underlying ownership.
+
+5. Limitation of Liability
+The Assets are provided "AS IS", without warranty of any kind, express or implied. In no event shall the Licensor be liable for any claim, damages, or other liability arising from or in connection with the Assets or the use of the Assets.
