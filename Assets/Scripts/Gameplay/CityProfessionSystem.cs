@@ -17,7 +17,6 @@ namespace MotorCity.Gameplay
         private ArcadeCarController car;
         private PlayerWallet wallet;
         private ActivityManager activities;
-        private TurboPetSystem turbo;
         private ProfessionDefinition[] definitions;
 
         private ProfessionDefinition active;
@@ -131,7 +130,7 @@ namespace MotorCity.Gameplay
                 targetWallet;
             activities =
                 activityManager;
-            turbo =
+            _ =
                 turboSystem;
 
             TotalCompleted =
