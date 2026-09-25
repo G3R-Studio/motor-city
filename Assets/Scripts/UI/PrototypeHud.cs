@@ -5014,7 +5014,7 @@ namespace MotorCity.UI
 
             Sprite navigatorIcon =
                 MotorCityIconLibrary.Get(
-                    "target");
+                    "map");
 
             if (navigatorIcon != null)
             {
