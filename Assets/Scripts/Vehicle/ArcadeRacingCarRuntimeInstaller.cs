@@ -168,8 +168,7 @@ namespace MotorCity.Vehicle
 
             StripImportedPhysics(visual);
 
-            if (!preserveAuthoredTransform &&
-                visualEulerCorrection.HasValue)
+            if (visualEulerCorrection.HasValue)
             {
                 visual.transform.localRotation =
                     Quaternion.Euler(
