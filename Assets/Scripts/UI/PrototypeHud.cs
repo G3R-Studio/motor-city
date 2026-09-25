@@ -432,9 +432,6 @@ namespace MotorCity.UI
             if (moneyText == null)
                 return;
 
-            bool hadBlockingModal =
-                HasBlockingModalUi();
-
             if (pauseMenuOpen)
             {
                 HandlePauseMenuInput();
