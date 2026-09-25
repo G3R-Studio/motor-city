@@ -212,16 +212,23 @@ namespace MotorCity.EditorTools
                 return;
             }
 
-            Texture2D colorTexture =
-                AssetDatabase.LoadAssetAtPath<Texture2D>(
-                    MuscleColorTexturePath);
+            Renderer bodyRenderer =
+                FindLargestNonWheelRenderer(instance);
 
-            if (colorTexture == null)
-            {
-                Debug.LogWarning(
-                    "[MotorCity][Vehicles] MuscleCar10 Color.png was not found: " +
-                    MuscleColorTexturePath);
-            }
+            Material bodyPaint =
+                GetOrCreateGeneratedMaterial(
+                    "MuscleCar10_BodyPaint",
+                    lit);
+
+            // Color.png is a palette/atlas used by the original FBX. It must not
+            // be used as the body albedo map: most of the car UVs land on its
+            // white area while the red area is used by the lamps.
+            ResetUrpMaterial(
+                bodyPaint,
+                new Color(0.68f, 0.055f, 0.04f, 1f),
+                null,
+                0.10f,
+                0.58f);
 
             var detailMaterials =
                 new Dictionary<Material, Material>();
@@ -250,29 +257,15 @@ namespace MotorCity.EditorTools
                     if (source == null)
                         continue;
 
-                    // The FBX's first material slot ("Color") is the actual body surface.
-                    // The previous implementation treated the last slot as paint, which left
-                    // almost the entire car on the neutral detail material.
-                    bool bodyPaintSlot =
-                        !wheel &&
-                        renderer.transform == instance.transform &&
-                        i == 0;
-
-                    if (bodyPaintSlot)
+                    // The main visible shell of this particular FBX is the first
+                    // material slot on the largest non-wheel renderer. The same
+                    // source material is also reused by separate tire renderers,
+                    // so we only replace it on the body renderer itself.
+                    if (!wheel &&
+                        renderer == bodyRenderer &&
+                        i == 0)
                     {
-                        Material paint =
-                            GetOrCreateGeneratedMaterial(
-                                "MuscleCar10_BodyPaint",
-                                lit);
-
-                        ResetUrpMaterial(
-                            paint,
-                            new Color(0.68f, 0.055f, 0.04f, 1f),
-                            colorTexture,
-                            0.08f,
-                            0.52f);
-
-                        materials[i] = paint;
+                        materials[i] = bodyPaint;
                         continue;
                     }
 
@@ -283,7 +276,7 @@ namespace MotorCity.EditorTools
                         string detailName =
                             wheel
                                 ? "MuscleCar10_Wheel_" + SafeName(source.name)
-                                : "MuscleCar10_InteriorDetail_" + SafeName(source.name);
+                                : "MuscleCar10_Detail_" + SafeName(source.name);
 
                         detail =
                             GetOrCreateGeneratedMaterial(
@@ -305,6 +298,35 @@ namespace MotorCity.EditorTools
 
                 renderer.sharedMaterials = materials;
             }
+        }
+
+        private static Renderer FindLargestNonWheelRenderer(
+            GameObject instance)
+        {
+            Renderer best = null;
+            float bestVolume = -1f;
+
+            foreach (Renderer renderer in
+                     instance.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null ||
+                    IsWheelLike(renderer.transform.name))
+                {
+                    continue;
+                }
+
+                Vector3 size = renderer.bounds.size;
+                float volume =
+                    Mathf.Abs(size.x * size.y * size.z);
+
+                if (volume <= bestVolume)
+                    continue;
+
+                best = renderer;
+                bestVolume = volume;
+            }
+
+            return best;
         }
 
         private static Material GetOrCreateGeneratedMaterial(
