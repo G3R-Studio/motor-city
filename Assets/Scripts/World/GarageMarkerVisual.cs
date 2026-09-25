@@ -1,197 +1,106 @@
 using MotorCity.Gameplay;
-using MotorCity.UI;
 using UnityEngine;
 
 namespace MotorCity.World
 {
     public sealed class GarageMarkerVisual : MonoBehaviour
     {
+        private const string GarageMarkerResourcePath =
+            "MotorCity/Markers/ProfessionMarkerVfx";
+
+        private static readonly Color GarageColor =
+            new(
+                0.72f,
+                0.20f,
+                1f,
+                1f);
+
+        private static readonly Color GarageOpenColor =
+            new(
+                0.95f,
+                0.55f,
+                1f,
+                1f);
+
+        private const float MarkerRootHeight =
+            0.12f;
+
+        private const float MaximumVisibleDistance =
+            230f;
+
         private GarageUpgradeSystem garage;
-        private SpriteRenderer marker;
-        private SpriteRenderer markerShadow;
-        private SpriteRenderer markerHighlight;
-        private SpriteRenderer markerGlow;
-        private Vector3 baseScale;
-        private Camera mainCamera;
+        private GameObject markerVfx;
+        private SpriteRenderer[] markerSprites;
+        private ParticleSystem[] markerParticles;
         private Transform observer;
         private float observerResolveTimer;
 
-        private const float TargetMarkerSize = 0.82f;
-        private const float MarkerHeight = 1.55f;
-        private const float FullScaleDistance = 38f;
-        private const float FarScaleDistance = 160f;
-        private const float MaximumVisibleDistance = 230f;
-
-        public void Bind(GarageUpgradeSystem target)
+        public void Bind(
+            GarageUpgradeSystem target)
         {
-            garage = target;
+            garage =
+                target;
+
             BuildMarker();
 
-            if (garage != null)
-                transform.position =
-                    garage.GarageCenter + Vector3.up * MarkerHeight;
+            SnapToGarage();
+
+            RefreshVisuals();
         }
 
         private void BuildMarker()
         {
-            Sprite sprite =
-                MotorCityIconLibrary.Garage;
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    GarageMarkerResourcePath);
 
-            if (sprite == null)
+            if (prefab == null)
             {
-                sprite =
-                    Resources.Load<Sprite>(
-                        "MotorCity/Markers/flag");
+                Debug.LogWarning(
+                    "[MotorCity][GarageMarker] Missing " +
+                    GarageMarkerResourcePath);
+
+                return;
             }
 
-            GameObject visual =
-                new("Garage Marker Icon");
-            visual.transform.SetParent(
-                transform,
-                false);
+            markerVfx =
+                Instantiate(
+                    prefab,
+                    transform);
 
-            if (sprite == null)
-            {
-                sprite = Sprite.Create(
-                    Texture2D.whiteTexture,
-                    new Rect(0f, 0f, 1f, 1f),
-                    new Vector2(0.5f, 0.5f),
-                    1f);
+            markerVfx.name =
+                "Garage Marker VFX Runtime";
 
-                sprite.name =
-                    "MotorCity_GarageMarkerFallback";
+            markerVfx.transform.localPosition =
+                Vector3.zero;
 
-                visual.transform.localRotation =
-                    Quaternion.Euler(0f, 0f, 45f);
-            }
-
-            markerGlow =
-                CreateLayer(
-                    visual.transform,
-                    "Garage Marker Glow",
-                    sprite,
-                    new Color(
-                        0.78f,
-                        0.28f,
-                        1f,
-                        0.18f),
-                    new Vector3(
-                        0f,
-                        -0.015f,
-                        0.03f),
-                    1.22f,
-                    197);
-
-            markerShadow =
-                CreateLayer(
-                    visual.transform,
-                    "Garage Marker Shadow",
-                    sprite,
-                    new Color(
-                        0.12f,
-                        0.035f,
-                        0.18f,
-                        0.82f),
-                    new Vector3(
-                        0.045f,
-                        -0.055f,
-                        0.02f),
-                    1.02f,
-                    198);
-
-            marker =
-                CreateLayer(
-                    visual.transform,
-                    "Garage Marker Core",
-                    sprite,
-                    new Color(
-                        0.72f,
-                        0.20f,
-                        1f,
-                        1f),
-                    Vector3.zero,
-                    1f,
-                    200);
-
-            markerHighlight =
-                CreateLayer(
-                    visual.transform,
-                    "Garage Marker Highlight",
-                    sprite,
-                    new Color(
-                        1f,
-                        0.72f,
-                        1f,
-                        0.22f),
-                    new Vector3(
-                        -0.025f,
-                        0.035f,
-                        -0.01f),
-                    0.98f,
-                    201);
-
-            float spriteSize =
-                Mathf.Max(
-                    sprite.bounds.size.x,
-                    sprite.bounds.size.y);
-
-            float normalizedScale =
-                TargetMarkerSize /
-                Mathf.Max(spriteSize, 0.01f);
-
-            visual.transform.localScale =
-                Vector3.one * normalizedScale;
-
-            baseScale =
-                visual.transform.localScale;
-
-            mainCamera = Camera.main;
-        }
-
-        private static SpriteRenderer CreateLayer(
-            Transform parent,
-            string name,
-            Sprite sprite,
-            Color color,
-            Vector3 localPosition,
-            float scale,
-            int sortingOrder)
-        {
-            GameObject layer =
-                new(name);
-
-            layer.transform.SetParent(
-                parent,
-                false);
-
-            layer.transform.localPosition =
-                localPosition;
-
-            layer.transform.localRotation =
+            markerVfx.transform.localRotation =
                 Quaternion.identity;
 
-            layer.transform.localScale =
-                Vector3.one * scale;
+            markerVfx.transform.localScale =
+                Vector3.one;
 
-            SpriteRenderer renderer =
-                layer.AddComponent<SpriteRenderer>();
+            markerSprites =
+                markerVfx.GetComponentsInChildren<SpriteRenderer>(
+                    true);
 
-            renderer.sprite =
-                sprite;
+            markerParticles =
+                markerVfx.GetComponentsInChildren<ParticleSystem>(
+                    true);
 
-            renderer.color =
-                color;
+            ApplyGarageColor(
+                false);
+        }
 
-            renderer.sortingOrder =
-                sortingOrder;
+        private void SnapToGarage()
+        {
+            if (garage == null)
+                return;
 
-            renderer.shadowCastingMode =
-                UnityEngine.Rendering.ShadowCastingMode.Off;
-
-            renderer.receiveShadows =
-                false;
-
-            return renderer;
+            transform.position =
+                garage.GarageCenter +
+                Vector3.up *
+                MarkerRootHeight;
         }
 
         private void ResolveObserver()
@@ -220,8 +129,8 @@ namespace MotorCity.World
                 return;
             }
 
-            if (mainCamera == null)
-                mainCamera = Camera.main;
+            Camera mainCamera =
+                Camera.main;
 
             if (mainCamera != null)
             {
@@ -232,15 +141,20 @@ namespace MotorCity.World
 
         private void Update()
         {
-            if (garage == null || marker == null)
+            if (garage == null)
                 return;
 
-            transform.position =
-                garage.GarageCenter +
-                Vector3.up *
-                (MarkerHeight + Mathf.Sin(Time.time * 2.2f) * 0.12f);
+            SnapToGarage();
 
             ResolveObserver();
+
+            RefreshVisuals();
+        }
+
+        private void RefreshVisuals()
+        {
+            if (markerVfx == null)
+                return;
 
             float distance =
                 observer == null
@@ -254,131 +168,72 @@ namespace MotorCity.World
                 distance <=
                 MaximumVisibleDistance;
 
-            marker.enabled =
-                visible;
-
-            if (markerShadow != null)
-                markerShadow.enabled =
-                    visible;
-
-            if (markerHighlight != null)
-                markerHighlight.enabled =
-                    visible;
-
-            if (markerGlow != null)
-                markerGlow.enabled =
-                    visible;
+            if (markerVfx.activeSelf !=
+                visible)
+            {
+                markerVfx.SetActive(
+                    visible);
+            }
 
             if (!visible)
                 return;
 
-            if (mainCamera == null)
-                mainCamera = Camera.main;
+            ApplyGarageColor(
+                garage != null &&
+                garage.IsOpen);
+        }
 
-            if (mainCamera != null)
-            {
-                Vector3 direction =
-                    mainCamera.transform.position -
-                    transform.position;
-
-                if (direction.sqrMagnitude > 0.0001f)
-                    transform.rotation =
-                        Quaternion.LookRotation(direction.normalized);
-            }
-
-            float farT =
-                observer == null
-                    ? 0f
-                    : Mathf.InverseLerp(
-                        FullScaleDistance,
-                        FarScaleDistance,
-                        distance);
-
-            float distanceScale =
-                Mathf.Lerp(
-                    1.08f,
-                    0.68f,
-                    farT);
-
-            float pulse =
-                1f +
-                Mathf.Sin(Time.time * 2.8f) *
-                0.035f;
-
-            marker.transform.localScale =
-                baseScale *
-                distanceScale *
-                pulse;
-
-            bool open =
-                garage.IsOpen;
-
-            marker.color =
+        private void ApplyGarageColor(
+            bool open)
+        {
+            Color coreColor =
                 open
-                    ? new Color(
-                        0.95f,
-                        0.55f,
-                        1f,
-                        1f)
-                    : new Color(
-                        0.72f,
-                        0.20f,
-                        1f,
-                        1f);
+                    ? GarageOpenColor
+                    : GarageColor;
 
-            if (markerShadow != null)
+            if (markerSprites != null)
             {
-                markerShadow.color =
-                    open
-                        ? new Color(
-                            0.24f,
-                            0.08f,
-                            0.30f,
-                            0.88f)
-                        : new Color(
-                            0.12f,
-                            0.035f,
-                            0.18f,
-                            0.82f);
+                foreach (SpriteRenderer renderer in
+                         markerSprites)
+                {
+                    if (renderer == null)
+                        continue;
+
+                    bool glow =
+                        renderer.name.IndexOf(
+                            "Glow",
+                            System.StringComparison.OrdinalIgnoreCase) >=
+                        0;
+
+                    renderer.color =
+                        glow
+                            ? new Color(
+                                coreColor.r,
+                                coreColor.g,
+                                coreColor.b,
+                                0.22f)
+                            : coreColor;
+                }
             }
 
-            if (markerHighlight != null)
+            if (markerParticles != null)
             {
-                markerHighlight.color =
-                    open
-                        ? new Color(
-                            1f,
-                            0.86f,
-                            1f,
-                            0.30f)
-                        : new Color(
-                            1f,
-                            0.72f,
-                            1f,
-                            0.22f);
-            }
+                foreach (ParticleSystem particles in
+                         markerParticles)
+                {
+                    if (particles == null)
+                        continue;
 
-            if (markerGlow != null)
-            {
-                float glowPulse =
-                    0.16f +
-                    (Mathf.Sin(
-                        Time.time * 3.1f) +
-                     1f) *
-                    0.045f;
+                    ParticleSystem.MainModule main =
+                        particles.main;
 
-                markerGlow.color =
-                    open
-                        ? new Color(
-                            0.98f,
-                            0.55f,
-                            1f,
-                            glowPulse + 0.07f)
-                        : new Color(
-                            0.78f,
-                            0.28f,
-                            1f,
-                            glowPulse);
+                    main.startColor =
+                        new Color(
+                            coreColor.r,
+                            coreColor.g,
+                            coreColor.b,
+                            0.86f);
+                }
             }
         }
     }
