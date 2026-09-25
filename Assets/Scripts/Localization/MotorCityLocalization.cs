@@ -531,6 +531,7 @@ namespace MotorCity.Localization
             { "touch.utility.mode", E("РЕЖИМ", "MODE") },
             { "touch.utility.rescue", E("СПАСТИ", "RESCUE") },
             { "touch.utility.pause", E("ПАУЗА", "PAUSE") },
+            { "touch.utility.more", E("ЕЩЁ", "MORE") },
             { "touch.utility.club", E("КЛУБ", "CLUB") },
             { "touch.utility.store", E("МАГАЗИН", "STORE") },
             { "touch.utility.bonus", E("БОНУС", "BONUS") },
