@@ -753,6 +753,8 @@ namespace MotorCity.Localization
                 { "store.premium_active", E("ПРЕМИУМ АКТИВЕН", "PREMIUM ACTIVE") },
                 { "store.premium_locked", E("ПРЕМИУМ НЕ АКТИВЕН", "PREMIUM NOT ACTIVE") },
                 { "store.season_path", E("СЕЗОН {0}/{1} • {2}", "SEASON {0}/{1} • {2}") },
+                { "store.turbo_path", E("КОСМЕТИЧЕСКИЙ НАБОР • БЕЗ ИГРОВЫХ ПРЕИМУЩЕСТВ", "COSMETIC PACK • NO GAMEPLAY ADVANTAGE") },
+                { "store.selection_hint", E("НАЗАД / ДАЛЬШЕ — ВЫБОР ТОВАРА", "PREV / NEXT — SELECT PRODUCT") },
                 { "store.wallet", E("{0:N0} КР • {1:N0} РЕП • УР. {2}", "{0:N0} CR • {1:N0} REP • LVL {2}") },
                 { "store.already_owned", E("Этот косметический набор уже куплен", "This cosmetic pack is already owned") },
                 { "store.opening", E("Открываю безопасную покупку Yandex Games...", "Opening secure Yandex Games purchase...") },
