@@ -304,6 +304,118 @@ namespace MotorCity.UI
         public static Sprite Add =>
             ForSystem(SystemIcon.Add);
 
+        public static Sprite ForWorldMarker(
+            string markerId)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    markerId))
+            {
+                return GetFallback();
+            }
+
+            string normalized =
+                markerId.Trim().ToLowerInvariant();
+
+            string resourceName =
+                normalized switch
+                {
+                    "drift" =>
+                        "DriftMarkerVfx",
+
+                    "delivery" =>
+                        "DeliveryMarkerVfx",
+
+                    "sprint" =>
+                        "SprintMarkerVfx",
+
+                    "circuit" =>
+                        "CircuitMarkerVfx",
+
+                    "discovery" or
+                    "speedtrap" or
+                    "driftspot" =>
+                        "DiscoveryMarkerVfx",
+
+                    "underground" =>
+                        "UndergroundMarkerVfx",
+
+                    "profession" or
+                    "garage" =>
+                        "ProfessionMarkerVfx",
+
+                    "carwash" =>
+                        "CarWashMarkerVfx",
+
+                    "tow" or
+                    "towtruck" =>
+                        "TowMarkerVfx",
+
+                    _ =>
+                        string.Empty
+                };
+
+            if (string.IsNullOrEmpty(
+                    resourceName))
+            {
+                return GetFallback();
+            }
+
+            string cacheKey =
+                "world:" +
+                resourceName;
+
+            if (Cache.TryGetValue(
+                    cacheKey,
+                    out Sprite cached))
+            {
+                return cached;
+            }
+
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    "MotorCity/Markers/" +
+                    resourceName);
+
+            Sprite sprite =
+                null;
+
+            if (prefab != null)
+            {
+                SpriteRenderer[] renderers =
+                    prefab.GetComponentsInChildren<SpriteRenderer>(
+                        true);
+
+                foreach (SpriteRenderer renderer in renderers)
+                {
+                    if (renderer == null ||
+                        renderer.sprite == null)
+                    {
+                        continue;
+                    }
+
+                    if (renderer.name.Contains(
+                            "Icon Core",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        sprite =
+                            renderer.sprite;
+                        break;
+                    }
+
+                    sprite ??=
+                        renderer.sprite;
+                }
+            }
+
+            sprite ??=
+                GetFallback();
+
+            Cache[cacheKey] =
+                sprite;
+
+            return sprite;
+        }
+
         private static Sprite GetFallback()
         {
             if (Cache.TryGetValue(
