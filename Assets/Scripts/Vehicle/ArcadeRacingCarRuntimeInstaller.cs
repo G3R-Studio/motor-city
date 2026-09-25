@@ -10,7 +10,6 @@ namespace MotorCity.Vehicle
     {
         private const float TargetLength = 4.35f;
         private const float TargetWheelCenterLocalY = 0.42f;
-        private const float StarterPhysicsWheelRadius = 0.36f;
         private const string RuntimeVisualName =
             "MotorCityVehicleVisual_Runtime";
 
