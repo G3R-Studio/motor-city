@@ -7566,12 +7566,6 @@ namespace MotorCity.UI
                 MotorCityInputAction.CycleBodyColor,
                 MotorCityInputAction.CycleWheels,
                 MotorCityInputAction.CycleNeon,
-                MotorCityInputAction.Count,
-
-                MotorCityInputAction.Count,
-                MotorCityInputAction.Count,
-                MotorCityInputAction.SaveCustomizationPreset,
-                MotorCityInputAction.LoadCustomizationPreset,
                 MotorCityInputAction.ToggleVehiclePassport,
                 MotorCityInputAction.Interact
             };
@@ -7583,20 +7577,8 @@ namespace MotorCity.UI
                 "touch.garage.color",
                 "touch.garage.wheels",
                 "touch.garage.neon",
-                "touch.garage.preset1",
-
-                "touch.garage.preset2",
-                "touch.garage.preset3",
-                "touch.garage.save",
-                "touch.garage.load",
                 "touch.garage.passport",
                 "touch.garage.close"
-            };
-
-            int[] presetSlots =
-            {
-                -1, -1, -1, -1, -1, 0,
-                1, 2, -1, -1, -1, -1
             };
 
             const float buttonWidth = 111f;
@@ -7635,24 +7617,6 @@ namespace MotorCity.UI
                     row *
                     (buttonHeight +
                      verticalGap);
-
-                if (presetSlots[i] >= 0)
-                {
-                    CreateGaragePresetButton(
-                        root,
-                        "Garage Preset " +
-                        (presetSlots[i] + 1),
-                        localizationKeys[i],
-                        presetSlots[i],
-                        new Vector2(
-                            x,
-                            y),
-                        new Vector2(
-                            buttonWidth,
-                            buttonHeight));
-
-                    continue;
-                }
 
                 CreateLocalizedTouchPulseButton(
                     root,
