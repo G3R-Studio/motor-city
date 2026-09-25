@@ -7067,7 +7067,6 @@ namespace MotorCity.UI
                 MotorCityInputAction.Upgrade2,
                 MotorCityInputAction.Upgrade3,
 
-                MotorCityInputAction.CyclePetSkin,
                 MotorCityInputAction.CycleBodyColor,
                 MotorCityInputAction.CycleWheels,
                 MotorCityInputAction.CycleNeon,
@@ -7091,7 +7090,6 @@ namespace MotorCity.UI
                 "touch.garage.grip",
                 "touch.garage.stability",
 
-                "touch.garage.skin",
                 "touch.garage.color",
                 "touch.garage.wheels",
                 "touch.garage.neon",
@@ -7109,7 +7107,7 @@ namespace MotorCity.UI
             int[] presetSlots =
             {
                 -1, -1, -1, -1, -1, -1,
-                -1, -1, -1, -1, 0, 1,
+                -1, -1, -1, 0, 1,
                 2, -1, -1, -1, -1, -1
             };
 
