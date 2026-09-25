@@ -215,7 +215,7 @@ namespace MotorCity.UI
                 SetRect(
                     garage,
                     Vector2.zero,
-                    new Vector2(720f, 544f),
+                    new Vector2(720f, 500f),
                     0.92f);
             }
             else
@@ -241,7 +241,7 @@ namespace MotorCity.UI
                 SetRect(
                     garage,
                     Vector2.zero,
-                    new Vector2(780f, 594f),
+                    new Vector2(780f, 520f),
                     1f);
             }
 
