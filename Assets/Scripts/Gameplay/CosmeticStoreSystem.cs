@@ -117,22 +117,21 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (!MotorCityPlatform.SupportsPurchases)
-            {
-                StatusText =
-                    MotorCityLocalization.Text(
-                        "store.yandex_only");
-
-                messageTimer =
-                    4f;
-
-                return;
-            }
-
             string productId =
                 selectedProduct == 0
                     ? SupporterPackProductId
                     : PixieKisoraProductId;
+
+            // Temporary local test path: in Editor/standalone builds,
+            // unlock the selected store item immediately without Yandex.
+            if (!MotorCityPlatform.SupportsPurchases)
+            {
+                GrantAndConsume(
+                    productId,
+                    string.Empty);
+
+                return;
+            }
 
             purchaseRunning =
                 true;
