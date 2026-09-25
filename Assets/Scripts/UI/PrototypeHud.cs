@@ -2359,12 +2359,51 @@ namespace MotorCity.UI
             Image image =
                 buttonObject.GetComponent<Image>();
 
-            image.color =
-                new Color(
-                    0.075f,
-                    0.07f,
-                    0.12f,
-                    0.96f);
+            bool hudUtilityButton =
+                objectName == "HUD Pause" ||
+                objectName == "HUD More";
+
+            if (hudUtilityButton)
+            {
+                Texture2D buttonTexture =
+                    uiThemeAssets == null
+                        ? null
+                        : uiThemeAssets.modalButton;
+
+                Sprite buttonSprite =
+                    GetModalButtonSprite(
+                        buttonTexture);
+
+                if (buttonSprite != null)
+                {
+                    image.sprite =
+                        buttonSprite;
+                    image.type =
+                        Image.Type.Simple;
+                    image.preserveAspect =
+                        false;
+                    image.color =
+                        Color.white;
+                }
+                else
+                {
+                    image.color =
+                        new Color(
+                            0.075f,
+                            0.07f,
+                            0.12f,
+                            0.94f);
+                }
+            }
+            else
+            {
+                image.color =
+                    new Color(
+                        0.075f,
+                        0.07f,
+                        0.12f,
+                        0.96f);
+            }
 
             Button button =
                 buttonObject.GetComponent<Button>();
@@ -2375,16 +2414,49 @@ namespace MotorCity.UI
             button.onClick.AddListener(
                 action);
 
+            Sprite utilityIcon =
+                objectName == "HUD Pause"
+                    ? MotorCityIconLibrary.Pause
+                    : objectName == "HUD More"
+                        ? MotorCityIconLibrary.More
+                        : null;
+
+            if (utilityIcon != null)
+            {
+                CreateHudIcon(
+                    rect,
+                    "Action Icon",
+                    utilityIcon,
+                    new Vector2(
+                        -size.x * 0.5f + 18f,
+                        0f),
+                    new Vector2(
+                        19f,
+                        19f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    TextColor);
+            }
+
             Text text =
                 CreateText(
                     rect,
                     "Label",
-                    13,
+                    hudUtilityButton
+                        ? 12
+                        : 13,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    Vector2.zero,
+                    utilityIcon != null
+                        ? new Vector2(9f, 0f)
+                        : Vector2.zero,
                     size -
-                    new Vector2(8f, 6f),
+                    new Vector2(
+                        utilityIcon != null
+                            ? 30f
+                            : 8f,
+                        6f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
