@@ -1170,10 +1170,37 @@ namespace MotorCity.Gameplay
 
             if (!externalAnimator.HasState(
                     0,
-                    hash) ||
-                hash ==
+                    hash))
+            {
+                return;
+            }
+
+            if (hash ==
                 currentAnimatorStateHash)
             {
+                // The imported Kisora running clip is authored as a one-shot.
+                // While the player's car is moving, restart it as soon as it
+                // reaches the end so the companion never freezes in the final
+                // running pose.
+                if (selectedSkin == 9 &&
+                    mappedState == "running")
+                {
+                    AnimatorStateInfo currentState =
+                        externalAnimator.GetCurrentAnimatorStateInfo(
+                            0);
+
+                    if (currentState.shortNameHash ==
+                            Animator.StringToHash(
+                                mappedState) &&
+                        currentState.normalizedTime >= 0.98f)
+                    {
+                        externalAnimator.Play(
+                            hash,
+                            0,
+                            0f);
+                    }
+                }
+
                 return;
             }
 
