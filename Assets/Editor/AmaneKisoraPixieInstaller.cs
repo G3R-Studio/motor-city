@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -7,6 +6,12 @@ namespace MotorCity.Editor
 {
     public static class AmaneKisoraPixieInstaller
     {
+        private const string SourceModel =
+            "Assets/SapphiArt/SapphiArtchan/FBX/Sapphiart_model.fbx";
+
+        private const string SourceController =
+            "Assets/SapphiArt/SapphiArtchan/Animation/SapphiArtchanAnimController.controller";
+
         private const string OutputFolder =
             "Assets/Resources/MotorCity/Pixie";
 
@@ -14,38 +19,62 @@ namespace MotorCity.Editor
             OutputFolder +
             "/AmaneKisoraVisual.prefab";
 
+        [InitializeOnLoadMethod]
+        private static void QueueAutomaticInstall()
+        {
+            EditorApplication.delayCall +=
+                TryAutomaticInstall;
+        }
+
+        private static void TryAutomaticInstall()
+        {
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                    SourceModel) == null ||
+                AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
+                    SourceController) == null)
+            {
+                return;
+            }
+
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                    OutputPrefab) != null)
+            {
+                return;
+            }
+
+            InstallInternal(
+                false);
+        }
+
         [MenuItem(
             "Motor City/Pixie/Install Amane Kisora Exclusive")]
         public static void Install()
         {
-            string sourcePath =
-                FindKisoraAsset();
+            InstallInternal(
+                true);
+        }
 
-            if (string.IsNullOrEmpty(
-                    sourcePath))
-            {
-                EditorUtility.DisplayDialog(
-                    "Motor City",
-                    "Amane Kisora-chan не найдена. Сначала импортируй пакет из Unity Asset Store, затем запусти эту команду ещё раз.",
-                    "OK");
-
-                return;
-            }
-
-            ConfigureHumanoidIfPossible(
-                sourcePath);
-
+        private static void InstallInternal(
+            bool showDialogs)
+        {
             GameObject source =
                 AssetDatabase.LoadAssetAtPath<GameObject>(
-                    sourcePath);
+                    SourceModel);
 
-            if (source == null)
+            RuntimeAnimatorController controller =
+                AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
+                    SourceController);
+
+            if (source == null ||
+                controller == null)
             {
-                EditorUtility.DisplayDialog(
-                    "Motor City",
-                    "Найденный ассет Kisora не удалось открыть как GameObject: " +
-                    sourcePath,
-                    "OK");
+                if (showDialogs)
+                {
+                    EditorUtility.DisplayDialog(
+                        "Motor City",
+                        "Не найден импортированный пакет Amane Kisora-chan в Assets/SapphiArt.",
+                        "OK");
+                }
 
                 return;
             }
@@ -60,7 +89,7 @@ namespace MotorCity.Editor
             if (instance == null)
             {
                 instance =
-                    UnityEngine.Object.Instantiate(
+                    Object.Instantiate(
                         source);
             }
 
@@ -69,9 +98,22 @@ namespace MotorCity.Editor
                 instance.name =
                     "AmaneKisoraVisual";
 
+                instance.transform.position =
+                    Vector3.zero;
+                instance.transform.rotation =
+                    Quaternion.identity;
+                instance.transform.localScale =
+                    Vector3.one;
+
                 Animator animator =
-                    instance.GetComponentInChildren<Animator>(
-                        true);
+                    instance.GetComponent<Animator>();
+
+                if (animator == null)
+                {
+                    animator =
+                        instance.GetComponentInChildren<Animator>(
+                            true);
+                }
 
                 if (animator == null)
                 {
@@ -79,27 +121,14 @@ namespace MotorCity.Editor
                         instance.AddComponent<Animator>();
                 }
 
-                GameObject defaultPixie =
-                    Resources.Load<GameObject>(
-                        "MotorCity/Byte/HaonByteVisual");
-
-                Animator defaultAnimator =
-                    defaultPixie == null
-                        ? null
-                        : defaultPixie.GetComponentInChildren<Animator>(
-                            true);
-
-                if (defaultAnimator != null &&
-                    defaultAnimator.runtimeAnimatorController != null)
-                {
-                    animator.runtimeAnimatorController =
-                        defaultAnimator.runtimeAnimatorController;
-                }
-
+                animator.runtimeAnimatorController =
+                    controller;
                 animator.applyRootMotion =
                     false;
                 animator.cullingMode =
                     AnimatorCullingMode.AlwaysAnimate;
+                animator.updateMode =
+                    AnimatorUpdateMode.Normal;
 
                 PrefabUtility.SaveAsPrefabAsset(
                     instance,
@@ -108,97 +137,32 @@ namespace MotorCity.Editor
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
 
-                Selection.activeObject =
+                GameObject result =
                     AssetDatabase.LoadAssetAtPath<GameObject>(
                         OutputPrefab);
 
-                EditorUtility.DisplayDialog(
-                    "Motor City",
-                    "Kisora установлена как эксклюзивный облик Пикси. Prefab: " +
-                    OutputPrefab,
-                    "Готово");
+                if (showDialogs)
+                {
+                    Selection.activeObject =
+                        result;
+
+                    EditorUtility.DisplayDialog(
+                        "Motor City",
+                        "Kisora подключена как эксклюзивный облик Пикси.\n" +
+                        OutputPrefab,
+                        "Готово");
+                }
+                else
+                {
+                    Debug.Log(
+                        "[MotorCity][Pixie] Amane Kisora exclusive prefab generated: " +
+                        OutputPrefab);
+                }
             }
             finally
             {
-                UnityEngine.Object.DestroyImmediate(
+                Object.DestroyImmediate(
                     instance);
-            }
-        }
-
-        private static string FindKisoraAsset()
-        {
-            string[] queries =
-            {
-                "SapphiArtchan t:GameObject",
-                "Kisora t:GameObject",
-                "Amane t:GameObject"
-            };
-
-            foreach (string query in queries)
-            {
-                string[] guids =
-                    AssetDatabase.FindAssets(
-                        query);
-
-                foreach (string guid in guids)
-                {
-                    string path =
-                        AssetDatabase.GUIDToAssetPath(
-                            guid);
-
-                    if (string.IsNullOrEmpty(
-                            path) ||
-                        path.StartsWith(
-                            OutputFolder,
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    string lower =
-                        path.ToLowerInvariant();
-
-                    if (lower.Contains(
-                            "sapphi") ||
-                        lower.Contains(
-                            "kisora") ||
-                        lower.Contains(
-                            "amane"))
-                    {
-                        return path;
-                    }
-                }
-            }
-
-            return string.Empty;
-        }
-
-        private static void ConfigureHumanoidIfPossible(
-            string assetPath)
-        {
-            ModelImporter importer =
-                AssetImporter.GetAtPath(
-                    assetPath) as ModelImporter;
-
-            if (importer == null ||
-                importer.animationType ==
-                    ModelImporterAnimationType.Human)
-            {
-                return;
-            }
-
-            importer.animationType =
-                ModelImporterAnimationType.Human;
-
-            try
-            {
-                importer.SaveAndReimport();
-            }
-            catch (Exception exception)
-            {
-                Debug.LogWarning(
-                    "[MotorCity][Pixie] Не удалось автоматически перевести Kisora в Humanoid: " +
-                    exception.Message);
             }
         }
     }
