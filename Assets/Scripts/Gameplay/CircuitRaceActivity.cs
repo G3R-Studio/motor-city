@@ -214,6 +214,8 @@ namespace MotorCity.Gameplay
                     "activity.start_time",
                     MotorCityLocalization.Text("hud.circuit"),
                     goldTimeSeconds,
+                    silverTimeSeconds,
+                    bronzeTimeSeconds,
                     best,
                     string.Empty);
 
