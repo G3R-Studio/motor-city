@@ -250,11 +250,13 @@ namespace MotorCity.EditorTools
                     if (source == null)
                         continue;
 
+                    // The FBX's first material slot ("Color") is the actual body surface.
+                    // The previous implementation treated the last slot as paint, which left
+                    // almost the entire car on the neutral detail material.
                     bool bodyPaintSlot =
                         !wheel &&
                         renderer.transform == instance.transform &&
-                        materials.Length > 1 &&
-                        i == materials.Length - 1;
+                        i == 0;
 
                     if (bodyPaintSlot)
                     {
@@ -265,7 +267,7 @@ namespace MotorCity.EditorTools
 
                         ResetUrpMaterial(
                             paint,
-                            Color.white,
+                            new Color(0.68f, 0.055f, 0.04f, 1f),
                             colorTexture,
                             0.08f,
                             0.52f);
