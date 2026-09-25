@@ -85,10 +85,11 @@ namespace MotorCity.UI
             ClearPanelBackdrop("Speedometer");
             ClearPanelBackdrop("Minimap");
             ClearPanelBackdrop("Drift HUD");
-            ApplyPanelTreatment("Activity Result", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
-            ApplyPanelTreatment("Navigator Menu", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
-            ApplyPanelTreatment("Club Panel", new Color(0.014f, 0.023f, 0.038f, 0.985f), true);
-            ApplyPanelTreatment("Garage Panel", new Color(0.014f, 0.022f, 0.036f, 0.985f), true);
+            ClearPanelBackdrop("Activity Result");
+            ClearPanelBackdrop("Navigator Menu");
+            ClearPanelBackdrop("Pause Panel");
+            ClearPanelBackdrop("Club Panel");
+            ClearPanelBackdrop("Garage Panel");
 
             PolishCoreText("Credits", 1.0f);
             PolishCoreText("Reputation", 0.65f);
