@@ -55,7 +55,6 @@ namespace MotorCity.Localization
                 { "vehicle.tois08.name", E("TOIS08 GT", "TOIS08 GT") },
                 { "vehicle.toro86.name", E("TORO86", "TORO86") },
                 { "vehicle.stuttgart996.name", E("STUTTGART996", "STUTTGART996") },
-                { "vehicle.beatall.name", E("BEATALL", "BEATALL") },
                 { "vehicle.hybrid.name", E("HYBRID", "HYBRID") },
                 { "vehicle.tristar.name", E("TRISTAR RACER", "TRISTAR RACER") },
                 { "vehicle.van.name", E("VAN", "VAN") },
@@ -69,7 +68,6 @@ namespace MotorCity.Localization
                 { "vehicle.tois08.desc", E("СТАРТОВАЯ — лёгкое GT-купе с понятным управлением", "STARTER — a light GT coupe with predictable handling") },
                 { "vehicle.toro86.desc", E("ДРИФТОВАЯ — лёгкая заднеприводная классика", "DRIFT — light rear-drive classic") },
                 { "vehicle.stuttgart996.desc", E("СПОРТИВНАЯ — быстрый и стабильный дорожный спорткар", "SPORT — fast and stable road sports car") },
-                { "vehicle.beatall.desc", E("РЕТРО — компактная классика с мягким характером", "RETRO — compact classic with easy-going handling") },
                 { "vehicle.hybrid.desc", E("СУПЕРКАР — быстрый, цепкий и точный", "SUPERCAR — quick, grippy and precise") },
                 { "vehicle.tristar.desc", E("ГОНОЧНАЯ — лёгкая машина для максимального темпа", "RACER — lightweight car built for maximum pace") },
                 { "vehicle.van.desc", E("ФУРГОН — тяжёлый, практичный и устойчивый", "VAN — heavy, practical and stable") },
@@ -134,12 +132,6 @@ namespace MotorCity.Localization
                 { "customization.designersoup.4", E("SONIC GREY PEARL", "SONIC GREY PEARL") },
                 { "customization.designersoup.5", E("CHAMPIONSHIP WHITE", "CHAMPIONSHIP WHITE") },
 
-                { "customization.beatall.0", E("МОРСКАЯ МЯТА", "SEAFOAM GREEN") },
-                { "customization.beatall.1", E("ВИНТАЖНЫЙ КРЕМ", "VINTAGE CREAM") },
-                { "customization.beatall.2", E("ВИШНЁВЫЙ КРАСНЫЙ", "CHERRY RED") },
-                { "customization.beatall.3", E("АТЛАНТИЧЕСКИЙ СИНИЙ", "ATLANTIC BLUE") },
-                { "customization.beatall.4", E("ГОРЧИЧНЫЙ ЖЁЛТЫЙ", "MUSTARD YELLOW") },
-                { "customization.beatall.5", E("ГРАФИТ", "GRAPHITE") },
 
                 { "customization.hybrid.0", E("ЧЁРНЫЙ", "BLACK") },
                 { "customization.hybrid.1", E("СИНИЙ", "BLUE") },
