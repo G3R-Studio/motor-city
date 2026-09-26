@@ -435,7 +435,8 @@ namespace MotorCity.Vehicle
                         visual.transform,
                         ordered,
                         measuredRadius,
-                        targetLength);
+                        targetLength,
+                        preserveAuthoredTransform);
                 }
 
                 chassis.enabled =
@@ -567,7 +568,8 @@ namespace MotorCity.Vehicle
             Transform visualRoot,
             Transform[] wheels,
             float wheelRadius,
-            float targetLength = TargetLength)
+            float targetLength = TargetLength,
+            bool preserveAuthoredTransform = false)
         {
             if (chassis == null ||
                 carRoot == null ||
@@ -658,37 +660,52 @@ namespace MotorCity.Vehicle
                 TargetLength + 0.1f;
 
             float width =
-                largeVehicle
+                preserveAuthoredTransform
                     ? Mathf.Clamp(
                         localBounds.size.x * 0.94f,
-                        1.8f,
-                        2.75f)
-                    : Mathf.Clamp(
-                        localBounds.size.x * 0.88f,
-                        1.35f,
-                        2.35f);
+                        1.45f,
+                        2.45f)
+                    : largeVehicle
+                        ? Mathf.Clamp(
+                            localBounds.size.x * 0.94f,
+                            1.8f,
+                            2.75f)
+                        : Mathf.Clamp(
+                            localBounds.size.x * 0.88f,
+                            1.35f,
+                            2.35f);
 
             float length =
-                largeVehicle
+                preserveAuthoredTransform
                     ? Mathf.Clamp(
-                        localBounds.size.z * 0.96f,
-                        targetLength * 0.82f,
-                        targetLength * 1.02f)
-                    : Mathf.Clamp(
-                        localBounds.size.z * 0.88f,
-                        2.7f,
-                        4.75f);
+                        localBounds.size.z * 0.985f,
+                        targetLength * 0.92f,
+                        targetLength * 1.08f)
+                    : largeVehicle
+                        ? Mathf.Clamp(
+                            localBounds.size.z * 0.96f,
+                            targetLength * 0.82f,
+                            targetLength * 1.02f)
+                        : Mathf.Clamp(
+                            localBounds.size.z * 0.88f,
+                            2.7f,
+                            4.75f);
 
             float bodyHeight =
-                largeVehicle
+                preserveAuthoredTransform
                     ? Mathf.Clamp(
-                        localBounds.size.y * 0.82f,
-                        1.25f,
-                        2.85f)
-                    : Mathf.Clamp(
-                        localBounds.size.y * 0.58f,
-                        0.52f,
-                        1.05f);
+                        localBounds.size.y * 0.72f,
+                        0.62f,
+                        1.25f)
+                    : largeVehicle
+                        ? Mathf.Clamp(
+                            localBounds.size.y * 0.82f,
+                            1.25f,
+                            2.85f)
+                        : Mathf.Clamp(
+                            localBounds.size.y * 0.58f,
+                            0.52f,
+                            1.05f);
 
             float wheelBottom =
                 TargetWheelCenterLocalY -
