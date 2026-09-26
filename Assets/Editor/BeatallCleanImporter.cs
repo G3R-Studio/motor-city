@@ -11,6 +11,9 @@ namespace MotorCity.EditorTools
         private const string SourcePath =
             "Assets/Vehicles/Imported/Designersoup_CarPack1/Beatall/beatall.obj";
 
+        private const string WheelSourcePath =
+            "Assets/Vehicles/Imported/Designersoup_CarPack1/Beatall/wheels_beetle.obj";
+
         private const string TexturePath =
             "Assets/Vehicles/Imported/Designersoup_CarPack1/Beatall/387359c5580f06c08c266126b3b46db47e48ba44.png";
 
@@ -42,8 +45,28 @@ namespace MotorCity.EditorTools
 
         private static void EnsureBuilt()
         {
-            if (AssetDatabase.LoadAssetAtPath<GameObject>(PrototypePath) != null &&
-                AssetDatabase.LoadAssetAtPath<GameObject>(ResourcePath) != null)
+            GameObject prototype =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    PrototypePath);
+
+            GameObject resource =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    ResourcePath);
+
+            bool hasSeparatedWheels =
+                prototype != null &&
+                prototype.transform.Find(
+                    "Wheels/Front Left") != null &&
+                prototype.transform.Find(
+                    "Wheels/Front Right") != null &&
+                prototype.transform.Find(
+                    "Wheels/Rear Left") != null &&
+                prototype.transform.Find(
+                    "Wheels/Rear Right") != null;
+
+            if (prototype != null &&
+                resource != null &&
+                hasSeparatedWheels)
             {
                 return;
             }
@@ -54,12 +77,25 @@ namespace MotorCity.EditorTools
         private static void Build(bool log)
         {
             GameObject source =
-                AssetDatabase.LoadAssetAtPath<GameObject>(SourcePath);
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    SourcePath);
+
+            GameObject wheelSource =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    WheelSourcePath);
 
             if (source == null)
             {
                 if (log)
                     Debug.LogWarning("[MotorCity][Beatall] Source OBJ not found.");
+
+                return;
+            }
+
+            if (wheelSource == null)
+            {
+                if (log)
+                    Debug.LogWarning("[MotorCity][Beatall] Wheel OBJ not found.");
 
                 return;
             }
@@ -79,6 +115,9 @@ namespace MotorCity.EditorTools
             try
             {
                 ApplyUrpMaterials(instance);
+                AddSeparatedWheels(
+                    instance,
+                    wheelSource);
 
                 PrefabUtility.SaveAsPrefabAsset(
                     instance,
@@ -101,6 +140,219 @@ namespace MotorCity.EditorTools
             {
                 Object.DestroyImmediate(instance);
             }
+        }
+
+        private static void AddSeparatedWheels(
+            GameObject car,
+            GameObject wheelSource)
+        {
+            if (car == null ||
+                wheelSource == null)
+            {
+                return;
+            }
+
+            Transform old =
+                car.transform.Find("Wheels");
+
+            if (old != null)
+                Object.DestroyImmediate(old.gameObject);
+
+            Bounds carBounds =
+                CalculateRendererBounds(car);
+
+            GameObject probe =
+                Object.Instantiate(wheelSource);
+
+            Bounds wheelBounds =
+                CalculateRendererBounds(probe);
+
+            Object.DestroyImmediate(probe);
+
+            float radius =
+                Mathf.Max(
+                    wheelBounds.extents.y,
+                    wheelBounds.extents.z);
+
+            float halfWidth =
+                Mathf.Max(
+                    0.02f,
+                    wheelBounds.extents.x);
+
+            float side =
+                Mathf.Max(
+                    0.1f,
+                    carBounds.extents.x -
+                    halfWidth * 0.55f);
+
+            float wheelY =
+                carBounds.min.y +
+                radius * 1.02f;
+
+            float frontZ =
+                carBounds.max.z -
+                radius * 1.70f;
+
+            float rearZ =
+                carBounds.min.z +
+                radius * 1.90f;
+
+            GameObject wheels =
+                new("Wheels");
+
+            wheels.transform.SetParent(
+                car.transform,
+                false);
+
+            CreateWheel(
+                wheelSource,
+                wheels.transform,
+                "Front Left",
+                new Vector3(
+                    -side,
+                    wheelY,
+                    frontZ),
+                false);
+
+            CreateWheel(
+                wheelSource,
+                wheels.transform,
+                "Front Right",
+                new Vector3(
+                    side,
+                    wheelY,
+                    frontZ),
+                true);
+
+            CreateWheel(
+                wheelSource,
+                wheels.transform,
+                "Rear Left",
+                new Vector3(
+                    -side,
+                    wheelY,
+                    rearZ),
+                false);
+
+            CreateWheel(
+                wheelSource,
+                wheels.transform,
+                "Rear Right",
+                new Vector3(
+                    side,
+                    wheelY,
+                    rearZ),
+                true);
+        }
+
+        private static void CreateWheel(
+            GameObject source,
+            Transform parent,
+            string name,
+            Vector3 localPosition,
+            bool rightSide)
+        {
+            GameObject wheel =
+                Object.Instantiate(source);
+
+            wheel.name =
+                name;
+
+            wheel.transform.SetParent(
+                parent,
+                false);
+
+            wheel.transform.localPosition =
+                localPosition;
+
+            wheel.transform.localRotation =
+                rightSide
+                    ? Quaternion.Euler(
+                        0f,
+                        180f,
+                        0f)
+                    : Quaternion.identity;
+
+            wheel.transform.localScale =
+                Vector3.one;
+
+            ApplyUrpMaterials(
+                wheel);
+        }
+
+        private static Bounds CalculateRendererBounds(
+            GameObject root)
+        {
+            Renderer[] renderers =
+                root.GetComponentsInChildren<Renderer>(
+                    true);
+
+            if (renderers.Length == 0)
+            {
+                return new Bounds(
+                    Vector3.zero,
+                    Vector3.one);
+            }
+
+            Transform rootTransform =
+                root.transform;
+
+            bool initialized =
+                false;
+
+            Bounds localBounds =
+                new(
+                    Vector3.zero,
+                    Vector3.zero);
+
+            foreach (Renderer renderer in renderers)
+            {
+                Bounds world =
+                    renderer.bounds;
+
+                Vector3 min =
+                    world.min;
+
+                Vector3 max =
+                    world.max;
+
+                for (int x = 0; x < 2; x++)
+                {
+                    for (int y = 0; y < 2; y++)
+                    {
+                        for (int z = 0; z < 2; z++)
+                        {
+                            Vector3 corner =
+                                new(
+                                    x == 0 ? min.x : max.x,
+                                    y == 0 ? min.y : max.y,
+                                    z == 0 ? min.z : max.z);
+
+                            Vector3 local =
+                                rootTransform.InverseTransformPoint(
+                                    corner);
+
+                            if (!initialized)
+                            {
+                                localBounds =
+                                    new Bounds(
+                                        local,
+                                        Vector3.zero);
+
+                                initialized =
+                                    true;
+                            }
+                            else
+                            {
+                                localBounds.Encapsulate(
+                                    local);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return localBounds;
         }
 
         private static void ApplyUrpMaterials(GameObject root)
