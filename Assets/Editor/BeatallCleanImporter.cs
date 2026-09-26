@@ -56,13 +56,13 @@ namespace MotorCity.EditorTools
             bool hasSeparatedWheels =
                 prototype != null &&
                 prototype.transform.Find(
-                    "Wheels/Front Left") != null &&
+                    "RunningGear/Front Left Wheel") != null &&
                 prototype.transform.Find(
-                    "Wheels/Front Right") != null &&
+                    "RunningGear/Front Right Wheel") != null &&
                 prototype.transform.Find(
-                    "Wheels/Rear Left") != null &&
+                    "RunningGear/Rear Left Wheel") != null &&
                 prototype.transform.Find(
-                    "Wheels/Rear Right") != null;
+                    "RunningGear/Rear Right Wheel") != null;
 
             if (prototype != null &&
                 resource != null &&
@@ -153,7 +153,7 @@ namespace MotorCity.EditorTools
             }
 
             Transform old =
-                car.transform.Find("Wheels");
+                car.transform.Find("RunningGear");
 
             if (old != null)
                 Object.DestroyImmediate(old.gameObject);
@@ -198,7 +198,7 @@ namespace MotorCity.EditorTools
                 radius * 1.90f;
 
             GameObject wheels =
-                new("Wheels");
+                new("RunningGear");
 
             wheels.transform.SetParent(
                 car.transform,
@@ -207,7 +207,7 @@ namespace MotorCity.EditorTools
             CreateWheel(
                 wheelSource,
                 wheels.transform,
-                "Front Left",
+                "Front Left Wheel",
                 new Vector3(
                     -side,
                     wheelY,
@@ -217,7 +217,7 @@ namespace MotorCity.EditorTools
             CreateWheel(
                 wheelSource,
                 wheels.transform,
-                "Front Right",
+                "Front Right Wheel",
                 new Vector3(
                     side,
                     wheelY,
@@ -227,7 +227,7 @@ namespace MotorCity.EditorTools
             CreateWheel(
                 wheelSource,
                 wheels.transform,
-                "Rear Left",
+                "Rear Left Wheel",
                 new Vector3(
                     -side,
                     wheelY,
@@ -237,7 +237,7 @@ namespace MotorCity.EditorTools
             CreateWheel(
                 wheelSource,
                 wheels.transform,
-                "Rear Right",
+                "Rear Right Wheel",
                 new Vector3(
                     side,
                     wheelY,
