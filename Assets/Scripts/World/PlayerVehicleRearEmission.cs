@@ -211,12 +211,6 @@ namespace MotorCity.World
 
             RemoveLegacyOverlays();
 
-            // SuvV1/Apex has no authored rear lamp geometry. Do not project a
-            // synthetic brake-light mask onto its body: it looks like floating
-            // or painted-on lights that the source vehicle does not actually have.
-            if (vehicleId == "apex")
-                return;
-
             Renderer[] renderers =
                 currentVisual.GetComponentsInChildren<
                     Renderer>(
@@ -1082,8 +1076,7 @@ namespace MotorCity.World
                     rearSoftnessFraction);
 
             bool spatialLampMask =
-                vehicleId == "club" ||
-                vehicleId == "muscle";
+                false;
 
             float lateralMaxAbs =
                 Mathf.Max(
@@ -1315,8 +1308,6 @@ namespace MotorCity.World
             out float blueLow,
             out float blueHigh)
         {
-            // Strict preset is known to work on the red MuscleCar without
-            // lighting its painted body.
             rearCutoffFraction = 0.70f;
             rearSoftnessFraction = 0.035f;
             chromaLow = 0.22f;
@@ -1327,47 +1318,6 @@ namespace MotorCity.World
             greenHigh = 0.42f;
             blueLow = 0.18f;
             blueHigh = 0.38f;
-
-            bool club =
-                vehicleId == "club";
-
-            bool ranger =
-                vehicleId == "muscle";
-
-            if (club)
-            {
-                // Swifto/Club stores its rear lamps as comparatively dark red
-                // texels. Restrict the effect to the very back of the mesh so
-                // we can safely use a looser colour mask without lighting the
-                // whole red body.
-                rearCutoffFraction = 0.82f;
-                rearSoftnessFraction = 0.022f;
-                chromaLow = 0.01f;
-                chromaHigh = 0.10f;
-                redLow = 0.10f;
-                redHigh = 0.34f;
-                greenLow = 0.34f;
-                greenHigh = 0.72f;
-                blueLow = 0.32f;
-                blueHigh = 0.68f;
-            }
-            else if (ranger)
-            {
-                // RANGER is PickupV2. Its tail lamps live in the shared
-                // PolyPack atlas and are darker/smaller than the MuscleCar
-                // lamps, so use a looser red mask but constrain it to the
-                // outer rear corners of the body.
-                rearCutoffFraction = 0.74f;
-                rearSoftnessFraction = 0.028f;
-                chromaLow = 0.05f;
-                chromaHigh = 0.22f;
-                redLow = 0.28f;
-                redHigh = 0.62f;
-                greenLow = 0.26f;
-                greenHigh = 0.58f;
-                blueLow = 0.24f;
-                blueHigh = 0.56f;
-            }
         }
 
         private bool IsBodySizedRenderer(
