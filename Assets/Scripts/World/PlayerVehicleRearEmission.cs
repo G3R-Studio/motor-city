@@ -628,6 +628,13 @@ namespace MotorCity.World
                     rendererRearSpecific ||
                     materialRearSpecific;
 
+                // This component controls rear/brake emission only.
+                // Do not bind front lamps or generic emissive/color materials
+                // such as "Light Blue Paint"; those must keep their authored
+                // appearance and are handled elsewhere if needed.
+                if (!rearSpecific)
+                    continue;
+
                 Material runtime =
                     new(source)
                     {
@@ -844,13 +851,27 @@ namespace MotorCity.World
                 return true;
             }
 
-            if (materialName.Contains(
-                    "lamp") ||
-                materialName.Contains(
-                    "light"))
-            {
+            bool explicitLampName =
+                materialName.Contains("lamp") ||
+                materialName.Contains("headlight") ||
+                materialName.Contains("head_light") ||
+                materialName.Contains("head light") ||
+                materialName.Contains("taillight") ||
+                materialName.Contains("tail_light") ||
+                materialName.Contains("tail light") ||
+                (materialName.Contains("head") &&
+                 materialName.Contains("light")) ||
+                (materialName.Contains("tail") &&
+                 materialName.Contains("light")) ||
+                (materialName.Contains("rear") &&
+                 materialName.Contains("light")) ||
+                (materialName.Contains("brake") &&
+                 materialName.Contains("light")) ||
+                (materialName.Contains("stop") &&
+                 materialName.Contains("light"));
+
+            if (explicitLampName)
                 return true;
-            }
 
             // Asset packs commonly use names such as AFRC_Emission for the
             // model's actual light submesh. Preserve that submesh instead of
