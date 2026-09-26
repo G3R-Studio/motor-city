@@ -26,15 +26,7 @@ namespace MotorCity.Gameplay
             new(0.58f, 0.18f, 0.92f, 1f)
         };
 
-        private static readonly Color[] DesignersoupBodyColors =
-        {
-            new(0.78f, 0.035f, 0.045f, 1f), // Rallye Red
-            new(1.00f, 0.64f, 0.035f, 1f), // Pheonix Yellow
-            new(0.055f, 0.30f, 0.78f, 1f), // Boost Pearl Blue
-            new(0.018f, 0.022f, 0.028f, 1f), // Black Pearl
-            new(0.33f, 0.36f, 0.39f, 1f), // Sonic Grey Pearl
-            new(0.93f, 0.93f, 0.90f, 1f)  // Championship White
-        };
+
 
         private static readonly Color[] HybridBodyColors =
         {
@@ -50,34 +42,11 @@ namespace MotorCity.Gameplay
             new(0.96f, 0.66f, 0.04f, 1f)
         };
 
-        private static readonly Color[] TristarBodyColors =
-        {
-            new(0.80f, 0.035f, 0.035f, 1f),
-            new(0.96f, 0.62f, 0.025f, 1f),
-            new(0.03f, 0.32f, 0.86f, 1f),
-            new(0.018f, 0.022f, 0.03f, 1f),
-            new(0.36f, 0.39f, 0.44f, 1f),
-            new(0.94f, 0.94f, 0.92f, 1f)
-        };
 
-        private static readonly Color[] VanBodyColors =
-        {
-            new(0.93f, 0.93f, 0.90f, 1f),
-            new(0.055f, 0.34f, 0.75f, 1f),
-            new(0.72f, 0.045f, 0.035f, 1f),
-            new(0.95f, 0.63f, 0.035f, 1f),
-            new(0.23f, 0.25f, 0.28f, 1f),
-            new(0.20f, 0.66f, 0.50f, 1f)
-        };
 
-        private static readonly Color[] DocLoreanBodyColors =
-        {
-            new(0.58f, 0.61f, 0.64f, 1f),
-            new(0.018f, 0.022f, 0.03f, 1f),
-            new(0.025f, 0.34f, 0.82f, 1f),
-            new(0.72f, 0.045f, 0.035f, 1f),
-            new(0.94f, 0.94f, 0.92f, 1f)
-        };
+
+
+
 
         private static readonly Color[] AccentColors =
         {
@@ -370,31 +339,9 @@ namespace MotorCity.Gameplay
         private Color[] BodyColorsForCurrentVehicle()
         {
             return
-                VehicleId() switch
-                {
-                    "street" =>
-                        StreetBodyColors,
-
-                    "tois08" or
-                    "toro86" or
-                    "stuttgart996" =>
-                        DesignersoupBodyColors,
-
-                    "hybrid" =>
-                        HybridBodyColors,
-
-                    "tristar" =>
-                        TristarBodyColors,
-
-                    "van" =>
-                        VanBodyColors,
-
-                    "doclorean" =>
-                        DocLoreanBodyColors,
-
-                    _ =>
-                        DesignersoupBodyColors
-                };
+                VehicleId() == "hybrid"
+                    ? HybridBodyColors
+                    : StreetBodyColors;
         }
 
         private int GetInt(
@@ -1430,44 +1377,12 @@ namespace MotorCity.Gameplay
                     };
             }
 
-            if (vehicleId == "tois08" ||
-                vehicleId == "toro86" ||
-                vehicleId == "stuttgart996")
-            {
-                return
-                    "customization.designersoup." +
-                    Mathf.Clamp(
-                        index,
-                        0,
-                        DesignersoupBodyColors.Length - 1);
-            }
-
-            string prefix =
-                vehicleId switch
-                {
-
-                    "hybrid" =>
-                        "customization.hybrid.",
-
-                    "tristar" =>
-                        "customization.tristar.",
-
-                    "van" =>
-                        "customization.van.",
-
-                    "doclorean" =>
-                        "customization.doclorean.",
-
-                    _ =>
-                        "customization.designersoup."
-                };
-
             return
-                prefix +
+                "customization.hybrid." +
                 Mathf.Clamp(
                     index,
                     0,
-                    BodyColorCountForCurrentVehicle() - 1);
+                    HybridBodyColors.Length - 1);
         }
 
         private static string StickerNameKey(
