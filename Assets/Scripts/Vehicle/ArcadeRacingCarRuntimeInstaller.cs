@@ -88,7 +88,8 @@ namespace MotorCity.Vehicle
             Vector3? visualEulerCorrection = null,
             bool preserveAuthoredTransform = false,
             Vector3[] explicitWheelCentersLocal = null,
-            float explicitWheelRadius = 0f)
+            float explicitWheelRadius = 0f,
+            bool useVisualMeshCollider = false)
         {
             if (car == null ||
                 string.IsNullOrWhiteSpace(
@@ -119,7 +120,8 @@ namespace MotorCity.Vehicle
                 visualEulerCorrection,
                 preserveAuthoredTransform,
                 explicitWheelCentersLocal,
-                explicitWheelRadius);
+                explicitWheelRadius,
+                useVisualMeshCollider);
         }
 
         private static bool Install(
@@ -131,7 +133,8 @@ namespace MotorCity.Vehicle
             Vector3? visualEulerCorrection = null,
             bool preserveAuthoredTransform = false,
             Vector3[] explicitWheelCentersLocal = null,
-            float explicitWheelRadius = 0f)
+            float explicitWheelRadius = 0f,
+            bool useVisualMeshCollider = false)
         {
             Transform carTransform = car.transform;
 
@@ -445,7 +448,19 @@ namespace MotorCity.Vehicle
             BoxCollider chassis =
                 carTransform.GetComponent<BoxCollider>();
 
-            if (chassis != null)
+            if (useVisualMeshCollider)
+            {
+                if (chassis != null)
+                {
+                    chassis.enabled =
+                        false;
+                }
+
+                ConfigureVisualMeshCollider(
+                    visual,
+                    ordered);
+            }
+            else if (chassis != null)
             {
                 if (rotateLeft90 ||
                     useAuthoredBusRig ||
@@ -584,6 +599,51 @@ namespace MotorCity.Vehicle
                 diameter * 0.5f,
                 0.26f,
                 0.58f);
+        }
+
+        private static void ConfigureVisualMeshCollider(
+            GameObject visual,
+            Transform[] wheels)
+        {
+            if (visual == null)
+                return;
+
+            MeshFilter[] filters =
+                visual.GetComponentsInChildren<MeshFilter>(
+                    true);
+
+            foreach (MeshFilter filter in filters)
+            {
+                if (filter == null ||
+                    filter.sharedMesh == null ||
+                    IsWheelRenderer(
+                        filter.transform,
+                        wheels))
+                {
+                    continue;
+                }
+
+                MeshCollider existing =
+                    filter.GetComponent<MeshCollider>();
+
+                if (existing == null)
+                {
+                    existing =
+                        filter.gameObject.AddComponent<MeshCollider>();
+                }
+
+                existing.sharedMesh =
+                    filter.sharedMesh;
+
+                // Player vehicles use a dynamic Rigidbody on the root, so
+                // MeshColliders must be convex. PhysX builds the hull from
+                // the actual authored body mesh instead of an oversized box.
+                existing.convex =
+                    true;
+
+                existing.isTrigger =
+                    false;
+            }
         }
 
         private static void ConfigureChassisFromVisual(
