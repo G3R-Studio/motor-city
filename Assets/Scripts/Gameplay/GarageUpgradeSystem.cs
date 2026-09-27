@@ -282,16 +282,6 @@ namespace MotorCity.Gameplay
             }
 
             if (MotorCityInput.WasVirtualPressed(
-                    MotorCityInputAction.CyclePetSkin) &&
-                turbo != null)
-            {
-                turbo.CycleSkin();
-
-                StatusText =
-                    turbo.GarageLine;
-            }
-
-            if (MotorCityInput.WasVirtualPressed(
                     MotorCityInputAction.CycleBodyColor) &&
                 customization != null)
             {
