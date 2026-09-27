@@ -128,7 +128,8 @@ public static class CamaroVehicleImporter
         {
             instance.transform.position = Vector3.zero;
             instance.transform.rotation = Quaternion.identity;
-            instance.transform.localScale = Vector3.one;
+            instance.transform.localScale =
+                Vector3.one * 1.10f;
 
             StripImportedPhysics(instance);
             BuildWheelSet(instance.transform, wheelSource);
