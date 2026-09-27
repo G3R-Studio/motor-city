@@ -533,19 +533,8 @@ namespace MotorCity.Bootstrap
                 achievements,
                 adventureDirector);
 
-            MotorCityBootController bootController =
-                Object.FindAnyObjectByType<MotorCityBootController>();
-
-            if (bootController != null)
-            {
-                bootController.NotifyGameplayBuilt();
-            }
-            else
-            {
-                // Direct Prototype launches have no boot overlay.
-                MotorCityPlatform.GameReady();
-                platformRuntime.MarkGameplayRunning();
-            }
+            MotorCityPlatform.GameReady();
+            platformRuntime.MarkGameplayRunning();
         }
 
         private static void BindFcgTrafficPlayer(
