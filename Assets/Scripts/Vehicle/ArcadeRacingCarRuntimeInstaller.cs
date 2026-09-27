@@ -1178,9 +1178,16 @@ namespace MotorCity.Vehicle
                 string name =
                     item.name.ToLowerInvariant();
 
+                bool authoredCornerWheel =
+                    name == "front_left" ||
+                    name == "front_right" ||
+                    name == "rear_left" ||
+                    name == "rear_right";
+
                 if (!(name.Contains("wheel") ||
                       name.Contains("tire") ||
-                      name.Contains("tyre")))
+                      name.Contains("tyre") ||
+                      authoredCornerWheel))
                     continue;
 
                 if (item.GetComponentInChildren<Renderer>(
