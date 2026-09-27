@@ -493,7 +493,8 @@ namespace MotorCity.Gameplay
                 profiles[SelectedIndex];
 
             bool preserveAuthoredTransform =
-                profile.Id == "hybrid";
+                profile.Id == "hybrid" ||
+                profile.Id == "beatall";
 
             if (profile.Id == "hybrid")
             {
@@ -532,7 +533,7 @@ namespace MotorCity.Gameplay
                 profile.Id == "hybrid"
                     ? 4.45f
                     : profile.Id == "beatall"
-                        ? 4.05f
+                        ? 3.45f
                         : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
