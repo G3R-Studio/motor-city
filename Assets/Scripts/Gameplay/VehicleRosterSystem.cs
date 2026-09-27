@@ -267,7 +267,23 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.camaro.desc"))
+                        MotorCityLocalization.Text("vehicle.camaro.desc")),
+
+                    new VehicleProfile(
+                        "bus",
+                        MotorCityLocalization.Text("vehicle.bus.name"),
+                        "MotorCity/Vehicles/Player/Bus",
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.bus.desc"))
                 };
 
             int stored =
@@ -596,7 +612,8 @@ namespace MotorCity.Gameplay
                 profile.Id == "porsche996" ||
                 profile.Id == "peugeot306" ||
                 profile.Id == "toyotaae86" ||
-                profile.Id == "camaro";
+                profile.Id == "camaro" ||
+                profile.Id == "bus";
 
             if (profile.Id == "hybrid")
             {
@@ -683,6 +700,17 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.22f);
             }
+            else if (profile.Id == "bus")
+            {
+                // Long city bus: more travel and damping for the tall body,
+                // while keeping it stable enough for the shared player rig.
+                car.ApplySuspensionPreset(
+                    0.18f,
+                    52000f,
+                    9200f,
+                    0.52f,
+                    0.42f);
+            }
             else
             {
                 car.ApplySuspensionPreset(
@@ -710,7 +738,9 @@ namespace MotorCity.Gameplay
                                             ? 4.31f
                                             : profile.Id == "camaro"
                                                 ? 4.64f
-                                                : 4.35f;
+                                                : profile.Id == "bus"
+                                                    ? 6.35f
+                                                    : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
