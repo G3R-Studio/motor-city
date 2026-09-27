@@ -647,190 +647,209 @@ namespace MotorCity.Vehicle
                     continue;
                 }
 
-                MeshCollider existing =
-                    filter.GetComponent<MeshCollider>();
-
-                if (existing == null)
-                {
-                    existing =
-                        filter.gameObject.AddComponent<MeshCollider>();
-                }
-
-                Mesh colliderMesh =
-                    BuildConvexColliderProxy(
-                        filter.sharedMesh);
-
-                existing.sharedMesh =
-                    colliderMesh;
-
-                // Dynamic Rigidbody vehicles require convex MeshColliders.
-                // The proxy keeps a representative sample of the authored
-                // body surface below PhysX's convex-hull polygon limit.
-                existing.convex =
-                    true;
-
-                existing.isTrigger =
-                    false;
+                BuildCompoundBodyCollider(
+                    filter);
             }
         }
 
-        private static Mesh BuildConvexColliderProxy(
-            Mesh source)
+        private static void BuildCompoundBodyCollider(
+            MeshFilter filter)
         {
-            if (source == null)
-                return null;
-
-            int[] sourceTriangles =
-                source.triangles;
-
-            Vector3[] sourceVertices =
-                source.vertices;
-
-            if (sourceTriangles == null ||
-                sourceTriangles.Length < 3 ||
-                sourceVertices == null ||
-                sourceVertices.Length < 4)
+            if (filter == null ||
+                filter.sharedMesh == null)
             {
-                return source;
+                return;
             }
 
-            const int MaximumProxyVertices = 72;
+            const string ProxyRootName =
+                "MotorCityBodyCollisionProxy";
 
-            // Small meshes are already safe for PhysX convex cooking.
-            if (sourceVertices.Length <= MaximumProxyVertices &&
-                sourceTriangles.Length / 3 <= 120)
+            Transform old =
+                filter.transform.Find(
+                    ProxyRootName);
+
+            if (old != null)
             {
-                return source;
+                UnityEngine.Object.Destroy(
+                    old.gameObject);
             }
 
-            var vertexMap =
-                new Dictionary<int, int>();
+            Vector3[] vertices =
+                filter.sharedMesh.vertices;
 
-            var vertices =
-                new List<Vector3>(
-                    MaximumProxyVertices);
+            if (vertices == null ||
+                vertices.Length == 0)
+            {
+                return;
+            }
 
-            var triangles =
-                new List<int>(
-                    240);
+            Bounds meshBounds =
+                filter.sharedMesh.bounds;
 
-            int triangleCount =
-                sourceTriangles.Length / 3;
+            bool splitAlongZ =
+                meshBounds.size.z >=
+                meshBounds.size.x;
 
-            int sampleStep =
+            const int SliceCount = 5;
+
+            GameObject proxyRoot =
+                new GameObject(
+                    ProxyRootName);
+
+            proxyRoot.transform.SetParent(
+                filter.transform,
+                false);
+
+            proxyRoot.transform.localPosition =
+                Vector3.zero;
+
+            proxyRoot.transform.localRotation =
+                Quaternion.identity;
+
+            proxyRoot.transform.localScale =
+                Vector3.one;
+
+            float axisMin =
+                splitAlongZ
+                    ? meshBounds.min.z
+                    : meshBounds.min.x;
+
+            float axisMax =
+                splitAlongZ
+                    ? meshBounds.max.z
+                    : meshBounds.max.x;
+
+            float axisLength =
                 Mathf.Max(
-                    1,
-                    triangleCount / 90);
+                    0.001f,
+                    axisMax - axisMin);
 
-            for (int triangle = 0;
-                 triangle < triangleCount;
-                 triangle += sampleStep)
+            for (int slice = 0;
+                 slice < SliceCount;
+                 slice++)
             {
-                int offset =
-                    triangle * 3;
+                float sliceMin =
+                    Mathf.Lerp(
+                        axisMin,
+                        axisMax,
+                        slice /
+                        (float)SliceCount);
 
-                int a =
-                    sourceTriangles[offset];
+                float sliceMax =
+                    Mathf.Lerp(
+                        axisMin,
+                        axisMax,
+                        (slice + 1) /
+                        (float)SliceCount);
 
-                int b =
-                    sourceTriangles[offset + 1];
+                bool initialized =
+                    false;
 
-                int c =
-                    sourceTriangles[offset + 2];
+                Vector3 minimum =
+                    Vector3.zero;
 
-                int additional =
-                    (vertexMap.ContainsKey(a) ? 0 : 1) +
-                    (vertexMap.ContainsKey(b) ? 0 : 1) +
-                    (vertexMap.ContainsKey(c) ? 0 : 1);
+                Vector3 maximum =
+                    Vector3.zero;
 
-                if (vertices.Count + additional >
-                    MaximumProxyVertices)
+                for (int i = 0;
+                     i < vertices.Length;
+                     i++)
                 {
-                    continue;
+                    Vector3 vertex =
+                        vertices[i];
+
+                    float axis =
+                        splitAlongZ
+                            ? vertex.z
+                            : vertex.x;
+
+                    if (axis <
+                            sliceMin -
+                            axisLength * 0.03f ||
+                        axis >
+                            sliceMax +
+                            axisLength * 0.03f)
+                    {
+                        continue;
+                    }
+
+                    if (!initialized)
+                    {
+                        minimum =
+                            vertex;
+
+                        maximum =
+                            vertex;
+
+                        initialized =
+                            true;
+                    }
+                    else
+                    {
+                        minimum =
+                            Vector3.Min(
+                                minimum,
+                                vertex);
+
+                        maximum =
+                            Vector3.Max(
+                                maximum,
+                                vertex);
+                    }
                 }
 
-                int pa =
-                    MapProxyVertex(
-                        a,
-                        sourceVertices,
-                        vertexMap,
-                        vertices);
-
-                int pb =
-                    MapProxyVertex(
-                        b,
-                        sourceVertices,
-                        vertexMap,
-                        vertices);
-
-                int pc =
-                    MapProxyVertex(
-                        c,
-                        sourceVertices,
-                        vertexMap,
-                        vertices);
-
-                if (pa == pb ||
-                    pb == pc ||
-                    pc == pa)
-                {
+                if (!initialized)
                     continue;
-                }
 
-                triangles.Add(pa);
-                triangles.Add(pb);
-                triangles.Add(pc);
+                Vector3 size =
+                    maximum -
+                    minimum;
+
+                // Keep the proxy slightly inside the visible shell to avoid
+                // snagging on kerbs/props while still following the body.
+                size.x =
+                    Mathf.Max(
+                        0.05f,
+                        size.x * 0.94f);
+
+                size.y =
+                    Mathf.Max(
+                        0.05f,
+                        size.y * 0.90f);
+
+                size.z =
+                    Mathf.Max(
+                        0.05f,
+                        size.z * 0.94f);
+
+                GameObject part =
+                    new GameObject(
+                        "BodyCollider_" +
+                        slice);
+
+                part.transform.SetParent(
+                    proxyRoot.transform,
+                    false);
+
+                part.transform.localPosition =
+                    (minimum + maximum) *
+                    0.5f;
+
+                part.transform.localRotation =
+                    Quaternion.identity;
+
+                part.transform.localScale =
+                    Vector3.one;
+
+                BoxCollider collider =
+                    part.AddComponent<BoxCollider>();
+
+                collider.center =
+                    Vector3.zero;
+
+                collider.size =
+                    size;
             }
-
-            if (vertices.Count < 4 ||
-                triangles.Count < 12)
-            {
-                return source;
-            }
-
-            Mesh proxy =
-                new Mesh
-                {
-                    name =
-                        source.name +
-                        "_MotorCityConvexProxy"
-                };
-
-            proxy.SetVertices(
-                vertices);
-
-            proxy.SetTriangles(
-                triangles,
-                0);
-
-            proxy.RecalculateBounds();
-
-            return proxy;
-        }
-
-        private static int MapProxyVertex(
-            int sourceIndex,
-            Vector3[] sourceVertices,
-            Dictionary<int, int> vertexMap,
-            List<Vector3> vertices)
-        {
-            if (vertexMap.TryGetValue(
-                    sourceIndex,
-                    out int mapped))
-            {
-                return mapped;
-            }
-
-            mapped =
-                vertices.Count;
-
-            vertexMap[sourceIndex] =
-                mapped;
-
-            vertices.Add(
-                sourceVertices[sourceIndex]);
-
-            return mapped;
         }
 
         private static void ConfigureChassisFromVisual(
