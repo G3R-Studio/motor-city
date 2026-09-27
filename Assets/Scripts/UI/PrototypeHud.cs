@@ -63,7 +63,6 @@ namespace MotorCity.UI
         private AdventureDirector adventureDirector;
 
         private Font font;
-        private Sprite panelSprite;
         private MotorCityUiThemeAssets uiThemeAssets;
         private static Sprite modalButtonSprite;
         private static Texture2D modalButtonSpriteSource;
@@ -2015,10 +2014,6 @@ namespace MotorCity.UI
                 Resources.GetBuiltinResource<Font>(
                     "LegacyRuntime.ttf");
 
-            panelSprite =
-                Resources.Load<Sprite>(
-                    "MotorCity/UI/grey_panel");
-
             uiThemeAssets =
                 Resources.Load<MotorCityUiThemeAssets>(
                     "MotorCity/UI/MotorCityUiThemeAssets");
@@ -3253,15 +3248,6 @@ namespace MotorCity.UI
 
             image.raycastTarget =
                 false;
-
-            if (panelSprite != null)
-            {
-                image.sprite =
-                    panelSprite;
-
-                image.type =
-                    Image.Type.Sliced;
-            }
 
             return
                 image;
@@ -9676,12 +9662,6 @@ namespace MotorCity.UI
 
             image.raycastTarget = false;
             image.color = color;
-
-            if (panelSprite != null)
-            {
-                image.sprite = panelSprite;
-                image.type = Image.Type.Sliced;
-            }
 
             Outline outline =
                 go.AddComponent<Outline>();
