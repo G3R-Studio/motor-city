@@ -154,28 +154,28 @@ public static class BusVehicleImporter
             parent,
             wheelSource,
             "front_left",
-            new Vector3(-0.855f, 0.340f, 1.765f),
+            new Vector3(0.71f, 0.340f, 1.765f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "front_right",
-            new Vector3(0.855f, 0.340f, 1.765f),
+            new Vector3(-0.71f, 0.340f, 1.765f),
             true);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_left",
-            new Vector3(-0.855f, 0.340f, -2.045f),
+            new Vector3(0.71f, 0.340f, -2.045f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_right",
-            new Vector3(0.855f, 0.340f, -2.045f),
+            new Vector3(-0.71f, 0.340f, -2.045f),
             true);
     }
 
