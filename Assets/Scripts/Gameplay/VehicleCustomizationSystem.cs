@@ -112,6 +112,14 @@ namespace MotorCity.Gameplay
             new(0.045f, 0.045f, 0.05f, 1f)
         };
 
+        // Bus uses a baked multicolor palette texture, so body recoloring is
+        // intentionally disabled. A single white option keeps the garage color
+        // selector stable without tinting the atlas.
+        private static readonly Color[] BusBodyColors =
+        {
+            Color.white
+        };
+
 
 
 
@@ -430,7 +438,9 @@ namespace MotorCity.Gameplay
                                             ? ToyotaAE86BodyColors
                                             : id == "camaro"
                                                 ? CamaroBodyColors
-                                                : StreetBodyColors;
+                                                : id == "bus"
+                                                    ? BusBodyColors
+                                                    : StreetBodyColors;
         }
 
         private int GetInt(
