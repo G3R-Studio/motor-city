@@ -7942,9 +7942,6 @@ namespace MotorCity.UI
                     MotorCityInputAction.Interact =>
                         MotorCityIconLibrary.Confirm,
 
-                    MotorCityInputAction.BuyVehicle =>
-                        MotorCityIconLibrary.Store,
-
                     MotorCityInputAction.Upgrade1 or
                     MotorCityInputAction.Upgrade2 or
                     MotorCityInputAction.Upgrade3 =>

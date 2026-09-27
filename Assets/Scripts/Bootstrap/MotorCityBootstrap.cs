@@ -175,8 +175,7 @@ namespace MotorCity.Bootstrap
                 systems.AddComponent<VehicleRosterSystem>();
             vehicleRoster.Initialize(
                 car,
-                reputation,
-                wallet);
+                reputation);
 
             VehicleCustomizationSystem customization =
                 systems.AddComponent<VehicleCustomizationSystem>();

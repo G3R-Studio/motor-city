@@ -10,9 +10,6 @@ namespace MotorCity.Gameplay
     {
         private const string SelectedKey =
             "MotorCity.Vehicle.Selected";
-        private const string OwnershipMigrationKey =
-            "MotorCity.Vehicle.OwnershipMigrationV2";
-
         private const string SupporterPackKey =
             "MotorCity.Purchase.SupporterPack";
 
@@ -76,13 +73,6 @@ namespace MotorCity.Gameplay
                     index);
         }
 
-        public int GetPurchasePrice(
-            int index)
-        {
-            // Kept for compatibility with older callers.
-            return 0;
-        }
-
         public int GetUnlockedVehicleCount()
         {
             if (profiles == null)
@@ -115,21 +105,12 @@ namespace MotorCity.Gameplay
             IsUnlocked(
                 SelectedIndex + 1);
 
-        public bool NextVehicleOwned =>
-            NextVehicleUnlocked;
-
-        public int NextVehiclePrice =>
-            0;
-
         public int NextVehicleRequiredRep =>
             HasNextVehicle
                 ? profiles[
                     SelectedIndex + 1]
                     .RequiredRep
                 : 0;
-
-        public bool CanAffordNextVehicle =>
-            NextVehicleUnlocked;
 
         public string GetVehicleId(
             int index)
@@ -142,12 +123,10 @@ namespace MotorCity.Gameplay
 
         public void Initialize(
             ArcadeCarController targetCar,
-            PlayerReputation playerReputation,
-            PlayerWallet playerWallet)
+            PlayerReputation playerReputation)
         {
             car = targetCar;
             reputation = playerReputation;
-            _ = playerWallet;
 
             profiles =
                 new[]
@@ -189,8 +168,6 @@ namespace MotorCity.Gameplay
                         MotorCityLocalization.Text("vehicle.hybrid.desc"))
                 };
 
-            MigrateLegacyOwnership();
-
             int stored =
                 Mathf.Clamp(
                     MotorCity.Persistence.MotorCitySaveService.GetInt(
@@ -200,7 +177,6 @@ namespace MotorCity.Gameplay
                     profiles.Length - 1);
 
             if (!IsUnlocked(stored) ||
-                !IsOwned(stored) ||
                 !HasVisual(stored))
             {
                 stored = 0;
@@ -392,42 +368,6 @@ namespace MotorCity.Gameplay
                 MotorCityLocalization.Format(
                     "vehicle.next_available",
                     nextProfile.DisplayName);
-        }
-
-        public bool TryPurchaseNextVehicle(
-            out string status)
-        {
-            // Legacy compatibility: vehicles are no longer purchased.
-            // Selecting the next vehicle is enough once reputation unlocks it.
-            return
-                TrySelectOffset(
-                    1,
-                    out status);
-        }
-
-        public void SetAllOwnedForTesting(
-            bool owned)
-        {
-            if (profiles == null)
-                return;
-
-            for (int i = 1;
-                 i < profiles.Length;
-                 i++)
-            {
-                SetOwned(
-                    i,
-                    owned);
-            }
-
-            MotorCity.Persistence.MotorCitySaveService.Save();
-
-            if (!IsOwned(SelectedIndex))
-            {
-                SelectedIndex = 0;
-                ApplySelectedVehicle();
-                VehicleChanged?.Invoke();
-            }
         }
 
         public string GetMasteryLine()
@@ -641,58 +581,6 @@ namespace MotorCity.Gameplay
 
             return rep >=
                 profile.RequiredRep;
-        }
-
-        private void MigrateLegacyOwnership()
-        {
-            int migrated =
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
-                    OwnershipMigrationKey,
-                    0);
-
-            if (migrated != 0)
-                return;
-
-            for (int i = 0;
-                 i < profiles.Length;
-                 i++)
-            {
-                if (IsUnlocked(i) &&
-                    HasVisual(i))
-                {
-                    SetOwned(
-                        i,
-                        true);
-                }
-            }
-
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
-                OwnershipMigrationKey,
-                1);
-
-            MotorCity.Persistence.MotorCitySaveService.Save();
-        }
-
-        private void SetOwned(
-            int index,
-            bool owned)
-        {
-            if (!Valid(index) ||
-                index == 0)
-                return;
-
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
-                OwnershipKey(
-                    profiles[index].Id),
-                owned ? 1 : 0);
-        }
-
-        private static string OwnershipKey(
-            string vehicleId)
-        {
-            return
-                "MotorCity.Vehicle.Owned." +
-                vehicleId;
         }
 
         private bool HasVisual(

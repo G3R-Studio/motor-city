@@ -22,7 +22,7 @@ namespace MotorCity.Input
         SteerLeft = 14,
         SteerRight = 15,
         Handbrake = 16,
-        BuyVehicle = 17,
+        // 17 intentionally unused: retired vehicle purchase action.
         // 18 intentionally unused: retired Pixie skin action.
         CycleBodyColor = 19,
         CycleSticker = 20,
@@ -118,10 +118,6 @@ namespace MotorCity.Input
         public static bool Upgrade3Pressed =>
             VirtualPressed(
                 MotorCityInputAction.Upgrade3);
-
-        public static bool BuyVehiclePressed =>
-            VirtualPressed(
-                MotorCityInputAction.BuyVehicle);
 
         public static bool CycleBodyColorPressed =>
             VirtualPressed(

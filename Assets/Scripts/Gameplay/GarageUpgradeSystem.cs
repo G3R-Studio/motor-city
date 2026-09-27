@@ -85,19 +85,6 @@ namespace MotorCity.Gameplay
             vehicleRoster != null &&
             vehicleRoster.NextVehicleUnlocked;
 
-        public bool NextVehicleOwned =>
-            vehicleRoster != null &&
-            vehicleRoster.NextVehicleOwned;
-
-        public bool CanAffordNextVehicle =>
-            vehicleRoster != null &&
-            vehicleRoster.CanAffordNextVehicle;
-
-        public int NextVehiclePrice =>
-            vehicleRoster == null
-                ? 0
-                : vehicleRoster.NextVehiclePrice;
-
         public int NextVehicleRequiredRep =>
             vehicleRoster == null
                 ? 0
@@ -543,24 +530,6 @@ namespace MotorCity.Gameplay
 
             vehicleRoster.TrySelectOffset(
                 offset,
-                out string status);
-
-            if (!string.IsNullOrWhiteSpace(
-                    status))
-            {
-                StatusText =
-                    status;
-            }
-
-            ApplyUpgrades();
-        }
-
-        private void TryPurchaseNextVehicle()
-        {
-            if (vehicleRoster == null)
-                return;
-
-            vehicleRoster.TryPurchaseNextVehicle(
                 out string status);
 
             if (!string.IsNullOrWhiteSpace(

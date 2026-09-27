@@ -130,7 +130,7 @@ Core fantasy:
 - [x] Hint ability.
 - [x] Collection magnet ability.
 - [x] Short driving boost ability.
-- [x] Cosmetic skins.
+- [x] Single authored Pixie companion visual.
 
 ### First-session onboarding
 - [ ] Understand steering in under 60 seconds.

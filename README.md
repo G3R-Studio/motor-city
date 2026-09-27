@@ -68,7 +68,7 @@ Historical one-off FCG repair/diagnostic scripts and package demo scenes are not
 
 Vehicle movement is provided by Prometeo, while Motor City owns the higher-level behavior: input proxies, wheel-rig creation, handling profiles, upgrades, drift state, smoke/tire marks, persistence and gameplay telemetry.
 
-The project keeps `Boot.unity` and `MotorCityBootController` as platform-startup infrastructure, but `Prototype.unity` is currently the enabled build scene.
+`Prototype.unity` is the production bootstrap scene and the only enabled build scene.
 
 ## Controls
 
