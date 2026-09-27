@@ -95,9 +95,11 @@ namespace MotorCity.World
                     : dayNight.NightAmount;
 
             bool braking =
-                MotorCityInput.ReverseHeld ||
-                (car != null &&
-                 car.HandbrakeInputHeld);
+                vehicleId == "delorean"
+                    ? MotorCityInput.ReverseHeld
+                    : MotorCityInput.ReverseHeld ||
+                      (car != null &&
+                       car.HandbrakeInputHeld);
 
             float brakeMultiplier =
                 Mathf.Lerp(
@@ -130,12 +132,7 @@ namespace MotorCity.World
                 float multiplier =
                     braking
                         ? brakeMultiplier
-                        : vehicleId == "delorean"
-                            ? Mathf.Lerp(
-                                0f,
-                                0.75f,
-                                night)
-                            : 0f;
+                        : 0f;
 
                 Color emission =
                     binding.BaseEmission *
@@ -164,12 +161,7 @@ namespace MotorCity.World
                         2.2f,
                         4.2f,
                         night)
-                    : vehicleId == "delorean"
-                        ? Mathf.Lerp(
-                            0f,
-                            0.75f,
-                            night)
-                        : 0f;
+                    : 0f;
 
             foreach (StarterLampOverlay overlay in
                      starterLampOverlays)
