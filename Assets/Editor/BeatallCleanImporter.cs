@@ -135,20 +135,16 @@ namespace MotorCity.EditorTools
                 car.transform.Find("RunningGear");
 
             if (old != null)
-                Object.DestroyImmediate(old.gameObject);
+                Object.DestroyImmediate(
+                    old.gameObject);
 
             GameObject runningGear =
-                Object.Instantiate(wheelSource);
-
-            runningGear.name =
-                "RunningGear";
+                new("RunningGear");
 
             runningGear.transform.SetParent(
                 car.transform,
                 false);
 
-            // Preserve the wheel asset exactly as authored.
-            // No auto-positioning, mirroring, rotation or scale correction.
             runningGear.transform.localPosition =
                 Vector3.zero;
 
@@ -158,8 +154,85 @@ namespace MotorCity.EditorTools
             runningGear.transform.localScale =
                 Vector3.one;
 
+            // The imported wheel asset is authored for the RIGHT side.
+            // Duplicate that exact mesh four times. Right-side wheels keep
+            // their authored rotation; left-side wheels are flipped 180° on Y.
+            // Positions below are the Beatall wheel-centre locations in the
+            // authored body coordinate system; the body itself is never moved.
+            CreateWheel(
+                wheelSource,
+                runningGear.transform,
+                "Front Left Wheel",
+                new Vector3(
+                    -0.605f,
+                    0.305f,
+                    1.03f),
+                true);
+
+            CreateWheel(
+                wheelSource,
+                runningGear.transform,
+                "Front Right Wheel",
+                new Vector3(
+                    0.605f,
+                    0.305f,
+                    1.03f),
+                false);
+
+            CreateWheel(
+                wheelSource,
+                runningGear.transform,
+                "Rear Left Wheel",
+                new Vector3(
+                    -0.605f,
+                    0.305f,
+                    -1.03f),
+                true);
+
+            CreateWheel(
+                wheelSource,
+                runningGear.transform,
+                "Rear Right Wheel",
+                new Vector3(
+                    0.605f,
+                    0.305f,
+                    -1.03f),
+                false);
+        }
+
+        private static void CreateWheel(
+            GameObject source,
+            Transform parent,
+            string name,
+            Vector3 localPosition,
+            bool leftSide)
+        {
+            GameObject wheel =
+                Object.Instantiate(source);
+
+            wheel.name =
+                name;
+
+            wheel.transform.SetParent(
+                parent,
+                false);
+
+            wheel.transform.localPosition =
+                localPosition;
+
+            wheel.transform.localRotation =
+                leftSide
+                    ? Quaternion.Euler(
+                        0f,
+                        180f,
+                        0f)
+                    : Quaternion.identity;
+
+            wheel.transform.localScale =
+                Vector3.one;
+
             ApplyUrpMaterials(
-                runningGear);
+                wheel);
         }
 
         private static void ApplyUrpMaterials(
