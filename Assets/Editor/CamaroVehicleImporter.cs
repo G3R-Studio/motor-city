@@ -11,6 +11,9 @@ public static class CamaroVehicleImporter
     private const string WheelSource =
         "Assets/VehicleAssets/Camaro/all_wheels.obj";
 
+    private const string ColorTextureSource =
+        "Assets/VehicleAssets/Camaro/Color.png";
+
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
 
@@ -71,20 +74,44 @@ public static class CamaroVehicleImporter
         Directory.CreateDirectory(OutputDirectory);
         Directory.CreateDirectory(MaterialDirectory);
 
+        Texture2D colorTexture =
+            AssetDatabase.LoadAssetAtPath<Texture2D>(
+                ColorTextureSource);
+
+        if (colorTexture == null)
+        {
+            if (verbose)
+            {
+                Debug.LogWarning(
+                    "Motor City: Camaro Color.png texture is missing.");
+            }
+
+            return false;
+        }
+
+        // The source OBJ uses a single Color.png atlas for both the body and
+        // wheel material. Keep the base tint white so the authored UV colors
+        // remain visible instead of flattening the whole car to one red tone.
         Material paint = BuildMaterial(
             "CamaroBody",
-            new Color(0.72f, 0.20f, 0.055f, 1f),
-            0.68f);
+            Color.white,
+            0.68f,
+            colorTexture,
+            false);
 
         Material bloom = BuildMaterial(
             "CamaroBloom",
-            new Color(1.0f, 0.24f, 0.035f, 1f),
-            0.44f);
+            Color.white,
+            0.44f,
+            colorTexture,
+            true);
 
         Material wheel = BuildMaterial(
             "CamaroWheel",
-            new Color(0.075f, 0.075f, 0.08f, 1f),
-            0.42f);
+            Color.white,
+            0.42f,
+            colorTexture,
+            false);
 
         GameObject instance =
             PrefabUtility.InstantiatePrefab(bodySource) as GameObject;
@@ -212,7 +239,9 @@ public static class CamaroVehicleImporter
     private static Material BuildMaterial(
         string materialName,
         Color color,
-        float smoothness)
+        float smoothness,
+        Texture2D baseTexture,
+        bool emission)
     {
         string path =
             MaterialDirectory + "/" + materialName + ".mat";
@@ -246,7 +275,36 @@ public static class CamaroVehicleImporter
         if (material.HasProperty("_Smoothness"))
             material.SetFloat("_Smoothness", smoothness);
 
-        material.DisableKeyword("_EMISSION");
+        if (material.HasProperty("_BaseMap"))
+            material.SetTexture("_BaseMap", baseTexture);
+
+        if (material.HasProperty("_MainTex"))
+            material.SetTexture("_MainTex", baseTexture);
+
+        if (emission)
+        {
+            if (material.HasProperty("_EmissionMap"))
+                material.SetTexture("_EmissionMap", baseTexture);
+
+            if (material.HasProperty("_EmissionColor"))
+            {
+                material.SetColor(
+                    "_EmissionColor",
+                    new Color(1.35f, 1.35f, 1.35f, 1f));
+            }
+
+            material.EnableKeyword("_EMISSION");
+            material.globalIlluminationFlags =
+                MaterialGlobalIlluminationFlags.RealtimeEmissive;
+        }
+        else
+        {
+            if (material.HasProperty("_EmissionColor"))
+                material.SetColor("_EmissionColor", Color.black);
+
+            material.DisableKeyword("_EMISSION");
+        }
+
         EditorUtility.SetDirty(material);
         return material;
     }
