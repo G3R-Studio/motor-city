@@ -203,7 +203,23 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.amggt.desc"))
+                        MotorCityLocalization.Text("vehicle.amggt.desc")),
+
+                    new VehicleProfile(
+                        "porsche996",
+                        MotorCityLocalization.Text("vehicle.porsche996.name"),
+                        "MotorCity/Vehicles/Player/Porsche996",
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.porsche996.desc"))
                 };
 
             int stored =
@@ -528,7 +544,8 @@ namespace MotorCity.Gameplay
                 profile.Id == "hybrid" ||
                 profile.Id == "beatall" ||
                 profile.Id == "delorean" ||
-                profile.Id == "amggt";
+                profile.Id == "amggt" ||
+                profile.Id == "porsche996";
 
             if (profile.Id == "hybrid")
             {
@@ -573,6 +590,15 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.22f);
             }
+            else if (profile.Id == "porsche996")
+            {
+                car.ApplySuspensionPreset(
+                    0.09f,
+                    44500f,
+                    7300f,
+                    0.46f,
+                    0.24f);
+            }
             else
             {
                 car.ApplySuspensionPreset(
@@ -592,7 +618,9 @@ namespace MotorCity.Gameplay
                             ? 4.62f
                             : profile.Id == "amggt"
                                 ? 4.30f
-                                : 4.35f;
+                                : profile.Id == "porsche996"
+                                    ? 4.20f
+                                    : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
