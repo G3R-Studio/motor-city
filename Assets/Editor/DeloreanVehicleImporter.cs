@@ -197,17 +197,18 @@ public static class DeloreanVehicleImporter
         GameObject frontSource,
         GameObject rearSource)
     {
-        // Positions are measured against the authored body mesh.
-        // Body length axis is local X before the generic runtime installer
-        // rotates the complete car into Motor City's +Z driving axis.
+        // Corrected Delorean export is already Z-forward.
+        // Wheel source meshes are centered at their own pivots, so only the
+        // four authored wheel-center locations are applied here. Runtime
+        // WheelColliders are still generated automatically from these meshes.
         CreateWheel(
             parent,
             frontSource,
             "front_left",
             new Vector3(
-                1.34f,
+                -0.980f,
                 0.33646f,
-                -0.980f),
+                1.34f),
             false);
 
         CreateWheel(
@@ -215,9 +216,9 @@ public static class DeloreanVehicleImporter
             frontSource,
             "front_right",
             new Vector3(
-                1.34f,
+                0.980f,
                 0.33646f,
-                0.980f),
+                1.34f),
             true);
 
         CreateWheel(
@@ -225,9 +226,9 @@ public static class DeloreanVehicleImporter
             rearSource,
             "rear_left",
             new Vector3(
-                -1.45f,
+                -0.967f,
                 0.37497f,
-                -0.967f),
+                -1.45f),
             false);
 
         CreateWheel(
@@ -235,9 +236,9 @@ public static class DeloreanVehicleImporter
             rearSource,
             "rear_right",
             new Vector3(
-                -1.45f,
+                0.967f,
                 0.37497f,
-                0.967f),
+                -1.45f),
             true);
     }
 
