@@ -57,13 +57,7 @@ namespace MotorCity.EditorTools
                 prototype != null &&
                 resource != null &&
                 prototype.transform.Find(
-                    "RunningGear/Front Left Wheel") != null &&
-                prototype.transform.Find(
-                    "RunningGear/Front Right Wheel") != null &&
-                prototype.transform.Find(
-                    "RunningGear/Rear Left Wheel") != null &&
-                prototype.transform.Find(
-                    "RunningGear/Rear Right Wheel") != null;
+                    "RunningGear") != null;
 
             if (!complete)
                 Build(false);
@@ -106,7 +100,7 @@ namespace MotorCity.EditorTools
             try
             {
                 ApplyUrpMaterials(instance);
-                AddSeparatedWheels(
+                AddAuthoredWheels(
                     instance,
                     wheelSource);
 
@@ -124,7 +118,7 @@ namespace MotorCity.EditorTools
                 if (log)
                 {
                     Debug.Log(
-                        "[MotorCity][Beatall] Rebuilt clean visual with four separate wheels.");
+                        "[MotorCity][Beatall] Rebuilt visual with authored transforms only.");
                 }
             }
             finally
@@ -133,7 +127,7 @@ namespace MotorCity.EditorTools
             }
         }
 
-        private static void AddSeparatedWheels(
+        private static void AddAuthoredWheels(
             GameObject car,
             GameObject wheelSource)
         {
@@ -143,123 +137,29 @@ namespace MotorCity.EditorTools
             if (old != null)
                 Object.DestroyImmediate(old.gameObject);
 
-            Bounds carBounds =
-                CalculateRendererBounds(car);
-
-            GameObject probe =
+            GameObject runningGear =
                 Object.Instantiate(wheelSource);
 
-            Bounds wheelBounds =
-                CalculateRendererBounds(probe);
-
-            Object.DestroyImmediate(probe);
-
-            float radius =
-                Mathf.Max(
-                    wheelBounds.extents.y,
-                    wheelBounds.extents.z);
-
-            float halfWidth =
-                Mathf.Max(
-                    0.02f,
-                    wheelBounds.extents.x);
-
-            float side =
-                Mathf.Max(
-                    0.1f,
-                    carBounds.extents.x -
-                    halfWidth * 0.55f);
-
-            float wheelY =
-                carBounds.min.y +
-                radius * 1.02f;
-
-            float frontZ =
-                carBounds.max.z -
-                radius * 1.70f;
-
-            float rearZ =
-                carBounds.min.z +
-                radius * 1.90f;
-
-            GameObject runningGear =
-                new("RunningGear");
+            runningGear.name =
+                "RunningGear";
 
             runningGear.transform.SetParent(
                 car.transform,
                 false);
 
-            CreateWheel(
-                wheelSource,
-                runningGear.transform,
-                "Front Left Wheel",
-                new Vector3(
-                    -side,
-                    wheelY,
-                    frontZ),
-                false);
+            // Preserve the wheel asset exactly as authored.
+            // No auto-positioning, mirroring, rotation or scale correction.
+            runningGear.transform.localPosition =
+                Vector3.zero;
 
-            CreateWheel(
-                wheelSource,
-                runningGear.transform,
-                "Front Right Wheel",
-                new Vector3(
-                    side,
-                    wheelY,
-                    frontZ),
-                true);
+            runningGear.transform.localRotation =
+                Quaternion.identity;
 
-            CreateWheel(
-                wheelSource,
-                runningGear.transform,
-                "Rear Left Wheel",
-                new Vector3(
-                    -side,
-                    wheelY,
-                    rearZ),
-                false);
-
-            CreateWheel(
-                wheelSource,
-                runningGear.transform,
-                "Rear Right Wheel",
-                new Vector3(
-                    side,
-                    wheelY,
-                    rearZ),
-                true);
-        }
-
-        private static void CreateWheel(
-            GameObject source,
-            Transform parent,
-            string name,
-            Vector3 localPosition,
-            bool rightSide)
-        {
-            GameObject wheel =
-                Object.Instantiate(source);
-
-            wheel.name = name;
-            wheel.transform.SetParent(
-                parent,
-                false);
-
-            wheel.transform.localPosition =
-                localPosition;
-
-            wheel.transform.localRotation =
-                rightSide
-                    ? Quaternion.Euler(
-                        0f,
-                        180f,
-                        0f)
-                    : Quaternion.identity;
-
-            wheel.transform.localScale =
+            runningGear.transform.localScale =
                 Vector3.one;
 
-            ApplyUrpMaterials(wheel);
+            ApplyUrpMaterials(
+                runningGear);
         }
 
         private static void ApplyUrpMaterials(
