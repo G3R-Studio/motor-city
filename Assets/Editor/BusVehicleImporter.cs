@@ -109,7 +109,8 @@ public static class BusVehicleImporter
         {
             instance.transform.position = Vector3.zero;
             instance.transform.rotation = Quaternion.identity;
-            instance.transform.localScale = Vector3.one;
+            instance.transform.localScale =
+                Vector3.one * 1.25f;
 
             StripImportedPhysics(instance);
             BuildWheelSet(instance.transform, wheelSource);
