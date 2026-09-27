@@ -42,6 +42,16 @@ namespace MotorCity.Gameplay
             new(0.96f, 0.66f, 0.04f, 1f)
         };
 
+        private static readonly Color[] BeatallBodyColors =
+        {
+            new(0.82f, 0.10f, 0.08f, 1f),
+            new(0.10f, 0.32f, 0.72f, 1f),
+            new(0.08f, 0.46f, 0.20f, 1f),
+            new(0.93f, 0.72f, 0.16f, 1f),
+            new(0.90f, 0.90f, 0.86f, 1f),
+            new(0.08f, 0.08f, 0.09f, 1f)
+        };
+
 
 
 
@@ -340,10 +350,15 @@ namespace MotorCity.Gameplay
 
         private Color[] BodyColorsForCurrentVehicle()
         {
+            string id =
+                VehicleId();
+
             return
-                VehicleId() == "hybrid"
+                id == "hybrid"
                     ? HybridBodyColors
-                    : StreetBodyColors;
+                    : id == "beatall"
+                        ? BeatallBodyColors
+                        : StreetBodyColors;
         }
 
         private int GetInt(
@@ -1244,7 +1259,8 @@ namespace MotorCity.Gameplay
                 materialLower.Contains("body") ||
                 materialLower.Contains("paint") ||
                 materialLower.Contains("carpaint") ||
-                materialLower.Contains("vehicle");
+                materialLower.Contains("vehicle") ||
+                materialLower.Contains("beatallbody");
         }
 
         private static bool IsWheelLike(
