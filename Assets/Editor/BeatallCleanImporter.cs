@@ -165,7 +165,7 @@ namespace MotorCity.EditorTools
                 "Front Left Wheel",
                 new Vector3(
                     -0.605f,
-                    0.385f,
+                    0.345f,
                     1.03f),
                 true);
 
@@ -175,7 +175,7 @@ namespace MotorCity.EditorTools
                 "Front Right Wheel",
                 new Vector3(
                     0.605f,
-                    0.385f,
+                    0.345f,
                     1.03f),
                 false);
 
@@ -185,7 +185,7 @@ namespace MotorCity.EditorTools
                 "Rear Left Wheel",
                 new Vector3(
                     -0.605f,
-                    0.385f,
+                    0.345f,
                     -1.03f),
                 true);
 
@@ -195,7 +195,7 @@ namespace MotorCity.EditorTools
                 "Rear Right Wheel",
                 new Vector3(
                     0.605f,
-                    0.385f,
+                    0.345f,
                     -1.03f),
                 false);
         }
