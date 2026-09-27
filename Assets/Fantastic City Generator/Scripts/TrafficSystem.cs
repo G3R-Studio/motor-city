@@ -320,6 +320,19 @@ namespace FCG
 
             GameObject vehicle;
 
+            // Treat each distinct traffic prefab as one spawn option.
+            // Serialized IaCars lists may contain duplicate entries from older weighting logic,
+            // but duplicates should no longer increase a vehicle's spawn frequency.
+            GameObject[] spawnPool = IaCars != null
+                ? IaCars.Where(car => car != null).Distinct().ToArray()
+                : new GameObject[0];
+
+            if (spawnPool.Length == 0)
+            {
+                Debug.LogWarning("Traffic System has no valid vehicle prefabs assigned.");
+                return;
+            }
+
             int n = wpDataSpawn.Count;
 
             int _nVehicles = nVehicles;
@@ -367,7 +380,7 @@ namespace FCG
                     if (go)
                     {
 
-                        vehicle = (GameObject)Instantiate(IaCars[Mathf.Clamp(Random.Range(0, IaCars.Length), 0, IaCars.Length - 1)], wpDataSpawn[i].position + Vector3.up * 0.1f, wpDataSpawn[i].rotation); ;
+                        vehicle = (GameObject)Instantiate(spawnPool[Random.Range(0, spawnPool.Length)], wpDataSpawn[i].position + Vector3.up * 0.1f, wpDataSpawn[i].rotation);
                         vehicle.transform.SetParent(CarContainer.transform);
                         vehicle.GetComponent<TrafficCar>().sideAtual = (wpDataSpawn[i].wayScript.oneway && wpDataSpawn[i].wayScript.doubleLine && wpDataSpawn[i].wayScript.rightHand != 0) ? ((wpDataSpawn[i].side == 1) ? 0 : 1) : wpDataSpawn[i].side;
                         vehicle.GetComponent<TrafficCar>().atualWay = wpDataSpawn[i].wayScript.transform;
