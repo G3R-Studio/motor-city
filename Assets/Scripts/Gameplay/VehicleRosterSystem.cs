@@ -513,11 +513,11 @@ namespace MotorCity.Gameplay
                 // Beatall is a short classic hatchback. Keep the body planted
                 // without giving it the taller generic STREET suspension.
                 car.ApplySuspensionPreset(
-                    0.18f,
-                    40000f,
-                    6200f,
+                    0.06f,
+                    42000f,
+                    7200f,
                     0.46f,
-                    0.36f);
+                    0.18f);
             }
             else
             {
