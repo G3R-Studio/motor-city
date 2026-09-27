@@ -20,9 +20,9 @@ namespace MotorCity.Gameplay
         [SerializeField] private float countdownSeconds = 3f;
 
         [Header("Пороги времени")]
-        [SerializeField] private float goldTimeSeconds = 60f;
-        [SerializeField] private float silverTimeSeconds = 85f;
-        [SerializeField] private float bronzeTimeSeconds = 115f;
+        [SerializeField] private float goldTimeSeconds = 125f;
+        [SerializeField] private float silverTimeSeconds = 155f;
+        [SerializeField] private float bronzeTimeSeconds = 195f;
 
         [Header("Награды по уровням")]
         [SerializeField] private int goldRewardCredits = 800;
@@ -320,11 +320,11 @@ namespace MotorCity.Gameplay
         private string CurrentTierHint()
         {
             float gold =
-                eliteMode ? 52f : goldTimeSeconds;
+                eliteMode ? 110f : goldTimeSeconds;
             float silver =
-                eliteMode ? 72f : silverTimeSeconds;
+                eliteMode ? 140f : silverTimeSeconds;
             float bronze =
-                eliteMode ? 100f : bronzeTimeSeconds;
+                eliteMode ? 175f : bronzeTimeSeconds;
 
             if (ElapsedSeconds <= gold)
                 return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.gold"), gold);
@@ -344,11 +344,11 @@ namespace MotorCity.Gameplay
             int reward;
 
             float gold =
-                eliteMode ? 52f : goldTimeSeconds;
+                eliteMode ? 110f : goldTimeSeconds;
             float silver =
-                eliteMode ? 72f : silverTimeSeconds;
+                eliteMode ? 140f : silverTimeSeconds;
             float bronze =
-                eliteMode ? 100f : bronzeTimeSeconds;
+                eliteMode ? 175f : bronzeTimeSeconds;
 
             if (ElapsedSeconds <=
                 gold)
