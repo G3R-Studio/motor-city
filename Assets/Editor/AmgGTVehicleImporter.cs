@@ -197,10 +197,12 @@ public static class AmgGTVehicleImporter
         GameObject frontSource,
         GameObject rearSource)
     {
-        // AMG GT export is Z-forward. Wheel mesh dimensions:
-        // front 0.353 x 0.606 x 0.606, rear 0.372 x 0.638 x 0.638.
-        // X places the outer tyre faces flush with the authored body width;
-        // Z follows the measured centres of the wheel arches.
+        // AMG GT export is Z-forward. The updated wheel OBJ files are now
+        // centered almost exactly on their own pivots:
+        // front centre ~= (-0.007555, 0.000007, -0.000003),
+        // rear centre  ~= (-0.007958, 0.000008, -0.000004).
+        // Keep the authored axle positions and only cancel that tiny residual
+        // source-pivot offset so visuals and WheelColliders share one centre.
         CreateWheel(
             parent,
             frontSource,
@@ -210,9 +212,9 @@ public static class AmgGTVehicleImporter
                 0.303f,
                 1.210f),
             new Vector3(
-                -0.127605f,
-                -0.000996f,
-                -0.000035f),
+                0.007555f,
+                -0.000007f,
+                0.000003f),
             false);
 
         CreateWheel(
@@ -224,9 +226,9 @@ public static class AmgGTVehicleImporter
                 0.303f,
                 1.210f),
             new Vector3(
-                -0.127605f,
-                -0.000996f,
-                -0.000035f),
+                0.007555f,
+                -0.000007f,
+                0.000003f),
             true);
 
         CreateWheel(
@@ -238,9 +240,9 @@ public static class AmgGTVehicleImporter
                 0.319f,
                 -1.170f),
             new Vector3(
-                -0.134409f,
-                -0.001050f,
-                -0.000037f),
+                0.007958f,
+                -0.000008f,
+                0.000004f),
             false);
 
         CreateWheel(
@@ -252,9 +254,9 @@ public static class AmgGTVehicleImporter
                 0.319f,
                 -1.170f),
             new Vector3(
-                -0.134409f,
-                -0.001050f,
-                -0.000037f),
+                0.007958f,
+                -0.000008f,
+                0.000004f),
             true);
     }
 
@@ -307,9 +309,8 @@ public static class AmgGTVehicleImporter
         visual.name =
             name + "_visual";
 
-        // OBJ wheel pivots are offset along X. Recenter the actual wheel mesh
-        // on the holder so both visual wheels and runtime WheelColliders share
-        // the same physical centre.
+        // Cancel the small residual pivot offset in the updated OBJ export so
+        // both visual wheels and runtime WheelColliders share the same centre.
         visual.transform.localPosition =
             sourceCenterOffset;
 
