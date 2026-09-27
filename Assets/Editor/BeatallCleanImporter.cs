@@ -157,16 +157,17 @@ namespace MotorCity.EditorTools
             // The imported wheel asset is authored for the RIGHT side.
             // Duplicate that exact mesh four times. Right-side wheels keep
             // their authored rotation; left-side wheels are flipped 180° on Y.
-            // Positions below are the Beatall wheel-centre locations in the
-            // authored body coordinate system; the body itself is never moved.
+            // Positions below are fitted to the actual wheel-arch silhouette
+            // in beatall.obj using the authored wheel radius. The body itself
+            // is never moved, scaled or rotated.
             CreateWheel(
                 wheelSource,
                 runningGear.transform,
                 "Front Left Wheel",
                 new Vector3(
                     -0.605f,
-                    0.345f,
-                    1.03f),
+                    0.286f,
+                    1.008f),
                 true);
 
             CreateWheel(
@@ -175,8 +176,8 @@ namespace MotorCity.EditorTools
                 "Front Right Wheel",
                 new Vector3(
                     0.605f,
-                    0.345f,
-                    1.03f),
+                    0.286f,
+                    1.008f),
                 false);
 
             CreateWheel(
@@ -185,8 +186,8 @@ namespace MotorCity.EditorTools
                 "Rear Left Wheel",
                 new Vector3(
                     -0.605f,
-                    0.345f,
-                    -1.03f),
+                    0.287f,
+                    -0.958f),
                 true);
 
             CreateWheel(
@@ -195,8 +196,8 @@ namespace MotorCity.EditorTools
                 "Rear Right Wheel",
                 new Vector3(
                     0.605f,
-                    0.345f,
-                    -1.03f),
+                    0.287f,
+                    -0.958f),
                 false);
         }
 
