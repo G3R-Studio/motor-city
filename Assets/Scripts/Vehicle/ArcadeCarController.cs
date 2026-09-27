@@ -1906,7 +1906,13 @@ namespace MotorCity.Vehicle
                     Vector3.zero;
                 body.angularVelocity =
                     Vector3.zero;
-                body.Sleep();
+
+                // Teleports intentionally place the car about a metre above
+                // the road so physics can settle it safely. Do not put the
+                // Rigidbody to sleep here: when driving is disabled (garage,
+                // countdowns, result screens) a sleeping body can remain
+                // suspended at the teleport height indefinitely.
+                body.WakeUp();
             }
 
             DriftEffects effects =
