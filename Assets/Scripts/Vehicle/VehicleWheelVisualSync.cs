@@ -85,10 +85,16 @@ namespace MotorCity.Vehicle
                         out Vector3 posePosition,
                         out Quaternion poseRotation);
 
+                    // Store the positional offset in the wheel pose's
+                    // own local frame. If the visual centre differs even
+                    // slightly from the WheelCollider centre, that offset must
+                    // rotate together with steering/spin. Keeping it in car
+                    // space makes the wheel appear to orbit an off-centre pivot.
                     visualPositionOffsetsLocal[i] =
-                        carTransform.InverseTransformVector(
-                            visualRoots[i].position -
-                            posePosition);
+                        Quaternion.Inverse(
+                            poseRotation) *
+                        (visualRoots[i].position -
+                         posePosition);
 
                     visualRotationOffsets[i] =
                         Quaternion.Inverse(
@@ -169,8 +175,8 @@ namespace MotorCity.Vehicle
 
                 visual.SetPositionAndRotation(
                     position +
-                    carTransform.TransformVector(
-                        visualPositionOffsetsLocal[i]),
+                    rotation *
+                    visualPositionOffsetsLocal[i],
                     rotation *
                     visualRotationOffsets[i]);
             }
