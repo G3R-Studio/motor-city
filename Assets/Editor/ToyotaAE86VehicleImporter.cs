@@ -233,7 +233,8 @@ public static class ToyotaAE86VehicleImporter
             return;
 
         visual.name = name + "_visual";
-        visual.transform.localPosition = Vector3.zero;
+        visual.transform.localPosition =
+            new Vector3(-0.12f, 0f, 0f);
         visual.transform.localRotation = Quaternion.identity;
         visual.transform.localScale = Vector3.one;
 
