@@ -15,7 +15,6 @@ namespace MotorCity.Gameplay
 
         private MotorCityPurchaseRuntime purchaseRuntime;
 
-        private int selectedProduct;
         private float messageTimer;
         private bool purchaseRunning;
 
@@ -25,9 +24,6 @@ namespace MotorCity.Gameplay
             messageTimer > 0f;
 
         public string StatusText { get; private set; }
-
-        public int SelectedProduct =>
-            selectedProduct;
 
         public string SelectedName =>
             MotorCityLocalization.Text(
@@ -68,12 +64,6 @@ namespace MotorCity.Gameplay
                         messageTimer -
                         Time.unscaledDeltaTime);
             }
-        }
-
-        public void CycleProduct(
-            int direction)
-        {
-            selectedProduct = 0;
         }
 
         public void PurchaseSelected()
