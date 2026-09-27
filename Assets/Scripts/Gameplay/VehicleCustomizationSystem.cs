@@ -102,6 +102,16 @@ namespace MotorCity.Gameplay
             new(0.055f, 0.055f, 0.06f, 1f)
         };
 
+        private static readonly Color[] CamaroBodyColors =
+        {
+            new(0.72f, 0.20f, 0.055f, 1f),
+            new(0.74f, 0.07f, 0.06f, 1f),
+            new(0.08f, 0.22f, 0.62f, 1f),
+            new(0.10f, 0.44f, 0.17f, 1f),
+            new(0.84f, 0.84f, 0.82f, 1f),
+            new(0.045f, 0.045f, 0.05f, 1f)
+        };
+
 
 
 
@@ -418,7 +428,9 @@ namespace MotorCity.Gameplay
                                         ? Peugeot306BodyColors
                                         : id == "toyotaae86"
                                             ? ToyotaAE86BodyColors
-                                            : StreetBodyColors;
+                                            : id == "camaro"
+                                                ? CamaroBodyColors
+                                                : StreetBodyColors;
         }
 
         private int GetInt(
@@ -1325,7 +1337,8 @@ namespace MotorCity.Gameplay
                 materialLower.Contains("amggtbody") ||
                 materialLower.Contains("porsche996body") ||
                 materialLower.Contains("peugeot306body") ||
-                materialLower.Contains("toyotaae86body");
+                materialLower.Contains("toyotaae86body") ||
+                materialLower.Contains("camarobody");
         }
 
         private static bool IsWheelLike(
