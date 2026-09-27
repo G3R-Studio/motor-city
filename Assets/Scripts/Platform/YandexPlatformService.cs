@@ -5,6 +5,35 @@ using UnityEngine;
 
 namespace MotorCity.Platform
 {
+    internal static class YandexPlatformInstaller
+    {
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Install()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            if (UnityEngine.Object.FindAnyObjectByType<YandexPlatformBridge>() !=
+                null)
+            {
+                return;
+            }
+
+            GameObject host =
+                new("Motor City Yandex Bridge");
+
+            UnityEngine.Object.DontDestroyOnLoad(
+                host);
+
+            YandexPlatformBridge bridge =
+                host.AddComponent<YandexPlatformBridge>();
+
+            MotorCityPlatform.SetService(
+                new YandexPlatformService(
+                    bridge));
+#endif
+        }
+    }
+
     public sealed class YandexPlatformService :
         IMotorCityPlatformService
     {
