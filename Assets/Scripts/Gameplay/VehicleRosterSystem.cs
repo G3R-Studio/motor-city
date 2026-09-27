@@ -235,7 +235,23 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.peugeot306.desc"))
+                        MotorCityLocalization.Text("vehicle.peugeot306.desc")),
+
+                    new VehicleProfile(
+                        "toyotaae86",
+                        MotorCityLocalization.Text("vehicle.toyotaae86.name"),
+                        "MotorCity/Vehicles/Player/ToyotaAE86",
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.toyotaae86.desc"))
                 };
 
             int stored =
@@ -562,7 +578,8 @@ namespace MotorCity.Gameplay
                 profile.Id == "delorean" ||
                 profile.Id == "amggt" ||
                 profile.Id == "porsche996" ||
-                profile.Id == "peugeot306";
+                profile.Id == "peugeot306" ||
+                profile.Id == "toyotaae86";
 
             if (profile.Id == "hybrid")
             {
@@ -627,6 +644,17 @@ namespace MotorCity.Gameplay
                     0.48f,
                     0.28f);
             }
+            else if (profile.Id == "toyotaae86")
+            {
+                // Lightweight classic coupe: compact travel with a slightly
+                // freer rear-biased feel while staying stable in normal driving.
+                car.ApplySuspensionPreset(
+                    0.10f,
+                    39500f,
+                    6500f,
+                    0.47f,
+                    0.26f);
+            }
             else
             {
                 car.ApplySuspensionPreset(
@@ -650,7 +678,9 @@ namespace MotorCity.Gameplay
                                     ? 4.20f
                                     : profile.Id == "peugeot306"
                                         ? 4.21f
-                                        : 4.35f;
+                                        : profile.Id == "toyotaae86"
+                                            ? 4.31f
+                                            : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
