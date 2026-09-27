@@ -36,10 +36,6 @@ Runtime vehicle assets:
 - STREET: `Assets/Resources/MotorCity/PlayerCarVisual.prefab`
 - HYBRID: `Assets/Resources/MotorCity/Vehicles/Player/Hybrid.prefab`
 
-The clean Hybrid authoring prototypes are stored under:
-
-`Assets/MotorCity/VehiclePrototypes/Hybrid`
-
 ## City
 
 The runtime city is stored at:
