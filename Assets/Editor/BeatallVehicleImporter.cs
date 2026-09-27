@@ -12,6 +12,9 @@ public static class BeatallVehicleImporter
     private const string SourceTexture =
         "Assets/VehicleAssets/Beatall/all.png";
 
+    private const string SourceWheelModel =
+        "Assets/VehicleAssets/Beatall/beatall_wheels.obj";
+
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
 
@@ -74,13 +77,17 @@ public static class BeatallVehicleImporter
             AssetDatabase.LoadAssetAtPath<GameObject>(
                 SourceModel);
 
-        if (source == null)
+        GameObject wheelSource =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                SourceWheelModel);
+
+        if (source == null ||
+            wheelSource == null)
         {
             if (verbose)
             {
                 Debug.LogWarning(
-                    "Motor City: Beatall source OBJ was not found at " +
-                    SourceModel);
+                    "Motor City: Beatall body or wheel OBJ is missing.");
             }
 
             return false;
@@ -141,6 +148,10 @@ public static class BeatallVehicleImporter
 
             StripImportedPhysics(
                 instance);
+
+            BuildWheelSet(
+                instance.transform,
+                wheelSource);
 
             AssignMaterials(
                 instance,
@@ -371,6 +382,121 @@ public static class BeatallVehicleImporter
                     materials;
             }
         }
+    }
+
+    private static void BuildWheelSet(
+        Transform parent,
+        GameObject wheelSource)
+    {
+        if (parent == null ||
+            wheelSource == null)
+        {
+            return;
+        }
+
+        // These are the original authored Beatall wheel centers from the
+        // source model before the wheels were exported to their own OBJ.
+        // The body itself is not translated, rotated or re-scaled here.
+        CreateWheel(
+            parent,
+            wheelSource,
+            "front_left",
+            new Vector3(
+                -0.573373f,
+                0.2620855f,
+                1.057121f),
+            false);
+
+        CreateWheel(
+            parent,
+            wheelSource,
+            "front_right",
+            new Vector3(
+                0.573373f,
+                0.2620855f,
+                1.057121f),
+            true);
+
+        CreateWheel(
+            parent,
+            wheelSource,
+            "rear_left",
+            new Vector3(
+                -0.600407f,
+                0.2620855f,
+                -0.968537f),
+            false);
+
+        CreateWheel(
+            parent,
+            wheelSource,
+            "rear_right",
+            new Vector3(
+                0.600407f,
+                0.2620855f,
+                -0.968537f),
+            true);
+    }
+
+    private static void CreateWheel(
+        Transform parent,
+        GameObject wheelSource,
+        string wheelName,
+        Vector3 localPosition,
+        bool rightSide)
+    {
+        GameObject holder =
+            new GameObject(
+                wheelName);
+
+        holder.transform.SetParent(
+            parent,
+            false);
+
+        holder.transform.localPosition =
+            localPosition;
+
+        holder.transform.localRotation =
+            rightSide
+                ? Quaternion.Euler(
+                    0f,
+                    0f,
+                    180f)
+                : Quaternion.identity;
+
+        holder.transform.localScale =
+            Vector3.one;
+
+        GameObject visual =
+            PrefabUtility.InstantiatePrefab(
+                wheelSource,
+                holder.transform) as GameObject;
+
+        if (visual == null)
+        {
+            visual =
+                UnityEngine.Object.Instantiate(
+                    wheelSource,
+                    holder.transform);
+        }
+
+        if (visual == null)
+            return;
+
+        visual.name =
+            wheelName + "_visual";
+
+        visual.transform.localPosition =
+            Vector3.zero;
+
+        visual.transform.localRotation =
+            Quaternion.identity;
+
+        visual.transform.localScale =
+            Vector3.one;
+
+        StripImportedPhysics(
+            visual);
     }
 
     private static void StripImportedPhysics(
