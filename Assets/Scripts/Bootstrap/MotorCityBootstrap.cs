@@ -403,8 +403,7 @@ namespace MotorCity.Bootstrap
             CosmeticStoreSystem cosmeticStore =
                 systems.AddComponent<CosmeticStoreSystem>();
 
-            cosmeticStore.Initialize(
-                turbo);
+            cosmeticStore.Initialize();
 
             LeaderboardSyncSystem leaderboardSync =
                 systems.AddComponent<LeaderboardSyncSystem>();
