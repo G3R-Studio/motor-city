@@ -185,28 +185,28 @@ public static class Peugeot306VehicleImporter
             parent,
             wheelSource,
             "front_left",
-            new Vector3(-0.810f, 0.336f, 1.240f),
+            new Vector3(-0.780f, 0.336f, 1.240f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "front_right",
-            new Vector3(0.810f, 0.336f, 1.240f),
+            new Vector3(0.780f, 0.336f, 1.240f),
             true);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_left",
-            new Vector3(-0.810f, 0.336f, -1.395f),
+            new Vector3(-0.780f, 0.336f, -1.395f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_right",
-            new Vector3(0.810f, 0.336f, -1.395f),
+            new Vector3(0.780f, 0.336f, -1.395f),
             true);
     }
 
