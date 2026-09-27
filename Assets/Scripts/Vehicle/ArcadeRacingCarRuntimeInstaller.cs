@@ -680,6 +680,23 @@ namespace MotorCity.Vehicle
             Bounds meshBounds =
                 sourceMesh.bounds;
 
+            GameObject proxyRoot =
+                new GameObject(
+                    ProxyRootName);
+
+            proxyRoot.transform.SetParent(
+                filter.transform,
+                false);
+
+            proxyRoot.transform.localPosition =
+                Vector3.zero;
+
+            proxyRoot.transform.localRotation =
+                Quaternion.identity;
+
+            proxyRoot.transform.localScale =
+                Vector3.one;
+
             if (!sourceMesh.isReadable)
             {
                 BuildBoundsOnlyCompoundBodyCollider(
@@ -709,23 +726,6 @@ namespace MotorCity.Vehicle
                 meshBounds.size.x;
 
             const int SliceCount = 5;
-
-            GameObject proxyRoot =
-                new GameObject(
-                    ProxyRootName);
-
-            proxyRoot.transform.SetParent(
-                filter.transform,
-                false);
-
-            proxyRoot.transform.localPosition =
-                Vector3.zero;
-
-            proxyRoot.transform.localRotation =
-                Quaternion.identity;
-
-            proxyRoot.transform.localScale =
-                Vector3.one;
 
             float axisMin =
                 splitAlongZ
