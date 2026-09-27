@@ -153,7 +153,25 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.hybrid.desc"))
+                        MotorCityLocalization.Text("vehicle.hybrid.desc")),
+
+                    // BEATALL is imported from the standalone OBJ source and
+                    // rebuilt into a clean Resources prefab by BeatallVehicleImporter.
+                    new VehicleProfile(
+                        "beatall",
+                        MotorCityLocalization.Text("vehicle.beatall.name"),
+                        "MotorCity/Vehicles/Player/Beatall",
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.beatall.desc"))
                 };
 
             int stored =
@@ -489,6 +507,17 @@ namespace MotorCity.Gameplay
                     0.44f,
                     0.42f);
             }
+            else if (profile.Id == "beatall")
+            {
+                // Beatall is a short classic hatchback. Keep the body planted
+                // without giving it the taller generic STREET suspension.
+                car.ApplySuspensionPreset(
+                    0.18f,
+                    40000f,
+                    6200f,
+                    0.46f,
+                    0.36f);
+            }
             else
             {
                 car.ApplySuspensionPreset(
@@ -502,7 +531,9 @@ namespace MotorCity.Gameplay
             float targetLength =
                 profile.Id == "hybrid"
                     ? 4.45f
-                    : 4.35f;
+                    : profile.Id == "beatall"
+                        ? 4.05f
+                        : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
