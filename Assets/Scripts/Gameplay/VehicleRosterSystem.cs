@@ -543,10 +543,7 @@ namespace MotorCity.Gameplay
                 targetLength,
                 false,
                 null,
-                preserveAuthoredTransform,
-                null,
-                0f,
-                profile.Id == "beatall");
+                preserveAuthoredTransform);
 
             car.ApplyVehicleProfile(
                 profile.SpeedBonus,
