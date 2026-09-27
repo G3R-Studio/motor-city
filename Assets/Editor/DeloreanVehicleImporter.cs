@@ -207,7 +207,7 @@ public static class DeloreanVehicleImporter
             "front_left",
             new Vector3(
                 -0.865f,
-                0.33646f,
+                0.38146f,
                 1.445f),
             false);
 
@@ -227,7 +227,7 @@ public static class DeloreanVehicleImporter
             "rear_left",
             new Vector3(
                 -0.855f,
-                0.37497f,
+                0.41997f,
                 -1.185f),
             false);
 
@@ -371,7 +371,7 @@ public static class DeloreanVehicleImporter
             if (material.HasProperty("_EmissionColor"))
                 material.SetColor(
                     "_EmissionColor",
-                    Color.white * 1.6f);
+                    Color.black);
 
             material.EnableKeyword("_EMISSION");
             material.globalIlluminationFlags =
