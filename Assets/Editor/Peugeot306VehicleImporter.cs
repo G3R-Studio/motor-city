@@ -242,7 +242,7 @@ public static class Peugeot306VehicleImporter
 
         // Cancel the tiny residual X offset of the exported wheel pivot.
         visual.transform.localPosition =
-            new Vector3(0.0012375f, 0f, 0f);
+            new Vector3(-0.03f, 0f, 0f);
 
         visual.transform.localRotation = Quaternion.identity;
         visual.transform.localScale = Vector3.one;
