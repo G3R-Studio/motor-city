@@ -95,13 +95,9 @@ namespace MotorCity.World
                     : dayNight.NightAmount;
 
             bool braking =
-                vehicleId == "delorean"
-                    ? MotorCityInput.ReverseHeld ||
-                      (car != null &&
-                       car.ForwardSpeedKph < -0.5f)
-                    : MotorCityInput.ReverseHeld ||
-                      (car != null &&
-                       car.HandbrakeInputHeld);
+                MotorCityInput.ReverseHeld ||
+                (car != null &&
+                 car.HandbrakeInputHeld);
 
             float brakeMultiplier =
                 Mathf.Lerp(
@@ -214,6 +210,12 @@ namespace MotorCity.World
                 return;
 
             RemoveLegacyOverlays();
+
+            // Delorean intentionally has no rear-light runtime logic.
+            // Its authored rear lamps remain dark; only PlayerHeadlights
+            // handles the front headlamps and blue/cyan night-emission details.
+            if (vehicleId == "delorean")
+                return;
 
             Renderer[] renderers =
                 currentVisual.GetComponentsInChildren<
@@ -1080,7 +1082,7 @@ namespace MotorCity.World
                     rearSoftnessFraction);
 
             bool spatialLampMask =
-                vehicleId == "delorean";
+                false;
 
             float lateralMaxAbs =
                 Mathf.Max(
@@ -1094,28 +1096,18 @@ namespace MotorCity.World
                     upMinimum);
 
             float lateralLampMin =
-                vehicleId == "delorean"
-                    ? lateralMaxAbs * 0.34f
-                    : lateralMaxAbs * 0.50f;
+                lateralMaxAbs * 0.50f;
 
             float lateralLampMax =
-                vehicleId == "delorean"
-                    ? lateralMaxAbs * 0.58f
-                    : lateralMaxAbs * 1.02f;
+                lateralMaxAbs * 1.02f;
 
             float upLampMin =
                 upMinimum +
-                upSpan *
-                (vehicleId == "delorean"
-                    ? 0.45f
-                    : 0.34f);
+                upSpan * 0.34f;
 
             float upLampMax =
                 upMinimum +
-                upSpan *
-                (vehicleId == "delorean"
-                    ? 0.53f
-                    : 0.72f);
+                upSpan * 0.72f;
 
             for (int i = 0;
                  i < sourceMaterials.Length;
@@ -1322,31 +1314,6 @@ namespace MotorCity.World
             out float blueLow,
             out float blueHigh)
         {
-            if (vehicleId == "delorean")
-            {
-                // The Delorean emissive mesh contains side/indicator details
-                // around local Z ~= -1.2, while the actual rear lamp cluster
-                // sits at the extreme rear (around Z ~= -2.1). Restrict the
-                // fallback mask to that final slice so braking/running-light
-                // emission no longer paints the indicators red.
-                rearCutoffFraction = 0.86f;
-                rearSoftnessFraction = 0.020f;
-                // Delorean's two actual rear lamp faces are isolated by the
-                // spatial mask (far rear, around x = +/-0.465 and y = 0.858).
-                // Do not apply a narrow colour test here: the authored atlas
-                // colour is shared/gradient-based and previously filtered the
-                // lamps out completely.
-                chromaLow = -1.0f;
-                chromaHigh = -0.9f;
-                redLow = 0.01f;
-                redHigh = 0.04f;
-                greenLow = 0.96f;
-                greenHigh = 1.0f;
-                blueLow = 0.96f;
-                blueHigh = 1.0f;
-                return;
-            }
-
             rearCutoffFraction = 0.70f;
             rearSoftnessFraction = 0.035f;
             chromaLow = 0.22f;
