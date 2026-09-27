@@ -27,6 +27,7 @@ namespace MotorCity.Gameplay
             22f;
 
         private ArcadeCarController car;
+        private Rigidbody carBody;
         private PlayerWallet wallet;
         private ActivityManager activityManager;
         private DiscoverySystem discoveries;
@@ -99,6 +100,12 @@ namespace MotorCity.Gameplay
         {
             car =
                 targetCar;
+
+            carBody =
+                car != null
+                    ? car.GetComponent<Rigidbody>()
+                    : null;
+
             wallet =
                 targetWallet;
             activityManager =
@@ -189,13 +196,33 @@ namespace MotorCity.Gameplay
                     hoverPhase) *
                 0.16f;
 
+            // Feed a small amount of the car's current velocity into the
+            // target. Without this, any smoothing necessarily makes Pixie trail
+            // several metres behind at high speed.
+            if (carBody != null)
+            {
+                Vector3 lead =
+                    carBody.linearVelocity *
+                    0.045f;
+
+                lead =
+                    Vector3.ClampMagnitude(
+                        lead,
+                        2.4f);
+
+                targetWorld +=
+                    lead;
+            }
+
             float distance =
                 Vector3.Distance(
                     visualRoot.transform.position,
                     targetWorld);
 
-            if (distance > 22f)
+            if (distance > 80f)
             {
+                // Keep only a very large recovery snap for scene teleports /
+                // respawns. Normal driving must never hit this path.
                 visualRoot.transform.position =
                     targetWorld;
 
@@ -204,16 +231,26 @@ namespace MotorCity.Gameplay
             }
             else
             {
-                // Pixie is an independent flying companion. SmoothDamp gives
-                // him visible inertia so he follows the car instead of looking
-                // welded to a fixed point on the body.
+                // A much tighter critically-damped follow keeps Pixie beside
+                // the vehicle instead of visibly lagging behind, while the
+                // higher max speed prevents SmoothDamp from turning into a
+                // sequence of catch-up jumps on fast cars.
+                float smoothTime =
+                    Mathf.Lerp(
+                        0.070f,
+                        0.038f,
+                        Mathf.InverseLerp(
+                            0f,
+                            160f,
+                            car.SpeedKph));
+
                 visualRoot.transform.position =
                     Vector3.SmoothDamp(
                         visualRoot.transform.position,
                         targetWorld,
                         ref visualFollowVelocity,
-                        0.16f,
-                        42f,
+                        smoothTime,
+                        140f,
                         Time.unscaledDeltaTime);
             }
 
@@ -226,7 +263,7 @@ namespace MotorCity.Gameplay
                     targetRotation,
                     1f -
                     Mathf.Exp(
-                        -4.5f *
+                        -10f *
                         Time.unscaledDeltaTime));
         }
 
