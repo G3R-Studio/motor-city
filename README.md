@@ -24,7 +24,7 @@ Current core features include:
 
 ## Vehicles
 
-The playable garage currently contains nine vehicles:
+The playable garage currently contains ten vehicles:
 
 1. **STREET** — the ARCADE: FREE Racing Car based starter vehicle.
 2. **HYBRID** — the Gudamore Free Sports Car based vehicle.
@@ -35,6 +35,7 @@ The playable garage currently contains nine vehicles:
 7. **PEUGEOT 306** — a compact hatchback assembled from its body plus a shared wheel mesh.
 8. **TOYOTA AE86** — a lightweight classic coupe assembled from its body plus a shared wheel mesh.
 9. **CAMARO** — a wide modern muscle coupe assembled from its body plus a shared wheel mesh.
+10. **CITY BUS** — a long city bus assembled from its body, shared wheel mesh and palette texture.
 
 No old Designersoup/PolyPack/Muscle/GT/Apex player-car roster is part of the current project.
 
@@ -49,6 +50,7 @@ Runtime vehicle assets:
 - PEUGEOT 306: `Assets/Resources/MotorCity/Vehicles/Player/Peugeot306.prefab` (generated from `Assets/VehicleAssets/Peugeot306/306.obj` plus `all_wheels.obj`)
 - TOYOTA AE86: `Assets/Resources/MotorCity/Vehicles/Player/ToyotaAE86.prefab` (generated from `Assets/VehicleAssets/ToyotaAE86/ae86.obj` plus `all_wheels.obj`)
 - CAMARO: `Assets/Resources/MotorCity/Vehicles/Player/Camaro.prefab` (generated from `Assets/VehicleAssets/Camaro/camaro.obj` plus `all_wheels.obj`)
+- CITY BUS: `Assets/Resources/MotorCity/Vehicles/Player/Bus.prefab` (generated from `Assets/VehicleAssets/Bus/bus.obj`, `all_wheels.obj` and `citytransportpalette.png`)
 
 ## City
 
