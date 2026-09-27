@@ -19,7 +19,7 @@ Current core features include:
 - a baked Fantastic City Generator runtime city plus a tracked editable FCG workbench;
 - day/night, street lighting, player headlights, rear-light emission and traffic optimization;
 - runtime-built activity/garage markers;
-- Pixie/Byte companion visuals prepared from the tracked SapphiArt and Haon source assets;
+- Pixie/Byte companion visual prepared from the tracked Haon source assets;
 - a temporary admin/debug panel for development testing.
 
 ## Vehicles
@@ -123,7 +123,6 @@ The project currently uses source/content from several third-party packages, inc
 - Fantastic City Generator;
 - Gudamore — Free Sports Car;
 - Haon SD Series Free Bundle;
-- SapphiArt-chan;
 - Eric VFX Studio Magic Circle;
 - Kenney CC0 UI/icon artwork.
 
