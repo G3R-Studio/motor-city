@@ -894,62 +894,41 @@ namespace MotorCity.Gameplay
                         0.15f);
             }
 
-            BoxCollider chassis =
-                car.GetComponent<BoxCollider>();
-
-            if (chassis != null &&
-                chassis.enabled)
-            {
-                Vector3 center =
-                    chassis.center;
-
-                Vector3 size =
-                    chassis.size;
-
-                float sideOffset =
-                    Mathf.Clamp(
-                        size.x * 0.72f + 0.35f,
-                        1.35f,
-                        2.35f);
-
-                float longitudinalOffset =
-                    Mathf.Clamp(
-                        size.z * 0.04f,
-                        0.12f,
-                        0.35f);
-
-                // Fly alongside the passenger side, roughly level with the
-                // cabin. Pixie remains independent in world space, but the
-                // target itself is now beside the car rather than behind it.
-                return
-                    new Vector3(
-                        center.x +
-                        sideOffset,
-                        center.y +
-                        Mathf.Max(
-                            0.72f,
-                            size.y * 0.54f),
-                        center.z -
-                        longitudinalOffset);
-            }
-
             Bounds bounds =
                 ResolveCarLocalBounds();
+
+            float halfWidth =
+                Mathf.Max(
+                    0.45f,
+                    bounds.extents.x);
+
+            float width =
+                halfWidth * 2f;
+
+            // Anchor Pixie from the vehicle's upper centre instead of using
+            // fixed offsets. She sits just outside the passenger/right side,
+            // with the gap scaling gently with vehicle width, and slightly
+            // below the highest point of the body.
+            float sideGap =
+                Mathf.Clamp(
+                    width * 0.10f,
+                    0.16f,
+                    0.34f);
+
+            float verticalDrop =
+                Mathf.Clamp(
+                    bounds.size.y * 0.16f,
+                    0.14f,
+                    0.32f);
 
             return
                 new Vector3(
                     bounds.center.x +
-                    Mathf.Clamp(
-                        bounds.size.x * 0.72f + 0.35f,
-                        1.35f,
-                        2.35f),
-                    bounds.max.y +
-                    0.18f,
-                    bounds.center.z -
-                    Mathf.Clamp(
-                        bounds.size.z * 0.04f,
-                        0.12f,
-                        0.35f));
+                    halfWidth +
+                    sideGap,
+                    bounds.max.y -
+                    verticalDrop,
+                    bounds.center.z);
         }
 
         private Bounds ResolveCarLocalBounds()
