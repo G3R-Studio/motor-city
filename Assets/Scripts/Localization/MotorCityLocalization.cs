@@ -746,6 +746,7 @@ namespace MotorCity.Localization
                 { "store.already_owned", E("Этот косметический набор уже куплен", "This cosmetic pack is already owned") },
                 { "store.opening", E("Открываю безопасную покупку Yandex Games...", "Opening secure Yandex Games purchase...") },
                 { "store.cancelled", E("Покупка отменена — прогресс не изменился", "Purchase cancelled — progress unchanged") },
+                { "store.unavailable", E("Покупки сейчас недоступны — прогресс не изменился", "Purchases are unavailable — progress unchanged") },
                 { "store.granted", E("ПОКУПКА ГОТОВА • {0}", "PURCHASE COMPLETE • {0}") },
                 { "store.controls", E("T — ЗАКРЫТЬ • E — КУПИТЬ", "T — CLOSE • E — BUY") },
                 { "store.status", E("{0}\n{1}\n{2}\n{3}", "{0}\n{1}\n{2}\n{3}") }

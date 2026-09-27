@@ -86,8 +86,10 @@ namespace MotorCity.Gameplay
             string productId =
                 SupporterPackProductId;
 
-            // Temporary local test path: in Editor/standalone builds,
-            // unlock the selected store item immediately without Yandex.
+#if UNITY_EDITOR
+            // Editor-only test path. Production builds must never grant a
+            // paid entitlement just because the platform purchase bridge is
+            // unavailable or failed to initialize.
             if (!MotorCityPlatform.SupportsPurchases)
             {
                 GrantAndConsume(
@@ -96,6 +98,19 @@ namespace MotorCity.Gameplay
 
                 return;
             }
+#else
+            if (!MotorCityPlatform.SupportsPurchases)
+            {
+                StatusText =
+                    MotorCityLocalization.Text(
+                        "store.unavailable");
+
+                messageTimer =
+                    3.5f;
+
+                return;
+            }
+#endif
 
             purchaseRunning =
                 true;
