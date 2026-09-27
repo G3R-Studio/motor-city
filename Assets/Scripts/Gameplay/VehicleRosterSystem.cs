@@ -737,9 +737,9 @@ namespace MotorCity.Gameplay
                                         : profile.Id == "toyotaae86"
                                             ? 4.31f
                                             : profile.Id == "camaro"
-                                                ? 4.64f
+                                                ? 5.104f
                                                 : profile.Id == "bus"
-                                                    ? 6.35f
+                                                    ? 7.9375f
                                                     : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
