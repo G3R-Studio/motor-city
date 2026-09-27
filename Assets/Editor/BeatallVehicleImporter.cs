@@ -142,9 +142,6 @@ public static class BeatallVehicleImporter
             StripImportedPhysics(
                 instance);
 
-            RenameWheelNodes(
-                instance.transform);
-
             AssignMaterials(
                 instance,
                 bodyMaterial,
@@ -373,53 +370,6 @@ public static class BeatallVehicleImporter
                 renderer.sharedMaterials =
                     materials;
             }
-        }
-    }
-
-    private static void RenameWheelNodes(
-        Transform root)
-    {
-        RenameExact(
-            root,
-            "front_left",
-            "wheel_front_left");
-
-        RenameExact(
-            root,
-            "front_right",
-            "wheel_front_right");
-
-        RenameExact(
-            root,
-            "rear_left",
-            "wheel_rear_left");
-
-        RenameExact(
-            root,
-            "rear_right",
-            "wheel_rear_right");
-    }
-
-    private static void RenameExact(
-        Transform root,
-        string sourceName,
-        string targetName)
-    {
-        foreach (Transform item in
-                 root.GetComponentsInChildren<Transform>(
-                     true))
-        {
-            if (item == null ||
-                !string.Equals(
-                    item.name,
-                    sourceName,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            item.name =
-                targetName;
         }
     }
 
