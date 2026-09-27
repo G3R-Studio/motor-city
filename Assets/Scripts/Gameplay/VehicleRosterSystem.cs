@@ -219,7 +219,23 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.porsche996.desc"))
+                        MotorCityLocalization.Text("vehicle.porsche996.desc")),
+
+                    new VehicleProfile(
+                        "peugeot306",
+                        MotorCityLocalization.Text("vehicle.peugeot306.name"),
+                        "MotorCity/Vehicles/Player/Peugeot306",
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.peugeot306.desc"))
                 };
 
             int stored =
@@ -545,7 +561,8 @@ namespace MotorCity.Gameplay
                 profile.Id == "beatall" ||
                 profile.Id == "delorean" ||
                 profile.Id == "amggt" ||
-                profile.Id == "porsche996";
+                profile.Id == "porsche996" ||
+                profile.Id == "peugeot306";
 
             if (profile.Id == "hybrid")
             {
@@ -599,6 +616,17 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.24f);
             }
+            else if (profile.Id == "peugeot306")
+            {
+                // Taller compact hatchback: a little more travel and softer
+                // damping than the low coupes, while keeping the body planted.
+                car.ApplySuspensionPreset(
+                    0.12f,
+                    40500f,
+                    6800f,
+                    0.48f,
+                    0.28f);
+            }
             else
             {
                 car.ApplySuspensionPreset(
@@ -620,7 +648,9 @@ namespace MotorCity.Gameplay
                                 ? 4.30f
                                 : profile.Id == "porsche996"
                                     ? 4.20f
-                                    : 4.35f;
+                                    : profile.Id == "peugeot306"
+                                        ? 4.21f
+                                        : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
