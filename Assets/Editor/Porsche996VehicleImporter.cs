@@ -188,32 +188,34 @@ public static class Porsche996VehicleImporter
         // Source body is 4.204 m long and Z-forward. Both wheel exports are
         // already centered on their pivots and measure 0.664 m in diameter.
         // The axle centers below were measured from the authored wheel arches.
+        // X is pulled 4.5 cm inward per side so the tyres sit inside the body
+        // instead of protruding past the fenders.
         CreateWheel(
             parent,
             frontSource,
             "front_left",
-            new Vector3(-0.765f, 0.332f, 1.165f),
+            new Vector3(-0.720f, 0.332f, 1.165f),
             false);
 
         CreateWheel(
             parent,
             frontSource,
             "front_right",
-            new Vector3(0.765f, 0.332f, 1.165f),
+            new Vector3(0.720f, 0.332f, 1.165f),
             true);
 
         CreateWheel(
             parent,
             rearSource,
             "rear_left",
-            new Vector3(-0.765f, 0.332f, -1.070f),
+            new Vector3(-0.720f, 0.332f, -1.070f),
             false);
 
         CreateWheel(
             parent,
             rearSource,
             "rear_right",
-            new Vector3(0.765f, 0.332f, -1.070f),
+            new Vector3(0.720f, 0.332f, -1.070f),
             true);
     }
 
