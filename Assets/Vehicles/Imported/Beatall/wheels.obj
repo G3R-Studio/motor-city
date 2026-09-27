@@ -1,6 +1,6 @@
 # Blender 5.2.2 LTS
 # www.blender.org
-mtllib wheels_beetle.mtl
+mtllib wheels.mtl
 o wheels_beetle
 v -0.051850 0.002375 -0.177125
 v -0.051850 -0.065026 -0.163718
