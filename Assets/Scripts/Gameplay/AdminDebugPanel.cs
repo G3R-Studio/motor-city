@@ -559,9 +559,6 @@ namespace MotorCity.Gameplay
 
             GUILayout.BeginHorizontal();
 
-            if (Button("СЛЕД. СКИН"))
-                InvokeNoArg(pixie, "CycleSkin");
-
             if (Button("+100 XP"))
                 InvokeNumber(pixie, "AddXp", 100d);
 
