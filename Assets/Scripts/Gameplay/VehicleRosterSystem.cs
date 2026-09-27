@@ -171,7 +171,23 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.beatall.desc"))
+                        MotorCityLocalization.Text("vehicle.beatall.desc")),
+
+                    new VehicleProfile(
+                        "delorean",
+                        MotorCityLocalization.Text("vehicle.delorean.name"),
+                        "MotorCity/Vehicles/Player/Delorean",
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.delorean.desc"))
                 };
 
             int stored =
@@ -519,6 +535,15 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.18f);
             }
+            else if (profile.Id == "delorean")
+            {
+                car.ApplySuspensionPreset(
+                    0.10f,
+                    43000f,
+                    7000f,
+                    0.42f,
+                    0.24f);
+            }
             else
             {
                 car.ApplySuspensionPreset(
@@ -534,7 +559,9 @@ namespace MotorCity.Gameplay
                     ? 4.45f
                     : profile.Id == "beatall"
                         ? 3.45f
-                        : 4.35f;
+                        : profile.Id == "delorean"
+                            ? 4.62f
+                            : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
