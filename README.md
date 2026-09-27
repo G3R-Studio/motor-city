@@ -24,17 +24,19 @@ Current core features include:
 
 ## Vehicles
 
-The playable garage currently contains only two vehicles:
+The playable garage currently contains three vehicles:
 
 1. **STREET** — the ARCADE: FREE Racing Car based starter vehicle.
 2. **HYBRID** — the Gudamore Free Sports Car based vehicle.
+3. **BEATALL** — a compact classic player car imported from the standalone OBJ source.
 
-No old Beatall/Designersoup/PolyPack/Muscle/GT/Apex player-car roster is part of the current project.
+No old Designersoup/PolyPack/Muscle/GT/Apex player-car roster is part of the current project.
 
 Runtime vehicle assets:
 
 - STREET: `Assets/Resources/MotorCity/PlayerCarVisual.prefab`
 - HYBRID: `Assets/Resources/MotorCity/Vehicles/Player/Hybrid.prefab`
+- BEATALL: `Assets/Resources/MotorCity/Vehicles/Player/Beatall.prefab` (generated from `Assets/VehicleAssets/Beatall/beatall.obj`)
 
 ## City
 
