@@ -251,7 +251,23 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.toyotaae86.desc"))
+                        MotorCityLocalization.Text("vehicle.toyotaae86.desc")),
+
+                    new VehicleProfile(
+                        "camaro",
+                        MotorCityLocalization.Text("vehicle.camaro.name"),
+                        "MotorCity/Vehicles/Player/Camaro",
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.camaro.desc"))
                 };
 
             int stored =
@@ -579,7 +595,8 @@ namespace MotorCity.Gameplay
                 profile.Id == "amggt" ||
                 profile.Id == "porsche996" ||
                 profile.Id == "peugeot306" ||
-                profile.Id == "toyotaae86";
+                profile.Id == "toyotaae86" ||
+                profile.Id == "camaro";
 
             if (profile.Id == "hybrid")
             {
@@ -655,6 +672,17 @@ namespace MotorCity.Gameplay
                     0.47f,
                     0.26f);
             }
+            else if (profile.Id == "camaro")
+            {
+                // Wide modern muscle coupe: firm spring, short travel and
+                // slightly heavier damping to keep the broad body controlled.
+                car.ApplySuspensionPreset(
+                    0.09f,
+                    47500f,
+                    7900f,
+                    0.46f,
+                    0.22f);
+            }
             else
             {
                 car.ApplySuspensionPreset(
@@ -680,7 +708,9 @@ namespace MotorCity.Gameplay
                                         ? 4.21f
                                         : profile.Id == "toyotaae86"
                                             ? 4.31f
-                                            : 4.35f;
+                                            : profile.Id == "camaro"
+                                                ? 4.64f
+                                                : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
