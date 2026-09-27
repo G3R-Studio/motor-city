@@ -536,6 +536,22 @@ namespace MotorCity.Gameplay
                         ? 3.45f
                         : 4.35f;
 
+            Vector3[] explicitWheelCenters =
+                profile.Id == "beatall"
+                    ? new[]
+                    {
+                        new Vector3(-0.573373f, 0.262086f, 1.057121f),
+                        new Vector3(0.573373f, 0.262086f, 1.057121f),
+                        new Vector3(-0.600407f, 0.262086f, -0.968537f),
+                        new Vector3(0.600407f, 0.262086f, -0.968537f)
+                    }
+                    : null;
+
+            float explicitWheelRadius =
+                profile.Id == "beatall"
+                    ? 0.290605f
+                    : 0f;
+
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
                 profile.ResourcePath,
@@ -543,7 +559,9 @@ namespace MotorCity.Gameplay
                 targetLength,
                 false,
                 null,
-                preserveAuthoredTransform);
+                preserveAuthoredTransform,
+                explicitWheelCenters,
+                explicitWheelRadius);
 
             car.ApplyVehicleProfile(
                 profile.SpeedBonus,
