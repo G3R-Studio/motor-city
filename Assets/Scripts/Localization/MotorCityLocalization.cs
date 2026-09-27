@@ -75,7 +75,7 @@ namespace MotorCity.Localization
                 { "vehicle.street.desc", E("СБАЛАНСИРОВАННАЯ — универсальная городская машина", "BALANCED — versatile city car") },
                 { "vehicle.club.desc", E("КОМПАКТНАЯ — лёгкая, быстрая и удобная в городе", "COMPACT — light, quick and agile in the city") },
                 { "vehicle.gt.desc", E("КУПЕ — классический силуэт, скорость и стабильность", "COUPE — classic silhouette, speed and stability") },
-                { "vehicle.bus.desc", E("ТЯЖЁЛЫЙ — огромный городской автобус как финальная награда", "HEAVY — a full-size city bus as the final reward") },
+                { "vehicle.bus.desc", E("ГОРОДСКОЙ АВТОБУС — длинный, высокий и тяжёлый", "CITY BUS — long, tall and heavy") },
                 { "vehicle.first", E("Это первая машина в гараже", "This is the first car in the garage") },
                 { "vehicle.last", E("Это последняя машина в гараже", "This is the last car in the garage") },
                 { "vehicle.visual_missing", E("{0}: модель ещё не подготовлена", "{0}: vehicle model is not ready yet") },
