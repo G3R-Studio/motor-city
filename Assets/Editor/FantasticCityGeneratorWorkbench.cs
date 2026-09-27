@@ -78,7 +78,7 @@ public static class FantasticCityGeneratorWorkbench
             "Локальная рабочая сцена создана:\n\n" +
             WorkbenchScene +
             "\n\nГенерируй Fantastic City Generator только здесь. " +
-            "Эта сцена игнорируется Git и не пропадёт после git reset.",
+            "Workbench хранится в Git как редактируемый источник текущего города.",
             "OK");
     }
 
