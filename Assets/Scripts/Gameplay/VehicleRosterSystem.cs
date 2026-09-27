@@ -539,10 +539,10 @@ namespace MotorCity.Gameplay
             else if (profile.Id == "delorean")
             {
                 car.ApplySuspensionPreset(
-                    0.10f,
+                    0.08f,
                     43000f,
                     7000f,
-                    0.42f,
+                    0.46f,
                     0.24f);
             }
             else
