@@ -1092,18 +1092,28 @@ namespace MotorCity.World
                     upMinimum);
 
             float lateralLampMin =
-                lateralMaxAbs * 0.50f;
+                vehicleId == "delorean"
+                    ? lateralMaxAbs * 0.34f
+                    : lateralMaxAbs * 0.50f;
 
             float lateralLampMax =
-                lateralMaxAbs * 1.02f;
+                vehicleId == "delorean"
+                    ? lateralMaxAbs * 0.58f
+                    : lateralMaxAbs * 1.02f;
 
             float upLampMin =
                 upMinimum +
-                upSpan * 0.34f;
+                upSpan *
+                (vehicleId == "delorean"
+                    ? 0.53f
+                    : 0.34f);
 
             float upLampMax =
                 upMinimum +
-                upSpan * 0.72f;
+                upSpan *
+                (vehicleId == "delorean"
+                    ? 0.60f
+                    : 0.72f);
 
             for (int i = 0;
                  i < sourceMaterials.Length;
@@ -1317,20 +1327,20 @@ namespace MotorCity.World
                 // sits at the extreme rear (around Z ~= -2.1). Restrict the
                 // fallback mask to that final slice so braking/running-light
                 // emission no longer paints the indicators red.
-                rearCutoffFraction = 0.90f;
-                rearSoftnessFraction = 0.014f;
-                // The atlas has a distinct saturated-red band for the real
-                // tail lamps and a warmer orange band for the indicators.
-                // Require strong red dominance and very little green so the
-                // orange indicators are excluded from the brake-light mask.
-                chromaLow = 0.52f;
-                chromaHigh = 0.78f;
-                redLow = 0.72f;
-                redHigh = 0.96f;
-                greenLow = 0.06f;
-                greenHigh = 0.18f;
-                blueLow = 0.05f;
-                blueHigh = 0.16f;
+                rearCutoffFraction = 0.86f;
+                rearSoftnessFraction = 0.020f;
+                // Delorean's actual stop-lamp faces sit slightly above the
+                // orange indicator faces and share the same rear atlas area.
+                // Spatial masking separates the two; keep the colour test
+                // permissive enough for the authored red/orange gradient.
+                chromaLow = 0.24f;
+                chromaHigh = 0.48f;
+                redLow = 0.55f;
+                redHigh = 0.84f;
+                greenLow = 0.18f;
+                greenHigh = 0.42f;
+                blueLow = 0.10f;
+                blueHigh = 0.30f;
                 return;
             }
 
