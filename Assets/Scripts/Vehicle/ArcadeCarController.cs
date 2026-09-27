@@ -501,8 +501,15 @@ namespace MotorCity.Vehicle
                 wheelColliders[index] = wheel;
             }
 
+            // Unity's WheelCollider suspension extends along local Y and
+            // its wheel circle is effectively shown half a suspension travel
+            // below the collider transform. Raise the collider object by half
+            // the configured suspension distance so the physical wheel center
+            // matches the visual wheel center detected from the mesh bounds.
             wheel.transform.localPosition =
-                localCenter;
+                localCenter +
+                Vector3.up *
+                (activeSuspensionDistance * 0.5f);
             wheel.transform.localRotation =
                 Quaternion.identity;
             wheel.transform.localScale =
