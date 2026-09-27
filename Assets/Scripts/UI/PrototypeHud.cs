@@ -7996,7 +7996,6 @@ namespace MotorCity.UI
                     MotorCityInputAction.CycleNeon =>
                         MotorCityIconLibrary.Garage,
 
-                    MotorCityInputAction.CyclePetSkin or
                     MotorCityInputAction.CycleBodyColor or
                     MotorCityInputAction.CycleSticker or
                     MotorCityInputAction.CycleVinyl or
