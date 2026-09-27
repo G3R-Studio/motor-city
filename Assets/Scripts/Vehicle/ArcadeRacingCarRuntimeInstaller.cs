@@ -86,7 +86,9 @@ namespace MotorCity.Vehicle
             float targetLength = TargetLength,
             bool flipYaw180 = false,
             Vector3? visualEulerCorrection = null,
-            bool preserveAuthoredTransform = false)
+            bool preserveAuthoredTransform = false,
+            Vector3[] explicitWheelCentersLocal = null,
+            float explicitWheelRadius = 0f)
         {
             if (car == null ||
                 string.IsNullOrWhiteSpace(
@@ -115,7 +117,9 @@ namespace MotorCity.Vehicle
                 targetLength,
                 flipYaw180,
                 visualEulerCorrection,
-                preserveAuthoredTransform);
+                preserveAuthoredTransform,
+                explicitWheelCentersLocal,
+                explicitWheelRadius);
         }
 
         private static bool Install(
@@ -125,7 +129,9 @@ namespace MotorCity.Vehicle
             float targetLength = TargetLength,
             bool flipYaw180 = false,
             Vector3? visualEulerCorrection = null,
-            bool preserveAuthoredTransform = false)
+            bool preserveAuthoredTransform = false,
+            Vector3[] explicitWheelCentersLocal = null,
+            float explicitWheelRadius = 0f)
         {
             Transform carTransform = car.transform;
 
@@ -317,14 +323,30 @@ namespace MotorCity.Vehicle
             float radiusSum = 0f;
             Transform[] spinRoots = new Transform[4];
 
+            bool hasExplicitWheelRig =
+                explicitWheelCentersLocal != null &&
+                explicitWheelCentersLocal.Length >= 4 &&
+                explicitWheelRadius > 0.05f;
+
             for (int i = 0; i < 4; i++)
             {
                 Bounds bounds = RendererBounds(ordered[i]);
-                centerWorld[i] = bounds.center;
-                centerLocal[i] = carTransform.InverseTransformPoint(bounds.center);
+
+                centerLocal[i] =
+                    hasExplicitWheelRig
+                        ? explicitWheelCentersLocal[i]
+                        : carTransform.InverseTransformPoint(
+                            bounds.center);
+
+                centerWorld[i] =
+                    carTransform.TransformPoint(
+                        centerLocal[i]);
+
                 radiusSum +=
-                    MeasureWheelRadius(
-                        bounds);
+                    hasExplicitWheelRig
+                        ? explicitWheelRadius
+                        : MeasureWheelRadius(
+                            bounds);
 
                 if (preserveAuthoredTransform)
                 {
@@ -410,7 +432,9 @@ namespace MotorCity.Vehicle
             else
             {
                 measuredRadius =
-                    radiusSum / 4f;
+                    hasExplicitWheelRig
+                        ? explicitWheelRadius
+                        : radiusSum / 4f;
             }
 
             SymmetrizePhysicalWheelCenters(
