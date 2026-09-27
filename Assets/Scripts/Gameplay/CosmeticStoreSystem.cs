@@ -10,16 +10,9 @@ namespace MotorCity.Gameplay
         public const string SupporterPackProductId =
             "motor_city_supporter_pack";
 
-        public const string PixieKisoraProductId =
-            "motor_city_pixie_kisora";
-
         private const string SupporterPackKey =
             "MotorCity.Purchase.SupporterPack";
 
-        private const string PixieKisoraKey =
-            "MotorCity.Purchase.PixieKisora";
-
-        private TurboPetSystem turbo;
         private MotorCityPurchaseRuntime purchaseRuntime;
 
         private int selectedProduct;
@@ -27,7 +20,6 @@ namespace MotorCity.Gameplay
         private bool purchaseRunning;
 
         public bool HasSupporterPack { get; private set; }
-        public bool HasPixieKisora { get; private set; }
 
         public bool ShowMessage =>
             messageTimer > 0f;
@@ -39,15 +31,11 @@ namespace MotorCity.Gameplay
 
         public string SelectedName =>
             MotorCityLocalization.Text(
-                selectedProduct == 0
-                    ? "store.supporter.name"
-                    : "store.pixie_kisora.name");
+                "store.supporter.name");
 
         public string SelectedDescription =>
             MotorCityLocalization.Text(
-                selectedProduct == 0
-                    ? "store.supporter.desc"
-                    : "store.pixie_kisora.desc");
+                "store.supporter.desc");
 
         public string SelectedOwnershipLine =>
             IsSelectedOwned()
@@ -58,16 +46,10 @@ namespace MotorCity.Gameplay
 
         public string ProductDetailsLine =>
             MotorCityLocalization.Text(
-                selectedProduct == 0
-                    ? "store.supporter.details"
-                    : "store.pixie_kisora.details");
+                "store.supporter.details");
 
-        public void Initialize(
-            TurboPetSystem turboSystem)
+        public void Initialize()
         {
-            turbo =
-                turboSystem;
-
             purchaseRuntime =
                 Object.FindAnyObjectByType<MotorCityPurchaseRuntime>();
 
@@ -91,13 +73,7 @@ namespace MotorCity.Gameplay
         public void CycleProduct(
             int direction)
         {
-            selectedProduct =
-                (selectedProduct +
-                 (direction >= 0
-                     ? 1
-                     : -1) +
-                 2) %
-                2;
+            selectedProduct = 0;
         }
 
         public void PurchaseSelected()
@@ -118,9 +94,7 @@ namespace MotorCity.Gameplay
             }
 
             string productId =
-                selectedProduct == 0
-                    ? SupporterPackProductId
-                    : PixieKisoraProductId;
+                SupporterPackProductId;
 
             // Temporary local test path: in Editor/standalone builds,
             // unlock the selected store item immediately without Yandex.
@@ -175,10 +149,6 @@ namespace MotorCity.Gameplay
                     SupporterPackKey,
                     0) != 0;
 
-            HasPixieKisora =
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
-                    PixieKisoraKey,
-                    0) != 0;
         }
 
         private void ProcessPendingPurchases()
@@ -273,24 +243,6 @@ namespace MotorCity.Gameplay
                 return true;
             }
 
-            if (productId ==
-                PixieKisoraProductId)
-            {
-                if (!HasPixieKisora)
-                {
-                    HasPixieKisora =
-                        true;
-
-                    MotorCity.Persistence.MotorCitySaveService.SetInt(
-                        PixieKisoraKey,
-                        1);
-
-                    MotorCity.Persistence.MotorCitySaveService.Save();
-                }
-
-                return true;
-            }
-
             return false;
         }
 
@@ -316,11 +268,6 @@ namespace MotorCity.Gameplay
                 }
             }
 
-            if (HasPixieKisora)
-            {
-                turbo?.UnlockSkin(
-                    9);
-            }
         }
 
         private void walletReward()
@@ -335,9 +282,7 @@ namespace MotorCity.Gameplay
         private bool IsSelectedOwned()
         {
             return
-                selectedProduct == 0
-                    ? HasSupporterPack
-                    : HasPixieKisora;
+                HasSupporterPack;
         }
 
         private static bool IsKnownProduct(
@@ -345,9 +290,7 @@ namespace MotorCity.Gameplay
         {
             return
                 productId ==
-                    SupporterPackProductId ||
-                productId ==
-                    PixieKisoraProductId;
+                    SupporterPackProductId;
         }
 
         private static string ProductDisplayName(
@@ -355,10 +298,7 @@ namespace MotorCity.Gameplay
         {
             return
                 MotorCityLocalization.Text(
-                    productId ==
-                    SupporterPackProductId
-                        ? "store.supporter.name"
-                        : "store.pixie_kisora.name");
+                    "store.supporter.name");
         }
     }
 }
