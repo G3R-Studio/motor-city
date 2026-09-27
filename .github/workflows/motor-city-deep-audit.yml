@@ -230,6 +230,32 @@ jobs:
 
           # Missing asset references only (filter Unity built-in/package GUIDs later by caller).
           missing=[{'source':p,'guids':sorted(gs)} for p,gs in missing_refs.items()]
+          missing_guid_contexts=[]
+          builtin_missing={
+              '00000000000000000000000000000000',
+              '0000000000000000d000000000000000',
+              '0000000000000000e000000000000000',
+              '0000000000000000f000000000000000'
+          }
+          for source,gs in missing_refs.items():
+              interesting=[g for g in sorted(gs) if g not in builtin_missing]
+              if not interesting or not is_text_path(source):
+                  continue
+              try:
+                  text_data=open(os.path.join(ROOT,source),'r',encoding='utf-8',errors='ignore').read()
+              except Exception:
+                  continue
+              for g in interesting:
+                  start=0
+                  hits=0
+                  while hits<8:
+                      pos=text_data.find(g,start)
+                      if pos<0: break
+                      a=max(0,pos-500); b=min(len(text_data),pos+500)
+                      missing_guid_contexts.append({
+                          'source':source,'guid':g,'context':text_data[a:b]
+                      })
+                      start=pos+len(g); hits+=1
 
           # Candidate unreachable package folders: no reachable asset bytes and no path mention in MotorCity scripts/editor.
           core_code='\n'.join(t for p,t in cs_text.items() if p.startswith('Assets/Scripts/') or p.startswith('Assets/Editor/'))
@@ -256,6 +282,7 @@ jobs:
               'largest_files':largest,
               'stale_named_paths':stale_named,
               'missing_guid_refs':missing,
+              'missing_guid_contexts':missing_guid_contexts,
               'script_defs':script_defs,
               'code_asset_paths':sorted(set(re.findall(r'Assets/[A-Za-z0-9_ .()&+\\/-]+(?:\\.[A-Za-z0-9]+)?', core_code))),
               'duplicates':duplicates[:300],
