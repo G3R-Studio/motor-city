@@ -575,8 +575,7 @@ namespace MotorCity.Gameplay
                 profile.Id == "hybrid" ||
                 profile.Id == "beatall";
 
-            if (profile.Id == "hybrid" ||
-                profile.Id == "beatall")
+            if (profile.Id == "hybrid")
             {
                 // Hybrid is a compact Asset Store model, so scale it to a
                 // normal city-car footprint and use a short, well-damped
@@ -599,12 +598,9 @@ namespace MotorCity.Gameplay
             }
 
             float targetLength =
-                profile.Id switch
-                {
-                    "hybrid" => 4.45f,
-                    "beatall" => 4.05f,
-                    _ => 4.35f
-                };
+                profile.Id == "hybrid"
+                    ? 4.45f
+                    : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
