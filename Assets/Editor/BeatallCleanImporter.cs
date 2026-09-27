@@ -157,17 +157,18 @@ namespace MotorCity.EditorTools
             // The imported wheel asset is authored for the RIGHT side.
             // Duplicate that exact mesh four times. Right-side wheels keep
             // their authored rotation; left-side wheels are flipped 180° on Y.
-            // Positions below are fitted to the actual wheel-arch silhouette
-            // in beatall.obj using the authored wheel radius. The body itself
-            // is never moved, scaled or rotated.
+            // Wheel centres are solved directly from the circular arch-edge
+            // vertices in beatall.obj. The fitted arch radii (~0.294 rear and
+            // ~0.300 front) match the authored wheel radius (~0.292).
+            // The body itself is never moved, scaled or rotated.
             CreateWheel(
                 wheelSource,
                 runningGear.transform,
                 "Front Left Wheel",
                 new Vector3(
                     -0.605f,
-                    0.286f,
-                    1.008f),
+                    0.25447f,
+                    1.06565f),
                 true);
 
             CreateWheel(
@@ -176,8 +177,8 @@ namespace MotorCity.EditorTools
                 "Front Right Wheel",
                 new Vector3(
                     0.605f,
-                    0.286f,
-                    1.008f),
+                    0.25447f,
+                    1.06565f),
                 false);
 
             CreateWheel(
@@ -186,8 +187,8 @@ namespace MotorCity.EditorTools
                 "Rear Left Wheel",
                 new Vector3(
                     -0.605f,
-                    0.287f,
-                    -0.958f),
+                    0.26095f,
+                    -0.95573f),
                 true);
 
             CreateWheel(
@@ -196,8 +197,8 @@ namespace MotorCity.EditorTools
                 "Rear Right Wheel",
                 new Vector3(
                     0.605f,
-                    0.287f,
-                    -0.958f),
+                    0.26095f,
+                    -0.95573f),
                 false);
         }
 
