@@ -1086,7 +1086,7 @@ namespace MotorCity.World
                     rearSoftnessFraction);
 
             bool spatialLampMask =
-                false;
+                vehicleId == "delorean";
 
             float lateralMaxAbs =
                 Mathf.Max(
@@ -1326,15 +1326,19 @@ namespace MotorCity.World
                 // fallback mask to that final slice so braking/running-light
                 // emission no longer paints the indicators red.
                 rearCutoffFraction = 0.90f;
-                rearSoftnessFraction = 0.018f;
-                chromaLow = 0.18f;
-                chromaHigh = 0.40f;
-                redLow = 0.50f;
-                redHigh = 0.82f;
-                greenLow = 0.16f;
-                greenHigh = 0.38f;
-                blueLow = 0.14f;
-                blueHigh = 0.34f;
+                rearSoftnessFraction = 0.014f;
+                // The atlas has a distinct saturated-red band for the real
+                // tail lamps and a warmer orange band for the indicators.
+                // Require strong red dominance and very little green so the
+                // orange indicators are excluded from the brake-light mask.
+                chromaLow = 0.52f;
+                chromaHigh = 0.78f;
+                redLow = 0.72f;
+                redHigh = 0.96f;
+                greenLow = 0.06f;
+                greenHigh = 0.18f;
+                blueLow = 0.05f;
+                blueHigh = 0.16f;
                 return;
             }
 
