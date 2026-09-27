@@ -82,13 +82,43 @@ Shader "MotorCity/DeloreanNightEmission"
                             source.g,
                             source.b));
 
+                half minimumChannel =
+                    min(
+                        source.r,
+                        min(
+                            source.g,
+                            source.b));
+
+                half blueOrCyan =
+                    step(
+                        source.r + 0.08,
+                        source.b) *
+                    step(
+                        0.18,
+                        source.b);
+
+                half neutralWhite =
+                    step(
+                        0.60,
+                        luminance) *
+                    step(
+                        luminance - 0.14,
+                        minimumChannel);
+
+                half allowed =
+                    max(
+                        blueOrCyan,
+                        neutralWhite);
+
                 clip(
-                    luminance -
-                    0.03);
+                    allowed *
+                    source.a -
+                    0.01);
 
                 return half4(
                     source.rgb *
                     _Intensity *
+                    allowed *
                     source.a,
                     0.0);
             }
