@@ -751,13 +751,13 @@ namespace MotorCity.Localization
                 { "store.supporter.details", E("5 000 КРЕДИТОВ • ПОКУПКА НАВСЕГДА", "5,000 CREDITS • PERMANENT PURCHASE") },
                 { "store.owned", E("УЖЕ КУПЛЕНО", "OWNED") },
                 { "store.buy", E("КУПИТЬ", "BUY") },
-                { "store.selection_hint", E("НАЗАД / ДАЛЬШЕ — ВЫБОР ТОВАРА", "PREV / NEXT — SELECT PRODUCT") },
+                { "store.selection_hint", E("ПОСТОЯННЫЙ НАБОР ПОДДЕРЖКИ", "PERMANENT SUPPORTER PACK") },
                 { "store.wallet", E("{0:N0} КР • {1:N0} РЕП • УР. {2}", "{0:N0} CR • {1:N0} REP • LVL {2}") },
                 { "store.already_owned", E("Этот косметический набор уже куплен", "This cosmetic pack is already owned") },
                 { "store.opening", E("Открываю безопасную покупку Yandex Games...", "Opening secure Yandex Games purchase...") },
                 { "store.cancelled", E("Покупка отменена — прогресс не изменился", "Purchase cancelled — progress unchanged") },
                 { "store.granted", E("ПОКУПКА ГОТОВА • {0}", "PURCHASE COMPLETE • {0}") },
-                { "store.controls", E("T — ЗАКРЫТЬ • КНОПКИ НИЖЕ — ВЫБОР • E — КУПИТЬ", "T — CLOSE • BUTTONS BELOW — SELECT • E — BUY") },
+                { "store.controls", E("T — ЗАКРЫТЬ • E — КУПИТЬ", "T — CLOSE • E — BUY") },
                 { "store.status", E("{0}\n{1}\n{2}\n{3}", "{0}\n{1}\n{2}\n{3}") }
             };
 
