@@ -674,17 +674,35 @@ namespace MotorCity.Vehicle
                     old.gameObject);
             }
 
+            Mesh sourceMesh =
+                filter.sharedMesh;
+
+            Bounds meshBounds =
+                sourceMesh.bounds;
+
+            if (!sourceMesh.isReadable)
+            {
+                BuildBoundsOnlyCompoundBodyCollider(
+                    filter.transform,
+                    meshBounds,
+                    proxyRoot.transform);
+
+                return;
+            }
+
             Vector3[] vertices =
-                filter.sharedMesh.vertices;
+                sourceMesh.vertices;
 
             if (vertices == null ||
                 vertices.Length == 0)
             {
+                BuildBoundsOnlyCompoundBodyCollider(
+                    filter.transform,
+                    meshBounds,
+                    proxyRoot.transform);
+
                 return;
             }
-
-            Bounds meshBounds =
-                filter.sharedMesh.bounds;
 
             bool splitAlongZ =
                 meshBounds.size.z >=
@@ -834,6 +852,135 @@ namespace MotorCity.Vehicle
                 part.transform.localPosition =
                     (minimum + maximum) *
                     0.5f;
+
+                part.transform.localRotation =
+                    Quaternion.identity;
+
+                part.transform.localScale =
+                    Vector3.one;
+
+                BoxCollider collider =
+                    part.AddComponent<BoxCollider>();
+
+                collider.center =
+                    Vector3.zero;
+
+                collider.size =
+                    size;
+            }
+        }
+
+        private static void BuildBoundsOnlyCompoundBodyCollider(
+            Transform sourceTransform,
+            Bounds meshBounds,
+            Transform proxyRoot)
+        {
+            if (sourceTransform == null ||
+                proxyRoot == null)
+            {
+                return;
+            }
+
+            bool splitAlongZ =
+                meshBounds.size.z >=
+                meshBounds.size.x;
+
+            const int SliceCount = 5;
+
+            float axisMin =
+                splitAlongZ
+                    ? meshBounds.min.z
+                    : meshBounds.min.x;
+
+            float axisMax =
+                splitAlongZ
+                    ? meshBounds.max.z
+                    : meshBounds.max.x;
+
+            float axisLength =
+                Mathf.Max(
+                    0.001f,
+                    axisMax - axisMin);
+
+            for (int slice = 0;
+                 slice < SliceCount;
+                 slice++)
+            {
+                float sliceMin =
+                    Mathf.Lerp(
+                        axisMin,
+                        axisMax,
+                        slice /
+                        (float)SliceCount);
+
+                float sliceMax =
+                    Mathf.Lerp(
+                        axisMin,
+                        axisMax,
+                        (slice + 1) /
+                        (float)SliceCount);
+
+                Vector3 center =
+                    meshBounds.center;
+
+                Vector3 size =
+                    meshBounds.size;
+
+                if (splitAlongZ)
+                {
+                    center.z =
+                        (sliceMin + sliceMax) *
+                        0.5f;
+
+                    size.z =
+                        Mathf.Max(
+                            0.05f,
+                            (sliceMax - sliceMin) *
+                            1.06f);
+                }
+                else
+                {
+                    center.x =
+                        (sliceMin + sliceMax) *
+                        0.5f;
+
+                    size.x =
+                        Mathf.Max(
+                            0.05f,
+                            (sliceMax - sliceMin) *
+                            1.06f);
+                }
+
+                // Mesh data is not CPU-readable on some imported Asset Store
+                // cars (for example HYBRID). Use imported mesh bounds instead
+                // of touching mesh.vertices, while still avoiding one giant
+                // chassis box.
+                size.x =
+                    Mathf.Max(
+                        0.05f,
+                        size.x * 0.92f);
+
+                size.y =
+                    Mathf.Max(
+                        0.05f,
+                        size.y * 0.86f);
+
+                size.z =
+                    Mathf.Max(
+                        0.05f,
+                        size.z * 0.92f);
+
+                GameObject part =
+                    new GameObject(
+                        "BodyCollider_" +
+                        slice);
+
+                part.transform.SetParent(
+                    proxyRoot,
+                    false);
+
+                part.transform.localPosition =
+                    center;
 
                 part.transform.localRotation =
                     Quaternion.identity;
