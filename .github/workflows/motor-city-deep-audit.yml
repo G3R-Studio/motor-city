@@ -70,26 +70,29 @@ jobs:
               meta_guid[asset]=g
               guid_asset[g]=asset
 
-          refs={}
+          refs=collections.defaultdict(set)
           missing_refs=collections.defaultdict(set)
           guid_ref_sources=collections.defaultdict(set)
           for p,_ in files:
-              if not is_text_path(p) or p.endswith('.meta'): continue
+              if not is_text_path(p): continue
               try:
                   text=open(os.path.join(ROOT,p),'r',encoding='utf-8',errors='ignore').read()
               except Exception:
                   continue
+              # Importer .meta files can contain external material/avatar/etc.
+              # remaps. Attribute those references to the imported asset itself.
+              owner=p[:-5] if p.endswith('.meta') else p
+              own_guid=meta_guid.get(owner)
               gs={g.lower() for g in GUID_RE.findall(text)}
-              dep=set()
               for g in gs:
-                  if g in {'00000000000000000000000000000000'}: continue
-                  guid_ref_sources[g].add(p)
+                  if g in {'00000000000000000000000000000000'} or g==own_guid:
+                      continue
+                  guid_ref_sources[g].add(owner)
                   a=guid_asset.get(g)
                   if a:
-                      dep.add(a)
+                      refs[owner].add(a)
                   else:
-                      missing_refs[p].add(g)
-              refs[p]=dep
+                      missing_refs[owner].add(g)
 
           roots=set()
           # Build scenes from EditorBuildSettings
@@ -119,6 +122,21 @@ jobs:
               if p.startswith('ProjectSettings/') and is_text_path(p):
                   roots.add(p)
                   project_setting_deps.update(refs.get(p,set()))
+
+          # Exact asset paths referenced from Motor City runtime/editor code
+          # are roots too (AssetDatabase.LoadAssetAtPath, importer constants, etc.).
+          core_code_early=''
+          for p,_ in files:
+              if not p.endswith('.cs') or not (p.startswith('Assets/Scripts/') or p.startswith('Assets/Editor/')):
+                  continue
+              try:
+                  core_code_early+='\n'+open(os.path.join(ROOT,p),'r',encoding='utf-8',errors='ignore').read()
+              except Exception:
+                  pass
+          for candidate in set(re.findall(r'Assets/[A-Za-z0-9_ .()&+@\\/-]+(?:\\.[A-Za-z0-9]+)', core_code_early)):
+              candidate=candidate.rstrip('.,;:)')
+              if candidate in path_set:
+                  roots.add(candidate)
 
           reachable=set()
           queue=collections.deque(roots | project_setting_deps)
