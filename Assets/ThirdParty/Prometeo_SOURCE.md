@@ -1,12 +1,11 @@
 # PROMETEO: Car Controller
 
-Motor City uses the **PROMETEO: Car Controller** physics package by Mena as an external Unity Asset Store dependency.
+Motor City uses **PROMETEO: Car Controller** by Mena as its underlying vehicle controller.
 
 - Unity Asset Store package ID: 209444
 - Package name: PROMETEO: Car Controller
-- License: Standard Unity Asset Store EULA (Extension Asset)
-- The Prometeo package itself is **not redistributed** in this repository.
+- Imported package source used by the project is currently stored under `Assets/PROMETEO - Car Controller`.
+- Motor City's gameplay code talks to `PrometeoCarController` and `PrometeoTouchInput` through the `ArcadeCarController` bridge.
+- Motor City builds its own wheel rig, HUD, upgrades, drift scoring, effects and input proxy layer around the third-party controller.
 
-Motor City connects to the imported `PrometeoCarController` at runtime through `ArcadeCarController`. The bridge assigns the Motor City car wheel meshes and generated WheelColliders, maps garage upgrade values to Prometeo tuning fields, and exposes vehicle/drift telemetry to the rest of the game.
-
-The game's existing URP car visual, HUD, activities, drift scoring, smoke and tire-mark effects remain Motor City systems; Prometeo is used as the vehicle movement/steering/braking/traction controller.
+The original package demo scenes/documentation are not required by the game and are intentionally excluded from the cleaned project.
