@@ -23,7 +23,18 @@ public static class ArcadeFreeRacingCarImporter
 
     private static void TryAutoBuild()
     {
-        if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            return;
+
+        // The generated STREET visual is committed. Normal Editor startup
+        // must not scan every prefab or rewrite it; rebuild only as recovery
+        // when the runtime output is genuinely missing.
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                OutputPrefab) != null)
+        {
+            return;
+        }
+
         Build(false);
     }
 

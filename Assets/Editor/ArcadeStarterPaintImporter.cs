@@ -39,7 +39,22 @@ public static class ArcadeStarterPaintImporter
             return;
 
         SessionState.SetBool(SessionKey, true);
-        Build();
+
+        // Generated starter paints are committed. Avoid marking them dirty and
+        // saving them on every Editor session; rebuild only if an output is
+        // actually missing. The menu command remains the explicit force path.
+        for (int i = 0; i < SourceMaterials.Length; i++)
+        {
+            string outputPath =
+                $"{OutputDirectory}/StarterPaint_{i}.mat";
+
+            if (AssetDatabase.LoadAssetAtPath<Material>(
+                    outputPath) == null)
+            {
+                Build();
+                return;
+            }
+        }
     }
 
     private static void Build()
