@@ -924,22 +924,6 @@ namespace MotorCity.UI
                 return;
             }
 
-            if (MotorCityInput.PreviousVehiclePressed)
-            {
-                cosmeticStore.CycleProduct(
-                    -1);
-
-                UpdateStoreOverlay();
-            }
-
-            if (MotorCityInput.NextVehiclePressed)
-            {
-                cosmeticStore.CycleProduct(
-                    1);
-
-                UpdateStoreOverlay();
-            }
-
             if (MotorCityInput.InteractPressed)
             {
                 cosmeticStore.PurchaseSelected();
@@ -6698,35 +6682,19 @@ namespace MotorCity.UI
             // longer float detached below the window.
             CreateLocalizedTouchPulseButton(
                 panel,
-                "Store Previous",
-                "touch.modal.prev",
-                MotorCityInputAction.PreviousVehicle,
-                new Vector2(-252f, 34f),
-                new Vector2(118f, 44f));
-
-            CreateLocalizedTouchPulseButton(
-                panel,
                 "Store Buy",
                 "touch.store.buy",
                 MotorCityInputAction.Interact,
-                new Vector2(-84f, 34f),
-                new Vector2(150f, 44f));
-
-            CreateLocalizedTouchPulseButton(
-                panel,
-                "Store Next",
-                "touch.modal.next",
-                MotorCityInputAction.NextVehicle,
-                new Vector2(86f, 34f),
-                new Vector2(118f, 44f));
+                new Vector2(-92f, 34f),
+                new Vector2(170f, 44f));
 
             CreateLocalizedTouchPulseButton(
                 panel,
                 "Store Close",
                 "touch.modal.close",
                 MotorCityInputAction.ToggleStore,
-                new Vector2(252f, 34f),
-                new Vector2(126f, 44f));
+                new Vector2(102f, 34f),
+                new Vector2(170f, 44f));
         }
 
         private void UpdateStoreOverlay()
@@ -6766,23 +6734,14 @@ namespace MotorCity.UI
             if (storeProductIcon != null)
             {
                 storeProductIcon.sprite =
-                    cosmeticStore.SelectedProduct == 0
-                        ? MotorCityIconLibrary.Reward
-                        : MotorCityIconLibrary.Get(
-                            "star");
+                    MotorCityIconLibrary.Reward;
 
                 storeProductIcon.color =
-                    cosmeticStore.SelectedProduct == 0
-                        ? new Color(
-                            0.50f,
-                            0.72f,
-                            1f,
-                            1f)
-                        : new Color(
-                            1f,
-                            0.58f,
-                            0.16f,
-                            1f);
+                    new Color(
+                        0.50f,
+                        0.72f,
+                        1f,
+                        1f);
             }
         }
 
