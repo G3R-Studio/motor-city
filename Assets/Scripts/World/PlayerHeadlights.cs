@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MotorCity.Platform;
 using MotorCity.Vehicle;
 using UnityEngine;
@@ -16,6 +17,19 @@ namespace MotorCity.World
         private ArcadeCarController car;
         private Transform currentVisual;
         private bool anchorsDirty = true;
+        private string vehicleId = "street";
+
+        private sealed class NightEmissionBinding
+        {
+            public Renderer Renderer;
+            public int MaterialIndex;
+        }
+
+        private readonly List<NightEmissionBinding>
+            nightEmissionBindings = new();
+
+        private readonly MaterialPropertyBlock
+            nightEmissionBlock = new();
 
         private void Awake()
         {
@@ -79,16 +93,25 @@ namespace MotorCity.World
 
             ApplyLights(
                 amount);
+
+            ApplyNightVisualEmission(
+                night);
         }
 
         public void SetVehicleId(
             string id)
         {
-            // Vehicle-specific IDs are intentionally not used for positioning.
-            // Headlight anchors are derived from the currently installed body,
-            // so every vehicle follows the same geometry-based rule.
+            vehicleId =
+                string.IsNullOrWhiteSpace(id)
+                    ? "street"
+                    : id.ToLowerInvariant();
+
+            // Positioning stays geometry-based for every vehicle, while some
+            // authored visuals (currently Delorean) also expose emissive
+            // headlamp/neon geometry that is driven by the night cycle.
             anchorsDirty = true;
             RefreshAnchorsIfNeeded();
+            RefreshNightEmissionBindings();
         }
 
         private void RefreshAnchorsIfNeeded()
@@ -240,6 +263,112 @@ namespace MotorCity.World
                     xOffset,
                     lightY,
                     lightZ);
+
+            RefreshNightEmissionBindings();
+        }
+
+        private void RefreshNightEmissionBindings()
+        {
+            nightEmissionBindings.Clear();
+
+            if (currentVisual == null ||
+                vehicleId != "delorean")
+            {
+                return;
+            }
+
+            Renderer[] renderers =
+                currentVisual.GetComponentsInChildren<Renderer>(
+                    true);
+
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null ||
+                    IsWheelRenderer(
+                        renderer.transform))
+                {
+                    continue;
+                }
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    Material material =
+                        materials[i];
+
+                    if (material == null)
+                        continue;
+
+                    string materialName =
+                        material.name
+                            .ToLowerInvariant();
+
+                    if (!materialName.Contains(
+                            "deloreanemission"))
+                    {
+                        continue;
+                    }
+
+                    nightEmissionBindings.Add(
+                        new NightEmissionBinding
+                        {
+                            Renderer = renderer,
+                            MaterialIndex = i
+                        });
+                }
+            }
+        }
+
+        private void ApplyNightVisualEmission(
+            float night)
+        {
+            if (vehicleId != "delorean" ||
+                nightEmissionBindings.Count == 0)
+            {
+                return;
+            }
+
+            float intensity =
+                Mathf.SmoothStep(
+                    0f,
+                    2.4f,
+                    Mathf.InverseLerp(
+                        0.28f,
+                        0.68f,
+                        night));
+
+            Color emissionColor =
+                Color.white *
+                intensity;
+
+            for (int i = 0;
+                 i < nightEmissionBindings.Count;
+                 i++)
+            {
+                NightEmissionBinding binding =
+                    nightEmissionBindings[i];
+
+                if (binding?.Renderer == null)
+                    continue;
+
+                binding.Renderer.GetPropertyBlock(
+                    nightEmissionBlock,
+                    binding.MaterialIndex);
+
+                nightEmissionBlock.SetColor(
+                    "_EmissionColor",
+                    emissionColor);
+
+                binding.Renderer.SetPropertyBlock(
+                    nightEmissionBlock,
+                    binding.MaterialIndex);
+
+                nightEmissionBlock.Clear();
+            }
         }
 
         private static bool IsWheelRenderer(
