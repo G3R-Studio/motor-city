@@ -53,13 +53,11 @@ namespace MotorCity.Localization
                 { "drive.drift.desc", E("острый руль и свободная задняя ось", "sharp steering and freer rear axle") },
 
                 { "vehicle.hybrid.name", E("HYBRID", "HYBRID") },
-                { "vehicle.beatall.name", E("BEATALL", "BEATALL") },
                 { "vehicle.street.name", E("УЛИЧНАЯ", "STREET") },
                 { "vehicle.club.name", E("СПРИНТ", "SPRINT") },
                 { "vehicle.gt.name", E("ВОРТЕКС", "VORTEX") },
                 { "vehicle.bus.name", E("АВТОБУС", "CITY BUS") },
                 { "vehicle.hybrid.desc", E("СУПЕРКАР — быстрый, цепкий и точный", "SUPERCAR — quick, grippy and precise") },
-                { "vehicle.beatall.desc", E("РЕТРО — компактная классическая машина", "RETRO — compact classic car") },
                 { "vehicle.street.desc", E("СБАЛАНСИРОВАННАЯ — универсальная городская машина", "BALANCED — versatile city car") },
                 { "vehicle.club.desc", E("КОМПАКТНАЯ — лёгкая, быстрая и удобная в городе", "COMPACT — light, quick and agile in the city") },
                 { "vehicle.gt.desc", E("КУПЕ — классический силуэт, скорость и стабильность", "COUPE — classic silhouette, speed and stability") },
