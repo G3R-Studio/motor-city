@@ -19,8 +19,8 @@ namespace MotorCity.Gameplay
 
         [Header("Пороги времени")]
         [SerializeField] private float goldTimeSeconds = 200f;
-        [SerializeField] private float silverTimeSeconds = 230f;
-        [SerializeField] private float bronzeTimeSeconds = 270f;
+        [SerializeField] private float silverTimeSeconds = 245f;
+        [SerializeField] private float bronzeTimeSeconds = 300f;
 
         [Header("Старт")]
         [SerializeField] private float startRadius = 14f;
@@ -337,9 +337,9 @@ namespace MotorCity.Gameplay
             float gold =
                 eliteMode ? 180f : goldTimeSeconds;
             float silver =
-                eliteMode ? 205f : silverTimeSeconds;
+                eliteMode ? 225f : silverTimeSeconds;
             float bronze =
-                eliteMode ? 240f : bronzeTimeSeconds;
+                eliteMode ? 275f : bronzeTimeSeconds;
 
             if (ElapsedSeconds <= gold)
                 return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.gold"), gold);
@@ -362,7 +362,7 @@ namespace MotorCity.Gameplay
                         0f,
                         Mathf.InverseLerp(
                             eliteMode ? 165f : 185f,
-                            eliteMode ? 240f : bronzeTimeSeconds,
+                            eliteMode ? 275f : bronzeTimeSeconds,
                             ElapsedSeconds)));
 
             int reward =
@@ -379,9 +379,9 @@ namespace MotorCity.Gameplay
             float gold =
                 eliteMode ? 180f : goldTimeSeconds;
             float silver =
-                eliteMode ? 205f : silverTimeSeconds;
+                eliteMode ? 225f : silverTimeSeconds;
             float bronze =
-                eliteMode ? 240f : bronzeTimeSeconds;
+                eliteMode ? 275f : bronzeTimeSeconds;
 
             string tier =
                 ElapsedSeconds <= gold
