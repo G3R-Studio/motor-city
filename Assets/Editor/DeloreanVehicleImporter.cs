@@ -208,7 +208,7 @@ public static class DeloreanVehicleImporter
             new Vector3(
                 -0.980f,
                 0.33646f,
-                1.34f),
+                1.445f),
             false);
 
         CreateWheel(
@@ -218,7 +218,7 @@ public static class DeloreanVehicleImporter
             new Vector3(
                 0.980f,
                 0.33646f,
-                1.34f),
+                1.445f),
             true);
 
         CreateWheel(
@@ -228,7 +228,7 @@ public static class DeloreanVehicleImporter
             new Vector3(
                 -0.967f,
                 0.37497f,
-                -1.45f),
+                -1.185f),
             false);
 
         CreateWheel(
@@ -238,7 +238,7 @@ public static class DeloreanVehicleImporter
             new Vector3(
                 0.967f,
                 0.37497f,
-                -1.45f),
+                -1.185f),
             true);
     }
 
