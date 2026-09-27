@@ -191,13 +191,6 @@ namespace MotorCity.World
 
             Physics.SyncTransforms();
 
-            RoadSearchDebug.BeginSession(
-                cityBounds,
-                hasCityBounds,
-                activeCity != null
-                    ? activeCity.name
-                    : "<null>");
-
             ResolveGameplayLayout();
 
             return true;
@@ -212,7 +205,6 @@ namespace MotorCity.World
             return FindRoadPointNear(
                 approximate,
                 42f,
-                "road snap",
                 false);
         }
 
@@ -225,16 +217,11 @@ namespace MotorCity.World
             Vector3 roadPoint =
                 PlayerSpawnPoint;
 
-            int testedCandidates = 0;
-            int acceptedCandidates = 0;
-
             bool foundRoad =
                 activeCity != null &&
                 TryFindNearestRoadForReset(
                     approximate,
-                    out roadPoint,
-                    out testedCandidates,
-                    out acceptedCandidates);
+                    out roadPoint);
 
             if (!foundRoad)
             {
@@ -251,20 +238,6 @@ namespace MotorCity.World
                         spawnRoad;
                 }
             }
-
-            RoadSearchDebug.Log(
-                "[RESCUE] from=" +
-                approximate.ToString("F2") +
-                " found=" +
-                foundRoad +
-                " tested=" +
-                testedCandidates +
-                " accepted=" +
-                acceptedCandidates +
-                " chosenRoad=" +
-                roadPoint.ToString("F2") +
-                " fallbackToSpawn=" +
-                (!foundRoad));
 
             // Use the actual road height only. Never derive rescue height
             // from the current vehicle Y; otherwise repeated resets can climb.
@@ -312,21 +285,15 @@ namespace MotorCity.World
 
         private static bool TryFindNearestRoadForReset(
             Vector3 approximate,
-            out Vector3 roadPoint,
-            out int testedCandidates,
-            out int acceptedCandidates)
+            out Vector3 roadPoint)
         {
             roadPoint =
                 default;
-            testedCandidates = 1;
-            acceptedCandidates = 0;
-
             if (TryGetRoadHit(
                     approximate.x,
                     approximate.z,
                     out roadPoint))
             {
-                acceptedCandidates = 1;
                 return true;
             }
 
@@ -368,9 +335,7 @@ namespace MotorCity.World
                         approximate.z - radius,
                         ref found,
                         ref roadPoint,
-                        ref bestDistanceSquared,
-                        ref testedCandidates,
-                        ref acceptedCandidates);
+                        ref bestDistanceSquared);
 
                     TestResetRoadCandidate(
                         approximate,
@@ -378,9 +343,7 @@ namespace MotorCity.World
                         approximate.z + radius,
                         ref found,
                         ref roadPoint,
-                        ref bestDistanceSquared,
-                        ref testedCandidates,
-                        ref acceptedCandidates);
+                        ref bestDistanceSquared);
 
                     TestResetRoadCandidate(
                         approximate,
@@ -388,9 +351,7 @@ namespace MotorCity.World
                         approximate.z + offset,
                         ref found,
                         ref roadPoint,
-                        ref bestDistanceSquared,
-                        ref testedCandidates,
-                        ref acceptedCandidates);
+                        ref bestDistanceSquared);
 
                     TestResetRoadCandidate(
                         approximate,
@@ -398,9 +359,7 @@ namespace MotorCity.World
                         approximate.z + offset,
                         ref found,
                         ref roadPoint,
-                        ref bestDistanceSquared,
-                        ref testedCandidates,
-                        ref acceptedCandidates);
+                        ref bestDistanceSquared);
                 }
 
                 if (found &&
@@ -420,12 +379,8 @@ namespace MotorCity.World
             float z,
             ref bool found,
             ref Vector3 best,
-            ref float bestDistanceSquared,
-            ref int testedCandidates,
-            ref int acceptedCandidates)
+            ref float bestDistanceSquared)
         {
-            testedCandidates++;
-
             if (hasCityBounds &&
                 (x < cityBounds.min.x ||
                  x > cityBounds.max.x ||
@@ -442,8 +397,6 @@ namespace MotorCity.World
             {
                 return;
             }
-
-            acceptedCandidates++;
 
             float dx =
                 hit.x -
@@ -501,84 +454,27 @@ namespace MotorCity.World
                         0f,
                         150f),
                     75f,
-                    "drift zone",
                     true);
 
             deliveryRoute =
                 ResolveRoadRoute(
-                    DeliveryPreferred,
-                    "delivery");
+                    DeliveryPreferred);
 
             sprintRoute =
                 ResolveRoadRoute(
-                    SprintPreferred,
-                    "sprint");
+                    SprintPreferred);
 
             circuitRoute =
                 ResolveRoadRoute(
-                    CircuitPreferred,
-                    "circuit");
+                    CircuitPreferred);
 
             undergroundRoute =
                 ResolveRoadRoute(
-                    UndergroundPreferred,
-                    "underground");
-
-            RoadSearchDebug.Log(
-                "[LAYOUT] spawn=" +
-                PlayerSpawnPoint.ToString("F2") +
-                " garage=" +
-                GaragePoint.ToString("F2") +
-                " drift=" +
-                DriftChallengePoint.ToString("F2"));
-
-            LogRoute(
-                "delivery",
-                deliveryRoute);
-
-            LogRoute(
-                "sprint",
-                sprintRoute);
-
-            LogRoute(
-                "circuit",
-                circuitRoute);
-
-            LogRoute(
-                "night",
-                undergroundRoute);
-        }
-
-        private static void LogRoute(
-            string name,
-            Vector3[] route)
-        {
-            if (route == null)
-            {
-                RoadSearchDebug.Log(
-                    "[LAYOUT] " +
-                    name +
-                    "=<null>");
-                return;
-            }
-
-            for (int i = 0;
-                 i < route.Length;
-                 i++)
-            {
-                RoadSearchDebug.Log(
-                    "[LAYOUT] " +
-                    name +
-                    "[" +
-                    i +
-                    "]=" +
-                    route[i].ToString("F2"));
-            }
+                    UndergroundPreferred);
         }
 
         private static Vector3[] ResolveRoadRoute(
-            Vector3[] preferred,
-            string context)
+            Vector3[] preferred)
         {
             Vector3[] result =
                 new Vector3[preferred.Length];
@@ -591,7 +487,6 @@ namespace MotorCity.World
                     FindRoadPointNear(
                         preferred[i],
                         80f,
-                        context + " " + (i + 1),
                         false);
             }
 
@@ -601,7 +496,6 @@ namespace MotorCity.World
         private static Vector3 FindRoadPointNear(
             Vector3 preferred,
             float searchRadius,
-            string context,
             bool preferWideRoad)
         {
             if (TryGetRoadHit(
@@ -616,12 +510,6 @@ namespace MotorCity.World
                 {
                     exact.y +=
                         MarkerLift;
-
-                    RoadSearchDebug.Log(
-                        "[ROAD SNAP] " +
-                        context +
-                        " exact=" +
-                        exact.ToString("F2"));
 
                     return exact;
                 }
@@ -716,31 +604,11 @@ namespace MotorCity.World
                         MarkerLift;
                 }
 
-                RoadSearchDebug.Log(
-                    "[ROAD SNAP] " +
-                    context +
-                    " FALLBACK_TO_SPAWN preferred=" +
-                    preferred.ToString("F2") +
-                    " radius=" +
-                    searchRadius.ToString("F1") +
-                    " chosen=" +
-                    safeFallback.ToString("F2"));
-
                 return safeFallback;
             }
 
             best.y +=
                 MarkerLift;
-
-            RoadSearchDebug.Log(
-                "[ROAD SNAP] " +
-                context +
-                " nearest=" +
-                best.ToString("F2") +
-                " preferred=" +
-                preferred.ToString("F2") +
-                " radius=" +
-                searchRadius.ToString("F1"));
 
             return best;
         }
@@ -905,14 +773,7 @@ namespace MotorCity.World
                         Mathf.Max(
                             60f,
                             searchRadius),
-                        "garage parking fallback",
                         false);
-
-                RoadSearchDebug.Log(
-                    "[PARKING] FALLBACK_TO_ROAD preferred=" +
-                    preferred.ToString("F2") +
-                    " chosen=" +
-                    roadFallback.ToString("F2"));
 
                 return roadFallback;
             }
