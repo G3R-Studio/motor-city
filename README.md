@@ -24,7 +24,7 @@ Current core features include:
 
 ## Vehicles
 
-The playable garage currently contains seven vehicles:
+The playable garage currently contains eight vehicles:
 
 1. **STREET** — the ARCADE: FREE Racing Car based starter vehicle.
 2. **HYBRID** — the Gudamore Free Sports Car based vehicle.
@@ -33,6 +33,7 @@ The playable garage currently contains seven vehicles:
 5. **AMG GT** — a modern grand-touring coupe assembled from its body plus separate front/rear wheel meshes.
 6. **PORSCHE 996** — a compact sports coupe assembled from its body plus separate front/rear wheel meshes.
 7. **PEUGEOT 306** — a compact hatchback assembled from its body plus a shared wheel mesh.
+8. **TOYOTA AE86** — a lightweight classic coupe assembled from its body plus a shared wheel mesh.
 
 No old Designersoup/PolyPack/Muscle/GT/Apex player-car roster is part of the current project.
 
@@ -45,6 +46,7 @@ Runtime vehicle assets:
 - AMG GT: `Assets/Resources/MotorCity/Vehicles/Player/AmgGT.prefab` (generated from `Assets/VehicleAssets/AmgGT/amggt.obj` plus front/rear wheel OBJ files)
 - PORSCHE 996: `Assets/Resources/MotorCity/Vehicles/Player/Porsche996.prefab` (generated from `Assets/VehicleAssets/Porsche996/996.obj` plus front/rear wheel OBJ files)
 - PEUGEOT 306: `Assets/Resources/MotorCity/Vehicles/Player/Peugeot306.prefab` (generated from `Assets/VehicleAssets/Peugeot306/306.obj` plus `all_wheels.obj`)
+- TOYOTA AE86: `Assets/Resources/MotorCity/Vehicles/Player/ToyotaAE86.prefab` (generated from `Assets/VehicleAssets/ToyotaAE86/ae86.obj` plus `all_wheels.obj`)
 
 ## City
 
