@@ -187,7 +187,23 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.delorean.desc"))
+                        MotorCityLocalization.Text("vehicle.delorean.desc")),
+
+                    new VehicleProfile(
+                        "amggt",
+                        MotorCityLocalization.Text("vehicle.amggt.name"),
+                        "MotorCity/Vehicles/Player/AmgGT",
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.amggt.desc"))
                 };
 
             int stored =
@@ -511,7 +527,8 @@ namespace MotorCity.Gameplay
             bool preserveAuthoredTransform =
                 profile.Id == "hybrid" ||
                 profile.Id == "beatall" ||
-                profile.Id == "delorean";
+                profile.Id == "delorean" ||
+                profile.Id == "amggt";
 
             if (profile.Id == "hybrid")
             {
@@ -545,6 +562,17 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.24f);
             }
+            else if (profile.Id == "amggt")
+            {
+                // Low modern GT coupe: short travel, firm spring and controlled
+                // damping so the body stays planted without looking lifted.
+                car.ApplySuspensionPreset(
+                    0.08f,
+                    46000f,
+                    7600f,
+                    0.46f,
+                    0.22f);
+            }
             else
             {
                 car.ApplySuspensionPreset(
@@ -562,7 +590,9 @@ namespace MotorCity.Gameplay
                         ? 3.45f
                         : profile.Id == "delorean"
                             ? 4.62f
-                            : 4.35f;
+                            : profile.Id == "amggt"
+                                ? 4.30f
+                                : 4.35f;
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
