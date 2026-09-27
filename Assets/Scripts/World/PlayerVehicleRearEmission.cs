@@ -95,9 +95,11 @@ namespace MotorCity.World
                     : dayNight.NightAmount;
 
             bool braking =
-                MotorCityInput.ReverseHeld ||
-                (car != null &&
-                 car.HandbrakeInputHeld);
+                vehicleId == "camaro"
+                    ? MotorCityInput.ReverseHeld
+                    : MotorCityInput.ReverseHeld ||
+                      (car != null &&
+                       car.HandbrakeInputHeld);
 
             float brakeMultiplier =
                 Mathf.Lerp(
@@ -607,6 +609,16 @@ namespace MotorCity.World
                     source.name == null
                         ? string.Empty
                         : source.name.ToLowerInvariant();
+
+                // Turn indicators are not brake/reverse lamps. Some imported
+                // cars keep them in the same rear cluster, so explicitly
+                // exclude them from the rear-emission controller.
+                if (materialName.Contains("indicator") ||
+                    materialName.Contains("turnsignal") ||
+                    materialName.Contains("turn_signal"))
+                {
+                    continue;
+                }
 
                 bool materialRearSpecific =
                     LooksLikeRearLampName(
