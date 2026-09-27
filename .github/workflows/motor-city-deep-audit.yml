@@ -103,6 +103,16 @@ jobs:
                   roots.add(p)
               if p.startswith('Assets/Plugins/') and not p.endswith('.meta'):
                   roots.add(p)
+
+          # Tracked authoring sources that must remain rebuildable even though
+          # they are not shipped as runtime scenes.
+          for authoring_root in (
+              'Assets/LocalGenerated/FCG_Workbench.unity',
+              'Assets/MotorCity/VehiclePrototypes/Hybrid/HybridVisual.prefab',
+              'Assets/MotorCity/VehiclePrototypes/Hybrid/HybridPhysicsPrototype.prefab'
+          ):
+              if authoring_root in path_set:
+                  roots.add(authoring_root)
           # Project settings can hold asset GUID roots.
           project_setting_deps=set()
           for p,_ in files:
