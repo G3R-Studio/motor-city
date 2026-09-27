@@ -314,9 +314,6 @@ namespace MotorCity.Gameplay
                 IsComplete =
                     true;
 
-                turbo?.UnlockSkin(
-                    5);
-
                 MotorCity.Persistence.MotorCitySaveService.SetInt(
                     CompleteKey,
                     1);
