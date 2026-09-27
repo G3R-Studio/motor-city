@@ -21,11 +21,6 @@ namespace MotorCity.Gameplay
             "MotorCity.Turbo.Daily.Progress";
         private const string DailyClaimedKey =
             "MotorCity.Turbo.Daily.Claimed";
-        private const string SkinMaskKey =
-            "MotorCity.Turbo.SkinMask";
-        private const string SelectedSkinKey =
-            "MotorCity.Turbo.SelectedSkin";
-
         private const float MessageSeconds =
             4f;
         private const float HintDelaySeconds =
@@ -57,24 +52,8 @@ namespace MotorCity.Gameplay
         private int dailyProgress;
         private bool dailyClaimed;
         private long currentDay;
-        private int unlockedSkinMask;
-        private int selectedSkin;
-
         public int Level { get; private set; }
         public int Xp { get; private set; }
-
-        public int SelectedSkin =>
-            selectedSkin;
-
-        public string SkinName =>
-            MotorCityLocalization.Text(
-                SkinNameKey(
-                    selectedSkin));
-
-        public string GarageLine =>
-            MotorCityLocalization.Format(
-                "turbo.garage_skin",
-                SkinName);
 
         public bool ShowMessage =>
             messageTimer > 0f;
@@ -141,27 +120,6 @@ namespace MotorCity.Gameplay
                     MotorCity.Persistence.MotorCitySaveService.GetInt(
                         XpKey,
                         0));
-
-            unlockedSkinMask =
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
-                    SkinMaskKey,
-                    1);
-
-            unlockedSkinMask =
-                (unlockedSkinMask & (1 << 9)) != 0
-                    ? 1 | (1 << 9)
-                    : 1;
-
-            selectedSkin =
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
-                    SelectedSkinKey,
-                    0);
-
-            if (selectedSkin != 9 ||
-                !IsSkinUnlocked(9))
-            {
-                selectedSkin = 0;
-            }
 
             currentDay =
                 Math.Max(
@@ -280,56 +238,6 @@ namespace MotorCity.Gameplay
                     OnActivityCompleted;
             }
         }
-
-        public bool IsSkinUnlocked(
-            int skinIndex)
-        {
-            if (skinIndex < 0 ||
-                skinIndex > 9)
-            {
-                return false;
-            }
-
-            return
-                (unlockedSkinMask &
-                 (1 << skinIndex)) != 0;
-        }
-
-        public void UnlockSkin(
-            int skinIndex)
-        {
-            if (skinIndex != 9)
-                return;
-
-            unlockedSkinMask |=
-                1 << 9;
-
-            selectedSkin =
-                9;
-
-            SaveSkin();
-            RebuildVisual();
-        }
-
-        public void CycleSkin()
-        {
-            if (!IsSkinUnlocked(9))
-            {
-                selectedSkin =
-                    0;
-
-                return;
-            }
-
-            selectedSkin =
-                selectedSkin == 9
-                    ? 0
-                    : 9;
-
-            SaveSkin();
-            RebuildVisual();
-        }
-
 
         public void AddXp(
             int amount)
@@ -678,19 +586,8 @@ namespace MotorCity.Gameplay
                 car.transform.rotation;
 
             GameObject authoredPrefab =
-                selectedSkin == 9
-                    ? Resources.Load<GameObject>(
-                        "MotorCity/Pixie/AmaneKisoraVisual")
-                    : Resources.Load<GameObject>(
-                        "MotorCity/Byte/HaonByteVisual");
-
-            if (authoredPrefab == null &&
-                selectedSkin == 9)
-            {
-                authoredPrefab =
-                    Resources.Load<GameObject>(
-                        "MotorCity/Byte/HaonByteVisual");
-            }
+                Resources.Load<GameObject>(
+                    "MotorCity/Byte/HaonByteVisual");
 
             if (authoredPrefab != null)
             {
@@ -701,9 +598,7 @@ namespace MotorCity.Gameplay
                         false);
 
                 externalVisual.name =
-                    selectedSkin == 9
-                        ? "Pixie Amane Kisora Visual"
-                        : "Pixie Haon SD Visual";
+                    "Pixie Haon SD Visual";
 
                 externalVisual.transform.localPosition =
                     Vector3.zero;
@@ -716,17 +611,12 @@ namespace MotorCity.Gameplay
 
                 externalVisual.transform.localScale =
                     Vector3.one *
-                    (selectedSkin == 9
-                        ? 0.58f
-                        : 0.66f);
+                    0.66f;
 
                 externalAnimator =
                     externalVisual.GetComponentInChildren<Animator>(
                         true);
 
-                // Both the default HAON companion and Kisora are authored
-                // animated character prefabs. Keep the shared animation path
-                // enabled and map state names per character below.
                 usingHaonVisual =
                     true;
 
@@ -1076,14 +966,6 @@ namespace MotorCity.Gameplay
                     ? 0f
                     : car.SpeedKph;
 
-            if (selectedSkin == 9 &&
-                externalAnimator != null)
-            {
-                externalAnimator.SetBool(
-                    "param_idletorunning",
-                    speed > 7f);
-            }
-
             string state;
 
             if (speed > 7f)
@@ -1160,17 +1042,9 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            string mappedState =
-                selectedSkin == 9
-                    ? MapKisoraState(
-                        state)
-                    : state;
-
             string fullStateName =
-                (selectedSkin == 9
-                    ? "Body Animation Layer."
-                    : "Base Layer.") +
-                mappedState;
+                "Base Layer." +
+                state;
 
             int hash =
                 Animator.StringToHash(
@@ -1186,43 +1060,6 @@ namespace MotorCity.Gameplay
             if (hash ==
                 currentAnimatorStateHash)
             {
-                if (selectedSkin == 9)
-                {
-                    AnimatorStateInfo currentState =
-                        externalAnimator.GetCurrentAnimatorStateInfo(
-                            0);
-
-                    int shortHash =
-                        Animator.StringToHash(
-                            mappedState);
-
-                    // Kisora's bundled controller can transition back to idle
-                    // when its original bool is false. If the game still wants
-                    // another state, immediately restore it instead of leaving
-                    // the companion frozen or idle while the car keeps moving.
-                    if (currentState.shortNameHash !=
-                        shortHash)
-                    {
-                        externalAnimator.Play(
-                            hash,
-                            0,
-                            0f);
-
-                        return;
-                    }
-
-                    // Fallback for old/non-loop-imported copies of the running
-                    // clip. The editor installer also marks this clip loopable.
-                    if (mappedState == "running" &&
-                        currentState.normalizedTime >= 0.98f)
-                    {
-                        externalAnimator.Play(
-                            hash,
-                            0,
-                            0f);
-                    }
-                }
-
                 return;
             }
 
@@ -1243,30 +1080,6 @@ namespace MotorCity.Gameplay
                     transitionSeconds,
                     0);
             }
-        }
-
-        private static string MapKisoraState(
-            string pixieState)
-        {
-            return pixieState switch
-            {
-                "Pixie Follow" =>
-                    "running",
-
-                "Pixie Victory" or
-                "Pixie Clap" =>
-                    "winpose",
-
-                "Pixie Boost" =>
-                    "jump",
-
-                "Pixie Idle Alt" or
-                "Pixie Idle" =>
-                    "idle",
-
-                _ =>
-                    "idle"
-            };
         }
 
         private void RebuildVisual()
@@ -1306,69 +1119,11 @@ namespace MotorCity.Gameplay
             }
 
             Color bodyColor =
-                selectedSkin switch
-                {
-                    1 =>
-                        new Color(
-                            0.12f,
-                            0.70f,
-                            1f,
-                            1f),
-                    2 =>
-                        new Color(
-                            1f,
-                            0.52f,
-                            0.12f,
-                            1f),
-                    3 =>
-                        new Color(
-                            0.72f,
-                            0.30f,
-                            1f,
-                            1f),
-                    4 =>
-                        new Color(
-                            1f,
-                            0.78f,
-                            0.16f,
-                            1f),
-                    5 =>
-                        new Color(
-                            0.12f,
-                            1f,
-                            0.82f,
-                            1f),
-                    6 =>
-                        new Color(
-                            1f,
-                            0.24f,
-                            0.56f,
-                            1f),
-                    7 =>
-                        new Color(
-                            0.22f,
-                            0.95f,
-                            0.62f,
-                            1f),
-                    8 =>
-                        new Color(
-                            0.36f,
-                            0.22f,
-                            1f,
-                            1f),
-                    9 =>
-                        new Color(
-                            1f,
-                            0.32f,
-                            0.08f,
-                            1f),
-                    _ =>
-                        new Color(
-                            0.92f,
-                            0.95f,
-                            1f,
-                            1f)
-                };
+                new Color(
+                    0.92f,
+                    0.95f,
+                    1f,
+                    1f);
 
             Renderer[] renderers =
                 visualRoot.GetComponentsInChildren<Renderer>(
@@ -1387,38 +1142,6 @@ namespace MotorCity.Gameplay
                 renderer.material.color =
                     bodyColor;
             }
-        }
-
-        private void SaveSkin()
-        {
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
-                SkinMaskKey,
-                unlockedSkinMask);
-
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
-                SelectedSkinKey,
-                selectedSkin);
-
-            MotorCity.Persistence.MotorCitySaveService.Save();
-        }
-
-        private static string SkinNameKey(
-            int skinIndex)
-        {
-            return
-                skinIndex switch
-                {
-                    1 => "turbo.skin_blue",
-                    2 => "turbo.skin_orange",
-                    3 => "turbo.skin_purple",
-                    4 => "turbo.skin_gold",
-                    5 => "turbo.skin_season1",
-                    6 => "turbo.skin_premium_1",
-                    7 => "turbo.skin_premium_2",
-                    8 => "turbo.skin_premium_3",
-                    9 => "turbo.skin_kisora",
-                    _ => "turbo.skin_classic"
-                };
         }
 
         private void SaveProgress()
