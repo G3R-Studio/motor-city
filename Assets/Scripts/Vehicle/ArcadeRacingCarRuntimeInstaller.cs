@@ -656,18 +656,181 @@ namespace MotorCity.Vehicle
                         filter.gameObject.AddComponent<MeshCollider>();
                 }
 
-                existing.sharedMesh =
-                    filter.sharedMesh;
+                Mesh colliderMesh =
+                    BuildConvexColliderProxy(
+                        filter.sharedMesh);
 
-                // Player vehicles use a dynamic Rigidbody on the root, so
-                // MeshColliders must be convex. PhysX builds the hull from
-                // the actual authored body mesh instead of an oversized box.
+                existing.sharedMesh =
+                    colliderMesh;
+
+                // Dynamic Rigidbody vehicles require convex MeshColliders.
+                // The proxy keeps a representative sample of the authored
+                // body surface below PhysX's convex-hull polygon limit.
                 existing.convex =
                     true;
 
                 existing.isTrigger =
                     false;
             }
+        }
+
+        private static Mesh BuildConvexColliderProxy(
+            Mesh source)
+        {
+            if (source == null)
+                return null;
+
+            int[] sourceTriangles =
+                source.triangles;
+
+            Vector3[] sourceVertices =
+                source.vertices;
+
+            if (sourceTriangles == null ||
+                sourceTriangles.Length < 3 ||
+                sourceVertices == null ||
+                sourceVertices.Length < 4)
+            {
+                return source;
+            }
+
+            const int MaximumProxyVertices = 72;
+
+            // Small meshes are already safe for PhysX convex cooking.
+            if (sourceVertices.Length <= MaximumProxyVertices &&
+                sourceTriangles.Length / 3 <= 120)
+            {
+                return source;
+            }
+
+            var vertexMap =
+                new Dictionary<int, int>();
+
+            var vertices =
+                new List<Vector3>(
+                    MaximumProxyVertices);
+
+            var triangles =
+                new List<int>(
+                    240);
+
+            int triangleCount =
+                sourceTriangles.Length / 3;
+
+            int sampleStep =
+                Mathf.Max(
+                    1,
+                    triangleCount / 90);
+
+            for (int triangle = 0;
+                 triangle < triangleCount;
+                 triangle += sampleStep)
+            {
+                int offset =
+                    triangle * 3;
+
+                int a =
+                    sourceTriangles[offset];
+
+                int b =
+                    sourceTriangles[offset + 1];
+
+                int c =
+                    sourceTriangles[offset + 2];
+
+                int additional =
+                    (vertexMap.ContainsKey(a) ? 0 : 1) +
+                    (vertexMap.ContainsKey(b) ? 0 : 1) +
+                    (vertexMap.ContainsKey(c) ? 0 : 1);
+
+                if (vertices.Count + additional >
+                    MaximumProxyVertices)
+                {
+                    continue;
+                }
+
+                int pa =
+                    MapProxyVertex(
+                        a,
+                        sourceVertices,
+                        vertexMap,
+                        vertices);
+
+                int pb =
+                    MapProxyVertex(
+                        b,
+                        sourceVertices,
+                        vertexMap,
+                        vertices);
+
+                int pc =
+                    MapProxyVertex(
+                        c,
+                        sourceVertices,
+                        vertexMap,
+                        vertices);
+
+                if (pa == pb ||
+                    pb == pc ||
+                    pc == pa)
+                {
+                    continue;
+                }
+
+                triangles.Add(pa);
+                triangles.Add(pb);
+                triangles.Add(pc);
+            }
+
+            if (vertices.Count < 4 ||
+                triangles.Count < 12)
+            {
+                return source;
+            }
+
+            Mesh proxy =
+                new Mesh
+                {
+                    name =
+                        source.name +
+                        "_MotorCityConvexProxy"
+                };
+
+            proxy.SetVertices(
+                vertices);
+
+            proxy.SetTriangles(
+                triangles,
+                0);
+
+            proxy.RecalculateBounds();
+
+            return proxy;
+        }
+
+        private static int MapProxyVertex(
+            int sourceIndex,
+            Vector3[] sourceVertices,
+            Dictionary<int, int> vertexMap,
+            List<Vector3> vertices)
+        {
+            if (vertexMap.TryGetValue(
+                    sourceIndex,
+                    out int mapped))
+            {
+                return mapped;
+            }
+
+            mapped =
+                vertices.Count;
+
+            vertexMap[sourceIndex] =
+                mapped;
+
+            vertices.Add(
+                sourceVertices[sourceIndex]);
+
+            return mapped;
         }
 
         private static void ConfigureChassisFromVisual(
