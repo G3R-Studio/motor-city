@@ -1,7 +1,11 @@
-# Kenney UI Pack source
+# Kenney UI / icon sources
 
-Motor City automatically downloads the public `ereborstudios/kenney-ui-pack` repository and prepares selected UI panels/buttons plus a UI click sound for the runtime interface.
+Motor City uses CC0 Kenney artwork for lightweight runtime UI and world-marker icons.
 
-Source repository: https://github.com/ereborstudios/kenney-ui-pack
+The editor installers can download required source files from public Kenney mirrors/repositories and prepare the runtime copies under `Assets/Resources/MotorCity`. The generated runtime copies that are part of the current game are tracked in this repository.
 
-The source repository states that the pack uses Kenney assets under the Creative Commons license. Kenney's UI Pack is CC0. Imported files are generated locally by the Unity Editor installer and are ignored by Git.
+Marker-source icons used by `MotorCityActivityMarkerBuilder` are stored under:
+
+`Assets/Art/MotorCity/Markers/KenneyGameIcons/2x`
+
+Runtime UI/icon access is centralized through `MotorCityIconLibrary`.
