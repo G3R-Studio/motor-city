@@ -711,10 +711,47 @@ namespace MotorCity.Vehicle
                 TargetWheelCenterLocalY -
                 wheelRadius;
 
+            if (preserveAuthoredTransform &&
+                wheels != null &&
+                wheels.Length > 0)
+            {
+                wheelBottom =
+                    float.PositiveInfinity;
+
+                foreach (Transform wheel in wheels)
+                {
+                    if (wheel == null)
+                        continue;
+
+                    Bounds wheelBounds =
+                        RendererBounds(
+                            wheel);
+
+                    float authoredBottom =
+                        carRoot.InverseTransformPoint(
+                            wheelBounds.min).y;
+
+                    wheelBottom =
+                        Mathf.Min(
+                            wheelBottom,
+                            authoredBottom);
+                }
+
+                if (float.IsPositiveInfinity(
+                        wheelBottom))
+                {
+                    wheelBottom =
+                        TargetWheelCenterLocalY -
+                        wheelRadius;
+                }
+            }
+
             float desiredBottom =
-                Mathf.Max(
-                    wheelBottom + 0.055f,
-                    localBounds.min.y + 0.025f);
+                preserveAuthoredTransform
+                    ? wheelBottom + 0.055f
+                    : Mathf.Max(
+                        wheelBottom + 0.055f,
+                        localBounds.min.y + 0.025f);
 
             float desiredTop =
                 Mathf.Min(
