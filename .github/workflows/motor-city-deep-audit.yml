@@ -210,6 +210,7 @@ jobs:
               'asset_guid_count':len(guid_asset),
               'root_count':len(roots),
               'reachable_count':len(reachable),
+              'reachable_paths':sorted(reachable),
               'roots':sorted(roots),
               'groups':dict(sorted(groups.items())),
               'scenes':scenes,
@@ -217,6 +218,7 @@ jobs:
               'stale_named_paths':stale_named,
               'missing_guid_refs':missing,
               'script_defs':script_defs,
+              'code_asset_paths':sorted(set(re.findall(r'Assets/[A-Za-z0-9_ .()&+\\/-]+(?:\\.[A-Za-z0-9]+)?', core_code))),
               'duplicates':duplicates[:300],
               'package_candidates':package_candidates
           }
