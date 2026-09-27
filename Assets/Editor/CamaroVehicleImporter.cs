@@ -228,7 +228,7 @@ public static class CamaroVehicleImporter
         // Recenter the exported wheel mesh so steering/spin happens around the
         // true wheel centre rather than the tiny residual source-pivot offset.
         visual.transform.localPosition =
-            new Vector3(-0.0145415f, -0.0004725f, 0.0001875f);
+            new Vector3(-0.07f, 0f, 0f);
 
         visual.transform.localRotation = Quaternion.identity;
         visual.transform.localScale = Vector3.one;
