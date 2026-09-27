@@ -18,6 +18,9 @@ namespace MotorCity.Bootstrap
         private static readonly Dictionary<RuntimeMaterialKey, Material> RuntimeMaterialCache =
             new();
 
+        private static bool platformBootstrapReady;
+        private static bool platformBootstrapPending;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void InitializeBootstrap()
         {
@@ -29,6 +32,71 @@ namespace MotorCity.Bootstrap
 
             TryBuildPrototype(
                 SceneManager.GetActiveScene());
+        }
+
+
+        private static void EnsurePlatformBootstrap(
+            Scene scene)
+        {
+            if (platformBootstrapPending)
+                return;
+
+            platformBootstrapPending = true;
+
+            GameObject host =
+                GameObject.Find(
+                    "Motor City Platform Systems");
+
+            if (host == null)
+            {
+                host =
+                    new GameObject(
+                        "Motor City Platform Systems");
+
+                Object.DontDestroyOnLoad(
+                    host);
+            }
+
+            MotorCityPlatformRuntime platformRuntime =
+                host.GetComponent<MotorCityPlatformRuntime>();
+
+            if (platformRuntime == null)
+            {
+                platformRuntime =
+                    host.AddComponent<MotorCityPlatformRuntime>();
+            }
+
+            if (host.GetComponent<MotorCitySaveRuntime>() ==
+                null)
+            {
+                host.AddComponent<MotorCitySaveRuntime>();
+            }
+
+            MotorCityCloudSaveRuntime cloudRuntime =
+                host.GetComponent<MotorCityCloudSaveRuntime>();
+
+            if (cloudRuntime == null)
+            {
+                cloudRuntime =
+                    host.AddComponent<MotorCityCloudSaveRuntime>();
+            }
+
+            platformRuntime.InitializePlatform(
+                _ =>
+                {
+                    cloudRuntime.ResolveInitialCloud(
+                        () =>
+                        {
+                            platformBootstrapPending =
+                                false;
+
+                            platformBootstrapReady =
+                                true;
+
+                            TryBuildPrototype(
+                                scene);
+                        });
+                });
         }
 
         private static void OnSceneLoaded(
@@ -51,6 +119,13 @@ namespace MotorCity.Bootstrap
 
             if (Object.FindAnyObjectByType<ArcadeCarController>() != null)
                 return;
+
+            if (!platformBootstrapReady)
+            {
+                EnsurePlatformBootstrap(
+                    scene);
+                return;
+            }
 
             MotorCityQualityRuntime.Initialize();
             MotorCityInput.RefreshTouchPromptPreference();
