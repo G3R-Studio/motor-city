@@ -262,11 +262,11 @@ public static class DeloreanVehicleImporter
 
         holder.transform.localRotation =
             oppositeSide
-                ? Quaternion.Euler(
+                ? Quaternion.identity
+                : Quaternion.Euler(
                     0f,
                     180f,
-                    0f)
-                : Quaternion.identity;
+                    0f);
 
         holder.transform.localScale =
             Vector3.one;
