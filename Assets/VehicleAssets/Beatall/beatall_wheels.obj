@@ -1,6 +1,6 @@
 # Blender 5.2.2 LTS
 # www.blender.org
-mtllib bettle_wheels.mtl
+mtllib beatall_wheels.mtl
 o front_left
 v -0.051851 0.002375 -0.177125
 v -0.051851 -0.065026 -0.163718
