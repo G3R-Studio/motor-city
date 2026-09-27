@@ -456,12 +456,16 @@ public static class BeatallVehicleImporter
         holder.transform.localPosition =
             localPosition;
 
+        // The supplied wheel is the authored FRONT-LEFT wheel.
+        // Keep that exact orientation for both left wheels. Right-side
+        // wheels need only face across the car; rotating around Y preserves
+        // wheel up/down instead of rolling the mesh upside-down.
         holder.transform.localRotation =
             rightSide
                 ? Quaternion.Euler(
                     0f,
-                    0f,
-                    180f)
+                    180f,
+                    0f)
                 : Quaternion.identity;
 
         holder.transform.localScale =
