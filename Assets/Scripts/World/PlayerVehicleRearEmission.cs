@@ -130,7 +130,12 @@ namespace MotorCity.World
                 float multiplier =
                     braking
                         ? brakeMultiplier
-                        : 0f;
+                        : vehicleId == "delorean"
+                            ? Mathf.Lerp(
+                                0f,
+                                0.75f,
+                                night)
+                            : 0f;
 
                 Color emission =
                     binding.BaseEmission *
@@ -159,7 +164,12 @@ namespace MotorCity.World
                         2.2f,
                         4.2f,
                         night)
-                    : 0f;
+                    : vehicleId == "delorean"
+                        ? Mathf.Lerp(
+                            0f,
+                            0.75f,
+                            night)
+                        : 0f;
 
             foreach (StarterLampOverlay overlay in
                      starterLampOverlays)
@@ -1308,6 +1318,26 @@ namespace MotorCity.World
             out float blueLow,
             out float blueHigh)
         {
+            if (vehicleId == "delorean")
+            {
+                // The Delorean emissive mesh contains side/indicator details
+                // around local Z ~= -1.2, while the actual rear lamp cluster
+                // sits at the extreme rear (around Z ~= -2.1). Restrict the
+                // fallback mask to that final slice so braking/running-light
+                // emission no longer paints the indicators red.
+                rearCutoffFraction = 0.90f;
+                rearSoftnessFraction = 0.018f;
+                chromaLow = 0.18f;
+                chromaHigh = 0.40f;
+                redLow = 0.50f;
+                redHigh = 0.82f;
+                greenLow = 0.16f;
+                greenHigh = 0.38f;
+                blueLow = 0.14f;
+                blueHigh = 0.34f;
+                return;
+            }
+
             rearCutoffFraction = 0.70f;
             rearSoftnessFraction = 0.035f;
             chromaLow = 0.22f;
