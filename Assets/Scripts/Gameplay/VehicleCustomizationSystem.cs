@@ -92,6 +92,16 @@ namespace MotorCity.Gameplay
             new(0.06f, 0.06f, 0.065f, 1f)
         };
 
+        private static readonly Color[] ToyotaAE86BodyColors =
+        {
+            new(0.67f, 0.41f, 0.02f, 1f),
+            new(0.73f, 0.08f, 0.07f, 1f),
+            new(0.10f, 0.26f, 0.64f, 1f),
+            new(0.08f, 0.43f, 0.18f, 1f),
+            new(0.88f, 0.88f, 0.86f, 1f),
+            new(0.055f, 0.055f, 0.06f, 1f)
+        };
+
 
 
 
@@ -406,7 +416,9 @@ namespace MotorCity.Gameplay
                                     ? Porsche996BodyColors
                                     : id == "peugeot306"
                                         ? Peugeot306BodyColors
-                                        : StreetBodyColors;
+                                        : id == "toyotaae86"
+                                            ? ToyotaAE86BodyColors
+                                            : StreetBodyColors;
         }
 
         private int GetInt(
@@ -1312,7 +1324,8 @@ namespace MotorCity.Gameplay
                 materialLower.Contains("deloreanbody") ||
                 materialLower.Contains("amggtbody") ||
                 materialLower.Contains("porsche996body") ||
-                materialLower.Contains("peugeot306body");
+                materialLower.Contains("peugeot306body") ||
+                materialLower.Contains("toyotaae86body");
         }
 
         private static bool IsWheelLike(
