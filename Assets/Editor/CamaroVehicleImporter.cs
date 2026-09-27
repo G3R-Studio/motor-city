@@ -104,7 +104,7 @@ public static class CamaroVehicleImporter
             Color.white,
             0.44f,
             colorTexture,
-            true);
+            false);
 
         Material wheel = BuildMaterial(
             "CamaroWheel",
