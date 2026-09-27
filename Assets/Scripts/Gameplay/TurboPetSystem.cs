@@ -37,8 +37,10 @@ namespace MotorCity.Gameplay
         private Animator externalAnimator;
         private bool usingHaonVisual;
         private Vector3 visualAnchorLocal;
-        private Vector3 visualFollowVelocity;
-        private float visualAnchorRefreshTimer;
+        private Transform observedVehicleVisual;
+        private Vector3 previousCarPosition;
+        private Quaternion previousCarRotation;
+        private bool carPoseInitialized;
         private float hoverPhase;
         private float animationReactionTimer;
         private float idleVariantTimer;
@@ -170,16 +172,71 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            visualAnchorRefreshTimer -=
-                Time.unscaledDeltaTime;
+            Transform vehicleVisual =
+                car.transform.Find(
+                    "MotorCityVehicleVisual_Runtime");
 
-            if (visualAnchorRefreshTimer <= 0f)
+            if (vehicleVisual !=
+                observedVehicleVisual)
             {
-                visualAnchorRefreshTimer =
-                    0.25f;
+                observedVehicleVisual =
+                    vehicleVisual;
 
                 visualAnchorLocal =
                     ResolveVisualAnchor();
+            }
+
+            Vector3 carPosition =
+                car.transform.position;
+
+            Quaternion carRotation =
+                car.transform.rotation;
+
+            if (!carPoseInitialized)
+            {
+                previousCarPosition =
+                    carPosition;
+
+                previousCarRotation =
+                    carRotation;
+
+                carPoseInitialized =
+                    true;
+            }
+            else
+            {
+                Vector3 carDelta =
+                    carPosition -
+                    previousCarPosition;
+
+                float carDeltaDistance =
+                    carDelta.magnitude;
+
+                if (carDeltaDistance < 25f)
+                {
+                    // Move Pixie by the car's exact frame-to-frame transform
+                    // first. Smoothing only the remaining relative offset means
+                    // there is no built-in delay behind a fast moving car.
+                    Quaternion rotationDelta =
+                        carRotation *
+                        Quaternion.Inverse(
+                            previousCarRotation);
+
+                    Vector3 relative =
+                        visualRoot.transform.position -
+                        previousCarPosition;
+
+                    visualRoot.transform.position =
+                        carPosition +
+                        rotationDelta *
+                        relative;
+                }
+
+                previousCarPosition =
+                    carPosition;
+
+                previousCarRotation =
+                    carRotation;
             }
 
             hoverPhase +=
@@ -196,75 +253,45 @@ namespace MotorCity.Gameplay
                     hoverPhase) *
                 0.16f;
 
-            // Feed a small amount of the car's current velocity into the
-            // target. Without this, any smoothing necessarily makes Pixie trail
-            // several metres behind at high speed.
-            if (carBody != null)
-            {
-                Vector3 lead =
-                    carBody.linearVelocity *
-                    0.045f;
-
-                lead =
-                    Vector3.ClampMagnitude(
-                        lead,
-                        2.4f);
-
-                targetWorld +=
-                    lead;
-            }
-
             float distance =
                 Vector3.Distance(
                     visualRoot.transform.position,
                     targetWorld);
 
-            if (distance > 80f)
+            if (distance > 25f)
             {
-                // Keep only a very large recovery snap for scene teleports /
-                // respawns. Normal driving must never hit this path.
+                // This path is now reserved for a real player teleport/reset.
                 visualRoot.transform.position =
                     targetWorld;
-
-                visualFollowVelocity =
-                    Vector3.zero;
             }
             else
             {
-                // A much tighter critically-damped follow keeps Pixie beside
-                // the vehicle instead of visibly lagging behind, while the
-                // higher max speed prevents SmoothDamp from turning into a
-                // sequence of catch-up jumps on fast cars.
-                float smoothTime =
-                    Mathf.Lerp(
-                        0.070f,
-                        0.038f,
-                        Mathf.InverseLerp(
-                            0f,
-                            160f,
-                            car.SpeedKph));
+                // Exponential correction is frame-rate independent and does
+                // not accumulate the velocity lag that SmoothDamp introduced.
+                float followBlend =
+                    1f -
+                    Mathf.Exp(
+                        -18f *
+                        Time.unscaledDeltaTime);
 
                 visualRoot.transform.position =
-                    Vector3.SmoothDamp(
+                    Vector3.Lerp(
                         visualRoot.transform.position,
                         targetWorld,
-                        ref visualFollowVelocity,
-                        smoothTime,
-                        140f,
-                        Time.unscaledDeltaTime);
+                        followBlend);
             }
 
-            Quaternion targetRotation =
-                car.transform.rotation;
+            float rotationBlend =
+                1f -
+                Mathf.Exp(
+                    -9f *
+                    Time.unscaledDeltaTime);
 
             visualRoot.transform.rotation =
                 Quaternion.Slerp(
                     visualRoot.transform.rotation,
-                    targetRotation,
-                    1f -
-                    Mathf.Exp(
-                        -10f *
-                        Time.unscaledDeltaTime));
+                    carRotation,
+                    rotationBlend);
         }
 
         private void OnDestroy()
@@ -621,6 +648,19 @@ namespace MotorCity.Gameplay
 
             visualRoot.transform.rotation =
                 car.transform.rotation;
+
+            observedVehicleVisual =
+                car.transform.Find(
+                    "MotorCityVehicleVisual_Runtime");
+
+            previousCarPosition =
+                car.transform.position;
+
+            previousCarRotation =
+                car.transform.rotation;
+
+            carPoseInitialized =
+                true;
 
             GameObject authoredPrefab =
                 Resources.Load<GameObject>(
@@ -1137,6 +1177,10 @@ namespace MotorCity.Gameplay
                 false;
             currentAnimatorStateHash =
                 0;
+            observedVehicleVisual =
+                null;
+            carPoseInitialized =
+                false;
 
             BuildVisual();
         }
