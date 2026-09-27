@@ -186,24 +186,7 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.hybrid.desc")),
-
-                    new VehicleProfile(
-                        "beatall",
-                        MotorCityLocalization.Text("vehicle.beatall.name"),
-                        "MotorCity/Vehicles/Player/Beatall",
-                        0,
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.beatall.desc"))
+                        MotorCityLocalization.Text("vehicle.hybrid.desc"))
                 };
 
             MigrateLegacyOwnership();
@@ -572,8 +555,7 @@ namespace MotorCity.Gameplay
                 profiles[SelectedIndex];
 
             bool preserveAuthoredTransform =
-                profile.Id == "hybrid" ||
-                profile.Id == "beatall";
+                profile.Id == "hybrid";
 
             if (profile.Id == "hybrid")
             {
