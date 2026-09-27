@@ -24,11 +24,12 @@ Current core features include:
 
 ## Vehicles
 
-The playable garage currently contains three vehicles:
+The playable garage currently contains four vehicles:
 
 1. **STREET** — the ARCADE: FREE Racing Car based starter vehicle.
 2. **HYBRID** — the Gudamore Free Sports Car based vehicle.
 3. **BEATALL** — a compact classic player car imported from the standalone OBJ source.
+4. **DELOREAN** — a low sports coupe assembled from its body plus separate front/rear wheel meshes.
 
 No old Designersoup/PolyPack/Muscle/GT/Apex player-car roster is part of the current project.
 
@@ -37,6 +38,7 @@ Runtime vehicle assets:
 - STREET: `Assets/Resources/MotorCity/PlayerCarVisual.prefab`
 - HYBRID: `Assets/Resources/MotorCity/Vehicles/Player/Hybrid.prefab`
 - BEATALL: `Assets/Resources/MotorCity/Vehicles/Player/Beatall.prefab` (generated from `Assets/VehicleAssets/Beatall/beatall.obj`)
+- DELOREAN: `Assets/Resources/MotorCity/Vehicles/Player/Delorean.prefab` (generated from `Assets/VehicleAssets/Delorean/delorean.obj` plus front/rear wheel OBJ files)
 
 ## City
 
