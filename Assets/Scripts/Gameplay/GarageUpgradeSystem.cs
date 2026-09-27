@@ -85,11 +85,6 @@ namespace MotorCity.Gameplay
             vehicleRoster != null &&
             vehicleRoster.NextVehicleUnlocked;
 
-        public int NextVehicleRequiredRep =>
-            vehicleRoster == null
-                ? 0
-                : vehicleRoster.NextVehicleRequiredRep;
-
         public bool MasteryShowMessage =>
             vehicleMastery != null &&
             vehicleMastery.ShowMessage;
@@ -446,7 +441,7 @@ namespace MotorCity.Gameplay
             };
         }
 
-        public void SetUpgradeLevelsForTesting(
+        private void SetUpgradeLevelsForTesting(
             int engine,
             int grip,
             int stability)

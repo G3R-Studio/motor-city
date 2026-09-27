@@ -102,13 +102,6 @@ namespace MotorCity.Gameplay
             IsUnlocked(
                 SelectedIndex + 1);
 
-        public int NextVehicleRequiredRep =>
-            HasNextVehicle
-                ? profiles[
-                    SelectedIndex + 1]
-                    .RequiredRep
-                : 0;
-
         public string GetVehicleId(
             int index)
         {
