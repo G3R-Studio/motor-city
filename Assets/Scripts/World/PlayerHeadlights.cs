@@ -19,22 +19,25 @@ namespace MotorCity.World
         private bool anchorsDirty = true;
         private string vehicleId = "street";
 
-        private sealed class NightEmissionBinding
+        private const string DeloreanOverlayName =
+            "MotorCityDeloreanNightEmissionOverlay";
+
+        private sealed class NightEmissionOverlay
         {
-            public Renderer Renderer;
-            public int MaterialIndex;
+            public GameObject Root;
+            public Material Material;
         }
 
-        private readonly List<NightEmissionBinding>
-            nightEmissionBindings = new();
+        private readonly List<NightEmissionOverlay>
+            nightEmissionOverlays = new();
 
-        private MaterialPropertyBlock
-            nightEmissionBlock;
+        private Shader deloreanEmissionShader;
 
         private void Awake()
         {
-            nightEmissionBlock =
-                new MaterialPropertyBlock();
+            deloreanEmissionShader =
+                Resources.Load<Shader>(
+                    "MotorCity/Shaders/DeloreanNightEmission");
 
             car =
                 GetComponent<ArcadeCarController>();
@@ -272,10 +275,12 @@ namespace MotorCity.World
 
         private void RefreshNightEmissionBindings()
         {
-            nightEmissionBindings.Clear();
+            ClearNightEmissionOverlays();
 
             if (currentVisual == null ||
-                vehicleId != "delorean")
+                vehicleId != "delorean" ||
+                deloreanEmissionShader == null ||
+                !deloreanEmissionShader.isSupported)
             {
                 return;
             }
@@ -287,8 +292,19 @@ namespace MotorCity.World
             foreach (Renderer renderer in renderers)
             {
                 if (renderer == null ||
+                    renderer.gameObject.name ==
+                        DeloreanOverlayName ||
                     IsWheelRenderer(
                         renderer.transform))
+                {
+                    continue;
+                }
+
+                MeshFilter filter =
+                    renderer.GetComponent<MeshFilter>();
+
+                if (filter == null ||
+                    filter.sharedMesh == null)
                 {
                     continue;
                 }
@@ -300,14 +316,14 @@ namespace MotorCity.World
                      i < materials.Length;
                      i++)
                 {
-                    Material material =
+                    Material source =
                         materials[i];
 
-                    if (material == null)
+                    if (source == null)
                         continue;
 
                     string materialName =
-                        material.name
+                        source.name
                             .ToLowerInvariant();
 
                     if (!materialName.Contains(
@@ -316,11 +332,75 @@ namespace MotorCity.World
                         continue;
                     }
 
-                    nightEmissionBindings.Add(
-                        new NightEmissionBinding
+                    Texture texture =
+                        ResolveBaseTexture(
+                            source);
+
+                    if (texture == null)
+                        continue;
+
+                    Material overlayMaterial =
+                        new Material(
+                            deloreanEmissionShader)
                         {
-                            Renderer = renderer,
-                            MaterialIndex = i
+                            name =
+                                "MotorCity_DeloreanNightEmission_Runtime"
+                        };
+
+                    overlayMaterial.SetTexture(
+                        "_BaseMap",
+                        texture);
+
+                    CopyTextureTransform(
+                        source,
+                        overlayMaterial);
+
+                    overlayMaterial.SetFloat(
+                        "_Intensity",
+                        0f);
+
+                    GameObject overlay =
+                        new GameObject(
+                            DeloreanOverlayName,
+                            typeof(MeshFilter),
+                            typeof(MeshRenderer));
+
+                    Transform sourceTransform =
+                        renderer.transform;
+
+                    overlay.transform.SetParent(
+                        sourceTransform.parent,
+                        false);
+
+                    overlay.transform.localPosition =
+                        sourceTransform.localPosition;
+
+                    overlay.transform.localRotation =
+                        sourceTransform.localRotation;
+
+                    overlay.transform.localScale =
+                        sourceTransform.localScale;
+
+                    overlay.GetComponent<MeshFilter>()
+                        .sharedMesh =
+                        filter.sharedMesh;
+
+                    Material[] overlayMaterials =
+                        new Material[
+                            materials.Length];
+
+                    overlayMaterials[i] =
+                        overlayMaterial;
+
+                    overlay.GetComponent<MeshRenderer>()
+                        .sharedMaterials =
+                        overlayMaterials;
+
+                    nightEmissionOverlays.Add(
+                        new NightEmissionOverlay
+                        {
+                            Root = overlay,
+                            Material = overlayMaterial
                         });
                 }
             }
@@ -330,7 +410,7 @@ namespace MotorCity.World
             float night)
         {
             if (vehicleId != "delorean" ||
-                nightEmissionBindings.Count == 0)
+                nightEmissionOverlays.Count == 0)
             {
                 return;
             }
@@ -338,46 +418,120 @@ namespace MotorCity.World
             float intensity =
                 Mathf.SmoothStep(
                     0f,
-                    2.4f,
+                    2.8f,
                     Mathf.InverseLerp(
-                        0.28f,
-                        0.68f,
+                        0.24f,
+                        0.66f,
                         night));
 
-            Color emissionColor =
-                Color.white *
-                intensity;
-
             for (int i = 0;
-                 i < nightEmissionBindings.Count;
+                 i < nightEmissionOverlays.Count;
                  i++)
             {
-                NightEmissionBinding binding =
-                    nightEmissionBindings[i];
+                NightEmissionOverlay overlay =
+                    nightEmissionOverlays[i];
 
-                if (binding?.Renderer == null)
+                if (overlay?.Material == null)
                     continue;
 
-                if (nightEmissionBlock == null)
+                overlay.Material.SetFloat(
+                    "_Intensity",
+                    intensity);
+            }
+        }
+
+        private void ClearNightEmissionOverlays()
+        {
+            for (int i = 0;
+                 i < nightEmissionOverlays.Count;
+                 i++)
+            {
+                NightEmissionOverlay overlay =
+                    nightEmissionOverlays[i];
+
+                if (overlay == null)
+                    continue;
+
+                if (overlay.Root != null)
                 {
-                    nightEmissionBlock =
-                        new MaterialPropertyBlock();
+                    Destroy(
+                        overlay.Root);
                 }
 
-                binding.Renderer.GetPropertyBlock(
-                    nightEmissionBlock,
-                    binding.MaterialIndex);
-
-                nightEmissionBlock.SetColor(
-                    "_EmissionColor",
-                    emissionColor);
-
-                binding.Renderer.SetPropertyBlock(
-                    nightEmissionBlock,
-                    binding.MaterialIndex);
-
-                nightEmissionBlock.Clear();
+                if (overlay.Material != null)
+                {
+                    Destroy(
+                        overlay.Material);
+                }
             }
+
+            nightEmissionOverlays.Clear();
+        }
+
+        private static Texture ResolveBaseTexture(
+            Material material)
+        {
+            if (material == null)
+                return null;
+
+            if (material.HasProperty(
+                    "_BaseMap"))
+            {
+                Texture texture =
+                    material.GetTexture(
+                        "_BaseMap");
+
+                if (texture != null)
+                    return texture;
+            }
+
+            if (material.HasProperty(
+                    "_MainTex"))
+            {
+                return
+                    material.GetTexture(
+                        "_MainTex");
+            }
+
+            return null;
+        }
+
+        private static void CopyTextureTransform(
+            Material source,
+            Material destination)
+        {
+            if (source == null ||
+                destination == null)
+            {
+                return;
+            }
+
+            string property =
+                source.HasProperty(
+                    "_BaseMap")
+                    ? "_BaseMap"
+                    : "_MainTex";
+
+            if (!source.HasProperty(
+                    property))
+            {
+                return;
+            }
+
+            destination.SetTextureScale(
+                "_BaseMap",
+                source.GetTextureScale(
+                    property));
+
+            destination.SetTextureOffset(
+                "_BaseMap",
+                source.GetTextureOffset(
+                    property));
+        }
+
+        private void OnDestroy()
+        {
+            ClearNightEmissionOverlays();
         }
 
         private static bool IsWheelRenderer(
