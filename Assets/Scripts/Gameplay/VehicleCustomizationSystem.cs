@@ -42,11 +42,7 @@ namespace MotorCity.Gameplay
             new(0.96f, 0.66f, 0.04f, 1f)
         };
 
-        private static readonly Color[] BeatallBodyColors =
-        {
-            // Keep the imported atlas un-tinted for the first clean integration.
-            Color.white
-        };
+
 
 
 
@@ -345,12 +341,9 @@ namespace MotorCity.Gameplay
         private Color[] BodyColorsForCurrentVehicle()
         {
             return
-                VehicleId() switch
-                {
-                    "hybrid" => HybridBodyColors,
-                    "beatall" => BeatallBodyColors,
-                    _ => StreetBodyColors
-                };
+                VehicleId() == "hybrid"
+                    ? HybridBodyColors
+                    : StreetBodyColors;
         }
 
         private int GetInt(
@@ -1385,9 +1378,6 @@ namespace MotorCity.Gameplay
                         _ => "customization.color_purple"
                     };
             }
-
-            if (vehicleId == "beatall")
-                return "customization.color_white";
 
             return
                 "customization.hybrid." +
