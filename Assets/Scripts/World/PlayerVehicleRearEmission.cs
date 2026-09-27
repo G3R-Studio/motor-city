@@ -96,7 +96,9 @@ namespace MotorCity.World
 
             bool braking =
                 vehicleId == "delorean"
-                    ? MotorCityInput.ReverseHeld
+                    ? MotorCityInput.ReverseHeld ||
+                      (car != null &&
+                       car.ForwardSpeedKph < -0.5f)
                     : MotorCityInput.ReverseHeld ||
                       (car != null &&
                        car.HandbrakeInputHeld);
@@ -1105,14 +1107,14 @@ namespace MotorCity.World
                 upMinimum +
                 upSpan *
                 (vehicleId == "delorean"
-                    ? 0.53f
+                    ? 0.45f
                     : 0.34f);
 
             float upLampMax =
                 upMinimum +
                 upSpan *
                 (vehicleId == "delorean"
-                    ? 0.60f
+                    ? 0.53f
                     : 0.72f);
 
             for (int i = 0;
@@ -1329,18 +1331,19 @@ namespace MotorCity.World
                 // emission no longer paints the indicators red.
                 rearCutoffFraction = 0.86f;
                 rearSoftnessFraction = 0.020f;
-                // Delorean's actual stop-lamp faces sit slightly above the
-                // orange indicator faces and share the same rear atlas area.
-                // Spatial masking separates the two; keep the colour test
-                // permissive enough for the authored red/orange gradient.
-                chromaLow = 0.24f;
-                chromaHigh = 0.48f;
-                redLow = 0.55f;
-                redHigh = 0.84f;
-                greenLow = 0.18f;
-                greenHigh = 0.42f;
-                blueLow = 0.10f;
-                blueHigh = 0.30f;
+                // Delorean's two actual rear lamp faces are isolated by the
+                // spatial mask (far rear, around x = +/-0.465 and y = 0.858).
+                // Do not apply a narrow colour test here: the authored atlas
+                // colour is shared/gradient-based and previously filtered the
+                // lamps out completely.
+                chromaLow = -1.0f;
+                chromaHigh = -0.9f;
+                redLow = 0.01f;
+                redHigh = 0.04f;
+                greenLow = 0.96f;
+                greenHigh = 1.0f;
+                blueLow = 0.96f;
+                blueHigh = 1.0f;
                 return;
             }
 
