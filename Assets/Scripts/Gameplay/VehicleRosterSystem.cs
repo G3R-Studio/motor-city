@@ -510,7 +510,8 @@ namespace MotorCity.Gameplay
 
             bool preserveAuthoredTransform =
                 profile.Id == "hybrid" ||
-                profile.Id == "beatall";
+                profile.Id == "beatall" ||
+                profile.Id == "delorean";
 
             if (profile.Id == "hybrid")
             {
