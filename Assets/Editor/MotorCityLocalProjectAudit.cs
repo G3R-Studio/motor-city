@@ -806,7 +806,6 @@ public static class MotorCityLocalProjectAudit
             "Assets/FCG",
             "Assets/LocalAudio",
             "Assets/Vehicle_Essentials",
-            "Assets/Resources/MotorCity/Audio",
             "Assets/Resources/MotorCity/Environment/ModernCityMaterials",
             "Assets/Scripts/Audio"
         };
