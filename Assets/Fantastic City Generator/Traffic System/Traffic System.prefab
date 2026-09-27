@@ -47,8 +47,6 @@ MonoBehaviour:
   intenseTraffic: 0
   trafficLightHand: 0
   IaCars:
-  # FCG keeps full control of random selection. Motor City only tunes the
-  # serialized pool: one bus slot versus two slots for every non-bus vehicle.
   - {fileID: 904099507957589783, guid: 299de0b515a9cee46bc60108b4bd8675, type: 3}
   - {fileID: 8422964749168051781, guid: ceed5ec4a046d794b8763f280beb3c9d, type: 3}
   - {fileID: 8422964749168051781, guid: ceed5ec4a046d794b8763f280beb3c9d, type: 3}

@@ -1315,8 +1315,7 @@ public static class FantasticCityGeneratorUrpFixer
             FirstExistingProperty(
                 source,
                 "_EmissionMap",
-                "_Illum",
-                "_Emission");
+                "_Illum");
 
         Texture texture =
             sourceProperty != null
@@ -1326,14 +1325,27 @@ public static class FantasticCityGeneratorUrpFixer
                 : null;
 
         Color emissionColor =
-            Color.black;
+            Color.white;
 
-        if (source.HasProperty(
-                "_EmissionColor"))
+        if (source.HasProperty("_EmissionColor"))
         {
             emissionColor =
-                source.GetColor(
-                    "_EmissionColor");
+                source.GetColor("_EmissionColor");
+        }
+        else if (source.HasProperty("_ColorMap"))
+        {
+            emissionColor =
+                source.GetColor("_ColorMap");
+        }
+
+        if (source.HasProperty("_Emission"))
+        {
+            float emissionStrength =
+                Mathf.Max(
+                    0f,
+                    source.GetFloat("_Emission"));
+
+            emissionColor *= emissionStrength;
         }
 
         bool hasEmission =
