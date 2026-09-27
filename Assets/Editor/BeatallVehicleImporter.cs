@@ -405,7 +405,7 @@ public static class BeatallVehicleImporter
                 -0.573373f,
                 0.2620855f,
                 1.057121f),
-            false);
+            true);
 
         CreateWheel(
             parent,
@@ -415,7 +415,7 @@ public static class BeatallVehicleImporter
                 0.573373f,
                 0.2620855f,
                 1.057121f),
-            true);
+            false);
 
         CreateWheel(
             parent,
@@ -425,7 +425,7 @@ public static class BeatallVehicleImporter
                 -0.600407f,
                 0.2620855f,
                 -0.968537f),
-            false);
+            true);
 
         CreateWheel(
             parent,
@@ -435,7 +435,7 @@ public static class BeatallVehicleImporter
                 0.600407f,
                 0.2620855f,
                 -0.968537f),
-            true);
+            false);
     }
 
     private static void CreateWheel(
@@ -456,10 +456,9 @@ public static class BeatallVehicleImporter
         holder.transform.localPosition =
             localPosition;
 
-        // The supplied wheel is the authored FRONT-LEFT wheel.
-        // Keep that exact orientation for both left wheels. Right-side
-        // wheels need only face across the car; rotating around Y preserves
-        // wheel up/down instead of rolling the mesh upside-down.
+        // The supplied wheel is authored for the RIGHT side.
+        // Keep that exact orientation for both right wheels. Left-side
+        // wheels are mirrored across the car by rotating around local Y.
         holder.transform.localRotation =
             rightSide
                 ? Quaternion.Euler(
