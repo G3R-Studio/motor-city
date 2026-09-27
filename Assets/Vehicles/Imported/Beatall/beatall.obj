@@ -1,6 +1,6 @@
 # Blender 5.2.2 LTS
 # www.blender.org
-mtllib bettle.mtl
+mtllib beatall.mtl
 o beetle.004
 v 0.033290 0.724569 -1.330933
 v -0.005415 0.784305 -1.277380
