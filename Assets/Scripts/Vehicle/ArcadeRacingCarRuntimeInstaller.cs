@@ -89,7 +89,7 @@ namespace MotorCity.Vehicle
             bool preserveAuthoredTransform = false,
             Vector3[] explicitWheelCentersLocal = null,
             float explicitWheelRadius = 0f,
-            bool useVisualMeshCollider = false)
+            bool useVisualMeshCollider = true)
         {
             if (car == null ||
                 string.IsNullOrWhiteSpace(
@@ -134,7 +134,7 @@ namespace MotorCity.Vehicle
             bool preserveAuthoredTransform = false,
             Vector3[] explicitWheelCentersLocal = null,
             float explicitWheelRadius = 0f,
-            bool useVisualMeshCollider = false)
+            bool useVisualMeshCollider = true)
         {
             Transform carTransform = car.transform;
 
@@ -452,9 +452,15 @@ namespace MotorCity.Vehicle
             {
                 if (chassis != null)
                 {
-                    chassis.enabled =
-                        false;
+                    UnityEngine.Object.Destroy(
+                        chassis);
+
+                    chassis =
+                        null;
                 }
+
+                RemoveOldRuntimeMeshColliders(
+                    visual);
 
                 ConfigureVisualMeshCollider(
                     visual,
@@ -599,6 +605,24 @@ namespace MotorCity.Vehicle
                 diameter * 0.5f,
                 0.26f,
                 0.58f);
+        }
+
+        private static void RemoveOldRuntimeMeshColliders(
+            GameObject visual)
+        {
+            if (visual == null)
+                return;
+
+            foreach (MeshCollider collider in
+                     visual.GetComponentsInChildren<MeshCollider>(
+                         true))
+            {
+                if (collider == null)
+                    continue;
+
+                UnityEngine.Object.Destroy(
+                    collider);
+            }
         }
 
         private static void ConfigureVisualMeshCollider(
