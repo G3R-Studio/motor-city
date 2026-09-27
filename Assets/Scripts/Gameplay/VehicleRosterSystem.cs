@@ -186,7 +186,24 @@ namespace MotorCity.Gameplay
                         1f,
                         1f,
                         1f,
-                        MotorCityLocalization.Text("vehicle.hybrid.desc"))
+                        MotorCityLocalization.Text("vehicle.hybrid.desc")),
+
+                    new VehicleProfile(
+                        "beatall",
+                        MotorCityLocalization.Text("vehicle.beatall.name"),
+                        "MotorCity/Vehicles/Player/Beatall",
+                        0,
+                        0,
+                        0,
+                        0,
+                        1f,
+                        0f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        1f,
+                        MotorCityLocalization.Text("vehicle.beatall.desc"))
                 };
 
             MigrateLegacyOwnership();
@@ -555,9 +572,11 @@ namespace MotorCity.Gameplay
                 profiles[SelectedIndex];
 
             bool preserveAuthoredTransform =
-                profile.Id == "hybrid";
+                profile.Id == "hybrid" ||
+                profile.Id == "beatall";
 
-            if (profile.Id == "hybrid")
+            if (profile.Id == "hybrid" ||
+                profile.Id == "beatall")
             {
                 // Hybrid is a compact Asset Store model, so scale it to a
                 // normal city-car footprint and use a short, well-damped
@@ -580,9 +599,12 @@ namespace MotorCity.Gameplay
             }
 
             float targetLength =
-                profile.Id == "hybrid"
-                    ? 4.45f
-                    : 4.35f;
+                profile.Id switch
+                {
+                    "hybrid" => 4.45f,
+                    "beatall" => 4.05f,
+                    _ => 4.35f
+                };
 
             ArcadeRacingCarRuntimeInstaller.InstallVehicleVisual(
                 car,
