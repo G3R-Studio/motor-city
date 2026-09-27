@@ -104,7 +104,7 @@ Core fantasy:
 
 ## Phase 1 — Yandex Games foundation
 
-- [x] Production Boot scene.
+- [x] Production bootstrap through `Prototype.unity`.
 - [x] Yandex SDK adapter implementation.
 - [x] Guest mode.
 - [x] Game Ready lifecycle.
