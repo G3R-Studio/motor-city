@@ -8,9 +8,7 @@ namespace MotorCity.UI
     public sealed class MotorCityUiThemeAssets : ScriptableObject
     {
         [Header("Ville Seppanen Racing HUD")]
-        public Texture2D speedometerPrimary;
-        public Texture2D speedometerSecondary;
-        public Texture2D needleLong;
+        public Texture2D speedometerPrimary;        public Texture2D needleLong;
         public Texture2D rectanglePanel;
         public Texture2D characterPanel;
         public Texture2D statusPanel;
@@ -20,9 +18,5 @@ namespace MotorCity.UI
         public Texture2D minimapPlayerPointer;
         public Texture2D modalPanel;
         public Texture2D modalButton;
-        public Texture2D passportPanel;
-        public Texture2D warning;
-        public Texture2D engine;
-        public Texture2D nitrous;
-    }
+        public Texture2D passportPanel;    }
 }

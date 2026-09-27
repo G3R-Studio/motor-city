@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: MotorCityUiThemeAssets
   m_EditorClassIdentifier:
   speedometerPrimary: {fileID: 2800000, guid: 16a427486b115b9418ee68ed8e0cf575, type: 3}
-  speedometerSecondary: {fileID: 2800000, guid: 981360dcc9d97db4595c234a092f7932, type: 3}
   needleLong: {fileID: 2800000, guid: 5ecd34f947bde9f42ac731c5eb08e8b7, type: 3}
   rectanglePanel: {fileID: 2800000, guid: 65a80eb5c0b525d4daf1227c1bebbe88, type: 3}
   characterPanel: {fileID: 2800000, guid: cd82d6aeef063f64e8729ee5d1971728, type: 3}
@@ -25,6 +24,3 @@ MonoBehaviour:
   modalPanel: {fileID: 2800000, guid: 6339f5c7479c607408237dd63d79bf2e, type: 3}
   modalButton: {fileID: 2800000, guid: f340aa0b6927238499a9256a887c48b3, type: 3}
   passportPanel: {fileID: 2800000, guid: c8a7ac821d316ef4dbc0eec7f34b093c, type: 3}
-  warning: {fileID: 2800000, guid: 9759e1b5aa0fa00439ea2b350ad903fa, type: 3}
-  engine: {fileID: 2800000, guid: de7540e732cfd8345bd489072d604106, type: 3}
-  nitrous: {fileID: 2800000, guid: a5bcbc8737868d94cb43be30e19a133c, type: 3}
