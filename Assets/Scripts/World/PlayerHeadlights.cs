@@ -28,11 +28,14 @@ namespace MotorCity.World
         private readonly List<NightEmissionBinding>
             nightEmissionBindings = new();
 
-        private readonly MaterialPropertyBlock
-            nightEmissionBlock = new();
+        private MaterialPropertyBlock
+            nightEmissionBlock;
 
         private void Awake()
         {
+            nightEmissionBlock =
+                new MaterialPropertyBlock();
+
             car =
                 GetComponent<ArcadeCarController>();
 
@@ -354,6 +357,12 @@ namespace MotorCity.World
 
                 if (binding?.Renderer == null)
                     continue;
+
+                if (nightEmissionBlock == null)
+                {
+                    nightEmissionBlock =
+                        new MaterialPropertyBlock();
+                }
 
                 binding.Renderer.GetPropertyBlock(
                     nightEmissionBlock,
