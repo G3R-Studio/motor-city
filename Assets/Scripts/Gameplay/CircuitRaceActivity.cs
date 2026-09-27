@@ -20,9 +20,9 @@ namespace MotorCity.Gameplay
         [SerializeField] private int maximumTimeBonusCredits = 700;
 
         [Header("Пороги времени")]
-        [SerializeField] private float goldTimeSeconds = 105f;
-        [SerializeField] private float silverTimeSeconds = 130f;
-        [SerializeField] private float bronzeTimeSeconds = 160f;
+        [SerializeField] private float goldTimeSeconds = 225f;
+        [SerializeField] private float silverTimeSeconds = 275f;
+        [SerializeField] private float bronzeTimeSeconds = 340f;
 
         [Header("Старт")]
         [SerializeField] private float startRadius = 14f;
@@ -380,8 +380,8 @@ namespace MotorCity.Gameplay
                         maximumTimeBonusCredits,
                         0f,
                         Mathf.InverseLerp(
-                            92f,
-                            170f,
+                            200f,
+                            bronzeTimeSeconds,
                             ElapsedSeconds)));
 
             int reward =
