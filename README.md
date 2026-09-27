@@ -1,108 +1,130 @@
 # Motor City
 
-Browser-first open-world car game prototype for Yandex Games.
+Browser-first open-world driving game prototype for Yandex Games, built with Unity 6.6 and URP.
 
-## About the game
+## Current project state
 
-Motor City is an open-world driving game built around free driving, car control, drifting and activities in a city environment. The current version is an early playable prototype focused on vehicle feel, a compact urban area and the first gameplay loop.
+The repository contains the current playable project rather than a roadmap. The active gameplay build is centered on `Assets/Scenes/Prototype.unity`; the scene itself stays intentionally lightweight and `MotorCityBootstrap` assembles the runtime systems in code.
 
-## Current version
+Current core features include:
 
-The project currently includes:
+- Unity `6000.6.1f1` + URP;
+- Prometeo-based vehicle physics behind the Motor City `ArcadeCarController` bridge;
+- keyboard/gamepad driving plus runtime HUD/touch controls;
+- Comfort / Sport / Drift driving modes;
+- persistent credits, REP, upgrades, vehicle mastery/history/specialization and save data;
+- delivery, drift, sprint, circuit, speed-trap, drift-spot, stunt, discovery and additional city activity systems;
+- runtime HUD, garage, navigator, pause, store, club and result interfaces;
+- Yandex/WebGL platform, cloud-save, purchase, analytics and remote-config integration code;
+- a baked Fantastic City Generator runtime city plus a tracked editable FCG workbench;
+- day/night, street lighting, player headlights, rear-light emission and traffic optimization;
+- runtime-built activity/garage markers;
+- Pixie/Byte companion visuals prepared from the tracked SapphiArt and Haon source assets;
+- a temporary admin/debug panel for development testing.
 
-- Unity 6.6 + Universal Render Pipeline;
-- a lightweight Web-oriented runtime scene;
-- Prometeo Car Controller as the vehicle physics source, connected at runtime through a Motor City integration bridge so gameplay systems do not depend directly on the Asset Store script; Motor City feeds Prometeo through runtime touch-input proxies driven by the Unity Input System, so keyboard/gamepad controls do not depend on Prometeo's legacy Input.GetKey path;
-- four Prometeo WheelColliders generated from the imported wheel geometry and measured wheel radius, with the physical left/right wheel positions normalized into symmetric front and rear axles so small visual-model asymmetries cannot make the car pull sideways;
-- Prometeo acceleration, steering, service braking, coasting and handbrake traction-loss behavior, with Motor City garage upgrades mapped onto the controller tuning; when steering input is released, a post-Prometeo straight-line assist recenters the front WheelColliders and damps small unintended lateral/yaw drift without fighting an active slide; the player can switch a persistent three-mode driving profile at runtime: Comfort for stable everyday driving with about 42° steering lock, Sport for maximum acceleration/speed and high rear-axle traction with about 36° steering lock, and Drift for sharper steering, reduced rear lateral grip and stronger handbrake traction break with about 62° steering lock;
-- the imported racing-car visual automatically realigned so its measured wheelbase follows the Motor City vehicle forward axis before the physics rig is created;
-- wheel meshes kept separate from their WheelColliders, as required by Prometeo, with the visual wheel roots driven by Prometeo wheel poses;
-- runtime rear-tire smoke with fully opaque cores, rendered above tire marks, plus road-hugging tire-mark trails emitted from actual WheelCollider ground-contact points while the rear tires are sliding;
-- automatic integration for Mena's ARCADE: FREE Racing Car after that Asset Store package is imported into the project;
-- automatic editor integration for the free Vehicles - PolyPack: the local Asset Store source stays untracked, while Motor City scans its vehicle prefabs and prepares up to four additional runtime car visuals under `Assets/Resources/MotorCity/Vehicles/`;
-- runtime URP material conversion for the player car visual;
-- a unified drift state based on Prometeo drift/traction state plus actual rear-wheel sideways slip, vehicle slip angle and grounded wheels; the same state drives drift scoring, smoke and tire marks; free-roam drift series bank into КР only after meaningful travel distance, use a softer high-score payout curve and are capped per series so activities remain the primary income source;
-- a 42-second drift challenge placed on the active city road network: the run always continues to the timer unless the player leaves the area for more than 3.5 seconds, with Bronze/Silver/Gold/Legendary score tiers at 1,800 / 3,000 / 4,500 / 6,000 points and tier-scaled КР rewards;
-- a timed street sprint with moving checkpoints, Gold/Silver/Bronze time tiers, a performance-based КР reward and a locally saved personal best time;
-- a two-lap circuit race around the large district with moving checkpoints, Gold/Silver/Bronze total-time tiers, time-based КР reward, per-lap timing, a locally saved race personal best and a locally saved best lap;
-- a unified activity result screen for delivery, drift challenge, street sprint and circuit race, showing the outcome, performance details and earned КР; completed/failed activities can be restarted immediately from the result screen, which safely returns the car to the activity start and runs the countdown again;
-- a smooth orbiting chase camera with mouse look, zoom, speed-based look-ahead, distance and field-of-view response; the camera remains non-physical and uses damped sphere-cast obstacle avoidance, pulling in quickly and restoring distance smoothly so walls/buildings do not cause repeated in-out camera jitter;
-- a runtime day/night cycle built from the local FCG DayNight prefab: Motor City uses the prefab's day/night skyboxes, ambient colors and sun/moon colors; the transition now includes a short warm twilight phase and fades sky exposure before switching day/night skies; FCG street-light anchors receive dedicated realtime Point Lights only near the player while lamp-bulb meshes keep a cheap emissive glow across the visible city, Forward+ rendering keeps dense nearby lighting stable, and lamp discovery is cached instead of rescanning the whole scene during gameplay;
-- automatic night vehicle lighting: the player car gets two low-cost realtime Spot Light headlights that fade in with night amount, while generated FCG traffic-car prefabs use URP emissive brake lights and turn signals without per-car realtime lights;
-- editor tooling for **Fantastic City Generator**: generated FCG renderers in the active scene can be converted from legacy/Built-in materials to URP while preserving their source textures; foliage uses a dedicated two-sided alpha-cutout shader, while FCG night-window/emissive materials use a dedicated URP shader whose glow follows the Motor City night cycle; duplicate FCG material names are repaired by source GUID, and the generated `City-Maker` can then be baked into a local runtime `CityVisual.prefab`;
-- legacy Community Core City 02 and Japanese Otaku City integrations have been removed;
-- compact activity-specific world markers with lightweight built-in fallbacks;
-- a compact floating garage waypoint using a CC0 Kenney Game Icons flag asset;
-- moving delivery and sprint targets with a four-cone drift marker cluster;
-- a compact HUD navigator that points toward the current delivery/sprint checkpoint and, during free roam, toward the nearest activity or garage with live distance;
-- the active city uses the latest locally generated Fantastic City Generator layout with a large main district, a compact remote district and a three-section connecting highway; the runtime installer resolves `FCG_Roads` and `FCG_HighWay` by exact MeshCollider triangle/submesh material, explicitly excludes highway guardrails from driveable surfaces, keeps delivery inside the large district, places the garage on a real parking surface, and routes the street sprint across the highway into the compact district;
-- the authored Fantastic City Generator scene is the single source of truth: `5 - Build Runtime City` packages `City-Maker` plus root-level `Traffic System` and `CarContainer` when they are present into `CityVisual.prefab`, preserving their internal references and without automatically changing colliders, traffic, cars, props, signals, lights or other authored content; it also adds the local FCG distant background panorama around the city with a lightweight URP day/night material so the generated world does not end against empty space; the runtime then treats that prefab as read-only;
-- runtime city rendering is distance-optimized without rewriting authored assets: existing FCG `LODGroup` transitions are biased to switch a little earlier, small non-LOD decoration is hidden beyond about 175 m, medium objects beyond about 340 m and larger non-building detail beyond about 560 m; large buildings/combined city blocks, the distant background, traffic, traffic lights and street lamps are excluded from distance hiding, while small static decoration has shadows and probe usage disabled;
-- FCG traffic is optimized at runtime without modifying the third-party package: traffic renderers have shadows, light/reflection probes and motion vectors disabled, traffic lights/audio components are disabled on car prefabs where present, Rigidbody solver/collision settings are reduced, and cars farther than about 105 m run `MoveCar` at 20 Hz instead of 50 Hz before returning to the full cadence inside about 58 m;
-- the URP runtime profile is tuned for browser performance with 0.92 render scale, 2x MSAA, 1024 main-light shadows, a 60 m shadow distance, Forward+ additional-light rendering with a six-light per-object budget, no light cookies/lens-flare support and a 2200 m gameplay-camera far clip;
-- a timed delivery route with visible checkpoints, Gold/Silver/Bronze completion tiers, tier-scaled КР rewards and a locally saved personal best time;
-- a locally persistent player wallet and credit counter;
-- a separate persistent REP progression track: successful activities award REP in addition to КР, the HUD shows total REP and a simple reputation level (one level per 500 REP), while КР remain the spendable garage currency;
-- a persistent five-car garage roster: the existing ARCADE car is the starter vehicle and up to four Vehicles - PolyPack cars unlock at 500 / 1,200 / 2,200 / 3,500 REP; the selected car persists locally, each vehicle has its own base speed/acceleration/grip/stability profile, and the existing engine/grip/stability upgrades apply on top of that profile;
-- additional PolyPack cars each build their own four-wheel runtime rig from their model geometry while copying the STREET car's suspension, spring, damping, friction and steering physics; the visual model is aligned without automatic yaw correction, its wheel scale is matched to the STREET physics wheel radius, the chassis collider is fitted to the visible body, Prometeo drives invisible wheel proxies, and Motor City's post-physics wheel synchronizer drives the actual FBX wheels directly from the four WheelColliders so steering, suspension travel and wheel rotation stay visible;
-- three persistent open-world speed traps placed on the main avenue, highway and remote district: each stores its best speed and highest medal, uses Bronze/Silver/Gold thresholds, awards КР + REP only when a new medal tier is reached, and remains available afterward for personal-record attempts without repeat-farming rewards;
-- three persistent open-world drift spots in the main and remote districts: entering a spot starts a local score attempt automatically, leaving it evaluates Bronze/Silver/Gold thresholds, stores the best score and highest medal, and awards КР + REP only when a new medal tier is reached;
-- five persistent exploration discoveries spread across the main district, highway and remote district; first-time visits award 90 КР + 35 REP, discovered points are removed from free-roam navigation, and discovery progress persists locally;
-- three persistent stunt-jump ramps placed in the main district, on the highway and in the remote district: approaching at speed arms the jump, real airborne time and horizontal landing distance are measured, personal best distance and highest medal persist locally, and Bronze/Silver/Gold rewards are paid only when a new medal tier is reached;
-- a purple garage zone with three persistent upgrade paths: engine, grip and stability, each with three paid levels and clearly noticeable per-level effects;
-- activity coordination so delivery, drift challenge, street sprint and garage cannot overlap;
-- mission markers hide while another mission is active, while the garage marker remains visible;
-- entering the garage cancels the active mission;
-- Russian in-game HUD, garage text, activity prompts and status messages;
-- a temporary runtime admin/debug panel opened with `F10` (or backquote) for testing progression and lighting: it can add КР, add/set REP, reset those values to zero, instantly raise REP enough to unlock the current vehicle roster, and switch immediately between day and night;
-- a compact dark racing-style Canvas HUD with responsive text fitting, separate speedometer, activity status, controls hint and contextual drift panel;
-- a redesigned garage overlay with three clearly separated upgrade rows and automatic text resizing so long labels remain inside their panels;
-- instant local rescue reset: the car is moved to the nearest detected road around its current position instead of returning to the original spawn;
-- persistent free-roam vehicle position and heading: while driving on the ground, the current pose is saved periodically and also on pause/quit or after a rescue reset, then restored on the next game launch with vehicle motion cleared;
-- automatic editor setup for the prototype scene and URP configuration.
+## Vehicles
 
-A flat temporary test surface is currently used when no generated runtime city prefab is available.
+The playable garage currently contains only two vehicles:
 
-## Run locally
+1. **STREET** — the ARCADE: FREE Racing Car based starter vehicle.
+2. **HYBRID** — the Gudamore Free Sports Car based vehicle.
 
-1. Install Unity 6.6.1 (`6000.6.1f1`) with Web Build Support.
-2. Clone this repository.
-3. Open the repository root as a Unity project.
-4. Import **ARCADE: FREE Racing Car** by Mena from the Unity Asset Store / Package Manager.
-5. Import **PROMETEO: Car Controller** by Mena from the Unity Asset Store. Motor City does not redistribute the Prometeo package; the runtime bridge detects `PrometeoCarController` after Unity recompiles.
-6. Import the free **Vehicles - PolyPack** package. Motor City scans the local package automatically and prepares up to four additional garage-car prefabs; use `Motor City > Rebuild Vehicles - PolyPack Garage Cars` to rebuild them manually.
-7. Import **Fantastic City Generator** locally under `Assets/Fantastic City Generator`, generate the city in the workbench scene, then use `Motor City > Fantastic City Generator > 4 - Fix Materials` to convert the generated city materials for URP.
-8. Save the generated scene, then use `Motor City > Fantastic City Generator > Build Runtime City from Saved FCG City` to bake the local generated city into `Assets/Resources/MotorCity/Environment/CityVisual.prefab`. Generated Motor City runtime state is tracked for full-project/AI review snapshots, while original third-party Asset Store source packages remain excluded.
-9. Keep/import the FCG `DayNight.prefab`. Motor City automatically tries to build `DayNightSettings.asset` from it; if the prefab is stored outside the project, use `Motor City > Fantastic City Generator > Import DayNight Prefab...`, or rebuild explicitly with `Build Day-Night Settings`.
-10. The FCG material/build tools can be launched while `Prototype.unity` is open: they automatically find the saved `City-Maker` scene under `Assets/LocalGenerated`, open it temporarily, process/save it, rebuild `CityVisual.prefab`, then return to the previous scene.
-11. The editor automatically prepares the runtime UI and marker sprites.
-12. Wait for packages and external assets to finish importing. The setup script will create and open `Assets/Scenes/Prototype.unity` automatically and keep both Unity input backends enabled for Prometeo compatibility.
-13. Press Play.
+No old Beatall/Designersoup/PolyPack/Muscle/GT/Apex player-car roster is part of the current project.
 
-The car importer prefers a matching racing-car prefab with usable body colliders and falls back to another matching prefab if needed.
+Runtime vehicle assets:
+
+- STREET: `Assets/Resources/MotorCity/PlayerCarVisual.prefab`
+- HYBRID: `Assets/Resources/MotorCity/Vehicles/Player/Hybrid.prefab`
+
+The clean Hybrid authoring prototypes are stored under:
+
+`Assets/MotorCity/VehiclePrototypes/Hybrid`
+
+## City
+
+The runtime city is stored at:
+
+`Assets/Resources/MotorCity/Environment/CityVisual.prefab`
+
+The editable Fantastic City Generator source scene is:
+
+`Assets/LocalGenerated/FCG_Workbench.unity`
+
+The workbench is deliberately tracked because it is the editable source for the currently baked city. The runtime builder keeps `CityVisual.prefab` as the gameplay-facing baked copy.
+
+The production FCG editor toolchain retained by the project covers:
+
+- opening/creating the workbench;
+- locating the saved source scene;
+- URP material conversion;
+- day/night settings generation;
+- baking the runtime city prefab.
+
+Historical one-off FCG repair/diagnostic scripts and package demo scenes are not part of the cleaned production project.
+
+## Runtime architecture
+
+`MotorCityBootstrap` creates and wires the gameplay systems after the Prototype scene loads. This is why the build scene contains very little authored scene hierarchy.
+
+Vehicle movement is provided by Prometeo, while Motor City owns the higher-level behavior: input proxies, wheel-rig creation, handling profiles, upgrades, drift state, smoke/tire marks, persistence and gameplay telemetry.
+
+The project keeps `Boot.unity` and `MotorCityBootController` as platform-startup infrastructure, but `Prototype.unity` is currently the enabled build scene.
 
 ## Controls
 
-- `W/S` or arrow keys — throttle / reverse;
-- `A/D` or arrow keys — steering;
-- `Space` — Prometeo handbrake / traction break for initiating and sustaining a drift;
-- `Q` — cycle driving mode: Comfort → Sport → Drift;
-- hold right mouse button and move the mouse — rotate the camera;
+Keyboard/gamepad driving controls that remain active:
+
+- `W/S` or Up/Down — throttle / reverse;
+- `A/D` or Left/Right — steering;
+- `Space` — handbrake;
+- right mouse drag — camera orbit;
 - mouse wheel — camera zoom;
-- `E` — start an activity while stopped inside its start marker, or open/close the garage while stopped in the purple garage marker;
-- `1/2/3` — buy engine/grip/stability upgrades while the garage is open;
-- `Z/X` — select the previous/next unlocked vehicle while the garage is open;
-- `Esc` — cancel the current activity during its countdown or run, close the garage, or leave an activity result screen;
-- `Enter` — restart the just-finished activity from its result screen;
-- `R` — rescue-reset the vehicle to the nearest detected road surface around its current position, aligned with the road and with motion cleared;
-- `F10` or backquote — open/close the temporary admin/debug panel.
+- `E` — contextual interaction;
+- `Esc` — cancel/close;
+- `Enter` — retry/restart where applicable;
+- `F10` or backquote — temporary admin/debug panel.
 
-## Current gameplay
+Actions such as drive-mode switching, rescue, pause, store, club, rewarded bonus, navigator, garage vehicle selection/upgrades and customization are exposed through the runtime HUD/touch-button input layer rather than dedicated keyboard bindings.
 
-- persistent career progression with three multi-discipline stages: each stage requires successful delivery, drift, sprint and circuit completions, grants one-time KR/REP bonuses, and shows current progress in the HUD;
+## Repository layout
 
-The car resumes from its last valid saved free-roam position and heading after restarting the game. Drive freely through the prototype district with Prometeo-based handling and switch between Comfort, Sport and Drift driving modes with `Q`; the selected mode persists locally and changes the actual Prometeo/WheelCollider tuning rather than only the HUD. Three cyan speed-trap gates are also placed around the world; driving through them at speed records a personal best and can award one-time Bronze/Silver/Gold progression rewards. Orange drift spots automatically measure the drift score accumulated while the car remains inside their area, purple exploration beacons reward the first visit to each location, and yellow stunt ramps measure real airborne distance and airtime for persistent Bronze/Silver/Gold jump records. Build drift score from the same physical slide state that produces tire smoke and road marks, or take part in one of the current activities. The blue crate marker represents the delivery route, the orange cone cluster a timed drift challenge at a city intersection, the green race flag a timed street sprint, and the cyan flag a two-lap circuit race around the large district. Activities no longer start just by driving through their markers: stop inside the start area, press `E`, then wait for the three-second countdown before control is released and timing/scoring begins. Finishing an activity (or failing the drift challenge) opens a common result screen with the activity result, performance details and reward; `Enter` immediately restarts that same activity from its start position and `Esc` returns to free roam. Only one activity can run at a time. Other mission markers are hidden while a mission is active; the purple garage marker stays visible and opening it cancels the current mission. Completing activities awards КР and REP, both stored locally between sessions; КР remain the spendable garage currency, while REP also unlocks additional cars in the garage. The purple garage marker lets the player switch between unlocked vehicles with `Z/X` and spend credits on persistent engine, grip and stability upgrades.
+Important project-owned paths:
 
-- editor diagnostics include a deep local cleanup audit (`Motor City > Diagnostics > Export Local Project Audit`) that scans empty/stale folders, runtime/saved-city dependency closure, literal Resources references, unreferenced Resources candidates, and FCG assets not used by the current saved city. It reports candidates only and does not delete project files.
+- `Assets/Scripts` — runtime game code;
+- `Assets/Editor` — current editor/build/import tooling;
+- `Assets/Resources/MotorCity` — runtime-loaded Motor City content;
+- `Assets/Art/MotorCity` — Motor City source UI/marker/garage art;
+- `Assets/MotorCity` — clean Motor City authoring prototypes;
+- `Assets/LocalGenerated` — tracked editable FCG workbench;
+- `Assets/Settings` — URP/build profile assets;
+- `ProjectSettings` — Unity project configuration;
+- `Packages` — Unity package manifest plus the embedded spring-bone package.
 
-- the five-car roster now has distinct driving personalities beyond raw speed: STREET is balanced, CLUB is lighter and more agile, MUSCLE is heavier with stronger power and drift tendency, GT emphasizes braking/high-speed stability, and APEX is the lightest/most precise high-tier car; these differences affect mass, steering, braking, power assist and handbrake drift response;
+Third-party source folders still present are retained because current generated/runtime content or editor rebuild tooling depends on them. Their demo scenes, guide assets and clearly unused sample material have been removed where safe.
+
+## Opening the project
+
+1. Install Unity `6000.6.1f1` with Web Build Support.
+2. Clone the repository with Git LFS available.
+3. Run `git lfs pull` if LFS objects were not materialized automatically.
+4. Open the repository root in Unity Hub.
+5. Allow Unity to recreate `Library`, shader caches and generated IDE files.
+6. Open `Assets/Scenes/Prototype.unity` if it is not already open.
+7. Press Play.
+
+The repository intentionally does not track Unity-generated caches such as `Library`, `Temp`, `obj`, `Logs`, `UserSettings`, IDE project files or editor caches.
+
+## Third-party dependencies
+
+The project currently uses source/content from several third-party packages, including:
+
+- Mena — ARCADE: FREE Racing Car;
+- Mena — PROMETEO: Car Controller;
+- Fantastic City Generator;
+- Gudamore — Free Sports Car;
+- Haon SD Series Free Bundle;
+- SapphiArt-chan;
+- Eric VFX Studio Magic Circle;
+- Kenney CC0 UI/icon artwork.
+
+Project-specific source notes are stored under `Assets/ThirdParty`. Original package/license terms continue to apply to their respective assets.
