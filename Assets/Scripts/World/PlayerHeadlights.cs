@@ -28,16 +28,29 @@ namespace MotorCity.World
             public Material Material;
         }
 
+        private sealed class FrontLampMaterialBinding
+        {
+            public Material Material;
+        }
+
         private readonly List<NightEmissionOverlay>
             nightEmissionOverlays = new();
 
+        private readonly List<FrontLampMaterialBinding>
+            frontLampMaterials = new();
+
         private Shader deloreanEmissionShader;
+        private Shader starterLampShader;
 
         private void Awake()
         {
             deloreanEmissionShader =
                 Resources.Load<Shader>(
                     "MotorCity/Shaders/DeloreanNightEmission");
+
+            starterLampShader =
+                Resources.Load<Shader>(
+                    "MotorCity/Shaders/StarterLampEmission");
 
             car =
                 GetComponent<ArcadeCarController>();
@@ -276,18 +289,226 @@ namespace MotorCity.World
         private void RefreshNightEmissionBindings()
         {
             ClearNightEmissionOverlays();
+            frontLampMaterials.Clear();
 
-            if (currentVisual == null ||
-                vehicleId != "delorean" ||
+            if (currentVisual == null)
+                return;
+
+            Renderer[] renderers =
+                currentVisual.GetComponentsInChildren<Renderer>(
+                    true);
+
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null ||
+                    renderer.gameObject.name ==
+                        DeloreanOverlayName ||
+                    IsWheelRenderer(
+                        renderer.transform))
+                {
+                    continue;
+                }
+
+                MeshFilter filter =
+                    renderer.GetComponent<MeshFilter>();
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    Material source =
+                        materials[i];
+
+                    if (source == null)
+                        continue;
+
+                    string materialName =
+                        source.name
+                            .ToLowerInvariant();
+
+                    // Porsche and Peugeot expose dedicated headlight
+                    // materials. Drive their real material emission at night
+                    // instead of relying only on invisible Spot Lights.
+                    if (materialName.Contains("headlight") ||
+                        materialName.Contains("headlamp"))
+                    {
+                        if (source.HasProperty("_EmissionColor"))
+                        {
+                            source.SetColor(
+                                "_EmissionColor",
+                                Color.black);
+
+                            source.EnableKeyword(
+                                "_EMISSION");
+
+                            frontLampMaterials.Add(
+                                new FrontLampMaterialBinding
+                                {
+                                    Material = source
+                                });
+                        }
+
+                        continue;
+                    }
+
+                    if (filter == null ||
+                        filter.sharedMesh == null ||
+                        starterLampShader == null ||
+                        !starterLampShader.isSupported)
+                    {
+                        continue;
+                    }
+
+                    bool useMaskedFrontOverlay =
+                        (vehicleId == "amggt" &&
+                         materialName.Contains("amggtemission")) ||
+                        (vehicleId == "bus" &&
+                         materialName.Contains("busatlas"));
+
+                    if (!useMaskedFrontOverlay)
+                        continue;
+
+                    Texture texture =
+                        ResolveBaseTexture(
+                            source);
+
+                    if (texture == null)
+                        continue;
+
+                    Vector3 forwardAxis =
+                        renderer.transform
+                            .InverseTransformDirection(
+                                transform.forward)
+                            .normalized;
+
+                    ResolveProjectionRange(
+                        filter.sharedMesh.bounds,
+                        forwardAxis,
+                        out float minimum,
+                        out float maximum);
+
+                    float cutoff =
+                        Mathf.Lerp(
+                            minimum,
+                            maximum,
+                            vehicleId == "bus"
+                                ? 0.78f
+                                : 0.62f);
+
+                    float softness =
+                        Mathf.Max(
+                            0.02f,
+                            (maximum - minimum) *
+                            0.035f);
+
+                    Material overlayMaterial =
+                        new Material(
+                            starterLampShader)
+                        {
+                            name =
+                                "MotorCity_FrontLampEmission_Runtime"
+                        };
+
+                    overlayMaterial.SetTexture(
+                        "_BaseMap",
+                        texture);
+
+                    CopyTextureTransform(
+                        source,
+                        overlayMaterial);
+
+                    overlayMaterial.SetVector(
+                        "_AxisOS",
+                        new Vector4(
+                            forwardAxis.x,
+                            forwardAxis.y,
+                            forwardAxis.z,
+                            0f));
+
+                    overlayMaterial.SetFloat(
+                        "_Cutoff",
+                        cutoff);
+
+                    overlayMaterial.SetFloat(
+                        "_Softness",
+                        softness);
+
+                    overlayMaterial.SetFloat(
+                        "_Mode",
+                        1f);
+
+                    overlayMaterial.SetColor(
+                        "_EmissionColor",
+                        new Color(
+                            0.92f,
+                            0.96f,
+                            1f,
+                            1f));
+
+                    overlayMaterial.SetFloat(
+                        "_Intensity",
+                        0f);
+
+                    GameObject overlay =
+                        new GameObject(
+                            "MotorCityFrontLampEmission",
+                            typeof(MeshFilter),
+                            typeof(MeshRenderer));
+
+                    overlay.transform.SetParent(
+                        renderer.transform.parent,
+                        false);
+
+                    overlay.transform.localPosition =
+                        renderer.transform.localPosition;
+
+                    overlay.transform.localRotation =
+                        renderer.transform.localRotation;
+
+                    overlay.transform.localScale =
+                        renderer.transform.localScale;
+
+                    overlay.GetComponent<MeshFilter>()
+                        .sharedMesh =
+                        filter.sharedMesh;
+
+                    Material[] overlayMaterials =
+                        new Material[
+                            materials.Length];
+
+                    overlayMaterials[i] =
+                        overlayMaterial;
+
+                    MeshRenderer overlayRenderer =
+                        overlay.GetComponent<MeshRenderer>();
+
+                    overlayRenderer.sharedMaterials =
+                        overlayMaterials;
+
+                    overlayRenderer.shadowCastingMode =
+                        UnityEngine.Rendering.ShadowCastingMode.Off;
+
+                    overlayRenderer.receiveShadows =
+                        false;
+
+                    nightEmissionOverlays.Add(
+                        new NightEmissionOverlay
+                        {
+                            Root = overlay,
+                            Material = overlayMaterial
+                        });
+                }
+            }
+
+            if (vehicleId != "delorean" ||
                 deloreanEmissionShader == null ||
                 !deloreanEmissionShader.isSupported)
             {
                 return;
             }
-
-            Renderer[] renderers =
-                currentVisual.GetComponentsInChildren<Renderer>(
-                    true);
 
             foreach (Renderer renderer in renderers)
             {
@@ -409,12 +630,6 @@ namespace MotorCity.World
         private void ApplyNightVisualEmission(
             float night)
         {
-            if (vehicleId != "delorean" ||
-                nightEmissionOverlays.Count == 0)
-            {
-                return;
-            }
-
             float intensity =
                 Mathf.SmoothStep(
                     0f,
@@ -423,6 +638,33 @@ namespace MotorCity.World
                         0.24f,
                         0.66f,
                         night));
+
+            for (int i = 0;
+                 i < frontLampMaterials.Count;
+                 i++)
+            {
+                Material material =
+                    frontLampMaterials[i]?.Material;
+
+                if (material == null ||
+                    !material.HasProperty(
+                        "_EmissionColor"))
+                {
+                    continue;
+                }
+
+                material.SetColor(
+                    "_EmissionColor",
+                    new Color(
+                        0.92f,
+                        0.96f,
+                        1f,
+                        1f) *
+                    intensity);
+
+                material.EnableKeyword(
+                    "_EMISSION");
+            }
 
             for (int i = 0;
                  i < nightEmissionOverlays.Count;
@@ -442,6 +684,25 @@ namespace MotorCity.World
 
         private void ClearNightEmissionOverlays()
         {
+            for (int i = 0;
+                 i < frontLampMaterials.Count;
+                 i++)
+            {
+                Material material =
+                    frontLampMaterials[i]?.Material;
+
+                if (material != null &&
+                    material.HasProperty(
+                        "_EmissionColor"))
+                {
+                    material.SetColor(
+                        "_EmissionColor",
+                        Color.black);
+                }
+            }
+
+            frontLampMaterials.Clear();
+
             for (int i = 0;
                  i < nightEmissionOverlays.Count;
                  i++)
@@ -494,6 +755,49 @@ namespace MotorCity.World
             }
 
             return null;
+        }
+
+        private static void ResolveProjectionRange(
+            Bounds bounds,
+            Vector3 axis,
+            out float minimum,
+            out float maximum)
+        {
+            minimum = float.PositiveInfinity;
+            maximum = float.NegativeInfinity;
+
+            Vector3 center = bounds.center;
+            Vector3 extents = bounds.extents;
+
+            for (int x = -1; x <= 1; x += 2)
+            {
+                for (int y = -1; y <= 1; y += 2)
+                {
+                    for (int z = -1; z <= 1; z += 2)
+                    {
+                        Vector3 corner =
+                            center +
+                            Vector3.Scale(
+                                extents,
+                                new Vector3(x, y, z));
+
+                        float projection =
+                            Vector3.Dot(
+                                corner,
+                                axis);
+
+                        minimum =
+                            Mathf.Min(
+                                minimum,
+                                projection);
+
+                        maximum =
+                            Mathf.Max(
+                                maximum,
+                                projection);
+                    }
+                }
+            }
         }
 
         private static void CopyTextureTransform(
