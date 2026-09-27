@@ -10,9 +10,6 @@ namespace MotorCity.Gameplay
     {
         private const string SelectedKey =
             "MotorCity.Vehicle.Selected";
-        private const string SupporterPackKey =
-            "MotorCity.Purchase.SupporterPack";
-
         private ArcadeCarController car;
         private PlayerReputation reputation;
         private VehicleProfile[] profiles;
@@ -138,7 +135,6 @@ namespace MotorCity.Gameplay
                         0,
                         0,
                         0,
-                        0,
                         1f,
                         0f,
                         1f,
@@ -148,13 +144,12 @@ namespace MotorCity.Gameplay
                         1f,
                         MotorCityLocalization.Text("vehicle.street.desc")),
 
-                    // Temporary clean test vehicle. Uses the authored Asset
-                    // Store hierarchy and only borrows PlayerCar physics.
+                    // HYBRID keeps the authored Gudamore visual hierarchy
+                    // while sharing Motor City's player-car physics rig.
                     new VehicleProfile(
                         "hybrid",
                         MotorCityLocalization.Text("vehicle.hybrid.name"),
                         "MotorCity/Vehicles/Player/Hybrid",
-                        0,
                         0,
                         0,
                         0,
@@ -235,14 +230,10 @@ namespace MotorCity.Gameplay
             if (!IsUnlocked(candidate))
             {
                 status =
-                    profile.SupporterOnly
-                        ? MotorCityLocalization.Format(
-                            "vehicle.supporter_required",
-                            profile.DisplayName)
-                        : MotorCityLocalization.Format(
-                            "vehicle.rep_required",
-                            profile.DisplayName,
-                            profile.RequiredRep);
+                    MotorCityLocalization.Format(
+                        "vehicle.rep_required",
+                        profile.DisplayName,
+                        profile.RequiredRep);
 
                 return false;
             }
@@ -354,14 +345,10 @@ namespace MotorCity.Gameplay
             if (!IsUnlocked(next))
             {
                 return
-                    nextProfile.SupporterOnly
-                        ? MotorCityLocalization.Format(
-                            "vehicle.next_supporter",
-                            nextProfile.DisplayName)
-                        : MotorCityLocalization.Format(
-                            "vehicle.next_rep",
-                            nextProfile.DisplayName,
-                            nextProfile.RequiredRep);
+                    MotorCityLocalization.Format(
+                        "vehicle.next_rep",
+                        nextProfile.DisplayName,
+                        nextProfile.RequiredRep);
             }
 
             return
@@ -566,14 +553,6 @@ namespace MotorCity.Gameplay
             VehicleProfile profile =
                 profiles[index];
 
-            if (profile.SupporterOnly)
-            {
-                return
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(
-                        SupporterPackKey,
-                        0) != 0;
-            }
-
             int rep =
                 reputation == null
                     ? 0
@@ -616,7 +595,6 @@ namespace MotorCity.Gameplay
             public readonly string DisplayName;
             public readonly string ResourcePath;
             public readonly int RequiredRep;
-            public readonly int PurchasePrice;
             public readonly int SpeedBonus;
             public readonly int AccelerationBonus;
             public readonly float GripMultiplier;
@@ -627,14 +605,12 @@ namespace MotorCity.Gameplay
             public readonly float PowerMultiplier;
             public readonly float DriftMultiplier;
             public readonly string Character;
-            public readonly bool SupporterOnly;
 
             public VehicleProfile(
                 string id,
                 string displayName,
                 string resourcePath,
                 int requiredRep,
-                int purchasePrice,
                 int speedBonus,
                 int accelerationBonus,
                 float gripMultiplier,
@@ -644,17 +620,12 @@ namespace MotorCity.Gameplay
                 float brakeMultiplier,
                 float powerMultiplier,
                 float driftMultiplier,
-                string character,
-                bool supporterOnly = false)
+                string character)
             {
                 Id = id;
                 DisplayName = displayName;
                 ResourcePath = resourcePath;
                 RequiredRep = requiredRep;
-                PurchasePrice =
-                    Mathf.Max(
-                        0,
-                        purchasePrice);
                 SpeedBonus = speedBonus;
                 AccelerationBonus =
                     accelerationBonus;
@@ -674,8 +645,6 @@ namespace MotorCity.Gameplay
                     driftMultiplier;
                 Character =
                     character;
-                SupporterOnly =
-                    supporterOnly;
             }
         }
     }

@@ -83,8 +83,8 @@ Core fantasy:
 - [x] Remove criminal/dark presentation that conflicts with the 6+ tone.
 
 ### 0.8 Vehicle ownership and economy
-- [x] REP unlocks access to a vehicle.
-- [x] KR purchases ownership.
+- [x] REP unlocks and grants access to a vehicle.
+- [x] Vehicles are not purchased separately with KR.
 - [x] Starter vehicle is always owned and useful.
 - [x] Collection score counts owned cars, not REP-unlocked cars.
 - [x] Vehicle mastery/history stays attached to the specific car.
