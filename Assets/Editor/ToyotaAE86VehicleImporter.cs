@@ -179,28 +179,28 @@ public static class ToyotaAE86VehicleImporter
             parent,
             wheelSource,
             "front_left",
-            new Vector3(-0.775f, 0.303f, 1.300f),
+            new Vector3(-0.655f, 0.303f, 1.300f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "front_right",
-            new Vector3(0.775f, 0.303f, 1.300f),
+            new Vector3(0.655f, 0.303f, 1.300f),
             true);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_left",
-            new Vector3(-0.775f, 0.303f, -1.170f),
+            new Vector3(-0.655f, 0.303f, -1.170f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_right",
-            new Vector3(0.775f, 0.303f, -1.170f),
+            new Vector3(0.655f, 0.303f, -1.170f),
             true);
     }
 
@@ -233,8 +233,11 @@ public static class ToyotaAE86VehicleImporter
             return;
 
         visual.name = name + "_visual";
+        // Keep the mesh centered on the steering holder. The inward
+        // offset belongs on the holder itself; otherwise the visual orbits
+        // around an off-centre pivot when the front wheels steer.
         visual.transform.localPosition =
-            new Vector3(-0.12f, 0f, 0f);
+            Vector3.zero;
         visual.transform.localRotation = Quaternion.identity;
         visual.transform.localScale = Vector3.one;
 
