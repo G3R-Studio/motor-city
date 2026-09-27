@@ -161,15 +161,24 @@ jobs:
               return parts[0]
 
           groups=collections.defaultdict(lambda:{'files':0,'bytes':0,'reachable_files':0,'reachable_bytes':0,'unreachable_files':0,'unreachable_bytes':0})
+          groups_depth3=collections.defaultdict(lambda:{'files':0,'bytes':0,'reachable_files':0,'reachable_bytes':0,'unreachable_files':0,'unreachable_bytes':0})
+          unreachable_paths=[]
           for p,size in files:
               if p.endswith('.meta'): continue
               key=topfolder(p)
               g=groups[key]
               g['files']+=1; g['bytes']+=size
+              parts=p.split('/')
+              key3='/'.join(parts[:3]) if len(parts)>=3 and parts[0]=='Assets' else key
+              g3=groups_depth3[key3]
+              g3['files']+=1; g3['bytes']+=size
               if p in reachable:
                   g['reachable_files']+=1; g['reachable_bytes']+=size
+                  g3['reachable_files']+=1; g3['reachable_bytes']+=size
               else:
                   g['unreachable_files']+=1; g['unreachable_bytes']+=size
+                  g3['unreachable_files']+=1; g3['unreachable_bytes']+=size
+                  unreachable_paths.append({'path':p,'size':size})
 
           # Unbuilt scenes.
           built={p for p in roots if p.endswith('.unity')}
@@ -223,6 +232,8 @@ jobs:
               'reachable_paths':sorted(reachable),
               'roots':sorted(roots),
               'groups':dict(sorted(groups.items())),
+              'groups_depth3':dict(sorted(groups_depth3.items())),
+              'unreachable_paths':sorted(unreachable_paths,key=lambda x:(-x['size'],x['path'])),
               'scenes':scenes,
               'largest_files':largest,
               'stale_named_paths':stale_named,
@@ -240,6 +251,10 @@ jobs:
               f.write("\nPACKAGE CANDIDATES\n")
               for x in package_candidates:
                   f.write(json.dumps(x,ensure_ascii=False)+"\n")
+              f.write("\nDEPTH-3 GROUPS WITH UNREACHABLE CONTENT\n")
+              for key,x in sorted(groups_depth3.items()):
+                  if x['unreachable_files']:
+                      f.write(key+" "+json.dumps(x,ensure_ascii=False)+"\n")
               f.write("\nSCENES\n")
               for x in scenes:
                   f.write(json.dumps(x,ensure_ascii=False)+"\n")
