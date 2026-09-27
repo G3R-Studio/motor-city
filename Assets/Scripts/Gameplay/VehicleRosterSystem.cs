@@ -587,7 +587,7 @@ namespace MotorCity.Gameplay
                 profile.Id == "hybrid"
                     ? 4.45f
                     : profile.Id == "beatall"
-                        ? 3.45f
+                        ? 4.485f
                         : profile.Id == "delorean"
                             ? 4.62f
                             : profile.Id == "amggt"
