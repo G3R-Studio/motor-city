@@ -713,8 +713,10 @@ namespace MotorCity.Gameplay
                     externalVisual.GetComponentInChildren<Animator>(
                         true);
 
+                // Both authored Pixie prefabs are animated characters.
+                // Keep the shared animation path enabled for the supporter skin too.
                 usingHaonVisual =
-                    !useSupporterPixieSkin;
+                    true;
 
                 if (externalAnimator != null)
                 {
@@ -1117,9 +1119,17 @@ namespace MotorCity.Gameplay
                 return;
             }
 
+            string mappedState =
+                useSupporterPixieSkin
+                    ? MapKisoraState(
+                        state)
+                    : state;
+
             string fullStateName =
-                "Base Layer." +
-                state;
+                (useSupporterPixieSkin
+                    ? "Body Animation Layer."
+                    : "Base Layer.") +
+                mappedState;
 
             int hash =
                 Animator.StringToHash(
@@ -1155,6 +1165,30 @@ namespace MotorCity.Gameplay
                     transitionSeconds,
                     0);
             }
+        }
+
+        private static string MapKisoraState(
+            string pixieState)
+        {
+            return pixieState switch
+            {
+                "Pixie Follow" =>
+                    "running",
+
+                "Pixie Victory" or
+                "Pixie Clap" =>
+                    "winpose",
+
+                "Pixie Boost" =>
+                    "jump",
+
+                "Pixie Idle Alt" or
+                "Pixie Idle" =>
+                    "idle",
+
+                _ =>
+                    "idle"
+            };
         }
 
         public void SetSupporterPackSkin(
