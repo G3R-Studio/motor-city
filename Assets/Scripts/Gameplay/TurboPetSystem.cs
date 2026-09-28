@@ -154,6 +154,9 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
+            if (Time.timeScale <= 0f)
+                return;
+
             if (messageTimer > 0f)
             {
                 messageTimer =
@@ -170,6 +173,9 @@ namespace MotorCity.Gameplay
 
         private void LateUpdate()
         {
+            if (Time.timeScale <= 0f)
+                return;
+
             if (visualRoot == null ||
                 car == null)
             {
