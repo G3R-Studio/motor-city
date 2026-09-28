@@ -2395,41 +2395,37 @@ namespace MotorCity.UI
                 objectName == "HUD Pause" ||
                 objectName == "HUD More";
 
-            image.sprite = null;
-            image.type = Image.Type.Simple;
-            image.color =
-                hudUtilityButton
-                    ? new Color(
-                        0.055f,
-                        0.065f,
-                        0.09f,
-                        0.96f)
-                    : new Color(
-                        0.065f,
+            Texture2D buttonTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalButton;
+
+            Sprite buttonSprite =
+                GetModalButtonSprite(
+                    buttonTexture);
+
+            if (buttonSprite != null)
+            {
+                image.sprite =
+                    buttonSprite;
+                image.type =
+                    Image.Type.Simple;
+                image.preserveAspect =
+                    false;
+                image.color =
+                    Color.white;
+            }
+            else
+            {
+                image.color =
+                    new Color(
                         0.075f,
-                        0.105f,
-                        0.98f);
-
-            Outline buttonOutline =
-                buttonObject.AddComponent<Outline>();
-
-            buttonOutline.effectColor =
-                hudUtilityButton
-                    ? new Color(
-                        0.38f,
-                        0.58f,
-                        1f,
-                        0.55f)
-                    : new Color(
-                        0.42f,
-                        0.54f,
-                        0.86f,
-                        0.42f);
-
-            buttonOutline.effectDistance =
-                new Vector2(1f, -1f);
-
-            buttonOutline.useGraphicAlpha = true;
+                        0.07f,
+                        0.12f,
+                        hudUtilityButton
+                            ? 0.94f
+                            : 0.96f);
+            }
 
             Button button =
                 buttonObject.GetComponent<Button>();
@@ -2444,24 +2440,18 @@ namespace MotorCity.UI
                 Color.white;
             buttonColors.highlightedColor =
                 new Color(
-                    0.88f,
-                    0.94f,
+                    0.96f,
+                    0.96f,
                     1f,
                     1f);
             buttonColors.pressedColor =
                 new Color(
-                    0.62f,
-                    0.72f,
-                    0.95f,
+                    0.82f,
+                    0.80f,
+                    0.92f,
                     1f);
             buttonColors.selectedColor =
                 buttonColors.highlightedColor;
-            buttonColors.disabledColor =
-                new Color(
-                    0.42f,
-                    0.44f,
-                    0.50f,
-                    0.7f);
 
             button.colors =
                 buttonColors;
@@ -7818,18 +7808,64 @@ namespace MotorCity.UI
             Image image =
                 buttonObject.GetComponent<Image>();
 
-            image.color =
-                new Color(
-                    0.075f,
-                    0.07f,
-                    0.12f,
-                    0.94f);
+            Texture2D buttonTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalButton;
+
+            Sprite buttonSprite =
+                GetModalButtonSprite(
+                    buttonTexture);
+
+            if (buttonSprite != null)
+            {
+                image.sprite =
+                    buttonSprite;
+                image.type =
+                    Image.Type.Simple;
+                image.preserveAspect =
+                    false;
+                image.color =
+                    Color.white;
+            }
+            else
+            {
+                image.color =
+                    new Color(
+                        0.075f,
+                        0.07f,
+                        0.12f,
+                        0.94f);
+            }
 
             Button button =
                 buttonObject.GetComponent<Button>();
 
             button.targetGraphic =
                 image;
+
+            ColorBlock colors =
+                button.colors;
+
+            colors.normalColor =
+                Color.white;
+            colors.highlightedColor =
+                new Color(
+                    0.96f,
+                    0.96f,
+                    1f,
+                    1f);
+            colors.pressedColor =
+                new Color(
+                    0.82f,
+                    0.80f,
+                    0.92f,
+                    1f);
+            colors.selectedColor =
+                colors.highlightedColor;
+
+            button.colors =
+                colors;
 
             button.onClick.AddListener(
                 () =>
@@ -7890,42 +7926,34 @@ namespace MotorCity.UI
             Image image =
                 buttonObject.GetComponent<Image>();
 
-            bool hudQuickAction =
-                name.StartsWith(
-                    "HUD ",
-                    System.StringComparison.Ordinal);
+            Texture2D buttonTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalButton;
 
-            image.sprite = null;
-            image.type = Image.Type.Simple;
-            image.color =
-                hudQuickAction
-                    ? new Color(
-                        0.055f,
-                        0.065f,
-                        0.09f,
-                        0.96f)
-                    : new Color(
+            Sprite buttonSprite =
+                GetModalButtonSprite(
+                    buttonTexture);
+
+            if (buttonSprite != null)
+            {
+                image.sprite =
+                    buttonSprite;
+                image.type =
+                    Image.Type.Simple;
+                image.preserveAspect =
+                    false;
+                image.color =
+                    Color.white;
+            }
+            else
+            {
+                image.color =
+                    new Color(
                         0.075f,
                         0.07f,
                         0.12f,
                         0.94f);
-
-            if (hudQuickAction)
-            {
-                Outline outline =
-                    buttonObject.AddComponent<Outline>();
-
-                outline.effectColor =
-                    new Color(
-                        0.38f,
-                        0.58f,
-                        1f,
-                        0.48f);
-
-                outline.effectDistance =
-                    new Vector2(1f, -1f);
-
-                outline.useGraphicAlpha = true;
             }
 
             Button button =
@@ -7941,15 +7969,15 @@ namespace MotorCity.UI
                 Color.white;
             colors.highlightedColor =
                 new Color(
-                    0.90f,
-                    0.95f,
+                    0.96f,
+                    0.96f,
                     1f,
                     1f);
             colors.pressedColor =
                 new Color(
-                    0.62f,
-                    0.74f,
-                    0.96f,
+                    0.82f,
+                    0.80f,
+                    0.92f,
                     1f);
             colors.selectedColor =
                 colors.highlightedColor;
