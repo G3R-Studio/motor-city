@@ -396,7 +396,7 @@ namespace MotorCity.World
 
                     float cutoffFraction =
                         vehicleId == "bus"
-                            ? 0.82f
+                            ? 0.93f
                             : vehicleId == "camaro"
                                 ? 0.72f
                                 : 0.62f;
@@ -511,21 +511,21 @@ namespace MotorCity.World
                         // areas instead of letting the white fascia/roof glow.
                         overlayMaterial.SetFloat(
                             "_LateralMin",
-                            lateralMaxAbs * 0.58f);
+                            lateralMaxAbs * 0.66f);
 
                         overlayMaterial.SetFloat(
                             "_LateralMax",
-                            lateralMaxAbs * 0.96f);
+                            lateralMaxAbs * 0.94f);
 
                         overlayMaterial.SetFloat(
                             "_UpMin",
                             upMinimum +
-                            upSpan * 0.12f);
+                            upSpan * 0.16f);
 
                         overlayMaterial.SetFloat(
                             "_UpMax",
                             upMinimum +
-                            upSpan * 0.42f);
+                            upSpan * 0.31f);
                     }
 
                     overlayMaterial.SetFloat(
