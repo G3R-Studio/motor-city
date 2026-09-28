@@ -665,8 +665,15 @@ namespace MotorCity.Gameplay
                     speed,
                     accel,
                     Signed(grip),
-                    Signed(stability),
-                    profile.Character);
+                    Signed(stability));
+        }
+
+        public string GetCharacterLine()
+        {
+            if (!Valid(SelectedIndex))
+                return string.Empty;
+
+            return profiles[SelectedIndex].Character;
         }
 
         private void ApplySelectedVehicle()
