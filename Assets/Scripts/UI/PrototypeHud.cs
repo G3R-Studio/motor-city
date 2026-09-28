@@ -227,6 +227,7 @@ namespace MotorCity.UI
         private Text garageMoneyText;
         private Text garageReputationText;
         private Text garageLevelText;
+        private Text garageHeaderMasteryText;
         private Text garageStatusText;
         private Image garageVehicleStateIcon;
         private Text garageVehicleText;
@@ -7497,6 +7498,31 @@ namespace MotorCity.UI
                         0.5f),
                     SecondaryTextColor);
 
+            garageHeaderMasteryText =
+                CreateText(
+                    panel,
+                    "Garage Header Mastery",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.UpperRight,
+                    new Vector2(
+                        -16f,
+                        -44f),
+                    new Vector2(
+                        330f,
+                        18f),
+                    new Vector2(
+                        1f,
+                        1f),
+                    new Vector2(
+                        1f,
+                        1f),
+                    new Color(
+                        0.42f,
+                        0.82f,
+                        1f,
+                        1f));
+
             garageVehicleStateIcon =
                 CreateHudIcon(
                     panel,
@@ -8612,6 +8638,14 @@ namespace MotorCity.UI
                         : 1);
             }
 
+            if (garageHeaderMasteryText != null)
+            {
+                garageHeaderMasteryText.text =
+                    garage != null
+                        ? garage.VehicleMasteryShort
+                        : string.Empty;
+            }
+
             if (garageVehicleText != null)
             {
                 garageVehicleText.text =
@@ -8662,9 +8696,7 @@ namespace MotorCity.UI
             if (garageVehicleStatsText != null)
             {
                 garageVehicleStatsText.text =
-                    garage.VehicleStatsLine +
-                    "   •   " +
-                    garage.VehicleMasteryShort;
+                    garage.VehicleStatsLine;
             }
 
             if (garageMasteryFill != null)
