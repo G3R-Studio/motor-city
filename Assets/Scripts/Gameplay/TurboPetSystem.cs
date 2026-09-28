@@ -1204,12 +1204,11 @@ namespace MotorCity.Gameplay
             if (visualRoot == null)
                 return;
 
-            if (usingHaonVisual)
+            if (usingHaonVisual ||
+                useSupporterPixieSkin)
             {
-                // HAON CharacterSet prefabs are assembled characters. Their
-                // costume/body hierarchy must stay intact; toggling arbitrary
-                // child roots can hide limbs. Skin selection will be mapped to
-                // complete authored character sets separately.
+                // Both authored Pixie prefabs are complete characters.
+                // Never apply the primitive fallback tint to their materials.
                 return;
             }
 
