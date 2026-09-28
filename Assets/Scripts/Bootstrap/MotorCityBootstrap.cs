@@ -544,7 +544,8 @@ namespace MotorCity.Bootstrap
                 driftChallenge,
                 streetSprint,
                 circuitRace,
-                story);
+                story,
+                onboarding);
 #endif
 
             CreateDeliveryMarker(delivery, activityManager);
