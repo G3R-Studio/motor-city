@@ -9,6 +9,13 @@ Shader "MotorCity/StarterLampEmission"
         _Cutoff ("Axle Cutoff", Float) = 0
         _Softness ("Axle Softness", Float) = 0.08
         _Mode ("Mode: 0 rear red, 1 front white", Float) = 0
+        _SpatialMask ("Spatial Mask", Float) = 0
+        _LateralAxisOS ("Lateral Axis OS", Vector) = (1,0,0,0)
+        _UpAxisOS ("Up Axis OS", Vector) = (0,1,0,0)
+        _LateralMin ("Lateral Min", Float) = 0
+        _LateralMax ("Lateral Max", Float) = 100
+        _UpMin ("Up Min", Float) = -100
+        _UpMax ("Up Max", Float) = 100
     }
 
     SubShader
@@ -41,10 +48,24 @@ Shader "MotorCity/StarterLampEmission"
                 float _Cutoff;
                 float _Softness;
                 float _Mode;
+                float _SpatialMask;
+                float4 _LateralAxisOS;
+                float4 _UpAxisOS;
+                float _LateralMin;
+                float _LateralMax;
+                float _UpMin;
+                float _UpMax;
             CBUFFER_END
 
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
-            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float axisCoord : TEXCOORD1; };
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                float axisCoord : TEXCOORD1;
+                float lateralCoord : TEXCOORD2;
+                float upCoord : TEXCOORD3;
+            };
 
             Varyings Vert(Attributes input)
             {
@@ -52,6 +73,8 @@ Shader "MotorCity/StarterLampEmission"
                 o.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 o.uv = TRANSFORM_TEX(input.uv, _BaseMap);
                 o.axisCoord = dot(input.positionOS.xyz, _AxisOS.xyz);
+                o.lateralCoord = dot(input.positionOS.xyz, _LateralAxisOS.xyz);
+                o.upCoord = dot(input.positionOS.xyz, _UpAxisOS.xyz);
                 return o;
             }
 
@@ -85,7 +108,43 @@ Shader "MotorCity/StarterLampEmission"
                 half rearSide = 1.0h - frontSide;
                 half colorMask = lerp(rearColor, frontColor, saturate(_Mode));
                 half sideMask = lerp(rearSide, frontSide, saturate(_Mode));
-                half mask = colorMask * sideMask * tex.a;
+
+                half lateral =
+                    abs(input.lateralCoord);
+
+                half lateralMask =
+                    smoothstep(
+                        _LateralMin,
+                        _LateralMin + 0.03h,
+                        lateral) *
+                    (1.0h -
+                     smoothstep(
+                        _LateralMax - 0.03h,
+                        _LateralMax,
+                        lateral));
+
+                half upMask =
+                    smoothstep(
+                        _UpMin,
+                        _UpMin + 0.03h,
+                        input.upCoord) *
+                    (1.0h -
+                     smoothstep(
+                        _UpMax - 0.03h,
+                        _UpMax,
+                        input.upCoord));
+
+                half spatialMask =
+                    lerp(
+                        1.0h,
+                        lateralMask * upMask,
+                        saturate(_SpatialMask));
+
+                half mask =
+                    colorMask *
+                    sideMask *
+                    spatialMask *
+                    tex.a;
 
                 clip(mask - 0.015h);
 
