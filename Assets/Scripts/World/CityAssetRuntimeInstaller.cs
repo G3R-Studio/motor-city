@@ -115,12 +115,12 @@ namespace MotorCity.World
         private static bool hasCityBounds;
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
-            new(-571.8282f, 0.1852762f, 504.9257f);
+            new(-570f, 0.25f, 505.109f);
 
         public static Quaternion PlayerSpawnRotation { get; private set; } =
             Quaternion.Euler(
                 0f,
-                -89.53f,
+                90f,
                 0f);
 
         // Dedicated player garage on the authored parking apron.
@@ -443,14 +443,14 @@ namespace MotorCity.World
 
             PlayerSpawnPoint =
                 new Vector3(
-                    -571.8282f,
-                    0.1852762f,
-                    504.9257f);
+                    -570f,
+                    0.25f,
+                    505.109f);
 
             PlayerSpawnRotation =
                 Quaternion.Euler(
                     0f,
-                    -89.53f,
+                    90f,
                     0f);
 
             DriftChallengePoint =
