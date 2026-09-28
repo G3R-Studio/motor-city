@@ -529,6 +529,14 @@ namespace MotorCity.World
                                 0f));
 
                         overlayMaterial.SetVector(
+                            "_UvCenter2",
+                            new Vector4(
+                                0.482f,
+                                0.222f,
+                                0f,
+                                0f));
+
+                        overlayMaterial.SetVector(
                             "_UvTolerance",
                             new Vector4(
                                 0.006f,
