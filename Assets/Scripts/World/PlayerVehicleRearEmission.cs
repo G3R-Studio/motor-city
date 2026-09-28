@@ -243,6 +243,13 @@ namespace MotorCity.World
                     continue;
                 }
 
+                if (vehicleId == "amggt" &&
+                    BindAmgRearEmission(
+                        renderer))
+                {
+                    continue;
+                }
+
                 BindExistingLampMaterials(
                     renderer);
             }
@@ -571,6 +578,151 @@ namespace MotorCity.World
             return material;
         }
 
+        private bool BindAmgRearEmission(
+            Renderer renderer)
+        {
+            if (renderer == null ||
+                starterLampShader == null ||
+                !starterLampShader.isSupported)
+            {
+                return false;
+            }
+
+            MeshFilter filter =
+                renderer.GetComponent<MeshFilter>();
+
+            if (filter == null ||
+                filter.sharedMesh == null)
+            {
+                return false;
+            }
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                Material source =
+                    materials[i];
+
+                if (source == null)
+                    continue;
+
+                string materialName =
+                    source.name
+                        .ToLowerInvariant();
+
+                if (!materialName.Contains(
+                        "amggtemission") &&
+                    !materialName.Contains(
+                        "gradientemmisive") &&
+                    !materialName.Contains(
+                        "gradientemissive"))
+                {
+                    continue;
+                }
+
+                Texture texture =
+                    ResolveBaseTexture(
+                        source);
+
+                if (texture == null)
+                    continue;
+
+                Vector3 forwardAxis =
+                    renderer.transform
+                        .InverseTransformDirection(
+                            transform.forward)
+                        .normalized;
+
+                ResolveProjectionRange(
+                    filter.sharedMesh.bounds,
+                    forwardAxis,
+                    out float minimum,
+                    out float maximum);
+
+                float cutoff =
+                    Mathf.Lerp(
+                        minimum,
+                        maximum,
+                        0.50f);
+
+                float softness =
+                    Mathf.Max(
+                        0.025f,
+                        (maximum - minimum) *
+                        0.035f);
+
+                Material rear =
+                    CreateStarterOverlayMaterial(
+                        source,
+                        texture,
+                        forwardAxis,
+                        cutoff,
+                        softness,
+                        false);
+
+                Material[] slots =
+                    new Material[
+                        materials.Length];
+
+                slots[i] =
+                    rear;
+
+                GameObject root =
+                    new(
+                        "MotorCityAmgRearLampOverlay");
+
+                root.transform.SetParent(
+                    renderer.transform.parent,
+                    false);
+
+                root.transform.localPosition =
+                    renderer.transform.localPosition;
+
+                root.transform.localRotation =
+                    renderer.transform.localRotation;
+
+                root.transform.localScale =
+                    renderer.transform.localScale;
+
+                MeshFilter overlayFilter =
+                    root.AddComponent<MeshFilter>();
+
+                overlayFilter.sharedMesh =
+                    filter.sharedMesh;
+
+                MeshRenderer overlayRenderer =
+                    root.AddComponent<MeshRenderer>();
+
+                overlayRenderer.sharedMaterials =
+                    slots;
+
+                overlayRenderer.shadowCastingMode =
+                    UnityEngine.Rendering.ShadowCastingMode.Off;
+
+                overlayRenderer.receiveShadows =
+                    false;
+
+                runtimeMaterials.Add(
+                    rear);
+
+                starterLampOverlays.Add(
+                    new StarterLampOverlay
+                    {
+                        Root = root,
+                        RearMaterial = rear,
+                        FrontMaterial = null
+                    });
+
+                return true;
+            }
+
+            return false;
+        }
+
         private void BindExistingLampMaterials(
             Renderer renderer)
         {
@@ -614,9 +766,22 @@ namespace MotorCity.World
                 // cars keep them in the same rear cluster, so explicitly
                 // exclude them from the rear-emission controller.
                 if (materialName.Contains("indicator") ||
+                    materialName.Contains("indicators") ||
                     materialName.Contains("turnsignal") ||
-                    materialName.Contains("turn_signal"))
+                    materialName.Contains("turn_signal") ||
+                    materialName.Contains("turn signal") ||
+                    materialName.Contains("amber"))
                 {
+                    if (source.HasProperty("_EmissionColor"))
+                    {
+                        source.SetColor(
+                            "_EmissionColor",
+                            Color.black);
+                    }
+
+                    source.DisableKeyword(
+                        "_EMISSION");
+
                     continue;
                 }
 
@@ -680,9 +845,16 @@ namespace MotorCity.World
                         Material = runtime,
                         OriginalMaterial = source,
                         BaseEmission =
-                            ResolveBaseEmission(
-                                runtime,
-                                source),
+                            vehicleId == "porsche996" &&
+                            materialName.Contains("rearlight")
+                                ? new Color(
+                                    1.35f,
+                                    0.025f,
+                                    0.012f,
+                                    1f)
+                                : ResolveBaseEmission(
+                                    runtime,
+                                    source),
                         RearSpecific =
                             rearSpecific
                     });
@@ -1326,6 +1498,21 @@ namespace MotorCity.World
             out float blueLow,
             out float blueHigh)
         {
+            if (vehicleId == "amggt")
+            {
+                rearCutoffFraction = 0.58f;
+                rearSoftnessFraction = 0.045f;
+                chromaLow = 0.10f;
+                chromaHigh = 0.28f;
+                redLow = 0.34f;
+                redHigh = 0.66f;
+                greenLow = 0.24f;
+                greenHigh = 0.52f;
+                blueLow = 0.22f;
+                blueHigh = 0.48f;
+                return;
+            }
+
             rearCutoffFraction = 0.70f;
             rearSoftnessFraction = 0.035f;
             chromaLow = 0.22f;
