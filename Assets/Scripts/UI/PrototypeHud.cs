@@ -73,6 +73,8 @@ namespace MotorCity.UI
         private MotorCityUiThemeAssets uiThemeAssets;
         private static Sprite modalButtonSprite;
         private static Texture2D modalButtonSpriteSource;
+        private static readonly Dictionary<Texture2D, Sprite> slicedPanelSprites =
+            new();
 
         private Text moneyText;
         private Text reputationText;
@@ -10580,7 +10582,7 @@ namespace MotorCity.UI
                 new(
                     "Ville Modal Background",
                     typeof(RectTransform),
-                    typeof(RawImage));
+                    typeof(Image));
 
             backgroundObject.transform.SetParent(
                 panel,
@@ -10600,11 +10602,18 @@ namespace MotorCity.UI
             rect.offsetMax =
                 Vector2.zero;
 
-            RawImage image =
-                backgroundObject.GetComponent<RawImage>();
+            Image image =
+                backgroundObject.GetComponent<Image>();
 
-            image.texture =
-                texture;
+            image.sprite =
+                GetSlicedPanelSprite(
+                    texture);
+            image.type =
+                Image.Type.Sliced;
+            image.fillCenter =
+                true;
+            image.pixelsPerUnitMultiplier =
+                1f;
             image.color =
                 Color.white;
             image.raycastTarget =
@@ -10639,7 +10648,7 @@ namespace MotorCity.UI
                 new(
                     "Ville Panel Background",
                     typeof(RectTransform),
-                    typeof(RawImage));
+                    typeof(Image));
 
             backgroundObject.transform.SetParent(
                 panel,
@@ -10659,17 +10668,18 @@ namespace MotorCity.UI
             rect.offsetMax =
                 Vector2.zero;
 
-            RawImage image =
-                backgroundObject.GetComponent<RawImage>();
+            Image image =
+                backgroundObject.GetComponent<Image>();
 
-            image.texture =
-                texture;
-            image.uvRect =
-                new Rect(
-                    0f,
-                    0f,
-                    1f,
-                    1f);
+            image.sprite =
+                GetSlicedPanelSprite(
+                    texture);
+            image.type =
+                Image.Type.Sliced;
+            image.fillCenter =
+                true;
+            image.pixelsPerUnitMultiplier =
+                1f;
             image.color =
                 new Color(
                     1f,
@@ -10678,6 +10688,61 @@ namespace MotorCity.UI
                     Mathf.Clamp01(alpha));
             image.raycastTarget =
                 false;
+        }
+
+        private static Sprite GetSlicedPanelSprite(
+            Texture2D texture)
+        {
+            if (texture == null)
+                return null;
+
+            if (slicedPanelSprites.TryGetValue(
+                    texture,
+                    out Sprite cached) &&
+                cached != null)
+            {
+                return cached;
+            }
+
+            float minDimension =
+                Mathf.Min(
+                    texture.width,
+                    texture.height);
+
+            float border =
+                Mathf.Clamp(
+                    minDimension * 0.16f,
+                    12f,
+                    64f);
+
+            Sprite sprite =
+                Sprite.Create(
+                    texture,
+                    new Rect(
+                        0f,
+                        0f,
+                        texture.width,
+                        texture.height),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    100f,
+                    0u,
+                    SpriteMeshType.FullRect,
+                    new Vector4(
+                        border,
+                        border,
+                        border,
+                        border));
+
+            sprite.name =
+                texture.name +
+                " (Runtime 9-slice)";
+
+            slicedPanelSprites[texture] =
+                sprite;
+
+            return sprite;
         }
 
         private static Color ResolvePanelGlowColor(
@@ -10807,7 +10872,7 @@ namespace MotorCity.UI
                 new(
                     objectName,
                     typeof(RectTransform),
-                    typeof(RawImage));
+                    typeof(Image));
 
             glowObject.transform.SetParent(
                 panel,
@@ -10831,11 +10896,18 @@ namespace MotorCity.UI
                     expansion,
                     expansion);
 
-            RawImage image =
-                glowObject.GetComponent<RawImage>();
+            Image image =
+                glowObject.GetComponent<Image>();
 
-            image.texture =
-                texture;
+            image.sprite =
+                GetSlicedPanelSprite(
+                    texture);
+            image.type =
+                Image.Type.Sliced;
+            image.fillCenter =
+                true;
+            image.pixelsPerUnitMultiplier =
+                1f;
 
             image.color =
                 new Color(
