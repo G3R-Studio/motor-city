@@ -29,13 +29,9 @@ namespace MotorCity.Vehicle
             engineClip =
                 BuildEngineClip();
 
-            // Tire/skid sound is intentionally not synthesized anymore.
-            // The user will provide the real clip. When it is added at
-            // Resources/MotorCity/Audio/TireScreech, it will be picked up
-            // automatically without changing code.
             tireClip =
                 Resources.Load<AudioClip>(
-                    "MotorCity/Audio/TireScreech");
+                    "MotorCity/Audio/TireSkid");
 
             engineSource =
                 CreateSource(
@@ -59,8 +55,7 @@ namespace MotorCity.Vehicle
 
             engineSource.Play();
 
-            if (tireSource != null)
-                tireSource.Play();
+            // Tire skid starts only when sliding/handbraking.
         }
 
         private void Update()
@@ -113,46 +108,52 @@ namespace MotorCity.Vehicle
 
             if (tireSource != null)
             {
-                float slide =
+                float slideIntensity =
                     Mathf.Clamp01(
                         Mathf.Max(
                             car.DriftIntensity,
-                            car.IsSliding
-                                ? 0.55f
-                                : 0f));
+                            Mathf.Abs(
+                                car.RearSidewaysSlip) *
+                            1.8f));
 
-                if (car.HandbrakeInputHeld &&
-                    car.SpeedKph > 12f)
-                {
-                    slide =
-                        Mathf.Max(
-                            slide,
-                            Mathf.InverseLerp(
-                                12f,
-                                55f,
-                                car.SpeedKph));
-                }
+                bool shouldScreech =
+                    car.SpeedKph > 16f &&
+                    (car.IsSliding ||
+                     (car.HandbrakeInputHeld &&
+                      car.SpeedKph > 24f));
 
                 float targetTireVolume =
-                    slide *
-                    Mathf.InverseLerp(
-                        8f,
-                        42f,
-                        car.SpeedKph) *
-                    0.42f;
+                    shouldScreech
+                        ? Mathf.Lerp(
+                            0.04f,
+                            0.24f,
+                            slideIntensity)
+                        : 0f;
 
                 tireSource.volume =
                     Mathf.MoveTowards(
                         tireSource.volume,
                         targetTireVolume,
                         Time.unscaledDeltaTime *
-                        3.8f);
+                        (shouldScreech
+                            ? 0.70f
+                            : 1.20f));
 
                 tireSource.pitch =
                     Mathf.Lerp(
-                        0.92f,
-                        1.08f,
-                        speed01);
+                        0.82f,
+                        0.98f,
+                        slideIntensity);
+
+                if (tireSource.volume > 0.005f)
+                {
+                    if (!tireSource.isPlaying)
+                        tireSource.Play();
+                }
+                else if (tireSource.isPlaying)
+                {
+                    tireSource.Stop();
+                }
             }
         }
 
