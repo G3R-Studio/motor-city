@@ -396,9 +396,7 @@ namespace MotorCity.Gameplay
             if (candidate == SelectedIndex)
             {
                 status =
-                    direction < 0
-                        ? MotorCityLocalization.Text("vehicle.first")
-                        : MotorCityLocalization.Text("vehicle.last");
+                    string.Empty;
 
                 return false;
             }
