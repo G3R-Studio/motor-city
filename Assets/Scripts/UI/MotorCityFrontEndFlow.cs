@@ -466,11 +466,22 @@ namespace MotorCity.UI
 
             if (introImageRect != null)
             {
+                float zoomProgress =
+                    Mathf.Clamp01(
+                        introVisualTimer /
+                        IntroAutoSeconds);
+
+                float easedZoom =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        zoomProgress);
+
                 float zoom =
-                    1f +
-                    Mathf.Min(
-                        0.045f,
-                        introVisualTimer * 0.0025f);
+                    Mathf.Lerp(
+                        1f,
+                        1.095f,
+                        easedZoom);
 
                 introImageRect.localScale =
                     new Vector3(
@@ -481,11 +492,22 @@ namespace MotorCity.UI
 
             if (introPreviousImageRect != null)
             {
+                float previousProgress =
+                    Mathf.Clamp01(
+                        introVisualTimer /
+                        IntroAutoSeconds);
+
+                float previousEased =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        previousProgress);
+
                 float previousZoom =
-                    1f +
-                    Mathf.Min(
-                        0.035f,
-                        introVisualTimer * 0.0015f);
+                    Mathf.Lerp(
+                        1f,
+                        1.07f,
+                        previousEased);
 
                 introPreviousImageRect.localScale =
                     new Vector3(
