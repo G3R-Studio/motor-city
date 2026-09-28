@@ -365,6 +365,10 @@ namespace MotorCity.World
                     bool useMaskedFrontOverlay =
                         (vehicleId == "amggt" &&
                          materialName.Contains("amggtemission")) ||
+                        (vehicleId == "camaro" &&
+                         (materialName.Contains("camarobloom") ||
+                          materialName.Contains("color_bloom") ||
+                          materialName.Contains("bloom"))) ||
                         (vehicleId == "bus" &&
                          materialName.Contains("busatlas"));
 
@@ -390,19 +394,58 @@ namespace MotorCity.World
                         out float minimum,
                         out float maximum);
 
+                    float cutoffFraction =
+                        vehicleId == "bus"
+                            ? 0.82f
+                            : vehicleId == "camaro"
+                                ? 0.72f
+                                : 0.62f;
+
                     float cutoff =
                         Mathf.Lerp(
                             minimum,
                             maximum,
-                            vehicleId == "bus"
-                                ? 0.78f
-                                : 0.62f);
+                            cutoffFraction);
 
                     float softness =
                         Mathf.Max(
                             0.02f,
                             (maximum - minimum) *
                             0.035f);
+
+                    Vector3 lateralAxis =
+                        renderer.transform
+                            .InverseTransformDirection(
+                                transform.right)
+                            .normalized;
+
+                    Vector3 upAxis =
+                        renderer.transform
+                            .InverseTransformDirection(
+                                transform.up)
+                            .normalized;
+
+                    ResolveProjectionRange(
+                        filter.sharedMesh.bounds,
+                        lateralAxis,
+                        out float lateralMinimum,
+                        out float lateralMaximum);
+
+                    ResolveProjectionRange(
+                        filter.sharedMesh.bounds,
+                        upAxis,
+                        out float upMinimum,
+                        out float upMaximum);
+
+                    float lateralMaxAbs =
+                        Mathf.Max(
+                            Mathf.Abs(lateralMinimum),
+                            Mathf.Abs(lateralMaximum));
+
+                    float upSpan =
+                        Mathf.Max(
+                            0.001f,
+                            upMaximum - upMinimum);
 
                     Material overlayMaterial =
                         new Material(
@@ -435,6 +478,55 @@ namespace MotorCity.World
                     overlayMaterial.SetFloat(
                         "_Softness",
                         softness);
+
+                    overlayMaterial.SetVector(
+                        "_LateralAxisOS",
+                        new Vector4(
+                            lateralAxis.x,
+                            lateralAxis.y,
+                            lateralAxis.z,
+                            0f));
+
+                    overlayMaterial.SetVector(
+                        "_UpAxisOS",
+                        new Vector4(
+                            upAxis.x,
+                            upAxis.y,
+                            upAxis.z,
+                            0f));
+
+                    bool useSpatialMask =
+                        vehicleId == "bus";
+
+                    overlayMaterial.SetFloat(
+                        "_SpatialMask",
+                        useSpatialMask
+                            ? 1f
+                            : 0f);
+
+                    if (useSpatialMask)
+                    {
+                        // The bus uses one bright palette over the whole body.
+                        // Restrict the overlay to the two low outer headlamp
+                        // areas instead of letting the white fascia/roof glow.
+                        overlayMaterial.SetFloat(
+                            "_LateralMin",
+                            lateralMaxAbs * 0.58f);
+
+                        overlayMaterial.SetFloat(
+                            "_LateralMax",
+                            lateralMaxAbs * 0.96f);
+
+                        overlayMaterial.SetFloat(
+                            "_UpMin",
+                            upMinimum +
+                            upSpan * 0.12f);
+
+                        overlayMaterial.SetFloat(
+                            "_UpMax",
+                            upMinimum +
+                            upSpan * 0.42f);
+                    }
 
                     overlayMaterial.SetFloat(
                         "_Mode",
