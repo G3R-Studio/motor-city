@@ -36,13 +36,24 @@ namespace MotorCity.UI
         private RawImage introPreviousImage;
         private RectTransform introPreviousImageRect;
         private CanvasGroup introTextGroup;
+
+        private GameObject loadingRoot;
+        private RectTransform loadingWheel;
+        private Image loadingProgressFill;
+        private RectTransform loadingRoad;
+        private Text loadingStatusText;
+
         private Font font;
 
         private int introIndex;
         private float introAutoTimer;
         private float introVisualTimer;
         private const float IntroAutoSeconds = 7f;
+        private const float LoadingDurationSeconds = 2.6f;
+
         private bool hasExistingProgress;
+        private bool loadingActive;
+        private float loadingTimer;
 
         private readonly IntroSlide[] slides =
         {
@@ -133,15 +144,18 @@ namespace MotorCity.UI
             aboutRoot = CreateScreen("About Screen", new Color(0.01f, 0.015f, 0.025f, 0.97f));
             settingsRoot = CreateScreen("Settings Screen", new Color(0.01f, 0.015f, 0.025f, 0.97f));
             introRoot = CreateScreen("Intro Screen", Color.black);
+            loadingRoot = CreateScreen("Loading Screen", new Color(0.008f, 0.014f, 0.024f, 1f));
 
             BuildMainMenu();
             BuildAbout();
             BuildSettings();
             BuildIntro();
+            BuildLoadingScreen();
 
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
             introRoot.SetActive(false);
+            loadingRoot.SetActive(false);
         }
 
         private GameObject CreateScreen(string name, Color color)
@@ -327,6 +341,235 @@ namespace MotorCity.UI
             CreateButton(introRoot.transform, IsRussian() ? "ДАЛЬШЕ" : "NEXT", new Vector2(-350f, 70f), new Vector2(240f, 58f), NextIntro, new Vector2(1f, 0f));
         }
 
+
+        private void BuildLoadingScreen()
+        {
+            Text title = CreateText(
+                loadingRoot.transform,
+                "MOTOR CITY",
+                54,
+                FontStyle.Bold,
+                TextAnchor.MiddleCenter,
+                new Vector2(0f, 118f),
+                new Vector2(760f, 90f),
+                new Vector2(0.5f, 0.5f));
+
+            title.color =
+                new Color(0.90f, 0.95f, 1f, 1f);
+
+            loadingStatusText = CreateText(
+                loadingRoot.transform,
+                IsRussian() ? "ГОТОВИМ ГОРОД..." : "PREPARING THE CITY...",
+                22,
+                FontStyle.Bold,
+                TextAnchor.MiddleCenter,
+                new Vector2(0f, 48f),
+                new Vector2(760f, 52f),
+                new Vector2(0.5f, 0.5f));
+
+            loadingStatusText.color =
+                new Color(0.48f, 0.72f, 1f, 1f);
+
+            GameObject wheelObject =
+                new("Loading Wheel", typeof(RectTransform));
+
+            wheelObject.transform.SetParent(
+                loadingRoot.transform,
+                false);
+
+            loadingWheel =
+                wheelObject.GetComponent<RectTransform>();
+
+            loadingWheel.anchorMin =
+                new Vector2(0.5f, 0.5f);
+            loadingWheel.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            loadingWheel.pivot =
+                new Vector2(0.5f, 0.5f);
+            loadingWheel.anchoredPosition =
+                new Vector2(0f, -42f);
+            loadingWheel.sizeDelta =
+                new Vector2(106f, 106f);
+
+            for (int i = 0; i < 10; i++)
+            {
+                GameObject spoke =
+                    new("Wheel Spoke", typeof(RectTransform), typeof(Image));
+
+                spoke.transform.SetParent(
+                    loadingWheel,
+                    false);
+
+                RectTransform spokeRect =
+                    spoke.GetComponent<RectTransform>();
+
+                spokeRect.anchorMin =
+                    new Vector2(0.5f, 0.5f);
+                spokeRect.anchorMax =
+                    new Vector2(0.5f, 0.5f);
+                spokeRect.pivot =
+                    new Vector2(0.5f, 0f);
+                spokeRect.anchoredPosition =
+                    Vector2.zero;
+                spokeRect.sizeDelta =
+                    new Vector2(9f, 43f);
+                spokeRect.localRotation =
+                    Quaternion.Euler(
+                        0f,
+                        0f,
+                        i * 36f);
+
+                Image spokeImage =
+                    spoke.GetComponent<Image>();
+
+                float alpha =
+                    Mathf.Lerp(
+                        0.24f,
+                        0.96f,
+                        (i + 1f) / 10f);
+
+                spokeImage.color =
+                    new Color(
+                        0.28f,
+                        0.66f,
+                        1f,
+                        alpha);
+                spokeImage.raycastTarget =
+                    false;
+            }
+
+            GameObject hub =
+                new("Wheel Hub", typeof(RectTransform), typeof(Image));
+
+            hub.transform.SetParent(
+                loadingWheel,
+                false);
+
+            RectTransform hubRect =
+                hub.GetComponent<RectTransform>();
+
+            hubRect.anchorMin =
+                new Vector2(0.5f, 0.5f);
+            hubRect.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            hubRect.pivot =
+                new Vector2(0.5f, 0.5f);
+            hubRect.anchoredPosition =
+                Vector2.zero;
+            hubRect.sizeDelta =
+                new Vector2(34f, 34f);
+
+            hub.GetComponent<Image>().color =
+                new Color(0.055f, 0.11f, 0.19f, 1f);
+
+            GameObject roadObject =
+                new("Loading Road", typeof(RectTransform));
+
+            roadObject.transform.SetParent(
+                loadingRoot.transform,
+                false);
+
+            loadingRoad =
+                roadObject.GetComponent<RectTransform>();
+
+            loadingRoad.anchorMin =
+                new Vector2(0.5f, 0.5f);
+            loadingRoad.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            loadingRoad.pivot =
+                new Vector2(0.5f, 0.5f);
+            loadingRoad.anchoredPosition =
+                new Vector2(0f, -132f);
+            loadingRoad.sizeDelta =
+                new Vector2(620f, 24f);
+
+            for (int i = 0; i < 8; i++)
+            {
+                GameObject dash =
+                    new("Road Dash", typeof(RectTransform), typeof(Image));
+
+                dash.transform.SetParent(
+                    loadingRoad,
+                    false);
+
+                RectTransform dashRect =
+                    dash.GetComponent<RectTransform>();
+
+                dashRect.anchorMin =
+                    new Vector2(0.5f, 0.5f);
+                dashRect.anchorMax =
+                    new Vector2(0.5f, 0.5f);
+                dashRect.pivot =
+                    new Vector2(0.5f, 0.5f);
+                dashRect.anchoredPosition =
+                    new Vector2(
+                        -280f + i * 80f,
+                        0f);
+                dashRect.sizeDelta =
+                    new Vector2(44f, 5f);
+
+                dash.GetComponent<Image>().color =
+                    new Color(0.68f, 0.82f, 1f, 0.78f);
+            }
+
+            GameObject progressBack =
+                new("Loading Progress Back", typeof(RectTransform), typeof(Image));
+
+            progressBack.transform.SetParent(
+                loadingRoot.transform,
+                false);
+
+            RectTransform progressBackRect =
+                progressBack.GetComponent<RectTransform>();
+
+            progressBackRect.anchorMin =
+                new Vector2(0.5f, 0.5f);
+            progressBackRect.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            progressBackRect.pivot =
+                new Vector2(0.5f, 0.5f);
+            progressBackRect.anchoredPosition =
+                new Vector2(0f, -188f);
+            progressBackRect.sizeDelta =
+                new Vector2(620f, 10f);
+
+            progressBack.GetComponent<Image>().color =
+                new Color(0.08f, 0.14f, 0.22f, 1f);
+
+            GameObject progressFill =
+                new("Loading Progress Fill", typeof(RectTransform), typeof(Image));
+
+            progressFill.transform.SetParent(
+                progressBack.transform,
+                false);
+
+            RectTransform progressFillRect =
+                progressFill.GetComponent<RectTransform>();
+
+            progressFillRect.anchorMin =
+                new Vector2(0f, 0f);
+            progressFillRect.anchorMax =
+                new Vector2(1f, 1f);
+            progressFillRect.offsetMin =
+                Vector2.zero;
+            progressFillRect.offsetMax =
+                Vector2.zero;
+
+            loadingProgressFill =
+                progressFill.GetComponent<Image>();
+
+            loadingProgressFill.color =
+                new Color(0.24f, 0.62f, 1f, 1f);
+            loadingProgressFill.type =
+                Image.Type.Filled;
+            loadingProgressFill.fillMethod =
+                Image.FillMethod.Horizontal;
+            loadingProgressFill.fillOrigin =
+                0;
+            loadingProgressFill.fillAmount =
+                0f;
+        }
+
         public void ResetForTesting()
         {
             MotorCitySaveService.DeleteKey(
@@ -383,6 +626,9 @@ namespace MotorCity.UI
                 introPreviousImage.texture =
                     introImage.texture;
 
+                introPreviousImage.uvRect =
+                    introImage.uvRect;
+
                 Color currentColor =
                     introImage.color;
 
@@ -423,15 +669,19 @@ namespace MotorCity.UI
             if (introTextGroup != null)
                 introTextGroup.alpha = 0f;
 
-            if (introImageRect != null)
-                introImageRect.localScale = Vector3.one;
-
-            if (introPreviousImageRect != null)
-                introPreviousImageRect.localScale = Vector3.one;
+            if (introImage != null)
+                introImage.uvRect =
+                    new Rect(0f, 0f, 1f, 1f);
         }
 
         private void Update()
         {
+            if (loadingActive)
+            {
+                UpdateLoadingAnimation();
+                return;
+            }
+
             if (introRoot == null ||
                 !introRoot.activeSelf)
             {
@@ -464,7 +714,7 @@ namespace MotorCity.UI
                         (introVisualTimer - 0.15f) / 0.55f);
             }
 
-            if (introImageRect != null)
+            if (introImage != null)
             {
                 float zoomProgress =
                     Mathf.Clamp01(
@@ -472,48 +722,27 @@ namespace MotorCity.UI
                         IntroAutoSeconds);
 
                 float easedZoom =
-                    Mathf.SmoothStep(
-                        0f,
-                        1f,
-                        zoomProgress);
+                    zoomProgress * zoomProgress *
+                    (3f - 2f * zoomProgress);
 
-                float zoom =
+                float crop =
                     Mathf.Lerp(
-                        1f,
-                        1.095f,
+                        0f,
+                        0.108f,
                         easedZoom);
 
-                introImageRect.localScale =
-                    new Vector3(
-                        zoom,
-                        zoom,
-                        1f);
-            }
+                float uvSize =
+                    1f - crop;
 
-            if (introPreviousImageRect != null)
-            {
-                float previousProgress =
-                    Mathf.Clamp01(
-                        introVisualTimer /
-                        IntroAutoSeconds);
+                float uvOffset =
+                    crop * 0.5f;
 
-                float previousEased =
-                    Mathf.SmoothStep(
-                        0f,
-                        1f,
-                        previousProgress);
-
-                float previousZoom =
-                    Mathf.Lerp(
-                        1f,
-                        1.07f,
-                        previousEased);
-
-                introPreviousImageRect.localScale =
-                    new Vector3(
-                        previousZoom,
-                        previousZoom,
-                        1f);
+                introImage.uvRect =
+                    new Rect(
+                        uvOffset,
+                        uvOffset,
+                        uvSize,
+                        uvSize);
             }
 
             if (introAutoTimer >= IntroAutoSeconds)
@@ -522,9 +751,107 @@ namespace MotorCity.UI
 
         private void CompleteIntro()
         {
+            if (loadingActive)
+                return;
+
             MotorCitySaveService.SetInt(IntroCompleteKey, 1);
             MotorCitySaveService.Save();
             hasExistingProgress = true;
+
+            introRoot.SetActive(false);
+            StartLoadingTransition();
+        }
+
+        private void StartLoadingTransition()
+        {
+            loadingTimer = 0f;
+            loadingActive = true;
+
+            loadingRoot.SetActive(true);
+
+            if (loadingProgressFill != null)
+                loadingProgressFill.fillAmount = 0f;
+
+            if (loadingWheel != null)
+                loadingWheel.localRotation = Quaternion.identity;
+
+            if (loadingRoad != null)
+                loadingRoad.anchoredPosition =
+                    new Vector2(0f, -132f);
+        }
+
+        private void UpdateLoadingAnimation()
+        {
+            loadingTimer +=
+                Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    loadingTimer /
+                    LoadingDurationSeconds);
+
+            float easedProgress =
+                progress * progress *
+                (3f - 2f * progress);
+
+            if (loadingWheel != null)
+            {
+                loadingWheel.Rotate(
+                    0f,
+                    0f,
+                    -210f * Time.unscaledDeltaTime);
+            }
+
+            if (loadingRoad != null)
+            {
+                float roadLoop =
+                    Mathf.Repeat(
+                        loadingTimer * 120f,
+                        80f);
+
+                loadingRoad.anchoredPosition =
+                    new Vector2(
+                        -roadLoop,
+                        -132f);
+            }
+
+            if (loadingProgressFill != null)
+            {
+                loadingProgressFill.fillAmount =
+                    easedProgress;
+            }
+
+            if (loadingStatusText != null)
+            {
+                if (progress < 0.34f)
+                {
+                    loadingStatusText.text =
+                        IsRussian()
+                            ? "ГОТОВИМ ГОРОД..."
+                            : "PREPARING THE CITY...";
+                }
+                else if (progress < 0.72f)
+                {
+                    loadingStatusText.text =
+                        IsRussian()
+                            ? "ЗАПУСКАЕМ МАРШРУТЫ..."
+                            : "STARTING THE ROUTES...";
+                }
+                else
+                {
+                    loadingStatusText.text =
+                        IsRussian()
+                            ? "ПОЕХАЛИ."
+                            : "LET'S DRIVE.";
+                }
+            }
+
+            if (progress < 1f)
+                return;
+
+            loadingActive = false;
+            loadingRoot.SetActive(false);
+
             EnterGameplay();
             onboarding?.ShowPathPrompt();
         }
@@ -550,6 +877,11 @@ namespace MotorCity.UI
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
             introRoot.SetActive(false);
+            loadingActive = false;
+
+            if (loadingRoot != null)
+                loadingRoot.SetActive(false);
+
             RefreshMainMenuText();
         }
 
