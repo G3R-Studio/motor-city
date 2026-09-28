@@ -4110,13 +4110,6 @@ namespace MotorCity.UI
                 return;
             }
 
-            characterPortraitAccent.color =
-                new Color(
-                    accent.r,
-                    accent.g,
-                    accent.b,
-                    0.30f);
-
             Sprite portrait =
                 portraitId switch
                 {
