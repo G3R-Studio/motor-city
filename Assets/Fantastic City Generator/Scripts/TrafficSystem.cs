@@ -31,6 +31,10 @@ namespace FCG
         private ArrayList spawnsPoints;
 
         bool firstTime = true;
+        private bool missingVehiclePrefabsWarningShown = false;
+
+        private const string RuntimeTrafficResourcePath =
+            "MotorCity/Environment/FCGTrafficCars";
 
         [System.Serializable]
         public class WpData
@@ -323,18 +327,26 @@ namespace FCG
 
             GameObject vehicle;
 
-            // Treat each distinct traffic prefab as one spawn option.
-            // Serialized IaCars lists may contain duplicate entries from older weighting logic,
-            // but duplicates should no longer increase a vehicle's spawn frequency.
-            GameObject[] spawnPool = IaCars != null
-                ? IaCars.Where(car => car != null).Distinct().ToArray()
-                : new GameObject[0];
+            GameObject[] spawnPool =
+                ResolveSpawnPool();
 
             if (spawnPool.Length == 0)
             {
-                Debug.LogWarning("Traffic System has no valid vehicle prefabs assigned.");
+                if (!missingVehiclePrefabsWarningShown)
+                {
+                    missingVehiclePrefabsWarningShown =
+                        true;
+
+                    Debug.LogWarning(
+                        "Traffic System has no valid vehicle prefabs assigned. " +
+                        "Motor City also found no runtime FCG traffic prefabs in Resources.");
+                }
+
                 return;
             }
+
+            missingVehiclePrefabsWarningShown =
+                false;
 
             int n = wpDataSpawn.Count;
 
@@ -437,6 +449,55 @@ namespace FCG
 
         }
 
+
+        private GameObject[] ResolveSpawnPool()
+        {
+            // Prefer the serialized FCG list when it is intact.
+            GameObject[] serialized =
+                IaCars != null
+                    ? IaCars
+                        .Where(
+                            car =>
+                                car != null &&
+                                car.GetComponent<TrafficCar>() != null)
+                        .Distinct()
+                        .ToArray()
+                    : new GameObject[0];
+
+            if (serialized.Length > 0)
+            {
+                return serialized;
+            }
+
+            // Generated Motor City traffic prefabs live under Resources so the
+            // runtime city can recover even if old FCG prefab references were
+            // invalidated by a Unity importer migration/reimport.
+            GameObject[] runtime =
+                Resources
+                    .LoadAll<GameObject>(
+                        RuntimeTrafficResourcePath)
+                    .Where(
+                        car =>
+                            car != null &&
+                            car.GetComponent<TrafficCar>() != null)
+                    .Distinct()
+                    .ToArray();
+
+            if (runtime.Length == 0)
+            {
+                return runtime;
+            }
+
+            IaCars =
+                runtime;
+
+            Debug.Log(
+                "Motor City: restored " +
+                runtime.Length +
+                " FCG traffic vehicle prefabs from runtime Resources.");
+
+            return runtime;
+        }
 
         private static void NormalizeTrafficVehicleScale(
             GameObject vehicle)
