@@ -377,6 +377,20 @@ namespace MotorCity.Gameplay
                     0,
                     profiles.Length - 1);
 
+            while (Valid(candidate) &&
+                   profiles[candidate].Id == "delorean" &&
+                   !IsUnlocked(candidate))
+            {
+                int skipped =
+                    candidate + direction;
+
+                if (!Valid(skipped))
+                    break;
+
+                candidate =
+                    skipped;
+            }
+
             if (candidate == SelectedIndex)
             {
                 status =
