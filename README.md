@@ -26,20 +26,18 @@ Current core features include:
 
 The playable garage currently contains ten vehicles:
 
-1. **STREET** — the ARCADE: FREE Racing Car based starter vehicle.
-2. **HYBRID** — the Gudamore Free Sports Car based vehicle.
-3. **BEATALL** — a compact classic player car imported from the standalone OBJ source.
-4. **DELOREAN** — a low sports coupe assembled from its body plus separate front/rear wheel meshes.
-5. **AMG GT** — a modern grand-touring coupe assembled from its body plus separate front/rear wheel meshes.
-6. **PORSCHE 996** — a compact sports coupe assembled from its body plus separate front/rear wheel meshes.
-7. **PEUGEOT 306** — a compact hatchback assembled from its body plus a shared wheel mesh.
-8. **TOYOTA AE86** — a lightweight classic coupe assembled from its body plus a shared wheel mesh.
-9. **CAMARO** — a wide modern muscle coupe assembled from its body plus a shared wheel mesh.
-10. **CITY BUS** — a long city bus assembled from its body, shared wheel mesh and palette texture.
+1. **BEATALL** — compact classic and the first car in the garage hierarchy.
+2. **STREET** — balanced city car.
+3. **PEUGEOT 306** — light compact hatchback.
+4. **TOYOTA AE86** — lively classic coupe.
+5. **HYBRID** — quick, grippy modern sports car.
+6. **PORSCHE 996** — compact sports coupe.
+7. **AMG GT** — planted modern grand tourer.
+8. **CAMARO** — wide modern muscle car.
+9. **DELOREAN** — supporter-pack exclusive vehicle.
+10. **CITY BUS** — final vehicle in the garage hierarchy.
 
-No old Designersoup/PolyPack/Muscle/GT/Apex player-car roster is part of the current project.
-
-Runtime vehicle assets:
+The permanent **MOTOR CITY SUPPORTER PACK** includes 5,000 credits, the **DELOREAN**, and the restored exclusive **Pixie EX (Amane Kisora)** visual.
 
 - STREET: `Assets/Resources/MotorCity/PlayerCarVisual.prefab`
 - HYBRID: `Assets/Resources/MotorCity/Vehicles/Player/Hybrid.prefab`
