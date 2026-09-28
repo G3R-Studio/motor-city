@@ -32,9 +32,14 @@ namespace MotorCity.UI
         private Text introTitleText;
         private Text introBodyText;
         private RawImage introImage;
+        private RectTransform introImageRect;
+        private CanvasGroup introContentGroup;
         private Font font;
 
         private int introIndex;
+        private float introAutoTimer;
+        private float introVisualTimer;
+        private const float IntroAutoSeconds = 7f;
         private bool hasExistingProgress;
 
         private readonly IntroSlide[] slides =
@@ -277,6 +282,14 @@ namespace MotorCity.UI
             introImage.color = new Color(0.18f, 0.22f, 0.28f, 1f);
             introImage.raycastTarget = false;
 
+            introImageRect = rect;
+
+            introContentGroup =
+                introRoot.GetComponent<CanvasGroup>();
+
+            if (introContentGroup == null)
+                introContentGroup = introRoot.AddComponent<CanvasGroup>();
+
             GameObject shadeObject = new("Intro Shade", typeof(RectTransform), typeof(Image));
             shadeObject.transform.SetParent(introRoot.transform, false);
             RectTransform shadeRect = shadeObject.GetComponent<RectTransform>();
@@ -328,6 +341,7 @@ namespace MotorCity.UI
             introIndex = 0;
             mainRoot.SetActive(false);
             introRoot.SetActive(true);
+            ResetIntroVisualState();
             RefreshIntro();
         }
 
@@ -340,6 +354,7 @@ namespace MotorCity.UI
             }
 
             introIndex++;
+            ResetIntroVisualState();
             RefreshIntro();
         }
 
@@ -359,12 +374,62 @@ namespace MotorCity.UI
                     : Color.white;
         }
 
+        private void ResetIntroVisualState()
+        {
+            introAutoTimer = 0f;
+            introVisualTimer = 0f;
+
+            if (introContentGroup != null)
+                introContentGroup.alpha = 0f;
+
+            if (introImageRect != null)
+                introImageRect.localScale = Vector3.one;
+        }
+
+        private void Update()
+        {
+            if (introRoot == null ||
+                !introRoot.activeSelf)
+            {
+                return;
+            }
+
+            introAutoTimer += Time.unscaledDeltaTime;
+            introVisualTimer += Time.unscaledDeltaTime;
+
+            if (introContentGroup != null)
+            {
+                introContentGroup.alpha =
+                    Mathf.Clamp01(
+                        introVisualTimer / 0.65f);
+            }
+
+            if (introImageRect != null)
+            {
+                float zoom =
+                    1f +
+                    Mathf.Min(
+                        0.045f,
+                        introVisualTimer * 0.0025f);
+
+                introImageRect.localScale =
+                    new Vector3(
+                        zoom,
+                        zoom,
+                        1f);
+            }
+
+            if (introAutoTimer >= IntroAutoSeconds)
+                NextIntro();
+        }
+
         private void CompleteIntro()
         {
             MotorCitySaveService.SetInt(IntroCompleteKey, 1);
             MotorCitySaveService.Save();
             hasExistingProgress = true;
             EnterGameplay();
+            onboarding?.ShowPathPrompt();
         }
 
         private void EnterGameplay()
