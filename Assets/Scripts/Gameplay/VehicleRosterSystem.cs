@@ -122,168 +122,164 @@ namespace MotorCity.Gameplay
                 new[]
                 {
                     new VehicleProfile(
-                        "street",
-                        MotorCityLocalization.Text("vehicle.street.name"),
-                        "MotorCity/PlayerCarVisual",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.street.desc")),
-
-                    // HYBRID keeps the authored Gudamore visual hierarchy
-                    // while sharing Motor City's player-car physics rig.
-                    new VehicleProfile(
-                        "hybrid",
-                        MotorCityLocalization.Text("vehicle.hybrid.name"),
-                        "MotorCity/Vehicles/Player/Hybrid",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.hybrid.desc")),
-
-                    // BEATALL is imported from the standalone OBJ source and
-                    // rebuilt into a clean Resources prefab by BeatallVehicleImporter.
-                    new VehicleProfile(
-                        "beatall",
-                        MotorCityLocalization.Text("vehicle.beatall.name"),
-                        "MotorCity/Vehicles/Player/Beatall",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.beatall.desc")),
+                    "beatall",
+                    MotorCityLocalization.Text("vehicle.beatall.name"),
+                    "MotorCity/Vehicles/Player/Beatall",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.beatall.desc")),
 
                     new VehicleProfile(
-                        "delorean",
-                        MotorCityLocalization.Text("vehicle.delorean.name"),
-                        "MotorCity/Vehicles/Player/Delorean",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.delorean.desc")),
+                    "street",
+                    MotorCityLocalization.Text("vehicle.street.name"),
+                    "MotorCity/PlayerCarVisual",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.street.desc")),
 
                     new VehicleProfile(
-                        "amggt",
-                        MotorCityLocalization.Text("vehicle.amggt.name"),
-                        "MotorCity/Vehicles/Player/AmgGT",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.amggt.desc")),
+                    "peugeot306",
+                    MotorCityLocalization.Text("vehicle.peugeot306.name"),
+                    "MotorCity/Vehicles/Player/Peugeot306",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.peugeot306.desc")),
 
                     new VehicleProfile(
-                        "porsche996",
-                        MotorCityLocalization.Text("vehicle.porsche996.name"),
-                        "MotorCity/Vehicles/Player/Porsche996",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.porsche996.desc")),
+                    "toyotaae86",
+                    MotorCityLocalization.Text("vehicle.toyotaae86.name"),
+                    "MotorCity/Vehicles/Player/ToyotaAE86",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.toyotaae86.desc")),
 
                     new VehicleProfile(
-                        "peugeot306",
-                        MotorCityLocalization.Text("vehicle.peugeot306.name"),
-                        "MotorCity/Vehicles/Player/Peugeot306",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.peugeot306.desc")),
+                    "hybrid",
+                    MotorCityLocalization.Text("vehicle.hybrid.name"),
+                    "MotorCity/Vehicles/Player/Hybrid",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.hybrid.desc")),
 
                     new VehicleProfile(
-                        "toyotaae86",
-                        MotorCityLocalization.Text("vehicle.toyotaae86.name"),
-                        "MotorCity/Vehicles/Player/ToyotaAE86",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.toyotaae86.desc")),
+                    "porsche996",
+                    MotorCityLocalization.Text("vehicle.porsche996.name"),
+                    "MotorCity/Vehicles/Player/Porsche996",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.porsche996.desc")),
 
                     new VehicleProfile(
-                        "camaro",
-                        MotorCityLocalization.Text("vehicle.camaro.name"),
-                        "MotorCity/Vehicles/Player/Camaro",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.camaro.desc")),
+                    "amggt",
+                    MotorCityLocalization.Text("vehicle.amggt.name"),
+                    "MotorCity/Vehicles/Player/AmgGT",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.amggt.desc")),
 
                     new VehicleProfile(
-                        "bus",
-                        MotorCityLocalization.Text("vehicle.bus.name"),
-                        "MotorCity/Vehicles/Player/Bus",
-                        0,
-                        0,
-                        0,
-                        1f,
-                        0f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        1f,
-                        MotorCityLocalization.Text("vehicle.bus.desc"))
+                    "camaro",
+                    MotorCityLocalization.Text("vehicle.camaro.name"),
+                    "MotorCity/Vehicles/Player/Camaro",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.camaro.desc")),
+
+                    new VehicleProfile(
+                    "delorean",
+                    MotorCityLocalization.Text("vehicle.delorean.name"),
+                    "MotorCity/Vehicles/Player/Delorean",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.delorean.desc")),
+
+                    new VehicleProfile(
+                    "bus",
+                    MotorCityLocalization.Text("vehicle.bus.name"),
+                    "MotorCity/Vehicles/Player/Bus",
+                    0,
+                    0,
+                    0,
+                    1f,
+                    0f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    1f,
+                    MotorCityLocalization.Text("vehicle.bus.desc"))
                 };
 
             int stored =
@@ -293,6 +289,60 @@ namespace MotorCity.Gameplay
                         0),
                     0,
                     profiles.Length - 1);
+
+            const string rosterOrderVersionKey =
+                "MotorCity.Vehicle.RosterOrderVersion";
+
+            if (MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    rosterOrderVersionKey,
+                    0) < 2)
+            {
+                string[] oldOrder =
+                {
+                    "street",
+                    "hybrid",
+                    "beatall",
+                    "delorean",
+                    "amggt",
+                    "porsche996",
+                    "peugeot306",
+                    "toyotaae86",
+                    "camaro",
+                    "bus"
+                };
+
+                int oldIndex =
+                    Mathf.Clamp(
+                        MotorCity.Persistence.MotorCitySaveService.GetInt(
+                            SelectedKey,
+                            0),
+                        0,
+                        oldOrder.Length - 1);
+
+                string oldId =
+                    oldOrder[oldIndex];
+
+                for (int i = 0;
+                     i < profiles.Length;
+                     i++)
+                {
+                    if (profiles[i].Id != oldId)
+                        continue;
+
+                    stored = i;
+                    break;
+                }
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    SelectedKey,
+                    stored);
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    rosterOrderVersionKey,
+                    2);
+
+                MotorCity.Persistence.MotorCitySaveService.Save();
+            }
 
             if (!IsUnlocked(stored) ||
                 !HasVisual(stored))
@@ -353,10 +403,14 @@ namespace MotorCity.Gameplay
             if (!IsUnlocked(candidate))
             {
                 status =
-                    MotorCityLocalization.Format(
-                        "vehicle.rep_required",
-                        profile.DisplayName,
-                        profile.RequiredRep);
+                    profile.Id == "delorean"
+                        ? MotorCityLocalization.Format(
+                            "vehicle.supporter_required",
+                            profile.DisplayName)
+                        : MotorCityLocalization.Format(
+                            "vehicle.rep_required",
+                            profile.DisplayName,
+                            profile.RequiredRep);
 
                 return false;
             }
@@ -468,10 +522,14 @@ namespace MotorCity.Gameplay
             if (!IsUnlocked(next))
             {
                 return
-                    MotorCityLocalization.Format(
-                        "vehicle.next_rep",
-                        nextProfile.DisplayName,
-                        nextProfile.RequiredRep);
+                    nextProfile.Id == "delorean"
+                        ? MotorCityLocalization.Format(
+                            "vehicle.next_supporter",
+                            nextProfile.DisplayName)
+                        : MotorCityLocalization.Format(
+                            "vehicle.next_rep",
+                            nextProfile.DisplayName,
+                            nextProfile.RequiredRep);
             }
 
             return
@@ -789,6 +847,12 @@ namespace MotorCity.Gameplay
 
             VehicleProfile profile =
                 profiles[index];
+
+            if (profile.Id == "delorean")
+            {
+                return
+                    CosmeticStoreSystem.SupporterPackOwned;
+            }
 
             int rep =
                 reputation == null
