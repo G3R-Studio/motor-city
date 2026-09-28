@@ -382,6 +382,19 @@ namespace MotorCity.Gameplay
                 MessageSeconds + 1f;
         }
 
+        public void ShowPathPrompt()
+        {
+            if (IsComplete)
+                return;
+
+            StatusText =
+                MotorCityLocalization.Text(
+                    "onboarding.path_prompt");
+
+            messageTimer =
+                MessageSeconds + 2f;
+        }
+
         public void ResetForTesting()
         {
             IsComplete = false;
