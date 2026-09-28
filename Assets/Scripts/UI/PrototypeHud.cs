@@ -2858,6 +2858,9 @@ namespace MotorCity.UI
 
             FreezeWorldPresentation();
 
+            AudioListener.pause =
+                true;
+
             pauseOverlay?.SetActive(
                 true);
 
@@ -2897,6 +2900,12 @@ namespace MotorCity.UI
                 pauseStoredTimeScale;
 
             ResumeWorldPresentation();
+
+            if (Time.timeScale > 0f)
+            {
+                AudioListener.pause =
+                    false;
+            }
 
             car?.SetDrivingEnabled(
                 true);
