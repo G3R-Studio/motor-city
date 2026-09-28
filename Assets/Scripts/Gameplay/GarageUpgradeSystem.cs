@@ -494,7 +494,7 @@ namespace MotorCity.Gameplay
 
             IsOpen = true;
             car.SetDrivingEnabled(false);
-            StatusText = MotorCityLocalization.Text("garage.opened");
+            StatusText = string.Empty;
         }
 
         private void CancelActiveMission()
