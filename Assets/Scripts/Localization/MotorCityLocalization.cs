@@ -256,7 +256,7 @@ namespace MotorCity.Localization
                 { "hud.no_rewards", E("БЕЗ НАГРАДЫ", "NO REWARD") },
                 { "hud.result_reward", E("+{0:N0} КР   +{1:N0} РЕП", "+{0:N0} CR   +{1:N0} REP") },
                 { "hud.garage_controls", E("ИСПОЛЬЗУЙ КНОПКИ ГАРАЖА", "USE GARAGE BUTTONS") },
-                { "hud.garage_title", E("ГАРАЖ · УЛУЧШЕНИЯ", "GARAGE · UPGRADES") },
+                { "hud.garage_title", E("ГАРАЖ", "GARAGE") },
                 { "hud.garage_vehicle", E("МАШИНА: {0}", "CAR: {0}") },
                 { "hud.first_activity_target", E("ПЕРВАЯ АКТИВНОСТЬ · ДОСТАВКА", "FIRST ACTIVITY · DELIVERY") },
                 { "hud.objective_label", E("ЦЕЛЬ", "OBJECTIVE") },
