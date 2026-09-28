@@ -2359,7 +2359,7 @@ namespace MotorCity.UI
             canvas.renderMode =
                 RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
-            canvas.pixelPerfect = true;
+            canvas.pixelPerfect = false;
 
             canvasScaler =
                 canvasObject.AddComponent<CanvasScaler>();
