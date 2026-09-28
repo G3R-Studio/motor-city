@@ -125,6 +125,11 @@ namespace MotorCity.UI
         private const float RouteAdvanceDistance = 18f;
         private GameObject navigatorMenuOverlay;
         private Text navigatorMenuText;
+        private Text navigatorIndexText;
+        private Text navigatorCategoryText;
+        private Text navigatorDescriptionText;
+        private Text navigatorDistanceText;
+        private Text navigatorIconText;
         private bool navigatorMenuOpen;
         private int navigatorSelection;
         private bool manualNavigationActive;
@@ -972,8 +977,8 @@ namespace MotorCity.UI
                     "Navigator Menu",
                     Vector2.zero,
                     new Vector2(
-                        520f,
-                        250f),
+                        560f,
+                        310f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -993,10 +998,10 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        28f,
-                        -25f),
+                        30f,
+                        -24f),
                     new Vector2(
-                        420f,
+                        330f,
                         42f),
                     new Vector2(
                         0.5f,
@@ -1010,19 +1015,82 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     "navigator.title");
 
-            navigatorMenuText =
+            navigatorIndexText =
                 CreateText(
                     panel,
-                    "Navigator Selection",
-                    18,
+                    "Navigator Index",
+                    15,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
+                    TextAnchor.UpperRight,
+                    new Vector2(
+                        -30f,
+                        -29f),
+                    new Vector2(
+                        150f,
+                        34f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    SecondaryTextColor);
+
+            RectTransform card =
+                CreatePanel(
+                    panel,
+                    "Navigator Destination Card",
                     new Vector2(
                         0f,
-                        -4f),
+                        -12f),
                     new Vector2(
-                        460f,
-                        112f),
+                        494f,
+                        172f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Color(
+                        PanelSoftColor.r,
+                        PanelSoftColor.g,
+                        PanelSoftColor.b,
+                        0.78f));
+
+            RectTransform iconPlate =
+                CreatePanel(
+                    card,
+                    "Navigator Icon Plate",
+                    new Vector2(
+                        34f,
+                        0f),
+                    new Vector2(
+                        76f,
+                        76f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Color(
+                        GarageAccent.r,
+                        GarageAccent.g,
+                        GarageAccent.b,
+                        0.22f));
+
+            navigatorIconText =
+                CreateText(
+                    iconPlate,
+                    "Navigator Icon",
+                    24,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(
+                        68f,
+                        68f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -1031,19 +1099,82 @@ namespace MotorCity.UI
                         0.5f),
                     TextColor);
 
-            Text controls =
+            navigatorCategoryText =
                 CreateText(
-                    panel,
-                    "Navigator Controls",
-                    14,
+                    card,
+                    "Navigator Category",
+                    13,
                     FontStyle.Bold,
-                    TextAnchor.LowerCenter,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(
+                        126f,
+                        48f),
+                    new Vector2(
+                        250f,
+                        26f),
                     new Vector2(
                         0f,
-                        22f),
+                        0.5f),
                     new Vector2(
-                        470f,
-                        28f),
+                        0f,
+                        0.5f),
+                    GarageAccent);
+
+            navigatorMenuText =
+                CreateText(
+                    card,
+                    "Navigator Selection",
+                    25,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(
+                        126f,
+                        13f),
+                    new Vector2(
+                        330f,
+                        40f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    TextColor);
+
+            navigatorDescriptionText =
+                CreateText(
+                    card,
+                    "Navigator Description",
+                    14,
+                    FontStyle.Normal,
+                    TextAnchor.UpperLeft,
+                    new Vector2(
+                        126f,
+                        -24f),
+                    new Vector2(
+                        326f,
+                        52f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    SecondaryTextColor);
+
+            navigatorDistanceText =
+                CreateText(
+                    panel,
+                    "Navigator Distance",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.LowerRight,
+                    new Vector2(
+                        -32f,
+                        25f),
+                    new Vector2(
+                        220f,
+                        30f),
                     new Vector2(
                         0.5f,
                         0f),
@@ -1051,10 +1182,6 @@ namespace MotorCity.UI
                         0.5f,
                         0f),
                     SecondaryTextColor);
-
-            controls.text =
-                MotorCityLocalization.Text(
-                    "navigator.controls");
 
             UpdateNavigatorMenuText();
         }
@@ -1187,6 +1314,18 @@ namespace MotorCity.UI
                 navigatorMenuText.text =
                     MotorCityLocalization.Text(
                         "navigator.empty");
+
+                if (navigatorIndexText != null)
+                    navigatorIndexText.text = string.Empty;
+                if (navigatorCategoryText != null)
+                    navigatorCategoryText.text = string.Empty;
+                if (navigatorDescriptionText != null)
+                    navigatorDescriptionText.text = string.Empty;
+                if (navigatorDistanceText != null)
+                    navigatorDistanceText.text = string.Empty;
+                if (navigatorIconText != null)
+                    navigatorIconText.text = string.Empty;
+
                 return;
             }
 
@@ -1196,17 +1335,141 @@ namespace MotorCity.UI
                     0,
                     count - 1);
 
-            TryResolveNavigatorDestination(
-                navigatorSelection,
-                out _,
-                out string label);
+            bool resolved =
+                TryResolveNavigatorDestination(
+                    navigatorSelection,
+                    out Vector3 target,
+                    out string label);
 
             navigatorMenuText.text =
-                MotorCityLocalization.Format(
-                    "navigator.selection",
-                    navigatorSelection + 1,
-                    count,
-                    label);
+                resolved
+                    ? label
+                    : MotorCityLocalization.Text(
+                        "navigator.empty");
+
+            if (navigatorIndexText != null)
+            {
+                navigatorIndexText.text =
+                    MotorCityLocalization.Format(
+                        "navigator.counter",
+                        navigatorSelection + 1,
+                        count);
+            }
+
+            string markerId =
+                NavigatorMarkerId(
+                    navigatorSelection);
+
+            if (navigatorCategoryText != null)
+            {
+                navigatorCategoryText.text =
+                    MotorCityLocalization.Text(
+                        NavigatorCategoryKey(
+                            markerId));
+            }
+
+            if (navigatorDescriptionText != null)
+            {
+                navigatorDescriptionText.text =
+                    MotorCityLocalization.Text(
+                        NavigatorDescriptionKey(
+                            markerId));
+            }
+
+            if (navigatorIconText != null)
+            {
+                navigatorIconText.text =
+                    NavigatorIconLabel(
+                        markerId);
+            }
+
+            if (navigatorDistanceText != null)
+            {
+                if (!resolved ||
+                    car == null)
+                {
+                    navigatorDistanceText.text =
+                        string.Empty;
+                }
+                else
+                {
+                    float distance =
+                        FlatDistance(
+                            car.transform.position,
+                            target);
+
+                    navigatorDistanceText.text =
+                        distance >= 1000f
+                            ? MotorCityLocalization.Format(
+                                "navigator.distance_km",
+                                distance / 1000f)
+                            : MotorCityLocalization.Format(
+                                "navigator.distance_m",
+                                Mathf.RoundToInt(
+                                    distance));
+                }
+            }
+        }
+
+        private static string NavigatorCategoryKey(
+            string markerId)
+        {
+            return markerId switch
+            {
+                "garage" =>
+                    "navigator.category.service",
+                "delivery" or
+                "tow" or
+                "carwash" or
+                "profession" =>
+                    "navigator.category.job",
+                "drift" or
+                "sprint" or
+                "circuit" =>
+                    "navigator.category.activity",
+                _ =>
+                    "navigator.category.place"
+            };
+        }
+
+        private static string NavigatorDescriptionKey(
+            string markerId)
+        {
+            return markerId switch
+            {
+                "garage" =>
+                    "navigator.desc.garage",
+                "delivery" =>
+                    "navigator.desc.delivery",
+                "drift" =>
+                    "navigator.desc.drift",
+                "sprint" =>
+                    "navigator.desc.sprint",
+                "circuit" =>
+                    "navigator.desc.circuit",
+                "tow" =>
+                    "navigator.desc.tow",
+                "carwash" =>
+                    "navigator.desc.carwash",
+                _ =>
+                    "navigator.desc.profession"
+            };
+        }
+
+        private static string NavigatorIconLabel(
+            string markerId)
+        {
+            return markerId switch
+            {
+                "garage" => "G",
+                "delivery" => "D",
+                "drift" => "DR",
+                "sprint" => "S",
+                "circuit" => "C",
+                "tow" => "TOW",
+                "carwash" => "W",
+                _ => "JOB"
+            };
         }
 
         private bool TryResolveNavigatorDestination(
