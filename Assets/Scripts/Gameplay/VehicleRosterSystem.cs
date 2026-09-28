@@ -773,6 +773,12 @@ namespace MotorCity.Gameplay
 
             if (headlights != null)
                 headlights.SetVehicleId(profile.Id);
+
+            PlayerVehicleAudio vehicleAudio =
+                car.GetComponent<PlayerVehicleAudio>();
+
+            if (vehicleAudio != null)
+                vehicleAudio.SetVehicleId(profile.Id);
         }
 
         private bool IsUnlocked(
