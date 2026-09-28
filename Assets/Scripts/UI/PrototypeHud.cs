@@ -2074,10 +2074,37 @@ namespace MotorCity.UI
             navigatorMenuOverlay.SetActive(false);
             pauseOverlay.SetActive(false);
 
-            audioMuted =
+            const string audioSettingsVersionKey =
+                "MotorCity.Settings.AudioVersion";
+
+            int audioSettingsVersion =
                 MotorCitySaveService.GetInt(
+                    audioSettingsVersionKey,
+                    0);
+
+            if (audioSettingsVersion < 2)
+            {
+                // Older builds could leave audio permanently muted after the
+                // pause-menu toggle. Migrate once to a known audible default.
+                audioMuted = false;
+
+                MotorCitySaveService.SetInt(
                     AudioMutedSaveKey,
-                    0) != 0;
+                    0);
+
+                MotorCitySaveService.SetInt(
+                    audioSettingsVersionKey,
+                    2);
+
+                MotorCitySaveService.Save();
+            }
+            else
+            {
+                audioMuted =
+                    MotorCitySaveService.GetInt(
+                        AudioMutedSaveKey,
+                        0) != 0;
+            }
 
             AudioListener.volume =
                 audioMuted
@@ -2129,8 +2156,8 @@ namespace MotorCity.UI
                     "Pause Panel",
                     Vector2.zero,
                     new Vector2(
-                        540f,
-                        370f),
+                        620f,
+                        430f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -2153,7 +2180,7 @@ namespace MotorCity.UI
                         0f,
                         -24f),
                     new Vector2(
-                        470f,
+                        540f,
                         42f),
                     new Vector2(
                         0.5f,
@@ -2180,8 +2207,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     panel,
                     "Pause Quality Card",
-                    new Vector2(0f, 42f),
-                    new Vector2(450f, 58f),
+                    new Vector2(0f, 58f),
+                    new Vector2(520f, 68f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
@@ -2194,8 +2221,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     panel,
                     "Pause Audio Card",
-                    new Vector2(0f, -28f),
-                    new Vector2(450f, 58f),
+                    new Vector2(0f, -26f),
+                    new Vector2(520f, 68f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
@@ -2203,6 +2230,40 @@ namespace MotorCity.UI
                         PanelSoftColor.g,
                         PanelSoftColor.b,
                         0.76f));
+
+            Text qualityHint =
+                CreateText(
+                    panel,
+                    "Pause Quality Hint",
+                    11,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(-244f, 108f),
+                    new Vector2(230f, 22f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    SecondaryTextColor);
+
+            qualityHint.text =
+                MotorCityLocalization.Text(
+                    "pause.quality_hint");
+
+            Text audioHint =
+                CreateText(
+                    panel,
+                    "Pause Audio Hint",
+                    11,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(-244f, 24f),
+                    new Vector2(230f, 22f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    SecondaryTextColor);
+
+            audioHint.text =
+                MotorCityLocalization.Text(
+                    "pause.audio_hint");
 
             pauseQualityText =
                 CreateText(
@@ -2215,8 +2276,8 @@ namespace MotorCity.UI
                         18f,
                         0f),
                     new Vector2(
-                        410f,
-                        42f),
+                        472f,
+                        46f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -2236,8 +2297,8 @@ namespace MotorCity.UI
                         18f,
                         0f),
                     new Vector2(
-                        410f,
-                        42f),
+                        472f,
+                        46f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -2258,38 +2319,35 @@ namespace MotorCity.UI
             CreatePauseButton(
                 panel,
                 "Pause Quality Previous",
-                "touch.modal.prev",
-                new Vector2(-168f, -116f),
-                new Vector2(96f, 44f),
+                "pause.quality_less",
+                new Vector2(-138f, -122f),
+                new Vector2(240f, 48f),
                 () =>
                     CycleQuality(-1));
 
             CreatePauseButton(
                 panel,
-                "Pause Audio Toggle",
-                "pause.audio_touch",
-                new Vector2(-56f, -116f),
-                new Vector2(112f, 44f),
-                () =>
-                {
-                    ToggleAudioMute();
-                });
-
-            CreatePauseButton(
-                panel,
                 "Pause Quality Next",
-                "touch.modal.next",
-                new Vector2(64f, -116f),
-                new Vector2(96f, 44f),
+                "pause.quality_more",
+                new Vector2(138f, -122f),
+                new Vector2(240f, 48f),
                 () =>
                     CycleQuality(1));
 
             CreatePauseButton(
                 panel,
+                "Pause Audio Toggle",
+                "pause.audio_touch",
+                new Vector2(-138f, -180f),
+                new Vector2(240f, 48f),
+                ToggleAudioMute);
+
+            CreatePauseButton(
+                panel,
                 "Pause Resume",
                 "pause.resume",
-                new Vector2(182f, -116f),
-                new Vector2(112f, 44f),
+                new Vector2(138f, -180f),
+                new Vector2(240f, 48f),
                 ClosePauseMenu);
         }
 
@@ -2337,53 +2395,76 @@ namespace MotorCity.UI
                 objectName == "HUD Pause" ||
                 objectName == "HUD More";
 
-            if (hudUtilityButton)
-            {
-                Texture2D buttonTexture =
-                    uiThemeAssets == null
-                        ? null
-                        : uiThemeAssets.modalButton;
-
-                Sprite buttonSprite =
-                    GetModalButtonSprite(
-                        buttonTexture);
-
-                if (buttonSprite != null)
-                {
-                    image.sprite =
-                        buttonSprite;
-                    image.type =
-                        Image.Type.Simple;
-                    image.preserveAspect =
-                        false;
-                    image.color =
-                        Color.white;
-                }
-                else
-                {
-                    image.color =
-                        new Color(
-                            0.075f,
-                            0.07f,
-                            0.12f,
-                            0.94f);
-                }
-            }
-            else
-            {
-                image.color =
-                    new Color(
+            image.sprite = null;
+            image.type = Image.Type.Simple;
+            image.color =
+                hudUtilityButton
+                    ? new Color(
+                        0.055f,
+                        0.065f,
+                        0.09f,
+                        0.96f)
+                    : new Color(
+                        0.065f,
                         0.075f,
-                        0.07f,
-                        0.12f,
-                        0.96f);
-            }
+                        0.105f,
+                        0.98f);
+
+            Outline buttonOutline =
+                buttonObject.AddComponent<Outline>();
+
+            buttonOutline.effectColor =
+                hudUtilityButton
+                    ? new Color(
+                        0.38f,
+                        0.58f,
+                        1f,
+                        0.55f)
+                    : new Color(
+                        0.42f,
+                        0.54f,
+                        0.86f,
+                        0.42f);
+
+            buttonOutline.effectDistance =
+                new Vector2(1f, -1f);
+
+            buttonOutline.useGraphicAlpha = true;
 
             Button button =
                 buttonObject.GetComponent<Button>();
 
             button.targetGraphic =
                 image;
+
+            ColorBlock buttonColors =
+                button.colors;
+
+            buttonColors.normalColor =
+                Color.white;
+            buttonColors.highlightedColor =
+                new Color(
+                    0.88f,
+                    0.94f,
+                    1f,
+                    1f);
+            buttonColors.pressedColor =
+                new Color(
+                    0.62f,
+                    0.72f,
+                    0.95f,
+                    1f);
+            buttonColors.selectedColor =
+                buttonColors.highlightedColor;
+            buttonColors.disabledColor =
+                new Color(
+                    0.42f,
+                    0.44f,
+                    0.50f,
+                    0.7f);
+
+            button.colors =
+                buttonColors;
 
             button.onClick.AddListener(
                 action);
@@ -2393,7 +2474,13 @@ namespace MotorCity.UI
                     ? MotorCityIconLibrary.Pause
                     : objectName == "HUD More"
                         ? MotorCityIconLibrary.More
-                        : null;
+                        : objectName.Contains("Quality")
+                            ? MotorCityIconLibrary.Garage
+                            : objectName == "Pause Resume"
+                                ? MotorCityIconLibrary.Confirm
+                                : objectName == "Pause Audio Toggle"
+                                    ? MotorCityIconLibrary.Get("star")
+                                    : null;
 
             if (utilityIcon != null)
             {
@@ -4977,7 +5064,7 @@ namespace MotorCity.UI
 
             Sprite navigatorIcon =
                 MotorCityIconLibrary.Get(
-                    "target");
+                    "flag");
 
             if (navigatorIcon != null)
             {
@@ -7803,34 +7890,42 @@ namespace MotorCity.UI
             Image image =
                 buttonObject.GetComponent<Image>();
 
-            Texture2D buttonTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.modalButton;
+            bool hudQuickAction =
+                name.StartsWith(
+                    "HUD ",
+                    System.StringComparison.Ordinal);
 
-            Sprite buttonSprite =
-                GetModalButtonSprite(
-                    buttonTexture);
-
-            if (buttonSprite != null)
-            {
-                image.sprite =
-                    buttonSprite;
-                image.type =
-                    Image.Type.Simple;
-                image.preserveAspect =
-                    false;
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(
+            image.sprite = null;
+            image.type = Image.Type.Simple;
+            image.color =
+                hudQuickAction
+                    ? new Color(
+                        0.055f,
+                        0.065f,
+                        0.09f,
+                        0.96f)
+                    : new Color(
                         0.075f,
                         0.07f,
                         0.12f,
                         0.94f);
+
+            if (hudQuickAction)
+            {
+                Outline outline =
+                    buttonObject.AddComponent<Outline>();
+
+                outline.effectColor =
+                    new Color(
+                        0.38f,
+                        0.58f,
+                        1f,
+                        0.48f);
+
+                outline.effectDistance =
+                    new Vector2(1f, -1f);
+
+                outline.useGraphicAlpha = true;
             }
 
             Button button =
@@ -7838,6 +7933,29 @@ namespace MotorCity.UI
 
             button.targetGraphic =
                 image;
+
+            ColorBlock colors =
+                button.colors;
+
+            colors.normalColor =
+                Color.white;
+            colors.highlightedColor =
+                new Color(
+                    0.90f,
+                    0.95f,
+                    1f,
+                    1f);
+            colors.pressedColor =
+                new Color(
+                    0.62f,
+                    0.74f,
+                    0.96f,
+                    1f);
+            colors.selectedColor =
+                colors.highlightedColor;
+
+            button.colors =
+                colors;
 
             button.onClick.AddListener(
                 () =>
@@ -8683,9 +8801,9 @@ namespace MotorCity.UI
 
             CreateLocalizedTouchPulseButton(
                 rail,
-                "HUD Photo",
-                "touch.utility.photo",
-                MotorCityInputAction.TakePhoto,
+                "HUD Rescue",
+                "touch.utility.rescue",
+                MotorCityInputAction.Rescue,
                 new Vector2(0f, 66f),
                 new Vector2(96f, 34f));
 
@@ -8722,9 +8840,9 @@ namespace MotorCity.UI
 
             CreateLocalizedTouchPulseButton(
                 menu,
-                "HUD Rescue",
-                "touch.utility.rescue",
-                MotorCityInputAction.Rescue,
+                "HUD Photo",
+                "touch.utility.photo",
+                MotorCityInputAction.TakePhoto,
                 new Vector2(0f, 18f),
                 new Vector2(108f, 34f));
 
