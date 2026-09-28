@@ -174,6 +174,9 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
+            if (Time.timeScale <= 0f)
+                return;
+
             if (IsComplete)
                 return;
 
