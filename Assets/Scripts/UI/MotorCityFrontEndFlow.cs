@@ -297,6 +297,26 @@ namespace MotorCity.UI
             CreateButton(introRoot.transform, IsRussian() ? "ДАЛЬШЕ" : "NEXT", new Vector2(-350f, 70f), new Vector2(240f, 58f), NextIntro, new Vector2(1f, 0f));
         }
 
+        public void ResetForTesting()
+        {
+            MotorCitySaveService.DeleteKey(
+                IntroCompleteKey);
+
+            MotorCitySaveService.Save();
+
+            hasExistingProgress = false;
+            introIndex = 0;
+
+            RefreshMainMenuText();
+
+            if (mainRoot != null &&
+                canvas != null &&
+                canvas.gameObject.activeSelf)
+            {
+                ShowMainMenu();
+            }
+        }
+
         private void BeginPrimaryAction()
         {
             if (hasExistingProgress)
