@@ -41,6 +41,9 @@ namespace MotorCity.World
 
         private void Update()
         {
+            if (Time.timeScale <= 0f)
+                return;
+
             if (iconRoot == null)
                 return;
 
@@ -74,6 +77,9 @@ namespace MotorCity.World
 
         private void LateUpdate()
         {
+            if (Time.timeScale <= 0f)
+                return;
+
             if (iconRoot == null)
                 return;
 
