@@ -10569,6 +10569,13 @@ namespace MotorCity.UI
             if (texture == null)
                 return;
 
+            CreatePanelEdgeGlow(
+                panel,
+                texture,
+                ResolvePanelGlowColor(
+                    panel.name),
+                "Ville Modal Glow");
+
             GameObject backgroundObject =
                 new(
                     "Ville Modal Background",
@@ -10621,6 +10628,13 @@ namespace MotorCity.UI
             if (texture == null)
                 return;
 
+            CreatePanelEdgeGlow(
+                panel,
+                texture,
+                ResolvePanelGlowColor(
+                    panel.name),
+                "Ville Panel Glow");
+
             GameObject backgroundObject =
                 new(
                     "Ville Panel Background",
@@ -10662,6 +10676,174 @@ namespace MotorCity.UI
                     1f,
                     1f,
                     Mathf.Clamp01(alpha));
+            image.raycastTarget =
+                false;
+        }
+
+        private static Color ResolvePanelGlowColor(
+            string panelName)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    panelName))
+            {
+                return new Color(
+                    0.34f,
+                    0.53f,
+                    1f,
+                    1f);
+            }
+
+            if (panelName.IndexOf(
+                    "Garage",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new Color(
+                    0.64f,
+                    0.42f,
+                    1f,
+                    1f);
+            }
+
+            if (panelName.IndexOf(
+                    "Store",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new Color(
+                    0.30f,
+                    0.58f,
+                    1f,
+                    1f);
+            }
+
+            if (panelName.IndexOf(
+                    "Club",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new Color(
+                    0.24f,
+                    0.82f,
+                    1f,
+                    1f);
+            }
+
+            if (panelName.IndexOf(
+                    "Drift",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new Color(
+                    1f,
+                    0.46f,
+                    0.14f,
+                    1f);
+            }
+
+            if (panelName.IndexOf(
+                    "Result",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new Color(
+                    0.50f,
+                    0.62f,
+                    1f,
+                    1f);
+            }
+
+            if (panelName.IndexOf(
+                    "Pause",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new Color(
+                    0.38f,
+                    0.52f,
+                    0.92f,
+                    1f);
+            }
+
+            return new Color(
+                0.34f,
+                0.53f,
+                1f,
+                1f);
+        }
+
+        private static void CreatePanelEdgeGlow(
+            RectTransform panel,
+            Texture texture,
+            Color color,
+            string objectName)
+        {
+            if (panel == null ||
+                texture == null)
+            {
+                return;
+            }
+
+            CreatePanelGlowLayer(
+                panel,
+                texture,
+                color,
+                objectName + " Outer",
+                14f,
+                0.075f);
+
+            CreatePanelGlowLayer(
+                panel,
+                texture,
+                color,
+                objectName + " Inner",
+                7f,
+                0.16f);
+        }
+
+        private static void CreatePanelGlowLayer(
+            RectTransform panel,
+            Texture texture,
+            Color color,
+            string objectName,
+            float expansion,
+            float alpha)
+        {
+            GameObject glowObject =
+                new(
+                    objectName,
+                    typeof(RectTransform),
+                    typeof(RawImage));
+
+            glowObject.transform.SetParent(
+                panel,
+                false);
+
+            glowObject.transform.SetAsFirstSibling();
+
+            RectTransform rect =
+                glowObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                Vector2.zero;
+            rect.anchorMax =
+                Vector2.one;
+            rect.offsetMin =
+                new Vector2(
+                    -expansion,
+                    -expansion);
+            rect.offsetMax =
+                new Vector2(
+                    expansion,
+                    expansion);
+
+            RawImage image =
+                glowObject.GetComponent<RawImage>();
+
+            image.texture =
+                texture;
+
+            image.color =
+                new Color(
+                    color.r,
+                    color.g,
+                    color.b,
+                    alpha);
+
             image.raycastTarget =
                 false;
         }
