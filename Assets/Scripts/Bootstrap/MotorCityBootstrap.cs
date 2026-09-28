@@ -403,7 +403,8 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 wallet,
                 reputation,
-                turbo);
+                turbo,
+                onboarding);
 
             SeasonSystem season =
                 systems.AddComponent<SeasonSystem>();
