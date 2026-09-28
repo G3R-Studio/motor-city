@@ -20,7 +20,7 @@ namespace MotorCity.Gameplay
         public string SelectedId =>
             Valid(SelectedIndex)
                 ? profiles[SelectedIndex].Id
-                : "street";
+                : "beatall";
 
         public event Action VehicleChanged;
 
@@ -32,7 +32,7 @@ namespace MotorCity.Gameplay
         public string SelectedName =>
             Valid(SelectedIndex)
                 ? profiles[SelectedIndex].DisplayName
-                : MotorCityLocalization.Text("vehicle.street.name");
+                : MotorCityLocalization.Text("vehicle.beatall.name");
 
         public int SelectedRequiredRep =>
             Valid(SelectedIndex)
@@ -63,8 +63,8 @@ namespace MotorCity.Gameplay
         public bool IsOwned(
             int index)
         {
-            // Vehicle ownership is reputation-based now:
-            // once unlocked, the vehicle is immediately available.
+            // Normal vehicles are reputation/progression based; supporter
+            // exclusives use their permanent purchase entitlement.
             return
                 IsUnlocked(
                     index);
