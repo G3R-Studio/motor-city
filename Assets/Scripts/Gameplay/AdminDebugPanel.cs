@@ -1630,6 +1630,12 @@ namespace MotorCity.Gameplay
 
             MotorCity.Persistence.MotorCitySaveService.Save();
 
+            MotorCity.UI.MotorCityFrontEndFlow frontEnd =
+                UnityEngine.Object.FindAnyObjectByType<
+                    MotorCity.UI.MotorCityFrontEndFlow>();
+
+            frontEnd?.ResetForTesting();
+
             if (roster != null)
                 roster.SelectVehicleForTesting(0, out _);
 
