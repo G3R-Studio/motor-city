@@ -29,8 +29,13 @@ namespace MotorCity.Vehicle
             engineClip =
                 BuildEngineClip();
 
+            // Tire/skid sound is intentionally not synthesized anymore.
+            // The user will provide the real clip. When it is added at
+            // Resources/MotorCity/Audio/TireScreech, it will be picked up
+            // automatically without changing code.
             tireClip =
-                BuildTireClip();
+                Resources.Load<AudioClip>(
+                    "MotorCity/Audio/TireScreech");
 
             engineSource =
                 CreateSource(
@@ -38,17 +43,24 @@ namespace MotorCity.Vehicle
                     engineClip,
                     0.36f);
 
-            tireSource =
-                CreateSource(
-                    "Motor City Tire Audio",
-                    tireClip,
-                    0.44f);
+            if (tireClip != null)
+            {
+                tireSource =
+                    CreateSource(
+                        "Motor City Tire Audio",
+                        tireClip,
+                        0.44f);
+            }
 
             engineSource.volume = 0f;
-            tireSource.volume = 0f;
+
+            if (tireSource != null)
+                tireSource.volume = 0f;
 
             engineSource.Play();
-            tireSource.Play();
+
+            if (tireSource != null)
+                tireSource.Play();
         }
 
         private void Update()
@@ -99,46 +111,49 @@ namespace MotorCity.Vehicle
                     Time.unscaledDeltaTime *
                     2.2f);
 
-            float slide =
-                Mathf.Clamp01(
-                    Mathf.Max(
-                        car.DriftIntensity,
-                        car.IsSliding
-                            ? 0.55f
-                            : 0f));
-
-            if (car.HandbrakeInputHeld &&
-                car.SpeedKph > 12f)
+            if (tireSource != null)
             {
-                slide =
-                    Mathf.Max(
-                        slide,
-                        Mathf.InverseLerp(
-                            12f,
-                            55f,
-                            car.SpeedKph));
+                float slide =
+                    Mathf.Clamp01(
+                        Mathf.Max(
+                            car.DriftIntensity,
+                            car.IsSliding
+                                ? 0.55f
+                                : 0f));
+
+                if (car.HandbrakeInputHeld &&
+                    car.SpeedKph > 12f)
+                {
+                    slide =
+                        Mathf.Max(
+                            slide,
+                            Mathf.InverseLerp(
+                                12f,
+                                55f,
+                                car.SpeedKph));
+                }
+
+                float targetTireVolume =
+                    slide *
+                    Mathf.InverseLerp(
+                        8f,
+                        42f,
+                        car.SpeedKph) *
+                    0.42f;
+
+                tireSource.volume =
+                    Mathf.MoveTowards(
+                        tireSource.volume,
+                        targetTireVolume,
+                        Time.unscaledDeltaTime *
+                        3.8f);
+
+                tireSource.pitch =
+                    Mathf.Lerp(
+                        0.92f,
+                        1.08f,
+                        speed01);
             }
-
-            float targetTireVolume =
-                slide *
-                Mathf.InverseLerp(
-                    8f,
-                    42f,
-                    car.SpeedKph) *
-                0.42f;
-
-            tireSource.volume =
-                Mathf.MoveTowards(
-                    tireSource.volume,
-                    targetTireVolume,
-                    Time.unscaledDeltaTime *
-                    3.8f);
-
-            tireSource.pitch =
-                Mathf.Lerp(
-                    0.82f,
-                    1.18f,
-                    speed01);
         }
 
         private AudioSource CreateSource(
@@ -227,127 +242,10 @@ namespace MotorCity.Vehicle
             return clip;
         }
 
-        private static AudioClip BuildTireClip()
-        {
-            float[] samples =
-                new float[ClipSamples];
-
-            uint state =
-                0x6D2B79F5u;
-
-            float roughness =
-                0f;
-
-            for (int i = 0;
-                 i < samples.Length;
-                 i++)
-            {
-                float t =
-                    i /
-                    (float)SampleRate;
-
-                // A tire squeal is mostly a narrow, unstable high-frequency
-                // tone with a little rough contact noise. Keep the noise subtle
-                // so it does not turn into broadband "hose" hiss.
-                float wobble =
-                    Mathf.Sin(
-                        2f *
-                        Mathf.PI *
-                        4.7f *
-                        t) *
-                    42f +
-                    Mathf.Sin(
-                        2f *
-                        Mathf.PI *
-                        7.3f *
-                        t) *
-                    18f;
-
-                float frequency =
-                    1120f +
-                    wobble;
-
-                float phase =
-                    2f *
-                    Mathf.PI *
-                    frequency *
-                    t;
-
-                float squeal =
-                    Mathf.Sin(
-                        phase) *
-                    0.62f +
-                    Mathf.Sin(
-                        phase * 1.97f +
-                        0.8f) *
-                    0.20f +
-                    Mathf.Sin(
-                        phase * 0.51f +
-                        1.4f) *
-                    0.10f;
-
-                state =
-                    state *
-                    1664525u +
-                    1013904223u;
-
-                float noise =
-                    ((state >> 8) &
-                     0x00FFFFFF) /
-                    8388607.5f -
-                    1f;
-
-                roughness =
-                    Mathf.Lerp(
-                        roughness,
-                        noise,
-                        0.12f);
-
-                float contact =
-                    (noise - roughness) *
-                    0.10f;
-
-                float amplitudePulse =
-                    0.88f +
-                    0.12f *
-                    Mathf.Sin(
-                        2f *
-                        Mathf.PI *
-                        9.5f *
-                        t);
-
-                samples[i] =
-                    Mathf.Clamp(
-                        (squeal *
-                         amplitudePulse +
-                         contact) *
-                        0.48f,
-                        -1f,
-                        1f);
-            }
-
-            AudioClip clip =
-                AudioClip.Create(
-                    "MotorCity_RuntimeTireScreech",
-                    ClipSamples,
-                    1,
-                    SampleRate,
-                    false);
-
-            clip.SetData(
-                samples,
-                0);
-
-            return clip;
-        }
-
         private void OnDestroy()
         {
             if (engineClip != null)
                 Destroy(engineClip);
-
-            if (tireClip != null)
-                Destroy(tireClip);
         }
     }
 }
