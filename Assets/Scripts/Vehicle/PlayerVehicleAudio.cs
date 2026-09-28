@@ -15,19 +15,62 @@ namespace MotorCity.Vehicle
         private const int SampleRate = 22050;
         private const int ClipSamples = SampleRate;
 
+        private readonly struct EngineProfile
+        {
+            public readonly float BaseFrequency;
+            public readonly float MinPitch;
+            public readonly float MaxPitch;
+            public readonly float IdleVolume;
+            public readonly float MaxVolume;
+            public readonly float[] Harmonics;
+            public readonly float Roughness;
+            public readonly float Flutter;
+            public readonly bool ElectricLike;
+
+            public EngineProfile(
+                float baseFrequency,
+                float minPitch,
+                float maxPitch,
+                float idleVolume,
+                float maxVolume,
+                float[] harmonics,
+                float roughness,
+                float flutter,
+                bool electricLike = false)
+            {
+                BaseFrequency = baseFrequency;
+                MinPitch = minPitch;
+                MaxPitch = maxPitch;
+                IdleVolume = idleVolume;
+                MaxVolume = maxVolume;
+                Harmonics = harmonics;
+                Roughness = roughness;
+                Flutter = flutter;
+                ElectricLike = electricLike;
+            }
+        }
+
         private ArcadeCarController car;
         private AudioSource engineSource;
         private AudioSource tireSource;
         private AudioClip engineClip;
         private AudioClip tireClip;
+        private string vehicleId = "street";
+        private EngineProfile activeProfile;
 
         private void Awake()
         {
             car =
                 GetComponent<ArcadeCarController>();
 
+            activeProfile =
+                ResolveProfile(
+                    vehicleId);
+
             engineClip =
-                BuildEngineClip();
+                BuildEngineClip(
+                    activeProfile,
+                    vehicleId);
 
             tireClip =
                 Resources.Load<AudioClip>(
@@ -54,8 +97,60 @@ namespace MotorCity.Vehicle
                 tireSource.volume = 0f;
 
             engineSource.Play();
+        }
 
-            // Tire skid starts only when sliding/handbraking.
+        public void SetVehicleId(
+            string id)
+        {
+            string normalized =
+                string.IsNullOrWhiteSpace(id)
+                    ? "street"
+                    : id.Trim().ToLowerInvariant();
+
+            if (vehicleId == normalized &&
+                engineClip != null)
+            {
+                return;
+            }
+
+            vehicleId =
+                normalized;
+
+            activeProfile =
+                ResolveProfile(
+                    vehicleId);
+
+            AudioClip replacement =
+                BuildEngineClip(
+                    activeProfile,
+                    vehicleId);
+
+            if (replacement == null)
+                return;
+
+            AudioClip previous =
+                engineClip;
+
+            engineClip =
+                replacement;
+
+            if (engineSource != null)
+            {
+                bool wasPlaying =
+                    engineSource.isPlaying;
+
+                engineSource.Stop();
+                engineSource.clip =
+                    engineClip;
+                engineSource.pitch =
+                    activeProfile.MinPitch;
+
+                if (wasPlaying)
+                    engineSource.Play();
+            }
+
+            if (previous != null)
+                Destroy(previous);
         }
 
         private void Update()
@@ -66,7 +161,12 @@ namespace MotorCity.Vehicle
             float speed01 =
                 Mathf.InverseLerp(
                     0f,
-                    180f,
+                    vehicleId == "bus"
+                        ? 110f
+                        : vehicleId == "toyotaae86" ||
+                          vehicleId == "porsche996"
+                            ? 200f
+                            : 180f,
                     car.SpeedKph);
 
             bool throttle =
@@ -80,17 +180,23 @@ namespace MotorCity.Vehicle
 
             float targetEngineVolume =
                 Mathf.Lerp(
-                    0.10f,
-                    0.31f,
+                    activeProfile.IdleVolume,
+                    activeProfile.MaxVolume,
                     speed01) +
-                throttleAmount * 0.08f;
+                throttleAmount *
+                (vehicleId == "hybrid"
+                    ? 0.025f
+                    : 0.07f);
 
             float targetEnginePitch =
                 Mathf.Lerp(
-                    0.72f,
-                    1.72f,
+                    activeProfile.MinPitch,
+                    activeProfile.MaxPitch,
                     speed01) +
-                throttleAmount * 0.10f;
+                throttleAmount *
+                (vehicleId == "bus"
+                    ? 0.035f
+                    : 0.08f);
 
             engineSource.volume =
                 Mathf.MoveTowards(
@@ -186,13 +292,157 @@ namespace MotorCity.Vehicle
             return source;
         }
 
-        private static AudioClip BuildEngineClip()
+        private static EngineProfile ResolveProfile(
+            string id)
+        {
+            return id switch
+            {
+                // Generic modern inline-four: neutral, mid-range dominant.
+                "street" =>
+                    new EngineProfile(
+                        72f,
+                        0.72f,
+                        1.68f,
+                        0.10f,
+                        0.31f,
+                        new[] { 0.56f, 0.24f, 0.12f, 0.08f },
+                        0.045f,
+                        0.020f),
+
+                // Hybrid: much quieter combustion bed with a clean electric whine.
+                "hybrid" =>
+                    new EngineProfile(
+                        126f,
+                        0.78f,
+                        1.42f,
+                        0.045f,
+                        0.18f,
+                        new[] { 0.28f, 0.16f, 0.10f, 0.06f, 0.20f },
+                        0.010f,
+                        0.008f,
+                        true),
+
+                // Classic compact four-cylinder: softer low end, slightly coarse midrange.
+                "beatall" =>
+                    new EngineProfile(
+                        68f,
+                        0.70f,
+                        1.58f,
+                        0.095f,
+                        0.29f,
+                        new[] { 0.50f, 0.26f, 0.14f, 0.10f },
+                        0.070f,
+                        0.030f),
+
+                // PRV-style V6 character: smoother than an I4, deeper fundamental.
+                "delorean" =>
+                    new EngineProfile(
+                        58f,
+                        0.72f,
+                        1.55f,
+                        0.10f,
+                        0.30f,
+                        new[] { 0.50f, 0.18f, 0.19f, 0.08f, 0.05f },
+                        0.035f,
+                        0.015f),
+
+                // AMG GT: deep cross-plane V8-like burble with strong lower harmonics.
+                "amggt" =>
+                    new EngineProfile(
+                        44f,
+                        0.68f,
+                        1.46f,
+                        0.13f,
+                        0.36f,
+                        new[] { 0.62f, 0.22f, 0.08f, 0.05f, 0.03f },
+                        0.095f,
+                        0.045f),
+
+                // 996: smoother, brighter flat-six-like timbre and higher rev character.
+                "porsche996" =>
+                    new EngineProfile(
+                        84f,
+                        0.76f,
+                        1.86f,
+                        0.09f,
+                        0.32f,
+                        new[] { 0.42f, 0.20f, 0.18f, 0.12f, 0.08f },
+                        0.022f,
+                        0.012f),
+
+                // Peugeot 306: compact buzzy inline-four.
+                "peugeot306" =>
+                    new EngineProfile(
+                        76f,
+                        0.72f,
+                        1.70f,
+                        0.085f,
+                        0.28f,
+                        new[] { 0.46f, 0.30f, 0.14f, 0.07f, 0.03f },
+                        0.060f,
+                        0.026f),
+
+                // AE86 / 4A-GE-inspired: light, bright and noticeably high-revving.
+                "toyotaae86" =>
+                    new EngineProfile(
+                        96f,
+                        0.74f,
+                        1.98f,
+                        0.08f,
+                        0.30f,
+                        new[] { 0.36f, 0.28f, 0.18f, 0.12f, 0.06f },
+                        0.040f,
+                        0.018f),
+
+                // Camaro: heavier American V8-style pulse, lowest passenger-car note.
+                "camaro" =>
+                    new EngineProfile(
+                        40f,
+                        0.66f,
+                        1.40f,
+                        0.145f,
+                        0.38f,
+                        new[] { 0.66f, 0.18f, 0.07f, 0.05f, 0.04f },
+                        0.115f,
+                        0.055f),
+
+                // City bus: low-rev diesel-like inline-six, strong low harmonics.
+                "bus" =>
+                    new EngineProfile(
+                        34f,
+                        0.70f,
+                        1.18f,
+                        0.15f,
+                        0.34f,
+                        new[] { 0.70f, 0.17f, 0.07f, 0.04f, 0.02f },
+                        0.135f,
+                        0.065f),
+
+                _ =>
+                    new EngineProfile(
+                        72f,
+                        0.72f,
+                        1.68f,
+                        0.10f,
+                        0.31f,
+                        new[] { 0.56f, 0.24f, 0.12f, 0.08f },
+                        0.045f,
+                        0.020f)
+            };
+        }
+
+        private static AudioClip BuildEngineClip(
+            EngineProfile profile,
+            string id)
         {
             float[] samples =
                 new float[ClipSamples];
 
-            const float baseFrequency =
-                62f;
+            uint noiseState =
+                0xA341316Cu;
+
+            float filteredNoise =
+                0f;
 
             for (int i = 0;
                  i < samples.Length;
@@ -202,35 +452,81 @@ namespace MotorCity.Vehicle
                     i /
                     (float)SampleRate;
 
+                float flutter =
+                    1f +
+                    Mathf.Sin(
+                        2f *
+                        Mathf.PI *
+                        5.1f *
+                        t) *
+                    profile.Flutter;
+
                 float phase =
                     2f *
                     Mathf.PI *
-                    baseFrequency *
-                    t;
+                    profile.BaseFrequency *
+                    t *
+                    flutter;
 
-                float value =
-                    Mathf.Sin(phase) *
-                    0.58f +
-                    Mathf.Sin(
-                        phase * 2f) *
-                    0.24f +
-                    Mathf.Sin(
-                        phase * 3f) *
-                    0.10f +
-                    Mathf.Sin(
-                        phase * 0.5f) *
-                    0.08f;
+                float value = 0f;
+
+                for (int h = 0;
+                     h < profile.Harmonics.Length;
+                     h++)
+                {
+                    float multiplier =
+                        h + 1f;
+
+                    value +=
+                        Mathf.Sin(
+                            phase *
+                            multiplier +
+                            h * 0.17f) *
+                        profile.Harmonics[h];
+                }
+
+                if (profile.ElectricLike)
+                {
+                    value +=
+                        Mathf.Sin(
+                            phase * 5.6f) *
+                        0.14f +
+                        Mathf.Sin(
+                            phase * 8.2f) *
+                        0.07f;
+                }
+
+                noiseState =
+                    noiseState *
+                    1664525u +
+                    1013904223u;
+
+                float noise =
+                    ((noiseState >> 8) &
+                     0x00FFFFFF) /
+                    8388607.5f -
+                    1f;
+
+                filteredNoise =
+                    Mathf.Lerp(
+                        filteredNoise,
+                        noise,
+                        0.09f);
+
+                value +=
+                    filteredNoise *
+                    profile.Roughness;
 
                 samples[i] =
                     Mathf.Clamp(
-                        value * 0.54f,
+                        value * 0.48f,
                         -1f,
                         1f);
             }
 
             AudioClip clip =
                 AudioClip.Create(
-                    "MotorCity_RuntimeEngine",
+                    "MotorCity_Engine_" + id,
                     ClipSamples,
                     1,
                     SampleRate,
