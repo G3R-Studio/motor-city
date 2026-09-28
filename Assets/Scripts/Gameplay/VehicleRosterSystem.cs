@@ -445,9 +445,7 @@ namespace MotorCity.Gameplay
             VehicleChanged?.Invoke();
 
             status =
-                MotorCityLocalization.Format(
-                    "vehicle.selected",
-                    profile.DisplayName);
+                string.Empty;
 
             return true;
         }
@@ -489,9 +487,7 @@ namespace MotorCity.Gameplay
             VehicleChanged?.Invoke();
 
             status =
-                MotorCityLocalization.Format(
-                    "vehicle.selected",
-                    profiles[SelectedIndex].DisplayName);
+                string.Empty;
 
             return true;
         }
