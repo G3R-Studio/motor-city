@@ -36,6 +36,7 @@ namespace MotorCity.Gameplay
         private GameObject externalVisual;
         private Animator externalAnimator;
         private bool usingHaonVisual;
+        private bool useSupporterPixieSkin;
         private Vector3 visualAnchorLocal;
         private Transform observedVehicleVisual;
         private Vector3 previousCarPosition;
@@ -129,6 +130,9 @@ namespace MotorCity.Gameplay
                     MotorCity.Persistence.MotorCitySaveService.GetInt(
                         XpKey,
                         0));
+
+            useSupporterPixieSkin =
+                CosmeticStoreSystem.SupporterPackOwned;
 
             currentDay =
                 Math.Max(
@@ -663,8 +667,19 @@ namespace MotorCity.Gameplay
                 true;
 
             GameObject authoredPrefab =
-                Resources.Load<GameObject>(
-                    "MotorCity/Byte/HaonByteVisual");
+                useSupporterPixieSkin
+                    ? Resources.Load<GameObject>(
+                        "MotorCity/Pixie/AmaneKisoraVisual")
+                    : Resources.Load<GameObject>(
+                        "MotorCity/Byte/HaonByteVisual");
+
+            if (authoredPrefab == null &&
+                useSupporterPixieSkin)
+            {
+                authoredPrefab =
+                    Resources.Load<GameObject>(
+                        "MotorCity/Byte/HaonByteVisual");
+            }
 
             if (authoredPrefab != null)
             {
@@ -675,7 +690,9 @@ namespace MotorCity.Gameplay
                         false);
 
                 externalVisual.name =
-                    "Pixie Haon SD Visual";
+                    useSupporterPixieSkin
+                        ? "Pixie EX Amane Kisora Visual"
+                        : "Pixie Haon SD Visual";
 
                 externalVisual.transform.localPosition =
                     Vector3.zero;
@@ -688,14 +705,16 @@ namespace MotorCity.Gameplay
 
                 externalVisual.transform.localScale =
                     Vector3.one *
-                    0.66f;
+                    (useSupporterPixieSkin
+                        ? 0.58f
+                        : 0.66f);
 
                 externalAnimator =
                     externalVisual.GetComponentInChildren<Animator>(
                         true);
 
                 usingHaonVisual =
-                    true;
+                    !useSupporterPixieSkin;
 
                 if (externalAnimator != null)
                 {
@@ -1136,6 +1155,22 @@ namespace MotorCity.Gameplay
                     transitionSeconds,
                     0);
             }
+        }
+
+        public void SetSupporterPackSkin(
+            bool enabled)
+        {
+            if (useSupporterPixieSkin ==
+                enabled)
+            {
+                return;
+            }
+
+            useSupporterPixieSkin =
+                enabled;
+
+            if (car != null)
+                RebuildVisual();
         }
 
         private void RebuildVisual()
