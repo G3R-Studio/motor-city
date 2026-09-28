@@ -2156,8 +2156,8 @@ namespace MotorCity.UI
                     "Pause Panel",
                     Vector2.zero,
                     new Vector2(
-                        620f,
-                        430f),
+                        560f,
+                        330f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -2173,15 +2173,15 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Pause Title",
-                    29,
+                    28,
                     FontStyle.Bold,
                     TextAnchor.UpperCenter,
                     new Vector2(
                         0f,
                         -24f),
                     new Vector2(
-                        540f,
-                        42f),
+                        500f,
+                        38f),
                     new Vector2(
                         0.5f,
                         1f),
@@ -2194,76 +2194,36 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     "pause.title");
 
-            CreateHudIcon(
-                panel,
-                "Pause Header Icon",
-                MotorCityIconLibrary.Pause,
-                new Vector2(-224f, -31f),
-                new Vector2(28f, 28f),
-                new Vector2(0.5f, 1f),
-                TextColor);
-
             RectTransform qualityCard =
                 CreatePanel(
                     panel,
                     "Pause Quality Card",
-                    new Vector2(0f, 58f),
-                    new Vector2(520f, 68f),
+                    new Vector2(0f, 48f),
+                    new Vector2(470f, 64f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     new Color(
                         PanelSoftColor.r,
                         PanelSoftColor.g,
                         PanelSoftColor.b,
-                        0.76f));
+                        0.72f));
 
-            RectTransform audioCard =
-                CreatePanel(
-                    panel,
-                    "Pause Audio Card",
-                    new Vector2(0f, -26f),
-                    new Vector2(520f, 68f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
-                    new Color(
-                        PanelSoftColor.r,
-                        PanelSoftColor.g,
-                        PanelSoftColor.b,
-                        0.76f));
-
-            Text qualityHint =
+            Text qualityLabel =
                 CreateText(
-                    panel,
-                    "Pause Quality Hint",
-                    11,
+                    qualityCard,
+                    "Pause Quality Label",
+                    13,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(-244f, 108f),
-                    new Vector2(230f, 22f),
+                    new Vector2(-194f, 0f),
+                    new Vector2(126f, 36f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0f, 0.5f),
                     SecondaryTextColor);
 
-            qualityHint.text =
+            qualityLabel.text =
                 MotorCityLocalization.Text(
-                    "pause.quality_hint");
-
-            Text audioHint =
-                CreateText(
-                    panel,
-                    "Pause Audio Hint",
-                    11,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(-244f, 24f),
-                    new Vector2(230f, 22f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0f, 0.5f),
-                    SecondaryTextColor);
-
-            audioHint.text =
-                MotorCityLocalization.Text(
-                    "pause.audio_hint");
+                    "pause.quality_label");
 
             pauseQualityText =
                 CreateText(
@@ -2271,20 +2231,61 @@ namespace MotorCity.UI
                     "Pause Quality",
                     18,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(
-                        18f,
-                        0f),
-                    new Vector2(
-                        472f,
-                        46f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
+                    TextAnchor.MiddleCenter,
+                    new Vector2(-6f, 0f),
+                    new Vector2(170f, 40f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
                     TextColor);
+
+            CreatePauseButton(
+                qualityCard,
+                "Pause Quality Previous",
+                "pause.minus",
+                new Vector2(154f, 0f),
+                new Vector2(46f, 38f),
+                () =>
+                    CycleQuality(-1));
+
+            CreatePauseButton(
+                qualityCard,
+                "Pause Quality Next",
+                "pause.plus",
+                new Vector2(207f, 0f),
+                new Vector2(46f, 38f),
+                () =>
+                    CycleQuality(1));
+
+            RectTransform audioCard =
+                CreatePanel(
+                    panel,
+                    "Pause Audio Card",
+                    new Vector2(0f, -30f),
+                    new Vector2(470f, 64f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        PanelSoftColor.r,
+                        PanelSoftColor.g,
+                        PanelSoftColor.b,
+                        0.72f));
+
+            Text audioLabel =
+                CreateText(
+                    audioCard,
+                    "Pause Audio Label",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(-194f, 0f),
+                    new Vector2(126f, 36f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    SecondaryTextColor);
+
+            audioLabel.text =
+                MotorCityLocalization.Text(
+                    "pause.audio_label");
 
             pauseAudioText =
                 CreateText(
@@ -2292,20 +2293,20 @@ namespace MotorCity.UI
                     "Pause Audio",
                     18,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(
-                        18f,
-                        0f),
-                    new Vector2(
-                        472f,
-                        46f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
+                    TextAnchor.MiddleCenter,
+                    new Vector2(-6f, 0f),
+                    new Vector2(170f, 40f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
                     TextColor);
+
+            CreatePauseButton(
+                audioCard,
+                "Pause Audio Toggle",
+                "pause.toggle",
+                new Vector2(180f, 0f),
+                new Vector2(100f, 38f),
+                ToggleAudioMute);
 
             BuildPauseTouchActions(
                 panel);
@@ -2318,36 +2319,10 @@ namespace MotorCity.UI
         {
             CreatePauseButton(
                 panel,
-                "Pause Quality Previous",
-                "pause.quality_less",
-                new Vector2(-138f, -122f),
-                new Vector2(240f, 48f),
-                () =>
-                    CycleQuality(-1));
-
-            CreatePauseButton(
-                panel,
-                "Pause Quality Next",
-                "pause.quality_more",
-                new Vector2(138f, -122f),
-                new Vector2(240f, 48f),
-                () =>
-                    CycleQuality(1));
-
-            CreatePauseButton(
-                panel,
-                "Pause Audio Toggle",
-                "pause.audio_touch",
-                new Vector2(-138f, -180f),
-                new Vector2(240f, 48f),
-                ToggleAudioMute);
-
-            CreatePauseButton(
-                panel,
                 "Pause Resume",
                 "pause.resume",
-                new Vector2(138f, -180f),
-                new Vector2(240f, 48f),
+                new Vector2(0f, -122f),
+                new Vector2(300f, 50f),
                 ClosePauseMenu);
         }
 
@@ -2464,13 +2439,9 @@ namespace MotorCity.UI
                     ? MotorCityIconLibrary.Pause
                     : objectName == "HUD More"
                         ? MotorCityIconLibrary.More
-                        : objectName.Contains("Quality")
-                            ? MotorCityIconLibrary.Garage
-                            : objectName == "Pause Resume"
-                                ? MotorCityIconLibrary.Confirm
-                                : objectName == "Pause Audio Toggle"
-                                    ? MotorCityIconLibrary.Get("star")
-                                    : null;
+                        : objectName == "Pause Resume"
+                            ? MotorCityIconLibrary.Confirm
+                            : null;
 
             if (utilityIcon != null)
             {
@@ -2494,9 +2465,12 @@ namespace MotorCity.UI
                 CreateText(
                     rect,
                     "Label",
-                    hudUtilityButton
-                        ? 12
-                        : 13,
+                    objectName == "Pause Quality Previous" ||
+                    objectName == "Pause Quality Next"
+                        ? 18
+                        : hudUtilityButton
+                            ? 12
+                            : 13,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     utilityIcon != null
@@ -2658,20 +2632,16 @@ namespace MotorCity.UI
                     };
 
                 pauseQualityText.text =
-                    MotorCityLocalization.Format(
-                        "pause.quality",
-                        quality);
+                    quality;
             }
 
             if (pauseAudioText != null)
             {
                 pauseAudioText.text =
-                    MotorCityLocalization.Format(
-                        "pause.audio",
-                        MotorCityLocalization.Text(
-                            audioMuted
-                                ? "pause.off"
-                                : "pause.on"));
+                    MotorCityLocalization.Text(
+                        audioMuted
+                            ? "pause.off"
+                            : "pause.on");
             }
         }
 
