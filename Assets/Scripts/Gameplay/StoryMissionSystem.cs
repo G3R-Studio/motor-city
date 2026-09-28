@@ -16,10 +16,12 @@ namespace MotorCity.Gameplay
         private PlayerWallet wallet;
         private PlayerReputation reputation;
         private TurboPetSystem turbo;
+        private FirstSessionOnboardingSystem onboarding;
         private StoryMission[] missions;
         private int missionIndex;
         private int progress;
         private float messageTimer;
+        private bool waitingForOnboarding;
 
         public bool IsComplete { get; private set; }
         public bool ShowMessage => messageTimer > 0f;
@@ -169,6 +171,9 @@ namespace MotorCity.Gameplay
         {
             get
             {
+                if (waitingForOnboarding)
+                    return string.Empty;
+
                 if (IsComplete)
                     return MotorCityLocalization.Text("story.complete_hud");
 
@@ -190,12 +195,14 @@ namespace MotorCity.Gameplay
             ActivityManager activityManager,
             PlayerWallet targetWallet,
             PlayerReputation targetReputation,
-            TurboPetSystem turboSystem)
+            TurboPetSystem turboSystem,
+            FirstSessionOnboardingSystem onboardingSystem)
         {
             activities = activityManager;
             wallet = targetWallet;
             reputation = targetReputation;
             turbo = turboSystem;
+            onboarding = onboardingSystem;
 
             BuildMissions();
 
@@ -222,8 +229,16 @@ namespace MotorCity.Gameplay
             if (activities != null)
                 activities.ActivityCompleted += OnActivityCompleted;
 
-            if (!IsComplete)
+            waitingForOnboarding =
+                !IsComplete &&
+                onboarding != null &&
+                !onboarding.IsComplete;
+
+            if (!IsComplete &&
+                !waitingForOnboarding)
+            {
                 AnnounceCurrentMission();
+            }
         }
 
         private void ApplyWildcardProfessionCompatibility()
@@ -279,6 +294,20 @@ namespace MotorCity.Gameplay
         {
             if (messageTimer > 0f)
                 messageTimer = Mathf.Max(0f, messageTimer - Time.unscaledDeltaTime);
+
+            if (!waitingForOnboarding)
+                return;
+
+            if (onboarding == null ||
+                !onboarding.IsComplete)
+            {
+                return;
+            }
+
+            waitingForOnboarding = false;
+
+            if (!IsComplete)
+                AnnounceCurrentMission();
         }
 
         private void OnDestroy()
@@ -290,8 +319,11 @@ namespace MotorCity.Gameplay
         private void OnActivityCompleted(
             string activityId)
         {
-            if (IsComplete)
+            if (IsComplete ||
+                waitingForOnboarding)
+            {
                 return;
+            }
 
             StoryMission mission =
                 CurrentMission();
@@ -429,7 +461,13 @@ namespace MotorCity.Gameplay
                 0);
 
             Save();
-            AnnounceCurrentMission();
+
+            waitingForOnboarding =
+                onboarding != null &&
+                !onboarding.IsComplete;
+
+            if (!waitingForOnboarding)
+                AnnounceCurrentMission();
         }
 
         public void AdvanceMissionForTesting()
