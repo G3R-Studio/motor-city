@@ -10833,7 +10833,7 @@ namespace MotorCity.UI
 
         private static void CreatePanelEdgeGlow(
             RectTransform panel,
-            Texture texture,
+            Texture2D texture,
             Color color,
             string objectName)
         {
@@ -10862,7 +10862,7 @@ namespace MotorCity.UI
 
         private static void CreatePanelGlowLayer(
             RectTransform panel,
-            Texture texture,
+            Texture2D texture,
             Color color,
             string objectName,
             float expansion,
