@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace MotorCity.Platform
 {
@@ -116,6 +118,10 @@ namespace MotorCity.Platform
 
             QualitySettings.vSyncCount = 0;
 
+            // Let the browser/device run as fast as it can. Quality presets
+            // should change visual cost, not impose an artificial FPS cap.
+            Application.targetFrameRate = -1;
+
             switch (preset)
             {
                 case MotorCityQualityPreset.Low:
@@ -195,7 +201,6 @@ namespace MotorCity.Platform
 
         private static void ApplyLow()
         {
-            Application.targetFrameRate = 30;
             QualitySettings.shadows =
                 ShadowQuality.Disable;
             QualitySettings.shadowDistance = 0f;
@@ -206,11 +211,14 @@ namespace MotorCity.Platform
             QualitySettings.softParticles = false;
             QualitySettings.anisotropicFiltering =
                 AnisotropicFiltering.Disable;
+
+            ApplyUrpQuality(
+                0.75f,
+                1);
         }
 
         private static void ApplyMedium()
         {
-            Application.targetFrameRate = 60;
             QualitySettings.shadows =
                 ShadowQuality.HardOnly;
             QualitySettings.shadowDistance = 55f;
@@ -221,11 +229,14 @@ namespace MotorCity.Platform
             QualitySettings.softParticles = false;
             QualitySettings.anisotropicFiltering =
                 AnisotropicFiltering.Enable;
+
+            ApplyUrpQuality(
+                0.90f,
+                2);
         }
 
         private static void ApplyHigh()
         {
-            Application.targetFrameRate = 60;
             QualitySettings.shadows =
                 ShadowQuality.All;
             QualitySettings.shadowDistance = 95f;
@@ -236,6 +247,31 @@ namespace MotorCity.Platform
             QualitySettings.softParticles = true;
             QualitySettings.anisotropicFiltering =
                 AnisotropicFiltering.ForceEnable;
+
+            ApplyUrpQuality(
+                1.00f,
+                4);
+        }
+
+        private static void ApplyUrpQuality(
+            float renderScale,
+            int msaaSamples)
+        {
+            UniversalRenderPipelineAsset urp =
+                GraphicsSettings.currentRenderPipeline
+                    as UniversalRenderPipelineAsset;
+
+            if (urp == null)
+                return;
+
+            urp.renderScale =
+                Mathf.Clamp(
+                    renderScale,
+                    0.5f,
+                    1.5f);
+
+            urp.msaaSampleCount =
+                msaaSamples;
         }
     }
 }
