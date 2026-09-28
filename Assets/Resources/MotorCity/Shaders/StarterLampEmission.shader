@@ -18,6 +18,7 @@ Shader "MotorCity/StarterLampEmission"
         _UpMax ("Up Max", Float) = 100
         _UvMask ("UV Mask", Float) = 0
         _UvCenter ("UV Center", Vector) = (0.5,0.5,0,0)
+        _UvCenter2 ("UV Center 2", Vector) = (0.5,0.5,0,0)
         _UvTolerance ("UV Tolerance", Vector) = (0.02,0.02,0,0)
     }
 
@@ -60,6 +61,7 @@ Shader "MotorCity/StarterLampEmission"
                 float _UpMax;
                 float _UvMask;
                 float4 _UvCenter;
+                float4 _UvCenter2;
                 float4 _UvTolerance;
             CBUFFER_END
 
@@ -171,7 +173,10 @@ Shader "MotorCity/StarterLampEmission"
                 half2 uvDelta =
                     abs(input.uv - _UvCenter.xy);
 
-                half uvIslandMask =
+                half2 uvDelta2 =
+                    abs(input.uv - _UvCenter2.xy);
+
+                half uvIslandMask1 =
                     (1.0h -
                      smoothstep(
                         _UvTolerance.x * 0.85h,
@@ -182,6 +187,23 @@ Shader "MotorCity/StarterLampEmission"
                         _UvTolerance.y * 0.85h,
                         _UvTolerance.y,
                         uvDelta.y));
+
+                half uvIslandMask2 =
+                    (1.0h -
+                     smoothstep(
+                        _UvTolerance.x * 0.85h,
+                        _UvTolerance.x,
+                        uvDelta2.x)) *
+                    (1.0h -
+                     smoothstep(
+                        _UvTolerance.y * 0.85h,
+                        _UvTolerance.y,
+                        uvDelta2.y));
+
+                half uvIslandMask =
+                    max(
+                        uvIslandMask1,
+                        uvIslandMask2);
 
                 half uvMask =
                     lerp(
