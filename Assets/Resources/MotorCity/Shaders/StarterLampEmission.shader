@@ -8,7 +8,7 @@ Shader "MotorCity/StarterLampEmission"
         _AxisOS ("Vehicle Forward Axis OS", Vector) = (0,0,1,0)
         _Cutoff ("Axle Cutoff", Float) = 0
         _Softness ("Axle Softness", Float) = 0.08
-        _Mode ("Mode: 0 rear red, 1 front white", Float) = 0
+        _Mode ("Mode: 0 rear red, 1 front white, 2 rear unmasked", Float) = 0
         _SpatialMask ("Spatial Mask", Float) = 0
         _LateralAxisOS ("Lateral Axis OS", Vector) = (1,0,0,0)
         _UpAxisOS ("Up Axis OS", Vector) = (0,1,0,0)
@@ -106,8 +106,30 @@ Shader "MotorCity/StarterLampEmission"
                         input.axisCoord);
 
                 half rearSide = 1.0h - frontSide;
-                half colorMask = lerp(rearColor, frontColor, saturate(_Mode));
-                half sideMask = lerp(rearSide, frontSide, saturate(_Mode));
+                half frontMode =
+                    step(0.5h, _Mode) *
+                    (1.0h - step(1.5h, _Mode));
+
+                half rawRearMode =
+                    step(1.5h, _Mode);
+
+                half colorMask =
+                    lerp(
+                        rearColor,
+                        frontColor,
+                        frontMode);
+
+                colorMask =
+                    lerp(
+                        colorMask,
+                        1.0h,
+                        rawRearMode);
+
+                half sideMask =
+                    lerp(
+                        rearSide,
+                        frontSide,
+                        frontMode);
 
                 half lateral =
                     abs(input.lateralCoord);
