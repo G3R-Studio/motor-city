@@ -242,6 +242,11 @@ namespace MotorCity.Vehicle
             activeSuspensionTargetPosition =
                 suspensionTargetPosition;
 
+            if (GetComponent<PlayerVehicleAudio>() == null)
+            {
+                gameObject.AddComponent<PlayerVehicleAudio>();
+            }
+
         }
 
         private void Update()
