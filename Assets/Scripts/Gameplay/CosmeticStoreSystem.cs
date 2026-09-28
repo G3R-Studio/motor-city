@@ -20,6 +20,11 @@ namespace MotorCity.Gameplay
 
         public bool HasSupporterPack { get; private set; }
 
+        public static bool SupporterPackOwned =>
+            MotorCity.Persistence.MotorCitySaveService.GetInt(
+                SupporterPackKey,
+                0) != 0;
+
         public bool ShowMessage =>
             messageTimer > 0f;
 
@@ -255,6 +260,12 @@ namespace MotorCity.Gameplay
         {
             if (HasSupporterPack)
             {
+                TurboPetSystem pixie =
+                    Object.FindAnyObjectByType<TurboPetSystem>();
+
+                pixie?.SetSupporterPackSkin(
+                    true);
+
                 // Permanent one-time supporter reward.
                 int claimed =
                     MotorCity.Persistence.MotorCitySaveService.GetInt(
