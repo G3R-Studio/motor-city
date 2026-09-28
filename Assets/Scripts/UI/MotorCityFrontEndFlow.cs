@@ -12,6 +12,8 @@ namespace MotorCity.UI
     {
         private const string IntroCompleteKey = "MotorCity.FrontEnd.IntroCompleted";
         private const string LanguageKey = "MotorCity.Settings.LanguageOverride";
+        private const string AudioMutedKey = "MotorCity.Settings.AudioMuted";
+        private const string AudioVolumeKey = "MotorCity.Settings.AudioVolume";
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
@@ -62,6 +64,8 @@ namespace MotorCity.UI
         private bool hasExistingProgress;
         private bool loadingActive;
         private float loadingTimer;
+        private bool frontEndAudioMuted;
+        private float frontEndAudioVolume = 1f;
 
         private readonly IntroSlide[] slides =
         {
@@ -116,6 +120,19 @@ namespace MotorCity.UI
                 hud != null;
 
             ApplyLanguageOverride();
+
+            frontEndAudioMuted =
+                MotorCitySaveService.GetInt(
+                    AudioMutedKey,
+                    0) != 0;
+
+            frontEndAudioVolume =
+                Mathf.Clamp01(
+                    MotorCitySaveService.GetFloat(
+                        AudioVolumeKey,
+                        1f));
+
+            ApplyFrontEndAudioVolume();
 
             hasExistingProgress =
                 MotorCitySaveService.GetInt(IntroCompleteKey, 0) != 0 ||
@@ -1033,6 +1050,15 @@ namespace MotorCity.UI
             onboarding = onboardingSystem;
             hud = prototypeHud;
 
+            if (hud != null)
+            {
+                frontEndAudioMuted =
+                    hud.FrontEndAudioMuted;
+
+                frontEndAudioVolume =
+                    hud.FrontEndAudioVolume;
+            }
+
             gameplayReady = true;
             gameplayReadyAt = loadingTimer;
             loadingProgressWhenReady =
@@ -1115,12 +1141,22 @@ namespace MotorCity.UI
                     };
             }
 
-            if (settingsAudioText != null && hud != null)
+            if (settingsAudioText != null)
             {
+                bool muted =
+                    hud != null
+                        ? hud.FrontEndAudioMuted
+                        : frontEndAudioMuted;
+
+                float volume =
+                    hud != null
+                        ? hud.FrontEndAudioVolume
+                        : frontEndAudioVolume;
+
                 settingsAudioText.text =
-                    hud.FrontEndAudioMuted
+                    muted
                         ? (IsRussian() ? "ВЫКЛ" : "OFF")
-                        : $"{Mathf.RoundToInt(hud.FrontEndAudioVolume * 100f)}%";
+                        : $"{Mathf.RoundToInt(volume * 100f)}%";
             }
 
             if (settingsLanguageText != null)
@@ -1136,14 +1172,79 @@ namespace MotorCity.UI
 
         private void AdjustAudio(int direction)
         {
-            hud?.FrontEndAdjustAudio(direction);
+            if (hud != null)
+            {
+                hud.FrontEndAdjustAudio(
+                    direction);
+
+                frontEndAudioMuted =
+                    hud.FrontEndAudioMuted;
+
+                frontEndAudioVolume =
+                    hud.FrontEndAudioVolume;
+            }
+            else
+            {
+                float stepped =
+                    Mathf.Round(
+                        (frontEndAudioVolume +
+                         direction * 0.1f) *
+                        10f) /
+                    10f;
+
+                frontEndAudioVolume =
+                    Mathf.Clamp01(
+                        stepped);
+
+                MotorCitySaveService.SetFloat(
+                    AudioVolumeKey,
+                    frontEndAudioVolume);
+
+                MotorCitySaveService.Save();
+
+                ApplyFrontEndAudioVolume();
+            }
+
             RefreshSettingsText();
         }
 
         private void ToggleAudio()
         {
-            hud?.FrontEndToggleAudio();
+            if (hud != null)
+            {
+                hud.FrontEndToggleAudio();
+
+                frontEndAudioMuted =
+                    hud.FrontEndAudioMuted;
+
+                frontEndAudioVolume =
+                    hud.FrontEndAudioVolume;
+            }
+            else
+            {
+                frontEndAudioMuted =
+                    !frontEndAudioMuted;
+
+                MotorCitySaveService.SetInt(
+                    AudioMutedKey,
+                    frontEndAudioMuted
+                        ? 1
+                        : 0);
+
+                MotorCitySaveService.Save();
+
+                ApplyFrontEndAudioVolume();
+            }
+
             RefreshSettingsText();
+        }
+
+        private void ApplyFrontEndAudioVolume()
+        {
+            AudioListener.volume =
+                frontEndAudioMuted
+                    ? 0f
+                    : frontEndAudioVolume;
         }
 
         private void ToggleLanguage()
