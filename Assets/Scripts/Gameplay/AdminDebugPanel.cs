@@ -1639,6 +1639,12 @@ namespace MotorCity.Gameplay
             MotorCity.Persistence.MotorCitySaveService.DeleteKey(
                 "MotorCity.Vehicle.Position.Yaw");
 
+            MotorCity.World.VehiclePositionPersistence positionPersistence =
+                UnityEngine.Object.FindAnyObjectByType<
+                    MotorCity.World.VehiclePositionPersistence>();
+
+            positionPersistence?.ResetForTesting();
+
             MotorCity.Persistence.MotorCitySaveService.Save();
 
             MotorCity.UI.MotorCityFrontEndFlow frontEnd =
