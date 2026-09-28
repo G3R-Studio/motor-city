@@ -95,11 +95,9 @@ namespace MotorCity.World
                     : dayNight.NightAmount;
 
             bool braking =
-                vehicleId == "camaro"
-                    ? MotorCityInput.ReverseHeld
-                    : MotorCityInput.ReverseHeld ||
-                      (car != null &&
-                       car.HandbrakeInputHeld);
+                MotorCityInput.ReverseHeld ||
+                (car != null &&
+                 car.HandbrakeInputHeld);
 
             float brakeMultiplier =
                 Mathf.Lerp(
