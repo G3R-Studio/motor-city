@@ -489,6 +489,11 @@ namespace MotorCity.Localization
                 { "pause.audio_hint", E("ЗВУК ИГРЫ", "GAME AUDIO") },
                 { "pause.quality_less", E("КАЧЕСТВО −", "QUALITY −") },
                 { "pause.quality_more", E("КАЧЕСТВО +", "QUALITY +") },
+                { "pause.quality_label", E("ГРАФИКА", "GRAPHICS") },
+                { "pause.audio_label", E("ЗВУК", "AUDIO") },
+                { "pause.minus", E("−", "−") },
+                { "pause.plus", E("+", "+") },
+                { "pause.toggle", E("СМЕНИТЬ", "TOGGLE") },
 
                 { "turbo.title", E("ПИКСИ", "PIXIE") },
                 { "turbo.hello", E("Пикси: Привет! Я твой напарник. Поехали исследовать Motor City!", "Pixie: Hi! I’m your co-pilot. Let’s explore Motor City!") },
