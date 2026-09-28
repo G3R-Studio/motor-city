@@ -122,6 +122,7 @@ namespace MotorCity.UI
             canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 5000;
+            canvas.pixelPerfect = true;
 
             CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -184,7 +185,7 @@ namespace MotorCity.UI
             Text title = CreateText(
                 mainRoot.transform,
                 "MOTOR CITY",
-                74,
+                80,
                 FontStyle.Bold,
                 TextAnchor.MiddleLeft,
                 new Vector2(130f, 170f),
@@ -196,10 +197,10 @@ namespace MotorCity.UI
             Text subtitle = CreateText(
                 mainRoot.transform,
                 IsRussian() ? "ТВОЙ ГОРОД. ТВОЯ МАШИНА. ТВОЙ ПУТЬ." : "YOUR CITY. YOUR CAR. YOUR ROAD.",
-                22,
+                24,
                 FontStyle.Bold,
                 TextAnchor.MiddleLeft,
-                new Vector2(136f, 100f),
+                new Vector2(136f, 96f),
                 new Vector2(720f, 60f),
                 new Vector2(0f, 0.5f));
 
@@ -654,9 +655,8 @@ namespace MotorCity.UI
             text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
-            text.resizeTextForBestFit = true;
-            text.resizeTextMinSize = Mathf.Max(13, size - 8);
-            text.resizeTextMaxSize = size;
+            text.resizeTextForBestFit = false;
+            text.alignByGeometry = true;
             return text;
         }
 
@@ -691,7 +691,7 @@ namespace MotorCity.UI
             button.colors = colors;
             button.onClick.AddListener(action);
 
-            Text text = CreateText(go.transform, label, 22, FontStyle.Bold, TextAnchor.MiddleCenter,
+            Text text = CreateText(go.transform, label, 24, FontStyle.Bold, TextAnchor.MiddleCenter,
                 Vector2.zero, dimensions, new Vector2(0.5f, 0.5f));
             text.name = "Label";
             return button;
