@@ -1043,6 +1043,14 @@ namespace MotorCity.Gameplay
                     ? 0f
                     : car.SpeedKph;
 
+            if (useSupporterPixieSkin &&
+                externalAnimator != null)
+            {
+                externalAnimator.SetBool(
+                    "param_idletorunning",
+                    speed > 7f);
+            }
+
             string state;
 
             if (speed > 7f)
@@ -1145,6 +1153,42 @@ namespace MotorCity.Gameplay
             if (hash ==
                 currentAnimatorStateHash)
             {
+                if (useSupporterPixieSkin)
+                {
+                    AnimatorStateInfo currentState =
+                        externalAnimator.GetCurrentAnimatorStateInfo(
+                            0);
+
+                    int shortHash =
+                        Animator.StringToHash(
+                            mappedState);
+
+                    // Kisora's original controller can transition back to idle
+                    // when its own parameters disagree with Motor City's state.
+                    // Keep the requested locomotion state authoritative.
+                    if (currentState.shortNameHash !=
+                        shortHash)
+                    {
+                        externalAnimator.Play(
+                            hash,
+                            0,
+                            0f);
+
+                        return;
+                    }
+
+                    // Extra guard for imported copies where running is still
+                    // treated as a one-shot instead of a looping clip.
+                    if (mappedState == "running" &&
+                        currentState.normalizedTime >= 0.98f)
+                    {
+                        externalAnimator.Play(
+                            hash,
+                            0,
+                            0f);
+                    }
+                }
+
                 return;
             }
 
