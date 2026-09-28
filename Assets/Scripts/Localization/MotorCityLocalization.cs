@@ -506,6 +506,8 @@ namespace MotorCity.Localization
                 { "pause.quality_more", E("КАЧЕСТВО +", "QUALITY +") },
                 { "pause.quality_label", E("ГРАФИКА", "GRAPHICS") },
                 { "pause.audio_label", E("ЗВУК", "AUDIO") },
+                { "pause.audio_value", E("{0}%", "{0}%") },
+                { "pause.audio_muted_value", E("ВЫКЛ · {0}%", "OFF · {0}%") },
                 { "pause.minus", E("−", "−") },
                 { "pause.plus", E("+", "+") },
                 { "pause.toggle", E("СМЕНИТЬ", "TOGGLE") },
