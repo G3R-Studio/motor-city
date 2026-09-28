@@ -6449,7 +6449,7 @@ namespace MotorCity.UI
                     "Result Reward Icon",
                     MotorCityIconLibrary.Reward,
                     new Vector2(
-                        -166f,
+                        -176f,
                         -198f),
                     new Vector2(
                         30f,
@@ -6469,9 +6469,9 @@ namespace MotorCity.UI
                     "Result Reward",
                     28,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(-142f, -198f),
-                    new Vector2(330f, 40f),
+                    TextAnchor.MiddleCenter,
+                    new Vector2(20f, -198f),
+                    new Vector2(380f, 40f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
