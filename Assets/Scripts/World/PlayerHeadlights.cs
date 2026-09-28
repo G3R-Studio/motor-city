@@ -511,11 +511,11 @@ namespace MotorCity.World
                         // areas instead of letting the white fascia/roof glow.
                         overlayMaterial.SetFloat(
                             "_LateralMin",
-                            lateralMaxAbs * 0.66f);
+                            lateralMaxAbs * 0.38f);
 
                         overlayMaterial.SetFloat(
                             "_LateralMax",
-                            lateralMaxAbs * 0.94f);
+                            lateralMaxAbs * 0.68f);
 
                         overlayMaterial.SetFloat(
                             "_UpMin",
