@@ -165,7 +165,7 @@ namespace MotorCity.UI
             if (touchLayout)
             {
                 SetRect(playerCard, new Vector2(14f, -14f), new Vector2(340f, 116f), 1f);
-                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(352f, 112f), 1f);
+                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(414f, 144f), 1f);
                 SetRect(speedometer, new Vector2(0f, 6f), new Vector2(226f, 166f), 0.90f);
                 SetRect(status, new Vector2(0f, -106f), new Vector2(520f, 42f), 0.94f);
                 SetRect(minimap, new Vector2(-14f, -14f), new Vector2(202f, 218f), 0.92f);
@@ -173,7 +173,7 @@ namespace MotorCity.UI
             else
             {
                 SetRect(playerCard, new Vector2(22f, -22f), new Vector2(392f, 132f), 1f);
-                SetRect(characterCard, new Vector2(22f, -22f), new Vector2(372f, 118f), 1f);
+                SetRect(characterCard, new Vector2(22f, -22f), new Vector2(448f, 154f), 1f);
                 SetRect(speedometer, new Vector2(0f, 16f), new Vector2(258f, 190f), 1f);
                 SetRect(status, new Vector2(0f, -112f), new Vector2(560f, 44f), 1f);
                 SetRect(minimap, new Vector2(-22f, -22f), new Vector2(214f, 218f), 1f);
