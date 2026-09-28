@@ -4945,8 +4945,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(0f, -112f),
-                    new Vector2(760f, 46f),
+                    new Vector2(120f, -196f),
+                    new Vector2(720f, 58f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     Color.clear);
@@ -4977,11 +4977,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Status Text",
-                    14,
+                    17,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(54f, 1f),
-                    new Vector2(682f, 32f),
+                    new Vector2(58f, 1f),
+                    new Vector2(638f, 42f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     TextColor);
@@ -5388,8 +5388,8 @@ namespace MotorCity.UI
                         8f,
                         6f),
                     new Vector2(
-                        176f,
-                        28f),
+                        194f,
+                        36f),
                     new Vector2(
                         0f,
                         0f),
@@ -5406,15 +5406,15 @@ namespace MotorCity.UI
                 CreateText(
                     targetStrip,
                     "Minimap Target Label",
-                    10,
+                    13,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(
                         14f,
                         0f),
                     new Vector2(
-                        148f,
-                        22f),
+                        166f,
+                        28f),
                     new Vector2(
                         0f,
                         0.5f),
