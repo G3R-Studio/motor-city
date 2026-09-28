@@ -600,6 +600,19 @@ namespace MotorCity.Bootstrap
                 achievements,
                 adventureDirector);
 
+            PrototypeHud runtimeHud =
+                Object.FindAnyObjectByType<PrototypeHud>();
+
+            MotorCityFrontEndFlow frontEnd =
+                systems.AddComponent<MotorCityFrontEndFlow>();
+
+            frontEnd.Initialize(
+                car,
+                wallet,
+                reputation,
+                onboarding,
+                runtimeHud);
+
             MotorCityPlatform.GameReady();
             platformRuntime.MarkGameplayRunning();
         }
