@@ -55,9 +55,16 @@ namespace MotorCity.UI
         private Text pauseAudioText;
         private bool pauseMenuOpen;
         private bool audioMuted;
+        private float audioVolume = 1f;
         private float pauseStoredTimeScale = 1f;
+        private readonly Dictionary<Animator, float> pausedAnimatorSpeeds =
+            new();
+        private readonly List<ParticleSystem> pausedParticleSystems =
+            new();
         private const string AudioMutedSaveKey =
             "MotorCity.Settings.AudioMuted";
+        private const string AudioVolumeSaveKey =
+            "MotorCity.Settings.AudioVolume";
 
         private AchievementSystem achievements;
         private AdventureDirector adventureDirector;
@@ -1193,10 +1200,10 @@ namespace MotorCity.UI
                     TextAnchor.UpperLeft,
                     new Vector2(
                         126f,
-                        -24f),
+                        -34f),
                     new Vector2(
                         320f,
-                        46f),
+                        48f),
                     new Vector2(
                         0f,
                         0.5f),
@@ -2425,10 +2432,13 @@ namespace MotorCity.UI
                         0) != 0;
             }
 
-            AudioListener.volume =
-                audioMuted
-                    ? 0f
-                    : 1f;
+            audioVolume =
+                Mathf.Clamp01(
+                    MotorCitySaveService.GetFloat(
+                        AudioVolumeSaveKey,
+                        1f));
+
+            ApplyAudioVolume();
         }
 
         private void BuildPauseMenu(
@@ -2610,21 +2620,39 @@ namespace MotorCity.UI
                 CreateText(
                     audioCard,
                     "Pause Audio",
-                    18,
+                    17,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(-6f, 0f),
-                    new Vector2(170f, 40f),
+                    new Vector2(-28f, 0f),
+                    new Vector2(100f, 40f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
 
             CreatePauseButton(
                 audioCard,
+                "Pause Volume Down",
+                "pause.minus",
+                new Vector2(50f, 0f),
+                new Vector2(42f, 38f),
+                () =>
+                    AdjustAudioVolume(-1));
+
+            CreatePauseButton(
+                audioCard,
+                "Pause Volume Up",
+                "pause.plus",
+                new Vector2(98f, 0f),
+                new Vector2(42f, 38f),
+                () =>
+                    AdjustAudioVolume(1));
+
+            CreatePauseButton(
+                audioCard,
                 "Pause Audio Toggle",
                 "pause.toggle",
-                new Vector2(180f, 0f),
-                new Vector2(100f, 38f),
+                new Vector2(177f, 0f),
+                new Vector2(104f, 38f),
                 ToggleAudioMute);
 
             BuildPauseTouchActions(
@@ -2785,7 +2813,9 @@ namespace MotorCity.UI
                     rect,
                     "Label",
                     objectName == "Pause Quality Previous" ||
-                    objectName == "Pause Quality Next"
+                    objectName == "Pause Quality Next" ||
+                    objectName == "Pause Volume Down" ||
+                    objectName == "Pause Volume Up"
                         ? 18
                         : hudUtilityButton
                             ? 12
@@ -2826,6 +2856,8 @@ namespace MotorCity.UI
             Time.timeScale =
                 0f;
 
+            FreezeWorldPresentation();
+
             pauseOverlay?.SetActive(
                 true);
 
@@ -2864,6 +2896,8 @@ namespace MotorCity.UI
             Time.timeScale =
                 pauseStoredTimeScale;
 
+            ResumeWorldPresentation();
+
             car?.SetDrivingEnabled(
                 true);
 
@@ -2897,10 +2931,7 @@ namespace MotorCity.UI
             audioMuted =
                 !audioMuted;
 
-            AudioListener.volume =
-                audioMuted
-                    ? 0f
-                    : 1f;
+            ApplyAudioVolume();
 
             MotorCitySaveService.SetInt(
                 AudioMutedSaveKey,
@@ -2911,6 +2942,115 @@ namespace MotorCity.UI
             MotorCitySaveService.Save();
 
             RefreshPauseMenuText();
+        }
+
+        private void AdjustAudioVolume(
+            int direction)
+        {
+            float stepped =
+                Mathf.Round(
+                    (audioVolume +
+                     direction * 0.1f) *
+                    10f) /
+                10f;
+
+            audioVolume =
+                Mathf.Clamp01(
+                    stepped);
+
+            ApplyAudioVolume();
+
+            MotorCitySaveService.SetFloat(
+                AudioVolumeSaveKey,
+                audioVolume);
+
+            MotorCitySaveService.Save();
+
+            RefreshPauseMenuText();
+        }
+
+        private void ApplyAudioVolume()
+        {
+            AudioListener.volume =
+                audioMuted
+                    ? 0f
+                    : audioVolume;
+        }
+
+        private void FreezeWorldPresentation()
+        {
+            pausedAnimatorSpeeds.Clear();
+
+            Animator[] animators =
+                Object.FindObjectsByType<Animator>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+
+            foreach (Animator animator in animators)
+            {
+                if (animator == null ||
+                    (pauseOverlay != null &&
+                     animator.transform.IsChildOf(
+                         pauseOverlay.transform)))
+                {
+                    continue;
+                }
+
+                pausedAnimatorSpeeds[animator] =
+                    animator.speed;
+
+                animator.speed =
+                    0f;
+            }
+
+            pausedParticleSystems.Clear();
+
+            ParticleSystem[] particles =
+                Object.FindObjectsByType<ParticleSystem>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+
+            foreach (ParticleSystem particle in particles)
+            {
+                if (particle == null ||
+                    !particle.isPlaying)
+                {
+                    continue;
+                }
+
+                particle.Pause(
+                    true);
+
+                pausedParticleSystems.Add(
+                    particle);
+            }
+        }
+
+        private void ResumeWorldPresentation()
+        {
+            foreach (KeyValuePair<Animator, float> pair in
+                     pausedAnimatorSpeeds)
+            {
+                if (pair.Key != null)
+                {
+                    pair.Key.speed =
+                        pair.Value;
+                }
+            }
+
+            pausedAnimatorSpeeds.Clear();
+
+            foreach (ParticleSystem particle in
+                     pausedParticleSystems)
+            {
+                if (particle != null)
+                {
+                    particle.Play(
+                        true);
+                }
+            }
+
+            pausedParticleSystems.Clear();
         }
 
         private void CycleQuality(
@@ -2956,11 +3096,17 @@ namespace MotorCity.UI
 
             if (pauseAudioText != null)
             {
+                int percent =
+                    Mathf.RoundToInt(
+                        audioVolume *
+                        100f);
+
                 pauseAudioText.text =
-                    MotorCityLocalization.Text(
+                    MotorCityLocalization.Format(
                         audioMuted
-                            ? "pause.off"
-                            : "pause.on");
+                            ? "pause.audio_muted_value"
+                            : "pause.audio_value",
+                        percent);
             }
         }
 
