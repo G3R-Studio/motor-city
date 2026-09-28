@@ -109,12 +109,11 @@ namespace MotorCity.UI
             PolishCoreText("Result Reward", 0.90f);
             PolishCoreText("Result Controls", 0.55f);
             PolishCoreText("Navigator Title", 0.80f);
-            PolishCoreText("Navigator Index", 0.55f);
-            PolishCoreText("Navigator Category", 0.55f);
+            PolishCoreText("Navigator Index", 0.50f);
+            PolishCoreText("Navigator Category", 0.50f);
             PolishCoreText("Navigator Selection", 0.80f);
-            PolishCoreText("Navigator Description", 0.55f);
-            PolishCoreText("Navigator Distance", 0.55f);
-            PolishCoreText("Navigator Icon", 0.40f);
+            PolishCoreText("Navigator Description", 0.50f);
+            PolishCoreText("Navigator Distance", 0.50f);
             PolishCoreText("Club Title", 0.80f);
             PolishCoreText("Club Name", 0.80f);
             PolishCoreText("Club Description", 0.55f);
@@ -233,7 +232,7 @@ namespace MotorCity.UI
                 SetRect(
                     navigator,
                     Vector2.zero,
-                    new Vector2(580f, 330f),
+                    new Vector2(580f, 320f),
                     1f);
 
                 SetRect(
