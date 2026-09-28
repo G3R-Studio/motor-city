@@ -2908,7 +2908,7 @@ namespace MotorCity.UI
             }
 
             car?.SetDrivingEnabled(
-                true);
+                Time.timeScale > 0f);
 
             UpdateTouchControlsVisibility();
         }
