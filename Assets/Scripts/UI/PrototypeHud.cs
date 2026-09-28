@@ -10843,21 +10843,48 @@ namespace MotorCity.UI
                 return;
             }
 
+            Vector2 size =
+                panel.rect.size;
+
+            bool compactPanel =
+                size.y <= 72f ||
+                size.x <= 340f;
+
+            float outerExpansion =
+                compactPanel
+                    ? 8f
+                    : 14f;
+
+            float innerExpansion =
+                compactPanel
+                    ? 4f
+                    : 7f;
+
+            float outerAlpha =
+                compactPanel
+                    ? 0.028f
+                    : 0.075f;
+
+            float innerAlpha =
+                compactPanel
+                    ? 0.065f
+                    : 0.16f;
+
             CreatePanelGlowLayer(
                 panel,
                 texture,
                 color,
                 objectName + " Outer",
-                14f,
-                0.075f);
+                outerExpansion,
+                outerAlpha);
 
             CreatePanelGlowLayer(
                 panel,
                 texture,
                 color,
                 objectName + " Inner",
-                7f,
-                0.16f);
+                innerExpansion,
+                innerAlpha);
         }
 
         private static void CreatePanelGlowLayer(
