@@ -93,7 +93,7 @@ namespace MotorCity.Localization
                 { "vehicle.mastery_max", E("МАСТЕРСТВО: УР. 10/10   •   {0:N0} ОПЫТ   •   МАКСИМУМ", "MASTERY: LVL 10/10   •   {0:N0} XP   •   MAX") },
                 { "vehicle.mastery", E("МАСТЕРСТВО: УР. {0}/10   •   {1:N0}/{2:N0} ОПЫТ", "MASTERY: LVL {0}/10   •   {1:N0}/{2:N0} XP") },
                 { "vehicle.mastery_short", E("МАСТЕРСТВО АВТО {0}/10", "CAR MASTERY {0}/10") },
-                { "vehicle.stats", E("БАЗА: СКОРОСТЬ {0}   •   РАЗГОН {1}   •   СЦЕП {2}%   •   СТАБ {3}   •   {4}", "BASE: SPEED {0}   •   ACCEL {1}   •   GRIP {2}%   •   STAB {3}   •   {4}") },
+                { "vehicle.stats", E("СКОРОСТЬ {0}   •   РАЗГОН {1}   •   СЦЕП {2}%   •   СТАБ {3}", "SPEED {0}   •   ACCEL {1}   •   GRIP {2}%   •   STAB {3}") },
                 { "history.passport_title", E("ПАСПОРТ МАШИНЫ • {0}", "VEHICLE PASSPORT • {0}") },
                 { "history.passport_summary", E("ПРОБЕГ {0:0.0} КМ   •   УСПЕХИ {1}   •   ЗАРАБОТАНО {2:N0} КР   •   СТАТУС {3}", "DISTANCE {0:0.0} KM   •   COMPLETIONS {1}   •   EARNED {2:N0} CR   •   STATUS {3}") },
                 { "history.passport_disciplines", E("ГОНКИ {0}   •   ДРИФТ {1}   •   ДОСТАВКИ {2}   •   ЛЮБИМОЕ: {3}", "RACING {0}   •   DRIFT {1}   •   DELIVERIES {2}   •   FAVORITE: {3}") },
