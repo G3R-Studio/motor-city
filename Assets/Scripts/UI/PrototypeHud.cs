@@ -66,6 +66,24 @@ namespace MotorCity.UI
         private const string AudioVolumeSaveKey =
             "MotorCity.Settings.AudioVolume";
 
+        public bool FrontEndAudioMuted =>
+            audioMuted;
+
+        public float FrontEndAudioVolume =>
+            audioVolume;
+
+        public void FrontEndToggleAudio()
+        {
+            ToggleAudioMute();
+        }
+
+        public void FrontEndAdjustAudio(
+            int direction)
+        {
+            AdjustAudioVolume(
+                direction);
+        }
+
         private AchievementSystem achievements;
         private AdventureDirector adventureDirector;
 
