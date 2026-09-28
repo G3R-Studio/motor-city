@@ -694,7 +694,9 @@ namespace MotorCity.UI
             hasExistingProgress = false;
             introIndex = 0;
             loadRequestSent = false;
-            gameplayReady = false;
+            gameplayReady =
+                car != null &&
+                hud != null;
 
             RefreshMainMenuText();
 
