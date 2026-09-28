@@ -1628,6 +1628,17 @@ namespace MotorCity.Gameplay
             MotorCity.Persistence.MotorCitySaveService.DeleteKey(
                 "MotorCity.FrontEnd.IntroCompleted");
 
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                "MotorCity.Vehicle.Position.Has");
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                "MotorCity.Vehicle.Position.X");
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                "MotorCity.Vehicle.Position.Y");
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                "MotorCity.Vehicle.Position.Z");
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                "MotorCity.Vehicle.Position.Yaw");
+
             MotorCity.Persistence.MotorCitySaveService.Save();
 
             MotorCity.UI.MotorCityFrontEndFlow frontEnd =
