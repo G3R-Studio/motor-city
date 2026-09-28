@@ -382,6 +382,36 @@ namespace MotorCity.Gameplay
                 MessageSeconds + 1f;
         }
 
+        public void ResetForTesting()
+        {
+            IsComplete = false;
+            step = 0;
+            drivenDistance = 0f;
+            activitySucceeded = false;
+            introTimer = 0f;
+
+            if (car != null)
+            {
+                lastPosition =
+                    car.transform.position;
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                StepKey);
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                CompleteKey);
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            StatusText =
+                MotorCityLocalization.Text(
+                    "onboarding.welcome");
+
+            messageTimer =
+                MessageSeconds;
+        }
+
         private void CompleteSilently()
         {
             IsComplete = true;
