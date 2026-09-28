@@ -293,6 +293,9 @@ namespace FCG
                     int nvcles = vcles.Length;
                     for (int i = 0; i < nvcles; i++)
                     {
+                        NormalizeTrafficVehicleScale(
+                            vcles[i].gameObject);
+
                         vcles[i].GetComponent<TrafficCar>().distanceToSelfDestroy = around;
                         vcles[i].GetComponent<TrafficCar>().player = player;
                         vcles[i].GetComponent<TrafficCar>().tSystem = this;
@@ -382,6 +385,9 @@ namespace FCG
 
                         vehicle = (GameObject)Instantiate(spawnPool[Random.Range(0, spawnPool.Length)], wpDataSpawn[i].position + Vector3.up * 0.1f, wpDataSpawn[i].rotation);
                         vehicle.transform.SetParent(CarContainer.transform);
+
+                        NormalizeTrafficVehicleScale(
+                            vehicle);
                         vehicle.GetComponent<TrafficCar>().sideAtual = (wpDataSpawn[i].wayScript.oneway && wpDataSpawn[i].wayScript.doubleLine && wpDataSpawn[i].wayScript.rightHand != 0) ? ((wpDataSpawn[i].side == 1) ? 0 : 1) : wpDataSpawn[i].side;
                         vehicle.GetComponent<TrafficCar>().atualWay = wpDataSpawn[i].wayScript.transform;
                         vehicle.GetComponent<TrafficCar>().atualWayScript = wpDataSpawn[i].wayScript;
@@ -429,6 +435,28 @@ namespace FCG
             }
 
 
+        }
+
+
+        private static void NormalizeTrafficVehicleScale(
+            GameObject vehicle)
+        {
+            if (vehicle == null)
+                return;
+
+            string vehicleName =
+                vehicle.name;
+
+            if (vehicleName.StartsWith(
+                    "GranFury-2",
+                    System.StringComparison.Ordinal) ||
+                vehicleName.StartsWith(
+                    "GranFury",
+                    System.StringComparison.Ordinal))
+            {
+                vehicle.transform.localScale =
+                    Vector3.one * 0.8f;
+            }
         }
 
 
