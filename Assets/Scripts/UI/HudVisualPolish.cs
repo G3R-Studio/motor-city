@@ -264,10 +264,35 @@ namespace MotorCity.UI
 
             if (resultReward != null)
             {
+                resultReward.anchoredPosition =
+                    new Vector2(
+                        touchLayout ? 18f : 20f,
+                        -198f);
+
                 resultReward.sizeDelta =
                     new Vector2(
-                        touchLayout ? 470f : 530f,
+                        touchLayout ? 360f : 400f,
                         46f);
+
+                Text rewardLabel =
+                    resultReward.GetComponent<Text>();
+
+                if (rewardLabel != null)
+                {
+                    rewardLabel.alignment =
+                        TextAnchor.MiddleCenter;
+                }
+            }
+
+            RectTransform resultRewardIcon =
+                FindRect("Result Reward Icon");
+
+            if (resultRewardIcon != null)
+            {
+                resultRewardIcon.anchoredPosition =
+                    new Vector2(
+                        touchLayout ? -166f : -184f,
+                        -198f);
             }
         }
 
