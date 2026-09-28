@@ -1981,6 +1981,17 @@ namespace MotorCity.Vehicle
         private void SetPrometeoEnabled(
             bool enabled)
         {
+            // Component uses Unity's special null semantics: an already
+            // destroyed Prometeo component can still have a managed C# wrapper.
+            // Pattern matching alone treats that wrapper as a live Behaviour
+            // and throws MissingReferenceException when enabled is accessed.
+            if (prometeo == null)
+            {
+                prometeo =
+                    null;
+                return;
+            }
+
             if (prometeo is not Behaviour behaviour)
                 return;
 
