@@ -3408,8 +3408,8 @@ namespace MotorCity.UI
                         18f,
                         -18f),
                     new Vector2(
-                        372f,
-                        118f),
+                        448f,
+                        154f),
                     new Vector2(
                         0f,
                         1f),
@@ -3430,11 +3430,11 @@ namespace MotorCity.UI
                     panel,
                     "Character Portrait Frame",
                     new Vector2(
-                        14f,
-                        -15f),
+                        16f,
+                        -18f),
                     new Vector2(
-                        56f,
-                        56f),
+                        68f,
+                        68f),
                     new Vector2(
                         0f,
                         1f),
@@ -3593,15 +3593,15 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Source",
-                    11,
+                    13,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        82f,
-                        -11f),
+                        98f,
+                        -14f),
                     new Vector2(
-                        250f,
-                        16f),
+                        320f,
+                        20f),
                     new Vector2(
                         0f,
                         1f),
@@ -3614,15 +3614,15 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Name",
-                    15,
+                    18,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        82f,
-                        -27f),
+                        98f,
+                        -36f),
                     new Vector2(
-                        250f,
-                        22f),
+                        320f,
+                        26f),
                     new Vector2(
                         0f,
                         1f),
@@ -3635,15 +3635,15 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Mission Title",
-                    10,
+                    12,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
-                        82f,
-                        -50f),
+                        98f,
+                        -64f),
                     new Vector2(
-                        250f,
-                        16f),
+                        320f,
+                        20f),
                     new Vector2(
                         0f,
                         1f),
@@ -3656,15 +3656,15 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Line",
-                    12,
+                    15,
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
                     new Vector2(
-                        82f,
-                        25f),
+                        98f,
+                        30f),
                     new Vector2(
-                        250f,
-                        34f),
+                        320f,
+                        52f),
                     new Vector2(
                         0f,
                         0f),
@@ -3677,15 +3677,15 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Reward",
-                    10,
+                    12,
                     FontStyle.Bold,
                     TextAnchor.LowerRight,
                     new Vector2(
-                        -18f,
-                        8f),
+                        -20f,
+                        10f),
                     new Vector2(
-                        205f,
-                        16f),
+                        250f,
+                        20f),
                     new Vector2(
                         1f,
                         0f),
