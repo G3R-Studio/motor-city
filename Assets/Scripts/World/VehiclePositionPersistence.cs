@@ -26,6 +26,7 @@ namespace MotorCity.World
         private Rigidbody body;
         private float saveTimer;
         private bool restored;
+        private bool suppressSavesUntilReload;
 
         private void Awake()
         {
@@ -160,6 +161,26 @@ namespace MotorCity.World
                 false);
         }
 
+        public void ResetForTesting()
+        {
+            suppressSavesUntilReload = true;
+            restored = true;
+            saveTimer = 0f;
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                HasPositionKey);
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                PositionXKey);
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                PositionYKey);
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                PositionZKey);
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                YawKey);
+
+            MotorCity.Persistence.MotorCitySaveService.FlushNow();
+        }
+
         public void SaveNow()
         {
             SaveCurrentPosition(
@@ -169,6 +190,9 @@ namespace MotorCity.World
         private void SaveCurrentPosition(
             bool force)
         {
+            if (suppressSavesUntilReload)
+                return;
+
             Vector3 position =
                 body != null
                     ? body.position
