@@ -396,7 +396,7 @@ namespace MotorCity.World
 
                     float cutoffFraction =
                         vehicleId == "bus"
-                            ? 0.93f
+                            ? 0.70f
                             : vehicleId == "camaro"
                                 ? 0.72f
                                 : 0.62f;
@@ -496,7 +496,7 @@ namespace MotorCity.World
                             0f));
 
                     bool useSpatialMask =
-                        vehicleId == "bus";
+                        false;
 
                     overlayMaterial.SetFloat(
                         "_SpatialMask",
@@ -504,28 +504,37 @@ namespace MotorCity.World
                             ? 1f
                             : 0f);
 
-                    if (useSpatialMask)
+                    bool useBusUvMask =
+                        vehicleId == "bus";
+
+                    overlayMaterial.SetFloat(
+                        "_UvMask",
+                        useBusUvMask
+                            ? 1f
+                            : 0f);
+
+                    if (useBusUvMask)
                     {
-                        // The bus uses one bright palette over the whole body.
-                        // Restrict the overlay to the two low outer headlamp
-                        // areas instead of letting the white fascia/roof glow.
-                        overlayMaterial.SetFloat(
-                            "_LateralMin",
-                            lateralMaxAbs * 0.38f);
+                        // bus.obj has dedicated headlamp polygons even though
+                        // the whole body shares one Material.001 palette
+                        // material. Those two polygons both sample exactly
+                        // this palette coordinate, so select that UV island
+                        // directly instead of approximating them by body bounds.
+                        overlayMaterial.SetVector(
+                            "_UvCenter",
+                            new Vector4(
+                                0.474802f,
+                                0.524206f,
+                                0f,
+                                0f));
 
-                        overlayMaterial.SetFloat(
-                            "_LateralMax",
-                            lateralMaxAbs * 0.68f);
-
-                        overlayMaterial.SetFloat(
-                            "_UpMin",
-                            upMinimum +
-                            upSpan * 0.16f);
-
-                        overlayMaterial.SetFloat(
-                            "_UpMax",
-                            upMinimum +
-                            upSpan * 0.31f);
+                        overlayMaterial.SetVector(
+                            "_UvTolerance",
+                            new Vector4(
+                                0.006f,
+                                0.006f,
+                                0f,
+                                0f));
                     }
 
                     overlayMaterial.SetFloat(
