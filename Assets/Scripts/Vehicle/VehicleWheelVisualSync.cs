@@ -85,16 +85,15 @@ namespace MotorCity.Vehicle
                         out Vector3 posePosition,
                         out Quaternion poseRotation);
 
-                    // Store the positional offset in the wheel pose's
-                    // own local frame. If the visual centre differs even
-                    // slightly from the WheelCollider centre, that offset must
-                    // rotate together with steering/spin. Keeping it in car
-                    // space makes the wheel appear to orbit an off-centre pivot.
+                    // Store the positional offset in car-local space.
+                    // Position may need to follow steering, but it must NEVER
+                    // follow wheel spin. Rotating this offset by the full
+                    // WheelCollider pose makes any tiny pivot mismatch orbit
+                    // once per wheel revolution, which looks like a figure-eight.
                     visualPositionOffsetsLocal[i] =
-                        Quaternion.Inverse(
-                            poseRotation) *
-                        (visualRoots[i].position -
-                         posePosition);
+                        carTransform.InverseTransformVector(
+                            visualRoots[i].position -
+                            posePosition);
 
                     visualRotationOffsets[i] =
                         Quaternion.Inverse(
@@ -173,10 +172,19 @@ namespace MotorCity.Vehicle
                     out Vector3 position,
                     out Quaternion rotation);
 
+                Quaternion steerOnly =
+                    Quaternion.AngleAxis(
+                        wheel.steerAngle,
+                        Vector3.up);
+
+                Vector3 steeredOffsetLocal =
+                    steerOnly *
+                    visualPositionOffsetsLocal[i];
+
                 visual.SetPositionAndRotation(
                     position +
-                    rotation *
-                    visualPositionOffsetsLocal[i],
+                    carTransform.TransformVector(
+                        steeredOffsetLocal),
                     rotation *
                     visualRotationOffsets[i]);
             }
