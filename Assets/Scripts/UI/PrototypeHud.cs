@@ -75,6 +75,7 @@ namespace MotorCity.UI
         private static Texture2D modalButtonSpriteSource;
         private static readonly Dictionary<Texture2D, Sprite> slicedPanelSprites =
             new();
+        private static Texture2D panelBottomGradientTexture;
 
         private Text moneyText;
         private Text reputationText;
@@ -10618,6 +10619,12 @@ namespace MotorCity.UI
                 Color.white;
             image.raycastTarget =
                 false;
+
+            CreatePanelBottomGradient(
+                panel,
+                ResolvePanelBottomGlowColor(
+                    panel.name),
+                "Ville Modal Bottom Gradient");
         }
 
         private void ApplyVillePanelTexture(
@@ -10688,6 +10695,12 @@ namespace MotorCity.UI
                     Mathf.Clamp01(alpha));
             image.raycastTarget =
                 false;
+
+            CreatePanelBottomGradient(
+                panel,
+                ResolvePanelBottomGlowColor(
+                    panel.name),
+                "Ville Panel Bottom Gradient");
         }
 
         private static Sprite GetSlicedPanelSprite(
@@ -10743,6 +10756,146 @@ namespace MotorCity.UI
                 sprite;
 
             return sprite;
+        }
+
+        private static Color ResolvePanelBottomGlowColor(
+            string panelName)
+        {
+            if (!string.IsNullOrWhiteSpace(panelName) &&
+                panelName.IndexOf(
+                    "Garage",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new Color(
+                    0.88f,
+                    0.48f,
+                    0.14f,
+                    1f);
+            }
+
+            return new Color(
+                0.92f,
+                0.50f,
+                0.16f,
+                1f);
+        }
+
+        private static void CreatePanelBottomGradient(
+            RectTransform panel,
+            Color color,
+            string objectName)
+        {
+            if (panel == null)
+                return;
+
+            GameObject gradientObject =
+                new(
+                    objectName,
+                    typeof(RectTransform),
+                    typeof(RawImage));
+
+            gradientObject.transform.SetParent(
+                panel,
+                false);
+
+            // Keep the gradient above the panel artwork but behind all
+            // labels, buttons and cards created afterwards.
+            gradientObject.transform.SetSiblingIndex(
+                Mathf.Min(
+                    1,
+                    panel.childCount - 1));
+
+            RectTransform rect =
+                gradientObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(
+                    0f,
+                    0f);
+            rect.anchorMax =
+                new Vector2(
+                    1f,
+                    0f);
+            rect.pivot =
+                new Vector2(
+                    0.5f,
+                    0f);
+            rect.anchoredPosition =
+                new Vector2(
+                    0f,
+                    6f);
+            rect.sizeDelta =
+                new Vector2(
+                    -42f,
+                    58f);
+
+            RawImage image =
+                gradientObject.GetComponent<RawImage>();
+
+            image.texture =
+                GetPanelBottomGradientTexture();
+            image.color =
+                new Color(
+                    color.r,
+                    color.g,
+                    color.b,
+                    0.20f);
+            image.raycastTarget =
+                false;
+        }
+
+        private static Texture2D GetPanelBottomGradientTexture()
+        {
+            if (panelBottomGradientTexture != null)
+                return panelBottomGradientTexture;
+
+            const int height = 64;
+
+            Texture2D texture =
+                new(
+                    1,
+                    height,
+                    TextureFormat.RGBA32,
+                    false,
+                    true);
+
+            texture.name =
+                "Motor City Panel Bottom Gradient";
+            texture.wrapMode =
+                TextureWrapMode.Clamp;
+            texture.filterMode =
+                FilterMode.Bilinear;
+
+            for (int y = 0; y < height; y++)
+            {
+                float t =
+                    y /
+                    (float)(height - 1);
+
+                // Strongest at the bottom, then dissolves smoothly upward.
+                float alpha =
+                    Mathf.Pow(
+                        1f - t,
+                        2.15f);
+
+                texture.SetPixel(
+                    0,
+                    y,
+                    new Color(
+                        1f,
+                        1f,
+                        1f,
+                        alpha));
+            }
+
+            texture.Apply(
+                false,
+                true);
+
+            panelBottomGradientTexture =
+                texture;
+
+            return panelBottomGradientTexture;
         }
 
         private static Color ResolvePanelGlowColor(
