@@ -20,6 +20,9 @@ namespace MotorCity.Bootstrap
 
         private static bool platformBootstrapReady;
         private static bool platformBootstrapPending;
+        private static bool gameplayBuildRequested;
+        private static bool gameplayBuildStarted;
+        private static MotorCityFrontEndFlow frontEnd;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void InitializeBootstrap()
@@ -99,6 +102,19 @@ namespace MotorCity.Bootstrap
                 });
         }
 
+
+        private static void RequestGameplayBuild(
+            Scene scene)
+        {
+            if (gameplayBuildRequested)
+                return;
+
+            gameplayBuildRequested = true;
+
+            TryBuildPrototype(
+                scene);
+        }
+
         private static void OnSceneLoaded(
             Scene scene,
             LoadSceneMode mode)
@@ -126,6 +142,49 @@ namespace MotorCity.Bootstrap
                     scene);
                 return;
             }
+
+            if (frontEnd == null)
+            {
+                GameObject frontEndHost =
+                    GameObject.Find(
+                        "Motor City Front End Systems");
+
+                if (frontEndHost == null)
+                {
+                    frontEndHost =
+                        new GameObject(
+                            "Motor City Front End Systems");
+                }
+
+                frontEnd =
+                    frontEndHost.GetComponent<
+                        MotorCityFrontEndFlow>();
+
+                if (frontEnd == null)
+                {
+                    frontEnd =
+                        frontEndHost.AddComponent<
+                            MotorCityFrontEndFlow>();
+                }
+
+                frontEnd.Initialize(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    () =>
+                        RequestGameplayBuild(
+                            scene));
+            }
+
+            if (!gameplayBuildRequested ||
+                gameplayBuildStarted)
+            {
+                return;
+            }
+
+            gameplayBuildStarted = true;
 
             MotorCityQualityRuntime.Initialize();
             MotorCityInput.RefreshTouchPromptPreference();
@@ -605,10 +664,14 @@ namespace MotorCity.Bootstrap
             PrototypeHud runtimeHud =
                 Object.FindAnyObjectByType<PrototypeHud>();
 
-            MotorCityFrontEndFlow frontEnd =
-                systems.AddComponent<MotorCityFrontEndFlow>();
+            if (frontEnd == null)
+            {
+                frontEnd =
+                    Object.FindAnyObjectByType<
+                        MotorCityFrontEndFlow>();
+            }
 
-            frontEnd.Initialize(
+            frontEnd?.AttachGameplay(
                 car,
                 wallet,
                 reputation,
