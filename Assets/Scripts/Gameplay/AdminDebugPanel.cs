@@ -57,6 +57,7 @@ namespace MotorCity.Gameplay
         private StreetSprintActivity sprint;
         private CircuitRaceActivity circuit;
         private StoryMissionSystem story;
+        private FirstSessionOnboardingSystem onboarding;
         private DayNightCycleController dayNight;
 
         private readonly List<MonoBehaviour> systems = new();
@@ -92,7 +93,8 @@ namespace MotorCity.Gameplay
             DriftChallenge driftActivity,
             StreetSprintActivity sprintActivity,
             CircuitRaceActivity circuitActivity,
-            StoryMissionSystem storySystem)
+            StoryMissionSystem storySystem,
+            FirstSessionOnboardingSystem onboardingSystem)
         {
             wallet = playerWallet;
             reputation = playerReputation;
@@ -116,6 +118,7 @@ namespace MotorCity.Gameplay
             sprint = sprintActivity;
             circuit = circuitActivity;
             story = storySystem;
+            onboarding = onboardingSystem;
 
             RefreshSystems();
         }
@@ -1620,6 +1623,12 @@ namespace MotorCity.Gameplay
             underground?.ResetForTesting();
             cityRisk?.ClearForTesting();
             story?.ResetForTesting();
+            onboarding?.ResetForTesting();
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                "MotorCity.FrontEnd.IntroCompleted");
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
 
             if (roster != null)
                 roster.SelectVehicleForTesting(0, out _);
