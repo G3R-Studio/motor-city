@@ -235,13 +235,57 @@ namespace MotorCity.Vehicle
             uint state =
                 0x6D2B79F5u;
 
-            float filtered =
+            float roughness =
                 0f;
 
             for (int i = 0;
                  i < samples.Length;
                  i++)
             {
+                float t =
+                    i /
+                    (float)SampleRate;
+
+                // A tire squeal is mostly a narrow, unstable high-frequency
+                // tone with a little rough contact noise. Keep the noise subtle
+                // so it does not turn into broadband "hose" hiss.
+                float wobble =
+                    Mathf.Sin(
+                        2f *
+                        Mathf.PI *
+                        4.7f *
+                        t) *
+                    42f +
+                    Mathf.Sin(
+                        2f *
+                        Mathf.PI *
+                        7.3f *
+                        t) *
+                    18f;
+
+                float frequency =
+                    1120f +
+                    wobble;
+
+                float phase =
+                    2f *
+                    Mathf.PI *
+                    frequency *
+                    t;
+
+                float squeal =
+                    Mathf.Sin(
+                        phase) *
+                    0.62f +
+                    Mathf.Sin(
+                        phase * 1.97f +
+                        0.8f) *
+                    0.20f +
+                    Mathf.Sin(
+                        phase * 0.51f +
+                        1.4f) *
+                    0.10f;
+
                 state =
                     state *
                     1664525u +
@@ -253,19 +297,31 @@ namespace MotorCity.Vehicle
                     8388607.5f -
                     1f;
 
-                filtered =
+                roughness =
                     Mathf.Lerp(
-                        filtered,
+                        roughness,
                         noise,
-                        0.34f);
+                        0.12f);
 
-                float hiss =
-                    noise -
-                    filtered * 0.38f;
+                float contact =
+                    (noise - roughness) *
+                    0.10f;
+
+                float amplitudePulse =
+                    0.88f +
+                    0.12f *
+                    Mathf.Sin(
+                        2f *
+                        Mathf.PI *
+                        9.5f *
+                        t);
 
                 samples[i] =
                     Mathf.Clamp(
-                        hiss * 0.46f,
+                        (squeal *
+                         amplitudePulse +
+                         contact) *
+                        0.48f,
                         -1f,
                         1f);
             }
