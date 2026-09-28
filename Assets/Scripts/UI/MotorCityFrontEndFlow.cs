@@ -4,6 +4,9 @@ using MotorCity.Persistence;
 using MotorCity.Platform;
 using MotorCity.Vehicle;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace MotorCity.UI
@@ -22,6 +25,9 @@ namespace MotorCity.UI
         private PrototypeHud hud;
 
         private Canvas canvas;
+        private Camera frontEndCamera;
+        private bool pregameDebugVisible;
+
         private GameObject mainRoot;
         private GameObject aboutRoot;
         private GameObject settingsRoot;
@@ -119,6 +125,8 @@ namespace MotorCity.UI
                 car != null &&
                 hud != null;
 
+            EnsureUiEventSystem();
+            EnsureFrontEndCamera();
             ApplyLanguageOverride();
 
             frontEndAudioMuted =
@@ -154,6 +162,66 @@ namespace MotorCity.UI
 
             BuildUi();
             ShowMainMenu();
+        }
+
+
+        private static void EnsureUiEventSystem()
+        {
+            EventSystem existing =
+                Object.FindAnyObjectByType<EventSystem>();
+
+            if (existing != null)
+            {
+                if (existing.GetComponent<InputSystemUIInputModule>() == null)
+                {
+                    existing.gameObject.AddComponent<InputSystemUIInputModule>();
+                }
+
+                return;
+            }
+
+            GameObject eventSystemObject =
+                new(
+                    "Motor City UI EventSystem",
+                    typeof(EventSystem),
+                    typeof(InputSystemUIInputModule));
+
+            Object.DontDestroyOnLoad(
+                eventSystemObject);
+        }
+
+        private void EnsureFrontEndCamera()
+        {
+            if (Camera.main != null)
+                return;
+
+            GameObject cameraObject =
+                new("Motor City Front End Camera");
+
+            cameraObject.transform.SetParent(
+                transform,
+                false);
+
+            frontEndCamera =
+                cameraObject.AddComponent<Camera>();
+
+            frontEndCamera.clearFlags =
+                CameraClearFlags.SolidColor;
+
+            frontEndCamera.backgroundColor =
+                Color.black;
+
+            frontEndCamera.cullingMask =
+                0;
+
+            frontEndCamera.depth =
+                -100f;
+
+            frontEndCamera.allowHDR =
+                false;
+
+            frontEndCamera.allowMSAA =
+                false;
         }
 
         private void BuildUi()
@@ -795,6 +863,16 @@ namespace MotorCity.UI
 
         private void Update()
         {
+#if UNITY_EDITOR
+            if (!gameplayReady &&
+                Keyboard.current != null &&
+                Keyboard.current.f10Key.wasPressedThisFrame)
+            {
+                pregameDebugVisible =
+                    !pregameDebugVisible;
+            }
+#endif
+
             if (loadingActive)
             {
                 UpdateLoadingAnimation();
@@ -1052,6 +1130,16 @@ namespace MotorCity.UI
             onboarding = onboardingSystem;
             hud = prototypeHud;
 
+            if (frontEndCamera != null)
+            {
+                Object.Destroy(
+                    frontEndCamera.gameObject);
+
+                frontEndCamera = null;
+            }
+
+            pregameDebugVisible = false;
+
             if (hud != null)
             {
                 frontEndAudioMuted =
@@ -1270,6 +1358,89 @@ namespace MotorCity.UI
 
         private static bool IsRussian() =>
             MotorCityLocalization.LanguageCode == "ru";
+
+
+#if UNITY_EDITOR
+        private void OnGUI()
+        {
+            if (gameplayReady ||
+                !pregameDebugVisible)
+            {
+                return;
+            }
+
+            const float width = 360f;
+            const float height = 190f;
+
+            Rect box =
+                new(
+                    24f,
+                    24f,
+                    width,
+                    height);
+
+            GUI.Box(
+                box,
+                "MOTOR CITY — PRE-GAME DEBUG");
+
+            GUI.Label(
+                new Rect(
+                    44f,
+                    62f,
+                    310f,
+                    34f),
+                "Игра ещё не загружена.");
+
+            if (GUI.Button(
+                    new Rect(
+                        44f,
+                        104f,
+                        300f,
+                        42f),
+                    "ЧИСТЫЙ СТАРТ"))
+            {
+                ResetForTesting();
+
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.PlayerCredits");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Player.Reputation");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Onboarding.Step");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Onboarding.Complete");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Story.Mission");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Story.Progress");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Story.Complete");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Vehicle.Position.Has");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Vehicle.Position.X");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Vehicle.Position.Y");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Vehicle.Position.Z");
+                MotorCitySaveService.DeleteKey(
+                    "MotorCity.Vehicle.Position.Yaw");
+
+                MotorCitySaveService.FlushNow();
+
+                hasExistingProgress = false;
+                RefreshMainMenuText();
+            }
+
+            GUI.Label(
+                new Rect(
+                    44f,
+                    154f,
+                    310f,
+                    24f),
+                "F10 — закрыть");
+        }
+#endif
 
         private Text CreateText(
             Transform parent,
