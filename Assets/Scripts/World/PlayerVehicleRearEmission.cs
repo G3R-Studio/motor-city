@@ -250,6 +250,13 @@ namespace MotorCity.World
                     continue;
                 }
 
+                if (vehicleId == "porsche996" &&
+                    BindPorscheInnerRearEmission(
+                        renderer))
+                {
+                    continue;
+                }
+
                 BindExistingLampMaterials(
                     renderer);
             }
@@ -643,26 +650,36 @@ namespace MotorCity.World
                     out float minimum,
                     out float maximum);
 
-                float cutoff =
-                    Mathf.Lerp(
-                        minimum,
-                        maximum,
-                        0.50f);
-
-                float softness =
-                    Mathf.Max(
-                        0.025f,
-                        (maximum - minimum) *
-                        0.035f);
-
                 Material rear =
                     CreateStarterOverlayMaterial(
                         source,
                         texture,
                         forwardAxis,
-                        cutoff,
-                        softness,
+                        Mathf.Lerp(
+                            minimum,
+                            maximum,
+                            0.50f),
+                        Mathf.Max(
+                            0.02f,
+                            (maximum - minimum) *
+                            0.025f),
                         false);
+
+                // AMG's shared emissive texture contains both front and rear
+                // lamps. The rear lamp texels are not reliably "red enough"
+                // for the generic chroma test, so use geometry (rear half of
+                // the emissive submesh) as the authoritative mask.
+                rear.SetFloat(
+                    "_Mode",
+                    2f);
+
+                rear.SetColor(
+                    "_EmissionColor",
+                    new Color(
+                        1.25f,
+                        0.018f,
+                        0.008f,
+                        1f));
 
                 Material[] slots =
                     new Material[
@@ -688,10 +705,8 @@ namespace MotorCity.World
                 root.transform.localScale =
                     renderer.transform.localScale;
 
-                MeshFilter overlayFilter =
-                    root.AddComponent<MeshFilter>();
-
-                overlayFilter.sharedMesh =
+                root.AddComponent<MeshFilter>()
+                    .sharedMesh =
                     filter.sharedMesh;
 
                 MeshRenderer overlayRenderer =
@@ -721,6 +736,153 @@ namespace MotorCity.World
             }
 
             return false;
+        }
+
+        private bool BindPorscheInnerRearEmission(
+            Renderer renderer)
+        {
+            if (renderer == null ||
+                starterLampShader == null ||
+                !starterLampShader.isSupported)
+            {
+                return false;
+            }
+
+            MeshFilter filter =
+                renderer.GetComponent<MeshFilter>();
+
+            if (filter == null ||
+                filter.sharedMesh == null)
+            {
+                return false;
+            }
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            bool found = false;
+
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                Material source =
+                    materials[i];
+
+                if (source == null)
+                    continue;
+
+                string materialName =
+                    source.name
+                        .ToLowerInvariant();
+
+                // In this Porsche mesh the two inner rear lamp polygons the
+                // user wants are authored under "indicators". The outer red
+                // polygons are "rearLights". Use only the REAR indicator faces
+                // and recolor their emission red; the front indicator faces
+                // are discarded by the rear-side mask.
+                if (!materialName.Contains(
+                        "porsche996indicators") &&
+                    !materialName.Contains(
+                        "indicators"))
+                {
+                    continue;
+                }
+
+                Vector3 forwardAxis =
+                    renderer.transform
+                        .InverseTransformDirection(
+                            transform.forward)
+                        .normalized;
+
+                ResolveProjectionRange(
+                    filter.sharedMesh.bounds,
+                    forwardAxis,
+                    out float minimum,
+                    out float maximum);
+
+                Material rear =
+                    CreateStarterOverlayMaterial(
+                        source,
+                        Texture2D.whiteTexture,
+                        forwardAxis,
+                        Mathf.Lerp(
+                            minimum,
+                            maximum,
+                            0.50f),
+                        Mathf.Max(
+                            0.02f,
+                            (maximum - minimum) *
+                            0.025f),
+                        false);
+
+                rear.SetFloat(
+                    "_Mode",
+                    2f);
+
+                rear.SetColor(
+                    "_EmissionColor",
+                    new Color(
+                        1.35f,
+                        0.018f,
+                        0.008f,
+                        1f));
+
+                Material[] slots =
+                    new Material[
+                        materials.Length];
+
+                slots[i] =
+                    rear;
+
+                GameObject root =
+                    new(
+                        "MotorCityPorscheInnerRearLampOverlay");
+
+                root.transform.SetParent(
+                    renderer.transform.parent,
+                    false);
+
+                root.transform.localPosition =
+                    renderer.transform.localPosition;
+
+                root.transform.localRotation =
+                    renderer.transform.localRotation;
+
+                root.transform.localScale =
+                    renderer.transform.localScale;
+
+                root.AddComponent<MeshFilter>()
+                    .sharedMesh =
+                    filter.sharedMesh;
+
+                MeshRenderer overlayRenderer =
+                    root.AddComponent<MeshRenderer>();
+
+                overlayRenderer.sharedMaterials =
+                    slots;
+
+                overlayRenderer.shadowCastingMode =
+                    UnityEngine.Rendering.ShadowCastingMode.Off;
+
+                overlayRenderer.receiveShadows =
+                    false;
+
+                runtimeMaterials.Add(
+                    rear);
+
+                starterLampOverlays.Add(
+                    new StarterLampOverlay
+                    {
+                        Root = root,
+                        RearMaterial = rear,
+                        FrontMaterial = null
+                    });
+
+                found = true;
+            }
+
+            return found;
         }
 
         private void BindExistingLampMaterials(
@@ -771,6 +933,22 @@ namespace MotorCity.World
                     materialName.Contains("turn_signal") ||
                     materialName.Contains("turn signal") ||
                     materialName.Contains("amber"))
+                {
+                    if (source.HasProperty("_EmissionColor"))
+                    {
+                        source.SetColor(
+                            "_EmissionColor",
+                            Color.black);
+                    }
+
+                    source.DisableKeyword(
+                        "_EMISSION");
+
+                    continue;
+                }
+
+                if (vehicleId == "porsche996" &&
+                    materialName.Contains("rearlight"))
                 {
                     if (source.HasProperty("_EmissionColor"))
                     {
@@ -845,16 +1023,9 @@ namespace MotorCity.World
                         Material = runtime,
                         OriginalMaterial = source,
                         BaseEmission =
-                            vehicleId == "porsche996" &&
-                            materialName.Contains("rearlight")
-                                ? new Color(
-                                    1.35f,
-                                    0.025f,
-                                    0.012f,
-                                    1f)
-                                : ResolveBaseEmission(
-                                    runtime,
-                                    source),
+                            ResolveBaseEmission(
+                                runtime,
+                                source),
                         RearSpecific =
                             rearSpecific
                     });
