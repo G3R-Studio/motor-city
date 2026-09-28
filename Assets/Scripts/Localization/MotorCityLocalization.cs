@@ -100,7 +100,6 @@ namespace MotorCity.Localization
                 { "hud.passport_control", E("K ПАСПОРТ", "K PASSPORT") },
 
                 { "garage.marker", E("Фиолетовый маркер: гараж", "Purple marker: garage") },
-                { "garage.opened", E("ГАРАЖ ОТКРЫТ", "GARAGE OPEN") },
                 { "garage.prompt", E("ГАРАЖ — нажми E", "GARAGE — press E") },
                 { "garage.vehicles_unavailable", E("МАШИНЫ НЕДОСТУПНЫ", "VEHICLES UNAVAILABLE") },
                 { "garage.max_level", E("МАКС", "MAX") },
