@@ -33,7 +33,9 @@ namespace MotorCity.UI
         private Text introBodyText;
         private RawImage introImage;
         private RectTransform introImageRect;
-        private CanvasGroup introContentGroup;
+        private RawImage introPreviousImage;
+        private RectTransform introPreviousImageRect;
+        private CanvasGroup introTextGroup;
         private Font font;
 
         private int introIndex;
@@ -270,6 +272,17 @@ namespace MotorCity.UI
 
         private void BuildIntro()
         {
+            GameObject previousImageObject = new("Intro Previous Image", typeof(RectTransform), typeof(RawImage));
+            previousImageObject.transform.SetParent(introRoot.transform, false);
+            introPreviousImageRect = previousImageObject.GetComponent<RectTransform>();
+            introPreviousImageRect.anchorMin = Vector2.zero;
+            introPreviousImageRect.anchorMax = Vector2.one;
+            introPreviousImageRect.offsetMin = Vector2.zero;
+            introPreviousImageRect.offsetMax = Vector2.zero;
+            introPreviousImage = previousImageObject.GetComponent<RawImage>();
+            introPreviousImage.color = Color.black;
+            introPreviousImage.raycastTarget = false;
+
             GameObject imageObject = new("Intro Image", typeof(RectTransform), typeof(RawImage));
             imageObject.transform.SetParent(introRoot.transform, false);
             RectTransform rect = imageObject.GetComponent<RectTransform>();
@@ -284,12 +297,6 @@ namespace MotorCity.UI
 
             introImageRect = rect;
 
-            introContentGroup =
-                introRoot.GetComponent<CanvasGroup>();
-
-            if (introContentGroup == null)
-                introContentGroup = introRoot.AddComponent<CanvasGroup>();
-
             GameObject shadeObject = new("Intro Shade", typeof(RectTransform), typeof(Image));
             shadeObject.transform.SetParent(introRoot.transform, false);
             RectTransform shadeRect = shadeObject.GetComponent<RectTransform>();
@@ -299,11 +306,20 @@ namespace MotorCity.UI
             shadeRect.offsetMax = Vector2.zero;
             shadeObject.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.58f);
 
-            introCounterText = CreateText(introRoot.transform, "", 18, FontStyle.Bold, TextAnchor.UpperRight,
+            GameObject textGroupObject = new("Intro Text Group", typeof(RectTransform), typeof(CanvasGroup));
+            textGroupObject.transform.SetParent(introRoot.transform, false);
+            RectTransform textGroupRect = textGroupObject.GetComponent<RectTransform>();
+            textGroupRect.anchorMin = Vector2.zero;
+            textGroupRect.anchorMax = Vector2.one;
+            textGroupRect.offsetMin = Vector2.zero;
+            textGroupRect.offsetMax = Vector2.zero;
+            introTextGroup = textGroupObject.GetComponent<CanvasGroup>();
+
+            introCounterText = CreateText(textGroupObject.transform, "", 18, FontStyle.Bold, TextAnchor.UpperRight,
                 new Vector2(-90f, -70f), new Vector2(300f, 50f), new Vector2(1f, 1f));
-            introTitleText = CreateText(introRoot.transform, "", 46, FontStyle.Bold, TextAnchor.LowerLeft,
+            introTitleText = CreateText(textGroupObject.transform, "", 46, FontStyle.Bold, TextAnchor.LowerLeft,
                 new Vector2(120f, 270f), new Vector2(1100f, 80f), new Vector2(0f, 0f));
-            introBodyText = CreateText(introRoot.transform, "", 25, FontStyle.Normal, TextAnchor.UpperLeft,
+            introBodyText = CreateText(textGroupObject.transform, "", 25, FontStyle.Normal, TextAnchor.UpperLeft,
                 new Vector2(120f, 245f), new Vector2(1100f, 160f), new Vector2(0f, 0f));
 
             CreateButton(introRoot.transform, IsRussian() ? "ПРОПУСТИТЬ" : "SKIP", new Vector2(-90f, 70f), new Vector2(240f, 58f), CompleteIntro, new Vector2(1f, 0f));
@@ -341,6 +357,13 @@ namespace MotorCity.UI
             introIndex = 0;
             mainRoot.SetActive(false);
             introRoot.SetActive(true);
+
+            if (introPreviousImage != null)
+            {
+                introPreviousImage.texture = null;
+                introPreviousImage.color = Color.black;
+            }
+
             ResetIntroVisualState();
             RefreshIntro();
         }
@@ -351,6 +374,23 @@ namespace MotorCity.UI
             {
                 CompleteIntro();
                 return;
+            }
+
+            if (introPreviousImage != null &&
+                introImage != null)
+            {
+                introPreviousImage.texture =
+                    introImage.texture;
+
+                Color currentColor =
+                    introImage.color;
+
+                introPreviousImage.color =
+                    new Color(
+                        currentColor.r,
+                        currentColor.g,
+                        currentColor.b,
+                        1f);
             }
 
             introIndex++;
@@ -370,8 +410,8 @@ namespace MotorCity.UI
             introImage.texture = texture;
             introImage.color =
                 texture == null
-                    ? new Color(0.09f + introIndex * 0.012f, 0.12f, 0.18f, 1f)
-                    : Color.white;
+                    ? new Color(0.09f + introIndex * 0.012f, 0.12f, 0.18f, 0f)
+                    : new Color(1f, 1f, 1f, 0f);
         }
 
         private void ResetIntroVisualState()
@@ -379,11 +419,14 @@ namespace MotorCity.UI
             introAutoTimer = 0f;
             introVisualTimer = 0f;
 
-            if (introContentGroup != null)
-                introContentGroup.alpha = 0f;
+            if (introTextGroup != null)
+                introTextGroup.alpha = 0f;
 
             if (introImageRect != null)
                 introImageRect.localScale = Vector3.one;
+
+            if (introPreviousImageRect != null)
+                introPreviousImageRect.localScale = Vector3.one;
         }
 
         private void Update()
@@ -397,11 +440,27 @@ namespace MotorCity.UI
             introAutoTimer += Time.unscaledDeltaTime;
             introVisualTimer += Time.unscaledDeltaTime;
 
-            if (introContentGroup != null)
+            float transition =
+                Mathf.Clamp01(
+                    introVisualTimer / 0.9f);
+
+            if (introImage != null)
             {
-                introContentGroup.alpha =
+                Color color =
+                    introImage.color;
+
+                color.a =
+                    transition;
+
+                introImage.color =
+                    color;
+            }
+
+            if (introTextGroup != null)
+            {
+                introTextGroup.alpha =
                     Mathf.Clamp01(
-                        introVisualTimer / 0.65f);
+                        (introVisualTimer - 0.15f) / 0.55f);
             }
 
             if (introImageRect != null)
@@ -416,6 +475,21 @@ namespace MotorCity.UI
                     new Vector3(
                         zoom,
                         zoom,
+                        1f);
+            }
+
+            if (introPreviousImageRect != null)
+            {
+                float previousZoom =
+                    1f +
+                    Mathf.Min(
+                        0.035f,
+                        introVisualTimer * 0.0015f);
+
+                introPreviousImageRect.localScale =
+                    new Vector3(
+                        previousZoom,
+                        previousZoom,
                         1f);
             }
 
