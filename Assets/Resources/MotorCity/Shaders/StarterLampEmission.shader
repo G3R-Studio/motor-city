@@ -16,6 +16,9 @@ Shader "MotorCity/StarterLampEmission"
         _LateralMax ("Lateral Max", Float) = 100
         _UpMin ("Up Min", Float) = -100
         _UpMax ("Up Max", Float) = 100
+        _UvMask ("UV Mask", Float) = 0
+        _UvCenter ("UV Center", Vector) = (0.5,0.5,0,0)
+        _UvTolerance ("UV Tolerance", Vector) = (0.02,0.02,0,0)
     }
 
     SubShader
@@ -55,6 +58,9 @@ Shader "MotorCity/StarterLampEmission"
                 float _LateralMax;
                 float _UpMin;
                 float _UpMax;
+                float _UvMask;
+                float4 _UvCenter;
+                float4 _UvTolerance;
             CBUFFER_END
 
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
@@ -162,10 +168,32 @@ Shader "MotorCity/StarterLampEmission"
                         lateralMask * upMask,
                         saturate(_SpatialMask));
 
+                half2 uvDelta =
+                    abs(input.uv - _UvCenter.xy);
+
+                half uvIslandMask =
+                    (1.0h -
+                     smoothstep(
+                        _UvTolerance.x * 0.85h,
+                        _UvTolerance.x,
+                        uvDelta.x)) *
+                    (1.0h -
+                     smoothstep(
+                        _UvTolerance.y * 0.85h,
+                        _UvTolerance.y,
+                        uvDelta.y));
+
+                half uvMask =
+                    lerp(
+                        1.0h,
+                        uvIslandMask,
+                        saturate(_UvMask));
+
                 half mask =
                     colorMask *
                     sideMask *
                     spatialMask *
+                    uvMask *
                     tex.a;
 
                 clip(mask - 0.015h);
