@@ -233,6 +233,7 @@ namespace MotorCity.UI
         private Text garageVehicleText;
         private Text garageNextVehicleText;
         private Text garageVehicleStatsText;
+        private Text garageVehicleCharacterText;
         private Image garageMasteryFill;
         private Text garageVehicleHistoryText;
         private Text garageVehicleSpecializationText;
@@ -7502,7 +7503,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Garage Header Mastery",
-                    13,
+                    15,
                     FontStyle.Bold,
                     TextAnchor.UpperRight,
                     new Vector2(
@@ -7570,14 +7571,39 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Garage Vehicle Stats",
-                    13,
+                    16,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -106f),
-                    new Vector2(704f, 18f),
+                    new Vector2(28f, -105f),
+                    new Vector2(704f, 22f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    TextColor);
+
+            garageVehicleStatsText.resizeTextForBestFit =
+                false;
+            garageVehicleStatsText.horizontalOverflow =
+                HorizontalWrapMode.Overflow;
+
+            garageVehicleCharacterText =
+                CreateText(
+                    panel,
+                    "Garage Vehicle Character",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(28f, -127f),
+                    new Vector2(704f, 38f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
+
+            garageVehicleCharacterText.resizeTextForBestFit =
+                false;
+            garageVehicleCharacterText.horizontalOverflow =
+                HorizontalWrapMode.Wrap;
+            garageVehicleCharacterText.verticalOverflow =
+                VerticalWrapMode.Truncate;
 
             CreateHudIcon(
                     panel,
@@ -7585,7 +7611,7 @@ namespace MotorCity.UI
                     MotorCityIconLibrary.Achievement,
                     new Vector2(
                         30f,
-                        -127f),
+                        -160f),
                     new Vector2(
                         16f,
                         16f),
@@ -7604,7 +7630,7 @@ namespace MotorCity.UI
                     "Garage Mastery Track",
                     new Vector2(
                         52f,
-                        -130f),
+                        -163f),
                     new Vector2(
                         680f,
                         6f),
@@ -7708,7 +7734,7 @@ namespace MotorCity.UI
             for (int i = 0; i < 3; i++)
             {
                 float y =
-                    -157f - i * 84f;
+                    -188f - i * 84f;
 
                 RectTransform row =
                     CreatePanel(
@@ -8697,6 +8723,12 @@ namespace MotorCity.UI
             {
                 garageVehicleStatsText.text =
                     garage.VehicleStatsLine;
+            }
+
+            if (garageVehicleCharacterText != null)
+            {
+                garageVehicleCharacterText.text =
+                    garage.VehicleCharacterLine;
             }
 
             if (garageMasteryFill != null)
