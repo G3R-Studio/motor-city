@@ -548,9 +548,7 @@ namespace MotorCity.Gameplay
             if (level >= MaxLevel)
             {
                 StatusText =
-                    MotorCityLocalization.Format(
-                        "garage.upgrade_max",
-                        Name(type));
+                    string.Empty;
                 return;
             }
 
@@ -570,10 +568,7 @@ namespace MotorCity.Gameplay
             Save();
             ApplyUpgrades();
             StatusText =
-                MotorCityLocalization.Format(
-                    "garage.upgraded2",
-                    Name(type),
-                    level);
+                string.Empty;
         }
 
         private void ApplyUpgrades()
