@@ -126,7 +126,6 @@ namespace MotorCity.UI
             string.Empty;
         private Image characterPortraitFace;
         private Image characterPortraitHair;
-        private Image characterPortraitAccent;
         private Image characterPortraitLeftDetail;
         private Image characterPortraitRightDetail;
         private Text characterSourceText;
@@ -3469,22 +3468,6 @@ namespace MotorCity.UI
                 LoadCharacterPortrait(
                     "bublik",
                     "MotorCity/UI/Characters/avatar_bublik");
-
-            characterPortraitAccent =
-                CreatePortraitLayer(
-                    portraitFrame,
-                    "Portrait Accent",
-                    new Vector2(
-                        5f,
-                        -5f),
-                    new Vector2(
-                        48f,
-                        48f),
-                    new Color(
-                        0.15f,
-                        0.55f,
-                        1f,
-                        0.30f));
 
             characterPortraitFace =
                 CreatePortraitLayer(
