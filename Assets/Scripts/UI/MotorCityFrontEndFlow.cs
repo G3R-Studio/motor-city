@@ -41,7 +41,15 @@ namespace MotorCity.UI
         private RectTransform loadingWheel;
         private Image loadingProgressFill;
         private RectTransform loadingRoad;
+        private readonly RectTransform[] loadingRoadDashes =
+            new RectTransform[8];
         private Text loadingStatusText;
+
+        private System.Action gameplayLoadRequested;
+        private bool loadRequestSent;
+        private bool gameplayReady;
+        private float gameplayReadyAt;
+        private float loadingProgressWhenReady;
 
         private Font font;
 
@@ -94,18 +102,28 @@ namespace MotorCity.UI
             PlayerWallet targetWallet,
             PlayerReputation targetReputation,
             FirstSessionOnboardingSystem onboardingSystem,
-            PrototypeHud prototypeHud)
+            PrototypeHud prototypeHud,
+            System.Action requestGameplayLoad = null)
         {
             car = targetCar;
             wallet = targetWallet;
             reputation = targetReputation;
             onboarding = onboardingSystem;
             hud = prototypeHud;
+            gameplayLoadRequested = requestGameplayLoad;
+            gameplayReady =
+                car != null &&
+                hud != null;
 
             ApplyLanguageOverride();
 
             hasExistingProgress =
                 MotorCitySaveService.GetInt(IntroCompleteKey, 0) != 0 ||
+                MotorCitySaveService.GetInt("MotorCity.Onboarding.Complete", 0) != 0 ||
+                MotorCitySaveService.GetInt("MotorCity.PlayerCredits", 0) > 0 ||
+                MotorCitySaveService.GetInt("MotorCity.Player.Reputation", 0) > 0 ||
+                MotorCitySaveService.GetInt("MotorCity.Story.Mission", 0) > 0 ||
+                MotorCitySaveService.GetInt("MotorCity.Story.Complete", 0) != 0 ||
                 (onboarding != null && onboarding.IsComplete) ||
                 (wallet != null && wallet.Credits > 0) ||
                 (reputation != null && reputation.Reputation > 0);
@@ -147,6 +165,8 @@ namespace MotorCity.UI
             loadingRoot = CreateScreen("Loading Screen", new Color(0.008f, 0.014f, 0.024f, 1f));
 
             BuildMainMenu();
+            AddSharedBackground(aboutRoot, 0.78f);
+            AddSharedBackground(settingsRoot, 0.78f);
             BuildAbout();
             BuildSettings();
             BuildIntro();
@@ -173,6 +193,80 @@ namespace MotorCity.UI
             image.color = color;
             image.raycastTarget = true;
             return root;
+        }
+
+
+        private void AddSharedBackground(
+            GameObject root,
+            float shadeAlpha)
+        {
+            if (root == null)
+                return;
+
+            Texture2D background =
+                Resources.Load<Texture2D>(
+                    "MotorCity/Intro/MainMenu");
+
+            if (background == null)
+                return;
+
+            GameObject bgObject =
+                new(
+                    "Front End Background",
+                    typeof(RectTransform),
+                    typeof(RawImage));
+
+            bgObject.transform.SetParent(
+                root.transform,
+                false);
+
+            RectTransform bgRect =
+                bgObject.GetComponent<RectTransform>();
+
+            bgRect.anchorMin = Vector2.zero;
+            bgRect.anchorMax = Vector2.one;
+            bgRect.offsetMin = Vector2.zero;
+            bgRect.offsetMax = Vector2.zero;
+
+            RawImage bg =
+                bgObject.GetComponent<RawImage>();
+
+            bg.texture = background;
+            bg.color = Color.white;
+            bg.raycastTarget = false;
+
+            GameObject shadeObject =
+                new(
+                    "Front End Shade",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            shadeObject.transform.SetParent(
+                root.transform,
+                false);
+
+            RectTransform shadeRect =
+                shadeObject.GetComponent<RectTransform>();
+
+            shadeRect.anchorMin = Vector2.zero;
+            shadeRect.anchorMax = Vector2.one;
+            shadeRect.offsetMin = Vector2.zero;
+            shadeRect.offsetMax = Vector2.zero;
+
+            Image shade =
+                shadeObject.GetComponent<Image>();
+
+            shade.color =
+                new Color(
+                    0.005f,
+                    0.012f,
+                    0.022f,
+                    shadeAlpha);
+
+            shade.raycastTarget = false;
+
+            bgObject.transform.SetAsFirstSibling();
+            shadeObject.transform.SetSiblingIndex(1);
         }
 
         private void BuildMainMenu()
@@ -508,6 +602,9 @@ namespace MotorCity.UI
                 dashRect.sizeDelta =
                     new Vector2(44f, 5f);
 
+                loadingRoadDashes[i] =
+                    dashRect;
+
                 dash.GetComponent<Image>().color =
                     new Color(0.68f, 0.82f, 1f, 0.78f);
             }
@@ -579,6 +676,8 @@ namespace MotorCity.UI
 
             hasExistingProgress = false;
             introIndex = 0;
+            loadRequestSent = false;
+            gameplayReady = false;
 
             RefreshMainMenuText();
 
@@ -594,11 +693,12 @@ namespace MotorCity.UI
         {
             if (hasExistingProgress)
             {
-                EnterGameplay();
+                StartLoadingTransition();
                 return;
             }
 
             introIndex = 0;
+            AudioListener.pause = true;
             mainRoot.SetActive(false);
             introRoot.SetActive(true);
 
@@ -728,7 +828,7 @@ namespace MotorCity.UI
                 float crop =
                     Mathf.Lerp(
                         0f,
-                        0.108f,
+                        0.16f,
                         easedZoom);
 
                 float uvSize =
@@ -766,6 +866,11 @@ namespace MotorCity.UI
         {
             loadingTimer = 0f;
             loadingActive = true;
+            loadRequestSent = false;
+            gameplayReadyAt = 0f;
+            loadingProgressWhenReady = 0f;
+
+            AudioListener.pause = true;
 
             loadingRoot.SetActive(true);
 
@@ -778,6 +883,17 @@ namespace MotorCity.UI
             if (loadingRoad != null)
                 loadingRoad.anchoredPosition =
                     new Vector2(0f, -132f);
+
+            for (int i = 0; i < loadingRoadDashes.Length; i++)
+            {
+                if (loadingRoadDashes[i] == null)
+                    continue;
+
+                loadingRoadDashes[i].anchoredPosition =
+                    new Vector2(
+                        -280f + i * 80f,
+                        0f);
+            }
         }
 
         private void UpdateLoadingAnimation()
@@ -785,14 +901,37 @@ namespace MotorCity.UI
             loadingTimer +=
                 Time.unscaledDeltaTime;
 
-            float progress =
-                Mathf.Clamp01(
-                    loadingTimer /
-                    LoadingDurationSeconds);
+            if (!loadRequestSent &&
+                loadingTimer >= 0.15f)
+            {
+                loadRequestSent = true;
+                gameplayLoadRequested?.Invoke();
+            }
 
-            float easedProgress =
-                progress * progress *
-                (3f - 2f * progress);
+            float waitingProgress =
+                Mathf.Min(
+                    0.90f,
+                    loadingTimer / 2.2f * 0.90f);
+
+            float progress =
+                waitingProgress;
+
+            if (gameplayReady)
+            {
+                float finishProgress =
+                    Mathf.Clamp01(
+                        (loadingTimer - gameplayReadyAt) /
+                        0.65f);
+
+                progress =
+                    Mathf.Lerp(
+                        loadingProgressWhenReady,
+                        1f,
+                        Mathf.SmoothStep(
+                            0f,
+                            1f,
+                            finishProgress));
+            }
 
             if (loadingWheel != null)
             {
@@ -802,28 +941,50 @@ namespace MotorCity.UI
                     -210f * Time.unscaledDeltaTime);
             }
 
-            if (loadingRoad != null)
-            {
-                float roadLoop =
-                    Mathf.Repeat(
-                        loadingTimer * 120f,
-                        80f);
+            float roadOffset =
+                Mathf.Repeat(
+                    loadingTimer * 115f,
+                    80f);
 
-                loadingRoad.anchoredPosition =
+            for (int i = 0; i < loadingRoadDashes.Length; i++)
+            {
+                RectTransform dash =
+                    loadingRoadDashes[i];
+
+                if (dash == null)
+                    continue;
+
+                float x =
+                    Mathf.Repeat(
+                        (-280f + i * 80f) -
+                        roadOffset +
+                        320f,
+                        640f) -
+                    320f;
+
+                dash.anchoredPosition =
                     new Vector2(
-                        -roadLoop,
-                        -132f);
+                        x,
+                        0f);
             }
 
             if (loadingProgressFill != null)
             {
                 loadingProgressFill.fillAmount =
-                    easedProgress;
+                    progress;
             }
 
             if (loadingStatusText != null)
             {
-                if (progress < 0.34f)
+                if (!gameplayReady &&
+                    progress >= 0.88f)
+                {
+                    loadingStatusText.text =
+                        IsRussian()
+                            ? "ПОЧТИ ГОТОВО..."
+                            : "ALMOST READY...";
+                }
+                else if (progress < 0.34f)
                 {
                     loadingStatusText.text =
                         IsRussian()
@@ -846,8 +1007,11 @@ namespace MotorCity.UI
                 }
             }
 
-            if (progress < 1f)
+            if (!gameplayReady ||
+                progress < 0.999f)
+            {
                 return;
+            }
 
             loadingActive = false;
             loadingRoot.SetActive(false);
@@ -856,9 +1020,31 @@ namespace MotorCity.UI
             onboarding?.ShowPathPrompt();
         }
 
+        public void AttachGameplay(
+            ArcadeCarController targetCar,
+            PlayerWallet targetWallet,
+            PlayerReputation targetReputation,
+            FirstSessionOnboardingSystem onboardingSystem,
+            PrototypeHud prototypeHud)
+        {
+            car = targetCar;
+            wallet = targetWallet;
+            reputation = targetReputation;
+            onboarding = onboardingSystem;
+            hud = prototypeHud;
+
+            gameplayReady = true;
+            gameplayReadyAt = loadingTimer;
+            loadingProgressWhenReady =
+                loadingProgressFill == null
+                    ? 0.90f
+                    : loadingProgressFill.fillAmount;
+        }
+
         private void EnterGameplay()
         {
             Time.timeScale = 1f;
+            AudioListener.pause = false;
 
             if (car != null)
                 car.SetDrivingEnabled(true);
@@ -869,6 +1055,7 @@ namespace MotorCity.UI
         private void ShowMainMenu()
         {
             Time.timeScale = 0f;
+            AudioListener.pause = true;
 
             if (car != null)
                 car.SetDrivingEnabled(false);
@@ -887,6 +1074,7 @@ namespace MotorCity.UI
 
         private void ShowAbout()
         {
+            AudioListener.pause = true;
             mainRoot.SetActive(false);
             settingsRoot.SetActive(false);
             introRoot.SetActive(false);
@@ -895,6 +1083,7 @@ namespace MotorCity.UI
 
         private void ShowSettings()
         {
+            AudioListener.pause = true;
             mainRoot.SetActive(false);
             aboutRoot.SetActive(false);
             introRoot.SetActive(false);
