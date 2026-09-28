@@ -47,6 +47,9 @@ namespace MotorCity.World
 
         private void Update()
         {
+            if (Time.timeScale <= 0f)
+                return;
+
             if (underground == null)
                 return;
 
