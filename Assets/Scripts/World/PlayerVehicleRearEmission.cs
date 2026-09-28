@@ -211,12 +211,6 @@ namespace MotorCity.World
 
             RemoveLegacyOverlays();
 
-            // Delorean intentionally has no rear-light runtime logic.
-            // Its authored rear lamps remain dark; only PlayerHeadlights
-            // handles the front headlamps and blue/cyan night-emission details.
-            if (vehicleId == "delorean")
-                return;
-
             Renderer[] renderers =
                 currentVisual.GetComponentsInChildren<
                     Renderer>(
@@ -236,6 +230,13 @@ namespace MotorCity.World
 
                 if (vehicleId == "street" &&
                     BindStarterLampMaterials(
+                        renderer))
+                {
+                    continue;
+                }
+
+                if (vehicleId == "delorean" &&
+                    BindDeloreanRearEmission(
                         renderer))
                 {
                     continue;
@@ -581,6 +582,187 @@ namespace MotorCity.World
                 0f);
 
             return material;
+        }
+
+        private bool BindDeloreanRearEmission(
+            Renderer renderer)
+        {
+            if (renderer == null ||
+                starterLampShader == null ||
+                !starterLampShader.isSupported)
+            {
+                return false;
+            }
+
+            MeshFilter filter =
+                renderer.GetComponent<MeshFilter>();
+
+            if (filter == null ||
+                filter.sharedMesh == null)
+            {
+                return false;
+            }
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                Material source =
+                    materials[i];
+
+                if (source == null)
+                    continue;
+
+                string materialName =
+                    source.name
+                        .ToLowerInvariant();
+
+                if (!materialName.Contains(
+                        "deloreanemission") &&
+                    !materialName.Contains(
+                        "gradientemmisive") &&
+                    !materialName.Contains(
+                        "gradientemissive"))
+                {
+                    continue;
+                }
+
+                Texture texture =
+                    ResolveBaseTexture(
+                        source);
+
+                if (texture == null)
+                    continue;
+
+                Vector3 forwardAxis =
+                    renderer.transform
+                        .InverseTransformDirection(
+                            transform.forward)
+                        .normalized;
+
+                ResolveProjectionRange(
+                    filter.sharedMesh.bounds,
+                    forwardAxis,
+                    out float minimum,
+                    out float maximum);
+
+                Material rear =
+                    CreateStarterOverlayMaterial(
+                        source,
+                        texture,
+                        forwardAxis,
+                        Mathf.Lerp(
+                            minimum,
+                            maximum,
+                            0.50f),
+                        Mathf.Max(
+                            0.02f,
+                            (maximum - minimum) *
+                            0.025f),
+                        false);
+
+                // Delorean's brake lamp polygons are authored in the shared
+                // emissive mesh and sample this exact palette/atlas UV.
+                // Select the UV island directly, then keep only the rear half
+                // of that emissive submesh.
+                rear.SetFloat(
+                    "_Mode",
+                    2f);
+
+                rear.SetFloat(
+                    "_UvMask",
+                    1f);
+
+                rear.SetVector(
+                    "_UvCenter",
+                    new Vector4(
+                        0.381f,
+                        0.696f,
+                        0f,
+                        0f));
+
+                rear.SetVector(
+                    "_UvCenter2",
+                    new Vector4(
+                        0.381f,
+                        0.696f,
+                        0f,
+                        0f));
+
+                rear.SetVector(
+                    "_UvTolerance",
+                    new Vector4(
+                        0.006f,
+                        0.006f,
+                        0f,
+                        0f));
+
+                rear.SetColor(
+                    "_EmissionColor",
+                    new Color(
+                        1.25f,
+                        0.018f,
+                        0.008f,
+                        1f));
+
+                Material[] slots =
+                    new Material[
+                        materials.Length];
+
+                slots[i] =
+                    rear;
+
+                GameObject root =
+                    new(
+                        "MotorCityDeloreanRearLampOverlay");
+
+                root.transform.SetParent(
+                    renderer.transform.parent,
+                    false);
+
+                root.transform.localPosition =
+                    renderer.transform.localPosition;
+
+                root.transform.localRotation =
+                    renderer.transform.localRotation;
+
+                root.transform.localScale =
+                    renderer.transform.localScale;
+
+                root.AddComponent<MeshFilter>()
+                    .sharedMesh =
+                    filter.sharedMesh;
+
+                MeshRenderer overlayRenderer =
+                    root.AddComponent<MeshRenderer>();
+
+                overlayRenderer.sharedMaterials =
+                    slots;
+
+                overlayRenderer.shadowCastingMode =
+                    UnityEngine.Rendering.ShadowCastingMode.Off;
+
+                overlayRenderer.receiveShadows =
+                    false;
+
+                runtimeMaterials.Add(
+                    rear);
+
+                starterLampOverlays.Add(
+                    new StarterLampOverlay
+                    {
+                        Root = root,
+                        RearMaterial = rear,
+                        FrontMaterial = null
+                    });
+
+                return true;
+            }
+
+            return false;
         }
 
         private bool BindAmgRearEmission(
