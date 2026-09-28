@@ -62,6 +62,11 @@ namespace MotorCity.Gameplay
                 ? string.Empty
                 : vehicleRoster.GetStatsLine();
 
+        public string VehicleCharacterLine =>
+            vehicleRoster == null
+                ? string.Empty
+                : vehicleRoster.GetCharacterLine();
+
         public string VehicleMasteryLine =>
             vehicleRoster == null
                 ? string.Empty
