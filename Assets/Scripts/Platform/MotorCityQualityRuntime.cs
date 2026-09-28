@@ -202,7 +202,7 @@ namespace MotorCity.Platform
         private static void ApplyLow()
         {
             QualitySettings.shadows =
-                ShadowQuality.Disable;
+                UnityEngine.ShadowQuality.Disable;
             QualitySettings.shadowDistance = 0f;
             QualitySettings.pixelLightCount = 0;
             QualitySettings.lodBias = 0.65f;
@@ -220,7 +220,7 @@ namespace MotorCity.Platform
         private static void ApplyMedium()
         {
             QualitySettings.shadows =
-                ShadowQuality.HardOnly;
+                UnityEngine.ShadowQuality.HardOnly;
             QualitySettings.shadowDistance = 55f;
             QualitySettings.pixelLightCount = 1;
             QualitySettings.lodBias = 0.85f;
@@ -238,7 +238,7 @@ namespace MotorCity.Platform
         private static void ApplyHigh()
         {
             QualitySettings.shadows =
-                ShadowQuality.All;
+                UnityEngine.ShadowQuality.All;
             QualitySettings.shadowDistance = 95f;
             QualitySettings.pixelLightCount = 2;
             QualitySettings.lodBias = 1f;
