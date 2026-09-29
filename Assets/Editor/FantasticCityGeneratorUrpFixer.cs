@@ -28,7 +28,7 @@ public static class FantasticCityGeneratorUrpFixer
         if (EditorApplication.isPlayingOrWillChangePlaymode)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG URP Fix",
+                "Motor City - FCG URP Fix",
                 "Останови Play Mode перед конвертацией материалов.",
                 "OK");
             return;
@@ -41,7 +41,7 @@ public static class FantasticCityGeneratorUrpFixer
         if (urpLit == null)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG URP Fix",
+                "Motor City - FCG URP Fix",
                 "Shader Universal Render Pipeline/Lit не найден.",
                 "OK");
             return;
@@ -53,7 +53,7 @@ public static class FantasticCityGeneratorUrpFixer
                 out Scene previousActiveScene))
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG URP Fix",
+                "Motor City - FCG URP Fix",
                 "Не найдена сохранённая локальная сцена с City-Maker.\n\n" +
                 "Сохрани сгенерированный город в Assets/LocalGenerated.",
                 "OK");
@@ -143,7 +143,7 @@ public static class FantasticCityGeneratorUrpFixer
             generatedMaterials.Count == 0)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG URP Fix",
+                "Motor City - FCG URP Fix",
                 "В сохранённой сцене City-Maker не найдено материалов Fantastic City Generator.",
                 "OK");
 
@@ -190,7 +190,7 @@ public static class FantasticCityGeneratorUrpFixer
                      sourceMaterials)
             {
                 EditorUtility.DisplayProgressBar(
-                    "Motor City — FCG URP Fix",
+                    "Motor City - FCG URP Fix",
                     "Конвертация " +
                     source.name,
                     sourceMaterials.Count > 0
@@ -278,7 +278,7 @@ public static class FantasticCityGeneratorUrpFixer
                 $"{trafficPrefabsUpdated} traffic car prefabs.");
 
             EditorUtility.DisplayDialog(
-                "Motor City — FCG URP Fix",
+                "Motor City - FCG URP Fix",
                 "Готово.\n\n" +
                 $"Новых материалов конвертировано: {converted.Count}\n" +
                 $"Существующих URP-материалов исправлено: {repairedGenerated}\n" +
@@ -294,7 +294,7 @@ public static class FantasticCityGeneratorUrpFixer
                 exception);
 
             EditorUtility.DisplayDialog(
-                "Motor City — FCG URP Fix",
+                "Motor City - FCG URP Fix",
                 "Конвертация завершилась ошибкой. " +
                 "Посмотри Console / Editor.log.",
                 "OK");
@@ -862,7 +862,7 @@ public static class FantasticCityGeneratorUrpFixer
             $"Renderers={fcgRendererCount}\n{summary}");
 
         EditorUtility.DisplayDialog(
-            "Motor City — FCG Material Diagnostic",
+            "Motor City - FCG Material Diagnostic",
             $"FCG Renderer'ов: {fcgRendererCount}\n\n{summary}",
             "OK");
     }
