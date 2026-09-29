@@ -60,6 +60,9 @@ namespace MotorCity.UI
         private float loadingProgressWhenReady;
 
         private Font font;
+        private MotorCityUiThemeAssets frontEndTheme;
+        private Sprite frontEndButtonSprite;
+        private Sprite frontEndPanelSprite;
 
         private int introIndex;
         private float introAutoTimer;
@@ -227,6 +230,22 @@ namespace MotorCity.UI
         private void BuildUi()
         {
             font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            frontEndTheme =
+                Resources.Load<MotorCityUiThemeAssets>(
+                    "MotorCity/UI/MotorCityUiThemeAssets");
+
+            if (frontEndTheme != null)
+            {
+                frontEndButtonSprite =
+                    CreateRuntimeUiSprite(
+                        frontEndTheme.modalButton,
+                        false);
+
+                frontEndPanelSprite =
+                    CreateRuntimeUiSprite(
+                        frontEndTheme.modalPanel,
+                        true);
+            }
 
             GameObject canvasObject =
                 new("Motor City Front End", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -410,57 +429,159 @@ namespace MotorCity.UI
 
         private void BuildAbout()
         {
-            CreateText(aboutRoot.transform, IsRussian() ? "ОБ ИГРЕ" : "ABOUT MOTOR CITY", 42, FontStyle.Bold, TextAnchor.UpperLeft,
-                new Vector2(120f, -90f), new Vector2(900f, 70f), new Vector2(0f, 1f));
+            RectTransform panel =
+                CreateFrontEndPanel(
+                    aboutRoot.transform,
+                    "About Panel",
+                    new Vector2(0f, 0f),
+                    new Vector2(1320f, 780f));
 
-            string body = IsRussian()
-                ? "MOTOR CITY — городская автомобильная игра о пути от новичка до известного гонщика.\n\n" +
-                  "ГОРОД\nИсследуй районы, выполняй доставки и городские работы, находи активности и новые маршруты.\n\n" +
-                  "МАШИНЫ\nОткрывай транспорт за репутацию, меняй цвет и внешний вид, улучшай характеристики в гараже.\n\n" +
-                  "ЗАЕЗДЫ\nУчаствуй в спринтах, кольцевых гонках и дрифт-заездах.\n\n" +
-                  "ПУТЬ НОВИЧКА\nДядя Витя и Турбо познакомят тебя с машиной и первым делом. Затем история продолжится через задания Ники, инспектора Бублика и других жителей города.\n\n" +
-                  "УПРАВЛЕНИЕ\nОсновные действия доступны кнопками HUD. На телефоне используются экранные элементы управления."
-                : "MOTOR CITY is an urban driving game about going from rookie to a known driver.\n\n" +
-                  "CITY\nExplore districts, make deliveries, take city jobs, find activities and new routes.\n\n" +
-                  "CARS\nUnlock vehicles through reputation, customize their look, and improve performance in the garage.\n\n" +
-                  "RACING\nTake part in sprints, circuit races and drift events.\n\n" +
-                  "ROOKIE PATH\nUncle Vitya and Turbo introduce you to the car and your first job. The story then continues through missions from Nika, Inspector Bublik and other people in the city.\n\n" +
-                  "CONTROLS\nCore actions are available through HUD buttons. Mobile uses on-screen driving controls.";
+            Text heading =
+                CreateText(
+                    panel,
+                    IsRussian() ? "ОБ ИГРЕ" : "ABOUT MOTOR CITY",
+                    44,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(56f, -52f),
+                    new Vector2(760f, 72f),
+                    new Vector2(0f, 1f));
 
-            Text text = CreateText(aboutRoot.transform, body, 22, FontStyle.Normal, TextAnchor.UpperLeft,
-                new Vector2(120f, -180f), new Vector2(1160f, 700f), new Vector2(0f, 1f));
-            text.verticalOverflow = VerticalWrapMode.Overflow;
+            heading.color =
+                new Color(0.90f, 0.95f, 1f, 1f);
 
-            CreateButton(aboutRoot.transform, IsRussian() ? "НАЗАД" : "BACK", new Vector2(120f, 70f), new Vector2(260f, 58f), ShowMainMenu, new Vector2(0f, 0f));
+            Text intro =
+                CreateText(
+                    panel,
+                    IsRussian()
+                        ? "MOTOR CITY — город, где имя зарабатывают за рулём."
+                        : "MOTOR CITY is a city where your name is earned behind the wheel.",
+                    22,
+                    FontStyle.Normal,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(58f, -118f),
+                    new Vector2(1160f, 48f),
+                    new Vector2(0f, 1f));
+
+            intro.color =
+                new Color(0.72f, 0.82f, 0.94f, 1f);
+
+            float top = -205f;
+            float columnWidth = 560f;
+            float rowHeight = 122f;
+
+            CreateAboutSection(
+                panel,
+                IsRussian() ? "ГОРОД" : "CITY",
+                IsRussian()
+                    ? "Исследуй районы, выполняй доставки и городские работы, находи активности и новые маршруты."
+                    : "Explore districts, make deliveries, take city jobs, find activities and new routes.",
+                new Vector2(58f, top),
+                new Vector2(columnWidth, rowHeight));
+
+            CreateAboutSection(
+                panel,
+                IsRussian() ? "МАШИНЫ" : "CARS",
+                IsRussian()
+                    ? "Открывай транспорт за репутацию, меняй внешний вид и улучшай характеристики в гараже."
+                    : "Unlock vehicles through reputation, customize their look, and improve performance in the garage.",
+                new Vector2(700f, top),
+                new Vector2(columnWidth, rowHeight));
+
+            CreateAboutSection(
+                panel,
+                IsRussian() ? "ЗАЕЗДЫ" : "RACING",
+                IsRussian()
+                    ? "Участвуй в спринтах, кольцевых гонках и дрифт-заездах."
+                    : "Take part in sprints, circuit races and drift events.",
+                new Vector2(58f, top - 150f),
+                new Vector2(columnWidth, rowHeight));
+
+            CreateAboutSection(
+                panel,
+                IsRussian() ? "ПУТЬ НОВИЧКА" : "ROOKIE PATH",
+                IsRussian()
+                    ? "Дядя Витя и Турбо познакомят тебя с машиной и первым делом. Дальше история продолжится через жителей города."
+                    : "Uncle Vitya and Turbo introduce you to the car and your first job. The story continues through people across the city.",
+                new Vector2(700f, top - 150f),
+                new Vector2(columnWidth, rowHeight));
+
+            CreateAboutSection(
+                panel,
+                IsRussian() ? "УПРАВЛЕНИЕ" : "CONTROLS",
+                IsRussian()
+                    ? "Основные действия доступны кнопками HUD. На телефоне используются экранные элементы управления."
+                    : "Core actions are available through HUD buttons. Mobile uses on-screen driving controls.",
+                new Vector2(58f, top - 300f),
+                new Vector2(1202f, 100f));
+
+            CreateButton(
+                panel,
+                IsRussian() ? "НАЗАД" : "BACK",
+                new Vector2(56f, 46f),
+                new Vector2(260f, 58f),
+                ShowMainMenu,
+                new Vector2(0f, 0f));
         }
 
         private void BuildSettings()
         {
-            CreateText(settingsRoot.transform, IsRussian() ? "НАСТРОЙКИ" : "SETTINGS", 42, FontStyle.Bold, TextAnchor.UpperLeft,
-                new Vector2(120f, -90f), new Vector2(900f, 70f), new Vector2(0f, 1f));
+            RectTransform panel =
+                CreateFrontEndPanel(
+                    settingsRoot.transform,
+                    "Settings Panel",
+                    Vector2.zero,
+                    new Vector2(1180f, 670f));
 
-            CreateText(settingsRoot.transform, IsRussian() ? "ГРАФИКА" : "GRAPHICS", 20, FontStyle.Bold, TextAnchor.MiddleLeft,
-                new Vector2(120f, -220f), new Vector2(300f, 50f), new Vector2(0f, 1f));
-            settingsQualityText = CreateText(settingsRoot.transform, "", 26, FontStyle.Bold, TextAnchor.MiddleLeft,
-                new Vector2(420f, -220f), new Vector2(300f, 50f), new Vector2(0f, 1f));
-            CreateButton(settingsRoot.transform, "−", new Vector2(760f, -220f), new Vector2(70f, 52f), () => ChangeQuality(-1), new Vector2(0f, 1f));
-            CreateButton(settingsRoot.transform, "+", new Vector2(845f, -220f), new Vector2(70f, 52f), () => ChangeQuality(1), new Vector2(0f, 1f));
+            Text heading =
+                CreateText(
+                    panel,
+                    IsRussian() ? "НАСТРОЙКИ" : "SETTINGS",
+                    44,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(54f, -50f),
+                    new Vector2(720f, 72f),
+                    new Vector2(0f, 1f));
 
-            CreateText(settingsRoot.transform, IsRussian() ? "ЗВУК" : "AUDIO", 20, FontStyle.Bold, TextAnchor.MiddleLeft,
-                new Vector2(120f, -310f), new Vector2(300f, 50f), new Vector2(0f, 1f));
-            settingsAudioText = CreateText(settingsRoot.transform, "", 26, FontStyle.Bold, TextAnchor.MiddleLeft,
-                new Vector2(420f, -310f), new Vector2(300f, 50f), new Vector2(0f, 1f));
-            CreateButton(settingsRoot.transform, "−", new Vector2(760f, -310f), new Vector2(70f, 52f), () => AdjustAudio(-1), new Vector2(0f, 1f));
-            CreateButton(settingsRoot.transform, "+", new Vector2(845f, -310f), new Vector2(70f, 52f), () => AdjustAudio(1), new Vector2(0f, 1f));
-            CreateButton(settingsRoot.transform, IsRussian() ? "ВКЛ / ВЫКЛ" : "ON / OFF", new Vector2(930f, -310f), new Vector2(190f, 52f), ToggleAudio, new Vector2(0f, 1f));
+            heading.color =
+                new Color(0.90f, 0.95f, 1f, 1f);
 
-            CreateText(settingsRoot.transform, IsRussian() ? "ЯЗЫК" : "LANGUAGE", 20, FontStyle.Bold, TextAnchor.MiddleLeft,
-                new Vector2(120f, -400f), new Vector2(300f, 50f), new Vector2(0f, 1f));
-            settingsLanguageText = CreateText(settingsRoot.transform, "", 26, FontStyle.Bold, TextAnchor.MiddleLeft,
-                new Vector2(420f, -400f), new Vector2(300f, 50f), new Vector2(0f, 1f));
-            CreateButton(settingsRoot.transform, IsRussian() ? "СМЕНИТЬ" : "CHANGE", new Vector2(760f, -400f), new Vector2(240f, 52f), ToggleLanguage, new Vector2(0f, 1f));
+            CreateSettingsRow(
+                panel,
+                IsRussian() ? "ГРАФИКА" : "GRAPHICS",
+                -165f,
+                out settingsQualityText,
+                () => ChangeQuality(-1),
+                () => ChangeQuality(1),
+                null);
 
-            CreateButton(settingsRoot.transform, IsRussian() ? "НАЗАД" : "BACK", new Vector2(120f, 70f), new Vector2(260f, 58f), ShowMainMenu, new Vector2(0f, 0f));
+            CreateSettingsRow(
+                panel,
+                IsRussian() ? "ЗВУК" : "AUDIO",
+                -275f,
+                out settingsAudioText,
+                () => AdjustAudio(-1),
+                () => AdjustAudio(1),
+                ToggleAudio);
+
+            CreateSettingsRow(
+                panel,
+                IsRussian() ? "ЯЗЫК" : "LANGUAGE",
+                -385f,
+                out settingsLanguageText,
+                null,
+                null,
+                ToggleLanguage);
+
+            CreateButton(
+                panel,
+                IsRussian() ? "НАЗАД" : "BACK",
+                new Vector2(54f, 44f),
+                new Vector2(260f, 58f),
+                ShowMainMenu,
+                new Vector2(0f, 0f));
+
             RefreshSettingsText();
         }
 
@@ -1422,6 +1543,293 @@ namespace MotorCity.UI
             return text;
         }
 
+        private static Sprite CreateRuntimeUiSprite(
+            Texture2D texture,
+            bool sliced)
+        {
+            if (texture == null)
+                return null;
+
+            float border =
+                sliced
+                    ? Mathf.Clamp(
+                        Mathf.Min(
+                            texture.width,
+                            texture.height) * 0.16f,
+                        10f,
+                        48f)
+                    : 0f;
+
+            return Sprite.Create(
+                texture,
+                new Rect(
+                    0f,
+                    0f,
+                    texture.width,
+                    texture.height),
+                new Vector2(0.5f, 0.5f),
+                100f,
+                0u,
+                SpriteMeshType.FullRect,
+                new Vector4(
+                    border,
+                    border,
+                    border,
+                    border));
+        }
+
+        private RectTransform CreateFrontEndPanel(
+            Transform parent,
+            string name,
+            Vector2 position,
+            Vector2 size)
+        {
+            GameObject go =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            go.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                go.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(0.5f, 0.5f);
+            rect.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            rect.pivot =
+                new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition =
+                position;
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                go.GetComponent<Image>();
+
+            if (frontEndPanelSprite != null)
+            {
+                image.sprite =
+                    frontEndPanelSprite;
+                image.type =
+                    Image.Type.Sliced;
+                image.color =
+                    Color.white;
+            }
+            else
+            {
+                image.color =
+                    new Color(
+                        0.035f,
+                        0.03f,
+                        0.07f,
+                        0.96f);
+            }
+
+            Outline outline =
+                go.AddComponent<Outline>();
+
+            outline.effectColor =
+                new Color(
+                    0.42f,
+                    0.50f,
+                    0.92f,
+                    0.42f);
+            outline.effectDistance =
+                new Vector2(2f, -2f);
+            outline.useGraphicAlpha =
+                true;
+
+            return rect;
+        }
+
+        private void CreateAboutSection(
+            Transform parent,
+            string title,
+            string body,
+            Vector2 position,
+            Vector2 size)
+        {
+            GameObject section =
+                new(
+                    title + " Section",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            section.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                section.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(0f, 1f);
+            rect.anchorMax =
+                new Vector2(0f, 1f);
+            rect.pivot =
+                new Vector2(0f, 1f);
+            rect.anchoredPosition =
+                position;
+            rect.sizeDelta =
+                size;
+
+            Image background =
+                section.GetComponent<Image>();
+
+            background.color =
+                new Color(
+                    0.035f,
+                    0.055f,
+                    0.10f,
+                    0.72f);
+
+            Text sectionTitle =
+                CreateText(
+                    rect,
+                    title,
+                    19,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(18f, -14f),
+                    new Vector2(size.x - 36f, 30f),
+                    new Vector2(0f, 1f));
+
+            sectionTitle.color =
+                new Color(
+                    0.40f,
+                    0.82f,
+                    1f,
+                    1f);
+
+            Text sectionBody =
+                CreateText(
+                    rect,
+                    body,
+                    18,
+                    FontStyle.Normal,
+                    TextAnchor.UpperLeft,
+                    new Vector2(18f, -48f),
+                    new Vector2(size.x - 36f, size.y - 56f),
+                    new Vector2(0f, 1f));
+
+            sectionBody.color =
+                new Color(
+                    0.88f,
+                    0.91f,
+                    0.96f,
+                    1f);
+        }
+
+        private void CreateSettingsRow(
+            Transform parent,
+            string label,
+            float y,
+            out Text valueText,
+            UnityEngine.Events.UnityAction minusAction,
+            UnityEngine.Events.UnityAction plusAction,
+            UnityEngine.Events.UnityAction wideAction)
+        {
+            GameObject row =
+                new(
+                    label + " Row",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            row.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rowRect =
+                row.GetComponent<RectTransform>();
+
+            rowRect.anchorMin =
+                new Vector2(0.5f, 1f);
+            rowRect.anchorMax =
+                new Vector2(0.5f, 1f);
+            rowRect.pivot =
+                new Vector2(0.5f, 1f);
+            rowRect.anchoredPosition =
+                new Vector2(0f, y);
+            rowRect.sizeDelta =
+                new Vector2(1050f, 84f);
+
+            row.GetComponent<Image>().color =
+                new Color(
+                    0.028f,
+                    0.045f,
+                    0.085f,
+                    0.74f);
+
+            Text labelText =
+                CreateText(
+                    rowRect,
+                    label,
+                    19,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(24f, 0f),
+                    new Vector2(240f, 60f),
+                    new Vector2(0f, 0.5f));
+
+            labelText.color =
+                new Color(
+                    0.64f,
+                    0.78f,
+                    1f,
+                    1f);
+
+            valueText =
+                CreateText(
+                    rowRect,
+                    "",
+                    25,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(282f, 0f),
+                    new Vector2(270f, 60f),
+                    new Vector2(0f, 0.5f));
+
+            if (minusAction != null)
+            {
+                CreateButton(
+                    rowRect,
+                    "−",
+                    new Vector2(610f, 0f),
+                    new Vector2(72f, 50f),
+                    minusAction,
+                    new Vector2(0f, 0.5f));
+            }
+
+            if (plusAction != null)
+            {
+                CreateButton(
+                    rowRect,
+                    "+",
+                    new Vector2(696f, 0f),
+                    new Vector2(72f, 50f),
+                    plusAction,
+                    new Vector2(0f, 0.5f));
+            }
+
+            if (wideAction != null)
+            {
+                CreateButton(
+                    rowRect,
+                    label == (IsRussian() ? "ЯЗЫК" : "LANGUAGE")
+                        ? (IsRussian() ? "СМЕНИТЬ" : "CHANGE")
+                        : (IsRussian() ? "ВКЛ / ВЫКЛ" : "ON / OFF"),
+                    new Vector2(790f, 0f),
+                    new Vector2(210f, 50f),
+                    wideAction,
+                    new Vector2(0f, 0.5f));
+            }
+        }
+
         private Button CreateButton(
             Transform parent,
             string label,
@@ -1430,32 +1838,139 @@ namespace MotorCity.UI
             UnityEngine.Events.UnityAction action,
             Vector2? anchorOverride = null)
         {
-            Vector2 anchor = anchorOverride ?? new Vector2(0f, 0.5f);
+            Vector2 anchor =
+                anchorOverride ??
+                new Vector2(0f, 0.5f);
 
-            GameObject go = new(label + " Button", typeof(RectTransform), typeof(Image), typeof(Button));
-            go.transform.SetParent(parent, false);
+            GameObject go =
+                new(
+                    string.IsNullOrWhiteSpace(label)
+                        ? "Primary Button"
+                        : label + " Button",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
 
-            RectTransform rect = go.GetComponent<RectTransform>();
+            go.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                go.GetComponent<RectTransform>();
+
             rect.anchorMin = anchor;
             rect.anchorMax = anchor;
             rect.pivot = anchor;
-            rect.anchoredPosition = position;
-            rect.sizeDelta = dimensions;
+            rect.anchoredPosition =
+                position;
+            rect.sizeDelta =
+                dimensions;
 
-            Image image = go.GetComponent<Image>();
-            image.color = new Color(0.055f, 0.11f, 0.19f, 0.96f);
+            Image image =
+                go.GetComponent<Image>();
 
-            Button button = go.GetComponent<Button>();
-            ColorBlock colors = button.colors;
-            colors.highlightedColor = new Color(0.11f, 0.28f, 0.5f, 1f);
-            colors.pressedColor = new Color(0.07f, 0.18f, 0.34f, 1f);
-            colors.selectedColor = colors.highlightedColor;
-            button.colors = colors;
-            button.onClick.AddListener(action);
+            if (frontEndButtonSprite != null)
+            {
+                image.sprite =
+                    frontEndButtonSprite;
+                image.type =
+                    Image.Type.Simple;
+                image.preserveAspect =
+                    false;
+                image.color =
+                    Color.white;
+            }
+            else
+            {
+                image.color =
+                    new Color(
+                        0.075f,
+                        0.07f,
+                        0.12f,
+                        0.96f);
+            }
 
-            Text text = CreateText(go.transform, label, 24, FontStyle.Bold, TextAnchor.MiddleCenter,
-                Vector2.zero, dimensions, new Vector2(0.5f, 0.5f));
-            text.name = "Label";
+            Button button =
+                go.GetComponent<Button>();
+
+            button.targetGraphic =
+                image;
+
+            ColorBlock colors =
+                button.colors;
+
+            colors.normalColor =
+                Color.white;
+            colors.highlightedColor =
+                new Color(
+                    0.96f,
+                    0.96f,
+                    1f,
+                    1f);
+            colors.pressedColor =
+                new Color(
+                    0.82f,
+                    0.80f,
+                    0.92f,
+                    1f);
+            colors.selectedColor =
+                colors.highlightedColor;
+            colors.colorMultiplier =
+                1f;
+            colors.fadeDuration =
+                0.08f;
+
+            button.colors =
+                colors;
+            button.onClick.AddListener(
+                action);
+
+            Outline outline =
+                go.AddComponent<Outline>();
+
+            outline.effectColor =
+                new Color(
+                    0.40f,
+                    0.47f,
+                    0.92f,
+                    0.24f);
+            outline.effectDistance =
+                new Vector2(1f, -1f);
+            outline.useGraphicAlpha =
+                true;
+
+            Text text =
+                CreateText(
+                    go.transform,
+                    label,
+                    dimensions.y <= 54f
+                        ? 20
+                        : 23,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    dimensions -
+                    new Vector2(12f, 8f),
+                    new Vector2(0.5f, 0.5f));
+
+            text.name =
+                "Label";
+
+            text.color =
+                new Color(
+                    0.94f,
+                    0.95f,
+                    1f,
+                    1f);
+
+            Shadow shadow =
+                text.gameObject.AddComponent<Shadow>();
+
+            shadow.effectColor =
+                new Color(0f, 0f, 0f, 0.75f);
+            shadow.effectDistance =
+                new Vector2(1f, -2f);
+
             return button;
         }
 
