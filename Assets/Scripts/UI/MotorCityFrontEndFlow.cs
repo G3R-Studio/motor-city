@@ -830,8 +830,8 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(104f, 255f),
-                    new Vector2(260f, 28f),
+                    new Vector2(104f, 268f),
+                    new Vector2(260f, 22f),
                     new Vector2(0f, 0f));
 
             prologue.color =
@@ -844,8 +844,8 @@ namespace MotorCity.UI
                     40,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(104f, 196f),
-                    new Vector2(700f, 58f),
+                    new Vector2(104f, 210f),
+                    new Vector2(700f, 48f),
                     new Vector2(0f, 0f));
 
             introBodyText =
@@ -855,8 +855,8 @@ namespace MotorCity.UI
                     22,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(104f, 170f),
-                    new Vector2(700f, 92f),
+                    new Vector2(104f, 104f),
+                    new Vector2(700f, 90f),
                     new Vector2(0f, 0f));
 
             introBodyText.color =
@@ -869,8 +869,8 @@ namespace MotorCity.UI
                     15,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(104f, 88f),
-                    new Vector2(100f, 28f),
+                    new Vector2(104f, 74f),
+                    new Vector2(100f, 24f),
                     new Vector2(0f, 0f));
 
             introCounterText.color =
@@ -902,7 +902,7 @@ namespace MotorCity.UI
                 stepRect.anchoredPosition =
                     new Vector2(
                         194f + i * 34f,
-                        101f);
+                        86f);
                 stepRect.sizeDelta =
                     new Vector2(22f, 3f);
 
