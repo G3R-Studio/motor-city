@@ -1878,6 +1878,7 @@ namespace MotorCity.UI
             text.verticalOverflow = VerticalWrapMode.Truncate;
             text.resizeTextForBestFit = false;
             text.alignByGeometry = true;
+            text.lineSpacing = 1f;
             return text;
         }
 
