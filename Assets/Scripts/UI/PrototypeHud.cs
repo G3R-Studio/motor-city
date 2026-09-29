@@ -9517,13 +9517,26 @@ namespace MotorCity.UI
                 new Vector2(96f, 34f),
                 OpenPauseMenu);
 
-            CreateLocalizedTouchPulseButton(
-                rail,
-                "HUD Rescue",
-                "touch.utility.rescue",
-                MotorCityInputAction.Rescue,
-                new Vector2(0f, 0f),
-                new Vector2(96f, 34f));
+            GameObject rescueButton =
+                CreateLocalizedTouchPulseButton(
+                    rail,
+                    "HUD Rescue",
+                    "touch.utility.rescue",
+                    MotorCityInputAction.Rescue,
+                    new Vector2(0f, 0f),
+                    new Vector2(96f, 34f));
+
+            RectTransform rescueRect =
+                rescueButton.GetComponent<RectTransform>();
+
+            rescueRect.anchorMin =
+                new Vector2(0.5f, 0.5f);
+            rescueRect.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            rescueRect.pivot =
+                new Vector2(0.5f, 0.5f);
+            rescueRect.anchoredPosition =
+                Vector2.zero;
 
             CreatePauseButton(
                 rail,
