@@ -43,7 +43,7 @@ public static class FantasticCityGeneratorSceneSource
                 assetPath))
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Source",
+                "Motor City - FCG Source",
                 "Выбранная сцена должна находиться внутри текущего Unity-проекта.",
                 "OK");
             return;
@@ -75,7 +75,7 @@ public static class FantasticCityGeneratorSceneSource
         if (!valid)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Source",
+                "Motor City - FCG Source",
                 "В выбранной сцене нет корневого объекта City-Maker.",
                 "OK");
             return;
@@ -85,7 +85,7 @@ public static class FantasticCityGeneratorSceneSource
             assetPath);
 
         EditorUtility.DisplayDialog(
-            "Motor City — FCG Source",
+            "Motor City - FCG Source",
             "Источник города выбран:\n\n" +
             assetPath +
             "\n\nFix Materials и Build Runtime City теперь всегда будут использовать именно эту сцену.",
@@ -103,7 +103,7 @@ public static class FantasticCityGeneratorSceneSource
             FindCityRoot(active) == null)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Source",
+                "Motor City - FCG Source",
                 "В активной сцене нет City-Maker.",
                 "OK");
             return;
@@ -113,7 +113,7 @@ public static class FantasticCityGeneratorSceneSource
                 active.path))
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Source",
+                "Motor City - FCG Source",
                 "Сначала сохрани сцену на диск.",
                 "OK");
             return;
@@ -126,7 +126,7 @@ public static class FantasticCityGeneratorSceneSource
             active.path);
 
         EditorUtility.DisplayDialog(
-            "Motor City — FCG Source",
+            "Motor City - FCG Source",
             "Эта сцена теперь является источником города:\n\n" +
             active.path,
             "OK");
