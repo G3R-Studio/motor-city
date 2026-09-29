@@ -278,8 +278,7 @@ namespace MotorCity.Gameplay
                 StatusText =
                     string.Empty;
             }
-
-
+        }
 
         private void SetUpgradeLevelsForTesting(
             int engine,
