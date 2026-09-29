@@ -2969,6 +2969,12 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     localizationKey);
 
+            MakeButtonTextCrisp(
+                text);
+
+            MakeButtonTextCrisp(
+                text);
+
             touchLocalizedLabels.Add(
                 new TouchLocalizedLabel(
                     text,
@@ -5471,7 +5477,7 @@ namespace MotorCity.UI
                     "Navigation Target Strip",
                     new Vector2(
                         8f,
-                        8f),
+                        6f),
                     new Vector2(
                         148f,
                         34f),
@@ -5636,6 +5642,9 @@ namespace MotorCity.UI
                 navigatorButtonLabel.text =
                     MotorCityLocalization.Text(
                         "navigator.touch_button");
+
+                MakeButtonTextCrisp(
+                    navigatorButtonLabel);
             }
         }
 
@@ -8252,6 +8261,44 @@ namespace MotorCity.UI
                 false);
         }
 
+        private static void MakeButtonTextCrisp(
+            Text text)
+        {
+            if (text == null)
+                return;
+
+            // Button labels are short and already sized for their controls.
+            // Avoid Best Fit here: dynamic shrinking can land on fractional
+            // glyph sizes and makes LegacyRuntime text look soft/pixelated.
+            text.resizeTextForBestFit =
+                false;
+
+            text.horizontalOverflow =
+                HorizontalWrapMode.Overflow;
+
+            text.verticalOverflow =
+                VerticalWrapMode.Truncate;
+
+            RectTransform rect =
+                text.rectTransform;
+
+            Vector2 position =
+                rect.anchoredPosition;
+
+            rect.anchoredPosition =
+                new Vector2(
+                    Mathf.Round(position.x),
+                    Mathf.Round(position.y));
+
+            Vector2 size =
+                rect.sizeDelta;
+
+            rect.sizeDelta =
+                new Vector2(
+                    Mathf.Round(size.x),
+                    Mathf.Round(size.y));
+        }
+
         private void CreateGaragePresetButton(
             Transform parent,
             string objectName,
@@ -8495,6 +8542,9 @@ namespace MotorCity.UI
 
             text.text =
                 label;
+
+            MakeButtonTextCrisp(
+                text);
         }
 
         private GameObject CreateLocalizedTouchPulseButton(
@@ -8662,6 +8712,9 @@ namespace MotorCity.UI
             text.text =
                 MotorCityLocalization.Text(
                     localizationKey);
+
+            MakeButtonTextCrisp(
+                text);
 
             touchLocalizedLabels.Add(
                 new TouchLocalizedLabel(
