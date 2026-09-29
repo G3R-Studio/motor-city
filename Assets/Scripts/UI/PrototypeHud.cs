@@ -1065,37 +1065,6 @@ namespace MotorCity.UI
                         1f),
                     SecondaryTextColor);
 
-            RectTransform divider =
-                CreatePanel(
-                    panel,
-                    "Navigator Header Divider",
-                    new Vector2(
-                        0f,
-                        -83f),
-                    new Vector2(
-                        470f,
-                        1f),
-                    new Vector2(
-                        0.5f,
-                        1f),
-                    new Vector2(
-                        0.5f,
-                        1f),
-                    new Color(
-                        1f,
-                        1f,
-                        1f,
-                        0.10f));
-
-            Image dividerImage =
-                divider.GetComponent<Image>();
-
-            if (dividerImage != null)
-            {
-                dividerImage.raycastTarget =
-                    false;
-            }
-
             RectTransform card =
                 CreatePanel(
                     panel,
@@ -5528,7 +5497,7 @@ namespace MotorCity.UI
                         8f,
                         6f),
                     new Vector2(
-                        136f,
+                        148f,
                         34f),
                     new Vector2(
                         0f,
@@ -5553,7 +5522,7 @@ namespace MotorCity.UI
                         14f,
                         0f),
                     new Vector2(
-                        108f,
+                        120f,
                         27f),
                     new Vector2(
                         0f,
@@ -5598,7 +5567,7 @@ namespace MotorCity.UI
                 new Vector2(-8f, 8f);
 
             navigatorButtonRect.sizeDelta =
-                new Vector2(52f, 30f);
+                new Vector2(40f, 30f);
 
             bool touchUi =
                 ShouldUseTouchUi();
@@ -5668,25 +5637,21 @@ namespace MotorCity.UI
             navigatorButton.onClick.AddListener(
                 ToggleNavigatorMenu);
 
-            Text navigatorButtonLabel =
-                CreateText(
+            Sprite navigatorIcon =
+                MotorCityIconLibrary.Get(
+                    "flag");
+
+            if (navigatorIcon != null)
+            {
+                CreateHudIcon(
                     navigatorButtonRect,
-                    "Navigator Button Label",
-                    10,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
+                    "Navigator Icon",
+                    navigatorIcon,
                     Vector2.zero,
-                    new Vector2(46f, 24f),
-                    new Vector2(0.5f, 0.5f),
+                    new Vector2(17f, 17f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
-
-            navigatorButtonLabel.text =
-                MotorCityLocalization.Text(
-                    "navigator.touch_button");
-
-            MakeButtonTextCrisp(
-                navigatorButtonLabel);
+            }
         }
 
         private void UpdateNavigator(
@@ -9824,17 +9789,8 @@ namespace MotorCity.UI
             Transform canvas)
         {
             navigatorTouchControlsRoot =
-                BuildTouchModalRow(
-                    canvas,
-                    "Navigator Touch Controls",
-                    "touch.modal.prev",
-                    MotorCityInputAction.PreviousVehicle,
-                    "touch.modal.select",
-                    MotorCityInputAction.Retry,
-                    "touch.modal.next",
-                    MotorCityInputAction.NextVehicle,
-                    "touch.modal.close",
-                    MotorCityInputAction.ToggleNavigator);
+                BuildNavigatorTouchControls(
+                    canvas);
 
             storeTouchControlsRoot = null;
 
@@ -9857,6 +9813,68 @@ namespace MotorCity.UI
                 false);
             clubTouchControlsRoot.SetActive(
                 false);
+        }
+
+        private GameObject BuildNavigatorTouchControls(
+            Transform canvas)
+        {
+            GameObject rootObject =
+                new(
+                    "Navigator Touch Controls",
+                    typeof(RectTransform));
+
+            rootObject.transform.SetParent(
+                canvas,
+                false);
+
+            RectTransform root =
+                rootObject.GetComponent<RectTransform>();
+
+            root.anchorMin =
+                new Vector2(0.5f, 0f);
+            root.anchorMax =
+                new Vector2(0.5f, 0f);
+            root.pivot =
+                new Vector2(0.5f, 0f);
+            root.anchoredPosition =
+                new Vector2(0f, 18f);
+            root.sizeDelta =
+                new Vector2(470f, 118f);
+
+            CreateTouchPulseButton(
+                root,
+                "Navigator Touch Controls Prev",
+                "◀",
+                MotorCityInputAction.PreviousVehicle,
+                new Vector2(-135f, 82f),
+                new Vector2(76f, 46f));
+
+            CreateLocalizedTouchPulseButton(
+                root,
+                "Navigator Touch Controls Action",
+                "touch.modal.select",
+                MotorCityInputAction.Retry,
+                new Vector2(0f, 82f),
+                new Vector2(178f, 46f));
+
+            CreateTouchPulseButton(
+                root,
+                "Navigator Touch Controls Next",
+                "▶",
+                MotorCityInputAction.NextVehicle,
+                new Vector2(135f, 82f),
+                new Vector2(76f, 46f));
+
+            CreateLocalizedTouchPulseButton(
+                root,
+                "Navigator Touch Controls Close",
+                "touch.modal.close",
+                MotorCityInputAction.ToggleNavigator,
+                new Vector2(0f, 24f),
+                new Vector2(178f, 40f));
+
+            return
+                rootObject;
         }
 
         private GameObject BuildTouchModalRow(
