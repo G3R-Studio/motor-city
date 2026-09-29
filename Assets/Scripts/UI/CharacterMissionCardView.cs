@@ -886,22 +886,26 @@ namespace MotorCity.UI
                         22f,
                         -22f),
                     new Vector2(
-                        246f,
-                        42f),
+                        238f,
+                        38f),
                     new Vector2(
                         0f,
                         1f),
                     new Vector2(
                         0f,
                         1f),
-                    Color.clear);
+                    new Color(
+                        0.025f,
+                        0.035f,
+                        0.052f,
+                        0.90f));
 
             seasonCompactButton =
                 compact.gameObject;
 
-            ApplyVillePanelTexture(
+            StyleSeasonSurface(
                 compact,
-                0.96f);
+                true);
 
             Image compactImage =
                 compact.GetComponent<Image>();
@@ -926,16 +930,16 @@ namespace MotorCity.UI
 
             colors.highlightedColor =
                 new Color(
-                    1.06f,
-                    1.06f,
-                    1.06f,
+                    1.08f,
+                    1.08f,
+                    1.08f,
                     1f);
 
             colors.pressedColor =
                 new Color(
+                    0.86f,
                     0.90f,
-                    0.90f,
-                    0.90f,
+                    0.96f,
                     1f);
 
             colors.selectedColor =
@@ -964,20 +968,26 @@ namespace MotorCity.UI
                 CreateText(
                     compact,
                     "Season Compact Text",
-                    13,
+                    12,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
+                    TextAnchor.MiddleLeft,
                     new Vector2(
-                        224f,
-                        30f),
+                        14f,
+                        0f),
                     new Vector2(
-                        0.5f,
+                        204f,
+                        26f),
+                    new Vector2(
+                        0f,
                         0.5f),
                     new Vector2(
-                        0.5f,
+                        0f,
                         0.5f),
-                    TextColor);
+                    new Color(
+                        0.88f,
+                        0.94f,
+                        1f,
+                        1f));
 
             RectTransform panel =
                 CreatePanel(
@@ -985,39 +995,43 @@ namespace MotorCity.UI
                     "Season Panel",
                     new Vector2(
                         22f,
-                        -72f),
+                        -68f),
                     new Vector2(
-                        448f,
-                        188f),
-                    new Vector2(
-                        0f,
-                        1f),
+                        418f,
+                        172f),
                     new Vector2(
                         0f,
                         1f),
-                    Color.clear);
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Color(
+                        0.020f,
+                        0.029f,
+                        0.044f,
+                        0.94f));
 
             seasonPanel =
                 panel.gameObject;
 
-            ApplyVillePanelTexture(
+            StyleSeasonSurface(
                 panel,
-                0.96f);
+                false);
 
             seasonNameText =
                 CreateText(
                     panel,
                     "Season Name",
-                    13,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(18f, -14f),
-                    new Vector2(250f, 20f),
+                    new Vector2(16f, -14f),
+                    new Vector2(242f, 18f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Color(
-                        0.36f,
-                        0.82f,
+                        0.38f,
+                        0.78f,
                         1f,
                         1f));
 
@@ -1025,67 +1039,79 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Season Mission",
-                    13,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.UpperRight,
-                    new Vector2(-18f, -14f),
-                    new Vector2(150f, 20f),
+                    new Vector2(-16f, -14f),
+                    new Vector2(128f, 18f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
-                    SecondaryTextColor);
+                    new Color(
+                        0.60f,
+                        0.67f,
+                        0.76f,
+                        1f));
 
             seasonTitleText =
                 CreateText(
                     panel,
                     "Season Title",
-                    20,
+                    18,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(18f, -40f),
-                    new Vector2(400f, 30f),
+                    new Vector2(16f, -39f),
+                    new Vector2(386f, 28f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    TextColor);
+                    new Color(
+                        0.95f,
+                        0.97f,
+                        1f,
+                        1f));
 
             seasonProgressText =
                 CreateText(
                     panel,
                     "Season Progress",
-                    13,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(18f, -80f),
-                    new Vector2(220f, 20f),
+                    new Vector2(16f, -76f),
+                    new Vector2(214f, 18f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    SecondaryTextColor);
+                    new Color(
+                        0.66f,
+                        0.72f,
+                        0.80f,
+                        1f));
 
             RectTransform track =
                 CreatePanel(
                     panel,
                     "Season Progress Track",
-                    new Vector2(18f, -108f),
-                    new Vector2(412f, 8f),
+                    new Vector2(16f, -101f),
+                    new Vector2(386f, 6f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Color(
-                        0.08f,
-                        0.11f,
-                        0.16f,
-                        0.92f));
+                        0.10f,
+                        0.14f,
+                        0.20f,
+                        0.96f));
 
             RectTransform fill =
                 CreatePanel(
                     track,
                     "Season Progress Fill",
                     Vector2.zero,
-                    new Vector2(0f, 8f),
+                    new Vector2(0f, 6f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     new Color(
-                        0.24f,
-                        0.88f,
-                        1f,
+                        0.22f,
+                        0.66f,
+                        0.96f,
                         1f));
 
             seasonProgressFill =
@@ -1095,31 +1121,35 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Season Reward",
-                    12,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
-                    new Vector2(18f, 26f),
-                    new Vector2(300f, 22f),
+                    new Vector2(16f, 18f),
+                    new Vector2(286f, 20f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     new Color(
-                        1f,
-                        0.78f,
-                        0.20f,
+                        0.94f,
+                        0.76f,
+                        0.28f,
                         1f));
 
             seasonDaysText =
                 CreateText(
                     panel,
                     "Season Days",
-                    12,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.LowerRight,
-                    new Vector2(-18f, 26f),
-                    new Vector2(120f, 22f),
+                    new Vector2(-16f, 18f),
+                    new Vector2(112f, 20f),
                     new Vector2(1f, 0f),
                     new Vector2(1f, 0f),
-                    SecondaryTextColor);
+                    new Color(
+                        0.58f,
+                        0.65f,
+                        0.73f,
+                        1f));
 
             seasonDetailsOpen =
                 false;
@@ -1129,6 +1159,137 @@ namespace MotorCity.UI
 
             seasonPanel.SetActive(
                 false);
+        }
+
+        private void StyleSeasonSurface(
+            RectTransform surface,
+            bool compact)
+        {
+            if (surface == null)
+                return;
+
+            Image image =
+                surface.GetComponent<Image>();
+
+            if (image != null)
+            {
+                image.sprite =
+                    null;
+
+                image.type =
+                    Image.Type.Simple;
+            }
+
+            Shadow shadow =
+                surface.gameObject
+                    .AddComponent<Shadow>();
+
+            shadow.effectColor =
+                new Color(
+                    0f,
+                    0f,
+                    0f,
+                    compact
+                        ? 0.38f
+                        : 0.48f);
+
+            shadow.effectDistance =
+                new Vector2(
+                    0f,
+                    -3f);
+
+            shadow.useGraphicAlpha =
+                true;
+
+            Outline outline =
+                surface.gameObject
+                    .AddComponent<Outline>();
+
+            outline.effectColor =
+                new Color(
+                    0.52f,
+                    0.66f,
+                    0.82f,
+                    compact
+                        ? 0.34f
+                        : 0.27f);
+
+            outline.effectDistance =
+                new Vector2(
+                    1f,
+                    -1f);
+
+            outline.useGraphicAlpha =
+                true;
+
+            RectTransform accent =
+                CreatePanel(
+                    surface,
+                    "Season Accent",
+                    new Vector2(
+                        0f,
+                        0f),
+                    new Vector2(
+                        compact
+                            ? 238f
+                            : 418f,
+                        2f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Color(
+                        0.25f,
+                        0.70f,
+                        1f,
+                        compact
+                            ? 0.86f
+                            : 0.74f));
+
+            Image accentImage =
+                accent.GetComponent<Image>();
+
+            if (accentImage != null)
+            {
+                accentImage.raycastTarget =
+                    false;
+            }
+
+            if (!compact)
+            {
+                RectTransform inner =
+                    CreatePanel(
+                        surface,
+                        "Season Inner Shade",
+                        new Vector2(
+                            0f,
+                            -2f),
+                        new Vector2(
+                            390f,
+                            1f),
+                        new Vector2(
+                            0.5f,
+                            1f),
+                        new Vector2(
+                            0.5f,
+                            1f),
+                        new Color(
+                            1f,
+                            1f,
+                            1f,
+                            0.045f));
+
+                Image innerImage =
+                    inner.GetComponent<Image>();
+
+                if (innerImage != null)
+                {
+                    innerImage.raycastTarget =
+                        false;
+                }
+            }
         }
 
         private void UpdateSeasonPanel()
@@ -1208,7 +1369,7 @@ namespace MotorCity.UI
             {
                 seasonProgressFill.rectTransform.sizeDelta =
                     new Vector2(
-                        412f *
+                        386f *
                         Mathf.Clamp01(
                             progress /
                             (float)target),
