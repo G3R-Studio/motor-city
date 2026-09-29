@@ -5420,14 +5420,13 @@ namespace MotorCity.UI
             navigatorButtonRect.pivot =
                 new Vector2(1f, 0f);
             navigatorButtonRect.anchoredPosition =
-                new Vector2(-8f, 6f);
-            bool touchUi =
-                ShouldUseTouchUi();
+                new Vector2(-20f, 10f);
 
             navigatorButtonRect.sizeDelta =
-                touchUi
-                    ? new Vector2(76f, 32f)
-                    : new Vector2(42f, 28f);
+                new Vector2(50f, 30f);
+
+            bool touchUi =
+                ShouldUseTouchUi();
 
             Image navigatorButtonImage =
                 navigatorButtonObject.GetComponent<Image>();
@@ -5504,12 +5503,8 @@ namespace MotorCity.UI
                     navigatorButtonRect,
                     "Navigator Icon",
                     navigatorIcon,
-                    touchUi
-                        ? new Vector2(-22f, 0f)
-                        : Vector2.zero,
-                    touchUi
-                        ? new Vector2(18f, 18f)
-                        : new Vector2(17f, 17f),
+                    Vector2.zero,
+                    new Vector2(17f, 17f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
             }
