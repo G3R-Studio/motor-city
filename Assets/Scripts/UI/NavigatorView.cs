@@ -2445,6 +2445,23 @@ namespace MotorCity.UI
 
                     return;
                 }
+
+                if (required == "*")
+                {
+                    ResolveNearestStoryActivityTarget(
+                        out target,
+                        out label);
+
+                    hasTarget =
+                        target !=
+                        car.transform.position;
+
+                    showRoadRoute =
+                        hasTarget;
+
+                    if (hasTarget)
+                        return;
+                }
             }
 
             if (underground != null &&
