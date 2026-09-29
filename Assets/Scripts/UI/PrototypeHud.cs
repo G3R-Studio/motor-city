@@ -134,6 +134,14 @@ namespace MotorCity.UI
         private Text characterMissionTitleText;
         private Text characterLineText;
         private Text characterRewardText;
+        private GameObject seasonPanel;
+        private Text seasonNameText;
+        private Text seasonMissionText;
+        private Text seasonTitleText;
+        private Text seasonProgressText;
+        private Text seasonRewardText;
+        private Text seasonDaysText;
+        private Image seasonProgressFill;
         private RawImage minimapImage;
         private RectTransform minimapTargetBlip;
         private Image minimapTargetIcon;
