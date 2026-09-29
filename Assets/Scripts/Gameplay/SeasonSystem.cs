@@ -49,6 +49,92 @@ namespace MotorCity.Gameplay
                     0,
                     MissionCount);
 
+        public int CurrentMissionNumber =>
+            IsComplete
+                ? MissionCount
+                : Mathf.Clamp(
+                    missionIndex + 1,
+                    1,
+                    MissionCount);
+
+        public int CurrentMissionProgress =>
+            IsComplete
+                ? CurrentMissionTarget
+                : Mathf.Max(
+                    0,
+                    progress);
+
+        public int CurrentMissionTarget
+        {
+            get
+            {
+                SeasonMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? 0
+                        : mission.Target;
+            }
+        }
+
+        public int CurrentCreditsReward
+        {
+            get
+            {
+                SeasonMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? 0
+                        : mission.Credits;
+            }
+        }
+
+        public int CurrentReputationReward
+        {
+            get
+            {
+                SeasonMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? 0
+                        : mission.Reputation;
+            }
+        }
+
+        public int CurrentTurboXpReward
+        {
+            get
+            {
+                SeasonMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? 0
+                        : mission.TurboXp;
+            }
+        }
+
+        public string CurrentMissionTitle
+        {
+            get
+            {
+                SeasonMission mission =
+                    CurrentMission();
+
+                return
+                    mission == null
+                        ? string.Empty
+                        : MotorCityLocalization.Text(
+                            mission.TitleKey);
+            }
+        }
+
         public string RequiredActivityId
         {
             get
@@ -288,11 +374,10 @@ namespace MotorCity.Gameplay
                     mission.Target,
                     progress + 1);
 
-            Save();
-
             if (progress <
                 mission.Target)
             {
+                Save();
                 StatusText =
                     MotorCityLocalization.Format(
                         "season1.progress",
@@ -314,13 +399,16 @@ namespace MotorCity.Gameplay
             SeasonMission mission)
         {
             wallet?.AddCredits(
-                mission.Credits);
+                mission.Credits,
+                false);
 
             reputation?.AddReputation(
-                mission.Reputation);
+                mission.Reputation,
+                false);
 
             turbo?.AddXp(
-                mission.TurboXp);
+                mission.TurboXp,
+                false);
 
             bool final =
                 missionIndex >=
@@ -335,7 +423,10 @@ namespace MotorCity.Gameplay
                     CompleteKey,
                     1);
 
-                MotorCity.Persistence.MotorCitySaveService.Save();
+                progress =
+                    mission.Target;
+
+                Save();
 
                 StatusText =
                     MotorCityLocalization.Format(
