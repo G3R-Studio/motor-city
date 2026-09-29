@@ -25,6 +25,8 @@ namespace MotorCity.UI
         private PrototypeHud hud;
 
         private Canvas canvas;
+        private CanvasScaler frontEndScaler;
+        private Vector2Int lastFrontEndScreenSize;
         private Camera frontEndCamera;
         private bool pregameDebugVisible;
 
@@ -281,10 +283,17 @@ namespace MotorCity.UI
             canvas.sortingOrder = 5000;
             canvas.pixelPerfect = true;
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
-            scaler.matchWidthOrHeight = 0.5f;
+            frontEndScaler =
+                canvasObject.GetComponent<CanvasScaler>();
+
+            frontEndScaler.uiScaleMode =
+                CanvasScaler.ScaleMode.ScaleWithScreenSize;
+
+            frontEndScaler.referenceResolution =
+                new Vector2(1920f, 1080f);
+
+            ApplyFrontEndResponsiveLayout(
+                true);
 
             mainRoot = CreateScreen("Main Menu", new Color(0.01f, 0.015f, 0.025f, 0.94f));
             aboutRoot = CreateScreen("About Screen", new Color(0.01f, 0.015f, 0.025f, 0.97f));
@@ -878,8 +887,8 @@ namespace MotorCity.UI
                     22,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(104f, 104f),
-                    new Vector2(700f, 90f),
+                    new Vector2(104f, 94f),
+                    new Vector2(700f, 116f),
                     new Vector2(0f, 0f));
 
             introBodyText.color =
@@ -892,7 +901,7 @@ namespace MotorCity.UI
                     15,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(104f, 74f),
+                    new Vector2(104f, 58f),
                     new Vector2(100f, 24f),
                     new Vector2(0f, 0f));
 
@@ -925,7 +934,7 @@ namespace MotorCity.UI
                 stepRect.anchoredPosition =
                     new Vector2(
                         194f + i * 34f,
-                        86f);
+                        70f);
                 stepRect.sizeDelta =
                     new Vector2(22f, 3f);
 
@@ -1299,6 +1308,9 @@ namespace MotorCity.UI
             }
 #endif
 
+            ApplyFrontEndResponsiveLayout(
+                false);
+
             if (loadingActive)
             {
                 UpdateLoadingAnimation();
@@ -1361,6 +1373,83 @@ namespace MotorCity.UI
 
             if (introAutoTimer >= IntroAutoSeconds)
                 NextIntro();
+        }
+
+        private void ApplyFrontEndResponsiveLayout(
+            bool force)
+        {
+            if (frontEndScaler == null ||
+                Screen.width <= 0 ||
+                Screen.height <= 0)
+            {
+                return;
+            }
+
+            Vector2Int screenSize =
+                new(
+                    Screen.width,
+                    Screen.height);
+
+            if (!force &&
+                screenSize ==
+                lastFrontEndScreenSize)
+            {
+                return;
+            }
+
+            lastFrontEndScreenSize =
+                screenSize;
+
+            float aspect =
+                Screen.width /
+                (float)Screen.height;
+
+            // Narrow landscape and portrait layouts must fit by width so the
+            // left menu and right-side intro buttons cannot be clipped.
+            // Ultrawide screens fit by height so the UI keeps its intended
+            // physical size and simply reveals more of the background art.
+            if (aspect < 1.55f)
+            {
+                frontEndScaler.matchWidthOrHeight =
+                    0f;
+            }
+            else if (aspect > 2.10f)
+            {
+                frontEndScaler.matchWidthOrHeight =
+                    1f;
+            }
+            else
+            {
+                frontEndScaler.matchWidthOrHeight =
+                    0.5f;
+            }
+
+            ApplyCoverUv(
+                mainBackgroundImage,
+                0f);
+
+            ApplyCoverUv(
+                introPreviousImage,
+                0f);
+
+            if (introImage != null)
+            {
+                float zoomProgress =
+                    Mathf.Clamp01(
+                        introVisualTimer /
+                        IntroAutoSeconds);
+
+                float easedZoom =
+                    zoomProgress * zoomProgress *
+                    (3f - 2f * zoomProgress);
+
+                ApplyCoverUv(
+                    introImage,
+                    Mathf.Lerp(
+                        0f,
+                        0.16f,
+                        easedZoom));
+            }
         }
 
         private static void ApplyCoverUv(
