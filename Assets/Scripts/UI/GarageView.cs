@@ -1034,8 +1034,17 @@ namespace MotorCity.UI
 
         private void UpdateGarage()
         {
-            if (MotorCityInput.WasVirtualPressed(
-                    MotorCityInputAction.ToggleVehiclePassport))
+            bool metaUnlocked =
+                activityManager != null &&
+                activityManager.SecondaryProgressionAllowed;
+
+            if (!metaUnlocked)
+            {
+                garagePassportOpen =
+                    false;
+            }
+            else if (MotorCityInput.WasVirtualPressed(
+                         MotorCityInputAction.ToggleVehiclePassport))
             {
                 garagePassportOpen =
                     !garagePassportOpen;
@@ -1079,6 +1088,7 @@ namespace MotorCity.UI
             if (garageHeaderMasteryText != null)
             {
                 garageHeaderMasteryText.text =
+                    metaUnlocked &&
                     garage != null
                         ? garage.VehicleMasteryShort
                         : string.Empty;
@@ -1150,15 +1160,18 @@ namespace MotorCity.UI
 
                 fillRect.sizeDelta =
                     new Vector2(
-                        678f *
-                        Mathf.Clamp01(
-                            garage.VehicleMasteryProgress),
+                        metaUnlocked
+                            ? 678f *
+                              Mathf.Clamp01(
+                                  garage.VehicleMasteryProgress)
+                            : 0f,
                         7f);
             }
 
             if (garageVehicleHistoryText != null)
             {
                 garageVehicleHistoryText.text =
+                    !metaUnlocked ||
                     vehicleHistory == null
                         ? string.Empty
                         : vehicleHistory.GarageLine;
@@ -1167,6 +1180,7 @@ namespace MotorCity.UI
             if (garageVehicleSpecializationText != null)
             {
                 garageVehicleSpecializationText.text =
+                    !metaUnlocked ||
                     vehicleSpecialization == null
                         ? string.Empty
                         : vehicleSpecialization.GarageLine;
@@ -1174,23 +1188,31 @@ namespace MotorCity.UI
 
             if (garageCollectionText != null)
             {
-                string collectionLine =
-                    collection == null
-                        ? string.Empty
-                        : collection.GarageLine;
+                if (!metaUnlocked)
+                {
+                    garageCollectionText.text =
+                        string.Empty;
+                }
+                else
+                {
+                    string collectionLine =
+                        collection == null
+                            ? string.Empty
+                            : collection.GarageLine;
 
-                string albumLine =
-                    photoHunt == null
-                        ? string.Empty
-                        : photoHunt.AlbumLine;
+                    string albumLine =
+                        photoHunt == null
+                            ? string.Empty
+                            : photoHunt.AlbumLine;
 
-                garageCollectionText.text =
-                    string.IsNullOrWhiteSpace(
-                        albumLine)
-                        ? collectionLine
-                        : collectionLine +
-                          "\n" +
-                          albumLine;
+                    garageCollectionText.text =
+                        string.IsNullOrWhiteSpace(
+                            albumLine)
+                            ? collectionLine
+                            : collectionLine +
+                              "\n" +
+                              albumLine;
+                }
             }
 
             for (int i = 0; i < 3; i++)

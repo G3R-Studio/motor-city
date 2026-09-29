@@ -90,6 +90,13 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
+            if (activityManager != null &&
+                !activityManager.SecondaryProgressionAllowed)
+            {
+                ResetPositionSample();
+                return;
+            }
+
             TrackDistance();
 
             if (!dirty)
@@ -332,6 +339,12 @@ namespace MotorCity.Gameplay
             string activityId,
             bool success)
         {
+            if (activityManager != null &&
+                !activityManager.SecondaryProgressionAllowed)
+            {
+                return;
+            }
+
             if (!success)
                 return;
 

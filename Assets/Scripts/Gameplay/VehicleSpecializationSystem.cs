@@ -125,8 +125,9 @@ namespace MotorCity.Gameplay
             string activityId,
             bool success)
         {
-            if (!success ||
-                activityManager == null ||
+            if (activityManager == null ||
+                !activityManager.SecondaryProgressionAllowed ||
+                !success ||
                 roster == null)
             {
                 return;
