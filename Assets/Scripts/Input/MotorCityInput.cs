@@ -3,6 +3,13 @@ using UnityEngine.InputSystem;
 
 namespace MotorCity.Input
 {
+    public enum MotorCityControlScheme
+    {
+        Keyboard = 0,
+        Wheel = 1,
+        Arrows = 2
+    }
+
     public enum MotorCityInputAction
     {
         Interact = 0,
@@ -47,10 +54,31 @@ namespace MotorCity.Input
         private static readonly int[] VirtualPressedFrame =
             new int[(int)MotorCityInputAction.Count];
 
+        private const string ControlSchemeKey =
+            "MotorCity.Input.ControlScheme";
+
         private static bool preferTouchPrompts;
+        private static float virtualSteering;
+        private static MotorCityControlScheme controlScheme =
+            MotorCityControlScheme.Keyboard;
 
         static MotorCityInput()
         {
+            if (PlayerPrefs.HasKey(ControlSchemeKey))
+            {
+                controlScheme =
+                    (MotorCityControlScheme)Mathf.Clamp(
+                        PlayerPrefs.GetInt(
+                            ControlSchemeKey,
+                            0),
+                        0,
+                        2);
+
+                preferTouchPrompts =
+                    controlScheme !=
+                    MotorCityControlScheme.Keyboard;
+            }
+
             for (int i = 0;
                  i < VirtualPressedFrame.Length;
                  i++)
@@ -190,23 +218,65 @@ namespace MotorCity.Input
             VirtualIsHeld(
                 MotorCityInputAction.Reverse);
 
+        public static float SteeringAxis
+        {
+            get
+            {
+                float keyboard =
+                    (KeyHeld(Key.D) ||
+                     KeyHeld(Key.RightArrow)
+                        ? 1f
+                        : 0f) -
+                    (KeyHeld(Key.A) ||
+                     KeyHeld(Key.LeftArrow)
+                        ? 1f
+                        : 0f);
+
+                float gamepad =
+                    GamepadSteer();
+
+                float digitalTouch =
+                    (VirtualIsHeld(
+                         MotorCityInputAction.SteerRight)
+                        ? 1f
+                        : 0f) -
+                    (VirtualIsHeld(
+                         MotorCityInputAction.SteerLeft)
+                        ? 1f
+                        : 0f);
+
+                float best =
+                    Mathf.Abs(gamepad) >
+                    Mathf.Abs(keyboard)
+                        ? gamepad
+                        : keyboard;
+
+                if (Mathf.Abs(virtualSteering) >
+                    Mathf.Abs(best))
+                {
+                    best =
+                        virtualSteering;
+                }
+
+                if (Mathf.Abs(digitalTouch) >
+                    Mathf.Abs(best))
+                {
+                    best =
+                        digitalTouch;
+                }
+
+                return Mathf.Clamp(
+                    best,
+                    -1f,
+                    1f);
+            }
+        }
+
         public static bool SteerLeftHeld =>
-            KeyHeld(
-                Key.A) ||
-            KeyHeld(
-                Key.LeftArrow) ||
-            GamepadSteer() < -0.16f ||
-            VirtualIsHeld(
-                MotorCityInputAction.SteerLeft);
+            SteeringAxis < -0.08f;
 
         public static bool SteerRightHeld =>
-            KeyHeld(
-                Key.D) ||
-            KeyHeld(
-                Key.RightArrow) ||
-            GamepadSteer() > 0.16f ||
-            VirtualIsHeld(
-                MotorCityInputAction.SteerRight);
+            SteeringAxis > 0.08f;
 
         public static bool HandbrakeHeld =>
             KeyHeld(
@@ -225,8 +295,61 @@ namespace MotorCity.Input
         public static bool PreferTouchPrompts =>
             preferTouchPrompts;
 
+        public static MotorCityControlScheme CurrentControlScheme =>
+            controlScheme;
+
+        public static void SetControlScheme(
+            MotorCityControlScheme scheme)
+        {
+            controlScheme =
+                scheme;
+
+            preferTouchPrompts =
+                scheme !=
+                MotorCityControlScheme.Keyboard;
+
+            virtualSteering =
+                0f;
+
+            ClearVirtualState();
+
+            PlayerPrefs.SetInt(
+                ControlSchemeKey,
+                (int)scheme);
+
+            PlayerPrefs.Save();
+        }
+
+        public static void SetVirtualSteering(
+            float value)
+        {
+            virtualSteering =
+                Mathf.Clamp(
+                    value,
+                    -1f,
+                    1f);
+        }
+
         public static void RefreshTouchPromptPreference()
         {
+            if (PlayerPrefs.HasKey(
+                    ControlSchemeKey))
+            {
+                controlScheme =
+                    (MotorCityControlScheme)Mathf.Clamp(
+                        PlayerPrefs.GetInt(
+                            ControlSchemeKey,
+                            0),
+                        0,
+                        2);
+
+                preferTouchPrompts =
+                    controlScheme !=
+                    MotorCityControlScheme.Keyboard;
+
+                return;
+            }
+
             bool touchCapable =
                 Application.isMobilePlatform ||
                 SystemInfo.deviceType ==
@@ -258,6 +381,9 @@ namespace MotorCity.Input
 
         public static void ClearVirtualState()
         {
+            virtualSteering =
+                0f;
+
             for (int i = 0;
                  i < VirtualHeld.Length;
                  i++)
