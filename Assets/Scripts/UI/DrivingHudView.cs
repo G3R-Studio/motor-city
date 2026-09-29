@@ -733,6 +733,9 @@ namespace MotorCity.UI
                 panel,
                 0.90f);
 
+            CenterStatusPanelChrome(
+                panel);
+
             statusActivityIcon =
                 CreateHudIcon(
                     panel,
@@ -761,6 +764,43 @@ namespace MotorCity.UI
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     TextColor);
+        }
+
+        private static void CenterStatusPanelChrome(
+            RectTransform panel)
+        {
+            if (panel == null)
+                return;
+
+            const float visualOffsetX =
+                -112f;
+
+            foreach (RectTransform child in
+                     panel.GetComponentsInChildren<RectTransform>(
+                         true))
+            {
+                if (child == null ||
+                    child == panel)
+                {
+                    continue;
+                }
+
+                string childName =
+                    child.name;
+
+                if (childName == "Ville Panel Background" ||
+                    childName.StartsWith(
+                        "Ville Panel Glow"))
+                {
+                    Vector2 position =
+                        child.anchoredPosition;
+
+                    child.anchoredPosition =
+                        new Vector2(
+                            visualOffsetX,
+                            position.y);
+                }
+            }
         }
 
         private void RefreshStatusActivityIcon()
