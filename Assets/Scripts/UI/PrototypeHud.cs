@@ -5062,8 +5062,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(0f, -196f),
-                    new Vector2(720f, 58f),
+                    new Vector2(150f, -196f),
+                    new Vector2(640f, 58f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     Color.clear);
@@ -5097,8 +5097,8 @@ namespace MotorCity.UI
                     17,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(58f, 1f),
-                    new Vector2(638f, 42f),
+                    new Vector2(56f, 1f),
+                    new Vector2(560f, 42f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     TextColor);
@@ -9091,8 +9091,14 @@ namespace MotorCity.UI
             activeNotification =
                 notificationQueue.Dequeue();
 
+            // Give longer messages enough screen time without making
+            // short rewards/prompts feel sluggish.
             activeNotificationTimer =
-                2.8f;
+                Mathf.Clamp(
+                    2.8f +
+                    activeNotification.Length * 0.018f,
+                    2.8f,
+                    4.4f);
         }
 
         private string ResolveTransientNotification()
