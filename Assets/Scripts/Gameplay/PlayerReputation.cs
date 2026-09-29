@@ -27,7 +27,8 @@ namespace MotorCity.Gameplay
         }
 
         public void AddReputation(
-            int amount)
+            int amount,
+            bool saveImmediately = true)
         {
             if (amount <= 0)
                 return;
@@ -35,7 +36,8 @@ namespace MotorCity.Gameplay
             Reputation +=
                 amount;
 
-            Save();
+            Save(
+                saveImmediately);
         }
 
         public void SetReputation(
@@ -49,13 +51,17 @@ namespace MotorCity.Gameplay
             Save();
         }
 
-        private void Save()
+        private void Save(
+            bool flush = true)
         {
             MotorCity.Persistence.MotorCitySaveService.SetInt(
                 ReputationKey,
                 Reputation);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            if (flush)
+            {
+                MotorCity.Persistence.MotorCitySaveService.Save();
+            }
         }
     }
 }

@@ -17,12 +17,21 @@ namespace MotorCity.Gameplay
             Credits = Mathf.Max(0, MotorCity.Persistence.MotorCitySaveService.GetInt(CreditsKey, 0));
         }
 
-        public void AddCredits(int amount)
+        public void AddCredits(
+            int amount,
+            bool saveImmediately = true)
         {
-            if (amount <= 0) return;
-            Credits += amount;
-            CreditsEarned?.Invoke(amount);
-            Save();
+            if (amount <= 0)
+                return;
+
+            Credits +=
+                amount;
+
+            CreditsEarned?.Invoke(
+                amount);
+
+            Save(
+                saveImmediately);
         }
 
         public bool TrySpendCredits(int amount)
@@ -54,10 +63,17 @@ namespace MotorCity.Gameplay
             Save();
         }
 
-        private void Save()
+        private void Save(
+            bool flush = true)
         {
-            MotorCity.Persistence.MotorCitySaveService.SetInt(CreditsKey, Credits);
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                CreditsKey,
+                Credits);
+
+            if (flush)
+            {
+                MotorCity.Persistence.MotorCitySaveService.Save();
+            }
         }
     }
 }

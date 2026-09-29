@@ -338,11 +338,15 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            progress = Mathf.Min(mission.Target, progress + 1);
-            Save();
+            progress =
+                Mathf.Min(
+                    mission.Target,
+                    progress + 1);
 
             if (progress < mission.Target)
             {
+                Save();
+
                 StatusText = MotorCityLocalization.Format(
                     "story.character_progress",
                     MotorCityLocalization.Text(
@@ -361,9 +365,17 @@ namespace MotorCity.Gameplay
 
         private void CompleteCurrentMission(StoryMission mission)
         {
-            wallet?.AddCredits(mission.CreditsReward);
-            reputation?.AddReputation(mission.ReputationReward);
-            turbo?.AddXp(mission.TurboXpReward);
+            wallet?.AddCredits(
+                mission.CreditsReward,
+                false);
+
+            reputation?.AddReputation(
+                mission.ReputationReward,
+                false);
+
+            turbo?.AddXp(
+                mission.TurboXpReward,
+                false);
 
             if (missionIndex >= missions.Length - 1)
             {
@@ -373,7 +385,10 @@ namespace MotorCity.Gameplay
                     CompleteKey,
                     1);
 
-                MotorCity.Persistence.MotorCitySaveService.Save();
+                progress =
+                    mission.Target;
+
+                Save();
 
                 StatusText = MotorCityLocalization.Format(
                     "story.character_reward",

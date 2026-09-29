@@ -314,7 +314,8 @@ namespace MotorCity.Gameplay
         }
 
         public void AddXp(
-            int amount)
+            int amount,
+            bool saveImmediately = true)
         {
             if (amount <= 0)
                 return;
@@ -338,7 +339,8 @@ namespace MotorCity.Gameplay
                     true;
             }
 
-            SaveProgress();
+            SaveProgress(
+                saveImmediately);
 
             if (!leveled)
                 return;
@@ -1322,7 +1324,8 @@ namespace MotorCity.Gameplay
             }
         }
 
-        private void SaveProgress()
+        private void SaveProgress(
+            bool flush = true)
         {
             MotorCity.Persistence.MotorCitySaveService.SetInt(
                 LevelKey,
@@ -1332,7 +1335,10 @@ namespace MotorCity.Gameplay
                 XpKey,
                 Xp);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            if (flush)
+            {
+                MotorCity.Persistence.MotorCitySaveService.Save();
+            }
         }
 
         private void SaveDaily()
