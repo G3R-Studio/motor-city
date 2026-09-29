@@ -567,6 +567,8 @@ namespace MotorCity.UI
                 if (contractText != null)
                 {
                     contractText.text =
+                        activityManager == null ||
+                        !activityManager.SecondaryProgressionAllowed ||
                         contracts == null
                             ? string.Empty
                             : contracts.HudLine;
@@ -575,6 +577,8 @@ namespace MotorCity.UI
                 if (liveEventText != null)
                 {
                     liveEventText.text =
+                        activityManager == null ||
+                        !activityManager.SecondaryProgressionAllowed ||
                         liveEvents == null
                             ? string.Empty
                             : liveEvents.HudLine;
@@ -593,6 +597,8 @@ namespace MotorCity.UI
                 if (legendText != null)
                 {
                     legendText.text =
+                        activityManager == null ||
+                        !activityManager.SecondaryProgressionAllowed ||
                         legends == null
                             ? string.Empty
                             : legends.HudLine;

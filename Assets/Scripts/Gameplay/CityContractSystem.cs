@@ -175,6 +175,12 @@ namespace MotorCity.Gameplay
         private void HandleActivityCompleted(
             string activityId)
         {
+            if (activityManager != null &&
+                !activityManager.SecondaryProgressionAllowed)
+            {
+                return;
+            }
+
             if (activityId !=
                 "underground")
             {
@@ -216,6 +222,12 @@ namespace MotorCity.Gameplay
             string activityId,
             bool success)
         {
+            if (activityManager != null &&
+                !activityManager.SecondaryProgressionAllowed)
+            {
+                return;
+            }
+
             if (!success)
                 return;
 
