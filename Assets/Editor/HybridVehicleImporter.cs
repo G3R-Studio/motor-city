@@ -1,14 +1,18 @@
-using System;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
 [InitializeOnLoad]
 public static class HybridVehicleImporter
 {
-    private const string SourceDirectory =
-        "Assets/VehicleAssets/Hybrid";
+    private const string BodySource =
+        "Assets/VehicleAssets/Hybrid/body.obj";
+
+    private const string LeftWheelSource =
+        "Assets/VehicleAssets/Hybrid/wheels1.obj";
+
+    private const string RightWheelSource =
+        "Assets/VehicleAssets/Hybrid/wheels2.obj";
 
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
@@ -17,7 +21,7 @@ public static class HybridVehicleImporter
         OutputDirectory + "/Hybrid.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.HybridVehicleBuilt.V2";
+        "MotorCity.HybridVehicleBuilt.V3";
 
     static HybridVehicleImporter()
     {
@@ -35,12 +39,6 @@ public static class HybridVehicleImporter
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
-
-        if (!AssetDatabase.IsValidFolder(
-                SourceDirectory))
-        {
-            return;
-        }
 
         if (AssetDatabase.LoadAssetAtPath<GameObject>(
                 OutputPrefab) != null)
@@ -65,34 +63,29 @@ public static class HybridVehicleImporter
     private static bool Build(
         bool verbose)
     {
-        string sourcePath =
-            FindSourceModel();
-
-        if (string.IsNullOrWhiteSpace(
-                sourcePath))
-        {
-            if (verbose)
-            {
-                Debug.LogWarning(
-                    "Motor City: Hybrid source model was not found in " +
-                    SourceDirectory +
-                    ". Put the Hybrid FBX/OBJ/prefab there and rebuild again.");
-            }
-
-            return false;
-        }
-
-        GameObject source =
+        GameObject bodySource =
             AssetDatabase.LoadAssetAtPath<GameObject>(
-                sourcePath);
+                BodySource);
 
-        if (source == null)
+        GameObject leftWheelSource =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                LeftWheelSource);
+
+        GameObject rightWheelSource =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                RightWheelSource);
+
+        if (bodySource == null ||
+            leftWheelSource == null ||
+            rightWheelSource == null)
         {
             if (verbose)
             {
                 Debug.LogWarning(
-                    "Motor City: Hybrid source is not a GameObject asset: " +
-                    sourcePath);
+                    "Motor City: Hybrid source files are missing. Expected " +
+                    BodySource + ", " +
+                    LeftWheelSource + " and " +
+                    RightWheelSource + ".");
             }
 
             return false;
@@ -101,52 +94,47 @@ public static class HybridVehicleImporter
         Directory.CreateDirectory(
             OutputDirectory);
 
-        GameObject instance =
-            PrefabUtility.InstantiatePrefab(
-                source) as GameObject;
-
-        if (instance == null)
-        {
-            instance =
-                UnityEngine.Object.Instantiate(
-                    source);
-        }
-
-        if (instance == null)
-        {
-            if (verbose)
-            {
-                Debug.LogError(
-                    "Motor City: failed to instantiate Hybrid source: " +
-                    sourcePath);
-            }
-
-            return false;
-        }
-
-        instance.name =
-            "HybridVisual";
+        GameObject root =
+            new GameObject(
+                "HybridVisual");
 
         try
         {
-            instance.transform.position =
+            GameObject body =
+                InstantiateSource(
+                    bodySource,
+                    root.transform,
+                    "Body");
+
+            if (body == null)
+                return false;
+
+            body.transform.localPosition =
                 Vector3.zero;
 
-            instance.transform.rotation =
+            body.transform.localRotation =
                 Quaternion.identity;
 
-            instance.transform.localScale =
+            body.transform.localScale =
                 Vector3.one;
 
             StripImportedRuntimeComponents(
-                instance);
+                body);
+
+            BuildWheelSet(
+                root.transform,
+                leftWheelSource,
+                rightWheelSource);
+
+            StripImportedRuntimeComponents(
+                root);
 
             EnsureRenderersEnabled(
-                instance);
+                root);
 
             GameObject saved =
                 PrefabUtility.SaveAsPrefabAsset(
-                    instance,
+                    root,
                     OutputPrefab);
 
             if (saved == null)
@@ -170,141 +158,163 @@ public static class HybridVehicleImporter
                         OutputPrefab);
 
                 Debug.Log(
-                    "Motor City: Hybrid runtime visual rebuilt from '" +
-                    sourcePath +
-                    "'. Runtime path: MotorCity/Vehicles/Player/Hybrid");
+                    "Motor City: Hybrid rebuilt from body.obj + wheels1.obj + wheels2.obj. " +
+                    "Runtime path: MotorCity/Vehicles/Player/Hybrid");
             }
 
             return true;
         }
         finally
         {
-            UnityEngine.Object.DestroyImmediate(
-                instance);
+            Object.DestroyImmediate(
+                root);
         }
     }
 
-    private static string FindSourceModel()
+    private static void BuildWheelSet(
+        Transform parent,
+        GameObject leftWheelSource,
+        GameObject rightWheelSource)
     {
-        if (!AssetDatabase.IsValidFolder(
-                SourceDirectory))
+        // Measured from the committed Hybrid source:
+        // body bounds 1.401 x 0.778 x 3.135 m;
+        // wheel diameter ~= 0.484 m.
+        //
+        // wheels1.obj is the left-side wheel mesh and wheels2.obj is the
+        // mirrored right-side mesh. Both are already centered almost exactly
+        // on their pivots. The axle positions below match the authored Hybrid
+        // proportions and keep every wheel as a separate steering/spinning
+        // transform for the runtime installer.
+        const float wheelX = 0.540f;
+        const float wheelY = 0.242f;
+        const float frontZ = 1.253f;
+        const float rearZ = -0.654f;
+
+        CreateWheel(
+            parent,
+            leftWheelSource,
+            "front_left",
+            new Vector3(
+                -wheelX,
+                wheelY,
+                frontZ),
+            new Vector3(
+                0.033111f,
+                -0.0000515f,
+                0f));
+
+        CreateWheel(
+            parent,
+            rightWheelSource,
+            "front_right",
+            new Vector3(
+                wheelX,
+                wheelY,
+                frontZ),
+            new Vector3(
+                -0.033111f,
+                -0.0000515f,
+                0f));
+
+        CreateWheel(
+            parent,
+            leftWheelSource,
+            "rear_left",
+            new Vector3(
+                -wheelX,
+                wheelY,
+                rearZ),
+            new Vector3(
+                0.033111f,
+                -0.0000515f,
+                0f));
+
+        CreateWheel(
+            parent,
+            rightWheelSource,
+            "rear_right",
+            new Vector3(
+                wheelX,
+                wheelY,
+                rearZ),
+            new Vector3(
+                -0.033111f,
+                -0.0000515f,
+                0f));
+    }
+
+    private static void CreateWheel(
+        Transform parent,
+        GameObject source,
+        string name,
+        Vector3 localPosition,
+        Vector3 sourceCenterOffset)
+    {
+        GameObject holder =
+            new GameObject(
+                name);
+
+        holder.transform.SetParent(
+            parent,
+            false);
+
+        holder.transform.localPosition =
+            localPosition;
+
+        holder.transform.localRotation =
+            Quaternion.identity;
+
+        holder.transform.localScale =
+            Vector3.one;
+
+        GameObject visual =
+            InstantiateSource(
+                source,
+                holder.transform,
+                name + "_visual");
+
+        if (visual == null)
+            return;
+
+        // Cancel the tiny source-pivot offsets measured from the OBJ bounds.
+        visual.transform.localPosition =
+            sourceCenterOffset;
+
+        visual.transform.localRotation =
+            Quaternion.identity;
+
+        visual.transform.localScale =
+            Vector3.one;
+
+        StripImportedRuntimeComponents(
+            visual);
+    }
+
+    private static GameObject InstantiateSource(
+        GameObject source,
+        Transform parent,
+        string objectName)
+    {
+        GameObject instance =
+            PrefabUtility.InstantiatePrefab(
+                source,
+                parent) as GameObject;
+
+        if (instance == null)
         {
+            instance =
+                Object.Instantiate(
+                    source,
+                    parent);
+        }
+
+        if (instance == null)
             return null;
-        }
 
-        string[] guids =
-            AssetDatabase.FindAssets(
-                "t:GameObject",
-                new[]
-                {
-                    SourceDirectory
-                });
+        instance.name =
+            objectName;
 
-        return
-            guids
-                .Select(
-                    AssetDatabase.GUIDToAssetPath)
-                .Where(
-                    path =>
-                        !string.IsNullOrWhiteSpace(
-                            path) &&
-                        IsSupportedSource(
-                            path))
-                .OrderByDescending(
-                    ScoreSource)
-                .ThenBy(
-                    path => path,
-                    StringComparer.OrdinalIgnoreCase)
-                .FirstOrDefault();
-    }
-
-    private static bool IsSupportedSource(
-        string path)
-    {
-        string extension =
-            Path.GetExtension(
-                    path)
-                .ToLowerInvariant();
-
-        return
-            extension == ".prefab" ||
-            extension == ".fbx" ||
-            extension == ".obj";
-    }
-
-    private static int ScoreSource(
-        string path)
-    {
-        string lower =
-            path.ToLowerInvariant();
-
-        string fileName =
-            Path.GetFileNameWithoutExtension(
-                    lower);
-
-        int score = 0;
-
-        if (fileName == "hybrid" ||
-            fileName == "hybred")
-        {
-            score += 300;
-        }
-
-        if (fileName.Contains(
-                "hybrid") ||
-            fileName.Contains(
-                "hybred"))
-        {
-            score += 180;
-        }
-
-        if (fileName.Contains(
-                "body") ||
-            fileName.Contains(
-                "car"))
-        {
-            score += 90;
-        }
-
-        if (lower.EndsWith(
-                ".prefab"))
-        {
-            score += 45;
-        }
-        else if (lower.EndsWith(
-                     ".fbx"))
-        {
-            score += 35;
-        }
-        else if (lower.EndsWith(
-                     ".obj"))
-        {
-            score += 25;
-        }
-
-        if (fileName.Contains(
-                "wheel") ||
-            fileName.Contains(
-                "tire") ||
-            fileName.Contains(
-                "tyre") ||
-            fileName.Contains(
-                "rim"))
-        {
-            score -= 250;
-        }
-
-        if (fileName.Contains(
-                "demo") ||
-            fileName.Contains(
-                "sample") ||
-            fileName.Contains(
-                "example"))
-        {
-            score -= 150;
-        }
-
-        return score;
+        return instance;
     }
 
     private static void StripImportedRuntimeComponents(
@@ -314,7 +324,7 @@ public static class HybridVehicleImporter
                  root.GetComponentsInChildren<Collider>(
                      true))
         {
-            UnityEngine.Object.DestroyImmediate(
+            Object.DestroyImmediate(
                 collider);
         }
 
@@ -322,7 +332,7 @@ public static class HybridVehicleImporter
                  root.GetComponentsInChildren<Rigidbody>(
                      true))
         {
-            UnityEngine.Object.DestroyImmediate(
+            Object.DestroyImmediate(
                 body);
         }
 
@@ -333,7 +343,7 @@ public static class HybridVehicleImporter
             if (behaviour == null)
                 continue;
 
-            UnityEngine.Object.DestroyImmediate(
+            Object.DestroyImmediate(
                 behaviour);
         }
     }
