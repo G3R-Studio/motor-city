@@ -148,19 +148,40 @@ namespace MotorCity.UI
                         1f),
                     SecondaryTextColor);
 
-            clubWeeklyText =
+            clubFocusText =
                 CreateText(
                     panel,
-                    "Club Weekly",
-                    16,
+                    "Club Focus",
+                    13,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(
                         0f,
-                        -270f),
+                        -258f),
                     new Vector2(
                         480f,
-                        34f),
+                        24f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    SecondaryTextColor);
+
+            clubWeeklyText =
+                CreateText(
+                    panel,
+                    "Club Weekly",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        -286f),
+                    new Vector2(
+                        480f,
+                        28f),
                     new Vector2(
                         0.5f,
                         1f),
@@ -171,6 +192,31 @@ namespace MotorCity.UI
                         0.24f,
                         0.88f,
                         1f,
+                        1f));
+
+            clubRewardText =
+                CreateText(
+                    panel,
+                    "Club Reward",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        -316f),
+                    new Vector2(
+                        480f,
+                        22f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Color(
+                        1f,
+                        0.78f,
+                        0.20f,
                         1f));
 
         }
@@ -286,12 +332,24 @@ namespace MotorCity.UI
             clubDescriptionText.text =
                 club.BrowseClubDescription;
 
+            if (clubFocusText != null)
+            {
+                clubFocusText.text =
+                    club.BrowseClubFocusLine;
+            }
+
             clubWeeklyText.text =
                 club.HasClub &&
                 club.BrowseClubIndex ==
                     club.JoinedClubIndex
                     ? club.WeeklyLine
                     : club.BrowseClubGoalLine;
+
+            if (clubRewardText != null)
+            {
+                clubRewardText.text =
+                    club.BrowseClubRewardLine;
+            }
 
             // Navigation/join actions are represented by the buttons below.
 

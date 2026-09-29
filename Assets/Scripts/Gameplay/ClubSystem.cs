@@ -17,6 +17,8 @@ namespace MotorCity.Gameplay
             "MotorCity.Club.WeeklyRewardClaimed";
         private const string WeeklyMigrationKey =
             "MotorCity.Club.WeeklyPerClubMigrated";
+        private const string GlobalRewardWeekKey =
+            "MotorCity.Club.GlobalRewardWeek";
 
         private int WeeklyGoal
         {
@@ -115,6 +117,23 @@ namespace MotorCity.Gameplay
                             clubs.Length - 1)]
                         .DescriptionKey);
 
+        public string BrowseClubFocusLine
+        {
+            get
+            {
+                ClubDefinition definition =
+                    BrowseClubDefinition();
+
+                return
+                    definition == null
+                        ? string.Empty
+                        : MotorCityLocalization.Format(
+                            "club.focus_line",
+                            MotorCityLocalization.Text(
+                                definition.FocusKey));
+            }
+        }
+
         public string BrowseClubGoalLine
         {
             get
@@ -149,6 +168,29 @@ namespace MotorCity.Gameplay
 
         public int WeeklyTarget =>
             WeeklyGoal;
+
+        public bool WeeklyRewardAvailable =>
+            HasClub &&
+            !weeklyRewardClaimed &&
+            !GlobalRewardClaimedThisWeek();
+
+        public string BrowseClubRewardLine
+        {
+            get
+            {
+                int credits =
+                    WeeklyCreditsReward();
+
+                int rep =
+                    WeeklyReputationReward();
+
+                return
+                    MotorCityLocalization.Format(
+                        "club.browse_reward",
+                        credits,
+                        rep);
+            }
+        }
 
         public void Initialize(
             ActivityManager activityManager,
@@ -258,8 +300,10 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 MotorCityLocalization.Format(
-                    "club.joined",
-                    CurrentClubName);
+                    "club.joined_focus",
+                    CurrentClubName,
+                    MotorCityLocalization.Text(
+                        CurrentClubDefinition().FocusKey));
 
             messageTimer =
                 4.5f;
@@ -313,30 +357,44 @@ namespace MotorCity.Gameplay
             if (weeklyRewardClaimed)
                 return;
 
+            if (GlobalRewardClaimedThisWeek())
+            {
+                weeklyRewardClaimed =
+                    true;
+
+                SaveWeek();
+
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "club.weekly_already_claimed",
+                        CurrentClubName);
+
+                messageTimer =
+                    4.5f;
+
+                return;
+            }
+
             weeklyRewardClaimed =
                 true;
 
             int credits =
-                Mathf.Clamp(
-                    MotorCityRemoteConfigRuntime.GetInt(
-                        "club_weekly_credits",
-                        900),
-                    100,
-                    5000);
+                WeeklyCreditsReward();
 
             int rep =
-                Mathf.Clamp(
-                    MotorCityRemoteConfigRuntime.GetInt(
-                        "club_weekly_rep",
-                        90),
-                    10,
-                    500);
+                WeeklyReputationReward();
 
             wallet?.AddCredits(
                 credits);
 
             reputation?.AddReputation(
                 rep);
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                GlobalRewardWeekKey,
+                (int)Math.Min(
+                    (long)int.MaxValue,
+                    currentWeek));
 
             SaveWeek();
 
@@ -477,6 +535,37 @@ namespace MotorCity.Gameplay
             MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
+        private bool GlobalRewardClaimedThisWeek()
+        {
+            return
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    GlobalRewardWeekKey,
+                    -1) ==
+                currentWeek;
+        }
+
+        private static int WeeklyCreditsReward()
+        {
+            return
+                Mathf.Clamp(
+                    MotorCityRemoteConfigRuntime.GetInt(
+                        "club_weekly_credits",
+                        900),
+                    100,
+                    5000);
+        }
+
+        private static int WeeklyReputationReward()
+        {
+            return
+                Mathf.Clamp(
+                    MotorCityRemoteConfigRuntime.GetInt(
+                        "club_weekly_rep",
+                        90),
+                    10,
+                    500);
+        }
+
         private static long ResolveServerWeek()
         {
             return
@@ -510,8 +599,7 @@ namespace MotorCity.Gameplay
                     ClubFocus.Turbo =>
                         activityId == "discovery" ||
                         activityId == "photo_hunt" ||
-                        activityId == "speedtrap" ||
-                        activityId == "stuntjump",
+                        activityId == "speedtrap",
 
                     ClubFocus.Sun =>
                         activityId == "delivery" ||

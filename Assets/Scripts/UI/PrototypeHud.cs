@@ -208,6 +208,8 @@ namespace MotorCity.UI
         private Text clubNameText;
         private Text clubDescriptionText;
         private Text clubWeeklyText;
+        private Text clubFocusText;
+        private Text clubRewardText;
         private RectTransform safeAreaRoot;
         private GameObject touchControlsRoot;
         private GameObject touchUtilityRoot;
