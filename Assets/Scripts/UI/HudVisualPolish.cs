@@ -598,15 +598,24 @@ namespace MotorCity.UI
 
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize =
-                Mathf.Max(
-                    8,
-                    text.fontSize - 7);
+                text.fontSize <= 11
+                    ? Mathf.Max(
+                        9,
+                        text.fontSize - 2)
+                    : Mathf.Max(
+                        11,
+                        Mathf.RoundToInt(
+                            text.fontSize * 0.78f));
             text.resizeTextMaxSize =
                 text.fontSize;
             text.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             text.verticalOverflow =
                 VerticalWrapMode.Truncate;
+            text.alignByGeometry =
+                true;
+            text.lineSpacing =
+                1f;
 
             rect.localScale =
                 Vector3.one;
