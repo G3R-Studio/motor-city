@@ -44,7 +44,7 @@ public static class FantasticCityGeneratorWorkbench
             !active.isLoaded)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Workbench",
+                "Motor City - FCG Workbench",
                 "Нет активной сцены, из которой можно создать workbench.",
                 "OK");
             return;
@@ -59,7 +59,7 @@ public static class FantasticCityGeneratorWorkbench
                 true))
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Workbench",
+                "Motor City - FCG Workbench",
                 "Не удалось создать локальную копию сцены.",
                 "OK");
             return;
@@ -74,7 +74,7 @@ public static class FantasticCityGeneratorWorkbench
             WorkbenchScene);
 
         EditorUtility.DisplayDialog(
-            "Motor City — FCG Workbench",
+            "Motor City - FCG Workbench",
             "Локальная рабочая сцена создана:\n\n" +
             WorkbenchScene +
             "\n\nГенерируй Fantastic City Generator только здесь. " +
