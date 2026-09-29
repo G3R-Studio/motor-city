@@ -907,5 +907,232 @@ namespace MotorCity.UI
                 string.Empty;
         }
 
+        private void UpdateNotificationQueue()
+        {
+            string candidate =
+                ResolveTransientNotification();
+
+            if (!string.IsNullOrWhiteSpace(
+                    candidate) &&
+                candidate !=
+                lastNotificationCandidate)
+            {
+                notificationQueue.Enqueue(
+                    candidate);
+
+                lastNotificationCandidate =
+                    candidate;
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                    candidate))
+            {
+                lastNotificationCandidate =
+                    null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                    activeNotification))
+            {
+                activeNotificationTimer -=
+                    Time.unscaledDeltaTime;
+
+                if (activeNotificationTimer > 0f)
+                    return;
+
+                activeNotification =
+                    null;
+            }
+
+            if (notificationQueue.Count <= 0)
+                return;
+
+            activeNotification =
+                notificationQueue.Dequeue();
+
+            // Give longer messages enough screen time without making
+            // short rewards/prompts feel sluggish.
+            activeNotificationTimer =
+                Mathf.Clamp(
+                    2.8f +
+                    activeNotification.Length * 0.018f,
+                    2.8f,
+                    4.4f);
+        }
+
+        private string ResolveTransientNotification()
+        {
+            if (onboarding != null &&
+                onboarding.ShowMessage)
+            {
+                return
+                    onboarding.StatusText;
+            }
+
+            if (cosmeticStore != null &&
+                cosmeticStore.ShowMessage)
+            {
+                return
+                    cosmeticStore.StatusText;
+            }
+
+            if (rewardedBonus != null &&
+                rewardedBonus.ShowMessage)
+            {
+                return
+                    rewardedBonus.StatusText;
+            }
+
+            if (weekendEvents != null &&
+                weekendEvents.ShowMessage)
+            {
+                return
+                    weekendEvents.StatusText;
+            }
+
+            if (club != null &&
+                club.ShowMessage)
+            {
+                return
+                    club.StatusText;
+            }
+
+            if (achievements != null &&
+                achievements.ShowMessage)
+            {
+                return
+                    achievements.StatusText;
+            }
+
+            if (season != null &&
+                season.ShowMessage)
+            {
+                return
+                    season.StatusText;
+            }
+
+            if (photoHunt != null &&
+                photoHunt.ShowMessage)
+            {
+                return
+                    photoHunt.StatusText;
+            }
+
+            if (story != null &&
+                story.ShowMessage)
+            {
+                return
+                    story.StatusText;
+            }
+
+            if (dailyAdventures != null &&
+                dailyAdventures.ShowMessage)
+            {
+                return
+                    dailyAdventures.StatusText;
+            }
+
+            if (turbo != null &&
+                turbo.ShowMessage)
+            {
+                return
+                    turbo.StatusText;
+            }
+
+            if (cityRisk != null &&
+                cityRisk.ShowMessage)
+            {
+                return
+                    cityRisk.StatusText;
+            }
+
+            if (underground != null &&
+                underground.ShowMessage)
+            {
+                return
+                    underground.StatusText;
+            }
+
+            if (legends != null &&
+                legends.ShowMessage)
+            {
+                return
+                    legends.StatusText;
+            }
+
+            if (collection != null &&
+                collection.ShowMessage)
+            {
+                return
+                    collection.StatusText;
+            }
+
+            if (vehicleSpecialization != null &&
+                vehicleSpecialization.ShowMessage)
+            {
+                return
+                    vehicleSpecialization.StatusText;
+            }
+
+            if (liveEvents != null &&
+                liveEvents.ShowMessage)
+            {
+                return
+                    liveEvents.StatusText;
+            }
+
+            if (contracts != null &&
+                contracts.ShowMessage)
+            {
+                return
+                    contracts.StatusText;
+            }
+
+            if (activityManager != null &&
+                activityManager.DisciplineShowMessage)
+            {
+                return
+                    activityManager.DisciplineStatusText;
+            }
+
+            if (garage != null &&
+                garage.MasteryShowMessage)
+            {
+                return
+                    garage.MasteryStatusText;
+            }
+
+            if (career != null &&
+                career.ShowMessage)
+            {
+                return
+                    career.StatusText;
+            }
+
+            if (driftSpots != null &&
+                driftSpots.ShowMessage)
+            {
+                return
+                    driftSpots.StatusText;
+            }
+
+            if (discoveries != null &&
+                discoveries.ShowMessage)
+            {
+                return
+                    discoveries.StatusText;
+            }
+
+            if (speedTraps != null &&
+                speedTraps.ShowMessage)
+            {
+                return
+                    speedTraps.StatusText;
+            }
+
+            return
+                string.Empty;
+        }
+
     }
 }

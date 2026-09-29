@@ -2609,5 +2609,279 @@ namespace MotorCity.UI
                 rootObject;
         }
 
+        private static Vector3 ClosestPointOnFlatSegment(
+            Vector3 point,
+            Vector3 a,
+            Vector3 b)
+        {
+            Vector2 p =
+                new(
+                    point.x,
+                    point.z);
+
+            Vector2 av =
+                new(
+                    a.x,
+                    a.z);
+
+            Vector2 bv =
+                new(
+                    b.x,
+                    b.z);
+
+            Vector2 ab =
+                bv -
+                av;
+
+            float lengthSquared =
+                ab.sqrMagnitude;
+
+            float t =
+                lengthSquared <=
+                    0.0001f
+                    ? 0f
+                    : Mathf.Clamp01(
+                        Vector2.Dot(
+                            p - av,
+                            ab) /
+                        lengthSquared);
+
+            return new Vector3(
+                Mathf.Lerp(
+                    a.x,
+                    b.x,
+                    t),
+                Mathf.Lerp(
+                    a.y,
+                    b.y,
+                    t),
+                Mathf.Lerp(
+                    a.z,
+                    b.z,
+                    t));
+        }
+
+        private static float FlatDistance(
+            Vector3 a,
+            Vector3 b)
+        {
+            a.y =
+                0f;
+            b.y =
+                0f;
+
+            return
+                Vector3.Distance(
+                    a,
+                    b);
+        }
+
+        private void ResolveNearestFreeRoamTarget(
+            out Vector3 target,
+            out string label)
+        {
+            target =
+                car.transform.position;
+            label =
+                MotorCityLocalization.Text("hud.free_drive");
+
+            float bestDistance =
+                float.PositiveInfinity;
+
+            ConsiderNavigationTarget(
+                delivery != null
+                    ? delivery.CurrentTarget
+                    : Vector3.zero,
+                MotorCityLocalization.Text("activity.delivery"),
+                delivery != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+
+            ConsiderNavigationTarget(
+                driftChallenge != null
+                    ? driftChallenge.ZoneCenter
+                    : Vector3.zero,
+                MotorCityLocalization.Text("activity.drift"),
+                driftChallenge != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+
+            ConsiderNavigationTarget(
+                streetSprint != null
+                    ? streetSprint.CurrentTarget
+                    : Vector3.zero,
+                MotorCityLocalization.Text("hud.sprint"),
+                streetSprint != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+
+            ConsiderNavigationTarget(
+                circuitRace != null
+                    ? circuitRace.CurrentTarget
+                    : Vector3.zero,
+                MotorCityLocalization.Text("hud.circuit"),
+                circuitRace != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+
+            if (speedTraps != null)
+            {
+                for (int i = 0;
+                     i < speedTraps.TrapCount;
+                     i++)
+                {
+                    ConsiderNavigationTarget(
+                        speedTraps.GetTrapPosition(i),
+                        MotorCityLocalization.Text("hud.radar"),
+                        true,
+                        ref target,
+                        ref label,
+                        ref bestDistance);
+                }
+            }
+
+            if (driftSpots != null)
+            {
+                for (int i = 0;
+                     i < driftSpots.SpotCount;
+                     i++)
+                {
+                    ConsiderNavigationTarget(
+                        driftSpots.GetSpotPosition(i),
+                        MotorCityLocalization.Text("hud.drift_spot"),
+                        true,
+                        ref target,
+                        ref label,
+                        ref bestDistance);
+                }
+            }
+
+            if (discoveries != null)
+            {
+                for (int i = 0;
+                     i < discoveries.DiscoveryCount;
+                     i++)
+                {
+                    if (discoveries.IsFound(i))
+                        continue;
+
+                    ConsiderNavigationTarget(
+                        discoveries.GetDiscoveryPosition(i),
+                        MotorCityLocalization.Text("hud.discovery"),
+                        true,
+                        ref target,
+                        ref label,
+                        ref bestDistance);
+                }
+            }
+
+            if (towTruck != null)
+            {
+                ConsiderNavigationTarget(
+                    towTruck.StartPoint,
+                    MotorCityLocalization.Text(
+                        "tow.title"),
+                    true,
+                    ref target,
+                    ref label,
+                    ref bestDistance);
+            }
+
+            if (carWash != null)
+            {
+                ConsiderNavigationTarget(
+                    carWash.StartPoint,
+                    MotorCityLocalization.Text(
+                        "carwash.title"),
+                    true,
+                    ref target,
+                    ref label,
+                    ref bestDistance);
+            }
+
+            if (professions != null)
+            {
+                for (int i = 0;
+                     i < professions.StartCount;
+                     i++)
+                {
+                    ConsiderNavigationTarget(
+                        professions.GetStartPoint(i),
+                        professions.GetStartName(i),
+                        true,
+                        ref target,
+                        ref label,
+                        ref bestDistance);
+                }
+            }
+
+            ConsiderNavigationTarget(
+                garage != null
+                    ? garage.GarageCenter
+                    : Vector3.zero,
+                MotorCityLocalization.Text("hud.garage"),
+                garage != null,
+                ref target,
+                ref label,
+                ref bestDistance);
+        }
+
+        private void ConsiderNavigationTarget(
+            Vector3 candidate,
+            string candidateLabel,
+            bool valid,
+            ref Vector3 target,
+            ref string label,
+            ref float bestDistance)
+        {
+            if (!valid)
+                return;
+
+            Vector3 delta =
+                candidate -
+                car.transform.position;
+
+            delta.y = 0f;
+
+            float distance =
+                delta.sqrMagnitude;
+
+            if (distance >= bestDistance)
+                return;
+
+            bestDistance =
+                distance;
+            target =
+                candidate;
+            label =
+                candidateLabel;
+        }
+
+        private void OnDestroy()
+        {
+            if (schematicMap != null &&
+                schematicMap.Texture != null)
+            {
+                Destroy(
+                    schematicMap.Texture);
+            }
+
+            if (minimapMaskSprite != null)
+            {
+                Destroy(
+                    minimapMaskSprite);
+            }
+
+            if (minimapMaskTexture != null)
+            {
+                Destroy(
+                    minimapMaskTexture);
+            }
+        }
+
     }
 }
