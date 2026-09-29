@@ -26,16 +26,16 @@ Current core features include:
 
 The playable garage currently contains ten vehicles:
 
-1. **BEATALL** — compact classic and the first car in the garage hierarchy.
-2. **STREET** — balanced city car.
-3. **PEUGEOT 306** — light compact hatchback.
-4. **TOYOTA AE86** — lively classic coupe.
-5. **HYBRID** — quick, grippy modern sports car.
-6. **PORSCHE 996** — compact sports coupe.
-7. **AMG GT** — planted modern grand tourer.
-8. **CAMARO** — wide modern muscle car.
-9. **DELOREAN** — supporter-pack exclusive vehicle.
-10. **CITY BUS** — final vehicle in the garage hierarchy.
+1. **BEATALL** - compact classic and the first car in the garage hierarchy.
+2. **STREET** - balanced city car.
+3. **PEUGEOT 306** - light compact hatchback.
+4. **TOYOTA AE86** - lively classic coupe.
+5. **HYBRID** - quick, grippy modern sports car.
+6. **PORSCHE 996** - compact sports coupe.
+7. **AMG GT** - planted modern grand tourer.
+8. **CAMARO** - wide modern muscle car.
+9. **DELOREAN** - supporter-pack exclusive vehicle.
+10. **CITY BUS** - final vehicle in the garage hierarchy.
 
 The permanent **MOTOR CITY SUPPORTER PACK** includes 5,000 credits, the **DELOREAN**, and the restored exclusive **Pixie EX (Amane Kisora)** visual.
 
@@ -84,15 +84,15 @@ Vehicle movement is provided by Prometeo, while Motor City owns the higher-level
 
 Keyboard/gamepad driving controls that remain active:
 
-- `W/S` or Up/Down — throttle / reverse;
-- `A/D` or Left/Right — steering;
-- `Space` — handbrake;
-- right mouse drag — camera orbit;
-- mouse wheel — camera zoom;
-- `E` — contextual interaction;
-- `Esc` — cancel/close;
-- `Enter` — retry/restart where applicable;
-- `F10` or backquote — temporary admin/debug panel.
+- `W/S` or Up/Down - throttle / reverse;
+- `A/D` or Left/Right - steering;
+- `Space` - handbrake;
+- right mouse drag - camera orbit;
+- mouse wheel - camera zoom;
+- `E` - contextual interaction;
+- `Esc` - cancel/close;
+- `Enter` - retry/restart where applicable;
+- `F10` or backquote - temporary admin/debug panel.
 
 Actions such as drive-mode switching, rescue, pause, store, club, rewarded bonus, navigator, garage vehicle selection/upgrades and customization are exposed through the runtime HUD/touch-button input layer rather than dedicated keyboard bindings.
 
@@ -100,15 +100,15 @@ Actions such as drive-mode switching, rescue, pause, store, club, rewarded bonus
 
 Important project-owned paths:
 
-- `Assets/Scripts` — runtime game code;
-- `Assets/Editor` — current editor/build/import tooling;
-- `Assets/Resources/MotorCity` — runtime-loaded Motor City content;
-- `Assets/Art/MotorCity` — Motor City source UI/marker/garage art;
-- `Assets/MotorCity` — clean Motor City authoring prototypes;
-- `Assets/LocalGenerated` — tracked editable FCG workbench;
-- `Assets/Settings` — URP/build profile assets;
-- `ProjectSettings` — Unity project configuration;
-- `Packages` — Unity package manifest plus the embedded spring-bone package.
+- `Assets/Scripts` - runtime game code;
+- `Assets/Editor` - current editor/build/import tooling;
+- `Assets/Resources/MotorCity` - runtime-loaded Motor City content;
+- `Assets/Art/MotorCity` - Motor City source UI/marker/garage art;
+- `Assets/MotorCity` - clean Motor City authoring prototypes;
+- `Assets/LocalGenerated` - tracked editable FCG workbench;
+- `Assets/Settings` - URP/build profile assets;
+- `ProjectSettings` - Unity project configuration;
+- `Packages` - Unity package manifest plus the embedded spring-bone package.
 
 Third-party source folders still present are retained because current generated/runtime content or editor rebuild tooling depends on them. Their demo scenes, guide assets and clearly unused sample material have been removed where safe.
 
@@ -128,10 +128,10 @@ The repository intentionally does not track Unity-generated caches such as `Libr
 
 The project currently uses source/content from several third-party packages, including:
 
-- Mena — ARCADE: FREE Racing Car;
-- Mena — PROMETEO: Car Controller;
+- Mena - ARCADE: FREE Racing Car;
+- Mena - PROMETEO: Car Controller;
 - Fantastic City Generator;
-- Gudamore — Free Sports Car;
+- Gudamore - Free Sports Car;
 - Haon SD Series Free Bundle;
 - Eric VFX Studio Magic Circle;
 - Kenney CC0 UI/icon artwork.
