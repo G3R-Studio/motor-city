@@ -538,7 +538,7 @@ namespace MotorCity.Gameplay
             if (expected == "*")
             {
                 // Wildcard story steps say "any activity", so every
-                // successful ActivityManager result must count — including
+                // successful ActivityManager result must count - including
                 // city professions such as profession_icecream.
                 return
                     !string.IsNullOrWhiteSpace(
