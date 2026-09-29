@@ -187,7 +187,7 @@ public static class HybridVehicleImporter
         // transform for the runtime installer.
         const float frontLeftX = -0.589f;
         const float frontRightX = 0.587f;
-        const float rearLeftX = -0.561f;
+        const float rearLeftX = -0.600f;
         const float rearRightX = 0.600f;
         const float wheelY = 0.242f;
         const float frontZ = 1.253f;
