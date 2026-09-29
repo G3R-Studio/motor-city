@@ -29,6 +29,8 @@ namespace MotorCity.Gameplay
         private bool activitySucceeded;
         private float messageTimer;
         private float introTimer;
+        private int customizationColorIndexAtStepStart =
+            -1;
 
         public bool IsComplete { get; private set; }
 
@@ -123,6 +125,12 @@ namespace MotorCity.Gameplay
             customization =
                 customizationSystem;
 
+            bool hasOnboardingSave =
+                MotorCity.Persistence.MotorCitySaveService.HasKey(
+                    StepKey) ||
+                MotorCity.Persistence.MotorCitySaveService.HasKey(
+                    CompleteKey);
+
             IsComplete =
                 MotorCity.Persistence.MotorCitySaveService.GetInt(
                     CompleteKey,
@@ -137,6 +145,7 @@ namespace MotorCity.Gameplay
                     7);
 
             if (!IsComplete &&
+                !hasOnboardingSave &&
                 IsLegacyPlayer())
             {
                 CompleteSilently();
@@ -159,6 +168,12 @@ namespace MotorCity.Gameplay
             {
                 customization.CustomizationChanged +=
                     OnCustomizationChanged;
+            }
+
+            if (!IsComplete &&
+                step == 6)
+            {
+                CaptureCustomizationColorBaseline();
             }
 
             if (!IsComplete)
@@ -286,13 +301,34 @@ namespace MotorCity.Gameplay
         private void OnCustomizationChanged()
         {
             if (IsComplete ||
-                step != 6)
+                step != 6 ||
+                customization == null)
+            {
+                return;
+            }
+
+            if (customizationColorIndexAtStepStart < 0)
+            {
+                CaptureCustomizationColorBaseline();
+                return;
+            }
+
+            if (customization.SelectedColorIndex ==
+                customizationColorIndexAtStepStart)
             {
                 return;
             }
 
             Advance(
                 "onboarding.customized");
+        }
+
+        private void CaptureCustomizationColorBaseline()
+        {
+            customizationColorIndexAtStepStart =
+                customization == null
+                    ? -1
+                    : customization.SelectedColorIndex;
         }
 
         private void OnActivityCompleted(
@@ -345,6 +381,11 @@ namespace MotorCity.Gameplay
                     step + 1);
 
             introTimer = 0f;
+
+            if (step == 6)
+            {
+                CaptureCustomizationColorBaseline();
+            }
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(
                 StepKey,
@@ -402,6 +443,8 @@ namespace MotorCity.Gameplay
             drivenDistance = 0f;
             activitySucceeded = false;
             introTimer = 0f;
+            customizationColorIndexAtStepStart =
+                -1;
 
             if (car != null)
             {
