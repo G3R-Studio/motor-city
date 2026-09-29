@@ -1,3 +1,4 @@
+using MotorCity.World;
 using MotorCity.Localization;
 using UnityEngine;
 using UnityEngine.UI;
