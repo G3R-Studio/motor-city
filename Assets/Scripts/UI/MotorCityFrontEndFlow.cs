@@ -1190,6 +1190,9 @@ namespace MotorCity.UI
 
         private void BeginPrimaryAction()
         {
+            MotorCityMusicRuntime.SetMenuActive(
+                false);
+
             if (hasExistingProgress)
             {
                 StartLoadingTransition();
@@ -1563,6 +1566,9 @@ namespace MotorCity.UI
 
         private void StartLoadingTransition()
         {
+            MotorCityMusicRuntime.SetMenuActive(
+                false);
+
             loadingTimer = 0f;
             loadingActive = true;
             loadRequestSent = false;
@@ -1761,6 +1767,9 @@ namespace MotorCity.UI
 
         private void EnterGameplay()
         {
+            MotorCityMusicRuntime.SetMenuActive(
+                false);
+
             Time.timeScale = 1f;
             AudioListener.pause = false;
 
@@ -1774,6 +1783,8 @@ namespace MotorCity.UI
         {
             Time.timeScale = 0f;
             AudioListener.pause = true;
+            MotorCityMusicRuntime.SetMenuActive(
+                true);
 
             if (car != null)
                 car.SetDrivingEnabled(false);
@@ -1793,6 +1804,8 @@ namespace MotorCity.UI
         private void ShowAbout()
         {
             AudioListener.pause = true;
+            MotorCityMusicRuntime.SetMenuActive(
+                true);
             mainRoot.SetActive(false);
             settingsRoot.SetActive(false);
             introRoot.SetActive(false);
@@ -1802,6 +1815,8 @@ namespace MotorCity.UI
         private void ShowSettings()
         {
             AudioListener.pause = true;
+            MotorCityMusicRuntime.SetMenuActive(
+                true);
             mainRoot.SetActive(false);
             aboutRoot.SetActive(false);
             introRoot.SetActive(false);

@@ -11,13 +11,14 @@ namespace MotorCity.Audio
             "MotorCity.Settings.MusicMuted";
 
         private const int SampleRate = 22050;
-        private const float LoopSeconds = 32f;
+        private const float LoopSeconds = 48f;
 
         private static MotorCityMusicRuntime instance;
 
         private AudioSource source;
         private float musicVolume = 0.55f;
         private bool musicMuted;
+        private bool menuActive;
 
         public static float Volume
         {
@@ -50,13 +51,24 @@ namespace MotorCity.Audio
 
             GameObject host =
                 new GameObject(
-                    "Motor City Music");
+                    "Motor City Menu Music");
 
             DontDestroyOnLoad(
                 host);
 
             instance =
                 host.AddComponent<MotorCityMusicRuntime>();
+        }
+
+        public static void SetMenuActive(
+            bool active)
+        {
+            EnsureExists();
+
+            instance.menuActive =
+                active;
+
+            instance.RefreshPlayback();
         }
 
         public static void AdjustVolume(
@@ -100,6 +112,7 @@ namespace MotorCity.Audio
             MotorCitySaveService.Save();
 
             instance.ApplyVolume();
+            instance.RefreshPlayback();
         }
 
         private void Awake()
@@ -144,13 +157,33 @@ namespace MotorCity.Audio
             source.priority = 32;
 
             source.clip =
-                BuildCruiseLoop();
+                BuildMenuLoop();
 
             ApplyVolume();
+        }
 
-            if (source.clip != null)
+        private void RefreshPlayback()
+        {
+            if (source == null ||
+                source.clip == null)
             {
-                source.Play();
+                return;
+            }
+
+            if (menuActive &&
+                !musicMuted)
+            {
+                if (!source.isPlaying)
+                {
+                    source.Play();
+                }
+
+                return;
+            }
+
+            if (source.isPlaying)
+            {
+                source.Stop();
             }
         }
 
@@ -162,10 +195,10 @@ namespace MotorCity.Audio
             source.volume =
                 musicMuted
                     ? 0f
-                    : musicVolume * 0.42f;
+                    : musicVolume * 0.34f;
         }
 
-        private static AudioClip BuildCruiseLoop()
+        private static AudioClip BuildMenuLoop()
         {
             int sampleCount =
                 Mathf.RoundToInt(
@@ -176,17 +209,34 @@ namespace MotorCity.Audio
                 new float[
                     sampleCount];
 
-            const float bpm = 105f;
-            float beatSeconds =
-                60f / bpm;
-
+            // Slow, understated city-night harmony.
             int[] chordRoots =
             {
                 45,
-                41,
                 48,
-                43
+                41,
+                43,
+                45,
+                48
             };
+
+            int[] melodyNotes =
+            {
+                64,
+                67,
+                69,
+                67,
+                64,
+                62,
+                60,
+                62
+            };
+
+            const float chordSeconds =
+                8f;
+
+            const float melodyStepSeconds =
+                3f;
 
             for (int i = 0;
                  i < sampleCount;
@@ -196,169 +246,140 @@ namespace MotorCity.Audio
                     i /
                     (float)SampleRate;
 
-                int beat =
+                int chordIndex =
                     Mathf.FloorToInt(
                         t /
-                        beatSeconds);
+                        chordSeconds) %
+                    chordRoots.Length;
 
-                int bar =
-                    beat / 4;
-
-                int rootMidi =
+                int root =
                     chordRoots[
-                        bar %
-                        chordRoots.Length];
+                        chordIndex];
 
-                float phaseInBeat =
+                float chordLocal =
                     Mathf.Repeat(
                         t,
-                        beatSeconds);
+                        chordSeconds);
+
+                float chordFade =
+                    SmoothEnvelope(
+                        chordLocal,
+                        chordSeconds,
+                        1.8f,
+                        2.2f);
 
                 float value = 0f;
 
-                // Warm sustained pad.
+                // Wide, soft pad built only from sine-based harmonics.
                 value +=
-                    SineMidi(
-                        rootMidi + 12,
-                        t) *
-                    0.055f;
-
-                value +=
-                    SineMidi(
-                        rootMidi + 19,
-                        t) *
-                    0.040f;
+                    SoftTone(
+                        root + 12,
+                        t,
+                        0.050f);
 
                 value +=
-                    SineMidi(
-                        rootMidi + 24,
-                        t) *
-                    0.028f;
-
-                // Pulsing bass on quarter notes.
-                float bassEnvelope =
-                    Mathf.Exp(
-                        -phaseInBeat *
-                        4.2f);
+                    SoftTone(
+                        root + 19,
+                        t,
+                        0.036f);
 
                 value +=
-                    SineMidi(
-                        rootMidi,
-                        t) *
-                    bassEnvelope *
-                    0.12f;
+                    SoftTone(
+                        root + 24,
+                        t,
+                        0.024f);
 
-                // Gentle arpeggio on eighth notes.
-                float eighth =
-                    beatSeconds * 0.5f;
+                value *=
+                    chordFade;
 
-                int arpStep =
+                // Quiet low root that gives the menu weight without a beat.
+                value +=
+                    SoftTone(
+                        root,
+                        t,
+                        0.052f) *
+                    (0.72f +
+                     0.28f *
+                     Mathf.Sin(
+                         t *
+                         Mathf.PI *
+                         0.25f));
+
+                // Sparse glass-like lead, deliberately much quieter.
+                int melodyIndex =
                     Mathf.FloorToInt(
                         t /
-                        eighth);
+                        melodyStepSeconds) %
+                    melodyNotes.Length;
 
-                int[] arp =
-                {
-                    12,
-                    19,
-                    24,
-                    19
-                };
-
-                float arpPhase =
+                float melodyLocal =
                     Mathf.Repeat(
                         t,
-                        eighth);
+                        melodyStepSeconds);
 
-                float arpEnvelope =
+                float melodyEnvelope =
                     Mathf.Exp(
-                        -arpPhase *
-                        7.5f);
+                        -melodyLocal *
+                        1.65f) *
+                    Mathf.Clamp01(
+                        melodyLocal /
+                        0.08f);
+
+                int melody =
+                    melodyNotes[
+                        melodyIndex];
 
                 value +=
-                    TriangleMidi(
-                        rootMidi +
-                        arp[
-                            arpStep %
-                            arp.Length],
-                        t) *
-                    arpEnvelope *
-                    0.045f;
-
-                // Soft kick on beats 1 and 3.
-                int beatInBar =
-                    beat % 4;
-
-                if (beatInBar == 0 ||
-                    beatInBar == 2)
-                {
-                    float kickEnvelope =
-                        Mathf.Exp(
-                            -phaseInBeat *
-                            18f);
-
-                    float kickFrequency =
-                        56f +
-                        40f *
-                        Mathf.Exp(
-                            -phaseInBeat *
-                            16f);
-
-                    value +=
-                        Mathf.Sin(
-                            2f *
-                            Mathf.PI *
-                            kickFrequency *
-                            t) *
-                        kickEnvelope *
-                        0.16f;
-                }
-
-                // Tiny deterministic hi-hat texture.
-                float halfBeat =
-                    beatSeconds * 0.5f;
-
-                float hatPhase =
-                    Mathf.Repeat(
+                    SoftTone(
+                        melody,
                         t,
-                        halfBeat);
-
-                float hatEnvelope =
-                    Mathf.Exp(
-                        -hatPhase *
-                        42f);
-
-                float noise =
-                    HashNoise(
-                        i);
+                        0.028f) *
+                    melodyEnvelope;
 
                 value +=
-                    noise *
-                    hatEnvelope *
-                    0.018f;
+                    SoftTone(
+                        melody + 12,
+                        t,
+                        0.010f) *
+                    melodyEnvelope;
 
-                // Fade the loop edges to avoid clicks.
-                float edge =
+                // Very slow movement so the loop does not feel static.
+                float breathe =
+                    0.88f +
+                    0.12f *
+                    Mathf.Sin(
+                        2f *
+                        Mathf.PI *
+                        t /
+                        12f);
+
+                value *=
+                    breathe;
+
+                float loopEdge =
                     Mathf.Min(
                         t,
                         LoopSeconds - t);
 
-                float edgeFade =
-                    Mathf.Clamp01(
-                        edge /
-                        0.08f);
+                float loopFade =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        Mathf.Clamp01(
+                            loopEdge /
+                            0.30f));
 
                 samples[i] =
                     Mathf.Clamp(
                         value *
-                        edgeFade,
-                        -0.82f,
-                        0.82f);
+                        loopFade,
+                        -0.72f,
+                        0.72f);
             }
 
             AudioClip clip =
                 AudioClip.Create(
-                    "Motor City Night Cruise",
+                    "Motor City Menu Atmosphere",
                     sampleCount,
                     1,
                     SampleRate,
@@ -371,9 +392,10 @@ namespace MotorCity.Audio
             return clip;
         }
 
-        private static float SineMidi(
+        private static float SoftTone(
             int midi,
-            float time)
+            float time,
+            float amplitude)
         {
             float frequency =
                 440f *
@@ -382,57 +404,55 @@ namespace MotorCity.Audio
                     (midi - 69) /
                     12f);
 
-            return
+            float fundamental =
                 Mathf.Sin(
                     2f *
                     Mathf.PI *
                     frequency *
                     time);
-        }
 
-        private static float TriangleMidi(
-            int midi,
-            float time)
-        {
-            float frequency =
-                440f *
-                Mathf.Pow(
-                    2f,
-                    (midi - 69) /
-                    12f);
-
-            float phase =
-                Mathf.Repeat(
-                    time *
-                    frequency,
-                    1f);
+            float second =
+                Mathf.Sin(
+                    2f *
+                    Mathf.PI *
+                    frequency *
+                    2f *
+                    time +
+                    0.35f);
 
             return
-                1f -
-                4f *
-                Mathf.Abs(
-                    phase -
-                    0.5f);
+                (fundamental * 0.86f +
+                 second * 0.14f) *
+                amplitude;
         }
 
-        private static float HashNoise(
-            int sample)
+        private static float SmoothEnvelope(
+            float localTime,
+            float duration,
+            float attack,
+            float release)
         {
-            unchecked
-            {
-                uint x =
-                    (uint)sample;
+            float fadeIn =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.Clamp01(
+                        localTime /
+                        attack));
 
-                x ^= x << 13;
-                x ^= x >> 17;
-                x ^= x << 5;
+            float fadeOut =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.Clamp01(
+                        (duration -
+                         localTime) /
+                        release));
 
-                return
-                    (x /
-                     (float)uint.MaxValue) *
-                    2f -
-                    1f;
-            }
+            return
+                Mathf.Min(
+                    fadeIn,
+                    fadeOut);
         }
     }
 }
