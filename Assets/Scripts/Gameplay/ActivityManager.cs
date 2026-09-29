@@ -29,6 +29,7 @@ namespace MotorCity.Gameplay
         private PlayerReputation reputation;
         private DisciplineReputationSystem disciplineReputation;
         private FirstSessionOnboardingSystem onboarding;
+        private StoryMissionSystem story;
 
         public event Action<string, bool> ActivityResultShown;
         public event Action<string> ActivityCompleted;
@@ -85,6 +86,13 @@ namespace MotorCity.Gameplay
                 return false;
             }
 
+            if (!CanBeginDuringStory(
+                    id))
+            {
+                story?.ShowActivityBlockedPrompt();
+                return false;
+            }
+
             ActiveId = id;
             ActiveName = string.IsNullOrEmpty(displayName) ? id : displayName;
             return true;
@@ -112,6 +120,40 @@ namespace MotorCity.Gameplay
                 5 or 6 => id == "garage",
                 _ => false
             };
+        }
+
+        public void SetStorySystem(
+            StoryMissionSystem system)
+        {
+            story =
+                system;
+        }
+
+        private bool CanBeginDuringStory(
+            string id)
+        {
+            if (story == null ||
+                story.IsComplete ||
+                onboarding != null &&
+                !onboarding.IsComplete)
+            {
+                return true;
+            }
+
+            if (id == "garage")
+                return true;
+
+            string required =
+                story.RequiredActivityId;
+
+            if (string.IsNullOrWhiteSpace(
+                    required))
+            {
+                return true;
+            }
+
+            return required == "*" ||
+                   required == id;
         }
 
         public void End(string id)

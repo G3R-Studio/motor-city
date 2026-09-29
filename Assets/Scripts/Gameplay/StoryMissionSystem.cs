@@ -199,6 +199,10 @@ namespace MotorCity.Gameplay
             FirstSessionOnboardingSystem onboardingSystem)
         {
             activities = activityManager;
+
+            activities?.SetStorySystem(
+                this);
+
             wallet = targetWallet;
             reputation = targetReputation;
             turbo = turboSystem;
@@ -437,6 +441,30 @@ namespace MotorCity.Gameplay
                 progress);
 
             MotorCity.Persistence.MotorCitySaveService.Save();
+        }
+
+        public void ShowActivityBlockedPrompt()
+        {
+            if (IsComplete ||
+                waitingForOnboarding)
+            {
+                return;
+            }
+
+            StoryMission mission =
+                CurrentMission();
+
+            if (mission == null)
+                return;
+
+            StatusText =
+                MotorCityLocalization.Format(
+                    "story.finish_current_mission",
+                    MotorCityLocalization.Text(
+                        mission.TitleKey));
+
+            messageTimer =
+                MessageSeconds;
         }
 
         public void ResetForTesting()

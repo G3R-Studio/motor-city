@@ -604,6 +604,7 @@ namespace MotorCity.Localization
                 { "story.mission_complete", E("МИССИЯ {0} ГОТОВА • {1} • +{2:N0} КР • +{3:N0} РЕП", "MISSION {0} COMPLETE • {1} • +{2:N0} CR • +{3:N0} REP") },
                 { "story.final_complete", E("ФЕСТИВАЛЬ MOTOR CITY ЗАВЕРШЁН! +{0:N0} КР • +{1:N0} РЕП", "MOTOR CITY FESTIVAL COMPLETE! +{0:N0} CR • +{1:N0} REP") },
                 { "story.complete_hud", E("ПУТЬ НОВИЧКА • ФЕСТИВАЛЬ ПРОЙДЕН", "ROOKIE PATH • FESTIVAL COMPLETE") },
+                { "story.finish_current_mission", E("Сначала закончи сюжетную миссию «{0}».", "Finish the story mission “{0}” first.") },
 
                 { "story.character.vitya", E("ДЯДЯ ВИТЯ", "UNCLE VITYA") },
                 { "story.character.nika", E("НИКА", "NIKA") },
