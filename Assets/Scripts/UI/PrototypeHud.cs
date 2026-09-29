@@ -239,6 +239,8 @@ namespace MotorCity.UI
         private Text clubRewardText;
         private RectTransform safeAreaRoot;
         private GameObject touchControlsRoot;
+        private GameObject touchWheelSteeringRoot;
+        private GameObject touchArrowSteeringRoot;
         private GameObject touchUtilityRoot;
         private GameObject hudQuickMenuRoot;
         private bool hudQuickMenuOpen;
