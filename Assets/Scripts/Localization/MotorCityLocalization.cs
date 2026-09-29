@@ -614,7 +614,7 @@ namespace MotorCity.Localization
                 { "story.01.title", E("ПЕРВОЕ ДЕЛО", "FIRST JOB") },
                 { "story.01.objective", E("Я оставил тебе эту машину из мастерской. Сначала помоги мне: отвези детали по синему маршруту.", "I left you this car from the workshop. First, help me out: deliver the parts along the blue route.") },
                 { "story.02.title", E("ГОРОД ЗОВЁТ", "THE CITY CALLS") },
-                { "story.02.objective", E("Теперь ты в Motor City. Я покажу дорогу - выбери любое дело в городе и доведи его до конца.", "You are in Motor City now. I will guide you - pick any city job and see it through.") },
+                { "story.02.objective", E("Теперь ты в Motor City. Я покажу дорогу - выбери любую активность в городе и доведи её до конца.", "You are in Motor City now. I will guide you - pick any activity in the city and see it through.") },
                 { "story.03.title", E("ПОЙМАЙ УГОЛ", "CATCH THE ANGLE") },
                 { "story.03.objective", E("Слышала, ты новичок на машине Вити. Покажи, что не боишься угла: закончи дрифт-заезд.", "Heard you are the rookie driving Vitya's car. Show me you are not afraid of angle: finish a drift run.") },
                 { "story.04.title", E("ПРОВЕРКА МОТОРА", "ENGINE CHECK") },
