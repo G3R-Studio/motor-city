@@ -4,41 +4,82 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+[InitializeOnLoad]
 public static class HybridVehicleImporter
 {
+    private const string SourceDirectory =
+        "Assets/VehicleAssets/Hybrid";
+
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
 
     private const string OutputPrefab =
         OutputDirectory + "/Hybrid.prefab";
 
+    private const string BuildSessionKey =
+        "MotorCity.HybridVehicleBuilt.V2";
+
+    static HybridVehicleImporter()
+    {
+        EditorApplication.delayCall +=
+            TryAutoBuild;
+    }
+
     [MenuItem("Motor City/Vehicles/Rebuild Hybrid")]
     private static void RebuildFromMenu()
     {
+        Build(true);
+    }
+
+    private static void TryAutoBuild()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            return;
+
+        if (!AssetDatabase.IsValidFolder(
+                SourceDirectory))
+        {
+            return;
+        }
+
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                OutputPrefab) != null)
+        {
+            return;
+        }
+
+        if (SessionState.GetBool(
+                BuildSessionKey,
+                false))
+        {
+            return;
+        }
+
+        SessionState.SetBool(
+            BuildSessionKey,
+            true);
+
+        Build(false);
+    }
+
+    private static bool Build(
+        bool verbose)
+    {
         string sourcePath =
-            ResolveSourcePath();
+            FindSourceModel();
 
         if (string.IsNullOrWhiteSpace(
                 sourcePath))
         {
-            Debug.LogWarning(
-                "Motor City: Hybrid source model was not found. " +
-                "Select the new Hybrid model/prefab in the Project window " +
-                "and run Motor City/Vehicles/Rebuild Hybrid again.");
+            if (verbose)
+            {
+                Debug.LogWarning(
+                    "Motor City: Hybrid source model was not found in " +
+                    SourceDirectory +
+                    ". Put the Hybrid FBX/OBJ/prefab there and rebuild again.");
+            }
 
-            return;
-        }
-
-        if (string.Equals(
-                sourcePath,
-                OutputPrefab,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            Debug.LogWarning(
-                "Motor City: the runtime Hybrid prefab cannot rebuild itself. " +
-                "Select the new source model/prefab in the Project window.");
-
-            return;
+            return false;
         }
 
         GameObject source =
@@ -47,11 +88,14 @@ public static class HybridVehicleImporter
 
         if (source == null)
         {
-            Debug.LogWarning(
-                "Motor City: selected Hybrid source is not a GameObject asset: " +
-                sourcePath);
+            if (verbose)
+            {
+                Debug.LogWarning(
+                    "Motor City: Hybrid source is not a GameObject asset: " +
+                    sourcePath);
+            }
 
-            return;
+            return false;
         }
 
         Directory.CreateDirectory(
@@ -70,11 +114,14 @@ public static class HybridVehicleImporter
 
         if (instance == null)
         {
-            Debug.LogError(
-                "Motor City: failed to instantiate Hybrid source: " +
-                sourcePath);
+            if (verbose)
+            {
+                Debug.LogError(
+                    "Motor City: failed to instantiate Hybrid source: " +
+                    sourcePath);
+            }
 
-            return;
+            return false;
         }
 
         instance.name =
@@ -104,23 +151,31 @@ public static class HybridVehicleImporter
 
             if (saved == null)
             {
-                Debug.LogError(
-                    "Motor City: failed to save rebuilt Hybrid prefab.");
+                if (verbose)
+                {
+                    Debug.LogError(
+                        "Motor City: failed to save rebuilt Hybrid prefab.");
+                }
 
-                return;
+                return false;
             }
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Selection.activeObject =
-                AssetDatabase.LoadAssetAtPath<GameObject>(
-                    OutputPrefab);
+            if (verbose)
+            {
+                Selection.activeObject =
+                    AssetDatabase.LoadAssetAtPath<GameObject>(
+                        OutputPrefab);
 
-            Debug.Log(
-                "Motor City: Hybrid runtime visual rebuilt from '" +
-                sourcePath +
-                "'. Runtime path: MotorCity/Vehicles/Player/Hybrid");
+                Debug.Log(
+                    "Motor City: Hybrid runtime visual rebuilt from '" +
+                    sourcePath +
+                    "'. Runtime path: MotorCity/Vehicles/Player/Hybrid");
+            }
+
+            return true;
         }
         finally
         {
@@ -129,112 +184,124 @@ public static class HybridVehicleImporter
         }
     }
 
-    private static string ResolveSourcePath()
+    private static string FindSourceModel()
     {
-        UnityEngine.Object selected =
-            Selection.activeObject;
-
-        if (selected != null)
+        if (!AssetDatabase.IsValidFolder(
+                SourceDirectory))
         {
-            string selectedPath =
-                AssetDatabase.GetAssetPath(
-                    selected);
-
-            if (!string.IsNullOrWhiteSpace(
-                    selectedPath) &&
-                !string.Equals(
-                    selectedPath,
-                    OutputPrefab,
-                    StringComparison.OrdinalIgnoreCase) &&
-                AssetDatabase.LoadAssetAtPath<GameObject>(
-                    selectedPath) != null)
-            {
-                return
-                    selectedPath;
-            }
+            return null;
         }
 
         string[] guids =
             AssetDatabase.FindAssets(
-                "hybrid");
-
-        string[] hybredGuids =
-            AssetDatabase.FindAssets(
-                "hybred");
+                "t:GameObject",
+                new[]
+                {
+                    SourceDirectory
+                });
 
         return
             guids
-                .Concat(
-                    hybredGuids)
-                .Distinct()
                 .Select(
                     AssetDatabase.GUIDToAssetPath)
                 .Where(
                     path =>
                         !string.IsNullOrWhiteSpace(
                             path) &&
-                        !string.Equals(
-                            path,
-                            OutputPrefab,
-                            StringComparison.OrdinalIgnoreCase) &&
-                        AssetDatabase.LoadAssetAtPath<GameObject>(
-                            path) != null)
+                        IsSupportedSource(
+                            path))
                 .OrderByDescending(
-                    Score)
+                    ScoreSource)
                 .ThenBy(
                     path => path,
                     StringComparer.OrdinalIgnoreCase)
                 .FirstOrDefault();
     }
 
-    private static int Score(
+    private static bool IsSupportedSource(
+        string path)
+    {
+        string extension =
+            Path.GetExtension(
+                    path)
+                .ToLowerInvariant();
+
+        return
+            extension == ".prefab" ||
+            extension == ".fbx" ||
+            extension == ".obj";
+    }
+
+    private static int ScoreSource(
         string path)
     {
         string lower =
             path.ToLowerInvariant();
 
+        string fileName =
+            Path.GetFileNameWithoutExtension(
+                    lower);
+
         int score = 0;
 
-        if (lower.Contains(
-                "hybrid"))
+        if (fileName == "hybrid" ||
+            fileName == "hybred")
         {
-            score += 100;
+            score += 300;
         }
 
-        if (lower.Contains(
+        if (fileName.Contains(
+                "hybrid") ||
+            fileName.Contains(
                 "hybred"))
         {
-            score += 100;
+            score += 180;
         }
 
-        if (lower.Contains(
-                "prefab"))
-        {
-            score += 40;
-        }
-
-        if (lower.Contains(
-                "vehicle") ||
-            lower.Contains(
+        if (fileName.Contains(
+                "body") ||
+            fileName.Contains(
                 "car"))
+        {
+            score += 90;
+        }
+
+        if (lower.EndsWith(
+                ".prefab"))
+        {
+            score += 45;
+        }
+        else if (lower.EndsWith(
+                     ".fbx"))
+        {
+            score += 35;
+        }
+        else if (lower.EndsWith(
+                     ".obj"))
         {
             score += 25;
         }
 
-        if (lower.Contains(
-                "demo") ||
-            lower.Contains(
-                "example") ||
-            lower.Contains(
-                "sample"))
+        if (fileName.Contains(
+                "wheel") ||
+            fileName.Contains(
+                "tire") ||
+            fileName.Contains(
+                "tyre") ||
+            fileName.Contains(
+                "rim"))
         {
-            score -= 60;
+            score -= 250;
         }
 
-        if (lower.Contains(
-                "/resources/motorcity/"))
+        if (fileName.Contains(
+                "demo") ||
+            fileName.Contains(
+                "sample") ||
+            fileName.Contains(
+                "example"))
         {
-            score -= 100;
+            score -= 150;
         }
 
         return score;
