@@ -1113,23 +1113,13 @@ namespace MotorCity.UI
                         0.5f,
                         0.5f),
                     new Color(
-                        0.025f,
-                        0.03f,
-                        0.055f,
-                        0.42f));
+                        0.024f,
+                        0.04f,
+                        0.078f,
+                        0.88f));
 
-            Outline cardOutline =
-                card.GetComponent<Outline>();
-
-            if (cardOutline != null)
-            {
-                cardOutline.effectColor =
-                    new Color(
-                        1f,
-                        1f,
-                        1f,
-                        0.08f);
-            }
+            StyleNavigatorDestinationCard(
+                card);
 
             RectTransform iconPlate =
                 CreatePanel(
@@ -1148,10 +1138,10 @@ namespace MotorCity.UI
                         0f,
                         0.5f),
                     new Color(
-                        GarageAccent.r,
-                        GarageAccent.g,
-                        GarageAccent.b,
-                        0.12f));
+                        GarageAccent.r * 0.28f,
+                        GarageAccent.g * 0.28f,
+                        GarageAccent.b * 0.34f,
+                        0.92f));
 
             navigatorIconPlateImage =
                 iconPlate.GetComponent<Image>();
@@ -1255,6 +1245,88 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             UpdateNavigatorMenuText();
+        }
+
+        private void StyleNavigatorDestinationCard(
+            RectTransform card)
+        {
+            if (card == null)
+                return;
+
+            Texture2D glowTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalPanel;
+
+            if (glowTexture != null)
+            {
+                CreatePanelEdgeGlow(
+                    card,
+                    glowTexture,
+                    new Color(
+                        0.36f,
+                        0.58f,
+                        1f,
+                        1f),
+                    "Navigator Card Glow");
+            }
+
+            Outline outline =
+                card.GetComponent<Outline>();
+
+            if (outline == null)
+            {
+                outline =
+                    card.gameObject
+                        .AddComponent<Outline>();
+            }
+
+            outline.effectColor =
+                new Color(
+                    0.40f,
+                    0.66f,
+                    1f,
+                    0.25f);
+            outline.effectDistance =
+                new Vector2(1f, -1f);
+            outline.useGraphicAlpha =
+                true;
+
+            GameObject accentObject =
+                new(
+                    "Navigator Card Accent",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            accentObject.transform.SetParent(
+                card,
+                false);
+
+            RectTransform accentRect =
+                accentObject.GetComponent<RectTransform>();
+
+            accentRect.anchorMin =
+                new Vector2(0f, 1f);
+            accentRect.anchorMax =
+                new Vector2(1f, 1f);
+            accentRect.pivot =
+                new Vector2(0.5f, 1f);
+            accentRect.anchoredPosition =
+                Vector2.zero;
+            accentRect.sizeDelta =
+                new Vector2(0f, 3f);
+
+            Image accentImage =
+                accentObject.GetComponent<Image>();
+
+            accentImage.color =
+                new Color(
+                    0.38f,
+                    0.72f,
+                    1f,
+                    0.92f);
+            accentImage.raycastTarget =
+                false;
         }
 
         private void HandleNavigatorMenu()
@@ -5492,7 +5564,7 @@ namespace MotorCity.UI
                 CreateText(
                     targetStrip,
                     "Minimap Target Label",
-                    13,
+                    11,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(
@@ -5508,6 +5580,17 @@ namespace MotorCity.UI
                         0f,
                         0.5f),
                     TextColor);
+
+            minimapTargetText.resizeTextForBestFit =
+                true;
+            minimapTargetText.resizeTextMinSize =
+                9;
+            minimapTargetText.resizeTextMaxSize =
+                11;
+            minimapTargetText.horizontalOverflow =
+                HorizontalWrapMode.Overflow;
+            minimapTargetText.verticalOverflow =
+                VerticalWrapMode.Truncate;
 
             GameObject navigatorButtonObject =
                 new(
