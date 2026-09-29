@@ -878,13 +878,114 @@ namespace MotorCity.UI
         private void BuildSeasonPanel(
             Transform canvas)
         {
+            RectTransform compact =
+                CreatePanel(
+                    canvas,
+                    "Season Compact Button",
+                    new Vector2(
+                        22f,
+                        -22f),
+                    new Vector2(
+                        246f,
+                        42f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    Color.clear);
+
+            seasonCompactButton =
+                compact.gameObject;
+
+            ApplyVillePanelTexture(
+                compact,
+                0.96f);
+
+            Image compactImage =
+                compact.GetComponent<Image>();
+
+            if (compactImage != null)
+            {
+                compactImage.raycastTarget =
+                    true;
+            }
+
+            Button compactButton =
+                compact.gameObject.AddComponent<Button>();
+
+            compactButton.targetGraphic =
+                compactImage;
+
+            ColorBlock colors =
+                compactButton.colors;
+
+            colors.normalColor =
+                Color.white;
+
+            colors.highlightedColor =
+                new Color(
+                    1.06f,
+                    1.06f,
+                    1.06f,
+                    1f);
+
+            colors.pressedColor =
+                new Color(
+                    0.90f,
+                    0.90f,
+                    0.90f,
+                    1f);
+
+            colors.selectedColor =
+                colors.highlightedColor;
+
+            colors.fadeDuration =
+                0.08f;
+
+            compactButton.colors =
+                colors;
+
+            compactButton.onClick.AddListener(
+                () =>
+                {
+                    seasonDetailsOpen =
+                        !seasonDetailsOpen;
+
+                    if (seasonPanel != null)
+                    {
+                        seasonPanel.SetActive(
+                            seasonDetailsOpen);
+                    }
+                });
+
+            seasonCompactText =
+                CreateText(
+                    compact,
+                    "Season Compact Text",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(
+                        224f,
+                        30f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    TextColor);
+
             RectTransform panel =
                 CreatePanel(
                     canvas,
                     "Season Panel",
                     new Vector2(
                         22f,
-                        -22f),
+                        -72f),
                     new Vector2(
                         448f,
                         188f),
@@ -1020,16 +1121,25 @@ namespace MotorCity.UI
                     new Vector2(1f, 0f),
                     SecondaryTextColor);
 
+            seasonDetailsOpen =
+                false;
+
+            seasonCompactButton.SetActive(
+                false);
+
             seasonPanel.SetActive(
                 false);
         }
 
         private void UpdateSeasonPanel()
         {
-            if (seasonPanel == null)
+            if (seasonPanel == null ||
+                seasonCompactButton == null)
+            {
                 return;
+            }
 
-            bool visible =
+            bool available =
                 season != null &&
                 season.IsSeasonOneActive &&
                 !season.IsComplete &&
@@ -1038,11 +1148,31 @@ namespace MotorCity.UI
                 (story == null ||
                  story.IsComplete);
 
-            seasonPanel.SetActive(
-                visible);
+            seasonCompactButton.SetActive(
+                available);
 
-            if (!visible)
+            if (!available)
+            {
+                seasonDetailsOpen =
+                    false;
+
+                seasonPanel.SetActive(
+                    false);
+
                 return;
+            }
+
+            seasonPanel.SetActive(
+                seasonDetailsOpen);
+
+            if (seasonCompactText != null)
+            {
+                seasonCompactText.text =
+                    MotorCityLocalization.Format(
+                        "season1.ui_compact",
+                        season.CurrentMissionNumber,
+                        season.MissionCount);
+            }
 
             seasonNameText.text =
                 MotorCityLocalization.Text(

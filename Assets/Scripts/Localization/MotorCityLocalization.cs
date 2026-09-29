@@ -662,6 +662,7 @@ namespace MotorCity.Localization
                 { "season1.ui_season", E("СЕЗОН 1", "SEASON 1") },
                 { "season1.ui_name", E("БОЛЬШОЙ ФЕСТИВАЛЬ", "BIG FESTIVAL") },
                 { "season1.ui_mission", E("МИССИЯ {0} / {1}", "MISSION {0} / {1}") },
+                { "season1.ui_compact", E("СЕЗОН 1 • МИССИЯ {0}/{1}", "SEASON 1 • MISSION {0}/{1}") },
                 { "season1.ui_progress", E("ПРОГРЕСС {0} / {1}", "PROGRESS {0} / {1}") },
                 { "season1.ui_reward", E("НАГРАДА +{0:N0} КР • +{1:N0} РЕП • +{2} XP ТУРБО", "REWARD +{0:N0} CR • +{1:N0} REP • +{2} TURBO XP") },
                 { "season1.ui_days", E("ДО КОНЦА: {0} ДН.", "{0} DAYS LEFT") },
