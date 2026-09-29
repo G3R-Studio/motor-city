@@ -5525,18 +5525,16 @@ namespace MotorCity.UI
                     "Minimap Target Label",
                     11,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
                     new Vector2(
-                        14f,
-                        0f),
-                    new Vector2(
-                        120f,
+                        132f,
                         27f),
                     new Vector2(
-                        0f,
+                        0.5f,
                         0.5f),
                     new Vector2(
-                        0f,
+                        0.5f,
                         0.5f),
                     TextColor);
 
