@@ -95,7 +95,7 @@ public static class FantasticCityGeneratorDayNightBuilder
             if (showDialogs)
             {
                 EditorUtility.DisplayDialog(
-                    "Motor City — Day/Night",
+                    "Motor City - Day/Night",
                     "Не найден FCG DayNight prefab.\n\n" +
                     "Если prefab лежит отдельно, используй " +
                     "Motor City > Fantastic City Generator > Import DayNight Prefab...",
@@ -125,7 +125,7 @@ public static class FantasticCityGeneratorDayNightBuilder
             if (showDialogs)
             {
                 EditorUtility.DisplayDialog(
-                    "Motor City — Day/Night",
+                    "Motor City - Day/Night",
                     "В выбранном prefab не найдены skyBoxDay / skyBoxNight.",
                     "OK");
             }
@@ -285,7 +285,7 @@ public static class FantasticCityGeneratorDayNightBuilder
         if (showDialogs)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — Day/Night",
+                "Motor City - Day/Night",
                 "Готово.\n\n" +
                 $"Источник: {sourcePath}\n" +
                 $"Дневное небо: {ClipName(daySkybox)}\n" +
