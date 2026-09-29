@@ -920,100 +920,44 @@ namespace MotorCity.UI
         private void BuildLandscapeDrivingControls(
             RectTransform root)
         {
-            // Steering lives on the left. Throttle/brake live on the right.
-            // This mirrors common mobile driving layouts and avoids a
-            // keyboard-like WASD cross on landscape screens.
-            CreateTouchControlBackdrop(
-                root,
-                "Steering Backdrop",
-                new Vector2(34f, 26f),
-                new Vector2(286f, 112f),
-                new Vector2(0f, 0f),
-                new Vector2(0f, 0f));
-
-            RectTransform steerLeft =
-                CreateTouchHoldButton(
-                    root,
-                    "Steer Left",
-                    string.Empty,
-                    MotorCityInputAction.SteerLeft,
-                    new Vector2(42f, 34f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    new Vector2(116f, 88f),
-                    34);
-
-            CreateTouchDirectionGlyph(
-                steerLeft,
-                90f);
-
-            RectTransform steerRight =
-                CreateTouchHoldButton(
-                    root,
-                    "Steer Right",
-                    string.Empty,
-                    MotorCityInputAction.SteerRight,
-                    new Vector2(166f, 34f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    new Vector2(116f, 88f),
-                    34);
-
-            CreateTouchDirectionGlyph(
-                steerRight,
-                -90f);
-
-            CreateTouchControlBackdrop(
-                root,
-                "Pedals Backdrop",
-                new Vector2(-28f, 26f),
-                new Vector2(256f, 196f),
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f));
-
-            CreateTouchHoldButton(
+            // Keep the driving HUD close to the reference layout: steering on
+            // the left, pedals on the right, handbrake above the pedals.
+            // Artwork is intentionally translucent so it never hides the road.
+            CreateTouchArtHoldButton(
                 root,
                 "Throttle",
-                MotorCityLocalization.Text(
-                    "touch.drive.throttle"),
                 MotorCityInputAction.Throttle,
-                new Vector2(-40f, 122f),
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.touchThrottle,
+                new Vector2(-42f, 30f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(104f, 88f),
-                16);
+                new Vector2(92f, 156f));
 
-            CreateTouchHoldButton(
+            CreateTouchArtHoldButton(
                 root,
                 "Reverse",
-                MotorCityLocalization.Text(
-                    "touch.drive.brake"),
                 MotorCityInputAction.Reverse,
-                new Vector2(-40f, 28f),
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.touchBrake,
+                new Vector2(-158f, 34f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(104f, 88f),
-                15);
+                new Vector2(96f, 118f));
 
-            CreateTouchHoldButton(
+            CreateTouchArtHoldButton(
                 root,
                 "Handbrake",
-                MotorCityLocalization.Text(
-                    "touch.drive.handbrake_short"),
                 MotorCityInputAction.Handbrake,
-                new Vector2(-154f, 28f),
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.touchHandbrake,
+                new Vector2(-112f, 176f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(88f, 70f),
-                13);
-
-            CreateTouchControlBackdrop(
-                root,
-                "Action Backdrop",
-                new Vector2(-28f, 232f),
-                new Vector2(190f, 112f),
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f));
+                new Vector2(118f, 92f));
 
             CreateTouchHoldButton(
                 root,
@@ -1021,23 +965,338 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     "touch.drive.action_short"),
                 MotorCityInputAction.Interact,
-                new Vector2(-40f, 242f),
+                new Vector2(-48f, 286f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(86f, 80f),
+                new Vector2(96f, 62f),
                 13);
 
-            CreateTouchHoldButton(
-                root,
-                "Rescue",
-                MotorCityLocalization.Text(
-                    "touch.drive.rescue_short"),
-                MotorCityInputAction.Rescue,
-                new Vector2(-132f, 242f),
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(86f, 80f),
-                13);
+            touchWheelSteeringRoot =
+                CreateTouchSteeringWheelGroup(
+                    root);
+
+            touchArrowSteeringRoot =
+                CreateTouchArrowSteeringGroup(
+                    root);
+
+            bool wheelScheme =
+                MotorCityInput.CurrentControlScheme ==
+                MotorCityControlScheme.Wheel;
+
+            touchWheelSteeringRoot.SetActive(
+                wheelScheme);
+
+            touchArrowSteeringRoot.SetActive(
+                !wheelScheme);
+        }
+
+        private RectTransform CreateTouchArtHoldButton(
+            Transform parent,
+            string name,
+            MotorCityInputAction action,
+            Texture2D texture,
+            Vector2 anchoredPosition,
+            Vector2 anchor,
+            Vector2 pivot,
+            Vector2 size)
+        {
+            GameObject buttonObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(TouchHoldInputButton));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = pivot;
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            image.sprite =
+                CreateTouchControlSprite(
+                    texture);
+            image.preserveAspect =
+                true;
+            image.raycastTarget =
+                true;
+            image.color =
+                new Color(
+                    1f,
+                    1f,
+                    1f,
+                    0.25f);
+
+            TouchHoldInputButton input =
+                buttonObject.GetComponent<TouchHoldInputButton>();
+
+            input.Bind(
+                action);
+
+            return rect;
+        }
+
+        private GameObject CreateTouchSteeringWheelGroup(
+            Transform parent)
+        {
+            GameObject group =
+                new(
+                    "Wheel Steering",
+                    typeof(RectTransform));
+
+            group.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform groupRect =
+                group.GetComponent<RectTransform>();
+
+            groupRect.anchorMin =
+                new Vector2(0f, 0f);
+            groupRect.anchorMax =
+                new Vector2(0f, 0f);
+            groupRect.pivot =
+                new Vector2(0f, 0f);
+            groupRect.anchoredPosition =
+                new Vector2(32f, 24f);
+            groupRect.sizeDelta =
+                new Vector2(210f, 210f);
+
+            GameObject wheelObject =
+                new(
+                    "Steering Wheel",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(TouchSteeringWheel));
+
+            wheelObject.transform.SetParent(
+                group.transform,
+                false);
+
+            RectTransform wheelRect =
+                wheelObject.GetComponent<RectTransform>();
+
+            wheelRect.anchorMin =
+                new Vector2(0.5f, 0.5f);
+            wheelRect.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            wheelRect.pivot =
+                new Vector2(0.5f, 0.5f);
+            wheelRect.anchoredPosition =
+                Vector2.zero;
+            wheelRect.sizeDelta =
+                new Vector2(194f, 194f);
+
+            Image image =
+                wheelObject.GetComponent<Image>();
+
+            image.sprite =
+                CreateTouchControlSprite(
+                    uiThemeAssets == null
+                        ? null
+                        : uiThemeAssets.touchWheel);
+            image.preserveAspect =
+                true;
+            image.raycastTarget =
+                true;
+            image.color =
+                new Color(
+                    1f,
+                    1f,
+                    1f,
+                    0.25f);
+
+            return group;
+        }
+
+        private GameObject CreateTouchArrowSteeringGroup(
+            Transform parent)
+        {
+            GameObject group =
+                new(
+                    "Arrow Steering",
+                    typeof(RectTransform));
+
+            group.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform groupRect =
+                group.GetComponent<RectTransform>();
+
+            groupRect.anchorMin =
+                new Vector2(0f, 0f);
+            groupRect.anchorMax =
+                new Vector2(0f, 0f);
+            groupRect.pivot =
+                new Vector2(0f, 0f);
+            groupRect.anchoredPosition =
+                new Vector2(24f, 30f);
+            groupRect.sizeDelta =
+                new Vector2(310f, 126f);
+
+            RectTransform left =
+                CreateTouchHoldButton(
+                    groupRect,
+                    "Steer Left",
+                    string.Empty,
+                    MotorCityInputAction.SteerLeft,
+                    new Vector2(18f, 10f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Vector2(128f, 104f),
+                    1);
+
+            Image leftHitArea =
+                left.GetComponent<Image>();
+
+            leftHitArea.color =
+                new Color(1f, 1f, 1f, 0f);
+
+            CreateTouchChevron(
+                left,
+                false);
+
+            RectTransform right =
+                CreateTouchHoldButton(
+                    groupRect,
+                    "Steer Right",
+                    string.Empty,
+                    MotorCityInputAction.SteerRight,
+                    new Vector2(164f, 10f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Vector2(128f, 104f),
+                    1);
+
+            Image rightHitArea =
+                right.GetComponent<Image>();
+
+            rightHitArea.color =
+                new Color(1f, 1f, 1f, 0f);
+
+            CreateTouchChevron(
+                right,
+                true);
+
+            return group;
+        }
+
+        private static void CreateTouchChevron(
+            Transform parent,
+            bool pointsRight)
+        {
+            float sign =
+                pointsRight
+                    ? 1f
+                    : -1f;
+
+            CreateTouchChevronSegment(
+                parent,
+                new Vector2(
+                    sign * 11f,
+                    19f),
+                pointsRight
+                    ? -45f
+                    : 45f);
+
+            CreateTouchChevronSegment(
+                parent,
+                new Vector2(
+                    sign * 11f,
+                    -19f),
+                pointsRight
+                    ? 45f
+                    : -45f);
+        }
+
+        private static void CreateTouchChevronSegment(
+            Transform parent,
+            Vector2 position,
+            float rotation)
+        {
+            GameObject segment =
+                new(
+                    "Arrow Stroke",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            segment.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                segment.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(0.5f, 0.5f);
+            rect.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            rect.pivot =
+                new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition =
+                position;
+            rect.sizeDelta =
+                new Vector2(62f, 7f);
+            rect.localRotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    rotation);
+
+            Image image =
+                segment.GetComponent<Image>();
+
+            image.color =
+                new Color(
+                    1f,
+                    1f,
+                    1f,
+                    0.25f);
+            image.raycastTarget =
+                false;
+        }
+
+        private static Sprite CreateTouchControlSprite(
+            Texture2D texture)
+        {
+            if (texture == null)
+                return null;
+
+            Sprite sprite =
+                Sprite.Create(
+                    texture,
+                    new Rect(
+                        0f,
+                        0f,
+                        texture.width,
+                        texture.height),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    100f,
+                    0,
+                    SpriteMeshType.FullRect);
+
+            sprite.name =
+                texture.name +
+                " Touch Control";
+            sprite.hideFlags =
+                HideFlags.DontSave;
+
+            return sprite;
         }
 
         private void CreateTouchControlBackdrop(
@@ -1274,6 +1533,18 @@ namespace MotorCity.UI
             SetActiveIfChanged(
                 touchControlsRoot,
                 !HasBlockingModalUi());
+
+            bool wheelScheme =
+                MotorCityInput.CurrentControlScheme ==
+                MotorCityControlScheme.Wheel;
+
+            SetActiveIfChanged(
+                touchWheelSteeringRoot,
+                wheelScheme);
+
+            SetActiveIfChanged(
+                touchArrowSteeringRoot,
+                !wheelScheme);
 
             SetActiveIfChanged(
                 touchPauseRoot,
