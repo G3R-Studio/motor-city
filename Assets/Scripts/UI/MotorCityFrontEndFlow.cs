@@ -60,6 +60,7 @@ namespace MotorCity.UI
         private float loadingProgressWhenReady;
 
         private Font font;
+        private Font boldFont;
         private MotorCityUiThemeAssets frontEndTheme;
         private Sprite frontEndButtonSprite;
         private Sprite frontEndPanelSprite;
@@ -231,9 +232,14 @@ namespace MotorCity.UI
         {
             font =
                 Resources.Load<Font>(
-                    "MotorCity/Fonts/Roboto-Regular") ??
+                    "MotorCity/Fonts/Ubuntu-Regular") ??
                 Resources.GetBuiltinResource<Font>(
                     "LegacyRuntime.ttf");
+
+            boldFont =
+                Resources.Load<Font>(
+                    "MotorCity/Fonts/Ubuntu-Bold") ??
+                font;
             frontEndTheme =
                 Resources.Load<MotorCityUiThemeAssets>(
                     "MotorCity/UI/MotorCityUiThemeAssets");
@@ -1533,10 +1539,20 @@ namespace MotorCity.UI
             rect.sizeDelta = dimensions;
 
             Text text = go.GetComponent<Text>();
-            text.font = font;
+            bool useTrueBold =
+                style == FontStyle.Bold &&
+                boldFont != null;
+
+            text.font =
+                useTrueBold
+                    ? boldFont
+                    : font;
             text.text = value;
             text.fontSize = size;
-            text.fontStyle = style;
+            text.fontStyle =
+                useTrueBold
+                    ? FontStyle.Normal
+                    : style;
             text.alignment = alignment;
             text.color = Color.white;
             text.raycastTarget = false;
