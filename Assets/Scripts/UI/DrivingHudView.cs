@@ -742,7 +742,7 @@ namespace MotorCity.UI
                     "Status Activity Icon",
                     MotorCityIconLibrary.Reward,
                     new Vector2(
-                        22f,
+                        -90f,
                         0f),
                     new Vector2(
                         24f,
@@ -759,7 +759,7 @@ namespace MotorCity.UI
                     17,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(56f, 1f),
+                    new Vector2(-56f, 1f),
                     new Vector2(560f, 42f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
