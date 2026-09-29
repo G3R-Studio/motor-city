@@ -231,7 +231,7 @@ namespace MotorCity.UI
         {
             font =
                 Resources.Load<Font>(
-                    "MotorCity/Fonts/RobotoCondensed-Regular") ??
+                    "MotorCity/Fonts/Roboto-Regular") ??
                 Resources.GetBuiltinResource<Font>(
                     "LegacyRuntime.ttf");
             frontEndTheme =
