@@ -1,4 +1,4 @@
-# Motor City — Development Plan
+# Motor City - Development Plan
 
 This document is the implementation checklist for the current Motor City production direction.
 README is intentionally not used as a development roadmap.
@@ -28,7 +28,7 @@ Core fantasy:
 
 ---
 
-## Phase 0 — Refactor the existing prototype
+## Phase 0 - Refactor the existing prototype
 
 ### 0.1 Save and data foundation
 - [x] Add centralized JSON save service.
@@ -102,7 +102,7 @@ Core fantasy:
 
 ---
 
-## Phase 1 — Yandex Games foundation
+## Phase 1 - Yandex Games foundation
 
 - [x] Production bootstrap through `Prototype.unity`.
 - [x] Yandex SDK adapter implementation.
@@ -120,7 +120,7 @@ Core fantasy:
 
 ---
 
-## Phase 2 — Retention MVP
+## Phase 2 - Retention MVP
 
 ### Turbo pet
 - [x] Robo-cat Turbo MVP.
@@ -175,7 +175,7 @@ Core fantasy:
 
 ---
 
-## Phase 3 — Automotive life expansion
+## Phase 3 - Automotive life expansion
 
 - [x] Pizza courier.
 - [x] Taxi.
@@ -189,7 +189,7 @@ Core fantasy:
 
 ---
 
-## Phase 4 — Alpha
+## Phase 4 - Alpha
 
 - [x] Season framework.
 - [x] Season 1 content.
@@ -203,7 +203,7 @@ Core fantasy:
 
 ---
 
-## Phase 5 — Beta
+## Phase 5 - Beta
 
 - [x] Yandex leaderboards runtime sync (REP, collection, activities; IDs configured through Remote Config/Yandex console).
 - [x] Club weekly personal goals (shared club aggregate still requires backend).
@@ -217,7 +217,7 @@ Core fantasy:
 
 ---
 
-## Phase 6 — Release
+## Phase 6 - Release
 
 - [ ] Tutorial funnel polish.
 - [ ] Economy balance.
@@ -232,7 +232,7 @@ Core fantasy:
 
 ---
 
-## Phase 7 — Live Ops
+## Phase 7 - Live Ops
 
 Every 4–6 weeks:
 - 10–15 missions;
