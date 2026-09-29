@@ -93,8 +93,8 @@ namespace MotorCity.UI
                 "MotorCity/Intro/Intro_02"),
             new(
                 "МАШИНА ИЗ МАСТЕРСКОЙ",
-                "Витя оставил машину тебе. Не подарок за красивые глаза — сначала покажи, что умеешь обращаться с ней и не боишься работы.",
-                "Vitya left the car for you. It is not a gift for nothing — first prove that you can handle it and are not afraid of work.",
+                "Витя оставил машину тебе. Не подарок за красивые глаза - сначала покажи, что умеешь обращаться с ней и не боишься работы.",
+                "Vitya left the car for you. It is not a gift for nothing - first prove that you can handle it and are not afraid of work.",
                 "MotorCity/Intro/Intro_03"),
             new(
                 "ТУРБО",
@@ -108,7 +108,7 @@ namespace MotorCity.UI
                 "MotorCity/Intro/Intro_05"),
             new(
                 "ТВОЙ ПУТЬ",
-                "Дядя Витя, Турбо, Ника и инспектор Бублик ещё сыграют свою роль. Но сначала — разберись с машиной и пройди Путь новичка.",
+                "Дядя Витя, Турбо, Ника и инспектор Бублик ещё сыграют свою роль. Но сначала - разберись с машиной и пройди Путь новичка.",
                 "Uncle Vitya, Turbo, Nika and Inspector Bublik will all play their part. But first, learn the car and complete the Rookie Path.",
                 "MotorCity/Intro/Intro_06")
         };
@@ -560,7 +560,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     IsRussian()
-                        ? "MOTOR CITY — город, где имя зарабатывают за рулём."
+                        ? "MOTOR CITY - город, где имя зарабатывают за рулём."
                         : "MOTOR CITY is a city where your name is earned behind the wheel.",
                     22,
                     FontStyle.Normal,
@@ -1775,7 +1775,7 @@ namespace MotorCity.UI
 
             GUI.Box(
                 box,
-                "MOTOR CITY — PRE-GAME DEBUG");
+                "MOTOR CITY - PRE-GAME DEBUG");
 
             GUI.Label(
                 new Rect(
@@ -1832,7 +1832,7 @@ namespace MotorCity.UI
                     154f,
                     310f,
                     24f),
-                "F10 — закрыть");
+                "F10 - закрыть");
         }
 #endif
 
