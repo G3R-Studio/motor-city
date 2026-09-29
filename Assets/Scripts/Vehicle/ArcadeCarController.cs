@@ -724,23 +724,23 @@ namespace MotorCity.Vehicle
 
             throttleInputProxy =
                 CreateInputProxy(
-                    "Prometeo Input — Throttle");
+                    "Prometeo Input - Throttle");
 
             reverseInputProxy =
                 CreateInputProxy(
-                    "Prometeo Input — Reverse");
+                    "Prometeo Input - Reverse");
 
             leftInputProxy =
                 CreateInputProxy(
-                    "Prometeo Input — Left");
+                    "Prometeo Input - Left");
 
             rightInputProxy =
                 CreateInputProxy(
-                    "Prometeo Input — Right");
+                    "Prometeo Input - Right");
 
             handbrakeInputProxy =
                 CreateInputProxy(
-                    "Prometeo Input — Handbrake");
+                    "Prometeo Input - Handbrake");
 
             bool ready =
                 throttleInputProxy != null &&
