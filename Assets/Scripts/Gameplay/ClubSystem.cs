@@ -228,6 +228,12 @@ namespace MotorCity.Gameplay
             string activityId,
             bool success)
         {
+            if (activities != null &&
+                !activities.SecondaryProgressionAllowed)
+            {
+                return;
+            }
+
             if (!success ||
                 !HasClub ||
                 weeklyRewardClaimed)

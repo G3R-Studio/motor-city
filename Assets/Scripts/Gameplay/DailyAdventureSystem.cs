@@ -189,6 +189,12 @@ namespace MotorCity.Gameplay
         private void OnActivityCompleted(
             string activityId)
         {
+            if (activities != null &&
+                !activities.SecondaryProgressionAllowed)
+            {
+                return;
+            }
+
             if (dayCompleted)
             {
                 return;

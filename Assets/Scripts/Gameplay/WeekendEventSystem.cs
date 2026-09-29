@@ -125,6 +125,12 @@ namespace MotorCity.Gameplay
 
         private void OnActivityResult(string activityId, bool success)
         {
+            if (activities != null &&
+                !activities.SecondaryProgressionAllowed)
+            {
+                return;
+            }
+
             if (!success ||
                 !IsActive ||
                 !MatchesEvent(activityId))

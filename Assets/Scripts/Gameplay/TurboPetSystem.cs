@@ -367,6 +367,12 @@ namespace MotorCity.Gameplay
                 "Pixie Clap",
                 1.8f);
 
+            if (activityManager != null &&
+                !activityManager.SecondaryProgressionAllowed)
+            {
+                return;
+            }
+
             RegisterSuccessfulActivity(
                 activityId);
         }
