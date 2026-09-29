@@ -428,168 +428,107 @@ namespace MotorCity.UI
                 bgObject.transform.SetAsFirstSibling();
             }
 
-            // Layered left-side shade keeps the artwork visible while making
-            // the menu read as one deliberate Motor City composition.
+            // Very soft left-side readability shade. It should disappear into
+            // the artwork rather than look like a separate panel.
             CreateDecorativeRect(
                 mainRoot.transform,
-                "Main Left Shade Wide",
+                "Main Soft Shade",
                 new Vector2(0f, 0.5f),
                 new Vector2(0f, 0.5f),
-                new Vector2(0f, 0f),
-                new Vector2(760f, 1080f),
-                new Color(0.015f, 0.025f, 0.055f, 0.38f));
-
-            CreateDecorativeRect(
-                mainRoot.transform,
-                "Main Left Shade Mid",
-                new Vector2(0f, 0.5f),
-                new Vector2(0f, 0.5f),
-                new Vector2(0f, 0f),
-                new Vector2(590f, 1080f),
-                new Color(0.018f, 0.032f, 0.070f, 0.30f));
-
-            RectTransform menuPanel =
-                CreateGlassPanel(
-                    mainRoot.transform,
-                    "Main Menu Glass",
-                    new Vector2(74f, 0f),
-                    new Vector2(530f, 610f),
-                    new Vector2(0f, 0.5f),
-                    new Vector2(0f, 0.5f));
-
-            CreateDecorativeRect(
-                menuPanel,
-                "Main Menu Top Accent",
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f),
-                new Vector2(30f, -26f),
-                new Vector2(92f, 4f),
-                new Color(0.34f, 0.76f, 1f, 0.96f));
-
-            CreateDecorativeRect(
-                menuPanel,
-                "Main Menu Accent Rail",
-                new Vector2(0f, 0.5f),
-                new Vector2(0f, 0.5f),
-                new Vector2(18f, 4f),
-                new Vector2(4f, 452f),
-                new Color(0.42f, 0.56f, 1f, 0.50f));
-
-            Text eyebrow =
-                CreateText(
-                    menuPanel,
-                    IsRussian()
-                        ? "ГОРОД • МАШИНЫ • ИСТОРИИ"
-                        : "CITY • CARS • STORIES",
-                    14,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(42f, 238f),
-                    new Vector2(420f, 30f),
-                    new Vector2(0f, 0.5f));
-
-            eyebrow.color =
-                new Color(0.42f, 0.78f, 1f, 0.90f);
+                Vector2.zero,
+                new Vector2(520f, 1080f),
+                new Color(
+                    0.015f,
+                    0.025f,
+                    0.055f,
+                    0.13f));
 
             Text title =
                 CreateText(
-                    menuPanel,
+                    mainRoot.transform,
                     "MOTOR CITY",
-                    72,
+                    78,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(40f, 162f),
-                    new Vector2(450f, 112f),
+                    new Vector2(118f, 176f),
+                    new Vector2(760f, 110f),
                     new Vector2(0f, 0.5f));
 
             title.color =
                 new Color(0.94f, 0.97f, 1f, 1f);
 
+            Shadow titleShadow =
+                title.gameObject.AddComponent<Shadow>();
+
+            titleShadow.effectColor =
+                new Color(0f, 0f, 0f, 0.72f);
+            titleShadow.effectDistance =
+                new Vector2(2f, -2f);
+
             Text subtitle =
                 CreateText(
-                    menuPanel,
+                    mainRoot.transform,
                     IsRussian()
                         ? "ТВОЙ ГОРОД. ТВОЯ МАШИНА. ТВОЙ ПУТЬ."
                         : "YOUR CITY. YOUR CAR. YOUR ROAD.",
-                    20,
+                    22,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(42f, 103f),
-                    new Vector2(430f, 52f),
+                    new Vector2(124f, 105f),
+                    new Vector2(650f, 48f),
                     new Vector2(0f, 0.5f));
 
             subtitle.color =
                 new Color(0.48f, 0.74f, 1f, 1f);
 
             CreateDecorativeRect(
-                menuPanel,
-                "Main Menu Divider",
+                mainRoot.transform,
+                "Main Title Accent",
                 new Vector2(0f, 0.5f),
                 new Vector2(0f, 0.5f),
-                new Vector2(42f, 62f),
-                new Vector2(408f, 2f),
-                new Color(0.45f, 0.62f, 0.95f, 0.40f));
+                new Vector2(124f, 70f),
+                new Vector2(92f, 3f),
+                new Color(0.36f, 0.78f, 1f, 0.88f));
 
             Button primary =
                 CreateButton(
-                    menuPanel,
+                    mainRoot.transform,
                     "",
-                    new Vector2(42f, -12f),
-                    new Vector2(408f, 72f),
+                    new Vector2(124f, -22f),
+                    new Vector2(400f, 68f),
                     BeginPrimaryAction);
 
             primaryButtonText =
                 primary.GetComponentInChildren<Text>();
 
-            RectTransform primaryRect =
-                primary.GetComponent<RectTransform>();
+            Image primaryImage =
+                primary.GetComponent<Image>();
 
-            AddSoftGlow(
-                primaryRect,
-                new Color(0.36f, 0.64f, 1f, 1f),
-                10f,
-                5f,
-                0.05f,
-                0.11f);
+            if (primaryImage != null)
+            {
+                Outline primaryOutline =
+                    primary.GetComponent<Outline>();
 
-            CreateDecorativeRect(
-                primaryRect,
-                "Primary Button Accent",
-                new Vector2(0f, 0.5f),
-                new Vector2(0f, 0.5f),
-                new Vector2(8f, 0f),
-                new Vector2(4f, 34f),
-                new Color(0.42f, 0.82f, 1f, 0.95f));
+                if (primaryOutline != null)
+                {
+                    primaryOutline.effectColor =
+                        new Color(0.46f, 0.68f, 1f, 0.30f);
+                }
+            }
 
             CreateButton(
-                menuPanel,
+                mainRoot.transform,
                 IsRussian() ? "ОБ ИГРЕ" : "ABOUT",
-                new Vector2(42f, -101f),
-                new Vector2(408f, 62f),
+                new Vector2(124f, -104f),
+                new Vector2(400f, 60f),
                 ShowAbout);
 
             CreateButton(
-                menuPanel,
+                mainRoot.transform,
                 IsRussian() ? "НАСТРОЙКИ" : "SETTINGS",
-                new Vector2(42f, -176f),
-                new Vector2(408f, 62f),
+                new Vector2(124f, -177f),
+                new Vector2(400f, 60f),
                 ShowSettings);
-
-            Text footer =
-                CreateText(
-                    menuPanel,
-                    IsRussian()
-                        ? "НОВЫЙ ПУТЬ НАЧИНАЕТСЯ ЗДЕСЬ"
-                        : "A NEW ROAD STARTS HERE",
-                    13,
-                    FontStyle.Normal,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(42f, -244f),
-                    new Vector2(405f, 28f),
-                    new Vector2(0f, 0.5f));
-
-            footer.color =
-                new Color(0.62f, 0.70f, 0.82f, 0.82f);
 
             RefreshMainMenuText();
         }
@@ -794,16 +733,16 @@ namespace MotorCity.UI
                 introRoot.transform,
                 false);
 
-            RectTransform rect =
+            introImageRect =
                 imageObject.GetComponent<RectTransform>();
 
-            rect.anchorMin =
+            introImageRect.anchorMin =
                 Vector2.zero;
-            rect.anchorMax =
+            introImageRect.anchorMax =
                 Vector2.one;
-            rect.offsetMin =
+            introImageRect.offsetMin =
                 Vector2.zero;
-            rect.offsetMax =
+            introImageRect.offsetMax =
                 Vector2.zero;
 
             introImage =
@@ -818,9 +757,7 @@ namespace MotorCity.UI
             introImage.raycastTarget =
                 false;
 
-            introImageRect =
-                rect;
-
+            // Gentle full-screen shade for readability without hiding the art.
             GameObject shadeObject =
                 new(
                     "Intro Shade",
@@ -843,59 +780,23 @@ namespace MotorCity.UI
             shadeRect.offsetMax =
                 Vector2.zero;
 
-            shadeObject.GetComponent<Image>().color =
-                new Color(0f, 0f, 0f, 0.40f);
+            Image shade =
+                shadeObject.GetComponent<Image>();
 
-            // Thin cinematic rails frame the slideshow without hiding artwork.
+            shade.color =
+                new Color(0f, 0f, 0f, 0.24f);
+            shade.raycastTarget =
+                false;
+
+            // Small local backdrop only behind the story copy.
             CreateDecorativeRect(
                 introRoot.transform,
-                "Intro Top Rail",
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0f, -18f),
-                new Vector2(1920f, 22f),
-                new Color(0f, 0f, 0f, 0.62f));
-
-            CreateDecorativeRect(
-                introRoot.transform,
-                "Intro Bottom Rail",
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0f, 18f),
-                new Vector2(1920f, 22f),
-                new Color(0f, 0f, 0f, 0.62f));
-
-            RectTransform storyPanel =
-                CreateGlassPanel(
-                    introRoot.transform,
-                    "Intro Story Card",
-                    new Vector2(72f, 56f),
-                    new Vector2(1140f, 310f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f));
-
-            CreateDecorativeRect(
-                storyPanel,
-                "Intro Story Accent",
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f),
-                new Vector2(28f, -24f),
-                new Vector2(84f, 4f),
-                new Color(0.38f, 0.80f, 1f, 0.96f));
-
-            Text prologueLabel =
-                CreateText(
-                    storyPanel,
-                    IsRussian() ? "ПРОЛОГ" : "PROLOGUE",
-                    14,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(30f, 232f),
-                    new Vector2(220f, 30f),
-                    new Vector2(0f, 0.5f));
-
-            prologueLabel.color =
-                new Color(0.42f, 0.82f, 1f, 1f);
+                "Intro Text Backdrop",
+                new Vector2(0f, 0f),
+                new Vector2(0f, 0f),
+                new Vector2(76f, 72f),
+                new Vector2(790f, 230f),
+                new Color(0.015f, 0.025f, 0.055f, 0.42f));
 
             GameObject textGroupObject =
                 new(
@@ -904,7 +805,7 @@ namespace MotorCity.UI
                     typeof(CanvasGroup));
 
             textGroupObject.transform.SetParent(
-                storyPanel,
+                introRoot.transform,
                 false);
 
             RectTransform textGroupRect =
@@ -922,53 +823,58 @@ namespace MotorCity.UI
             introTextGroup =
                 textGroupObject.GetComponent<CanvasGroup>();
 
-            introCounterText =
+            Text prologue =
                 CreateText(
                     textGroupObject.transform,
-                    "",
-                    16,
+                    IsRussian() ? "ПРОЛОГ" : "PROLOGUE",
+                    13,
                     FontStyle.Bold,
-                    TextAnchor.MiddleRight,
-                    new Vector2(-28f, 232f),
-                    new Vector2(220f, 30f),
-                    new Vector2(1f, 0.5f));
+                    TextAnchor.MiddleLeft,
+                    new Vector2(104f, 255f),
+                    new Vector2(260f, 28f),
+                    new Vector2(0f, 0f));
 
-            introCounterText.color =
-                new Color(0.70f, 0.78f, 0.90f, 0.96f);
+            prologue.color =
+                new Color(0.42f, 0.80f, 1f, 0.95f);
 
             introTitleText =
                 CreateText(
                     textGroupObject.transform,
                     "",
-                    42,
+                    40,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(30f, 164f),
-                    new Vector2(1030f, 74f),
-                    new Vector2(0f, 0.5f));
+                    new Vector2(104f, 196f),
+                    new Vector2(700f, 58f),
+                    new Vector2(0f, 0f));
 
             introBodyText =
                 CreateText(
                     textGroupObject.transform,
                     "",
-                    23,
+                    22,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(30f, 132f),
-                    new Vector2(1030f, 98f),
-                    new Vector2(0f, 0.5f));
+                    new Vector2(104f, 170f),
+                    new Vector2(700f, 92f),
+                    new Vector2(0f, 0f));
 
             introBodyText.color =
-                new Color(0.91f, 0.94f, 0.98f, 1f);
+                new Color(0.94f, 0.96f, 1f, 1f);
 
-            CreateDecorativeRect(
-                storyPanel,
-                "Intro Progress Rail",
-                new Vector2(0f, 0f),
-                new Vector2(0f, 0f),
-                new Vector2(30f, 42f),
-                new Vector2(400f, 2f),
-                new Color(0.36f, 0.50f, 0.76f, 0.34f));
+            introCounterText =
+                CreateText(
+                    textGroupObject.transform,
+                    "",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(104f, 88f),
+                    new Vector2(100f, 28f),
+                    new Vector2(0f, 0f));
+
+            introCounterText.color =
+                new Color(0.66f, 0.76f, 0.90f, 0.90f);
 
             for (int i = 0;
                  i < introProgressIndicators.Length;
@@ -981,7 +887,7 @@ namespace MotorCity.UI
                         typeof(Image));
 
                 stepObject.transform.SetParent(
-                    storyPanel,
+                    textGroupObject.transform,
                     false);
 
                 RectTransform stepRect =
@@ -995,16 +901,16 @@ namespace MotorCity.UI
                     new Vector2(0f, 0.5f);
                 stepRect.anchoredPosition =
                     new Vector2(
-                        30f + i * 68f,
-                        42f);
+                        194f + i * 34f,
+                        101f);
                 stepRect.sizeDelta =
-                    new Vector2(42f, 5f);
+                    new Vector2(22f, 3f);
 
                 Image stepImage =
                     stepObject.GetComponent<Image>();
 
                 stepImage.color =
-                    new Color(0.36f, 0.48f, 0.66f, 0.52f);
+                    new Color(0.36f, 0.48f, 0.66f, 0.40f);
                 stepImage.raycastTarget =
                     false;
 
@@ -1012,46 +918,21 @@ namespace MotorCity.UI
                     stepImage;
             }
 
-            Text hint =
-                CreateText(
-                    introRoot.transform,
-                    IsRussian()
-                        ? "ИСТОРИЯ MOTOR CITY"
-                        : "THE STORY OF MOTOR CITY",
-                    14,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleRight,
-                    new Vector2(-92f, -54f),
-                    new Vector2(420f, 32f),
-                    new Vector2(1f, 1f));
-
-            hint.color =
-                new Color(0.62f, 0.73f, 0.90f, 0.84f);
-
             CreateButton(
                 introRoot.transform,
                 IsRussian() ? "ПРОПУСТИТЬ" : "SKIP",
                 new Vector2(-90f, 70f),
-                new Vector2(240f, 58f),
+                new Vector2(220f, 56f),
                 CompleteIntro,
                 new Vector2(1f, 0f));
 
-            Button nextButton =
-                CreateButton(
-                    introRoot.transform,
-                    IsRussian() ? "ДАЛЬШЕ" : "NEXT",
-                    new Vector2(-350f, 70f),
-                    new Vector2(240f, 58f),
-                    NextIntro,
-                    new Vector2(1f, 0f));
-
-            AddSoftGlow(
-                nextButton.GetComponent<RectTransform>(),
-                new Color(0.34f, 0.66f, 1f, 1f),
-                9f,
-                4f,
-                0.04f,
-                0.09f);
+            CreateButton(
+                introRoot.transform,
+                IsRussian() ? "ДАЛЬШЕ" : "NEXT",
+                new Vector2(-330f, 70f),
+                new Vector2(220f, 56f),
+                NextIntro,
+                new Vector2(1f, 0f));
         }
 
 
