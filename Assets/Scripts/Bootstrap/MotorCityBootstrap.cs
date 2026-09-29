@@ -349,6 +349,7 @@ namespace MotorCity.Bootstrap
             collection.Initialize(
                 wallet,
                 reputation,
+                activityManager,
                 vehicleRoster,
                 vehicleMastery,
                 vehicleHistory);

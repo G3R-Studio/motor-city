@@ -40,6 +40,7 @@ namespace MotorCity.Gameplay
 
         private PlayerWallet wallet;
         private PlayerReputation reputation;
+        private ActivityManager activityManager;
         private VehicleRosterSystem roster;
         private VehicleMasterySystem mastery;
         private VehicleHistorySystem history;
@@ -92,6 +93,7 @@ namespace MotorCity.Gameplay
         public void Initialize(
             PlayerWallet playerWallet,
             PlayerReputation playerReputation,
+            ActivityManager manager,
             VehicleRosterSystem vehicleRoster,
             VehicleMasterySystem masterySystem,
             VehicleHistorySystem historySystem)
@@ -101,6 +103,9 @@ namespace MotorCity.Gameplay
 
             reputation =
                 playerReputation;
+
+            activityManager =
+                manager;
 
             roster =
                 vehicleRoster;
@@ -150,7 +155,8 @@ namespace MotorCity.Gameplay
                 RefreshSeconds;
 
             Recalculate(
-                true);
+                activityManager == null ||
+                activityManager.SecondaryProgressionAllowed);
         }
 
         private void OnDestroy()
@@ -209,7 +215,8 @@ namespace MotorCity.Gameplay
         private void HandleVehicleChanged()
         {
             Recalculate(
-                true);
+                activityManager == null ||
+                activityManager.SecondaryProgressionAllowed);
         }
 
         private void Recalculate(

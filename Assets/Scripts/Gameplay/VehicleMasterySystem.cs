@@ -220,6 +220,12 @@ namespace MotorCity.Gameplay
         private void HandleActivityCompleted(
             string activityId)
         {
+            if (activityManager != null &&
+                !activityManager.SecondaryProgressionAllowed)
+            {
+                return;
+            }
+
             if (roster == null ||
                 string.IsNullOrWhiteSpace(
                     activityId))

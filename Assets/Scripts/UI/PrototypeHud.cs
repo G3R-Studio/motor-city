@@ -548,6 +548,8 @@ namespace MotorCity.UI
                 if (careerText != null)
                 {
                     careerText.text =
+                        activityManager == null ||
+                        !activityManager.SecondaryProgressionAllowed ||
                         career == null
                             ? string.Empty
                             : career.HudLine;
@@ -556,7 +558,8 @@ namespace MotorCity.UI
                 if (disciplineText != null)
                 {
                     disciplineText.text =
-                        activityManager == null
+                        activityManager == null ||
+                        !activityManager.SecondaryProgressionAllowed
                             ? string.Empty
                             : activityManager.DisciplineHudLine;
                 }
@@ -580,6 +583,8 @@ namespace MotorCity.UI
                 if (collectionText != null)
                 {
                     collectionText.text =
+                        activityManager == null ||
+                        !activityManager.SecondaryProgressionAllowed ||
                         collection == null
                             ? string.Empty
                             : collection.HudLine;

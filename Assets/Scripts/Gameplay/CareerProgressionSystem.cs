@@ -165,6 +165,12 @@ namespace MotorCity.Gameplay
             string activityId,
             bool success)
         {
+            if (activityManager != null &&
+                !activityManager.SecondaryProgressionAllowed)
+            {
+                return;
+            }
+
             if (!success)
                 return;
 
