@@ -2381,6 +2381,8 @@ namespace MotorCity.UI
             MotorCityIconLibrary.PrewarmCore();
 
             font =
+                Resources.Load<Font>(
+                    "MotorCity/Fonts/RobotoCondensed-Regular") ??
                 Resources.GetBuiltinResource<Font>(
                     "LegacyRuntime.ttf");
 
