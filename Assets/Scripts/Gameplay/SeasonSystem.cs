@@ -28,6 +28,8 @@ namespace MotorCity.Gameplay
         private PlayerWallet wallet;
         private PlayerReputation reputation;
         private TurboPetSystem turbo;
+        private FirstSessionOnboardingSystem onboarding;
+        private StoryMissionSystem story;
 
         private SeasonMission[] missions;
         private int missionIndex;
@@ -183,12 +185,16 @@ namespace MotorCity.Gameplay
             ActivityManager activityManager,
             PlayerWallet targetWallet,
             PlayerReputation targetReputation,
-            TurboPetSystem turboSystem)
+            TurboPetSystem turboSystem,
+            FirstSessionOnboardingSystem onboardingSystem,
+            StoryMissionSystem storySystem)
         {
             activities = activityManager;
             wallet = targetWallet;
             reputation = targetReputation;
             turbo = turboSystem;
+            onboarding = onboardingSystem;
+            story = storySystem;
 
             BuildMissions();
 
@@ -216,7 +222,8 @@ namespace MotorCity.Gameplay
                 activities.ActivityCompleted += OnActivityCompleted;
 
             if (!IsComplete &&
-                IsSeasonOneActive)
+                IsSeasonOneActive &&
+                RookiePathFinished())
             {
                 StatusText =
                     MotorCityLocalization.Format(
@@ -240,6 +247,15 @@ namespace MotorCity.Gameplay
             }
         }
 
+        private bool RookiePathFinished()
+        {
+            return
+                (onboarding == null ||
+                 onboarding.IsComplete) &&
+                (story == null ||
+                 story.IsComplete);
+        }
+
         private void OnDestroy()
         {
             if (activities != null)
@@ -250,7 +266,8 @@ namespace MotorCity.Gameplay
             string activityId)
         {
             if (IsComplete ||
-                !IsSeasonOneActive)
+                !IsSeasonOneActive ||
+                !RookiePathFinished())
             {
                 return;
             }

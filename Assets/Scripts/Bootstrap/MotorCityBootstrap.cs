@@ -472,7 +472,9 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 wallet,
                 reputation,
-                turbo);
+                turbo,
+                onboarding,
+                story);
 
             PhotoHuntSystem photoHunt =
                 systems.AddComponent<PhotoHuntSystem>();

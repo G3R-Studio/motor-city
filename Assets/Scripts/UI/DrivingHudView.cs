@@ -964,10 +964,21 @@ namespace MotorCity.UI
         private string ResolveTransientNotification()
         {
             if (onboarding != null &&
-                onboarding.ShowMessage)
+                !onboarding.IsComplete)
             {
                 return
-                    onboarding.StatusText;
+                    onboarding.ShowMessage
+                        ? onboarding.StatusText
+                        : string.Empty;
+            }
+
+            if (story != null &&
+                !story.IsComplete)
+            {
+                return
+                    story.ShowMessage
+                        ? story.StatusText
+                        : string.Empty;
             }
 
             if (cosmeticStore != null &&
@@ -1017,13 +1028,6 @@ namespace MotorCity.UI
             {
                 return
                     photoHunt.StatusText;
-            }
-
-            if (story != null &&
-                story.ShowMessage)
-            {
-                return
-                    story.StatusText;
             }
 
             if (dailyAdventures != null &&
