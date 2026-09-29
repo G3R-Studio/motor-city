@@ -2916,9 +2916,7 @@ namespace MotorCity.UI
                     ? MotorCityIconLibrary.Pause
                     : objectName == "HUD More"
                         ? MotorCityIconLibrary.More
-                        : objectName == "Pause Resume"
-                            ? MotorCityIconLibrary.Confirm
-                            : null;
+                        : null;
 
             if (utilityIcon != null)
             {
@@ -2968,9 +2966,6 @@ namespace MotorCity.UI
             text.text =
                 MotorCityLocalization.Text(
                     localizationKey);
-
-            MakeButtonTextCrisp(
-                text);
 
             MakeButtonTextCrisp(
                 text);
