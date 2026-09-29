@@ -243,7 +243,7 @@ namespace MotorCity.Localization
                 { "collection.reset", E("КОЛЛЕКЦИОННЫЕ НАГРАДЫ СБРОШЕНЫ", "COLLECTION REWARDS RESET") },
                 { "collection.reward", E("КОЛЛЕКЦИЯ - ЭТАП {0}/{1}   +{2:N0} КР   +{3:N0} РЕП", "COLLECTION - STAGE {0}/{1}   +{2:N0} CR   +{3:N0} REP") },
 
-                { "hud.distance", E("{0}   {1} М", "{0}   {1} M") },
+                { "hud.distance", E("{0}   {1} М", "{0}   {1} M") },
                 { "hud.free_drive", E("СВОБОДНАЯ ЕЗДА", "FREE DRIVE") },
                 { "hud.sprint", E("СПРИНТ", "SPRINT") },
                 { "hud.circuit", E("КОЛЬЦО", "CIRCUIT") },
@@ -282,8 +282,8 @@ namespace MotorCity.Localization
                 { "navigator.desc.tow", E("Работа эвакуатора и помощь на дороге.", "Tow-truck work and roadside assistance.") },
                 { "navigator.desc.carwash", E("Автомойка и короткая городская работа.", "Car wash and a short city job.") },
                 { "navigator.desc.profession", E("Городская подработка. Построй маршрут к точке старта.", "A city side job. Set a route to its starting point.") },
-                { "navigator.distance_m", E("{0} м ДО ТОЧКИ", "{0} m TO DESTINATION") },
-                { "navigator.distance_km", E("{0:0.0} км ДО ТОЧКИ", "{0:0.0} km TO DESTINATION") },
+                { "navigator.distance_m", E("{0} м ДО ТОЧКИ", "{0} m TO DESTINATION") },
+                { "navigator.distance_km", E("{0:0.0} км ДО ТОЧКИ", "{0:0.0} km TO DESTINATION") },
                 { "navigator.touch_button", E("КАРТА", "MAP") },
                 { "hud.target", E("ЦЕЛЬ: {0}", "TARGET: {0}") },
 
