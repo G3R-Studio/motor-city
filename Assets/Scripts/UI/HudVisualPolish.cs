@@ -147,10 +147,16 @@ namespace MotorCity.UI
             RectTransform minimapTarget = FindRect("Minimap Target Label");
             if (minimapTarget != null)
             {
+                // The target strip itself is 148 px wide. Keep the label
+                // safely inside it so long objectives/distances can use Best
+                // Fit without painting underneath the navigator button.
                 minimapTarget.sizeDelta =
                     new Vector2(
-                        lastTouchLayout ? 156f : 166f,
-                        lastTouchLayout ? 26f : 28f);
+                        lastTouchLayout ? 124f : 132f,
+                        lastTouchLayout ? 25f : 27f);
+
+                minimapTarget.anchoredPosition =
+                    Vector2.zero;
             }
         }
 
@@ -165,7 +171,7 @@ namespace MotorCity.UI
             if (touchLayout)
             {
                 SetRect(playerCard, new Vector2(14f, -14f), new Vector2(340f, 116f), 1f);
-                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(414f, 144f), 1f);
+                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(430f, 154f), 1f);
                 SetRect(speedometer, new Vector2(0f, 6f), new Vector2(226f, 166f), 0.90f);
                 SetRect(status, new Vector2(0f, -174f), new Vector2(590f, 54f), 0.96f);
                 SetRect(minimap, new Vector2(-14f, -14f), new Vector2(202f, 218f), 0.92f);
