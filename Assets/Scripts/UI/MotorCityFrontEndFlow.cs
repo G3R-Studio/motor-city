@@ -1630,21 +1630,112 @@ namespace MotorCity.UI
                         0.96f);
             }
 
+            AddSoftGlow(
+                rect,
+                new Color(
+                    0.58f,
+                    0.68f,
+                    1f,
+                    1f),
+                16f,
+                8f,
+                0.075f,
+                0.15f);
+
             Outline outline =
                 go.AddComponent<Outline>();
 
             outline.effectColor =
                 new Color(
-                    0.42f,
-                    0.50f,
-                    0.92f,
-                    0.42f);
+                    0.62f,
+                    0.72f,
+                    1f,
+                    0.38f);
             outline.effectDistance =
                 new Vector2(2f, -2f);
             outline.useGraphicAlpha =
                 true;
 
             return rect;
+        }
+
+        private void AddSoftGlow(
+            RectTransform parent,
+            Color color,
+            float outerExpansion,
+            float innerExpansion,
+            float outerAlpha,
+            float innerAlpha)
+        {
+            CreateGlowLayer(
+                parent,
+                color,
+                outerExpansion,
+                outerAlpha,
+                "Glow Outer");
+
+            CreateGlowLayer(
+                parent,
+                color,
+                innerExpansion,
+                innerAlpha,
+                "Glow Inner");
+        }
+
+        private void CreateGlowLayer(
+            RectTransform parent,
+            Color color,
+            float expansion,
+            float alpha,
+            string objectName)
+        {
+            GameObject glow =
+                new(
+                    objectName,
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            glow.transform.SetParent(
+                parent,
+                false);
+
+            glow.transform.SetAsFirstSibling();
+
+            RectTransform rect =
+                glow.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                Vector2.zero;
+            rect.anchorMax =
+                Vector2.one;
+            rect.offsetMin =
+                new Vector2(
+                    -expansion,
+                    -expansion);
+            rect.offsetMax =
+                new Vector2(
+                    expansion,
+                    expansion);
+
+            Image image =
+                glow.GetComponent<Image>();
+
+            if (frontEndPanelSprite != null)
+            {
+                image.sprite =
+                    frontEndPanelSprite;
+                image.type =
+                    Image.Type.Sliced;
+            }
+
+            image.color =
+                new Color(
+                    color.r,
+                    color.g,
+                    color.b,
+                    alpha);
+            image.raycastTarget =
+                false;
         }
 
         private void CreateAboutSection(
@@ -1683,28 +1774,103 @@ namespace MotorCity.UI
 
             background.color =
                 new Color(
-                    0.035f,
-                    0.055f,
-                    0.10f,
-                    0.72f);
+                    0.025f,
+                    0.04f,
+                    0.085f,
+                    0.82f);
+
+            AddSoftGlow(
+                rect,
+                new Color(
+                    0.32f,
+                    0.62f,
+                    1f,
+                    1f),
+                8f,
+                4f,
+                0.045f,
+                0.095f);
+
+            Outline outline =
+                section.AddComponent<Outline>();
+
+            outline.effectColor =
+                new Color(
+                    0.34f,
+                    0.66f,
+                    1f,
+                    0.22f);
+            outline.effectDistance =
+                new Vector2(1f, -1f);
+            outline.useGraphicAlpha =
+                true;
+
+            GameObject accent =
+                new(
+                    "Accent Line",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            accent.transform.SetParent(
+                rect,
+                false);
+
+            RectTransform accentRect =
+                accent.GetComponent<RectTransform>();
+
+            accentRect.anchorMin =
+                new Vector2(0f, 1f);
+            accentRect.anchorMax =
+                new Vector2(1f, 1f);
+            accentRect.pivot =
+                new Vector2(0.5f, 1f);
+            accentRect.anchoredPosition =
+                Vector2.zero;
+            accentRect.sizeDelta =
+                new Vector2(0f, 4f);
+
+            Image accentImage =
+                accent.GetComponent<Image>();
+
+            accentImage.color =
+                new Color(
+                    0.28f,
+                    0.78f,
+                    1f,
+                    0.95f);
+            accentImage.raycastTarget =
+                false;
 
             Text sectionTitle =
                 CreateText(
                     rect,
                     title,
-                    19,
+                    20,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(18f, -14f),
+                    new Vector2(18f, -16f),
                     new Vector2(size.x - 36f, 30f),
                     new Vector2(0f, 1f));
 
             sectionTitle.color =
                 new Color(
-                    0.40f,
-                    0.82f,
+                    0.36f,
+                    0.84f,
                     1f,
                     1f);
+
+            Shadow titleShadow =
+                sectionTitle.gameObject
+                    .AddComponent<Shadow>();
+
+            titleShadow.effectColor =
+                new Color(
+                    0f,
+                    0f,
+                    0f,
+                    0.75f);
+            titleShadow.effectDistance =
+                new Vector2(1f, -1f);
 
             Text sectionBody =
                 CreateText(
@@ -1713,15 +1879,17 @@ namespace MotorCity.UI
                     18,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(18f, -48f),
-                    new Vector2(size.x - 36f, size.y - 56f),
+                    new Vector2(18f, -50f),
+                    new Vector2(
+                        size.x - 36f,
+                        size.y - 62f),
                     new Vector2(0f, 1f));
 
             sectionBody.color =
                 new Color(
-                    0.88f,
-                    0.91f,
-                    0.96f,
+                    0.90f,
+                    0.92f,
+                    0.97f,
                     1f);
         }
 
@@ -1756,43 +1924,128 @@ namespace MotorCity.UI
             rowRect.anchoredPosition =
                 new Vector2(0f, y);
             rowRect.sizeDelta =
-                new Vector2(1050f, 84f);
+                new Vector2(1050f, 88f);
 
-            row.GetComponent<Image>().color =
+            Image rowImage =
+                row.GetComponent<Image>();
+
+            rowImage.color =
                 new Color(
-                    0.028f,
-                    0.045f,
-                    0.085f,
-                    0.74f);
+                    0.024f,
+                    0.04f,
+                    0.078f,
+                    0.84f);
+
+            AddSoftGlow(
+                rowRect,
+                new Color(
+                    0.28f,
+                    0.58f,
+                    1f,
+                    1f),
+                6f,
+                3f,
+                0.035f,
+                0.075f);
+
+            Outline outline =
+                row.AddComponent<Outline>();
+
+            outline.effectColor =
+                new Color(
+                    0.36f,
+                    0.64f,
+                    1f,
+                    0.18f);
+            outline.effectDistance =
+                new Vector2(1f, -1f);
+            outline.useGraphicAlpha =
+                true;
+
+            GameObject accent =
+                new(
+                    "Accent Line",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            accent.transform.SetParent(
+                rowRect,
+                false);
+
+            RectTransform accentRect =
+                accent.GetComponent<RectTransform>();
+
+            accentRect.anchorMin =
+                new Vector2(0f, 1f);
+            accentRect.anchorMax =
+                new Vector2(1f, 1f);
+            accentRect.pivot =
+                new Vector2(0.5f, 1f);
+            accentRect.anchoredPosition =
+                Vector2.zero;
+            accentRect.sizeDelta =
+                new Vector2(0f, 3f);
+
+            Image accentImage =
+                accent.GetComponent<Image>();
+
+            accentImage.color =
+                new Color(
+                    0.26f,
+                    0.80f,
+                    1f,
+                    0.90f);
+            accentImage.raycastTarget =
+                false;
 
             Text labelText =
                 CreateText(
                     rowRect,
                     label,
-                    19,
+                    18,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(24f, 0f),
-                    new Vector2(240f, 60f),
+                    new Vector2(26f, 0f),
+                    new Vector2(210f, 58f),
                     new Vector2(0f, 0.5f));
 
             labelText.color =
                 new Color(
-                    0.64f,
-                    0.78f,
+                    0.46f,
+                    0.82f,
                     1f,
                     1f);
+
+            Shadow labelShadow =
+                labelText.gameObject
+                    .AddComponent<Shadow>();
+
+            labelShadow.effectColor =
+                new Color(
+                    0f,
+                    0f,
+                    0f,
+                    0.70f);
+            labelShadow.effectDistance =
+                new Vector2(1f, -1f);
 
             valueText =
                 CreateText(
                     rowRect,
                     "",
-                    25,
+                    24,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(282f, 0f),
-                    new Vector2(270f, 60f),
+                    new Vector2(280f, 0f),
+                    new Vector2(250f, 58f),
                     new Vector2(0f, 0.5f));
+
+            valueText.color =
+                new Color(
+                    0.95f,
+                    0.96f,
+                    1f,
+                    1f);
 
             if (minusAction != null)
             {
@@ -1820,9 +2073,16 @@ namespace MotorCity.UI
             {
                 CreateButton(
                     rowRect,
-                    label == (IsRussian() ? "ЯЗЫК" : "LANGUAGE")
-                        ? (IsRussian() ? "СМЕНИТЬ" : "CHANGE")
-                        : (IsRussian() ? "ВКЛ / ВЫКЛ" : "ON / OFF"),
+                    label ==
+                        (IsRussian()
+                            ? "ЯЗЫК"
+                            : "LANGUAGE")
+                        ? (IsRussian()
+                            ? "СМЕНИТЬ"
+                            : "CHANGE")
+                        : (IsRussian()
+                            ? "ВКЛ / ВЫКЛ"
+                            : "ON / OFF"),
                     new Vector2(790f, 0f),
                     new Vector2(210f, 50f),
                     wideAction,
