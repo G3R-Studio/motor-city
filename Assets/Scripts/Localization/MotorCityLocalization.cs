@@ -504,7 +504,7 @@ namespace MotorCity.Localization
                 { "pause.audio_muted_value", E("ВЫКЛ · {0}%", "OFF · {0}%") },
                 { "pause.minus", E("−", "−") },
                 { "pause.plus", E("+", "+") },
-                { "pause.toggle", E("СМЕНИТЬ", "TOGGLE") },
+                { "pause.toggle", E("ВКЛ / ВЫКЛ", "ON / OFF") },
 
                 { "turbo.title", E("ПИКСИ", "PIXIE") },
                 { "turbo.hello", E("Пикси: Привет! Я твой напарник. Поехали исследовать Motor City!", "Pixie: Hi! I’m your co-pilot. Let’s explore Motor City!") },
