@@ -228,6 +228,8 @@ namespace MotorCity.UI
             frontEndCamera =
                 cameraObject.AddComponent<Camera>();
 
+            cameraObject.AddComponent<AudioListener>();
+
             frontEndCamera.clearFlags =
                 CameraClearFlags.SolidColor;
 
