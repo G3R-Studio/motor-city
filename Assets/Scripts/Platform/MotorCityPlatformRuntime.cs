@@ -124,6 +124,26 @@ namespace MotorCity.Platform
         public void MarkGameplayRunning()
         {
             gameplayRunning = true;
+
+            // The front end intentionally runs at timeScale 0. If the app or
+            // editor loses focus while the menu is open, ApplyLocalPause can
+            // capture that zero as the scale to restore later. Once gameplay
+            // becomes ready, the resume target must be real gameplay time.
+            pausedTimeScale =
+                1f;
+
+            if (pauseReasons == PauseReason.None)
+            {
+                localGameplayPaused =
+                    false;
+
+                Time.timeScale =
+                    1f;
+
+                AudioListener.pause =
+                    false;
+            }
+
             ReconcilePlatformGameplay();
         }
 
@@ -196,8 +216,17 @@ namespace MotorCity.Platform
             localGameplayPaused =
                 false;
 
+            float resumeScale =
+                gameplayRunning &&
+                pausedTimeScale <= 0f
+                    ? 1f
+                    : pausedTimeScale;
+
             Time.timeScale =
-                pausedTimeScale;
+                resumeScale;
+
+            pausedTimeScale =
+                resumeScale;
 
             AudioListener.pause =
                 false;
