@@ -88,6 +88,7 @@ namespace MotorCity.UI
         private AdventureDirector adventureDirector;
 
         private Font font;
+        private Font boldFont;
         private MotorCityUiThemeAssets uiThemeAssets;
         private static Sprite modalButtonSprite;
         private static Texture2D modalButtonSpriteSource;
@@ -2382,9 +2383,14 @@ namespace MotorCity.UI
 
             font =
                 Resources.Load<Font>(
-                    "MotorCity/Fonts/Roboto-Regular") ??
+                    "MotorCity/Fonts/Ubuntu-Regular") ??
                 Resources.GetBuiltinResource<Font>(
                     "LegacyRuntime.ttf");
+
+            boldFont =
+                Resources.Load<Font>(
+                    "MotorCity/Fonts/Ubuntu-Bold") ??
+                font;
 
             uiThemeAssets =
                 Resources.Load<MotorCityUiThemeAssets>(
@@ -11246,9 +11252,19 @@ namespace MotorCity.UI
             Text text =
                 go.GetComponent<Text>();
 
-            text.font = font;
+            bool useTrueBold =
+                fontStyle == FontStyle.Bold &&
+                boldFont != null;
+
+            text.font =
+                useTrueBold
+                    ? boldFont
+                    : font;
             text.fontSize = fontSize;
-            text.fontStyle = fontStyle;
+            text.fontStyle =
+                useTrueBold
+                    ? FontStyle.Normal
+                    : fontStyle;
             text.alignment = alignment;
             text.color = color;
             text.raycastTarget = false;
