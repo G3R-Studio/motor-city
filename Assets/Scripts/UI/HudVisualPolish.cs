@@ -98,6 +98,21 @@ namespace MotorCity.UI
             PolishCoreText("Character Name", 0.75f);
             PolishCoreText("Character Mission Title", 0.60f);
             PolishCoreText("Character Line", 0.70f);
+
+            RectTransform characterLine =
+                FindRect("Character Line");
+
+            if (characterLine != null)
+            {
+                Text characterBody =
+                    characterLine.GetComponent<Text>();
+
+                if (characterBody != null)
+                {
+                    characterBody.resizeTextMinSize =
+                        12;
+                }
+            }
             PolishCoreText("Character Reward", 0.70f);
             PolishCoreText("Status Text", 0.88f);
             PolishCoreText("Speed", 0.90f);
@@ -140,8 +155,25 @@ namespace MotorCity.UI
             {
                 statusText.sizeDelta =
                     new Vector2(
-                        lastTouchLayout ? 520f : 638f,
+                        lastTouchLayout ? 482f : 560f,
                         lastTouchLayout ? 38f : 42f);
+
+                Text label =
+                    statusText.GetComponent<Text>();
+
+                if (label != null)
+                {
+                    label.resizeTextForBestFit =
+                        true;
+                    label.resizeTextMinSize =
+                        lastTouchLayout
+                            ? 12
+                            : 13;
+                    label.resizeTextMaxSize =
+                        label.fontSize;
+                    label.alignment =
+                        TextAnchor.MiddleLeft;
+                }
             }
 
             RectTransform minimapTarget = FindRect("Minimap Target Label");
@@ -173,7 +205,7 @@ namespace MotorCity.UI
                 SetRect(playerCard, new Vector2(14f, -14f), new Vector2(340f, 116f), 1f);
                 SetRect(characterCard, new Vector2(14f, -14f), new Vector2(430f, 154f), 1f);
                 SetRect(speedometer, new Vector2(0f, 6f), new Vector2(226f, 166f), 0.90f);
-                SetRect(status, new Vector2(0f, -174f), new Vector2(590f, 54f), 0.96f);
+                SetRect(status, new Vector2(110f, -174f), new Vector2(560f, 54f), 1f);
                 SetRect(minimap, new Vector2(-14f, -14f), new Vector2(202f, 218f), 0.92f);
             }
             else
@@ -181,7 +213,7 @@ namespace MotorCity.UI
                 SetRect(playerCard, new Vector2(22f, -22f), new Vector2(392f, 132f), 1f);
                 SetRect(characterCard, new Vector2(22f, -22f), new Vector2(448f, 154f), 1f);
                 SetRect(speedometer, new Vector2(0f, 16f), new Vector2(258f, 190f), 1f);
-                SetRect(status, new Vector2(0f, -196f), new Vector2(720f, 58f), 1f);
+                SetRect(status, new Vector2(150f, -196f), new Vector2(640f, 58f), 1f);
                 SetRect(minimap, new Vector2(-22f, -22f), new Vector2(214f, 218f), 1f);
             }
         }
