@@ -73,6 +73,11 @@ namespace MotorCity.UI
         private const float IntroAutoSeconds = 7f;
         private const float LoadingDurationSeconds = 2.6f;
 
+        private const int FrontEndButtonFontSize = 20;
+        private const int FrontEndPrimaryButtonFontSize = 23;
+        private const int FrontEndBodyFontSize = 22;
+        private const int FrontEndSectionTitleFontSize = 22;
+
         private bool hasExistingProgress;
         private bool loadingActive;
         private float loadingTimer;
@@ -562,7 +567,7 @@ namespace MotorCity.UI
                     IsRussian()
                         ? "MOTOR CITY - город, где имя зарабатывают за рулём."
                         : "MOTOR CITY is a city where your name is earned behind the wheel.",
-                    22,
+                    FrontEndBodyFontSize,
                     FontStyle.Normal,
                     TextAnchor.MiddleLeft,
                     new Vector2(58f, -118f),
@@ -2676,8 +2681,8 @@ namespace MotorCity.UI
                     go.transform,
                     label,
                     dimensions.y <= 54f
-                        ? 20
-                        : 23,
+                        ? FrontEndButtonFontSize
+                        : FrontEndPrimaryButtonFontSize,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
