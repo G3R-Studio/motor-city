@@ -29,6 +29,7 @@ namespace MotorCity.UI
         private bool pregameDebugVisible;
 
         private GameObject mainRoot;
+        private RawImage mainBackgroundImage;
         private GameObject aboutRoot;
         private GameObject settingsRoot;
         private GameObject introRoot;
@@ -88,31 +89,37 @@ namespace MotorCity.UI
         {
             new(
                 "MOTOR CITY",
+                "MOTOR CITY",
                 "Ты приехал в город почти без денег и без громкого имени. Здесь всё придётся заработать самому.",
                 "You arrived in the city with almost no money and no reputation. Everything here has to be earned.",
                 "MotorCity/Intro/Intro_01"),
             new(
                 "ДЯДЯ ВИТЯ",
+                "UNCLE VITYA",
                 "Первым тебя встретил дядя Витя. У него есть мастерская, связи по всему городу и старая машина, которая слишком долго стояла без дела.",
                 "Uncle Vitya was the first to meet you. He has a workshop, connections around the city, and an old car that has been sitting unused for too long.",
                 "MotorCity/Intro/Intro_02"),
             new(
                 "МАШИНА ИЗ МАСТЕРСКОЙ",
+                "THE WORKSHOP CAR",
                 "Витя оставил машину тебе. Не подарок за красивые глаза - сначала покажи, что умеешь обращаться с ней и не боишься работы.",
                 "Vitya left the car for you. It is not a gift for nothing - first prove that you can handle it and are not afraid of work.",
                 "MotorCity/Intro/Intro_03"),
             new(
                 "ТУРБО",
+                "TURBO",
                 "Когда освоишься за рулём, Витя передаст тебя Турбо. Он живёт в навигаторе и знает, где новичку найти первое настоящее дело.",
                 "Once you are comfortable behind the wheel, Vitya will hand you over to Turbo. He lives in the navigator and knows where a rookie can find a first real job.",
                 "MotorCity/Intro/Intro_04"),
             new(
                 "ПЕРВОЕ ДЕЛО",
+                "FIRST JOB",
                 "Синяя доставка станет первым шагом. Потом будут гонки, дрифт, новые районы и люди, которые начнут запоминать твою машину.",
                 "The blue delivery will be your first step. Then come races, drifting, new districts, and people who will start remembering your car.",
                 "MotorCity/Intro/Intro_05"),
             new(
                 "ТВОЙ ПУТЬ",
+                "YOUR PATH",
                 "Дядя Витя, Турбо, Ника и инспектор Бублик ещё сыграют свою роль. Но сначала - разберись с машиной и пройди Путь новичка.",
                 "Uncle Vitya, Turbo, Nika and Inspector Bublik will all play their part. But first, learn the car and complete the Rookie Path.",
                 "MotorCity/Intro/Intro_06")
@@ -356,6 +363,10 @@ namespace MotorCity.UI
             bg.color = Color.white;
             bg.raycastTarget = false;
 
+            ApplyCoverUv(
+                bg,
+                0f);
+
             GameObject shadeObject =
                 new(
                     "Front End Shade",
@@ -429,6 +440,13 @@ namespace MotorCity.UI
                     Color.white;
                 bg.raycastTarget =
                     false;
+
+                mainBackgroundImage =
+                    bg;
+
+                ApplyCoverUv(
+                    mainBackgroundImage,
+                    0f);
 
                 bgObject.transform.SetAsFirstSibling();
             }
@@ -1204,7 +1222,9 @@ namespace MotorCity.UI
             introCounterText.text =
                 $"{introIndex + 1} / {slides.Length}";
             introTitleText.text =
-                slide.Title;
+                IsRussian()
+                    ? slide.RussianTitle
+                    : slide.EnglishTitle;
             introBodyText.text =
                 IsRussian()
                     ? slide.Russian
@@ -1245,6 +1265,10 @@ namespace MotorCity.UI
                 texture == null
                     ? new Color(0.09f + introIndex * 0.012f, 0.12f, 0.18f, 0f)
                     : new Color(1f, 1f, 1f, 0f);
+
+            ApplyCoverUv(
+                introImage,
+                0f);
         }
 
         private void ResetIntroVisualState()
@@ -1256,8 +1280,11 @@ namespace MotorCity.UI
                 introTextGroup.alpha = 0f;
 
             if (introImage != null)
-                introImage.uvRect =
-                    new Rect(0f, 0f, 1f, 1f);
+            {
+                ApplyCoverUv(
+                    introImage,
+                    0f);
+            }
         }
 
         private void Update()
@@ -1327,22 +1354,89 @@ namespace MotorCity.UI
                         0.16f,
                         easedZoom);
 
-                float uvSize =
-                    1f - crop;
-
-                float uvOffset =
-                    crop * 0.5f;
-
-                introImage.uvRect =
-                    new Rect(
-                        uvOffset,
-                        uvOffset,
-                        uvSize,
-                        uvSize);
+                ApplyCoverUv(
+                    introImage,
+                    crop);
             }
 
             if (introAutoTimer >= IntroAutoSeconds)
                 NextIntro();
+        }
+
+        private static void ApplyCoverUv(
+            RawImage image,
+            float zoomCrop)
+        {
+            if (image == null ||
+                image.texture == null ||
+                Screen.width <= 0 ||
+                Screen.height <= 0)
+            {
+                return;
+            }
+
+            float textureAspect =
+                image.texture.width /
+                (float)image.texture.height;
+
+            float viewportAspect =
+                Screen.width /
+                (float)Screen.height;
+
+            Rect uv =
+                new Rect(
+                    0f,
+                    0f,
+                    1f,
+                    1f);
+
+            if (textureAspect > viewportAspect)
+            {
+                uv.width =
+                    viewportAspect /
+                    textureAspect;
+
+                uv.x =
+                    (1f - uv.width) *
+                    0.5f;
+            }
+            else if (textureAspect < viewportAspect)
+            {
+                uv.height =
+                    textureAspect /
+                    viewportAspect;
+
+                uv.y =
+                    (1f - uv.height) *
+                    0.5f;
+            }
+
+            float zoom =
+                Mathf.Clamp01(
+                    zoomCrop);
+
+            float widthBeforeZoom =
+                uv.width;
+
+            float heightBeforeZoom =
+                uv.height;
+
+            uv.width *=
+                1f - zoom;
+
+            uv.height *=
+                1f - zoom;
+
+            uv.x +=
+                (widthBeforeZoom - uv.width) *
+                0.5f;
+
+            uv.y +=
+                (heightBeforeZoom - uv.height) *
+                0.5f;
+
+            image.uvRect =
+                uv;
         }
 
         private void CompleteIntro()
@@ -2719,17 +2813,33 @@ namespace MotorCity.UI
 
         private readonly struct IntroSlide
         {
-            public readonly string Title;
+            public readonly string RussianTitle;
+            public readonly string EnglishTitle;
             public readonly string Russian;
             public readonly string English;
             public readonly string ResourcePath;
 
-            public IntroSlide(string title, string russian, string english, string resourcePath)
+            public IntroSlide(
+                string russianTitle,
+                string englishTitle,
+                string russian,
+                string english,
+                string resourcePath)
             {
-                Title = title;
-                Russian = russian;
-                English = english;
-                ResourcePath = resourcePath;
+                RussianTitle =
+                    russianTitle;
+
+                EnglishTitle =
+                    englishTitle;
+
+                Russian =
+                    russian;
+
+                English =
+                    english;
+
+                ResourcePath =
+                    resourcePath;
             }
         }
     }
