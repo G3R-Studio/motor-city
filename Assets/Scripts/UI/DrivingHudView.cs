@@ -721,7 +721,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(150f, -196f),
+                    new Vector2(0f, -196f),
                     new Vector2(640f, 58f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
