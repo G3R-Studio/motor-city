@@ -550,7 +550,10 @@ namespace MotorCity.UI
                 new Color(0.48f, 0.72f, 1f, 1f);
 
             GameObject wheelObject =
-                new("Loading Wheel", typeof(RectTransform));
+                new(
+                    "Loading Wheel",
+                    typeof(RectTransform),
+                    typeof(RawImage));
 
             wheelObject.transform.SetParent(
                 loadingRoot.transform,
@@ -568,78 +571,20 @@ namespace MotorCity.UI
             loadingWheel.anchoredPosition =
                 new Vector2(0f, -42f);
             loadingWheel.sizeDelta =
-                new Vector2(106f, 106f);
+                new Vector2(112f, 112f);
 
-            for (int i = 0; i < 10; i++)
-            {
-                GameObject spoke =
-                    new("Wheel Spoke", typeof(RectTransform), typeof(Image));
+            RawImage wheelImage =
+                wheelObject.GetComponent<RawImage>();
 
-                spoke.transform.SetParent(
-                    loadingWheel,
-                    false);
+            wheelImage.texture =
+                Resources.Load<Texture2D>(
+                    "MotorCity/UI/Loading/circle2");
 
-                RectTransform spokeRect =
-                    spoke.GetComponent<RectTransform>();
+            wheelImage.color =
+                Color.white;
 
-                spokeRect.anchorMin =
-                    new Vector2(0.5f, 0.5f);
-                spokeRect.anchorMax =
-                    new Vector2(0.5f, 0.5f);
-                spokeRect.pivot =
-                    new Vector2(0.5f, 0f);
-                spokeRect.anchoredPosition =
-                    Vector2.zero;
-                spokeRect.sizeDelta =
-                    new Vector2(9f, 43f);
-                spokeRect.localRotation =
-                    Quaternion.Euler(
-                        0f,
-                        0f,
-                        i * 36f);
-
-                Image spokeImage =
-                    spoke.GetComponent<Image>();
-
-                float alpha =
-                    Mathf.Lerp(
-                        0.24f,
-                        0.96f,
-                        (i + 1f) / 10f);
-
-                spokeImage.color =
-                    new Color(
-                        0.28f,
-                        0.66f,
-                        1f,
-                        alpha);
-                spokeImage.raycastTarget =
-                    false;
-            }
-
-            GameObject hub =
-                new("Wheel Hub", typeof(RectTransform), typeof(Image));
-
-            hub.transform.SetParent(
-                loadingWheel,
-                false);
-
-            RectTransform hubRect =
-                hub.GetComponent<RectTransform>();
-
-            hubRect.anchorMin =
-                new Vector2(0.5f, 0.5f);
-            hubRect.anchorMax =
-                new Vector2(0.5f, 0.5f);
-            hubRect.pivot =
-                new Vector2(0.5f, 0.5f);
-            hubRect.anchoredPosition =
-                Vector2.zero;
-            hubRect.sizeDelta =
-                new Vector2(34f, 34f);
-
-            hub.GetComponent<Image>().color =
-                new Color(0.055f, 0.11f, 0.19f, 1f);
+            wheelImage.raycastTarget =
+                false;
 
             GameObject roadObject =
                 new("Loading Road", typeof(RectTransform));
