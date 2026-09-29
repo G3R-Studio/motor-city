@@ -118,6 +118,10 @@ namespace MotorCity.Gameplay
                 targetReputation;
             activities =
                 activityManager;
+
+            activities?.SetOnboardingSystem(
+                this);
+
             garage =
                 garageSystem;
             turbo =
@@ -434,6 +438,19 @@ namespace MotorCity.Gameplay
 
             messageTimer =
                 MessageSeconds + 2f;
+        }
+
+        public void ShowActivityBlockedPrompt()
+        {
+            if (IsComplete)
+                return;
+
+            StatusText =
+                MotorCityLocalization.Text(
+                    "onboarding.finish_current_step");
+
+            messageTimer =
+                MessageSeconds;
         }
 
         public void ResetForTesting()

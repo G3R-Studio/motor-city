@@ -28,6 +28,7 @@ namespace MotorCity.Gameplay
 
         private PlayerReputation reputation;
         private DisciplineReputationSystem disciplineReputation;
+        private FirstSessionOnboardingSystem onboarding;
 
         public event Action<string, bool> ActivityResultShown;
         public event Action<string> ActivityCompleted;
@@ -77,9 +78,40 @@ namespace MotorCity.Gameplay
             if (HasResult) return false;
             if (IsBusy && ActiveId != id) return false;
 
+            if (!CanBeginDuringOnboarding(
+                    id))
+            {
+                onboarding?.ShowActivityBlockedPrompt();
+                return false;
+            }
+
             ActiveId = id;
             ActiveName = string.IsNullOrEmpty(displayName) ? id : displayName;
             return true;
+        }
+
+        public void SetOnboardingSystem(
+            FirstSessionOnboardingSystem system)
+        {
+            onboarding =
+                system;
+        }
+
+        private bool CanBeginDuringOnboarding(
+            string id)
+        {
+            if (onboarding == null ||
+                onboarding.IsComplete)
+            {
+                return true;
+            }
+
+            return onboarding.CurrentStep switch
+            {
+                4 => id == "delivery",
+                5 or 6 => id == "garage",
+                _ => false
+            };
         }
 
         public void End(string id)

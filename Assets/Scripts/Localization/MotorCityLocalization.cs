@@ -523,6 +523,7 @@ namespace MotorCity.Localization
 
                 { "onboarding.title", E("ПЕРВЫЕ ШАГИ", "FIRST STEPS") },
                 { "onboarding.path_prompt", E("ПРОЙДИ ПУТЬ НОВИЧКА - Витя и Турбо помогут разобраться с машиной и первым делом.", "COMPLETE THE ROOKIE PATH - Vitya and Turbo will help you learn the car and your first job.") },
+                { "onboarding.finish_current_step", E("Сначала закончи текущий шаг Пути новичка.", "Finish the current Rookie Path step first.") },
                 { "onboarding.welcome", E("Дядя Витя: Добрался? Машину я оставил тебе у мастерской. Она старая, но честная - привыкни к ней.", "Uncle Vitya: Made it? I left the car for you by the workshop. It is old but honest - get used to it.") },
                 { "onboarding.throttle", E("Я её прогрел. Дай немного газа и трогайся - почувствуй, как она тянет.", "I warmed it up. Give it some throttle and move off - feel how it pulls.") },
                 { "onboarding.good_throttle", E("Вот так. Теперь проверь руль - без резких движений.", "That is it. Now check the steering - no sudden moves.") },
