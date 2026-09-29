@@ -1253,24 +1253,6 @@ namespace MotorCity.UI
             if (card == null)
                 return;
 
-            Texture2D glowTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.modalPanel;
-
-            if (glowTexture != null)
-            {
-                CreatePanelEdgeGlow(
-                    card,
-                    glowTexture,
-                    new Color(
-                        0.36f,
-                        0.58f,
-                        1f,
-                        1f),
-                    "Navigator Card Glow");
-            }
-
             Outline outline =
                 card.GetComponent<Outline>();
 
@@ -5546,7 +5528,7 @@ namespace MotorCity.UI
                         8f,
                         6f),
                     new Vector2(
-                        148f,
+                        136f,
                         34f),
                     new Vector2(
                         0f,
@@ -5571,7 +5553,7 @@ namespace MotorCity.UI
                         14f,
                         0f),
                     new Vector2(
-                        120f,
+                        108f,
                         27f),
                     new Vector2(
                         0f,
@@ -5616,7 +5598,7 @@ namespace MotorCity.UI
                 new Vector2(-8f, 8f);
 
             navigatorButtonRect.sizeDelta =
-                new Vector2(40f, 30f);
+                new Vector2(52f, 30f);
 
             bool touchUi =
                 ShouldUseTouchUi();
@@ -5686,44 +5668,25 @@ namespace MotorCity.UI
             navigatorButton.onClick.AddListener(
                 ToggleNavigatorMenu);
 
-            Sprite navigatorIcon =
-                MotorCityIconLibrary.Get(
-                    "flag");
-
-            if (navigatorIcon != null)
-            {
-                CreateHudIcon(
+            Text navigatorButtonLabel =
+                CreateText(
                     navigatorButtonRect,
-                    "Navigator Icon",
-                    navigatorIcon,
+                    "Navigator Button Label",
+                    10,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(17f, 17f),
+                    new Vector2(46f, 24f),
+                    new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
-            }
 
-            if (touchUi)
-            {
-                Text navigatorButtonLabel =
-                    CreateText(
-                        navigatorButtonRect,
-                        "Navigator Button Label",
-                        11,
-                        FontStyle.Bold,
-                        TextAnchor.MiddleCenter,
-                        new Vector2(9f, 0f),
-                        new Vector2(48f, 26f),
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0.5f, 0.5f),
-                        TextColor);
+            navigatorButtonLabel.text =
+                MotorCityLocalization.Text(
+                    "navigator.touch_button");
 
-                navigatorButtonLabel.text =
-                    MotorCityLocalization.Text(
-                        "navigator.touch_button");
-
-                MakeButtonTextCrisp(
-                    navigatorButtonLabel);
-            }
+            MakeButtonTextCrisp(
+                navigatorButtonLabel);
         }
 
         private void UpdateNavigator(
@@ -8737,9 +8700,15 @@ namespace MotorCity.UI
                     }
                 });
 
+            bool suppressActionIcon =
+                name ==
+                "Navigator Touch Controls Close";
+
             Sprite actionIcon =
-                TouchActionIcon(
-                    action);
+                suppressActionIcon
+                    ? null
+                    : TouchActionIcon(
+                        action);
 
             if (actionIcon != null)
             {
