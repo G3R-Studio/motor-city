@@ -158,7 +158,7 @@ public static class FantasticCityGeneratorLegacyImporterFixer
         if (showDialog)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Legacy Importers",
+                "Motor City - FCG Legacy Importers",
                 changed > 0
                     ? "Исправлено устаревших FBX importer-настроек: " +
                       changed +
