@@ -2950,6 +2950,11 @@ namespace MotorCity.UI
             button.colors =
                 buttonColors;
 
+            if (buttonObject.GetComponent<UiButtonFeedback>() == null)
+            {
+                buttonObject.AddComponent<UiButtonFeedback>();
+            }
+
             button.onClick.AddListener(
                 action);
 
