@@ -15,6 +15,8 @@ namespace MotorCity.Gameplay
             "MotorCity.Club.WeeklyContribution";
         private const string RewardKey =
             "MotorCity.Club.WeeklyRewardClaimed";
+        private const string WeeklyMigrationKey =
+            "MotorCity.Club.WeeklyPerClubMigrated";
 
         private int WeeklyGoal
         {
@@ -175,6 +177,7 @@ namespace MotorCity.Gameplay
                     ? JoinedClubIndex
                     : 0;
 
+            MigrateLegacyWeeklyProgress();
             ResolveWeek();
 
             if (activities != null)
@@ -348,6 +351,59 @@ namespace MotorCity.Gameplay
                 5.5f;
         }
 
+        private void MigrateLegacyWeeklyProgress()
+        {
+            if (!HasClub ||
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    WeeklyMigrationKey,
+                    0) != 0)
+            {
+                return;
+            }
+
+            long week =
+                ResolveServerWeek();
+
+            long legacyWeek =
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    WeekKey,
+                    -1);
+
+            if (legacyWeek ==
+                week)
+            {
+                string suffix =
+                    "." +
+                    JoinedClubIndex;
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    WeekKey + suffix,
+                    (int)Math.Min(
+                        (long)int.MaxValue,
+                        week));
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    ContributionKey + suffix,
+                    Mathf.Max(
+                        0,
+                        MotorCity.Persistence.MotorCitySaveService.GetInt(
+                            ContributionKey,
+                            0)));
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    RewardKey + suffix,
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        RewardKey,
+                        0));
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                WeeklyMigrationKey,
+                1);
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+        }
+
         private void ResolveWeek()
         {
             currentWeek =
@@ -388,34 +444,8 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            // One-time compatibility path for the club selected in older saves.
-            long legacyWeek =
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
-                    WeekKey,
-                    -1);
-
-            if (legacyWeek ==
-                currentWeek)
-            {
-                weeklyContribution =
-                    Mathf.Clamp(
-                        MotorCity.Persistence.MotorCitySaveService.GetInt(
-                            ContributionKey,
-                            0),
-                        0,
-                        WeeklyGoal);
-
-                weeklyRewardClaimed =
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(
-                        RewardKey,
-                        0) != 0;
-            }
-            else
-            {
-                weeklyContribution = 0;
-                weeklyRewardClaimed = false;
-            }
-
+            weeklyContribution = 0;
+            weeklyRewardClaimed = false;
             SaveWeek();
         }
 
