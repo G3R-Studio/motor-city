@@ -1,4 +1,5 @@
 using MotorCity.Gameplay;
+using MotorCity.Audio;
 using MotorCity.Localization;
 using MotorCity.Persistence;
 using MotorCity.Platform;
@@ -38,6 +39,7 @@ namespace MotorCity.UI
         private Text primaryButtonText;
         private Text settingsQualityText;
         private Text settingsAudioText;
+        private Text settingsMusicText;
         private Text settingsLanguageText;
         private Text introCounterText;
         private Text introTitleText;
@@ -146,6 +148,7 @@ namespace MotorCity.UI
                 hud != null;
 
             EnsureUiEventSystem();
+            MotorCityMusicRuntime.EnsureExists();
             EnsureFrontEndCamera();
             ApplyLanguageOverride();
 
@@ -673,7 +676,7 @@ namespace MotorCity.UI
                     settingsRoot.transform,
                     "Settings Panel",
                     Vector2.zero,
-                    new Vector2(1180f, 670f));
+                    new Vector2(1180f, 760f));
 
             Text heading =
                 CreateText(
@@ -692,7 +695,7 @@ namespace MotorCity.UI
             CreateSettingsRow(
                 panel,
                 IsRussian() ? "ГРАФИКА" : "GRAPHICS",
-                -165f,
+                -145f,
                 out settingsQualityText,
                 () => ChangeQuality(-1),
                 () => ChangeQuality(1),
@@ -701,7 +704,7 @@ namespace MotorCity.UI
             CreateSettingsRow(
                 panel,
                 IsRussian() ? "ЗВУК" : "AUDIO",
-                -275f,
+                -245f,
                 out settingsAudioText,
                 () => AdjustAudio(-1),
                 () => AdjustAudio(1),
@@ -709,8 +712,17 @@ namespace MotorCity.UI
 
             CreateSettingsRow(
                 panel,
+                IsRussian() ? "МУЗЫКА" : "MUSIC",
+                -345f,
+                out settingsMusicText,
+                () => AdjustMusic(-1),
+                () => AdjustMusic(1),
+                ToggleMusic);
+
+            CreateSettingsRow(
+                panel,
                 IsRussian() ? "ЯЗЫК" : "LANGUAGE",
-                -385f,
+                -445f,
                 out settingsLanguageText,
                 null,
                 null,
@@ -1839,6 +1851,14 @@ namespace MotorCity.UI
                         : $"{Mathf.RoundToInt(volume * 100f)}%";
             }
 
+            if (settingsMusicText != null)
+            {
+                settingsMusicText.text =
+                    MotorCityMusicRuntime.Muted
+                        ? (IsRussian() ? "ВЫКЛ" : "OFF")
+                        : $"{Mathf.RoundToInt(MotorCityMusicRuntime.Volume * 100f)}%";
+            }
+
             if (settingsLanguageText != null)
                 settingsLanguageText.text = IsRussian() ? "РУССКИЙ" : "ENGLISH";
         }
@@ -1925,6 +1945,21 @@ namespace MotorCity.UI
                 frontEndAudioMuted
                     ? 0f
                     : frontEndAudioVolume;
+        }
+
+        private void AdjustMusic(
+            int direction)
+        {
+            MotorCityMusicRuntime.AdjustVolume(
+                direction);
+
+            RefreshSettingsText();
+        }
+
+        private void ToggleMusic()
+        {
+            MotorCityMusicRuntime.ToggleMute();
+            RefreshSettingsText();
         }
 
         private void ToggleLanguage()

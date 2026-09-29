@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MotorCity.Audio;
 using MotorCity.Gameplay;
 using MotorCity.Input;
 using MotorCity.Localization;
@@ -53,6 +54,7 @@ namespace MotorCity.UI
         private GameObject pauseOverlay;
         private Text pauseQualityText;
         private Text pauseAudioText;
+        private Text pauseMusicText;
         private bool pauseMenuOpen;
         private bool audioMuted;
         private float audioVolume = 1f;
@@ -82,6 +84,27 @@ namespace MotorCity.UI
         {
             AdjustAudioVolume(
                 direction);
+        }
+
+        public bool FrontEndMusicMuted =>
+            MotorCityMusicRuntime.Muted;
+
+        public float FrontEndMusicVolume =>
+            MotorCityMusicRuntime.Volume;
+
+        public void FrontEndToggleMusic()
+        {
+            MotorCityMusicRuntime.ToggleMute();
+            RefreshPauseMenuText();
+        }
+
+        public void FrontEndAdjustMusic(
+            int direction)
+        {
+            MotorCityMusicRuntime.AdjustVolume(
+                direction);
+
+            RefreshPauseMenuText();
         }
 
         private AchievementSystem achievements;
@@ -943,6 +966,7 @@ namespace MotorCity.UI
         private void BuildUi()
         {
             EnsureUiEventSystem();
+            MotorCityMusicRuntime.EnsureExists();
             MotorCityIconLibrary.PrewarmCore();
 
             font =

@@ -55,7 +55,7 @@ namespace MotorCity.UI
                     Vector2.zero,
                     new Vector2(
                         560f,
-                        330f),
+                        410f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -96,7 +96,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     panel,
                     "Pause Quality Card",
-                    new Vector2(0f, 48f),
+                    new Vector2(0f, 82f),
                     new Vector2(470f, 64f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
@@ -165,7 +165,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     panel,
                     "Pause Audio Card",
-                    new Vector2(0f, -30f),
+                    new Vector2(0f, 4f),
                     new Vector2(470f, 64f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
@@ -237,6 +237,83 @@ namespace MotorCity.UI
                 new Vector2(177f, 0f),
                 new Vector2(104f, 38f),
                 ToggleAudioMute);
+
+            RectTransform musicCard =
+                CreatePanel(
+                    panel,
+                    "Pause Music Card",
+                    new Vector2(0f, -74f),
+                    new Vector2(470f, 64f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Color(
+                        PanelSoftColor.r,
+                        PanelSoftColor.g,
+                        PanelSoftColor.b,
+                        0.72f));
+
+            StylePauseSettingsCard(
+                musicCard);
+
+            Text musicLabel =
+                CreateText(
+                    musicCard,
+                    "Pause Music Label",
+                    UiSectionLabelFontSize,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(-194f, 0f),
+                    new Vector2(126f, 36f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    new Color(
+                        0.46f,
+                        0.82f,
+                        1f,
+                        1f));
+
+            musicLabel.text =
+                MotorCityLocalization.Text(
+                    "pause.music_label");
+
+            pauseMusicText =
+                CreateText(
+                    musicCard,
+                    "Pause Music",
+                    UiValueFontSize,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(-28f, 0f),
+                    new Vector2(100f, 40f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+
+            CreatePauseButton(
+                musicCard,
+                "Pause Music Volume Down",
+                "pause.minus",
+                new Vector2(50f, 0f),
+                new Vector2(42f, 38f),
+                () =>
+                    AdjustMusicVolume(-1));
+
+            CreatePauseButton(
+                musicCard,
+                "Pause Music Volume Up",
+                "pause.plus",
+                new Vector2(98f, 0f),
+                new Vector2(42f, 38f),
+                () =>
+                    AdjustMusicVolume(1));
+
+            CreatePauseButton(
+                musicCard,
+                "Pause Music Toggle",
+                "pause.toggle",
+                new Vector2(177f, 0f),
+                new Vector2(104f, 38f),
+                ToggleMusicMute);
 
             BuildPauseTouchActions(
                 panel);
@@ -346,7 +423,7 @@ namespace MotorCity.UI
                 panel,
                 "Pause Resume",
                 "pause.resume",
-                new Vector2(0f, -122f),
+                new Vector2(0f, -164f),
                 new Vector2(300f, 50f),
                 ClosePauseMenu);
         }
@@ -662,6 +739,21 @@ namespace MotorCity.UI
             RefreshPauseMenuText();
         }
 
+        private void AdjustMusicVolume(
+            int direction)
+        {
+            MotorCityMusicRuntime.AdjustVolume(
+                direction);
+
+            RefreshPauseMenuText();
+        }
+
+        private void ToggleMusicMute()
+        {
+            MotorCityMusicRuntime.ToggleMute();
+            RefreshPauseMenuText();
+        }
+
         private void ApplyAudioVolume()
         {
             AudioListener.volume =
@@ -797,6 +889,21 @@ namespace MotorCity.UI
                 pauseAudioText.text =
                     MotorCityLocalization.Format(
                         audioMuted
+                            ? "pause.audio_muted_value"
+                            : "pause.audio_value",
+                        percent);
+            }
+
+            if (pauseMusicText != null)
+            {
+                int percent =
+                    Mathf.RoundToInt(
+                        MotorCityMusicRuntime.Volume *
+                        100f);
+
+                pauseMusicText.text =
+                    MotorCityLocalization.Format(
+                        MotorCityMusicRuntime.Muted
                             ? "pause.audio_muted_value"
                             : "pause.audio_value",
                         percent);
