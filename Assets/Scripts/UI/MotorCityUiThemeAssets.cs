@@ -18,5 +18,12 @@ namespace MotorCity.UI
         public Texture2D minimapPlayerPointer;
         public Texture2D modalPanel;
         public Texture2D modalButton;
-        public Texture2D passportPanel;    }
+        public Texture2D passportPanel;
+
+        [Header("Touch driving controls")]
+        public Texture2D touchThrottle;
+        public Texture2D touchBrake;
+        public Texture2D touchHandbrake;
+        public Texture2D touchWheel;
+    }
 }
