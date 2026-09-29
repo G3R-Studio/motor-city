@@ -155,7 +155,7 @@ namespace MotorCity.Gameplay
                     WindowId,
                     windowRect,
                     DrawWindow,
-                    "MOTOR CITY — ADMIN / TEST");
+                    "MOTOR CITY - ADMIN / TEST");
         }
 
         private void DrawWindow(int id)
@@ -203,7 +203,7 @@ namespace MotorCity.Gameplay
 
             GUILayout.Space(14f);
             GUILayout.Label("ПОСЛЕДНЕЕ: " + lastAction);
-            GUILayout.Label("F10 / TILDE — закрыть панель");
+            GUILayout.Label("F10 / TILDE - закрыть панель");
 
             GUILayout.EndScrollView();
 
@@ -216,7 +216,7 @@ namespace MotorCity.Gameplay
             string vehicle =
                 roster != null
                     ? roster.SelectedName
-                    : "—";
+                    : "-";
 
             GUILayout.Label(
                 "КР " +
@@ -779,7 +779,7 @@ namespace MotorCity.Gameplay
             if (professions != null &&
                 professions.StartCount > 0)
             {
-                Section("ПРОФЕССИИ — СТАРТЫ");
+                Section("ПРОФЕССИИ - СТАРТЫ");
 
                 column = 0;
 
@@ -809,7 +809,7 @@ namespace MotorCity.Gameplay
 
             if (towTruck != null)
             {
-                Section("ЭВАКУАТОР — ТОЧКИ");
+                Section("ЭВАКУАТОР - ТОЧКИ");
 
                 column = 0;
 
@@ -1313,7 +1313,7 @@ namespace MotorCity.Gameplay
             if (string.IsNullOrWhiteSpace(
                     value))
             {
-                return "—";
+                return "-";
             }
 
             string compact =
@@ -1469,7 +1469,7 @@ namespace MotorCity.Gameplay
         {
             if (system == null)
             {
-                GUILayout.Label("— не найдено");
+                GUILayout.Label("- не найдено");
                 return;
             }
 
