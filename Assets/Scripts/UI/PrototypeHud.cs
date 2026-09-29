@@ -11234,6 +11234,24 @@ namespace MotorCity.UI
             image.raycastTarget = false;
         }
 
+        private static int RuntimeTextMinSize(
+            int fontSize)
+        {
+            if (fontSize <= 11)
+            {
+                return
+                    Mathf.Max(
+                        9,
+                        fontSize - 2);
+            }
+
+            return
+                Mathf.Max(
+                    11,
+                    Mathf.RoundToInt(
+                        fontSize * 0.78f));
+        }
+
         private Text CreateText(
             Transform parent,
             string name,
@@ -11285,16 +11303,23 @@ namespace MotorCity.UI
             text.alignment = alignment;
             text.color = color;
             text.raycastTarget = false;
+            text.alignByGeometry = true;
+            text.lineSpacing = 1f;
 
             text.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             text.verticalOverflow =
                 VerticalWrapMode.Truncate;
 
+            // Keep one readable typography rule across the runtime HUD.
+            // Dynamic text may shrink, but never all the way down to tiny
+            // 8–9 px glyphs unless that size was requested explicitly.
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize =
-                Mathf.Max(8, fontSize - 7);
-            text.resizeTextMaxSize = fontSize;
+                RuntimeTextMinSize(
+                    fontSize);
+            text.resizeTextMaxSize =
+                fontSize;
 
             Shadow shadow =
                 go.AddComponent<Shadow>();
