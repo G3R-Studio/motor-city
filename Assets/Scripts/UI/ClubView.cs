@@ -287,10 +287,11 @@ namespace MotorCity.UI
                 club.BrowseClubDescription;
 
             clubWeeklyText.text =
-                club.HasClub
+                club.HasClub &&
+                club.BrowseClubIndex ==
+                    club.JoinedClubIndex
                     ? club.WeeklyLine
-                    : MotorCityLocalization.Text(
-                        "club.join_prompt");
+                    : club.BrowseClubGoalLine;
 
             // Navigation/join actions are represented by the buttons below.
 

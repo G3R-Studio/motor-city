@@ -16,13 +16,30 @@ namespace MotorCity.Gameplay
         private const string RewardKey =
             "MotorCity.Club.WeeklyRewardClaimed";
 
-        private int WeeklyGoal =>
-            Mathf.Clamp(
-                MotorCityRemoteConfigRuntime.GetInt(
-                    "club_weekly_goal",
-                    12),
-                3,
-                30);
+        private int WeeklyGoal
+        {
+            get
+            {
+                ClubDefinition definition =
+                    CurrentClubDefinition();
+
+                int fallback =
+                    definition == null
+                        ? 10
+                        : definition.WeeklyGoal;
+
+                return
+                    Mathf.Clamp(
+                        MotorCityRemoteConfigRuntime.GetInt(
+                            "club_weekly_goal_" +
+                            Mathf.Max(
+                                0,
+                                JoinedClubIndex),
+                            fallback),
+                        3,
+                        30);
+            }
+        }
 
         private ActivityManager activities;
         private PlayerWallet wallet;
@@ -96,6 +113,25 @@ namespace MotorCity.Gameplay
                             clubs.Length - 1)]
                         .DescriptionKey);
 
+        public string BrowseClubGoalLine
+        {
+            get
+            {
+                ClubDefinition definition =
+                    BrowseClubDefinition();
+
+                if (definition == null)
+                    return string.Empty;
+
+                return
+                    MotorCityLocalization.Format(
+                        "club.browse_goal",
+                        MotorCityLocalization.Text(
+                            definition.FocusKey),
+                        definition.WeeklyGoal);
+            }
+        }
+
         public string WeeklyLine =>
             MotorCityLocalization.Format(
                 weeklyRewardClaimed
@@ -143,8 +179,8 @@ namespace MotorCity.Gameplay
 
             if (activities != null)
             {
-                activities.ActivityResultShown +=
-                    OnActivityResult;
+                activities.ActivityCompleted +=
+                    OnActivityCompleted;
             }
         }
 
@@ -173,8 +209,8 @@ namespace MotorCity.Gameplay
         {
             if (activities != null)
             {
-                activities.ActivityResultShown -=
-                    OnActivityResult;
+                activities.ActivityCompleted -=
+                    OnActivityCompleted;
             }
         }
 
@@ -215,6 +251,8 @@ namespace MotorCity.Gameplay
 
             MotorCity.Persistence.MotorCitySaveService.Save();
 
+            ResolveWeek();
+
             StatusText =
                 MotorCityLocalization.Format(
                     "club.joined",
@@ -224,9 +262,8 @@ namespace MotorCity.Gameplay
                 4.5f;
         }
 
-        private void OnActivityResult(
-            string activityId,
-            bool success)
+        private void OnActivityCompleted(
+            string activityId)
         {
             if (activities != null &&
                 !activities.SecondaryProgressionAllowed)
@@ -234,9 +271,10 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (!success ||
-                !HasClub ||
-                weeklyRewardClaimed)
+            if (!HasClub ||
+                weeklyRewardClaimed ||
+                !MatchesCurrentClub(
+                    activityId))
             {
                 return;
             }
@@ -315,12 +353,48 @@ namespace MotorCity.Gameplay
             currentWeek =
                 ResolveServerWeek();
 
+            if (!HasClub)
+            {
+                weeklyContribution = 0;
+                weeklyRewardClaimed = false;
+                return;
+            }
+
+            string suffix =
+                "." +
+                JoinedClubIndex;
+
             long savedWeek =
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    WeekKey + suffix,
+                    -1);
+
+            if (savedWeek ==
+                currentWeek)
+            {
+                weeklyContribution =
+                    Mathf.Clamp(
+                        MotorCity.Persistence.MotorCitySaveService.GetInt(
+                            ContributionKey + suffix,
+                            0),
+                        0,
+                        WeeklyGoal);
+
+                weeklyRewardClaimed =
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        RewardKey + suffix,
+                        0) != 0;
+
+                return;
+            }
+
+            // One-time compatibility path for the club selected in older saves.
+            long legacyWeek =
                 MotorCity.Persistence.MotorCitySaveService.GetInt(
                     WeekKey,
                     -1);
 
-            if (savedWeek ==
+            if (legacyWeek ==
                 currentWeek)
             {
                 weeklyContribution =
@@ -335,29 +409,37 @@ namespace MotorCity.Gameplay
                     MotorCity.Persistence.MotorCitySaveService.GetInt(
                         RewardKey,
                         0) != 0;
-
-                return;
+            }
+            else
+            {
+                weeklyContribution = 0;
+                weeklyRewardClaimed = false;
             }
 
-            weeklyContribution = 0;
-            weeklyRewardClaimed = false;
             SaveWeek();
         }
 
         private void SaveWeek()
         {
+            if (!HasClub)
+                return;
+
+            string suffix =
+                "." +
+                JoinedClubIndex;
+
             MotorCity.Persistence.MotorCitySaveService.SetInt(
-                WeekKey,
+                WeekKey + suffix,
                 (int)Math.Min(
                     (long)int.MaxValue,
                     currentWeek));
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(
-                ContributionKey,
+                ContributionKey + suffix,
                 weeklyContribution);
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(
-                RewardKey,
+                RewardKey + suffix,
                 weeklyRewardClaimed
                     ? 1
                     : 0);
@@ -374,6 +456,83 @@ namespace MotorCity.Gameplay
                     604800L);
         }
 
+        private bool MatchesCurrentClub(
+            string activityId)
+        {
+            ClubDefinition definition =
+                CurrentClubDefinition();
+
+            if (definition == null ||
+                string.IsNullOrWhiteSpace(
+                    activityId))
+            {
+                return false;
+            }
+
+            return
+                definition.Focus switch
+                {
+                    ClubFocus.Neon =>
+                        activityId == "drift" ||
+                        activityId == "driftspot" ||
+                        activityId == "underground",
+
+                    ClubFocus.Turbo =>
+                        activityId == "discovery" ||
+                        activityId == "photo_hunt" ||
+                        activityId == "speedtrap" ||
+                        activityId == "stuntjump",
+
+                    ClubFocus.Sun =>
+                        activityId == "delivery" ||
+                        activityId.StartsWith(
+                            "profession_",
+                            StringComparison.Ordinal),
+
+                    ClubFocus.Rainbow =>
+                        activityId == "drift" ||
+                        activityId == "driftspot",
+
+                    ClubFocus.City =>
+                        activityId == "discovery" ||
+                        activityId == "speedtrap" ||
+                        activityId == "photo_hunt" ||
+                        activityId == "profession_taxi" ||
+                        activityId == "profession_mail",
+
+                    ClubFocus.Spark =>
+                        activityId == "sprint" ||
+                        activityId == "circuit",
+
+                    _ =>
+                        false
+                };
+        }
+
+        private ClubDefinition CurrentClubDefinition()
+        {
+            return
+                !HasClub
+                    ? null
+                    : clubs[JoinedClubIndex];
+        }
+
+        private ClubDefinition BrowseClubDefinition()
+        {
+            if (clubs == null ||
+                clubs.Length == 0)
+            {
+                return null;
+            }
+
+            return
+                clubs[
+                    Mathf.Clamp(
+                        BrowseClubIndex,
+                        0,
+                        clubs.Length - 1)];
+        }
+
         private void BuildClubs()
         {
             clubs =
@@ -382,45 +541,79 @@ namespace MotorCity.Gameplay
                     new ClubDefinition(
                         "club.name.neon",
                         "club.desc.neon",
-                        "N"),
+                        "club.focus.neon",
+                        "N",
+                        8,
+                        ClubFocus.Neon),
 
                     new ClubDefinition(
                         "club.name.turbo",
                         "club.desc.turbo",
-                        "T"),
+                        "club.focus.turbo",
+                        "T",
+                        8,
+                        ClubFocus.Turbo),
 
                     new ClubDefinition(
                         "club.name.sun",
                         "club.desc.sun",
-                        "S"),
+                        "club.focus.sun",
+                        "S",
+                        10,
+                        ClubFocus.Sun),
 
                     new ClubDefinition(
                         "club.name.rainbow",
                         "club.desc.rainbow",
-                        "R"),
+                        "club.focus.rainbow",
+                        "R",
+                        8,
+                        ClubFocus.Rainbow),
 
                     new ClubDefinition(
                         "club.name.city",
                         "club.desc.city",
-                        "C"),
+                        "club.focus.city",
+                        "C",
+                        8,
+                        ClubFocus.City),
 
                     new ClubDefinition(
                         "club.name.spark",
                         "club.desc.spark",
-                        "K")
+                        "club.focus.spark",
+                        "K",
+                        10,
+                        ClubFocus.Spark)
                 };
+        }
+
+        private enum ClubFocus
+        {
+            Neon,
+            Turbo,
+            Sun,
+            Rainbow,
+            City,
+            Spark
         }
 
         private sealed class ClubDefinition
         {
             public readonly string NameKey;
             public readonly string DescriptionKey;
+            public readonly string FocusKey;
             public readonly string Emblem;
+            public readonly int WeeklyGoal;
+            public readonly ClubFocus Focus;
 
             public ClubDefinition(
                 string nameKey,
                 string descriptionKey,
-                string emblem)
+                string focusKey,
+                string emblem,
+                int weeklyGoal,
+                ClubFocus focus)
             {
                 NameKey =
                     nameKey;
@@ -428,8 +621,19 @@ namespace MotorCity.Gameplay
                 DescriptionKey =
                     descriptionKey;
 
+                FocusKey =
+                    focusKey;
+
                 Emblem =
                     emblem;
+
+                WeeklyGoal =
+                    Mathf.Max(
+                        1,
+                        weeklyGoal);
+
+                Focus =
+                    focus;
             }
         }
     }
