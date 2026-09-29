@@ -471,7 +471,7 @@ namespace MotorCity.Audio
             source.volume =
                 musicMuted
                     ? 0f
-                    : musicVolume;
+                    : musicVolume * 0.45f;
         }
     }
 }
