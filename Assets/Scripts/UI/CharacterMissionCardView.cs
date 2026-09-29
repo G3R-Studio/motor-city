@@ -425,38 +425,6 @@ namespace MotorCity.UI
                         _ => "vitya"
                     };
             }
-            else if (season != null &&
-                     season.IsSeasonOneActive &&
-                     !season.IsComplete)
-            {
-                name =
-                    season.CurrentCharacterName;
-
-                line =
-                    season.CurrentCharacterLine;
-
-                int seasonStyle =
-                    season.CurrentCharacterStyle;
-
-                style =
-                    seasonStyle switch
-                    {
-                        1 => 3,
-                        2 => 1,
-                        3 => 2,
-                        _ => 0
-                    };
-
-                portraitId =
-                    style switch
-                    {
-                        1 => "nika",
-                        2 => "bublik",
-                        3 => "turbo",
-                        _ => "vitya"
-                    };
-            }
-
             bool visible =
                 !string.IsNullOrWhiteSpace(
                     name);
@@ -496,43 +464,28 @@ namespace MotorCity.UI
                             1f)
                 };
 
-            bool storySource =
-                (onboarding != null &&
-                 !onboarding.IsComplete) ||
-                (story != null &&
-                 !story.IsComplete);
-
-            if (storySource)
+            if (story != null &&
+                !story.IsComplete &&
+                (onboarding == null ||
+                 onboarding.IsComplete))
             {
-                if (story != null &&
-                    !story.IsComplete &&
-                    (onboarding == null ||
-                     onboarding.IsComplete))
-                {
-                    characterSourceText.text =
-                        MotorCityLocalization.Format(
-                            "hud.character.story_progress",
-                            story.CurrentMissionNumber,
-                            story.MissionCount);
-                }
-                else
-                {
-                    characterSourceText.text =
-                        onboarding != null &&
-                        !onboarding.IsComplete
-                            ? MotorCityLocalization.Format(
-                                "hud.character.story_progress",
-                                onboarding.CurrentStepNumber,
-                                onboarding.StepCount)
-                            : MotorCityLocalization.Text(
-                                "hud.character.story");
-                }
+                characterSourceText.text =
+                    MotorCityLocalization.Format(
+                        "hud.character.story_progress",
+                        story.CurrentMissionNumber,
+                        story.MissionCount);
             }
             else
             {
                 characterSourceText.text =
-                    MotorCityLocalization.Text(
-                        "hud.character.season");
+                    onboarding != null &&
+                    !onboarding.IsComplete
+                        ? MotorCityLocalization.Format(
+                            "hud.character.story_progress",
+                            onboarding.CurrentStepNumber,
+                            onboarding.StepCount)
+                        : MotorCityLocalization.Text(
+                            "hud.character.story");
             }
 
             characterSourceText.color =
@@ -920,6 +873,229 @@ namespace MotorCity.UI
 
             characterPortraitRightDetail.rectTransform.anchoredPosition =
                 rightDetailPosition;
+        }
+
+        private void BuildSeasonPanel(
+            Transform canvas)
+        {
+            RectTransform panel =
+                CreatePanel(
+                    canvas,
+                    "Season Panel",
+                    new Vector2(
+                        22f,
+                        -22f),
+                    new Vector2(
+                        448f,
+                        188f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    Color.clear);
+
+            seasonPanel =
+                panel.gameObject;
+
+            ApplyVillePanelTexture(
+                panel,
+                0.96f);
+
+            seasonNameText =
+                CreateText(
+                    panel,
+                    "Season Name",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(18f, -14f),
+                    new Vector2(250f, 20f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Color(
+                        0.36f,
+                        0.82f,
+                        1f,
+                        1f));
+
+            seasonMissionText =
+                CreateText(
+                    panel,
+                    "Season Mission",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.UpperRight,
+                    new Vector2(-18f, -14f),
+                    new Vector2(150f, 20f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
+                    SecondaryTextColor);
+
+            seasonTitleText =
+                CreateText(
+                    panel,
+                    "Season Title",
+                    20,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(18f, -40f),
+                    new Vector2(400f, 30f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    TextColor);
+
+            seasonProgressText =
+                CreateText(
+                    panel,
+                    "Season Progress",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.UpperLeft,
+                    new Vector2(18f, -80f),
+                    new Vector2(220f, 20f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    SecondaryTextColor);
+
+            RectTransform track =
+                CreatePanel(
+                    panel,
+                    "Season Progress Track",
+                    new Vector2(18f, -108f),
+                    new Vector2(412f, 8f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Color(
+                        0.08f,
+                        0.11f,
+                        0.16f,
+                        0.92f));
+
+            RectTransform fill =
+                CreatePanel(
+                    track,
+                    "Season Progress Fill",
+                    Vector2.zero,
+                    new Vector2(0f, 8f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    new Color(
+                        0.24f,
+                        0.88f,
+                        1f,
+                        1f));
+
+            seasonProgressFill =
+                fill.GetComponent<Image>();
+
+            seasonRewardText =
+                CreateText(
+                    panel,
+                    "Season Reward",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.LowerLeft,
+                    new Vector2(18f, 26f),
+                    new Vector2(300f, 22f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Color(
+                        1f,
+                        0.78f,
+                        0.20f,
+                        1f));
+
+            seasonDaysText =
+                CreateText(
+                    panel,
+                    "Season Days",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.LowerRight,
+                    new Vector2(-18f, 26f),
+                    new Vector2(120f, 22f),
+                    new Vector2(1f, 0f),
+                    new Vector2(1f, 0f),
+                    SecondaryTextColor);
+
+            seasonPanel.SetActive(
+                false);
+        }
+
+        private void UpdateSeasonPanel()
+        {
+            if (seasonPanel == null)
+                return;
+
+            bool visible =
+                season != null &&
+                season.IsSeasonOneActive &&
+                !season.IsComplete &&
+                (onboarding == null ||
+                 onboarding.IsComplete) &&
+                (story == null ||
+                 story.IsComplete);
+
+            seasonPanel.SetActive(
+                visible);
+
+            if (!visible)
+                return;
+
+            seasonNameText.text =
+                MotorCityLocalization.Text(
+                    "season1.ui_name");
+
+            seasonMissionText.text =
+                MotorCityLocalization.Format(
+                    "season1.ui_mission",
+                    season.CurrentMissionNumber,
+                    season.MissionCount);
+
+            seasonTitleText.text =
+                season.CurrentMissionTitle;
+
+            int target =
+                Mathf.Max(
+                    1,
+                    season.CurrentMissionTarget);
+
+            int progress =
+                Mathf.Clamp(
+                    season.CurrentMissionProgress,
+                    0,
+                    target);
+
+            seasonProgressText.text =
+                MotorCityLocalization.Format(
+                    "season1.ui_progress",
+                    progress,
+                    target);
+
+            if (seasonProgressFill != null)
+            {
+                seasonProgressFill.rectTransform.sizeDelta =
+                    new Vector2(
+                        412f *
+                        Mathf.Clamp01(
+                            progress /
+                            (float)target),
+                        8f);
+            }
+
+            seasonRewardText.text =
+                MotorCityLocalization.Format(
+                    "season1.ui_reward",
+                    season.CurrentCreditsReward,
+                    season.CurrentReputationReward,
+                    season.CurrentTurboXpReward);
+
+            seasonDaysText.text =
+                MotorCityLocalization.Format(
+                    "season1.ui_days",
+                    season.DaysRemaining);
         }
 
         private string ResolveObjectiveLine()

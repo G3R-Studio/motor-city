@@ -611,6 +611,7 @@ namespace MotorCity.UI
                 }
     
                 UpdateCharacterCard();
+                UpdateSeasonPanel();
     
                 if (driveModeText != null &&
                     car != null &&
@@ -976,6 +977,7 @@ namespace MotorCity.UI
 
             BuildPlayerCard(safeAreaRoot);
             BuildCharacterCard(safeAreaRoot);
+            BuildSeasonPanel(safeAreaRoot);
             BuildSpeedometer(safeAreaRoot);
             BuildStatus(safeAreaRoot);
             BuildNavigator(safeAreaRoot);
