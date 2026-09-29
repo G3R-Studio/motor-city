@@ -453,6 +453,67 @@ namespace MotorCity.Gameplay
                 MessageSeconds;
         }
 
+        public void AdvanceStepForTesting()
+        {
+            if (IsComplete)
+                return;
+
+            step++;
+
+            if (step >= StepCount)
+            {
+                IsComplete = true;
+                step = StepCount;
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    CompleteKey,
+                    1);
+            }
+            else
+            {
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    CompleteKey);
+            }
+
+            drivenDistance = 0f;
+            activitySucceeded = false;
+            introTimer = 0f;
+            customizationColorIndexAtStepStart = -1;
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                StepKey,
+                step);
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            StatusText =
+                IsComplete
+                    ? string.Empty
+                    : ObjectiveLine;
+
+            messageTimer =
+                MessageSeconds;
+        }
+
+        public void CompleteForTesting()
+        {
+            step = StepCount;
+            IsComplete = true;
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                StepKey,
+                step);
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                CompleteKey,
+                1);
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            StatusText = string.Empty;
+            messageTimer = 0f;
+        }
+
         public void ResetForTesting()
         {
             IsComplete = false;

@@ -309,6 +309,70 @@ namespace MotorCity.Gameplay
                 4.5f;
         }
 
+        public void SetClubForTesting(
+            int index)
+        {
+            if (clubs == null ||
+                clubs.Length == 0)
+            {
+                return;
+            }
+
+            BrowseClubIndex =
+                Mathf.Clamp(
+                    index,
+                    0,
+                    clubs.Length - 1);
+
+            JoinBrowseClub();
+        }
+
+        public void CompleteWeeklyForTesting()
+        {
+            if (!HasClub)
+                return;
+
+            weeklyContribution =
+                WeeklyGoal;
+
+            SaveWeek();
+            CompleteWeeklyGoal();
+        }
+
+        public void ResetForTesting()
+        {
+            JoinedClubIndex = -1;
+            BrowseClubIndex = 0;
+            weeklyContribution = 0;
+            weeklyRewardClaimed = false;
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                ClubKey);
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                GlobalRewardWeekKey);
+
+            for (int i = 0; i < 6; i++)
+            {
+                string suffix =
+                    "." + i;
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    WeekKey + suffix);
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    ContributionKey + suffix);
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    RewardKey + suffix);
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            StatusText = string.Empty;
+            messageTimer = 0f;
+        }
+
         private void OnActivityCompleted(
             string activityId)
         {

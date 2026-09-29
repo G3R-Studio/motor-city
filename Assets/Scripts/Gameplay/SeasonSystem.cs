@@ -468,6 +468,87 @@ namespace MotorCity.Gameplay
                 missions[missionIndex];
         }
 
+        public void AdvanceMissionForTesting()
+        {
+            if (missions == null ||
+                missions.Length == 0 ||
+                IsComplete)
+            {
+                return;
+            }
+
+            missionIndex++;
+
+            if (missionIndex >= missions.Length)
+            {
+                missionIndex =
+                    missions.Length - 1;
+
+                progress =
+                    missions[missionIndex].Target;
+
+                IsComplete = true;
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    CompleteKey,
+                    1);
+            }
+            else
+            {
+                progress = 0;
+
+                IsComplete = false;
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    CompleteKey);
+            }
+
+            Save();
+        }
+
+        public void ResetForTesting()
+        {
+            missionIndex = 0;
+            progress = 0;
+            IsComplete = false;
+            messageTimer = 0f;
+            StatusText = string.Empty;
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                MissionKey);
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                ProgressKey);
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                CompleteKey);
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+        }
+
+        public void CompleteForTesting()
+        {
+            if (missions == null ||
+                missions.Length == 0)
+            {
+                return;
+            }
+
+            missionIndex =
+                missions.Length - 1;
+
+            progress =
+                missions[missionIndex].Target;
+
+            IsComplete = true;
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                CompleteKey,
+                1);
+
+            Save();
+        }
+
         private void Save()
         {
             MotorCity.Persistence.MotorCitySaveService.SetInt(
