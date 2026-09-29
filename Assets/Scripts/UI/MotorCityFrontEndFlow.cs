@@ -1,6 +1,7 @@
 using MotorCity.Gameplay;
 using MotorCity.Audio;
 using MotorCity.Localization;
+using MotorCity.Input;
 using MotorCity.Persistence;
 using MotorCity.Platform;
 using MotorCity.Vehicle;
@@ -36,6 +37,7 @@ namespace MotorCity.UI
         private GameObject aboutRoot;
         private GameObject settingsRoot;
         private GameObject introRoot;
+        private GameObject controlChoiceRoot;
         private Text primaryButtonText;
         private Text settingsQualityText;
         private Text settingsAudioText;
@@ -304,6 +306,9 @@ namespace MotorCity.UI
             aboutRoot = CreateScreen("About Screen", new Color(0.01f, 0.015f, 0.025f, 0.97f));
             settingsRoot = CreateScreen("Settings Screen", new Color(0.01f, 0.015f, 0.025f, 0.97f));
             introRoot = CreateScreen("Intro Screen", Color.black);
+            controlChoiceRoot = CreateScreen(
+                "Control Choice Screen",
+                new Color(0.008f, 0.014f, 0.024f, 0.98f));
             loadingRoot = CreateScreen("Loading Screen", new Color(0.008f, 0.014f, 0.024f, 1f));
 
             BuildMainMenu();
@@ -312,11 +317,13 @@ namespace MotorCity.UI
             BuildAbout();
             BuildSettings();
             BuildIntro();
+            BuildControlChoiceScreen();
             BuildLoadingScreen();
 
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
             introRoot.SetActive(false);
+            controlChoiceRoot.SetActive(false);
             loadingRoot.SetActive(false);
         }
 
@@ -568,6 +575,95 @@ namespace MotorCity.UI
                 ShowSettings);
 
             RefreshMainMenuText();
+        }
+
+        private void BuildControlChoiceScreen()
+        {
+            AddSharedBackground(
+                controlChoiceRoot,
+                0.76f);
+
+            RectTransform panel =
+                CreateFrontEndPanel(
+                    controlChoiceRoot.transform,
+                    "Control Choice Panel",
+                    Vector2.zero,
+                    new Vector2(980f, 650f));
+
+            Text title =
+                CreateText(
+                    panel,
+                    IsRussian()
+                        ? "КАКОЕ УПРАВЛЕНИЕ ВЫ ПРЕДПОЧИТАЕТЕ?"
+                        : "WHICH CONTROL STYLE DO YOU PREFER?",
+                    38,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -70f),
+                    new Vector2(840f, 82f),
+                    new Vector2(0.5f, 1f));
+
+            title.color =
+                new Color(0.94f, 0.97f, 1f, 1f);
+
+            Text hint =
+                CreateText(
+                    panel,
+                    IsRussian()
+                        ? "Выбор можно сделать перед каждым запуском игры."
+                        : "You can choose again every time you enter the game.",
+                    20,
+                    FontStyle.Normal,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -142f),
+                    new Vector2(760f, 54f),
+                    new Vector2(0.5f, 1f));
+
+            hint.color =
+                new Color(0.68f, 0.78f, 0.90f, 1f);
+
+            CreateButton(
+                panel,
+                IsRussian()
+                    ? "УПРАВЛЕНИЕ С КЛАВИАТУРЫ"
+                    : "KEYBOARD CONTROLS",
+                new Vector2(0f, -245f),
+                new Vector2(620f, 72f),
+                () => ChooseControlScheme(
+                    MotorCityControlScheme.Keyboard),
+                new Vector2(0.5f, 1f));
+
+            CreateButton(
+                panel,
+                IsRussian()
+                    ? "УПРАВЛЕНИЕ РУЛЕВЫМ КОЛЕСОМ"
+                    : "STEERING WHEEL",
+                new Vector2(0f, -338f),
+                new Vector2(620f, 72f),
+                () => ChooseControlScheme(
+                    MotorCityControlScheme.Wheel),
+                new Vector2(0.5f, 1f));
+
+            CreateButton(
+                panel,
+                IsRussian()
+                    ? "УПРАВЛЕНИЕ СТРЕЛКАМИ"
+                    : "LEFT / RIGHT ARROWS",
+                new Vector2(0f, -431f),
+                new Vector2(620f, 72f),
+                () => ChooseControlScheme(
+                    MotorCityControlScheme.Arrows),
+                new Vector2(0.5f, 1f));
+
+            CreateButton(
+                panel,
+                IsRussian()
+                    ? "НАЗАД"
+                    : "BACK",
+                new Vector2(0f, -535f),
+                new Vector2(220f, 54f),
+                ShowMainMenu,
+                new Vector2(0.5f, 1f));
         }
 
         private void BuildAbout()
@@ -1192,6 +1288,45 @@ namespace MotorCity.UI
 
         private void BeginPrimaryAction()
         {
+            ShowControlChoice();
+        }
+
+        private void ShowControlChoice()
+        {
+            AudioListener.pause =
+                true;
+
+            MotorCityMusicRuntime.SetMenuActive(
+                true);
+
+            mainRoot.SetActive(
+                false);
+            aboutRoot.SetActive(
+                false);
+            settingsRoot.SetActive(
+                false);
+            introRoot.SetActive(
+                false);
+            loadingRoot.SetActive(
+                false);
+            controlChoiceRoot.SetActive(
+                true);
+        }
+
+        private void ChooseControlScheme(
+            MotorCityControlScheme scheme)
+        {
+            MotorCityInput.SetControlScheme(
+                scheme);
+
+            controlChoiceRoot.SetActive(
+                false);
+
+            ContinuePrimaryAction();
+        }
+
+        private void ContinuePrimaryAction()
+        {
             MotorCityMusicRuntime.SetMenuActive(
                 false);
 
@@ -1801,6 +1936,8 @@ namespace MotorCity.UI
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
             introRoot.SetActive(false);
+            if (controlChoiceRoot != null)
+                controlChoiceRoot.SetActive(false);
             loadingActive = false;
 
             if (loadingRoot != null)
@@ -1817,6 +1954,8 @@ namespace MotorCity.UI
             mainRoot.SetActive(false);
             settingsRoot.SetActive(false);
             introRoot.SetActive(false);
+            if (controlChoiceRoot != null)
+                controlChoiceRoot.SetActive(false);
             aboutRoot.SetActive(true);
         }
 
@@ -1828,6 +1967,8 @@ namespace MotorCity.UI
             mainRoot.SetActive(false);
             aboutRoot.SetActive(false);
             introRoot.SetActive(false);
+            if (controlChoiceRoot != null)
+                controlChoiceRoot.SetActive(false);
             settingsRoot.SetActive(true);
             RefreshSettingsText();
         }
