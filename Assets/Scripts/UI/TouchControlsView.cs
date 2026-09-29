@@ -598,6 +598,21 @@ namespace MotorCity.UI
 
         private void ToggleHudQuickMenu()
         {
+            bool unlocked =
+                activityManager != null &&
+                activityManager.SecondaryProgressionAllowed;
+
+            if (!unlocked)
+            {
+                hudQuickMenuOpen =
+                    false;
+
+                hudQuickMenuRoot?.SetActive(
+                    false);
+
+                return;
+            }
+
             hudQuickMenuOpen =
                 !hudQuickMenuOpen;
 

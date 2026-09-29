@@ -12,6 +12,24 @@ namespace MotorCity.UI
             if (cosmeticStore == null)
                 return;
 
+            if (activityManager == null ||
+                !activityManager.SecondaryProgressionAllowed)
+            {
+                if (storeOpen)
+                {
+                    storeOpen =
+                        false;
+
+                    SetActiveIfChanged(
+                        storeOverlay,
+                        false);
+
+                    RefreshDrivingEnabledForUi();
+                }
+
+                return;
+            }
+
             if (MotorCityInput.ToggleStorePressed)
             {
                 bool opening =

@@ -183,6 +183,20 @@ namespace MotorCity.UI
                 return;
             }
 
+            if (activityManager == null ||
+                !activityManager.SecondaryProgressionAllowed)
+            {
+                if (clubOverlay.activeSelf)
+                {
+                    clubOverlay.SetActive(
+                        false);
+
+                    RefreshDrivingEnabledForUi();
+                }
+
+                return;
+            }
+
             if (MotorCityInput.ToggleClubPressed)
             {
                 bool open =

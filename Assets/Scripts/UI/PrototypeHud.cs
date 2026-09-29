@@ -472,7 +472,9 @@ namespace MotorCity.UI
             UpdateTouchControlsVisibility();
             RefreshHudLocalizationState();
 
-            if (MotorCityInput.RewardedBonusPressed)
+            if (MotorCityInput.RewardedBonusPressed &&
+                activityManager != null &&
+                activityManager.SecondaryProgressionAllowed)
             {
                 rewardedBonus?.TryShow();
             }
