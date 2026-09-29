@@ -20,9 +20,12 @@ namespace MotorCity.Audio
         private static MotorCityMusicRuntime instance;
 
         private AudioSource source;
+        private AudioClip menuClip;
+        private AudioClip cityClip;
         private float musicVolume = 0.10f;
         private bool musicMuted;
         private bool menuActive;
+        private bool gameplayActive;
 
         public static float Volume
         {
@@ -71,6 +74,29 @@ namespace MotorCity.Audio
 
             instance.menuActive =
                 active;
+
+            if (active)
+            {
+                instance.gameplayActive =
+                    false;
+            }
+
+            instance.RefreshPlayback();
+        }
+
+        public static void SetGameplayActive(
+            bool active)
+        {
+            EnsureExists();
+
+            instance.gameplayActive =
+                active;
+
+            if (active)
+            {
+                instance.menuActive =
+                    false;
+            }
 
             instance.RefreshPlayback();
         }
@@ -185,34 +211,52 @@ namespace MotorCity.Audio
             source.dopplerLevel = 0f;
             source.priority = 32;
 
-            source.clip =
+            menuClip =
                 BuildMenuLoop();
+
+            cityClip =
+                BuildCityLoop();
+
+            source.clip =
+                menuClip;
 
             ApplyVolume();
         }
 
         private void RefreshPlayback()
         {
-            if (source == null ||
-                source.clip == null)
-            {
+            if (source == null)
                 return;
-            }
 
-            if (menuActive &&
-                !musicMuted)
+            AudioClip desiredClip =
+                menuActive
+                    ? menuClip
+                    : gameplayActive
+                        ? cityClip
+                        : null;
+
+            if (desiredClip == null ||
+                musicMuted)
             {
-                if (!source.isPlaying)
+                if (source.isPlaying)
                 {
-                    source.Play();
+                    source.Stop();
                 }
 
                 return;
             }
 
-            if (source.isPlaying)
+            if (source.clip !=
+                desiredClip)
             {
                 source.Stop();
+                source.clip =
+                    desiredClip;
+            }
+
+            if (!source.isPlaying)
+            {
+                source.Play();
             }
         }
 
@@ -410,6 +454,192 @@ namespace MotorCity.Audio
             AudioClip clip =
                 AudioClip.Create(
                     "Motor City Menu Atmosphere",
+                    sampleCount,
+                    1,
+                    SampleRate,
+                    false);
+
+            clip.SetData(
+                samples,
+                0);
+
+            return clip;
+        }
+
+        private static AudioClip BuildCityLoop()
+        {
+            int sampleCount =
+                Mathf.RoundToInt(
+                    SampleRate *
+                    LoopSeconds);
+
+            float[] samples =
+                new float[
+                    sampleCount];
+
+            const float bpm =
+                92f;
+
+            float beatSeconds =
+                60f /
+                bpm;
+
+            int[] roots =
+            {
+                45,
+                41,
+                48,
+                43
+            };
+
+            int[] leadNotes =
+            {
+                64,
+                67,
+                69,
+                71,
+                69,
+                67,
+                64,
+                62
+            };
+
+            for (int i = 0;
+                 i < sampleCount;
+                 i++)
+            {
+                float t =
+                    i /
+                    (float)SampleRate;
+
+                int beat =
+                    Mathf.FloorToInt(
+                        t /
+                        beatSeconds);
+
+                int bar =
+                    beat /
+                    4;
+
+                int root =
+                    roots[
+                        bar %
+                        roots.Length];
+
+                float beatLocal =
+                    Mathf.Repeat(
+                        t,
+                        beatSeconds);
+
+                float value = 0f;
+
+                // Continuous city-night pad.
+                value +=
+                    SoftTone(
+                        root + 12,
+                        t,
+                        0.040f);
+
+                value +=
+                    SoftTone(
+                        root + 19,
+                        t,
+                        0.030f);
+
+                value +=
+                    SoftTone(
+                        root + 24,
+                        t,
+                        0.018f);
+
+                // Soft pulse on each beat instead of a heavy drum.
+                float pulse =
+                    Mathf.Exp(
+                        -beatLocal *
+                        3.8f);
+
+                value +=
+                    SoftTone(
+                        root,
+                        t,
+                        0.060f) *
+                    pulse;
+
+                // Small low-frequency thump on beats 1 and 3.
+                if (beat % 4 == 0 ||
+                    beat % 4 == 2)
+                {
+                    float kickEnvelope =
+                        Mathf.Exp(
+                            -beatLocal *
+                            14f);
+
+                    value +=
+                        Mathf.Sin(
+                            2f *
+                            Mathf.PI *
+                            52f *
+                            t) *
+                        kickEnvelope *
+                        0.055f;
+                }
+
+                // Sparse driving melody every two beats.
+                int melodyStep =
+                    Mathf.FloorToInt(
+                        t /
+                        (beatSeconds * 2f));
+
+                float melodyLocal =
+                    Mathf.Repeat(
+                        t,
+                        beatSeconds * 2f);
+
+                float melodyEnvelope =
+                    Mathf.Exp(
+                        -melodyLocal *
+                        1.8f) *
+                    Mathf.Clamp01(
+                        melodyLocal /
+                        0.06f);
+
+                int melody =
+                    leadNotes[
+                        melodyStep %
+                        leadNotes.Length];
+
+                value +=
+                    SoftTone(
+                        melody,
+                        t,
+                        0.022f) *
+                    melodyEnvelope;
+
+                float loopEdge =
+                    Mathf.Min(
+                        t,
+                        LoopSeconds - t);
+
+                float loopFade =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        Mathf.Clamp01(
+                            loopEdge /
+                            0.30f));
+
+                samples[i] =
+                    Mathf.Clamp(
+                        value *
+                        loopFade *
+                        2.15f,
+                        -0.88f,
+                        0.88f);
+            }
+
+            AudioClip clip =
+                AudioClip.Create(
+                    "Motor City Night Drive",
                     sampleCount,
                     1,
                     SampleRate,

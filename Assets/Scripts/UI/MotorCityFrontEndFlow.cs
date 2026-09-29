@@ -1772,6 +1772,9 @@ namespace MotorCity.UI
             MotorCityMusicRuntime.SetMenuActive(
                 false);
 
+            MotorCityMusicRuntime.SetGameplayActive(
+                true);
+
             Time.timeScale = 1f;
             AudioListener.pause = false;
 
@@ -1785,6 +1788,9 @@ namespace MotorCity.UI
         {
             Time.timeScale = 0f;
             AudioListener.pause = true;
+            MotorCityMusicRuntime.SetGameplayActive(
+                false);
+
             MotorCityMusicRuntime.SetMenuActive(
                 true);
 
