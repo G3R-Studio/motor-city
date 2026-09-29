@@ -675,7 +675,7 @@ namespace MotorCity.Localization
                 { "season1.m7", E("ПОЧТА ОРГАНИЗАТОРОВ", "ORGANIZER MAIL") },
                 { "season1.m8", E("МАШИНА ДОЛЖНА СИЯТЬ", "MAKE IT SHINE") },
                 { "season1.m9", E("ТРИ ГОРОДСКИХ ПРИКЛЮЧЕНИЯ", "THREE CITY ADVENTURES") },
-                { "season1.m10", E("ФИНАЛЬНЫЙ КУБОК", "FINAL CUP") },
+                { "season1.m10", E("ФИНАЛЬНЫЙ КУБОК - ДВА ЗАЕЗДА", "FINAL CUP - TWO RACES") },
 
                 { "achievement.unlocked", E("ДОСТИЖЕНИЕ «{0}» • +{1:N0} КР • +{2:N0} РЕП • {3}/{4}", "ACHIEVEMENT “{0}” • +{1:N0} CR • +{2:N0} REP • {3}/{4}") },
                 { "achievement.first_drive", E("ПЕРВЫЙ УСПЕХ", "FIRST SUCCESS") },
