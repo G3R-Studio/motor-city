@@ -2376,7 +2376,7 @@ namespace MotorCity.UI
             canvas.renderMode =
                 RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
-            canvas.pixelPerfect = false;
+            canvas.pixelPerfect = true;
 
             canvasScaler =
                 canvasObject.AddComponent<CanvasScaler>();
@@ -2558,6 +2558,9 @@ namespace MotorCity.UI
                         PanelSoftColor.b,
                         0.72f));
 
+            StylePauseSettingsCard(
+                qualityCard);
+
             Text qualityLabel =
                 CreateText(
                     qualityCard,
@@ -2569,7 +2572,11 @@ namespace MotorCity.UI
                     new Vector2(126f, 36f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0f, 0.5f),
-                    SecondaryTextColor);
+                    new Color(
+                        0.46f,
+                        0.82f,
+                        1f,
+                        1f));
 
             qualityLabel.text =
                 MotorCityLocalization.Text(
@@ -2620,6 +2627,9 @@ namespace MotorCity.UI
                         PanelSoftColor.b,
                         0.72f));
 
+            StylePauseSettingsCard(
+                audioCard);
+
             Text audioLabel =
                 CreateText(
                     audioCard,
@@ -2631,7 +2641,11 @@ namespace MotorCity.UI
                     new Vector2(126f, 36f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0f, 0.5f),
-                    SecondaryTextColor);
+                    new Color(
+                        0.46f,
+                        0.82f,
+                        1f,
+                        1f));
 
             audioLabel.text =
                 MotorCityLocalization.Text(
@@ -2680,6 +2694,101 @@ namespace MotorCity.UI
                 panel);
 
             RefreshPauseMenuText();
+        }
+
+        private void StylePauseSettingsCard(
+            RectTransform card)
+        {
+            if (card == null)
+                return;
+
+            Image cardImage =
+                card.GetComponent<Image>();
+
+            if (cardImage != null)
+            {
+                cardImage.color =
+                    new Color(
+                        0.024f,
+                        0.04f,
+                        0.078f,
+                        0.86f);
+            }
+
+            Texture2D glowTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalPanel;
+
+            if (glowTexture != null)
+            {
+                CreatePanelEdgeGlow(
+                    card,
+                    glowTexture,
+                    new Color(
+                        0.28f,
+                        0.58f,
+                        1f,
+                        1f),
+                    "Pause Card Glow");
+            }
+
+            Outline outline =
+                card.GetComponent<Outline>();
+
+            if (outline == null)
+            {
+                outline =
+                    card.gameObject
+                        .AddComponent<Outline>();
+            }
+
+            outline.effectColor =
+                new Color(
+                    0.36f,
+                    0.64f,
+                    1f,
+                    0.20f);
+            outline.effectDistance =
+                new Vector2(1f, -1f);
+            outline.useGraphicAlpha =
+                true;
+
+            GameObject accentObject =
+                new(
+                    "Pause Card Accent",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            accentObject.transform.SetParent(
+                card,
+                false);
+
+            RectTransform accentRect =
+                accentObject.GetComponent<RectTransform>();
+
+            accentRect.anchorMin =
+                new Vector2(0f, 1f);
+            accentRect.anchorMax =
+                new Vector2(1f, 1f);
+            accentRect.pivot =
+                new Vector2(0.5f, 1f);
+            accentRect.anchoredPosition =
+                Vector2.zero;
+            accentRect.sizeDelta =
+                new Vector2(0f, 3f);
+
+            Image accentImage =
+                accentObject.GetComponent<Image>();
+
+            accentImage.color =
+                new Color(
+                    0.26f,
+                    0.80f,
+                    1f,
+                    0.90f);
+            accentImage.raycastTarget =
+                false;
         }
 
         private void BuildPauseTouchActions(
@@ -5362,10 +5471,10 @@ namespace MotorCity.UI
                     "Navigation Target Strip",
                     new Vector2(
                         8f,
-                        6f),
+                        8f),
                     new Vector2(
-                        194f,
-                        36f),
+                        148f,
+                        34f),
                     new Vector2(
                         0f,
                         0f),
@@ -5389,8 +5498,8 @@ namespace MotorCity.UI
                         14f,
                         0f),
                     new Vector2(
-                        166f,
-                        28f),
+                        120f,
+                        27f),
                     new Vector2(
                         0f,
                         0.5f),
@@ -5420,10 +5529,10 @@ namespace MotorCity.UI
             navigatorButtonRect.pivot =
                 new Vector2(1f, 0f);
             navigatorButtonRect.anchoredPosition =
-                new Vector2(-20f, 10f);
+                new Vector2(-8f, 8f);
 
             navigatorButtonRect.sizeDelta =
-                new Vector2(50f, 30f);
+                new Vector2(40f, 30f);
 
             bool touchUi =
                 ShouldUseTouchUi();
