@@ -28,7 +28,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
         if (EditorApplication.isPlayingOrWillChangePlaymode)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Runtime City",
+                "Motor City - FCG Runtime City",
                 "Останови Play Mode перед сборкой runtime-города.",
                 "OK");
             return;
@@ -40,7 +40,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 out Scene previousActiveScene))
         {
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Runtime City",
+                "Motor City - FCG Runtime City",
                 "Не найдена сохранённая локальная сцена с City-Maker.\n\n" +
                 "Сохрани сгенерированный город в Assets/LocalGenerated.",
                 "OK");
@@ -60,7 +60,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 false);
 
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Runtime City",
+                "Motor City - FCG Runtime City",
                 "В сохранённой сцене не найден корневой объект City-Maker.",
                 "OK");
             return;
@@ -184,7 +184,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 $"Source={scene.path}, Roots={includedRoots}, Renderers={renderers}, prefab={RuntimePrefab}");
 
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Runtime City",
+                "Motor City - FCG Runtime City",
                 "Готово.\n\n" +
                 $"Источник: {scene.path}\n" +
                 $"Включено: {includedRoots}\n" +
@@ -199,7 +199,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 exception);
 
             EditorUtility.DisplayDialog(
-                "Motor City — FCG Runtime City",
+                "Motor City - FCG Runtime City",
                 "Не удалось собрать runtime-город. Посмотри Console / Editor.log.",
                 "OK");
         }
