@@ -433,6 +433,14 @@ namespace MotorCity.Gameplay
                 return;
             }
 
+            if (VehicleId() == "hybrid")
+            {
+                ApplyHybridBodyColor(
+                    visual);
+
+                return;
+            }
+
             Renderer[] renderers =
                 visual.GetComponentsInChildren<Renderer>(
                     true);
@@ -520,6 +528,122 @@ namespace MotorCity.Gameplay
                     i,
                     color);
             }
+        }
+
+        private void ApplyHybridBodyColor(
+            Transform visual)
+        {
+            Transform bodyRoot =
+                visual.Find(
+                    "Body");
+
+            if (bodyRoot == null)
+            {
+                foreach (Transform child in visual)
+                {
+                    if (child != null &&
+                        child.name.Equals(
+                            "Body",
+                            System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        bodyRoot =
+                            child;
+
+                        break;
+                    }
+                }
+            }
+
+            if (bodyRoot == null)
+                return;
+
+            Renderer[] allRenderers =
+                visual.GetComponentsInChildren<Renderer>(
+                    true);
+
+            // Clear color overrides left by older generic Hybrid painting.
+            // Wheel styling is applied again immediately after body color.
+            foreach (Renderer renderer in
+                     allRenderers)
+            {
+                if (renderer == null)
+                    continue;
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    renderer.SetPropertyBlock(
+                        null,
+                        i);
+                }
+            }
+
+            Color[] bodyColors =
+                BodyColorsForCurrentVehicle();
+
+            Color color =
+                bodyColors[
+                    Mathf.Clamp(
+                        SelectedColorIndex,
+                        0,
+                        bodyColors.Length - 1)];
+
+            Renderer[] bodyRenderers =
+                bodyRoot.GetComponentsInChildren<Renderer>(
+                    true);
+
+            foreach (Renderer renderer in
+                     bodyRenderers)
+            {
+                if (renderer == null)
+                    continue;
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    Material material =
+                        materials[i];
+
+                    if (!IsHybridBodyPaintMaterial(
+                            material))
+                    {
+                        continue;
+                    }
+
+                    ApplyColorBlock(
+                        renderer,
+                        material,
+                        i,
+                        color);
+                }
+            }
+        }
+
+        private static bool IsHybridBodyPaintMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string name =
+                material.name
+                    .Replace(
+                        " (Instance)",
+                        string.Empty)
+                    .Trim();
+
+            return
+                name.Equals(
+                    "Material.001",
+                    System.StringComparison.OrdinalIgnoreCase);
         }
 
         private bool ApplyAuthoredStarterPaint(
