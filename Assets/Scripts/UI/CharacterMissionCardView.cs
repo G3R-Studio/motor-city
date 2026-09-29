@@ -962,6 +962,14 @@ namespace MotorCity.UI
                         seasonPanel.SetActive(
                             seasonDetailsOpen);
                     }
+
+                    if (seasonCompactIndicatorText != null)
+                    {
+                        seasonCompactIndicatorText.text =
+                            seasonDetailsOpen
+                                ? "▲"
+                                : "▼";
+                    }
                 });
 
             seasonCompactText =
@@ -986,6 +994,31 @@ namespace MotorCity.UI
                     new Color(
                         0.88f,
                         0.94f,
+                        1f,
+                        1f));
+
+            seasonCompactIndicatorText =
+                CreateText(
+                    compact,
+                    "Season Compact Indicator",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        -15f,
+                        0f),
+                    new Vector2(
+                        20f,
+                        24f),
+                    new Vector2(
+                        1f,
+                        0.5f),
+                    new Vector2(
+                        1f,
+                        0.5f),
+                    new Color(
+                        0.42f,
+                        0.78f,
                         1f,
                         1f));
 
@@ -1333,6 +1366,14 @@ namespace MotorCity.UI
                         "season1.ui_compact",
                         season.CurrentMissionNumber,
                         season.MissionCount);
+            }
+
+            if (seasonCompactIndicatorText != null)
+            {
+                seasonCompactIndicatorText.text =
+                    seasonDetailsOpen
+                        ? "▲"
+                        : "▼";
             }
 
             seasonNameText.text =

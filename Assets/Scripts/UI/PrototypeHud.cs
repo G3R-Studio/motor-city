@@ -136,6 +136,7 @@ namespace MotorCity.UI
         private Text characterRewardText;
         private GameObject seasonCompactButton;
         private Text seasonCompactText;
+        private Text seasonCompactIndicatorText;
         private GameObject seasonPanel;
         private Text seasonNameText;
         private bool seasonDetailsOpen;
