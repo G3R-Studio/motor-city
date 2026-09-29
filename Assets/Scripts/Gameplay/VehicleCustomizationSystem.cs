@@ -172,6 +172,51 @@ namespace MotorCity.Gameplay
                 MotorCityLocalization.Text(WheelNameKey(SelectedWheelStyleIndex)),
                 MotorCityLocalization.Text(NeonNameKey(SelectedNeonIndex)));
 
+        public string GarageHintLine
+        {
+            get
+            {
+                int colorCount =
+                    Mathf.Max(
+                        1,
+                        BodyColorCountForCurrentVehicle());
+
+                int nextColor =
+                    (SelectedColorIndex + 1) %
+                    colorCount;
+
+                int nextWheel =
+                    (SelectedWheelStyleIndex + 1) %
+                    4;
+
+                int nextNeon =
+                    (SelectedNeonIndex + 1) %
+                    (AccentColors.Length + 1);
+
+                return
+                    MotorCityLocalization.Format(
+                        "customization.garage_hint",
+                        MotorCityLocalization.Text(
+                            ColorNameKey(
+                                SelectedColorIndex)),
+                        MotorCityLocalization.Text(
+                            ColorNameKey(
+                                nextColor)),
+                        MotorCityLocalization.Text(
+                            WheelNameKey(
+                                SelectedWheelStyleIndex)),
+                        MotorCityLocalization.Text(
+                            WheelNameKey(
+                                nextWheel)),
+                        MotorCityLocalization.Text(
+                            NeonNameKey(
+                                SelectedNeonIndex)),
+                        MotorCityLocalization.Text(
+                            NeonNameKey(
+                                nextNeon)));
+            }
+        }
+
         public void Initialize(
             ArcadeCarController targetCar,
             VehicleRosterSystem vehicleRoster)
@@ -1483,12 +1528,83 @@ namespace MotorCity.Gameplay
                     };
             }
 
-            return
-                "customization.hybrid." +
+            if (vehicleId == "hybrid")
+            {
+                return
+                    "customization.hybrid." +
+                    Mathf.Clamp(
+                        index,
+                        0,
+                        HybridBodyColors.Length - 1);
+            }
+
+            if (vehicleId == "beatall")
+            {
+                return
+                    Mathf.Clamp(
+                        index,
+                        0,
+                        BeatallBodyColors.Length - 1) switch
+                    {
+                        0 => "customization.color_red",
+                        1 => "customization.color_blue",
+                        2 => "customization.color_green",
+                        3 => "customization.color_yellow",
+                        4 => "customization.color_white",
+                        _ => "customization.color_black"
+                    };
+            }
+
+            if (vehicleId == "bus")
+            {
+                return
+                    "customization.color_white";
+            }
+
+            int paletteIndex =
                 Mathf.Clamp(
                     index,
                     0,
-                    HybridBodyColors.Length - 1);
+                    BodyColorCountForCurrentVehicle() - 1);
+
+            if (vehicleId == "delorean")
+            {
+                return
+                    paletteIndex switch
+                    {
+                        0 => "customization.color_silver",
+                        1 => "customization.color_graphite",
+                        2 => "customization.color_blue",
+                        3 => "customization.color_red",
+                        4 => "customization.color_white",
+                        _ => "customization.color_black"
+                    };
+            }
+
+            if (vehicleId == "amggt")
+            {
+                return
+                    paletteIndex switch
+                    {
+                        0 => "customization.color_red",
+                        1 => "customization.color_graphite",
+                        2 => "customization.color_blue",
+                        3 => "customization.color_green",
+                        4 => "customization.color_white",
+                        _ => "customization.color_black"
+                    };
+            }
+
+            return
+                paletteIndex switch
+                {
+                    0 => "customization.color_gold",
+                    1 => "customization.color_red",
+                    2 => "customization.color_blue",
+                    3 => "customization.color_green",
+                    4 => "customization.color_silver",
+                    _ => "customization.color_black"
+                };
         }
 
         private static string StickerNameKey(

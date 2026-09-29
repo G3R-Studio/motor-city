@@ -113,6 +113,10 @@ namespace MotorCity.Localization
                 { "customization.color_purple", E("ФИОЛЕТОВЫЙ", "PURPLE") },
                 { "customization.color_white", E("БЕЛЫЙ", "WHITE") },
                 { "customization.color_black", E("ЧЁРНЫЙ", "BLACK") },
+                { "customization.color_silver", E("СЕРЕБРО", "SILVER") },
+                { "customization.color_graphite", E("ГРАФИТ", "GRAPHITE") },
+                { "customization.color_gold", E("ЗОЛОТО", "GOLD") },
+                { "customization.garage_hint", E("ЦВЕТ {0} > {1}   •   ДИСКИ {2} > {3}   •   НЕОН {4} > {5}", "COLOR {0} > {1}   •   WHEELS {2} > {3}   •   NEON {4} > {5}") },
 
 
                 { "customization.hybrid.0", E("ЧЁРНЫЙ", "BLACK") },

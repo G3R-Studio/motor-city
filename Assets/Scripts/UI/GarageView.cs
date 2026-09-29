@@ -760,21 +760,17 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Garage Status",
-                    11,
+                    10,
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
                     new Vector2(-28f, 18f),
-                    new Vector2(410f, 42f),
+                    new Vector2(620f, 42f),
                     new Vector2(1f, 0f),
                     new Vector2(1f, 0f),
                     SecondaryTextColor);
 
             garageStatusText.resizeTextForBestFit =
-                true;
-            garageStatusText.resizeTextMinSize =
-                9;
-            garageStatusText.resizeTextMaxSize =
-                11;
+                false;
             garageStatusText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             garageStatusText.verticalOverflow =
@@ -1264,7 +1260,10 @@ namespace MotorCity.UI
             }
 
             garageStatusText.text =
-                garage.StatusText;
+                string.IsNullOrWhiteSpace(
+                    garage.StatusText)
+                    ? garage.CustomizationHintLine
+                    : garage.StatusText;
         }
 
         private void UpdateVehiclePassport()

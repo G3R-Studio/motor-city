@@ -99,6 +99,11 @@ namespace MotorCity.Gameplay
                 ? string.Empty
                 : vehicleMastery.StatusText;
 
+        public string CustomizationHintLine =>
+            customization == null
+                ? string.Empty
+                : customization.GarageHintLine;
+
         public void Initialize(
             ArcadeCarController targetCar,
             PlayerWallet targetWallet,
@@ -275,7 +280,7 @@ namespace MotorCity.Gameplay
                 customization.CycleBodyColor();
 
                 StatusText =
-                    customization.GarageLine;
+                    string.Empty;
             }
 
             if (MotorCityInput.WasVirtualPressed(
@@ -285,7 +290,7 @@ namespace MotorCity.Gameplay
                 customization.CycleWheelStyle();
 
                 StatusText =
-                    customization.GarageLine;
+                    string.Empty;
             }
 
             if (MotorCityInput.WasVirtualPressed(
@@ -295,7 +300,7 @@ namespace MotorCity.Gameplay
                 customization.CycleNeon();
 
                 StatusText =
-                    customization.GarageLine;
+                    string.Empty;
             }
 
             if (MotorCityInput.WasVirtualPressed(
