@@ -13,6 +13,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using MotorCity.Input;
 
 public class PrometeoCarController : MonoBehaviour
 {
@@ -300,11 +301,18 @@ public class PrometeoCarController : MonoBehaviour
           GoReverse();
         }
 
-        if(turnLeftPTI.buttonPressed){
-          TurnLeft();
-        }
-        if(turnRightPTI.buttonPressed){
-          TurnRight();
+        bool analogSteering =
+          MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Wheel;
+
+        if(analogSteering){
+          ApplySteeringInput(MotorCityInput.SteeringAxis);
+        }else{
+          if(turnLeftPTI.buttonPressed){
+            TurnLeft();
+          }
+          if(turnRightPTI.buttonPressed){
+            TurnRight();
+          }
         }
         if(handbrakePTI.buttonPressed){
           CancelInvoke("DecelerateCar");
@@ -321,7 +329,7 @@ public class PrometeoCarController : MonoBehaviour
           InvokeRepeating("DecelerateCar", 0f, 0.1f);
           deceleratingCar = true;
         }
-        if(!turnLeftPTI.buttonPressed && !turnRightPTI.buttonPressed && steeringAxis != 0f){
+        if(!analogSteering && !turnLeftPTI.buttonPressed && !turnRightPTI.buttonPressed && steeringAxis != 0f){
           ResetSteeringAngle();
         }
 
@@ -442,6 +450,25 @@ public class PrometeoCarController : MonoBehaviour
       var steeringAngle = steeringAxis * maxSteeringAngle;
       frontLeftCollider.steerAngle = Mathf.Lerp(frontLeftCollider.steerAngle, steeringAngle, steeringSpeed);
       frontRightCollider.steerAngle = Mathf.Lerp(frontRightCollider.steerAngle, steeringAngle, steeringSpeed);
+    }
+
+    // Analog steering used by Motor City's draggable mobile wheel.
+    public void ApplySteeringInput(float input){
+      float target = Mathf.Clamp(input, -1f, 1f);
+      steeringAxis = Mathf.MoveTowards(
+        steeringAxis,
+        target,
+        Time.deltaTime * 4.5f);
+
+      var steeringAngle = steeringAxis * maxSteeringAngle;
+      frontLeftCollider.steerAngle = Mathf.Lerp(
+        frontLeftCollider.steerAngle,
+        steeringAngle,
+        steeringSpeed);
+      frontRightCollider.steerAngle = Mathf.Lerp(
+        frontRightCollider.steerAngle,
+        steeringAngle,
+        steeringSpeed);
     }
 
     //The following method takes the front car wheels to their default position (rotation = 0). The speed of this movement will depend
