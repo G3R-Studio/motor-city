@@ -289,6 +289,17 @@ namespace MotorCity.UI
         private static readonly Color GarageAccent =
             new(0.62f, 0.42f, 1f, 1f);
 
+        // Shared runtime typography scale. Keep semantic roles stable instead
+        // of picking a new font size for every individual screen.
+        private const int UiWindowTitleFontSize = 28;
+        private const int UiSectionLabelFontSize = 13;
+        private const int UiValueFontSize = 18;
+        private const int UiBodyFontSize = 15;
+        private const int UiRewardFontSize = 13;
+        private const int UiButtonFontSize = 13;
+        private const int UiHudButtonFontSize = 12;
+        private const int UiAdjustButtonFontSize = 18;
+
         public void Bind(
             ArcadeCarController controller,
             PlayerWallet playerWallet,
@@ -2554,7 +2565,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Pause Title",
-                    28,
+                    UiWindowTitleFontSize,
                     FontStyle.Bold,
                     TextAnchor.UpperCenter,
                     new Vector2(
@@ -2596,7 +2607,7 @@ namespace MotorCity.UI
                 CreateText(
                     qualityCard,
                     "Pause Quality Label",
-                    13,
+                    UiSectionLabelFontSize,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(-194f, 0f),
@@ -2617,7 +2628,7 @@ namespace MotorCity.UI
                 CreateText(
                     qualityCard,
                     "Pause Quality",
-                    18,
+                    UiValueFontSize,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(-6f, 0f),
@@ -2665,7 +2676,7 @@ namespace MotorCity.UI
                 CreateText(
                     audioCard,
                     "Pause Audio Label",
-                    13,
+                    UiSectionLabelFontSize,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(-194f, 0f),
@@ -2686,7 +2697,7 @@ namespace MotorCity.UI
                 CreateText(
                     audioCard,
                     "Pause Audio",
-                    17,
+                    UiValueFontSize,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(-28f, 0f),
@@ -2975,10 +2986,10 @@ namespace MotorCity.UI
                     objectName == "Pause Quality Next" ||
                     objectName == "Pause Volume Down" ||
                     objectName == "Pause Volume Up"
-                        ? 18
+                        ? UiAdjustButtonFontSize
                         : hudUtilityButton
-                            ? 12
-                            : 13,
+                            ? UiHudButtonFontSize
+                            : UiButtonFontSize,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     utilityIcon != null
@@ -3780,7 +3791,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Line",
-                    15,
+                    UiBodyFontSize,
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
                     new Vector2(
@@ -3801,7 +3812,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Reward",
-                    12,
+                    UiRewardFontSize,
                     FontStyle.Bold,
                     TextAnchor.LowerRight,
                     new Vector2(
