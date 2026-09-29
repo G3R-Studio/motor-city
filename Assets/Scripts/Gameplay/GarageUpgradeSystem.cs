@@ -90,6 +90,10 @@ namespace MotorCity.Gameplay
             vehicleRoster != null &&
             vehicleRoster.NextVehicleUnlocked;
 
+        public bool SelectedVehicleUnlocked =>
+            vehicleRoster != null &&
+            vehicleRoster.SelectedVehicleUnlocked;
+
         public bool MasteryShowMessage =>
             vehicleMastery != null &&
             vehicleMastery.ShowMessage;

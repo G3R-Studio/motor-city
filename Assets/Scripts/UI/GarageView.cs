@@ -342,11 +342,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Garage Vehicle Character",
-                    14,
+                    12,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(28f, -127f),
-                    new Vector2(704f, 38f),
+                    new Vector2(704f, 36f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
@@ -987,8 +987,7 @@ namespace MotorCity.UI
                         0.58f,
                         1f);
 
-                if (garage.HasNextVehicle &&
-                    !garage.NextVehicleUnlocked)
+                if (!garage.SelectedVehicleUnlocked)
                 {
                     stateSprite =
                         MotorCityIconLibrary.Locked;
@@ -1018,8 +1017,19 @@ namespace MotorCity.UI
 
             if (garageVehicleCharacterText != null)
             {
+                string specializationLine =
+                    metaUnlocked &&
+                    vehicleSpecialization != null
+                        ? vehicleSpecialization.GarageCompactLine
+                        : string.Empty;
+
                 garageVehicleCharacterText.text =
-                    garage.VehicleCharacterLine;
+                    string.IsNullOrWhiteSpace(
+                        specializationLine)
+                        ? garage.VehicleCharacterLine
+                        : garage.VehicleCharacterLine +
+                          "\n" +
+                          specializationLine;
             }
 
             if (garageMasteryFill != null)

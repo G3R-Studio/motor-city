@@ -28,6 +28,14 @@ namespace MotorCity.Gameplay
                     CurrentRoleName(),
                     CurrentRoleDescription());
 
+        public string GarageCompactLine =>
+            roster == null
+                ? string.Empty
+                : MotorCityLocalization.Format(
+                    "specialization.garage_compact",
+                    CurrentRoleName(),
+                    CurrentRoleDescription());
+
         public string HudShort =>
             roster == null
                 ? string.Empty
@@ -87,34 +95,63 @@ namespace MotorCity.Gameplay
 
             return roster.SelectedId switch
             {
+                "beatall" =>
+                    activityId == "drift"
+                        ? 25
+                        : 0,
+
                 "street" =>
+                    IsCoreActivity(
+                        activityId)
+                        ? 10
+                        : 0,
+
+                "peugeot306" =>
                     activityId == "delivery"
                         ? 35
                         : 0,
 
-                "club" =>
-                    activityId == "sprint"
-                        ? 35
-                        : activityId == "delivery"
-                            ? 10
-                            : 0,
-
-                "muscle" =>
+                "toyotaae86" =>
                     activityId == "drift"
                         ? 40
                         : 0,
 
-                "gt" =>
+                "hybrid" =>
+                    activityId == "sprint"
+                        ? 25
+                        : activityId == "circuit"
+                            ? 20
+                            : 0,
+
+                "porsche996" =>
                     activityId == "circuit"
                         ? 35
                         : activityId == "sprint"
                             ? 15
                             : 0,
 
-                "apex" =>
+                "amggt" =>
+                    activityId == "sprint"
+                        ? 25
+                        : activityId == "circuit"
+                            ? 20
+                            : 0,
+
+                "camaro" =>
+                    activityId == "sprint" ||
+                    activityId == "drift"
+                        ? 25
+                        : 0,
+
+                "delorean" =>
                     IsCoreActivity(
                         activityId)
                         ? 15
+                        : 0,
+
+                "bus" =>
+                    activityId == "delivery"
+                        ? 40
                         : 0,
 
                 _ => 0
@@ -181,20 +218,35 @@ namespace MotorCity.Gameplay
 
             return roster.SelectedId switch
             {
+                "beatall" =>
+                    MotorCityLocalization.Text("specialization.light_drift"),
+
                 "street" =>
+                    MotorCityLocalization.Text("specialization.default"),
+
+                "peugeot306" =>
                     MotorCityLocalization.Text("specialization.courier"),
 
-                "club" =>
-                    MotorCityLocalization.Text("specialization.sprint"),
-
-                "muscle" =>
+                "toyotaae86" =>
                     MotorCityLocalization.Text("specialization.drift"),
 
-                "gt" =>
+                "hybrid" =>
+                    MotorCityLocalization.Text("specialization.tech_sport"),
+
+                "porsche996" =>
                     MotorCityLocalization.Text("specialization.circuit"),
 
-                "apex" =>
+                "amggt" =>
+                    MotorCityLocalization.Text("specialization.grand_tourer"),
+
+                "camaro" =>
+                    MotorCityLocalization.Text("specialization.muscle"),
+
+                "delorean" =>
                     MotorCityLocalization.Text("specialization.allrounder"),
+
+                "bus" =>
+                    MotorCityLocalization.Text("specialization.heavy_courier"),
 
                 _ =>
                     MotorCityLocalization.Text("specialization.default")
@@ -208,20 +260,35 @@ namespace MotorCity.Gameplay
 
             return roster.SelectedId switch
             {
+                "beatall" =>
+                    MotorCityLocalization.Text("specialization.light_drift_desc"),
+
                 "street" =>
+                    MotorCityLocalization.Text("specialization.default_desc"),
+
+                "peugeot306" =>
                     MotorCityLocalization.Text("specialization.courier_desc"),
 
-                "club" =>
-                    MotorCityLocalization.Text("specialization.sprint_desc"),
-
-                "muscle" =>
+                "toyotaae86" =>
                     MotorCityLocalization.Text("specialization.drift_desc"),
 
-                "gt" =>
+                "hybrid" =>
+                    MotorCityLocalization.Text("specialization.tech_sport_desc"),
+
+                "porsche996" =>
                     MotorCityLocalization.Text("specialization.circuit_desc"),
 
-                "apex" =>
+                "amggt" =>
+                    MotorCityLocalization.Text("specialization.grand_tourer_desc"),
+
+                "camaro" =>
+                    MotorCityLocalization.Text("specialization.muscle_desc"),
+
+                "delorean" =>
                     MotorCityLocalization.Text("specialization.allrounder_desc"),
+
+                "bus" =>
+                    MotorCityLocalization.Text("specialization.heavy_courier_desc"),
 
                 _ =>
                     MotorCityLocalization.Text("specialization.none_desc")

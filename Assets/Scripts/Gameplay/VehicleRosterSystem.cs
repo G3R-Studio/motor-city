@@ -102,6 +102,14 @@ namespace MotorCity.Gameplay
             IsUnlocked(
                 SelectedIndex + 1);
 
+        public bool SelectedVehicleUnlocked =>
+            Valid(
+                SelectedIndex) &&
+            HasVisual(
+                SelectedIndex) &&
+            IsUnlocked(
+                SelectedIndex);
+
         public string GetVehicleId(
             int index)
         {
@@ -416,15 +424,34 @@ namespace MotorCity.Gameplay
 
             if (!IsUnlocked(candidate))
             {
-                status =
-                    profile.Id == "delorean"
-                        ? MotorCityLocalization.Format(
+                if (profile.Id == "delorean")
+                {
+                    status =
+                        MotorCityLocalization.Format(
                             "vehicle.supporter_required",
-                            profile.DisplayName)
-                        : MotorCityLocalization.Format(
-                            "vehicle.rep_required",
+                            profile.DisplayName);
+                }
+                else
+                {
+                    int currentRep =
+                        reputation == null
+                            ? 0
+                            : reputation.Reputation;
+
+                    int remaining =
+                        Mathf.Max(
+                            0,
+                            profile.RequiredRep -
+                            currentRep);
+
+                    status =
+                        MotorCityLocalization.Format(
+                            "vehicle.rep_required_detailed",
                             profile.DisplayName,
-                            profile.RequiredRep);
+                            currentRep,
+                            profile.RequiredRep,
+                            remaining);
+                }
 
                 return false;
             }
