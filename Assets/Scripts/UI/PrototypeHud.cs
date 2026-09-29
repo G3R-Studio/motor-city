@@ -8005,12 +8005,23 @@ namespace MotorCity.UI
                     "Garage Status",
                     11,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(28f, 101f),
-                    new Vector2(704f, 18f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
+                    TextAnchor.MiddleRight,
+                    new Vector2(-28f, 18f),
+                    new Vector2(410f, 42f),
+                    new Vector2(1f, 0f),
+                    new Vector2(1f, 0f),
                     SecondaryTextColor);
+
+            garageStatusText.resizeTextForBestFit =
+                true;
+            garageStatusText.resizeTextMinSize =
+                9;
+            garageStatusText.resizeTextMaxSize =
+                11;
+            garageStatusText.horizontalOverflow =
+                HorizontalWrapMode.Wrap;
+            garageStatusText.verticalOverflow =
+                VerticalWrapMode.Truncate;
 
             garageControlsText =
                 CreateText(
