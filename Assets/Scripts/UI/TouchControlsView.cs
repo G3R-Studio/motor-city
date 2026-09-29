@@ -351,12 +351,6 @@ namespace MotorCity.UI
                     MotorCityInputAction.CyclePlate =>
                         MotorCityIconLibrary.Reputation,
 
-                    MotorCityInputAction.SaveCustomizationPreset =>
-                        MotorCityIconLibrary.Confirm,
-
-                    MotorCityInputAction.LoadCustomizationPreset =>
-                        MotorCityIconLibrary.Unlocked,
-
                     MotorCityInputAction.TakePhoto =>
                         MotorCityIconLibrary.ForActivity(
                             ActivityIcon.PhotoHunt),

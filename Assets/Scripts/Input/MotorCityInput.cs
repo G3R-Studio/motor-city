@@ -30,8 +30,6 @@ namespace MotorCity.Input
         CycleWheels = 22,
         CycleNeon = 23,
         CyclePlate = 24,
-        SaveCustomizationPreset = 25,
-        LoadCustomizationPreset = 26,
         TakePhoto = 27,
         ToggleVehiclePassport = 28,
         ToggleClub = 29,
@@ -138,11 +136,7 @@ namespace MotorCity.Input
         public static bool CyclePlatePressed =>
             VirtualPressed(MotorCityInputAction.CyclePlate);
 
-        public static bool SaveCustomizationPresetPressed =>
-            VirtualPressed(MotorCityInputAction.SaveCustomizationPreset);
 
-        public static bool LoadCustomizationPresetPressed =>
-            VirtualPressed(MotorCityInputAction.LoadCustomizationPreset);
 
         public static bool TakePhotoPressed =>
             VirtualPressed(MotorCityInputAction.TakePhoto);

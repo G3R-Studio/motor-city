@@ -155,15 +155,6 @@ namespace MotorCity.Gameplay
         public int SelectedWheelStyleIndex { get; private set; }
         public int SelectedNeonIndex { get; private set; }
         public int SelectedPlateIndex { get; private set; }
-        public int SelectedPresetSlot { get; private set; }
-
-        public int PresetSlotNumber =>
-            SelectedPresetSlot + 1;
-
-        public string PresetLine =>
-            MotorCityLocalization.Format(
-                "customization.preset_slot",
-                PresetSlotNumber);
 
         public string GarageLine =>
             MotorCityLocalization.Format(
@@ -293,106 +284,6 @@ namespace MotorCity.Gameplay
                 (SelectedPlateIndex + 1) % 6;
 
             Changed();
-        }
-
-        public void SelectPresetSlot(
-            int slot)
-        {
-            SelectedPresetSlot =
-                Mathf.Clamp(
-                    slot,
-                    0,
-                    2);
-        }
-
-        public void SaveSelectedPreset()
-        {
-            SavePreset(
-                SelectedPresetSlot);
-        }
-
-        public bool LoadSelectedPreset()
-        {
-            return
-                LoadPreset(
-                    SelectedPresetSlot);
-        }
-
-        public void SavePreset(
-            int slot)
-        {
-            slot =
-                Mathf.Clamp(
-                    slot,
-                    0,
-                    2);
-
-            string prefix =
-                PresetPrefix(
-                    slot);
-
-            MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Color", SelectedColorIndex);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Wheels", SelectedWheelStyleIndex);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Neon", SelectedNeonIndex);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(prefix + ".Exists", 1);
-            MotorCity.Persistence.MotorCitySaveService.Save();
-
-            SelectedPresetSlot =
-                slot;
-
-            CustomizationChanged?.Invoke();
-        }
-
-        public bool LoadPreset(
-            int slot)
-        {
-            slot =
-                Mathf.Clamp(
-                    slot,
-                    0,
-                    2);
-
-            string prefix =
-                PresetPrefix(
-                    slot);
-
-            if (MotorCity.Persistence.MotorCitySaveService.GetInt(
-                    prefix + ".Exists",
-                    0) == 0)
-            {
-                return false;
-            }
-
-            SelectedColorIndex =
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(prefix + ".Color", 0),
-                    0,
-                    BodyColorCountForCurrentVehicle() - 1);
-
-            SelectedStickerIndex = 0;
-            SelectedVinylIndex = 0;
-
-            SelectedWheelStyleIndex =
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(prefix + ".Wheels", 0),
-                    0,
-                    3);
-
-            SelectedNeonIndex =
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(prefix + ".Neon", 0),
-                    0,
-                    AccentColors.Length);
-
-            SelectedPlateIndex = 0;
-
-            SelectedPresetSlot =
-                slot;
-
-            SaveForSelectedVehicle();
-            ApplyAll();
-            CustomizationChanged?.Invoke();
-            return true;
         }
 
         public void CapturePhoto()
