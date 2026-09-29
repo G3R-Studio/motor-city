@@ -597,12 +597,16 @@ namespace MotorCity.UI
                     FrontEndBodyFontSize,
                     FontStyle.Normal,
                     TextAnchor.MiddleLeft,
-                    new Vector2(58f, -118f),
-                    new Vector2(1160f, 48f),
+                    new Vector2(58f, -112f),
+                    new Vector2(1160f, 64f),
                     new Vector2(0f, 1f));
 
             intro.color =
                 new Color(0.72f, 0.82f, 0.94f, 1f);
+
+            ConfigureFrontEndTextFit(
+                intro,
+                16);
 
             float top = -205f;
             float columnWidth = 560f;
@@ -990,11 +994,15 @@ namespace MotorCity.UI
                 FontStyle.Bold,
                 TextAnchor.MiddleCenter,
                 new Vector2(0f, 48f),
-                new Vector2(760f, 52f),
+                new Vector2(900f, 64f),
                 new Vector2(0.5f, 0.5f));
 
             loadingStatusText.color =
                 new Color(0.48f, 0.72f, 1f, 1f);
+
+            ConfigureFrontEndTextFit(
+                loadingStatusText,
+                16);
 
             GameObject wheelObject =
                 new(
@@ -2070,6 +2078,32 @@ namespace MotorCity.UI
             return text;
         }
 
+        private static void ConfigureFrontEndTextFit(
+            Text text,
+            int minimumSize)
+        {
+            if (text == null)
+                return;
+
+            text.resizeTextForBestFit =
+                true;
+
+            text.resizeTextMinSize =
+                Mathf.Clamp(
+                    minimumSize,
+                    10,
+                    text.fontSize);
+
+            text.resizeTextMaxSize =
+                text.fontSize;
+
+            text.horizontalOverflow =
+                HorizontalWrapMode.Wrap;
+
+            text.verticalOverflow =
+                VerticalWrapMode.Truncate;
+        }
+
         private static Sprite CreateRuntimeUiSprite(
             Texture2D texture,
             bool sliced)
@@ -2551,6 +2585,10 @@ namespace MotorCity.UI
                     0.92f,
                     0.97f,
                     1f);
+
+            ConfigureFrontEndTextFit(
+                sectionBody,
+                14);
         }
 
         private void CreateSettingsRow(
@@ -2689,6 +2727,10 @@ namespace MotorCity.UI
             labelShadow.effectDistance =
                 new Vector2(1f, -1f);
 
+            ConfigureFrontEndTextFit(
+                labelText,
+                14);
+
             valueText =
                 CreateText(
                     rowRect,
@@ -2706,6 +2748,10 @@ namespace MotorCity.UI
                     0.96f,
                     1f,
                     1f);
+
+            ConfigureFrontEndTextFit(
+                valueText,
+                16);
 
             if (minusAction != null)
             {
