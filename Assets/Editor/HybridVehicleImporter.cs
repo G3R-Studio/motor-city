@@ -185,7 +185,10 @@ public static class HybridVehicleImporter
         // on their pivots. The axle positions below match the authored Hybrid
         // proportions and keep every wheel as a separate steering/spinning
         // transform for the runtime installer.
-        const float wheelX = 0.540f;
+        const float frontLeftX = -0.589f;
+        const float frontRightX = 0.587f;
+        const float rearLeftX = -0.561f;
+        const float rearRightX = 0.600f;
         const float wheelY = 0.242f;
         const float frontZ = 1.253f;
         const float rearZ = -0.654f;
@@ -195,7 +198,7 @@ public static class HybridVehicleImporter
             leftWheelSource,
             "front_left",
             new Vector3(
-                -wheelX,
+                frontLeftX,
                 wheelY,
                 frontZ),
             new Vector3(
@@ -208,7 +211,7 @@ public static class HybridVehicleImporter
             rightWheelSource,
             "front_right",
             new Vector3(
-                wheelX,
+                frontRightX,
                 wheelY,
                 frontZ),
             new Vector3(
@@ -221,7 +224,7 @@ public static class HybridVehicleImporter
             leftWheelSource,
             "rear_left",
             new Vector3(
-                -wheelX,
+                rearLeftX,
                 wheelY,
                 rearZ),
             new Vector3(
@@ -234,7 +237,7 @@ public static class HybridVehicleImporter
             rightWheelSource,
             "rear_right",
             new Vector3(
-                wheelX,
+                rearRightX,
                 wheelY,
                 rearZ),
             new Vector3(
