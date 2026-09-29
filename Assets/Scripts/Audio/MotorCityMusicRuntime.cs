@@ -10,13 +10,17 @@ namespace MotorCity.Audio
         private const string MutedKey =
             "MotorCity.Settings.MusicMuted";
 
+        private const string SettingsVersionKey =
+            "MotorCity.Settings.MusicVersion";
+
+        private const int CurrentSettingsVersion = 2;
         private const int SampleRate = 22050;
         private const float LoopSeconds = 48f;
 
         private static MotorCityMusicRuntime instance;
 
         private AudioSource source;
-        private float musicVolume = 0.55f;
+        private float musicVolume = 0.10f;
         private bool musicMuted;
         private bool menuActive;
 
@@ -130,11 +134,35 @@ namespace MotorCity.Audio
             DontDestroyOnLoad(
                 gameObject);
 
-            musicVolume =
-                Mathf.Clamp01(
-                    MotorCitySaveService.GetFloat(
-                        VolumeKey,
-                        0.55f));
+            int settingsVersion =
+                MotorCitySaveService.GetInt(
+                    SettingsVersionKey,
+                    0);
+
+            if (settingsVersion <
+                CurrentSettingsVersion)
+            {
+                musicVolume =
+                    0.10f;
+
+                MotorCitySaveService.SetFloat(
+                    VolumeKey,
+                    musicVolume);
+
+                MotorCitySaveService.SetInt(
+                    SettingsVersionKey,
+                    CurrentSettingsVersion);
+
+                MotorCitySaveService.Save();
+            }
+            else
+            {
+                musicVolume =
+                    Mathf.Clamp01(
+                        MotorCitySaveService.GetFloat(
+                            VolumeKey,
+                            0.10f));
+            }
 
             musicMuted =
                 MotorCitySaveService.GetInt(
@@ -195,7 +223,7 @@ namespace MotorCity.Audio
             source.volume =
                 musicMuted
                     ? 0f
-                    : musicVolume * 0.34f;
+                    : musicVolume;
         }
 
         private static AudioClip BuildMenuLoop()
