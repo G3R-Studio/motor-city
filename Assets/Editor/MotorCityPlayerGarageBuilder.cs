@@ -70,7 +70,7 @@ public static class MotorCityPlayerGarageBuilder
             occlusion == null)
         {
             EditorUtility.DisplayDialog(
-                "Motor City — Player Garage",
+                "Motor City - Player Garage",
                 "Не найдены исходные FBX/PBR ассеты гаража в Assets/Art/MotorCity/Garage.",
                 "OK");
 
@@ -110,7 +110,7 @@ public static class MotorCityPlayerGarageBuilder
             AssetDatabase.Refresh();
 
             EditorUtility.DisplayDialog(
-                "Motor City — Player Garage",
+                "Motor City - Player Garage",
                 "Готово. Созданы URP-материал и runtime prefab гаража.\n\n" +
                 PrefabPath,
                 "OK");
@@ -127,7 +127,7 @@ public static class MotorCityPlayerGarageBuilder
                 exception);
 
             EditorUtility.DisplayDialog(
-                "Motor City — Player Garage",
+                "Motor City - Player Garage",
                 "Не удалось собрать гараж. Посмотри Console.",
                 "OK");
         }
