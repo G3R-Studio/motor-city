@@ -424,25 +424,60 @@ namespace MotorCity.Gameplay
                 GetLevel(
                     type);
 
+            if (level >= MaxLevel)
+            {
+                return type switch
+                {
+                    UpgradeType.Engine =>
+                        MotorCityLocalization.Format(
+                            "garage.engine_desc_max",
+                            EngineSpeedBonus(level),
+                            EngineAccelerationBonus(level),
+                            EngineAssistPercent(level)),
+
+                    UpgradeType.Grip =>
+                        MotorCityLocalization.Format(
+                            "garage.grip_desc_max",
+                            GripBonusPercent(level)),
+
+                    _ =>
+                        MotorCityLocalization.Format(
+                            "garage.stability_desc_max",
+                            StabilityCenterDropMm(level),
+                            StabilityDampingPercent(level))
+                };
+            }
+
+            int nextLevel =
+                Mathf.Min(
+                    MaxLevel,
+                    level + 1);
+
             return type switch
             {
                 UpgradeType.Engine =>
                     MotorCityLocalization.Format(
-                        "garage.engine_desc",
+                        "garage.engine_desc_next",
                         EngineSpeedBonus(level),
+                        EngineSpeedBonus(nextLevel),
                         EngineAccelerationBonus(level),
-                        EngineAssistPercent(level)),
+                        EngineAccelerationBonus(nextLevel),
+                        EngineAssistPercent(level),
+                        EngineAssistPercent(nextLevel)),
 
                 UpgradeType.Grip =>
                     MotorCityLocalization.Format(
-                        "garage.grip_desc",
-                        GripBonusPercent(level)),
+                        "garage.grip_desc_next",
+                        GripBonusPercent(level),
+                        GripBonusPercent(nextLevel)),
 
                 _ =>
                     MotorCityLocalization.Format(
-                        "garage.stability_desc",
+                        "garage.stability_desc_next",
                         StabilityCenterDropMm(level),
-                        StabilityDampingPercent(level))
+                        StabilityCenterDropMm(nextLevel),
+                        StabilityDampingPercent(level),
+                        StabilityDampingPercent(nextLevel))
             };
         }
 

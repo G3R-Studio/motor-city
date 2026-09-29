@@ -531,15 +531,32 @@ namespace MotorCity.Gameplay
 
             if (!IsUnlocked(next))
             {
-                return
-                    nextProfile.Id == "delorean"
-                        ? MotorCityLocalization.Format(
+                if (nextProfile.Id == "delorean")
+                {
+                    return
+                        MotorCityLocalization.Format(
                             "vehicle.next_supporter",
-                            nextProfile.DisplayName)
-                        : MotorCityLocalization.Format(
-                            "vehicle.next_rep",
-                            nextProfile.DisplayName,
-                            nextProfile.RequiredRep);
+                            nextProfile.DisplayName);
+                }
+
+                int currentRep =
+                    reputation == null
+                        ? 0
+                        : reputation.Reputation;
+
+                int remaining =
+                    Mathf.Max(
+                        0,
+                        nextProfile.RequiredRep -
+                        currentRep);
+
+                return
+                    MotorCityLocalization.Format(
+                        "vehicle.next_rep_detailed",
+                        nextProfile.DisplayName,
+                        currentRep,
+                        nextProfile.RequiredRep,
+                        remaining);
             }
 
             return
