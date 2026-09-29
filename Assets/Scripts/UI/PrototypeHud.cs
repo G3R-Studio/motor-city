@@ -3777,10 +3777,10 @@ namespace MotorCity.UI
                     TextAnchor.LowerLeft,
                     new Vector2(
                         98f,
-                        30f),
+                        26f),
                     new Vector2(
                         320f,
-                        52f),
+                        44f),
                     new Vector2(
                         0f,
                         0f),
@@ -3798,10 +3798,10 @@ namespace MotorCity.UI
                     TextAnchor.LowerRight,
                     new Vector2(
                         -20f,
-                        10f),
+                        4f),
                     new Vector2(
                         250f,
-                        20f),
+                        18f),
                     new Vector2(
                         1f,
                         0f),
@@ -5535,11 +5535,11 @@ namespace MotorCity.UI
             minimapTargetText.resizeTextForBestFit =
                 true;
             minimapTargetText.resizeTextMinSize =
-                9;
+                8;
             minimapTargetText.resizeTextMaxSize =
                 11;
             minimapTargetText.horizontalOverflow =
-                HorizontalWrapMode.Overflow;
+                HorizontalWrapMode.Wrap;
             minimapTargetText.verticalOverflow =
                 VerticalWrapMode.Truncate;
 
