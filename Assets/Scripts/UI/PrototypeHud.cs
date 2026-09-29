@@ -3545,8 +3545,8 @@ namespace MotorCity.UI
                     canvas,
                     "Character Card",
                     new Vector2(
-                        18f,
-                        -18f),
+                        22f,
+                        -22f),
                     new Vector2(
                         448f,
                         154f),
@@ -4610,8 +4610,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Speedometer",
-                    new Vector2(0f, 12f),
-                    new Vector2(264f, 224f),
+                    new Vector2(0f, 16f),
+                    new Vector2(258f, 190f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
                     new Color(
@@ -5062,7 +5062,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Activity Status",
-                    new Vector2(120f, -196f),
+                    new Vector2(0f, -196f),
                     new Vector2(720f, 58f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
@@ -5233,8 +5233,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Minimap",
-                    new Vector2(-18f, -18f),
-                    new Vector2(204f, 218f),
+                    new Vector2(-22f, -22f),
+                    new Vector2(214f, 218f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     Color.clear);
@@ -9522,7 +9522,7 @@ namespace MotorCity.UI
                 "HUD Rescue",
                 "touch.utility.rescue",
                 MotorCityInputAction.Rescue,
-                new Vector2(0f, 66f),
+                new Vector2(0f, 0f),
                 new Vector2(96f, 34f));
 
             CreatePauseButton(
