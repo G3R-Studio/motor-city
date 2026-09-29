@@ -181,6 +181,7 @@ namespace MotorCity.Audio
             source.loop = true;
             source.spatialBlend = 0f;
             source.ignoreListenerPause = true;
+            source.ignoreListenerVolume = true;
             source.dopplerLevel = 0f;
             source.priority = 32;
 
@@ -400,9 +401,10 @@ namespace MotorCity.Audio
                 samples[i] =
                     Mathf.Clamp(
                         value *
-                        loopFade,
-                        -0.72f,
-                        0.72f);
+                        loopFade *
+                        2.35f,
+                        -0.90f,
+                        0.90f);
             }
 
             AudioClip clip =
