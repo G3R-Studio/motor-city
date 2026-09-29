@@ -330,7 +330,7 @@ namespace MotorCity.Gameplay
             Save();
 
             StatusText =
-                $"{current.Name} — " +
+                $"{current.Name} - " +
                 ProgressText(
                     current);
 
