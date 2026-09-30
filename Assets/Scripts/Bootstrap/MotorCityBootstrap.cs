@@ -242,6 +242,10 @@ namespace MotorCity.Bootstrap
                 sun);
 
             ArcadeCarController car = CreateCar();
+
+            car.BeginOpeningPresentationLock(
+                5f);
+
             ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
             car.gameObject.AddComponent<PlayerHeadlights>();
             car.gameObject.AddComponent<PlayerVehicleRearEmission>();
@@ -1404,6 +1408,8 @@ namespace MotorCity.Bootstrap
             cameraObject.transform.position = target.position + new Vector3(0f, 2.8f, -6.8f);
             ChaseCamera chase = cameraObject.AddComponent<ChaseCamera>();
             chase.SetTarget(target);
+            chase.ArmOpeningPresentation(
+                5f);
         }
 
         private static void CreateHud(
