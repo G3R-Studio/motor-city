@@ -92,6 +92,7 @@ namespace MotorCity.Vehicle
 
         private bool wheelRigReady;
         private bool drivingEnabled = true;
+        private bool presentationLock;
         private bool warnedMissingPrometeo;
         private bool throttleHeld;
         private bool reverseHeld;
@@ -1921,9 +1922,33 @@ namespace MotorCity.Vehicle
             ApplyDriveModeTuning();
         }
 
+        public void SetPresentationLock(
+            bool locked)
+        {
+            presentationLock =
+                locked;
+
+            if (!locked)
+                return;
+
+            drivingEnabled =
+                false;
+
+            ClearMotion();
+            SetPrometeoEnabled(
+                false);
+        }
+
         public void SetDrivingEnabled(
             bool enabled)
         {
+            if (enabled &&
+                presentationLock)
+            {
+                enabled =
+                    false;
+            }
+
             drivingEnabled = enabled;
 
             if (!enabled)
