@@ -294,6 +294,7 @@ namespace MotorCity.UI
         private Text resultHeadlineText;
         private Text resultDetailsText;
         private Text resultRewardText;
+        private Text resultNextGoalText;
         private Text resultControlsText;
 
         private Text garageMoneyText;
