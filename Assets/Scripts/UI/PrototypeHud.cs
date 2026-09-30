@@ -936,6 +936,10 @@ namespace MotorCity.UI
                 garageOverlay,
                 garageOpen);
 
+            SetActiveIfChanged(
+                openingSpeedometerRoot,
+                !garageOpen);
+
             if (!garageOpen)
             {
                 garagePassportOpen = false;
