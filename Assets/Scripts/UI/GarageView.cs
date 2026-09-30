@@ -449,7 +449,7 @@ namespace MotorCity.UI
                 RectTransform row =
                     CreatePanel(
                         panel,
-                        `Upgrade ${i + 1}`,
+                        $"Upgrade {i + 1}",
                         new Vector2(x, 24f),
                         new Vector2(242f, 190f),
                         new Vector2(0f, 0f),
