@@ -1,7 +1,10 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using MotorCity.Localization;
 using MotorCity.Platform;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace MotorCity.Gameplay
 {
@@ -17,8 +20,14 @@ namespace MotorCity.Gameplay
 
         private float messageTimer;
         private bool purchaseRunning;
+        private string supporterPrice =
+            string.Empty;
+        private Texture2D currencyIconTexture;
 
         public bool HasSupporterPack { get; private set; }
+
+        public Texture2D CurrencyIconTexture =>
+            currencyIconTexture;
 
         public static bool SupporterPackOwned =>
             MotorCity.Persistence.MotorCitySaveService.GetInt(
@@ -38,12 +47,27 @@ namespace MotorCity.Gameplay
             MotorCityLocalization.Text(
                 "store.supporter.desc");
 
-        public string SelectedOwnershipLine =>
-            IsSelectedOwned()
-                ? MotorCityLocalization.Text(
-                    "store.owned")
-                : MotorCityLocalization.Text(
-                    "store.buy");
+        public string SelectedOwnershipLine
+        {
+            get
+            {
+                if (IsSelectedOwned())
+                {
+                    return
+                        MotorCityLocalization.Text(
+                            "store.owned");
+                }
+
+                return
+                    string.IsNullOrWhiteSpace(
+                        supporterPrice)
+                        ? MotorCityLocalization.Text(
+                            "store.buy")
+                        : MotorCityLocalization.Format(
+                            "store.buy_price",
+                            supporterPrice);
+            }
+        }
 
         public string ProductDetailsLine =>
             MotorCityLocalization.Text(
@@ -57,6 +81,7 @@ namespace MotorCity.Gameplay
             LoadEntitlements();
             ProcessPendingPurchases();
             ApplyEntitlements();
+            LoadSupporterProductInfo();
         }
 
         private void Update()
@@ -150,6 +175,99 @@ namespace MotorCity.Gameplay
                         productId,
                         token);
                 });
+        }
+
+        private void LoadSupporterProductInfo()
+        {
+            if (!MotorCityPlatform.SupportsPurchases)
+                return;
+
+            MotorCityPlatform.LoadProductInfo(
+                SupporterPackProductId,
+                (success, payload) =>
+                {
+                    if (!success ||
+                        string.IsNullOrWhiteSpace(
+                            payload))
+                    {
+                        return;
+                    }
+
+                    int split =
+                        payload.IndexOf('|');
+
+                    string encodedPrice =
+                        split >= 0
+                            ? payload.Substring(
+                                0,
+                                split)
+                            : payload;
+
+                    string encodedIcon =
+                        split >= 0 &&
+                        split + 1 < payload.Length
+                            ? payload.Substring(
+                                split + 1)
+                            : string.Empty;
+
+                    supporterPrice =
+                        DecodeCatalogValue(
+                            encodedPrice);
+
+                    string iconUrl =
+                        DecodeCatalogValue(
+                            encodedIcon);
+
+                    if (!string.IsNullOrWhiteSpace(
+                            iconUrl))
+                    {
+                        StartCoroutine(
+                            LoadCurrencyIcon(
+                                iconUrl));
+                    }
+                });
+        }
+
+        private IEnumerator LoadCurrencyIcon(
+            string url)
+        {
+            using UnityWebRequest request =
+                UnityWebRequestTexture.GetTexture(
+                    url);
+
+            yield return
+                request.SendWebRequest();
+
+            if (request.result !=
+                UnityWebRequest.Result.Success)
+            {
+                yield break;
+            }
+
+            currencyIconTexture =
+                DownloadHandlerTexture.GetContent(
+                    request);
+        }
+
+        private static string DecodeCatalogValue(
+            string value)
+        {
+            if (string.IsNullOrEmpty(
+                    value))
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                return
+                    Uri.UnescapeDataString(
+                        value);
+            }
+            catch
+            {
+                return value;
+            }
         }
 
         private void LoadEntitlements()
