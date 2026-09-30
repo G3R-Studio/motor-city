@@ -831,13 +831,6 @@ namespace MotorCity.UI
                     rewardedBonus.StatusText;
             }
 
-            if (weekendEvents != null &&
-                weekendEvents.ShowMessage)
-            {
-                return
-                    weekendEvents.StatusText;
-            }
-
             if (club != null &&
                 club.ShowMessage)
             {
