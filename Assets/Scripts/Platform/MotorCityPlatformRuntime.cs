@@ -13,7 +13,8 @@ namespace MotorCity.Platform
             None = 0,
             FocusLost = 1 << 0,
             ApplicationPaused = 1 << 1,
-            PlatformModal = 1 << 2
+            PlatformModal = 1 << 2,
+            PlatformEvent = 1 << 3
         }
 
         private static MotorCityPlatformRuntime instance;
@@ -139,6 +140,23 @@ namespace MotorCity.Platform
             instance.ReconcilePlatformGameplay();
         }
 
+        public static void SetPlatformEventPaused(
+            bool paused)
+        {
+            if (instance == null)
+            {
+                return;
+            }
+
+            // Yandex game_api_pause/game_api_resume already updates the
+            // GameplayAPI marker internally. Only mirror the local pause
+            // state here so we do not echo duplicate start/stop events.
+            instance.SetPauseReason(
+                PauseReason.PlatformEvent,
+                paused,
+                false);
+        }
+
         public void MarkGameplayRunning()
         {
             gameplayRunning = true;
@@ -167,7 +185,8 @@ namespace MotorCity.Platform
 
         private void SetPauseReason(
             PauseReason reason,
-            bool active)
+            bool active,
+            bool reconcilePlatform = true)
         {
             bool wasPaused =
                 pauseReasons !=
@@ -190,7 +209,11 @@ namespace MotorCity.Platform
 
             if (isPaused == wasPaused)
             {
-                ReconcilePlatformGameplay();
+                if (reconcilePlatform)
+                {
+                    ReconcilePlatformGameplay();
+                }
+
                 return;
             }
 
@@ -203,7 +226,10 @@ namespace MotorCity.Platform
                 ReleaseLocalPause();
             }
 
-            ReconcilePlatformGameplay();
+            if (reconcilePlatform)
+            {
+                ReconcilePlatformGameplay();
+            }
         }
 
         private void ApplyLocalPause()
