@@ -414,14 +414,17 @@ namespace MotorCity.Gameplay
 
         private void BeginPhysicalRun()
         {
-            if (activityManager == null ||
-                !activityManager.TryBegin(
-                    "underground",
-                    CurrentEvent().Name))
-            {
+            if (activityManager == null)
                 return;
-            }
 
+            activityManager.RequestStart(
+                "underground",
+                CurrentEvent().Name,
+                BeginPreparedPhysicalRun);
+        }
+
+        private void BeginPreparedPhysicalRun()
+        {
             armed = false;
             isCountingDown = true;
             countdownRemaining = 3f;
