@@ -93,23 +93,36 @@ namespace MotorCity.Bootstrap
                     host.AddComponent<MotorCityPurchaseRuntime>();
             }
 
+            MotorCityRemoteConfigRuntime remoteConfigRuntime =
+                host.GetComponent<MotorCityRemoteConfigRuntime>();
+
+            if (remoteConfigRuntime == null)
+            {
+                remoteConfigRuntime =
+                    host.AddComponent<MotorCityRemoteConfigRuntime>();
+            }
+
             platformRuntime.InitializePlatform(
                 _ =>
                 {
-                    purchaseRuntime.RefreshPending(
+                    remoteConfigRuntime.Load(
                         () =>
                         {
-                            cloudRuntime.ResolveInitialCloud(
+                            purchaseRuntime.RefreshPending(
                                 () =>
                                 {
-                                    platformBootstrapPending =
-                                        false;
+                                    cloudRuntime.ResolveInitialCloud(
+                                        () =>
+                                        {
+                                            platformBootstrapPending =
+                                                false;
 
-                                    platformBootstrapReady =
-                                        true;
+                                            platformBootstrapReady =
+                                                true;
 
-                                    TryBuildPrototype(
-                                        scene);
+                                            TryBuildPrototype(
+                                                scene);
+                                        });
                                 });
                         });
                 });
