@@ -273,227 +273,20 @@ namespace MotorCity.UI
                     new Vector2(258f, 190f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
-                    new Color(
-                        PanelColor.r,
-                        PanelColor.g,
-                        PanelColor.b,
-                        0.34f));
+                    Color.clear);
 
-            Vector2 gaugeCenter =
-                new(0f, 132f);
-
-            Texture2D racingFace =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.speedometerPrimary;
-
-            if (racingFace != null)
-            {
-                GameObject faceObject =
-                    new(
-                        "Racing Speedometer Face",
-                        typeof(RectTransform),
-                        typeof(RawImage));
-
-                faceObject.transform.SetParent(
-                    panel,
-                    false);
-
-                RectTransform face =
-                    faceObject.GetComponent<RectTransform>();
-
-                face.anchorMin =
-                    new Vector2(0.5f, 0f);
-                face.anchorMax =
-                    new Vector2(0.5f, 0f);
-                face.pivot =
-                    new Vector2(0.5f, 0.5f);
-                face.anchoredPosition =
-                    gaugeCenter;
-                face.sizeDelta =
-                    new Vector2(188f, 188f);
-
-                RawImage faceImage =
-                    faceObject.GetComponent<RawImage>();
-
-                faceImage.texture =
-                    racingFace;
-                faceImage.color =
-                    Color.white;
-                faceImage.raycastTarget =
-                    false;
-            }
-            else
-            {
-                const float tickRadius = 67f;
-                const int tickCount = 13;
-
-                for (int i = 0;
-                     i < tickCount;
-                     i++)
-                {
-                    float t =
-                        i /
-                        (float)(tickCount - 1);
-
-                    float angle =
-                        Mathf.Lerp(
-                            -135f,
-                            135f,
-                            t);
-
-                    float radians =
-                        angle *
-                        Mathf.Deg2Rad;
-
-                    GameObject tickObject =
-                        new(
-                            "Speed Tick " + i,
-                            typeof(RectTransform),
-                            typeof(Image));
-
-                    tickObject.transform.SetParent(
-                        panel,
-                        false);
-
-                    RectTransform tick =
-                        tickObject.GetComponent<RectTransform>();
-
-                    tick.anchorMin =
-                        new Vector2(0.5f, 0f);
-                    tick.anchorMax =
-                        new Vector2(0.5f, 0f);
-                    tick.pivot =
-                        new Vector2(0.5f, 0.5f);
-                    tick.anchoredPosition =
-                        gaugeCenter +
-                        new Vector2(
-                            Mathf.Sin(radians) *
-                            tickRadius,
-                            Mathf.Cos(radians) *
-                            tickRadius);
-                    tick.sizeDelta =
-                        new Vector2(
-                            i % 2 == 0
-                                ? 4f
-                                : 3f,
-                            i % 2 == 0
-                                ? 15f
-                                : 9f);
-                    tick.localRotation =
-                        Quaternion.Euler(
-                            0f,
-                            0f,
-                            -angle);
-
-                    Image tickImage =
-                        tickObject.GetComponent<Image>();
-
-                    tickImage.color =
-                        i >= tickCount - 3
-                            ? DriftAccent
-                            : SecondaryTextColor;
-                    tickImage.raycastTarget =
-                        false;
-                }
-            }
-
-            GameObject needleGlowObject =
-                new(
-                    "Speed Needle Glow",
-                    typeof(RectTransform),
-                    typeof(RawImage));
-
-            needleGlowObject.transform.SetParent(
-                panel,
-                false);
-
-            speedNeedleGlowRect =
-                needleGlowObject.GetComponent<RectTransform>();
-
-            speedNeedleGlowRect.anchorMin =
-                new Vector2(0.5f, 0f);
-            speedNeedleGlowRect.anchorMax =
-                new Vector2(0.5f, 0f);
-            speedNeedleGlowRect.pivot =
-                new Vector2(0.5f, 0.08f);
-            speedNeedleGlowRect.anchoredPosition =
-                gaugeCenter;
-            speedNeedleGlowRect.sizeDelta =
-                new Vector2(22f, 96f);
-            speedNeedleGlowRect.localRotation =
-                Quaternion.Euler(
-                    0f,
-                    0f,
-                    135f);
-
-            speedNeedleGlow =
-                needleGlowObject.GetComponent<RawImage>();
-
-            speedNeedleGlow.texture =
-                GetSpeedNeedleGlowTexture();
-            speedNeedleGlow.color =
-                new Color(
-                    0.08f,
-                    0.46f,
-                    1f,
-                    0f);
-            speedNeedleGlow.raycastTarget =
-                false;
-
-            GameObject needleObject =
-                new(
-                    "Speed Needle",
-                    typeof(RectTransform),
-                    typeof(RawImage));
-
-            needleObject.transform.SetParent(
-                panel,
-                false);
-
+            // The speedometer is intentionally reduced to a single speed readout.
+            // No face, ticks, needle, glow or drive-mode chip remain.
             speedNeedle =
-                needleObject.GetComponent<RectTransform>();
-
-            speedNeedle.anchorMin =
-                new Vector2(0.5f, 0f);
-            speedNeedle.anchorMax =
-                new Vector2(0.5f, 0f);
-            speedNeedle.pivot =
-                new Vector2(0.5f, 0.08f);
-            speedNeedle.anchoredPosition =
-                gaugeCenter;
-
-            Texture2D needleTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.needleLong;
-
-            float needleHeight =
-                84f;
-
-            speedNeedle.sizeDelta =
-                new Vector2(
-                    7f,
-                    needleHeight);
-            speedNeedle.localRotation =
-                Quaternion.Euler(
-                    0f,
-                    0f,
-                    135f);
-
-            RawImage needleImage =
-                needleObject.GetComponent<RawImage>();
-
-            needleImage.texture =
-                needleTexture;
-            needleImage.color =
-                new Color32(
-                    0xB9,
-                    0xB8,
-                    0xB7,
-                    0xFF);
-            needleImage.raycastTarget =
-                false;
+                null;
+            speedNeedleGlowRect =
+                null;
+            speedNeedleGlow =
+                null;
+            driveModeText =
+                null;
+            lastDisplayedDriveMode =
+                null;
 
             speedText =
                 CreateText(
@@ -502,8 +295,8 @@ namespace MotorCity.UI
                     36,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 68f),
-                    new Vector2(128f, 42f),
+                    new Vector2(0f, 70f),
+                    new Vector2(220f, 48f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0.5f),
                     new Color32(
@@ -512,77 +305,13 @@ namespace MotorCity.UI
                         0xED,
                         0xFF));
 
-            RectTransform driveModeChip;
+            speedText.text =
+                "0 " +
+                MotorCityLocalization.Text(
+                    "common.kmh");
 
-            Texture2D chipTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.driveModePanel;
-
-            if (chipTexture != null)
-            {
-                GameObject chipObject =
-                    new(
-                        "Drive Mode Indicator",
-                        typeof(RectTransform),
-                        typeof(RawImage));
-
-                chipObject.transform.SetParent(
-                    panel,
-                    false);
-
-                driveModeChip =
-                    chipObject.GetComponent<RectTransform>();
-
-                driveModeChip.anchorMin =
-                    new Vector2(0.5f, 0f);
-                driveModeChip.anchorMax =
-                    new Vector2(0.5f, 0f);
-                driveModeChip.pivot =
-                    new Vector2(0.5f, 0.5f);
-                driveModeChip.anchoredPosition =
-                    new Vector2(0f, 18f);
-                driveModeChip.sizeDelta =
-                    new Vector2(158f, 32f);
-
-                RawImage chipImage =
-                    chipObject.GetComponent<RawImage>();
-
-                chipImage.texture =
-                    chipTexture;
-                chipImage.color =
-                    Color.white;
-                chipImage.raycastTarget =
-                    false;
-            }
-            else
-            {
-                driveModeChip =
-                    CreatePanel(
-                        panel,
-                        "Drive Mode Indicator",
-                        new Vector2(0f, 18f),
-                        new Vector2(172f, 34f),
-                        new Vector2(0.5f, 0f),
-                        new Vector2(0.5f, 0.5f),
-                        PanelColor);
-            }
-
-            driveModeText =
-                CreateText(
-                    driveModeChip,
-                    "Drive Mode",
-                    12,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
-                    new Vector2(138f, 24f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
-                    BlueAccent);
-
-            lastDisplayedDriveMode =
-                null;
+            lastDisplayedSpeed =
+                int.MinValue;
         }
 
         private static Texture2D GetSpeedNeedleGlowTexture()
