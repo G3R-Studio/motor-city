@@ -32,6 +32,16 @@ namespace MotorCity.Gameplay
                 0f,
                 countdownRemaining);
 
+        public bool IsCountdownPresentationActive =>
+            requestInProgress &&
+            (countdownRemaining > 0f ||
+             showingGo);
+
+        public int CountdownDisplayValue =>
+            IsCountdownPresentationActive
+                ? lastShownCountdown
+                : -1;
+
         public void Initialize(
             ActivityManager manager)
         {
