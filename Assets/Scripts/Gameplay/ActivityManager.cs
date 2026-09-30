@@ -189,7 +189,7 @@ namespace MotorCity.Gameplay
         {
             if (string.IsNullOrEmpty(id)) return false;
             if (HasResult) return false;
-            if (IsBusy && ActiveId != id) return false;
+            if (IsBusy) return false;
 
             if (!CanBeginDuringOnboarding(
                     id))
