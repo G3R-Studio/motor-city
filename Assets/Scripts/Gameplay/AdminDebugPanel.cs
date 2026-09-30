@@ -48,7 +48,6 @@ namespace MotorCity.Gameplay
         private ClubSystem club;
         private TurboPetSystem turbo;
         private DailyAdventureSystem daily;
-        private WeekendEventSystem weekend;
         private AchievementSystem achievements;
         private PhotoHuntSystem photoHunt;
         private CityProfessionSystem professions;
@@ -124,7 +123,6 @@ namespace MotorCity.Gameplay
             club = GetComponent<ClubSystem>();
             turbo = GetComponent<TurboPetSystem>();
             daily = GetComponent<DailyAdventureSystem>();
-            weekend = GetComponent<WeekendEventSystem>();
             achievements = GetComponent<AchievementSystem>();
             photoHunt = GetComponent<PhotoHuntSystem>();
             professions = GetComponent<CityProfessionSystem>();
@@ -1226,15 +1224,6 @@ namespace MotorCity.Gameplay
                     ? string.Empty
                     : daily.CompletedTasks +
                       " tasks");
-
-            SystemLine(
-                "Weekend",
-                weekend != null,
-                weekend == null
-                    ? string.Empty
-                    : weekend.IsActive
-                        ? weekend.EventName
-                        : "inactive");
 
             SystemLine(
                 "Achievements",
