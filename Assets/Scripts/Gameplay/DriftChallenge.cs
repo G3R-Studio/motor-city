@@ -195,11 +195,14 @@ namespace MotorCity.Gameplay
 
         private void BeginCountdown()
         {
-            if (!activityManager.TryBegin(
-                    ActivityId,
-                    MotorCityLocalization.Text("activity.drift_challenge")))
-                return;
+            activityManager.RequestStart(
+                ActivityId,
+                MotorCityLocalization.Text("activity.drift_challenge"),
+                BeginPreparedCountdown);
+        }
 
+        private void BeginPreparedCountdown()
+        {
             isCountingDown = true;
             armed = false;
 
