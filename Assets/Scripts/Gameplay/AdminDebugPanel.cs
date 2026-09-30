@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using MotorCity.Input;
+using MotorCity.Platform;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using MotorCity.CameraSystem;
@@ -59,6 +60,7 @@ namespace MotorCity.Gameplay
         private SpeedTrapSystem speedTraps;
         private DriftSpotSystem driftSpots;
         private DayNightCycleController dayNight;
+        private MotorCityInterstitialRuntime interstitialRuntime;
 
         private bool visible;
         private int selectedTab;
@@ -133,6 +135,8 @@ namespace MotorCity.Gameplay
             discoveries = GetComponent<DiscoverySystem>();
             speedTraps = GetComponent<SpeedTrapSystem>();
             driftSpots = GetComponent<DriftSpotSystem>();
+            interstitialRuntime =
+                GetComponent<MotorCityInterstitialRuntime>();
 
             dayNight =
                 Object.FindAnyObjectByType<
@@ -1305,6 +1309,22 @@ namespace MotorCity.Gameplay
                 cityRisk == null
                     ? string.Empty
                     : cityRisk.AdminLine);
+
+            SystemLine(
+                "Interstitial",
+                interstitialRuntime != null,
+                interstitialRuntime == null
+                    ? string.Empty
+                    : interstitialRuntime.AdminLine);
+
+            if (Button(
+                    "СЛЕДУЮЩИЙ СТАРТ - MOCK AD"))
+            {
+                interstitialRuntime?.ForceNextEditorMock();
+
+                lastAction =
+                    "Следующая рекламная activity получит mock interstitial";
+            }
 
             Section(
                 "ВСЕ GAMEPLAY COMPONENTS");
