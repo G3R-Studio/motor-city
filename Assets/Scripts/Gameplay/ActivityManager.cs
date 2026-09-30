@@ -234,7 +234,8 @@ namespace MotorCity.Gameplay
                 activityId);
         }
 
-        public void DismissResult()
+        public void DismissResult(
+            bool notifyDismissed = true)
         {
             string dismissedActivityId =
                 ResultActivityId;
@@ -251,9 +252,12 @@ namespace MotorCity.Gameplay
             ResultReputationReward = 0;
             ResultSuccess = false;
 
-            ActivityResultDismissed?.Invoke(
-                dismissedActivityId,
-                dismissedSuccess);
+            if (notifyDismissed)
+            {
+                ActivityResultDismissed?.Invoke(
+                    dismissedActivityId,
+                    dismissedSuccess);
+            }
         }
 
         public bool IsActive(string id) => ActiveId == id;
