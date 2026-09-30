@@ -28,6 +28,7 @@ namespace MotorCity.Gameplay
         private Vector3 lastPosition;
         private bool activitySucceeded;
         private float messageTimer;
+        private float messageDelayTimer;
         private float introTimer;
         private int customizationColorIndexAtStepStart =
             -1;
@@ -53,6 +54,7 @@ namespace MotorCity.Gameplay
                 : 0;
 
         public bool ShowMessage =>
+            messageDelayTimer <= 0f &&
             messageTimer > 0f;
 
         public string StatusText { get; private set; }
@@ -199,7 +201,15 @@ namespace MotorCity.Gameplay
             if (IsComplete)
                 return;
 
-            if (messageTimer > 0f)
+            if (messageDelayTimer > 0f)
+            {
+                messageDelayTimer =
+                    Mathf.Max(
+                        0f,
+                        messageDelayTimer -
+                        Time.unscaledDeltaTime);
+            }
+            else if (messageTimer > 0f)
             {
                 messageTimer =
                     Mathf.Max(
@@ -461,6 +471,25 @@ namespace MotorCity.Gameplay
                 MessageSeconds + 1f;
         }
 
+        public void ShowWelcomeAfterDelay(
+            float delaySeconds)
+        {
+            if (IsComplete)
+                return;
+
+            StatusText =
+                MotorCityLocalization.Text(
+                    "onboarding.welcome");
+
+            messageTimer =
+                MessageSeconds;
+
+            messageDelayTimer =
+                Mathf.Max(
+                    0f,
+                    delaySeconds);
+        }
+
         public void ShowPathPrompt()
         {
             if (IsComplete)
@@ -546,6 +575,7 @@ namespace MotorCity.Gameplay
 
             StatusText = string.Empty;
             messageTimer = 0f;
+            messageDelayTimer = 0f;
         }
 
         public void ResetForTesting()
@@ -578,6 +608,9 @@ namespace MotorCity.Gameplay
 
             messageTimer =
                 MessageSeconds;
+
+            messageDelayTimer =
+                0f;
         }
 
         private void CompleteSilently()
