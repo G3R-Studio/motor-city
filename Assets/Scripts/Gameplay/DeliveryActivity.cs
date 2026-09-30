@@ -437,8 +437,13 @@ namespace MotorCity.Gameplay
                 eliteMode
                     ? MotorCityLocalization.Text("activity.premium_delivery")
                     : MotorCityLocalization.Text("activity.delivery"),
-                tier,
-                MotorCityLocalization.Format("activity.result_time", ElapsedSeconds, record),
+                MotorCityLocalization.Format(
+                    "activity.result_primary_time",
+                    ElapsedSeconds),
+                MotorCityLocalization.Format(
+                    "activity.result_tier_record",
+                    tier,
+                    record),
                 reward,
                 true);
 
