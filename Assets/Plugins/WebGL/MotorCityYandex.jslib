@@ -65,6 +65,19 @@ mergeInto(LibraryManager.library, {
         var ysdk = await YaGames.init();
         window.MotorCityYandexSdk = ysdk;
 
+        if (!window.MotorCityYandexPauseResumeBound &&
+            ysdk && typeof ysdk.on === 'function') {
+          window.MotorCityYandexPauseResumeBound = true;
+
+          ysdk.on('game_api_pause', function() {
+            send('OnYandexGameApiPause', '1');
+          });
+
+          ysdk.on('game_api_resume', function() {
+            send('OnYandexGameApiResume', '1');
+          });
+        }
+
         var player = null;
         try {
           player = await ysdk.getPlayer();
