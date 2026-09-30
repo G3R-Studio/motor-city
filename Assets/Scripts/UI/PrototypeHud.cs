@@ -266,6 +266,8 @@ namespace MotorCity.UI
         private readonly GameObject[] garageActionButtons =
             new GameObject[7];
         private Text garageControlsText;
+        private readonly Image[] garageVehicleStatFills =
+            new Image[7];
         private CanvasScaler canvasScaler;
         private bool lastPortraitLayout;
         private int lastDisplayedCredits = int.MinValue;
