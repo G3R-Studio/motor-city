@@ -20,6 +20,7 @@ namespace MotorCity.Platform
 
         private bool gameplayRunning;
         private bool platformGameplayActive;
+        private bool uiGameplayPaused;
         private bool initializationRequested;
         private bool localGameplayPaused;
         private float pausedTimeScale = 1f;
@@ -120,6 +121,22 @@ namespace MotorCity.Platform
             instance.SetPauseReason(
                 PauseReason.PlatformModal,
                 paused);
+        }
+
+        public static void SetGameplayUiPaused(
+            bool paused)
+        {
+            if (instance == null ||
+                instance.uiGameplayPaused ==
+                    paused)
+            {
+                return;
+            }
+
+            instance.uiGameplayPaused =
+                paused;
+
+            instance.ReconcilePlatformGameplay();
         }
 
         public void MarkGameplayRunning()
@@ -234,6 +251,7 @@ namespace MotorCity.Platform
         {
             bool shouldBeActive =
                 gameplayRunning &&
+                !uiGameplayPaused &&
                 pauseReasons ==
                     PauseReason.None;
 
