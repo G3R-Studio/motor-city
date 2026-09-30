@@ -328,6 +328,7 @@ namespace MotorCity.Localization
                 { "garage.fleet_unavailable", E("Автопарк ещё не подготовлен", "Vehicle roster is not ready yet") },
                 { "garage.activity_name", E("Гараж", "Garage") },
                 { "garage.max_short", E("МАКС", "MAX") },
+                { "garage.upgrade_action", E("УЛУЧШИТЬ", "UPGRADE") },
                 { "garage.level_line", E("УР. {0}/{1}", "LVL {0}/{1}") },
                 { "garage.bought", E("КУПЛЕНО", "OWNED") },
                 { "garage.price", E("КРЕДИТЫ {0:N0}", "{0:N0} CREDITS") },
