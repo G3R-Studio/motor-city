@@ -164,6 +164,100 @@ namespace MotorCity.Gameplay
             EvaluateAll();
         }
 
+        public void UnlockNextForTesting()
+        {
+            string[] keys =
+            {
+                "achievement.first_drive",
+                "achievement.racer",
+                "achievement.drifter",
+                "achievement.worker",
+                "achievement.explorer",
+                "achievement.photographer",
+                "achievement.collector",
+                "achievement.story",
+                "achievement.season"
+            };
+
+            for (int i = 0;
+                 i < unlocked.Length;
+                 i++)
+            {
+                if (unlocked[i])
+                    continue;
+
+                TryUnlock(
+                    i,
+                    true,
+                    keys[i],
+                    0,
+                    0);
+
+                return;
+            }
+        }
+
+        public void UnlockAllForTesting()
+        {
+            int guard =
+                0;
+
+            while (unlockedCount <
+                       unlocked.Length &&
+                   guard <
+                       unlocked.Length +
+                       2)
+            {
+                UnlockNextForTesting();
+                guard++;
+            }
+        }
+
+        public void ResetForTesting()
+        {
+            activityWins = 0;
+            raceWins = 0;
+            driftWins = 0;
+            professionWins = 0;
+            unlockedCount = 0;
+
+            SaveCounter(
+                "Activities",
+                0);
+
+            SaveCounter(
+                "Races",
+                0);
+
+            SaveCounter(
+                "Drifts",
+                0);
+
+            SaveCounter(
+                "Professions",
+                0);
+
+            for (int i = 0;
+                 i < unlocked.Length;
+                 i++)
+            {
+                unlocked[i] =
+                    false;
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    UnlockKey(
+                        i));
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            StatusText =
+                string.Empty;
+
+            messageTimer =
+                0f;
+        }
+
         private void EvaluateAll()
         {
             if (activities != null &&
