@@ -328,6 +328,11 @@ namespace MotorCity.UI
             resultDetailsText.text =
                 activityManager.ResultDetails ?? string.Empty;
 
+            AlignResultIconToText(
+                resultActivityIcon,
+                resultTitleText,
+                18f);
+
             bool hasCredits =
                 activityManager.ResultRewardCredits > 0;
 
@@ -342,6 +347,11 @@ namespace MotorCity.UI
                         activityManager.ResultReputationReward)
                     : MotorCityLocalization.Text(
                         "hud.no_rewards");
+
+            AlignResultIconToText(
+                resultRewardIcon,
+                resultRewardText,
+                18f);
 
             if (resultMasteryText != null)
             {
@@ -494,6 +504,43 @@ namespace MotorCity.UI
             }
 
             UpdateNewRecordPresentation();
+        }
+
+        private static void AlignResultIconToText(
+            Image icon,
+            Text text,
+            float gap)
+        {
+            if (icon == null ||
+                text == null)
+            {
+                return;
+            }
+
+            RectTransform iconRect =
+                icon.rectTransform;
+
+            RectTransform textRect =
+                text.rectTransform;
+
+            float textWidth =
+                Mathf.Min(
+                    textRect.rect.width,
+                    Mathf.Max(
+                        0f,
+                        text.preferredWidth));
+
+            float iconHalfWidth =
+                iconRect.rect.width *
+                0.5f;
+
+            iconRect.anchoredPosition =
+                new Vector2(
+                    textRect.anchoredPosition.x -
+                    textWidth * 0.5f -
+                    gap -
+                    iconHalfWidth,
+                    textRect.anchoredPosition.y);
         }
 
         private void UpdateNewRecordPresentation()
