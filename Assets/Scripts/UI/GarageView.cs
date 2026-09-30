@@ -1156,7 +1156,7 @@ namespace MotorCity.UI
                     "garage.main_menu_button");
 
             garageTouchControlsRoot.SetActive(
-                false);
+                true);
         }
 
         private GameObject CreateGarageActionButton(
@@ -1438,7 +1438,7 @@ namespace MotorCity.UI
                 fillRect.sizeDelta =
                     new Vector2(
                         metaUnlocked
-                            ? 218f *
+                            ? 298f *
                               Mathf.Clamp01(
                                   garage.VehicleMasteryProgress)
                             : 0f,
