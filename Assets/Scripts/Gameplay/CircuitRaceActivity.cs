@@ -427,8 +427,15 @@ namespace MotorCity.Gameplay
             activityManager.ShowResult(
                 ActivityId,
                 MotorCityLocalization.Text("activity.circuit"),
-                tier,
-                MotorCityLocalization.Format("activity.circuit_result", ElapsedSeconds, record, lap, bonus),
+                MotorCityLocalization.Format(
+                    "activity.result_primary_time",
+                    ElapsedSeconds),
+                MotorCityLocalization.Format(
+                    "activity.result_circuit_details",
+                    tier,
+                    record,
+                    lap,
+                    bonus),
                 reward,
                 true);
 
