@@ -1,5 +1,6 @@
 using MotorCity.Gameplay;
 using MotorCity.Audio;
+using MotorCity.CameraSystem;
 using MotorCity.Localization;
 using MotorCity.Input;
 using MotorCity.Persistence;
@@ -90,6 +91,9 @@ namespace MotorCity.UI
         private float loadingTimer;
         private bool frontEndAudioMuted;
         private float frontEndAudioVolume = 1f;
+
+        private bool openingPresentationActive;
+        private ChaseCamera openingPresentationCamera;
 
         private readonly IntroSlide[] slides =
         {
@@ -1468,6 +1472,12 @@ namespace MotorCity.UI
             ApplyFrontEndResponsiveLayout(
                 false);
 
+            if (openingPresentationActive)
+            {
+                UpdateOpeningPresentation();
+                return;
+            }
+
             if (loadingActive)
             {
                 UpdateLoadingAnimation();
@@ -1856,7 +1866,6 @@ namespace MotorCity.UI
             loadingRoot.SetActive(false);
 
             EnterGameplay();
-            onboarding?.ShowPathPrompt();
         }
 
         public void AttachGameplay(
@@ -1910,12 +1919,68 @@ namespace MotorCity.UI
             Time.timeScale = 1f;
             AudioListener.pause = false;
 
+            canvas.gameObject.SetActive(false);
+
+            bool firstDrivePresentation =
+                onboarding != null &&
+                !onboarding.IsComplete &&
+                onboarding.CurrentStep == 0;
+
+            if (!firstDrivePresentation)
+            {
+                if (car != null)
+                    car.SetDrivingEnabled(true);
+
+                MotorCityPlatformRuntime.MarkGameplayStarted();
+                return;
+            }
+
+            if (car != null)
+                car.SetDrivingEnabled(false);
+
+            openingPresentationCamera =
+                Camera.main == null
+                    ? null
+                    : Camera.main.GetComponent<ChaseCamera>();
+
+            if (openingPresentationCamera == null)
+            {
+                FinishOpeningPresentation();
+                return;
+            }
+
+            openingPresentationCamera.PlayOpeningPresentation(
+                1.6f);
+
+            openingPresentationActive =
+                true;
+        }
+
+        private void UpdateOpeningPresentation()
+        {
+            if (openingPresentationCamera != null &&
+                openingPresentationCamera.IsOpeningPresentationActive)
+            {
+                return;
+            }
+
+            FinishOpeningPresentation();
+        }
+
+        private void FinishOpeningPresentation()
+        {
+            openingPresentationActive =
+                false;
+
+            openingPresentationCamera =
+                null;
+
             if (car != null)
                 car.SetDrivingEnabled(true);
 
-            canvas.gameObject.SetActive(false);
-
             MotorCityPlatformRuntime.MarkGameplayStarted();
+
+            onboarding?.ShowPathPrompt();
         }
 
         private void ShowMainMenu()
