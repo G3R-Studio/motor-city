@@ -289,21 +289,6 @@ namespace MotorCity.UI
                     new Vector2(78f, 4f),
                     new Vector2(220f, 52f));
 
-            Image continueImage =
-                resultContinueTouchButton == null
-                    ? null
-                    : resultContinueTouchButton.GetComponent<Image>();
-
-            if (continueImage != null)
-            {
-                continueImage.color =
-                    new Color(
-                        0.18f,
-                        0.42f,
-                        0.92f,
-                        0.96f);
-            }
-
             resultTouchControlsRoot.SetActive(
                 false);
         }
@@ -432,14 +417,22 @@ namespace MotorCity.UI
 
             if (resultControlsText != null)
             {
+                bool showKeyboardInstructions =
+                    !MotorCityInput.PreferTouchPrompts;
+
+                resultControlsText.gameObject.SetActive(
+                    showKeyboardInstructions);
+
                 resultControlsText.text =
-                    MotorCityLocalization.Text(
-                        rookieDeliveryResult
-                            ? "hud.result_continue_only"
-                            : IsReplayableResult(
-                                activityManager.ResultActivityId)
-                                ? "hud.result_controls"
-                                : "hud.result_continue_only");
+                    showKeyboardInstructions
+                        ? MotorCityLocalization.Text(
+                            rookieDeliveryResult
+                                ? "hud.result_continue_only"
+                                : IsReplayableResult(
+                                    activityManager.ResultActivityId)
+                                    ? "hud.result_controls"
+                                    : "hud.result_continue_only")
+                        : string.Empty;
             }
 
             bool replayable =
