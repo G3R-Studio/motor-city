@@ -238,6 +238,13 @@ namespace MotorCity.Audio
                 Resources.Load<AudioClip>(
                     "MotorCity/Music/menu_01");
 
+            if (menuClip != null &&
+                menuClip.loadState ==
+                    AudioDataLoadState.Unloaded)
+            {
+                menuClip.LoadAudioData();
+            }
+
             cityClips =
                 new AudioClip[
                     CityTrackPaths.Length];
@@ -249,6 +256,17 @@ namespace MotorCity.Audio
                 cityClips[i] =
                     Resources.Load<AudioClip>(
                         CityTrackPaths[i]);
+
+                if (cityClips[i] != null &&
+                    cityClips[i].loadState ==
+                        AudioDataLoadState.Unloaded)
+                {
+                    // Decode/load the long OGG before gameplay. With
+                    // loadInBackground enabled in the importer this work
+                    // happens while the player is still in menu/intro,
+                    // instead of hitching on the first frame of a new song.
+                    cityClips[i].LoadAudioData();
+                }
             }
 
             cityOrder =
