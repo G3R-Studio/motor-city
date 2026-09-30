@@ -277,6 +277,8 @@ namespace MotorCity.Localization
                 { "hud.result_next_story", E("СЛЕДУЮЩАЯ ЦЕЛЬ: {0}", "NEXT GOAL: {0}") },
                 { "hud.result_next_daily", E("DAILY - осталось заданий: {0}", "DAILY - tasks left: {0}") },
                 { "hud.result_next_season", E("СЕЗОН - ещё {0} × {1}", "SEASON - {0} × {1} left") },
+                { "hud.result_next_event", E("СОБЫТИЕ - {0}", "EVENT - {0}") },
+                { "hud.result_next_navigator", E("СЛЕДУЮЩАЯ ЦЕЛЬ: {0}", "NEXT GOAL: {0}") },
                 { "hud.garage_controls", E("ИСПОЛЬЗУЙ КНОПКИ ГАРАЖА", "USE GARAGE BUTTONS") },
                 { "hud.garage_title", E("ГАРАЖ", "GARAGE") },
                 { "hud.garage_vehicle", E("МАШИНА: {0}", "CAR: {0}") },
