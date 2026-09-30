@@ -552,6 +552,7 @@ namespace MotorCity.Localization
                 { "onboarding.good_steer", E("Руль живой. Прокатись немного по кварталу, послушай машину.", "Steering is alive. Drive around the block a little and listen to the car.") },
                 { "onboarding.drive", E("Проедь хотя бы 80 метров. Не спеши - просто привыкни к машине: {0}/80 м.", "Drive at least 80 meters. No rush - just get used to the car: {0}/80 m.") },
                 { "onboarding.first_reward", E("Дядя Витя: Неплохо. Держи 250 КР на бензин и мелочи. А дальше тебя проведёт Турбо.", "Uncle Vitya: Not bad. Take 250 CR for fuel and odds and ends. Turbo will guide you from here.") },
+                { "onboarding.reward_handoff", E("Первые 250 КР получены. Витя подключает Турбо к навигатору...", "Your first 250 CR are yours. Vitya is connecting Turbo to the navigator...") },
                 { "onboarding.meet_turbo", E("Я Турбо. Витя попросил присмотреть за тобой. Я уже в навигаторе - никуда искать меня не надо.", "I am Turbo. Vitya asked me to look after you. I am already in the navigator - no need to search for me.") },
                 { "onboarding.turbo_ready", E("Начнём с простого дела. Я отметил синюю ДОСТАВКУ - поехали туда.", "We will start with a simple job. I marked a blue DELIVERY - let us head there.") },
                 { "onboarding.activity", E("Доедь до синего маркера, остановись и нажми действие. Это твоя первая работа в городе.", "Reach the blue marker, stop, and use the action button. This is your first job in the city.") },
