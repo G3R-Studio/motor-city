@@ -302,7 +302,7 @@ namespace MotorCity.UI
         private Text resultControlsText;
         private Image resultRecordGlow;
         private float resultRecordAnimationTimer;
-        private bool resultRecordAnimationPlayed;
+        private int resultRecordAnimatedSequence = -1;
 
         private Text garageMoneyText;
         private Text garageReputationText;
