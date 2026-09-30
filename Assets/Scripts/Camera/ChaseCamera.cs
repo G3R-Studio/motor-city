@@ -59,6 +59,7 @@ namespace MotorCity.CameraSystem
 
         private bool openingPresentationArmed;
         private bool openingPresentationActive;
+        private bool manualInputEnabled = true;
         private float openingPresentationTimer;
         private float openingPresentationDuration = 1.6f;
         private Vector3 openingPresentationStartPosition;
@@ -90,6 +91,25 @@ namespace MotorCity.CameraSystem
 
             hasLastTargetPosition =
                 false;
+        }
+
+        public void SetManualInputEnabled(
+            bool enabled)
+        {
+            manualInputEnabled =
+                enabled;
+
+            if (enabled)
+                return;
+
+            cameraTouchId =
+                -1;
+
+            yawOffset =
+                0f;
+
+            lastManualInputTime =
+                Time.time;
         }
 
         public void ArmOpeningPresentation(
@@ -393,6 +413,14 @@ namespace MotorCity.CameraSystem
 
             if (openingPresentationActive)
                 return;
+
+            if (!manualInputEnabled)
+            {
+                cameraTouchId =
+                    -1;
+
+                return;
+            }
 
             Mouse mouse = Mouse.current;
             bool orbiting = mouse != null && mouse.rightButton.isPressed;
