@@ -487,11 +487,26 @@ namespace MotorCity.Gameplay
 
         private void OnDestroy()
         {
+            if (isCountingDown)
+            {
+                activityManager?.CancelPendingStart(
+                    "underground");
+            }
+
             if (activityManager != null)
             {
                 activityManager.ActivityResultShown -=
                     HandleActivityResult;
+
+                activityManager.End(
+                    "underground");
             }
+
+            isCountingDown = false;
+            IsActive = false;
+
+            car?.SetDrivingEnabled(
+                true);
 
             Save();
         }
