@@ -231,6 +231,21 @@ namespace MotorCity.Gameplay
         private IEnumerator LoadCurrencyIcon(
             string url)
         {
+            if (string.IsNullOrWhiteSpace(
+                    url))
+            {
+                yield break;
+            }
+
+            if (url.StartsWith(
+                    "//",
+                    StringComparison.Ordinal))
+            {
+                url =
+                    "https:" +
+                    url;
+            }
+
             using UnityWebRequest request =
                 UnityWebRequestTexture.GetTexture(
                     url);
