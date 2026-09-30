@@ -795,16 +795,10 @@ namespace MotorCity.UI
 
         private static bool UseLandscapeTouchLayout()
         {
-            if (!MotorCityInput.PreferTouchPrompts)
-                return false;
-
-            if (Screen.height <= 0)
-                return true;
-
-            float aspect =
-                Screen.width / (float)Screen.height;
-
-            return aspect >= 1.25f;
+            // The chosen driving input must never rearrange the main HUD.
+            // Wheel/arrows are an input overlay only; the underlying HUD keeps
+            // the exact same composition as keyboard mode on the same screen.
+            return false;
         }
     }
 }
