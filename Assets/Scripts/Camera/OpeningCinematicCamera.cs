@@ -14,6 +14,13 @@ namespace MotorCity.CameraSystem
         private float timer;
         private float duration = 5f;
 
+        private Vector3 handoffPosition;
+        private Quaternion handoffRotation;
+        private float segment1Length;
+        private float segment2Length;
+        private float segment3Length;
+        private float totalPathLength;
+
         private static readonly Vector3 AuthoredPoint1Position =
             new(-541.669434f, 6.59657431f, 487.766144f);
 
@@ -103,11 +110,9 @@ namespace MotorCity.CameraSystem
                     timer /
                     duration);
 
-            Vector3 endPosition =
-                transform.position;
-
-            Quaternion endRotation =
-                transform.rotation;
+            float travelledDistance =
+                totalPathLength *
+                progress;
 
             Quaternion point1Rotation =
                 Quaternion.Euler(
@@ -124,14 +129,14 @@ namespace MotorCity.CameraSystem
             Vector3 position;
             Quaternion rotation;
 
-            // Three authored legs plus a final dynamic hand-off to the
-            // current gameplay camera pose. The exact authored points are
-            // reached at 0%, 30% and 62% of the shot.
-            if (progress < 0.30f)
+            if (travelledDistance <=
+                segment1Length)
             {
                 float leg =
-                    SmoothLeg(
-                        progress / 0.30f);
+                    segment1Length <= 0.001f
+                        ? 1f
+                        : travelledDistance /
+                          segment1Length;
 
                 position =
                     Vector3.Lerp(
@@ -145,12 +150,19 @@ namespace MotorCity.CameraSystem
                         point2Rotation,
                         leg);
             }
-            else if (progress < 0.62f)
+            else if (travelledDistance <=
+                     segment1Length +
+                     segment2Length)
             {
+                float localDistance =
+                    travelledDistance -
+                    segment1Length;
+
                 float leg =
-                    SmoothLeg(
-                        (progress - 0.30f) /
-                        0.32f);
+                    segment2Length <= 0.001f
+                        ? 1f
+                        : localDistance /
+                          segment2Length;
 
                 position =
                     Vector3.Lerp(
@@ -166,21 +178,27 @@ namespace MotorCity.CameraSystem
             }
             else
             {
+                float localDistance =
+                    travelledDistance -
+                    segment1Length -
+                    segment2Length;
+
                 float leg =
-                    SmoothLeg(
-                        (progress - 0.62f) /
-                        0.38f);
+                    segment3Length <= 0.001f
+                        ? 1f
+                        : localDistance /
+                          segment3Length;
 
                 position =
                     Vector3.Lerp(
                         AuthoredPoint3Position,
-                        endPosition,
+                        handoffPosition,
                         leg);
 
                 rotation =
                     Quaternion.Slerp(
                         point3Rotation,
-                        endRotation,
+                        handoffRotation,
                         leg);
             }
 
@@ -192,10 +210,7 @@ namespace MotorCity.CameraSystem
                 Mathf.Lerp(
                     54f,
                     gameplayCamera.fieldOfView,
-                    Mathf.SmoothStep(
-                        0.62f,
-                        1f,
-                        progress));
+                    progress);
 
             if (progress >= 1f)
             {
@@ -218,6 +233,34 @@ namespace MotorCity.CameraSystem
 
             active =
                 true;
+
+            handoffPosition =
+                transform.position;
+
+            handoffRotation =
+                transform.rotation;
+
+            segment1Length =
+                Vector3.Distance(
+                    AuthoredPoint1Position,
+                    AuthoredPoint2Position);
+
+            segment2Length =
+                Vector3.Distance(
+                    AuthoredPoint2Position,
+                    AuthoredPoint3Position);
+
+            segment3Length =
+                Vector3.Distance(
+                    AuthoredPoint3Position,
+                    handoffPosition);
+
+            totalPathLength =
+                Mathf.Max(
+                    0.001f,
+                    segment1Length +
+                    segment2Length +
+                    segment3Length);
 
             cinematicCamera.transform.SetPositionAndRotation(
                 AuthoredPoint1Position,
@@ -275,18 +318,6 @@ namespace MotorCity.CameraSystem
 
             cinematicCamera.enabled =
                 false;
-        }
-
-        private static float SmoothLeg(
-            float value)
-        {
-            value =
-                Mathf.Clamp01(
-                    value);
-
-            return
-                value * value *
-                (3f - 2f * value);
         }
 
         private void OnDestroy()
