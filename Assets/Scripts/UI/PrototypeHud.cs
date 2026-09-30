@@ -961,6 +961,10 @@ namespace MotorCity.UI
                     driftPanel,
                     false);
 
+                SetActiveIfChanged(
+                    characterPanel,
+                    false);
+
                 UpdateGarage();
             }
 
