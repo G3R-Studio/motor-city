@@ -201,6 +201,9 @@ namespace MotorCity.Platform
             pausedTimeScale =
                 Time.timeScale;
 
+            pausedAudioListenerState =
+                AudioListener.pause;
+
             Time.timeScale =
                 0f;
 
@@ -216,20 +219,14 @@ namespace MotorCity.Platform
             localGameplayPaused =
                 false;
 
-            float resumeScale =
-                gameplayRunning &&
-                pausedTimeScale <= 0f
-                    ? 1f
-                    : pausedTimeScale;
-
+            // Restore the exact state that existed before the platform
+            // modal opened. A pause/store overlay may already have stopped
+            // gameplay, and closing an ad/purchase must never resume it.
             Time.timeScale =
-                resumeScale;
-
-            pausedTimeScale =
-                resumeScale;
+                pausedTimeScale;
 
             AudioListener.pause =
-                false;
+                pausedAudioListenerState;
         }
 
         private void ReconcilePlatformGameplay()
