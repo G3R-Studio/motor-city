@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Audio;
 using MotorCity.Localization;
 using MotorCity.Input;
 using UnityEngine;
@@ -267,6 +268,9 @@ namespace MotorCity.Platform
 
             AudioListener.pause =
                 true;
+
+            MotorCityMusicRuntime.SetSystemPaused(
+                true);
         }
 
         private void ReleaseLocalPause()
@@ -285,6 +289,9 @@ namespace MotorCity.Platform
 
             AudioListener.pause =
                 pausedAudioListenerState;
+
+            MotorCityMusicRuntime.SetSystemPaused(
+                false);
         }
 
         private void ReconcilePlatformGameplay()
