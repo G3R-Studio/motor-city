@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Audio;
 using MotorCity.Platform;
 using UnityEngine;
 
@@ -9,8 +10,13 @@ namespace MotorCity.Gameplay
         private ActivityManager activityManager;
         private MotorCityInterstitialRuntime interstitialRuntime;
         private bool requestInProgress;
+        private const float GoPresentationSeconds =
+            0.42f;
+
         private float countdownRemaining;
+        private float goRemaining;
         private float pendingCountdownSeconds;
+        private bool showingGo;
         private Action countdownStarted;
         private Action<int> countdownTick;
         private Action gameplayStarted;
@@ -42,11 +48,31 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
-            if (!requestInProgress ||
-                countdownRemaining <= 0f)
+            if (!requestInProgress)
+                return;
+
+            if (showingGo)
             {
+                goRemaining =
+                    Mathf.Max(
+                        0f,
+                        goRemaining -
+                        Time.deltaTime);
+
+                if (goRemaining > 0f)
+                    return;
+
+                Action startGameplay =
+                    gameplayStarted;
+
+                ClearRequest();
+
+                startGameplay?.Invoke();
                 return;
             }
+
+            if (countdownRemaining <= 0f)
+                return;
 
             countdownRemaining =
                 Mathf.Max(
@@ -60,12 +86,19 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            Action startGameplay =
-                gameplayStarted;
+            showingGo =
+                true;
 
-            ClearRequest();
+            goRemaining =
+                GoPresentationSeconds;
 
-            startGameplay?.Invoke();
+            lastShownCountdown =
+                0;
+
+            countdownTick?.Invoke(
+                0);
+
+            MotorCitySfxRuntime.PlayCountdownGo();
         }
 
         public bool RequestStart(
@@ -234,6 +267,9 @@ namespace MotorCity.Gameplay
 
             countdownTick?.Invoke(
                 shown);
+
+            MotorCitySfxRuntime.PlayCountdownTick(
+                shown);
         }
 
         private void ClearRequest()
@@ -246,6 +282,12 @@ namespace MotorCity.Gameplay
 
             countdownRemaining =
                 0f;
+
+            goRemaining =
+                0f;
+
+            showingGo =
+                false;
 
             pendingCountdownSeconds =
                 0f;
