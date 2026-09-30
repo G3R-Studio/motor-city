@@ -1,6 +1,7 @@
 using MotorCity.CameraSystem;
 using MotorCity.Input;
 using MotorCity.Localization;
+using MotorCity.UI;
 using MotorCity.Vehicle;
 using UnityEngine;
 
@@ -31,6 +32,8 @@ namespace MotorCity.Gameplay
         private VehicleCustomizationSystem customization;
         private PlayerVehicleAudio vehicleAudio;
         private ChaseCamera chaseCamera;
+        private MotorCityFrontEndFlow frontEndFlow;
+        private bool transitionInProgress;
 
         public int EngineLevel { get; private set; }
         public int GripLevel { get; private set; }
@@ -162,6 +165,9 @@ namespace MotorCity.Gameplay
             {
                 return;
             }
+
+            if (transitionInProgress)
+                return;
 
             if (!IsOpen)
             {
@@ -533,6 +539,29 @@ namespace MotorCity.Gameplay
 
         private void BeginPreparedGarageOpen()
         {
+            transitionInProgress =
+                true;
+
+            car.SetGaragePresentationMode(
+                true);
+
+            MotorCityFrontEndFlow flow =
+                ResolveFrontEndFlow();
+
+            if (flow != null &&
+                flow.PlayRuntimeLoadingTransition(
+                    CompleteGarageOpenTeleport,
+                    "ЗАГРУЖАЕМ ГАРАЖ...",
+                    "LOADING GARAGE..."))
+            {
+                return;
+            }
+
+            CompleteGarageOpenTeleport();
+        }
+
+        private void CompleteGarageOpenTeleport()
+        {
             IsOpen =
                 true;
 
@@ -551,6 +580,9 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 string.Empty;
+
+            transitionInProgress =
+                false;
         }
 
         private void CancelActiveMission()
@@ -571,15 +603,35 @@ namespace MotorCity.Gameplay
 
         private void CloseGarage()
         {
+            if (transitionInProgress)
+                return;
+
+            transitionInProgress =
+                true;
+
+            MotorCityFrontEndFlow flow =
+                ResolveFrontEndFlow();
+
+            if (flow != null &&
+                flow.PlayRuntimeLoadingTransition(
+                    CompleteGarageCloseTeleport,
+                    "ВОЗВРАЩАЕМСЯ В ГОРОД...",
+                    "RETURNING TO THE CITY..."))
+            {
+                return;
+            }
+
+            CompleteGarageCloseTeleport();
+        }
+
+        private void CompleteGarageCloseTeleport()
+        {
             IsOpen =
                 false;
 
             SetGaragePresentationSystems(
                 false);
 
-            // Keep vehicle input blocked while moving it out of the interior.
-            // Closing the garage always returns the currently selected car to
-            // the authored city garage marker.
             car.TeleportTo(
                 MotorCity.World.CityAssetRuntimeInstaller.GaragePoint,
                 MotorCity.World.CityAssetRuntimeInstaller.GarageSpawnRotation);
@@ -590,11 +642,27 @@ namespace MotorCity.Gameplay
             IsNearGarage =
                 true;
 
-            activityManager.End(ActivityId);
+            activityManager.End(
+                ActivityId);
 
             StatusText =
                 MotorCityLocalization.Text(
                     "garage.open_prompt");
+
+            transitionInProgress =
+                false;
+        }
+
+        private MotorCityFrontEndFlow ResolveFrontEndFlow()
+        {
+            if (frontEndFlow != null)
+                return frontEndFlow;
+
+            frontEndFlow =
+                Object.FindAnyObjectByType<MotorCityFrontEndFlow>(
+                    FindObjectsInactive.Include);
+
+            return frontEndFlow;
         }
 
         private void SetGaragePresentationSystems(
