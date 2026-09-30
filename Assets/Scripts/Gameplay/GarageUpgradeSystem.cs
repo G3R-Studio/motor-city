@@ -607,10 +607,26 @@ namespace MotorCity.Gameplay
                     Object.FindAnyObjectByType<ChaseCamera>();
             }
 
-            // Garage keeps the driving inputs blocked, but the player is
-            // intentionally allowed to orbit/zoom the camera around the car.
-            chaseCamera?.SetManualInputEnabled(
-                true);
+            if (chaseCamera == null)
+                return;
+
+            if (active)
+            {
+                chaseCamera.SetGarageMode(
+                    true,
+                    MotorCity.World.CityAssetRuntimeInstaller.GarageCameraPosition,
+                    MotorCity.World.CityAssetRuntimeInstaller.GarageCameraRotation);
+            }
+            else
+            {
+                chaseCamera.SetGarageMode(
+                    false,
+                    Vector3.zero,
+                    Quaternion.identity);
+
+                chaseCamera.SetManualInputEnabled(
+                    true);
+            }
         }
 
         private void TrySelectVehicle(
