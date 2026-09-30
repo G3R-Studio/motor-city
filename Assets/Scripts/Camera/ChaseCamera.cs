@@ -92,14 +92,14 @@ namespace MotorCity.CameraSystem
         }
 
         public void PlayOpeningPresentation(
-            float duration = 1.6f)
+            float duration = 2.2f)
         {
             if (target == null)
                 return;
 
             openingPresentationDuration =
                 Mathf.Max(
-                    0.8f,
+                    1.2f,
                     duration);
 
             openingPresentationTimer =
@@ -108,16 +108,24 @@ namespace MotorCity.CameraSystem
             openingPresentationActive =
                 true;
 
-            Vector3 localOffset =
-                new Vector3(
-                    5.2f,
-                    2.35f,
-                    -5.4f);
+            float startYaw =
+                target.eulerAngles.y -
+                78f;
+
+            Quaternion startOrbit =
+                Quaternion.Euler(
+                    12f,
+                    startYaw,
+                    0f);
 
             openingPresentationStartPosition =
                 target.position +
-                target.rotation *
-                localOffset;
+                Vector3.up * 2.15f +
+                startOrbit *
+                new Vector3(
+                    0f,
+                    0f,
+                    -6.4f);
 
             Vector3 lookPoint =
                 target.position +
@@ -620,32 +628,72 @@ namespace MotorCity.CameraSystem
                     progress * progress *
                     (3f - 2f * progress);
 
-                transform.position =
-                    Vector3.Lerp(
-                        openingPresentationStartPosition,
-                        collisionSafePosition,
+                // Real orbit: sweep from the rear-left quarter around the
+                // vehicle into the normal chase position while following the
+                // car vertically as it settles onto the road.
+                float orbitYaw =
+                    Mathf.Lerp(
+                        -78f,
+                        0f,
                         eased);
+
+                float orbitPitch =
+                    Mathf.Lerp(
+                        12f,
+                        pitch,
+                        eased);
+
+                float orbitDistance =
+                    Mathf.Lerp(
+                        6.4f,
+                        dynamicDistance,
+                        eased);
+
+                float orbitHeight =
+                    Mathf.Lerp(
+                        2.15f,
+                        height,
+                        eased);
+
+                Quaternion openingOrbit =
+                    Quaternion.Euler(
+                        orbitPitch,
+                        target.eulerAngles.y +
+                        orbitYaw,
+                        0f);
+
+                Vector3 openingPivot =
+                    target.position +
+                    Vector3.up *
+                    orbitHeight;
+
+                Vector3 orbitPosition =
+                    openingPivot +
+                    openingOrbit *
+                    new Vector3(
+                        0f,
+                        0f,
+                        -orbitDistance);
+
+                transform.position =
+                    ResolveStableCameraPosition(
+                        openingPivot,
+                        orbitPosition);
 
                 Vector3 openingLookPoint =
                     target.position +
                     target.forward *
                     Mathf.Lerp(
-                        0.4f,
+                        0.35f,
                         dynamicLookAhead,
                         eased) +
                     Vector3.up * 0.92f;
 
-                Quaternion openingTargetRotation =
+                transform.rotation =
                     Quaternion.LookRotation(
                         openingLookPoint -
                         transform.position,
                         Vector3.up);
-
-                transform.rotation =
-                    Quaternion.Slerp(
-                        openingPresentationStartRotation,
-                        openingTargetRotation,
-                        eased);
 
                 if (cameraComponent != null)
                 {
