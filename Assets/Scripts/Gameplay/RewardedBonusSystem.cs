@@ -9,6 +9,8 @@ namespace MotorCity.Gameplay
     {
         private const string DayKey = "MotorCity.Rewarded.Day";
         private const string CountKey = "MotorCity.Rewarded.Count";
+        private const string CooldownUntilKey =
+            "MotorCity.Rewarded.CooldownUntilUnix";
 
         private PlayerWallet wallet;
         private ActivityManager activities;
@@ -68,6 +70,7 @@ namespace MotorCity.Gameplay
             wallet = targetWallet;
             activities = activityManager;
             ResolveDay();
+            RestoreCooldown();
         }
 
         private void Update()
@@ -138,6 +141,17 @@ namespace MotorCity.Gameplay
 
                     cooldown = CooldownSeconds();
 
+                    long cooldownUntil =
+                        MotorCityPlatform.ServerUnixTime +
+                        Mathf.CeilToInt(
+                            cooldown);
+
+                    MotorCity.Persistence.MotorCitySaveService.SetString(
+                        CooldownUntilKey,
+                        cooldownUntil.ToString());
+
+                    MotorCity.Persistence.MotorCitySaveService.Save();
+
                     StatusText =
                         MotorCityLocalization.Format(
                             "rewarded.received",
@@ -189,6 +203,41 @@ namespace MotorCity.Gameplay
                 0);
 
             MotorCity.Persistence.MotorCitySaveService.Save();
+        }
+
+        private void RestoreCooldown()
+        {
+            string stored =
+                MotorCity.Persistence.MotorCitySaveService.GetString(
+                    CooldownUntilKey,
+                    "0");
+
+            if (!long.TryParse(
+                    stored,
+                    out long cooldownUntil))
+            {
+                cooldownUntil = 0L;
+            }
+
+            long now =
+                MotorCityPlatform.ServerUnixTime;
+
+            cooldown =
+                Mathf.Clamp(
+                    cooldownUntil > now
+                        ? cooldownUntil - now
+                        : 0L,
+                    0L,
+                    3600L);
+
+            if (cooldown <= 0f &&
+                cooldownUntil > 0L)
+            {
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    CooldownUntilKey);
+
+                MotorCity.Persistence.MotorCitySaveService.Save();
+            }
         }
 
         private static int RewardCredits()
