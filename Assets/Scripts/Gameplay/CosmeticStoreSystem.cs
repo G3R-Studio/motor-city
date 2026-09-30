@@ -207,16 +207,24 @@ namespace MotorCity.Gameplay
             // process again because GrantEntitlement is idempotent.
             ApplyEntitlements();
 
-            if (purchaseRuntime != null)
+            // Supporter Pack is a permanent, non-consumable purchase.
+            // Keep it in Yandex getPurchases() so ownership can be restored
+            // independently of local/cloud save state. Consumable products
+            // should be routed through ConsumeAfterGrant when/if we add them.
+            if (!IsPermanentProduct(
+                    productId))
             {
-                purchaseRuntime.ConsumeAfterGrant(
-                    token);
-            }
-            else if (!string.IsNullOrWhiteSpace(
-                         token))
-            {
-                MotorCityPlatform.ConsumePurchase(
-                    token);
+                if (purchaseRuntime != null)
+                {
+                    purchaseRuntime.ConsumeAfterGrant(
+                        token);
+                }
+                else if (!string.IsNullOrWhiteSpace(
+                             token))
+                {
+                    MotorCityPlatform.ConsumePurchase(
+                        token);
+                }
             }
 
             if (!announce)
@@ -302,6 +310,14 @@ namespace MotorCity.Gameplay
         }
 
         private static bool IsKnownProduct(
+            string productId)
+        {
+            return
+                productId ==
+                    SupporterPackProductId;
+        }
+
+        private static bool IsPermanentProduct(
             string productId)
         {
             return
