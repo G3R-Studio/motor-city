@@ -499,6 +499,13 @@ namespace MotorCity.Gameplay
 
         private void OnDisable()
         {
+            if (IsActive ||
+                isCountingDown)
+            {
+                CancelActivity();
+                return;
+            }
+
             car?.SetDrivingEnabled(true);
         }
 
