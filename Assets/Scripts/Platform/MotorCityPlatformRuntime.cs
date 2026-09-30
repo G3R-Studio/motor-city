@@ -155,6 +155,15 @@ namespace MotorCity.Platform
                 PauseReason.PlatformEvent,
                 paused,
                 false);
+
+            // The SDK changes its own GameplayAPI marker together with
+            // game_api_pause/game_api_resume. Mirror that resulting state
+            // locally without sending the same marker event a second time.
+            instance.platformGameplayActive =
+                instance.gameplayRunning &&
+                !instance.uiGameplayPaused &&
+                instance.pauseReasons ==
+                    PauseReason.None;
         }
 
         public void MarkGameplayRunning()
