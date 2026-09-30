@@ -16,6 +16,8 @@ namespace MotorCity.Gameplay
             4f;
         private const float TurboHandoffSeconds =
             4.35f;
+        private const float CompletionPresentationSeconds =
+            5f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
@@ -97,6 +99,9 @@ namespace MotorCity.Gameplay
                         6 =>
                             MotorCityLocalization.Text(
                                 "onboarding.customize"),
+                        7 =>
+                            MotorCityLocalization.Text(
+                                "onboarding.complete_next"),
                         _ =>
                             turbo != null
                                 ? turbo.DailyObjectiveLine
@@ -201,9 +206,6 @@ namespace MotorCity.Gameplay
             if (Time.timeScale <= 0f)
                 return;
 
-            if (IsComplete)
-                return;
-
             if (messageDelayTimer > 0f)
             {
                 messageDelayTimer =
@@ -220,6 +222,9 @@ namespace MotorCity.Gameplay
                         messageTimer -
                         Time.unscaledDeltaTime);
             }
+
+            if (IsComplete)
+                return;
 
             TrackDistance();
 
@@ -299,8 +304,18 @@ namespace MotorCity.Gameplay
                     // Completion is driven by the customization event.
                     break;
 
+                case 7:
+                    introTimer +=
+                        Time.unscaledDeltaTime;
+
+                    if (introTimer >=
+                        CompletionPresentationSeconds)
+                    {
+                        Complete();
+                    }
+                    break;
+
                 default:
-                    Complete();
                     break;
             }
         }
@@ -381,6 +396,8 @@ namespace MotorCity.Gameplay
             {
                 return;
             }
+
+            garage?.CloseAfterRookieCustomization();
 
             Advance(
                 "onboarding.customized");
@@ -478,12 +495,14 @@ namespace MotorCity.Gameplay
 
             MotorCity.Persistence.MotorCitySaveService.Save();
 
-            StatusText =
-                MotorCityLocalization.Text(
-                    "onboarding.complete");
-
+            // The 7/7 completion presentation has already been visible
+            // before this point. Do not restart another onboarding message
+            // over the first story objective.
             messageTimer =
-                MessageSeconds + 1f;
+                0f;
+
+            messageDelayTimer =
+                0f;
         }
 
         public void ShowWelcomeAfterDelay(
