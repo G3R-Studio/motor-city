@@ -38,7 +38,6 @@ namespace MotorCity.Gameplay
         private int scoreAtStart;
         private bool armed = true;
         private bool isCountingDown;
-        private float countdownRemaining;
         private float outsideTimer;
         private bool eliteMode;
 
@@ -93,10 +92,8 @@ namespace MotorCity.Gameplay
                 if (MotorCityInput.CancelPressed)
                 {
                     CancelActivity();
-                    return;
                 }
 
-                UpdateCountdown();
                 return;
             }
 
@@ -198,18 +195,16 @@ namespace MotorCity.Gameplay
             activityManager.RequestStart(
                 ActivityId,
                 MotorCityLocalization.Text("activity.drift_challenge"),
-                BeginPreparedCountdown);
+                countdownSeconds,
+                BeginPreparedCountdown,
+                UpdateCountdownStatus,
+                BeginGameplay);
         }
 
         private void BeginPreparedCountdown()
         {
             isCountingDown = true;
             armed = false;
-
-            countdownRemaining =
-                Mathf.Max(
-                    0.1f,
-                    countdownSeconds);
 
             TimeRemaining =
                 eliteMode
@@ -219,26 +214,25 @@ namespace MotorCity.Gameplay
             outsideTimer = 0f;
 
             car.SetDrivingEnabled(false);
-
-            UpdateCountdownStatus();
         }
 
-        private void UpdateCountdown()
+        private void UpdateCountdownStatus(
+            int shown)
         {
-            countdownRemaining =
-                Mathf.Max(
-                    0f,
-                    countdownRemaining -
-                    Time.deltaTime);
+            StatusText =
+                MotorCityLocalization.Format(
+                    "activity.countdown",
+                    eliteMode
+                        ? MotorCityLocalization.Text("activity.elite_drift_short")
+                        : MotorCityLocalization.Text("activity.drift"),
+                    shown);
+        }
 
-            if (countdownRemaining > 0f)
-            {
-                UpdateCountdownStatus();
-                return;
-            }
-
+        private void BeginGameplay()
+        {
             isCountingDown = false;
             IsActive = true;
+
             TimeRemaining =
                 eliteMode
                     ? 48f
@@ -250,23 +244,6 @@ namespace MotorCity.Gameplay
             car.SetDrivingEnabled(true);
 
             UpdateActiveStatus();
-        }
-
-        private void UpdateCountdownStatus()
-        {
-            int shown =
-                Mathf.Max(
-                    1,
-                    Mathf.CeilToInt(
-                        countdownRemaining));
-
-            StatusText =
-                MotorCityLocalization.Format(
-                    "activity.countdown",
-                    eliteMode
-                        ? MotorCityLocalization.Text("activity.elite_drift_short")
-                        : MotorCityLocalization.Text("activity.drift"),
-                    shown);
         }
 
         private void UpdateActiveChallenge()
@@ -510,10 +487,15 @@ namespace MotorCity.Gameplay
                 !isCountingDown)
                 return;
 
+            if (isCountingDown)
+            {
+                activityManager?.CancelPendingStart(
+                    ActivityId);
+            }
+
             IsActive = false;
             isCountingDown = false;
             armed = false;
-            countdownRemaining = 0f;
             TimeRemaining = 0f;
             outsideTimer = 0f;
 
