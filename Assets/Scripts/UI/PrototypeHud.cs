@@ -496,6 +496,9 @@ namespace MotorCity.UI
             if (moneyText == null)
                 return;
 
+            MotorCityPlatformRuntime.SetGameplayUiPaused(
+                HasBlockingModalUi());
+
             if (pauseMenuOpen)
             {
                 HandlePauseMenuInput();
@@ -932,6 +935,7 @@ namespace MotorCity.UI
         private bool HasBlockingModalUi()
         {
             return
+                pauseMenuOpen ||
                 navigatorMenuOpen ||
                 storeOpen ||
                 (clubOverlay != null &&
@@ -944,8 +948,14 @@ namespace MotorCity.UI
 
         private void RefreshDrivingEnabledForUi()
         {
+            bool blocked =
+                HasBlockingModalUi();
+
             car?.SetDrivingEnabled(
-                !HasBlockingModalUi());
+                !blocked);
+
+            MotorCityPlatformRuntime.SetGameplayUiPaused(
+                blocked);
         }
 
         private static void EnsureUiEventSystem()
