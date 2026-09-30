@@ -647,6 +647,20 @@ namespace MotorCity.Gameplay
                     "Открытия сброшены";
             }
 
+            if (Button("РАДАРЫ СБРОС"))
+            {
+                speedTraps?.ResetForTesting();
+                lastAction =
+                    "Speed Traps сброшены";
+            }
+
+            if (Button("DRIFT SPOTS СБРОС"))
+            {
+                driftSpots?.ResetForTesting();
+                lastAction =
+                    "Drift Spots сброшены";
+            }
+
             GUILayout.EndHorizontal();
 
             Section(
@@ -1025,6 +1039,57 @@ namespace MotorCity.Gameplay
                 (achievements == null
                     ? "-"
                     : achievements.UnlockedCount.ToString()));
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ACHIEVEMENT +1"))
+            {
+                achievements?.UnlockNextForTesting();
+                lastAction =
+                    "Открыто следующее достижение";
+            }
+
+            if (Button("ACHIEVEMENTS ВСЕ"))
+            {
+                achievements?.UnlockAllForTesting();
+                lastAction =
+                    "Все достижения открыты";
+            }
+
+            if (Button("ACHIEVEMENTS СБРОС"))
+            {
+                achievements?.ResetForTesting();
+                lastAction =
+                    "Достижения сброшены";
+            }
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "PHOTO HUNT");
+
+            GUILayout.Label(
+                photoHunt == null
+                    ? "Система не найдена"
+                    : photoHunt.AlbumLine);
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("АЛЬБОМ ЗАПОЛНИТЬ"))
+            {
+                photoHunt?.CompleteAlbumForTesting();
+                lastAction =
+                    "Фотоальбом заполнен";
+            }
+
+            if (Button("АЛЬБОМ СБРОС"))
+            {
+                photoHunt?.ResetForTesting();
+                lastAction =
+                    "Фотоальбом сброшен";
+            }
+
+            GUILayout.EndHorizontal();
         }
 
         private void DrawVehicles()
@@ -1925,6 +1990,17 @@ namespace MotorCity.Gameplay
                             index));
                 }
 
+                if (Button("GOLD"))
+                {
+                    speedTraps.CompleteGoldForTesting(
+                        index);
+
+                    lastAction =
+                        "Speed Trap GOLD: " +
+                        speedTraps.GetTrapName(
+                            index);
+                }
+
                 GUILayout.EndHorizontal();
             }
         }
@@ -1955,6 +2031,17 @@ namespace MotorCity.Gameplay
                         driftSpots.GetSpotPosition(
                             index),
                         Quaternion.identity);
+                }
+
+                if (Button("GOLD"))
+                {
+                    driftSpots.CompleteGoldForTesting(
+                        index);
+
+                    lastAction =
+                        "Drift Spot GOLD: " +
+                        driftSpots.GetSpotName(
+                            index);
                 }
 
                 GUILayout.EndHorizontal();
@@ -2496,6 +2583,10 @@ namespace MotorCity.Gameplay
             story?.ResetForTesting();
             onboarding?.ResetForTesting();
             discoveries?.ResetForTesting();
+            speedTraps?.ResetForTesting();
+            driftSpots?.ResetForTesting();
+            photoHunt?.ResetForTesting();
+            achievements?.ResetForTesting();
 
             if (roster != null)
             {
