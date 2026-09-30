@@ -19,6 +19,7 @@ namespace MotorCity.Gameplay
         public bool ResultSuccess { get; private set; }
         public int ResultReputationReward { get; private set; }
         public bool ResultIsRookieDelivery { get; private set; }
+        public bool ResultIsNewRecord { get; private set; }
         public int ResultMasteryXp { get; private set; }
         public string ResultSecondaryProgress { get; private set; } =
             string.Empty;
@@ -307,7 +308,8 @@ namespace MotorCity.Gameplay
             string headline,
             string details,
             int rewardCredits,
-            bool success)
+            bool success,
+            bool newRecord = false)
         {
             int masteryBefore =
                 resultMastery == null
@@ -348,6 +350,10 @@ namespace MotorCity.Gameplay
 
             ResultSuccess =
                 success;
+
+            ResultIsNewRecord =
+                success &&
+                newRecord;
 
             ResultIsRookieDelivery =
                 success &&
@@ -489,6 +495,7 @@ namespace MotorCity.Gameplay
             ResultReputationReward = 0;
             ResultSuccess = false;
             ResultIsRookieDelivery = false;
+            ResultIsNewRecord = false;
             ResultMasteryXp = 0;
             ResultSecondaryProgress =
                 string.Empty;
