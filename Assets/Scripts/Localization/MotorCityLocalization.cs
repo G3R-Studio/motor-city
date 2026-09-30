@@ -790,12 +790,6 @@ namespace MotorCity.Localization
                 { "club.name.spark", E("КОМАНДА ИСКРА", "TEAM SPARK") },
                 { "club.desc.spark", E("Гоночная команда для спринтов и кольцевых заездов.", "Racing team focused on sprints and circuit races.") },
 
-                { "weekend.drift", E("ДРИФТ-ФЕСТИВАЛЬ", "DRIFT FESTIVAL") },
-                { "weekend.helpers", E("ГОРОДСКИЕ ПОМОЩНИКИ", "CITY HELPERS") },
-                { "weekend.speed", E("СКОРОСТНЫЕ ВЫХОДНЫЕ", "SPEED WEEKEND") },
-                { "weekend.hud", E("ВЫХОДНЫЕ • {0} • БОНУС +{1:N0} КР", "WEEKEND • {0} • BONUS +{1:N0} CR") },
-                { "weekend.started", E("СОБЫТИЕ ВЫХОДНОГО ДНЯ: {0} • +{1:N0} КР ЗА ПОДХОДЯЩУЮ АКТИВНОСТЬ", "WEEKEND EVENT: {0} • +{1:N0} CR FOR MATCHING ACTIVITIES") },
-                { "weekend.reward", E("{0} • БОНУС ВЫХОДНОГО ДНЯ +{1:N0} КР", "{0} • WEEKEND BONUS +{1:N0} CR") },
 
                 { "rewarded.prompt", E("Y - добровольный рекламный бонус +{0:N0} КР • сегодня {1}/{2}", "Y - optional rewarded bonus +{0:N0} CR • today {1}/{2}") },
                 { "rewarded.opening", E("Открываю добровольный бонус...", "Opening optional rewarded bonus...") },
