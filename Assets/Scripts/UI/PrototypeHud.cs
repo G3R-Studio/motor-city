@@ -300,6 +300,9 @@ namespace MotorCity.UI
         private Text resultSecondaryProgressText;
         private Text resultNextGoalText;
         private Text resultControlsText;
+        private Image resultRecordGlow;
+        private float resultRecordAnimationTimer;
+        private bool resultRecordAnimationPlayed;
 
         private Text garageMoneyText;
         private Text garageReputationText;
