@@ -430,6 +430,17 @@ public class PrometeoCarController : MonoBehaviour
     //STEERING METHODS
     //
 
+    // Convert the old per-frame steering lerp into an equivalent
+    // frame-rate independent response. At ~60 FPS this keeps almost the
+    // same steering feel, while WebGL frame drops no longer change how
+    // quickly the physical wheels reach the requested angle.
+    float SteeringResponseFactor(){
+      return 1f - Mathf.Exp(
+        -Mathf.Max(0.01f, steeringSpeed) *
+        100f *
+        Time.deltaTime);
+    }
+
     //The following method turns the front car wheels to the left. The speed of this movement will depend on the steeringSpeed variable.
     public void TurnLeft(){
       steeringAxis = steeringAxis - (Time.deltaTime * 10f * steeringSpeed);
@@ -437,8 +448,9 @@ public class PrometeoCarController : MonoBehaviour
         steeringAxis = -1f;
       }
       var steeringAngle = steeringAxis * maxSteeringAngle;
-      frontLeftCollider.steerAngle = Mathf.Lerp(frontLeftCollider.steerAngle, steeringAngle, steeringSpeed);
-      frontRightCollider.steerAngle = Mathf.Lerp(frontRightCollider.steerAngle, steeringAngle, steeringSpeed);
+      float response = SteeringResponseFactor();
+      frontLeftCollider.steerAngle = Mathf.Lerp(frontLeftCollider.steerAngle, steeringAngle, response);
+      frontRightCollider.steerAngle = Mathf.Lerp(frontRightCollider.steerAngle, steeringAngle, response);
     }
 
     //The following method turns the front car wheels to the right. The speed of this movement will depend on the steeringSpeed variable.
@@ -448,8 +460,9 @@ public class PrometeoCarController : MonoBehaviour
         steeringAxis = 1f;
       }
       var steeringAngle = steeringAxis * maxSteeringAngle;
-      frontLeftCollider.steerAngle = Mathf.Lerp(frontLeftCollider.steerAngle, steeringAngle, steeringSpeed);
-      frontRightCollider.steerAngle = Mathf.Lerp(frontRightCollider.steerAngle, steeringAngle, steeringSpeed);
+      float response = SteeringResponseFactor();
+      frontLeftCollider.steerAngle = Mathf.Lerp(frontLeftCollider.steerAngle, steeringAngle, response);
+      frontRightCollider.steerAngle = Mathf.Lerp(frontRightCollider.steerAngle, steeringAngle, response);
     }
 
     // Analog steering used by Motor City's draggable mobile wheel.
@@ -461,14 +474,15 @@ public class PrometeoCarController : MonoBehaviour
         Time.deltaTime * 4.5f);
 
       var steeringAngle = steeringAxis * maxSteeringAngle;
+      float response = SteeringResponseFactor();
       frontLeftCollider.steerAngle = Mathf.Lerp(
         frontLeftCollider.steerAngle,
         steeringAngle,
-        steeringSpeed);
+        response);
       frontRightCollider.steerAngle = Mathf.Lerp(
         frontRightCollider.steerAngle,
         steeringAngle,
-        steeringSpeed);
+        response);
     }
 
     //The following method takes the front car wheels to their default position (rotation = 0). The speed of this movement will depend
