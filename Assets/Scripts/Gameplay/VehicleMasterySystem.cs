@@ -242,7 +242,6 @@ namespace MotorCity.Gameplay
                     "circuit" => 110,
                     "speedtrap" => 25,
                     "driftspot" => 35,
-                    "stuntjump" => 45,
                     "profession_pizza" => 45,
                     "profession_taxi" => 50,
                     "profession_mail" => 55,
