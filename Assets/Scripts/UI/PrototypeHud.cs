@@ -515,6 +515,7 @@ namespace MotorCity.UI
                 return;
 
             UpdateOpeningHudReveal();
+            UpdateCountdownOverlay();
 
             MotorCityPlatformRuntime.SetGameplayUiPaused(
                 HasBlockingModalUi());
@@ -1233,6 +1234,7 @@ namespace MotorCity.UI
             BuildCharacterCard(safeAreaRoot);
             BuildSeasonPanel(safeAreaRoot);
             BuildSpeedometer(safeAreaRoot);
+            BuildCountdownOverlay(safeAreaRoot);
             BuildStatus(safeAreaRoot);
             BuildNavigator(safeAreaRoot);
             BuildNavigatorMenu(safeAreaRoot);
