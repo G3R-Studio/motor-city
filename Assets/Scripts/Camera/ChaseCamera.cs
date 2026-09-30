@@ -15,7 +15,6 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float height = 2.25f;
         [SerializeField] private float positionSharpness = 7.5f;
         [SerializeField] private float rotationSharpness = 10f;
-        [SerializeField] private float lookAhead = 2.2f;
         [SerializeField] private float speedLookAhead = 3.8f;
         [SerializeField] private float speedDistanceBonus = 1.25f;
         [SerializeField] private float baseFieldOfView = 62f;
