@@ -57,6 +57,7 @@ namespace MotorCity.CameraSystem
         private int cameraTouchId = -1;
         private Vector2 lastCameraTouchPosition;
 
+        private bool openingPresentationArmed;
         private bool openingPresentationActive;
         private float openingPresentationTimer;
         private float openingPresentationDuration = 1.6f;
@@ -91,8 +92,26 @@ namespace MotorCity.CameraSystem
                 false;
         }
 
+        public void ArmOpeningPresentation(
+            float duration = 5f)
+        {
+            openingPresentationDuration =
+                Mathf.Max(
+                    1.2f,
+                    duration);
+
+            openingPresentationTimer =
+                0f;
+
+            openingPresentationArmed =
+                true;
+
+            openingPresentationActive =
+                false;
+        }
+
         public void PlayOpeningPresentation(
-            float duration = 2.2f)
+            float duration = 5f)
         {
             if (target == null)
                 return;
@@ -361,6 +380,16 @@ namespace MotorCity.CameraSystem
         private void Update()
         {
             if (target == null) return;
+
+            if (openingPresentationArmed &&
+                Time.timeScale > 0f)
+            {
+                openingPresentationArmed =
+                    false;
+
+                PlayOpeningPresentation(
+                    openingPresentationDuration);
+            }
 
             if (openingPresentationActive)
                 return;
