@@ -171,6 +171,18 @@ namespace MotorCity.World
                 0f,
                 0f);
 
+        public static Vector3 GarageCameraPosition { get; } =
+            new(
+                -548.742432f,
+                3.82204652f,
+                -791.138062f);
+
+        public static Quaternion GarageCameraRotation { get; } =
+            Quaternion.Euler(
+                16.1413898f,
+                224.747299f,
+                -1.86650486e-05f);
+
         // Western broad junction in the large district, kept separate from
         // the street sprint start on the eastern side.
         public static Vector3 DriftChallengePoint { get; private set; } =
@@ -409,6 +421,38 @@ namespace MotorCity.World
                         2.08359361f);
 
                 ceilingCollider.isTrigger =
+                    false;
+            }
+
+            Transform garageDoor =
+                FindChildByName(
+                    garageTransform,
+                    "Garage door");
+
+            if (garageDoor != null)
+            {
+                BoxCollider doorCollider =
+                    garageDoor.GetComponent<BoxCollider>();
+
+                if (doorCollider == null)
+                {
+                    doorCollider =
+                        garageDoor.gameObject.AddComponent<BoxCollider>();
+                }
+
+                doorCollider.center =
+                    new Vector3(
+                        -0.00499999989f,
+                        5.96046448e-08f,
+                        9.53674316e-07f);
+
+                doorCollider.size =
+                    new Vector3(
+                        0.0100001041f,
+                        2.42729425f,
+                        5.55081701f);
+
+                doorCollider.isTrigger =
                     false;
             }
 
