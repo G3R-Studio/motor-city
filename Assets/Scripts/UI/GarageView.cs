@@ -239,8 +239,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     panel,
                     "Garage Vehicle Card",
-                    new Vector2(-24f, -122f),
-                    new Vector2(370f, 690f),
+                    new Vector2(-24f, -132f),
+                    new Vector2(370f, 650f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     glass);
@@ -332,8 +332,8 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(28f, -466f),
-                    new Vector2(314f, 116f),
+                    new Vector2(28f, -388f),
+                    new Vector2(314f, 102f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
@@ -352,7 +352,7 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -604f),
+                    new Vector2(28f, -526f),
                     new Vector2(180f, 24f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -364,7 +364,7 @@ namespace MotorCity.UI
                 vehicleCard,
                 "Garage Mastery Icon",
                 MotorCityIconLibrary.Achievement,
-                new Vector2(28f, -642f),
+                new Vector2(28f, -568f),
                 new Vector2(24f, 24f),
                 new Vector2(0f, 1f),
                 cyan);
@@ -373,7 +373,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     vehicleCard,
                     "Garage Mastery Track",
-                    new Vector2(64f, -650f),
+                    new Vector2(64f, -576f),
                     new Vector2(270f, 12f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -450,8 +450,8 @@ namespace MotorCity.UI
                     CreatePanel(
                         panel,
                         $"Upgrade {i + 1}",
-                        new Vector2(x, 34f),
-                        new Vector2(236f, 196f),
+                        new Vector2(x, 44f),
+                        new Vector2(236f, 190f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
                         glassSoft);
@@ -724,8 +724,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     root,
                     "Garage Appearance Panel",
-                    new Vector2(798f, 34f),
-                    new Vector2(510f, 196f),
+                    new Vector2(798f, 44f),
+                    new Vector2(510f, 190f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     new Color(0.025f, 0.035f, 0.10f, 0.88f));
@@ -789,8 +789,8 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("touch.garage.passport"),
                     MotorCityInputAction.ToggleVehiclePassport,
                     new Vector2(1f, 1f),
-                    new Vector2(-48f, -742f),
-                    new Vector2(250f, 50f),
+                    new Vector2(-48f, -704f),
+                    new Vector2(250f, 48f),
                     13,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
 
@@ -802,7 +802,7 @@ namespace MotorCity.UI
                     MotorCityInputAction.Interact,
                     new Vector2(1f, 1f),
                     new Vector2(-22f, -18f),
-                    new Vector2(292f, 72f),
+                    new Vector2(278f, 68f),
                     24,
                     new Color(0.16f, 0.06f, 0.32f, 0.96f));
 
@@ -824,7 +824,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(268f, 50f),
+                    new Vector2(252f, 46f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
