@@ -435,6 +435,9 @@ namespace MotorCity.Gameplay
             hookProgress =
                 0f;
 
+            car?.SetDrivingEnabled(
+                false);
+
             activities.ShowResult(
                 ActivityId,
                 MotorCityLocalization.Text(
