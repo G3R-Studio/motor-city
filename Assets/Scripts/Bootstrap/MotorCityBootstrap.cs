@@ -1408,7 +1408,14 @@ namespace MotorCity.Bootstrap
             cameraObject.transform.position = target.position + new Vector3(0f, 2.8f, -6.8f);
             ChaseCamera chase = cameraObject.AddComponent<ChaseCamera>();
             chase.SetTarget(target);
-            chase.ArmOpeningPresentation(
+
+            OpeningCinematicCamera openingCamera =
+                cameraObject.AddComponent<OpeningCinematicCamera>();
+
+            openingCamera.Initialize(
+                target);
+
+            openingCamera.Arm(
                 5f);
         }
 
