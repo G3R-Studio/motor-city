@@ -783,9 +783,9 @@ namespace MotorCity.UI
             root.pivot =
                 new Vector2(1f, 0f);
             root.anchoredPosition =
-                new Vector2(-28f, 354f);
+                new Vector2(-52f, 438f);
             root.sizeDelta =
-                new Vector2(190f, 46f);
+                new Vector2(118f, 48f);
 
             GameObject button =
                 CreateLocalizedTouchPulseButton(
@@ -793,8 +793,8 @@ namespace MotorCity.UI
                     "Touch Cancel Activity",
                     "touch.drive.cancel",
                     MotorCityInputAction.Cancel,
-                    new Vector2(0f, 2f),
-                    new Vector2(180f, 42f));
+                    Vector2.zero,
+                    new Vector2(118f, 48f));
 
             RectTransform buttonRect =
                 button.GetComponent<RectTransform>();
