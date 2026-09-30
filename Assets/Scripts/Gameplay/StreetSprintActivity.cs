@@ -449,7 +449,7 @@ namespace MotorCity.Gameplay
                 car == null)
                 return;
 
-            activityManager.DismissResult();
+            activityManager.DismissResult(false);
 
             Vector3 direction =
                 Flat(
