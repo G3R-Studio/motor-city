@@ -2,6 +2,8 @@
 using MotorCity.Input;
 using MotorCity.Vehicle;
 using MotorCity.World;
+using MotorCity.CameraSystem;
+using MotorCity.UI;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -1633,10 +1635,51 @@ namespace MotorCity.Gameplay
                     out _);
             }
 
+            ReplayPostLoadingStartForTesting();
+
             MotorCity.Persistence.MotorCitySaveService.Save();
 
             lastAction =
-                "QA прогресс сброшен";
+                "QA старт переигран с нуля";
+        }
+
+        private void ReplayPostLoadingStartForTesting()
+        {
+            if (car != null)
+            {
+                Vector3 spawn =
+                    CityAssetRuntimeInstaller.PlayerSpawnPoint;
+
+                spawn.y =
+                    0.1861947f;
+
+                car.TeleportTo(
+                    spawn,
+                    CityAssetRuntimeInstaller.PlayerSpawnRotation);
+
+                car.ClearMotion();
+
+                car.BeginOpeningPresentationLock(
+                    5f);
+            }
+
+            ChaseCamera chase =
+                Object.FindAnyObjectByType<ChaseCamera>();
+
+            if (chase != null)
+            {
+                chase.PlayOpeningPresentation(
+                    5f);
+            }
+
+            PrototypeHud hud =
+                Object.FindAnyObjectByType<PrototypeHud>();
+
+            if (hud != null)
+            {
+                hud.ReplayOpeningHudReveal(
+                    5f);
+            }
         }
 
         private static void SystemLine(
