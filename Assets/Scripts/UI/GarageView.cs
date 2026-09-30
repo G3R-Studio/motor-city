@@ -1029,7 +1029,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     root,
                     "Garage Appearance Panel",
-                    new Vector2(804f, 64f),
+                    new Vector2(804f, 74f),
                     new Vector2(488f, 184f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
@@ -1055,7 +1055,7 @@ namespace MotorCity.UI
                     16,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -18f),
+                    new Vector2(0f, -20f),
                     new Vector2(448f, 28f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
@@ -1076,7 +1076,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("touch.garage.color"),
                     MotorCityInputAction.CycleBodyColor,
                     new Vector2(0f, 0f),
-                    new Vector2(16f, 18f),
+                    new Vector2(16f, 16f),
                     appearanceButtonSize,
                     appearanceButtonFontSize,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
@@ -1088,7 +1088,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("touch.garage.wheels"),
                     MotorCityInputAction.CycleWheels,
                     new Vector2(0f, 0f),
-                    new Vector2(170f, 18f),
+                    new Vector2(170f, 16f),
                     appearanceButtonSize,
                     appearanceButtonFontSize,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
@@ -1100,7 +1100,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("touch.garage.neon"),
                     MotorCityInputAction.CycleNeon,
                     new Vector2(0f, 0f),
-                    new Vector2(326f, 18f),
+                    new Vector2(326f, 16f),
                     appearanceButtonSize,
                     appearanceButtonFontSize,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
