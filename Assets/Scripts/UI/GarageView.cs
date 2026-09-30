@@ -1414,31 +1414,44 @@ namespace MotorCity.UI
                 padding);
 
             material.SetFloat(
+                "_CornerRadiusPx",
+                Mathf.Clamp(
+                    Mathf.Min(
+                        frameSize.x,
+                        frameSize.y) * 0.085f,
+                    7f,
+                    14f));
+
+            material.SetFloat(
                 "_BorderPx",
-                Mathf.Max(
+                Mathf.Clamp(
+                    inset * 0.42f,
                     1f,
-                    inset * 0.55f));
+                    1.6f));
 
             material.SetFloat(
                 "_GlowPx",
-                8f);
+                10f);
 
             Color borderColor =
                 innerStrokeColor;
             borderColor.a =
-                Mathf.Max(
-                    0.72f,
-                    borderColor.a);
+                Mathf.Clamp(
+                    Mathf.Max(
+                        0.78f,
+                        borderColor.a),
+                    0f,
+                    0.92f);
 
             Color glowColor =
                 outerGlowColor;
             glowColor.a =
                 Mathf.Clamp(
                     Mathf.Max(
-                        0.18f,
-                        glowColor.a),
+                        0.10f,
+                        glowColor.a * 0.65f),
                     0f,
-                    0.42f);
+                    0.24f);
 
             material.SetColor(
                 "_BorderColor",
