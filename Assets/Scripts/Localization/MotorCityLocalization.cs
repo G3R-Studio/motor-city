@@ -486,11 +486,6 @@ namespace MotorCity.Localization
 
                 { "speedtrap.status", E("РАДАР: {0} • СКОРОСТЬ: {1:0} {2} • МЕДАЛЬ: {3}{4}{5}", "SPEED TRAP: {0} • SPEED: {1:0} {2} • MEDAL: {3}{4}{5}") },
 
-                { "stunt.airborne", E("ПРЫЖОК - {0}   В ВОЗДУХЕ", "JUMP - {0}   AIRBORNE") },
-                { "stunt.prompt", E("ТРАМПЛИН - {0}   Б {1:0}м   С {2:0}м   З {3:0}м", "RAMP - {0}   B {1:0}m   S {2:0}m   G {3:0}m") },
-                { "stunt.live", E("ПРЫЖОК - {0}   {1:0.0} М   {2:0.00} С", "JUMP - {0}   {1:0.0} M   {2:0.00} S") },
-                { "stunt.result", E("ПРЫЖОК - {0}   {1:0.0} М   {2:0.00} С   {3}{4}{5}", "JUMP - {0}   {1:0.0} M   {2:0.00} S   {3}{4}{5}") },
-
                 { "adventure.city_event", E("ГОРОДСКОЕ СОБЫТИЕ", "CITY EVENT") },
                 { "adventure.contract", E("КОНТРАКТ", "CONTRACT") },
                 { "adventure.career", E("КАРЬЕРА", "CAREER") },
