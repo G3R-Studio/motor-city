@@ -350,6 +350,20 @@ namespace MotorCity.Gameplay
                             level));
         }
 
+        public int GetUpgradeLevel(
+            int index)
+        {
+            UpgradeType type =
+                (UpgradeType)Mathf.Clamp(
+                    index,
+                    0,
+                    2);
+
+            return
+                GetLevel(
+                    type);
+        }
+
         public int GetUpgradeCost(
             int index)
         {
