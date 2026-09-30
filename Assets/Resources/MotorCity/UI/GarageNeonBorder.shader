@@ -87,12 +87,12 @@ Shader "MotorCity/UI/GarageNeonBorder"
             float4 _ClipRect;
 
             float RoundedBoxSdf(
-                float2 point,
+                float2 samplePos,
                 float2 halfSize,
                 float radius)
             {
                 float2 q =
-                    abs(point) -
+                    abs(samplePos) -
                     max(
                         halfSize -
                         radius,
