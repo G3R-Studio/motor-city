@@ -934,7 +934,7 @@ namespace MotorCity.UI
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
                 new Vector2(92f, 156f),
-                new Color32(255, 255, 255, 0x0A));
+                new Color32(255, 255, 255, 0x64));
 
             CreateTouchArtHoldButton(
                 root,
@@ -947,7 +947,7 @@ namespace MotorCity.UI
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
                 new Vector2(96f, 118f),
-                new Color32(255, 255, 255, 0x0A));
+                new Color32(255, 255, 255, 0x64));
 
             CreateTouchArtHoldButton(
                 root,
@@ -960,7 +960,7 @@ namespace MotorCity.UI
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
                 new Vector2(92f, 76f),
-                new Color32(255, 255, 255, 0x32));
+                new Color32(255, 255, 255, 0x64));
 
             GameObject interactButton =
                 CreateLocalizedTouchPulseButton(
