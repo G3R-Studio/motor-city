@@ -24,6 +24,8 @@ namespace MotorCity.Gameplay
         public int ResultMasteryXp { get; private set; }
         public string ResultSecondaryProgress { get; private set; } =
             string.Empty;
+        public string ResultNextGoal { get; private set; } =
+            string.Empty;
         public int TotalReputation =>
             reputation == null
                 ? 0
@@ -60,6 +62,7 @@ namespace MotorCity.Gameplay
         private DailyAdventureSystem resultDaily;
         private SeasonSystem resultSeason;
         private ClubSystem resultClub;
+        private ResultNextGoalResolver resultNextGoalResolver;
 
         public event Action<string, bool> ActivityResultShown;
         public event Action<string, bool> ActivityResultDismissed;
@@ -174,6 +177,13 @@ namespace MotorCity.Gameplay
                 startFlow != null &&
                 startFlow.CancelPending(
                     id);
+        }
+
+        public void SetResultNextGoalResolver(
+            ResultNextGoalResolver resolver)
+        {
+            resultNextGoalResolver =
+                resolver;
         }
 
         public void SetResultProgressSystems(
@@ -413,6 +423,11 @@ namespace MotorCity.Gameplay
                     seasonProgressBefore,
                     clubBefore);
             }
+
+            ResultNextGoal =
+                resultNextGoalResolver == null
+                    ? string.Empty
+                    : resultNextGoalResolver.Resolve();
         }
 
         private void BuildResultSecondaryProgress(
@@ -504,6 +519,8 @@ namespace MotorCity.Gameplay
             ResultIsNewRecord = false;
             ResultMasteryXp = 0;
             ResultSecondaryProgress =
+                string.Empty;
+            ResultNextGoal =
                 string.Empty;
 
             if (notifyDismissed)
