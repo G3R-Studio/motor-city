@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace MotorCity.World
@@ -324,6 +325,111 @@ namespace MotorCity.World
 
             floorCollider.isTrigger =
                 false;
+
+            InstallGarageReflectionProbe(
+                garageTransform);
+        }
+
+        private static void InstallGarageReflectionProbe(
+            Transform garageTransform)
+        {
+            if (garageTransform == null)
+                return;
+
+            const string probeName =
+                "Garage Reflection Probe";
+
+            Transform existing =
+                garageTransform.Find(
+                    probeName);
+
+            GameObject probeObject;
+
+            if (existing != null)
+            {
+                probeObject =
+                    existing.gameObject;
+            }
+            else
+            {
+                probeObject =
+                    new GameObject(
+                        probeName);
+
+                probeObject.transform.SetParent(
+                    garageTransform,
+                    false);
+            }
+
+            // Garage Scene.unity uses local Y 1.041. The garage itself is
+            // scaled x2 in the city, so the probe follows the same transform.
+            probeObject.transform.localPosition =
+                new Vector3(
+                    0f,
+                    1.041f,
+                    0f);
+
+            probeObject.transform.localRotation =
+                Quaternion.identity;
+
+            probeObject.transform.localScale =
+                Vector3.one;
+
+            ReflectionProbe probe =
+                probeObject.GetComponent<ReflectionProbe>();
+
+            if (probe == null)
+            {
+                probe =
+                    probeObject.AddComponent<ReflectionProbe>();
+            }
+
+            probe.mode =
+                ReflectionProbeMode.Realtime;
+
+            probe.refreshMode =
+                ReflectionProbeRefreshMode.ViaScripting;
+
+            probe.timeSlicingMode =
+                ReflectionProbeTimeSlicingMode.NoTimeSlicing;
+
+            probe.resolution =
+                256;
+
+            probe.size =
+                new Vector3(
+                    20f,
+                    20f,
+                    20f);
+
+            probe.center =
+                Vector3.zero;
+
+            probe.nearClipPlane =
+                0.3f;
+
+            probe.farClipPlane =
+                1000f;
+
+            probe.intensity =
+                0.18f;
+
+            probe.blendDistance =
+                2f;
+
+            probe.hdr =
+                true;
+
+            probe.boxProjection =
+                false;
+
+            probe.cullingMask =
+                ~0;
+
+            probe.clearFlags =
+                ReflectionProbeClearFlags.Skybox;
+
+            probe.RenderProbe();
         }
 
         private static Transform FindChildByName(
