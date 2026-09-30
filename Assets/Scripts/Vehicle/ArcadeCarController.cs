@@ -1925,28 +1925,67 @@ namespace MotorCity.Vehicle
         public void SetPresentationLock(
             bool locked)
         {
+            if (presentationLock ==
+                locked)
+            {
+                return;
+            }
+
             presentationLock =
                 locked;
 
             if (!locked)
                 return;
 
+            // Opening presentation must block player input without freezing
+            // Rigidbody gravity. The car intentionally spawns slightly above
+            // the road and must be allowed to settle naturally.
             drivingEnabled =
                 false;
 
-            ClearMotion();
             SetPrometeoEnabled(
                 false);
+
+            for (int i = 0;
+                 i < wheelColliders.Length;
+                 i++)
+            {
+                WheelCollider wheel =
+                    wheelColliders[i];
+
+                if (wheel == null)
+                    continue;
+
+                wheel.motorTorque =
+                    0f;
+
+                wheel.steerAngle =
+                    0f;
+
+                wheel.brakeTorque =
+                    brakeForce * 8f;
+            }
         }
 
         public void SetDrivingEnabled(
             bool enabled)
         {
-            if (enabled &&
-                presentationLock)
+            if (presentationLock)
             {
-                enabled =
-                    false;
+                // UI systems periodically refresh driving state. While the
+                // opening camera owns the vehicle, ignore those attempts
+                // instead of calling ClearMotion every frame.
+                if (enabled ||
+                    !drivingEnabled)
+                {
+                    return;
+                }
+            }
+
+            if (drivingEnabled ==
+                enabled)
+            {
+                return;
             }
 
             drivingEnabled = enabled;
