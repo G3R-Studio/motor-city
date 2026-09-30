@@ -53,8 +53,37 @@ namespace MotorCity.UI
             ApplyModalPanelTexture(
                 panel);
 
+            GameObject glowObject =
+                new GameObject(
+                    "New Record Glow",
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            glowObject.transform.SetParent(
+                panel,
+                false);
+
+            RectTransform glowRect =
+                glowObject.GetComponent<RectTransform>();
+
+            glowRect.anchorMin =
+                Vector2.zero;
+
+            glowRect.anchorMax =
+                Vector2.one;
+
+            glowRect.offsetMin =
+                new Vector2(
+                    8f,
+                    8f);
+
+            glowRect.offsetMax =
+                new Vector2(
+                    -8f,
+                    -8f);
+
             resultRecordGlow =
-                panel.gameObject.AddComponent<Image>();
+                glowObject.GetComponent<Image>();
 
             resultRecordGlow.color =
                 new Color(
@@ -65,6 +94,8 @@ namespace MotorCity.UI
 
             resultRecordGlow.raycastTarget =
                 false;
+
+            glowObject.transform.SetAsFirstSibling();
 
             resultActivityIcon =
                 CreateHudIcon(
@@ -266,16 +297,11 @@ namespace MotorCity.UI
             if (activityManager == null ||
                 !activityManager.HasResult)
             {
-                resultRecordAnimationPlayed =
-                    false;
-
                 resultRecordAnimationTimer =
                     0f;
 
                 return;
             }
-
-            UpdateNewRecordPresentation();
 
             resultTitleText.text =
                 activityManager.ResultTitle ?? string.Empty;
@@ -409,6 +435,8 @@ namespace MotorCity.UI
                 resultRewardIcon.color =
                     resultRewardText.color;
             }
+
+            UpdateNewRecordPresentation();
         }
 
         private void UpdateNewRecordPresentation()
@@ -437,19 +465,17 @@ namespace MotorCity.UI
                         Vector3.one;
                 }
 
-                resultRecordAnimationPlayed =
-                    false;
-
                 resultRecordAnimationTimer =
                     0f;
 
                 return;
             }
 
-            if (!resultRecordAnimationPlayed)
+            if (resultRecordAnimatedSequence !=
+                activityManager.ResultSequence)
             {
-                resultRecordAnimationPlayed =
-                    true;
+                resultRecordAnimatedSequence =
+                    activityManager.ResultSequence;
 
                 resultRecordAnimationTimer =
                     0f;
