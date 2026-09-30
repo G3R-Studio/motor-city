@@ -284,6 +284,15 @@ namespace MotorCity.Bootstrap
             activityManager.Initialize(
                 reputation);
 
+            ActivityStartFlow activityStartFlow =
+                systems.AddComponent<ActivityStartFlow>();
+
+            activityStartFlow.Initialize(
+                activityManager);
+
+            activityManager.SetStartFlow(
+                activityStartFlow);
+
             PlayerWallet wallet =
                 systems.AddComponent<PlayerWallet>();
 
