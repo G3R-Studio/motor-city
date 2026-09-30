@@ -1622,13 +1622,12 @@ namespace MotorCity.UI
                 touchPauseRoot,
                 false);
 
-            bool onboardingComplete =
-                onboarding == null ||
-                onboarding.IsComplete;
-
+            // Pause / rescue / quick actions are core controls, not
+            // post-onboarding unlocks. They must remain available during the
+            // rookie path for wheel and arrow control schemes just like they
+            // already are for keyboard input.
             SetActiveIfChanged(
                 touchUtilityRoot,
-                onboardingComplete &&
                 !pauseMenuOpen &&
                 !HasBlockingModalUi());
 
