@@ -687,6 +687,20 @@ namespace MotorCity.Platform
 #endif
         }
 
+        public void OnYandexGameApiPause(
+            string value)
+        {
+            MotorCityPlatformRuntime.SetPlatformEventPaused(
+                true);
+        }
+
+        public void OnYandexGameApiResume(
+            string value)
+        {
+            MotorCityPlatformRuntime.SetPlatformEventPaused(
+                false);
+        }
+
         public void OnYandexInitialized(
             string payload)
         {
