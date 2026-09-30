@@ -44,7 +44,7 @@ namespace MotorCity.UI
                     activityResultOverlay.transform,
                     "Activity Result",
                     Vector2.zero,
-                    new Vector2(600f, 316f),
+                    new Vector2(600f, 352f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     Color.clear);
@@ -139,6 +139,22 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
+
+            resultNextGoalText =
+                CreateText(
+                    panel,
+                    "Result Next Goal",
+                    16,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -246f),
+                    new Vector2(500f, 34f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    BlueAccent);
+
+            resultNextGoalText.text =
+                string.Empty;
 
             resultControlsText =
                 CreateText(
@@ -256,14 +272,39 @@ namespace MotorCity.UI
 
             resultHeadlineText.color = accent;
 
+            bool rookieDeliveryResult =
+                activityManager.ResultIsRookieDelivery;
+
+            if (resultNextGoalText != null)
+            {
+                resultNextGoalText.text =
+                    rookieDeliveryResult
+                        ? MotorCityLocalization.Text(
+                            "onboarding.result_next_garage")
+                        : string.Empty;
+
+                resultNextGoalText.gameObject.SetActive(
+                    rookieDeliveryResult);
+            }
+
             if (resultControlsText != null)
             {
                 resultControlsText.text =
                     MotorCityLocalization.Text(
-                        IsReplayableResult(
-                            activityManager.ResultActivityId)
-                            ? "hud.result_controls"
-                            : "hud.result_continue_only");
+                        rookieDeliveryResult
+                            ? "hud.result_continue_only"
+                            : IsReplayableResult(
+                                activityManager.ResultActivityId)
+                                ? "hud.result_controls"
+                                : "hud.result_continue_only");
+            }
+
+            if (resultRetryTouchButton != null)
+            {
+                resultRetryTouchButton.SetActive(
+                    !rookieDeliveryResult &&
+                    IsReplayableResult(
+                        activityManager.ResultActivityId));
             }
 
             bool hasReward =
@@ -318,6 +359,9 @@ namespace MotorCity.UI
                 car?.SetDrivingEnabled(true);
                 return;
             }
+
+            if (activityManager.ResultIsRookieDelivery)
+                return;
 
             bool restart =
                 MotorCityInput.RetryPressed;
