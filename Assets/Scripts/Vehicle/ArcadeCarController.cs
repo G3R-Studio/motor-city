@@ -1541,10 +1541,40 @@ namespace MotorCity.Vehicle
             float lowSpeedThresholdKph,
             float holdThresholdKph)
         {
-            if (!handbrakeHeld ||
-                !drivingEnabled ||
+            if (!drivingEnabled ||
                 resetHoldTimer > 0f)
                 return;
+
+            if (!handbrakeHeld)
+            {
+                // HandbrakePhysicsAssist adds its own large rear brake torque.
+                // Prometeo does not clear that torque while the player is just
+                // coasting, so without this release the rear wheels can remain
+                // braked until throttle/reverse is pressed again.
+                //
+                // Do not clear while throttle/reverse is held: reverse input can
+                // intentionally use Prometeo's normal four-wheel braking while
+                // changing direction.
+                if (!throttleHeld &&
+                    !reverseHeld)
+                {
+                    for (int i = RearLeft;
+                         i <= RearRight;
+                         i++)
+                    {
+                        WheelCollider wheel =
+                            wheelColliders[i];
+
+                        if (wheel != null)
+                        {
+                            wheel.brakeTorque =
+                                0f;
+                        }
+                    }
+                }
+
+                return;
+            }
 
             float torque =
                 SpeedKph <= lowSpeedThresholdKph
