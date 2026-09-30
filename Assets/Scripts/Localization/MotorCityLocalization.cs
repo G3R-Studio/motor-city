@@ -282,6 +282,8 @@ namespace MotorCity.Localization
                 { "hud.result_next_navigator", E("СЛЕДУЮЩАЯ ЦЕЛЬ: {0}", "NEXT GOAL: {0}") },
                 { "hud.garage_controls", E("ИСПОЛЬЗУЙ КНОПКИ ГАРАЖА", "USE GARAGE BUTTONS") },
                 { "hud.garage_title", E("ГАРАЖ", "GARAGE") },
+                { "garage.my_car", E("МОЯ МАШИНА", "MY CAR") },
+                { "garage.upgrades_title", E("УЛУЧШЕНИЯ", "UPGRADES") },
                 { "hud.garage_vehicle", E("МАШИНА: {0}", "CAR: {0}") },
                 { "hud.first_activity_target", E("ПЕРВАЯ АКТИВНОСТЬ · ДОСТАВКА", "FIRST ACTIVITY · DELIVERY") },
                 { "hud.objective_label", E("ЦЕЛЬ", "OBJECTIVE") },
