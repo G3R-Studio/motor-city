@@ -580,9 +580,14 @@ namespace MotorCity.UI
 
         private void BuildControlChoiceScreen()
         {
-            AddSharedBackground(
-                controlChoiceRoot,
-                0.76f);
+            Image controlBackground =
+                controlChoiceRoot.GetComponent<Image>();
+
+            if (controlBackground != null)
+            {
+                controlBackground.color =
+                    Color.black;
+            }
 
             RectTransform panel =
                 CreateFrontEndPanel(
@@ -1865,10 +1870,10 @@ namespace MotorCity.UI
             AudioListener.pause =
                 true;
 
-            MotorCityMusicRuntime.SetGameplayActive(
+            MotorCityMusicRuntime.SetMenuActive(
                 false);
 
-            MotorCityMusicRuntime.SetMenuActive(
+            MotorCityMusicRuntime.SetGameplayActive(
                 true);
 
             mainRoot.SetActive(
