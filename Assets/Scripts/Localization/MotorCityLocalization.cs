@@ -565,7 +565,7 @@ namespace MotorCity.Localization
                 { "onboarding.result_next_garage", E("СЛЕДУЮЩАЯ ЦЕЛЬ: ГАРАЖ", "NEXT GOAL: GARAGE") },
                 { "onboarding.garage", E("Витя оставил тебе место в гараже. Я отметил его на карте - заедь и открой.", "Vitya saved you a spot in the garage. I marked it on the map - drive there and open it.") },
                 { "onboarding.garage_done", E("Вот твой угол. Машина теперь твоя - начни с малого и выбери цвет кузова.", "Here is your corner. The car is yours now - start small and choose a body color.") },
-                { "onboarding.customize", E("Смени цвет кузова в гараже. Пусть в городе понимают, что за рулём уже новый хозяин.", "Change the body color in the garage. Let the city know there is a new owner behind the wheel.") },
+                { "onboarding.customize", E("Смени цвет кузова - нажми ЦВЕТ. Это последнее задание Rookie Path.", "Change the body color - press COLOR. This is the final Rookie Path task.") },
                 { "onboarding.customized", E("Турбо: Теперь узнаю. Твоя машина, твой маршрут. Дальше начинается настоящий путь.", "Turbo: Now that looks right. Your car, your route. The real journey starts here.") },
                 { "onboarding.daily", E("Посмотри ежедневное задание Турбо", "Check Turbo’s daily task") },
                 { "onboarding.complete", E("Турбо: С основами разобрались. В городе уже есть люди, которым интересно, на что ты способен.", "Turbo: Basics are done. There are already people in the city who want to see what you can do.") },
