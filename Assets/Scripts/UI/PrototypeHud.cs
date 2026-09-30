@@ -68,6 +68,8 @@ namespace MotorCity.UI
             "MotorCity.Settings.AudioVolume";
 
         private GameObject openingSpeedometerRoot;
+        private CanvasGroup openingCharacterGroup;
+        private CanvasGroup openingStatusGroup;
         private CanvasGroup openingSpeedometerGroup;
         private CanvasGroup openingMinimapGroup;
         private CanvasGroup openingQuickActionsGroup;
@@ -996,6 +998,14 @@ namespace MotorCity.UI
             openingHudRevealActive =
                 false;
 
+            openingCharacterGroup =
+                ResolveOpeningCanvasGroup(
+                    characterPanel);
+
+            openingStatusGroup =
+                ResolveOpeningCanvasGroup(
+                    statusPanel);
+
             openingSpeedometerGroup =
                 ResolveOpeningCanvasGroup(
                     openingSpeedometerRoot);
@@ -1086,6 +1096,16 @@ namespace MotorCity.UI
         private void SetOpeningHudAlpha(
             float alpha)
         {
+            ApplyOpeningGroupAlpha(
+                openingCharacterGroup,
+                alpha,
+                false);
+
+            ApplyOpeningGroupAlpha(
+                openingStatusGroup,
+                alpha,
+                false);
+
             ApplyOpeningGroupAlpha(
                 openingSpeedometerGroup,
                 alpha,
