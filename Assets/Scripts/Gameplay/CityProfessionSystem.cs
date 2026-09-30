@@ -445,7 +445,7 @@ namespace MotorCity.Gameplay
             if (definition == null)
                 return;
 
-            activities.DismissResult();
+            activities.DismissResult(false);
 
             active =
                 null;
