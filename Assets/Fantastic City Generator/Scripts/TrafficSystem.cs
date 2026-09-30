@@ -373,10 +373,23 @@ namespace FCG
                     {
                         float dist = Vector3.Distance(wpDataSpawn[i].position, player.position);
 
-                        if (player && (dist > around || (!firstTime && dist < 80)))
+                        // Never allow the initial traffic fill to pop a car
+                        // directly around the player. Subsequent fills keep
+                        // the wider exclusion radius and also avoid spawning
+                        // inside the current field of view.
+                        float minimumSpawnDistance =
+                            firstTime
+                                ? 45f
+                                : 80f;
+
+                        if (dist > around ||
+                            dist < minimumSpawnDistance)
                             continue;
 
-                        if (!firstTime && InTheFieldOfVision(player.position, wpDataSpawn[i].position))
+                        if (!firstTime &&
+                            InTheFieldOfVision(
+                                player.position,
+                                wpDataSpawn[i].position))
                             continue;
 
                     }
