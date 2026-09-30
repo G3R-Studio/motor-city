@@ -532,8 +532,12 @@ namespace MotorCity.Bootstrap
             resultNextGoalResolver.Initialize(
                 onboarding,
                 story,
+                vehicleRoster,
+                reputation,
                 dailyAdventures,
-                season);
+                season,
+                liveEvents,
+                null);
 
             activityManager.SetResultNextGoalResolver(
                 resultNextGoalResolver);
@@ -649,6 +653,16 @@ namespace MotorCity.Bootstrap
                 dailyAdventures,
                 story,
                 season);
+
+            resultNextGoalResolver.Initialize(
+                onboarding,
+                story,
+                vehicleRoster,
+                reputation,
+                dailyAdventures,
+                season,
+                liveEvents,
+                adventureDirector);
 
 #if UNITY_EDITOR
             AdminDebugPanel adminPanel =
