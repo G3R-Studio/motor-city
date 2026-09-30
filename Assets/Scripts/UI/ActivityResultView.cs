@@ -383,14 +383,25 @@ namespace MotorCity.UI
 
             if (resultNextGoalText != null)
             {
+                string nextGoal =
+                    activityManager.ResultNextGoal ??
+                    string.Empty;
+
+                if (string.IsNullOrWhiteSpace(
+                        nextGoal) &&
+                    rookieDeliveryResult)
+                {
+                    nextGoal =
+                        MotorCityLocalization.Text(
+                            "onboarding.result_next_garage");
+                }
+
                 resultNextGoalText.text =
-                    rookieDeliveryResult
-                        ? MotorCityLocalization.Text(
-                            "onboarding.result_next_garage")
-                        : string.Empty;
+                    nextGoal;
 
                 resultNextGoalText.gameObject.SetActive(
-                    rookieDeliveryResult);
+                    !string.IsNullOrWhiteSpace(
+                        nextGoal));
             }
 
             if (resultControlsText != null)
