@@ -259,13 +259,22 @@ namespace MotorCity.Gameplay
         private void UpdateCountdownStatus(
             int shown)
         {
+            string activityName =
+                eliteMode
+                    ? MotorCityLocalization.Text(
+                        "activity.premium_delivery")
+                    : MotorCityLocalization.Text(
+                        "activity.delivery");
+
             StatusText =
-                MotorCityLocalization.Format(
-                    "activity.countdown",
-                    eliteMode
-                        ? MotorCityLocalization.Text("activity.premium_delivery")
-                        : MotorCityLocalization.Text("activity.delivery"),
-                    shown);
+                shown <= 0
+                    ? MotorCityLocalization.Format(
+                        "activity.go",
+                        activityName)
+                    : MotorCityLocalization.Format(
+                        "activity.countdown",
+                        activityName,
+                        shown);
         }
 
         private void BeginGameplay()
