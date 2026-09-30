@@ -57,6 +57,16 @@ namespace MotorCity.CameraSystem
         private int cameraTouchId = -1;
         private Vector2 lastCameraTouchPosition;
 
+        private bool openingPresentationActive;
+        private float openingPresentationTimer;
+        private float openingPresentationDuration = 1.6f;
+        private Vector3 openingPresentationStartPosition;
+        private Quaternion openingPresentationStartRotation;
+        private float openingPresentationStartFov;
+
+        public bool IsOpeningPresentationActive =>
+            openingPresentationActive;
+
         private readonly List<RaycastResult> uiRaycastResults =
             new();
 
@@ -75,6 +85,69 @@ namespace MotorCity.CameraSystem
             {
                 lastTargetPosition =
                     target.position;
+            }
+
+            hasLastTargetPosition =
+                false;
+        }
+
+        public void PlayOpeningPresentation(
+            float duration = 1.6f)
+        {
+            if (target == null)
+                return;
+
+            openingPresentationDuration =
+                Mathf.Max(
+                    0.8f,
+                    duration);
+
+            openingPresentationTimer =
+                0f;
+
+            openingPresentationActive =
+                true;
+
+            Vector3 localOffset =
+                new Vector3(
+                    5.2f,
+                    2.35f,
+                    -5.4f);
+
+            openingPresentationStartPosition =
+                target.position +
+                target.rotation *
+                localOffset;
+
+            Vector3 lookPoint =
+                target.position +
+                Vector3.up * 0.95f;
+
+            openingPresentationStartRotation =
+                Quaternion.LookRotation(
+                    lookPoint -
+                    openingPresentationStartPosition,
+                    Vector3.up);
+
+            openingPresentationStartFov =
+                58f;
+
+            transform.position =
+                openingPresentationStartPosition;
+
+            transform.rotation =
+                openingPresentationStartRotation;
+
+            if (cameraComponent == null)
+            {
+                cameraComponent =
+                    GetComponent<Camera>();
+            }
+
+            if (cameraComponent != null)
+            {
+                cameraComponent.fieldOfView =
+                    openingPresentationStartFov;
             }
 
             hasLastTargetPosition =
@@ -280,6 +353,9 @@ namespace MotorCity.CameraSystem
         private void Update()
         {
             if (target == null) return;
+
+            if (openingPresentationActive)
+                return;
 
             Mouse mouse = Mouse.current;
             bool orbiting = mouse != null && mouse.rightButton.isPressed;
@@ -523,6 +599,71 @@ namespace MotorCity.CameraSystem
                 ResolveStableCameraPosition(
                     cameraPivot,
                     desiredPosition);
+
+            if (openingPresentationActive)
+            {
+                openingPresentationTimer +=
+                    Time.unscaledDeltaTime;
+
+                float progress =
+                    Mathf.Clamp01(
+                        openingPresentationTimer /
+                        openingPresentationDuration);
+
+                float eased =
+                    progress * progress *
+                    (3f - 2f * progress);
+
+                transform.position =
+                    Vector3.Lerp(
+                        openingPresentationStartPosition,
+                        collisionSafePosition,
+                        eased);
+
+                Vector3 openingLookPoint =
+                    target.position +
+                    target.forward *
+                    Mathf.Lerp(
+                        0.4f,
+                        dynamicLookAhead,
+                        eased) +
+                    Vector3.up * 0.92f;
+
+                Quaternion openingTargetRotation =
+                    Quaternion.LookRotation(
+                        openingLookPoint -
+                        transform.position,
+                        Vector3.up);
+
+                transform.rotation =
+                    Quaternion.Slerp(
+                        openingPresentationStartRotation,
+                        openingTargetRotation,
+                        eased);
+
+                if (cameraComponent != null)
+                {
+                    cameraComponent.fieldOfView =
+                        Mathf.Lerp(
+                            openingPresentationStartFov,
+                            baseFieldOfView,
+                            eased);
+                }
+
+                lastTargetPosition =
+                    target.position;
+
+                hasLastTargetPosition =
+                    true;
+
+                if (progress >= 1f)
+                {
+                    openingPresentationActive =
+                        false;
+                }
+
+                return;
+            }
 
             transform.position =
                 snapAfterTeleport
