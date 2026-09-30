@@ -224,6 +224,7 @@ namespace MotorCity.UI
         private GameObject resultRetryTouchButton;
         private GameObject clubOverlay;
         private GameObject storeOverlay;
+        private GameObject storeBuyButton;
         private Text storeNameText;
         private Text storeDescriptionText;
         private Text storePathText;
