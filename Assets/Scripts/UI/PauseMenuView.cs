@@ -623,6 +623,9 @@ namespace MotorCity.UI
             AudioListener.pause =
                 true;
 
+            MotorCityMusicRuntime.SetPauseMenuPaused(
+                true);
+
             pauseOverlay?.SetActive(
                 true);
 
@@ -671,6 +674,9 @@ namespace MotorCity.UI
                 AudioListener.pause =
                     false;
             }
+
+            MotorCityMusicRuntime.SetPauseMenuPaused(
+                false);
 
             car?.SetDrivingEnabled(
                 Time.timeScale > 0f);
