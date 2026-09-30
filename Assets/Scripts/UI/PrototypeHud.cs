@@ -73,6 +73,7 @@ namespace MotorCity.UI
         private CanvasGroup openingSpeedometerGroup;
         private CanvasGroup openingMinimapGroup;
         private CanvasGroup openingQuickActionsGroup;
+        private CanvasGroup openingTouchDrivingGroup;
         private bool openingHudRevealArmed;
         private bool openingHudRevealActive;
         private float openingHudRevealTimer;
@@ -1018,6 +1019,10 @@ namespace MotorCity.UI
                 ResolveOpeningCanvasGroup(
                     touchUtilityRoot);
 
+            openingTouchDrivingGroup =
+                ResolveOpeningCanvasGroup(
+                    touchControlsRoot);
+
             SetOpeningHudAlpha(
                 0f);
         }
@@ -1118,6 +1123,11 @@ namespace MotorCity.UI
 
             ApplyOpeningGroupAlpha(
                 openingQuickActionsGroup,
+                alpha,
+                alpha < 0.95f);
+
+            ApplyOpeningGroupAlpha(
+                openingTouchDrivingGroup,
                 alpha,
                 alpha < 0.95f);
         }
