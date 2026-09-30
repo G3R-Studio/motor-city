@@ -314,10 +314,44 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.LowerLeft,
                     new Vector2(24f, 26f),
-                    new Vector2(382f, 38f),
+                    new Vector2(350f, 38f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     DriftAccent);
+
+            GameObject currencyIconObject =
+                new(
+                    "Store Currency Icon",
+                    typeof(RectTransform),
+                    typeof(RawImage));
+
+            currencyIconObject.transform.SetParent(
+                detailCard,
+                false);
+
+            RectTransform currencyIconRect =
+                currencyIconObject.GetComponent<RectTransform>();
+
+            currencyIconRect.anchorMin =
+                new Vector2(1f, 0f);
+            currencyIconRect.anchorMax =
+                new Vector2(1f, 0f);
+            currencyIconRect.pivot =
+                new Vector2(1f, 0f);
+            currencyIconRect.anchoredPosition =
+                new Vector2(-20f, 31f);
+            currencyIconRect.sizeDelta =
+                new Vector2(22f, 22f);
+
+            storeCurrencyIcon =
+                currencyIconObject.GetComponent<RawImage>();
+
+            storeCurrencyIcon.raycastTarget =
+                false;
+            storeCurrencyIcon.color =
+                Color.white;
+            storeCurrencyIcon.enabled =
+                false;
 
             foreach (Text localizedText in
                      new[]
@@ -410,6 +444,23 @@ namespace MotorCity.UI
                         0.72f,
                         1f,
                         1f);
+            }
+
+            if (storeCurrencyIcon != null)
+            {
+                Texture2D currencyTexture =
+                    cosmeticStore.CurrencyIconTexture;
+
+                bool showCurrencyIcon =
+                    !cosmeticStore.HasSupporterPack &&
+                    currencyTexture != null;
+
+                storeCurrencyIcon.texture =
+                    currencyTexture;
+                storeCurrencyIcon.color =
+                    Color.white;
+                storeCurrencyIcon.enabled =
+                    showCurrencyIcon;
             }
         }
 
