@@ -497,8 +497,9 @@ public class PrometeoCarController : MonoBehaviour
         steeringAxis = 0f;
       }
       var steeringAngle = steeringAxis * maxSteeringAngle;
-      frontLeftCollider.steerAngle = Mathf.Lerp(frontLeftCollider.steerAngle, steeringAngle, steeringSpeed);
-      frontRightCollider.steerAngle = Mathf.Lerp(frontRightCollider.steerAngle, steeringAngle, steeringSpeed);
+      float response = SteeringResponseFactor();
+      frontLeftCollider.steerAngle = Mathf.Lerp(frontLeftCollider.steerAngle, steeringAngle, response);
+      frontRightCollider.steerAngle = Mathf.Lerp(frontRightCollider.steerAngle, steeringAngle, response);
     }
 
     // This method matches both the position and rotation of the WheelColliders with the WheelMeshes.
