@@ -390,6 +390,25 @@ namespace MotorCity.Platform
                 completed);
         }
 
+        public void LoadProductInfo(
+            string productId,
+            Action<bool, string> completed)
+        {
+            if (!SupportsPurchases ||
+                string.IsNullOrWhiteSpace(
+                    productId))
+            {
+                completed?.Invoke(
+                    false,
+                    string.Empty);
+                return;
+            }
+
+            bridge.LoadProductInfo(
+                productId,
+                completed);
+        }
+
         public void LoadRemoteConfig(
             Action<bool, string> completed)
         {
@@ -453,6 +472,7 @@ namespace MotorCity.Platform
         private Action<bool, string> purchaseCallback;
         private Action<bool> consumeCallback;
         private Action<bool, string> pendingPurchasesCallback;
+        private Action<bool, string> productInfoCallback;
         private Action<bool, string> remoteConfigCallback;
         private Action<bool> statCallback;
 
@@ -607,6 +627,24 @@ namespace MotorCity.Platform
 #if UNITY_WEBGL && !UNITY_EDITOR
             MotorCityYandexLoadPendingPurchases(
                 gameObject.name);
+#else
+            completed?.Invoke(
+                false,
+                string.Empty);
+#endif
+        }
+
+        public void LoadProductInfo(
+            string productId,
+            Action<bool, string> completed)
+        {
+            productInfoCallback =
+                completed;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            MotorCityYandexLoadProductInfo(
+                gameObject.name,
+                productId ?? string.Empty);
 #else
             completed?.Invoke(
                 false,
@@ -885,6 +923,36 @@ namespace MotorCity.Platform
                 string.Empty);
         }
 
+        public void OnYandexProductInfo(
+            string payload)
+        {
+            Action<bool, string> callback =
+                productInfoCallback;
+
+            productInfoCallback = null;
+
+            callback?.Invoke(
+                true,
+                payload ?? string.Empty);
+        }
+
+        public void OnYandexProductInfoFailed(
+            string message)
+        {
+            Debug.LogWarning(
+                "Motor City: product catalog lookup failed: " +
+                message);
+
+            Action<bool, string> callback =
+                productInfoCallback;
+
+            productInfoCallback = null;
+
+            callback?.Invoke(
+                false,
+                string.Empty);
+        }
+
         public void OnYandexRemoteConfig(
             string payload)
         {
@@ -973,6 +1041,11 @@ namespace MotorCity.Platform
         [DllImport("__Internal")]
         private static extern void MotorCityYandexLoadPendingPurchases(
             string gameObjectName);
+
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexLoadProductInfo(
+            string gameObjectName,
+            string productId);
 
         [DllImport("__Internal")]
         private static extern void MotorCityYandexLoadRemoteConfig(
