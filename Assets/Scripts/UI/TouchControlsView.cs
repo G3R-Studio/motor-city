@@ -964,8 +964,8 @@ namespace MotorCity.UI
                 new Vector2(1f, 0f),
                 FitTouchArtSize(
                     handbrakeTexture,
-                    new Vector2(118f, 104f)),
-                new Color32(255, 255, 255, 0x64));
+                    new Vector2(138f, 120f)),
+                new Color32(255, 255, 255, 0x78));
 
             GameObject interactButton =
                 CreateLocalizedTouchPulseButton(
