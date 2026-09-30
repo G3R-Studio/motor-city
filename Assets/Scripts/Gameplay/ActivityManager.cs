@@ -33,6 +33,11 @@ namespace MotorCity.Gameplay
             (story == null ||
              story.IsComplete);
 
+        public bool IsRookieDeliveryStep =>
+            onboarding != null &&
+            !onboarding.IsComplete &&
+            onboarding.CurrentStep == 4;
+
         private PlayerReputation reputation;
         private DisciplineReputationSystem disciplineReputation;
         private FirstSessionOnboardingSystem onboarding;
