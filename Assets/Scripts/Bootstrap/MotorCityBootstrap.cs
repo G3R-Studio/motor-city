@@ -84,20 +84,33 @@ namespace MotorCity.Bootstrap
                     host.AddComponent<MotorCityCloudSaveRuntime>();
             }
 
+            MotorCityPurchaseRuntime purchaseRuntime =
+                host.GetComponent<MotorCityPurchaseRuntime>();
+
+            if (purchaseRuntime == null)
+            {
+                purchaseRuntime =
+                    host.AddComponent<MotorCityPurchaseRuntime>();
+            }
+
             platformRuntime.InitializePlatform(
                 _ =>
                 {
-                    cloudRuntime.ResolveInitialCloud(
+                    purchaseRuntime.RefreshPending(
                         () =>
                         {
-                            platformBootstrapPending =
-                                false;
+                            cloudRuntime.ResolveInitialCloud(
+                                () =>
+                                {
+                                    platformBootstrapPending =
+                                        false;
 
-                            platformBootstrapReady =
-                                true;
+                                    platformBootstrapReady =
+                                        true;
 
-                            TryBuildPrototype(
-                                scene);
+                                    TryBuildPrototype(
+                                        scene);
+                                });
                         });
                 });
         }
