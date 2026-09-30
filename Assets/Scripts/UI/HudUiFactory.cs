@@ -746,7 +746,7 @@ namespace MotorCity.UI
 
             // Keep one readable typography rule across the runtime HUD.
             // Dynamic text may shrink, but never all the way down to tiny
-            // 8–9 px glyphs unless that size was requested explicitly.
+            // 8-9 px glyphs unless that size was requested explicitly.
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize =
                 RuntimeTextMinSize(
