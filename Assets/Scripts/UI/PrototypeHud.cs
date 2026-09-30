@@ -292,6 +292,7 @@ namespace MotorCity.UI
 
         private Image resultActivityIcon;
         private Image resultRewardIcon;
+        private GameObject resultContinueTouchButton;
         private Text resultTitleText;
         private Text resultHeadlineText;
         private Text resultDetailsText;
