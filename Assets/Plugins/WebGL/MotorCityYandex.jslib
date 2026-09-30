@@ -232,9 +232,16 @@ mergeInto(LibraryManager.library, {
     var gameObjectName = UTF8ToString(gameObjectNamePtr);
     var ysdk = window.MotorCityYandexSdk;
     var rewarded = false;
+    var done = false;
+
+    function finish(value) {
+      if (done) return;
+      done = true;
+      SendMessage(gameObjectName, 'OnYandexRewardedResult', value ? '1' : '0');
+    }
 
     if (!ysdk || !ysdk.adv) {
-      SendMessage(gameObjectName, 'OnYandexRewardedResult', '0');
+      finish(false);
       return;
     }
 
@@ -242,11 +249,11 @@ mergeInto(LibraryManager.library, {
       callbacks: {
         onRewarded: function() { rewarded = true; },
         onClose: function() {
-          SendMessage(gameObjectName, 'OnYandexRewardedResult', rewarded ? '1' : '0');
+          finish(rewarded);
         },
         onError: function(error) {
           console.warn('Motor City: rewarded ad failed', error);
-          SendMessage(gameObjectName, 'OnYandexRewardedResult', '0');
+          finish(false);
         }
       }
     });
