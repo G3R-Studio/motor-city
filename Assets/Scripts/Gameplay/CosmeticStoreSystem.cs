@@ -98,7 +98,7 @@ namespace MotorCity.Gameplay
         public void Initialize()
         {
             purchaseRuntime =
-                Object.FindAnyObjectByType<MotorCityPurchaseRuntime>();
+                UnityEngine.Object.FindAnyObjectByType<MotorCityPurchaseRuntime>();
 
             LoadEntitlements();
             ProcessPendingPurchases();
@@ -318,21 +318,40 @@ namespace MotorCity.Gameplay
             }
 
             using UnityWebRequest request =
-                UnityWebRequestTexture.GetTexture(
+                UnityWebRequest.Get(
                     url);
 
             yield return
                 request.SendWebRequest();
 
             if (request.result !=
-                UnityWebRequest.Result.Success)
+                UnityWebRequest.Result.Success ||
+                request.downloadHandler == null ||
+                request.downloadHandler.data == null ||
+                request.downloadHandler.data.Length == 0)
             {
                 yield break;
             }
 
+            Texture2D texture =
+                new(
+                    2,
+                    2,
+                    TextureFormat.RGBA32,
+                    false);
+
+            if (!texture.LoadImage(
+                    request.downloadHandler.data,
+                    false))
+            {
+                UnityEngine.Object.Destroy(
+                    texture);
+
+                yield break;
+            }
+
             currencyIconTexture =
-                DownloadHandlerTexture.GetContent(
-                    request);
+                texture;
         }
 
         private static string DecodeCatalogValue(
@@ -473,7 +492,7 @@ namespace MotorCity.Gameplay
             if (HasSupporterPack)
             {
                 TurboPetSystem pixie =
-                    Object.FindAnyObjectByType<TurboPetSystem>();
+                    UnityEngine.Object.FindAnyObjectByType<TurboPetSystem>();
 
                 pixie?.SetSupporterPackSkin(
                     true);
@@ -501,7 +520,7 @@ namespace MotorCity.Gameplay
         private void walletReward()
         {
             PlayerWallet wallet =
-                Object.FindAnyObjectByType<PlayerWallet>();
+                UnityEngine.Object.FindAnyObjectByType<PlayerWallet>();
 
             wallet?.AddCredits(
                 5000);
