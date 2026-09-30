@@ -11,6 +11,7 @@ namespace MotorCity.Gameplay
         public bool IsBusy => !string.IsNullOrEmpty(ActiveId);
 
         public bool HasResult { get; private set; }
+        public int ResultSequence { get; private set; }
         public string ResultActivityId { get; private set; }
         public string ResultTitle { get; private set; }
         public string ResultHeadline { get; private set; }
@@ -337,6 +338,11 @@ namespace MotorCity.Gameplay
                     : resultClub.WeeklyContribution;
 
             End(activityId);
+
+            ResultSequence =
+                ResultSequence == int.MaxValue
+                    ? 1
+                    : ResultSequence + 1;
 
             HasResult = true;
             ResultActivityId = activityId;
