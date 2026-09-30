@@ -469,9 +469,6 @@ namespace MotorCity.Gameplay
             stage =
                 TowStage.None;
 
-            car.SetDrivingEnabled(
-                true);
-
             car.TeleportTo(
                 StartPoint +
                 Vector3.up * 1.1f,
@@ -479,6 +476,9 @@ namespace MotorCity.Gameplay
                     0f,
                     car.transform.eulerAngles.y,
                     0f));
+
+            car.SetDrivingEnabled(
+                true);
 
             BeginJob();
         }
