@@ -445,7 +445,8 @@ namespace MotorCity.Gameplay
                     tier,
                     record),
                 reward,
-                true);
+                true,
+                newBest);
 
             StatusText =
                 MotorCityLocalization.Format("activity.status_reward", MotorCityLocalization.Text("activity.delivery"), tier, reward);
