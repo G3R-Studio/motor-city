@@ -1289,7 +1289,7 @@ namespace MotorCity.UI
 
         private void BeginPrimaryAction()
         {
-            ShowControlChoice();
+            ContinuePrimaryAction();
         }
 
         private void ShowControlChoice()
@@ -1323,17 +1323,13 @@ namespace MotorCity.UI
             controlChoiceRoot.SetActive(
                 false);
 
-            ContinuePrimaryAction();
+            EnterGameplay();
         }
 
         private void ContinuePrimaryAction()
         {
-            if (hasExistingProgress)
-            {
-                StartLoadingTransition();
-                return;
-            }
-
+            // Start and Continue both replay the story intro. Control choice
+            // now happens only after the city has finished loading.
             introIndex = 0;
             AudioListener.pause = true;
             mainRoot.SetActive(false);
@@ -1856,7 +1852,42 @@ namespace MotorCity.UI
             loadingActive = false;
             loadingRoot.SetActive(false);
 
-            EnterGameplay();
+            ShowControlChoiceAfterLoading();
+        }
+
+        private void ShowControlChoiceAfterLoading()
+        {
+            // Keep gameplay paused until the player explicitly chooses the
+            // control scheme. The control screen uses the main-menu artwork.
+            Time.timeScale =
+                0f;
+
+            AudioListener.pause =
+                true;
+
+            MotorCityMusicRuntime.SetGameplayActive(
+                false);
+
+            MotorCityMusicRuntime.SetMenuActive(
+                true);
+
+            mainRoot.SetActive(
+                false);
+
+            aboutRoot.SetActive(
+                false);
+
+            settingsRoot.SetActive(
+                false);
+
+            introRoot.SetActive(
+                false);
+
+            loadingRoot.SetActive(
+                false);
+
+            controlChoiceRoot.SetActive(
+                true);
         }
 
         public void AttachGameplay(
