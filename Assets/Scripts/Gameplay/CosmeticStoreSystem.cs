@@ -23,8 +23,16 @@ namespace MotorCity.Gameplay
         private string supporterPrice =
             string.Empty;
         private Texture2D currencyIconTexture;
+        private bool productCatalogResolved;
+        private bool supporterProductAvailable;
 
         public bool HasSupporterPack { get; private set; }
+
+        public bool ProductCatalogResolved =>
+            productCatalogResolved;
+
+        public bool SelectedProductAvailable =>
+            supporterProductAvailable;
 
         public Texture2D CurrencyIconTexture =>
             currencyIconTexture;
@@ -58,6 +66,20 @@ namespace MotorCity.Gameplay
                             "store.owned");
                 }
 
+                if (!productCatalogResolved)
+                {
+                    return
+                        MotorCityLocalization.Text(
+                            "store.loading_product");
+                }
+
+                if (!supporterProductAvailable)
+                {
+                    return
+                        MotorCityLocalization.Text(
+                            "store.unavailable");
+                }
+
                 return
                     string.IsNullOrWhiteSpace(
                         supporterPrice)
@@ -81,6 +103,18 @@ namespace MotorCity.Gameplay
             LoadEntitlements();
             ProcessPendingPurchases();
             ApplyEntitlements();
+
+#if UNITY_EDITOR
+            if (!MotorCityPlatform.SupportsPurchases)
+            {
+                productCatalogResolved =
+                    true;
+
+                supporterProductAvailable =
+                    true;
+            }
+#endif
+
             LoadSupporterProductInfo();
         }
 
@@ -115,6 +149,24 @@ namespace MotorCity.Gameplay
 
             string productId =
                 SupporterPackProductId;
+
+#if !UNITY_EDITOR
+            if (!productCatalogResolved ||
+                !supporterProductAvailable)
+            {
+                StatusText =
+                    !productCatalogResolved
+                        ? MotorCityLocalization.Text(
+                            "store.loading_product")
+                        : MotorCityLocalization.Text(
+                            "store.unavailable");
+
+                messageTimer =
+                    3.5f;
+
+                return;
+            }
+#endif
 
 #if UNITY_EDITOR
             // Editor-only test path. Production builds must never grant a
@@ -180,12 +232,27 @@ namespace MotorCity.Gameplay
         private void LoadSupporterProductInfo()
         {
             if (!MotorCityPlatform.SupportsPurchases)
+            {
+#if !UNITY_EDITOR
+                productCatalogResolved =
+                    true;
+
+                supporterProductAvailable =
+                    false;
+#endif
                 return;
+            }
 
             MotorCityPlatform.LoadProductInfo(
                 SupporterPackProductId,
                 (success, payload) =>
                 {
+                    productCatalogResolved =
+                        true;
+
+                    supporterProductAvailable =
+                        false;
+
                     if (!success ||
                         string.IsNullOrWhiteSpace(
                             payload))
@@ -213,6 +280,10 @@ namespace MotorCity.Gameplay
                     supporterPrice =
                         DecodeCatalogValue(
                             encodedPrice);
+
+                    supporterProductAvailable =
+                        !string.IsNullOrWhiteSpace(
+                            supporterPrice);
 
                     string iconUrl =
                         DecodeCatalogValue(
