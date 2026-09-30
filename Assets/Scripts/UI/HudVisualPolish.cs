@@ -432,28 +432,8 @@ namespace MotorCity.UI
                 image.color =
                     Color.white;
 
-                Outline outline =
-                    image.GetComponent<Outline>();
-
-                if (outline == null)
-                {
-                    outline =
-                        image.gameObject
-                            .AddComponent<Outline>();
-                }
-
-                outline.effectColor =
-                    new Color(
-                        0.18f,
-                        0.62f,
-                        1f,
-                        0.30f);
-
-                outline.effectDistance =
-                    new Vector2(1f, -1f);
-
-                outline.useGraphicAlpha =
-                    true;
+                RemoveOutline(
+                    image.gameObject);
             }
 
             Text[] labels =
