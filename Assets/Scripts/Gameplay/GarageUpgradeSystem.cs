@@ -182,6 +182,12 @@ namespace MotorCity.Gameplay
                         maxOpenSpeedKph)
                     {
                         OpenGarage();
+
+                        // Do not let the same virtual Interact press fall
+                        // through into the open-garage close handler below.
+                        // Touch input is shared by InteractPressed and
+                        // WasVirtualPressed during this update.
+                        return;
                     }
                     else
                     {
