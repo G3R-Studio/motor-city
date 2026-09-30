@@ -334,9 +334,15 @@ namespace MotorCity.UI
                     TextColor);
 
             garageVehicleStatsText.resizeTextForBestFit =
-                false;
+                true;
+            garageVehicleStatsText.resizeTextMinSize =
+                9;
+            garageVehicleStatsText.resizeTextMaxSize =
+                13;
             garageVehicleStatsText.horizontalOverflow =
-                HorizontalWrapMode.Overflow;
+                HorizontalWrapMode.Wrap;
+            garageVehicleStatsText.verticalOverflow =
+                VerticalWrapMode.Truncate;
 
             garageVehicleCharacterText =
                 CreateText(
@@ -352,7 +358,11 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             garageVehicleCharacterText.resizeTextForBestFit =
-                false;
+                true;
+            garageVehicleCharacterText.resizeTextMinSize =
+                10;
+            garageVehicleCharacterText.resizeTextMaxSize =
+                12;
             garageVehicleCharacterText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             garageVehicleCharacterText.verticalOverflow =
