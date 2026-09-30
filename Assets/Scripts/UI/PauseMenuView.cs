@@ -612,6 +612,9 @@ namespace MotorCity.UI
             pauseMenuOpen =
                 true;
 
+            MotorCityPlatformRuntime.SetGameplayUiPaused(
+                true);
+
             pauseStoredTimeScale =
                 Time.timeScale;
 
@@ -654,6 +657,9 @@ namespace MotorCity.UI
         {
             pauseMenuOpen =
                 false;
+
+            MotorCityPlatformRuntime.SetGameplayUiPaused(
+                HasBlockingModalUi());
 
             pauseOverlay?.SetActive(
                 false);
