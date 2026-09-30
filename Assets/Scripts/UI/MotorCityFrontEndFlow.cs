@@ -1,3 +1,4 @@
+using System.Collections;
 using MotorCity.Gameplay;
 using MotorCity.Audio;
 using MotorCity.CameraSystem;
@@ -90,6 +91,7 @@ namespace MotorCity.UI
         private bool openingPresentationRequested;
         private bool continuingExistingSave;
         private bool loadingActive;
+        private bool runtimeLoadingTransitionActive;
         private float loadingTimer;
         private bool frontEndAudioMuted;
         private float frontEndAudioVolume = 1f;
@@ -1731,6 +1733,210 @@ namespace MotorCity.UI
 
             introRoot.SetActive(false);
             StartLoadingTransition();
+        }
+
+        public bool PlayRuntimeLoadingTransition(
+            System.Action midpointAction,
+            string russianStatus = "ПЕРЕЕЗЖАЕМ...",
+            string englishStatus = "MOVING...")
+        {
+            if (runtimeLoadingTransitionActive ||
+                loadingRoot == null ||
+                canvas == null)
+            {
+                midpointAction?.Invoke();
+                return false;
+            }
+
+            StartCoroutine(
+                RuntimeLoadingTransitionRoutine(
+                    midpointAction,
+                    russianStatus,
+                    englishStatus));
+
+            return true;
+        }
+
+        private IEnumerator RuntimeLoadingTransitionRoutine(
+            System.Action midpointAction,
+            string russianStatus,
+            string englishStatus)
+        {
+            runtimeLoadingTransitionActive =
+                true;
+
+            loadingTimer =
+                0f;
+
+            canvas.gameObject.SetActive(
+                true);
+
+            mainRoot?.SetActive(
+                false);
+            aboutRoot?.SetActive(
+                false);
+            settingsRoot?.SetActive(
+                false);
+            introRoot?.SetActive(
+                false);
+            controlChoiceRoot?.SetActive(
+                false);
+
+            loadingRoot.SetActive(
+                true);
+
+            if (loadingStatusText != null)
+            {
+                loadingStatusText.text =
+                    IsRussian()
+                        ? russianStatus
+                        : englishStatus;
+            }
+
+            ResetLoadingVisuals();
+
+            const float midpointTime =
+                0.28f;
+
+            const float totalTime =
+                1.05f;
+
+            bool midpointInvoked =
+                false;
+
+            while (loadingTimer <
+                   totalTime)
+            {
+                loadingTimer +=
+                    Time.unscaledDeltaTime;
+
+                if (!midpointInvoked &&
+                    loadingTimer >=
+                    midpointTime)
+                {
+                    midpointInvoked =
+                        true;
+
+                    midpointAction?.Invoke();
+                }
+
+                float progress =
+                    Mathf.Clamp01(
+                        loadingTimer /
+                        totalTime);
+
+                AnimateLoadingVisuals(
+                    progress);
+
+                yield return null;
+            }
+
+            if (!midpointInvoked)
+            {
+                midpointAction?.Invoke();
+            }
+
+            AnimateLoadingVisuals(
+                1f);
+
+            yield return null;
+
+            loadingRoot.SetActive(
+                false);
+
+            canvas.gameObject.SetActive(
+                false);
+
+            runtimeLoadingTransitionActive =
+                false;
+        }
+
+        private void ResetLoadingVisuals()
+        {
+            if (loadingProgressFill != null)
+            {
+                loadingProgressFill.fillAmount =
+                    0f;
+            }
+
+            if (loadingWheel != null)
+            {
+                loadingWheel.localRotation =
+                    Quaternion.identity;
+            }
+
+            if (loadingRoad != null)
+            {
+                loadingRoad.anchoredPosition =
+                    new Vector2(
+                        0f,
+                        -132f);
+            }
+
+            for (int i = 0;
+                 i < loadingRoadDashes.Length;
+                 i++)
+            {
+                if (loadingRoadDashes[i] == null)
+                    continue;
+
+                loadingRoadDashes[i].anchoredPosition =
+                    new Vector2(
+                        -280f + i * 80f,
+                        0f);
+            }
+        }
+
+        private void AnimateLoadingVisuals(
+            float progress)
+        {
+            if (loadingWheel != null)
+            {
+                loadingWheel.Rotate(
+                    0f,
+                    0f,
+                    -210f *
+                    Time.unscaledDeltaTime);
+            }
+
+            float roadOffset =
+                Mathf.Repeat(
+                    loadingTimer * 115f,
+                    80f);
+
+            for (int i = 0;
+                 i < loadingRoadDashes.Length;
+                 i++)
+            {
+                RectTransform dash =
+                    loadingRoadDashes[i];
+
+                if (dash == null)
+                    continue;
+
+                float x =
+                    Mathf.Repeat(
+                        (-280f + i * 80f) -
+                        roadOffset +
+                        320f,
+                        640f) -
+                    320f;
+
+                dash.anchoredPosition =
+                    new Vector2(
+                        x,
+                        0f);
+            }
+
+            if (loadingProgressFill != null)
+            {
+                loadingProgressFill.fillAmount =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        Mathf.Clamp01(
+                            progress));
+            }
         }
 
         private void StartLoadingTransition()
