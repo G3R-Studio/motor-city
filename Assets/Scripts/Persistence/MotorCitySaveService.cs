@@ -9,6 +9,9 @@ namespace MotorCity.Persistence
         private const string StorageKey =
             "MotorCity.Save.Json.v1";
 
+        private const string CorruptBackupKey =
+            "MotorCity.Save.CorruptBackup.v1";
+
         private const int CurrentVersion = 2;
 
         private static SaveDocument document;
@@ -471,9 +474,21 @@ namespace MotorCity.Persistence
                 }
                 catch (Exception exception)
                 {
+                    // Preserve the raw payload before clearing the active slot.
+                    // This prevents a malformed save from being parsed on every
+                    // launch while still leaving recovery data available.
+                    PlayerPrefs.SetString(
+                        CorruptBackupKey,
+                        json);
+
+                    PlayerPrefs.DeleteKey(
+                        StorageKey);
+
+                    PlayerPrefs.Save();
+
                     Debug.LogWarning(
                         "Motor City: локальное сохранение повреждено, " +
-                        "используется совместимый режим: " +
+                        "создана резервная копия и используется совместимый режим: " +
                         exception.Message);
                 }
             }
@@ -502,6 +517,15 @@ namespace MotorCity.Persistence
 
             source.Strings ??=
                 new List<StringEntry>();
+
+            SanitizeIntEntries(
+                source.Ints);
+
+            SanitizeFloatEntries(
+                source.Floats);
+
+            SanitizeStringEntries(
+                source.Strings);
 
             bool hasData =
                 source.Ints.Count > 0 ||
@@ -532,6 +556,66 @@ namespace MotorCity.Persistence
                     source.ServerModifiedUnixTime);
 
             return source;
+        }
+
+        private static void SanitizeIntEntries(
+            List<IntEntry> entries)
+        {
+            HashSet<string> keys =
+                new(
+                    StringComparer.Ordinal);
+
+            entries.RemoveAll(
+                item =>
+                    item == null ||
+                    string.IsNullOrWhiteSpace(
+                        item.Key) ||
+                    !keys.Add(
+                        item.Key));
+        }
+
+        private static void SanitizeFloatEntries(
+            List<FloatEntry> entries)
+        {
+            HashSet<string> keys =
+                new(
+                    StringComparer.Ordinal);
+
+            entries.RemoveAll(
+                item =>
+                    item == null ||
+                    string.IsNullOrWhiteSpace(
+                        item.Key) ||
+                    float.IsNaN(
+                        item.Value) ||
+                    float.IsInfinity(
+                        item.Value) ||
+                    !keys.Add(
+                        item.Key));
+        }
+
+        private static void SanitizeStringEntries(
+            List<StringEntry> entries)
+        {
+            HashSet<string> keys =
+                new(
+                    StringComparer.Ordinal);
+
+            entries.RemoveAll(
+                item =>
+                    item == null ||
+                    string.IsNullOrWhiteSpace(
+                        item.Key) ||
+                    !keys.Add(
+                        item.Key));
+
+            for (int i = 0;
+                 i < entries.Count;
+                 i++)
+            {
+                entries[i].Value ??=
+                    string.Empty;
+            }
         }
 
         private static void SetIntInternal(
