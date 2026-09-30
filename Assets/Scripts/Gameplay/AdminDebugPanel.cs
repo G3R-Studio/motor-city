@@ -1310,6 +1310,18 @@ namespace MotorCity.Gameplay
                     ? string.Empty
                     : cityRisk.AdminLine);
 
+            ActivityStartFlow startFlow =
+                activities == null
+                    ? null
+                    : activities.StartFlow;
+
+            SystemLine(
+                "ActivityStartFlow",
+                startFlow != null,
+                startFlow == null
+                    ? string.Empty
+                    : startFlow.AdminLine);
+
             SystemLine(
                 "Interstitial",
                 interstitialRuntime != null,
