@@ -275,6 +275,9 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0f),
                     Color.clear);
 
+            openingSpeedometerRoot =
+                panel.gameObject;
+
             // Keep only the numeric speed and the lower drive-mode panel.
             speedNeedle =
                 null;
