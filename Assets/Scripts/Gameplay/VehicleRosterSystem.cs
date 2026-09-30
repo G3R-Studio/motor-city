@@ -533,6 +533,93 @@ namespace MotorCity.Gameplay
                     current.DisplayName);
         }
 
+        public bool TryGetNextReputationVehicle(
+            out string vehicleName,
+            out int requiredRep,
+            out int remainingRep)
+        {
+            vehicleName =
+                string.Empty;
+
+            requiredRep =
+                0;
+
+            remainingRep =
+                0;
+
+            if (profiles == null ||
+                reputation == null)
+            {
+                return false;
+            }
+
+            int currentRep =
+                reputation.Reputation;
+
+            int bestIndex =
+                -1;
+
+            int bestRequirement =
+                int.MaxValue;
+
+            for (int i = 0;
+                 i < profiles.Length;
+                 i++)
+            {
+                VehicleProfile profile =
+                    profiles[i];
+
+                if (profile == null ||
+                    profile.Id ==
+                        "delorean" ||
+                    !HasVisual(
+                        i) ||
+                    IsUnlocked(
+                        i) ||
+                    profile.RequiredRep <=
+                        currentRep)
+                {
+                    continue;
+                }
+
+                if (profile.RequiredRep >=
+                    bestRequirement)
+                {
+                    continue;
+                }
+
+                bestRequirement =
+                    profile.RequiredRep;
+
+                bestIndex =
+                    i;
+            }
+
+            if (!Valid(
+                    bestIndex))
+            {
+                return false;
+            }
+
+            VehicleProfile target =
+                profiles[bestIndex];
+
+            vehicleName =
+                target.DisplayName;
+
+            requiredRep =
+                target.RequiredRep;
+
+            remainingRep =
+                Mathf.Max(
+                    0,
+                    requiredRep -
+                    currentRep);
+
+            return
+                remainingRep > 0;
+        }
+
         public string GetNextVehicleLine()
         {
             int next =
