@@ -949,17 +949,22 @@ namespace MotorCity.UI
                 new Vector2(96f, 118f),
                 new Color32(255, 255, 255, 0x64));
 
+            Texture2D handbrakeTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.touchHandbrake;
+
             CreateTouchArtHoldButton(
                 root,
                 "Handbrake",
                 MotorCityInputAction.Handbrake,
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.touchHandbrake,
+                handbrakeTexture,
                 new Vector2(-36f, 208f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(92f, 76f),
+                FitTouchArtSize(
+                    handbrakeTexture,
+                    new Vector2(118f, 104f)),
                 new Color32(255, 255, 255, 0x64));
 
             GameObject interactButton =
@@ -1020,6 +1025,31 @@ namespace MotorCity.UI
 
             touchArrowSteeringRoot.SetActive(
                 !wheelScheme);
+        }
+
+        private static Vector2 FitTouchArtSize(
+            Texture2D texture,
+            Vector2 maxSize)
+        {
+            if (texture == null ||
+                texture.width <= 0 ||
+                texture.height <= 0)
+            {
+                return maxSize;
+            }
+
+            float scale =
+                Mathf.Min(
+                    maxSize.x / texture.width,
+                    maxSize.y / texture.height);
+
+            return new Vector2(
+                Mathf.Max(
+                    1f,
+                    texture.width * scale),
+                Mathf.Max(
+                    1f,
+                    texture.height * scale));
         }
 
         private RectTransform CreateTouchArtHoldButton(
