@@ -277,16 +277,32 @@ namespace MotorCity.UI
                     "Result Retry",
                     "touch.result.retry",
                     MotorCityInputAction.Retry,
-                    new Vector2(-95f, 4f),
-                    new Vector2(170f, 48f));
+                    new Vector2(-112f, 4f),
+                    new Vector2(140f, 44f));
 
-            CreateLocalizedTouchPulseButton(
-                root,
-                "Result Continue",
-                "touch.result.continue",
-                MotorCityInputAction.Cancel,
-                new Vector2(95f, 4f),
-                new Vector2(170f, 48f));
+            resultContinueTouchButton =
+                CreateLocalizedTouchPulseButton(
+                    root,
+                    "Result Continue",
+                    "touch.result.continue",
+                    MotorCityInputAction.Cancel,
+                    new Vector2(78f, 4f),
+                    new Vector2(220f, 52f));
+
+            Image continueImage =
+                resultContinueTouchButton == null
+                    ? null
+                    : resultContinueTouchButton.GetComponent<Image>();
+
+            if (continueImage != null)
+            {
+                continueImage.color =
+                    new Color(
+                        0.18f,
+                        0.42f,
+                        0.92f,
+                        0.96f);
+            }
 
             resultTouchControlsRoot.SetActive(
                 false);
@@ -416,12 +432,42 @@ namespace MotorCity.UI
                                 : "hud.result_continue_only");
             }
 
+            bool replayable =
+                !rookieDeliveryResult &&
+                IsReplayableResult(
+                    activityManager.ResultActivityId);
+
             if (resultRetryTouchButton != null)
             {
                 resultRetryTouchButton.SetActive(
-                    !rookieDeliveryResult &&
-                    IsReplayableResult(
-                        activityManager.ResultActivityId));
+                    replayable);
+            }
+
+            if (resultContinueTouchButton != null)
+            {
+                RectTransform continueRect =
+                    resultContinueTouchButton.GetComponent<RectTransform>();
+
+                if (continueRect != null)
+                {
+                    continueRect.anchoredPosition =
+                        replayable
+                            ? new Vector2(
+                                78f,
+                                4f)
+                            : new Vector2(
+                                0f,
+                                4f);
+
+                    continueRect.sizeDelta =
+                        replayable
+                            ? new Vector2(
+                                220f,
+                                52f)
+                            : new Vector2(
+                                300f,
+                                52f);
+                }
             }
 
             bool hasReward =
