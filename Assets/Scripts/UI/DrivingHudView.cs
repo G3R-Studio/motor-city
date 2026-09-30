@@ -275,17 +275,12 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0f),
                     Color.clear);
 
-            // The speedometer is intentionally reduced to a single speed readout.
-            // No face, ticks, needle, glow or drive-mode chip remain.
+            // Keep only the numeric speed and the lower drive-mode panel.
             speedNeedle =
                 null;
             speedNeedleGlowRect =
                 null;
             speedNeedleGlow =
-                null;
-            driveModeText =
-                null;
-            lastDisplayedDriveMode =
                 null;
 
             speedText =
@@ -309,6 +304,78 @@ namespace MotorCity.UI
                 "0 " +
                 MotorCityLocalization.Text(
                     "common.kmh");
+
+            RectTransform driveModeChip;
+
+            Texture2D chipTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.driveModePanel;
+
+            if (chipTexture != null)
+            {
+                GameObject chipObject =
+                    new(
+                        "Drive Mode Indicator",
+                        typeof(RectTransform),
+                        typeof(RawImage));
+
+                chipObject.transform.SetParent(
+                    panel,
+                    false);
+
+                driveModeChip =
+                    chipObject.GetComponent<RectTransform>();
+
+                driveModeChip.anchorMin =
+                    new Vector2(0.5f, 0f);
+                driveModeChip.anchorMax =
+                    new Vector2(0.5f, 0f);
+                driveModeChip.pivot =
+                    new Vector2(0.5f, 0.5f);
+                driveModeChip.anchoredPosition =
+                    new Vector2(0f, 18f);
+                driveModeChip.sizeDelta =
+                    new Vector2(158f, 32f);
+
+                RawImage chipImage =
+                    chipObject.GetComponent<RawImage>();
+
+                chipImage.texture =
+                    chipTexture;
+                chipImage.color =
+                    Color.white;
+                chipImage.raycastTarget =
+                    false;
+            }
+            else
+            {
+                driveModeChip =
+                    CreatePanel(
+                        panel,
+                        "Drive Mode Indicator",
+                        new Vector2(0f, 18f),
+                        new Vector2(172f, 34f),
+                        new Vector2(0.5f, 0f),
+                        new Vector2(0.5f, 0.5f),
+                        PanelColor);
+            }
+
+            driveModeText =
+                CreateText(
+                    driveModeChip,
+                    "Drive Mode",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(138f, 24f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    BlueAccent);
+
+            lastDisplayedDriveMode =
+                null;
 
             lastDisplayedSpeed =
                 int.MinValue;
