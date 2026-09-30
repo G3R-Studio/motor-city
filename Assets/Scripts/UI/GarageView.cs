@@ -983,7 +983,7 @@ namespace MotorCity.UI
                         0.5f,
                         0f),
                     new Vector2(
-                        -132f,
+                        68f,
                         68f),
                     new Vector2(
                         122f,
@@ -1001,7 +1001,7 @@ namespace MotorCity.UI
                         0.5f,
                         0f),
                     new Vector2(
-                        0f,
+                        200f,
                         68f),
                     new Vector2(
                         122f,
@@ -1019,7 +1019,7 @@ namespace MotorCity.UI
                         0.5f,
                         0f),
                     new Vector2(
-                        132f,
+                        332f,
                         68f),
                     new Vector2(
                         122f,
@@ -1067,7 +1067,7 @@ namespace MotorCity.UI
                     root,
                     "Garage Appearance Panel",
                     new Vector2(
-                        0f,
+                        200f,
                         18f),
                     new Vector2(
                         430f,
@@ -1093,7 +1093,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(
-                        0f,
+                        200f,
                         146f),
                     new Vector2(
                         360f,
