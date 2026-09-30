@@ -230,6 +230,7 @@ namespace MotorCity.UI
         private Text storeOwnershipText;
         private Text storeWalletText;
         private Image storeProductIcon;
+        private RawImage storeCurrencyIcon;
         private Text clubEmblemText;
         private Text clubNameText;
         private Text clubDescriptionText;
