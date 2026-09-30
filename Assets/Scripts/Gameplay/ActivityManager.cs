@@ -18,6 +18,7 @@ namespace MotorCity.Gameplay
         public int ResultRewardCredits { get; private set; }
         public bool ResultSuccess { get; private set; }
         public int ResultReputationReward { get; private set; }
+        public bool ResultIsRookieDelivery { get; private set; }
         public int TotalReputation =>
             reputation == null
                 ? 0
@@ -199,6 +200,13 @@ namespace MotorCity.Gameplay
             ResultSuccess =
                 success;
 
+            ResultIsRookieDelivery =
+                success &&
+                activityId == "delivery" &&
+                onboarding != null &&
+                !onboarding.IsComplete &&
+                onboarding.CurrentStep == 4;
+
             MotorCitySfxRuntime.PlayActivityResult(
                 success);
 
@@ -256,6 +264,7 @@ namespace MotorCity.Gameplay
             ResultRewardCredits = 0;
             ResultReputationReward = 0;
             ResultSuccess = false;
+            ResultIsRookieDelivery = false;
 
             if (notifyDismissed)
             {
