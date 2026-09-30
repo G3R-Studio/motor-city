@@ -1890,12 +1890,6 @@ namespace MotorCity.UI
             loadingActive = false;
             loadingRoot.SetActive(false);
 
-            if (continuingExistingSave)
-            {
-                EnterGameplay();
-                return;
-            }
-
             ShowControlChoiceAfterLoading();
         }
 
