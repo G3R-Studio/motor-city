@@ -6,6 +6,11 @@ namespace MotorCity.Gameplay
     public sealed class ResultNextGoalResolver :
         MonoBehaviour
     {
+        private const int VehicleCloseAbsoluteRep =
+            350;
+
+        private const float VehicleCloseRelative =
+            0.12f;
         public enum GoalType
         {
             None,
@@ -209,20 +214,42 @@ namespace MotorCity.Gameplay
 
         private Goal ResolveVehicleUnlock()
         {
-            // Stage 42 owns the exact "close to unlock" threshold.
-            // Keeping the priority slot here prevents other UI from
-            // implementing a second, conflicting vehicle-goal policy.
             if (vehicles == null ||
                 reputation == null ||
-                !vehicles.HasNextVehicle ||
-                vehicles.NextVehicleUnlocked)
+                !vehicles.TryGetNextReputationVehicle(
+                    out string vehicleName,
+                    out int requiredRep,
+                    out int remainingRep))
+            {
+                return
+                    default;
+            }
+
+            int relativeThreshold =
+                Mathf.CeilToInt(
+                    requiredRep *
+                    VehicleCloseRelative);
+
+            int threshold =
+                Mathf.Max(
+                    VehicleCloseAbsoluteRep,
+                    relativeThreshold);
+
+            if (remainingRep >
+                threshold)
             {
                 return
                     default;
             }
 
             return
-                default;
+                new Goal(
+                    GoalType.VehicleUnlock,
+                    3,
+                    MotorCityLocalization.Format(
+                        "hud.result_next_vehicle",
+                        vehicleName,
+                        remainingRep));
         }
 
         private Goal ResolveDaily()
