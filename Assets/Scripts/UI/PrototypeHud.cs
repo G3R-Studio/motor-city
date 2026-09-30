@@ -67,6 +67,7 @@ namespace MotorCity.UI
         private const string AudioVolumeSaveKey =
             "MotorCity.Settings.AudioVolume";
 
+        private GameObject openingSpeedometerRoot;
         private CanvasGroup openingSpeedometerGroup;
         private CanvasGroup openingMinimapGroup;
         private CanvasGroup openingQuickActionsGroup;
@@ -997,30 +998,23 @@ namespace MotorCity.UI
 
             openingSpeedometerGroup =
                 ResolveOpeningCanvasGroup(
-                    "Speedometer");
+                    openingSpeedometerRoot);
 
             openingMinimapGroup =
                 ResolveOpeningCanvasGroup(
-                    "Minimap");
+                    navigatorPanel);
 
             openingQuickActionsGroup =
                 ResolveOpeningCanvasGroup(
-                    "Main HUD Quick Actions");
+                    touchUtilityRoot);
 
             SetOpeningHudAlpha(
                 0f);
         }
 
-        private CanvasGroup ResolveOpeningCanvasGroup(
-            string objectName)
+        private static CanvasGroup ResolveOpeningCanvasGroup(
+            GameObject target)
         {
-            if (safeAreaRoot == null)
-                return null;
-
-            Transform target =
-                safeAreaRoot.Find(
-                    objectName);
-
             if (target == null)
                 return null;
 
@@ -1030,7 +1024,7 @@ namespace MotorCity.UI
             if (group == null)
             {
                 group =
-                    target.gameObject.AddComponent<CanvasGroup>();
+                    target.AddComponent<CanvasGroup>();
             }
 
             return group;
