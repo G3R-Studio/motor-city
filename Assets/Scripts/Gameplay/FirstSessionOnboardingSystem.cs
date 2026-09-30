@@ -90,7 +90,7 @@ namespace MotorCity.Gameplay
                                 "onboarding.reward_handoff"),
                         4 =>
                             MotorCityLocalization.Text(
-                                "onboarding.activity"),
+                                ResolveActivityObjectiveKey()),
                         5 =>
                             MotorCityLocalization.Text(
                                 "onboarding.garage"),
@@ -350,6 +350,15 @@ namespace MotorCity.Gameplay
                     _ =>
                         "onboarding.steer.keyboard"
                 };
+        }
+
+        private static string ResolveActivityObjectiveKey()
+        {
+            return
+                MotorCityInput.CurrentControlScheme ==
+                MotorCityControlScheme.Keyboard
+                    ? "onboarding.activity.keyboard"
+                    : "onboarding.activity.touch";
         }
 
         private void OnCustomizationChanged()
