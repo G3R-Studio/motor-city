@@ -971,6 +971,26 @@ namespace MotorCity.UI
                     Vector2.zero,
                     new Vector2(118f, 48f));
 
+            Button interactUnityButton =
+                interactButton.GetComponent<Button>();
+
+            if (interactUnityButton != null)
+            {
+                interactUnityButton.onClick.RemoveAllListeners();
+            }
+
+            TouchPulseInputButton interactInput =
+                interactButton.GetComponent<TouchPulseInputButton>();
+
+            if (interactInput == null)
+            {
+                interactInput =
+                    interactButton.AddComponent<TouchPulseInputButton>();
+            }
+
+            interactInput.Bind(
+                MotorCityInputAction.Interact);
+
             RectTransform interactRect =
                 interactButton.GetComponent<RectTransform>();
 
