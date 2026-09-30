@@ -363,6 +363,55 @@ namespace MotorCity.UI
                 VerticalWrapMode.Truncate;
             garageVehicleStatsText.lineSpacing = 1.42f;
 
+            for (int i = 0; i < garageVehicleStatFills.Length; i++)
+            {
+                float barY =
+                    -218f - i * 20f;
+
+                RectTransform statTrack =
+                    CreatePanel(
+                        vehicleCard,
+                        $"Garage Vehicle Stat Track {i + 1}",
+                        new Vector2(28f, barY),
+                        new Vector2(288f, 3f),
+                        new Vector2(0f, 1f),
+                        new Vector2(0f, 1f),
+                        new Color(0.08f, 0.09f, 0.18f, 0.76f));
+
+                Outline statTrackOutline =
+                    statTrack.GetComponent<Outline>();
+
+                if (statTrackOutline != null)
+                {
+                    statTrackOutline.enabled =
+                        false;
+                }
+
+                RectTransform statFill =
+                    CreatePanel(
+                        statTrack,
+                        $"Garage Vehicle Stat Fill {i + 1}",
+                        Vector2.zero,
+                        new Vector2(0f, 3f),
+                        new Vector2(0f, 0.5f),
+                        new Vector2(0f, 0.5f),
+                        i == 5
+                            ? new Color(0.76f, 0.34f, 1f, 1f)
+                            : new Color(0.22f, 0.82f, 1f, 1f));
+
+                Outline statFillOutline =
+                    statFill.GetComponent<Outline>();
+
+                if (statFillOutline != null)
+                {
+                    statFillOutline.enabled =
+                        false;
+                }
+
+                garageVehicleStatFills[i] =
+                    statFill.GetComponent<Image>();
+            }
+
             garageVehicleCharacterText =
                 CreateText(
                     vehicleCard,
@@ -1075,7 +1124,7 @@ namespace MotorCity.UI
                     label.rectTransform;
 
                 labelRect.anchoredPosition =
-                    new Vector2(0f, -26f);
+                    new Vector2(0f, -25f);
 
                 labelRect.sizeDelta =
                     new Vector2(
@@ -1089,8 +1138,8 @@ namespace MotorCity.UI
                 buttonRect,
                 "Garage Action Icon",
                 sprite,
-                new Vector2(0f, 22f),
-                new Vector2(38f, 38f),
+                new Vector2(0f, 20f),
+                new Vector2(34f, 34f),
                 new Vector2(0.5f, 0.5f),
                 color);
         }
@@ -1268,6 +1317,52 @@ namespace MotorCity.UI
 
                 garageVehicleStatsText.text =
                     statsLine ?? string.Empty;
+
+                string[] statRows =
+                    string.IsNullOrWhiteSpace(
+                        statsLine)
+                        ? new string[0]
+                        : statsLine.Split('\n');
+
+                for (int i = 0;
+                     i < garageVehicleStatFills.Length;
+                     i++)
+                {
+                    Image fill =
+                        garageVehicleStatFills[i];
+
+                    if (fill == null)
+                        continue;
+
+                    RectTransform fillRect =
+                        fill.rectTransform;
+
+                    RectTransform trackRect =
+                        fillRect.parent as RectTransform;
+
+                    float progress =
+                        i < statRows.Length
+                            ? ResolveGarageStatProgress(
+                                statRows[i],
+                                i)
+                            : 0f;
+
+                    fillRect.anchorMin =
+                        new Vector2(0f, 0.5f);
+                    fillRect.anchorMax =
+                        new Vector2(0f, 0.5f);
+                    fillRect.pivot =
+                        new Vector2(0f, 0.5f);
+                    fillRect.anchoredPosition =
+                        Vector2.zero;
+
+                    fillRect.sizeDelta =
+                        new Vector2(
+                            trackRect != null
+                                ? trackRect.rect.width * progress
+                                : 0f,
+                            3f);
+                }
             }
 
             if (garageVehicleCharacterText != null)
@@ -1423,6 +1518,79 @@ namespace MotorCity.UI
                         garage.StatusText)
                         ? string.Empty
                         : garage.StatusText;
+        }
+
+        private static float ResolveGarageStatProgress(
+            string statRow,
+            int statIndex)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    statRow))
+            {
+                return 0f;
+            }
+
+            int sign =
+                1;
+
+            int value =
+                0;
+
+            bool foundDigit =
+                false;
+
+            foreach (char character in statRow)
+            {
+                if (!foundDigit &&
+                    character == '-')
+                {
+                    sign =
+                        -1;
+                    continue;
+                }
+
+                if (character >= '0' &&
+                    character <= '9')
+                {
+                    foundDigit =
+                        true;
+
+                    value =
+                        value * 10 +
+                        (character - '0');
+                    continue;
+                }
+
+                if (foundDigit)
+                    break;
+            }
+
+            if (!foundDigit)
+                return 0.5f;
+
+            float signedValue =
+                value * sign;
+
+            return statIndex switch
+            {
+                0 =>
+                    Mathf.InverseLerp(
+                        -30f,
+                        70f,
+                        signedValue),
+
+                1 =>
+                    Mathf.InverseLerp(
+                        -5f,
+                        15f,
+                        signedValue),
+
+                _ =>
+                    Mathf.InverseLerp(
+                        -25f,
+                        50f,
+                        signedValue)
+            };
         }
 
         private void UpdateVehiclePassport()
