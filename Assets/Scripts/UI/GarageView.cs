@@ -391,6 +391,15 @@ namespace MotorCity.UI
             garageMasteryFill =
                 masteryFillRect.GetComponent<Image>();
 
+            Outline masteryFillOutline =
+                masteryFillRect.GetComponent<Outline>();
+
+            if (masteryFillOutline != null)
+            {
+                masteryFillOutline.enabled =
+                    false;
+            }
+
             garageVehicleHistoryText =
                 CreateText(
                     panel,
@@ -1104,14 +1113,33 @@ namespace MotorCity.UI
                 RectTransform fillRect =
                     garageMasteryFill.rectTransform;
 
+                RectTransform trackRect =
+                    fillRect.parent as RectTransform;
+
+                float progress =
+                    metaUnlocked && garage != null
+                        ? Mathf.Clamp01(
+                            garage.VehicleMasteryProgress)
+                        : 0f;
+
+                float trackWidth =
+                    trackRect != null
+                        ? trackRect.rect.width
+                        : 0f;
+
+                fillRect.anchorMin =
+                    new Vector2(0f, 0.5f);
+                fillRect.anchorMax =
+                    new Vector2(0f, 0.5f);
+                fillRect.pivot =
+                    new Vector2(0f, 0.5f);
+                fillRect.anchoredPosition =
+                    Vector2.zero;
+
                 fillRect.sizeDelta =
                     new Vector2(
-                        metaUnlocked
-                            ? 298f *
-                              Mathf.Clamp01(
-                                  garage.VehicleMasteryProgress)
-                            : 0f,
-                        7f);
+                        trackWidth * progress,
+                        fillRect.sizeDelta.y);
             }
 
             if (garageVehicleHistoryText != null)
