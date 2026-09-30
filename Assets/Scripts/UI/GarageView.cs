@@ -1,5 +1,6 @@
 using MotorCity.Localization;
 using MotorCity.Input;
+using Coffee.UIEffects;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -1333,138 +1334,77 @@ namespace MotorCity.UI
             if (target == null)
                 return;
 
-            Shader shader =
-                Resources.Load<Shader>(
-                    "MotorCity/UI/GarageNeonBorder");
+            Graphic graphic =
+                target.GetComponent<Graphic>();
 
-            if (shader == null)
-            {
-                shader =
-                    Shader.Find(
-                        "MotorCity/UI/GarageNeonBorder");
-            }
-
-            if (shader == null)
+            if (graphic == null)
                 return;
 
-            const float padding =
-                10f;
+            UIEffect effect =
+                target.GetComponent<UIEffect>();
 
-            GameObject frameObject =
-                new(
-                    "Garage Neon Shader Frame",
-                    typeof(RectTransform),
-                    typeof(Image));
+            if (effect == null)
+            {
+                effect =
+                    target.gameObject.AddComponent<UIEffect>();
+            }
 
-            frameObject.transform.SetParent(
-                target,
-                false);
+            effect.allowToModifyMeshShape =
+                true;
 
-            RectTransform frameRect =
-                frameObject.GetComponent<RectTransform>();
+            effect.shadowMode =
+                ShadowMode.Outline8;
 
-            frameRect.anchorMin =
-                Vector2.zero;
-            frameRect.anchorMax =
-                Vector2.one;
-            frameRect.offsetMin =
+            effect.shadowDistance =
                 new Vector2(
-                    -padding,
-                    -padding);
-            frameRect.offsetMax =
-                new Vector2(
-                    padding,
-                    padding);
+                    2.25f,
+                    2.25f);
 
-            Image frameImage =
-                frameObject.GetComponent<Image>();
+            effect.shadowIteration =
+                2;
 
-            frameImage.color =
-                Color.white;
-            frameImage.raycastTarget =
-                false;
+            effect.shadowFade =
+                0.86f;
 
-            Material material =
-                new Material(
-                    shader)
-                {
-                    hideFlags =
-                        HideFlags.HideAndDontSave
-                };
+            effect.shadowBlurIntensity =
+                0.72f;
 
-            Vector2 frameSize =
-                target.rect.size +
-                Vector2.one *
-                (padding * 2f);
+            effect.shadowColor =
+                new Color(
+                    outerGlowColor.r,
+                    outerGlowColor.g,
+                    outerGlowColor.b,
+                    Mathf.Clamp01(
+                        outerGlowColor.a * 1.15f));
 
-            material.SetVector(
-                "_RectSize",
-                new Vector4(
-                    Mathf.Max(
-                        1f,
-                        frameSize.x),
-                    Mathf.Max(
-                        1f,
-                        frameSize.y),
-                    0f,
-                    0f));
+            effect.shadowColorGlow =
+                true;
 
-            material.SetFloat(
-                "_FramePadding",
-                padding);
+            effect.edgeMode =
+                EdgeMode.Plain;
 
-            material.SetFloat(
-                "_CornerRadiusPx",
+            effect.edgeWidth =
                 Mathf.Clamp(
-                    Mathf.Min(
-                        frameSize.x,
-                        frameSize.y) * 0.085f,
-                    7f,
-                    14f));
+                    0.025f +
+                    inset * 0.008f,
+                    0.035f,
+                    0.065f);
 
-            material.SetFloat(
-                "_BorderPx",
-                Mathf.Clamp(
-                    inset * 0.42f,
-                    1f,
-                    1.6f));
+            effect.edgeColorFilter =
+                ColorFilter.Replace;
 
-            material.SetFloat(
-                "_GlowPx",
-                10f);
+            effect.edgeColor =
+                new Color(
+                    innerStrokeColor.r,
+                    innerStrokeColor.g,
+                    innerStrokeColor.b,
+                    Mathf.Clamp(
+                        innerStrokeColor.a + 0.40f,
+                        0.72f,
+                        0.96f));
 
-            Color borderColor =
-                innerStrokeColor;
-            borderColor.a =
-                Mathf.Clamp(
-                    Mathf.Max(
-                        0.78f,
-                        borderColor.a),
-                    0f,
-                    0.92f);
-
-            Color glowColor =
-                outerGlowColor;
-            glowColor.a =
-                Mathf.Clamp(
-                    Mathf.Max(
-                        0.10f,
-                        glowColor.a * 0.65f),
-                    0f,
-                    0.24f);
-
-            material.SetColor(
-                "_BorderColor",
-                borderColor);
-
-            material.SetColor(
-                "_GlowColor",
-                glowColor);
-
-            frameImage.material =
-                material;
-
-            frameObject.transform.SetAsFirstSibling();
+            effect.edgeColorGlow =
+                true;
         }
 
         private void AddGarageActionIcon(
