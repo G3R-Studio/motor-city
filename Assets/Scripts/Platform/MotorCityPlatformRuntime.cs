@@ -167,6 +167,11 @@ namespace MotorCity.Platform
                     PauseReason.None;
         }
 
+        public static bool IsGameplayResumeReady =>
+            instance == null ||
+            instance.pauseReasons ==
+                PauseReason.None;
+
         public static void MarkGameplayStarted()
         {
             instance?.MarkGameplayRunning();
