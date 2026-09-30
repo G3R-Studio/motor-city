@@ -577,15 +577,24 @@ namespace MotorCity.Gameplay
             SetGaragePresentationSystems(
                 false);
 
+            // Keep vehicle input blocked while moving it out of the interior.
+            // Closing the garage always returns the currently selected car to
+            // the authored city garage marker.
+            car.TeleportTo(
+                MotorCity.World.CityAssetRuntimeInstaller.GaragePoint,
+                MotorCity.World.CityAssetRuntimeInstaller.GarageSpawnRotation);
+
             car.SetGaragePresentationMode(
                 false);
 
+            IsNearGarage =
+                true;
+
             activityManager.End(ActivityId);
-            StatusText = IsNearGarage
-                ? MotorCityLocalization.Text(
-                    "garage.open_prompt")
-                : MotorCityLocalization.Text(
-                    "garage.marker_text");
+
+            StatusText =
+                MotorCityLocalization.Text(
+                    "garage.open_prompt");
         }
 
         private void SetGaragePresentationSystems(
