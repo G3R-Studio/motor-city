@@ -226,6 +226,17 @@ namespace MotorCity.UI
                         0.5f),
                     TextColor);
 
+            navigatorMenuText.resizeTextForBestFit =
+                true;
+            navigatorMenuText.resizeTextMinSize =
+                16;
+            navigatorMenuText.resizeTextMaxSize =
+                24;
+            navigatorMenuText.horizontalOverflow =
+                HorizontalWrapMode.Wrap;
+            navigatorMenuText.verticalOverflow =
+                VerticalWrapMode.Truncate;
+
             navigatorDescriptionText =
                 CreateText(
                     card,
@@ -246,6 +257,17 @@ namespace MotorCity.UI
                         0f,
                         0.5f),
                     SecondaryTextColor);
+
+            navigatorDescriptionText.resizeTextForBestFit =
+                true;
+            navigatorDescriptionText.resizeTextMinSize =
+                10;
+            navigatorDescriptionText.resizeTextMaxSize =
+                13;
+            navigatorDescriptionText.horizontalOverflow =
+                HorizontalWrapMode.Wrap;
+            navigatorDescriptionText.verticalOverflow =
+                VerticalWrapMode.Truncate;
 
             navigatorDistanceText =
                 CreateText(
