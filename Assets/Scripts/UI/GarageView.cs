@@ -1788,10 +1788,7 @@ namespace MotorCity.UI
             garageStatusText.text =
                 rookieColorStep
                     ? onboarding.ObjectiveLine
-                    : string.IsNullOrWhiteSpace(
-                        garage.StatusText)
-                        ? string.Empty
-                        : garage.StatusText;
+                    : string.Empty;
         }
 
         private static float ResolveGarageStatProgress(
