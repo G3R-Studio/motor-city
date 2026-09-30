@@ -782,22 +782,15 @@ namespace MotorCity.UI
                     16,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
 
-            Transform garageVehicleCard =
-                panel.Find("Garage Vehicle Card");
-
             garageActionButtons[5] =
                 CreateGarageActionButton(
-                    garageVehicleCard != null
-                        ? garageVehicleCard
-                        : root,
+                    root,
                     "Garage Passport",
                     MotorCityLocalization.Text("touch.garage.passport"),
                     MotorCityInputAction.ToggleVehiclePassport,
-                    new Vector2(1f, 1f),
-                    garageVehicleCard != null
-                        ? new Vector2(-18f, -596f)
-                        : new Vector2(-48f, -742f),
-                    new Vector2(220f, 42f),
+                    new Vector2(1f, 0f),
+                    new Vector2(-26f, 26f),
+                    new Vector2(184f, 46f),
                     13,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
 
