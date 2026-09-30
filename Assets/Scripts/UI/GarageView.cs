@@ -795,8 +795,8 @@ namespace MotorCity.UI
                         12,
                         FontStyle.Normal,
                         TextAnchor.UpperLeft,
-                        new Vector2(20f, -88f),
-                        new Vector2(188f, 50f),
+                        new Vector2(20f, -82f),
+                        new Vector2(188f, 38f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
                         SecondaryTextColor);
@@ -808,8 +808,8 @@ namespace MotorCity.UI
                     CreatePanel(
                         row,
                         "Upgrade Action Strip",
-                        new Vector2(16f, 12f),
-                        new Vector2(196f, 42f),
+                        new Vector2(16f, 10f),
+                        new Vector2(196f, 50f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
                         new Color(0.045f, 0.055f, 0.14f, 0.92f));
@@ -827,13 +827,26 @@ namespace MotorCity.UI
                             0.52f);
                 }
 
+                garageUpgradeActionTexts[i] =
+                    CreateText(
+                        priceStrip,
+                        "Upgrade Action",
+                        11,
+                        FontStyle.Bold,
+                        TextAnchor.MiddleCenter,
+                        new Vector2(0f, 10f),
+                        new Vector2(170f, 16f),
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f),
+                        TextColor);
+
                 garagePriceIcons[i] =
                     CreateHudIcon(
                         priceStrip,
                         "Upgrade Price Icon",
                         MotorCityIconLibrary.Credits,
-                        new Vector2(14f, 0f),
-                        new Vector2(20f, 20f),
+                        new Vector2(14f, -10f),
+                        new Vector2(18f, 18f),
                         new Vector2(0f, 0.5f),
                         green);
 
@@ -841,11 +854,11 @@ namespace MotorCity.UI
                     CreateText(
                         priceStrip,
                         "Upgrade Price",
-                        17,
+                        15,
                         FontStyle.Bold,
                         TextAnchor.MiddleCenter,
-                        new Vector2(12f, 0f),
-                        new Vector2(160f, 28f),
+                        new Vector2(12f, -10f),
+                        new Vector2(160f, 22f),
                         new Vector2(0.5f, 0.5f),
                         new Vector2(0.5f, 0.5f),
                         green);
@@ -1739,6 +1752,21 @@ namespace MotorCity.UI
                 bool maxed =
                     garage.IsUpgradeMaxed(
                         i);
+
+                if (garageUpgradeActionTexts[i] != null)
+                {
+                    garageUpgradeActionTexts[i].text =
+                        maxed
+                            ? MotorCityLocalization.Text(
+                                "garage.max_short")
+                            : MotorCityLocalization.Text(
+                                "garage.upgrade_action");
+
+                    garageUpgradeActionTexts[i].color =
+                        maxed
+                            ? SecondaryTextColor
+                            : TextColor;
+                }
 
                 bool affordable =
                     garage.CanAffordUpgrade(
