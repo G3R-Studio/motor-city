@@ -483,7 +483,7 @@ namespace MotorCity.Gameplay
                 car == null)
                 return;
 
-            activityManager.DismissResult();
+            activityManager.DismissResult(false);
 
             Quaternion rotation =
                 Quaternion.Euler(
