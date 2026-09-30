@@ -265,6 +265,47 @@ namespace MotorCity.Gameplay
             }
         }
 
+        public void CompleteForTesting()
+        {
+            for (int i = 0;
+                 i < tasks.Length;
+                 i++)
+            {
+                DailyTask task =
+                    tasks[i];
+
+                if (task == null)
+                    continue;
+
+                task.Progress =
+                    task.Target;
+
+                task.Completed =
+                    true;
+            }
+
+            SaveDay();
+
+            if (!dayCompleted)
+            {
+                CompleteDay();
+            }
+        }
+
+        public void ResetForTesting()
+        {
+            dayCompleted =
+                false;
+
+            CreateDay();
+
+            StatusText =
+                ObjectiveLine;
+
+            messageTimer =
+                MessageSeconds;
+        }
+
         private void CompleteDay()
         {
             if (dayCompleted)
