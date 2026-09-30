@@ -425,7 +425,8 @@ namespace MotorCity.Gameplay
                     bonus,
                     record),
                 reward,
-                true);
+                true,
+                newBest);
 
             StatusText =
                 MotorCityLocalization.Format("activity.status_reward", MotorCityLocalization.Text("hud.sprint"), tier, reward);
