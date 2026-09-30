@@ -1746,19 +1746,28 @@ namespace MotorCity.UI
                             i);
                 }
 
-                garagePriceTexts[i].text =
-                    garage.GetUpgradePrice(i);
-
                 bool maxed =
                     garage.IsUpgradeMaxed(
                         i);
+
+                if (garagePriceTexts[i] != null)
+                {
+                    garagePriceTexts[i].text =
+                        maxed
+                            ? string.Empty
+                            : garage.GetUpgradePrice(
+                                i);
+
+                    garagePriceTexts[i].gameObject.SetActive(
+                        !maxed);
+                }
 
                 if (garageUpgradeActionTexts[i] != null)
                 {
                     garageUpgradeActionTexts[i].text =
                         maxed
                             ? MotorCityLocalization.Text(
-                                "garage.max_short")
+                                "garage.bought")
                             : MotorCityLocalization.Text(
                                 "garage.upgrade_action");
 
@@ -1766,6 +1775,15 @@ namespace MotorCity.UI
                         maxed
                             ? SecondaryTextColor
                             : TextColor;
+
+                    garageUpgradeActionTexts[i]
+                        .rectTransform
+                        .anchoredPosition =
+                            maxed
+                                ? Vector2.zero
+                                : new Vector2(
+                                    0f,
+                                    10f);
                 }
 
                 bool affordable =
@@ -1792,6 +1810,9 @@ namespace MotorCity.UI
 
                 if (garagePriceIcons[i] != null)
                 {
+                    garagePriceIcons[i].gameObject.SetActive(
+                        !maxed);
+
                     garagePriceIcons[i].enabled =
                         !maxed &&
                         garagePriceIcons[i].sprite != null;
