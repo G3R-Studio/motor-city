@@ -67,6 +67,14 @@ namespace MotorCity.UI
         private const string AudioVolumeSaveKey =
             "MotorCity.Settings.AudioVolume";
 
+        private CanvasGroup openingSpeedometerGroup;
+        private CanvasGroup openingMinimapGroup;
+        private CanvasGroup openingQuickActionsGroup;
+        private bool openingHudRevealArmed;
+        private bool openingHudRevealActive;
+        private float openingHudRevealTimer;
+        private float openingHudRevealDuration = 5f;
+
         public bool FrontEndAudioMuted =>
             audioMuted;
 
@@ -414,6 +422,8 @@ namespace MotorCity.UI
             adventureDirector = director;
 
             BuildUi();
+            ArmOpeningHudReveal(
+                5f);
         }
 
         private static void SetActiveIfChanged(
@@ -496,6 +506,8 @@ namespace MotorCity.UI
         {
             if (moneyText == null)
                 return;
+
+            UpdateOpeningHudReveal();
 
             MotorCityPlatformRuntime.SetGameplayUiPaused(
                 HasBlockingModalUi());
@@ -957,6 +969,145 @@ namespace MotorCity.UI
 
             MotorCityPlatformRuntime.SetGameplayUiPaused(
                 blocked);
+        }
+
+        private void ArmOpeningHudReveal(
+            float duration)
+        {
+            openingHudRevealDuration =
+                Mathf.Max(
+                    0.5f,
+                    duration);
+
+            openingHudRevealTimer =
+                0f;
+
+            openingHudRevealArmed =
+                true;
+
+            openingHudRevealActive =
+                false;
+
+            openingSpeedometerGroup =
+                ResolveOpeningCanvasGroup(
+                    "Speedometer");
+
+            openingMinimapGroup =
+                ResolveOpeningCanvasGroup(
+                    "Minimap");
+
+            openingQuickActionsGroup =
+                ResolveOpeningCanvasGroup(
+                    "Main HUD Quick Actions");
+
+            SetOpeningHudAlpha(
+                0f);
+        }
+
+        private CanvasGroup ResolveOpeningCanvasGroup(
+            string objectName)
+        {
+            if (safeAreaRoot == null)
+                return null;
+
+            Transform target =
+                safeAreaRoot.Find(
+                    objectName);
+
+            if (target == null)
+                return null;
+
+            CanvasGroup group =
+                target.GetComponent<CanvasGroup>();
+
+            if (group == null)
+            {
+                group =
+                    target.gameObject.AddComponent<CanvasGroup>();
+            }
+
+            return group;
+        }
+
+        private void UpdateOpeningHudReveal()
+        {
+            if (openingHudRevealArmed &&
+                Time.timeScale > 0f)
+            {
+                openingHudRevealArmed =
+                    false;
+
+                openingHudRevealActive =
+                    true;
+
+                openingHudRevealTimer =
+                    0f;
+            }
+
+            if (!openingHudRevealActive)
+                return;
+
+            openingHudRevealTimer +=
+                Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    openingHudRevealTimer /
+                    openingHudRevealDuration);
+
+            float eased =
+                progress * progress *
+                (3f - 2f * progress);
+
+            SetOpeningHudAlpha(
+                eased);
+
+            if (progress >= 1f)
+            {
+                openingHudRevealActive =
+                    false;
+
+                SetOpeningHudAlpha(
+                    1f);
+            }
+        }
+
+        private void SetOpeningHudAlpha(
+            float alpha)
+        {
+            ApplyOpeningGroupAlpha(
+                openingSpeedometerGroup,
+                alpha,
+                false);
+
+            ApplyOpeningGroupAlpha(
+                openingMinimapGroup,
+                alpha,
+                false);
+
+            ApplyOpeningGroupAlpha(
+                openingQuickActionsGroup,
+                alpha,
+                alpha < 0.95f);
+        }
+
+        private static void ApplyOpeningGroupAlpha(
+            CanvasGroup group,
+            float alpha,
+            bool blockInteraction)
+        {
+            if (group == null)
+                return;
+
+            group.alpha =
+                Mathf.Clamp01(
+                    alpha);
+
+            group.interactable =
+                !blockInteraction;
+
+            group.blocksRaycasts =
+                !blockInteraction;
         }
 
         private static void EnsureUiEventSystem()
