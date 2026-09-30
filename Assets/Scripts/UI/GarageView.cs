@@ -29,7 +29,7 @@ namespace MotorCity.UI
             Image backdrop =
                 garageOverlay.GetComponent<Image>();
             backdrop.color =
-                new Color(0.012f, 0.010f, 0.022f, 0.08f);
+                new Color(0.01f, 0.01f, 0.025f, 0.04f);
             backdrop.raycastTarget = false;
 
             RectTransform panel =
@@ -44,492 +44,350 @@ namespace MotorCity.UI
 
             Image panelImage =
                 panel.GetComponent<Image>();
-
             if (panelImage != null)
             {
-                panelImage.color =
-                    Color.clear;
-
-                panelImage.raycastTarget =
-                    false;
+                panelImage.color = Color.clear;
+                panelImage.raycastTarget = false;
             }
 
-            RectTransform leftCard =
+            // Fresh garage HUD: the car and the authored garage stay visually
+            // dominant. UI only frames the scene instead of covering it.
+            Color glass =
+                new Color(0.025f, 0.035f, 0.10f, 0.88f);
+            Color glassSoft =
+                new Color(0.035f, 0.045f, 0.13f, 0.82f);
+            Color cyan =
+                new Color(0.22f, 0.82f, 1f, 1f);
+            Color violet =
+                new Color(0.72f, 0.34f, 1f, 1f);
+            Color green =
+                new Color(0.20f, 1f, 0.62f, 1f);
+
+            RectTransform topBalance =
                 CreatePanel(
                     panel,
-                    "Garage Vehicle Card",
-                    new Vector2(
-                        -28f,
-                        -178f),
-                    new Vector2(
-                        390f,
-                        650f),
-                    new Vector2(
-                        1f,
-                        1f),
-                    new Vector2(
-                        1f,
-                        1f),
-                    Color.clear);
+                    "Garage Top Balance",
+                    new Vector2(0f, -18f),
+                    new Vector2(900f, 92f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    glass);
 
-            ApplyGarageRowTexture(
-                leftCard);
-
-            RectTransform upgradesCard =
-                CreatePanel(
-                    panel,
-                    "Garage Balance Bar",
-                    new Vector2(
-                        0f,
-                        -26f),
-                    new Vector2(
-                        980f,
-                        92f),
-                    new Vector2(
-                        0.5f,
-                        1f),
-                    new Vector2(
-                        0.5f,
-                        1f),
-                    Color.clear);
-
-            ApplyGarageRowTexture(
-                upgradesCard);
-
-            Text vehicleCardTitle =
-                CreateText(
-                    panel,
-                    "Garage Vehicle Card Title",
-                    15,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(
-                        -392f,
-                        -198f),
-                    new Vector2(
-                        320f,
-                        24f),
-                    new Vector2(
-                        1f,
-                        1f),
-                    new Vector2(
-                        1f,
-                        1f),
-                    SecondaryTextColor);
-
-            vehicleCardTitle.text =
-                MotorCityLocalization.Text(
-                    "garage.my_car");
-
-            Text upgradesTitle =
-                CreateText(
-                    panel,
-                    "Garage Upgrades Title",
-                    16,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(
-                        32f,
-                        190f),
-                    new Vector2(
-                        820f,
-                        28f),
-                    new Vector2(
-                        0f,
-                        0f),
-                    new Vector2(
-                        0f,
-                        0f),
-                    TextColor);
-
-            upgradesTitle.text =
-                MotorCityLocalization.Text(
-                    "garage.upgrades_title");
-
-            CreateHudIcon(
-                    panel,
-                    "Garage Header Icon",
-                    MotorCityIconLibrary.Garage,
-                    new Vector2(
-                        -3000f,
-                        -3000f),
-                    new Vector2(
-                        26f,
-                        26f),
-                    new Vector2(
-                        0f,
-                        1f),
-                    GarageAccent);
-
-            Text title =
-                CreateText(
-                    panel,
-                    "Garage Title",
-                    27,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(-3000f, -3000f),
-                    new Vector2(270f, 36f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
-                    TextColor);
-            title.text =
-                MotorCityLocalization.Text(
-                    "hud.garage_title");
+            CreateAccent(
+                topBalance,
+                violet,
+                new Vector2(0f, 0f),
+                new Vector2(860f, 3f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f));
 
             GameObject creditsGroupObject =
                 new(
                     "Garage Credits Group",
                     typeof(RectTransform));
-
             creditsGroupObject.transform.SetParent(
-                panel,
+                topBalance,
                 false);
-
             RectTransform creditsGroup =
                 creditsGroupObject.GetComponent<RectTransform>();
-
-            creditsGroup.anchorMin =
-                new Vector2(0.5f, 1f);
-            creditsGroup.anchorMax =
-                new Vector2(0.5f, 1f);
-            creditsGroup.pivot =
-                new Vector2(0.5f, 1f);
-            creditsGroup.anchoredPosition =
-                new Vector2(
-                    -330f,
-                    -46f);
-            creditsGroup.sizeDelta =
-                new Vector2(
-                    190f,
-                    44f);
+            creditsGroup.anchorMin = new Vector2(0f, 0.5f);
+            creditsGroup.anchorMax = new Vector2(0f, 0.5f);
+            creditsGroup.pivot = new Vector2(0f, 0.5f);
+            creditsGroup.anchoredPosition = new Vector2(30f, 0f);
+            creditsGroup.sizeDelta = new Vector2(195f, 62f);
 
             CreateHudIcon(
+                creditsGroup,
+                "Garage Credits Icon",
+                MotorCityIconLibrary.Credits,
+                new Vector2(0f, 0f),
+                new Vector2(28f, 28f),
+                new Vector2(0f, 0.5f),
+                green);
+
+            Text creditsLabel =
+                CreateText(
                     creditsGroup,
-                    "Garage Credits Icon",
-                    MotorCityIconLibrary.Credits,
-                    Vector2.zero,
-                    new Vector2(
-                        21f,
-                        21f),
-                    new Vector2(
-                        0f,
-                        0.5f),
-                    new Color(
-                        1f,
-                        0.78f,
-                        0.20f,
-                        1f));
+                    "Garage Credits Label",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(40f, 13f),
+                    new Vector2(145f, 20f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    SecondaryTextColor);
+            creditsLabel.text =
+                MotorCityLocalization.Text("common.credits");
 
             garageMoneyText =
                 CreateText(
                     creditsGroup,
                     "Garage Credits",
-                    24,
+                    22,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(
-                        28f,
-                        0f),
-                    new Vector2(
-                        94f,
-                        32f),
-                    new Vector2(
-                        0f,
-                        0.5f),
-                    new Vector2(
-                        0f,
-                        0.5f),
+                    new Vector2(40f, -11f),
+                    new Vector2(145f, 28f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
                     TextColor);
 
             GameObject reputationGroupObject =
                 new(
                     "Garage Reputation Group",
                     typeof(RectTransform));
-
             reputationGroupObject.transform.SetParent(
-                panel,
+                topBalance,
                 false);
-
             RectTransform reputationGroup =
                 reputationGroupObject.GetComponent<RectTransform>();
-
-            reputationGroup.anchorMin =
-                new Vector2(0.5f, 1f);
-            reputationGroup.anchorMax =
-                new Vector2(0.5f, 1f);
-            reputationGroup.pivot =
-                new Vector2(0.5f, 1f);
-            reputationGroup.anchoredPosition =
-                new Vector2(
-                    -90f,
-                    -46f);
-            reputationGroup.sizeDelta =
-                new Vector2(
-                    180f,
-                    44f);
+            reputationGroup.anchorMin = new Vector2(0f, 0.5f);
+            reputationGroup.anchorMax = new Vector2(0f, 0.5f);
+            reputationGroup.pivot = new Vector2(0f, 0.5f);
+            reputationGroup.anchoredPosition = new Vector2(250f, 0f);
+            reputationGroup.sizeDelta = new Vector2(185f, 62f);
 
             CreateHudIcon(
+                reputationGroup,
+                "Garage Reputation Icon",
+                MotorCityIconLibrary.Reputation,
+                Vector2.zero,
+                new Vector2(28f, 28f),
+                new Vector2(0f, 0.5f),
+                violet);
+
+            Text reputationLabel =
+                CreateText(
                     reputationGroup,
-                    "Garage Reputation Icon",
-                    MotorCityIconLibrary.Reputation,
-                    Vector2.zero,
-                    new Vector2(
-                        19f,
-                        19f),
-                    new Vector2(
-                        0f,
-                        0.5f),
-                    new Color(
-                        0.72f,
-                        0.52f,
-                        1f,
-                        1f));
+                    "Garage Reputation Label",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(40f, 13f),
+                    new Vector2(140f, 20f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    SecondaryTextColor);
+            reputationLabel.text =
+                MotorCityLocalization.Text("common.reputation");
 
             garageReputationText =
                 CreateText(
                     reputationGroup,
                     "Garage Reputation",
-                    21,
+                    22,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(
-                        26f,
-                        0f),
-                    new Vector2(
-                        68f,
-                        32f),
-                    new Vector2(
-                        0f,
-                        0.5f),
-                    new Vector2(
-                        0f,
-                        0.5f),
+                    new Vector2(40f, -11f),
+                    new Vector2(135f, 28f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
                     TextColor);
 
             GameObject levelGroupObject =
                 new(
                     "Garage Level Group",
                     typeof(RectTransform));
-
             levelGroupObject.transform.SetParent(
-                panel,
+                topBalance,
                 false);
-
             RectTransform levelGroup =
                 levelGroupObject.GetComponent<RectTransform>();
+            levelGroup.anchorMin = new Vector2(0f, 0.5f);
+            levelGroup.anchorMax = new Vector2(0f, 0.5f);
+            levelGroup.pivot = new Vector2(0f, 0.5f);
+            levelGroup.anchoredPosition = new Vector2(462f, 0f);
+            levelGroup.sizeDelta = new Vector2(170f, 62f);
 
-            levelGroup.anchorMin =
-                new Vector2(0.5f, 1f);
-            levelGroup.anchorMax =
-                new Vector2(0.5f, 1f);
-            levelGroup.pivot =
-                new Vector2(0.5f, 1f);
-            levelGroup.anchoredPosition =
-                new Vector2(
-                    140f,
-                    -46f);
-            levelGroup.sizeDelta =
-                new Vector2(
-                    150f,
-                    44f);
+            CreateHudIcon(
+                levelGroup,
+                "Garage Level Icon",
+                MotorCityIconLibrary.Achievement,
+                Vector2.zero,
+                new Vector2(28f, 28f),
+                new Vector2(0f, 0.5f),
+                cyan);
 
             garageLevelText =
                 CreateText(
                     levelGroup,
                     "Garage Level",
-                    18,
+                    19,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
-                    new Vector2(
-                        78f,
-                        32f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    SecondaryTextColor);
+                    TextAnchor.MiddleLeft,
+                    new Vector2(40f, 0f),
+                    new Vector2(126f, 30f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    TextColor);
 
             garageHeaderMasteryText =
                 CreateText(
-                    panel,
+                    topBalance,
                     "Garage Header Mastery",
-                    15,
+                    16,
                     FontStyle.Bold,
-                    TextAnchor.UpperRight,
-                    new Vector2(
-                        450f,
-                        -50f),
-                    new Vector2(
-                        250f,
-                        24f),
-                    new Vector2(
-                        0.5f,
-                        1f),
-                    new Vector2(
-                        0.5f,
-                        1f),
-                    new Color(
-                        0.42f,
-                        0.82f,
-                        1f,
-                        1f));
+                    TextAnchor.MiddleLeft,
+                    new Vector2(675f, 0f),
+                    new Vector2(190f, 42f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    cyan);
+
+            RectTransform vehicleCard =
+                CreatePanel(
+                    panel,
+                    "Garage Vehicle Card",
+                    new Vector2(-22f, -150f),
+                    new Vector2(400f, 720f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
+                    glass);
+
+            CreateAccent(
+                vehicleCard,
+                violet,
+                new Vector2(0f, 0f),
+                new Vector2(360f, 3f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f));
+
+            Text vehicleCardTitle =
+                CreateText(
+                    vehicleCard,
+                    "Garage Vehicle Card Title",
+                    13,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(28f, -28f),
+                    new Vector2(260f, 24f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    SecondaryTextColor);
+            vehicleCardTitle.text =
+                MotorCityLocalization.Text("garage.my_car");
 
             garageVehicleStateIcon =
                 CreateHudIcon(
-                    panel,
+                    vehicleCard,
                     "Garage Vehicle State Icon",
-                    MotorCityIconLibrary.Get(
-                        "car"),
-                    new Vector2(
-                        -390f,
-                        -236f),
-                    new Vector2(
-                        22f,
-                        22f),
-                    new Vector2(
-                        1f,
-                        1f),
-                    GarageAccent);
+                    MotorCityIconLibrary.Get("car"),
+                    new Vector2(28f, -72f),
+                    new Vector2(34f, 34f),
+                    new Vector2(0f, 1f),
+                    green);
 
             garageVehicleText =
                 CreateText(
-                    panel,
+                    vehicleCard,
                     "Garage Vehicle",
-                    23,
+                    26,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(-350f, -232f),
-                    new Vector2(300f, 36f),
-                    new Vector2(1f, 1f),
-                    new Vector2(1f, 1f),
+                    new Vector2(76f, -72f),
+                    new Vector2(280f, 40f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
                     TextColor);
 
             garageNextVehicleText =
                 CreateText(
-                    panel,
+                    vehicleCard,
                     "Garage Next Vehicle",
-                    13,
+                    14,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(-392f, -282f),
-                    new Vector2(330f, 54f),
-                    new Vector2(1f, 1f),
-                    new Vector2(1f, 1f),
+                    TextAnchor.UpperLeft,
+                    new Vector2(28f, -118f),
+                    new Vector2(340f, 58f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
                     GarageAccent);
 
             garageVehicleStatsText =
                 CreateText(
-                    panel,
+                    vehicleCard,
                     "Garage Vehicle Stats",
-                    13,
+                    15,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(-392f, -352f),
-                    new Vector2(330f, 210f),
-                    new Vector2(1f, 1f),
-                    new Vector2(1f, 1f),
+                    TextAnchor.UpperLeft,
+                    new Vector2(28f, -194f),
+                    new Vector2(340f, 270f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
                     TextColor);
-
-            garageVehicleStatsText.resizeTextForBestFit =
-                true;
-            garageVehicleStatsText.resizeTextMinSize =
-                9;
-            garageVehicleStatsText.resizeTextMaxSize =
-                13;
+            garageVehicleStatsText.resizeTextForBestFit = true;
+            garageVehicleStatsText.resizeTextMinSize = 12;
+            garageVehicleStatsText.resizeTextMaxSize = 15;
             garageVehicleStatsText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             garageVehicleStatsText.verticalOverflow =
                 VerticalWrapMode.Truncate;
+            garageVehicleStatsText.lineSpacing = 1.18f;
 
             garageVehicleCharacterText =
                 CreateText(
-                    panel,
+                    vehicleCard,
                     "Garage Vehicle Character",
-                    12,
-                    FontStyle.Bold,
+                    13,
+                    FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(-392f, -580f),
-                    new Vector2(330f, 118f),
-                    new Vector2(1f, 1f),
-                    new Vector2(1f, 1f),
+                    new Vector2(28f, -480f),
+                    new Vector2(340f, 120f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
                     SecondaryTextColor);
-
-            garageVehicleCharacterText.resizeTextForBestFit =
-                true;
-            garageVehicleCharacterText.resizeTextMinSize =
-                10;
-            garageVehicleCharacterText.resizeTextMaxSize =
-                12;
+            garageVehicleCharacterText.resizeTextForBestFit = true;
+            garageVehicleCharacterText.resizeTextMinSize = 11;
+            garageVehicleCharacterText.resizeTextMaxSize = 13;
             garageVehicleCharacterText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             garageVehicleCharacterText.verticalOverflow =
                 VerticalWrapMode.Truncate;
 
+            Text masteryLabel =
+                CreateText(
+                    vehicleCard,
+                    "Garage Mastery Label",
+                    14,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(28f, -632f),
+                    new Vector2(180f, 24f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    TextColor);
+            masteryLabel.text =
+                MotorCityLocalization.Text("garage.mastery");
+
             CreateHudIcon(
-                    panel,
-                    "Garage Mastery Icon",
-                    MotorCityIconLibrary.Achievement,
-                    new Vector2(
-                        -390f,
-                        -738f),
-                    new Vector2(
-                        18f,
-                        18f),
-                    new Vector2(
-                        1f,
-                        1f),
-                    new Color(
-                        0.42f,
-                        0.82f,
-                        1f,
-                        1f));
+                vehicleCard,
+                "Garage Mastery Icon",
+                MotorCityIconLibrary.Achievement,
+                new Vector2(28f, -672f),
+                new Vector2(24f, 24f),
+                new Vector2(0f, 1f),
+                cyan);
 
             RectTransform masteryTrackRect =
                 CreatePanel(
-                    panel,
+                    vehicleCard,
                     "Garage Mastery Track",
-                    new Vector2(
-                        -360f,
-                        -742f),
-                    new Vector2(
-                        300f,
-                        8f),
-                    new Vector2(
-                        1f,
-                        1f),
-                    new Vector2(
-                        1f,
-                        1f),
-                    new Color(
-                        0.09f,
-                        0.08f,
-                        0.14f,
-                        0.94f));
+                    new Vector2(64f, -680f),
+                    new Vector2(300f, 12f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Color(0.08f, 0.09f, 0.19f, 1f));
 
             RectTransform masteryFillRect =
                 CreatePanel(
                     masteryTrackRect,
                     "Garage Mastery Fill",
                     Vector2.zero,
-                    new Vector2(
-                        0f,
-                        7f),
-                    new Vector2(
-                        0f,
-                        0.5f),
-                    new Vector2(
-                        0f,
-                        0.5f),
-                    new Color(
-                        0.42f,
-                        0.82f,
-                        1f,
-                        1f));
-
+                    new Vector2(0f, 10f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    cyan);
             garageMasteryFill =
                 masteryFillRect.GetComponent<Image>();
 
@@ -540,49 +398,37 @@ namespace MotorCity.UI
                     12,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -124f),
-                    new Vector2(704f, 20f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
-                    new Color(
-                        0.82f,
-                        0.72f,
-                        1f,
-                        1f));
+                    new Vector2(-3000f, -3000f),
+                    new Vector2(10f, 10f),
+                    Vector2.zero,
+                    Vector2.zero,
+                    Color.clear);
 
             garageVehicleSpecializationText =
                 CreateText(
                     panel,
                     "Garage Vehicle Specialization",
-                    11,
+                    12,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -146f),
-                    new Vector2(704f, 20f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
-                    new Color(
-                        0.52f,
-                        1f,
-                        0.68f,
-                        1f));
+                    new Vector2(-3000f, -3000f),
+                    new Vector2(10f, 10f),
+                    Vector2.zero,
+                    Vector2.zero,
+                    Color.clear);
 
             garageCollectionText =
                 CreateText(
                     panel,
                     "Garage Collection",
-                    11,
+                    12,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -168f),
-                    new Vector2(704f, 38f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
-                    new Color(
-                        0.92f,
-                        0.74f,
-                        1f,
-                        1f));
+                    new Vector2(-3000f, -3000f),
+                    new Vector2(10f, 10f),
+                    Vector2.zero,
+                    Vector2.zero,
+                    Color.clear);
 
             garageVehicleHistoryText.gameObject.SetActive(false);
             garageVehicleSpecializationText.gameObject.SetActive(false);
@@ -590,86 +436,45 @@ namespace MotorCity.UI
 
             Color[] accents =
             {
-                new(0.12f, 0.58f, 1f, 1f),
-                new(0.12f, 0.9f, 0.58f, 1f),
-                new(1f, 0.62f, 0.12f, 1f)
+                violet,
+                cyan,
+                new Color(0.55f, 0.42f, 1f, 1f)
             };
 
             for (int i = 0; i < 3; i++)
             {
                 float x =
-                    30f + i * 296f;
+                    24f + i * 258f;
 
                 RectTransform row =
                     CreatePanel(
                         panel,
-                        $"Upgrade {i + 1}",
+                        `Upgrade ${i + 1}`,
                         new Vector2(x, 24f),
-                        new Vector2(280f, 154f),
+                        new Vector2(242f, 190f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
-                        Color.clear);
-
-                ApplyGarageRowTexture(
-                    row);
+                        glassSoft);
 
                 Image rowImage =
                     row.GetComponent<Image>();
-
-                // CreatePanel/ApplyGarageRowTexture disable raycasts by
-                // default because most panels are decorative. Upgrade cards
-                // are interactive, so the full row image must participate in
-                // UI raycasting for the parent Button to receive clicks.
                 if (rowImage != null)
-                {
-                    rowImage.raycastTarget =
-                        true;
-                }
+                    rowImage.raycastTarget = true;
 
                 Button rowButton =
                     row.gameObject.AddComponent<Button>();
-
-                rowButton.targetGraphic =
-                    rowImage;
+                rowButton.targetGraphic = rowImage;
 
                 ColorBlock rowColors =
                     rowButton.colors;
-
-                rowColors.normalColor =
-                    Color.white;
-
+                rowColors.normalColor = Color.white;
                 rowColors.highlightedColor =
-                    new Color(
-                        1.08f,
-                        1.08f,
-                        1.08f,
-                        1f);
-
+                    new Color(1.08f, 1.08f, 1.10f, 1f);
                 rowColors.pressedColor =
-                    new Color(
-                        0.86f,
-                        0.86f,
-                        0.86f,
-                        1f);
-
-                rowColors.selectedColor =
-                    rowColors.highlightedColor;
-
-                rowColors.disabledColor =
-                    new Color(
-                        0.55f,
-                        0.55f,
-                        0.55f,
-                        0.75f);
-
-                rowColors.colorMultiplier =
-                    1f;
-
-                rowColors.fadeDuration =
-                    0.08f;
-
-                rowButton.colors =
-                    rowColors;
+                    new Color(0.82f, 0.84f, 0.95f, 1f);
+                rowColors.colorMultiplier = 1f;
+                rowColors.fadeDuration = 0.08f;
+                rowButton.colors = rowColors;
 
                 MotorCityInputAction upgradeAction =
                     i switch
@@ -687,57 +492,58 @@ namespace MotorCity.UI
                 Sprite upgradeSprite =
                     i switch
                     {
-                        0 => MotorCityIconLibrary.Get(
-                            "key"),
-                        1 => MotorCityIconLibrary.Get(
-                            "gear"),
-                        _ => MotorCityIconLibrary.Get(
-                            "target")
+                        0 => MotorCityIconLibrary.Get("key"),
+                        1 => MotorCityIconLibrary.Get("gear"),
+                        _ => MotorCityIconLibrary.Get("target")
                     };
 
                 CreateHudIcon(
-                        row,
-                        "Upgrade Icon",
-                        upgradeSprite,
-                        new Vector2(
-                            24f,
-                            -21f),
-                        new Vector2(
-                            22f,
-                            22f),
-                        new Vector2(
-                            0f,
-                            1f),
-                        accents[i]);
+                    row,
+                    "Upgrade Icon",
+                    upgradeSprite,
+                    new Vector2(20f, -22f),
+                    new Vector2(30f, 30f),
+                    new Vector2(0f, 1f),
+                    accents[i]);
 
                 garageTitleTexts[i] =
                     CreateText(
                         row,
                         "Upgrade Title",
-                        18,
+                        16,
                         FontStyle.Bold,
                         TextAnchor.UpperLeft,
-                        new Vector2(56f, -18f),
-                        new Vector2(150f, 28f),
+                        new Vector2(60f, -18f),
+                        new Vector2(158f, 44f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
                         TextColor);
+
+                garageDescriptionTexts[i] =
+                    CreateText(
+                        row,
+                        "Upgrade Description",
+                        12,
+                        FontStyle.Normal,
+                        TextAnchor.UpperLeft,
+                        new Vector2(20f, -78f),
+                        new Vector2(202f, 58f),
+                        new Vector2(0f, 1f),
+                        new Vector2(0f, 1f),
+                        SecondaryTextColor);
+                garageDescriptionTexts[i].resizeTextForBestFit = true;
+                garageDescriptionTexts[i].resizeTextMinSize = 10;
+                garageDescriptionTexts[i].resizeTextMaxSize = 12;
 
                 garagePriceIcons[i] =
                     CreateHudIcon(
                         row,
                         "Upgrade Price Icon",
                         MotorCityIconLibrary.Credits,
-                        new Vector2(
-                            -104f,
-                            -10f),
-                        new Vector2(
-                            15f,
-                            15f),
-                        new Vector2(
-                            1f,
-                            1f),
-                        accents[i]);
+                        new Vector2(20f, 22f),
+                        new Vector2(20f, 20f),
+                        new Vector2(0f, 0f),
+                        green);
 
                 garagePriceTexts[i] =
                     CreateText(
@@ -745,59 +551,26 @@ namespace MotorCity.UI
                         "Upgrade Price",
                         17,
                         FontStyle.Bold,
-                        TextAnchor.UpperRight,
-                        new Vector2(-16f, -20f),
-                        new Vector2(118f, 26f),
-                        new Vector2(1f, 1f),
-                        new Vector2(1f, 1f),
-                        accents[i]);
-
-                garageDescriptionTexts[i] =
-                    CreateText(
-                        row,
-                        "Upgrade Description",
-                        14,
-                        FontStyle.Normal,
-                        TextAnchor.LowerLeft,
-                        new Vector2(22f, 18f),
-                        new Vector2(236f, 64f),
+                        TextAnchor.MiddleLeft,
+                        new Vector2(50f, 26f),
+                        new Vector2(165f, 28f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
-                        SecondaryTextColor);
+                        green);
             }
 
             garagePassportPanel =
                 CreatePanel(
                     panel,
                     "Vehicle Passport",
-                    new Vector2(0f, 0f),
+                    Vector2.zero,
                     new Vector2(860f, 430f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
-                    Color.clear).gameObject;
+                    glass).gameObject;
 
             RectTransform passportRect =
-                garagePassportPanel
-                    .GetComponent<RectTransform>();
-
-            ApplyGaragePassportTexture(
-                passportRect);
-
-            CreateHudIcon(
-                passportRect,
-                "Passport Vehicle Icon",
-                MotorCityIconLibrary.Get(
-                    "car"),
-                new Vector2(
-                    22f,
-                    -22f),
-                new Vector2(
-                    22f,
-                    22f),
-                new Vector2(
-                    0f,
-                    1f),
-                GarageAccent);
+                garagePassportPanel.GetComponent<RectTransform>();
 
             garagePassportTitleText =
                 CreateText(
@@ -806,8 +579,8 @@ namespace MotorCity.UI
                     23,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(54f, -15f),
-                    new Vector2(618f, 32f),
+                    new Vector2(28f, -22f),
+                    new Vector2(804f, 34f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     TextColor);
@@ -819,11 +592,11 @@ namespace MotorCity.UI
                     15,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(24f, -58f),
-                    new Vector2(656f, 54f),
+                    new Vector2(28f, -72f),
+                    new Vector2(804f, 58f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    new Color(0.82f, 0.72f, 1f, 1f));
+                    cyan);
 
             garagePassportDisciplinesText =
                 CreateText(
@@ -832,8 +605,8 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(24f, -120f),
-                    new Vector2(656f, 44f),
+                    new Vector2(28f, -146f),
+                    new Vector2(804f, 56f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
@@ -845,11 +618,11 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(24f, -176f),
-                    new Vector2(656f, 24f),
+                    new Vector2(28f, -222f),
+                    new Vector2(804f, 34f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    new Color(0.52f, 1f, 0.68f, 1f));
+                    green);
 
             garagePassportSpecializationText =
                 CreateText(
@@ -858,30 +631,26 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(24f, -214f),
-                    new Vector2(656f, 30f),
+                    new Vector2(28f, -274f),
+                    new Vector2(804f, 64f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     GarageAccent);
 
-            garagePassportPanel.SetActive(
-                false);
+            garagePassportPanel.SetActive(false);
 
             garageStatusText =
                 CreateText(
                     panel,
                     "Garage Status",
-                    10,
+                    11,
                     FontStyle.Bold,
-                    TextAnchor.MiddleRight,
-                    new Vector2(0f, 196f),
-                    new Vector2(720f, 42f),
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, 226f),
+                    new Vector2(690f, 34f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
                     SecondaryTextColor);
-
-            garageStatusText.resizeTextForBestFit =
-                false;
             garageStatusText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             garageStatusText.verticalOverflow =
@@ -893,21 +662,15 @@ namespace MotorCity.UI
                     "Garage Controls",
                     12,
                     FontStyle.Bold,
-                    TextAnchor.MiddleRight,
-                    new Vector2(-28f, 20f),
-                    new Vector2(468f, 22f),
-                    new Vector2(1f, 0f),
-                    new Vector2(1f, 0f),
-                    SecondaryTextColor);
+                    TextAnchor.MiddleCenter,
+                    new Vector2(-3000f, -3000f),
+                    new Vector2(10f, 10f),
+                    Vector2.zero,
+                    Vector2.zero,
+                    Color.clear);
+            garageControlsText.gameObject.SetActive(false);
 
-            garageControlsText.text =
-                string.Empty;
-
-            garageControlsText.gameObject.SetActive(
-                false);
-
-            BuildGarageTouchControls(
-                panel);
+            BuildGarageTouchControls(panel);
         }
 
         private void BuildGarageTouchControls(
@@ -924,19 +687,14 @@ namespace MotorCity.UI
 
             RectTransform root =
                 garageTouchControlsRoot.GetComponent<RectTransform>();
+            root.anchorMin = Vector2.zero;
+            root.anchorMax = Vector2.one;
+            root.pivot = new Vector2(0.5f, 0.5f);
+            root.offsetMin = Vector2.zero;
+            root.offsetMax = Vector2.zero;
 
-            root.anchorMin =
-                Vector2.zero;
-            root.anchorMax =
-                Vector2.one;
-            root.pivot =
-                new Vector2(
-                    0.5f,
-                    0.5f);
-            root.offsetMin =
-                Vector2.zero;
-            root.offsetMax =
-                Vector2.zero;
+            Color navColor =
+                new Color(0.06f, 0.055f, 0.18f, 0.94f);
 
             garageActionButtons[0] =
                 CreateGarageActionButton(
@@ -944,16 +702,11 @@ namespace MotorCity.UI
                     "Garage Previous Vehicle",
                     "‹",
                     MotorCityInputAction.PreviousVehicle,
-                    new Vector2(
-                        0f,
-                        0.5f),
-                    new Vector2(
-                        66f,
-                        0f),
-                    new Vector2(
-                        92f,
-                        126f),
-                    54);
+                    new Vector2(0f, 0.5f),
+                    new Vector2(28f, 0f),
+                    new Vector2(86f, 124f),
+                    58,
+                    navColor);
 
             garageActionButtons[1] =
                 CreateGarageActionButton(
@@ -961,175 +714,107 @@ namespace MotorCity.UI
                     "Garage Next Vehicle",
                     "›",
                     MotorCityInputAction.NextVehicle,
-                    new Vector2(
-                        1f,
-                        0.5f),
-                    new Vector2(
-                        -446f,
-                        0f),
-                    new Vector2(
-                        92f,
-                        126f),
-                    54);
-
-            garageActionButtons[2] =
-                CreateGarageActionButton(
-                    root,
-                    "Garage Appearance Color",
-                    MotorCityLocalization.Text(
-                        "touch.garage.color"),
-                    MotorCityInputAction.CycleBodyColor,
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    new Vector2(
-                        68f,
-                        68f),
-                    new Vector2(
-                        122f,
-                        78f),
-                    15);
-
-            garageActionButtons[3] =
-                CreateGarageActionButton(
-                    root,
-                    "Garage Appearance Wheels",
-                    MotorCityLocalization.Text(
-                        "touch.garage.wheels"),
-                    MotorCityInputAction.CycleWheels,
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    new Vector2(
-                        200f,
-                        68f),
-                    new Vector2(
-                        122f,
-                        78f),
-                    15);
-
-            garageActionButtons[4] =
-                CreateGarageActionButton(
-                    root,
-                    "Garage Appearance Neon",
-                    MotorCityLocalization.Text(
-                        "touch.garage.neon"),
-                    MotorCityInputAction.CycleNeon,
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    new Vector2(
-                        332f,
-                        68f),
-                    new Vector2(
-                        122f,
-                        78f),
-                    15);
-
-            garageActionButtons[5] =
-                CreateGarageActionButton(
-                    root,
-                    "Garage Passport",
-                    MotorCityLocalization.Text(
-                        "touch.garage.passport"),
-                    MotorCityInputAction.ToggleVehiclePassport,
-                    new Vector2(
-                        1f,
-                        0f),
-                    new Vector2(
-                        -228f,
-                        42f),
-                    new Vector2(
-                        156f,
-                        42f),
-                    12);
-
-            garageActionButtons[6] =
-                CreateGarageActionButton(
-                    root,
-                    "Garage City Button",
-                    MotorCityLocalization.Text(
-                        "garage.city_button"),
-                    MotorCityInputAction.Interact,
-                    new Vector2(
-                        1f,
-                        1f),
-                    new Vector2(
-                        -24f,
-                        -38f),
-                    new Vector2(
-                        286f,
-                        76f),
-                    24);
+                    new Vector2(1f, 0.5f),
+                    new Vector2(-440f, 0f),
+                    new Vector2(86f, 124f),
+                    58,
+                    navColor);
 
             RectTransform appearancePanel =
                 CreatePanel(
                     root,
                     "Garage Appearance Panel",
-                    new Vector2(
-                        200f,
-                        18f),
-                    new Vector2(
-                        430f,
-                        142f),
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    Color.clear);
-
-            ApplyGarageRowTexture(
-                appearancePanel);
-
+                    new Vector2(798f, 24f),
+                    new Vector2(500f, 190f),
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 0f),
+                    new Color(0.025f, 0.035f, 0.10f, 0.88f));
             appearancePanel.SetAsFirstSibling();
 
             Text appearanceTitle =
                 CreateText(
-                    root,
+                    appearancePanel,
                     "Garage Appearance Title",
                     15,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(
-                        200f,
-                        146f),
-                    new Vector2(
-                        360f,
-                        26f),
-                    new Vector2(
-                        0.5f,
-                        0f),
-                    new Vector2(
-                        0.5f,
-                        0f),
+                    new Vector2(0f, -18f),
+                    new Vector2(450f, 28f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
                     SecondaryTextColor);
-
             appearanceTitle.text =
-                MotorCityLocalization.Text(
-                    "garage.appearance_title");
+                MotorCityLocalization.Text("garage.appearance_title");
+
+            garageActionButtons[2] =
+                CreateGarageActionButton(
+                    appearancePanel,
+                    "Garage Appearance Color",
+                    MotorCityLocalization.Text("touch.garage.color"),
+                    MotorCityInputAction.CycleBodyColor,
+                    new Vector2(0f, 0f),
+                    new Vector2(16f, 18f),
+                    new Vector2(146f, 118f),
+                    16,
+                    new Color(0.06f, 0.08f, 0.19f, 0.96f));
+
+            garageActionButtons[3] =
+                CreateGarageActionButton(
+                    appearancePanel,
+                    "Garage Appearance Wheels",
+                    MotorCityLocalization.Text("touch.garage.wheels"),
+                    MotorCityInputAction.CycleWheels,
+                    new Vector2(0f, 0f),
+                    new Vector2(177f, 18f),
+                    new Vector2(146f, 118f),
+                    16,
+                    new Color(0.06f, 0.08f, 0.19f, 0.96f));
+
+            garageActionButtons[4] =
+                CreateGarageActionButton(
+                    appearancePanel,
+                    "Garage Appearance Neon",
+                    MotorCityLocalization.Text("touch.garage.neon"),
+                    MotorCityInputAction.CycleNeon,
+                    new Vector2(0f, 0f),
+                    new Vector2(338f, 18f),
+                    new Vector2(146f, 118f),
+                    16,
+                    new Color(0.06f, 0.08f, 0.19f, 0.96f));
+
+            garageActionButtons[5] =
+                CreateGarageActionButton(
+                    root,
+                    "Garage Passport",
+                    MotorCityLocalization.Text("touch.garage.passport"),
+                    MotorCityInputAction.ToggleVehiclePassport,
+                    new Vector2(1f, 0f),
+                    new Vector2(-26f, 26f),
+                    new Vector2(184f, 46f),
+                    13,
+                    new Color(0.06f, 0.08f, 0.19f, 0.96f));
+
+            garageActionButtons[6] =
+                CreateGarageActionButton(
+                    root,
+                    "Garage City Button",
+                    MotorCityLocalization.Text("garage.city_button") + "  ›",
+                    MotorCityInputAction.Interact,
+                    new Vector2(1f, 1f),
+                    new Vector2(-22f, -18f),
+                    new Vector2(310f, 80f),
+                    24,
+                    new Color(0.16f, 0.06f, 0.32f, 0.96f));
 
             RectTransform menuVisual =
                 CreatePanel(
                     root,
                     "Garage Main Menu Visual",
-                    new Vector2(
-                        24f,
-                        -38f),
-                    new Vector2(
-                        286f,
-                        76f),
-                    new Vector2(
-                        0f,
-                        1f),
-                    new Vector2(
-                        0f,
-                        1f),
-                    Color.clear);
-
-            ApplyGarageRowTexture(
-                menuVisual);
+                    new Vector2(22f, -18f),
+                    new Vector2(310f, 80f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
+                    new Color(0.06f, 0.055f, 0.18f, 0.94f));
 
             Text menuText =
                 CreateText(
@@ -1139,24 +824,15 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(
-                        250f,
-                        54f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
+                    new Vector2(278f, 54f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
                     TextColor);
-
             menuText.text =
                 "‹  " +
-                MotorCityLocalization.Text(
-                    "garage.main_menu_button");
+                MotorCityLocalization.Text("garage.main_menu_button");
 
-            garageTouchControlsRoot.SetActive(
-                true);
+            garageTouchControlsRoot.SetActive(true);
         }
 
         private GameObject CreateGarageActionButton(
@@ -1167,7 +843,8 @@ namespace MotorCity.UI
             Vector2 anchor,
             Vector2 anchoredPosition,
             Vector2 size,
-            int fontSize)
+            int fontSize,
+            Color backgroundColor)
         {
             GameObject buttonObject =
                 new(
@@ -1182,52 +859,30 @@ namespace MotorCity.UI
 
             RectTransform rect =
                 buttonObject.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                anchor;
-            rect.anchorMax =
-                anchor;
-            rect.pivot =
-                anchor;
-            rect.anchoredPosition =
-                anchoredPosition;
-            rect.sizeDelta =
-                size;
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = anchor;
+            rect.anchoredPosition = anchoredPosition;
+            rect.sizeDelta = size;
 
             Image image =
                 buttonObject.GetComponent<Image>();
-
-            Texture2D buttonTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.modalButton;
-
-            Sprite buttonSprite =
-                GetModalButtonSprite(
-                    buttonTexture);
-
-            if (buttonSprite != null)
-            {
-                image.sprite =
-                    buttonSprite;
-                image.type =
-                    Image.Type.Simple;
-                image.preserveAspect =
-                    false;
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    PanelColor;
-            }
+            image.color = backgroundColor;
 
             Button button =
                 buttonObject.GetComponent<Button>();
+            button.targetGraphic = image;
 
-            button.targetGraphic =
-                image;
+            ColorBlock colors =
+                button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor =
+                new Color(1.15f, 1.12f, 1.25f, 1f);
+            colors.pressedColor =
+                new Color(0.78f, 0.80f, 0.94f, 1f);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.08f;
+            button.colors = colors;
 
             button.onClick.AddListener(
                 () =>
@@ -1242,23 +897,12 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    size -
-                    new Vector2(
-                        16f,
-                        12f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
+                    size - new Vector2(16f, 12f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
                     TextColor);
-
-            text.text =
-                label;
-
-            MakeButtonTextCrisp(
-                text);
+            text.text = label;
+            MakeButtonTextCrisp(text);
 
             return buttonObject;
         }
