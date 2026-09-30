@@ -262,7 +262,6 @@ namespace MotorCity.Localization
                 { "hud.circuit", E("КОЛЬЦО", "CIRCUIT") },
                 { "hud.drift_spot", E("ДРИФТ-ТОЧКА", "DRIFT SPOT") },
                 { "hud.discovery", E("ОТКРЫТИЕ", "DISCOVERY") },
-                { "hud.stunt", E("ТРАМПЛИН", "STUNT") },
                 { "hud.garage", E("ГАРАЖ", "GARAGE") },
                 { "hud.radar", E("РАДАР", "SPEED TRAP") },
                 { "hud.result_controls", E("ENTER  ПОВТОРИТЬ     ESC  ПРОДОЛЖИТЬ", "ENTER  RETRY     ESC  CONTINUE") },
