@@ -484,7 +484,7 @@ namespace MotorCity.UI
             SetDrivingControlImage(
                 root,
                 "Handbrake",
-                new Color32(255, 255, 255, 0x64));
+                new Color32(255, 255, 255, 165));
 
             SetDrivingControlImage(
                 root,
