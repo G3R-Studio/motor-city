@@ -316,6 +316,10 @@ namespace MotorCity.UI
         private Text garageVehicleText;
         private Text garageNextVehicleText;
         private Text garageVehicleStatsText;
+        private readonly Text[] garageVehicleStatLabels =
+            new Text[7];
+        private readonly Text[] garageVehicleStatValues =
+            new Text[7];
         private Text garageVehicleCharacterText;
         private Image garageMasteryFill;
         private Text garageVehicleHistoryText;
