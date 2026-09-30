@@ -1,5 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
+using MotorCity.Input;
 using MotorCity.Vehicle;
 
 namespace MotorCity.CameraSystem
@@ -30,6 +34,7 @@ namespace MotorCity.CameraSystem
 
         [Header("Orbit")]
         [SerializeField] private float mouseSensitivity = 0.12f;
+        [SerializeField] private float touchSensitivity = 0.11f;
         [SerializeField] private float minPitch = -8f;
         [SerializeField] private float maxPitch = 55f;
         [SerializeField] private float minDistance = 4.5f;
@@ -49,6 +54,11 @@ namespace MotorCity.CameraSystem
         private float collisionDistanceVelocity;
         private Vector3 lastTargetPosition;
         private bool hasLastTargetPosition;
+        private int cameraTouchId = -1;
+        private Vector2 lastCameraTouchPosition;
+
+        private readonly List<RaycastResult> uiRaycastResults =
+            new();
 
         private readonly RaycastHit[] collisionHits =
             new RaycastHit[32];
@@ -73,6 +83,11 @@ namespace MotorCity.CameraSystem
 
         private void Awake()
         {
+            if (!EnhancedTouchSupport.enabled)
+            {
+                EnhancedTouchSupport.Enable();
+            }
+
             targetDistance = Mathf.Clamp(distance, minDistance, maxDistance);
             currentCollisionDistance = targetDistance;
             collisionDistanceVelocity = 0f;
@@ -272,11 +287,13 @@ namespace MotorCity.CameraSystem
             if (orbiting)
             {
                 Vector2 delta = mouse.delta.ReadValue();
-                yawOffset += delta.x * mouseSensitivity;
-                pitch -= delta.y * mouseSensitivity;
-                pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
-                lastManualInputTime = Time.time;
+                ApplyOrbitDelta(
+                    delta,
+                    mouseSensitivity);
             }
+
+            bool touchOrbiting =
+                ProcessTouchOrbit();
 
             if (mouse != null)
             {
@@ -297,8 +314,161 @@ namespace MotorCity.CameraSystem
                 targetDistance,
                 1f - Mathf.Exp(-zoomSharpness * Time.deltaTime));
 
-            if (!orbiting && Time.time - lastManualInputTime > recenterDelay)
-                yawOffset = Mathf.LerpAngle(yawOffset, 0f, 1f - Mathf.Exp(-recenterSpeed * Time.deltaTime));
+            if (!orbiting &&
+                !touchOrbiting &&
+                Time.time - lastManualInputTime > recenterDelay)
+            {
+                yawOffset =
+                    Mathf.LerpAngle(
+                        yawOffset,
+                        0f,
+                        1f -
+                        Mathf.Exp(
+                            -recenterSpeed *
+                            Time.deltaTime));
+            }
+        }
+
+        private void ApplyOrbitDelta(
+            Vector2 delta,
+            float sensitivity)
+        {
+            yawOffset +=
+                delta.x *
+                sensitivity;
+
+            pitch -=
+                delta.y *
+                sensitivity;
+
+            pitch =
+                Mathf.Clamp(
+                    pitch,
+                    minPitch,
+                    maxPitch);
+
+            lastManualInputTime =
+                Time.time;
+        }
+
+        private bool ProcessTouchOrbit()
+        {
+            if (!MotorCityInput.PreferTouchPrompts)
+            {
+                cameraTouchId =
+                    -1;
+
+                return false;
+            }
+
+            var touches =
+                UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches;
+
+            if (cameraTouchId >= 0)
+            {
+                for (int i = 0;
+                     i < touches.Count;
+                     i++)
+                {
+                    var touch =
+                        touches[i];
+
+                    if (touch.touchId !=
+                        cameraTouchId)
+                    {
+                        continue;
+                    }
+
+                    if (touch.phase ==
+                            UnityEngine.InputSystem.TouchPhase.Ended ||
+                        touch.phase ==
+                            UnityEngine.InputSystem.TouchPhase.Canceled)
+                    {
+                        cameraTouchId =
+                            -1;
+
+                        return false;
+                    }
+
+                    Vector2 position =
+                        touch.screenPosition;
+
+                    Vector2 delta =
+                        position -
+                        lastCameraTouchPosition;
+
+                    lastCameraTouchPosition =
+                        position;
+
+                    ApplyOrbitDelta(
+                        delta,
+                        touchSensitivity);
+
+                    return true;
+                }
+
+                cameraTouchId =
+                    -1;
+            }
+
+            for (int i = 0;
+                 i < touches.Count;
+                 i++)
+            {
+                var touch =
+                    touches[i];
+
+                if (touch.phase !=
+                    UnityEngine.InputSystem.TouchPhase.Began)
+                {
+                    continue;
+                }
+
+                Vector2 position =
+                    touch.screenPosition;
+
+                if (IsScreenPointOverUi(
+                        position))
+                {
+                    continue;
+                }
+
+                cameraTouchId =
+                    touch.touchId;
+
+                lastCameraTouchPosition =
+                    position;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsScreenPointOverUi(
+            Vector2 screenPosition)
+        {
+            EventSystem eventSystem =
+                EventSystem.current;
+
+            if (eventSystem == null)
+                return false;
+
+            PointerEventData pointer =
+                new(eventSystem)
+                {
+                    position =
+                        screenPosition
+                };
+
+            uiRaycastResults.Clear();
+
+            eventSystem.RaycastAll(
+                pointer,
+                uiRaycastResults);
+
+            return
+                uiRaycastResults.Count > 0;
         }
 
         private void LateUpdate()
