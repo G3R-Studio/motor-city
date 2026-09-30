@@ -76,6 +76,12 @@ namespace MotorCity.UI
             AddGarageSurfaceShadow(
                 topBalance);
 
+            AddGarageNeonFrame(
+                topBalance,
+                new Color(0.58f, 0.32f, 1f, 0.62f),
+                new Color(0.30f, 0.72f, 1f, 0.36f),
+                3f);
+
             CreateAccent(
                 topBalance,
                 violet,
@@ -356,6 +362,12 @@ namespace MotorCity.UI
 
             AddGarageSurfaceShadow(
                 vehicleCard);
+
+            AddGarageNeonFrame(
+                vehicleCard,
+                new Color(0.54f, 0.30f, 1f, 0.58f),
+                new Color(0.28f, 0.66f, 1f, 0.30f),
+                3f);
 
             CreateAccent(
                 vehicleCard,
@@ -664,6 +676,20 @@ namespace MotorCity.UI
 
                 AddGarageSurfaceShadow(
                     row);
+
+                AddGarageNeonFrame(
+                    row,
+                    new Color(
+                        accents[i].r,
+                        accents[i].g,
+                        accents[i].b,
+                        0.52f),
+                    new Color(
+                        accents[i].r,
+                        accents[i].g,
+                        accents[i].b,
+                        0.26f),
+                    3f);
 
                 CreateAccent(
                     row,
@@ -1038,6 +1064,12 @@ namespace MotorCity.UI
             AddGarageSurfaceShadow(
                 appearancePanel);
 
+            AddGarageNeonFrame(
+                appearancePanel,
+                new Color(0.54f, 0.30f, 1f, 0.60f),
+                new Color(0.28f, 0.66f, 1f, 0.30f),
+                3f);
+
             CreateAccent(
                 appearancePanel,
                 new Color(0.48f, 0.40f, 1f, 0.92f),
@@ -1154,6 +1186,12 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     new Color(0.06f, 0.055f, 0.18f, 0.94f));
 
+            AddGarageNeonFrame(
+                menuVisual,
+                new Color(0.58f, 0.32f, 1f, 0.72f),
+                new Color(0.34f, 0.74f, 1f, 0.34f),
+                3f);
+
             Text menuText =
                 CreateText(
                     menuVisual,
@@ -1245,20 +1283,26 @@ namespace MotorCity.UI
             Outline outline =
                 buttonObject.AddComponent<Outline>();
             outline.effectColor =
-                new Color(0.42f, 0.52f, 1f, 0.45f);
+                new Color(0.58f, 0.42f, 1f, 0.72f);
             outline.effectDistance =
-                new Vector2(1f, -1f);
+                new Vector2(2f, -2f);
             outline.useGraphicAlpha =
                 true;
 
             Shadow shadow =
                 buttonObject.AddComponent<Shadow>();
             shadow.effectColor =
-                new Color(0f, 0f, 0f, 0.42f);
+                new Color(0.32f, 0.12f, 0.72f, 0.44f);
             shadow.effectDistance =
-                new Vector2(0f, -4f);
+                new Vector2(0f, -5f);
             shadow.useGraphicAlpha =
                 true;
+
+            AddGarageNeonFrame(
+                rect,
+                new Color(0.58f, 0.34f, 1f, 0.56f),
+                new Color(0.30f, 0.72f, 1f, 0.28f),
+                2f);
 
             return buttonObject;
         }
@@ -1278,6 +1322,82 @@ namespace MotorCity.UI
                 new Vector2(0f, -5f);
             shadow.useGraphicAlpha =
                 true;
+        }
+
+        private static void AddGarageNeonFrame(
+            RectTransform target,
+            Color outerGlowColor,
+            Color innerStrokeColor,
+            float inset)
+        {
+            if (target == null)
+                return;
+
+            Outline outerGlow =
+                target.gameObject.AddComponent<Outline>();
+            outerGlow.effectColor =
+                outerGlowColor;
+            outerGlow.effectDistance =
+                new Vector2(2f, -2f);
+            outerGlow.useGraphicAlpha =
+                true;
+
+            Outline softGlow =
+                target.gameObject.AddComponent<Outline>();
+            softGlow.effectColor =
+                new Color(
+                    outerGlowColor.r,
+                    outerGlowColor.g,
+                    outerGlowColor.b,
+                    outerGlowColor.a * 0.34f);
+            softGlow.effectDistance =
+                new Vector2(4f, -4f);
+            softGlow.useGraphicAlpha =
+                true;
+
+            GameObject innerFrameObject =
+                new(
+                    "Garage Inner Neon Frame",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Outline));
+
+            innerFrameObject.transform.SetParent(
+                target,
+                false);
+
+            RectTransform innerRect =
+                innerFrameObject.GetComponent<RectTransform>();
+            innerRect.anchorMin =
+                Vector2.zero;
+            innerRect.anchorMax =
+                Vector2.one;
+            innerRect.offsetMin =
+                new Vector2(inset, inset);
+            innerRect.offsetMax =
+                new Vector2(-inset, -inset);
+
+            Image innerImage =
+                innerFrameObject.GetComponent<Image>();
+            innerImage.color =
+                new Color(
+                    innerStrokeColor.r,
+                    innerStrokeColor.g,
+                    innerStrokeColor.b,
+                    0.025f);
+            innerImage.raycastTarget =
+                false;
+
+            Outline innerOutline =
+                innerFrameObject.GetComponent<Outline>();
+            innerOutline.effectColor =
+                innerStrokeColor;
+            innerOutline.effectDistance =
+                new Vector2(1f, -1f);
+            innerOutline.useGraphicAlpha =
+                false;
+
+            innerFrameObject.transform.SetAsFirstSibling();
         }
 
         private void AddGarageActionIcon(
