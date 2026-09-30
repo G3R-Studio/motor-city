@@ -11,6 +11,8 @@ namespace MotorCity.Audio
         private AudioClip success;
         private AudioClip failure;
         private AudioClip collision;
+        private AudioClip countdownTick;
+        private AudioClip countdownGo;
 
         public static void PlayUiClick()
         {
@@ -30,6 +32,35 @@ namespace MotorCity.Audio
                 successful
                     ? 0.20f
                     : 0.16f,
+                1f);
+        }
+
+        public static void PlayCountdownTick(
+            int shown)
+        {
+            EnsureExists();
+
+            float pitch =
+                shown switch
+                {
+                    3 => 0.96f,
+                    2 => 1.00f,
+                    _ => 1.04f
+                };
+
+            instance.Play(
+                instance.countdownTick,
+                0.18f,
+                pitch);
+        }
+
+        public static void PlayCountdownGo()
+        {
+            EnsureExists();
+
+            instance.Play(
+                instance.countdownGo,
+                0.24f,
                 1f);
         }
 
@@ -140,6 +171,22 @@ namespace MotorCity.Audio
                 BuildNoise(
                     "Motor City Collision",
                     0.16f);
+
+            countdownTick =
+                BuildTone(
+                    "Motor City Countdown Tick",
+                    760f,
+                    0.075f,
+                    0.34f,
+                    0.02f);
+
+            countdownGo =
+                BuildTwoTone(
+                    "Motor City Countdown GO",
+                    720f,
+                    1080f,
+                    0.20f,
+                    0.30f);
         }
 
         private void Play(
