@@ -313,6 +313,8 @@ namespace MotorCity.UI
         private Text garageReputationText;
         private Text garageLevelText;
         private Text garageHeaderMasteryText;
+        private Image garageHeaderLevelFill;
+        private Image garageHeaderMasteryFill;
         private Text garageStatusText;
         private Image garageVehicleStateIcon;
         private Text garageVehicleText;
