@@ -456,9 +456,6 @@ namespace MotorCity.Gameplay
             elapsed =
                 0f;
 
-            car.SetDrivingEnabled(
-                true);
-
             car.TeleportTo(
                 definition.Start +
                 Vector3.up * 1.1f,
@@ -466,6 +463,9 @@ namespace MotorCity.Gameplay
                     0f,
                     car.transform.eulerAngles.y,
                     0f));
+
+            car.SetDrivingEnabled(
+                true);
 
             StartProfession(
                 definition);
