@@ -1663,12 +1663,12 @@ namespace MotorCity.Gameplay
                     5f);
             }
 
-            ChaseCamera chase =
-                Object.FindAnyObjectByType<ChaseCamera>();
+            OpeningCinematicCamera openingCamera =
+                Object.FindAnyObjectByType<OpeningCinematicCamera>();
 
-            if (chase != null)
+            if (openingCamera != null)
             {
-                chase.PlayOpeningPresentation(
+                openingCamera.Replay(
                     5f);
             }
 
