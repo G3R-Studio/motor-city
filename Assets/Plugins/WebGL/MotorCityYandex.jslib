@@ -368,6 +368,49 @@ mergeInto(LibraryManager.library, {
       });
   },
 
+  MotorCityYandexLoadProductInfo: function(gameObjectNamePtr, productIdPtr) {
+    var gameObjectName = UTF8ToString(gameObjectNamePtr);
+    var productId = UTF8ToString(productIdPtr);
+    var ysdk = window.MotorCityYandexSdk;
+
+    if (!ysdk || !ysdk.payments ||
+        typeof ysdk.payments.getCatalog !== 'function') {
+      SendMessage(gameObjectName, 'OnYandexProductInfoFailed', 'Product catalog unavailable');
+      return;
+    }
+
+    ysdk.payments.getCatalog()
+      .then(function(products) {
+        var product = (products || []).find(function(item) {
+          return item && item.id === productId;
+        });
+
+        if (!product) {
+          SendMessage(gameObjectName, 'OnYandexProductInfoFailed', 'Product not found: ' + productId);
+          return;
+        }
+
+        var currencyIcon = '';
+        try {
+          if (typeof product.getPriceCurrencyImage === 'function') {
+            currencyIcon = product.getPriceCurrencyImage('small') || '';
+          }
+        } catch (iconError) {
+          console.warn('Motor City: currency icon lookup failed', iconError);
+        }
+
+        var payload =
+          encodeURIComponent(product.price || '') + '|' +
+          encodeURIComponent(currencyIcon);
+
+        SendMessage(gameObjectName, 'OnYandexProductInfo', payload);
+      })
+      .catch(function(error) {
+        SendMessage(gameObjectName, 'OnYandexProductInfoFailed',
+          error && error.message ? error.message : error);
+      });
+  },
+
   MotorCityYandexLoadRemoteConfig: function(gameObjectNamePtr) {
     var gameObjectName = UTF8ToString(gameObjectNamePtr);
     var ysdk = window.MotorCityYandexSdk;
