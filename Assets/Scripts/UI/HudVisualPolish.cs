@@ -337,6 +337,8 @@ namespace MotorCity.UI
 
         private void PolishTouchButtons()
         {
+            NormalizeTexturedButtonColors();
+
             if (!MotorCityInput.PreferTouchPrompts)
                 return;
 
@@ -354,8 +356,6 @@ namespace MotorCity.UI
 
             PolishTouchGroup(
                 "Club Touch Controls");
-
-            NormalizeTexturedButtonColors();
         }
 
         private void NormalizeTexturedButtonColors()
