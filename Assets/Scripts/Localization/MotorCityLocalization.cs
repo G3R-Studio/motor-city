@@ -14,6 +14,9 @@ namespace MotorCity.Localization
             new()
             {
                 { "common.credits", E("КРЕДИТЫ {0:N0}", "CREDITS {0:N0}") },
+                { "garage.credits_label", E("КРЕДИТЫ", "CREDITS") },
+                { "garage.reputation_label", E("РЕПУТАЦИЯ", "REPUTATION") },
+                { "garage.mastery_label", E("МАСТЕРСТВО", "MASTERY") },
                 { "common.rep", E("РЕПУТАЦИЯ", "REPUTATION") },
                 { "common.level", E("УР.", "LVL") },
                 { "common.xp", E("ОПЫТ", "XP") },
