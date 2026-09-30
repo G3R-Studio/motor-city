@@ -852,9 +852,16 @@ namespace MotorCity.Bootstrap
             Material tailLight = Material(new Color(0.9f, 0.015f, 0.008f), 0.05f, 0.78f);
 
             GameObject car = new("PlayerCar");
+
+            Vector3 playerSpawn =
+                CityAssetRuntimeInstaller.PlayerSpawnPoint;
+
+            playerSpawn.y =
+                0.1861947f;
+
             car.transform.position =
-                CityAssetRuntimeInstaller.PlayerSpawnPoint +
-                Vector3.up * 1.2f;
+                playerSpawn;
+
             car.transform.rotation =
                 CityAssetRuntimeInstaller.PlayerSpawnRotation;
             car.AddComponent<Rigidbody>();
