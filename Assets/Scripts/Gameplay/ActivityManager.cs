@@ -40,6 +40,7 @@ namespace MotorCity.Gameplay
             onboarding.CurrentStep == 4;
 
         private PlayerReputation reputation;
+        private ActivityStartFlow startFlow;
         private DisciplineReputationSystem disciplineReputation;
         private FirstSessionOnboardingSystem onboarding;
         private StoryMissionSystem story;
@@ -67,6 +68,37 @@ namespace MotorCity.Gameplay
         {
             reputation =
                 playerReputation;
+        }
+
+        public void SetStartFlow(
+            ActivityStartFlow flow)
+        {
+            startFlow =
+                flow;
+        }
+
+        public bool RequestStart(
+            string id,
+            string displayName,
+            Action beginPreparedActivity)
+        {
+            if (startFlow == null)
+            {
+                if (!TryBegin(
+                        id,
+                        displayName))
+                {
+                    return false;
+                }
+
+                beginPreparedActivity?.Invoke();
+                return true;
+            }
+
+            return startFlow.RequestStart(
+                id,
+                displayName,
+                beginPreparedActivity);
         }
 
         public void SetDisciplineReputation(
