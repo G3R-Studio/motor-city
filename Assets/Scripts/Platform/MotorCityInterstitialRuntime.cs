@@ -25,9 +25,28 @@ namespace MotorCity.Platform
         private bool requestRunning;
         private bool waitingForGameplayResume;
         private Action resumeCompleted;
+#if UNITY_EDITOR
+        private bool forceNextEditorMock;
+        private float editorMockCloseRealtime;
+        private Action editorMockCompleted;
+#endif
 
         public InterstitialState State { get; private set; } =
             InterstitialState.Idle;
+
+        public string AdminLine =>
+            State +
+            " | starts " +
+            activityStartRequests +
+            " | completed " +
+            completedActivities +
+            " | cooldown " +
+            Mathf.Max(
+                0f,
+                nextAllowedRealtime -
+                Time.realtimeSinceStartup).ToString(
+                    "0") +
+            "s";
 
         public void Initialize(
             ActivityManager activityManager)
@@ -74,6 +93,25 @@ namespace MotorCity.Platform
 
         private void Update()
         {
+#if UNITY_EDITOR
+            if (editorMockCompleted != null &&
+                Time.realtimeSinceStartup >=
+                    editorMockCloseRealtime)
+            {
+                Action callback =
+                    editorMockCompleted;
+
+                editorMockCompleted =
+                    null;
+
+                MotorCityPlatformRuntime.SetPlatformModalPaused(
+                    false);
+
+                FinishInterstitialClose(
+                    callback);
+            }
+#endif
+
             if (waitingForGameplayResume &&
                 MotorCityPlatformRuntime.IsGameplayResumeReady)
             {
@@ -131,10 +169,33 @@ namespace MotorCity.Platform
             completedActivities++;
         }
 
+#if UNITY_EDITOR
+        public void ForceNextEditorMock()
+        {
+            forceNextEditorMock =
+                true;
+        }
+#endif
+
         public void ContinueBeforeActivity(
             string activityId,
             Action completed)
         {
+#if UNITY_EDITOR
+            if (forceNextEditorMock &&
+                IsExplicitAdActivity(
+                    activityId))
+            {
+                forceNextEditorMock =
+                    false;
+
+                BeginEditorMock(
+                    completed);
+
+                return;
+            }
+#endif
+
             if (IsExplicitAdActivity(
                     activityId))
             {
@@ -172,34 +233,68 @@ namespace MotorCity.Platform
             MotorCityPlatform.ShowInterstitial(
                 "before_activity",
                 () =>
-                {
-                    State =
-                        InterstitialState.Closing;
-
-                    requestRunning =
-                        false;
-
-                    MotorCity.Input.MotorCityInput.ClearVirtualState();
-
-                    if (MotorCityPlatformRuntime.IsGameplayResumeReady)
-                    {
-                        State =
-                            InterstitialState.Cooldown;
-
-                        completed?.Invoke();
-                        return;
-                    }
-
-                    // Some browsers deliver the ad close callback before the
-                    // Unity canvas has regained focus. Keep ActivityStartFlow
-                    // pending until all platform/focus pause reasons clear.
-                    waitingForGameplayResume =
-                        true;
-
-                    resumeCompleted =
-                        completed;
-                });
+                    FinishInterstitialClose(
+                        completed));
         }
+
+        private void FinishInterstitialClose(
+            Action completed)
+        {
+            State =
+                InterstitialState.Closing;
+
+            requestRunning =
+                false;
+
+            MotorCity.Input.MotorCityInput.ClearVirtualState();
+
+            if (MotorCityPlatformRuntime.IsGameplayResumeReady)
+            {
+                State =
+                    InterstitialState.Cooldown;
+
+                completed?.Invoke();
+                return;
+            }
+
+            waitingForGameplayResume =
+                true;
+
+            resumeCompleted =
+                completed;
+        }
+
+#if UNITY_EDITOR
+        private void BeginEditorMock(
+            Action completed)
+        {
+            requestRunning =
+                true;
+
+            State =
+                InterstitialState.Eligible;
+
+            nextAllowedRealtime =
+                Time.realtimeSinceStartup +
+                CooldownSeconds();
+
+            State =
+                InterstitialState.Requesting;
+
+            MotorCityPlatformRuntime.SetPlatformModalPaused(
+                true);
+
+            State =
+                InterstitialState.Showing;
+
+            editorMockCompleted =
+                completed;
+
+            editorMockCloseRealtime =
+                Time.realtimeSinceStartup +
+                1.5f;
+        }
+#endif
 
         private bool ShouldRequestInterstitial(
             string activityId)
