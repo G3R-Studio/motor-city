@@ -926,91 +926,341 @@ namespace MotorCity.UI
                 garageTouchControlsRoot.GetComponent<RectTransform>();
 
             root.anchorMin =
-                new Vector2(0.5f, 0f);
+                Vector2.zero;
             root.anchorMax =
-                new Vector2(0.5f, 0f);
+                Vector2.one;
             root.pivot =
-                new Vector2(0.5f, 0f);
-            root.anchoredPosition =
-                new Vector2(0f, 6f);
-            root.sizeDelta =
-                new Vector2(860f, 88f);
+                new Vector2(
+                    0.5f,
+                    0.5f);
+            root.offsetMin =
+                Vector2.zero;
+            root.offsetMax =
+                Vector2.zero;
 
-            MotorCityInputAction[] actions =
-            {
-                MotorCityInputAction.PreviousVehicle,
-                MotorCityInputAction.NextVehicle,
-                MotorCityInputAction.CycleBodyColor,
-                MotorCityInputAction.CycleWheels,
-                MotorCityInputAction.CycleNeon,
-                MotorCityInputAction.ToggleVehiclePassport,
-                MotorCityInputAction.Interact
-            };
+            garageActionButtons[0] =
+                CreateGarageActionButton(
+                    root,
+                    "Garage Previous Vehicle",
+                    "‹",
+                    MotorCityInputAction.PreviousVehicle,
+                    new Vector2(
+                        0f,
+                        0.5f),
+                    new Vector2(
+                        66f,
+                        0f),
+                    new Vector2(
+                        92f,
+                        126f),
+                    54);
 
-            string[] localizationKeys =
-            {
-                "touch.garage.prev",
-                "touch.garage.next",
-                "touch.garage.color",
-                "touch.garage.wheels",
-                "touch.garage.neon",
-                "touch.garage.passport",
-                "touch.garage.close"
-            };
+            garageActionButtons[1] =
+                CreateGarageActionButton(
+                    root,
+                    "Garage Next Vehicle",
+                    "›",
+                    MotorCityInputAction.NextVehicle,
+                    new Vector2(
+                        1f,
+                        0.5f),
+                    new Vector2(
+                        -446f,
+                        0f),
+                    new Vector2(
+                        92f,
+                        126f),
+                    54);
 
-            const float buttonWidth = 111f;
-            const float buttonHeight = 26f;
-            const float horizontalGap = 6f;
-            const float verticalGap = 5f;
-            const int columns = 6;
+            garageActionButtons[2] =
+                CreateGarageActionButton(
+                    root,
+                    "Garage Appearance Color",
+                    MotorCityLocalization.Text(
+                        "touch.garage.color"),
+                    MotorCityInputAction.CycleBodyColor,
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    new Vector2(
+                        -132f,
+                        68f),
+                    new Vector2(
+                        122f,
+                        78f),
+                    15);
 
-            float totalWidth =
-                columns *
-                buttonWidth +
-                (columns - 1) *
-                horizontalGap;
+            garageActionButtons[3] =
+                CreateGarageActionButton(
+                    root,
+                    "Garage Appearance Wheels",
+                    MotorCityLocalization.Text(
+                        "touch.garage.wheels"),
+                    MotorCityInputAction.CycleWheels,
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    new Vector2(
+                        0f,
+                        68f),
+                    new Vector2(
+                        122f,
+                        78f),
+                    15);
 
-            for (int i = 0;
-                 i < actions.Length;
-                 i++)
-            {
-                int row =
-                    i /
-                    columns;
+            garageActionButtons[4] =
+                CreateGarageActionButton(
+                    root,
+                    "Garage Appearance Neon",
+                    MotorCityLocalization.Text(
+                        "touch.garage.neon"),
+                    MotorCityInputAction.CycleNeon,
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    new Vector2(
+                        132f,
+                        68f),
+                    new Vector2(
+                        122f,
+                        78f),
+                    15);
 
-                int column =
-                    i %
-                    columns;
+            garageActionButtons[5] =
+                CreateGarageActionButton(
+                    root,
+                    "Garage Passport",
+                    MotorCityLocalization.Text(
+                        "touch.garage.passport"),
+                    MotorCityInputAction.ToggleVehiclePassport,
+                    new Vector2(
+                        1f,
+                        0f),
+                    new Vector2(
+                        -228f,
+                        42f),
+                    new Vector2(
+                        156f,
+                        42f),
+                    12);
 
-                float x =
-                    -totalWidth * 0.5f +
-                    buttonWidth * 0.5f +
-                    column *
-                    (buttonWidth +
-                     horizontalGap);
+            garageActionButtons[6] =
+                CreateGarageActionButton(
+                    root,
+                    "Garage City Button",
+                    MotorCityLocalization.Text(
+                        "garage.city_button"),
+                    MotorCityInputAction.Interact,
+                    new Vector2(
+                        1f,
+                        1f),
+                    new Vector2(
+                        -24f,
+                        -38f),
+                    new Vector2(
+                        286f,
+                        76f),
+                    24);
 
-                float y =
-                    70f -
-                    row *
-                    (buttonHeight +
-                     verticalGap);
+            RectTransform appearancePanel =
+                CreatePanel(
+                    root,
+                    "Garage Appearance Panel",
+                    new Vector2(
+                        0f,
+                        18f),
+                    new Vector2(
+                        430f,
+                        142f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    Color.clear);
 
-                garageActionButtons[i] =
-                    CreateLocalizedTouchPulseButton(
-                        root,
-                        "Garage Action " + i,
-                        localizationKeys[i],
-                        actions[i],
-                        new Vector2(
-                            x,
-                            y),
-                        new Vector2(
-                            buttonWidth,
-                            buttonHeight));
-            }
+            ApplyGarageRowTexture(
+                appearancePanel);
+
+            appearancePanel.SetAsFirstSibling();
+
+            Text appearanceTitle =
+                CreateText(
+                    root,
+                    "Garage Appearance Title",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        146f),
+                    new Vector2(
+                        360f,
+                        26f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    new Vector2(
+                        0.5f,
+                        0f),
+                    SecondaryTextColor);
+
+            appearanceTitle.text =
+                MotorCityLocalization.Text(
+                    "garage.appearance_title");
+
+            RectTransform menuVisual =
+                CreatePanel(
+                    root,
+                    "Garage Main Menu Visual",
+                    new Vector2(
+                        24f,
+                        -38f),
+                    new Vector2(
+                        286f,
+                        76f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    Color.clear);
+
+            ApplyGarageRowTexture(
+                menuVisual);
+
+            Text menuText =
+                CreateText(
+                    menuVisual,
+                    "Label",
+                    22,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(
+                        250f,
+                        54f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    TextColor);
+
+            menuText.text =
+                "‹  " +
+                MotorCityLocalization.Text(
+                    "garage.main_menu_button");
 
             garageTouchControlsRoot.SetActive(
                 false);
+        }
+
+        private GameObject CreateGarageActionButton(
+            Transform parent,
+            string name,
+            string label,
+            MotorCityInputAction action,
+            Vector2 anchor,
+            Vector2 anchoredPosition,
+            Vector2 size,
+            int fontSize)
+        {
+            GameObject buttonObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                anchor;
+            rect.anchorMax =
+                anchor;
+            rect.pivot =
+                anchor;
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            Texture2D buttonTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalButton;
+
+            Sprite buttonSprite =
+                GetModalButtonSprite(
+                    buttonTexture);
+
+            if (buttonSprite != null)
+            {
+                image.sprite =
+                    buttonSprite;
+                image.type =
+                    Image.Type.Simple;
+                image.preserveAspect =
+                    false;
+                image.color =
+                    Color.white;
+            }
+            else
+            {
+                image.color =
+                    PanelColor;
+            }
+
+            Button button =
+                buttonObject.GetComponent<Button>();
+
+            button.targetGraphic =
+                image;
+
+            button.onClick.AddListener(
+                () =>
+                    MotorCityInput.PulseVirtual(
+                        action));
+
+            Text text =
+                CreateText(
+                    rect,
+                    "Label",
+                    fontSize,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    size -
+                    new Vector2(
+                        16f,
+                        12f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    TextColor);
+
+            text.text =
+                label;
+
+            MakeButtonTextCrisp(
+                text);
+
+            return buttonObject;
         }
 
         private void UpdateGarage()
