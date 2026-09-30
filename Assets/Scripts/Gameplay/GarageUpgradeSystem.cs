@@ -543,6 +543,14 @@ namespace MotorCity.Gameplay
             circuitRace?.CancelActivity();
         }
 
+        public void CloseAfterRookieCustomization()
+        {
+            if (!IsOpen)
+                return;
+
+            CloseGarage();
+        }
+
         private void CloseGarage()
         {
             IsOpen = false;
