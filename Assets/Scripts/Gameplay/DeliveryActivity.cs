@@ -170,7 +170,34 @@ namespace MotorCity.Gameplay
                 maxStartSpeedKph)
             {
                 StatusText =
-                    MotorCityLocalization.Format("activity.stop", MotorCityLocalization.Text("activity.delivery"), maxStartSpeedKph);
+                    activityManager.IsRookieDeliveryStep
+                        ? MotorCityLocalization.Text(
+                            "onboarding.activity.stop")
+                        : MotorCityLocalization.Format(
+                            "activity.stop",
+                            MotorCityLocalization.Text(
+                                "activity.delivery"),
+                            maxStartSpeedKph);
+                return;
+            }
+
+            if (activityManager.IsRookieDeliveryStep)
+            {
+                StatusText =
+                    MotorCityLocalization.Text(
+                        MotorCityInput.CurrentControlScheme ==
+                        MotorCityControlScheme.Keyboard
+                            ? "onboarding.activity.ready.keyboard"
+                            : "onboarding.activity.ready.touch");
+
+                if (MotorCityInput.InteractPressed)
+                {
+                    eliteMode =
+                        false;
+
+                    BeginCountdown();
+                }
+
                 return;
             }
 
