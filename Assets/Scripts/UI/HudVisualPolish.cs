@@ -474,29 +474,17 @@ namespace MotorCity.UI
             SetDrivingControlImage(
                 root,
                 "Throttle",
-                new Color32(
-                    255,
-                    255,
-                    255,
-                    0x0A));
+                new Color32(255, 255, 255, 0x64));
 
             SetDrivingControlImage(
                 root,
                 "Reverse",
-                new Color32(
-                    255,
-                    255,
-                    255,
-                    0x0A));
+                new Color32(255, 255, 255, 0x64));
 
             SetDrivingControlImage(
                 root,
                 "Handbrake",
-                new Color32(
-                    255,
-                    255,
-                    255,
-                    0x32));
+                new Color32(255, 255, 255, 0x64));
 
             SetDrivingControlImage(
                 root,
