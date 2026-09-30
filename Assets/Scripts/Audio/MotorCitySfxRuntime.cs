@@ -13,6 +13,7 @@ namespace MotorCity.Audio
         private AudioClip collision;
         private AudioClip countdownTick;
         private AudioClip countdownGo;
+        private AudioClip newRecord;
 
         public static void PlayUiClick()
         {
@@ -61,6 +62,16 @@ namespace MotorCity.Audio
             instance.Play(
                 instance.countdownGo,
                 0.24f,
+                1f);
+        }
+
+        public static void PlayNewRecord()
+        {
+            EnsureExists();
+
+            instance.Play(
+                instance.newRecord,
+                0.26f,
                 1f);
         }
 
@@ -187,6 +198,14 @@ namespace MotorCity.Audio
                     1080f,
                     0.20f,
                     0.30f);
+
+            newRecord =
+                BuildTwoTone(
+                    "Motor City New Record",
+                    920f,
+                    1320f,
+                    0.26f,
+                    0.34f);
         }
 
         private void Play(
