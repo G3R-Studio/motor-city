@@ -965,6 +965,14 @@ namespace MotorCity.UI
                     characterPanel,
                     false);
 
+                SetActiveIfChanged(
+                    seasonCompactButton,
+                    false);
+
+                SetActiveIfChanged(
+                    seasonPanel,
+                    false);
+
                 UpdateGarage();
             }
 
