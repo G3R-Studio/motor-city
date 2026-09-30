@@ -13,7 +13,7 @@ Current core features include:
 - keyboard/gamepad driving plus runtime HUD/touch controls;
 - Comfort / Sport / Drift driving modes;
 - persistent credits, REP, upgrades, vehicle mastery/history/specialization and save data;
-- delivery, drift, sprint, circuit, speed-trap, drift-spot, stunt, discovery and additional city activity systems;
+- delivery, drift, sprint, circuit, speed-trap, drift-spot, discovery and additional city activity systems;
 - runtime HUD, garage, navigator, pause, store, club and result interfaces;
 - Yandex/WebGL platform, cloud-save, purchase, analytics and remote-config integration code;
 - a baked Fantastic City Generator runtime city plus a tracked editable FCG workbench;
