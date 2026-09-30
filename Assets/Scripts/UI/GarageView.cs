@@ -812,7 +812,7 @@ namespace MotorCity.UI
                         new Vector2(196f, 42f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
-                        new Color(0.045f, 0.055f, 0.14f, 0.96f));
+                        new Color(0.045f, 0.055f, 0.14f, 0.92f));
 
                 Outline priceStripOutline =
                     priceStrip.GetComponent<Outline>();
@@ -829,25 +829,25 @@ namespace MotorCity.UI
 
                 garagePriceIcons[i] =
                     CreateHudIcon(
-                        row,
+                        priceStrip,
                         "Upgrade Price Icon",
                         MotorCityIconLibrary.Credits,
-                        new Vector2(28f, 22f),
+                        new Vector2(14f, 0f),
                         new Vector2(20f, 20f),
-                        new Vector2(0f, 0f),
+                        new Vector2(0f, 0.5f),
                         green);
 
                 garagePriceTexts[i] =
                     CreateText(
-                        row,
+                        priceStrip,
                         "Upgrade Price",
                         17,
                         FontStyle.Bold,
-                        TextAnchor.MiddleLeft,
-                        new Vector2(58f, 26f),
-                        new Vector2(146f, 28f),
-                        new Vector2(0f, 0f),
-                        new Vector2(0f, 0f),
+                        TextAnchor.MiddleCenter,
+                        new Vector2(12f, 0f),
+                        new Vector2(160f, 28f),
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f),
                         green);
             }
 
@@ -986,7 +986,7 @@ namespace MotorCity.UI
             root.offsetMax = Vector2.zero;
 
             Color navColor =
-                new Color(0.06f, 0.055f, 0.18f, 0.94f);
+                new Color(0.06f, 0.055f, 0.18f, 0.90f);
 
             garageActionButtons[0] =
                 CreateGarageActionButton(
@@ -1008,7 +1008,7 @@ namespace MotorCity.UI
                     MotorCityInputAction.NextVehicle,
                     new Vector2(1f, 0.5f),
                     new Vector2(-430f, 0f),
-                    new Vector2(86f, 124f),
+                    new Vector2(78f, 112f),
                     58,
                     navColor);
 
