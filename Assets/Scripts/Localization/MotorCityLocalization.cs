@@ -275,6 +275,7 @@ namespace MotorCity.Localization
                 { "hud.result_club_progress", E("КЛУБ +{0}", "CLUB +{0}") },
                 { "hud.result_next_rookie", E("СЛЕДУЮЩАЯ ЦЕЛЬ: {0}", "NEXT GOAL: {0}") },
                 { "hud.result_next_story", E("СЛЕДУЮЩАЯ ЦЕЛЬ: {0}", "NEXT GOAL: {0}") },
+                { "hud.result_next_vehicle", E("{0} - осталось {1:N0} РЕПУТАЦИИ", "{0} - {1:N0} REPUTATION left") },
                 { "hud.result_next_daily", E("DAILY - осталось заданий: {0}", "DAILY - tasks left: {0}") },
                 { "hud.result_next_season", E("СЕЗОН - ещё {0} × {1}", "SEASON - {0} × {1} left") },
                 { "hud.result_next_event", E("СОБЫТИЕ - {0}", "EVENT - {0}") },
