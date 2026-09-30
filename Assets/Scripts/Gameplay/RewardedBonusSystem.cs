@@ -222,13 +222,18 @@ namespace MotorCity.Gameplay
             long now =
                 MotorCityPlatform.ServerUnixTime;
 
+            long remainingSeconds =
+                cooldownUntil > now
+                    ? cooldownUntil - now
+                    : 0L;
+
             cooldown =
                 Mathf.Clamp(
-                    cooldownUntil > now
-                        ? cooldownUntil - now
-                        : 0L,
-                    0L,
-                    3600L);
+                    (float)Math.Min(
+                        remainingSeconds,
+                        3600L),
+                    0f,
+                    3600f);
 
             if (cooldown <= 0f &&
                 cooldownUntil > 0L)
