@@ -39,6 +39,7 @@ namespace MotorCity.Gameplay
         private StoryMissionSystem story;
 
         public event Action<string, bool> ActivityResultShown;
+        public event Action<string, bool> ActivityResultDismissed;
         public event Action<string> ActivityCompleted;
 
         public string DisciplineHudLine =>
@@ -235,6 +236,12 @@ namespace MotorCity.Gameplay
 
         public void DismissResult()
         {
+            string dismissedActivityId =
+                ResultActivityId;
+
+            bool dismissedSuccess =
+                ResultSuccess;
+
             HasResult = false;
             ResultActivityId = null;
             ResultTitle = null;
@@ -243,6 +250,10 @@ namespace MotorCity.Gameplay
             ResultRewardCredits = 0;
             ResultReputationReward = 0;
             ResultSuccess = false;
+
+            ActivityResultDismissed?.Invoke(
+                dismissedActivityId,
+                dismissedSuccess);
         }
 
         public bool IsActive(string id) => ActiveId == id;
