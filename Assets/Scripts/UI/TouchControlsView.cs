@@ -7,6 +7,7 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
+        private static Material touchControlDesaturateMaterial;
         private void RefreshTouchLocalizedLabels()
         {
             foreach (TouchLocalizedLabel binding in
@@ -954,21 +955,21 @@ namespace MotorCity.UI
                 uiThemeAssets == null
                     ? null
                     : uiThemeAssets.touchHandbrake,
-                new Vector2(-112f, 176f),
+                new Vector2(-36f, 208f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(118f, 92f));
+                new Vector2(92f, 76f));
 
-            CreateTouchHoldButton(
+            CreateStyledTouchHoldButton(
                 root,
                 "Interact",
                 MotorCityLocalization.Text(
                     "touch.drive.action_short"),
                 MotorCityInputAction.Interact,
-                new Vector2(-48f, 286f),
+                new Vector2(-42f, 304f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(96f, 62f),
+                new Vector2(118f, 48f),
                 13);
 
             touchWheelSteeringRoot =
@@ -1032,6 +1033,8 @@ namespace MotorCity.UI
                 true;
             image.raycastTarget =
                 true;
+            image.material =
+                GetTouchControlMaterial();
             image.color =
                 new Color(
                     1f,
@@ -1111,6 +1114,8 @@ namespace MotorCity.UI
                 true;
             image.raycastTarget =
                 true;
+            image.material =
+                GetTouchControlMaterial();
             image.color =
                 new Color(
                     1f,
@@ -1119,6 +1124,124 @@ namespace MotorCity.UI
                     0.25f);
 
             return group;
+        }
+
+        private RectTransform CreateStyledTouchHoldButton(
+            Transform parent,
+            string name,
+            string label,
+            MotorCityInputAction action,
+            Vector2 anchoredPosition,
+            Vector2 anchor,
+            Vector2 pivot,
+            Vector2 size,
+            int fontSize)
+        {
+            GameObject buttonObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(TouchHoldInputButton));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = pivot;
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            Texture2D buttonTexture =
+                uiThemeAssets == null
+                    ? null
+                    : uiThemeAssets.modalButton;
+
+            Sprite buttonSprite =
+                GetModalButtonSprite(
+                    buttonTexture);
+
+            if (buttonSprite != null)
+            {
+                image.sprite =
+                    buttonSprite;
+                image.type =
+                    Image.Type.Simple;
+                image.preserveAspect =
+                    false;
+                image.color =
+                    Color.white;
+            }
+            else
+            {
+                image.color =
+                    new Color(
+                        0.075f,
+                        0.07f,
+                        0.12f,
+                        0.94f);
+            }
+
+            TouchHoldInputButton input =
+                buttonObject.GetComponent<TouchHoldInputButton>();
+
+            input.Bind(
+                action);
+
+            Text text =
+                CreateText(
+                    rect,
+                    "Label",
+                    fontSize,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    size -
+                    new Vector2(12f, 8f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+
+            text.text =
+                label;
+
+            MakeButtonTextCrisp(
+                text);
+
+            return rect;
+        }
+
+        private static Material GetTouchControlMaterial()
+        {
+            if (touchControlDesaturateMaterial != null)
+                return touchControlDesaturateMaterial;
+
+            Shader shader =
+                Shader.Find(
+                    "MotorCity/UI/TouchControlDesaturate");
+
+            if (shader == null)
+                return null;
+
+            touchControlDesaturateMaterial =
+                new Material(
+                    shader)
+                {
+                    hideFlags =
+                        HideFlags.DontSave
+                };
+
+            return touchControlDesaturateMaterial;
         }
 
         private GameObject CreateTouchArrowSteeringGroup(
@@ -1162,8 +1285,10 @@ namespace MotorCity.UI
             Image leftHitArea =
                 left.GetComponent<Image>();
 
+            leftHitArea.sprite =
+                null;
             leftHitArea.color =
-                new Color(1f, 1f, 1f, 0f);
+                new Color(1f, 1f, 1f, 0.001f);
 
             CreateTouchChevron(
                 left,
@@ -1184,8 +1309,10 @@ namespace MotorCity.UI
             Image rightHitArea =
                 right.GetComponent<Image>();
 
+            rightHitArea.sprite =
+                null;
             rightHitArea.color =
-                new Color(1f, 1f, 1f, 0f);
+                new Color(1f, 1f, 1f, 0.001f);
 
             CreateTouchChevron(
                 right,
