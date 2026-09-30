@@ -185,6 +185,64 @@ namespace MotorCity.Gameplay
                 "discovery");
         }
 
+        public void DiscoverForTesting(
+            int index)
+        {
+            if (!Valid(
+                    index) ||
+                discoveries[index].Found)
+            {
+                return;
+            }
+
+            Discover(
+                discoveries[index]);
+        }
+
+        public void DiscoverAllForTesting()
+        {
+            if (discoveries == null)
+                return;
+
+            for (int i = 0;
+                 i < discoveries.Length;
+                 i++)
+            {
+                if (!discoveries[i].Found)
+                {
+                    Discover(
+                        discoveries[i]);
+                }
+            }
+        }
+
+        public void ResetForTesting()
+        {
+            if (discoveries == null)
+                return;
+
+            foreach (Discovery item in
+                     discoveries)
+            {
+                if (item == null)
+                    continue;
+
+                item.Found =
+                    false;
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    $"MotorCity.Discovery.{item.Id}");
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            StatusText =
+                string.Empty;
+
+            messageTimer =
+                0f;
+        }
+
         public Vector3 GetDiscoveryPosition(int index)
         {
             return Valid(index)
