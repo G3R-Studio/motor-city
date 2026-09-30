@@ -735,14 +735,27 @@ namespace MotorCity.UI
                     CreateText(
                         row,
                         "Upgrade Title",
-                        16,
+                        15,
                         FontStyle.Bold,
                         TextAnchor.UpperLeft,
-                        new Vector2(60f, -18f),
-                        new Vector2(152f, 44f),
+                        new Vector2(60f, -14f),
+                        new Vector2(148f, 24f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
                         TextColor);
+
+                garageLevelTexts[i] =
+                    CreateText(
+                        row,
+                        "Upgrade Level",
+                        12,
+                        FontStyle.Bold,
+                        TextAnchor.UpperLeft,
+                        new Vector2(60f, -38f),
+                        new Vector2(148f, 20f),
+                        new Vector2(0f, 1f),
+                        new Vector2(0f, 1f),
+                        SecondaryTextColor);
 
                 for (int segment = 0; segment < 5; segment++)
                 {
@@ -791,12 +804,35 @@ namespace MotorCity.UI
                 garageDescriptionTexts[i].resizeTextMinSize = 10;
                 garageDescriptionTexts[i].resizeTextMaxSize = 12;
 
+                RectTransform priceStrip =
+                    CreatePanel(
+                        row,
+                        "Upgrade Action Strip",
+                        new Vector2(16f, 12f),
+                        new Vector2(196f, 42f),
+                        new Vector2(0f, 0f),
+                        new Vector2(0f, 0f),
+                        new Color(0.045f, 0.055f, 0.14f, 0.96f));
+
+                Outline priceStripOutline =
+                    priceStrip.GetComponent<Outline>();
+
+                if (priceStripOutline != null)
+                {
+                    priceStripOutline.effectColor =
+                        new Color(
+                            accents[i].r,
+                            accents[i].g,
+                            accents[i].b,
+                            0.52f);
+                }
+
                 garagePriceIcons[i] =
                     CreateHudIcon(
                         row,
                         "Upgrade Price Icon",
                         MotorCityIconLibrary.Credits,
-                        new Vector2(20f, 22f),
+                        new Vector2(28f, 22f),
                         new Vector2(20f, 20f),
                         new Vector2(0f, 0f),
                         green);
@@ -808,8 +844,8 @@ namespace MotorCity.UI
                         17,
                         FontStyle.Bold,
                         TextAnchor.MiddleLeft,
-                        new Vector2(50f, 26f),
-                        new Vector2(158f, 28f),
+                        new Vector2(58f, 26f),
+                        new Vector2(146f, 28f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
                         green);
@@ -1687,7 +1723,15 @@ namespace MotorCity.UI
             for (int i = 0; i < 3; i++)
             {
                 garageTitleTexts[i].text =
-                    garage.GetUpgradeTitle(i);
+                    garage.GetUpgradeName(
+                        i);
+
+                if (garageLevelTexts[i] != null)
+                {
+                    garageLevelTexts[i].text =
+                        garage.GetUpgradeLevelText(
+                            i);
+                }
 
                 garagePriceTexts[i].text =
                     garage.GetUpgradePrice(i);
