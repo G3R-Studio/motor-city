@@ -60,6 +60,10 @@ namespace MotorCity.CameraSystem
         private bool openingPresentationArmed;
         private bool openingPresentationActive;
         private bool manualInputEnabled = true;
+        private bool garageMode;
+        private bool garagePoseSnapPending;
+        private Vector3 garageInitialPosition;
+        private Quaternion garageInitialRotation;
         private float openingPresentationTimer;
         private float openingPresentationDuration = 1.6f;
         private Vector3 openingPresentationStartPosition;
@@ -110,6 +114,109 @@ namespace MotorCity.CameraSystem
 
             lastManualInputTime =
                 Time.time;
+        }
+
+        public void SetGarageMode(
+            bool enabled,
+            Vector3 initialPosition,
+            Quaternion initialRotation)
+        {
+            garageMode =
+                enabled;
+
+            manualInputEnabled =
+                true;
+
+            cameraTouchId =
+                -1;
+
+            if (!enabled)
+            {
+                lastManualInputTime =
+                    Time.time;
+
+                return;
+            }
+
+            garageInitialPosition =
+                initialPosition;
+
+            garageInitialRotation =
+                initialRotation;
+
+            garagePoseSnapPending =
+                true;
+
+            if (target == null)
+                return;
+
+            Vector3 pivot =
+                target.position +
+                Vector3.up *
+                height;
+
+            Vector3 offset =
+                initialPosition -
+                pivot;
+
+            float orbitDistance =
+                Mathf.Max(
+                    minDistance,
+                    offset.magnitude);
+
+            distance =
+                Mathf.Clamp(
+                    orbitDistance,
+                    minDistance,
+                    maxDistance);
+
+            targetDistance =
+                distance;
+
+            if (offset.sqrMagnitude >
+                0.0001f)
+            {
+                Vector3 direction =
+                    offset.normalized;
+
+                pitch =
+                    Mathf.Clamp(
+                        Mathf.Asin(
+                            Mathf.Clamp(
+                                direction.y,
+                                -1f,
+                                1f)) *
+                        Mathf.Rad2Deg,
+                        minPitch,
+                        maxPitch);
+
+                float worldYaw =
+                    Mathf.Atan2(
+                        -direction.x,
+                        -direction.z) *
+                    Mathf.Rad2Deg;
+
+                yawOffset =
+                    Mathf.DeltaAngle(
+                        target.eulerAngles.y,
+                        worldYaw);
+            }
+
+            currentCollisionDistance =
+                distance;
+
+            collisionDistanceVelocity =
+                0f;
+
+            lastManualInputTime =
+                Time.time;
+
+            hasLastTargetPosition =
+                false;
+
+            transform.SetPositionAndRotation(
+                initialPosition,
+                initialRotation);
         }
 
         public void ArmOpeningPresentation(
@@ -455,7 +562,8 @@ namespace MotorCity.CameraSystem
                 targetDistance,
                 1f - Mathf.Exp(-zoomSharpness * Time.deltaTime));
 
-            if (!orbiting &&
+            if (!garageMode &&
+                !orbiting &&
                 !touchOrbiting &&
                 Time.time - lastManualInputTime > recenterDelay)
             {
@@ -615,6 +723,25 @@ namespace MotorCity.CameraSystem
         private void LateUpdate()
         {
             if (target == null) return;
+
+            if (garageMode &&
+                garagePoseSnapPending)
+            {
+                garagePoseSnapPending =
+                    false;
+
+                transform.SetPositionAndRotation(
+                    garageInitialPosition,
+                    garageInitialRotation);
+
+                lastTargetPosition =
+                    target.position;
+
+                hasLastTargetPosition =
+                    true;
+
+                return;
+            }
 
             float positionT = 1f - Mathf.Exp(-positionSharpness * Time.deltaTime);
             float rotationT = 1f - Mathf.Exp(-rotationSharpness * Time.deltaTime);
