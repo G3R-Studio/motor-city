@@ -38,7 +38,6 @@ namespace MotorCity.Gameplay
         private int currentLap = 1;
         private bool armed = true;
         private bool isCountingDown;
-        private float countdownRemaining;
         private float lapStartElapsedSeconds;
         private float sessionBestLapSeconds;
 
@@ -134,10 +133,8 @@ namespace MotorCity.Gameplay
                 if (MotorCityInput.CancelPressed)
                 {
                     CancelActivity();
-                    return;
                 }
 
-                UpdateCountdown();
                 return;
             }
 
@@ -230,19 +227,16 @@ namespace MotorCity.Gameplay
             activityManager.RequestStart(
                 ActivityId,
                 MotorCityLocalization.Text("activity.circuit"),
-                BeginPreparedCountdown);
+                countdownSeconds,
+                BeginPreparedCountdown,
+                UpdateCountdownStatus,
+                BeginGameplay);
         }
 
         private void BeginPreparedCountdown()
         {
             isCountingDown = true;
             armed = false;
-
-            countdownRemaining =
-                Mathf.Max(
-                    0.1f,
-                    countdownSeconds);
-
             ElapsedSeconds = 0f;
             lapStartElapsedSeconds = 0f;
             sessionBestLapSeconds = 0f;
@@ -250,24 +244,20 @@ namespace MotorCity.Gameplay
             checkpointIndex = 0;
 
             car.SetDrivingEnabled(false);
-
-            UpdateCountdownStatus();
         }
 
-        private void UpdateCountdown()
+        private void UpdateCountdownStatus(
+            int shown)
         {
-            countdownRemaining =
-                Mathf.Max(
-                    0f,
-                    countdownRemaining -
-                    Time.deltaTime);
+            StatusText =
+                MotorCityLocalization.Format(
+                    "activity.countdown",
+                    MotorCityLocalization.Text("hud.circuit"),
+                    shown);
+        }
 
-            if (countdownRemaining > 0f)
-            {
-                UpdateCountdownStatus();
-                return;
-            }
-
+        private void BeginGameplay()
+        {
             isCountingDown = false;
             IsActive = true;
             ElapsedSeconds = 0f;
@@ -279,18 +269,6 @@ namespace MotorCity.Gameplay
             car.SetDrivingEnabled(true);
 
             UpdateStatus();
-        }
-
-        private void UpdateCountdownStatus()
-        {
-            int shown =
-                Mathf.Max(
-                    1,
-                    Mathf.CeilToInt(
-                        countdownRemaining));
-
-            StatusText =
-                MotorCityLocalization.Format("activity.countdown", MotorCityLocalization.Text("hud.circuit"), shown);
         }
 
         private void UpdateActiveRace()
@@ -494,10 +472,15 @@ namespace MotorCity.Gameplay
                 !isCountingDown)
                 return;
 
+            if (isCountingDown)
+            {
+                activityManager?.CancelPendingStart(
+                    ActivityId);
+            }
+
             IsActive = false;
             isCountingDown = false;
             armed = false;
-            countdownRemaining = 0f;
             checkpointIndex = 0;
             currentLap = 1;
             ElapsedSeconds = 0f;
