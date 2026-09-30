@@ -7,7 +7,6 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
-        private static Material touchControlDesaturateMaterial;
         private void RefreshTouchLocalizedLabels()
         {
             foreach (TouchLocalizedLabel binding in
@@ -960,7 +959,7 @@ namespace MotorCity.UI
                 new Vector2(1f, 0f),
                 new Vector2(92f, 76f));
 
-            CreateStyledTouchHoldButton(
+            CreateStyledTouchPulseButton(
                 root,
                 "Interact",
                 MotorCityLocalization.Text(
@@ -1126,7 +1125,7 @@ namespace MotorCity.UI
             return group;
         }
 
-        private RectTransform CreateStyledTouchHoldButton(
+        private RectTransform CreateStyledTouchPulseButton(
             Transform parent,
             string name,
             string label,
@@ -1142,7 +1141,7 @@ namespace MotorCity.UI
                     name,
                     typeof(RectTransform),
                     typeof(Image),
-                    typeof(TouchHoldInputButton));
+                    typeof(Button));
 
             buttonObject.transform.SetParent(
                 parent,
@@ -1192,11 +1191,39 @@ namespace MotorCity.UI
                         0.94f);
             }
 
-            TouchHoldInputButton input =
-                buttonObject.GetComponent<TouchHoldInputButton>();
+            Button button =
+                buttonObject.GetComponent<Button>();
 
-            input.Bind(
-                action);
+            button.targetGraphic =
+                image;
+
+            ColorBlock colors =
+                button.colors;
+
+            colors.normalColor =
+                Color.white;
+            colors.highlightedColor =
+                new Color(
+                    0.96f,
+                    0.96f,
+                    1f,
+                    1f);
+            colors.pressedColor =
+                new Color(
+                    0.82f,
+                    0.80f,
+                    0.92f,
+                    1f);
+            colors.selectedColor =
+                colors.highlightedColor;
+
+            button.colors =
+                colors;
+
+            button.onClick.AddListener(
+                () =>
+                    MotorCityInput.PulseVirtual(
+                        action));
 
             Text text =
                 CreateText(
@@ -1219,29 +1246,6 @@ namespace MotorCity.UI
                 text);
 
             return rect;
-        }
-
-        private static Material GetTouchControlMaterial()
-        {
-            if (touchControlDesaturateMaterial != null)
-                return touchControlDesaturateMaterial;
-
-            Shader shader =
-                Shader.Find(
-                    "MotorCity/UI/TouchControlDesaturate");
-
-            if (shader == null)
-                return null;
-
-            touchControlDesaturateMaterial =
-                new Material(
-                    shader)
-                {
-                    hideFlags =
-                        HideFlags.DontSave
-                };
-
-            return touchControlDesaturateMaterial;
         }
 
         private GameObject CreateTouchArrowSteeringGroup(
