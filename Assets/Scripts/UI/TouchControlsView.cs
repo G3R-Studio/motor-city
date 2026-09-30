@@ -973,8 +973,8 @@ namespace MotorCity.UI
                 new Vector2(1f, 0f),
                 FitTouchArtSize(
                     handbrakeTexture,
-                    new Vector2(168f, 148f)),
-                new Color32(255, 255, 255, 0xA0));
+                    new Vector2(227f, 200f)),
+                new Color32(255, 255, 255, 165));
 
             GameObject interactButton =
                 CreateLocalizedTouchPulseButton(
@@ -1015,7 +1015,7 @@ namespace MotorCity.UI
             interactRect.pivot =
                 new Vector2(1f, 0f);
             interactRect.anchoredPosition =
-                new Vector2(-42f, 304f);
+                new Vector2(-284f, 304f);
 
             touchWheelSteeringRoot =
                 CreateTouchSteeringWheelGroup(
