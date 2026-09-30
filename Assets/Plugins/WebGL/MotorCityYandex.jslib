@@ -12,11 +12,34 @@ mergeInto(LibraryManager.library, {
 
       canvas.dataset.motorCityBrowserConfigured = '1';
 
+      // Keep all gestures inside the Unity surface. Yandex Games checks that
+      // mobile gameplay does not trigger browser scrolling, pull-to-refresh,
+      // text selection or long-press browser UI.
+      canvas.style.touchAction = 'none';
+      canvas.style.userSelect = 'none';
+      canvas.style.webkitUserSelect = 'none';
+      canvas.style.webkitTouchCallout = 'none';
+
+      if (document.documentElement) {
+        document.documentElement.style.overscrollBehavior = 'none';
+        document.documentElement.style.overflow = 'hidden';
+      }
+
+      if (document.body) {
+        document.body.style.overscrollBehavior = 'none';
+        document.body.style.overflow = 'hidden';
+        document.body.style.margin = '0';
+      }
+
       canvas.addEventListener('contextmenu', function(event) {
         event.preventDefault();
       }, false);
 
       canvas.addEventListener('dragstart', function(event) {
+        event.preventDefault();
+      }, false);
+
+      canvas.addEventListener('selectstart', function(event) {
         event.preventDefault();
       }, false);
     } catch (error) {
