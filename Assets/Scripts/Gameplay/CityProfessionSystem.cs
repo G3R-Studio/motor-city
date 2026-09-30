@@ -252,18 +252,25 @@ namespace MotorCity.Gameplay
         private void StartProfession(
             ProfessionDefinition definition)
         {
+            if (definition == null)
+                return;
+
             string activityId =
                 ActivityId(
                     definition.Id);
 
-            if (!activities.TryBegin(
-                    activityId,
-                    MotorCityLocalization.Text(
-                        definition.NameKey)))
-            {
-                return;
-            }
+            activities.RequestStart(
+                activityId,
+                MotorCityLocalization.Text(
+                    definition.NameKey),
+                () =>
+                    BeginPreparedProfession(
+                        definition));
+        }
 
+        private void BeginPreparedProfession(
+            ProfessionDefinition definition)
+        {
             active =
                 definition;
 
