@@ -51,8 +51,11 @@ namespace MotorCity.Input
         private static readonly bool[] VirtualHeld =
             new bool[(int)MotorCityInputAction.Count];
 
-        private static readonly int[] VirtualPressedFrame =
-            new int[(int)MotorCityInputAction.Count];
+        private static readonly bool[] VirtualPressedThisFrame =
+            new bool[(int)MotorCityInputAction.Count];
+
+        private static readonly bool[] VirtualPendingPress =
+            new bool[(int)MotorCityInputAction.Count];
 
         private const string ControlSchemeKey =
             "MotorCity.Input.ControlScheme";
@@ -80,11 +83,14 @@ namespace MotorCity.Input
             }
 
             for (int i = 0;
-                 i < VirtualPressedFrame.Length;
+                 i < VirtualPressedThisFrame.Length;
                  i++)
             {
-                VirtualPressedFrame[i] =
-                    int.MinValue;
+                VirtualPressedThisFrame[i] =
+                    false;
+
+                VirtualPendingPress[i] =
+                    false;
             }
         }
 
@@ -391,8 +397,11 @@ namespace MotorCity.Input
                 VirtualHeld[i] =
                     false;
 
-                VirtualPressedFrame[i] =
-                    int.MinValue;
+                VirtualPressedThisFrame[i] =
+                    false;
+
+                VirtualPendingPress[i] =
+                    false;
             }
         }
 
@@ -406,8 +415,8 @@ namespace MotorCity.Input
                 return;
 
             VirtualHeld[index] = true;
-            VirtualPressedFrame[index] =
-                Time.frameCount + 1;
+            VirtualPendingPress[index] =
+                true;
         }
 
         public static void ReleaseVirtual(
@@ -435,8 +444,8 @@ namespace MotorCity.Input
             if (held &&
                 !VirtualHeld[index])
             {
-                VirtualPressedFrame[index] =
-                Time.frameCount + 1;
+                VirtualPendingPress[index] =
+                true;
             }
 
             VirtualHeld[index] =
@@ -452,8 +461,8 @@ namespace MotorCity.Input
             if (!Valid(index))
                 return;
 
-            VirtualPressedFrame[index] =
-                Time.frameCount + 1;
+            VirtualPendingPress[index] =
+                true;
         }
 
         public static bool WasVirtualPressed(
@@ -475,6 +484,31 @@ namespace MotorCity.Input
                 VirtualHeld[index];
         }
 
+        public static void BeginVirtualInputFrame()
+        {
+            for (int i = 0;
+                 i < VirtualPressedThisFrame.Length;
+                 i++)
+            {
+                VirtualPressedThisFrame[i] =
+                    VirtualPendingPress[i];
+
+                VirtualPendingPress[i] =
+                    false;
+            }
+        }
+
+        public static void EndVirtualInputFrame()
+        {
+            for (int i = 0;
+                 i < VirtualPressedThisFrame.Length;
+                 i++)
+            {
+                VirtualPressedThisFrame[i] =
+                    false;
+            }
+        }
+
         private static bool VirtualPressed(
             MotorCityInputAction action)
         {
@@ -483,8 +517,7 @@ namespace MotorCity.Input
 
             return
                 Valid(index) &&
-                VirtualPressedFrame[index] ==
-                Time.frameCount;
+                VirtualPressedThisFrame[index];
         }
 
         private static bool KeyPressed(
