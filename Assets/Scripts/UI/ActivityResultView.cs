@@ -154,7 +154,8 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             resultControlsText.text =
-                MotorCityLocalization.Text("hud.result_controls");
+                MotorCityLocalization.Text(
+                    "hud.result_controls");
         }
 
         private void BuildResultTouchControls(
@@ -254,6 +255,16 @@ namespace MotorCity.UI
             }
 
             resultHeadlineText.color = accent;
+
+            if (resultControlsText != null)
+            {
+                resultControlsText.text =
+                    MotorCityLocalization.Text(
+                        IsReplayableResult(
+                            activityManager.ResultActivityId)
+                            ? "hud.result_controls"
+                            : "hud.result_continue_only");
+            }
 
             bool hasReward =
                 activityManager.ResultRewardCredits > 0 ||
