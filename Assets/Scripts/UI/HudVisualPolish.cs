@@ -356,6 +356,48 @@ namespace MotorCity.UI
                     0.12f,
                     0.94f));
 
+            RectTransform resultContinue =
+                FindRect(
+                    "Result Continue");
+
+            if (resultContinue != null)
+            {
+                Image continueImage =
+                    resultContinue.GetComponent<Image>();
+
+                if (continueImage != null)
+                {
+                    continueImage.color =
+                        new Color(
+                            0.18f,
+                            0.42f,
+                            0.92f,
+                            0.98f);
+
+                    Outline continueOutline =
+                        continueImage.GetComponent<Outline>();
+
+                    if (continueOutline == null)
+                    {
+                        continueOutline =
+                            continueImage.gameObject
+                                .AddComponent<Outline>();
+                    }
+
+                    continueOutline.effectColor =
+                        new Color(
+                            0.35f,
+                            0.72f,
+                            1f,
+                            0.62f);
+
+                    continueOutline.effectDistance =
+                        new Vector2(
+                            2f,
+                            -2f);
+                }
+            }
+
             PolishTouchGroup(
                 "Navigator Touch Controls",
                 new Color(
