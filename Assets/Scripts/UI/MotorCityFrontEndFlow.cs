@@ -1950,7 +1950,8 @@ namespace MotorCity.UI
 
             MotorCityPlatformRuntime.MarkGameplayStarted();
 
-            onboarding?.ShowPathPrompt();
+            onboarding?.ShowWelcomeAfterDelay(
+                5f);
         }
 
         private void ShowMainMenu()
