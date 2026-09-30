@@ -94,6 +94,7 @@ namespace MotorCity.UI
 
         private bool openingPresentationActive;
         private ChaseCamera openingPresentationCamera;
+        private float openingPresentationFallbackTimer;
 
         private readonly IntroSlide[] slides =
         {
@@ -1922,43 +1923,58 @@ namespace MotorCity.UI
             canvas.gameObject.SetActive(false);
 
             // Every transition from the front end into the city gets a
-            // short establishing shot. This keeps the hand-off readable for
-            // both new and returning players and makes the transition easy to
-            // verify without requiring a wiped save.
+            // short establishing shot. Use a hard controller-level lock so
+            // HUD refreshes cannot re-enable the vehicle underneath it.
             if (car != null)
-                car.SetDrivingEnabled(false);
-
-            openingPresentationCamera =
-                Camera.main == null
-                    ? null
-                    : Camera.main.GetComponent<ChaseCamera>();
-
-            if (openingPresentationCamera == null)
             {
-                FinishOpeningPresentation();
-                return;
+                car.SetPresentationLock(
+                    true);
+
+                car.SetDrivingEnabled(
+                    false);
             }
 
-            openingPresentationCamera.PlayOpeningPresentation(
-                1.6f);
+            openingPresentationCamera =
+                Object.FindAnyObjectByType<ChaseCamera>();
 
             openingPresentationActive =
                 true;
+
+            openingPresentationFallbackTimer =
+                1.8f;
+
+            if (openingPresentationCamera != null)
+            {
+                openingPresentationCamera.PlayOpeningPresentation(
+                    1.8f);
+            }
         }
 
         private void UpdateOpeningPresentation()
         {
-            // Other HUD/menu systems may refresh driving state while the
-            // transition is running. Reassert the lock until the camera has
-            // actually finished its move.
             if (car != null)
-                car.SetDrivingEnabled(false);
+            {
+                car.SetPresentationLock(
+                    true);
+
+                car.SetDrivingEnabled(
+                    false);
+            }
+
+            openingPresentationFallbackTimer =
+                Mathf.Max(
+                    0f,
+                    openingPresentationFallbackTimer -
+                    Time.unscaledDeltaTime);
 
             if (openingPresentationCamera != null &&
                 openingPresentationCamera.IsOpeningPresentationActive)
             {
                 return;
             }
+
+            if (openingPresentationFallbackTimer > 0f)
+                return;
 
             FinishOpeningPresentation();
         }
@@ -1972,7 +1988,13 @@ namespace MotorCity.UI
                 null;
 
             if (car != null)
-                car.SetDrivingEnabled(true);
+            {
+                car.SetPresentationLock(
+                    false);
+
+                car.SetDrivingEnabled(
+                    true);
+            }
 
             MotorCityPlatformRuntime.MarkGameplayStarted();
 
