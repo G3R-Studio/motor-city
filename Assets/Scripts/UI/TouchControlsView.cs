@@ -933,7 +933,8 @@ namespace MotorCity.UI
                 new Vector2(-42f, 30f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(92f, 156f));
+                new Vector2(92f, 156f),
+                new Color32(255, 255, 255, 0x0A));
 
             CreateTouchArtHoldButton(
                 root,
@@ -945,7 +946,8 @@ namespace MotorCity.UI
                 new Vector2(-158f, 34f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(96f, 118f));
+                new Vector2(96f, 118f),
+                new Color32(255, 255, 255, 0x0A));
 
             CreateTouchArtHoldButton(
                 root,
@@ -957,19 +959,29 @@ namespace MotorCity.UI
                 new Vector2(-36f, 208f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(92f, 76f));
+                new Vector2(92f, 76f),
+                new Color32(255, 255, 255, 0x32));
 
-            CreateStyledTouchPulseButton(
-                root,
-                "Interact",
-                MotorCityLocalization.Text(
-                    "touch.drive.action_short"),
-                MotorCityInputAction.Interact,
-                new Vector2(-42f, 304f),
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(118f, 48f),
-                13);
+            GameObject interactButton =
+                CreateLocalizedTouchPulseButton(
+                    root,
+                    "Interact",
+                    "touch.drive.action_short",
+                    MotorCityInputAction.Interact,
+                    Vector2.zero,
+                    new Vector2(118f, 48f));
+
+            RectTransform interactRect =
+                interactButton.GetComponent<RectTransform>();
+
+            interactRect.anchorMin =
+                new Vector2(1f, 0f);
+            interactRect.anchorMax =
+                new Vector2(1f, 0f);
+            interactRect.pivot =
+                new Vector2(1f, 0f);
+            interactRect.anchoredPosition =
+                new Vector2(-42f, 304f);
 
             touchWheelSteeringRoot =
                 CreateTouchSteeringWheelGroup(
@@ -998,7 +1010,8 @@ namespace MotorCity.UI
             Vector2 anchoredPosition,
             Vector2 anchor,
             Vector2 pivot,
-            Vector2 size)
+            Vector2 size,
+            Color color)
         {
             GameObject buttonObject =
                 new(
@@ -1032,12 +1045,8 @@ namespace MotorCity.UI
                 true;
             image.raycastTarget =
                 true;
-image.color =
-                new Color(
-                    1f,
-                    1f,
-                    1f,
-                    0.25f);
+            image.color =
+                color;
 
             TouchHoldInputButton input =
                 buttonObject.GetComponent<TouchHoldInputButton>();
@@ -1111,137 +1120,14 @@ image.color =
                 true;
             image.raycastTarget =
                 true;
-image.color =
-                new Color(
-                    1f,
-                    1f,
-                    1f,
-                    0.25f);
+            image.color =
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0x96);
 
             return group;
-        }
-
-        private RectTransform CreateStyledTouchPulseButton(
-            Transform parent,
-            string name,
-            string label,
-            MotorCityInputAction action,
-            Vector2 anchoredPosition,
-            Vector2 anchor,
-            Vector2 pivot,
-            Vector2 size,
-            int fontSize)
-        {
-            GameObject buttonObject =
-                new(
-                    name,
-                    typeof(RectTransform),
-                    typeof(Image),
-                    typeof(Button));
-
-            buttonObject.transform.SetParent(
-                parent,
-                false);
-
-            RectTransform rect =
-                buttonObject.GetComponent<RectTransform>();
-
-            rect.anchorMin = anchor;
-            rect.anchorMax = anchor;
-            rect.pivot = pivot;
-            rect.anchoredPosition =
-                anchoredPosition;
-            rect.sizeDelta =
-                size;
-
-            Image image =
-                buttonObject.GetComponent<Image>();
-
-            Texture2D buttonTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.modalButton;
-
-            Sprite buttonSprite =
-                GetModalButtonSprite(
-                    buttonTexture);
-
-            if (buttonSprite != null)
-            {
-                image.sprite =
-                    buttonSprite;
-                image.type =
-                    Image.Type.Simple;
-                image.preserveAspect =
-                    false;
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(
-                        0.075f,
-                        0.07f,
-                        0.12f,
-                        0.94f);
-            }
-
-            Button button =
-                buttonObject.GetComponent<Button>();
-
-            button.targetGraphic =
-                image;
-
-            ColorBlock colors =
-                button.colors;
-
-            colors.normalColor =
-                Color.white;
-            colors.highlightedColor =
-                new Color(
-                    0.96f,
-                    0.96f,
-                    1f,
-                    1f);
-            colors.pressedColor =
-                new Color(
-                    0.82f,
-                    0.80f,
-                    0.92f,
-                    1f);
-            colors.selectedColor =
-                colors.highlightedColor;
-
-            button.colors =
-                colors;
-
-            button.onClick.AddListener(
-                () =>
-                    MotorCityInput.PulseVirtual(
-                        action));
-
-            Text text =
-                CreateText(
-                    rect,
-                    "Label",
-                    fontSize,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
-                    size -
-                    new Vector2(12f, 8f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
-                    TextColor);
-
-            text.text =
-                label;
-
-            MakeButtonTextCrisp(
-                text);
-
-            return rect;
         }
 
         private GameObject CreateTouchArrowSteeringGroup(
@@ -1288,7 +1174,7 @@ image.color =
             leftHitArea.sprite =
                 null;
             leftHitArea.color =
-                new Color(1f, 1f, 1f, 0.001f);
+                new Color32(255, 255, 255, 0x00);
 
             CreateTouchChevron(
                 left,
@@ -1312,7 +1198,7 @@ image.color =
             rightHitArea.sprite =
                 null;
             rightHitArea.color =
-                new Color(1f, 1f, 1f, 0.001f);
+                new Color32(255, 255, 255, 0x00);
 
             CreateTouchChevron(
                 right,
@@ -1387,11 +1273,11 @@ image.color =
                 segment.GetComponent<Image>();
 
             image.color =
-                new Color(
-                    1f,
-                    1f,
-                    1f,
-                    0.25f);
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0xFF);
             image.raycastTarget =
                 false;
         }
