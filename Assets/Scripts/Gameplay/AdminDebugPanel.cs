@@ -1,10 +1,10 @@
 #if UNITY_EDITOR
+using MotorCity.CameraSystem;
 using MotorCity.Input;
 using MotorCity.Platform;
+using MotorCity.UI;
 using MotorCity.Vehicle;
 using MotorCity.World;
-using MotorCity.CameraSystem;
-using MotorCity.UI;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -15,11 +15,12 @@ namespace MotorCity.Gameplay
 
         private static readonly string[] Tabs =
         {
-            "ОБЗОР",
+            "БЫСТРЫЙ ТЕСТ",
+            "АКТИВНОСТИ",
             "ПРОГРЕСС",
             "МАШИНЫ",
-            "АКТИВНОСТИ",
             "МИР",
+            "RESULT / ADS",
             "СИСТЕМЫ"
         };
 
@@ -69,10 +70,10 @@ namespace MotorCity.Gameplay
 
         private Rect windowRect =
             new Rect(
-                18f,
-                62f,
-                760f,
-                760f);
+                16f,
+                48f,
+                980f,
+                860f);
 
         public void Initialize(
             PlayerWallet playerWallet,
@@ -162,7 +163,7 @@ namespace MotorCity.Gameplay
                     WindowId,
                     windowRect,
                     DrawWindow,
-                    "MOTOR CITY - QA ADMIN");
+                    "MOTOR CITY - ПОЛНЫЙ QA ADMIN");
         }
 
         private void DrawWindow(
@@ -173,10 +174,10 @@ namespace MotorCity.Gameplay
                     selectedTab,
                     Tabs,
                     GUILayout.Height(
-                        30f));
+                        32f));
 
             GUILayout.Space(
-                6f);
+                4f);
 
             DrawHeader();
 
@@ -189,19 +190,22 @@ namespace MotorCity.Gameplay
             switch (selectedTab)
             {
                 case 0:
-                    DrawOverview();
+                    DrawQuickTest();
                     break;
                 case 1:
-                    DrawProgress();
+                    DrawActivities();
                     break;
                 case 2:
-                    DrawVehicles();
+                    DrawProgress();
                     break;
                 case 3:
-                    DrawActivities();
+                    DrawVehicles();
                     break;
                 case 4:
                     DrawWorld();
+                    break;
+                case 5:
+                    DrawResultAndAds();
                     break;
                 default:
                     DrawSystems();
@@ -209,12 +213,12 @@ namespace MotorCity.Gameplay
             }
 
             GUILayout.Space(
-                12f);
+                14f);
 
             Separator();
 
             GUILayout.Label(
-                "ПОСЛЕДНЕЕ: " +
+                "ПОСЛЕДНЕЕ ДЕЙСТВИЕ: " +
                 lastAction);
 
             GUILayout.Label(
@@ -232,13 +236,24 @@ namespace MotorCity.Gameplay
 
         private void DrawHeader()
         {
+            string activity =
+                activities == null
+                    ? "-"
+                    : activities.HasResult
+                        ? "RESULT: " +
+                          activities.ResultActivityId
+                        : activities.IsBusy
+                            ? "ACTIVE: " +
+                              activities.ActiveId
+                            : "свободно";
+
             GUILayout.Label(
-                "КР " +
+                "КРЕДИТЫ " +
                 Value(
                     wallet == null
                         ? 0
                         : wallet.Credits) +
-                "   |   РЕП " +
+                "   |   РЕПУТАЦИЯ " +
                 Value(
                     reputation == null
                         ? 0
@@ -246,182 +261,420 @@ namespace MotorCity.Gameplay
                 "   |   " +
                 (roster == null
                     ? "-"
-                    : roster.SelectedName));
+                    : roster.SelectedName) +
+                "   |   " +
+                activity);
 
             if (car != null)
             {
                 GUILayout.Label(
-                    "СКОРОСТЬ " +
+                    "МАШИНА: " +
                     car.SpeedKph.ToString(
                         "0") +
                     " км/ч   |   " +
                     car.CurrentDriveMode +
-                    "   |   КОЛЁСА " +
+                    "   |   колёса " +
                     car.GroundedWheels +
                     "/4");
-            }
-
-            if (activities != null)
-            {
-                GUILayout.Label(
-                    activities.IsBusy
-                        ? "АКТИВНОСТЬ: " +
-                          activities.ActiveId
-                        : "АКТИВНОСТЬ: свободно");
             }
 
             Separator();
         }
 
-        private void DrawOverview()
+        private void DrawQuickTest()
         {
             Section(
-                "ЭКОНОМИКА");
+                "ПРЕСЕТЫ СОСТОЯНИЯ ИГРЫ");
+
+            GUILayout.Label(
+                "Один клик - готовое состояние для проверки интерфейса или прогрессии.");
 
             GUILayout.BeginHorizontal();
 
-            if (Button("+10 000 КР"))
+            if (Button("ЧИСТЫЙ НОВЫЙ ИГРОК"))
             {
-                wallet?.AddCredits(
-                    10000);
-
-                lastAction =
-                    "+10 000 КР";
+                ResetProgressForTesting();
             }
 
-            if (Button("КР 1 000 000"))
+            if (Button("ОБУЧЕНИЕ ПРОЙДЕНО"))
             {
-                wallet?.SetCredits(
-                    1000000);
-
+                onboarding?.CompleteForTesting();
                 lastAction =
-                    "КР = 1 000 000";
+                    "Первые шаги завершены";
             }
 
-            if (Button("КР 0"))
+            if (Button("ПУТЬ НОВИЧКА ПРОЙДЕН"))
             {
-                wallet?.SetCredits(
-                    0);
-
-                lastAction =
-                    "КР = 0";
+                CompleteStoryForTesting();
             }
 
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
+
+            if (Button("СЕЗОН ДОСТУПЕН"))
+            {
+                onboarding?.CompleteForTesting();
+                CompleteStoryForTesting();
+                season?.ResetForTesting();
+
+                lastAction =
+                    "Подготовлено состояние для сезона";
+            }
+
+            if (Button("ПОЧТИ МАКС. ПРОГРЕСС"))
+            {
+                PrepareLateGameForTesting();
+            }
+
+            if (Button("ВСЁ ОТМЕНИТЬ"))
+            {
+                CancelAllActivities();
+            }
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "ЭКОНОМИКА");
+
+            GUILayout.BeginHorizontal();
+
+            CreditsButton(
+                "КР 0",
+                0);
+
+            CreditsButton(
+                "КР 10 000",
+                10000);
+
+            CreditsButton(
+                "КР 1 000 000",
+                1000000);
 
             RepButton(
                 "РЕП 0",
                 0);
 
             RepButton(
-                "РЕП 2 500",
-                2500);
+                "РЕП 5 000",
+                5000);
 
             RepButton(
-                "РЕП 10 000",
-                10000);
+                "РЕП 100 000",
+                100000);
 
             GUILayout.EndHorizontal();
 
             Section(
-                "КЛЮЧЕВОЙ ПРОГРЕСС");
-
-            GUILayout.Label(
-                "Первые шаги: " +
-                (onboarding == null
-                    ? "-"
-                    : onboarding.IsComplete
-                        ? "ГОТОВО"
-                        : onboarding.CurrentStepNumber +
-                          "/" +
-                          onboarding.StepCount));
-
-            GUILayout.Label(
-                "Путь новичка: " +
-                (story == null
-                    ? "-"
-                    : story.IsComplete
-                        ? "ГОТОВО"
-                        : story.CurrentMissionNumber +
-                          "/" +
-                          story.MissionCount));
-
-            GUILayout.Label(
-                "Сезон: " +
-                (season == null
-                    ? "-"
-                    : season.IsComplete
-                        ? "ГОТОВО"
-                        : season.CurrentMissionNumber +
-                          "/" +
-                          season.MissionCount +
-                          "  " +
-                          season.CurrentMissionProgress +
-                          "/" +
-                          season.CurrentMissionTarget));
-
-            GUILayout.Label(
-                "Клуб: " +
-                (club == null
-                    ? "-"
-                    : club.HasClub
-                        ? club.CurrentClubName +
-                          "  " +
-                          club.WeeklyContribution +
-                          "/" +
-                          club.WeeklyTarget
-                        : "НЕТ КЛУБА"));
-
-            if (turbo != null)
-            {
-                GUILayout.Label(
-                    "Турбо: ур. " +
-                    turbo.Level +
-                    "  XP " +
-                    Value(
-                        turbo.Xp));
-            }
-
-            if (achievements != null)
-            {
-                GUILayout.Label(
-                    "Достижения: " +
-                    achievements.UnlockedCount);
-            }
-
-            Section(
-                "БЫСТРЫЕ QA ДЕЙСТВИЯ");
+                "БЫСТРЫЙ RESULT");
 
             GUILayout.BeginHorizontal();
 
-            if (Button("ОТМЕНИТЬ АКТИВНОСТЬ"))
-                CancelAllActivities();
+            if (Button("SUCCESS"))
+            {
+                SimulateResult(
+                    "delivery",
+                    "QA SUCCESS",
+                    true,
+                    false,
+                    1250);
+            }
 
-            if (Button("СПАСТИ МАШИНУ"))
-                RescueCar();
+            if (Button("NEW RECORD"))
+            {
+                SimulateResult(
+                    "sprint",
+                    "QA NEW RECORD",
+                    true,
+                    true,
+                    1750);
+            }
+
+            if (Button("FAIL"))
+            {
+                SimulateResult(
+                    "drift",
+                    "QA FAIL",
+                    false,
+                    false,
+                    0);
+            }
 
             if (Button("ЗАКРЫТЬ RESULT"))
             {
-                if (activities != null &&
-                    activities.HasResult)
-                {
-                    activities.DismissResult();
-                    lastAction =
-                        "Result закрыт";
-                }
+                CloseResult();
             }
 
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(
-                8f);
+            Section(
+                "SMOKE TEST");
 
-            if (Button("СБРОСИТЬ ПРОГРЕСС ДЛЯ ЧИСТОГО QA"))
+            GUILayout.BeginHorizontal();
+
+            if (Button("MOCK AD + COUNTDOWN"))
             {
-                ResetProgressForTesting();
+                TestMockAdFlow();
             }
+
+            if (Button("ПЕРЕИГРАТЬ ИНТРО"))
+            {
+                ReplayPostLoadingStartForTesting();
+                lastAction =
+                    "Интро переиграно";
+            }
+
+            if (Button("СПАСТИ МАШИНУ"))
+            {
+                RescueCar();
+            }
+
+            GUILayout.EndHorizontal();
+
+            DrawCoreProgressSummary();
+        }
+
+        private void DrawActivities()
+        {
+            Section(
+                "ОСНОВНЫЕ АКТИВНОСТИ");
+
+            DrawActivityQaRow(
+                "ДОСТАВКА",
+                "delivery",
+                CityAssetRuntimeInstaller.DeliveryRoute);
+
+            DrawActivityQaRow(
+                "СПРИНТ",
+                "sprint",
+                CityAssetRuntimeInstaller.SprintRoute);
+
+            DrawActivityQaRow(
+                "КОЛЬЦО",
+                "circuit",
+                CityAssetRuntimeInstaller.CircuitRoute);
+
+            DrawActivityQaPointRow(
+                "ДРИФТ",
+                "drift",
+                CityAssetRuntimeInstaller.DriftChallengePoint);
+
+            Section(
+                "ГОРОДСКИЕ ПРОФЕССИИ");
+
+            if (professions != null)
+            {
+                GUILayout.Label(
+                    "Уровень профессий: " +
+                    professions.ProfessionLevel +
+                    "   |   завершено: " +
+                    professions.TotalCompleted);
+
+                for (int i = 0;
+                     i < professions.StartCount;
+                     i++)
+                {
+                    int index =
+                        i;
+
+                    GUILayout.BeginHorizontal();
+
+                    GUILayout.Label(
+                        professions.GetStartName(
+                            index),
+                        GUILayout.Width(
+                            210f));
+
+                    if (Button("ТЕЛЕПОРТ"))
+                    {
+                        Teleport(
+                            professions.GetStartPoint(
+                                index),
+                            Quaternion.identity);
+                    }
+
+                    if (Button("SUCCESS"))
+                    {
+                        SimulateResult(
+                            ProfessionActivityId(
+                                index),
+                            professions.GetStartName(
+                                index),
+                            true,
+                            false,
+                            650);
+                    }
+
+                    if (Button("FAIL"))
+                    {
+                        SimulateResult(
+                            ProfessionActivityId(
+                                index),
+                            professions.GetStartName(
+                                index),
+                            false,
+                            false,
+                            0);
+                    }
+
+                    GUILayout.EndHorizontal();
+                }
+            }
+
+            Section(
+                "АВТОМОЙКА / ЭВАКУАТОР");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("МОЙКА - ТЕЛЕПОРТ"))
+            {
+                if (carWash != null)
+                {
+                    Teleport(
+                        carWash.StartPoint,
+                        Quaternion.identity);
+                }
+            }
+
+            if (Button("МОЙКА - SUCCESS"))
+            {
+                SimulateResult(
+                    "profession_carwash",
+                    "АВТОМОЙКА",
+                    true,
+                    false,
+                    500);
+            }
+
+            if (Button("ЭВАКУАТОР - ТЕЛЕПОРТ"))
+            {
+                if (towTruck != null)
+                {
+                    Teleport(
+                        towTruck.StartPoint,
+                        Quaternion.identity);
+                }
+            }
+
+            if (Button("ЭВАКУАТОР - SUCCESS"))
+            {
+                SimulateResult(
+                    "profession_tow",
+                    "СЛУЖБА ЭВАКУАЦИИ",
+                    true,
+                    false,
+                    680);
+            }
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "НОЧНОЙ АВТОКЛУБ");
+
+            GUILayout.Label(
+                underground == null
+                    ? "Система не найдена"
+                    : underground.AdminLine);
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ТЕЛЕПОРТ"))
+            {
+                Teleport(
+                    CityAssetRuntimeInstaller.UndergroundMeetingPoint,
+                    Quaternion.identity);
+            }
+
+            if (Button("+100 ДОВЕРИЯ"))
+            {
+                underground?.AddCredForTesting(
+                    100);
+
+                lastAction =
+                    "Ночной автоклуб: +100 доверия";
+            }
+
+            if (Button("ОТКРЫТЬ ТЕКУЩЕЕ"))
+            {
+                underground?.UnlockCurrentForTesting();
+                lastAction =
+                    "Ночной автоклуб: событие открыто";
+            }
+
+            if (Button("ЗАВЕРШИТЬ ТЕКУЩЕЕ"))
+            {
+                underground?.CompleteCurrentForTesting();
+                lastAction =
+                    "Ночной автоклуб: событие завершено";
+            }
+
+            if (Button("СБРОС"))
+            {
+                underground?.ResetForTesting();
+                lastAction =
+                    "Ночной автоклуб сброшен";
+            }
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "АВТО-СОБЫТИЯ");
+
+            GUILayout.Label(
+                "Speed Trap / Drift Spot / Discovery можно проверять телепортом одним кликом ниже.");
+
+            DrawSpeedTrapButtons();
+            DrawDriftSpotButtons();
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("DISCOVERY +1"))
+            {
+                DiscoverFirstMissing();
+            }
+
+            if (Button("DISCOVERY ВСЕ"))
+            {
+                discoveries?.DiscoverAllForTesting();
+                lastAction =
+                    "Все открытия засчитаны";
+            }
+
+            if (Button("DISCOVERY СБРОС"))
+            {
+                discoveries?.ResetForTesting();
+                lastAction =
+                    "Открытия сброшены";
+            }
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "УПРАВЛЕНИЕ АКТИВНОСТЯМИ");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ОТМЕНИТЬ ВСЁ"))
+            {
+                CancelAllActivities();
+            }
+
+            if (Button("RESULT ЗАКРЫТЬ"))
+            {
+                CloseResult();
+            }
+
+            if (Button("МОК SUCCESS ДЛЯ DAILY"))
+            {
+                SimulateResult(
+                    "delivery",
+                    "QA DAILY",
+                    true,
+                    false,
+                    0);
+            }
+
+            GUILayout.EndHorizontal();
         }
 
         private void DrawProgress()
@@ -447,27 +700,27 @@ namespace MotorCity.Gameplay
             {
                 onboarding?.AdvanceStepForTesting();
                 lastAction =
-                    "Onboarding +1";
+                    "Первые шаги +1";
             }
 
             if (Button("ЗАВЕРШИТЬ"))
             {
                 onboarding?.CompleteForTesting();
                 lastAction =
-                    "Onboarding завершён";
+                    "Первые шаги завершены";
             }
 
             if (Button("СБРОС"))
             {
                 onboarding?.ResetForTesting();
                 lastAction =
-                    "Onboarding сброшен";
+                    "Первые шаги сброшены";
             }
 
             GUILayout.EndHorizontal();
 
             Section(
-                "ПУТЬ НОВИЧКА");
+                "ПУТЬ НОВИЧКА / СЮЖЕТ");
 
             GUILayout.Label(
                 story == null
@@ -487,14 +740,49 @@ namespace MotorCity.Gameplay
             {
                 story?.AdvanceMissionForTesting();
                 lastAction =
-                    "Story +1";
+                    "Сюжет +1 миссия";
+            }
+
+            if (Button("ЗАВЕРШИТЬ ВСЁ"))
+            {
+                CompleteStoryForTesting();
             }
 
             if (Button("СБРОС"))
             {
                 story?.ResetForTesting();
                 lastAction =
-                    "Story сброшен";
+                    "Сюжет сброшен";
+            }
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "DAILY");
+
+            GUILayout.Label(
+                daily == null
+                    ? "Система не найдена"
+                    : daily.DayCompleted
+                        ? "ДЕНЬ ЗАВЕРШЁН"
+                        : daily.CompletedTasks +
+                          "/3 - " +
+                          daily.ObjectiveLine);
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ЗАВЕРШИТЬ DAILY"))
+            {
+                daily?.CompleteForTesting();
+                lastAction =
+                    "Daily завершён";
+            }
+
+            if (Button("СБРОС DAILY"))
+            {
+                daily?.ResetForTesting();
+                lastAction =
+                    "Daily сброшен";
             }
 
             GUILayout.EndHorizontal();
@@ -529,21 +817,21 @@ namespace MotorCity.Gameplay
             {
                 season?.AdvanceMissionForTesting();
                 lastAction =
-                    "Season +1";
+                    "Сезон +1 миссия";
             }
 
             if (Button("ЗАВЕРШИТЬ"))
             {
                 season?.CompleteForTesting();
                 lastAction =
-                    "Season завершён";
+                    "Сезон завершён";
             }
 
             if (Button("СБРОС"))
             {
                 season?.ResetForTesting();
                 lastAction =
-                    "Season сброшен";
+                    "Сезон сброшен";
             }
 
             GUILayout.EndHorizontal();
@@ -560,35 +848,29 @@ namespace MotorCity.Gameplay
                           club.WeeklyLine
                         : "Клуб не выбран");
 
-            for (int row = 0;
-                 row < 2;
-                 row++)
+            GUILayout.BeginHorizontal();
+
+            for (int i = 0;
+                 i < 6;
+                 i++)
             {
-                GUILayout.BeginHorizontal();
+                int index =
+                    i;
 
-                for (int column = 0;
-                     column < 3;
-                     column++)
+                if (Button(
+                        "КЛУБ " +
+                        (index + 1)))
                 {
-                    int index =
-                        row * 3 +
-                        column;
+                    club?.SetClubForTesting(
+                        index);
 
-                    if (Button(
-                            "КЛУБ " +
-                            (index + 1)))
-                    {
-                        club?.SetClubForTesting(
-                            index);
-
-                        lastAction =
-                            "Выбран клуб " +
-                            (index + 1);
-                    }
+                    lastAction =
+                        "Выбран клуб " +
+                        (index + 1);
                 }
-
-                GUILayout.EndHorizontal();
             }
+
+            GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
 
@@ -596,20 +878,20 @@ namespace MotorCity.Gameplay
             {
                 club?.CompleteWeeklyForTesting();
                 lastAction =
-                    "Club weekly завершён";
+                    "Клубная неделя завершена";
             }
 
             if (Button("СБРОС КЛУБА"))
             {
                 club?.ResetForTesting();
                 lastAction =
-                    "Club сброшен";
+                    "Клуб сброшен";
             }
 
             GUILayout.EndHorizontal();
 
             Section(
-                "МЕТА ПРОГРЕСС");
+                "ДИСЦИПЛИНЫ / КАРЬЕРА");
 
             DrawDiscipline(
                 "ГОНКИ",
@@ -626,18 +908,21 @@ namespace MotorCity.Gameplay
             GUILayout.BeginHorizontal();
 
             if (Button("КАРЬЕРА 0"))
-                SetCareer(
-                    0);
+                SetCareer(0);
+
+            if (Button("КАРЬЕРА 1"))
+                SetCareer(1);
 
             if (Button("КАРЬЕРА 2"))
-                SetCareer(
-                    2);
+                SetCareer(2);
 
             if (Button("КАРЬЕРА 3"))
-                SetCareer(
-                    3);
+                SetCareer(3);
 
             GUILayout.EndHorizontal();
+
+            Section(
+                "ЛЕГЕНДЫ / КОНТРАКТЫ / LIVE EVENT");
 
             GUILayout.BeginHorizontal();
 
@@ -673,50 +958,60 @@ namespace MotorCity.Gameplay
                     "Контракт завершён";
             }
 
-            if (Button("LIVE NEXT"))
+            if (Button("КОНТРАКТ СБРОС"))
+            {
+                contracts?.ResetForTesting();
+                lastAction =
+                    "Контракты сброшены";
+            }
+
+            if (Button("EVENT СЛЕДУЮЩИЙ"))
             {
                 liveEvents?.NextEventForTesting();
                 lastAction =
-                    "Live event переключён";
+                    "Live Event переключён";
             }
 
-            if (Button("LIVE ГОТОВО"))
+            if (Button("EVENT ГОТОВО"))
             {
                 liveEvents?.CompleteCurrentForTesting();
                 lastAction =
-                    "Live event завершён";
+                    "Live Event завершён";
+            }
+
+            if (Button("EVENT СБРОС"))
+            {
+                liveEvents?.ResetForTesting();
+                lastAction =
+                    "Live Events сброшены";
             }
 
             GUILayout.EndHorizontal();
 
+            Section(
+                "РИСК / ДОСТИЖЕНИЯ");
+
             GUILayout.BeginHorizontal();
 
-            if (Button("ПОДПОЛЬЕ +40"))
-            {
-                underground?.AddCredForTesting(
-                    40);
-
-                lastAction =
-                    "Street cred +40";
-            }
-
-            if (Button("ПОДПОЛЬЕ ОТКРЫТЬ"))
-            {
-                underground?.UnlockCurrentForTesting();
-                lastAction =
-                    "Underground открыт";
-            }
-
-            if (Button("РИСК +50"))
+            if (Button("РИСК +25"))
             {
                 cityRisk?.AddAttentionForTesting(
-                    50f);
+                    25f);
 
                 lastAction =
-                    "Риск +50";
+                    "Риск +25";
             }
 
-            if (Button("РИСК 0"))
+            if (Button("РИСК +100"))
+            {
+                cityRisk?.AddAttentionForTesting(
+                    100f);
+
+                lastAction =
+                    "Риск +100";
+            }
+
+            if (Button("РИСК СБРОС"))
             {
                 cityRisk?.ClearForTesting();
                 lastAction =
@@ -724,60 +1019,120 @@ namespace MotorCity.Gameplay
             }
 
             GUILayout.EndHorizontal();
+
+            GUILayout.Label(
+                "Достижения: " +
+                (achievements == null
+                    ? "-"
+                    : achievements.UnlockedCount.ToString()));
         }
 
         private void DrawVehicles()
         {
             Section(
-                "АВТОПАРК");
+                "РЕСУРСЫ");
+
+            GUILayout.BeginHorizontal();
+
+            CreditsButton(
+                "0 КР",
+                0);
+
+            CreditsButton(
+                "10K КР",
+                10000);
+
+            CreditsButton(
+                "1M КР",
+                1000000);
+
+            RepButton(
+                "0 РЕП",
+                0);
+
+            RepButton(
+                "5K РЕП",
+                5000);
+
+            RepButton(
+                "100K РЕП",
+                100000);
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "ВЫБОР ЛЮБОЙ МАШИНЫ");
 
             if (roster == null)
             {
                 GUILayout.Label(
-                    "VehicleRosterSystem не найден");
+                    "VehicleRoster отсутствует");
             }
             else
             {
-                GUILayout.Label(
-                    "Текущая: " +
-                    roster.SelectedName +
-                    "   |   " +
-                    roster.GetStatsLine());
-
-                int columns = 2;
-
-                for (int i = 0;
-                     i < roster.VehicleCount;
-                     i++)
+                for (int row = 0;
+                     row * 4 < roster.VehicleCount;
+                     row++)
                 {
-                    if (i % columns == 0)
-                        GUILayout.BeginHorizontal();
+                    GUILayout.BeginHorizontal();
 
-                    int index = i;
-
-                    string label =
-                        (i + 1) +
-                        ". " +
-                        roster.GetVehicleId(
-                                i)
-                            .ToUpperInvariant();
-
-                    if (Button(label))
-                        SelectVehicle(
-                            index);
-
-                    if (i % columns ==
-                        columns - 1 ||
-                        i ==
-                        roster.VehicleCount - 1)
+                    for (int column = 0;
+                         column < 4;
+                         column++)
                     {
-                        GUILayout.EndHorizontal();
+                        int index =
+                            row * 4 +
+                            column;
+
+                        if (index >=
+                            roster.VehicleCount)
+                        {
+                            break;
+                        }
+
+                        int captured =
+                            index;
+
+                        if (Button(
+                                "МАШИНА " +
+                                (captured + 1)))
+                        {
+                            SelectVehicle(
+                                captured);
+                        }
                     }
+
+                    GUILayout.EndHorizontal();
                 }
             }
 
             Section(
-                "АПГРЕЙДЫ");
+                "MASTERY");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ТЕКУЩАЯ УР.1"))
+                SetMastery(1);
+
+            if (Button("ТЕКУЩАЯ УР.5"))
+                SetMastery(5);
+
+            if (Button("ТЕКУЩАЯ УР.10"))
+                SetMastery(10);
+
+            if (Button("ВСЕ МАШИНЫ УР.10"))
+            {
+                mastery?.SetAllVehicleLevelsForTesting(
+                    10);
+
+                lastAction =
+                    "Mastery всех машин = 10";
+            }
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "АПГРЕЙДЫ ГАРАЖА");
 
             GUILayout.BeginHorizontal();
 
@@ -795,271 +1150,76 @@ namespace MotorCity.Gameplay
 
             GUILayout.EndHorizontal();
 
-            if (garage != null)
-            {
-                GUILayout.Label(
-                    "Двигатель " +
-                    garage.EngineLevel +
-                    "/5   |   Сцепление " +
-                    garage.GripLevel +
-                    "/5   |   Стабильность " +
-                    garage.StabilityLevel +
-                    "/5");
-            }
-
             Section(
-                "МАСТЕРСТВО");
-
-            GUILayout.BeginHorizontal();
-
-            if (Button("УР. 1"))
-                SetMastery(
-                    1);
-
-            if (Button("УР. 5"))
-                SetMastery(
-                    5);
-
-            if (Button("УР. 10"))
-                SetMastery(
-                    10);
-
-            if (Button("ВСЕ 10"))
-            {
-                mastery?.SetAllVehicleLevelsForTesting(
-                    10);
-
-                lastAction =
-                    "Все mastery = 10";
-            }
-
-            GUILayout.EndHorizontal();
-
-            Section(
-                "КАСТОМИЗАЦИЯ");
-
-            VehicleCustomizationSystem customization =
-                GetComponent<
-                    VehicleCustomizationSystem>();
-
-            GUILayout.BeginHorizontal();
-
-            if (Button("ЦВЕТ"))
-            {
-                customization?.CycleBodyColor();
-                lastAction =
-                    "Следующий цвет";
-            }
-
-            if (Button("ДИСКИ"))
-            {
-                customization?.CycleWheelStyle();
-                lastAction =
-                    "Следующие диски";
-            }
-
-            if (Button("НЕОН"))
-            {
-                customization?.CycleNeon();
-                lastAction =
-                    "Следующий неон";
-            }
-
-            GUILayout.EndHorizontal();
-
-            if (customization != null)
-            {
-                GUILayout.Label(
-                    customization.GarageLine);
-            }
-
-            Section(
-                "ТУРБО");
+                "ИСТОРИЯ / КОЛЛЕКЦИЯ");
 
             GUILayout.Label(
-                turbo == null
-                    ? "TurboPetSystem не найден"
-                    : "Ур. " +
-                      turbo.Level +
-                      "   XP " +
+                vehicleHistory == null
+                    ? "История отсутствует"
+                    : "Пробег " +
+                      vehicleHistory.DistanceKm.ToString(
+                          "0.0") +
+                      " км | побед " +
+                      vehicleHistory.Victories +
+                      " | заработано " +
                       Value(
-                          turbo.Xp) +
-                      "   " +
-                      turbo.MoodName);
+                          vehicleHistory.EarnedCredits));
 
             GUILayout.BeginHorizontal();
 
-            if (Button("+100 XP"))
+            if (Button("ИСТОРИЯ: ВСЕ LEGENDARY"))
             {
-                turbo?.AddXp(
-                    100);
-
+                vehicleHistory?.SetAllLegendaryForTesting();
                 lastAction =
-                    "Turbo +100 XP";
+                    "История всех машин = legendary";
             }
 
-            if (Button("+1000 XP"))
+            if (Button("ИСТОРИЯ СБРОС"))
             {
-                turbo?.AddXp(
-                    1000);
-
+                vehicleHistory?.ResetAllForTesting();
                 lastAction =
-                    "Turbo +1000 XP";
+                    "История машин сброшена";
             }
 
-            GUILayout.EndHorizontal();
-        }
-
-        private void DrawActivities()
-        {
-            Section(
-                "ОСНОВНЫЕ АКТИВНОСТИ");
-
-            GUILayout.BeginHorizontal();
-
-            if (Button("ДОСТАВКА"))
-                TeleportRoute(
-                    CityAssetRuntimeInstaller.DeliveryRoute);
-
-            if (Button("ДРИФТ"))
-                Teleport(
-                    drift == null
-                        ? CityAssetRuntimeInstaller.DriftChallengePoint
-                        : drift.ZoneCenter,
-                    Quaternion.identity);
-
-            if (Button("СПРИНТ"))
-                TeleportRoute(
-                    CityAssetRuntimeInstaller.SprintRoute);
-
-            if (Button("КОЛЬЦО"))
-                TeleportRoute(
-                    CityAssetRuntimeInstaller.CircuitRoute);
-
-            GUILayout.EndHorizontal();
-
-            Section(
-                "РАБОТЫ");
-
-            GUILayout.BeginHorizontal();
-
-            if (Button("МОЙКА") &&
-                carWash != null)
+            if (Button("КОЛЛЕКЦИЯ ПЕРЕСЧИТАТЬ"))
             {
-                Teleport(
-                    carWash.StartPoint,
-                    Quaternion.identity);
+                collection?.RecalculateForTesting();
+                lastAction =
+                    "Коллекция пересчитана";
             }
 
-            if (Button("ЭВАКУАТОР") &&
-                towTruck != null)
+            if (Button("КОЛЛЕКЦИЯ CLAIM ALL"))
             {
-                Teleport(
-                    towTruck.StartPoint,
-                    Quaternion.identity);
+                collection?.ClaimAllForTesting();
+                lastAction =
+                    "Все награды коллекции получены";
             }
 
-            if (Button("ПОДПОЛЬЕ"))
+            if (Button("КОЛЛЕКЦИЯ СБРОС"))
             {
-                Teleport(
-                    CityAssetRuntimeInstaller.UndergroundMeetingPoint,
-                    Quaternion.identity);
+                collection?.ResetMilestonesForTesting();
+                lastAction =
+                    "Коллекция сброшена";
             }
 
             GUILayout.EndHorizontal();
 
-            if (professions != null &&
-                professions.StartCount > 0)
+            if (vehicleSpecialization != null)
             {
                 GUILayout.Label(
-                    "Профессии: " +
-                    professions.TotalCompleted +
-                    " завершено, ур. " +
-                    professions.ProfessionLevel);
-
-                for (int i = 0;
-                     i < professions.StartCount;
-                     i++)
-                {
-                    int index = i;
-
-                    if (Button(
-                            "РАБОТА " +
-                            (i + 1) +
-                            " - " +
-                            professions.GetStartName(
-                                i)))
-                    {
-                        Teleport(
-                            professions.GetStartPoint(
-                                index),
-                            Quaternion.identity);
-                    }
-                }
+                    "Специализация: " +
+                    vehicleSpecialization.GarageLine);
             }
-
-            Section(
-                "СВОБОДНЫЕ АКТИВНОСТИ");
-
-            GUILayout.Label(
-                "Discovery: " +
-                (discoveries == null
-                    ? "-"
-                    : discoveries.FoundCount +
-                      "/" +
-                      discoveries.DiscoveryCount));
-
-            GUILayout.Label(
-                "Photo Hunt: " +
-                (photoHunt == null
-                    ? "-"
-                    : photoHunt.TotalCaptured.ToString()));
-
-            GUILayout.Label(
-                "Speed Traps: " +
-                (speedTraps == null
-                    ? "-"
-                    : speedTraps.TrapCount.ToString()));
-
-            GUILayout.Label(
-                "Drift Spots: " +
-                (driftSpots == null
-                    ? "-"
-                    : driftSpots.SpotCount.ToString()));
-
-            Section(
-                "УПРАВЛЕНИЕ");
-
-            GUILayout.BeginHorizontal();
-
-            if (Button("ОТМЕНИТЬ ВСЁ"))
-                CancelAllActivities();
-
-            if (Button("СПАСТИ"))
-                RescueCar();
-
-            if (Button("RESULT ЗАКРЫТЬ"))
-            {
-                if (activities != null &&
-                    activities.HasResult)
-                {
-                    activities.DismissResult();
-                    lastAction =
-                        "Result закрыт";
-                }
-            }
-
-            GUILayout.EndHorizontal();
         }
 
         private void DrawWorld()
         {
             Section(
-                "БЫСТРЫЕ ТЕЛЕПОРТЫ");
+                "КЛЮЧЕВЫЕ ТЕЛЕПОРТЫ");
 
             GUILayout.BeginHorizontal();
 
-            if (Button("СТАРТ"))
+            if (Button("СПАВН"))
             {
                 Teleport(
                     CityAssetRuntimeInstaller.PlayerSpawnPoint,
@@ -1073,6 +1233,29 @@ namespace MotorCity.Gameplay
                     CityAssetRuntimeInstaller.GarageSpawnRotation);
             }
 
+            if (Button("ДОСТАВКА"))
+                TeleportRoute(
+                    CityAssetRuntimeInstaller.DeliveryRoute);
+
+            if (Button("СПРИНТ"))
+                TeleportRoute(
+                    CityAssetRuntimeInstaller.SprintRoute);
+
+            if (Button("КОЛЬЦО"))
+                TeleportRoute(
+                    CityAssetRuntimeInstaller.CircuitRoute);
+
+            if (Button("ДРИФТ"))
+            {
+                Teleport(
+                    CityAssetRuntimeInstaller.DriftChallengePoint,
+                    Quaternion.identity);
+            }
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+
             if (Button("ПОДПОЛЬЕ"))
             {
                 Teleport(
@@ -1080,34 +1263,30 @@ namespace MotorCity.Gameplay
                     Quaternion.identity);
             }
 
-            GUILayout.EndHorizontal();
-
-            if (discoveries != null &&
-                discoveries.DiscoveryCount > 0)
+            if (Button("АВТОМОЙКА"))
             {
-                GUILayout.BeginHorizontal();
-
-                if (Button("DISCOVERY 1"))
+                if (carWash != null)
                 {
                     Teleport(
-                        discoveries.GetDiscoveryPosition(
-                            0),
+                        carWash.StartPoint,
                         Quaternion.identity);
                 }
-
-                int last =
-                    discoveries.DiscoveryCount - 1;
-
-                if (Button("DISCOVERY LAST"))
-                {
-                    Teleport(
-                        discoveries.GetDiscoveryPosition(
-                            last),
-                        Quaternion.identity);
-                }
-
-                GUILayout.EndHorizontal();
             }
+
+            if (Button("ЭВАКУАТОР"))
+            {
+                if (towTruck != null)
+                {
+                    Teleport(
+                        towTruck.StartPoint,
+                        Quaternion.identity);
+                }
+            }
+
+            if (Button("СПАСТИ"))
+                RescueCar();
+
+            GUILayout.EndHorizontal();
 
             Section(
                 "ВРЕМЯ СУТОК");
@@ -1133,6 +1312,63 @@ namespace MotorCity.Gameplay
             GUILayout.EndHorizontal();
 
             Section(
+                "DISCOVERY");
+
+            if (discoveries != null)
+            {
+                for (int i = 0;
+                     i < discoveries.DiscoveryCount;
+                     i++)
+                {
+                    int index =
+                        i;
+
+                    GUILayout.BeginHorizontal();
+
+                    GUILayout.Label(
+                        (discoveries.IsFound(
+                            index)
+                            ? "[НАЙДЕНО] "
+                            : "[НЕ НАЙДЕНО] ") +
+                        discoveries.GetDiscoveryName(
+                            index),
+                        GUILayout.Width(
+                            300f));
+
+                    if (Button("ТЕЛЕПОРТ"))
+                    {
+                        Teleport(
+                            discoveries.GetDiscoveryPosition(
+                                index),
+                            Quaternion.identity);
+                    }
+
+                    if (Button("ЗАСЧИТАТЬ"))
+                    {
+                        discoveries.DiscoverForTesting(
+                            index);
+
+                        lastAction =
+                            "Открытие засчитано: " +
+                            discoveries.GetDiscoveryName(
+                                index);
+                    }
+
+                    GUILayout.EndHorizontal();
+                }
+            }
+
+            Section(
+                "SPEED TRAPS");
+
+            DrawSpeedTrapButtons();
+
+            Section(
+                "DRIFT SPOTS");
+
+            DrawDriftSpotButtons();
+
+            Section(
                 "ФИЗИКА МАШИНЫ");
 
             if (car != null)
@@ -1141,22 +1377,16 @@ namespace MotorCity.Gameplay
                     "Speed " +
                     car.SpeedKph.ToString(
                         "0.0") +
-                    " km/h   |   Slip " +
+                    " km/h | Slip " +
                     car.SlipAngleDegrees.ToString(
                         "0.0") +
-                    "°   |   Rear slip " +
+                    "° | Rear slip " +
                     car.RearSidewaysSlip.ToString(
-                        "0.00"));
-
-                GUILayout.Label(
-                    "Grounded " +
+                        "0.00") +
+                    " | Grounded " +
                     car.GroundedWheels +
-                    "/4   |   Sliding " +
+                    "/4 | Sliding " +
                     (car.IsSliding
-                        ? "YES"
-                        : "NO") +
-                    "   |   Prometeo " +
-                    (car.HasPrometeoPhysics
                         ? "YES"
                         : "NO"));
             }
@@ -1170,8 +1400,175 @@ namespace MotorCity.Gameplay
                     "Режим езды изменён";
             }
 
-            if (Button("СПАСТИ МАШИНУ"))
-                RescueCar();
+            if (Button("ОЧИСТИТЬ ДВИЖЕНИЕ"))
+            {
+                car?.ClearMotion();
+                lastAction =
+                    "Скорость/вращение машины очищены";
+            }
+
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawResultAndAds()
+        {
+            Section(
+                "RESULT - БЕЗ ПРОХОЖДЕНИЯ");
+
+            GUILayout.Label(
+                "Эти кнопки открывают настоящий Activity Result и запускают обычные progression listeners.");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("DELIVERY SUCCESS"))
+                SimulateResult(
+                    "delivery",
+                    "ДОСТАВКА",
+                    true,
+                    false,
+                    500);
+
+            if (Button("DELIVERY RECORD"))
+                SimulateResult(
+                    "delivery",
+                    "ДОСТАВКА",
+                    true,
+                    true,
+                    500);
+
+            if (Button("SPRINT SUCCESS"))
+                SimulateResult(
+                    "sprint",
+                    "СПРИНТ",
+                    true,
+                    false,
+                    1000);
+
+            if (Button("SPRINT RECORD"))
+                SimulateResult(
+                    "sprint",
+                    "СПРИНТ",
+                    true,
+                    true,
+                    1000);
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("CIRCUIT SUCCESS"))
+                SimulateResult(
+                    "circuit",
+                    "КОЛЬЦО",
+                    true,
+                    false,
+                    1200);
+
+            if (Button("CIRCUIT RECORD"))
+                SimulateResult(
+                    "circuit",
+                    "КОЛЬЦО",
+                    true,
+                    true,
+                    1200);
+
+            if (Button("DRIFT SUCCESS"))
+                SimulateResult(
+                    "drift",
+                    "ДРИФТ-ЗАЕЗД",
+                    true,
+                    false,
+                    850);
+
+            if (Button("DRIFT FAIL"))
+                SimulateResult(
+                    "drift",
+                    "ДРИФТ-ЗАЕЗД",
+                    false,
+                    false,
+                    0);
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("БЕЗ НАГРАДЫ"))
+                SimulateResult(
+                    "qa_result",
+                    "QA RESULT",
+                    false,
+                    false,
+                    0);
+
+            if (Button("ЗАКРЫТЬ RESULT"))
+                CloseResult();
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "INTERSTITIAL / COUNTDOWN");
+
+            SystemLine(
+                "Interstitial",
+                interstitialRuntime != null,
+                interstitialRuntime == null
+                    ? string.Empty
+                    : interstitialRuntime.AdminLine);
+
+            ActivityStartFlow startFlow =
+                activities == null
+                    ? null
+                    : activities.StartFlow;
+
+            SystemLine(
+                "ActivityStartFlow",
+                startFlow != null,
+                startFlow == null
+                    ? string.Empty
+                    : startFlow.AdminLine);
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("NEXT START - MOCK AD"))
+            {
+                interstitialRuntime?.ForceNextEditorMock();
+                lastAction =
+                    "Следующий рекламный старт получит mock ad";
+            }
+
+            if (Button("ПРОГНАТЬ MOCK AD + 3-2-1-GO"))
+            {
+                TestMockAdFlow();
+            }
+
+            if (Button("ОТМЕНИТЬ FLOW"))
+            {
+                CancelAllActivities();
+            }
+
+            GUILayout.EndHorizontal();
+
+            Section(
+                "UI / INTRO");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ПЕРЕИГРАТЬ ИНТРО"))
+            {
+                ReplayPostLoadingStartForTesting();
+                lastAction =
+                    "Интро и HUD reveal переиграны";
+            }
+
+            if (Button("RESULT NEW RECORD"))
+            {
+                SimulateResult(
+                    "sprint",
+                    "QA NEW RECORD",
+                    true,
+                    true,
+                    1500);
+            }
 
             GUILayout.EndHorizontal();
         }
@@ -1179,7 +1576,7 @@ namespace MotorCity.Gameplay
         private void DrawSystems()
         {
             Section(
-                "КЛЮЧЕВЫЕ СИСТЕМЫ");
+                "СОСТОЯНИЕ СИСТЕМ");
 
             SystemLine(
                 "Onboarding",
@@ -1204,6 +1601,14 @@ namespace MotorCity.Gameplay
                           story.MissionCount);
 
             SystemLine(
+                "Daily",
+                daily != null,
+                daily == null
+                    ? string.Empty
+                    : daily.CompletedTasks +
+                      "/3");
+
+            SystemLine(
                 "Season",
                 season != null,
                 season == null
@@ -1224,14 +1629,6 @@ namespace MotorCity.Gameplay
                         : "no club");
 
             SystemLine(
-                "Daily",
-                daily != null,
-                daily == null
-                    ? string.Empty
-                    : daily.CompletedTasks +
-                      " tasks");
-
-            SystemLine(
                 "Achievements",
                 achievements != null,
                 achievements == null
@@ -1243,7 +1640,7 @@ namespace MotorCity.Gameplay
                 photoHunt != null,
                 photoHunt == null
                     ? string.Empty
-                    : photoHunt.TotalCaptured.ToString());
+                    : photoHunt.AlbumLine);
 
             SystemLine(
                 "Professions",
@@ -1253,27 +1650,13 @@ namespace MotorCity.Gameplay
                     : professions.TotalCompleted.ToString());
 
             SystemLine(
-                "Discovery",
+                "Discoveries",
                 discoveries != null,
                 discoveries == null
                     ? string.Empty
                     : discoveries.FoundCount +
                       "/" +
                       discoveries.DiscoveryCount);
-
-            SystemLine(
-                "Speed Traps",
-                speedTraps != null,
-                speedTraps == null
-                    ? string.Empty
-                    : speedTraps.TrapCount.ToString());
-
-            SystemLine(
-                "Drift Spots",
-                driftSpots != null,
-                driftSpots == null
-                    ? string.Empty
-                    : driftSpots.SpotCount.ToString());
 
             SystemLine(
                 "Legends",
@@ -1310,36 +1693,32 @@ namespace MotorCity.Gameplay
                     ? string.Empty
                     : cityRisk.AdminLine);
 
-            ActivityStartFlow startFlow =
-                activities == null
-                    ? null
-                    : activities.StartFlow;
+            Section(
+                "SAVE / RESET");
 
-            SystemLine(
-                "ActivityStartFlow",
-                startFlow != null,
-                startFlow == null
-                    ? string.Empty
-                    : startFlow.AdminLine);
+            GUILayout.BeginHorizontal();
 
-            SystemLine(
-                "Interstitial",
-                interstitialRuntime != null,
-                interstitialRuntime == null
-                    ? string.Empty
-                    : interstitialRuntime.AdminLine);
-
-            if (Button(
-                    "СЛЕДУЮЩИЙ СТАРТ - MOCK AD"))
+            if (Button("SAVE СЕЙЧАС"))
             {
-                interstitialRuntime?.ForceNextEditorMock();
-
+                MotorCity.Persistence.MotorCitySaveService.Save();
                 lastAction =
-                    "Следующая рекламная activity получит mock interstitial";
+                    "Save выполнен";
             }
 
+            if (Button("ПОЛНЫЙ QA RESET"))
+            {
+                ResetProgressForTesting();
+            }
+
+            if (Button("ОТМЕНИТЬ ВСЁ"))
+            {
+                CancelAllActivities();
+            }
+
+            GUILayout.EndHorizontal();
+
             Section(
-                "ВСЕ GAMEPLAY COMPONENTS");
+                "GAMEPLAY COMPONENTS");
 
             MonoBehaviour[] components =
                 GetComponents<MonoBehaviour>();
@@ -1374,6 +1753,214 @@ namespace MotorCity.Gameplay
                     components.Length - 1));
         }
 
+        private void DrawCoreProgressSummary()
+        {
+            Section(
+                "ТЕКУЩИЙ ПРОГРЕСС");
+
+            GUILayout.Label(
+                "Первые шаги: " +
+                (onboarding == null
+                    ? "-"
+                    : onboarding.IsComplete
+                        ? "ГОТОВО"
+                        : onboarding.CurrentStepNumber +
+                          "/" +
+                          onboarding.StepCount));
+
+            GUILayout.Label(
+                "Путь новичка: " +
+                (story == null
+                    ? "-"
+                    : story.IsComplete
+                        ? "ГОТОВО"
+                        : story.CurrentMissionNumber +
+                          "/" +
+                          story.MissionCount));
+
+            GUILayout.Label(
+                "Daily: " +
+                (daily == null
+                    ? "-"
+                    : daily.CompletedTasks +
+                      "/3") +
+                "   |   Сезон: " +
+                (season == null
+                    ? "-"
+                    : season.IsComplete
+                        ? "ГОТОВО"
+                        : season.CurrentMissionNumber +
+                          "/" +
+                          season.MissionCount) +
+                "   |   Достижения: " +
+                (achievements == null
+                    ? "-"
+                    : achievements.UnlockedCount.ToString()));
+        }
+
+        private void DrawActivityQaRow(
+            string label,
+            string activityId,
+            Vector3[] route)
+        {
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label(
+                label,
+                GUILayout.Width(
+                    150f));
+
+            if (Button("ТЕЛЕПОРТ"))
+            {
+                TeleportRoute(
+                    route);
+            }
+
+            if (Button("SUCCESS"))
+            {
+                SimulateResult(
+                    activityId,
+                    label,
+                    true,
+                    false,
+                    1000);
+            }
+
+            if (Button("NEW RECORD"))
+            {
+                SimulateResult(
+                    activityId,
+                    label,
+                    true,
+                    true,
+                    1200);
+            }
+
+            if (Button("FAIL"))
+            {
+                SimulateResult(
+                    activityId,
+                    label,
+                    false,
+                    false,
+                    0);
+            }
+
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawActivityQaPointRow(
+            string label,
+            string activityId,
+            Vector3 point)
+        {
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label(
+                label,
+                GUILayout.Width(
+                    150f));
+
+            if (Button("ТЕЛЕПОРТ"))
+            {
+                Teleport(
+                    point,
+                    Quaternion.identity);
+            }
+
+            if (Button("SUCCESS"))
+            {
+                SimulateResult(
+                    activityId,
+                    label,
+                    true,
+                    false,
+                    900);
+            }
+
+            if (Button("FAIL"))
+            {
+                SimulateResult(
+                    activityId,
+                    label,
+                    false,
+                    false,
+                    0);
+            }
+
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawSpeedTrapButtons()
+        {
+            if (speedTraps == null)
+                return;
+
+            for (int i = 0;
+                 i < speedTraps.TrapCount;
+                 i++)
+            {
+                int index =
+                    i;
+
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label(
+                    speedTraps.GetTrapName(
+                        index) +
+                    " | best " +
+                    speedTraps.GetBestSpeed(
+                        index).ToString(
+                            "0") +
+                    " км/ч",
+                    GUILayout.Width(
+                        320f));
+
+                if (Button("ТЕЛЕПОРТ"))
+                {
+                    Teleport(
+                        speedTraps.GetTrapPosition(
+                            index),
+                        speedTraps.GetTrapRotation(
+                            index));
+                }
+
+                GUILayout.EndHorizontal();
+            }
+        }
+
+        private void DrawDriftSpotButtons()
+        {
+            if (driftSpots == null)
+                return;
+
+            for (int i = 0;
+                 i < driftSpots.SpotCount;
+                 i++)
+            {
+                int index =
+                    i;
+
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label(
+                    driftSpots.GetSpotName(
+                        index),
+                    GUILayout.Width(
+                        320f));
+
+                if (Button("ТЕЛЕПОРТ"))
+                {
+                    Teleport(
+                        driftSpots.GetSpotPosition(
+                            index),
+                        Quaternion.identity);
+                }
+
+                GUILayout.EndHorizontal();
+            }
+        }
+
         private void DrawDiscipline(
             string label,
             DisciplineType type)
@@ -1385,7 +1972,7 @@ namespace MotorCity.Gameplay
                 GUILayout.Width(
                     100f));
 
-            if (Button("УР. 1"))
+            if (Button("УР.1"))
             {
                 disciplines?.SetLevelForTesting(
                     type,
@@ -1396,7 +1983,7 @@ namespace MotorCity.Gameplay
                     " = 1";
             }
 
-            if (Button("УР. 5"))
+            if (Button("УР.5"))
             {
                 disciplines?.SetLevelForTesting(
                     type,
@@ -1407,7 +1994,7 @@ namespace MotorCity.Gameplay
                     " = 5";
             }
 
-            if (Button("УР. 10"))
+            if (Button("УР.10"))
             {
                 disciplines?.SetLevelForTesting(
                     type,
@@ -1421,18 +2008,245 @@ namespace MotorCity.Gameplay
             GUILayout.EndHorizontal();
         }
 
+        private void SimulateResult(
+            string activityId,
+            string title,
+            bool success,
+            bool newRecord,
+            int credits)
+        {
+            CancelAllActivities();
+
+            if (activities == null)
+            {
+                lastAction =
+                    "ActivityManager отсутствует";
+
+                return;
+            }
+
+            activities.ShowResult(
+                activityId,
+                title,
+                success
+                    ? newRecord
+                        ? "98,42 С"
+                        : "123,45 С"
+                    : "ПРОВАЛ",
+                success
+                    ? newRecord
+                        ? "ЗОЛОТО • НОВЫЙ РЕКОРД"
+                        : "ЗОЛОТО • QA SUCCESS"
+                    : "QA FAIL - прогресс не начисляется",
+                credits,
+                success,
+                newRecord);
+
+            lastAction =
+                "Result: " +
+                activityId +
+                " / " +
+                (success
+                    ? newRecord
+                        ? "NEW RECORD"
+                        : "SUCCESS"
+                    : "FAIL");
+        }
+
+        private void TestMockAdFlow()
+        {
+            CancelAllActivities();
+
+            if (activities == null ||
+                activities.StartFlow == null ||
+                interstitialRuntime == null)
+            {
+                lastAction =
+                    "ActivityStartFlow / Interstitial отсутствует";
+
+                return;
+            }
+
+            interstitialRuntime.ForceNextEditorMock();
+
+            bool requested =
+                activities.RequestStart(
+                    "sprint",
+                    "QA MOCK AD",
+                    3f,
+                    () =>
+                    {
+                        car?.SetDrivingEnabled(
+                            false);
+
+                        lastAction =
+                            "Mock ad закрыт - countdown начался";
+                    },
+                    shown =>
+                    {
+                        lastAction =
+                            shown <= 0
+                                ? "GO"
+                                : "Countdown " +
+                                  shown;
+                    },
+                    () =>
+                    {
+                        activities.End(
+                            "sprint");
+
+                        car?.SetDrivingEnabled(
+                            true);
+
+                        lastAction =
+                            "Mock ad -> 3-2-1-GO -> gameplay: ГОТОВО";
+                    });
+
+            if (!requested)
+            {
+                lastAction =
+                    "Не удалось запустить QA flow";
+            }
+        }
+
+        private void CompleteStoryForTesting()
+        {
+            if (story == null)
+                return;
+
+            int guard =
+                0;
+
+            while (!story.IsComplete &&
+                   guard < 64)
+            {
+                story.AdvanceMissionForTesting();
+                guard++;
+            }
+
+            lastAction =
+                story.IsComplete
+                    ? "Путь новичка полностью завершён"
+                    : "Не удалось завершить сюжет за " +
+                      guard +
+                      " шагов";
+        }
+
+        private void PrepareLateGameForTesting()
+        {
+            CancelAllActivities();
+
+            wallet?.SetCredits(
+                1000000);
+
+            reputation?.SetReputation(
+                100000);
+
+            onboarding?.CompleteForTesting();
+            CompleteStoryForTesting();
+            season?.CompleteForTesting();
+            daily?.CompleteForTesting();
+            club?.SetClubForTesting(
+                0);
+            club?.CompleteWeeklyForTesting();
+
+            disciplines?.SetAllLevelsForTesting(
+                10);
+
+            mastery?.SetAllVehicleLevelsForTesting(
+                10);
+
+            garage?.SetAllUpgradeLevelsForTesting(
+                5);
+
+            career?.SetStageForTesting(
+                3);
+
+            vehicleHistory?.SetAllLegendaryForTesting();
+            collection?.ClaimAllForTesting();
+            legends?.UnlockCurrentForTesting();
+
+            lastAction =
+                "Подготовлен поздний прогресс для QA";
+        }
+
+        private void DiscoverFirstMissing()
+        {
+            if (discoveries == null)
+                return;
+
+            for (int i = 0;
+                 i < discoveries.DiscoveryCount;
+                 i++)
+            {
+                if (discoveries.IsFound(
+                        i))
+                {
+                    continue;
+                }
+
+                discoveries.DiscoverForTesting(
+                    i);
+
+                lastAction =
+                    "Засчитано открытие: " +
+                    discoveries.GetDiscoveryName(
+                        i);
+
+                return;
+            }
+
+            lastAction =
+                "Все открытия уже найдены";
+        }
+
+        private static string ProfessionActivityId(
+            int index)
+        {
+            return index switch
+            {
+                0 => "profession_pizza",
+                1 => "profession_taxi",
+                2 => "profession_mail",
+                3 => "profession_icecream",
+                _ => "profession_pizza"
+            };
+        }
+
+        private void CreditsButton(
+            string label,
+            int value)
+        {
+            if (!Button(
+                    label))
+            {
+                return;
+            }
+
+            wallet?.SetCredits(
+                value);
+
+            lastAction =
+                "Кредиты = " +
+                Value(
+                    value);
+        }
+
         private void RepButton(
             string label,
             int value)
         {
-            if (!Button(label))
+            if (!Button(
+                    label))
+            {
                 return;
+            }
 
             reputation?.SetReputation(
                 value);
 
             lastAction =
-                "РЕП = " +
+                "Репутация = " +
                 Value(
                     value);
         }
@@ -1463,8 +2277,11 @@ namespace MotorCity.Gameplay
             string label,
             int level)
         {
-            if (!Button(label))
+            if (!Button(
+                    label))
+            {
                 return;
+            }
 
             garage?.SetAllUpgradeLevelsForTesting(
                 level);
@@ -1479,8 +2296,11 @@ namespace MotorCity.Gameplay
             string label,
             float time)
         {
-            if (!Button(label))
+            if (!Button(
+                    label))
+            {
                 return;
+            }
 
             dayNight?.SetTimeOfDay(
                 time);
@@ -1504,7 +2324,7 @@ namespace MotorCity.Gameplay
                 lastAction =
                     string.IsNullOrWhiteSpace(
                         status)
-                        ? "Машина " +
+                        ? "Выбрана машина " +
                           (index + 1)
                         : status;
 
@@ -1516,6 +2336,20 @@ namespace MotorCity.Gameplay
                     status)
                     ? "Не удалось выбрать машину"
                     : status;
+        }
+
+        private void CloseResult()
+        {
+            if (activities != null &&
+                activities.HasResult)
+            {
+                activities.DismissResult();
+                car?.SetDrivingEnabled(
+                    true);
+
+                lastAction =
+                    "Result закрыт";
+            }
         }
 
         private void TeleportRoute(
@@ -1536,7 +2370,8 @@ namespace MotorCity.Gameplay
                       route[0]
                     : Vector3.forward;
 
-            forward.y = 0f;
+            forward.y =
+                0f;
 
             Quaternion rotation =
                 forward.sqrMagnitude >
@@ -1656,9 +2491,11 @@ namespace MotorCity.Gameplay
             underground?.ResetForTesting();
             cityRisk?.ClearForTesting();
             club?.ResetForTesting();
+            daily?.ResetForTesting();
             season?.ResetForTesting();
             story?.ResetForTesting();
             onboarding?.ResetForTesting();
+            discoveries?.ResetForTesting();
 
             if (roster != null)
             {
@@ -1696,7 +2533,8 @@ namespace MotorCity.Gameplay
             }
 
             OpeningCinematicCamera openingCamera =
-                Object.FindAnyObjectByType<OpeningCinematicCamera>();
+                Object.FindAnyObjectByType<
+                    OpeningCinematicCamera>();
 
             if (openingCamera != null)
             {
@@ -1705,7 +2543,8 @@ namespace MotorCity.Gameplay
             }
 
             PrototypeHud hud =
-                Object.FindAnyObjectByType<PrototypeHud>();
+                Object.FindAnyObjectByType<
+                    PrototypeHud>();
 
             if (hud != null)
             {
