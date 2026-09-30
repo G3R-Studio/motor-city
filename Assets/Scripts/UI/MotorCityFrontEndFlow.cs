@@ -1327,9 +1327,6 @@ namespace MotorCity.UI
 
         private void ContinuePrimaryAction()
         {
-            MotorCityMusicRuntime.SetMenuActive(
-                false);
-
             if (hasExistingProgress)
             {
                 StartLoadingTransition();
