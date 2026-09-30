@@ -1738,13 +1738,13 @@ namespace MotorCity.UI
         public bool PlayRuntimeLoadingTransition(
             System.Action midpointAction,
             string russianStatus = "ПЕРЕЕЗЖАЕМ...",
-            string englishStatus = "MOVING...")
+            string englishStatus = "MOVING...",
+            System.Action completedAction = null)
         {
             if (runtimeLoadingTransitionActive ||
                 loadingRoot == null ||
                 canvas == null)
             {
-                midpointAction?.Invoke();
                 return false;
             }
 
@@ -1752,7 +1752,8 @@ namespace MotorCity.UI
                 RuntimeLoadingTransitionRoutine(
                     midpointAction,
                     russianStatus,
-                    englishStatus));
+                    englishStatus,
+                    completedAction));
 
             return true;
         }
@@ -1760,7 +1761,8 @@ namespace MotorCity.UI
         private IEnumerator RuntimeLoadingTransitionRoutine(
             System.Action midpointAction,
             string russianStatus,
-            string englishStatus)
+            string englishStatus,
+            System.Action completedAction)
         {
             runtimeLoadingTransitionActive =
                 true;
@@ -1849,6 +1851,8 @@ namespace MotorCity.UI
 
             runtimeLoadingTransitionActive =
                 false;
+
+            completedAction?.Invoke();
         }
 
         private void ResetLoadingVisuals()
