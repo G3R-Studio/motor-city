@@ -7,6 +7,17 @@ namespace MotorCity.Gameplay
 {
     public sealed class ActivityStartFlow : MonoBehaviour
     {
+        public enum StartPhase
+        {
+            Idle,
+            Eligibility,
+            AdDecision,
+            AwaitingAdClose,
+            Countdown,
+            Go,
+            GameplayHandoff
+        }
+
         private ActivityManager activityManager;
         private MotorCityInterstitialRuntime interstitialRuntime;
         private bool requestInProgress;
@@ -22,6 +33,17 @@ namespace MotorCity.Gameplay
         private Action gameplayStarted;
         private int lastShownCountdown = -1;
 
+        public StartPhase Phase { get; private set; } =
+            StartPhase.Idle;
+
+        public string AdminLine =>
+            Phase +
+            (string.IsNullOrWhiteSpace(
+                PendingActivityId)
+                ? string.Empty
+                : " | " +
+                  PendingActivityId);
+
         public bool RequestInProgress =>
             requestInProgress;
 
@@ -34,8 +56,8 @@ namespace MotorCity.Gameplay
 
         public bool IsCountdownPresentationActive =>
             requestInProgress &&
-            (countdownRemaining > 0f ||
-             showingGo);
+            (Phase == StartPhase.Countdown ||
+             Phase == StartPhase.Go);
 
         public int CountdownDisplayValue =>
             IsCountdownPresentationActive
@@ -61,7 +83,7 @@ namespace MotorCity.Gameplay
             if (!requestInProgress)
                 return;
 
-            if (showingGo)
+            if (Phase == StartPhase.Go)
             {
                 goRemaining =
                     Mathf.Max(
@@ -72,17 +94,24 @@ namespace MotorCity.Gameplay
                 if (goRemaining > 0f)
                     return;
 
+                Phase =
+                    StartPhase.GameplayHandoff;
+
                 Action startGameplay =
                     gameplayStarted;
 
-                ClearRequest();
+                ClearRequest(
+                    false);
 
                 startGameplay?.Invoke();
                 return;
             }
 
-            if (countdownRemaining <= 0f)
+            if (Phase != StartPhase.Countdown ||
+                countdownRemaining <= 0f)
+            {
                 return;
+            }
 
             countdownRemaining =
                 Mathf.Max(
@@ -98,6 +127,9 @@ namespace MotorCity.Gameplay
 
             showingGo =
                 true;
+
+            Phase =
+                StartPhase.Go;
 
             goRemaining =
                 GoPresentationSeconds;
@@ -150,6 +182,9 @@ namespace MotorCity.Gameplay
             PendingActivityId =
                 activityId;
 
+            Phase =
+                StartPhase.Eligibility;
+
             if (!activityManager.TryBegin(
                     activityId,
                     displayName))
@@ -172,6 +207,9 @@ namespace MotorCity.Gameplay
             gameplayStarted =
                 onGameplayStarted;
 
+            Phase =
+                StartPhase.AdDecision;
+
             ContinueAfterInterstitial(
                 activityId);
 
@@ -181,6 +219,13 @@ namespace MotorCity.Gameplay
         private void ContinueAfterInterstitial(
             string activityId)
         {
+            if (!IsPending(
+                    activityId) ||
+                Phase != StartPhase.AdDecision)
+            {
+                return;
+            }
+
             if (interstitialRuntime == null)
             {
                 ContinuePreparedStart(
@@ -188,6 +233,9 @@ namespace MotorCity.Gameplay
 
                 return;
             }
+
+            Phase =
+                StartPhase.AwaitingAdClose;
 
             interstitialRuntime.ContinueBeforeActivity(
                 activityId,
@@ -200,21 +248,30 @@ namespace MotorCity.Gameplay
             string activityId)
         {
             if (!IsPending(
-                    activityId))
+                    activityId) ||
+                (Phase != StartPhase.AdDecision &&
+                 Phase != StartPhase.AwaitingAdClose))
             {
                 return;
             }
 
             if (pendingCountdownSeconds <= 0f)
             {
+                Phase =
+                    StartPhase.GameplayHandoff;
+
                 Action startGameplay =
                     gameplayStarted;
 
-                ClearRequest();
+                ClearRequest(
+                    false);
 
                 startGameplay?.Invoke();
                 return;
             }
+
+            Phase =
+                StartPhase.Countdown;
 
             countdownRemaining =
                 Mathf.Max(
@@ -282,7 +339,8 @@ namespace MotorCity.Gameplay
                 shown);
         }
 
-        private void ClearRequest()
+        private void ClearRequest(
+            bool resetPhase = true)
         {
             requestInProgress =
                 false;
@@ -313,6 +371,35 @@ namespace MotorCity.Gameplay
 
             lastShownCountdown =
                 -1;
+
+            if (resetPhase)
+            {
+                Phase =
+                    StartPhase.Idle;
+            }
+            else
+            {
+                // Gameplay callback runs immediately after this handoff.
+                // Keep the phase visible until the next frame for QA.
+                Phase =
+                    StartPhase.GameplayHandoff;
+
+                StartCoroutine(
+                    ResetPhaseNextFrame());
+            }
+        }
+
+        private System.Collections.IEnumerator ResetPhaseNextFrame()
+        {
+            yield return null;
+
+            if (!requestInProgress &&
+                Phase ==
+                    StartPhase.GameplayHandoff)
+            {
+                Phase =
+                    StartPhase.Idle;
+            }
         }
     }
 }
