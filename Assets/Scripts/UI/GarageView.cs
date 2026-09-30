@@ -324,7 +324,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Garage Vehicle Stats",
-                    16,
+                    13,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(28f, -105f),
