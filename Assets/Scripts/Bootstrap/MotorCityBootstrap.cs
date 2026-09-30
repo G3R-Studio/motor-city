@@ -243,8 +243,15 @@ namespace MotorCity.Bootstrap
 
             ArcadeCarController car = CreateCar();
 
-            car.BeginOpeningPresentationLock(
-                5f);
+            bool playOpeningPresentation =
+                frontEnd == null ||
+                frontEnd.OpeningPresentationRequested;
+
+            if (playOpeningPresentation)
+            {
+                car.BeginOpeningPresentationLock(
+                    5f);
+            }
 
             ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
             car.gameObject.AddComponent<PlayerHeadlights>();
@@ -687,7 +694,10 @@ namespace MotorCity.Bootstrap
             CreateTowTruckMarker(towTruck);
             CreateTowCheckpointMarker(towTruck);
 
-            CreateCamera(car.transform);
+            CreateCamera(
+                car.transform,
+                playOpeningPresentation);
+
             CreateHud(
                 car,
                 wallet,
@@ -723,7 +733,8 @@ namespace MotorCity.Bootstrap
                 rewardedBonus,
                 cosmeticStore,
                 achievements,
-                adventureDirector);
+                adventureDirector,
+                playOpeningPresentation);
 
             PrototypeHud runtimeHud =
                 Object.FindAnyObjectByType<PrototypeHud>();
@@ -1426,7 +1437,9 @@ namespace MotorCity.Bootstrap
                 anchor.z - bounds.center.z);
         }
 
-        private static void CreateCamera(Transform target)
+        private static void CreateCamera(
+            Transform target,
+            bool playOpeningPresentation)
         {
             GameObject cameraObject = new("Main Camera");
             cameraObject.tag = "MainCamera";
@@ -1445,8 +1458,11 @@ namespace MotorCity.Bootstrap
             openingCamera.Initialize(
                 target);
 
-            openingCamera.Arm(
-                5f);
+            if (playOpeningPresentation)
+            {
+                openingCamera.Arm(
+                    5f);
+            }
         }
 
         private static void CreateHud(
@@ -1484,7 +1500,8 @@ namespace MotorCity.Bootstrap
             RewardedBonusSystem rewardedBonus,
             CosmeticStoreSystem cosmeticStore,
             AchievementSystem achievements,
-            AdventureDirector adventureDirector)
+            AdventureDirector adventureDirector,
+            bool playOpeningPresentation)
         {
             GameObject hud = new("Prototype HUD");
             PrototypeHud prototypeHud = hud.AddComponent<PrototypeHud>();
@@ -1523,7 +1540,8 @@ namespace MotorCity.Bootstrap
                 rewardedBonus,
                 cosmeticStore,
                 achievements,
-                adventureDirector);
+                adventureDirector,
+                playOpeningPresentation);
         }
 
         private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
