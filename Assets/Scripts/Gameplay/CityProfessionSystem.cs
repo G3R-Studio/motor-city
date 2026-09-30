@@ -396,6 +396,9 @@ namespace MotorCity.Gameplay
                         elapsed),
                     ProfessionLevel);
 
+            car?.SetDrivingEnabled(
+                false);
+
             activities.ShowResult(
                 activityId,
                 title,
