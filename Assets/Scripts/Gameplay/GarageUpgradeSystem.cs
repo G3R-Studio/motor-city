@@ -524,12 +524,15 @@ namespace MotorCity.Gameplay
         {
             CancelActiveMission();
 
-            if (!activityManager.TryBegin(
-                    ActivityId,
-                    MotorCityLocalization.Text(
-                        "garage.activity_name")))
-                return;
+            activityManager.RequestStart(
+                ActivityId,
+                MotorCityLocalization.Text(
+                    "garage.activity_name"),
+                BeginPreparedGarageOpen);
+        }
 
+        private void BeginPreparedGarageOpen()
+        {
             IsOpen = true;
             car.SetDrivingEnabled(false);
             StatusText = string.Empty;
