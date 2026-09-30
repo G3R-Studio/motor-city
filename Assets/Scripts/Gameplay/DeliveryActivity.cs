@@ -36,7 +36,6 @@ namespace MotorCity.Gameplay
         private Vector3[] route;
         private int checkpointIndex;
         private bool isCountingDown;
-        private float countdownRemaining;
         private bool eliteMode;
 
         public bool IsActive { get; private set; }
@@ -120,10 +119,8 @@ namespace MotorCity.Gameplay
                 if (MotorCityInput.CancelPressed)
                 {
                     CancelActivity();
-                    return;
                 }
 
-                UpdateCountdown();
                 return;
             }
 
@@ -244,39 +241,35 @@ namespace MotorCity.Gameplay
             activityManager.RequestStart(
                 ActivityId,
                 MotorCityLocalization.Text("activity.delivery"),
-                BeginPreparedCountdown);
+                countdownSeconds,
+                BeginPreparedCountdown,
+                UpdateCountdownStatus,
+                BeginGameplay);
         }
 
         private void BeginPreparedCountdown()
         {
             isCountingDown = true;
-            countdownRemaining =
-                Mathf.Max(
-                    0.1f,
-                    countdownSeconds);
-
             checkpointIndex = 0;
             ElapsedSeconds = 0f;
 
             car.SetDrivingEnabled(false);
-
-            UpdateCountdownStatus();
         }
 
-        private void UpdateCountdown()
+        private void UpdateCountdownStatus(
+            int shown)
         {
-            countdownRemaining =
-                Mathf.Max(
-                    0f,
-                    countdownRemaining -
-                    Time.deltaTime);
+            StatusText =
+                MotorCityLocalization.Format(
+                    "activity.countdown",
+                    eliteMode
+                        ? MotorCityLocalization.Text("activity.premium_delivery")
+                        : MotorCityLocalization.Text("activity.delivery"),
+                    shown);
+        }
 
-            if (countdownRemaining > 0f)
-            {
-                UpdateCountdownStatus();
-                return;
-            }
-
+        private void BeginGameplay()
+        {
             isCountingDown = false;
             IsActive = true;
             checkpointIndex = 1;
@@ -285,23 +278,6 @@ namespace MotorCity.Gameplay
             car.SetDrivingEnabled(true);
 
             UpdateStatus();
-        }
-
-        private void UpdateCountdownStatus()
-        {
-            int shown =
-                Mathf.Max(
-                    1,
-                    Mathf.CeilToInt(
-                        countdownRemaining));
-
-            StatusText =
-                MotorCityLocalization.Format(
-                    "activity.countdown",
-                    eliteMode
-                        ? MotorCityLocalization.Text("activity.premium_delivery")
-                        : MotorCityLocalization.Text("activity.delivery"),
-                    shown);
         }
 
         private void UpdateActiveDelivery()
@@ -503,9 +479,14 @@ namespace MotorCity.Gameplay
                 !isCountingDown)
                 return;
 
+            if (isCountingDown)
+            {
+                activityManager?.CancelPendingStart(
+                    ActivityId);
+            }
+
             IsActive = false;
             isCountingDown = false;
-            countdownRemaining = 0f;
             checkpointIndex = 0;
             ElapsedSeconds = 0f;
 
