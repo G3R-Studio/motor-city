@@ -474,8 +474,8 @@ namespace MotorCity.UI
                 "HUD Drive Mode",
                 "touch.utility.mode",
                 MotorCityInputAction.CycleDriveMode,
-                new Vector2(142f, 34f),
-                new Vector2(92f, 36f));
+                new Vector2(142f, 38f),
+                new Vector2(96f, 44f));
 
             GameObject railObject =
                 new(
@@ -498,14 +498,14 @@ namespace MotorCity.UI
             rail.anchoredPosition =
                 new Vector2(-18f, -250f);
             rail.sizeDelta =
-                new Vector2(104f, 132f);
+                new Vector2(108f, 154f);
 
             CreatePauseButton(
                 rail,
                 "HUD Pause",
                 "touch.utility.pause",
-                new Vector2(0f, 44f),
-                new Vector2(96f, 34f),
+                new Vector2(0f, 52f),
+                new Vector2(100f, 44f),
                 OpenPauseMenu);
 
             GameObject rescueButton =
@@ -515,7 +515,7 @@ namespace MotorCity.UI
                     "touch.utility.rescue",
                     MotorCityInputAction.Rescue,
                     new Vector2(0f, 0f),
-                    new Vector2(96f, 34f));
+                    new Vector2(100f, 44f));
 
             RectTransform rescueRect =
                 rescueButton.GetComponent<RectTransform>();
@@ -533,8 +533,8 @@ namespace MotorCity.UI
                 rail,
                 "HUD More",
                 "touch.utility.more",
-                new Vector2(0f, -44f),
-                new Vector2(96f, 34f),
+                new Vector2(0f, -52f),
+                new Vector2(100f, 44f),
                 ToggleHudQuickMenu);
 
             hudQuickMenuRoot =
@@ -556,41 +556,41 @@ namespace MotorCity.UI
             menu.pivot =
                 new Vector2(1f, 1f);
             menu.anchoredPosition =
-                new Vector2(-128f, -250f);
+                new Vector2(-134f, -250f);
             menu.sizeDelta =
-                new Vector2(116f, 166f);
+                new Vector2(120f, 198f);
 
             CreateLocalizedTouchPulseButton(
                 menu,
                 "HUD Photo",
                 "touch.utility.photo",
                 MotorCityInputAction.TakePhoto,
-                new Vector2(0f, 18f),
-                new Vector2(108f, 34f));
+                new Vector2(0f, 22f),
+                new Vector2(112f, 44f));
 
             CreateLocalizedTouchPulseButton(
                 menu,
                 "HUD Store",
                 "touch.utility.store",
                 MotorCityInputAction.ToggleStore,
-                new Vector2(0f, 58f),
-                new Vector2(108f, 34f));
+                new Vector2(0f, 72f),
+                new Vector2(112f, 44f));
 
             CreateLocalizedTouchPulseButton(
                 menu,
                 "HUD Club",
                 "touch.utility.club",
                 MotorCityInputAction.ToggleClub,
-                new Vector2(0f, 98f),
-                new Vector2(108f, 34f));
+                new Vector2(0f, 122f),
+                new Vector2(112f, 44f));
 
             CreateLocalizedTouchPulseButton(
                 menu,
                 "HUD Bonus",
                 "touch.utility.bonus",
                 MotorCityInputAction.RewardedBonus,
-                new Vector2(0f, 138f),
-                new Vector2(108f, 34f));
+                new Vector2(0f, 172f),
+                new Vector2(112f, 44f));
 
             hudQuickMenuOpen =
                 false;
