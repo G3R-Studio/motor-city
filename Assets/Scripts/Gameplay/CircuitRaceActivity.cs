@@ -249,11 +249,19 @@ namespace MotorCity.Gameplay
         private void UpdateCountdownStatus(
             int shown)
         {
+            string activityName =
+                MotorCityLocalization.Text(
+                    "hud.circuit");
+
             StatusText =
-                MotorCityLocalization.Format(
-                    "activity.countdown",
-                    MotorCityLocalization.Text("hud.circuit"),
-                    shown);
+                shown <= 0
+                    ? MotorCityLocalization.Format(
+                        "activity.go",
+                        activityName)
+                    : MotorCityLocalization.Format(
+                        "activity.countdown",
+                        activityName,
+                        shown);
         }
 
         private void BeginGameplay()
