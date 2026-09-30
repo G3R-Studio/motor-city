@@ -1056,9 +1056,19 @@ namespace MotorCity.UI
                     openingHudRevealTimer /
                     openingHudRevealDuration);
 
+            // Keep gameplay HUD fully hidden for the first 80% of the
+            // cinematic. Reveal it only during the final second of a
+            // five-second opening, immediately before the camera hand-off.
+            float revealProgress =
+                Mathf.InverseLerp(
+                    0.80f,
+                    1f,
+                    progress);
+
             float eased =
-                progress * progress *
-                (3f - 2f * progress);
+                revealProgress *
+                revealProgress *
+                (3f - 2f * revealProgress);
 
             SetOpeningHudAlpha(
                 eased);
