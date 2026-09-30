@@ -1917,6 +1917,8 @@ namespace MotorCity.UI
                 car.SetDrivingEnabled(true);
 
             canvas.gameObject.SetActive(false);
+
+            MotorCityPlatformRuntime.MarkGameplayStarted();
         }
 
         private void ShowMainMenu()
