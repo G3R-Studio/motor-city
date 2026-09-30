@@ -1941,26 +1941,17 @@ namespace MotorCity.UI
                 true;
 
             openingPresentationFallbackTimer =
-                1.8f;
+                2.2f;
 
             if (openingPresentationCamera != null)
             {
                 openingPresentationCamera.PlayOpeningPresentation(
-                    1.8f);
+                    2.2f);
             }
         }
 
         private void UpdateOpeningPresentation()
         {
-            if (car != null)
-            {
-                car.SetPresentationLock(
-                    true);
-
-                car.SetDrivingEnabled(
-                    false);
-            }
-
             openingPresentationFallbackTimer =
                 Mathf.Max(
                     0f,
