@@ -309,6 +309,60 @@ namespace MotorCity.Gameplay
             };
         }
 
+        public void CompleteGoldForTesting(
+            int index)
+        {
+            if (!Valid(
+                    index))
+            {
+                return;
+            }
+
+            Spot spot =
+                spots[index];
+
+            FinishSpot(
+                spot,
+                spot.GoldScore +
+                250);
+        }
+
+        public void ResetForTesting()
+        {
+            if (spots == null)
+                return;
+
+            foreach (Spot spot in
+                     spots)
+            {
+                if (spot == null)
+                    continue;
+
+                spot.BestScore =
+                    0;
+
+                spot.HighestMedal =
+                    0;
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    $"MotorCity.DriftSpot.{spot.Id}.Best");
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    $"MotorCity.DriftSpot.{spot.Id}.Medal");
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            activeSpot =
+                null;
+
+            StatusText =
+                string.Empty;
+
+            messageTimer =
+                0f;
+        }
+
         public Vector3 GetSpotPosition(int index)
         {
             return Valid(index)
