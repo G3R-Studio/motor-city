@@ -295,7 +295,7 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            activities.DismissResult();
+            activities.DismissResult(false);
 
             car.TeleportTo(
                 StartPoint +
