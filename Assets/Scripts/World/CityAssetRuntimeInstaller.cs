@@ -307,11 +307,19 @@ namespace MotorCity.World
                 Bounds bounds =
                     floorMesh.sharedMesh.bounds;
 
+                Vector3 colliderSize =
+                    bounds.size;
+
+                colliderSize.y =
+                    Mathf.Max(
+                        0.25f,
+                        colliderSize.y);
+
                 floorCollider.center =
                     bounds.center;
 
                 floorCollider.size =
-                    bounds.size;
+                    colliderSize;
             }
 
             floorCollider.isTrigger =
