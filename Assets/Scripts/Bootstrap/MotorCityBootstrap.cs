@@ -707,8 +707,6 @@ namespace MotorCity.Bootstrap
                 reputation,
                 onboarding,
                 runtimeHud);
-
-            platformRuntime.MarkGameplayRunning();
         }
 
         private static void NotifyPlatformGameReady()
