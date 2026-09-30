@@ -38,6 +38,8 @@ namespace MotorCity.Audio
         private bool musicMuted;
         private bool menuActive;
         private bool gameplayActive;
+        private bool systemPaused;
+        private bool pauseMenuPaused;
 
         public static float Volume
         {
@@ -113,6 +115,40 @@ namespace MotorCity.Audio
             instance.RefreshPlayback();
         }
 
+        public static void SetSystemPaused(
+            bool paused)
+        {
+            EnsureExists();
+
+            if (instance.systemPaused ==
+                paused)
+            {
+                return;
+            }
+
+            instance.systemPaused =
+                paused;
+
+            instance.RefreshRuntimePause();
+        }
+
+        public static void SetPauseMenuPaused(
+            bool paused)
+        {
+            EnsureExists();
+
+            if (instance.pauseMenuPaused ==
+                paused)
+            {
+                return;
+            }
+
+            instance.pauseMenuPaused =
+                paused;
+
+            instance.RefreshRuntimePause();
+        }
+
         public static void AdjustVolume(
             int direction)
         {
@@ -183,6 +219,7 @@ namespace MotorCity.Audio
             if (!gameplayActive ||
                 menuActive ||
                 musicMuted ||
+                IsRuntimePaused ||
                 source == null)
             {
                 return;
@@ -296,6 +333,16 @@ namespace MotorCity.Audio
         {
             if (source == null)
                 return;
+
+            if (IsRuntimePaused)
+            {
+                if (source.isPlaying)
+                {
+                    source.Pause();
+                }
+
+                return;
+            }
 
             if (musicMuted)
             {
@@ -479,6 +526,42 @@ namespace MotorCity.Audio
 
             cityOrderIndex =
                 0;
+        }
+
+        private bool IsRuntimePaused =>
+            systemPaused ||
+            pauseMenuPaused;
+
+        private void RefreshRuntimePause()
+        {
+            if (source == null)
+                return;
+
+            if (IsRuntimePaused)
+            {
+                if (source.isPlaying)
+                {
+                    source.Pause();
+                }
+
+                return;
+            }
+
+            if (musicMuted)
+                return;
+
+            // Resume the exact same clip/time when possible. If no clip was
+            // active yet, RefreshPlayback will start the appropriate menu or
+            // city music normally.
+            if (source.clip != null)
+            {
+                source.UnPause();
+            }
+
+            if (!source.isPlaying)
+            {
+                RefreshPlayback();
+            }
         }
 
         private void ApplyVolume()
