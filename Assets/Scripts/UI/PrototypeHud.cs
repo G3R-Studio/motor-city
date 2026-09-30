@@ -47,7 +47,6 @@ namespace MotorCity.UI
         private CarWashJobSystem carWash;
         private TowTruckJobSystem towTruck;
         private ClubSystem club;
-        private WeekendEventSystem weekendEvents;
         private RewardedBonusSystem rewardedBonus;
         private CosmeticStoreSystem cosmeticStore;
         private bool storeOpen;
@@ -371,7 +370,6 @@ namespace MotorCity.UI
             CarWashJobSystem carWashSystem,
             TowTruckJobSystem towTruckSystem,
             ClubSystem clubSystem,
-            WeekendEventSystem weekendEventSystem,
             RewardedBonusSystem rewardedBonusSystem,
             CosmeticStoreSystem cosmeticStoreSystem,
             AchievementSystem achievementSystem,
@@ -408,7 +406,6 @@ namespace MotorCity.UI
             carWash = carWashSystem;
             towTruck = towTruckSystem;
             club = clubSystem;
-            weekendEvents = weekendEventSystem;
             rewardedBonus = rewardedBonusSystem;
             cosmeticStore = cosmeticStoreSystem;
             achievements = achievementSystem;
