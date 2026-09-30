@@ -19,6 +19,9 @@ namespace MotorCity.Gameplay
         public bool ResultSuccess { get; private set; }
         public int ResultReputationReward { get; private set; }
         public bool ResultIsRookieDelivery { get; private set; }
+        public int ResultMasteryXp { get; private set; }
+        public string ResultSecondaryProgress { get; private set; } =
+            string.Empty;
         public int TotalReputation =>
             reputation == null
                 ? 0
@@ -51,6 +54,10 @@ namespace MotorCity.Gameplay
         private DisciplineReputationSystem disciplineReputation;
         private FirstSessionOnboardingSystem onboarding;
         private StoryMissionSystem story;
+        private VehicleMasterySystem resultMastery;
+        private DailyAdventureSystem resultDaily;
+        private SeasonSystem resultSeason;
+        private ClubSystem resultClub;
 
         public event Action<string, bool> ActivityResultShown;
         public event Action<string, bool> ActivityResultDismissed;
@@ -165,6 +172,25 @@ namespace MotorCity.Gameplay
                 startFlow != null &&
                 startFlow.CancelPending(
                     id);
+        }
+
+        public void SetResultProgressSystems(
+            VehicleMasterySystem mastery,
+            DailyAdventureSystem daily,
+            SeasonSystem season,
+            ClubSystem club)
+        {
+            resultMastery =
+                mastery;
+
+            resultDaily =
+                daily;
+
+            resultSeason =
+                season;
+
+            resultClub =
+                club;
         }
 
         public void SetDisciplineReputation(
@@ -283,6 +309,31 @@ namespace MotorCity.Gameplay
             int rewardCredits,
             bool success)
         {
+            int masteryBefore =
+                resultMastery == null
+                    ? 0
+                    : resultMastery.CurrentXp;
+
+            int dailyBefore =
+                resultDaily == null
+                    ? 0
+                    : resultDaily.CompletedTasks;
+
+            int seasonMissionBefore =
+                resultSeason == null
+                    ? 0
+                    : resultSeason.CurrentMissionNumber;
+
+            int seasonProgressBefore =
+                resultSeason == null
+                    ? 0
+                    : resultSeason.CurrentMissionProgress;
+
+            int clubBefore =
+                resultClub == null
+                    ? 0
+                    : resultClub.WeeklyContribution;
+
             End(activityId);
 
             HasResult = true;
@@ -325,11 +376,86 @@ namespace MotorCity.Gameplay
                 activityId,
                 success);
 
+            ResultMasteryXp =
+                0;
+
+            ResultSecondaryProgress =
+                string.Empty;
+
             if (success)
             {
                 ActivityCompleted?.Invoke(
                     activityId);
+
+                ResultMasteryXp =
+                    resultMastery == null
+                        ? 0
+                        : Mathf.Max(
+                            0,
+                            resultMastery.CurrentXp -
+                            masteryBefore);
+
+                BuildResultSecondaryProgress(
+                    dailyBefore,
+                    seasonMissionBefore,
+                    seasonProgressBefore,
+                    clubBefore);
             }
+        }
+
+        private void BuildResultSecondaryProgress(
+            int dailyBefore,
+            int seasonMissionBefore,
+            int seasonProgressBefore,
+            int clubBefore)
+        {
+            System.Collections.Generic.List<string> lines =
+                new();
+
+            if (resultDaily != null &&
+                resultDaily.CompletedTasks >
+                    dailyBefore)
+            {
+                lines.Add(
+                    MotorCity.Localization.MotorCityLocalization.Format(
+                        "hud.result_daily_progress",
+                        resultDaily.CompletedTasks,
+                        3));
+            }
+
+            if (resultSeason != null)
+            {
+                bool seasonChanged =
+                    resultSeason.CurrentMissionNumber !=
+                        seasonMissionBefore ||
+                    resultSeason.CurrentMissionProgress !=
+                        seasonProgressBefore;
+
+                if (seasonChanged)
+                {
+                    lines.Add(
+                        MotorCity.Localization.MotorCityLocalization.Format(
+                            "hud.result_season_progress",
+                            resultSeason.CurrentMissionNumber,
+                            resultSeason.MissionCount));
+                }
+            }
+
+            if (resultClub != null &&
+                resultClub.WeeklyContribution >
+                    clubBefore)
+            {
+                lines.Add(
+                    MotorCity.Localization.MotorCityLocalization.Format(
+                        "hud.result_club_progress",
+                        resultClub.WeeklyContribution -
+                            clubBefore));
+            }
+
+            ResultSecondaryProgress =
+                string.Join(
+                    "\n",
+                    lines);
         }
 
         public void ReportCompletion(
@@ -363,6 +489,9 @@ namespace MotorCity.Gameplay
             ResultReputationReward = 0;
             ResultSuccess = false;
             ResultIsRookieDelivery = false;
+            ResultMasteryXp = 0;
+            ResultSecondaryProgress =
+                string.Empty;
 
             if (notifyDismissed)
             {
