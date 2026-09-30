@@ -612,9 +612,6 @@ namespace MotorCity.UI
             pauseMenuOpen =
                 true;
 
-            MotorCityPlatformRuntime.SetGameplayUiPaused(
-                true);
-
             pauseStoredTimeScale =
                 Time.timeScale;
 
@@ -650,6 +647,9 @@ namespace MotorCity.UI
             car?.SetDrivingEnabled(
                 false);
 
+            MotorCityPlatformRuntime.SetGameplayUiPaused(
+                true);
+
             RefreshPauseMenuText();
         }
 
@@ -657,9 +657,6 @@ namespace MotorCity.UI
         {
             pauseMenuOpen =
                 false;
-
-            MotorCityPlatformRuntime.SetGameplayUiPaused(
-                HasBlockingModalUi());
 
             pauseOverlay?.SetActive(
                 false);
@@ -679,6 +676,9 @@ namespace MotorCity.UI
                 Time.timeScale > 0f);
 
             UpdateTouchControlsVisibility();
+
+            MotorCityPlatformRuntime.SetGameplayUiPaused(
+                HasBlockingModalUi());
         }
 
         private void HandlePauseMenuInput()
