@@ -437,7 +437,8 @@ namespace MotorCity.Gameplay
                     lap,
                     bonus),
                 reward,
-                true);
+                true,
+                newBest);
 
             StatusText =
                 MotorCityLocalization.Format("activity.status_reward", MotorCityLocalization.Text("hud.circuit"), tier, reward);
