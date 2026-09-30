@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Platform;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -6,8 +7,10 @@ namespace MotorCity.Gameplay
     public sealed class ActivityStartFlow : MonoBehaviour
     {
         private ActivityManager activityManager;
+        private MotorCityInterstitialRuntime interstitialRuntime;
         private bool requestInProgress;
         private float countdownRemaining;
+        private float pendingCountdownSeconds;
         private Action countdownStarted;
         private Action<int> countdownTick;
         private Action gameplayStarted;
@@ -28,6 +31,13 @@ namespace MotorCity.Gameplay
         {
             activityManager =
                 manager;
+        }
+
+        public void SetInterstitialRuntime(
+            MotorCityInterstitialRuntime runtime)
+        {
+            interstitialRuntime =
+                runtime;
         }
 
         private void Update()
@@ -67,7 +77,7 @@ namespace MotorCity.Gameplay
                 activityId,
                 displayName,
                 0f,
-                beginPreparedActivity,
+                null,
                 null,
                 beginPreparedActivity);
         }
@@ -105,20 +115,9 @@ namespace MotorCity.Gameplay
                 return false;
             }
 
-            if (countdownSeconds <= 0f)
-            {
-                Action startGameplay =
-                    onGameplayStarted;
-
-                ClearRequest();
-
-                startGameplay();
-                return true;
-            }
-
-            countdownRemaining =
+            pendingCountdownSeconds =
                 Mathf.Max(
-                    0.1f,
+                    0f,
                     countdownSeconds);
 
             countdownStarted =
@@ -130,14 +129,61 @@ namespace MotorCity.Gameplay
             gameplayStarted =
                 onGameplayStarted;
 
+            ContinueAfterInterstitial(
+                activityId);
+
+            return true;
+        }
+
+        private void ContinueAfterInterstitial(
+            string activityId)
+        {
+            if (interstitialRuntime == null)
+            {
+                ContinuePreparedStart(
+                    activityId);
+
+                return;
+            }
+
+            interstitialRuntime.ContinueBeforeActivity(
+                activityId,
+                () =>
+                    ContinuePreparedStart(
+                        activityId));
+        }
+
+        private void ContinuePreparedStart(
+            string activityId)
+        {
+            if (!IsPending(
+                    activityId))
+            {
+                return;
+            }
+
+            if (pendingCountdownSeconds <= 0f)
+            {
+                Action startGameplay =
+                    gameplayStarted;
+
+                ClearRequest();
+
+                startGameplay?.Invoke();
+                return;
+            }
+
+            countdownRemaining =
+                Mathf.Max(
+                    0.1f,
+                    pendingCountdownSeconds);
+
             lastShownCountdown =
                 -1;
 
             countdownStarted?.Invoke();
 
             PublishCountdown();
-
-            return true;
         }
 
         public bool IsPending(
@@ -199,6 +245,9 @@ namespace MotorCity.Gameplay
                 null;
 
             countdownRemaining =
+                0f;
+
+            pendingCountdownSeconds =
                 0f;
 
             countdownStarted =
