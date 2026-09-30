@@ -1,3 +1,4 @@
+using MotorCity.CameraSystem;
 using MotorCity.Input;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
@@ -28,6 +29,8 @@ namespace MotorCity.Gameplay
         private VehicleMasterySystem vehicleMastery;
         private TurboPetSystem turbo;
         private VehicleCustomizationSystem customization;
+        private PlayerVehicleAudio vehicleAudio;
+        private ChaseCamera chaseCamera;
 
         public int EngineLevel { get; private set; }
         public int GripLevel { get; private set; }
@@ -133,6 +136,12 @@ namespace MotorCity.Gameplay
             turbo = turboSystem;
             customization =
                 customizationSystem;
+
+            vehicleAudio =
+                car == null
+                    ? null
+                    : car.GetComponent<PlayerVehicleAudio>();
+
             garageCenter =
                 MotorCity.World.CityAssetRuntimeInstaller.GaragePoint;
 
@@ -530,14 +539,15 @@ namespace MotorCity.Gameplay
             IsNearGarage =
                 true;
 
-            car.SetDrivingEnabled(
-                false);
-
             car.TeleportTo(
                 MotorCity.World.CityAssetRuntimeInstaller.GarageVehiclePosition,
                 MotorCity.World.CityAssetRuntimeInstaller.GarageVehicleRotation);
 
-            car.ClearMotion();
+            car.SetGaragePresentationMode(
+                true);
+
+            SetGaragePresentationSystems(
+                true);
 
             StatusText =
                 string.Empty;
@@ -561,14 +571,44 @@ namespace MotorCity.Gameplay
 
         private void CloseGarage()
         {
-            IsOpen = false;
-            car.SetDrivingEnabled(true);
+            IsOpen =
+                false;
+
+            SetGaragePresentationSystems(
+                false);
+
+            car.SetGaragePresentationMode(
+                false);
+
             activityManager.End(ActivityId);
             StatusText = IsNearGarage
                 ? MotorCityLocalization.Text(
                     "garage.open_prompt")
                 : MotorCityLocalization.Text(
                     "garage.marker_text");
+        }
+
+        private void SetGaragePresentationSystems(
+            bool active)
+        {
+            if (vehicleAudio == null &&
+                car != null)
+            {
+                vehicleAudio =
+                    car.GetComponent<PlayerVehicleAudio>();
+            }
+
+            vehicleAudio?.SetMuted(
+                active);
+
+            if (chaseCamera == null)
+            {
+                chaseCamera =
+                    Object.FindAnyObjectByType<ChaseCamera>();
+            }
+
+            chaseCamera?.SetManualInputEnabled(
+                !active);
         }
 
         private void TrySelectVehicle(
