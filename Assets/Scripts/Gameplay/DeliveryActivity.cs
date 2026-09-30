@@ -241,11 +241,14 @@ namespace MotorCity.Gameplay
 
         private void BeginCountdown()
         {
-            if (!activityManager.TryBegin(
-                    ActivityId,
-                    MotorCityLocalization.Text("activity.delivery")))
-                return;
+            activityManager.RequestStart(
+                ActivityId,
+                MotorCityLocalization.Text("activity.delivery"),
+                BeginPreparedCountdown);
+        }
 
+        private void BeginPreparedCountdown()
+        {
             isCountingDown = true;
             countdownRemaining =
                 Mathf.Max(
