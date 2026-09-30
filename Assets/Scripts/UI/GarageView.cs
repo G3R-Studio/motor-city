@@ -973,6 +973,21 @@ namespace MotorCity.UI
             {
                 garageNextVehicleText.text =
                     garage.NextVehicleLine;
+
+                garageNextVehicleText.color =
+                    !garage.HasNextVehicle
+                        ? SecondaryTextColor
+                        : garage.NextVehicleUnlocked
+                            ? new Color(
+                                0.35f,
+                                1f,
+                                0.58f,
+                                1f)
+                            : new Color(
+                                1f,
+                                0.58f,
+                                0.24f,
+                                1f);
             }
 
             if (garageVehicleStateIcon != null)
