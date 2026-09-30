@@ -45,6 +45,9 @@ namespace MotorCity.Gameplay
 
         private PlayerReputation reputation;
         private ActivityStartFlow startFlow;
+
+        public ActivityStartFlow StartFlow =>
+            startFlow;
         private DisciplineReputationSystem disciplineReputation;
         private FirstSessionOnboardingSystem onboarding;
         private StoryMissionSystem story;
