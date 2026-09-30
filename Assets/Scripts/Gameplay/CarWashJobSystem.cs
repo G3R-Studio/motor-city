@@ -129,14 +129,15 @@ namespace MotorCity.Gameplay
 
         private void BeginWash()
         {
-            if (!activities.TryBegin(
-                    ActivityId,
-                    MotorCityLocalization.Text(
-                        "carwash.title")))
-            {
-                return;
-            }
+            activities.RequestStart(
+                ActivityId,
+                MotorCityLocalization.Text(
+                    "carwash.title"),
+                BeginPreparedWash);
+        }
 
+        private void BeginPreparedWash()
+        {
             IsActive =
                 true;
 
