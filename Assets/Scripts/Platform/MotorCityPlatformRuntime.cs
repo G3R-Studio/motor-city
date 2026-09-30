@@ -23,6 +23,7 @@ namespace MotorCity.Platform
         private bool initializationRequested;
         private bool localGameplayPaused;
         private float pausedTimeScale = 1f;
+        private bool pausedAudioListenerState;
         private PauseReason pauseReasons;
         private Action<bool> pendingInitializeCallbacks;
 
