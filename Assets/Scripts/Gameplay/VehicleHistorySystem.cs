@@ -183,11 +183,16 @@ namespace MotorCity.Gameplay
 
             string[] vehicleIds =
             {
+                "beatall",
                 "street",
-                "club",
-                "muscle",
-                "gt",
-                "apex"
+                "peugeot306",
+                "toyotaae86",
+                "hybrid",
+                "porsche996",
+                "amggt",
+                "camaro",
+                "delorean",
+                "bus"
             };
 
             foreach (string vehicleId in vehicleIds)
@@ -217,11 +222,16 @@ namespace MotorCity.Gameplay
 
             string[] vehicleIds =
             {
+                "beatall",
                 "street",
-                "club",
-                "muscle",
-                "gt",
-                "apex"
+                "peugeot306",
+                "toyotaae86",
+                "hybrid",
+                "porsche996",
+                "amggt",
+                "camaro",
+                "delorean",
+                "bus"
             };
 
             foreach (string vehicleId in vehicleIds)
