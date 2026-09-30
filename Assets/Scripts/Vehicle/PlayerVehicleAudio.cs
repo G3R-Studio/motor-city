@@ -1,3 +1,4 @@
+using MotorCity.Audio;
 using MotorCity.Input;
 using UnityEngine;
 
@@ -45,6 +46,7 @@ namespace MotorCity.Vehicle
         private AudioClip tireClip;
         private string vehicleId = "street";
         private EngineProfile activeProfile;
+        private float nextCollisionSoundTime;
 
         private void Awake()
         {
@@ -273,6 +275,33 @@ namespace MotorCity.Vehicle
             {
                 tireSource.Stop();
             }
+        }
+
+        private void OnCollisionEnter(
+            Collision collision)
+        {
+            if (collision == null ||
+                Time.unscaledTime <
+                    nextCollisionSoundTime)
+            {
+                return;
+            }
+
+            float impactSpeed =
+                collision.relativeVelocity.magnitude;
+
+            if (impactSpeed < 3.5f)
+                return;
+
+            nextCollisionSoundTime =
+                Time.unscaledTime +
+                0.12f;
+
+            MotorCitySfxRuntime.PlayCollision(
+                Mathf.InverseLerp(
+                    3.5f,
+                    22f,
+                    impactSpeed));
         }
 
         private AudioSource CreateSource(
