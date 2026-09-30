@@ -462,8 +462,8 @@ namespace MotorCity.Gameplay
                      renderers)
             {
                 if (renderer == null ||
-                    IsWheelLike(
-                        renderer.transform.name))
+                    IsWheelRenderer(
+                        renderer))
                 {
                     continue;
                 }
@@ -664,8 +664,8 @@ namespace MotorCity.Gameplay
                          true))
             {
                 if (renderer == null ||
-                    IsWheelLike(
-                        renderer.transform.name))
+                    IsWheelRenderer(
+                        renderer))
                 {
                     continue;
                 }
@@ -787,14 +787,18 @@ namespace MotorCity.Gameplay
                 if (renderer == null ||
                     renderer is TrailRenderer ||
                     renderer is ParticleSystemRenderer ||
-                    !IsWheelLike(
-                        renderer.transform.name))
+                    !IsWheelRenderer(
+                        renderer))
                 {
                     continue;
                 }
 
                 Material[] materials =
                     renderer.sharedMaterials;
+
+                bool hierarchySaysWheel =
+                    IsWheelHierarchy(
+                        renderer.transform);
 
                 for (int i = 0;
                      i < materials.Length;
@@ -803,8 +807,24 @@ namespace MotorCity.Gameplay
                     Material material =
                         materials[i];
 
-                    if (material == null)
+                    if (material == null ||
+                        IsRubberMaterial(
+                            material))
+                    {
                         continue;
+                    }
+
+                    // Some imported cars name the mesh generically and only
+                    // identify the rim through the material. Others use a
+                    // wheel parent with generic Dark/Chrome materials.
+                    // Support both layouts so every player vehicle can use
+                    // the same garage wheel-color selector.
+                    if (!hierarchySaysWheel &&
+                        !IsRimMaterial(
+                            material))
+                    {
+                        continue;
+                    }
 
                     ApplyColorBlock(
                         renderer,
@@ -1422,7 +1442,109 @@ namespace MotorCity.Gameplay
                 lower.Contains("wheel") ||
                 lower.Contains("tire") ||
                 lower.Contains("tyre") ||
-                lower.Contains("rim");
+                lower.Contains("rim") ||
+                lower.Contains("alloy");
+        }
+
+        private static bool IsWheelRenderer(
+            Renderer renderer)
+        {
+            if (renderer == null)
+                return false;
+
+            if (IsWheelHierarchy(
+                    renderer.transform))
+            {
+                return true;
+            }
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                if (IsRimMaterial(
+                        materials[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsWheelHierarchy(
+            Transform transform)
+        {
+            Transform current =
+                transform;
+
+            int depth =
+                0;
+
+            while (current != null &&
+                   depth++ < 8)
+            {
+                if (IsWheelLike(
+                        current.name))
+                {
+                    return true;
+                }
+
+                if (current.name.Equals(
+                        RuntimeVisualName,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+
+                current =
+                    current.parent;
+            }
+
+            return false;
+        }
+
+        private static bool IsRimMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string lower =
+                material.name
+                    .Replace(
+                        " (Instance)",
+                        string.Empty)
+                    .ToLowerInvariant();
+
+            return
+                lower.Contains("rim") ||
+                lower.Contains("wheel") ||
+                lower.Contains("alloy") ||
+                lower.Contains("disc") ||
+                lower.Contains("disk");
+        }
+
+        private static bool IsRubberMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string lower =
+                material.name
+                    .Replace(
+                        " (Instance)",
+                        string.Empty)
+                    .ToLowerInvariant();
+
+            return
+                lower.Contains("tire") ||
+                lower.Contains("tyre") ||
+                lower.Contains("rubber");
         }
 
         private static bool IsExcludedMaterial(
@@ -1451,8 +1573,8 @@ namespace MotorCity.Gameplay
                      renderers)
             {
                 if (renderer == null ||
-                    IsWheelLike(
-                        renderer.transform.name))
+                    IsWheelRenderer(
+                        renderer))
                 {
                     continue;
                 }
