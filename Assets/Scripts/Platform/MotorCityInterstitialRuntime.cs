@@ -23,6 +23,8 @@ namespace MotorCity.Platform
         private int completedActivities;
         private int activityStartRequests;
         private bool requestRunning;
+        private bool waitingForGameplayResume;
+        private Action resumeCompleted;
 
         public InterstitialState State { get; private set; } =
             InterstitialState.Idle;
@@ -60,8 +62,46 @@ namespace MotorCity.Platform
             requestRunning =
                 false;
 
+            waitingForGameplayResume =
+                false;
+
+            resumeCompleted =
+                null;
+
             State =
                 InterstitialState.Idle;
+        }
+
+        private void Update()
+        {
+            if (waitingForGameplayResume &&
+                MotorCityPlatformRuntime.IsGameplayResumeReady)
+            {
+                waitingForGameplayResume =
+                    false;
+
+                Action callback =
+                    resumeCompleted;
+
+                resumeCompleted =
+                    null;
+
+                State =
+                    InterstitialState.Cooldown;
+
+                callback?.Invoke();
+            }
+
+            if (!requestRunning &&
+                !waitingForGameplayResume &&
+                State ==
+                    InterstitialState.Cooldown &&
+                Time.realtimeSinceStartup >=
+                    nextAllowedRealtime)
+            {
+                State =
+                    InterstitialState.Idle;
+            }
         }
 
         private void OnDestroy()
@@ -71,6 +111,12 @@ namespace MotorCity.Platform
                 activities.ActivityCompleted -=
                     OnActivityCompleted;
             }
+
+            resumeCompleted =
+                null;
+
+            waitingForGameplayResume =
+                false;
         }
 
         private void OnActivityCompleted(
@@ -135,10 +181,23 @@ namespace MotorCity.Platform
 
                     MotorCity.Input.MotorCityInput.ClearVirtualState();
 
-                    State =
-                        InterstitialState.Cooldown;
+                    if (MotorCityPlatformRuntime.IsGameplayResumeReady)
+                    {
+                        State =
+                            InterstitialState.Cooldown;
 
-                    completed?.Invoke();
+                        completed?.Invoke();
+                        return;
+                    }
+
+                    // Some browsers deliver the ad close callback before the
+                    // Unity canvas has regained focus. Keep ActivityStartFlow
+                    // pending until all platform/focus pause reasons clear.
+                    waitingForGameplayResume =
+                        true;
+
+                    resumeCompleted =
+                        completed;
                 });
         }
 
