@@ -491,6 +491,119 @@ namespace MotorCity.Gameplay
                 "photo_hunt");
         }
 
+        public void CompleteAlbumForTesting()
+        {
+            int landmarks =
+                discoveries == null
+                    ? 5
+                    : discoveries.DiscoveryCount;
+
+            for (int i = 0;
+                 i < landmarks;
+                 i++)
+            {
+                Capture(
+                    "landmark." +
+                    i,
+                    CaptureType.Landmark,
+                    "QA LANDMARK " +
+                    (i + 1),
+                    0,
+                    0);
+            }
+
+            for (int i = 0;
+                 i < 5;
+                 i++)
+            {
+                Capture(
+                    "secret." +
+                    i,
+                    CaptureType.Secret,
+                    "QA SECRET " +
+                    (i + 1),
+                    0,
+                    0);
+            }
+
+            for (int i = 0;
+                 i < 6;
+                 i++)
+            {
+                Capture(
+                    "rare." +
+                    i,
+                    CaptureType.RareCar,
+                    "QA RARE CAR " +
+                    (i + 1),
+                    0,
+                    0);
+            }
+
+            Capture(
+                SeasonalId(),
+                CaptureType.Seasonal,
+                "QA SEASONAL",
+                0,
+                0);
+        }
+
+        public void ResetForTesting()
+        {
+            int landmarks =
+                discoveries == null
+                    ? 5
+                    : discoveries.DiscoveryCount;
+
+            for (int i = 0;
+                 i < landmarks;
+                 i++)
+            {
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    SaveKey(
+                        "landmark." +
+                        i));
+            }
+
+            for (int i = 0;
+                 i < 5;
+                 i++)
+            {
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    SaveKey(
+                        "secret." +
+                        i));
+            }
+
+            for (int i = 0;
+                 i < 6;
+                 i++)
+            {
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    SaveKey(
+                        "rare." +
+                        i));
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                SaveKey(
+                    SeasonalId()));
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            captured.Clear();
+            landmarkCount = 0;
+            secretCount = 0;
+            rareCarCount = 0;
+            seasonalCaptured = false;
+
+            StatusText =
+                string.Empty;
+
+            messageTimer =
+                0f;
+        }
+
         private void Load()
         {
             landmarkCount = 0;
