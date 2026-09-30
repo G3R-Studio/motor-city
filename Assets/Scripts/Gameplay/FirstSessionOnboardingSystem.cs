@@ -69,10 +69,10 @@ namespace MotorCity.Gameplay
                     {
                         0 =>
                             MotorCityLocalization.Text(
-                                "onboarding.throttle"),
+                                ResolveThrottleObjectiveKey()),
                         1 =>
                             MotorCityLocalization.Text(
-                                "onboarding.steer"),
+                                ResolveSteeringObjectiveKey()),
                         2 =>
                             MotorCityLocalization.Format(
                                 "onboarding.drive",
@@ -213,10 +213,12 @@ namespace MotorCity.Gameplay
             switch (step)
             {
                 case 0:
+                    // The first step must prove that the player actually
+                    // found the acceleration control. Vehicle movement on its
+                    // own (spawn settling, slope, collision) must never skip
+                    // the tutorial.
                     if (MotorCityInput.ThrottleHeld ||
-                        MotorCityInput.ReverseHeld ||
-                        (car != null &&
-                         car.SpeedKph > 3f))
+                        MotorCityInput.ReverseHeld)
                     {
                         Advance(
                             "onboarding.good_throttle");
@@ -300,6 +302,38 @@ namespace MotorCity.Gameplay
                 customization.CustomizationChanged -=
                     OnCustomizationChanged;
             }
+        }
+
+        private static string ResolveThrottleObjectiveKey()
+        {
+            return
+                MotorCityInput.CurrentControlScheme switch
+                {
+                    MotorCityControlScheme.Arrows =>
+                        "onboarding.throttle.arrows",
+
+                    MotorCityControlScheme.Wheel =>
+                        "onboarding.throttle.wheel",
+
+                    _ =>
+                        "onboarding.throttle.keyboard"
+                };
+        }
+
+        private static string ResolveSteeringObjectiveKey()
+        {
+            return
+                MotorCityInput.CurrentControlScheme switch
+                {
+                    MotorCityControlScheme.Arrows =>
+                        "onboarding.steer.arrows",
+
+                    MotorCityControlScheme.Wheel =>
+                        "onboarding.steer.wheel",
+
+                    _ =>
+                        "onboarding.steer.keyboard"
+                };
         }
 
         private void OnCustomizationChanged()
