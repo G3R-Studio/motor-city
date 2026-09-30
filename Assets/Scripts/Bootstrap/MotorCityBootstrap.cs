@@ -565,6 +565,12 @@ namespace MotorCity.Bootstrap
                 wallet,
                 reputation);
 
+            activityManager.SetResultProgressSystems(
+                vehicleMastery,
+                dailyAdventures,
+                season,
+                club);
+
             RewardedBonusSystem rewardedBonus =
                 systems.AddComponent<RewardedBonusSystem>();
 
