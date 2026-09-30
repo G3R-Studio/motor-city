@@ -14,6 +14,8 @@ namespace MotorCity.Gameplay
             "MotorCity.Onboarding.Complete";
         private const float MessageSeconds =
             4f;
+        private const float TurboHandoffSeconds =
+            4.35f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
@@ -49,7 +51,8 @@ namespace MotorCity.Gameplay
 
         public int CurrentRewardCredits =>
             !IsComplete &&
-            step == 2
+            (step == 2 ||
+             step == 3)
                 ? 250
                 : 0;
 
@@ -84,7 +87,7 @@ namespace MotorCity.Gameplay
                                         drivenDistance))),
                         3 =>
                             MotorCityLocalization.Text(
-                                "onboarding.meet_turbo"),
+                                "onboarding.reward_handoff"),
                         4 =>
                             MotorCityLocalization.Text(
                                 "onboarding.activity"),
@@ -262,10 +265,13 @@ namespace MotorCity.Gameplay
                     break;
 
                 case 3:
+                    // Let the first reward breathe before changing the
+                    // character card to Turbo and introducing the first job.
                     introTimer +=
                         Time.unscaledDeltaTime;
 
-                    if (introTimer >= 1.5f)
+                    if (introTimer >=
+                        TurboHandoffSeconds)
                     {
                         Advance(
                             "onboarding.turbo_ready");
