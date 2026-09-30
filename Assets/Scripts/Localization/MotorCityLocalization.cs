@@ -806,6 +806,7 @@ namespace MotorCity.Localization
                 { "store.owned", E("УЖЕ КУПЛЕНО", "OWNED") },
                 { "store.buy", E("КУПИТЬ", "BUY") },
                 { "store.buy_price", E("КУПИТЬ • {0}", "BUY • {0}") },
+                { "store.loading_product", E("ПОЛУЧАЕМ ЦЕНУ...", "LOADING PRICE...") },
                 { "store.selection_hint", E("ПОСТОЯННЫЙ НАБОР ПОДДЕРЖКИ", "PERMANENT SUPPORTER PACK") },
                 { "store.wallet", E("{0:N0} КР • {1:N0} РЕП • УР. {2}", "{0:N0} CR • {1:N0} REP • LVL {2}") },
                 { "store.already_owned", E("Этот косметический набор уже куплен", "This cosmetic pack is already owned") },
