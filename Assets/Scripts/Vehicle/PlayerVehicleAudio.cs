@@ -151,6 +151,31 @@ namespace MotorCity.Vehicle
                     activeProfile.SpeedReference,
                     car.SpeedKph);
 
+            float wheelRpm =
+                car.AverageWheelRpm;
+
+            float rpmReference =
+                Mathf.Max(
+                    450f,
+                    activeProfile.SpeedReference /
+                    (2f * Mathf.PI * 0.36f) *
+                    60f /
+                    3.6f);
+
+            float rpm01 =
+                Mathf.InverseLerp(
+                    0f,
+                    rpmReference,
+                    wheelRpm);
+
+            // RPM gives the engine sound its immediate response to wheel speed
+            // and slip, while the speed component prevents extreme pitch spikes
+            // during wheelspin or brief airborne moments.
+            float engineLoad01 =
+                Mathf.Clamp01(
+                    rpm01 * 0.68f +
+                    speed01 * 0.32f);
+
             bool throttle =
                 MotorCityInput.ThrottleHeld ||
                 MotorCityInput.ReverseHeld;
@@ -173,7 +198,7 @@ namespace MotorCity.Vehicle
                     Mathf.Lerp(
                         activeProfile.MinPitch,
                         activeProfile.MaxPitch,
-                        speed01) +
+                        engineLoad01) +
                     throttleAmount * 0.045f;
 
                 engineSource.volume =
