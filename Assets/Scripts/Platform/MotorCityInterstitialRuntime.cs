@@ -89,7 +89,11 @@ namespace MotorCity.Platform
             string activityId,
             Action completed)
         {
-            activityStartRequests++;
+            if (IsExplicitAdActivity(
+                    activityId))
+            {
+                activityStartRequests++;
+            }
 
             if (!ShouldRequestInterstitial(
                     activityId))
