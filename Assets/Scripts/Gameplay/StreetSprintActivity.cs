@@ -416,8 +416,14 @@ namespace MotorCity.Gameplay
                 eliteMode
                     ? MotorCityLocalization.Text("activity.elite_sprint")
                     : MotorCityLocalization.Text("activity.sprint"),
-                tier,
-                MotorCityLocalization.Format("activity.result_time_bonus", ElapsedSeconds, bonus, record),
+                MotorCityLocalization.Format(
+                    "activity.result_primary_time",
+                    ElapsedSeconds),
+                MotorCityLocalization.Format(
+                    "activity.result_tier_bonus_record",
+                    tier,
+                    bonus,
+                    record),
                 reward,
                 true);
 
