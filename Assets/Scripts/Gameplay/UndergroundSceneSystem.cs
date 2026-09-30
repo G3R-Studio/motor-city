@@ -46,7 +46,6 @@ namespace MotorCity.Gameplay
         private float messageTimer;
         private bool invitationAnnounced;
         private bool isCountingDown;
-        private float countdownRemaining;
         private int checkpointIndex;
         private float elapsedSeconds;
         private bool armed = true;
@@ -250,33 +249,6 @@ namespace MotorCity.Gameplay
                 if (MotorCityInput.CancelPressed)
                 {
                     CancelRun();
-                    return;
-                }
-
-                countdownRemaining =
-                    Mathf.Max(
-                        0f,
-                        countdownRemaining -
-                        Time.deltaTime);
-
-                int shown =
-                    Mathf.Max(
-                        1,
-                        Mathf.CeilToInt(
-                            countdownRemaining));
-
-                StatusText =
-                    MotorCityLocalization.Format("nightclub.countdown", shown);
-
-                messageTimer = 0.25f;
-
-                if (countdownRemaining <= 0f)
-                {
-                    isCountingDown = false;
-                    IsActive = true;
-                    checkpointIndex = 1;
-                    elapsedSeconds = 0f;
-                    car.SetDrivingEnabled(true);
                 }
 
                 return;
@@ -420,21 +392,50 @@ namespace MotorCity.Gameplay
             activityManager.RequestStart(
                 "underground",
                 CurrentEvent().Name,
-                BeginPreparedPhysicalRun);
+                3f,
+                BeginPreparedPhysicalRun,
+                UpdatePhysicalRunCountdown,
+                BeginPhysicalRunGameplay);
         }
 
         private void BeginPreparedPhysicalRun()
         {
             armed = false;
             isCountingDown = true;
-            countdownRemaining = 3f;
             checkpointIndex = 0;
             elapsedSeconds = 0f;
             car.SetDrivingEnabled(false);
         }
 
+        private void UpdatePhysicalRunCountdown(
+            int shown)
+        {
+            StatusText =
+                MotorCityLocalization.Format(
+                    "nightclub.countdown",
+                    shown);
+
+            messageTimer =
+                0.25f;
+        }
+
+        private void BeginPhysicalRunGameplay()
+        {
+            isCountingDown = false;
+            IsActive = true;
+            checkpointIndex = 1;
+            elapsedSeconds = 0f;
+            car.SetDrivingEnabled(true);
+        }
+
         private void CancelRun()
         {
+            if (isCountingDown)
+            {
+                activityManager?.CancelPendingStart(
+                    "underground");
+            }
+
             isCountingDown = false;
             IsActive = false;
             checkpointIndex = 0;
