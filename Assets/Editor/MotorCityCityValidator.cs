@@ -317,6 +317,8 @@ namespace MotorCity.EditorTools
 
                 if (LooksLikeRoadRenderer(
                         renderer) &&
+                    !IsColliderValidationExcluded(
+                        renderer.transform) &&
                     !HasColliderInHierarchy(
                         renderer.transform))
                 {
@@ -336,6 +338,12 @@ namespace MotorCity.EditorTools
                 if (!IsSceneObject(
                         collider) ||
                     !collider.enabled)
+                {
+                    continue;
+                }
+
+                if (IsColliderValidationExcluded(
+                        collider.transform))
                 {
                     continue;
                 }
@@ -734,6 +742,37 @@ namespace MotorCity.EditorTools
                 {
                     return true;
                 }
+            }
+
+            return false;
+        }
+
+        private static bool IsColliderValidationExcluded(
+            Transform transform)
+        {
+            Transform current =
+                transform;
+
+            int depth =
+                0;
+
+            while (current != null &&
+                   depth++ < 8)
+            {
+                string lower =
+                    current.name
+                        .ToLowerInvariant();
+
+                if (lower.Contains("streetlight") ||
+                    lower.Contains("parklamp") ||
+                    lower.Contains("parkbench") ||
+                    lower.Contains("trash"))
+                {
+                    return true;
+                }
+
+                current =
+                    current.parent;
             }
 
             return false;
