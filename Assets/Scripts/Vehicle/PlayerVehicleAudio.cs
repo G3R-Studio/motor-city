@@ -47,6 +47,7 @@ namespace MotorCity.Vehicle
         private string vehicleId = "street";
         private EngineProfile activeProfile;
         private float nextCollisionSoundTime;
+        private bool muted;
 
         private void Awake()
         {
@@ -106,6 +107,33 @@ namespace MotorCity.Vehicle
             }
         }
 
+        public void SetMuted(
+            bool value)
+        {
+            muted =
+                value;
+
+            if (!muted)
+                return;
+
+            if (engineSource != null)
+            {
+                engineSource.volume =
+                    0f;
+            }
+
+            if (tireSource != null)
+            {
+                tireSource.volume =
+                    0f;
+
+                if (tireSource.isPlaying)
+                {
+                    tireSource.Stop();
+                }
+            }
+        }
+
         public void SetVehicleId(
             string id)
         {
@@ -146,6 +174,28 @@ namespace MotorCity.Vehicle
         {
             if (car == null)
                 return;
+
+            if (muted)
+            {
+                if (engineSource != null)
+                {
+                    engineSource.volume =
+                        0f;
+                }
+
+                if (tireSource != null)
+                {
+                    tireSource.volume =
+                        0f;
+
+                    if (tireSource.isPlaying)
+                    {
+                        tireSource.Stop();
+                    }
+                }
+
+                return;
+            }
 
             float speed01 =
                 Mathf.InverseLerp(
@@ -280,6 +330,9 @@ namespace MotorCity.Vehicle
         private void OnCollisionEnter(
             Collision collision)
         {
+            if (muted)
+                return;
+
             if (collision == null ||
                 Time.unscaledTime <
                     nextCollisionSoundTime)
