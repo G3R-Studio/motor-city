@@ -428,8 +428,8 @@ namespace MotorCity.UI
 
             canvasScaler.referenceResolution =
                 portrait
-                    ? new Vector2(900f, 1600f)
-                    : new Vector2(1600f, 900f);
+                    ? new Vector2(1080f, 1920f)
+                    : new Vector2(1920f, 1080f);
 
             canvasScaler.matchWidthOrHeight =
                 portrait
