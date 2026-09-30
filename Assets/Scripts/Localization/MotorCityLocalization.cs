@@ -542,7 +542,7 @@ namespace MotorCity.Localization
                 { "onboarding.welcome", E("Дядя Витя: Добрался? Машину я оставил тебе у мастерской. Она старая, но честная - привыкни к ней.", "Uncle Vitya: Made it? I left the car for you by the workshop. It is old but honest - get used to it.") },
                 { "onboarding.throttle", E("Я её прогрел. Дай немного газа и трогайся - почувствуй, как она тянет.", "I warmed it up. Give it some throttle and move off - feel how it pulls.") },
                 { "onboarding.throttle.keyboard", E("Нажми W и трогайся с места.", "Press W and move off.") },
-                { "onboarding.throttle.arrows", E("Нажми стрелку вверх и трогайся с места.", "Press the Up Arrow and move off.") },
+                { "onboarding.throttle.arrows", E("Нажми педаль газа и трогайся с места.", "Press the throttle pedal and move off.") },
                 { "onboarding.throttle.wheel", E("Нажми педаль газа и трогайся с места.", "Press the throttle pedal and move off.") },
                 { "onboarding.good_throttle", E("Вот так. Теперь проверь руль - без резких движений.", "That is it. Now check the steering - no sudden moves.") },
                 { "onboarding.steer", E("На ходу поверни влево или вправо. Хочу убедиться, что с рулевой всё нормально.", "While moving, steer left or right. I want to make sure the steering is fine.") },
