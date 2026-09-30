@@ -53,6 +53,10 @@ namespace MotorCity.Platform
         void LoadPendingPurchases(
             Action<bool, string> completed);
 
+        void LoadProductInfo(
+            string productId,
+            Action<bool, string> completed);
+
         void LoadRemoteConfig(
             Action<bool, string> completed);
 
@@ -197,6 +201,15 @@ namespace MotorCity.Platform
                 completed);
         }
 
+        public static void LoadProductInfo(
+            string productId,
+            Action<bool, string> completed)
+        {
+            Service.LoadProductInfo(
+                productId,
+                completed);
+        }
+
         public static void LoadRemoteConfig(
             Action<bool, string> completed)
         {
@@ -333,6 +346,15 @@ namespace MotorCity.Platform
         }
 
         public void LoadPendingPurchases(
+            Action<bool, string> completed)
+        {
+            completed?.Invoke(
+                false,
+                string.Empty);
+        }
+
+        public void LoadProductInfo(
+            string productId,
             Action<bool, string> completed)
         {
             completed?.Invoke(
