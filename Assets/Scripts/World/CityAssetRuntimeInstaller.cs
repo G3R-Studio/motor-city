@@ -299,32 +299,118 @@ namespace MotorCity.World
                     floor.gameObject.AddComponent<BoxCollider>();
             }
 
-            MeshFilter floorMesh =
-                floor.GetComponent<MeshFilter>();
+            floorCollider.center =
+                new Vector3(
+                    0f,
+                    0f,
+                    -0.313701093f);
 
-            if (floorMesh != null &&
-                floorMesh.sharedMesh != null)
-            {
-                Bounds bounds =
-                    floorMesh.sharedMesh.bounds;
-
-                Vector3 colliderSize =
-                    bounds.size;
-
-                colliderSize.y =
-                    Mathf.Max(
-                        0.25f,
-                        colliderSize.y);
-
-                floorCollider.center =
-                    bounds.center;
-
-                floorCollider.size =
-                    colliderSize;
-            }
+            floorCollider.size =
+                new Vector3(
+                    2f,
+                    0f,
+                    2.11779308f);
 
             floorCollider.isTrigger =
                 false;
+
+            Transform walls =
+                FindChildByName(
+                    garageTransform,
+                    "Walls");
+
+            if (walls != null)
+            {
+                BoxCollider[] wallColliders =
+                    walls.GetComponents<BoxCollider>();
+
+                while (wallColliders.Length < 3)
+                {
+                    walls.gameObject.AddComponent<BoxCollider>();
+
+                    wallColliders =
+                        walls.GetComponents<BoxCollider>();
+                }
+
+                wallColliders[0].center =
+                    new Vector3(
+                        1.71424532f,
+                        -0.065721035f,
+                        2.14011145f);
+
+                wallColliders[0].size =
+                    new Vector3(
+                        0f,
+                        2.42896795f,
+                        6.04566765f);
+
+                wallColliders[1].center =
+                    new Vector3(
+                        -1.06211495f,
+                        -0.065721035f,
+                        -0.882722378f);
+
+                wallColliders[1].size =
+                    new Vector3(
+                        5.55272055f,
+                        2.42896795f,
+                        0f);
+
+                wallColliders[2].center =
+                    new Vector3(
+                        -3.83847523f,
+                        -0.065721035f,
+                        2.14011145f);
+
+                wallColliders[2].size =
+                    new Vector3(
+                        0f,
+                        2.42896795f,
+                        6.04566765f);
+
+                for (int i = 0;
+                     i < wallColliders.Length;
+                     i++)
+                {
+                    wallColliders[i].isTrigger =
+                        false;
+
+                    wallColliders[i].enabled =
+                        i < 3;
+                }
+            }
+
+            Transform ceiling =
+                FindChildByName(
+                    garageTransform,
+                    "Ceiling");
+
+            if (ceiling != null)
+            {
+                BoxCollider ceilingCollider =
+                    ceiling.GetComponent<BoxCollider>();
+
+                if (ceilingCollider == null)
+                {
+                    ceilingCollider =
+                        ceiling.gameObject.AddComponent<BoxCollider>();
+                }
+
+                ceilingCollider.center =
+                    new Vector3(
+                        7.62939453e-06f,
+                        -1.33226752e-15f,
+                        3.78653235e-29f);
+
+                ceilingCollider.size =
+                    new Vector3(
+                        1.93929696f,
+                        2.72384391e-08f,
+                        2.08359361f);
+
+                ceilingCollider.isTrigger =
+                    false;
+            }
 
             InstallGarageReflectionProbe(
                 garageTransform);
