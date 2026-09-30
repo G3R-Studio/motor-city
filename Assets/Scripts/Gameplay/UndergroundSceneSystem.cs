@@ -411,9 +411,12 @@ namespace MotorCity.Gameplay
             int shown)
         {
             StatusText =
-                MotorCityLocalization.Format(
-                    "nightclub.countdown",
-                    shown);
+                shown <= 0
+                    ? MotorCityLocalization.Text(
+                        "nightclub.go")
+                    : MotorCityLocalization.Format(
+                        "nightclub.countdown",
+                        shown);
 
             messageTimer =
                 0.25f;
