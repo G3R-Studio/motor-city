@@ -396,7 +396,8 @@ namespace MotorCity.UI
             RewardedBonusSystem rewardedBonusSystem,
             CosmeticStoreSystem cosmeticStoreSystem,
             AchievementSystem achievementSystem,
-            AdventureDirector director)
+            AdventureDirector director,
+            bool playOpeningPresentation = true)
         {
             car = controller;
             wallet = playerWallet;
@@ -435,8 +436,12 @@ namespace MotorCity.UI
             adventureDirector = director;
 
             BuildUi();
-            ArmOpeningHudReveal(
-                5f);
+
+            if (playOpeningPresentation)
+            {
+                ArmOpeningHudReveal(
+                    5f);
+            }
         }
 
         private static void SetActiveIfChanged(
