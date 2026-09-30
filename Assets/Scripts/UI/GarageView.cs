@@ -267,7 +267,7 @@ namespace MotorCity.UI
                     panel,
                     "Garage Vehicle Card",
                     new Vector2(-26f, -118f),
-                    new Vector2(344f, 610f),
+                    new Vector2(344f, 680f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     glass);
@@ -345,38 +345,45 @@ namespace MotorCity.UI
             garageVehicleStatsText =
                 CreateText(
                     vehicleCard,
-                    "Garage Vehicle Stats",
-                    14,
-                    FontStyle.Bold,
+                    "Garage Vehicle Stats Legacy",
+                    1,
+                    FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(28f, -194f),
-                    new Vector2(290f, 236f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
-                    TextColor);
-            garageVehicleStatsText.resizeTextForBestFit = true;
-            garageVehicleStatsText.resizeTextMinSize = 11;
-            garageVehicleStatsText.resizeTextMaxSize = 14;
-            garageVehicleStatsText.horizontalOverflow =
-                HorizontalWrapMode.Wrap;
-            garageVehicleStatsText.verticalOverflow =
-                VerticalWrapMode.Truncate;
-            garageVehicleStatsText.lineSpacing = 1.42f;
+                    new Vector2(-3000f, -3000f),
+                    new Vector2(1f, 1f),
+                    Vector2.zero,
+                    Vector2.zero,
+                    Color.clear);
+            garageVehicleStatsText.gameObject.SetActive(
+                false);
 
             for (int i = 0; i < garageVehicleStatFills.Length; i++)
             {
-                float barY =
-                    -218f - i * 20f;
+                float rowY =
+                    -198f - i * 30f;
+
+                garageVehicleStatLabels[i] =
+                    CreateText(
+                        vehicleCard,
+                        $"Garage Vehicle Stat Label {i + 1}",
+                        11,
+                        FontStyle.Bold,
+                        TextAnchor.MiddleLeft,
+                        new Vector2(28f, rowY),
+                        new Vector2(122f, 22f),
+                        new Vector2(0f, 1f),
+                        new Vector2(0f, 1f),
+                        TextColor);
 
                 RectTransform statTrack =
                     CreatePanel(
                         vehicleCard,
                         $"Garage Vehicle Stat Track {i + 1}",
-                        new Vector2(28f, barY),
-                        new Vector2(288f, 3f),
+                        new Vector2(156f, rowY - 8f),
+                        new Vector2(108f, 6f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
-                        new Color(0.08f, 0.09f, 0.18f, 0.76f));
+                        new Color(0.08f, 0.09f, 0.18f, 0.92f));
 
                 Outline statTrackOutline =
                     statTrack.GetComponent<Outline>();
@@ -392,7 +399,7 @@ namespace MotorCity.UI
                         statTrack,
                         $"Garage Vehicle Stat Fill {i + 1}",
                         Vector2.zero,
-                        new Vector2(0f, 3f),
+                        new Vector2(0f, 6f),
                         new Vector2(0f, 0.5f),
                         new Vector2(0f, 0.5f),
                         i == 5
@@ -410,6 +417,19 @@ namespace MotorCity.UI
 
                 garageVehicleStatFills[i] =
                     statFill.GetComponent<Image>();
+
+                garageVehicleStatValues[i] =
+                    CreateText(
+                        vehicleCard,
+                        $"Garage Vehicle Stat Value {i + 1}",
+                        11,
+                        FontStyle.Bold,
+                        TextAnchor.MiddleRight,
+                        new Vector2(270f, rowY),
+                        new Vector2(46f, 22f),
+                        new Vector2(0f, 1f),
+                        new Vector2(0f, 1f),
+                        SecondaryTextColor);
             }
 
             garageVehicleCharacterText =
@@ -419,7 +439,7 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(28f, -346f),
+                    new Vector2(28f, -430f),
                     new Vector2(290f, 96f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -435,7 +455,7 @@ namespace MotorCity.UI
             CreateAccent(
                 vehicleCard,
                 new Color(0.34f, 0.42f, 0.72f, 0.38f),
-                new Vector2(28f, -438f),
+                new Vector2(28f, -522f),
                 new Vector2(288f, 1f),
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f));
@@ -447,7 +467,7 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -456f),
+                    new Vector2(28f, -540f),
                     new Vector2(180f, 24f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -459,7 +479,7 @@ namespace MotorCity.UI
                 vehicleCard,
                 "Garage Mastery Icon",
                 MotorCityIconLibrary.Achievement,
-                new Vector2(28f, -504f),
+                new Vector2(28f, -578f),
                 new Vector2(24f, 24f),
                 new Vector2(0f, 1f),
                 cyan);
@@ -468,7 +488,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     vehicleCard,
                     "Garage Mastery Track",
-                    new Vector2(64f, -512f),
+                    new Vector2(64f, -586f),
                     new Vector2(246f, 12f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -1288,7 +1308,6 @@ namespace MotorCity.UI
                     stateColor;
             }
 
-            if (garageVehicleStatsText != null)
             {
                 string statsLine =
                     garage.VehicleStatsLine;
@@ -1315,9 +1334,6 @@ namespace MotorCity.UI
                             .Replace("MASS ", "MASS  ");
                 }
 
-                garageVehicleStatsText.text =
-                    statsLine ?? string.Empty;
-
                 string[] statRows =
                     string.IsNullOrWhiteSpace(
                         statsLine)
@@ -1328,6 +1344,45 @@ namespace MotorCity.UI
                      i < garageVehicleStatFills.Length;
                      i++)
                 {
+                    string row =
+                        i < statRows.Length
+                            ? statRows[i]
+                            : string.Empty;
+
+                    string label =
+                        row;
+                    string value =
+                        string.Empty;
+
+                    int splitIndex =
+                        row.IndexOf(
+                            "  ",
+                            System.StringComparison.Ordinal);
+
+                    if (splitIndex >= 0)
+                    {
+                        label =
+                            row.Substring(
+                                0,
+                                splitIndex);
+
+                        value =
+                            row.Substring(
+                                splitIndex + 2);
+                    }
+
+                    if (garageVehicleStatLabels[i] != null)
+                    {
+                        garageVehicleStatLabels[i].text =
+                            label;
+                    }
+
+                    if (garageVehicleStatValues[i] != null)
+                    {
+                        garageVehicleStatValues[i].text =
+                            value;
+                    }
+
                     Image fill =
                         garageVehicleStatFills[i];
 
@@ -1341,11 +1396,12 @@ namespace MotorCity.UI
                         fillRect.parent as RectTransform;
 
                     float progress =
-                        i < statRows.Length
-                            ? ResolveGarageStatProgress(
-                                statRows[i],
-                                i)
-                            : 0f;
+                        string.IsNullOrWhiteSpace(
+                            row)
+                            ? 0f
+                            : ResolveGarageStatProgress(
+                                row,
+                                i);
 
                     fillRect.anchorMin =
                         new Vector2(0f, 0.5f);
@@ -1361,7 +1417,7 @@ namespace MotorCity.UI
                             trackRect != null
                                 ? trackRect.rect.width * progress
                                 : 0f,
-                            3f);
+                            6f);
                 }
             }
 
