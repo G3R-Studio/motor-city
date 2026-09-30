@@ -341,6 +341,8 @@ namespace MotorCity.UI
             new Text[3];
         private readonly Text[] garageLevelTexts =
             new Text[3];
+        private readonly Text[] garageUpgradeActionTexts =
+            new Text[3];
         private readonly Text[] garagePriceTexts =
             new Text[3];
         private readonly Text[] garageDescriptionTexts =
