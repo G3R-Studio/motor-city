@@ -19,7 +19,14 @@ namespace MotorCity.Platform
                 { "leaderboard_rep_id", "motor_city_rep" },
                 { "leaderboard_collection_id", "motor_city_collection" },
                 { "leaderboard_activities_id", "motor_city_activities" },
-                { "interstitial_min_seconds", "240" },
+                { "interstitial_enabled", "1" },
+                { "interstitial_before_activity", "1" },
+                { "interstitial_cooldown_seconds", "180" },
+                { "interstitial_chance", "0.40" },
+                { "interstitial_min_session_seconds", "120" },
+                { "interstitial_min_completed_activities", "1" },
+                { "interstitial_skip_first_activity", "1" },
+                { "interstitial_skip_rookie_path", "1" },
                 { "daily_tasks_enabled", "1" }
             };
 
