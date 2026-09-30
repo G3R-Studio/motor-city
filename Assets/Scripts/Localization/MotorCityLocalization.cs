@@ -805,6 +805,7 @@ namespace MotorCity.Localization
                 { "store.supporter.details", E("5 000 КР • ДЕЛОРЕАН • EX-СКИН ПИКСИ • НАВСЕГДА", "5,000 CR • DELOREAN • PIXIE EX SKIN • PERMANENT") },
                 { "store.owned", E("УЖЕ КУПЛЕНО", "OWNED") },
                 { "store.buy", E("КУПИТЬ", "BUY") },
+                { "store.buy_price", E("КУПИТЬ • {0}", "BUY • {0}") },
                 { "store.selection_hint", E("ПОСТОЯННЫЙ НАБОР ПОДДЕРЖКИ", "PERMANENT SUPPORTER PACK") },
                 { "store.wallet", E("{0:N0} КР • {1:N0} РЕП • УР. {2}", "{0:N0} CR • {1:N0} REP • LVL {2}") },
                 { "store.already_owned", E("Этот косметический набор уже куплен", "This cosmetic pack is already owned") },
