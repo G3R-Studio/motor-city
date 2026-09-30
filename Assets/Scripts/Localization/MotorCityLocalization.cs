@@ -86,7 +86,7 @@ namespace MotorCity.Localization
                 { "vehicle.selected", E("Выбрана машина {0}", "Selected {0}") },
                 { "vehicle.invalid", E("Некорректная машина", "Invalid vehicle") },
                 { "vehicle.next_missing", E("СЛЕДУЮЩАЯ: {0} • МОДЕЛЬ НЕДОСТУПНА", "NEXT: {0} • MODEL UNAVAILABLE") },
-                { "vehicle.next_available", E("СЛЕДУЮЩАЯ: {0} • ДОСТУПНА • нажми «СЛЕДУЮЩАЯ»", "NEXT: {0} • AVAILABLE • press NEXT") },
+                { "vehicle.next_available", E("СЛЕДУЮЩАЯ: {0} • ДОСТУПНА", "NEXT: {0} • AVAILABLE") },
                 { "vehicle.next_rep", E("СЛЕДУЮЩАЯ: {0} • НУЖНО {1:N0} РЕПУТАЦИИ", "NEXT: {0} • NEED {1:N0} REPUTATION") },
                 { "vehicle.next_rep_detailed", E("СЛЕДУЮЩАЯ: {0} • ЗАБЛОКИРОВАНА • РЕПУТАЦИЯ {1:N0}/{2:N0} • ЕЩЁ {3:N0}", "NEXT: {0} • LOCKED • REPUTATION {1:N0}/{2:N0} • {3:N0} MORE") },
                 { "vehicle.next_supporter", E("СЛЕДУЮЩАЯ: {0} • ЗАБЛОКИРОВАНА • НУЖЕН НАБОР ПОДДЕРЖКИ", "NEXT: {0} • LOCKED • SUPPORTER PACK REQUIRED") },
