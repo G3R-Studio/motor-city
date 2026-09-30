@@ -536,13 +536,6 @@ namespace MotorCity.Bootstrap
                 wallet,
                 reputation);
 
-            WeekendEventSystem weekendEvents =
-                systems.AddComponent<WeekendEventSystem>();
-
-            weekendEvents.Initialize(
-                activityManager,
-                wallet);
-
             RewardedBonusSystem rewardedBonus =
                 systems.AddComponent<RewardedBonusSystem>();
 
@@ -677,7 +670,6 @@ namespace MotorCity.Bootstrap
                 carWash,
                 towTruck,
                 club,
-                weekendEvents,
                 rewardedBonus,
                 cosmeticStore,
                 achievements,
@@ -1415,7 +1407,6 @@ namespace MotorCity.Bootstrap
             CarWashJobSystem carWash,
             TowTruckJobSystem towTruck,
             ClubSystem club,
-            WeekendEventSystem weekendEvents,
             RewardedBonusSystem rewardedBonus,
             CosmeticStoreSystem cosmeticStore,
             AchievementSystem achievements,
