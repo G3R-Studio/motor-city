@@ -118,7 +118,7 @@ namespace MotorCity.UI
                     new Vector2(0f, 0.5f),
                     SecondaryTextColor);
             creditsLabel.text =
-                MotorCityLocalization.Text("common.credits");
+                MotorCityLocalization.Text("garage.credits_label");
 
             garageMoneyText =
                 CreateText(
@@ -170,7 +170,7 @@ namespace MotorCity.UI
                     new Vector2(0f, 0.5f),
                     SecondaryTextColor);
             reputationLabel.text =
-                MotorCityLocalization.Text("common.reputation");
+                MotorCityLocalization.Text("garage.reputation_label");
 
             garageReputationText =
                 CreateText(
@@ -358,7 +358,7 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     TextColor);
             masteryLabel.text =
-                MotorCityLocalization.Text("garage.mastery");
+                MotorCityLocalization.Text("garage.mastery_label");
 
             CreateHudIcon(
                 vehicleCard,
