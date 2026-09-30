@@ -101,6 +101,65 @@ namespace MotorCity.Gameplay
                 beginPreparedActivity);
         }
 
+        public bool RequestStart(
+            string id,
+            string displayName,
+            float countdownSeconds,
+            Action onCountdownStarted,
+            Action<int> onCountdownTick,
+            Action onGameplayStarted)
+        {
+            if (startFlow == null)
+            {
+                if (!TryBegin(
+                        id,
+                        displayName))
+                {
+                    return false;
+                }
+
+                onCountdownStarted?.Invoke();
+
+                if (countdownSeconds > 0f)
+                {
+                    onCountdownTick?.Invoke(
+                        Mathf.Max(
+                            1,
+                            Mathf.CeilToInt(
+                                countdownSeconds)));
+                }
+
+                onGameplayStarted?.Invoke();
+                return true;
+            }
+
+            return startFlow.RequestStart(
+                id,
+                displayName,
+                countdownSeconds,
+                onCountdownStarted,
+                onCountdownTick,
+                onGameplayStarted);
+        }
+
+        public bool IsStartPending(
+            string id)
+        {
+            return
+                startFlow != null &&
+                startFlow.IsPending(
+                    id);
+        }
+
+        public bool CancelPendingStart(
+            string id)
+        {
+            return
+                startFlow != null &&
+                startFlow.CancelPending(
+                    id);
+        }
+
         public void SetDisciplineReputation(
             DisciplineReputationSystem system)
         {
