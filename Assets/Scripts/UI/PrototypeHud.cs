@@ -695,14 +695,23 @@ namespace MotorCity.UI
                     speed);
 
             if (roundedSpeed !=
-                lastDisplayedSpeed)
+                    lastDisplayedSpeed ||
+                speedText != null &&
+                !speedText.text.EndsWith(
+                    MotorCityLocalization.Text(
+                        "common.kmh")))
             {
                 lastDisplayedSpeed =
                     roundedSpeed;
 
-                speedText.text =
-                    roundedSpeed.ToString(
-                        "000");
+                if (speedText != null)
+                {
+                    speedText.text =
+                        roundedSpeed.ToString() +
+                        " " +
+                        MotorCityLocalization.Text(
+                            "common.kmh");
+                }
             }
 
             if (speedNeedle != null)
