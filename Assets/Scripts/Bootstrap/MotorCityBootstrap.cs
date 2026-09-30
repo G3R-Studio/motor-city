@@ -1446,7 +1446,6 @@ namespace MotorCity.Bootstrap
                 carWash,
                 towTruck,
                 club,
-                weekendEvents,
                 rewardedBonus,
                 cosmeticStore,
                 achievements,
