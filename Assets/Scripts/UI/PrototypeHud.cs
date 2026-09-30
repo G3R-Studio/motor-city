@@ -971,6 +971,13 @@ namespace MotorCity.UI
                 blocked);
         }
 
+        public void ReplayOpeningHudReveal(
+            float duration = 5f)
+        {
+            ArmOpeningHudReveal(
+                duration);
+        }
+
         private void ArmOpeningHudReveal(
             float duration)
         {
