@@ -12,7 +12,6 @@ namespace MotorCity.UI
         Circuit,
         SpeedTrap,
         DriftSpot,
-        StuntJump,
         Discovery,
         PhotoHunt,
         Taxi,
@@ -121,7 +120,6 @@ namespace MotorCity.UI
                 ActivityIcon.Circuit => Get("trophy"),
                 ActivityIcon.SpeedTrap => Get("target"),
                 ActivityIcon.DriftSpot => Get("target"),
-                ActivityIcon.StuntJump => Get("star"),
                 ActivityIcon.Discovery => Get("star"),
                 ActivityIcon.PhotoHunt => Get("target"),
                 ActivityIcon.Taxi => Get("car"),
@@ -176,10 +174,6 @@ namespace MotorCity.UI
                 "driftspot" or
                 "drift_spot" =>
                     ForActivity(ActivityIcon.DriftSpot),
-
-                "stuntjump" or
-                "stunt_jump" =>
-                    ForActivity(ActivityIcon.StuntJump),
 
                 "discovery" =>
                     ForActivity(ActivityIcon.Discovery),
