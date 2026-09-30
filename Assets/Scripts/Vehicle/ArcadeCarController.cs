@@ -2003,6 +2003,78 @@ namespace MotorCity.Vehicle
             }
         }
 
+        public void SetGaragePresentationMode(
+            bool enabled)
+        {
+            if (!enabled)
+            {
+                resetHoldTimer =
+                    0f;
+
+                ReleaseResetBrakes();
+                SetDrivingEnabled(
+                    true);
+
+                return;
+            }
+
+            // Garage mode blocks every player driving input while leaving
+            // Rigidbody gravity, WheelCollider suspension and contacts alive.
+            drivingEnabled =
+                false;
+
+            resetHoldTimer =
+                0f;
+
+            SetPrometeoEnabled(
+                false);
+
+            throttleHeld =
+                false;
+
+            reverseHeld =
+                false;
+
+            handbrakeHeld =
+                false;
+
+            steeringInputHeld =
+                false;
+
+            for (int i = 0;
+                 i < wheelColliders.Length;
+                 i++)
+            {
+                WheelCollider wheel =
+                    wheelColliders[i];
+
+                if (wheel == null)
+                    continue;
+
+                wheel.motorTorque =
+                    0f;
+
+                wheel.steerAngle =
+                    0f;
+
+                wheel.brakeTorque =
+                    0f;
+            }
+
+            if (body != null)
+            {
+                body.linearVelocity =
+                    Vector3.zero;
+
+                body.angularVelocity =
+                    Vector3.zero;
+
+                body.WakeUp();
+            }
+
+            UpdatePrometeoInputProxies();
+        }
+
         public void SetDrivingEnabled(
             bool enabled)
         {
