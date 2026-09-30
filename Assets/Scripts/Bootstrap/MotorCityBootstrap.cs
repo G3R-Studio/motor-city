@@ -22,6 +22,7 @@ namespace MotorCity.Bootstrap
         private static bool platformBootstrapPending;
         private static bool gameplayBuildRequested;
         private static bool gameplayBuildStarted;
+        private static bool platformGameReadySent;
         private static MotorCityFrontEndFlow frontEnd;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -202,6 +203,8 @@ namespace MotorCity.Bootstrap
                     () =>
                         RequestGameplayBuild(
                             scene));
+
+                NotifyPlatformGameReady();
             }
 
             if (!gameplayBuildRequested ||
@@ -705,8 +708,18 @@ namespace MotorCity.Bootstrap
                 onboarding,
                 runtimeHud);
 
-            MotorCityPlatform.GameReady();
             platformRuntime.MarkGameplayRunning();
+        }
+
+        private static void NotifyPlatformGameReady()
+        {
+            if (platformGameReadySent)
+                return;
+
+            platformGameReadySent =
+                true;
+
+            MotorCityPlatform.GameReady();
         }
 
         private static void BindFcgTrafficPlayer(
