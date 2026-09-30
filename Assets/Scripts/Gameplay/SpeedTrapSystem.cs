@@ -171,7 +171,8 @@ namespace MotorCity.Gameplay
                     !trap.WasInside)
                 {
                     EvaluateTrap(
-                        trap);
+                        trap,
+                        car.SpeedKph);
                 }
 
                 trap.WasInside =
@@ -180,10 +181,9 @@ namespace MotorCity.Gameplay
         }
 
         private void EvaluateTrap(
-            Trap trap)
+            Trap trap,
+            float speed)
         {
-            float speed =
-                car.SpeedKph;
 
             if (speed < 25f)
                 return;
@@ -319,6 +319,62 @@ namespace MotorCity.Gameplay
                 1 => MotorCityLocalization.Text("medal.bronze"),
                 _ => MotorCityLocalization.Text("medal.none")
             };
+        }
+
+        public void CompleteGoldForTesting(
+            int index)
+        {
+            if (!Valid(
+                    index))
+            {
+                return;
+            }
+
+            Trap trap =
+                traps[index];
+
+            EvaluateTrap(
+                trap,
+                trap.GoldSpeed +
+                12f);
+        }
+
+        public void ResetForTesting()
+        {
+            if (traps == null)
+                return;
+
+            foreach (Trap trap in
+                     traps)
+            {
+                if (trap == null)
+                    continue;
+
+                trap.BestSpeed =
+                    0f;
+
+                trap.HighestMedal =
+                    0;
+
+                trap.WasInside =
+                    false;
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    trap.KeyPrefix +
+                    ".Best");
+
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    trap.KeyPrefix +
+                    ".Medal");
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            StatusText =
+                string.Empty;
+
+            messageTimer =
+                0f;
         }
 
         public Vector3 GetTrapPosition(
