@@ -201,14 +201,15 @@ namespace MotorCity.Gameplay
 
         private void BeginJob()
         {
-            if (!activities.TryBegin(
-                    ActivityId,
-                    MotorCityLocalization.Text(
-                        "tow.title")))
-            {
-                return;
-            }
+            activities.RequestStart(
+                ActivityId,
+                MotorCityLocalization.Text(
+                    "tow.title"),
+                BeginPreparedJob);
+        }
 
+        private void BeginPreparedJob()
+        {
             stage =
                 TowStage.DriveToBreakdown;
 
