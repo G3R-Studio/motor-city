@@ -1032,9 +1032,7 @@ namespace MotorCity.UI
                 true;
             image.raycastTarget =
                 true;
-            image.material =
-                GetTouchControlMaterial();
-            image.color =
+image.color =
                 new Color(
                     1f,
                     1f,
@@ -1113,9 +1111,7 @@ namespace MotorCity.UI
                 true;
             image.raycastTarget =
                 true;
-            image.material =
-                GetTouchControlMaterial();
-            image.color =
+image.color =
                 new Color(
                     1f,
                     1f,
