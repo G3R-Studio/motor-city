@@ -96,6 +96,31 @@ namespace MotorCity.UI
             ApplyGarageRowTexture(
                 upgradesCard);
 
+            Text vehicleCardTitle =
+                CreateText(
+                    panel,
+                    "Garage Vehicle Card Title",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleLeft,
+                    new Vector2(
+                        38f,
+                        -92f),
+                    new Vector2(
+                        220f,
+                        22f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    new Vector2(
+                        0f,
+                        1f),
+                    SecondaryTextColor);
+
+            vehicleCardTitle.text =
+                MotorCityLocalization.Text(
+                    "garage.my_car");
+
             Text upgradesTitle =
                 CreateText(
                     panel,
@@ -374,7 +399,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Garage Vehicle",
-                    18,
+                    23,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(66f, -108f),
@@ -387,7 +412,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Garage Next Vehicle",
-                    14,
+                    13,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(38f, -146f),
