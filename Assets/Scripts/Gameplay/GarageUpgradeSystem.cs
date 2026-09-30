@@ -326,6 +326,43 @@ namespace MotorCity.Gameplay
                     levelText);
         }
 
+        public string GetUpgradeName(
+            int index)
+        {
+            UpgradeType type =
+                (UpgradeType)Mathf.Clamp(
+                    index,
+                    0,
+                    2);
+
+            return
+                Name(
+                    type);
+        }
+
+        public string GetUpgradeLevelText(
+            int index)
+        {
+            UpgradeType type =
+                (UpgradeType)Mathf.Clamp(
+                    index,
+                    0,
+                    2);
+
+            int level =
+                GetLevel(
+                    type);
+
+            return
+                level >= MaxLevel
+                    ? MotorCityLocalization.Text(
+                        "garage.max_short")
+                    : MotorCityLocalization.Format(
+                        "garage.level_line",
+                        level,
+                        MaxLevel);
+        }
+
         public string GetUpgradePrice(
             int index)
         {
