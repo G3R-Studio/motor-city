@@ -88,7 +88,7 @@ Core fantasy:
 - [x] Starter vehicle is always owned and useful.
 - [x] Collection score counts owned cars, not REP-unlocked cars.
 - [x] Vehicle mastery/history stays attached to the specific car.
-- [x] Balance upgrade and vehicle prices around 4–8 minute sessions.
+- [x] Balance upgrade and vehicle prices around 4-8 minute sessions.
 
 ### 0.9 Existing-runtime optimization
 - [x] Cache repeated object lookups.
@@ -142,7 +142,7 @@ Core fantasy:
 
 ### Daily Adventures
 - [x] Three short daily tasks.
-- [ ] 2–5 minute task duration.
+- [ ] 2-5 minute task duration.
 - [x] Soft streak.
 - [x] 3/7/14/30-day milestone rewards.
 - [x] Cosmetic milestone rewards.
@@ -234,12 +234,12 @@ Core fantasy:
 
 ## Phase 7 - Live Ops
 
-Every 4–6 weeks:
-- 10–15 missions;
+Every 4-6 weeks:
+- 10-15 missions;
 - one visual/event theme;
 - a short character story;
 - Turbo cosmetic;
-- 2–4 vehicle cosmetics;
+- 2-4 vehicle cosmetics;
 - one rare reward;
 - collection additions;
 - weekend event variation.
