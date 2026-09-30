@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Audio;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -191,6 +192,9 @@ namespace MotorCity.Gameplay
 
             ResultSuccess =
                 success;
+
+            MotorCitySfxRuntime.PlayActivityResult(
+                success);
 
             ResultReputationReward =
                 success
