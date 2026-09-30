@@ -14,9 +14,23 @@ namespace MotorCity.CameraSystem
         private float timer;
         private float duration = 5f;
 
-        private Vector3 startPosition;
-        private Vector3 controlPointA;
-        private Vector3 controlPointB;
+        private static readonly Vector3 AuthoredPoint1Position =
+            new(-541.669434f, 6.59657431f, 487.766144f);
+
+        private static readonly Vector3 AuthoredPoint1Rotation =
+            new(2.92249942f, 302.455048f, 359.967285f);
+
+        private static readonly Vector3 AuthoredPoint2Position =
+            new(-562.225525f, 8.18965721f, 490.249908f);
+
+        private static readonly Vector3 AuthoredPoint2Rotation =
+            new(24.9240837f, 331.835785f, 359.967957f);
+
+        private static readonly Vector3 AuthoredPoint3Position =
+            new(-573.453308f, 4.63408041f, 499.601898f);
+
+        private static readonly Vector3 AuthoredPoint3Rotation =
+            new(19.939352f, 47.2972336f, 359.968933f);
 
         public bool IsActive =>
             active;
@@ -75,8 +89,8 @@ namespace MotorCity.CameraSystem
             }
 
             if (!active ||
-                target == null ||
-                gameplayCamera == null)
+                gameplayCamera == null ||
+                cinematicCamera == null)
             {
                 return;
             }
@@ -89,50 +103,99 @@ namespace MotorCity.CameraSystem
                     timer /
                     duration);
 
-            float eased =
-                progress * progress *
-                (3f - 2f * progress);
-
             Vector3 endPosition =
                 transform.position;
-
-            Vector3 position =
-                CubicBezier(
-                    startPosition,
-                    controlPointA,
-                    controlPointB,
-                    endPosition,
-                    eased);
-
-            cinematicCamera.transform.position =
-                position;
-
-            Vector3 lookPoint =
-                target.position +
-                Vector3.up * 0.9f;
-
-            Quaternion lookRotation =
-                Quaternion.LookRotation(
-                    lookPoint - position,
-                    Vector3.up);
 
             Quaternion endRotation =
                 transform.rotation;
 
-            cinematicCamera.transform.rotation =
-                Quaternion.Slerp(
-                    lookRotation,
-                    endRotation,
-                    Mathf.SmoothStep(
-                        0.72f,
-                        1f,
-                        progress));
+            Quaternion point1Rotation =
+                Quaternion.Euler(
+                    AuthoredPoint1Rotation);
+
+            Quaternion point2Rotation =
+                Quaternion.Euler(
+                    AuthoredPoint2Rotation);
+
+            Quaternion point3Rotation =
+                Quaternion.Euler(
+                    AuthoredPoint3Rotation);
+
+            Vector3 position;
+            Quaternion rotation;
+
+            // Three authored legs plus a final dynamic hand-off to the
+            // current gameplay camera pose. The exact authored points are
+            // reached at 0%, 30% and 62% of the shot.
+            if (progress < 0.30f)
+            {
+                float leg =
+                    SmoothLeg(
+                        progress / 0.30f);
+
+                position =
+                    Vector3.Lerp(
+                        AuthoredPoint1Position,
+                        AuthoredPoint2Position,
+                        leg);
+
+                rotation =
+                    Quaternion.Slerp(
+                        point1Rotation,
+                        point2Rotation,
+                        leg);
+            }
+            else if (progress < 0.62f)
+            {
+                float leg =
+                    SmoothLeg(
+                        (progress - 0.30f) /
+                        0.32f);
+
+                position =
+                    Vector3.Lerp(
+                        AuthoredPoint2Position,
+                        AuthoredPoint3Position,
+                        leg);
+
+                rotation =
+                    Quaternion.Slerp(
+                        point2Rotation,
+                        point3Rotation,
+                        leg);
+            }
+            else
+            {
+                float leg =
+                    SmoothLeg(
+                        (progress - 0.62f) /
+                        0.38f);
+
+                position =
+                    Vector3.Lerp(
+                        AuthoredPoint3Position,
+                        endPosition,
+                        leg);
+
+                rotation =
+                    Quaternion.Slerp(
+                        point3Rotation,
+                        endRotation,
+                        leg);
+            }
+
+            cinematicCamera.transform.SetPositionAndRotation(
+                position,
+                rotation);
 
             cinematicCamera.fieldOfView =
                 Mathf.Lerp(
                     54f,
                     gameplayCamera.fieldOfView,
-                    eased);
+                    Mathf.SmoothStep(
+                        0.62f,
+                        1f,
+                        progress));
 
             if (progress >= 1f)
             {
@@ -142,9 +205,6 @@ namespace MotorCity.CameraSystem
 
         private void BeginCinematic()
         {
-            if (target == null)
-                return;
-
             if (gameplayCamera == null)
             {
                 gameplayCamera =
@@ -159,39 +219,10 @@ namespace MotorCity.CameraSystem
             active =
                 true;
 
-            Vector3 forward =
-                target.forward;
-
-            Vector3 right =
-                target.right;
-
-            startPosition =
-                target.position -
-                forward * 22f -
-                right * 13f +
-                Vector3.up * 8.5f;
-
-            controlPointA =
-                target.position -
-                forward * 15f +
-                right * 3f +
-                Vector3.up * 6.5f;
-
-            controlPointB =
-                target.position -
-                forward * 7f -
-                right * 2f +
-                Vector3.up * 3.4f;
-
-            cinematicCamera.transform.position =
-                startPosition;
-
-            cinematicCamera.transform.rotation =
-                Quaternion.LookRotation(
-                    target.position +
-                    Vector3.up * 0.9f -
-                    startPosition,
-                    Vector3.up);
+            cinematicCamera.transform.SetPositionAndRotation(
+                AuthoredPoint1Position,
+                Quaternion.Euler(
+                    AuthoredPoint1Rotation));
 
             cinematicCamera.fieldOfView =
                 54f;
@@ -246,21 +277,16 @@ namespace MotorCity.CameraSystem
                 false;
         }
 
-        private static Vector3 CubicBezier(
-            Vector3 a,
-            Vector3 b,
-            Vector3 c,
-            Vector3 d,
-            float t)
+        private static float SmoothLeg(
+            float value)
         {
-            float oneMinusT =
-                1f - t;
+            value =
+                Mathf.Clamp01(
+                    value);
 
             return
-                oneMinusT * oneMinusT * oneMinusT * a +
-                3f * oneMinusT * oneMinusT * t * b +
-                3f * oneMinusT * t * t * c +
-                t * t * t * d;
+                value * value *
+                (3f - 2f * value);
         }
 
         private void OnDestroy()
