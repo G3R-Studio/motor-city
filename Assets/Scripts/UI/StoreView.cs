@@ -71,6 +71,11 @@ namespace MotorCity.UI
             if (!storeOpen)
                 return;
 
+            // Purchase/catalog callbacks are asynchronous. Keep the open
+            // store synchronized so price, currency icon and ownership state
+            // appear immediately without requiring the player to reopen it.
+            UpdateStoreOverlay();
+
             if (MotorCityInput.CancelPressed)
             {
                 storeOpen =
