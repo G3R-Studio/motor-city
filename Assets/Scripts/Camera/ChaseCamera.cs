@@ -561,6 +561,12 @@ namespace MotorCity.CameraSystem
             float dynamicDistance =
                 distance + speedDistanceBonus * speed01;
 
+            float dynamicLookAhead =
+                Mathf.Lerp(
+                    lookAhead,
+                    speedLookAhead,
+                    speed01);
+
             Quaternion orbitRotation =
                 Quaternion.Euler(
                     pitch,
@@ -699,12 +705,6 @@ namespace MotorCity.CameraSystem
                     finalDistance *
                     finalAllowedDistance;
             }
-
-            float dynamicLookAhead =
-                Mathf.Lerp(
-                    lookAhead,
-                    speedLookAhead,
-                    speed01);
 
             Vector3 lookDirection =
                 target.forward;
