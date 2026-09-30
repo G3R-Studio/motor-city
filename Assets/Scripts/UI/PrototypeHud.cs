@@ -263,6 +263,8 @@ namespace MotorCity.UI
         private GameObject storeTouchControlsRoot;
         private GameObject clubTouchControlsRoot;
         private GameObject garageTouchControlsRoot;
+        private readonly GameObject[] garageActionButtons =
+            new GameObject[7];
         private Text garageControlsText;
         private CanvasScaler canvasScaler;
         private bool lastPortraitLayout;
