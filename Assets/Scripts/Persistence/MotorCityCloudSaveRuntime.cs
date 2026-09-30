@@ -62,6 +62,16 @@ namespace MotorCity.Persistence
 
                     if (useRemote)
                     {
+                        int localSupporterPack =
+                            MotorCitySaveService.GetInt(
+                                "MotorCity.Purchase.SupporterPack",
+                                0);
+
+                        int localSupporterRewardClaimed =
+                            MotorCitySaveService.GetInt(
+                                "MotorCity.Purchase.SupporterPack.RewardClaimed",
+                                0);
+
                         bool imported =
                             MotorCitySaveService.ImportJson(
                                 remoteJson,
@@ -72,6 +82,27 @@ namespace MotorCity.Persistence
                             MotorCitySaveService.MarkImportedCloudSnapshot(
                                 remote.CloudRevision,
                                 remote.ServerModifiedUnixTime);
+
+                            // Paid permanent entitlements must survive a
+                            // last-writer-wins cloud conflict. Re-applying
+                            // them after marking the imported snapshot creates
+                            // a new unsynced local revision that will be
+                            // uploaded back to the cloud.
+                            if (localSupporterPack != 0)
+                            {
+                                MotorCitySaveService.SetInt(
+                                    "MotorCity.Purchase.SupporterPack",
+                                    1);
+
+                                if (localSupporterRewardClaimed != 0)
+                                {
+                                    MotorCitySaveService.SetInt(
+                                        "MotorCity.Purchase.SupporterPack.RewardClaimed",
+                                        1);
+                                }
+
+                                MotorCitySaveService.Save();
+                            }
 
                             needsMetadataMigration =
                                 !remote.HasTrustedCloudMetadata;
