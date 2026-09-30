@@ -198,13 +198,23 @@ namespace MotorCity.Input
             VirtualPressed(
                 MotorCityInputAction.Rescue);
 
-        public static bool AdminTogglePressed =>
-            KeyPressed(
-                Key.F10) ||
-            KeyPressed(
-                Key.Backquote) ||
-            VirtualPressed(
-                MotorCityInputAction.AdminToggle);
+        public static bool AdminTogglePressed
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return
+                    KeyPressed(
+                        Key.F10) ||
+                    KeyPressed(
+                        Key.Backquote) ||
+                    VirtualPressed(
+                        MotorCityInputAction.AdminToggle);
+#else
+                return false;
+#endif
+            }
+        }
 
         public static bool ThrottleHeld =>
             KeyHeld(
