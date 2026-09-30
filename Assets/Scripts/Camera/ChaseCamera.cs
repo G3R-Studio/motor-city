@@ -185,6 +185,45 @@ namespace MotorCity.CameraSystem
             if (target == null)
                 return Vector3.zero;
 
+            if (car != null)
+            {
+                Vector3 wheelCenter =
+                    Vector3.zero;
+
+                int wheelCount =
+                    0;
+
+                for (int i = 0;
+                     i < 4;
+                     i++)
+                {
+                    WheelCollider wheel =
+                        car.GetWheelCollider(
+                            i);
+
+                    if (wheel == null)
+                        continue;
+
+                    wheelCenter +=
+                        wheel.transform.position;
+
+                    wheelCount++;
+                }
+
+                if (wheelCount >= 2)
+                {
+                    wheelCenter /=
+                        wheelCount;
+
+                    // WheelColliders give the true center of the wheelbase,
+                    // independent of an imported model/root pivot near the hood.
+                    wheelCenter.y =
+                        target.position.y;
+
+                    return wheelCenter;
+                }
+            }
+
             vehicleVisualCenterRefreshTimer -=
                 Time.unscaledDeltaTime;
 
@@ -204,8 +243,6 @@ namespace MotorCity.CameraSystem
                 target.TransformPoint(
                     vehicleVisualCenterLocal);
 
-            // Preserve the existing vertical camera tuning. The bug is the
-            // horizontal pivot being near the hood on offset-root vehicles.
             visualCenter.y =
                 target.position.y;
 
