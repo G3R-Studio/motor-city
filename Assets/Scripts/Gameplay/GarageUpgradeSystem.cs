@@ -154,27 +154,18 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            float distance =
-                Vector3.Distance(
-                    Flat(
-                        car.transform.position),
-                    Flat(
-                        garageCenter));
-
-            IsNearGarage =
-                distance <=
-                interactRadius;
-
-            if (IsOpen &&
-                (!IsNearGarage ||
-                 car.SpeedKph >
-                 maxOpenSpeedKph))
-            {
-                CloseGarage();
-            }
-
             if (!IsOpen)
             {
+                float distance =
+                    Vector3.Distance(
+                        Flat(
+                            car.transform.position),
+                        Flat(
+                            garageCenter));
+
+                IsNearGarage =
+                    distance <=
+                    interactRadius;
                 if (IsNearGarage &&
                     MotorCityInput.InteractPressed)
                 {
@@ -533,9 +524,23 @@ namespace MotorCity.Gameplay
 
         private void BeginPreparedGarageOpen()
         {
-            IsOpen = true;
-            car.SetDrivingEnabled(false);
-            StatusText = string.Empty;
+            IsOpen =
+                true;
+
+            IsNearGarage =
+                true;
+
+            car.SetDrivingEnabled(
+                false);
+
+            car.TeleportTo(
+                MotorCity.World.CityAssetRuntimeInstaller.GarageVehiclePosition,
+                MotorCity.World.CityAssetRuntimeInstaller.GarageVehicleRotation);
+
+            car.ClearMotion();
+
+            StatusText =
+                string.Empty;
         }
 
         private void CancelActiveMission()
