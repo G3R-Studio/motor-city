@@ -1989,8 +1989,11 @@ namespace MotorCity.UI
 
             MotorCityPlatformRuntime.MarkGameplayStarted();
 
-            onboarding?.ShowWelcomeAfterDelay(
-                5f);
+            if (!continuingExistingSave)
+            {
+                onboarding?.ShowWelcomeAfterDelay(
+                    5f);
+            }
         }
 
         private void ShowMainMenu()
