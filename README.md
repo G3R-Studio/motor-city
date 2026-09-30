@@ -92,7 +92,7 @@ Keyboard/gamepad driving controls that remain active:
 - `E` - contextual interaction;
 - `Esc` - cancel/close;
 - `Enter` - retry/restart where applicable;
-- `F10` or backquote - temporary admin/debug panel.
+- `F10` or backquote - Editor-only admin/debug panel (not compiled into release gameplay).
 
 Actions such as drive-mode switching, rescue, pause, store, club, rewarded bonus, navigator, garage vehicle selection/upgrades and customization are exposed through the runtime HUD/touch-button input layer rather than dedicated keyboard bindings.
 
