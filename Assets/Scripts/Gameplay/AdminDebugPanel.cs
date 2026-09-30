@@ -1680,6 +1680,9 @@ namespace MotorCity.Gameplay
                 hud.ReplayOpeningHudReveal(
                     5f);
             }
+
+            onboarding?.ShowWelcomeAfterDelay(
+                5f);
         }
 
         private static void SystemLine(
