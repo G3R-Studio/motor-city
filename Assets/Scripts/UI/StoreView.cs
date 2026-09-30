@@ -387,13 +387,14 @@ namespace MotorCity.UI
 
             // Store-specific footer lives inside the modal, so controls no
             // longer float detached below the window.
-            CreateLocalizedTouchPulseButton(
-                panel,
-                "Store Buy",
-                "touch.store.buy",
-                MotorCityInputAction.Interact,
-                new Vector2(-92f, 34f),
-                new Vector2(170f, 44f));
+            storeBuyButton =
+                CreateLocalizedTouchPulseButton(
+                    panel,
+                    "Store Buy",
+                    "touch.store.buy",
+                    MotorCityInputAction.Interact,
+                    new Vector2(-92f, 34f),
+                    new Vector2(170f, 44f));
 
             CreateLocalizedTouchPulseButton(
                 panel,
@@ -424,6 +425,18 @@ namespace MotorCity.UI
 
             storeOwnershipText.text =
                 cosmeticStore.SelectedOwnershipLine;
+
+            if (storeBuyButton != null)
+            {
+                bool showBuy =
+                    !cosmeticStore.HasSupporterPack &&
+                    cosmeticStore.ProductCatalogResolved &&
+                    cosmeticStore.SelectedProductAvailable;
+
+                SetActiveIfChanged(
+                    storeBuyButton,
+                    showBuy);
+            }
 
             storeWalletText.text =
                 MotorCityLocalization.Format(
