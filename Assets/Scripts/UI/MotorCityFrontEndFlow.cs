@@ -92,10 +92,6 @@ namespace MotorCity.UI
         private bool frontEndAudioMuted;
         private float frontEndAudioVolume = 1f;
 
-        private bool openingPresentationActive;
-        private ChaseCamera openingPresentationCamera;
-        private float openingPresentationFallbackTimer;
-
         private readonly IntroSlide[] slides =
         {
             new(
@@ -1472,12 +1468,6 @@ namespace MotorCity.UI
 
             ApplyFrontEndResponsiveLayout(
                 false);
-
-            if (openingPresentationActive)
-            {
-                UpdateOpeningPresentation();
-                return;
-            }
 
             if (loadingActive)
             {
