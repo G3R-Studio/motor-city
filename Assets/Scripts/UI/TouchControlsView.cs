@@ -54,6 +54,15 @@ namespace MotorCity.UI
             rect.sizeDelta =
                 size;
 
+            if (name == "Handbrake")
+            {
+                rect.localScale =
+                    new Vector3(
+                        -1f,
+                        1f,
+                        1f);
+            }
+
             Image image =
                 buttonObject.GetComponent<Image>();
 
@@ -964,8 +973,8 @@ namespace MotorCity.UI
                 new Vector2(1f, 0f),
                 FitTouchArtSize(
                     handbrakeTexture,
-                    new Vector2(138f, 120f)),
-                new Color32(255, 255, 255, 0x78));
+                    new Vector2(168f, 148f)),
+                new Color32(255, 255, 255, 0xA0));
 
             GameObject interactButton =
                 CreateLocalizedTouchPulseButton(
