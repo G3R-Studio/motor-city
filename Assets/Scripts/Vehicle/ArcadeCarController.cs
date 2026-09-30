@@ -93,6 +93,7 @@ namespace MotorCity.Vehicle
         private bool wheelRigReady;
         private bool drivingEnabled = true;
         private bool presentationLock;
+        private float presentationLockTimer;
         private bool warnedMissingPrometeo;
         private bool throttleHeld;
         private bool reverseHeld;
@@ -287,6 +288,24 @@ namespace MotorCity.Vehicle
         {
             if (Time.timeScale <= 0f)
                 return;
+
+            if (presentationLock)
+            {
+                presentationLockTimer =
+                    Mathf.Max(
+                        0f,
+                        presentationLockTimer -
+                        Time.unscaledDeltaTime);
+
+                if (presentationLockTimer <= 0f)
+                {
+                    SetPresentationLock(
+                        false);
+
+                    SetDrivingEnabled(
+                        true);
+                }
+            }
 
             bool conflictingControlPressed =
                 MotorCityInput.DrivingControlHeld;
@@ -1922,6 +1941,18 @@ namespace MotorCity.Vehicle
             ApplyDriveModeTuning();
         }
 
+        public void BeginOpeningPresentationLock(
+            float seconds)
+        {
+            presentationLockTimer =
+                Mathf.Max(
+                    0.1f,
+                    seconds);
+
+            SetPresentationLock(
+                true);
+        }
+
         public void SetPresentationLock(
             bool locked)
         {
@@ -1935,7 +1966,12 @@ namespace MotorCity.Vehicle
                 locked;
 
             if (!locked)
+            {
+                presentationLockTimer =
+                    0f;
+
                 return;
+            }
 
             // Opening presentation must block player input without freezing
             // Rigidbody gravity. The car intentionally spawns slightly above
