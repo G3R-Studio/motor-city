@@ -37,7 +37,7 @@ namespace MotorCity.UI
                     garageOverlay.transform,
                     "Garage Panel",
                     Vector2.zero,
-                    new Vector2(1880f, 1000f),
+                    new Vector2(1600f, 900f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     Color.clear);
@@ -68,7 +68,7 @@ namespace MotorCity.UI
                     panel,
                     "Garage Top Balance",
                     new Vector2(0f, -18f),
-                    new Vector2(900f, 92f),
+                    new Vector2(840f, 82f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     glass);
@@ -77,7 +77,7 @@ namespace MotorCity.UI
                 topBalance,
                 violet,
                 new Vector2(0f, 0f),
-                new Vector2(860f, 3f),
+                new Vector2(800f, 3f),
                 new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f));
 
@@ -239,8 +239,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     panel,
                     "Garage Vehicle Card",
-                    new Vector2(-22f, -150f),
-                    new Vector2(400f, 720f),
+                    new Vector2(-22f, -126f),
+                    new Vector2(390f, 650f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     glass);
@@ -332,8 +332,8 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(28f, -480f),
-                    new Vector2(340f, 120f),
+                    new Vector2(28f, -438f),
+                    new Vector2(330f, 98f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
@@ -352,7 +352,7 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -632f),
+                    new Vector2(28f, -562f),
                     new Vector2(180f, 24f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -364,7 +364,7 @@ namespace MotorCity.UI
                 vehicleCard,
                 "Garage Mastery Icon",
                 MotorCityIconLibrary.Achievement,
-                new Vector2(28f, -672f),
+                new Vector2(28f, -604f),
                 new Vector2(24f, 24f),
                 new Vector2(0f, 1f),
                 cyan);
@@ -373,7 +373,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     vehicleCard,
                     "Garage Mastery Track",
-                    new Vector2(64f, -680f),
+                    new Vector2(64f, -612f),
                     new Vector2(300f, 12f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -444,14 +444,14 @@ namespace MotorCity.UI
             for (int i = 0; i < 3; i++)
             {
                 float x =
-                    24f + i * 258f;
+                    24f + i * 226f;
 
                 RectTransform row =
                     CreatePanel(
                         panel,
                         $"Upgrade {i + 1}",
                         new Vector2(x, 24f),
-                        new Vector2(242f, 190f),
+                        new Vector2(210f, 176f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
                         glassSoft);
@@ -514,7 +514,7 @@ namespace MotorCity.UI
                         FontStyle.Bold,
                         TextAnchor.UpperLeft,
                         new Vector2(60f, -18f),
-                        new Vector2(158f, 44f),
+                        new Vector2(138f, 44f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
                         TextColor);
@@ -527,7 +527,7 @@ namespace MotorCity.UI
                         FontStyle.Normal,
                         TextAnchor.UpperLeft,
                         new Vector2(20f, -78f),
-                        new Vector2(202f, 58f),
+                        new Vector2(170f, 54f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
                         SecondaryTextColor);
@@ -553,7 +553,7 @@ namespace MotorCity.UI
                         FontStyle.Bold,
                         TextAnchor.MiddleLeft,
                         new Vector2(50f, 26f),
-                        new Vector2(165f, 28f),
+                        new Vector2(142f, 28f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
                         green);
@@ -715,7 +715,7 @@ namespace MotorCity.UI
                     "›",
                     MotorCityInputAction.NextVehicle,
                     new Vector2(1f, 0.5f),
-                    new Vector2(-440f, 0f),
+                    new Vector2(-424f, 0f),
                     new Vector2(86f, 124f),
                     58,
                     navColor);
@@ -724,8 +724,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     root,
                     "Garage Appearance Panel",
-                    new Vector2(798f, 24f),
-                    new Vector2(500f, 190f),
+                    new Vector2(714f, 24f),
+                    new Vector2(438f, 176f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     new Color(0.025f, 0.035f, 0.10f, 0.88f));
@@ -739,7 +739,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, -18f),
-                    new Vector2(450f, 28f),
+                    new Vector2(400f, 28f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
@@ -754,7 +754,7 @@ namespace MotorCity.UI
                     MotorCityInputAction.CycleBodyColor,
                     new Vector2(0f, 0f),
                     new Vector2(16f, 18f),
-                    new Vector2(146f, 118f),
+                    new Vector2(126f, 104f),
                     16,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
 
@@ -765,7 +765,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("touch.garage.wheels"),
                     MotorCityInputAction.CycleWheels,
                     new Vector2(0f, 0f),
-                    new Vector2(177f, 18f),
+                    new Vector2(156f, 18f),
                     new Vector2(146f, 118f),
                     16,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
@@ -777,7 +777,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("touch.garage.neon"),
                     MotorCityInputAction.CycleNeon,
                     new Vector2(0f, 0f),
-                    new Vector2(338f, 18f),
+                    new Vector2(296f, 18f),
                     new Vector2(146f, 118f),
                     16,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
@@ -802,7 +802,7 @@ namespace MotorCity.UI
                     MotorCityInputAction.Interact,
                     new Vector2(1f, 1f),
                     new Vector2(-22f, -18f),
-                    new Vector2(310f, 80f),
+                    new Vector2(300f, 74f),
                     24,
                     new Color(0.16f, 0.06f, 0.32f, 0.96f));
 
@@ -824,7 +824,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
-                    new Vector2(278f, 54f),
+                    new Vector2(268f, 50f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
