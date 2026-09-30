@@ -964,8 +964,8 @@ namespace MotorCity.EditorTools
 
             float verticalGap =
                 Mathf.Abs(
-                    collider.bounds.center.y -
-                    road.bounds.center.y);
+                    collider.center.y -
+                    road.center.y);
 
             return
                 overlapArea /
