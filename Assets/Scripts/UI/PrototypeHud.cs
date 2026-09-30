@@ -510,7 +510,8 @@ namespace MotorCity.UI
 
             if (MotorCityInput.RewardedBonusPressed &&
                 activityManager != null &&
-                activityManager.SecondaryProgressionAllowed)
+                activityManager.SecondaryProgressionAllowed &&
+                !HasBlockingModalUi())
             {
                 rewardedBonus?.TryShow();
             }
