@@ -44,7 +44,7 @@ namespace MotorCity.UI
                     activityResultOverlay.transform,
                     "Activity Result",
                     Vector2.zero,
-                    new Vector2(600f, 352f),
+                    new Vector2(640f, 430f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     Color.clear);
@@ -131,14 +131,40 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Result Reward",
-                    28,
+                    25,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(20f, -198f),
-                    new Vector2(380f, 40f),
+                    new Vector2(430f, 38f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
+
+            resultMasteryText =
+                CreateText(
+                    panel,
+                    "Result Mastery",
+                    17,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -236f),
+                    new Vector2(500f, 28f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    BlueAccent);
+
+            resultSecondaryProgressText =
+                CreateText(
+                    panel,
+                    "Result Secondary Progress",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, -280f),
+                    new Vector2(520f, 62f),
+                    new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f),
+                    SecondaryTextColor);
 
             resultNextGoalText =
                 CreateText(
@@ -147,7 +173,7 @@ namespace MotorCity.UI
                     16,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -246f),
+                    new Vector2(0f, -346f),
                     new Vector2(500f, 34f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
@@ -163,8 +189,8 @@ namespace MotorCity.UI
                     15,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 30f),
-                    new Vector2(540f, 28f),
+                    new Vector2(0f, 26f),
+                    new Vector2(560f, 28f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
                     SecondaryTextColor);
@@ -245,11 +271,41 @@ namespace MotorCity.UI
             resultRewardText.text =
                 hasCredits || hasReputation
                     ? MotorCityLocalization.Format(
-                        "hud.result_reward",
+                        "hud.result_reward_split",
                         activityManager.ResultRewardCredits,
                         activityManager.ResultReputationReward)
                     : MotorCityLocalization.Text(
                         "hud.no_rewards");
+
+            if (resultMasteryText != null)
+            {
+                bool hasMastery =
+                    activityManager.ResultMasteryXp > 0;
+
+                resultMasteryText.text =
+                    hasMastery
+                        ? MotorCityLocalization.Format(
+                            "hud.result_mastery",
+                            activityManager.ResultMasteryXp)
+                        : string.Empty;
+
+                resultMasteryText.gameObject.SetActive(
+                    hasMastery);
+            }
+
+            if (resultSecondaryProgressText != null)
+            {
+                string secondary =
+                    activityManager.ResultSecondaryProgress ??
+                    string.Empty;
+
+                resultSecondaryProgressText.text =
+                    secondary;
+
+                resultSecondaryProgressText.gameObject.SetActive(
+                    !string.IsNullOrWhiteSpace(
+                        secondary));
+            }
 
             Color accent =
                 activityManager.ResultSuccess
