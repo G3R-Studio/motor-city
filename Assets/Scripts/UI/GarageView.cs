@@ -894,17 +894,18 @@ namespace MotorCity.UI
                     (buttonHeight +
                      verticalGap);
 
-                CreateLocalizedTouchPulseButton(
-                    root,
-                    "Garage Action " + i,
-                    localizationKeys[i],
-                    actions[i],
-                    new Vector2(
-                        x,
-                        y),
-                    new Vector2(
-                        buttonWidth,
-                        buttonHeight));
+                garageActionButtons[i] =
+                    CreateLocalizedTouchPulseButton(
+                        root,
+                        "Garage Action " + i,
+                        localizationKeys[i],
+                        actions[i],
+                        new Vector2(
+                            x,
+                            y),
+                        new Vector2(
+                            buttonWidth,
+                            buttonHeight));
             }
 
             garageTouchControlsRoot.SetActive(
@@ -913,6 +914,27 @@ namespace MotorCity.UI
 
         private void UpdateGarage()
         {
+            bool rookieColorStep =
+                onboarding != null &&
+                !onboarding.IsComplete &&
+                onboarding.CurrentStep == 6;
+
+            for (int i = 0;
+                 i < garageActionButtons.Length;
+                 i++)
+            {
+                if (garageActionButtons[i] == null)
+                    continue;
+
+                bool visible =
+                    !rookieColorStep ||
+                    i == 2 ||
+                    i == 6;
+
+                garageActionButtons[i].SetActive(
+                    visible);
+            }
+
             bool metaUnlocked =
                 activityManager != null &&
                 activityManager.SecondaryProgressionAllowed;
@@ -1168,10 +1190,12 @@ namespace MotorCity.UI
             }
 
             garageStatusText.text =
-                string.IsNullOrWhiteSpace(
-                    garage.StatusText)
-                    ? garage.CustomizationHintLine
-                    : garage.StatusText;
+                rookieColorStep
+                    ? onboarding.ObjectiveLine
+                    : string.IsNullOrWhiteSpace(
+                        garage.StatusText)
+                        ? garage.CustomizationHintLine
+                        : garage.StatusText;
         }
 
         private void UpdateVehiclePassport()
