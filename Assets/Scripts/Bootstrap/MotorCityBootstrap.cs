@@ -578,6 +578,9 @@ namespace MotorCity.Bootstrap
             interstitialRuntime.Initialize(
                 activityManager);
 
+            activityStartFlow.SetInterstitialRuntime(
+                interstitialRuntime);
+
             CosmeticStoreSystem cosmeticStore =
                 systems.AddComponent<CosmeticStoreSystem>();
 
