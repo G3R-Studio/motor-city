@@ -239,8 +239,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     panel,
                     "Garage Vehicle Card",
-                    new Vector2(-24f, -132f),
-                    new Vector2(370f, 650f),
+                    new Vector2(-24f, -122f),
+                    new Vector2(370f, 632f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     glass);
@@ -332,7 +332,7 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(28f, -388f),
+                    new Vector2(28f, -360f),
                     new Vector2(314f, 102f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -352,7 +352,7 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(28f, -526f),
+                    new Vector2(28f, -486f),
                     new Vector2(180f, 24f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -364,7 +364,7 @@ namespace MotorCity.UI
                 vehicleCard,
                 "Garage Mastery Icon",
                 MotorCityIconLibrary.Achievement,
-                new Vector2(28f, -568f),
+                new Vector2(28f, -530f),
                 new Vector2(24f, 24f),
                 new Vector2(0f, 1f),
                 cyan);
@@ -373,8 +373,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     vehicleCard,
                     "Garage Mastery Track",
-                    new Vector2(64f, -576f),
-                    new Vector2(270f, 12f),
+                    new Vector2(64f, -538f),
+                    new Vector2(276f, 12f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     new Color(0.08f, 0.09f, 0.19f, 1f));
@@ -444,13 +444,13 @@ namespace MotorCity.UI
             for (int i = 0; i < 3; i++)
             {
                 float x =
-                    24f + i * 252f;
+                    28f + i * 252f;
 
                 RectTransform row =
                     CreatePanel(
                         panel,
                         $"Upgrade {i + 1}",
-                        new Vector2(x, 44f),
+                        new Vector2(x, 64f),
                         new Vector2(236f, 190f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
@@ -724,7 +724,7 @@ namespace MotorCity.UI
                 CreatePanel(
                     root,
                     "Garage Appearance Panel",
-                    new Vector2(798f, 44f),
+                    new Vector2(804f, 64f),
                     new Vector2(510f, 190f),
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
@@ -782,15 +782,22 @@ namespace MotorCity.UI
                     16,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
 
+            Transform garageVehicleCard =
+                panel.Find("Garage Vehicle Card");
+
             garageActionButtons[5] =
                 CreateGarageActionButton(
-                    root,
+                    garageVehicleCard != null
+                        ? garageVehicleCard
+                        : root,
                     "Garage Passport",
                     MotorCityLocalization.Text("touch.garage.passport"),
                     MotorCityInputAction.ToggleVehiclePassport,
                     new Vector2(1f, 1f),
-                    new Vector2(-48f, -704f),
-                    new Vector2(250f, 48f),
+                    garageVehicleCard != null
+                        ? new Vector2(-18f, -596f)
+                        : new Vector2(-48f, -742f),
+                    new Vector2(220f, 42f),
                     13,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
 
