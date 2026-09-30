@@ -1,3 +1,4 @@
+using MotorCity.Audio;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -81,6 +82,8 @@ namespace MotorCity.UI
             PointerEventData eventData)
         {
             pressed = true;
+
+            MotorCitySfxRuntime.PlayUiClick();
         }
 
         public void OnPointerUp(
