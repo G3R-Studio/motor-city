@@ -519,6 +519,18 @@ namespace MotorCity.Bootstrap
                 onboarding,
                 story);
 
+            ResultNextGoalResolver resultNextGoalResolver =
+                systems.AddComponent<ResultNextGoalResolver>();
+
+            resultNextGoalResolver.Initialize(
+                onboarding,
+                story,
+                dailyAdventures,
+                season);
+
+            activityManager.SetResultNextGoalResolver(
+                resultNextGoalResolver);
+
             PhotoHuntSystem photoHunt =
                 systems.AddComponent<PhotoHuntSystem>();
 
