@@ -39,6 +39,10 @@ namespace MotorCity.Gameplay
             !onboarding.IsComplete &&
             onboarding.CurrentStep == 4;
 
+        public bool IsOnboardingActive =>
+            onboarding != null &&
+            !onboarding.IsComplete;
+
         private PlayerReputation reputation;
         private ActivityStartFlow startFlow;
         private DisciplineReputationSystem disciplineReputation;
