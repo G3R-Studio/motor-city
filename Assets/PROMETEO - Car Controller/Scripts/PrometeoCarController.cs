@@ -794,7 +794,9 @@ public class PrometeoCarController : MonoBehaviour
         RRwheelFriction.extremumSlip = RRWextremumSlip * handbrakeDriftMultiplier * driftingAxis;
         rearRightCollider.sidewaysFriction = RRwheelFriction;
 
-        Invoke("RecoverTraction", Time.deltaTime);
+        // Update() already calls RecoverTraction while the handbrake is released.
+        // Scheduling another copy here stacks callbacks and makes traction
+        // recovery depend on render-frame timing, especially in WebGL.
 
       }else if (FLwheelFriction.extremumSlip < FLWextremumSlip){
         FLwheelFriction.extremumSlip = FLWextremumSlip;
