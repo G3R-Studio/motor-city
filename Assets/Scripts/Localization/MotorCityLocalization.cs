@@ -562,6 +562,7 @@ namespace MotorCity.Localization
                 { "onboarding.activity.ready.keyboard", E("E - НАЧАТЬ ПЕРВУЮ ДОСТАВКУ", "E - START YOUR FIRST DELIVERY") },
                 { "onboarding.activity.ready.touch", E("ДЕЙСТВИЕ - НАЧАТЬ ПЕРВУЮ ДОСТАВКУ", "ACTION - START YOUR FIRST DELIVERY") },
                 { "onboarding.activity_done", E("Турбо: Отлично. Так здесь и зарабатывают имя - помогают городу, гоняют и берутся за работу.", "Turbo: Nice. That is how you build a name here - help the city, race, and take jobs.") },
+                { "onboarding.result_next_garage", E("СЛЕДУЮЩАЯ ЦЕЛЬ: ГАРАЖ", "NEXT GOAL: GARAGE") },
                 { "onboarding.garage", E("Витя оставил тебе место в гараже. Я отметил его на карте - заедь и открой.", "Vitya saved you a spot in the garage. I marked it on the map - drive there and open it.") },
                 { "onboarding.garage_done", E("Вот твой угол. Машина теперь твоя - начни с малого и выбери цвет кузова.", "Here is your corner. The car is yours now - start small and choose a body color.") },
                 { "onboarding.customize", E("Смени цвет кузова в гараже. Пусть в городе понимают, что за рулём уже новый хозяин.", "Change the body color in the garage. Let the city know there is a new owner behind the wheel.") },
