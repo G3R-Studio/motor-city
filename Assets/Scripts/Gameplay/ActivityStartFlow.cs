@@ -27,7 +27,6 @@ namespace MotorCity.Gameplay
         private float countdownRemaining;
         private float goRemaining;
         private float pendingCountdownSeconds;
-        private bool showingGo;
         private Action countdownStarted;
         private Action<int> countdownTick;
         private Action gameplayStarted;
@@ -124,9 +123,6 @@ namespace MotorCity.Gameplay
                 PublishCountdown();
                 return;
             }
-
-            showingGo =
-                true;
 
             Phase =
                 StartPhase.Go;
@@ -353,9 +349,6 @@ namespace MotorCity.Gameplay
 
             goRemaining =
                 0f;
-
-            showingGo =
-                false;
 
             pendingCountdownSeconds =
                 0f;
