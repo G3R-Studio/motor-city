@@ -142,6 +142,7 @@ namespace MotorCity.UI
 
             ApplyModalComposition(lastTouchLayout);
             PolishTouchButtons();
+            RestoreDrivingControlAppearance();
 
             RectTransform objective = FindRect("Active Objective");
             if (objective != null && !lastTouchLayout)
@@ -340,14 +341,6 @@ namespace MotorCity.UI
                 return;
 
             PolishTouchGroup(
-                "Touch Driving Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.82f));
-
-            PolishTouchGroup(
                 "Touch Utility Controls",
                 new Color(
                     0.025f,
@@ -466,6 +459,159 @@ namespace MotorCity.UI
 
                 shadow.effectDistance =
                     new Vector2(1f, -2f);
+            }
+        }
+
+        private void RestoreDrivingControlAppearance()
+        {
+            RectTransform root =
+                FindRect(
+                    "Touch Driving Controls");
+
+            if (root == null)
+                return;
+
+            SetDrivingControlImage(
+                root,
+                "Throttle",
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0x0A));
+
+            SetDrivingControlImage(
+                root,
+                "Reverse",
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0x0A));
+
+            SetDrivingControlImage(
+                root,
+                "Handbrake",
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0x32));
+
+            SetDrivingControlImage(
+                root,
+                "Steering Wheel",
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0x96));
+
+            SetDrivingControlImage(
+                root,
+                "Steer Left",
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0x00));
+
+            SetDrivingControlImage(
+                root,
+                "Steer Right",
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0x00));
+
+            SetDrivingControlImage(
+                root,
+                "Interact",
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0xFF));
+
+            Transform arrowSteering =
+                FindRecursive(
+                    root,
+                    "Arrow Steering");
+
+            if (arrowSteering != null)
+            {
+                Image[] arrowImages =
+                    arrowSteering.GetComponentsInChildren<Image>(
+                        true);
+
+                foreach (Image image in arrowImages)
+                {
+                    if (image == null ||
+                        image.gameObject.name !=
+                        "Arrow Stroke")
+                    {
+                        continue;
+                    }
+
+                    image.color =
+                        new Color32(
+                            255,
+                            255,
+                            255,
+                            0xFF);
+
+                    RemoveOutline(
+                        image.gameObject);
+                }
+            }
+        }
+
+        private static void SetDrivingControlImage(
+            Transform root,
+            string objectName,
+            Color32 color)
+        {
+            Transform target =
+                FindRecursive(
+                    root,
+                    objectName);
+
+            if (target == null)
+                return;
+
+            Image image =
+                target.GetComponent<Image>();
+
+            if (image != null)
+            {
+                image.color =
+                    color;
+            }
+
+            RemoveOutline(
+                target.gameObject);
+        }
+
+        private static void RemoveOutline(
+            GameObject target)
+        {
+            if (target == null)
+                return;
+
+            Outline[] outlines =
+                target.GetComponents<Outline>();
+
+            foreach (Outline outline in outlines)
+            {
+                if (outline == null)
+                    continue;
+
+                outline.enabled =
+                    false;
+
+                Object.Destroy(
+                    outline);
             }
         }
 
