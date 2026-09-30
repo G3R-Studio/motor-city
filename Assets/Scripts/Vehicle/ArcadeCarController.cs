@@ -166,6 +166,39 @@ namespace MotorCity.Vehicle
                     body.linearVelocity,
                     transform.forward) * 3.6f;
 
+        public float AverageWheelRpm
+        {
+            get
+            {
+                float total =
+                    0f;
+
+                int count =
+                    0;
+
+                for (int i = 0;
+                     i < wheelColliders.Length;
+                     i++)
+                {
+                    WheelCollider wheel =
+                        wheelColliders[i];
+
+                    if (wheel == null)
+                        continue;
+
+                    total +=
+                        Mathf.Abs(
+                            wheel.rpm);
+
+                    count++;
+                }
+
+                return count > 0
+                    ? total / count
+                    : 0f;
+            }
+        }
+
         public bool IsHandbrake =>
             handbrakeHeld ||
             ReadPrometeoBool("isTractionLocked");
