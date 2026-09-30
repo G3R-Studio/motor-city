@@ -910,7 +910,7 @@ namespace MotorCity.CameraSystem
 
             float dynamicLookAhead =
                 Mathf.Lerp(
-                    lookAhead,
+                    0f,
                     speedLookAhead,
                     speed01);
 
@@ -1026,7 +1026,7 @@ namespace MotorCity.CameraSystem
                     cameraBase +
                     target.forward *
                     Mathf.Lerp(
-                        0.35f,
+                        0f,
                         dynamicLookAhead,
                         eased) +
                     Vector3.up * 0.92f;
