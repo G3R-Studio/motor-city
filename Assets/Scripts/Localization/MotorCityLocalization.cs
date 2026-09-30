@@ -266,6 +266,7 @@ namespace MotorCity.Localization
                 { "hud.garage", E("ГАРАЖ", "GARAGE") },
                 { "hud.radar", E("РАДАР", "SPEED TRAP") },
                 { "hud.result_controls", E("ENTER  ПОВТОРИТЬ     ESC  ПРОДОЛЖИТЬ", "ENTER  RETRY     ESC  CONTINUE") },
+                { "hud.result_continue_only", E("ESC  ПРОДОЛЖИТЬ", "ESC  CONTINUE") },
                 { "hud.no_rewards", E("БЕЗ НАГРАДЫ", "NO REWARD") },
                 { "hud.result_reward", E("+{0:N0} КР   +{1:N0} РЕП", "+{0:N0} CR   +{1:N0} REP") },
                 { "hud.garage_controls", E("ИСПОЛЬЗУЙ КНОПКИ ГАРАЖА", "USE GARAGE BUTTONS") },
