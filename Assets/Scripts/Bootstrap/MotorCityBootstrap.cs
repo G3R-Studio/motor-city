@@ -537,6 +537,12 @@ namespace MotorCity.Bootstrap
                 wallet,
                 activityManager);
 
+            MotorCityInterstitialRuntime interstitialRuntime =
+                systems.AddComponent<MotorCityInterstitialRuntime>();
+
+            interstitialRuntime.Initialize(
+                activityManager);
+
             CosmeticStoreSystem cosmeticStore =
                 systems.AddComponent<CosmeticStoreSystem>();
 
