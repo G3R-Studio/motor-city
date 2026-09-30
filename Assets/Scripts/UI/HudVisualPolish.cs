@@ -341,91 +341,23 @@ namespace MotorCity.UI
                 return;
 
             PolishTouchGroup(
-                "Touch Utility Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.90f));
+                "Touch Utility Controls");
 
             PolishTouchGroup(
-                "Result Touch Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.94f));
-
-            RectTransform resultContinue =
-                FindRect(
-                    "Result Continue");
-
-            if (resultContinue != null)
-            {
-                Image continueImage =
-                    resultContinue.GetComponent<Image>();
-
-                if (continueImage != null)
-                {
-                    continueImage.color =
-                        new Color(
-                            0.18f,
-                            0.42f,
-                            0.92f,
-                            0.98f);
-
-                    Outline continueOutline =
-                        continueImage.GetComponent<Outline>();
-
-                    if (continueOutline == null)
-                    {
-                        continueOutline =
-                            continueImage.gameObject
-                                .AddComponent<Outline>();
-                    }
-
-                    continueOutline.effectColor =
-                        new Color(
-                            0.35f,
-                            0.72f,
-                            1f,
-                            0.62f);
-
-                    continueOutline.effectDistance =
-                        new Vector2(
-                            2f,
-                            -2f);
-                }
-            }
+                "Result Touch Controls");
 
             PolishTouchGroup(
-                "Navigator Touch Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.94f));
+                "Navigator Touch Controls");
 
             PolishTouchGroup(
-                "Store Touch Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.94f));
+                "Store Touch Controls");
 
             PolishTouchGroup(
-                "Club Touch Controls",
-                new Color(
-                    0.025f,
-                    0.075f,
-                    0.12f,
-                    0.94f));
+                "Club Touch Controls");
         }
 
         private void PolishTouchGroup(
-            string rootName,
-            Color baseColor)
+            string rootName)
         {
             RectTransform root =
                 FindRect(rootName);
@@ -446,7 +378,7 @@ namespace MotorCity.UI
                 }
 
                 image.color =
-                    baseColor;
+                    Color.white;
 
                 Outline outline =
                     image.GetComponent<Outline>();
