@@ -1,3 +1,4 @@
+using MotorCity.Audio;
 using MotorCity.Input;
 using MotorCity.Localization;
 using UnityEngine;
@@ -51,6 +52,19 @@ namespace MotorCity.UI
 
             ApplyModalPanelTexture(
                 panel);
+
+            resultRecordGlow =
+                panel.gameObject.AddComponent<Image>();
+
+            resultRecordGlow.color =
+                new Color(
+                    0.20f,
+                    0.58f,
+                    1f,
+                    0f);
+
+            resultRecordGlow.raycastTarget =
+                false;
 
             resultActivityIcon =
                 CreateHudIcon(
@@ -251,7 +265,17 @@ namespace MotorCity.UI
         {
             if (activityManager == null ||
                 !activityManager.HasResult)
+            {
+                resultRecordAnimationPlayed =
+                    false;
+
+                resultRecordAnimationTimer =
+                    0f;
+
                 return;
+            }
+
+            UpdateNewRecordPresentation();
 
             resultTitleText.text =
                 activityManager.ResultTitle ?? string.Empty;
@@ -384,6 +408,102 @@ namespace MotorCity.UI
 
                 resultRewardIcon.color =
                     resultRewardText.color;
+            }
+        }
+
+        private void UpdateNewRecordPresentation()
+        {
+            bool newRecord =
+                activityManager != null &&
+                activityManager.ResultIsNewRecord;
+
+            if (!newRecord)
+            {
+                if (resultRecordGlow != null)
+                {
+                    Color glow =
+                        resultRecordGlow.color;
+
+                    glow.a =
+                        0f;
+
+                    resultRecordGlow.color =
+                        glow;
+                }
+
+                if (resultHeadlineText != null)
+                {
+                    resultHeadlineText.rectTransform.localScale =
+                        Vector3.one;
+                }
+
+                resultRecordAnimationPlayed =
+                    false;
+
+                resultRecordAnimationTimer =
+                    0f;
+
+                return;
+            }
+
+            if (!resultRecordAnimationPlayed)
+            {
+                resultRecordAnimationPlayed =
+                    true;
+
+                resultRecordAnimationTimer =
+                    0f;
+
+                MotorCitySfxRuntime.PlayNewRecord();
+            }
+            else
+            {
+                resultRecordAnimationTimer +=
+                    Time.unscaledDeltaTime;
+            }
+
+            float t =
+                resultRecordAnimationTimer;
+
+            float pulse =
+                1f +
+                Mathf.Sin(
+                    Mathf.Min(
+                        1f,
+                        t / 0.65f) *
+                    Mathf.PI) *
+                0.08f;
+
+            if (resultHeadlineText != null)
+            {
+                resultHeadlineText.rectTransform.localScale =
+                    Vector3.one *
+                    pulse;
+
+                resultHeadlineText.color =
+                    new Color(
+                        0.42f,
+                        0.72f,
+                        1f,
+                        1f);
+            }
+
+            if (resultRecordGlow != null)
+            {
+                Color glow =
+                    resultRecordGlow.color;
+
+                glow.a =
+                    Mathf.Clamp01(
+                        0.28f *
+                        (1f -
+                         Mathf.Max(
+                             0f,
+                             t - 0.55f) /
+                         0.65f));
+
+                resultRecordGlow.color =
+                    glow;
             }
         }
 
