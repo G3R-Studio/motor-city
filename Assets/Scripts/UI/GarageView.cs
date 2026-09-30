@@ -249,6 +249,47 @@ namespace MotorCity.UI
                     new Vector2(0f, 0.5f),
                     TextColor);
 
+            RectTransform headerLevelTrack =
+                CreatePanel(
+                    levelGroup,
+                    "Garage Header Level Track",
+                    new Vector2(40f, -23f),
+                    new Vector2(118f, 6f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    new Color(0.08f, 0.09f, 0.18f, 0.95f));
+
+            Outline headerLevelTrackOutline =
+                headerLevelTrack.GetComponent<Outline>();
+
+            if (headerLevelTrackOutline != null)
+            {
+                headerLevelTrackOutline.enabled =
+                    false;
+            }
+
+            RectTransform headerLevelFill =
+                CreatePanel(
+                    headerLevelTrack,
+                    "Garage Header Level Fill",
+                    Vector2.zero,
+                    new Vector2(0f, 6f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    cyan);
+
+            Outline headerLevelFillOutline =
+                headerLevelFill.GetComponent<Outline>();
+
+            if (headerLevelFillOutline != null)
+            {
+                headerLevelFillOutline.enabled =
+                    false;
+            }
+
+            garageHeaderLevelFill =
+                headerLevelFill.GetComponent<Image>();
+
             garageHeaderMasteryText =
                 CreateText(
                     topBalance,
@@ -261,6 +302,47 @@ namespace MotorCity.UI
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     cyan);
+
+            RectTransform headerMasteryTrack =
+                CreatePanel(
+                    topBalance,
+                    "Garage Header Mastery Track",
+                    new Vector2(675f, -24f),
+                    new Vector2(166f, 6f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    new Color(0.08f, 0.09f, 0.18f, 0.95f));
+
+            Outline headerMasteryTrackOutline =
+                headerMasteryTrack.GetComponent<Outline>();
+
+            if (headerMasteryTrackOutline != null)
+            {
+                headerMasteryTrackOutline.enabled =
+                    false;
+            }
+
+            RectTransform headerMasteryFill =
+                CreatePanel(
+                    headerMasteryTrack,
+                    "Garage Header Mastery Fill",
+                    Vector2.zero,
+                    new Vector2(0f, 6f),
+                    new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f),
+                    violet);
+
+            Outline headerMasteryFillOutline =
+                headerMasteryFill.GetComponent<Outline>();
+
+            if (headerMasteryFillOutline != null)
+            {
+                headerMasteryFillOutline.enabled =
+                    false;
+            }
+
+            garageHeaderMasteryFill =
+                headerMasteryFill.GetComponent<Image>();
 
             RectTransform vehicleCard =
                 CreatePanel(
@@ -1276,6 +1358,58 @@ namespace MotorCity.UI
                     garage != null
                         ? garage.VehicleMasteryShort
                         : string.Empty;
+            }
+
+            if (garageHeaderLevelFill != null)
+            {
+                RectTransform fillRect =
+                    garageHeaderLevelFill.rectTransform;
+
+                RectTransform trackRect =
+                    fillRect.parent as RectTransform;
+
+                int totalReputation =
+                    activityManager != null
+                        ? Mathf.Max(
+                            0,
+                            activityManager.TotalReputation)
+                        : 0;
+
+                float levelProgress =
+                    (totalReputation % 500) /
+                    500f;
+
+                fillRect.sizeDelta =
+                    new Vector2(
+                        trackRect != null
+                            ? trackRect.rect.width *
+                              Mathf.Clamp01(
+                                  levelProgress)
+                            : 0f,
+                        6f);
+            }
+
+            if (garageHeaderMasteryFill != null)
+            {
+                RectTransform fillRect =
+                    garageHeaderMasteryFill.rectTransform;
+
+                RectTransform trackRect =
+                    fillRect.parent as RectTransform;
+
+                float masteryProgress =
+                    metaUnlocked && garage != null
+                        ? Mathf.Clamp01(
+                            garage.VehicleMasteryProgress)
+                        : 0f;
+
+                fillRect.sizeDelta =
+                    new Vector2(
+                        trackRect != null
+                            ? trackRect.rect.width *
+                              masteryProgress
+                            : 0f,
+                        6f);
             }
 
             if (garageVehicleText != null)
