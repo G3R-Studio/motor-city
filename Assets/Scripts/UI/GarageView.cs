@@ -662,6 +662,37 @@ namespace MotorCity.UI
                         new Vector2(0f, 1f),
                         TextColor);
 
+                for (int segment = 0; segment < 5; segment++)
+                {
+                    RectTransform segmentRect =
+                        CreatePanel(
+                            row,
+                            $"Upgrade Level Segment {segment + 1}",
+                            new Vector2(
+                                20f + segment * 37f,
+                                -66f),
+                            new Vector2(31f, 7f),
+                            new Vector2(0f, 1f),
+                            new Vector2(0f, 1f),
+                            new Color(
+                                0.08f,
+                                0.09f,
+                                0.18f,
+                                0.96f));
+
+                    Outline segmentOutline =
+                        segmentRect.GetComponent<Outline>();
+
+                    if (segmentOutline != null)
+                    {
+                        segmentOutline.enabled =
+                            false;
+                    }
+
+                    garageUpgradeLevelSegments[i, segment] =
+                        segmentRect.GetComponent<Image>();
+                }
+
                 garageDescriptionTexts[i] =
                     CreateText(
                         row,
@@ -669,8 +700,8 @@ namespace MotorCity.UI
                         12,
                         FontStyle.Normal,
                         TextAnchor.UpperLeft,
-                        new Vector2(20f, -78f),
-                        new Vector2(188f, 56f),
+                        new Vector2(20f, -88f),
+                        new Vector2(188f, 50f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
                         SecondaryTextColor);
@@ -1565,6 +1596,59 @@ namespace MotorCity.UI
 
                 garageDescriptionTexts[i].text =
                     garage.GetUpgradeDescription(i);
+
+                int upgradeLevel =
+                    garage.GetUpgradeLevel(
+                        i);
+
+                for (int segment = 0;
+                     segment < 5;
+                     segment++)
+                {
+                    Image segmentImage =
+                        garageUpgradeLevelSegments[i, segment];
+
+                    if (segmentImage == null)
+                        continue;
+
+                    bool active =
+                        segment <
+                        upgradeLevel;
+
+                    Color activeColor =
+                        i switch
+                        {
+                            0 =>
+                                new Color(
+                                    0.72f,
+                                    0.34f,
+                                    1f,
+                                    1f),
+
+                            1 =>
+                                new Color(
+                                    0.22f,
+                                    0.82f,
+                                    1f,
+                                    1f),
+
+                            _ =>
+                                new Color(
+                                    0.55f,
+                                    0.42f,
+                                    1f,
+                                    1f)
+                        };
+
+                    segmentImage.color =
+                        active
+                            ? activeColor
+                            : new Color(
+                                0.08f,
+                                0.09f,
+                                0.18f,
+                                0.96f);
+                }
             }
 
             garageStatusText.text =
