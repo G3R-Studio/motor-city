@@ -552,12 +552,14 @@ namespace MotorCity.Gameplay
                 flow.PlayRuntimeLoadingTransition(
                     CompleteGarageOpenTeleport,
                     "ЗАГРУЖАЕМ ГАРАЖ...",
-                    "LOADING GARAGE..."))
+                    "LOADING GARAGE...",
+                    FinishGarageTransition))
             {
                 return;
             }
 
             CompleteGarageOpenTeleport();
+            FinishGarageTransition();
         }
 
         private void CompleteGarageOpenTeleport()
@@ -581,6 +583,10 @@ namespace MotorCity.Gameplay
             StatusText =
                 string.Empty;
 
+        }
+
+        private void FinishGarageTransition()
+        {
             transitionInProgress =
                 false;
         }
@@ -616,12 +622,14 @@ namespace MotorCity.Gameplay
                 flow.PlayRuntimeLoadingTransition(
                     CompleteGarageCloseTeleport,
                     "ВОЗВРАЩАЕМСЯ В ГОРОД...",
-                    "RETURNING TO THE CITY..."))
+                    "RETURNING TO THE CITY...",
+                    FinishGarageTransition))
             {
                 return;
             }
 
             CompleteGarageCloseTeleport();
+            FinishGarageTransition();
         }
 
         private void CompleteGarageCloseTeleport()
@@ -649,8 +657,6 @@ namespace MotorCity.Gameplay
                 MotorCityLocalization.Text(
                     "garage.open_prompt");
 
-            transitionInProgress =
-                false;
         }
 
         private MotorCityFrontEndFlow ResolveFrontEndFlow()
