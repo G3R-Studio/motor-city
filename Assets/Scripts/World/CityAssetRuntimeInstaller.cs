@@ -10,6 +10,12 @@ namespace MotorCity.World
         private const string ResourcePath =
             "MotorCity/Environment/CityVisual";
 
+        private const string GarageResourcePath =
+            "MotorCity/Garage/SimpleGarage";
+
+        private const string RuntimeGarageName =
+            "MotorCity_SimpleGarage";
+
         private const string SceneCityName =
             "City-Maker";
 
@@ -111,6 +117,7 @@ namespace MotorCity.World
             (Vector3[])UndergroundPreferred.Clone();
 
         private static GameObject activeCity;
+        private static GameObject activeGarageInterior;
         private static Bounds cityBounds;
         private static bool hasCityBounds;
 
@@ -132,6 +139,36 @@ namespace MotorCity.World
                 7.40436444e-05f,
                 89.9998322f,
                 -4.8625111e-06f);
+
+        public static Vector3 GarageInteriorPosition { get; } =
+            new(
+                -552.546936f,
+                1.375f,
+                -798.200012f);
+
+        public static Quaternion GarageInteriorRotation { get; } =
+            Quaternion.Euler(
+                0f,
+                0f,
+                0f);
+
+        public static Vector3 GarageInteriorScale { get; } =
+            new(
+                2f,
+                2f,
+                2f);
+
+        public static Vector3 GarageVehiclePosition { get; } =
+            new(
+                -552.302002f,
+                1.5f,
+                -796.929993f);
+
+        public static Quaternion GarageVehicleRotation { get; } =
+            Quaternion.Euler(
+                0f,
+                0f,
+                0f);
 
         // Western broad junction in the large district, kept separate from
         // the street sprint start on the eastern side.
@@ -189,11 +226,125 @@ namespace MotorCity.World
                 cityBounds.size.x > 10f &&
                 cityBounds.size.z > 10f;
 
+            InstallGarageInterior();
+
             Physics.SyncTransforms();
 
             ResolveGameplayLayout();
 
             return true;
+        }
+
+        private static void InstallGarageInterior()
+        {
+            if (activeGarageInterior == null)
+            {
+                activeGarageInterior =
+                    GameObject.Find(
+                        RuntimeGarageName);
+            }
+
+            if (activeGarageInterior == null)
+            {
+                GameObject prefab =
+                    Resources.Load<GameObject>(
+                        GarageResourcePath);
+
+                if (prefab == null)
+                {
+                    Debug.LogWarning(
+                        "Motor City: Simple Garage runtime prefab was not found.");
+                    return;
+                }
+
+                activeGarageInterior =
+                    UnityEngine.Object.Instantiate(
+                        prefab);
+
+                activeGarageInterior.name =
+                    RuntimeGarageName;
+            }
+
+            Transform garageTransform =
+                activeGarageInterior.transform;
+
+            garageTransform.position =
+                GarageInteriorPosition;
+
+            garageTransform.rotation =
+                GarageInteriorRotation;
+
+            garageTransform.localScale =
+                GarageInteriorScale;
+
+            Transform floor =
+                FindChildByName(
+                    garageTransform,
+                    "Floor");
+
+            if (floor == null)
+            {
+                Debug.LogWarning(
+                    "Motor City: Simple Garage Floor was not found.");
+                return;
+            }
+
+            BoxCollider floorCollider =
+                floor.GetComponent<BoxCollider>();
+
+            if (floorCollider == null)
+            {
+                floorCollider =
+                    floor.gameObject.AddComponent<BoxCollider>();
+            }
+
+            MeshFilter floorMesh =
+                floor.GetComponent<MeshFilter>();
+
+            if (floorMesh != null &&
+                floorMesh.sharedMesh != null)
+            {
+                Bounds bounds =
+                    floorMesh.sharedMesh.bounds;
+
+                floorCollider.center =
+                    bounds.center;
+
+                floorCollider.size =
+                    bounds.size;
+            }
+
+            floorCollider.isTrigger =
+                false;
+        }
+
+        private static Transform FindChildByName(
+            Transform root,
+            string childName)
+        {
+            if (root == null)
+                return null;
+
+            if (root.name ==
+                childName)
+            {
+                return root;
+            }
+
+            for (int i = 0;
+                 i < root.childCount;
+                 i++)
+            {
+                Transform found =
+                    FindChildByName(
+                        root.GetChild(i),
+                        childName);
+
+                if (found != null)
+                    return found;
+            }
+
+            return null;
         }
 
         public static Vector3 SnapToNearestRoad(
