@@ -8,8 +8,7 @@ namespace MotorCity.UI
         MonoBehaviour,
         IPointerDownHandler,
         IDragHandler,
-        IPointerUpHandler,
-        IPointerExitHandler
+        IPointerUpHandler
     {
         [SerializeField] private float maximumRotation = 120f;
         [SerializeField] private float returnSpeed = 260f;
@@ -83,16 +82,6 @@ namespace MotorCity.UI
         public void OnPointerUp(
             PointerEventData eventData)
         {
-            dragging =
-                false;
-        }
-
-        public void OnPointerExit(
-            PointerEventData eventData)
-        {
-            if (eventData.pointerPress != gameObject)
-                return;
-
             dragging =
                 false;
         }
