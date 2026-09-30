@@ -54,6 +54,9 @@ namespace MotorCity.CameraSystem
         private float collisionDistanceVelocity;
         private Vector3 lastTargetPosition;
         private bool hasLastTargetPosition;
+        private Vector3 vehicleVisualCenterLocal;
+        private bool hasVehicleVisualCenter;
+        private float vehicleVisualCenterRefreshTimer;
         private int cameraTouchId = -1;
         private Vector2 lastCameraTouchPosition;
 
@@ -95,6 +98,118 @@ namespace MotorCity.CameraSystem
 
             hasLastTargetPosition =
                 false;
+
+            hasVehicleVisualCenter =
+                false;
+
+            vehicleVisualCenterRefreshTimer =
+                0f;
+
+            RefreshVehicleVisualCenter();
+        }
+
+        private void RefreshVehicleVisualCenter()
+        {
+            if (target == null)
+            {
+                hasVehicleVisualCenter =
+                    false;
+
+                return;
+            }
+
+            Renderer[] renderers =
+                target.GetComponentsInChildren<Renderer>(
+                    true);
+
+            bool found =
+                false;
+
+            Bounds bounds =
+                default;
+
+            for (int i = 0;
+                 i < renderers.Length;
+                 i++)
+            {
+                Renderer renderer =
+                    renderers[i];
+
+                if (renderer == null ||
+                    !renderer.enabled ||
+                    !renderer.gameObject.activeInHierarchy ||
+                    renderer is ParticleSystemRenderer ||
+                    renderer is TrailRenderer ||
+                    renderer is LineRenderer ||
+                    renderer is SpriteRenderer)
+                {
+                    continue;
+                }
+
+                if (!found)
+                {
+                    bounds =
+                        renderer.bounds;
+
+                    found =
+                        true;
+                }
+                else
+                {
+                    bounds.Encapsulate(
+                        renderer.bounds);
+                }
+            }
+
+            if (!found)
+            {
+                vehicleVisualCenterLocal =
+                    Vector3.zero;
+
+                hasVehicleVisualCenter =
+                    false;
+
+                return;
+            }
+
+            vehicleVisualCenterLocal =
+                target.InverseTransformPoint(
+                    bounds.center);
+
+            hasVehicleVisualCenter =
+                true;
+        }
+
+        private Vector3 ResolveVehicleCameraBase()
+        {
+            if (target == null)
+                return Vector3.zero;
+
+            vehicleVisualCenterRefreshTimer -=
+                Time.unscaledDeltaTime;
+
+            if (!hasVehicleVisualCenter ||
+                vehicleVisualCenterRefreshTimer <= 0f)
+            {
+                vehicleVisualCenterRefreshTimer =
+                    0.35f;
+
+                RefreshVehicleVisualCenter();
+            }
+
+            if (!hasVehicleVisualCenter)
+                return target.position;
+
+            Vector3 visualCenter =
+                target.TransformPoint(
+                    vehicleVisualCenterLocal);
+
+            // Preserve the existing vertical camera tuning. The bug is the
+            // horizontal pivot being near the hood on offset-root vehicles.
+            visualCenter.y =
+                target.position.y;
+
+            return visualCenter;
         }
 
         public void SetManualInputEnabled(
@@ -151,7 +266,7 @@ namespace MotorCity.CameraSystem
                 return;
 
             Vector3 pivot =
-                target.position +
+                ResolveVehicleCameraBase() +
                 Vector3.up *
                 height;
 
@@ -264,8 +379,11 @@ namespace MotorCity.CameraSystem
                     startYaw,
                     0f);
 
+            Vector3 cameraBase =
+                ResolveVehicleCameraBase();
+
             openingPresentationStartPosition =
-                target.position +
+                cameraBase +
                 Vector3.up * 2.15f +
                 startOrbit *
                 new Vector3(
@@ -274,7 +392,7 @@ namespace MotorCity.CameraSystem
                     -6.4f);
 
             Vector3 lookPoint =
-                target.position +
+                cameraBase +
                 Vector3.up * 0.95f;
 
             openingPresentationStartRotation =
@@ -769,8 +887,11 @@ namespace MotorCity.CameraSystem
                 orbitRotation *
                 new Vector3(0f, 0f, -dynamicDistance);
 
+            Vector3 cameraBase =
+                ResolveVehicleCameraBase();
+
             Vector3 cameraPivot =
-                target.position +
+                cameraBase +
                 Vector3.up * height;
 
             Vector3 desiredPosition =
@@ -847,7 +968,7 @@ namespace MotorCity.CameraSystem
                         0f);
 
                 Vector3 openingPivot =
-                    target.position +
+                    cameraBase +
                     Vector3.up *
                     orbitHeight;
 
@@ -865,7 +986,7 @@ namespace MotorCity.CameraSystem
                         orbitPosition);
 
                 Vector3 openingLookPoint =
-                    target.position +
+                    cameraBase +
                     target.forward *
                     Mathf.Lerp(
                         0.35f,
@@ -959,7 +1080,7 @@ namespace MotorCity.CameraSystem
             }
 
             Vector3 lookPoint =
-                target.position +
+                cameraBase +
                 lookDirection * dynamicLookAhead +
                 Vector3.up * 0.92f;
 
