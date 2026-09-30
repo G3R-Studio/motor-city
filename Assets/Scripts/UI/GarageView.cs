@@ -29,7 +29,7 @@ namespace MotorCity.UI
             Image backdrop =
                 garageOverlay.GetComponent<Image>();
             backdrop.color =
-                new Color(0.012f, 0.010f, 0.022f, 0.34f);
+                new Color(0.012f, 0.010f, 0.022f, 0.08f);
             backdrop.raycastTarget = false;
 
             RectTransform panel =
@@ -37,7 +37,7 @@ namespace MotorCity.UI
                     garageOverlay.transform,
                     "Garage Panel",
                     Vector2.zero,
-                    new Vector2(920f, 560f),
+                    new Vector2(1880f, 1000f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     Color.clear);
@@ -59,16 +59,16 @@ namespace MotorCity.UI
                     panel,
                     "Garage Vehicle Card",
                     new Vector2(
-                        18f,
-                        -82f),
+                        -28f,
+                        -178f),
                     new Vector2(
-                        286f,
-                        322f),
+                        390f,
+                        650f),
                     new Vector2(
-                        0f,
+                        1f,
                         1f),
                     new Vector2(
-                        0f,
+                        1f,
                         1f),
                     Color.clear);
 
@@ -78,18 +78,18 @@ namespace MotorCity.UI
             RectTransform upgradesCard =
                 CreatePanel(
                     panel,
-                    "Garage Upgrade Stack",
-                    new Vector2(
-                        616f,
-                        -82f),
-                    new Vector2(
-                        286f,
-                        322f),
+                    "Garage Balance Bar",
                     new Vector2(
                         0f,
+                        -26f),
+                    new Vector2(
+                        980f,
+                        92f),
+                    new Vector2(
+                        0.5f,
                         1f),
                     new Vector2(
-                        0f,
+                        0.5f,
                         1f),
                     Color.clear);
 
@@ -104,16 +104,16 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(
-                        38f,
-                        -92f),
+                        -392f,
+                        -198f),
                     new Vector2(
-                        220f,
-                        22f),
+                        320f,
+                        24f),
                     new Vector2(
-                        0f,
+                        1f,
                         1f),
                     new Vector2(
-                        0f,
+                        1f,
                         1f),
                     SecondaryTextColor);
 
@@ -129,17 +129,17 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(
-                        632f,
-                        -92f),
+                        32f,
+                        190f),
                     new Vector2(
-                        238f,
-                        24f),
-                    new Vector2(
-                        0f,
-                        1f),
+                        820f,
+                        28f),
                     new Vector2(
                         0f,
-                        1f),
+                        0f),
+                    new Vector2(
+                        0f,
+                        0f),
                     TextColor);
 
             upgradesTitle.text =
@@ -151,8 +151,8 @@ namespace MotorCity.UI
                     "Garage Header Icon",
                     MotorCityIconLibrary.Garage,
                     new Vector2(
-                        24f,
-                        -27f),
+                        -3000f,
+                        -3000f),
                     new Vector2(
                         26f,
                         26f),
@@ -168,7 +168,7 @@ namespace MotorCity.UI
                     27,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(58f, -25f),
+                    new Vector2(-3000f, -3000f),
                     new Vector2(270f, 36f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
@@ -190,19 +190,19 @@ namespace MotorCity.UI
                 creditsGroupObject.GetComponent<RectTransform>();
 
             creditsGroup.anchorMin =
-                Vector2.one;
+                new Vector2(0.5f, 1f);
             creditsGroup.anchorMax =
-                Vector2.one;
+                new Vector2(0.5f, 1f);
             creditsGroup.pivot =
-                Vector2.one;
+                new Vector2(0.5f, 1f);
             creditsGroup.anchoredPosition =
                 new Vector2(
-                    -228f,
-                    -15f);
+                    -330f,
+                    -46f);
             creditsGroup.sizeDelta =
                 new Vector2(
-                    124f,
-                    34f);
+                    190f,
+                    44f);
 
             CreateHudIcon(
                     creditsGroup,
@@ -255,19 +255,19 @@ namespace MotorCity.UI
                 reputationGroupObject.GetComponent<RectTransform>();
 
             reputationGroup.anchorMin =
-                Vector2.one;
+                new Vector2(0.5f, 1f);
             reputationGroup.anchorMax =
-                Vector2.one;
+                new Vector2(0.5f, 1f);
             reputationGroup.pivot =
-                Vector2.one;
+                new Vector2(0.5f, 1f);
             reputationGroup.anchoredPosition =
                 new Vector2(
-                    -112f,
-                    -15f);
+                    -90f,
+                    -46f);
             reputationGroup.sizeDelta =
                 new Vector2(
-                    96f,
-                    34f);
+                    180f,
+                    44f);
 
             CreateHudIcon(
                     reputationGroup,
@@ -320,19 +320,19 @@ namespace MotorCity.UI
                 levelGroupObject.GetComponent<RectTransform>();
 
             levelGroup.anchorMin =
-                Vector2.one;
+                new Vector2(0.5f, 1f);
             levelGroup.anchorMax =
-                Vector2.one;
+                new Vector2(0.5f, 1f);
             levelGroup.pivot =
-                Vector2.one;
+                new Vector2(0.5f, 1f);
             levelGroup.anchoredPosition =
                 new Vector2(
-                    -16f,
-                    -15f);
+                    140f,
+                    -46f);
             levelGroup.sizeDelta =
                 new Vector2(
-                    78f,
-                    34f);
+                    150f,
+                    44f);
 
             garageLevelText =
                 CreateText(
@@ -361,16 +361,16 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperRight,
                     new Vector2(
-                        -16f,
-                        -44f),
+                        450f,
+                        -50f),
                     new Vector2(
-                        330f,
-                        18f),
+                        250f,
+                        24f),
                     new Vector2(
-                        1f,
+                        0.5f,
                         1f),
                     new Vector2(
-                        1f,
+                        0.5f,
                         1f),
                     new Color(
                         0.42f,
@@ -385,13 +385,13 @@ namespace MotorCity.UI
                     MotorCityIconLibrary.Get(
                         "car"),
                     new Vector2(
-                        38f,
-                        -110f),
+                        -390f,
+                        -236f),
                     new Vector2(
-                        20f,
-                        20f),
+                        22f,
+                        22f),
                     new Vector2(
-                        0f,
+                        1f,
                         1f),
                     GarageAccent);
 
@@ -402,10 +402,10 @@ namespace MotorCity.UI
                     23,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(66f, -108f),
-                    new Vector2(220f, 34f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(-350f, -232f),
+                    new Vector2(300f, 36f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
                     TextColor);
 
             garageNextVehicleText =
@@ -415,10 +415,10 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(38f, -146f),
-                    new Vector2(244f, 38f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(-392f, -282f),
+                    new Vector2(330f, 54f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
                     GarageAccent);
 
             garageVehicleStatsText =
@@ -428,10 +428,10 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(38f, -190f),
-                    new Vector2(244f, 50f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(-392f, -352f),
+                    new Vector2(330f, 210f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
                     TextColor);
 
             garageVehicleStatsText.resizeTextForBestFit =
@@ -452,10 +452,10 @@ namespace MotorCity.UI
                     12,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(38f, -244f),
-                    new Vector2(244f, 70f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(-392f, -580f),
+                    new Vector2(330f, 118f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f),
                     SecondaryTextColor);
 
             garageVehicleCharacterText.resizeTextForBestFit =
@@ -474,13 +474,13 @@ namespace MotorCity.UI
                     "Garage Mastery Icon",
                     MotorCityIconLibrary.Achievement,
                     new Vector2(
-                        38f,
-                        -326f),
+                        -390f,
+                        -738f),
                     new Vector2(
-                        16f,
-                        16f),
+                        18f,
+                        18f),
                     new Vector2(
-                        0f,
+                        1f,
                         1f),
                     new Color(
                         0.42f,
@@ -493,16 +493,16 @@ namespace MotorCity.UI
                     panel,
                     "Garage Mastery Track",
                     new Vector2(
-                        62f,
-                        -329f),
+                        -360f,
+                        -742f),
                     new Vector2(
-                        220f,
-                        6f),
+                        300f,
+                        8f),
                     new Vector2(
-                        0f,
+                        1f,
                         1f),
                     new Vector2(
-                        0f,
+                        1f,
                         1f),
                     new Color(
                         0.09f,
@@ -597,17 +597,17 @@ namespace MotorCity.UI
 
             for (int i = 0; i < 3; i++)
             {
-                float y =
-                    -124f - i * 92f;
+                float x =
+                    30f + i * 296f;
 
                 RectTransform row =
                     CreatePanel(
                         panel,
                         $"Upgrade {i + 1}",
-                        new Vector2(630f, y),
-                        new Vector2(258f, 82f),
-                        new Vector2(0f, 1f),
-                        new Vector2(0f, 1f),
+                        new Vector2(x, 24f),
+                        new Vector2(280f, 154f),
+                        new Vector2(0f, 0f),
+                        new Vector2(0f, 0f),
                         Color.clear);
 
                 ApplyGarageRowTexture(
@@ -717,8 +717,8 @@ namespace MotorCity.UI
                         18,
                         FontStyle.Bold,
                         TextAnchor.UpperLeft,
-                        new Vector2(54f, -8f),
-                        new Vector2(128f, 22f),
+                        new Vector2(56f, -18f),
+                        new Vector2(150f, 28f),
                         new Vector2(0f, 1f),
                         new Vector2(0f, 1f),
                         TextColor);
@@ -746,8 +746,8 @@ namespace MotorCity.UI
                         17,
                         FontStyle.Bold,
                         TextAnchor.UpperRight,
-                        new Vector2(-16f, -8f),
-                        new Vector2(112f, 22f),
+                        new Vector2(-16f, -20f),
+                        new Vector2(118f, 26f),
                         new Vector2(1f, 1f),
                         new Vector2(1f, 1f),
                         accents[i]);
@@ -759,8 +759,8 @@ namespace MotorCity.UI
                         14,
                         FontStyle.Normal,
                         TextAnchor.LowerLeft,
-                        new Vector2(54f, 7f),
-                        new Vector2(176f, 34f),
+                        new Vector2(22f, 18f),
+                        new Vector2(236f, 64f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
                         SecondaryTextColor);
@@ -770,10 +770,10 @@ namespace MotorCity.UI
                 CreatePanel(
                     panel,
                     "Vehicle Passport",
-                    new Vector2(28f, -154f),
-                    new Vector2(704f, 270f),
-                    new Vector2(0f, 1f),
-                    new Vector2(0f, 1f),
+                    new Vector2(0f, 0f),
+                    new Vector2(860f, 430f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
                     Color.clear).gameObject;
 
             RectTransform passportRect =
@@ -874,10 +874,10 @@ namespace MotorCity.UI
                     10,
                     FontStyle.Bold,
                     TextAnchor.MiddleRight,
-                    new Vector2(-24f, 18f),
-                    new Vector2(560f, 42f),
-                    new Vector2(1f, 0f),
-                    new Vector2(1f, 0f),
+                    new Vector2(0f, 196f),
+                    new Vector2(720f, 42f),
+                    new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f),
                     SecondaryTextColor);
 
             garageStatusText.resizeTextForBestFit =
