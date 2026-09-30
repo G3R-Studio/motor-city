@@ -84,7 +84,9 @@ namespace MotorCity.Gameplay
                 activityManager == null ||
                 string.IsNullOrWhiteSpace(
                     activityId) ||
-                onGameplayStarted == null)
+                onGameplayStarted == null ||
+                activityManager.IsActive(
+                    activityId))
             {
                 return false;
             }
