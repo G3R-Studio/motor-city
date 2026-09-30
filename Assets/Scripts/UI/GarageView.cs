@@ -755,6 +755,12 @@ namespace MotorCity.UI
             appearanceTitle.text =
                 MotorCityLocalization.Text("garage.appearance_title");
 
+            Vector2 appearanceButtonSize =
+                new Vector2(144f, 110f);
+
+            const int appearanceButtonFontSize =
+                17;
+
             garageActionButtons[2] =
                 CreateGarageActionButton(
                     appearancePanel,
@@ -763,8 +769,8 @@ namespace MotorCity.UI
                     MotorCityInputAction.CycleBodyColor,
                     new Vector2(0f, 0f),
                     new Vector2(16f, 18f),
-                    new Vector2(144f, 110f),
-                    17,
+                    appearanceButtonSize,
+                    appearanceButtonFontSize,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
 
             garageActionButtons[3] =
@@ -775,8 +781,8 @@ namespace MotorCity.UI
                     MotorCityInputAction.CycleWheels,
                     new Vector2(0f, 0f),
                     new Vector2(170f, 18f),
-                    new Vector2(150f, 116f),
-                    16,
+                    appearanceButtonSize,
+                    appearanceButtonFontSize,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
 
             garageActionButtons[4] =
@@ -787,8 +793,8 @@ namespace MotorCity.UI
                     MotorCityInputAction.CycleNeon,
                     new Vector2(0f, 0f),
                     new Vector2(326f, 18f),
-                    new Vector2(146f, 118f),
-                    16,
+                    appearanceButtonSize,
+                    appearanceButtonFontSize,
                     new Color(0.06f, 0.08f, 0.19f, 0.96f));
 
             garageActionButtons[5] =
