@@ -15,11 +15,7 @@ namespace MotorCity.CameraSystem
         private float duration = 5f;
 
         private Vector3 handoffPosition;
-        private Quaternion handoffRotation;
-        private float segment1Length;
-        private float segment2Length;
-        private float segment3Length;
-        private float totalPathLength;
+        private Vector3 handoffEuler;
 
         private static readonly Vector3 AuthoredPoint1Position =
             new(-541.669434f, 6.59657431f, 487.766144f);
@@ -110,101 +106,113 @@ namespace MotorCity.CameraSystem
                     timer /
                     duration);
 
-            float travelledDistance =
-                totalPathLength *
-                progress;
-
-            Quaternion point1Rotation =
-                Quaternion.Euler(
-                    AuthoredPoint1Rotation);
-
-            Quaternion point2Rotation =
-                Quaternion.Euler(
-                    AuthoredPoint2Rotation);
-
-            Quaternion point3Rotation =
-                Quaternion.Euler(
-                    AuthoredPoint3Rotation);
-
             Vector3 position;
-            Quaternion rotation;
+            Vector3 euler;
 
-            if (travelledDistance <=
-                segment1Length)
+            Vector3 rotation1 =
+                AuthoredPoint1Rotation;
+
+            Vector3 rotation2 =
+                UnwrapEuler(
+                    AuthoredPoint2Rotation,
+                    rotation1);
+
+            Vector3 rotation3 =
+                UnwrapEuler(
+                    AuthoredPoint3Rotation,
+                    rotation2);
+
+            Vector3 rotation4 =
+                UnwrapEuler(
+                    handoffEuler,
+                    rotation3);
+
+            if (progress < 1f / 3f)
             {
                 float leg =
-                    segment1Length <= 0.001f
-                        ? 1f
-                        : travelledDistance /
-                          segment1Length;
+                    progress * 3f;
+
+                Vector3 position0 =
+                    AuthoredPoint1Position * 2f -
+                    AuthoredPoint2Position;
+
+                Vector3 rotation0 =
+                    rotation1 * 2f -
+                    rotation2;
 
                 position =
-                    Vector3.Lerp(
+                    CatmullRom(
+                        position0,
                         AuthoredPoint1Position,
-                        AuthoredPoint2Position,
-                        leg);
-
-                rotation =
-                    Quaternion.Slerp(
-                        point1Rotation,
-                        point2Rotation,
-                        leg);
-            }
-            else if (travelledDistance <=
-                     segment1Length +
-                     segment2Length)
-            {
-                float localDistance =
-                    travelledDistance -
-                    segment1Length;
-
-                float leg =
-                    segment2Length <= 0.001f
-                        ? 1f
-                        : localDistance /
-                          segment2Length;
-
-                position =
-                    Vector3.Lerp(
                         AuthoredPoint2Position,
                         AuthoredPoint3Position,
                         leg);
 
-                rotation =
-                    Quaternion.Slerp(
-                        point2Rotation,
-                        point3Rotation,
+                euler =
+                    CatmullRom(
+                        rotation0,
+                        rotation1,
+                        rotation2,
+                        rotation3,
                         leg);
             }
-            else
+            else if (progress < 2f / 3f)
             {
-                float localDistance =
-                    travelledDistance -
-                    segment1Length -
-                    segment2Length;
-
                 float leg =
-                    segment3Length <= 0.001f
-                        ? 1f
-                        : localDistance /
-                          segment3Length;
+                    (progress - 1f / 3f) *
+                    3f;
 
                 position =
-                    Vector3.Lerp(
+                    CatmullRom(
+                        AuthoredPoint1Position,
+                        AuthoredPoint2Position,
                         AuthoredPoint3Position,
                         handoffPosition,
                         leg);
 
-                rotation =
-                    Quaternion.Slerp(
-                        point3Rotation,
-                        handoffRotation,
+                euler =
+                    CatmullRom(
+                        rotation1,
+                        rotation2,
+                        rotation3,
+                        rotation4,
+                        leg);
+            }
+            else
+            {
+                float leg =
+                    (progress - 2f / 3f) *
+                    3f;
+
+                Vector3 position5 =
+                    handoffPosition * 2f -
+                    AuthoredPoint3Position;
+
+                Vector3 rotation5 =
+                    rotation4 * 2f -
+                    rotation3;
+
+                position =
+                    CatmullRom(
+                        AuthoredPoint2Position,
+                        AuthoredPoint3Position,
+                        handoffPosition,
+                        position5,
+                        leg);
+
+                euler =
+                    CatmullRom(
+                        rotation2,
+                        rotation3,
+                        rotation4,
+                        rotation5,
                         leg);
             }
 
             cinematicCamera.transform.SetPositionAndRotation(
                 position,
-                rotation);
+                Quaternion.Euler(
+                    euler));
 
             cinematicCamera.fieldOfView =
                 Mathf.Lerp(
@@ -237,30 +245,8 @@ namespace MotorCity.CameraSystem
             handoffPosition =
                 transform.position;
 
-            handoffRotation =
-                transform.rotation;
-
-            segment1Length =
-                Vector3.Distance(
-                    AuthoredPoint1Position,
-                    AuthoredPoint2Position);
-
-            segment2Length =
-                Vector3.Distance(
-                    AuthoredPoint2Position,
-                    AuthoredPoint3Position);
-
-            segment3Length =
-                Vector3.Distance(
-                    AuthoredPoint3Position,
-                    handoffPosition);
-
-            totalPathLength =
-                Mathf.Max(
-                    0.001f,
-                    segment1Length +
-                    segment2Length +
-                    segment3Length);
+            handoffEuler =
+                transform.eulerAngles;
 
             cinematicCamera.transform.SetPositionAndRotation(
                 AuthoredPoint1Position,
@@ -318,6 +304,57 @@ namespace MotorCity.CameraSystem
 
             cinematicCamera.enabled =
                 false;
+        }
+
+        private static Vector3 CatmullRom(
+            Vector3 p0,
+            Vector3 p1,
+            Vector3 p2,
+            Vector3 p3,
+            float t)
+        {
+            t =
+                Mathf.Clamp01(
+                    t);
+
+            float t2 =
+                t * t;
+
+            float t3 =
+                t2 * t;
+
+            return
+                0.5f *
+                ((2f * p1) +
+                 (-p0 + p2) * t +
+                 (2f * p0 -
+                  5f * p1 +
+                  4f * p2 -
+                  p3) * t2 +
+                 (-p0 +
+                  3f * p1 -
+                  3f * p2 +
+                  p3) * t3);
+        }
+
+        private static Vector3 UnwrapEuler(
+            Vector3 value,
+            Vector3 reference)
+        {
+            return
+                new Vector3(
+                    reference.x +
+                    Mathf.DeltaAngle(
+                        reference.x,
+                        value.x),
+                    reference.y +
+                    Mathf.DeltaAngle(
+                        reference.y,
+                        value.y),
+                    reference.z +
+                    Mathf.DeltaAngle(
+                        reference.z,
+                        value.z));
         }
 
         private void OnDestroy()
