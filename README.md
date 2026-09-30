@@ -27,28 +27,28 @@ Current core features include:
 The playable garage currently contains ten vehicles:
 
 1. **BEATALL** - compact classic and the first car in the garage hierarchy.
-2. **STREET** - balanced city car.
-3. **PEUGEOT 306** - light compact hatchback.
-4. **TOYOTA AE86** - lively classic coupe.
-5. **HYBRID** - quick, grippy modern sports car.
-6. **PORSCHE 996** - compact sports coupe.
-7. **AMG GT** - planted modern grand tourer.
-8. **CAMARO** - wide modern muscle car.
-9. **DELOREAN** - supporter-pack exclusive vehicle.
-10. **CITY BUS** - final vehicle in the garage hierarchy.
+2. **STREETER** - balanced city car.
+3. **PUG 306** - light compact hatchback.
+4. **TORO 86** - lively classic coupe.
+5. **HYBRED** - quick, grippy modern sports car.
+6. **STUTT 996** - compact sports coupe.
+7. **AMGON GT** - planted modern grand tourer.
+8. **CAMARON** - wide modern muscle car.
+9. **DELOREON** - supporter-pack exclusive vehicle.
+10. **BUSIK** - final vehicle in the garage hierarchy.
 
-The permanent **MOTOR CITY SUPPORTER PACK** includes 5,000 credits, the **DELOREAN**, and the restored exclusive **Pixie EX (Amane Kisora)** visual.
+The permanent **MOTOR CITY SUPPORTER PACK** includes 5,000 credits, the **DELOREON**, and the restored exclusive **Pixie EX (Amane Kisora)** visual.
 
-- STREET: `Assets/Resources/MotorCity/PlayerCarVisual.prefab`
-- HYBRID: `Assets/Resources/MotorCity/Vehicles/Player/Hybrid.prefab`
+- STREETER: `Assets/Resources/MotorCity/PlayerCarVisual.prefab`
+- HYBRED: `Assets/Resources/MotorCity/Vehicles/Player/Hybrid.prefab`
 - BEATALL: `Assets/Resources/MotorCity/Vehicles/Player/Beatall.prefab` (generated from `Assets/VehicleAssets/Beatall/beatall.obj`)
-- DELOREAN: `Assets/Resources/MotorCity/Vehicles/Player/Delorean.prefab` (generated from `Assets/VehicleAssets/Delorean/delorean.obj` plus front/rear wheel OBJ files)
-- AMG GT: `Assets/Resources/MotorCity/Vehicles/Player/AmgGT.prefab` (generated from `Assets/VehicleAssets/AmgGT/amggt.obj` plus front/rear wheel OBJ files)
-- PORSCHE 996: `Assets/Resources/MotorCity/Vehicles/Player/Porsche996.prefab` (generated from `Assets/VehicleAssets/Porsche996/996.obj` plus front/rear wheel OBJ files)
-- PEUGEOT 306: `Assets/Resources/MotorCity/Vehicles/Player/Peugeot306.prefab` (generated from `Assets/VehicleAssets/Peugeot306/306.obj` plus `all_wheels.obj`)
-- TOYOTA AE86: `Assets/Resources/MotorCity/Vehicles/Player/ToyotaAE86.prefab` (generated from `Assets/VehicleAssets/ToyotaAE86/ae86.obj` plus `all_wheels.obj`)
-- CAMARO: `Assets/Resources/MotorCity/Vehicles/Player/Camaro.prefab` (generated from `Assets/VehicleAssets/Camaro/camaro.obj` plus `all_wheels.obj`)
-- CITY BUS: `Assets/Resources/MotorCity/Vehicles/Player/Bus.prefab` (generated from `Assets/VehicleAssets/Bus/bus.obj`, `all_wheels.obj` and `citytransportpalette.png`)
+- DELOREON: `Assets/Resources/MotorCity/Vehicles/Player/Delorean.prefab` (generated from `Assets/VehicleAssets/Delorean/delorean.obj` plus front/rear wheel OBJ files)
+- AMGON GT: `Assets/Resources/MotorCity/Vehicles/Player/AmgGT.prefab` (generated from `Assets/VehicleAssets/AmgGT/amggt.obj` plus front/rear wheel OBJ files)
+- STUTT 996: `Assets/Resources/MotorCity/Vehicles/Player/Porsche996.prefab` (generated from `Assets/VehicleAssets/Porsche996/996.obj` plus front/rear wheel OBJ files)
+- PUG 306: `Assets/Resources/MotorCity/Vehicles/Player/Peugeot306.prefab` (generated from `Assets/VehicleAssets/Peugeot306/306.obj` plus `all_wheels.obj`)
+- TORO 86: `Assets/Resources/MotorCity/Vehicles/Player/ToyotaAE86.prefab` (generated from `Assets/VehicleAssets/ToyotaAE86/ae86.obj` plus `all_wheels.obj`)
+- CAMARON: `Assets/Resources/MotorCity/Vehicles/Player/Camaro.prefab` (generated from `Assets/VehicleAssets/Camaro/camaro.obj` plus `all_wheels.obj`)
+- BUSIK: `Assets/Resources/MotorCity/Vehicles/Player/Bus.prefab` (generated from `Assets/VehicleAssets/Bus/bus.obj`, `all_wheels.obj` and `citytransportpalette.png`)
 
 ## City
 
