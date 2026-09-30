@@ -15,6 +15,7 @@ namespace MotorCity.EditorTools
             BrokenShader,
             RoadWithoutCollider,
             ColliderWithoutMesh,
+            SuspiciousRoadUv,
             SurfaceHole
         }
 
@@ -62,7 +63,8 @@ namespace MotorCity.EditorTools
                 EditorStyles.boldLabel);
 
             EditorGUILayout.HelpBox(
-                "Checks the loaded scene for broken render data, road collider problems and small surface holes. " +
+                "Checks the loaded scene for broken render data, road collider problems, suspicious flipped road UVs and small surface holes. " +
+                "Road UV detection looks for abrupt 180-degree UV-basis reversals between neighboring coplanar road triangles. " +
                 "Surface-hole detection uses raycasts and is intended to find suspicious gaps, not every empty area of the map.",
                 MessageType.Info);
 
@@ -109,6 +111,15 @@ namespace MotorCity.EditorTools
                 {
                     ClearIssues();
                     ScanRenderers();
+                    RepaintViews();
+                }
+
+                if (GUILayout.Button(
+                        "Road UV",
+                        GUILayout.Height(32f)))
+                {
+                    ClearIssues();
+                    ScanRoadUvs();
                     RepaintViews();
                 }
 
@@ -215,6 +226,7 @@ namespace MotorCity.EditorTools
         {
             ClearIssues();
             ScanRenderers();
+            ScanRoadUvs();
             ScanSurfaceHoles();
             RepaintViews();
 
@@ -228,6 +240,9 @@ namespace MotorCity.EditorTools
         {
             Renderer[] renderers =
                 Resources.FindObjectsOfTypeAll<Renderer>();
+
+            Collider[] sceneColliders =
+                Resources.FindObjectsOfTypeAll<Collider>();
 
             foreach (Renderer renderer in
                      renderers)
@@ -319,13 +334,14 @@ namespace MotorCity.EditorTools
                         renderer) &&
                     !IsColliderValidationExcluded(
                         renderer.transform) &&
-                    !HasColliderInHierarchy(
-                        renderer.transform))
+                    !HasRoadCollider(
+                        renderer,
+                        sceneColliders))
                 {
                     AddObjectIssue(
                         IssueKind.RoadWithoutCollider,
                         renderer,
-                        "Road-like renderer has no enabled collider in its local hierarchy.");
+                        "Road-like renderer has no enabled local or spatially matching road collider.");
                 }
             }
 
@@ -778,6 +794,632 @@ namespace MotorCity.EditorTools
             return false;
         }
 
+        private static bool HasRoadCollider(
+            Renderer renderer,
+            Collider[] sceneColliders)
+        {
+            if (renderer == null)
+                return false;
+
+            if (HasColliderInHierarchy(
+                    renderer.transform))
+            {
+                return true;
+            }
+
+            if (sceneColliders == null ||
+                sceneColliders.Length == 0)
+            {
+                return false;
+            }
+
+            Bounds roadBounds =
+                renderer.bounds;
+
+            for (int i = 0;
+                 i < sceneColliders.Length;
+                 i++)
+            {
+                Collider collider =
+                    sceneColliders[i];
+
+                if (collider == null ||
+                    !collider.enabled ||
+                    collider.isTrigger ||
+                    !IsSceneObject(
+                        collider) ||
+                    IsColliderValidationExcluded(
+                        collider.transform) ||
+                    !LooksLikeRoadCollider(
+                        collider))
+                {
+                    continue;
+                }
+
+                Bounds colliderBounds =
+                    collider.bounds;
+
+                if (RoadBoundsOverlap(
+                        roadBounds,
+                        colliderBounds))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool LooksLikeRoadCollider(
+            Collider collider)
+        {
+            if (collider == null)
+                return false;
+
+            Transform current =
+                collider.transform;
+
+            int depth =
+                0;
+
+            while (current != null &&
+                   depth++ < 6)
+            {
+                string lower =
+                    current.name
+                        .ToLowerInvariant();
+
+                if (lower.Contains("collider-road") ||
+                    lower.Contains("collider road") ||
+                    lower.Contains("road-collider") ||
+                    lower.Contains("road collider"))
+                {
+                    return true;
+                }
+
+                current =
+                    current.parent;
+            }
+
+            MeshCollider meshCollider =
+                collider as MeshCollider;
+
+            if (meshCollider != null &&
+                meshCollider.sharedMesh != null)
+            {
+                string meshName =
+                    meshCollider.sharedMesh.name
+                        .ToLowerInvariant();
+
+                if (meshName.Contains("road") ||
+                    meshName.Contains("street") ||
+                    meshName.Contains("asphalt"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool RoadBoundsOverlap(
+            Bounds road,
+            Bounds collider)
+        {
+            float roadMinX =
+                road.min.x;
+
+            float roadMaxX =
+                road.max.x;
+
+            float roadMinZ =
+                road.min.z;
+
+            float roadMaxZ =
+                road.max.z;
+
+            float colliderMinX =
+                collider.min.x;
+
+            float colliderMaxX =
+                collider.max.x;
+
+            float colliderMinZ =
+                collider.min.z;
+
+            float colliderMaxZ =
+                collider.max.z;
+
+            float overlapX =
+                Mathf.Min(
+                    roadMaxX,
+                    colliderMaxX) -
+                Mathf.Max(
+                    roadMinX,
+                    colliderMinX);
+
+            float overlapZ =
+                Mathf.Min(
+                    roadMaxZ,
+                    colliderMaxZ) -
+                Mathf.Max(
+                    roadMinZ,
+                    colliderMinZ);
+
+            if (overlapX <= 0.02f ||
+                overlapZ <= 0.02f)
+            {
+                return false;
+            }
+
+            float roadArea =
+                Mathf.Max(
+                    0.01f,
+                    road.size.x *
+                    road.size.z);
+
+            float overlapArea =
+                overlapX *
+                overlapZ;
+
+            float verticalGap =
+                Mathf.Abs(
+                    collider.bounds.center.y -
+                    road.bounds.center.y);
+
+            return
+                overlapArea /
+                roadArea >=
+                    0.2f &&
+                verticalGap <=
+                    Mathf.Max(
+                        2.5f,
+                        road.extents.y +
+                        collider.extents.y +
+                        0.5f);
+        }
+
+        private sealed class RoadUvTriangle
+        {
+            public Vector3 A;
+            public Vector3 B;
+            public Vector3 C;
+            public Vector3 Normal;
+            public Vector3 UDirection;
+            public Vector3 VDirection;
+            public Vector3 Center;
+        }
+
+        private readonly struct RoadUvEdgeKey :
+            IEquatable<RoadUvEdgeKey>
+        {
+            private readonly Vector3Int a;
+            private readonly Vector3Int b;
+
+            public RoadUvEdgeKey(
+                Vector3 first,
+                Vector3 second)
+            {
+                Vector3Int qFirst =
+                    QuantizeRoadUvPoint(
+                        first);
+
+                Vector3Int qSecond =
+                    QuantizeRoadUvPoint(
+                        second);
+
+                if (CompareVector3Int(
+                        qFirst,
+                        qSecond) <= 0)
+                {
+                    a = qFirst;
+                    b = qSecond;
+                }
+                else
+                {
+                    a = qSecond;
+                    b = qFirst;
+                }
+            }
+
+            public bool Equals(
+                RoadUvEdgeKey other)
+            {
+                return
+                    a == other.a &&
+                    b == other.b;
+            }
+
+            public override bool Equals(
+                object obj)
+            {
+                return
+                    obj is RoadUvEdgeKey other &&
+                    Equals(
+                        other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return
+                        (a.GetHashCode() * 397) ^
+                        b.GetHashCode();
+                }
+            }
+        }
+
+        private static void ScanRoadUvs()
+        {
+            Renderer[] renderers =
+                Resources.FindObjectsOfTypeAll<Renderer>();
+
+            foreach (Renderer renderer in
+                     renderers)
+            {
+                if (!IsSceneObject(
+                        renderer) ||
+                    !renderer.enabled ||
+                    !LooksLikeRoadRenderer(
+                        renderer) ||
+                    IsColliderValidationExcluded(
+                        renderer.transform))
+                {
+                    continue;
+                }
+
+                MeshFilter filter =
+                    renderer.GetComponent<MeshFilter>();
+
+                if (filter == null ||
+                    filter.sharedMesh == null)
+                {
+                    continue;
+                }
+
+                ScanRoadRendererUvs(
+                    renderer,
+                    filter.sharedMesh);
+            }
+        }
+
+        private static void ScanRoadRendererUvs(
+            Renderer renderer,
+            Mesh mesh)
+        {
+            Vector3[] vertices =
+                mesh.vertices;
+
+            Vector2[] uv =
+                mesh.uv;
+
+            if (vertices == null ||
+                uv == null ||
+                uv.Length != vertices.Length ||
+                vertices.Length < 3)
+            {
+                return;
+            }
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            Dictionary<RoadUvEdgeKey, RoadUvTriangle>
+                edges =
+                    new();
+
+            HashSet<RoadUvEdgeKey>
+                reported =
+                    new();
+
+            int issueCount =
+                0;
+
+            for (int subMesh = 0;
+                 subMesh < mesh.subMeshCount;
+                 subMesh++)
+            {
+                Material material =
+                    subMesh < materials.Length
+                        ? materials[subMesh]
+                        : null;
+
+                if (!LooksLikeRoadMaterial(
+                        material))
+                {
+                    continue;
+                }
+
+                int[] triangles =
+                    mesh.GetTriangles(
+                        subMesh);
+
+                for (int i = 0;
+                     i + 2 < triangles.Length;
+                     i += 3)
+                {
+                    int ia =
+                        triangles[i];
+
+                    int ib =
+                        triangles[i + 1];
+
+                    int ic =
+                        triangles[i + 2];
+
+                    if (ia < 0 ||
+                        ib < 0 ||
+                        ic < 0 ||
+                        ia >= vertices.Length ||
+                        ib >= vertices.Length ||
+                        ic >= vertices.Length)
+                    {
+                        continue;
+                    }
+
+                    Vector3 localA =
+                        vertices[ia];
+
+                    Vector3 localB =
+                        vertices[ib];
+
+                    Vector3 localC =
+                        vertices[ic];
+
+                    Vector3 worldA =
+                        renderer.transform.TransformPoint(
+                            localA);
+
+                    Vector3 worldB =
+                        renderer.transform.TransformPoint(
+                            localB);
+
+                    Vector3 worldC =
+                        renderer.transform.TransformPoint(
+                            localC);
+
+                    Vector3 e1 =
+                        worldB -
+                        worldA;
+
+                    Vector3 e2 =
+                        worldC -
+                        worldA;
+
+                    Vector3 normal =
+                        Vector3.Cross(
+                            e1,
+                            e2);
+
+                    float normalLength =
+                        normal.magnitude;
+
+                    if (normalLength <=
+                        0.0001f)
+                    {
+                        continue;
+                    }
+
+                    normal /=
+                        normalLength;
+
+                    if (Vector3.Dot(
+                            normal,
+                            Vector3.up) <
+                        0.7f)
+                    {
+                        continue;
+                    }
+
+                    Vector2 duv1 =
+                        uv[ib] -
+                        uv[ia];
+
+                    Vector2 duv2 =
+                        uv[ic] -
+                        uv[ia];
+
+                    float det =
+                        duv1.x *
+                        duv2.y -
+                        duv2.x *
+                        duv1.y;
+
+                    if (Mathf.Abs(
+                            det) <=
+                        0.000001f)
+                    {
+                        continue;
+                    }
+
+                    Vector3 uDirection =
+                        (e1 *
+                         duv2.y -
+                         e2 *
+                         duv1.y) /
+                        det;
+
+                    Vector3 vDirection =
+                        (e2 *
+                         duv1.x -
+                         e1 *
+                         duv2.x) /
+                        det;
+
+                    uDirection =
+                        Vector3.ProjectOnPlane(
+                            uDirection,
+                            normal);
+
+                    vDirection =
+                        Vector3.ProjectOnPlane(
+                            vDirection,
+                            normal);
+
+                    if (uDirection.sqrMagnitude <=
+                            0.0001f ||
+                        vDirection.sqrMagnitude <=
+                            0.0001f)
+                    {
+                        continue;
+                    }
+
+                    RoadUvTriangle triangle =
+                        new()
+                        {
+                            A = worldA,
+                            B = worldB,
+                            C = worldC,
+                            Normal = normal,
+                            UDirection =
+                                uDirection.normalized,
+                            VDirection =
+                                vDirection.normalized,
+                            Center =
+                                (worldA +
+                                 worldB +
+                                 worldC) /
+                                3f
+                        };
+
+                    RoadUvEdgeKey[] triangleEdges =
+                    {
+                        new RoadUvEdgeKey(
+                            worldA,
+                            worldB),
+                        new RoadUvEdgeKey(
+                            worldB,
+                            worldC),
+                        new RoadUvEdgeKey(
+                            worldC,
+                            worldA)
+                    };
+
+                    for (int edgeIndex = 0;
+                         edgeIndex < triangleEdges.Length;
+                         edgeIndex++)
+                    {
+                        RoadUvEdgeKey edge =
+                            triangleEdges[edgeIndex];
+
+                        if (!edges.TryGetValue(
+                                edge,
+                                out RoadUvTriangle neighbor))
+                        {
+                            edges[edge] =
+                                triangle;
+
+                            continue;
+                        }
+
+                        if (reported.Contains(
+                                edge) ||
+                            Vector3.Dot(
+                                triangle.Normal,
+                                neighbor.Normal) <
+                                0.94f)
+                        {
+                            continue;
+                        }
+
+                        float uDot =
+                            Vector3.Dot(
+                                triangle.UDirection,
+                                neighbor.UDirection);
+
+                        float vDot =
+                            Vector3.Dot(
+                                triangle.VDirection,
+                                neighbor.VDirection);
+
+                        if (uDot >
+                                -0.75f ||
+                            vDot >
+                                -0.75f)
+                        {
+                            continue;
+                        }
+
+                        reported.Add(
+                            edge);
+
+                        Vector3 marker =
+                            (triangle.Center +
+                             neighbor.Center) *
+                            0.5f;
+
+                        AddPositionIssue(
+                            IssueKind.SuspiciousRoadUv,
+                            renderer,
+                            marker,
+                            "Neighboring coplanar road triangles reverse both UV axes by about 180 degrees. Inspect this spot for an upside-down road texture/UV island.");
+
+                        issueCount++;
+
+                        if (issueCount >= 64)
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        private static bool LooksLikeRoadMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string lower =
+                material.name
+                    .ToLowerInvariant();
+
+            return
+                lower.Contains("fcg_roads") ||
+                lower.Contains("road") ||
+                lower.Contains("asphalt");
+        }
+
+        private static Vector3Int QuantizeRoadUvPoint(
+            Vector3 value)
+        {
+            const float precision =
+                1000f;
+
+            return
+                new Vector3Int(
+                    Mathf.RoundToInt(
+                        value.x *
+                        precision),
+                    Mathf.RoundToInt(
+                        value.y *
+                        precision),
+                    Mathf.RoundToInt(
+                        value.z *
+                        precision));
+        }
+
+        private static int CompareVector3Int(
+            Vector3Int a,
+            Vector3Int b)
+        {
+            if (a.x != b.x)
+                return
+                    a.x.CompareTo(
+                        b.x);
+
+            if (a.y != b.y)
+                return
+                    a.y.CompareTo(
+                        b.y);
+
+            return
+                a.z.CompareTo(
+                    b.z);
+        }
+
         private static bool HasColliderInHierarchy(
             Transform transform)
         {
@@ -880,6 +1522,28 @@ namespace MotorCity.EditorTools
                     Position =
                         ResolveObjectPosition(
                             component)
+                });
+        }
+
+        private static void AddPositionIssue(
+            IssueKind kind,
+            Component component,
+            Vector3 position,
+            string message)
+        {
+            Issues.Add(
+                new Issue
+                {
+                    Kind =
+                        kind,
+                    Message =
+                        message,
+                    Context =
+                        component != null
+                            ? component.gameObject
+                            : null,
+                    Position =
+                        position
                 });
         }
 
