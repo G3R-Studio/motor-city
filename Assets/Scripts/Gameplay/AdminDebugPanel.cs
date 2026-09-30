@@ -62,6 +62,7 @@ namespace MotorCity.Gameplay
         private DriftSpotSystem driftSpots;
         private DayNightCycleController dayNight;
         private MotorCityInterstitialRuntime interstitialRuntime;
+        private ResultNextGoalResolver nextGoalResolver;
 
         private bool visible;
         private int selectedTab;
@@ -138,6 +139,9 @@ namespace MotorCity.Gameplay
             driftSpots = GetComponent<DriftSpotSystem>();
             interstitialRuntime =
                 GetComponent<MotorCityInterstitialRuntime>();
+
+            nextGoalResolver =
+                GetComponent<ResultNextGoalResolver>();
 
             dayNight =
                 Object.FindAnyObjectByType<
@@ -1692,6 +1696,13 @@ namespace MotorCity.Gameplay
                     : club.HasClub
                         ? club.CurrentClubName
                         : "no club");
+
+            SystemLine(
+                "Next Goal",
+                nextGoalResolver != null,
+                nextGoalResolver == null
+                    ? string.Empty
+                    : nextGoalResolver.AdminLine);
 
             SystemLine(
                 "Achievements",
