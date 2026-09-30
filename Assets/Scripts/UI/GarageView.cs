@@ -78,8 +78,8 @@ namespace MotorCity.UI
 
             AddGarageNeonFrame(
                 topBalance,
-                new Color(0.58f, 0.32f, 1f, 0.62f),
-                new Color(0.30f, 0.72f, 1f, 0.36f),
+                new Color(0.58f, 0.32f, 1f, 0.28f),
+                new Color(0.30f, 0.72f, 1f, 0.34f),
                 3f);
 
             CreateAccent(
@@ -365,7 +365,7 @@ namespace MotorCity.UI
 
             AddGarageNeonFrame(
                 vehicleCard,
-                new Color(0.54f, 0.30f, 1f, 0.58f),
+                new Color(0.54f, 0.30f, 1f, 0.26f),
                 new Color(0.28f, 0.66f, 1f, 0.30f),
                 3f);
 
@@ -683,12 +683,12 @@ namespace MotorCity.UI
                         accents[i].r,
                         accents[i].g,
                         accents[i].b,
-                        0.52f),
+                        0.24f),
                     new Color(
                         accents[i].r,
                         accents[i].g,
                         accents[i].b,
-                        0.26f),
+                        0.30f),
                     3f);
 
                 CreateAccent(
@@ -1066,8 +1066,8 @@ namespace MotorCity.UI
 
             AddGarageNeonFrame(
                 appearancePanel,
-                new Color(0.54f, 0.30f, 1f, 0.60f),
-                new Color(0.28f, 0.66f, 1f, 0.30f),
+                new Color(0.54f, 0.30f, 1f, 0.28f),
+                new Color(0.28f, 0.66f, 1f, 0.32f),
                 3f);
 
             CreateAccent(
@@ -1188,7 +1188,7 @@ namespace MotorCity.UI
 
             AddGarageNeonFrame(
                 menuVisual,
-                new Color(0.58f, 0.32f, 1f, 0.72f),
+                new Color(0.58f, 0.32f, 1f, 0.32f),
                 new Color(0.34f, 0.74f, 1f, 0.34f),
                 3f);
 
@@ -1283,25 +1283,25 @@ namespace MotorCity.UI
             Outline outline =
                 buttonObject.AddComponent<Outline>();
             outline.effectColor =
-                new Color(0.58f, 0.42f, 1f, 0.72f);
+                new Color(0.42f, 0.52f, 1f, 0.32f);
             outline.effectDistance =
-                new Vector2(2f, -2f);
+                new Vector2(1f, -1f);
             outline.useGraphicAlpha =
                 true;
 
             Shadow shadow =
                 buttonObject.AddComponent<Shadow>();
             shadow.effectColor =
-                new Color(0.32f, 0.12f, 0.72f, 0.44f);
+                new Color(0f, 0f, 0f, 0.38f);
             shadow.effectDistance =
-                new Vector2(0f, -5f);
+                new Vector2(0f, -4f);
             shadow.useGraphicAlpha =
                 true;
 
             AddGarageNeonFrame(
                 rect,
-                new Color(0.58f, 0.34f, 1f, 0.56f),
-                new Color(0.30f, 0.72f, 1f, 0.28f),
+                new Color(0.58f, 0.34f, 1f, 0.30f),
+                new Color(0.30f, 0.72f, 1f, 0.34f),
                 2f);
 
             return buttonObject;
@@ -1333,71 +1333,259 @@ namespace MotorCity.UI
             if (target == null)
                 return;
 
-            Outline outerGlow =
-                target.gameObject.AddComponent<Outline>();
-            outerGlow.effectColor =
-                outerGlowColor;
-            outerGlow.effectDistance =
-                new Vector2(2f, -2f);
-            outerGlow.useGraphicAlpha =
-                true;
+            // UI Outline duplicates the whole quad and visually brightens the
+            // panel fill. Use dedicated edge rectangles instead so only the
+            // perimeter glows and the centre keeps its original dark glass.
+            CreateGarageEdgeGlow(
+                target,
+                "Outer Glow Top",
+                new Vector2(0f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(0f, 3f),
+                new Vector2(8f, 5f),
+                outerGlowColor);
 
-            Outline softGlow =
-                target.gameObject.AddComponent<Outline>();
-            softGlow.effectColor =
+            CreateGarageEdgeGlow(
+                target,
+                "Outer Glow Bottom",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(0f, 0f),
+                new Vector2(0f, -3f),
+                new Vector2(8f, 5f),
+                outerGlowColor);
+
+            CreateGarageEdgeGlow(
+                target,
+                "Outer Glow Left",
+                new Vector2(0f, 0f),
+                new Vector2(0f, 1f),
+                new Vector2(0f, 0f),
+                new Vector2(-3f, 0f),
+                new Vector2(5f, 8f),
+                outerGlowColor);
+
+            CreateGarageEdgeGlow(
+                target,
+                "Outer Glow Right",
+                new Vector2(1f, 0f),
+                new Vector2(1f, 1f),
+                new Vector2(1f, 0f),
+                new Vector2(3f, 0f),
+                new Vector2(5f, 8f),
+                outerGlowColor);
+
+            Color softOuter =
                 new Color(
                     outerGlowColor.r,
                     outerGlowColor.g,
                     outerGlowColor.b,
                     outerGlowColor.a * 0.34f);
-            softGlow.effectDistance =
-                new Vector2(4f, -4f);
-            softGlow.useGraphicAlpha =
-                true;
 
-            GameObject innerFrameObject =
-                new(
-                    "Garage Inner Neon Frame",
-                    typeof(RectTransform),
-                    typeof(Image),
-                    typeof(Outline));
-
-            innerFrameObject.transform.SetParent(
+            CreateGarageEdgeGlow(
                 target,
+                "Soft Glow Top",
+                new Vector2(0f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(0f, 1f),
+                new Vector2(0f, 5f),
+                new Vector2(14f, 9f),
+                softOuter);
+
+            CreateGarageEdgeGlow(
+                target,
+                "Soft Glow Bottom",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(0f, 0f),
+                new Vector2(0f, -5f),
+                new Vector2(14f, 9f),
+                softOuter);
+
+            CreateGarageEdgeGlow(
+                target,
+                "Soft Glow Left",
+                new Vector2(0f, 0f),
+                new Vector2(0f, 1f),
+                new Vector2(0f, 0f),
+                new Vector2(-5f, 0f),
+                new Vector2(9f, 14f),
+                softOuter);
+
+            CreateGarageEdgeGlow(
+                target,
+                "Soft Glow Right",
+                new Vector2(1f, 0f),
+                new Vector2(1f, 1f),
+                new Vector2(1f, 0f),
+                new Vector2(5f, 0f),
+                new Vector2(9f, 14f),
+                softOuter);
+
+            CreateGarageInnerEdge(
+                target,
+                "Inner Edge Top",
+                true,
+                true,
+                inset,
+                innerStrokeColor);
+
+            CreateGarageInnerEdge(
+                target,
+                "Inner Edge Bottom",
+                true,
+                false,
+                inset,
+                innerStrokeColor);
+
+            CreateGarageInnerEdge(
+                target,
+                "Inner Edge Left",
+                false,
+                true,
+                inset,
+                innerStrokeColor);
+
+            CreateGarageInnerEdge(
+                target,
+                "Inner Edge Right",
+                false,
+                false,
+                inset,
+                innerStrokeColor);
+        }
+
+        private static void CreateGarageEdgeGlow(
+            RectTransform parent,
+            string name,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Vector2 pivot,
+            Vector2 anchoredPosition,
+            Vector2 sizeDelta,
+            Color color)
+        {
+            GameObject edge =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            edge.transform.SetParent(
+                parent,
                 false);
 
-            RectTransform innerRect =
-                innerFrameObject.GetComponent<RectTransform>();
-            innerRect.anchorMin =
-                Vector2.zero;
-            innerRect.anchorMax =
-                Vector2.one;
-            innerRect.offsetMin =
-                new Vector2(inset, inset);
-            innerRect.offsetMax =
-                new Vector2(-inset, -inset);
+            RectTransform rect =
+                edge.GetComponent<RectTransform>();
 
-            Image innerImage =
-                innerFrameObject.GetComponent<Image>();
-            innerImage.color =
-                new Color(
-                    innerStrokeColor.r,
-                    innerStrokeColor.g,
-                    innerStrokeColor.b,
-                    0.025f);
-            innerImage.raycastTarget =
+            rect.anchorMin =
+                anchorMin;
+            rect.anchorMax =
+                anchorMax;
+            rect.pivot =
+                pivot;
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                sizeDelta;
+
+            Image image =
+                edge.GetComponent<Image>();
+            image.color =
+                color;
+            image.raycastTarget =
                 false;
 
-            Outline innerOutline =
-                innerFrameObject.GetComponent<Outline>();
-            innerOutline.effectColor =
-                innerStrokeColor;
-            innerOutline.effectDistance =
-                new Vector2(1f, -1f);
-            innerOutline.useGraphicAlpha =
+            edge.transform.SetAsFirstSibling();
+        }
+
+        private static void CreateGarageInnerEdge(
+            RectTransform parent,
+            string name,
+            bool horizontal,
+            bool firstSide,
+            float inset,
+            Color color)
+        {
+            GameObject edge =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image));
+
+            edge.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                edge.GetComponent<RectTransform>();
+
+            if (horizontal)
+            {
+                float y =
+                    firstSide
+                        ? -inset
+                        : inset;
+
+                rect.anchorMin =
+                    new Vector2(
+                        0f,
+                        firstSide ? 1f : 0f);
+                rect.anchorMax =
+                    new Vector2(
+                        1f,
+                        firstSide ? 1f : 0f);
+                rect.pivot =
+                    new Vector2(
+                        0.5f,
+                        firstSide ? 1f : 0f);
+                rect.anchoredPosition =
+                    new Vector2(
+                        0f,
+                        y);
+                rect.sizeDelta =
+                    new Vector2(
+                        -(inset * 2f),
+                        2f);
+            }
+            else
+            {
+                float x =
+                    firstSide
+                        ? inset
+                        : -inset;
+
+                rect.anchorMin =
+                    new Vector2(
+                        firstSide ? 0f : 1f,
+                        0f);
+                rect.anchorMax =
+                    new Vector2(
+                        firstSide ? 0f : 1f,
+                        1f);
+                rect.pivot =
+                    new Vector2(
+                        firstSide ? 0f : 1f,
+                        0.5f);
+                rect.anchoredPosition =
+                    new Vector2(
+                        x,
+                        0f);
+                rect.sizeDelta =
+                    new Vector2(
+                        2f,
+                        -(inset * 2f));
+            }
+
+            Image image =
+                edge.GetComponent<Image>();
+            image.color =
+                color;
+            image.raycastTarget =
                 false;
 
-            innerFrameObject.transform.SetAsFirstSibling();
+            edge.transform.SetAsFirstSibling();
         }
 
         private void AddGarageActionIcon(
