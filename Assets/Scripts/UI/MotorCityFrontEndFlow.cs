@@ -87,10 +87,18 @@ namespace MotorCity.UI
         private const int FrontEndSectionTitleFontSize = 22;
 
         private bool hasExistingProgress;
+        private bool openingPresentationRequested;
+        private bool continuingExistingSave;
         private bool loadingActive;
         private float loadingTimer;
         private bool frontEndAudioMuted;
         private float frontEndAudioVolume = 1f;
+
+        public bool OpeningPresentationRequested =>
+            openingPresentationRequested;
+
+        public bool ContinuingExistingSave =>
+            continuingExistingSave;
 
         private readonly IntroSlide[] slides =
         {
@@ -1276,6 +1284,8 @@ namespace MotorCity.UI
             MotorCitySaveService.Save();
 
             hasExistingProgress = false;
+            openingPresentationRequested = false;
+            continuingExistingSave = false;
             introIndex = 0;
             loadRequestSent = false;
             gameplayReady =
@@ -1333,17 +1343,40 @@ namespace MotorCity.UI
 
         private void ContinuePrimaryAction()
         {
-            // Start and Continue both replay the story intro. Control choice
-            // now happens only after the city has finished loading.
-            introIndex = 0;
-            AudioListener.pause = true;
-            mainRoot.SetActive(false);
-            introRoot.SetActive(true);
+            continuingExistingSave =
+                hasExistingProgress;
+
+            openingPresentationRequested =
+                !hasExistingProgress;
+
+            AudioListener.pause =
+                true;
+
+            mainRoot.SetActive(
+                false);
+
+            if (continuingExistingSave)
+            {
+                introRoot.SetActive(
+                    false);
+
+                StartLoadingTransition();
+                return;
+            }
+
+            introIndex =
+                0;
+
+            introRoot.SetActive(
+                true);
 
             if (introPreviousImage != null)
             {
-                introPreviousImage.texture = null;
-                introPreviousImage.color = Color.black;
+                introPreviousImage.texture =
+                    null;
+
+                introPreviousImage.color =
+                    Color.black;
             }
 
             ResetIntroVisualState();
@@ -1856,6 +1889,12 @@ namespace MotorCity.UI
 
             loadingActive = false;
             loadingRoot.SetActive(false);
+
+            if (continuingExistingSave)
+            {
+                EnterGameplay();
+                return;
+            }
 
             ShowControlChoiceAfterLoading();
         }
