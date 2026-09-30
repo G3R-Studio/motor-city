@@ -116,6 +116,9 @@ namespace MotorCity.Platform
             State =
                 InterstitialState.Requesting;
 
+            State =
+                InterstitialState.Showing;
+
             MotorCityPlatform.ShowInterstitial(
                 "before_activity",
                 () =>
@@ -133,9 +136,6 @@ namespace MotorCity.Platform
 
                     completed?.Invoke();
                 });
-
-            State =
-                InterstitialState.Showing;
         }
 
         private bool ShouldRequestInterstitial(
