@@ -697,13 +697,31 @@ namespace MotorCity.Gameplay
                     profile.StabilityBonus *
                     100f);
 
+            int steering =
+                Mathf.RoundToInt(
+                    (profile.SteeringMultiplier - 1f) *
+                    100f);
+
+            int drift =
+                Mathf.RoundToInt(
+                    (profile.DriftMultiplier - 1f) *
+                    100f);
+
+            int mass =
+                Mathf.RoundToInt(
+                    (profile.MassMultiplier - 1f) *
+                    100f);
+
             return
                 MotorCityLocalization.Format(
                     "vehicle.stats",
                     speed,
                     accel,
                     Signed(grip),
-                    Signed(stability));
+                    Signed(stability),
+                    Signed(steering),
+                    Signed(drift),
+                    Signed(mass));
         }
 
         public string GetCharacterLine()
