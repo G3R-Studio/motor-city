@@ -1921,20 +1921,10 @@ namespace MotorCity.UI
 
             canvas.gameObject.SetActive(false);
 
-            bool firstDrivePresentation =
-                onboarding != null &&
-                !onboarding.IsComplete &&
-                onboarding.CurrentStep == 0;
-
-            if (!firstDrivePresentation)
-            {
-                if (car != null)
-                    car.SetDrivingEnabled(true);
-
-                MotorCityPlatformRuntime.MarkGameplayStarted();
-                return;
-            }
-
+            // Every transition from the front end into the city gets a
+            // short establishing shot. This keeps the hand-off readable for
+            // both new and returning players and makes the transition easy to
+            // verify without requiring a wiped save.
             if (car != null)
                 car.SetDrivingEnabled(false);
 
@@ -1958,6 +1948,12 @@ namespace MotorCity.UI
 
         private void UpdateOpeningPresentation()
         {
+            // Other HUD/menu systems may refresh driving state while the
+            // transition is running. Reassert the lock until the camera has
+            // actually finished its move.
+            if (car != null)
+                car.SetDrivingEnabled(false);
+
             if (openingPresentationCamera != null &&
                 openingPresentationCamera.IsOpeningPresentationActive)
             {
