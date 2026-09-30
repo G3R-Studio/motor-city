@@ -181,6 +181,19 @@ namespace MotorCity.Platform
             string activityId,
             Action completed)
         {
+            ActivityStartFlow flow =
+                activities == null
+                    ? null
+                    : activities.StartFlow;
+
+            if (flow != null &&
+                flow.Phase !=
+                    ActivityStartFlow.StartPhase.AwaitingAdClose)
+            {
+                completed?.Invoke();
+                return;
+            }
+
 #if UNITY_EDITOR
             if (forceNextEditorMock &&
                 IsExplicitAdActivity(
