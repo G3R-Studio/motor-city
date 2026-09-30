@@ -245,6 +245,12 @@ namespace MotorCity.UI
             selectionHint.text =
                 MotorCityLocalization.Text(
                     "store.selection_hint");
+            selectionHint.resizeTextForBestFit =
+                true;
+            selectionHint.resizeTextMinSize =
+                9;
+            selectionHint.resizeTextMaxSize =
+                12;
 
             // Right side is a clean information stack.
             RectTransform detailCard =
@@ -312,6 +318,33 @@ namespace MotorCity.UI
                     new Vector2(0f, 0f),
                     new Vector2(0f, 0f),
                     DriftAccent);
+
+            foreach (Text localizedText in
+                     new[]
+                     {
+                         storeNameText,
+                         storeDescriptionText,
+                         storePathText,
+                         storeOwnershipText,
+                         storeWalletText
+                     })
+            {
+                if (localizedText == null)
+                    continue;
+
+                localizedText.resizeTextForBestFit =
+                    true;
+                localizedText.resizeTextMinSize =
+                    localizedText == storeDescriptionText
+                        ? 10
+                        : 11;
+                localizedText.resizeTextMaxSize =
+                    localizedText.fontSize;
+                localizedText.horizontalOverflow =
+                    HorizontalWrapMode.Wrap;
+                localizedText.verticalOverflow =
+                    VerticalWrapMode.Truncate;
+            }
 
             // Store-specific footer lives inside the modal, so controls no
             // longer float detached below the window.
