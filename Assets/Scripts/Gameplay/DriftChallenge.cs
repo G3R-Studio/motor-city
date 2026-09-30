@@ -429,8 +429,15 @@ namespace MotorCity.Gameplay
                 eliteMode
                     ? MotorCityLocalization.Text("activity.elite_drift_short")
                     : MotorCityLocalization.Text("activity.drift_challenge"),
-                tier,
-                MotorCityLocalization.Format("activity.drift_result", finalScore, eliteMode ? 48f : durationSeconds),
+                MotorCityLocalization.Format(
+                    "activity.result_primary_score",
+                    finalScore),
+                MotorCityLocalization.Format(
+                    "activity.result_drift_details",
+                    tier,
+                    eliteMode
+                        ? 48f
+                        : durationSeconds),
                 reward,
                 true);
 
