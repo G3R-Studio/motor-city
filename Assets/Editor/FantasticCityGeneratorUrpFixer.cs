@@ -1029,8 +1029,8 @@ public static class FantasticCityGeneratorUrpFixer
         }
 
         material.name =
-            "FCG_" +
-            source.name;
+            Path.GetFileNameWithoutExtension(
+                path);
 
         material.enableInstancing =
             true;
