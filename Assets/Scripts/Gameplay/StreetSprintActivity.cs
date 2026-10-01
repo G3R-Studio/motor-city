@@ -240,7 +240,7 @@ namespace MotorCity.Gameplay
             ElapsedSeconds = 0f;
             checkpointIndex = 0;
 
-            car.SetDrivingEnabled(false);
+            car.SetDrivingBlocked("ActivityCountdown", true);
         }
 
         private void UpdateCountdownStatus(
@@ -271,7 +271,7 @@ namespace MotorCity.Gameplay
             ElapsedSeconds = 0f;
             checkpointIndex = 1;
 
-            car.SetDrivingEnabled(true);
+            car.SetDrivingBlocked("ActivityCountdown", false);
 
             UpdateStatus();
         }
@@ -402,7 +402,7 @@ namespace MotorCity.Gameplay
             IsActive = false;
             checkpointIndex = 0;
 
-            car.SetDrivingEnabled(false);
+            car.SetDrivingBlocked("ActivityCountdown", true);
 
             string record =
                 newBest
@@ -488,7 +488,12 @@ namespace MotorCity.Gameplay
             checkpointIndex = 0;
             ElapsedSeconds = 0f;
 
-            car?.SetDrivingEnabled(true);
+            car?.SetDrivingBlocked(
+                "ActivityCountdown",
+                false);
+            car?.SetDrivingBlocked(
+                "ActivityResult",
+                false);
             activityManager?.End(ActivityId);
 
             StatusText =
@@ -504,7 +509,12 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            car?.SetDrivingEnabled(true);
+            car?.SetDrivingBlocked(
+                "ActivityCountdown",
+                false);
+            car?.SetDrivingBlocked(
+                "ActivityResult",
+                false);
         }
 
         private static Vector3 Flat(
