@@ -182,6 +182,15 @@
         "com.unity.modules.physics": "1.0.0"
       }
     },
+    "io.github.darknesstyranno.spriteless-ui": {
+      "version": "https://github.com/DarknessTyranno/SpriteLess-UI.git?path=/Packages/io.github.darknesstyranno.spriteless-ui",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      },
+      "hash": "05a370f3a061350ba01983cc5a580882014eab11"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,
