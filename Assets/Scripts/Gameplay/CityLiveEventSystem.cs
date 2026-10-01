@@ -117,9 +117,6 @@ namespace MotorCity.Gameplay
 
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown +=
-                    HandleActivityResult;
-
                 activityManager.ActivityCompleted +=
                     HandleActivityCompleted;
             }
@@ -176,9 +173,6 @@ namespace MotorCity.Gameplay
         {
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown -=
-                    HandleActivityResult;
-
                 activityManager.ActivityCompleted -=
                     HandleActivityCompleted;
             }
@@ -247,20 +241,54 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (coolingDown ||
-                activityId !=
-                    "underground")
-            {
+            if (coolingDown)
                 return;
+
+            bool changed =
+                false;
+
+            switch (activityId)
+            {
+                case "sprint":
+                case "circuit":
+                    racingProgress++;
+                    changed = true;
+                    break;
+
+                case "drift":
+                    driftProgress++;
+                    changed = true;
+                    break;
+
+                case "delivery":
+                    deliveryProgress++;
+                    changed = true;
+                    break;
+
+                case "underground":
+                    changed = true;
+                    break;
+
+                default:
+                    return;
             }
+
+            if (IsNight())
+            {
+                nightProgress++;
+            }
+            else if (activityId ==
+                     "underground")
+            {
+                changed =
+                    false;
+            }
+
+            if (!changed)
+                return;
 
             EventDefinition current =
                 CurrentDefinition();
-
-            if (current.NightRequired <= 0)
-                return;
-
-            nightProgress++;
 
             if (IsComplete(
                     current))
@@ -277,65 +305,6 @@ namespace MotorCity.Gameplay
                     current.Name,
                     ProgressText(
                         current));
-
-            messageTimer =
-                3f;
-        }
-
-        private void HandleActivityResult(
-            string activityId,
-            bool success)
-        {
-            if (activityManager != null &&
-                !activityManager.SecondaryProgressionAllowed)
-            {
-                return;
-            }
-
-            if (!success ||
-                coolingDown)
-            {
-                return;
-            }
-
-            switch (activityId)
-            {
-                case "sprint":
-                case "circuit":
-                    racingProgress++;
-                    break;
-
-                case "drift":
-                    driftProgress++;
-                    break;
-
-                case "delivery":
-                    deliveryProgress++;
-                    break;
-
-                default:
-                    return;
-            }
-
-            if (IsNight())
-                nightProgress++;
-
-            EventDefinition current =
-                CurrentDefinition();
-
-            if (IsComplete(
-                    current))
-            {
-                CompleteEvent(
-                    current);
-                return;
-            }
-
-            StatusText =
-                MotorCityLocalization.Format(
-                    "event.progress",
-                    current.Name,
-                    ProgressText(current));
 
             messageTimer =
                 3f;
