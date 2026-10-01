@@ -214,6 +214,8 @@ namespace MotorCity.Platform
 
             ApplyUrpQuality(
                 0.75f,
+                1,
+                0f,
                 1);
         }
 
@@ -232,6 +234,8 @@ namespace MotorCity.Platform
 
             ApplyUrpQuality(
                 0.90f,
+                2,
+                75f,
                 2);
         }
 
@@ -250,12 +254,16 @@ namespace MotorCity.Platform
 
             ApplyUrpQuality(
                 1.00f,
+                4,
+                120f,
                 4);
         }
 
         private static void ApplyUrpQuality(
             float renderScale,
-            int msaaSamples)
+            int msaaSamples,
+            float shadowDistance,
+            int shadowCascadeCount)
         {
             UniversalRenderPipelineAsset urp =
                 GraphicsSettings.currentRenderPipeline
@@ -272,6 +280,17 @@ namespace MotorCity.Platform
 
             urp.msaaSampleCount =
                 msaaSamples;
+
+            urp.shadowDistance =
+                Mathf.Max(
+                    0f,
+                    shadowDistance);
+
+            urp.shadowCascadeCount =
+                Mathf.Clamp(
+                    shadowCascadeCount,
+                    1,
+                    4);
         }
     }
 }
