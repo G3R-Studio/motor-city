@@ -210,7 +210,7 @@ namespace MotorCity.Gameplay
 
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown +=
+                activityManager.ActivityCompleted +=
                     HandleActivityResult;
             }
         }
@@ -515,7 +515,7 @@ namespace MotorCity.Gameplay
 
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown -=
+                activityManager.ActivityCompleted -=
                     HandleActivityResult;
 
                 activityManager.End(
@@ -615,17 +615,13 @@ namespace MotorCity.Gameplay
         }
 
         private void HandleActivityResult(
-            string activityId,
-            bool success)
+            string activityId)
         {
             if (activityManager != null &&
                 !activityManager.SecondaryProgressionAllowed)
             {
                 return;
             }
-
-            if (!success)
-                return;
 
             bool night =
                 IsNight();
