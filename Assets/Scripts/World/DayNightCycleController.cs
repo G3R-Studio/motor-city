@@ -21,6 +21,9 @@ namespace MotorCity.World
         private const float LampEnableDistance =
             170f;
 
+        private const float LampGridCellSize =
+            64f;
+
         public const float MorningTime01 = 0.32f;
         public const float DayTime01 = 0.50f;
         public const float EveningTime01 = 0.68f;
@@ -36,6 +39,21 @@ namespace MotorCity.World
             -28f;
 
         private readonly List<LampSource> lampSources =
+            new();
+
+        private readonly Dictionary<Vector2Int, List<int>> lampGrid =
+            new();
+
+        private readonly HashSet<Light> enabledLampLights =
+            new();
+
+        private readonly HashSet<Light> desiredLampLights =
+            new();
+
+        private readonly List<LampCandidate> lampCandidates =
+            new();
+
+        private readonly List<Light> lampToggleBuffer =
             new();
 
         private DayNightSettings settings;
@@ -786,6 +804,11 @@ namespace MotorCity.World
         private void RefreshStreetLights()
         {
             lampSources.Clear();
+            lampGrid.Clear();
+            enabledLampLights.Clear();
+            desiredLampLights.Clear();
+            lampCandidates.Clear();
+            lampToggleBuffer.Clear();
             streetLightSourceCount = 0;
             parkLampSourceCount = 0;
             garageLight = null;
@@ -889,16 +912,41 @@ namespace MotorCity.World
                 sourceLight.enabled =
                     false;
 
+                int sourceIndex =
+                    lampSources.Count;
+
+                Vector3 sourcePosition =
+                    sourceLight.transform.position;
+
                 lampSources.Add(
                     new LampSource
                     {
                         Light =
                             sourceLight,
                         Position =
-                            sourceLight.transform.position,
+                            sourcePosition,
                         IsParkLamp =
                             isParkLamp
                     });
+
+                Vector2Int cell =
+                    LampCell(
+                        sourcePosition);
+
+                if (!lampGrid.TryGetValue(
+                        cell,
+                        out List<int> cellSources))
+                {
+                    cellSources =
+                        new List<int>();
+
+                    lampGrid.Add(
+                        cell,
+                        cellSources);
+                }
+
+                cellSources.Add(
+                    sourceIndex);
 
                 if (isParkLamp)
                 {
@@ -930,7 +978,9 @@ namespace MotorCity.World
             bool night =
                 NightAmount >= 0.38f;
 
-            if (garageLight != null)
+            if (garageLight != null &&
+                garageLight.enabled !=
+                    night)
             {
                 garageLight.enabled =
                     night;
@@ -938,6 +988,7 @@ namespace MotorCity.World
 
             if (lampSources.Count == 0)
             {
+                DisableEnabledLampLights();
                 EnabledStreetLightCount = 0;
                 return;
             }
@@ -948,16 +999,7 @@ namespace MotorCity.World
 
             if (!nightActive)
             {
-                foreach (LampSource source in
-                         lampSources)
-                {
-                    if (source.Light != null)
-                    {
-                        source.Light.enabled =
-                            false;
-                    }
-                }
-
+                DisableEnabledLampLights();
                 EnabledStreetLightCount = 0;
                 return;
             }
@@ -978,37 +1020,220 @@ namespace MotorCity.World
                         130f
                 };
 
+            int lightBudget =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low =>
+                        48,
+
+                    MotorCityQualityPreset.High =>
+                        112,
+
+                    _ =>
+                        80
+                };
+
             float maximumDistanceSquared =
                 lampDistance *
                 lampDistance;
 
-            int enabledCount = 0;
+            int cellRadius =
+                Mathf.CeilToInt(
+                    lampDistance /
+                    LampGridCellSize);
 
-            foreach (LampSource source in
-                     lampSources)
+            Vector2Int observerCell =
+                LampCell(
+                    observerPosition);
+
+            lampCandidates.Clear();
+
+            for (int x = -cellRadius;
+                 x <= cellRadius;
+                 x++)
             {
-                if (source.Light == null)
-                    continue;
-
-                float distanceSquared =
-                    (source.Position -
-                     observerPosition).sqrMagnitude;
-
-                bool enable =
-                    distanceSquared <=
-                    maximumDistanceSquared;
-
-                source.Light.enabled =
-                    enable;
-
-                if (enable)
+                for (int z = -cellRadius;
+                     z <= cellRadius;
+                     z++)
                 {
-                    enabledCount++;
+                    Vector2Int cell =
+                        new(
+                            observerCell.x + x,
+                            observerCell.y + z);
+
+                    if (!lampGrid.TryGetValue(
+                            cell,
+                            out List<int> indices))
+                    {
+                        continue;
+                    }
+
+                    for (int i = 0;
+                         i < indices.Count;
+                         i++)
+                    {
+                        int index =
+                            indices[i];
+
+                        if (index < 0 ||
+                            index >=
+                                lampSources.Count)
+                        {
+                            continue;
+                        }
+
+                        LampSource source =
+                            lampSources[index];
+
+                        if (source.Light == null)
+                            continue;
+
+                        float distanceSquared =
+                            (source.Position -
+                             observerPosition).sqrMagnitude;
+
+                        if (distanceSquared >
+                            maximumDistanceSquared)
+                        {
+                            continue;
+                        }
+
+                        lampCandidates.Add(
+                            new LampCandidate
+                            {
+                                SourceIndex =
+                                    index,
+                                DistanceSquared =
+                                    distanceSquared
+                            });
+                    }
                 }
             }
 
+            lampCandidates.Sort(
+                static (a, b) =>
+                    a.DistanceSquared.CompareTo(
+                        b.DistanceSquared));
+
+            desiredLampLights.Clear();
+
+            int count =
+                Mathf.Min(
+                    lightBudget,
+                    lampCandidates.Count);
+
+            for (int i = 0;
+                 i < count;
+                 i++)
+            {
+                Light light =
+                    lampSources[
+                        lampCandidates[i].SourceIndex]
+                    .Light;
+
+                if (light != null)
+                {
+                    desiredLampLights.Add(
+                        light);
+                }
+            }
+
+            lampToggleBuffer.Clear();
+
+            foreach (Light light in
+                     enabledLampLights)
+            {
+                if (light == null ||
+                    !desiredLampLights.Contains(
+                        light))
+                {
+                    lampToggleBuffer.Add(
+                        light);
+                }
+            }
+
+            for (int i = 0;
+                 i < lampToggleBuffer.Count;
+                 i++)
+            {
+                Light light =
+                    lampToggleBuffer[i];
+
+                if (light != null &&
+                    light.enabled)
+                {
+                    light.enabled =
+                        false;
+                }
+
+                enabledLampLights.Remove(
+                    light);
+            }
+
+            foreach (Light light in
+                     desiredLampLights)
+            {
+                if (light == null)
+                    continue;
+
+                if (!light.enabled)
+                {
+                    light.enabled =
+                        true;
+                }
+
+                enabledLampLights.Add(
+                    light);
+            }
+
             EnabledStreetLightCount =
-                enabledCount;
+                enabledLampLights.Count;
+        }
+
+        private void DisableEnabledLampLights()
+        {
+            if (enabledLampLights.Count == 0)
+                return;
+
+            lampToggleBuffer.Clear();
+
+            foreach (Light light in
+                     enabledLampLights)
+            {
+                lampToggleBuffer.Add(
+                    light);
+            }
+
+            for (int i = 0;
+                 i < lampToggleBuffer.Count;
+                 i++)
+            {
+                Light light =
+                    lampToggleBuffer[i];
+
+                if (light != null &&
+                    light.enabled)
+                {
+                    light.enabled =
+                        false;
+                }
+            }
+
+            enabledLampLights.Clear();
+            desiredLampLights.Clear();
+        }
+
+        private static Vector2Int LampCell(
+            Vector3 position)
+        {
+            return
+                new Vector2Int(
+                    Mathf.FloorToInt(
+                        position.x /
+                        LampGridCellSize),
+                    Mathf.FloorToInt(
+                        position.z /
+                        LampGridCellSize));
         }
 
         private void ResolveLampObserver(bool force = false)
@@ -1178,6 +1403,12 @@ namespace MotorCity.World
             public Light Light;
             public Vector3 Position;
             public bool IsParkLamp;
+        }
+
+        private struct LampCandidate
+        {
+            public int SourceIndex;
+            public float DistanceSquared;
         }
 
 
