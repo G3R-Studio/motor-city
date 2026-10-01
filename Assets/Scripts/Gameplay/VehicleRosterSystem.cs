@@ -986,6 +986,32 @@ namespace MotorCity.Gameplay
                 profile.PowerMultiplier,
                 profile.DriftMultiplier);
 
+            // Drivetrain assignments are limited to the vehicles explicitly
+            // identified in the physics audit. Other profiles retain the
+            // existing AWD behavior until their drivetrain is authored.
+            switch (profile.Id)
+            {
+                case "peugeot306":
+                    car.SetDriveTorqueDistribution(
+                        2f,
+                        0f);
+                    break;
+
+                case "toyotaae86":
+                case "camaro":
+                case "bus":
+                    car.SetDriveTorqueDistribution(
+                        0f,
+                        2f);
+                    break;
+
+                default:
+                    car.SetDriveTorqueDistribution(
+                        1f,
+                        1f);
+                    break;
+            }
+
             PlayerVehicleRearEmission rearEmission =
                 car.GetComponent<PlayerVehicleRearEmission>();
 
