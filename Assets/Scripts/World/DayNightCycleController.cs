@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MotorCity.Platform;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace MotorCity.World
 {
@@ -48,6 +49,11 @@ namespace MotorCity.World
         private Transform lampObserver;
         private bool lastNightState;
         private bool initialized;
+        private Volume cityPostFxVolume;
+        private VolumeProfile cityPostFxProfile;
+        private Bloom cityBloom;
+        private ColorAdjustments cityColor;
+        private Vignette cityVignette;
 
         public bool IsNight { get; private set; }
         public float NightAmount { get; private set; }
@@ -105,6 +111,7 @@ namespace MotorCity.World
                     1f);
 
             BuildRuntimeSkyboxes();
+            BuildCityPostProcessing();
             RefreshStreetLights();
 
             ApplyEnvironment(
@@ -165,6 +172,47 @@ namespace MotorCity.World
                 Destroy(
                     runtimeNightSkybox);
 
+            if (cityPostFxProfile != null)
+                Destroy(cityPostFxProfile);
+        }
+
+        private void BuildCityPostProcessing()
+        {
+            GameObject volumeObject = new("Motor City Global Post FX");
+            volumeObject.transform.SetParent(transform, false);
+
+            cityPostFxVolume = volumeObject.AddComponent<Volume>();
+            cityPostFxVolume.isGlobal = true;
+            cityPostFxVolume.priority = -10f;
+            cityPostFxVolume.weight = 1f;
+
+            cityPostFxProfile = ScriptableObject.CreateInstance<VolumeProfile>();
+            cityPostFxProfile.name = "MotorCity_RuntimePostFX";
+            cityPostFxVolume.sharedProfile = cityPostFxProfile;
+
+            Tonemapping tonemapping = cityPostFxProfile.Add<Tonemapping>(true);
+            tonemapping.mode.Override(TonemappingMode.ACES);
+
+            cityBloom = cityPostFxProfile.Add<Bloom>(true);
+            cityBloom.threshold.Override(1.05f);
+            cityBloom.intensity.Override(0.22f);
+            cityBloom.scatter.Override(0.62f);
+            cityBloom.clamp.Override(8f);
+            cityBloom.highQualityFiltering.Override(false);
+
+            cityColor = cityPostFxProfile.Add<ColorAdjustments>(true);
+            cityColor.postExposure.Override(0.04f);
+            cityColor.contrast.Override(10f);
+            cityColor.saturation.Override(5f);
+
+            WhiteBalance whiteBalance = cityPostFxProfile.Add<WhiteBalance>(true);
+            whiteBalance.temperature.Override(3f);
+            whiteBalance.tint.Override(-1f);
+
+            cityVignette = cityPostFxProfile.Add<Vignette>(true);
+            cityVignette.intensity.Override(0.075f);
+            cityVignette.smoothness.Override(0.28f);
+            cityVignette.rounded.Override(false);
         }
 
         private void CreateMoonLight()
@@ -268,6 +316,19 @@ namespace MotorCity.World
             Shader.SetGlobalFloat(
                 "_MotorCityNightEmission",
                 NightAmount);
+
+            if (cityBloom != null)
+                cityBloom.intensity.value = Mathf.Lerp(0.22f, 0.38f, NightAmount);
+
+            if (cityColor != null)
+            {
+                cityColor.postExposure.value = Mathf.Lerp(-0.08f, 0.04f, daylight);
+                cityColor.contrast.value = Mathf.Lerp(13f, 10f, daylight);
+                cityColor.saturation.value = Mathf.Lerp(2f, 5f, daylight);
+            }
+
+            if (cityVignette != null)
+                cityVignette.intensity.value = Mathf.Lerp(0.095f, 0.075f, daylight);
 
             IsNight =
                 NightAmount >=
