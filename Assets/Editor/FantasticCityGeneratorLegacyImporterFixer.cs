@@ -16,8 +16,11 @@ using UnityEngine;
 /// </summary>
 public static class FantasticCityGeneratorLegacyImporterFixer
 {
-    private const string FcgRoot =
-        "Assets/Fantastic City Generator";
+    private static readonly string[] LegacyAssetRoots =
+    {
+        "Assets/Fantastic City Generator",
+        "Assets/Simple Garage"
+    };
 
     private const string LegacyLine =
         "    materialLocation: 0";
@@ -60,24 +63,30 @@ public static class FantasticCityGeneratorLegacyImporterFixer
     private static void RepairLegacyMaterialLocations(
         bool showDialog)
     {
-        string absoluteRoot =
-            Path.GetFullPath(
-                FcgRoot);
-
-        if (!Directory.Exists(
-                absoluteRoot))
-        {
-            return;
-        }
-
-        string[] metaFiles =
-            Directory.GetFiles(
-                absoluteRoot,
-                "*.fbx.meta",
-                SearchOption.AllDirectories);
-
         int changed =
             0;
+
+        var metaFiles =
+            new System.Collections.Generic.List<string>();
+
+        foreach (string assetRoot in LegacyAssetRoots)
+        {
+            string absoluteRoot =
+                Path.GetFullPath(
+                    assetRoot);
+
+            if (!Directory.Exists(
+                    absoluteRoot))
+            {
+                continue;
+            }
+
+            metaFiles.AddRange(
+                Directory.GetFiles(
+                    absoluteRoot,
+                    "*.fbx.meta",
+                    SearchOption.AllDirectories));
+        }
 
         AssetDatabase.StartAssetEditing();
 
@@ -148,11 +157,13 @@ public static class FantasticCityGeneratorLegacyImporterFixer
             AssetDatabase.Refresh(
                 ImportAssetOptions.ForceUpdate);
 
-            Debug.Log(
-                "[MotorCity][FCG] Repaired " +
-                changed +
-                " legacy FBX material-location settings. " +
-                "External material bindings were preserved.");
+            if (showDialog)
+            {
+                Debug.Log(
+                    "[MotorCity][Import] Repaired " +
+                    changed +
+                    " legacy FBX material-location settings.");
+            }
         }
 
         if (showDialog)
