@@ -1052,34 +1052,37 @@ namespace MotorCity.UI
                     58,
                     navColor);
 
-            RectTransform appearancePanel =
-                CreatePanel(
-                    root,
+            GameObject appearancePanelObject =
+                new(
                     "Garage Appearance Panel",
-                    new Vector2(804f, 74f),
-                    new Vector2(488f, 184f),
-                    new Vector2(0f, 0f),
-                    new Vector2(0f, 0f),
-                    new Color(0.025f, 0.035f, 0.10f, 0.88f));
+                    typeof(RectTransform),
+                    typeof(SpriteLessImage));
+
+            appearancePanelObject.transform.SetParent(
+                root,
+                false);
+
+            RectTransform appearancePanel =
+                appearancePanelObject.GetComponent<RectTransform>();
+
+            appearancePanel.anchorMin =
+                new Vector2(0f, 0f);
+            appearancePanel.anchorMax =
+                new Vector2(0f, 0f);
+            appearancePanel.pivot =
+                new Vector2(0f, 0f);
+            appearancePanel.anchoredPosition =
+                new Vector2(804f, 74f);
+            appearancePanel.sizeDelta =
+                new Vector2(488f, 184f);
 
             AddGarageSurfaceShadow(
                 appearancePanel);
 
-            // SpriteLess-UI trial: only this panel uses procedural rounded
-            // geometry for now. The rest of the garage stays untouched until
-            // this is visually approved.
-            Image appearanceImage =
-                appearancePanel.GetComponent<Image>();
-
-            if (appearanceImage != null)
-            {
-                appearanceImage.enabled =
-                    false;
-            }
-
+            // SpriteLess-UI trial: this panel is created directly with one
+            // Graphic component, avoiding the Image + SpriteLessImage conflict.
             SpriteLessImage appearanceShape =
-                appearancePanel.gameObject
-                    .AddComponent<SpriteLessImage>();
+                appearancePanelObject.GetComponent<SpriteLessImage>();
 
             appearanceShape.Shape =
                 ProceduralShape.RoundedRectangle;
