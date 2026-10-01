@@ -2180,6 +2180,8 @@ namespace MotorCity.UI
 
         private void EnterGameplay()
         {
+            ReleaseIntroResources();
+
             MotorCityMusicRuntime.SetMenuActive(
                 false);
 
@@ -2202,6 +2204,21 @@ namespace MotorCity.UI
                 onboarding?.ShowWelcomeAfterDelay(
                     5f);
             }
+        }
+
+        private void ReleaseIntroResources()
+        {
+            if (introImage != null)
+            {
+                introImage.texture =
+                    null;
+            }
+
+            // Intro slides are loaded through Resources.Load on demand.
+            // Clearing the RawImage reference makes completed slides eligible
+            // for release without touching menu/theme assets that are still
+            // referenced by the front-end hierarchy.
+            Resources.UnloadUnusedAssets();
         }
 
         private void ShowMainMenu()
