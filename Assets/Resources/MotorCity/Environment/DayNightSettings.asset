@@ -16,6 +16,7 @@ MonoBehaviour:
   daySkybox: {fileID: 2100000, guid: 8dd2f17b6e3f8174390967bc55ead836, type: 2}
   eveningSkybox: {fileID: 2100000, guid: de1d750fefeeac642bf9b11a3978ccf5, type: 2}
   nightSkybox: {fileID: 2100000, guid: 6eecb3bb77b3f7a43a504fceda3b0b5f, type: 2}
+  atmosphereFogPrefab: {fileID: 9025435444988080512, guid: b8d76a38415b8324d8b9eba544990b9a, type: 3}
   daySkyColor: {r: 0.6792453, g: 0.66536134, b: 0.63759345, a: 1}
   dayEquatorColor: {r: 0.8207547, g: 0.8207547, b: 0.8207547, a: 1}
   nightSkyColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
