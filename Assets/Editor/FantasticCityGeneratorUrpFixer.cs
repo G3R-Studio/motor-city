@@ -1039,6 +1039,25 @@ public static class FantasticCityGeneratorUrpFixer
             source,
             material);
 
+        // Basket.png in this legacy FCG package is not a usable court
+        // albedo in URP: it produces the repeated corrupted atlas visible
+        // across every court. Keep the court as a clean matte surface.
+        if (NormalizeMaterialName(source.name) == "basket")
+        {
+            if (material.HasProperty("_BaseMap"))
+                material.SetTexture("_BaseMap", null);
+            if (material.HasProperty("_MainTex"))
+                material.SetTexture("_MainTex", null);
+
+            Color courtColor = new Color(0.32f, 0.36f, 0.34f, 1f);
+            if (material.HasProperty("_BaseColor"))
+                material.SetColor("_BaseColor", courtColor);
+            if (material.HasProperty("_Color"))
+                material.SetColor("_Color", courtColor);
+            if (material.HasProperty("_Smoothness"))
+                material.SetFloat("_Smoothness", 0.18f);
+        }
+
         CopyNormalMap(
             source,
             material);
