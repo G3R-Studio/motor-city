@@ -300,29 +300,11 @@ namespace MotorCity.World
                         suffix
                 };
 
-            Shader hazeShader =
-                Shader.Find(
-                    "MotorCity/PanoramicHazeSkybox");
-
-            if (hazeShader != null &&
-                hazeShader.isSupported)
-            {
-                clone.shader =
-                    hazeShader;
-            }
-
             if (clone.HasProperty("_Exposure"))
             {
                 clone.SetFloat(
                     "_Exposure",
                     1f);
-            }
-
-            if (clone.HasProperty("_HazeHeight"))
-            {
-                clone.SetFloat(
-                    "_HazeHeight",
-                    0.34f);
             }
 
             return clone;
@@ -585,11 +567,6 @@ namespace MotorCity.World
                     fogDusk,
                     eveningAmount * 0.52f);
 
-            UpdateSkyboxHaze(
-                RenderSettings.fogColor,
-                daylight,
-                twilight);
-
             Color daySunColor =
                 new Color(
                     1.00f,
@@ -712,69 +689,6 @@ namespace MotorCity.World
                     IsNight;
 
                 ApplyStreetLights();
-            }
-        }
-
-        private void UpdateSkyboxHaze(
-            Color fogColor,
-            float daylight,
-            float twilight)
-        {
-            float strength =
-                Mathf.Lerp(
-                    0.34f,
-                    0.18f,
-                    daylight);
-
-            strength +=
-                twilight * 0.10f;
-
-            ApplySkyboxHaze(
-                runtimeMorningSkybox,
-                fogColor,
-                strength);
-
-            ApplySkyboxHaze(
-                runtimeDaySkybox,
-                fogColor,
-                strength);
-
-            ApplySkyboxHaze(
-                runtimeEveningSkybox,
-                fogColor,
-                strength);
-
-            ApplySkyboxHaze(
-                runtimeNightSkybox,
-                fogColor,
-                Mathf.Max(
-                    0.20f,
-                    strength));
-        }
-
-        private static void ApplySkyboxHaze(
-            Material material,
-            Color color,
-            float strength)
-        {
-            if (material == null)
-                return;
-
-            if (material.HasProperty(
-                    "_HazeColor"))
-            {
-                material.SetColor(
-                    "_HazeColor",
-                    color);
-            }
-
-            if (material.HasProperty(
-                    "_HazeStrength"))
-            {
-                material.SetFloat(
-                    "_HazeStrength",
-                    Mathf.Clamp01(
-                        strength));
             }
         }
 
