@@ -151,7 +151,9 @@ namespace MotorCity.Gameplay
             LoadUpgradeLevels();
 
             IsOpen = false;
-            car?.SetDrivingEnabled(true);
+            car?.SetDrivingBlocked(
+                "Garage",
+                false);
             ApplyUpgrades();
         }
 
@@ -1145,8 +1147,9 @@ namespace MotorCity.Gameplay
 
         private void RestoreDriving()
         {
-            if (car != null)
-                car.SetDrivingEnabled(true);
+            car?.SetDrivingBlocked(
+                "Garage",
+                false);
 
             if (activityManager != null)
                 activityManager.End(ActivityId);
