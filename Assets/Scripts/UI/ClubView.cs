@@ -232,9 +232,9 @@ namespace MotorCity.UI
             if (activityManager == null ||
                 !activityManager.SecondaryProgressionAllowed)
             {
-                if (clubOverlay.activeSelf)
+                if (clubOpen)
                 {
-                    clubOverlay.SetActive(
+                    SetClubOpen(
                         false);
 
                     RefreshDrivingEnabledForUi();
@@ -246,7 +246,7 @@ namespace MotorCity.UI
             if (MotorCityInput.ToggleClubPressed)
             {
                 bool open =
-                    !clubOverlay.activeSelf;
+                    !clubOpen;
 
                 if (open &&
                     ((activityManager != null &&
@@ -258,18 +258,14 @@ namespace MotorCity.UI
                     return;
                 }
 
-                clubOverlay.SetActive(
+                SetClubOpen(
                     open);
 
                 if (open)
                 {
                     CloseNavigatorMenuVisualOnly();
 
-                    storeOpen =
-                        false;
-
-                    SetActiveIfChanged(
-                        storeOverlay,
+                    SetStoreOpen(
                         false);
 
                     garageOverlay?.SetActive(
@@ -282,12 +278,12 @@ namespace MotorCity.UI
                 return;
             }
 
-            if (!clubOverlay.activeSelf)
+            if (!clubOpen)
                 return;
 
             if (MotorCityInput.CancelPressed)
             {
-                clubOverlay.SetActive(
+                SetClubOpen(
                     false);
 
                 RefreshDrivingEnabledForUi();
@@ -322,7 +318,7 @@ namespace MotorCity.UI
         {
             if (club == null ||
                 clubOverlay == null ||
-                !clubOverlay.activeSelf)
+                !clubOpen)
             {
                 return;
             }
