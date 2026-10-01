@@ -496,7 +496,7 @@ namespace MotorCity.World
                 activeGarageInterior != null)
             {
                 Transform probeTransform =
-                    activeGarageInterior.Find(
+                    activeGarageInterior.transform.Find(
                         "Garage Reflection Probe");
 
                 ReflectionProbe probe =
