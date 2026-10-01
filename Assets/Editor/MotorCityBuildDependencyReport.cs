@@ -198,6 +198,56 @@ namespace MotorCity.EditorTools
                     item.Path);
             }
 
+            builder.AppendLine();
+
+            AppendDependencySection(
+                builder,
+                "FCG / CITY",
+                new[]
+                {
+                    "Assets/Resources/MotorCity/Environment/CityVisual.prefab"
+                });
+
+            AppendDependencySection(
+                builder,
+                "PIXIE / BYTE",
+                new[]
+                {
+                    "Assets/Resources/MotorCity/Byte/HaonByteVisual.prefab"
+                });
+
+            AppendDependencySection(
+                builder,
+                "GARAGE",
+                new[]
+                {
+                    "Assets/Resources/MotorCity/Garage/SimpleGarage.prefab"
+                });
+
+            string[] vehicleRoots =
+                AssetDatabase.FindAssets(
+                        "t:Prefab",
+                        new[]
+                        {
+                            "Assets/Resources/MotorCity/Vehicles/Player"
+                        })
+                    .Select(
+                        AssetDatabase.GUIDToAssetPath)
+                    .Where(
+                        path =>
+                            !string.IsNullOrWhiteSpace(
+                                path))
+                    .OrderBy(
+                        path =>
+                            path,
+                        StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+
+            AppendDependencySection(
+                builder,
+                "PLAYER VEHICLES",
+                vehicleRoots);
+
             Directory.CreateDirectory(
                 Path.GetDirectoryName(
                     ReportPath) ??
@@ -207,6 +257,119 @@ namespace MotorCity.EditorTools
                 ReportPath,
                 builder.ToString(),
                 Encoding.UTF8);
+        }
+
+        private static void AppendDependencySection(
+            StringBuilder builder,
+            string title,
+            IEnumerable<string> roots)
+        {
+            string[] rootArray =
+                roots?
+                    .Where(
+                        path =>
+                            !string.IsNullOrWhiteSpace(
+                                path))
+                    .Distinct(
+                        StringComparer.OrdinalIgnoreCase)
+                    .ToArray() ??
+                Array.Empty<string>();
+
+            HashSet<string> dependencies =
+                new(
+                    StringComparer.OrdinalIgnoreCase);
+
+            foreach (string root in rootArray)
+            {
+                if (!File.Exists(
+                        Path.GetFullPath(
+                            root)))
+                {
+                    continue;
+                }
+
+                dependencies.Add(
+                    root);
+
+                foreach (string dependency in
+                         AssetDatabase.GetDependencies(
+                             root,
+                             true))
+                {
+                    if (!string.IsNullOrWhiteSpace(
+                            dependency))
+                    {
+                        dependencies.Add(
+                            dependency);
+                    }
+                }
+            }
+
+            List<AssetSize> sized =
+                dependencies
+                    .Select(
+                        path =>
+                            new AssetSize(
+                                path,
+                                TryGetFileSize(
+                                    path)))
+                    .OrderByDescending(
+                        item =>
+                            item.Bytes)
+                    .ToList();
+
+            long total =
+                sized.Sum(
+                    item =>
+                        item.Bytes);
+
+            builder.AppendLine(
+                "============================================================");
+
+            builder.AppendLine(
+                title);
+
+            builder.AppendLine(
+                "Roots: " +
+                rootArray.Length);
+
+            builder.AppendLine(
+                "Unique dependencies: " +
+                dependencies.Count);
+
+            builder.AppendLine(
+                "Raw dependency file size: " +
+                FormatBytes(
+                    total));
+
+            int count =
+                Mathf.Min(
+                    30,
+                    sized.Count);
+
+            for (int i = 0;
+                 i < count;
+                 i++)
+            {
+                AssetSize item =
+                    sized[i];
+
+                builder.Append(
+                    "  ");
+
+                builder.Append(
+                    FormatBytes(
+                        item.Bytes)
+                    .PadLeft(12));
+
+                builder.Append(
+                    "  ");
+
+                builder.AppendLine(
+                    item.Path);
+            }
+
+            builder.AppendLine();
         }
 
         private static long TryGetFileSize(
