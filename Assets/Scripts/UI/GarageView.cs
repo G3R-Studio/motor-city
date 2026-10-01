@@ -65,14 +65,17 @@ namespace MotorCity.UI
                 new Color(0.20f, 1f, 0.62f, 1f);
 
             RectTransform topBalance =
-                CreatePanel(
+                CreateGarageRoundedPanel(
                     panel,
                     "Garage Top Balance",
                     new Vector2(0f, -16f),
                     new Vector2(880f, 82f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
-                    glass);
+                    glass,
+                    new Color(0.30f, 0.72f, 1f, 0.34f),
+                    14f,
+                    1.5f);
 
             AddGarageSurfaceShadow(
                 topBalance);
@@ -352,14 +355,17 @@ namespace MotorCity.UI
                 headerMasteryFill.GetComponent<Image>();
 
             RectTransform vehicleCard =
-                CreatePanel(
+                CreateGarageRoundedPanel(
                     panel,
                     "Garage Vehicle Card",
                     new Vector2(-26f, -118f),
                     new Vector2(344f, 680f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
-                    glass);
+                    glass,
+                    new Color(0.28f, 0.66f, 1f, 0.30f),
+                    14f,
+                    1.5f);
 
             AddGarageSurfaceShadow(
                 vehicleCard);
@@ -1255,14 +1261,17 @@ namespace MotorCity.UI
                     new Color(0.16f, 0.06f, 0.32f, 0.96f));
 
             RectTransform menuVisual =
-                CreatePanel(
+                CreateGarageRoundedPanel(
                     root,
                     "Garage Main Menu Visual",
                     new Vector2(28f, -18f),
                     new Vector2(292f, 72f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    new Color(0.06f, 0.055f, 0.18f, 0.94f));
+                    new Color(0.06f, 0.055f, 0.18f, 0.94f),
+                    new Color(0.56f, 0.34f, 1f, 0.42f),
+                    13f,
+                    1.75f);
 
             AddGarageNeonFrame(
                 menuVisual,
@@ -1289,6 +1298,67 @@ namespace MotorCity.UI
             garageTouchControlsRoot.SetActive(true);
         }
 
+        private static RectTransform CreateGarageRoundedPanel(
+            Transform parent,
+            string name,
+            Vector2 anchoredPosition,
+            Vector2 size,
+            Vector2 anchor,
+            Vector2 pivot,
+            Color fillColor,
+            Color borderColor,
+            float cornerRadius = 12f,
+            float borderWidth = 2f)
+        {
+            GameObject panelObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(SpriteLessImage));
+
+            panelObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                panelObject.GetComponent<RectTransform>();
+            rect.anchorMin =
+                anchor;
+            rect.anchorMax =
+                anchor;
+            rect.pivot =
+                pivot;
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
+
+            SpriteLessImage shape =
+                panelObject.GetComponent<SpriteLessImage>();
+            shape.Shape =
+                ProceduralShape.RoundedRectangle;
+            shape.color =
+                fillColor;
+            shape.CornerRadius =
+                cornerRadius;
+            shape.BorderEnabled =
+                true;
+            shape.BorderWidth =
+                borderWidth;
+            shape.BorderColor =
+                borderColor;
+            shape.EdgeEffectEnabled =
+                false;
+            shape.AntiAliasingEnabled =
+                true;
+            shape.AntiAliasingWidth =
+                1.25f;
+            shape.raycastTarget =
+                false;
+
+            return rect;
+        }
+
         private GameObject CreateGarageActionButton(
             Transform parent,
             string name,
@@ -1300,12 +1370,21 @@ namespace MotorCity.UI
             int fontSize,
             Color backgroundColor)
         {
+            bool useRoundedSpriteLess =
+                name == "Garage City Button";
+
             GameObject buttonObject =
-                new(
-                    name,
-                    typeof(RectTransform),
-                    typeof(Image),
-                    typeof(Button));
+                useRoundedSpriteLess
+                    ? new GameObject(
+                        name,
+                        typeof(RectTransform),
+                        typeof(SpriteLessImage),
+                        typeof(Button))
+                    : new GameObject(
+                        name,
+                        typeof(RectTransform),
+                        typeof(Image),
+                        typeof(Button));
 
             buttonObject.transform.SetParent(
                 parent,
@@ -1319,13 +1398,54 @@ namespace MotorCity.UI
             rect.anchoredPosition = anchoredPosition;
             rect.sizeDelta = size;
 
-            Image image =
-                buttonObject.GetComponent<Image>();
-            image.color = backgroundColor;
+            Graphic backgroundGraphic;
+
+            if (useRoundedSpriteLess)
+            {
+                SpriteLessImage roundedImage =
+                    buttonObject.GetComponent<SpriteLessImage>();
+
+                roundedImage.Shape =
+                    ProceduralShape.RoundedRectangle;
+                roundedImage.color =
+                    backgroundColor;
+                roundedImage.CornerRadius =
+                    13f;
+                roundedImage.BorderEnabled =
+                    true;
+                roundedImage.BorderWidth =
+                    1.75f;
+                roundedImage.BorderColor =
+                    new Color(
+                        0.60f,
+                        0.34f,
+                        1f,
+                        0.56f);
+                roundedImage.EdgeEffectEnabled =
+                    false;
+                roundedImage.AntiAliasingEnabled =
+                    true;
+                roundedImage.AntiAliasingWidth =
+                    1.25f;
+
+                backgroundGraphic =
+                    roundedImage;
+            }
+            else
+            {
+                Image image =
+                    buttonObject.GetComponent<Image>();
+                image.color =
+                    backgroundColor;
+
+                backgroundGraphic =
+                    image;
+            }
 
             Button button =
                 buttonObject.GetComponent<Button>();
-            button.targetGraphic = image;
+            button.targetGraphic =
+                backgroundGraphic;
 
             ColorBlock colors =
                 button.colors;
