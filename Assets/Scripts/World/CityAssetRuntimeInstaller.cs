@@ -119,6 +119,7 @@ namespace MotorCity.World
 
         private static GameObject activeCity;
         private static GameObject activeGarageInterior;
+        private static GameObject garagePresentationLighting;
         private static Bounds cityBounds;
         private static bool hasCityBounds;
 
@@ -458,6 +459,177 @@ namespace MotorCity.World
 
             InstallGarageReflectionProbe(
                 garageTransform);
+
+            InstallGaragePresentationLighting(
+                garageTransform);
+        }
+
+        public static void SetGaragePresentationLighting(
+            bool active)
+        {
+            if (garagePresentationLighting != null)
+            {
+                garagePresentationLighting.SetActive(
+                    active);
+            }
+        }
+
+        private static void InstallGaragePresentationLighting(
+            Transform garageTransform)
+        {
+            if (garageTransform == null)
+                return;
+
+            const string rigName =
+                "Garage Presentation Lighting";
+
+            Transform existing =
+                garageTransform.Find(
+                    rigName);
+
+            if (existing != null)
+            {
+                garagePresentationLighting =
+                    existing.gameObject;
+
+                garagePresentationLighting.SetActive(
+                    false);
+
+                return;
+            }
+
+            garagePresentationLighting =
+                new GameObject(
+                    rigName);
+
+            garagePresentationLighting.transform.SetParent(
+                garageTransform,
+                false);
+
+            Vector3 vehicleLookPoint =
+                GarageVehiclePosition +
+                Vector3.up * 0.75f;
+
+            CreateGaragePresentationLight(
+                garagePresentationLighting.transform,
+                "Warm Key",
+                new Vector3(
+                    -1.25f,
+                    2.15f,
+                    1.55f),
+                vehicleLookPoint,
+                LightType.Spot,
+                new Color(
+                    1.0f,
+                    0.78f,
+                    0.56f),
+                2.35f,
+                8.5f,
+                58f,
+                true);
+
+            CreateGaragePresentationLight(
+                garagePresentationLighting.transform,
+                "Cyan Rim",
+                new Vector3(
+                    1.85f,
+                    1.15f,
+                    0.15f),
+                vehicleLookPoint,
+                LightType.Point,
+                new Color(
+                    0.12f,
+                    0.62f,
+                    1.0f),
+                1.25f,
+                6.5f,
+                0f,
+                false);
+
+            CreateGaragePresentationLight(
+                garagePresentationLighting.transform,
+                "Magenta Fill",
+                new Vector3(
+                    -1.85f,
+                    0.85f,
+                    0.45f),
+                vehicleLookPoint,
+                LightType.Point,
+                new Color(
+                    0.84f,
+                    0.16f,
+                    1.0f),
+                1.05f,
+                5.8f,
+                0f,
+                false);
+
+            garagePresentationLighting.SetActive(
+                false);
+        }
+
+        private static void CreateGaragePresentationLight(
+            Transform parent,
+            string name,
+            Vector3 localPosition,
+            Vector3 lookPoint,
+            LightType type,
+            Color color,
+            float intensity,
+            float range,
+            float spotAngle,
+            bool shadows)
+        {
+            GameObject lightObject =
+                new(
+                    name);
+
+            lightObject.transform.SetParent(
+                parent,
+                false);
+
+            lightObject.transform.localPosition =
+                localPosition;
+
+            if (type == LightType.Spot)
+            {
+                Vector3 worldDirection =
+                    lookPoint -
+                    lightObject.transform.position;
+
+                if (worldDirection.sqrMagnitude >
+                    0.001f)
+                {
+                    lightObject.transform.rotation =
+                        Quaternion.LookRotation(
+                            worldDirection.normalized,
+                            Vector3.up);
+                }
+            }
+
+            Light light =
+                lightObject.AddComponent<Light>();
+
+            light.type =
+                type;
+            light.color =
+                color;
+            light.intensity =
+                intensity;
+            light.range =
+                range;
+            light.shadows =
+                shadows
+                    ? LightShadows.Soft
+                    : LightShadows.None;
+
+            if (type == LightType.Spot)
+            {
+                light.spotAngle =
+                    spotAngle;
+                light.innerSpotAngle =
+                    spotAngle * 0.58f;
+            }
         }
 
         private static void InstallGarageReflectionProbe(
