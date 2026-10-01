@@ -350,13 +350,13 @@ namespace MotorCity.World
 
             main.startLifetime =
                 new ParticleSystem.MinMaxCurve(
-                    8f,
-                    14f);
+                    10f,
+                    16f);
 
             main.startSize =
                 new ParticleSystem.MinMaxCurve(
-                    55f,
-                    110f);
+                    80f,
+                    150f);
 
             main.startSpeed =
                 new ParticleSystem.MinMaxCurve(
@@ -371,9 +371,9 @@ namespace MotorCity.World
 
             shape.scale =
                 new Vector3(
-                    170f,
-                    22f,
-                    170f);
+                    220f,
+                    28f,
+                    220f);
 
             atmosphereFogParticles.Play(
                 true);
@@ -410,18 +410,18 @@ namespace MotorCity.World
             {
                 case MotorCityQualityPreset.High:
                     main.maxParticles =
-                        90;
+                        150;
 
                     emission.rateOverTime =
-                        8f;
+                        14f;
                     break;
 
                 default:
                     main.maxParticles =
-                        60;
+                        100;
 
                     emission.rateOverTime =
-                        5f;
+                        9f;
                     break;
             }
         }
@@ -471,8 +471,8 @@ namespace MotorCity.World
 
             atmosphereFogObject.transform.position =
                 observer.position +
-                forward * 150f +
-                Vector3.up * 10f;
+                forward * 125f +
+                Vector3.up * 12f;
 
             atmosphereFogObject.transform.rotation =
                 Quaternion.identity;
@@ -704,8 +704,8 @@ namespace MotorCity.World
             // cannot leave the scene with stale fog settings.
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogStartDistance = 200f;
-            RenderSettings.fogEndDistance = 650f;
+            RenderSettings.fogStartDistance = 120f;
+            RenderSettings.fogEndDistance = 520f;
 
             Color fogDay =
                 new Color(0.56f, 0.61f, 0.66f);
@@ -745,8 +745,8 @@ namespace MotorCity.World
 
                 particleFogColor.a =
                     Mathf.Lerp(
-                        0.10f,
-                        0.17f,
+                        0.18f,
+                        0.28f,
                         twilight);
 
                 fogMain.startColor =
