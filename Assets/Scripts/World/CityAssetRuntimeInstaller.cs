@@ -121,7 +121,6 @@ namespace MotorCity.World
         private static GameObject activeCity;
         private static GameObject activeGarageInterior;
         private static GameObject garagePresentationLighting;
-        private static GameObject garagePresentationNeon;
         private static GameObject garagePresentationPostFx;
         private static VolumeProfile garagePresentationVolumeProfile;
 
@@ -477,9 +476,6 @@ namespace MotorCity.World
             InstallGaragePresentationLighting(
                 garageTransform);
 
-            InstallGaragePresentationNeon(
-                garageTransform);
-
             InstallGaragePresentationPostFx(
                 garageTransform);
         }
@@ -566,9 +562,9 @@ namespace MotorCity.World
                             GarageBaseColorId,
                             active
                                 ? new Color(
-                                    source.r * 0.60f,
-                                    source.g * 0.63f,
-                                    source.b * 0.70f,
+                                    source.r * 0.82f,
+                                    source.g * 0.84f,
+                                    source.b * 0.88f,
                                     source.a)
                                 : source);
                     }
@@ -583,9 +579,9 @@ namespace MotorCity.World
                             GarageColorId,
                             active
                                 ? new Color(
-                                    source.r * 0.60f,
-                                    source.g * 0.63f,
-                                    source.b * 0.70f,
+                                    source.r * 0.82f,
+                                    source.g * 0.84f,
+                                    source.b * 0.88f,
                                     source.a)
                                 : source);
                     }
@@ -600,7 +596,7 @@ namespace MotorCity.World
                         block.SetColor(
                             GarageEmissionColorId,
                             active
-                                ? sourceEmission * 0.58f
+                                ? sourceEmission * 0.82f
                                 : sourceEmission);
                     }
 
@@ -609,177 +605,6 @@ namespace MotorCity.World
                         m);
                 }
             }
-        }
-
-        private static void InstallGaragePresentationNeon(
-            Transform garageTransform)
-        {
-            if (garageTransform == null)
-                return;
-
-            const string rootName =
-                "Garage Presentation Neon";
-
-            Transform existing =
-                garageTransform.Find(
-                    rootName);
-
-            if (existing != null)
-            {
-                garagePresentationNeon =
-                    existing.gameObject;
-
-                garagePresentationNeon.SetActive(
-                    false);
-
-                return;
-            }
-
-            garagePresentationNeon =
-                new GameObject(
-                    rootName);
-
-            garagePresentationNeon.transform.SetParent(
-                garageTransform,
-                false);
-
-            // Visible practical strips give the room an authored neon identity.
-            CreateGarageNeonBar(
-                garagePresentationNeon.transform,
-                "Magenta Wall Bar",
-                new Vector3(
-                    -2.55f,
-                    1.25f,
-                    1.55f),
-                new Vector3(
-                    0.10f,
-                    1.25f,
-                    0.10f),
-                new Color(
-                    1.00f,
-                    0.10f,
-                    0.86f,
-                    1f));
-
-            CreateGarageNeonBar(
-                garagePresentationNeon.transform,
-                "Cyan Rear Bar",
-                new Vector3(
-                    1.25f,
-                    1.60f,
-                    2.35f),
-                new Vector3(
-                    1.45f,
-                    0.08f,
-                    0.10f),
-                new Color(
-                    0.08f,
-                    0.72f,
-                    1.00f,
-                    1f));
-
-            CreateGarageNeonBar(
-                garagePresentationNeon.transform,
-                "Violet Rear Bar",
-                new Vector3(
-                    -0.75f,
-                    1.05f,
-                    2.30f),
-                new Vector3(
-                    1.10f,
-                    0.07f,
-                    0.10f),
-                new Color(
-                    0.58f,
-                    0.18f,
-                    1.00f,
-                    1f));
-
-            garagePresentationNeon.SetActive(
-                false);
-        }
-
-        private static void CreateGarageNeonBar(
-            Transform parent,
-            string name,
-            Vector3 localPosition,
-            Vector3 localScale,
-            Color color)
-        {
-            GameObject bar =
-                GameObject.CreatePrimitive(
-                    PrimitiveType.Cube);
-
-            bar.name =
-                name;
-
-            bar.transform.SetParent(
-                parent,
-                false);
-
-            bar.transform.localPosition =
-                localPosition;
-
-            bar.transform.localRotation =
-                Quaternion.identity;
-
-            bar.transform.localScale =
-                localScale;
-
-            Collider collider =
-                bar.GetComponent<Collider>();
-
-            if (collider != null)
-            {
-                UnityEngine.Object.Destroy(
-                    collider);
-            }
-
-            Renderer renderer =
-                bar.GetComponent<Renderer>();
-
-            if (renderer == null)
-                return;
-
-            Shader shader =
-                Shader.Find(
-                    "Universal Render Pipeline/Unlit");
-
-            if (shader == null)
-            {
-                shader =
-                    Shader.Find(
-                        "Unlit/Color");
-            }
-
-            if (shader == null)
-                return;
-
-            Material material =
-                new(
-                    shader);
-
-            material.name =
-                name + " Material";
-
-            if (material.HasProperty(
-                    GarageBaseColorId))
-            {
-                material.SetColor(
-                    GarageBaseColorId,
-                    color);
-            }
-
-            if (material.HasProperty(
-                    GarageColorId))
-            {
-                material.SetColor(
-                    GarageColorId,
-                    color);
-            }
-
-            renderer.sharedMaterial =
-                material;
         }
 
         private static void InstallGaragePresentationPostFx(
@@ -835,9 +660,9 @@ namespace MotorCity.World
                     true);
 
             colorAdjustments.postExposure.Override(
-                -0.15f);
+                0.10f);
             colorAdjustments.contrast.Override(
-                18f);
+                12f);
             colorAdjustments.saturation.Override(
                 8f);
             colorAdjustments.colorFilter.Override(
@@ -871,7 +696,7 @@ namespace MotorCity.World
                     0.035f,
                     1f));
             vignette.intensity.Override(
-                0.17f);
+                0.10f);
             vignette.smoothness.Override(
                 0.46f);
             vignette.rounded.Override(
@@ -940,9 +765,9 @@ namespace MotorCity.World
                     1.00f,
                     0.80f,
                     0.60f),
-                3.05f,
-                8.0f,
-                54f,
+                7.50f,
+                9.0f,
+                58f,
                 true);
 
             CreateGaragePresentationLight(
@@ -959,9 +784,9 @@ namespace MotorCity.World
                     0.10f,
                     0.58f,
                     1.00f),
-                1.15f,
-                6.2f,
-                48f,
+                3.20f,
+                7.0f,
+                54f,
                 false);
 
             CreateGaragePresentationLight(
@@ -978,9 +803,9 @@ namespace MotorCity.World
                     0.78f,
                     0.12f,
                     1.00f),
-                0.52f,
-                5.0f,
-                46f,
+                1.35f,
+                5.5f,
+                50f,
                 false);
 
             // Background practical lights: they are intentionally soft and
@@ -1003,8 +828,8 @@ namespace MotorCity.World
                     1.00f,
                     0.56f,
                     0.28f),
-                0.72f,
-                5.5f,
+                1.45f,
+                6.2f,
                 62f,
                 false);
 
@@ -1025,8 +850,8 @@ namespace MotorCity.World
                     0.08f,
                     0.42f,
                     0.95f),
-                0.58f,
-                5.0f,
+                1.10f,
+                5.8f,
                 58f,
                 false);
 
