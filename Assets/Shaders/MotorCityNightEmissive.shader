@@ -232,19 +232,21 @@ Shader "MotorCity/NightEmissive"
                     saturate(
                         _MotorCityNightEmission);
 
+                // FCG window textures contain bright interior detail.
+                // Keep daytime glass optically dense so those baked/interior
+                // shapes do not read like a transparent hole in the facade.
                 half3 dayGlassTint =
                     lerp(
-                        half3(0.22h, 0.23h, 0.24h),
-                        litBase,
-                        0.55h);
+                        _DayGlassTint.rgb,
+                        litBase * 0.58h,
+                        0.24h);
 
                 half3 dayGlass =
                     lerp(
-                        litBase,
                         dayGlassTint,
-                        min(
-                            _DayGlassLift,
-                            0.14h));
+                        litBase,
+                        saturate(
+                            _DayGlassLift * 0.22h));
 
                 half3 nightGlass =
                     lerp(
