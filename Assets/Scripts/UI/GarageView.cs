@@ -1622,6 +1622,29 @@ namespace MotorCity.UI
                 !onboarding.IsComplete &&
                 onboarding.CurrentStep == 6;
 
+            bool metaUnlocked =
+                activityManager != null &&
+                activityManager.SecondaryProgressionAllowed;
+
+            if (!garageUiStateInitialized ||
+                rookieColorStep !=
+                    lastGarageRookieColorStep ||
+                metaUnlocked !=
+                    lastGarageMetaUnlocked)
+            {
+                garageUiStateInitialized =
+                    true;
+
+                lastGarageRookieColorStep =
+                    rookieColorStep;
+
+                lastGarageMetaUnlocked =
+                    metaUnlocked;
+
+                garageUiDirty =
+                    true;
+            }
+
             for (int i = 0;
                  i < garageActionButtons.Length;
                  i++)
@@ -1634,36 +1657,46 @@ namespace MotorCity.UI
                     i == 2 ||
                     i == 6;
 
-                garageActionButtons[i].SetActive(
+                SetActiveIfChanged(
+                    garageActionButtons[i],
                     visible);
             }
 
-            bool metaUnlocked =
-                activityManager != null &&
-                activityManager.SecondaryProgressionAllowed;
-
             if (!metaUnlocked)
             {
-                garagePassportOpen =
-                    false;
+                if (garagePassportOpen)
+                {
+                    garagePassportOpen =
+                        false;
+
+                    garageUiDirty =
+                        true;
+                }
             }
             else if (MotorCityInput.WasVirtualPressed(
                          MotorCityInputAction.ToggleVehiclePassport))
             {
                 garagePassportOpen =
                     !garagePassportOpen;
+
+                garageUiDirty =
+                    true;
             }
 
-            if (garagePassportPanel != null)
-            {
-                garagePassportPanel.SetActive(
-                    garagePassportOpen);
-            }
+            SetActiveIfChanged(
+                garagePassportPanel,
+                garagePassportOpen);
+
+            if (!garageUiDirty)
+                return;
 
             if (garagePassportOpen)
             {
                 UpdateVehiclePassport();
             }
+
+            garageUiDirty =
+                false;
 
             garageMoneyText.text =
                 garage.Credits.ToString(
