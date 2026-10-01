@@ -51,6 +51,20 @@ namespace MotorCity.Rendering
                 return;
             }
 
+            Camera camera =
+                renderingData.cameraData.camera;
+
+            UniversalAdditionalCameraData cameraData =
+                camera == null
+                    ? null
+                    : camera.GetComponent<UniversalAdditionalCameraData>();
+
+            if (cameraData == null ||
+                !cameraData.renderPostProcessing)
+            {
+                return;
+            }
+
             float qualityStrength =
                 MotorCityQualityRuntime.CurrentPreset switch
                 {
