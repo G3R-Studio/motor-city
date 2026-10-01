@@ -404,7 +404,9 @@ namespace MotorCity.Gameplay
             isCountingDown = true;
             checkpointIndex = 0;
             elapsedSeconds = 0f;
-            car.SetDrivingEnabled(false);
+            car.SetDrivingBlocked(
+                "ActivityCountdown",
+                true);
         }
 
         private void UpdatePhysicalRunCountdown(
@@ -428,7 +430,9 @@ namespace MotorCity.Gameplay
             IsActive = true;
             checkpointIndex = 1;
             elapsedSeconds = 0f;
-            car.SetDrivingEnabled(true);
+            car.SetDrivingBlocked(
+                "ActivityCountdown",
+                false);
         }
 
         public void CancelActivity()
@@ -453,7 +457,9 @@ namespace MotorCity.Gameplay
             isCountingDown = false;
             IsActive = false;
             checkpointIndex = 0;
-            car?.SetDrivingEnabled(true);
+            car?.SetDrivingBlocked(
+                "ActivityCountdown",
+                false);
             activityManager?.End(
                 "underground");
 
@@ -519,8 +525,9 @@ namespace MotorCity.Gameplay
             isCountingDown = false;
             IsActive = false;
 
-            car?.SetDrivingEnabled(
-                true);
+            car?.SetDrivingBlocked(
+                "ActivityCountdown",
+                false);
 
             Save();
         }
