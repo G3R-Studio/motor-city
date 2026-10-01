@@ -41,7 +41,9 @@ namespace MotorCity.World
         private DayNightSettings settings;
         private Light directionalLight;
         private Light moonLight;
+        private Material runtimeMorningSkybox;
         private Material runtimeDaySkybox;
+        private Material runtimeEveningSkybox;
         private Material runtimeNightSkybox;
 
         private float time01;
@@ -167,9 +169,17 @@ namespace MotorCity.World
 
         private void OnDestroy()
         {
+            if (runtimeMorningSkybox != null)
+                Destroy(
+                    runtimeMorningSkybox);
+
             if (runtimeDaySkybox != null)
                 Destroy(
                     runtimeDaySkybox);
+
+            if (runtimeEveningSkybox != null)
+                Destroy(
+                    runtimeEveningSkybox);
 
             if (runtimeNightSkybox != null)
                 Destroy(
@@ -253,29 +263,51 @@ namespace MotorCity.World
             if (settings == null)
                 return;
 
-            if (settings.DaySkybox != null)
+            runtimeMorningSkybox =
+                CloneSkybox(
+                    settings.MorningSkybox,
+                    "Morning");
+
+            runtimeDaySkybox =
+                CloneSkybox(
+                    settings.DaySkybox,
+                    "Day");
+
+            runtimeEveningSkybox =
+                CloneSkybox(
+                    settings.EveningSkybox,
+                    "Evening");
+
+            runtimeNightSkybox =
+                CloneSkybox(
+                    settings.NightSkybox,
+                    "Night");
+        }
+
+        private static Material CloneSkybox(
+            Material source,
+            string suffix)
+        {
+            if (source == null)
+                return null;
+
+            Material clone =
+                new(source)
+                {
+                    name =
+                        source.name +
+                        "_MotorCity_" +
+                        suffix
+                };
+
+            if (clone.HasProperty("_Exposure"))
             {
-                runtimeDaySkybox =
-                    new Material(
-                        settings.DaySkybox)
-                    {
-                        name =
-                            settings.DaySkybox.name +
-                            "_MotorCityRuntime"
-                    };
+                clone.SetFloat(
+                    "_Exposure",
+                    1f);
             }
 
-            if (settings.NightSkybox != null)
-            {
-                runtimeNightSkybox =
-                    new Material(
-                        settings.NightSkybox)
-                    {
-                        name =
-                            settings.NightSkybox.name +
-                            "_MotorCityRuntime"
-                    };
-            }
+            return clone;
         }
 
         private void ApplyEnvironment(
@@ -528,17 +560,9 @@ namespace MotorCity.World
                     0.04f;
             }
 
-            bool useNightSkybox =
-                solarHeight < -0.10f;
-
-            UpdateSkyboxTransition(
-                twilight,
-                useNightSkybox);
-
             Material targetSkybox =
-                useNightSkybox
-                    ? runtimeNightSkybox
-                    : runtimeDaySkybox;
+                ResolveSkyboxForTime(
+                    time01);
 
             if (targetSkybox != null &&
                 (force ||
@@ -562,62 +586,45 @@ namespace MotorCity.World
             }
         }
 
-        private void UpdateSkyboxTransition(
-            float twilight,
-            bool useNightSkybox)
+        private Material ResolveSkyboxForTime(
+            float normalizedTime)
         {
-            if (runtimeDaySkybox != null)
-            {
-                if (runtimeDaySkybox.HasProperty(
-                        "_Exposure"))
-                {
-                    runtimeDaySkybox.SetFloat(
-                        "_Exposure",
-                        Mathf.Lerp(
-                            1f,
-                            0.20f,
-                            Mathf.SmoothStep(
-                                0f,
-                                1f,
-                                Mathf.InverseLerp(
-                                    0.22f,
-                                    0.62f,
-                                    NightAmount))));
-                }
+            float t =
+                Mathf.Repeat(
+                    normalizedTime,
+                    1f);
 
-                if (runtimeDaySkybox.HasProperty(
-                        "_Tint"))
-                {
-                    runtimeDaySkybox.SetColor(
-                        "_Tint",
-                        Color.Lerp(
-                            Color.white,
-                            new Color(
-                                1f,
-                                0.58f,
-                                0.34f,
-                                1f),
-                            twilight * 0.30f));
-                }
+            if (t >= 0.24f &&
+                t < 0.41f)
+            {
+                return
+                    runtimeMorningSkybox ??
+                    runtimeDaySkybox ??
+                    runtimeNightSkybox;
             }
 
-            if (runtimeNightSkybox != null &&
-                runtimeNightSkybox.HasProperty(
-                    "_Exposure"))
+            if (t >= 0.41f &&
+                t < 0.61f)
             {
-                runtimeNightSkybox.SetFloat(
-                    "_Exposure",
-                    Mathf.Lerp(
-                        0.24f,
-                        1f,
-                        Mathf.SmoothStep(
-                            0f,
-                            1f,
-                            Mathf.InverseLerp(
-                                0.48f,
-                                0.90f,
-                                NightAmount))));
+                return
+                    runtimeDaySkybox ??
+                    runtimeMorningSkybox ??
+                    runtimeEveningSkybox;
             }
+
+            if (t >= 0.61f &&
+                t < 0.82f)
+            {
+                return
+                    runtimeEveningSkybox ??
+                    runtimeDaySkybox ??
+                    runtimeNightSkybox;
+            }
+
+            return
+                runtimeNightSkybox ??
+                runtimeEveningSkybox ??
+                runtimeDaySkybox;
         }
 
         private void RefreshStreetLights()
