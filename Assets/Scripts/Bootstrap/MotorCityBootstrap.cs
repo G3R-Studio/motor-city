@@ -871,6 +871,12 @@ namespace MotorCity.Bootstrap
 
             cycle.Initialize(
                 sun);
+
+            GameObject atmosphereObject =
+                new("City Atmosphere");
+            CityAtmosphereRuntime atmosphere =
+                atmosphereObject.AddComponent<CityAtmosphereRuntime>();
+            atmosphere.Initialize(cycle);
         }
 
         private static void CreatePrototypeCity()
