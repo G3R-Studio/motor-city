@@ -219,10 +219,10 @@ namespace MotorCity.World
             cityTonemapping.mode.Override(TonemappingMode.ACES);
 
             cityBloom = cityPostFxProfile.Add<Bloom>(true);
-            cityBloom.threshold.Override(1.05f);
-            cityBloom.intensity.Override(0.12f);
-            cityBloom.scatter.Override(0.42f);
-            cityBloom.clamp.Override(8f);
+            cityBloom.threshold.Override(0.82f);
+            cityBloom.intensity.Override(0.07f);
+            cityBloom.scatter.Override(0.40f);
+            cityBloom.clamp.Override(6f);
             cityBloom.highQualityFiltering.Override(false);
 
             cityColor = cityPostFxProfile.Add<ColorAdjustments>(true);
@@ -387,7 +387,12 @@ namespace MotorCity.World
                 NightAmount);
 
             if (cityBloom != null)
-                cityBloom.intensity.value = Mathf.Lerp(0.12f, 0.20f, NightAmount);
+            {
+                cityBloom.intensity.value =
+                    0.07f +
+                    twilight * 0.03f +
+                    NightAmount * 0.18f;
+            }
 
             if (cityColor != null)
             {
