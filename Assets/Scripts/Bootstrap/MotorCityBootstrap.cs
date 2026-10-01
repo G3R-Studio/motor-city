@@ -225,19 +225,6 @@ namespace MotorCity.Bootstrap
             Physics.defaultSolverIterations = 10;
             Physics.defaultSolverVelocityIterations = 3;
 
-            RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.34f, 0.40f, 0.48f);
-            RenderSettings.ambientEquatorColor = new Color(0.19f, 0.20f, 0.22f);
-            RenderSettings.ambientGroundColor = new Color(0.075f, 0.072f, 0.07f);
-            RenderSettings.fog = true;
-            RenderSettings.fogMode = FogMode.Linear;
-            // Lightweight distance haze only. Keep it far enough away
-            // that nearby FCG facades/materials remain untouched and readable.
-            // This uses Unity's scene fog only; it never rewrites FCG materials.
-            RenderSettings.fogColor = new Color(0.56f, 0.61f, 0.66f);
-            RenderSettings.fogStartDistance = 200f;
-            RenderSettings.fogEndDistance = 650f;
-
             Light sun =
                 CreateLighting();
 
