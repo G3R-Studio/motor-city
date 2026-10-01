@@ -1181,9 +1181,6 @@ namespace MotorCity.World
             {
                 light.shadowStrength =
                     0.42f;
-
-                light.shadowResolution =
-                    UnityEngine.Rendering.LightShadowResolution.Low;
             }
         }
     }
