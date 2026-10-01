@@ -176,9 +176,37 @@ public static class FantasticCityGeneratorUrpFixer
             foreach (Material generated in
                      generatedMaterials)
             {
-                RepairGeneratedUrpMaterial(
-                    generated,
-                    urpLit);
+                // Never use the generated URP material itself as the source
+                // of truth. Rebuild it from the original FCG material. This
+                // makes Fix Materials idempotent and prevents a second run
+                // from turning the city into white/default materials.
+                Material original =
+                    FindOriginalFcgMaterialForGenerated(
+                        generated,
+                        generated.name);
+
+                if (original != null)
+                {
+                    CopyBaseMap(original, generated);
+                    CopyNormalMap(original, generated);
+                    CopyOcclusionMap(original, generated);
+                    CopyEmission(original, generated);
+                    CopySurfaceValues(original, generated);
+                    ConfigureMaterialAppearance(original, generated);
+                    ConfigureVolumetricLightBeamMaterial(original, generated);
+                    ConfigureSurfaceType(original, generated);
+
+                    if (IsNightEmissionMaterialName(original.name))
+                        ConfigureNightEmissionMaterial(original, generated);
+
+                    EditorUtility.SetDirty(generated);
+                }
+                else
+                {
+                    RepairGeneratedUrpMaterial(
+                        generated,
+                        urpLit);
+                }
 
                 repairedGenerated++;
             }
