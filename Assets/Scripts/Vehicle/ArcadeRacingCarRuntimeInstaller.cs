@@ -31,6 +31,10 @@ namespace MotorCity.Vehicle
         private static readonly Dictionary<Material, Material>
             RuntimeMirrorMaterialCache = new();
 
+        private static readonly Dictionary<string, GameObject>
+            RuntimeVehiclePrefabCache =
+                new(StringComparer.Ordinal);
+
         private static Material runtimeNullMirrorMaterial;
 
         [RuntimeInitializeOnLoadMethod(
@@ -39,6 +43,7 @@ namespace MotorCity.Vehicle
         {
             RuntimeUrpMaterialCache.Clear();
             RuntimeMirrorMaterialCache.Clear();
+            RuntimeVehiclePrefabCache.Clear();
             runtimeNullMirrorMaterial = null;
         }
 
@@ -67,7 +72,7 @@ namespace MotorCity.Vehicle
                 return true;
 
             GameObject prefab =
-                Resources.Load<GameObject>(
+                LoadVehiclePrefab(
                     "MotorCity/PlayerCarVisual");
 
             if (prefab == null)
@@ -97,7 +102,7 @@ namespace MotorCity.Vehicle
                 return false;
 
             GameObject prefab =
-                Resources.Load<GameObject>(
+                LoadVehiclePrefab(
                     resourcePath);
 
             if (prefab == null)
@@ -122,6 +127,37 @@ namespace MotorCity.Vehicle
                 explicitWheelCentersLocal,
                 explicitWheelRadius,
                 useVisualMeshCollider);
+        }
+
+        private static GameObject LoadVehiclePrefab(
+            string resourcePath)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    resourcePath))
+            {
+                return null;
+            }
+
+            if (RuntimeVehiclePrefabCache.TryGetValue(
+                    resourcePath,
+                    out GameObject cached) &&
+                cached != null)
+            {
+                return cached;
+            }
+
+            GameObject prefab =
+                Resources.Load<GameObject>(
+                    resourcePath);
+
+            if (prefab != null)
+            {
+                RuntimeVehiclePrefabCache[
+                    resourcePath] =
+                    prefab;
+            }
+
+            return prefab;
         }
 
         private static bool Install(
