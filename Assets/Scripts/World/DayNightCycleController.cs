@@ -139,6 +139,9 @@ namespace MotorCity.World
                     true);
 
                 ApplyStreetLights();
+
+                CityAssetRuntimeInstaller
+                    .RefreshCityReflectionProbes();
             }
         }
 
@@ -177,6 +180,9 @@ namespace MotorCity.World
 
             ApplyEnvironment(
                 true);
+
+            CityAssetRuntimeInstaller
+                .RefreshCityReflectionProbes();
 
             initialized =
                 true;
@@ -753,10 +759,21 @@ namespace MotorCity.World
                 IsNight !=
                 lastNightState)
             {
+                bool nightChanged =
+                    IsNight !=
+                    lastNightState;
+
                 lastNightState =
                     IsNight;
 
                 ApplyStreetLights();
+
+                if (nightChanged &&
+                    initialized)
+                {
+                    CityAssetRuntimeInstaller
+                        .RefreshCityReflectionProbes();
+                }
             }
         }
 
