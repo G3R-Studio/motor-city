@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using MotorCity.Input;
 using MotorCity.Localization;
@@ -92,6 +93,8 @@ namespace MotorCity.Vehicle
 
         private bool wheelRigReady;
         private bool drivingEnabled = true;
+        private readonly HashSet<string> drivingBlockers =
+            new(StringComparer.Ordinal);
         private bool presentationLock;
         private float presentationLockTimer;
         private bool warnedMissingPrometeo;
@@ -301,9 +304,6 @@ namespace MotorCity.Vehicle
                 {
                     SetPresentationLock(
                         false);
-
-                    SetDrivingEnabled(
-                        true);
                 }
             }
 
@@ -2005,16 +2005,16 @@ namespace MotorCity.Vehicle
                 presentationLockTimer =
                     0f;
 
+                ApplyDrivingEnabled(
+                    drivingBlockers.Count == 0);
+
                 return;
             }
 
             // Opening presentation must block player input without freezing
             // Rigidbody gravity. The car intentionally spawns slightly above
             // the road and must be allowed to settle naturally.
-            drivingEnabled =
-                false;
-
-            SetPrometeoEnabled(
+            ApplyDrivingEnabled(
                 false);
 
             for (int i = 0;
@@ -2047,22 +2047,21 @@ namespace MotorCity.Vehicle
                     0f;
 
                 ReleaseResetBrakes();
-                SetDrivingEnabled(
-                    true);
+                SetDrivingBlocked(
+                    "Garage",
+                    false);
 
                 return;
             }
 
             // Garage mode blocks every player driving input while leaving
             // Rigidbody gravity, WheelCollider suspension and contacts alive.
-            drivingEnabled =
-                false;
+            SetDrivingBlocked(
+                "Garage",
+                true);
 
             resetHoldTimer =
                 0f;
-
-            SetPrometeoEnabled(
-                false);
 
             throttleHeld =
                 false;
@@ -2110,21 +2109,42 @@ namespace MotorCity.Vehicle
             UpdatePrometeoInputProxies();
         }
 
+        public void SetDrivingBlocked(
+            string reason,
+            bool blocked)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    reason))
+            {
+                reason = "Legacy";
+            }
+
+            bool changed =
+                blocked
+                    ? drivingBlockers.Add(
+                        reason)
+                    : drivingBlockers.Remove(
+                        reason);
+
+            if (!changed)
+                return;
+
+            ApplyDrivingEnabled(
+                drivingBlockers.Count == 0 &&
+                !presentationLock);
+        }
+
         public void SetDrivingEnabled(
             bool enabled)
         {
-            if (presentationLock)
-            {
-                // UI systems periodically refresh driving state. While the
-                // opening camera owns the vehicle, ignore those attempts
-                // instead of calling ClearMotion every frame.
-                if (enabled ||
-                    !drivingEnabled)
-                {
-                    return;
-                }
-            }
+            SetDrivingBlocked(
+                "Legacy",
+                !enabled);
+        }
 
+        private void ApplyDrivingEnabled(
+            bool enabled)
+        {
             if (drivingEnabled ==
                 enabled)
             {
