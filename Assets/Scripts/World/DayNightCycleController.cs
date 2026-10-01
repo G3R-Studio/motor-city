@@ -13,7 +13,7 @@ namespace MotorCity.World
             "MotorCity/Environment/DayNightSettings";
 
         private const float EnvironmentUpdateInterval =
-            0.05f;
+            0.10f;
 
         private const float LampUpdateInterval =
             0.25f;
