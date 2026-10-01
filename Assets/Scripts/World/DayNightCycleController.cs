@@ -443,7 +443,7 @@ namespace MotorCity.World
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogStartDistance = 200f;
-            RenderSettings.fogEndDistance = 1250f;
+            RenderSettings.fogEndDistance = 650f;
 
             Color fogDay =
                 new Color(0.56f, 0.61f, 0.66f);
