@@ -701,23 +701,9 @@ public class PrometeoCarController : MonoBehaviour
       }else{
         isDrifting = false;
       }
-      //If the 'driftingAxis' value is not 1f, it means that the wheels have not reach their maximum drifting
-      //value, so, we are going to continue increasing the sideways friction of the wheels until driftingAxis
-      // = 1f.
-      if(driftingAxis < 1f){
-        FLwheelFriction.extremumSlip = FLWextremumSlip * handbrakeDriftMultiplier * driftingAxis;
-        frontLeftCollider.sidewaysFriction = FLwheelFriction;
-
-        FRwheelFriction.extremumSlip = FRWextremumSlip * handbrakeDriftMultiplier * driftingAxis;
-        frontRightCollider.sidewaysFriction = FRwheelFriction;
-
-        RLwheelFriction.extremumSlip = RLWextremumSlip * handbrakeDriftMultiplier * driftingAxis;
-        rearLeftCollider.sidewaysFriction = RLwheelFriction;
-
-        RRwheelFriction.extremumSlip = RRWextremumSlip * handbrakeDriftMultiplier * driftingAxis;
-        rearRightCollider.sidewaysFriction = RRwheelFriction;
-      }
-
+      // Motor City owns WheelCollider friction. Prometeo only keeps
+      // handbrake/drift telemetry here so drive modes, upgrades and vehicle
+      // profiles cannot be overwritten by cached startup friction values.
       // Whenever the player uses the handbrake, it means that the wheels are locked, so we set 'isTractionLocked = true'
       // and, as a consequense, the car starts to emit trails to simulate the wheel skids.
       isTractionLocked = true;
@@ -778,41 +764,8 @@ public class PrometeoCarController : MonoBehaviour
         driftingAxis = 0f;
       }
 
-      //If the 'driftingAxis' value is not 0f, it means that the wheels have not recovered their traction.
-      //We are going to continue decreasing the sideways friction of the wheels until we reach the initial
-      // car's grip.
-      if(FLwheelFriction.extremumSlip > FLWextremumSlip){
-        FLwheelFriction.extremumSlip = FLWextremumSlip * handbrakeDriftMultiplier * driftingAxis;
-        frontLeftCollider.sidewaysFriction = FLwheelFriction;
-
-        FRwheelFriction.extremumSlip = FRWextremumSlip * handbrakeDriftMultiplier * driftingAxis;
-        frontRightCollider.sidewaysFriction = FRwheelFriction;
-
-        RLwheelFriction.extremumSlip = RLWextremumSlip * handbrakeDriftMultiplier * driftingAxis;
-        rearLeftCollider.sidewaysFriction = RLwheelFriction;
-
-        RRwheelFriction.extremumSlip = RRWextremumSlip * handbrakeDriftMultiplier * driftingAxis;
-        rearRightCollider.sidewaysFriction = RRwheelFriction;
-
-        // Update() already calls RecoverTraction while the handbrake is released.
-        // Scheduling another copy here stacks callbacks and makes traction
-        // recovery depend on render-frame timing, especially in WebGL.
-
-      }else if (FLwheelFriction.extremumSlip < FLWextremumSlip){
-        FLwheelFriction.extremumSlip = FLWextremumSlip;
-        frontLeftCollider.sidewaysFriction = FLwheelFriction;
-
-        FRwheelFriction.extremumSlip = FRWextremumSlip;
-        frontRightCollider.sidewaysFriction = FRwheelFriction;
-
-        RLwheelFriction.extremumSlip = RLWextremumSlip;
-        rearLeftCollider.sidewaysFriction = RLwheelFriction;
-
-        RRwheelFriction.extremumSlip = RRWextremumSlip;
-        rearRightCollider.sidewaysFriction = RRwheelFriction;
-
-        driftingAxis = 0f;
-      }
+      // WheelCollider friction recovery is handled by ArcadeCarController.
+      // Do not restore the startup curves cached by Prometeo.
     }
 
 }
