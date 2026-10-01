@@ -151,8 +151,9 @@ namespace MotorCity.Gameplay
             lastStatusPercent =
                 -1;
 
-            car.SetDrivingEnabled(
-                false);
+            car.SetDrivingBlocked(
+                "CarWashJob",
+                true);
 
             UpdateStatus();
         }
@@ -263,8 +264,12 @@ namespace MotorCity.Gameplay
             IsActive =
                 false;
 
-            car.SetDrivingEnabled(
+            car.SetDrivingBlocked(
+                "CarWashJob",
                 false);
+            car.SetDrivingBlocked(
+                "ActivityResult",
+                true);
 
             activities.ShowResult(
                 ActivityId,
@@ -298,6 +303,10 @@ namespace MotorCity.Gameplay
 
             activities.DismissResult(false);
 
+            car.SetDrivingBlocked(
+                "ActivityResult",
+                false);
+
             car.TeleportTo(
                 StartPoint +
                 Vector3.up * 1.1f,
@@ -323,8 +332,12 @@ namespace MotorCity.Gameplay
             phaseProgress =
                 0f;
 
-            car?.SetDrivingEnabled(
-                true);
+            car?.SetDrivingBlocked(
+                "CarWashJob",
+                false);
+            car?.SetDrivingBlocked(
+                "ActivityResult",
+                false);
 
             activities?.End(
                 ActivityId);
