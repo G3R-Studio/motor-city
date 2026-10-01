@@ -4,7 +4,9 @@ namespace MotorCity.World
 {
     public sealed class DayNightSettings : ScriptableObject
     {
+        [SerializeField] private Material morningSkybox;
         [SerializeField] private Material daySkybox;
+        [SerializeField] private Material eveningSkybox;
         [SerializeField] private Material nightSkybox;
 
         [SerializeField] private Color daySkyColor =
@@ -31,7 +33,9 @@ namespace MotorCity.World
         [SerializeField] private float moonIntensity =
             0.32f;
 
+        public Material MorningSkybox => morningSkybox;
         public Material DaySkybox => daySkybox;
+        public Material EveningSkybox => eveningSkybox;
         public Material NightSkybox => nightSkybox;
         public Color DaySkyColor => daySkyColor;
         public Color DayEquatorColor => dayEquatorColor;
