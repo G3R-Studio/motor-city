@@ -36,10 +36,8 @@ namespace MotorCity.Gameplay
                 : reputation.Level;
 
         public bool SecondaryProgressionAllowed =>
-            (onboarding == null ||
-             onboarding.IsComplete) &&
-            (story == null ||
-             story.IsComplete);
+            onboarding == null ||
+            onboarding.IsComplete;
 
         public bool IsRookieDeliveryStep =>
             onboarding != null &&
