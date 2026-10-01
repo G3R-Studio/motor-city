@@ -1134,9 +1134,9 @@ namespace MotorCity.UI
                     0.47f,
                     0.32f,
                     1f,
-                    0.18f),
-                5f,
-                4f);
+                    0.13f),
+                4f,
+                3f);
 
             AddSpriteLessPanelGlow(
                 appearancePanel,
@@ -1144,9 +1144,9 @@ namespace MotorCity.UI
                     0.22f,
                     0.66f,
                     1f,
-                    0.07f),
-                9f,
-                7f);
+                    0.045f),
+                7f,
+                5f);
 
             CreateAccent(
                 appearancePanel,
@@ -1376,6 +1376,20 @@ namespace MotorCity.UI
             shadow.useGraphicAlpha =
                 true;
 
+            AddGarageNeonFrame(
+                rect,
+                new Color(
+                    0.56f,
+                    0.28f,
+                    1f,
+                    0.16f),
+                new Color(
+                    0.34f,
+                    0.70f,
+                    1f,
+                    0.22f),
+                2f);
+
             return buttonObject;
         }
 
@@ -1468,12 +1482,40 @@ namespace MotorCity.UI
             Color innerStrokeColor,
             float inset)
         {
-            // Disabled for now.
-            //
-            // UIEffect modifies the source Graphic itself, which changes the
-            // glass panel fill/alpha and makes the garage HUD wash out.
-            // Keep the hook in place so the layout code does not need to be
-            // rewritten again when a dedicated border-only solution is used.
+            if (target == null)
+                return;
+
+            Color tightColor =
+                new Color(
+                    innerStrokeColor.r,
+                    innerStrokeColor.g,
+                    innerStrokeColor.b,
+                    Mathf.Clamp(
+                        innerStrokeColor.a * 0.62f,
+                        0.10f,
+                        0.24f));
+
+            Color softColor =
+                new Color(
+                    outerGlowColor.r,
+                    outerGlowColor.g,
+                    outerGlowColor.b,
+                    Mathf.Clamp(
+                        outerGlowColor.a * 0.30f,
+                        0.035f,
+                        0.085f));
+
+            AddSpriteLessPanelGlow(
+                target,
+                tightColor,
+                2.5f,
+                2.25f);
+
+            AddSpriteLessPanelGlow(
+                target,
+                softColor,
+                6f,
+                4.5f);
         }
 
         private void AddGarageActionIcon(
