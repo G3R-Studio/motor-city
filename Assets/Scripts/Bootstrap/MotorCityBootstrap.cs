@@ -8,6 +8,7 @@ using MotorCity.UI;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
@@ -1459,6 +1460,12 @@ namespace MotorCity.Bootstrap
             cameraObject.tag = "MainCamera";
             Camera camera = cameraObject.AddComponent<Camera>();
             cameraObject.AddComponent<AudioListener>();
+
+            UniversalAdditionalCameraData cameraData =
+                cameraObject.AddComponent<UniversalAdditionalCameraData>();
+            cameraData.renderPostProcessing =
+                true;
+
             camera.fieldOfView = 62f;
             camera.nearClipPlane = 0.12f;
             camera.farClipPlane = 2200f;
