@@ -19,7 +19,7 @@ namespace MotorCity.World
             0.25f;
 
         private const float LampEnableDistance =
-            110f;
+            170f;
 
         public const float MorningTime01 = 0.32f;
         public const float DayTime01 = 0.50f;
@@ -810,28 +810,28 @@ namespace MotorCity.World
                 // and a warmer practical-light color to illuminate the road.
                 sourceLight.color =
                     isParkLamp
-                        ? new Color(1.00f, 0.82f, 0.62f)
-                        : new Color(1.00f, 0.76f, 0.48f);
+                        ? new Color(1.00f, 0.84f, 0.66f)
+                        : new Color(1.00f, 0.78f, 0.52f);
 
                 sourceLight.intensity =
                     isParkLamp
-                        ? 5.0f
-                        : 5.8f;
+                        ? 6.2f
+                        : 7.8f;
 
                 sourceLight.range =
                     isParkLamp
-                        ? 14f
-                        : 17f;
+                        ? 17f
+                        : 24f;
 
                 sourceLight.spotAngle =
                     isParkLamp
-                        ? 92f
-                        : 88f;
+                        ? 98f
+                        : 96f;
 
                 sourceLight.innerSpotAngle =
                     isParkLamp
-                        ? 36f
-                        : 34f;
+                        ? 40f
+                        : 38f;
 
                 sourceLight.shadows =
                     LightShadows.None;
@@ -919,13 +919,13 @@ namespace MotorCity.World
                 MotorCityQualityRuntime.CurrentPreset switch
                 {
                     MotorCityQualityPreset.Low =>
-                        82f,
+                        90f,
 
                     MotorCityQualityPreset.High =>
                         LampEnableDistance,
 
                     _ =>
-                        98f
+                        130f
                 };
 
             float maximumDistanceSquared =
