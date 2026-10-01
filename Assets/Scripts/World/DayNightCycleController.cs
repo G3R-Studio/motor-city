@@ -50,6 +50,12 @@ namespace MotorCity.World
         private readonly HashSet<Light> desiredLampLights =
             new();
 
+        private readonly HashSet<Light> shadowedLampLights =
+            new();
+
+        private readonly List<Light> shadowToggleBuffer =
+            new();
+
         private readonly List<LampCandidate> lampCandidates =
             new();
 
@@ -176,6 +182,13 @@ namespace MotorCity.World
 
             BuildRuntimeSkyboxes();
             BuildCityPostProcessing();
+
+            MotorCityQualityRuntime.PresetChanged -=
+                HandleQualityPresetChanged;
+
+            MotorCityQualityRuntime.PresetChanged +=
+                HandleQualityPresetChanged;
+
             RefreshStreetLights();
 
             ApplyEnvironment(
@@ -231,6 +244,11 @@ namespace MotorCity.World
 
         private void OnDestroy()
         {
+            MotorCityQualityRuntime.PresetChanged -=
+                HandleQualityPresetChanged;
+
+            DisableLampShadows();
+
             if (runtimeMorningSkybox != null)
                 Destroy(
                     runtimeMorningSkybox);
@@ -1050,6 +1068,19 @@ namespace MotorCity.World
                         80
                 };
 
+            int shadowBudget =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low =>
+                        0,
+
+                    MotorCityQualityPreset.High =>
+                        6,
+
+                    _ =>
+                        2
+                };
+
             float maximumDistanceSquared =
                 lampDistance *
                 lampDistance;
@@ -1155,6 +1186,9 @@ namespace MotorCity.World
                 }
             }
 
+            ApplyLampShadows(
+                shadowBudget);
+
             lampToggleBuffer.Clear();
 
             foreach (Light light in
@@ -1209,6 +1243,8 @@ namespace MotorCity.World
 
         private void DisableEnabledLampLights()
         {
+            DisableLampShadows();
+
             if (enabledLampLights.Count == 0)
                 return;
 
@@ -1238,6 +1274,128 @@ namespace MotorCity.World
 
             enabledLampLights.Clear();
             desiredLampLights.Clear();
+        }
+
+        private void HandleQualityPresetChanged()
+        {
+            if (!initialized)
+                return;
+
+            ResolveLampObserver(
+                true);
+
+            ApplyStreetLights();
+        }
+
+        private void ApplyLampShadows(
+            int shadowBudget)
+        {
+            shadowToggleBuffer.Clear();
+
+            foreach (Light light in
+                     shadowedLampLights)
+            {
+                shadowToggleBuffer.Add(
+                    light);
+            }
+
+            for (int i = 0;
+                 i < shadowToggleBuffer.Count;
+                 i++)
+            {
+                Light light =
+                    shadowToggleBuffer[i];
+
+                if (light != null &&
+                    light.shadows !=
+                        LightShadows.None)
+                {
+                    light.shadows =
+                        LightShadows.None;
+                }
+            }
+
+            shadowedLampLights.Clear();
+
+            if (shadowBudget <= 0)
+                return;
+
+            int count =
+                Mathf.Min(
+                    shadowBudget,
+                    lampCandidates.Count);
+
+            LightShadows shadowMode =
+                MotorCityQualityRuntime.CurrentPreset ==
+                MotorCityQualityPreset.High
+                    ? LightShadows.Soft
+                    : LightShadows.Hard;
+
+            for (int i = 0;
+                 i < count;
+                 i++)
+            {
+                Light light =
+                    lampSources[
+                        lampCandidates[i].SourceIndex]
+                    .Light;
+
+                if (light == null ||
+                    !desiredLampLights.Contains(
+                        light))
+                {
+                    continue;
+                }
+
+                light.shadows =
+                    shadowMode;
+
+                light.shadowStrength =
+                    MotorCityQualityRuntime.CurrentPreset ==
+                    MotorCityQualityPreset.High
+                        ? 0.58f
+                        : 0.42f;
+
+                light.shadowResolution =
+                    MotorCityQualityRuntime.CurrentPreset ==
+                    MotorCityQualityPreset.High
+                        ? UnityEngine.Rendering.LightShadowResolution.Medium
+                        : UnityEngine.Rendering.LightShadowResolution.Low;
+
+                shadowedLampLights.Add(
+                    light);
+            }
+        }
+
+        private void DisableLampShadows()
+        {
+            if (shadowedLampLights.Count == 0)
+                return;
+
+            shadowToggleBuffer.Clear();
+
+            foreach (Light light in
+                     shadowedLampLights)
+            {
+                shadowToggleBuffer.Add(
+                    light);
+            }
+
+            for (int i = 0;
+                 i < shadowToggleBuffer.Count;
+                 i++)
+            {
+                Light light =
+                    shadowToggleBuffer[i];
+
+                if (light != null)
+                {
+                    light.shadows =
+                        LightShadows.None;
+                }
+            }
+
+            shadowedLampLights.Clear();
         }
 
         private static Vector2Int LampCell(
