@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: FCG_Trees-01
+  m_Name: Trees-01_de54ebd2
   m_Shader: {fileID: 4800000, guid: 99db4ac3a197471ca1a92e04ef554da8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
