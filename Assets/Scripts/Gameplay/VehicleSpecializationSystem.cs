@@ -61,7 +61,7 @@ namespace MotorCity.Gameplay
 
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown +=
+                activityManager.ActivityCompleted +=
                     HandleActivityResult;
             }
         }
@@ -82,7 +82,7 @@ namespace MotorCity.Gameplay
         {
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown -=
+                activityManager.ActivityCompleted -=
                     HandleActivityResult;
             }
         }
@@ -159,12 +159,10 @@ namespace MotorCity.Gameplay
         }
 
         private void HandleActivityResult(
-            string activityId,
-            bool success)
+            string activityId)
         {
             if (activityManager == null ||
                 !activityManager.SecondaryProgressionAllowed ||
-                !success ||
                 roster == null)
             {
                 return;
