@@ -470,10 +470,10 @@ namespace MotorCity.World
                     false;
             }
 
-            InstallGarageReflectionProbe(
+            InstallGaragePresentationLighting(
                 garageTransform);
 
-            InstallGaragePresentationLighting(
+            InstallGarageReflectionProbe(
                 garageTransform);
 
             InstallGaragePresentationPostFx(
@@ -491,6 +491,21 @@ namespace MotorCity.World
 
             ApplyGarageInteriorMood(
                 active);
+
+            if (active &&
+                activeGarageInterior != null)
+            {
+                Transform probeTransform =
+                    activeGarageInterior.Find(
+                        "Garage Reflection Probe");
+
+                ReflectionProbe probe =
+                    probeTransform != null
+                        ? probeTransform.GetComponent<ReflectionProbe>()
+                        : null;
+
+                probe?.RenderProbe();
+            }
 
             if (garagePresentationPostFx != null)
             {
@@ -1123,7 +1138,7 @@ namespace MotorCity.World
                 1000f;
 
             probe.intensity =
-                0.18f;
+                0.35f;
 
             probe.blendDistance =
                 2f;
@@ -1132,7 +1147,7 @@ namespace MotorCity.World
                 true;
 
             probe.boxProjection =
-                false;
+                true;
 
             probe.cullingMask =
                 ~0;
