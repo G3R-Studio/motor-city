@@ -647,8 +647,9 @@ namespace MotorCity.UI
             touchPauseRoot?.SetActive(
                 false);
 
-            car?.SetDrivingEnabled(
-                false);
+            car?.SetDrivingBlocked(
+                "PauseMenu",
+                true);
 
             MotorCityPlatformRuntime.SetGameplayUiPaused(
                 true);
@@ -677,6 +678,10 @@ namespace MotorCity.UI
                 false);
 
             MotorCityInput.ClearVirtualState();
+
+            car?.SetDrivingBlocked(
+                "PauseMenu",
+                false);
 
             RefreshDrivingEnabledForUi();
 
