@@ -1103,12 +1103,18 @@ namespace MotorCity.Vehicle
                         _ => -0.035f
                     };
 
+                float upgradeStability =
+                    GetStabilityDampingBonus() *
+                    (currentDriveMode == DriveMode.Drift
+                        ? 0.22f
+                        : 1f);
+
                 body.angularDamping =
                     Mathf.Max(
                         0.05f,
                         angularDamping +
                         vehicleStabilityBonus +
-                        GetStabilityDampingBonus() +
+                        upgradeStability +
                         modeDamping);
             }
         }
@@ -1130,7 +1136,7 @@ namespace MotorCity.Vehicle
                 GetMasterySpeedBonus() +
                 modeBonus,
                 20,
-                360);
+                460);
         }
 
         private int GetTunedAccelerationMultiplier()
@@ -1150,7 +1156,7 @@ namespace MotorCity.Vehicle
                 GetMasteryAccelerationBonus() +
                 modeBonus,
                 1,
-                24);
+                32);
         }
 
         private int GetMasterySpeedBonus()
@@ -1893,6 +1899,35 @@ namespace MotorCity.Vehicle
                             (rear ? 1.20f : 1.30f) *
                             upgradeGrip;
                         break;
+                }
+
+                if (rear &&
+                    handbrakeHeld)
+                {
+                    // Handbrake grip loss belongs here, alongside drive mode,
+                    // upgrades, mastery and the selected vehicle profile.
+                    // This prevents Prometeo from restoring stale startup
+                    // friction after a mode/car change.
+                    float handbrakeGripFactor =
+                        currentDriveMode switch
+                        {
+                            DriveMode.Drift => 0.42f,
+                            DriveMode.Sport => 0.58f,
+                            _ => 0.50f
+                        };
+
+                    sideways.extremumSlip *=
+                        currentDriveMode == DriveMode.Drift
+                            ? 1.55f
+                            : 1.35f;
+
+                    sideways.asymptoteSlip *=
+                        currentDriveMode == DriveMode.Drift
+                            ? 1.45f
+                            : 1.25f;
+
+                    sideways.stiffness *=
+                        handbrakeGripFactor;
                 }
 
                 wheel.forwardFriction =
