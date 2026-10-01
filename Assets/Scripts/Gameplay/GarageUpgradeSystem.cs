@@ -1075,6 +1075,16 @@ namespace MotorCity.Gameplay
                         StabilityKey,
                         0));
 
+                // Legacy upgrade keys represented one global upgrade set.
+                // Remove them immediately after migrating to the currently
+                // selected car so they cannot be copied into every vehicle.
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    EngineKey);
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    GripKey);
+                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                    StabilityKey);
+
                 MotorCity.Persistence.MotorCitySaveService.Save();
             }
 
