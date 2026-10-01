@@ -732,9 +732,19 @@ namespace MotorCity.World
                 daylight;
 
             directionalLight.shadows =
-                daylight > 0.12f
-                    ? LightShadows.Soft
-                    : LightShadows.None;
+                daylight <= 0.12f
+                    ? LightShadows.None
+                    : MotorCityQualityRuntime.CurrentPreset switch
+                    {
+                        MotorCityQualityPreset.Low =>
+                            LightShadows.None,
+
+                        MotorCityQualityPreset.High =>
+                            LightShadows.Soft,
+
+                        _ =>
+                            LightShadows.Hard
+                    };
 
             if (moonLight != null)
             {
