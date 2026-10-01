@@ -3037,7 +3037,7 @@ public static class FantasticCityGeneratorUrpFixer
                 // cutout threshold.
                 material.SetFloat(
                     "_Cutoff",
-                    0.12f);
+                    0.22f);
             }
 
             material.EnableKeyword(
