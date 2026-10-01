@@ -478,7 +478,9 @@ namespace MotorCity.Gameplay
             IsActive = false;
             isCountingDown = false;
             checkpointIndex = 0;
-            car.SetDrivingEnabled(false);
+            car.SetDrivingBlocked(
+                "ActivityCountdown",
+                false);
 
             CompleteEvent(
                 current);
@@ -501,8 +503,6 @@ namespace MotorCity.Gameplay
 
             messageTimer =
                 MessageSeconds;
-
-            car.SetDrivingEnabled(true);
         }
 
         private void OnDestroy()
