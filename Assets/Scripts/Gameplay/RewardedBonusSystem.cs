@@ -22,7 +22,12 @@ namespace MotorCity.Gameplay
 
         private const float DayCheckInterval =
             1f;
+        private const float RequestWatchdogSeconds =
+            12f;
+
         private bool requestRunning;
+        private float requestDeadlineRealtime;
+        private int requestSerial;
 
         public bool ShowMessage => messageTimer > 0f;
         public string StatusText { get; private set; }
@@ -95,6 +100,25 @@ namespace MotorCity.Gameplay
                 messageTimer = Mathf.Max(
                     0f,
                     messageTimer - Time.unscaledDeltaTime);
+
+            if (requestRunning &&
+                requestDeadlineRealtime > 0f &&
+                Time.realtimeSinceStartup >=
+                    requestDeadlineRealtime)
+            {
+                requestRunning =
+                    false;
+
+                requestDeadlineRealtime =
+                    0f;
+
+                StatusText =
+                    MotorCityLocalization.Text(
+                        "rewarded.no_reward");
+
+                messageTimer =
+                    3.5f;
+            }
         }
 
         public void TryShow()
@@ -109,6 +133,15 @@ namespace MotorCity.Gameplay
             }
 
             requestRunning = true;
+            requestSerial++;
+
+            int serial =
+                requestSerial;
+
+            requestDeadlineRealtime =
+                Time.realtimeSinceStartup +
+                RequestWatchdogSeconds;
+
             StatusText = MotorCityLocalization.Text(
                 "rewarded.opening");
             messageTimer = 3f;
@@ -117,7 +150,14 @@ namespace MotorCity.Gameplay
                 "garage_bonus",
                 rewarded =>
                 {
+                    if (!requestRunning ||
+                        serial != requestSerial)
+                    {
+                        return;
+                    }
+
                     requestRunning = false;
+                    requestDeadlineRealtime = 0f;
 
                     if (!rewarded)
                     {
