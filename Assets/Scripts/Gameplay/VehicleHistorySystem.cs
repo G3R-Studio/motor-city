@@ -85,7 +85,7 @@ namespace MotorCity.Gameplay
                 roster.VehicleChanged += HandleVehicleChanged;
 
             if (activityManager != null)
-                activityManager.ActivityResultShown += HandleActivityResult;
+                activityManager.ActivityCompleted += HandleActivityResult;
         }
 
         private void Update()
@@ -125,7 +125,7 @@ namespace MotorCity.Gameplay
                 roster.VehicleChanged -= HandleVehicleChanged;
 
             if (activityManager != null)
-                activityManager.ActivityResultShown -= HandleActivityResult;
+                activityManager.ActivityCompleted -= HandleActivityResult;
 
             SaveCurrentVehicle();
         }
@@ -346,17 +346,13 @@ namespace MotorCity.Gameplay
         }
 
         private void HandleActivityResult(
-            string activityId,
-            bool success)
+            string activityId)
         {
             if (activityManager != null &&
                 !activityManager.SecondaryProgressionAllowed)
             {
                 return;
             }
-
-            if (!success)
-                return;
 
             victories++;
 
