@@ -55,7 +55,7 @@ namespace MotorCity.World
 
         private void ApplyAtmosphere()
         {
-            float day01 = dayNight != null ? dayNight.Day01 : 0.5f;
+            float day01 = dayNight != null ? dayNight.TimeOfDay01 : 0.5f;
             float daylight = Mathf.Clamp01(Mathf.Sin(day01 * Mathf.PI));
             float twilight = 1f - Mathf.Abs(daylight * 2f - 1f);
 
