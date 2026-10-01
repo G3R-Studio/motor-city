@@ -56,6 +56,7 @@ namespace MotorCity.World
         private Transform lampObserver;
         private bool lastNightState;
         private bool initialized;
+        private bool garagePresentationEnvironmentLocked;
         private Volume cityPostFxVolume;
         private VolumeProfile cityPostFxProfile;
         private Bloom cityBloom;
@@ -97,6 +98,31 @@ namespace MotorCity.World
         public void SetEvening() => SetTimeOfDay(EveningTime01);
 
         public void SetNight() => SetTimeOfDay(NightTime01);
+
+        public void SetGaragePresentationEnvironment(
+            bool active)
+        {
+            if (garagePresentationEnvironmentLocked ==
+                active)
+            {
+                return;
+            }
+
+            garagePresentationEnvironmentLocked =
+                active;
+
+            if (!active &&
+                initialized)
+            {
+                ApplyEnvironment(
+                    true);
+
+                ResolveLampObserver(
+                    true);
+
+                ApplyStreetLights();
+            }
+        }
 
         public void SetCityPostProcessingEnabled(
             bool enabled)
@@ -385,6 +411,13 @@ namespace MotorCity.World
             Shader.SetGlobalFloat(
                 "_MotorCityNightEmission",
                 NightAmount);
+
+            // While the garage presentation is active, keep advancing the
+            // clock and NightAmount for gameplay logic but stop the city
+            // controller from rewriting the global environment. The garage
+            // owns its local lighting/post-processing until presentation ends.
+            if (garagePresentationEnvironmentLocked)
+                return;
 
             if (cityBloom != null)
             {
