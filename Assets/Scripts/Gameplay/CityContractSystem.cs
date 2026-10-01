@@ -91,9 +91,6 @@ namespace MotorCity.Gameplay
 
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown +=
-                    HandleActivityResult;
-
                 activityManager.ActivityCompleted +=
                     HandleActivityCompleted;
             }
@@ -115,9 +112,6 @@ namespace MotorCity.Gameplay
         {
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown -=
-                    HandleActivityResult;
-
                 activityManager.ActivityCompleted -=
                     HandleActivityCompleted;
             }
@@ -181,19 +175,51 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (activityId !=
-                "underground")
+            bool changed =
+                false;
+
+            switch (activityId)
             {
-                return;
+                case "sprint":
+                case "circuit":
+                    racingProgress++;
+                    changed = true;
+                    break;
+
+                case "drift":
+                    driftProgress++;
+                    changed = true;
+                    break;
+
+                case "delivery":
+                    deliveryProgress++;
+                    changed = true;
+                    break;
+
+                case "underground":
+                    changed = true;
+                    break;
+
+                default:
+                    return;
             }
+
+            if (IsNight())
+            {
+                nightProgress++;
+            }
+            else if (activityId ==
+                     "underground")
+            {
+                changed =
+                    false;
+            }
+
+            if (!changed)
+                return;
 
             ContractDefinition contract =
                 CurrentDefinition();
-
-            if (contract.NightRequired <= 0)
-                return;
-
-            nightProgress++;
 
             if (IsComplete(
                     contract))
@@ -213,65 +239,6 @@ namespace MotorCity.Gameplay
                     contract.Name,
                     ProgressText(
                         contract));
-
-            messageTimer =
-                3f;
-        }
-
-        private void HandleActivityResult(
-            string activityId,
-            bool success)
-        {
-            if (activityManager != null &&
-                !activityManager.SecondaryProgressionAllowed)
-            {
-                return;
-            }
-
-            if (!success)
-                return;
-
-            switch (activityId)
-            {
-                case "sprint":
-                case "circuit":
-                    racingProgress++;
-                    break;
-
-                case "drift":
-                    driftProgress++;
-                    break;
-
-                case "delivery":
-                    deliveryProgress++;
-                    break;
-
-                default:
-                    return;
-            }
-
-            if (IsNight())
-                nightProgress++;
-
-            ContractDefinition contract =
-                CurrentDefinition();
-
-            if (IsComplete(
-                    contract))
-            {
-                CompleteContract(
-                    contract);
-                return;
-            }
-
-            Save();
-
-            StatusText =
-                MotorCityLocalization.Format(
-                    "contract.progress",
-                    contract.Client,
-                    contract.Name,
-                    ProgressText(contract));
 
             messageTimer =
                 3f;
