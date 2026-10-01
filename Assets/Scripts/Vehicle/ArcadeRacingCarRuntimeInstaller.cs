@@ -765,6 +765,7 @@ namespace MotorCity.Vehicle
 
             VehicleVisualCacheEntry entry =
                 new(
+                    cacheKey,
                     visual,
                     wheelRoots,
                     wheelCentersLocal,
@@ -806,8 +807,13 @@ namespace MotorCity.Vehicle
             if (carRoot == null)
                 return;
 
+            ArcadeCarController car =
+                carRoot.GetComponent<ArcadeCarController>();
+
             int carId =
-                carRoot.gameObject.GetInstanceID();
+                car != null
+                    ? car.GetInstanceID()
+                    : carRoot.gameObject.GetInstanceID();
 
             if (ActiveVehicleVisualCache.TryGetValue(
                     carId,
@@ -872,8 +878,31 @@ namespace MotorCity.Vehicle
             }
         }
 
+        private static string SanitizeCacheKey(
+            string value)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    value))
+            {
+                return "Vehicle";
+            }
+
+            return
+                value
+                    .Replace(
+                        '/',
+                        '_')
+                    .Replace(
+                        '\\',
+                        '_')
+                    .Replace(
+                        ' ',
+                        '_');
+        }
+
         private sealed class VehicleVisualCacheEntry
         {
+            public readonly string CacheKey;
             public readonly GameObject Visual;
             public readonly Transform[] WheelRoots;
             public readonly Vector3[] WheelCentersLocal;
@@ -884,6 +913,7 @@ namespace MotorCity.Vehicle
             public readonly bool UseVisualMeshCollider;
 
             public VehicleVisualCacheEntry(
+                string cacheKey,
                 GameObject visual,
                 Transform[] wheelRoots,
                 Vector3[] wheelCentersLocal,
@@ -893,6 +923,9 @@ namespace MotorCity.Vehicle
                 Vector3[] additionalOffsetsLocal,
                 bool useVisualMeshCollider)
             {
+                CacheKey =
+                    cacheKey;
+
                 Visual =
                     visual;
 
@@ -931,6 +964,14 @@ namespace MotorCity.Vehicle
             {
                 if (Visual != null)
                 {
+                    Visual.name =
+                        active
+                            ? RuntimeVisualName
+                            : RuntimeVisualName +
+                              "_Cached_" +
+                              SanitizeCacheKey(
+                                  CacheKey);
+
                     Visual.SetActive(
                         active);
                 }
