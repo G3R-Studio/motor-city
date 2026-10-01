@@ -348,6 +348,28 @@ namespace MotorCity.World
             float twilight =
                 horizonAmount * horizonAmount;
 
+            float morningAmount =
+                Mathf.Clamp01(
+                    1f -
+                    Mathf.Abs(
+                        time01 -
+                        MorningTime01) /
+                    0.12f);
+
+            float eveningAmount =
+                Mathf.Clamp01(
+                    1f -
+                    Mathf.Abs(
+                        time01 -
+                        EveningTime01) /
+                    0.12f);
+
+            morningAmount *=
+                daylight;
+
+            eveningAmount *=
+                daylight;
+
             Shader.SetGlobalFloat(
                 "_MotorCityNightEmission",
                 NightAmount);
@@ -430,29 +452,59 @@ namespace MotorCity.World
                     dayEquator,
                     daylight);
 
-            Color duskSky =
+            Color morningSky =
                 new Color(
-                    0.48f,
-                    0.24f,
-                    0.12f);
+                    0.52f,
+                    0.31f,
+                    0.19f);
 
-            Color duskEquator =
+            Color morningEquator =
+                new Color(
+                    0.42f,
+                    0.25f,
+                    0.16f);
+
+            Color eveningSky =
+                new Color(
+                    0.46f,
+                    0.20f,
+                    0.10f);
+
+            Color eveningEquator =
                 new Color(
                     0.34f,
-                    0.16f,
-                    0.09f);
+                    0.13f,
+                    0.07f);
 
-            RenderSettings.ambientSkyColor =
+            Color timeSky =
                 Color.Lerp(
                     ambientSky,
-                    duskSky,
-                    twilight * 0.30f);
+                    morningSky,
+                    morningAmount * 0.34f);
 
-            RenderSettings.ambientEquatorColor =
+            timeSky =
+                Color.Lerp(
+                    timeSky,
+                    eveningSky,
+                    eveningAmount * 0.48f);
+
+            Color timeEquator =
                 Color.Lerp(
                     ambientEquator,
-                    duskEquator,
-                    twilight * 0.36f);
+                    morningEquator,
+                    morningAmount * 0.30f);
+
+            timeEquator =
+                Color.Lerp(
+                    timeEquator,
+                    eveningEquator,
+                    eveningAmount * 0.52f);
+
+            RenderSettings.ambientSkyColor =
+                timeSky;
+
+            RenderSettings.ambientEquatorColor =
+                timeEquator;
 
             // Match FCG URP DayNight.UpdateColor(): 0.07 at night,
             // 0.40 during day, blended here for Motor City's smooth cycle.
@@ -494,19 +546,56 @@ namespace MotorCity.World
             Color fogDusk =
                 new Color(0.40f, 0.25f, 0.19f);
 
+            Color baseFog =
+                Color.Lerp(
+                    fogNight,
+                    fogDay,
+                    daylight);
+
+            baseFog =
+                Color.Lerp(
+                    baseFog,
+                    new Color(
+                        0.62f,
+                        0.42f,
+                        0.30f),
+                    morningAmount * 0.12f);
+
             RenderSettings.fogColor =
                 Color.Lerp(
-                    Color.Lerp(fogNight, fogDay, daylight),
+                    baseFog,
                     fogDusk,
-                    twilight * 0.22f);
+                    eveningAmount * 0.24f);
+
+            Color daySunColor =
+                new Color(
+                    1.00f,
+                    0.95f,
+                    0.86f);
+
+            Color morningSunColor =
+                new Color(
+                    1.00f,
+                    0.72f,
+                    0.46f);
+
+            Color eveningSunColor =
+                new Color(
+                    1.00f,
+                    0.50f,
+                    0.24f);
 
             Color sunColor =
-                settings != null
-                    ? settings.SunColor
-                    : new Color(
-                        1f,
-                        0.94f,
-                        0.84f);
+                Color.Lerp(
+                    daySunColor,
+                    morningSunColor,
+                    morningAmount * 0.72f);
+
+            sunColor =
+                Color.Lerp(
+                    sunColor,
+                    eveningSunColor,
+                    eveningAmount * 0.88f);
 
             Color moonColor =
                 settings != null
@@ -516,10 +605,27 @@ namespace MotorCity.World
                         0.62f,
                         0.82f);
 
-            float sunIntensity =
+            float authoredSunIntensity =
                 settings != null
                     ? settings.SunIntensity
                     : 1.05f;
+
+            float daySunIntensity =
+                Mathf.Clamp(
+                    authoredSunIntensity,
+                    1.02f,
+                    1.16f);
+
+            float sunIntensity =
+                daySunIntensity *
+                Mathf.Lerp(
+                    1f,
+                    0.86f,
+                    morningAmount) *
+                Mathf.Lerp(
+                    1f,
+                    0.74f,
+                    eveningAmount);
 
             float moonIntensity =
                 settings != null
