@@ -68,9 +68,6 @@ namespace MotorCity.World
                     resetPosition,
                     resetRotation);
 
-                car.SetDrivingEnabled(
-                    true);
-
                 GetComponent<VehiclePositionPersistence>()
                     ?.SaveNow();
 
