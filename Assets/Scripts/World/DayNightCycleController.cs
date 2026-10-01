@@ -191,15 +191,15 @@ namespace MotorCity.World
             cityPostFxVolume.sharedProfile = cityPostFxProfile;
 
             cityBloom = cityPostFxProfile.Add<Bloom>(true);
-            cityBloom.threshold.Override(1.15f);
-            cityBloom.intensity.Override(0.12f);
-            cityBloom.scatter.Override(0.55f);
+            cityBloom.threshold.Override(1.1f);
+            cityBloom.intensity.Override(0.10f);
+            cityBloom.scatter.Override(0.50f);
             cityBloom.clamp.Override(6f);
             cityBloom.highQualityFiltering.Override(false);
 
             cityColor = cityPostFxProfile.Add<ColorAdjustments>(true);
             cityColor.postExposure.Override(0f);
-            cityColor.contrast.Override(2f);
+            cityColor.contrast.Override(0f);
             cityColor.saturation.Override(0f);
 
             WhiteBalance whiteBalance = cityPostFxProfile.Add<WhiteBalance>(true);
@@ -207,7 +207,7 @@ namespace MotorCity.World
             whiteBalance.tint.Override(0f);
 
             cityVignette = cityPostFxProfile.Add<Vignette>(true);
-            cityVignette.intensity.Override(0.035f);
+            cityVignette.intensity.Override(0.02f);
             cityVignette.smoothness.Override(0.28f);
             cityVignette.rounded.Override(false);
         }
@@ -315,17 +315,17 @@ namespace MotorCity.World
                 NightAmount);
 
             if (cityBloom != null)
-                cityBloom.intensity.value = Mathf.Lerp(0.12f, 0.22f, NightAmount);
+                cityBloom.intensity.value = Mathf.Lerp(0.10f, 0.18f, NightAmount);
 
             if (cityColor != null)
             {
-                cityColor.postExposure.value = Mathf.Lerp(0.08f, 0f, daylight);
-                cityColor.contrast.value = Mathf.Lerp(4f, 2f, daylight);
-                cityColor.saturation.value = Mathf.Lerp(-2f, 0f, daylight);
+                cityColor.postExposure.value = 0f;
+                cityColor.contrast.value = 0f;
+                cityColor.saturation.value = 0f;
             }
 
             if (cityVignette != null)
-                cityVignette.intensity.value = Mathf.Lerp(0.045f, 0.035f, daylight);
+                cityVignette.intensity.value = 0.02f;
 
             IsNight =
                 NightAmount >=
@@ -587,8 +587,8 @@ namespace MotorCity.World
                     runtimeDaySkybox.SetFloat(
                         "_Exposure",
                         Mathf.Lerp(
-                            0.62f,
-                            0.16f,
+                            1f,
+                            0.20f,
                             Mathf.SmoothStep(
                                 0f,
                                 1f,
