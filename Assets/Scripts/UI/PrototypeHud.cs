@@ -277,6 +277,11 @@ namespace MotorCity.UI
         private int lastDisplayedReputationLevel = int.MinValue;
         private int lastDisplayedSpeed = int.MinValue;
         private DriveMode? lastDisplayedDriveMode;
+        private int lastDisplayedDriftScore = int.MinValue;
+        private int lastDisplayedDriftComboTenth = int.MinValue;
+        private int lastDisplayedDriftBankedCredits = int.MinValue;
+        private bool lastDisplayedDriftWasActive;
+        private bool lastDisplayedDriftVisible;
         private float slowHudUpdateTimer;
         private float contextualStatusUpdateTimer;
         private string cachedContextualStatus = string.Empty;
@@ -923,28 +928,75 @@ namespace MotorCity.UI
                 driftPanel,
                 showDrift);
 
-            if (showDrift)
+            if (!showDrift)
             {
-                if (drift.IsDrifting ||
-                    drift.CurrentScore > 0)
-                {
-                    string combo =
-                        drift.Combo > 1.05f
-                            ? $"   x{drift.Combo:0.0}"
-                            : string.Empty;
+                lastDisplayedDriftVisible =
+                    false;
+            }
+            else
+            {
+                bool driftActive =
+                    drift.IsDrifting ||
+                    drift.CurrentScore > 0;
 
-                    driftText.text =
-                        MotorCityLocalization.Format(
-                            "hud.drift",
-                            drift.CurrentScore,
-                            combo);
-                }
-                else
+                int score =
+                    drift.CurrentScore;
+
+                int comboTenth =
+                    Mathf.RoundToInt(
+                        drift.Combo * 10f);
+
+                int bankedCredits =
+                    drift.LastBankedCredits;
+
+                bool driftTextChanged =
+                    !lastDisplayedDriftVisible ||
+                    driftActive !=
+                        lastDisplayedDriftWasActive ||
+                    score !=
+                        lastDisplayedDriftScore ||
+                    comboTenth !=
+                        lastDisplayedDriftComboTenth ||
+                    bankedCredits !=
+                        lastDisplayedDriftBankedCredits;
+
+                if (driftTextChanged)
                 {
-                    driftText.text =
-                        MotorCityLocalization.Format(
-                            "hud.drift_done",
-                            drift.LastBankedCredits);
+                    if (driftActive)
+                    {
+                        string combo =
+                            comboTenth > 10
+                                ? $"   x{comboTenth / 10f:0.0}"
+                                : string.Empty;
+
+                        driftText.text =
+                            MotorCityLocalization.Format(
+                                "hud.drift",
+                                score,
+                                combo);
+                    }
+                    else
+                    {
+                        driftText.text =
+                            MotorCityLocalization.Format(
+                                "hud.drift_done",
+                                bankedCredits);
+                    }
+
+                    lastDisplayedDriftVisible =
+                        true;
+
+                    lastDisplayedDriftWasActive =
+                        driftActive;
+
+                    lastDisplayedDriftScore =
+                        score;
+
+                    lastDisplayedDriftComboTenth =
+                        comboTenth;
+
+                    lastDisplayedDriftBankedCredits =
+                        bankedCredits;
                 }
             }
 
