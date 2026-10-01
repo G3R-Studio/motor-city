@@ -18,6 +18,7 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float speedLookAhead = 3.8f;
         [SerializeField] private float speedDistanceBonus = 1.25f;
         [SerializeField] private float baseFieldOfView = 62f;
+        [SerializeField] private float garageFieldOfView = 54f;
         [SerializeField] private float highSpeedFieldOfView = 72f;
         [SerializeField] private float fieldOfViewSharpness = 4.5f;
         [SerializeField] private float driftLookInfluence = 0.45f;
@@ -287,6 +288,18 @@ namespace MotorCity.CameraSystem
                     Time.time;
 
                 return;
+            }
+
+            if (cameraComponent == null)
+            {
+                cameraComponent =
+                    GetComponent<Camera>();
+            }
+
+            if (cameraComponent != null)
+            {
+                cameraComponent.fieldOfView =
+                    garageFieldOfView;
             }
 
             garageInitialPosition =
@@ -1142,10 +1155,12 @@ namespace MotorCity.CameraSystem
             if (cameraComponent != null)
             {
                 float targetFov =
-                    Mathf.Lerp(
-                        baseFieldOfView,
-                        highSpeedFieldOfView,
-                        speed01);
+                    garageMode
+                        ? garageFieldOfView
+                        : Mathf.Lerp(
+                            baseFieldOfView,
+                            highSpeedFieldOfView,
+                            speed01);
 
                 cameraComponent.fieldOfView =
                     Mathf.Lerp(
