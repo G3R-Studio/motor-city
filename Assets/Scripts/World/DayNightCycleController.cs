@@ -82,7 +82,7 @@ namespace MotorCity.World
             ApplyEnvironment(
                 true);
 
-            ResolveLampObserver();
+            ResolveLampObserver(true);
             ApplyStreetLights();
         }
 
@@ -827,17 +827,19 @@ namespace MotorCity.World
                 enabledCount;
         }
 
-        private void ResolveLampObserver()
+        private void ResolveLampObserver(bool force = false)
         {
             if (lampObserver != null)
                 return;
 
-            observerResolveTimer -=
-                Time.deltaTime;
+            if (!force)
+            {
+                observerResolveTimer -=
+                    Time.deltaTime;
 
-            if (observerResolveTimer >
-                0f)
-                return;
+                if (observerResolveTimer > 0f)
+                    return;
+            }
 
             observerResolveTimer =
                 1f;
