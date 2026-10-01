@@ -289,6 +289,7 @@ namespace MotorCity.UI
         private string lastHudLanguageCode = string.Empty;
         private bool lastHudTouchPrompts;
         private bool hudLocalizationStateInitialized;
+        private bool garageUiDirty = true;
 
         private readonly List<TouchLocalizedLabel> touchLocalizedLabels =
             new();
@@ -430,6 +431,13 @@ namespace MotorCity.UI
             discoveries = discoverySystem;
             activityManager = manager;
             garage = garageSystem;
+
+            if (garage != null)
+            {
+                garage.Changed +=
+                    MarkGarageUiDirty;
+            }
+
             career = careerSystem;
             vehicleHistory = historySystem;
             vehicleSpecialization = specializationSystem;
@@ -461,6 +469,12 @@ namespace MotorCity.UI
                 ArmOpeningHudReveal(
                     5f);
             }
+        }
+
+        private void MarkGarageUiDirty()
+        {
+            garageUiDirty =
+                true;
         }
 
         private static void SetActiveIfChanged(
@@ -535,6 +549,9 @@ namespace MotorCity.UI
 
             minimapTargetResolveTimer =
                 0f;
+
+            garageUiDirty =
+                true;
 
             RefreshTouchLocalizedLabels();
         }
@@ -1014,6 +1031,9 @@ namespace MotorCity.UI
 
             if (!garageOpen)
             {
+                garageUiDirty =
+                    true;
+
                 garagePassportOpen = false;
 
                 if (garagePassportPanel != null)
