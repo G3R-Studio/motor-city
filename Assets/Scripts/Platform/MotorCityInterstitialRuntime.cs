@@ -22,7 +22,12 @@ namespace MotorCity.Platform
         private float nextAllowedRealtime;
         private int completedActivities;
         private int activityStartRequests;
+        private const float RequestWatchdogSeconds = 12f;
+
         private bool requestRunning;
+        private float requestDeadlineRealtime;
+        private int requestSerial;
+        private Action requestCompleted;
         private bool waitingForGameplayResume;
         private Action resumeCompleted;
 #if UNITY_EDITOR
@@ -81,6 +86,15 @@ namespace MotorCity.Platform
             requestRunning =
                 false;
 
+            requestDeadlineRealtime =
+                0f;
+
+            requestSerial =
+                0;
+
+            requestCompleted =
+                null;
+
             waitingForGameplayResume =
                 false;
 
@@ -93,6 +107,15 @@ namespace MotorCity.Platform
 
         private void Update()
         {
+            if (requestRunning &&
+                requestDeadlineRealtime > 0f &&
+                Time.realtimeSinceStartup >=
+                    requestDeadlineRealtime)
+            {
+                FinishPendingRequest(
+                    requestSerial);
+            }
+
 #if UNITY_EDITOR
             if (editorMockCompleted != null &&
                 Time.realtimeSinceStartup >=
@@ -149,6 +172,9 @@ namespace MotorCity.Platform
                 activities.ActivityCompleted -=
                     OnActivityCompleted;
             }
+
+            requestCompleted =
+                null;
 
             resumeCompleted =
                 null;
@@ -243,11 +269,44 @@ namespace MotorCity.Platform
             State =
                 InterstitialState.Showing;
 
+            requestSerial++;
+            int serial =
+                requestSerial;
+
+            requestCompleted =
+                completed;
+
+            requestDeadlineRealtime =
+                Time.realtimeSinceStartup +
+                RequestWatchdogSeconds;
+
             MotorCityPlatform.ShowInterstitial(
                 "before_activity",
                 () =>
-                    FinishInterstitialClose(
-                        completed));
+                    FinishPendingRequest(
+                        serial));
+        }
+
+        private void FinishPendingRequest(
+            int serial)
+        {
+            if (!requestRunning ||
+                serial != requestSerial)
+            {
+                return;
+            }
+
+            Action completed =
+                requestCompleted;
+
+            requestCompleted =
+                null;
+
+            requestDeadlineRealtime =
+                0f;
+
+            FinishInterstitialClose(
+                completed);
         }
 
         private void FinishInterstitialClose(
