@@ -98,6 +98,18 @@ namespace MotorCity.World
 
         public void SetNight() => SetTimeOfDay(NightTime01);
 
+        public void SetCityPostProcessingEnabled(
+            bool enabled)
+        {
+            if (cityPostFxVolume == null)
+                return;
+
+            cityPostFxVolume.weight =
+                enabled
+                    ? 1f
+                    : 0f;
+        }
+
         public void Initialize(
             Light sun)
         {
