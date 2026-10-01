@@ -437,44 +437,8 @@ namespace MotorCity.World
                     1f,
                     daylight);
 
-            RenderSettings.fog =
-                true;
-
-            RenderSettings.fogMode =
-                FogMode.Linear;
-
-            Color fogColor =
-                Color.Lerp(
-                    new Color(
-                        0.035f,
-                        0.05f,
-                        0.085f),
-                    new Color(
-                        0.55f,
-                        0.61f,
-                        0.67f),
-                    daylight);
-
-            RenderSettings.fogColor =
-                Color.Lerp(
-                    fogColor,
-                    new Color(
-                        0.40f,
-                        0.20f,
-                        0.12f),
-                    twilight * 0.24f);
-
-            RenderSettings.fogStartDistance =
-                Mathf.Lerp(
-                    180f,
-                    260f,
-                    daylight);
-
-            RenderSettings.fogEndDistance =
-                Mathf.Lerp(
-                    760f,
-                    980f,
-                    daylight);
+            // Fog is owned exclusively by CityAtmosphereRuntime. Keeping a second
+            // writer here caused conflicting fog distances every frame.
 
             Color sunColor =
                 settings != null
