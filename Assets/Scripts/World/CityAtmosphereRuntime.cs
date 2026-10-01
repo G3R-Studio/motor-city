@@ -55,12 +55,22 @@ namespace MotorCity.World
 
         private void ApplyAtmosphere()
         {
-            // Unity's per-material fog is deliberately disabled for the FCG city.
-            // The city mixes converted URP materials with legacy/custom content,
-            // so shader fog variants produce bright unfogged islands at distance.
-            // Keep the frame clean until atmosphere is applied as a uniform
-            // screen-space/depth pass instead of per material.
-            RenderSettings.fog = false;
+            float day01 = dayNight != null ? dayNight.Day01 : 0.5f;
+            float daylight = Mathf.Clamp01(Mathf.Sin(day01 * Mathf.PI));
+            float twilight = 1f - Mathf.Abs(daylight * 2f - 1f);
+
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Linear;
+
+            Color nightFog = new(0.035f, 0.055f, 0.075f, 1f);
+            Color dayFog = new(0.70f, 0.74f, 0.75f, 1f);
+            Color duskFog = new(0.42f, 0.39f, 0.36f, 1f);
+            Color fogColor = Color.Lerp(nightFog, dayFog, daylight);
+            fogColor = Color.Lerp(fogColor, duskFog, twilight * 0.12f);
+
+            RenderSettings.fogColor = fogColor;
+            RenderSettings.fogStartDistance = Mathf.Lerp(85f, 150f, daylight);
+            RenderSettings.fogEndDistance = Mathf.Lerp(360f, 520f, daylight);
         }
 
         private void BuildHaze()
