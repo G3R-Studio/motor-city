@@ -309,8 +309,9 @@ namespace MotorCity.Gameplay
                 statusTextTimer =
                     0f;
 
-                car.SetDrivingEnabled(
-                    false);
+                car.SetDrivingBlocked(
+                    "TowHook",
+                    true);
             }
         }
 
@@ -361,8 +362,9 @@ namespace MotorCity.Gameplay
             stage =
                 TowStage.Delivering;
 
-            car.SetDrivingEnabled(
-                true);
+            car.SetDrivingBlocked(
+                "TowHook",
+                false);
 
             StatusText =
                 MotorCityLocalization.Text(
@@ -436,8 +438,12 @@ namespace MotorCity.Gameplay
             hookProgress =
                 0f;
 
-            car?.SetDrivingEnabled(
+            car?.SetDrivingBlocked(
+                "TowHook",
                 false);
+            car?.SetDrivingBlocked(
+                "ActivityResult",
+                true);
 
             activities.ShowResult(
                 ActivityId,
@@ -465,6 +471,10 @@ namespace MotorCity.Gameplay
 
             activities.DismissResult(false);
 
+            car.SetDrivingBlocked(
+                "ActivityResult",
+                false);
+
             CleanupVisuals();
 
             stage =
@@ -478,8 +488,9 @@ namespace MotorCity.Gameplay
                     car.transform.eulerAngles.y,
                     0f));
 
-            car.SetDrivingEnabled(
-                true);
+            car.SetDrivingBlocked(
+                "TowHook",
+                false);
 
             BeginJob();
         }
@@ -497,8 +508,12 @@ namespace MotorCity.Gameplay
             hookProgress =
                 0f;
 
-            car?.SetDrivingEnabled(
-                true);
+            car?.SetDrivingBlocked(
+                "TowHook",
+                false);
+            car?.SetDrivingBlocked(
+                "ActivityResult",
+                false);
 
             activities?.End(
                 ActivityId);
