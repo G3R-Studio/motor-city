@@ -655,7 +655,7 @@ namespace MotorCity.UI
             if (MotorCityInput.CancelPressed)
             {
                 activityManager.DismissResult();
-                car?.SetDrivingEnabled(true);
+                RefreshDrivingEnabledForUi();
                 return;
             }
 
