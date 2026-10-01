@@ -580,37 +580,41 @@ namespace MotorCity.UI
                         100f);
             }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Object[] matches =
-                Resources.LoadAll(
-                    "MotorCity/UI/Characters");
+            if (Application.isEditor ||
+                Debug.isDebugBuild)
+            {
+                Object[] matches =
+                    Resources.LoadAll(
+                        "MotorCity/UI/Characters");
 
-            string found =
-                matches == null ||
-                matches.Length == 0
-                    ? "none"
-                    : string.Join(
-                        ", ",
-                        System.Array.ConvertAll(
-                            matches,
-                            item =>
-                                item == null
-                                    ? "null"
-                                    : item.name +
-                                      ":" +
-                                      item.GetType().Name));
+                string found =
+                    matches == null ||
+                    matches.Length == 0
+                        ? "none"
+                        : string.Join(
+                            ", ",
+                            System.Array.ConvertAll(
+                                matches,
+                                item =>
+                                    item == null
+                                        ? "null"
+                                        : item.name +
+                                          ":" +
+                                          item.GetType().Name));
 
-            Debug.LogError(
-                "[MotorCity][Portrait] FAILED to load " +
-                $"'{characterId}' at Resources/{resourcePath}. " +
-                $"Objects visible in Resources/MotorCity/UI/Characters: {found}.",
-                this);
-#else
-            Debug.LogError(
-                "[MotorCity][Portrait] FAILED to load " +
-                $"'{characterId}' at Resources/{resourcePath}.",
-                this);
-#endif
+                Debug.LogError(
+                    "[MotorCity][Portrait] FAILED to load " +
+                    $"'{characterId}' at Resources/{resourcePath}. " +
+                    $"Objects visible in Resources/MotorCity/UI/Characters: {found}.",
+                    this);
+            }
+            else
+            {
+                Debug.LogError(
+                    "[MotorCity][Portrait] FAILED to load " +
+                    $"'{characterId}' at Resources/{resourcePath}.",
+                    this);
+            }
 
             return null;
         }
