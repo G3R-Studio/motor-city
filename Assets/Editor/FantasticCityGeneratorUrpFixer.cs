@@ -172,6 +172,8 @@ public static class FantasticCityGeneratorUrpFixer
         {
             int repairedGenerated =
                 0;
+            int renamedGenerated =
+                0;
             int rebuiltFromOriginal =
                 0;
             var missingOriginals =
@@ -185,6 +187,20 @@ public static class FantasticCityGeneratorUrpFixer
             foreach (Material generated in
                      generatedMaterials)
             {
+                string generatedPath =
+                    AssetDatabase.GetAssetPath(generated);
+                string expectedObjectName =
+                    Path.GetFileNameWithoutExtension(generatedPath);
+
+                if (!string.IsNullOrWhiteSpace(expectedObjectName) &&
+                    !string.Equals(generated.name, expectedObjectName,
+                        StringComparison.Ordinal))
+                {
+                    generated.name = expectedObjectName;
+                    EditorUtility.SetDirty(generated);
+                    renamedGenerated++;
+                }
+
                 Material original =
                     FindOriginalFcgMaterialForGenerated(
                         generated,
@@ -309,7 +325,8 @@ public static class FantasticCityGeneratorUrpFixer
 
             Debug.Log(
                 "Motor City: Fantastic City Generator URP conversion complete. " +
-                $"Converted {converted.Count} source materials, rebuilt " +
+                $"Converted {converted.Count} source materials, renamed " +
+                $"{renamedGenerated} generated material objects, rebuilt " +
                 $"{rebuiltFromOriginal} generated materials from originals, repaired " +
                 $"{repairedGenerated} existing URP materials, updated " +
                 $"{changedRenderers} renderers and rebuilt " +
