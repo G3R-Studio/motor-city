@@ -160,11 +160,11 @@ namespace MotorCity.Gameplay
             get
             {
                 long now =
-                    Math.Max(
-                        SeasonOneStartUnix,
-                        MotorCityPlatform.ServerUnixTime);
+                    MotorCityPlatform.ServerUnixTime;
 
                 return
+                    now >=
+                    SeasonOneStartUnix &&
                     now <
                     SeasonOneStartUnix +
                     SeasonLengthDays *
