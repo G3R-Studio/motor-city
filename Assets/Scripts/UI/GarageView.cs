@@ -1125,6 +1125,29 @@ namespace MotorCity.UI
             appearanceShape.raycastTarget =
                 false;
 
+            // SpriteLess-only glow trial: two border-only procedural layers
+            // behind the panel. They keep the centre transparent and do not
+            // use extra rectangular Images.
+            AddSpriteLessPanelGlow(
+                appearancePanel,
+                new Color(
+                    0.47f,
+                    0.32f,
+                    1f,
+                    0.18f),
+                5f,
+                4f);
+
+            AddSpriteLessPanelGlow(
+                appearancePanel,
+                new Color(
+                    0.22f,
+                    0.66f,
+                    1f,
+                    0.07f),
+                9f,
+                7f);
+
             CreateAccent(
                 appearancePanel,
                 new Color(0.48f, 0.40f, 1f, 0.92f),
@@ -1371,6 +1394,72 @@ namespace MotorCity.UI
                 new Vector2(0f, -5f);
             shadow.useGraphicAlpha =
                 true;
+        }
+
+        private static void AddSpriteLessPanelGlow(
+            RectTransform target,
+            Color borderColor,
+            float expand,
+            float borderWidth)
+        {
+            if (target == null)
+                return;
+
+            GameObject glowObject =
+                new(
+                    "SpriteLess Panel Glow",
+                    typeof(RectTransform),
+                    typeof(SpriteLessImage));
+
+            glowObject.transform.SetParent(
+                target,
+                false);
+
+            RectTransform glowRect =
+                glowObject.GetComponent<RectTransform>();
+
+            glowRect.anchorMin =
+                Vector2.zero;
+            glowRect.anchorMax =
+                Vector2.one;
+            glowRect.offsetMin =
+                new Vector2(
+                    -expand,
+                    -expand);
+            glowRect.offsetMax =
+                new Vector2(
+                    expand,
+                    expand);
+
+            SpriteLessImage glow =
+                glowObject.GetComponent<SpriteLessImage>();
+
+            glow.Shape =
+                ProceduralShape.RoundedRectangle;
+            glow.color =
+                new Color(
+                    0f,
+                    0f,
+                    0f,
+                    0f);
+            glow.CornerRadius =
+                12f + expand;
+            glow.BorderEnabled =
+                true;
+            glow.BorderWidth =
+                borderWidth;
+            glow.BorderColor =
+                borderColor;
+            glow.EdgeEffectEnabled =
+                false;
+            glow.AntiAliasingEnabled =
+                true;
+            glow.AntiAliasingWidth =
+                2.5f;
+            glow.raycastTarget =
+                false;
+
+            glowObject.transform.SetAsFirstSibling();
         }
 
         private static void AddGarageNeonFrame(
