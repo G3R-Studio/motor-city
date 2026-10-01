@@ -498,6 +498,11 @@ namespace MotorCity.World
                     active);
             }
 
+            DayNightCycleController dayNight =
+                UnityEngine.Object.FindAnyObjectByType<DayNightCycleController>();
+
+            dayNight?.SetCityPostProcessingEnabled(
+                !active);
         }
 
         private static void ApplyGarageInteriorMood(
@@ -703,6 +708,22 @@ namespace MotorCity.World
 
             tonemapping.mode.Override(
                 TonemappingMode.ACES);
+
+            DepthOfField depthOfField =
+                garagePresentationVolumeProfile.Add<DepthOfField>(
+                    true);
+
+            depthOfField.mode.Override(
+                DepthOfFieldMode.Bokeh);
+
+            depthOfField.focusDistance.Override(
+                5.6f);
+
+            depthOfField.aperture.Override(
+                7.0f);
+
+            depthOfField.focalLength.Override(
+                46f);
 
             volume.sharedProfile =
                 garagePresentationVolumeProfile;
