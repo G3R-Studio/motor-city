@@ -60,12 +60,17 @@ namespace MotorCity.World
 
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogStartDistance = Mathf.Lerp(115f, 90f, night);
-            RenderSettings.fogEndDistance = Mathf.Lerp(300f, 230f, night);
-            RenderSettings.fogColor = Color.Lerp(
-                new Color(0.61f, 0.66f, 0.70f),
-                new Color(0.055f, 0.07f, 0.095f),
-                night);
+            // Keep atmospheric perspective subtle. Dense fog exposed baked
+            // high-contrast facade/window details as bright stripes at distance.
+            RenderSettings.fogStartDistance = Mathf.Lerp(175f, 135f, night);
+            RenderSettings.fogEndDistance = Mathf.Lerp(520f, 380f, night);
+
+            Color ambientFog = Color.Lerp(
+                RenderSettings.ambientEquatorColor,
+                RenderSettings.ambientSkyColor,
+                0.45f);
+            Color nightFog = new(0.045f, 0.055f, 0.075f);
+            RenderSettings.fogColor = Color.Lerp(ambientFog, nightFog, night);
 
             if (haze == null || hazeMaterial == null)
                 return;
