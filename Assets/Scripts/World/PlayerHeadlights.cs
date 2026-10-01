@@ -58,6 +58,9 @@ namespace MotorCity.World
             car =
                 GetComponent<ArcadeCarController>();
 
+            MotorCityQualityRuntime.PresetChanged +=
+                HandleQualityPresetChanged;
+
             dayNight =
                 Object.FindAnyObjectByType<DayNightCycleController>();
 
@@ -958,6 +961,9 @@ namespace MotorCity.World
 
         private void OnDestroy()
         {
+            MotorCityQualityRuntime.PresetChanged -=
+                HandleQualityPresetChanged;
+
             ClearNightEmissionOverlays();
         }
 
@@ -1042,6 +1048,18 @@ namespace MotorCity.World
                 false;
 
             return light;
+        }
+
+        private void HandleQualityPresetChanged()
+        {
+            lastLightAmount =
+                -1f;
+
+            lastLightSpeed01 =
+                -1f;
+
+            lastEmissionIntensity =
+                -1f;
         }
 
         private void ApplyLights(
@@ -1148,6 +1166,25 @@ namespace MotorCity.World
                     30f,
                     24f,
                     speed01);
+
+            bool shadowed =
+                light.enabled &&
+                MotorCityQualityRuntime.CurrentPreset ==
+                    MotorCityQualityPreset.High;
+
+            light.shadows =
+                shadowed
+                    ? LightShadows.Hard
+                    : LightShadows.None;
+
+            if (shadowed)
+            {
+                light.shadowStrength =
+                    0.42f;
+
+                light.shadowResolution =
+                    UnityEngine.Rendering.LightShadowResolution.Low;
+            }
         }
     }
 }
