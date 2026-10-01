@@ -58,9 +58,9 @@ Shader "MotorCity/PanoramicHazeSkybox"
 
             float3 RotateY(float3 direction, float degrees)
             {
-                float radians = radians(degrees);
-                float s = sin(radians);
-                float c = cos(radians);
+                float angleRad = degrees * 0.01745329252;
+                float s = sin(angleRad);
+                float c = cos(angleRad);
 
                 return float3(
                     c * direction.x - s * direction.z,
