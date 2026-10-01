@@ -136,6 +136,9 @@ namespace MotorCity.World
         private static Bounds cityBounds;
         private static bool hasCityBounds;
 
+        private static readonly List<ReflectionProbe> cityReflectionProbes =
+            new();
+
         public static Vector3 PlayerSpawnPoint { get; private set; } =
             new(-570f, 0.25f, 505.109f);
 
@@ -258,8 +261,159 @@ namespace MotorCity.World
             Physics.SyncTransforms();
 
             ResolveGameplayLayout();
+            InstallCityReflectionProbes();
 
             return true;
+        }
+
+        private static void InstallCityReflectionProbes()
+        {
+            if (activeCity == null ||
+                !hasCityBounds)
+            {
+                return;
+            }
+
+            for (int i = 0;
+                 i < cityReflectionProbes.Count;
+                 i++)
+            {
+                ReflectionProbe oldProbe =
+                    cityReflectionProbes[i];
+
+                if (oldProbe != null)
+                {
+                    UnityEngine.Object.Destroy(
+                        oldProbe.gameObject);
+                }
+            }
+
+            cityReflectionProbes.Clear();
+
+            Vector3 size =
+                new Vector3(
+                    Mathf.Max(
+                        120f,
+                        cityBounds.size.x * 0.56f),
+                    Mathf.Max(
+                        80f,
+                        cityBounds.size.y + 30f),
+                    Mathf.Max(
+                        120f,
+                        cityBounds.size.z * 0.56f));
+
+            float offsetX =
+                cityBounds.extents.x * 0.48f;
+
+            float offsetZ =
+                cityBounds.extents.z * 0.48f;
+
+            Vector3[] offsets =
+            {
+                new(-offsetX, 0f, -offsetZ),
+                new(offsetX, 0f, -offsetZ),
+                new(-offsetX, 0f, offsetZ),
+                new(offsetX, 0f, offsetZ)
+            };
+
+            for (int i = 0;
+                 i < offsets.Length;
+                 i++)
+            {
+                GameObject probeObject =
+                    new(
+                        "Motor City Reflection Probe " +
+                        (i + 1));
+
+                probeObject.transform.SetParent(
+                    activeCity.transform,
+                    true);
+
+                Vector3 position =
+                    cityBounds.center +
+                    offsets[i];
+
+                position.y =
+                    Mathf.Max(
+                        3.5f,
+                        cityBounds.min.y + 4f);
+
+                probeObject.transform.position =
+                    position;
+
+                ReflectionProbe probe =
+                    probeObject.AddComponent<ReflectionProbe>();
+
+                probe.mode =
+                    ReflectionProbeMode.Realtime;
+
+                probe.refreshMode =
+                    ReflectionProbeRefreshMode.ViaScripting;
+
+                probe.timeSlicingMode =
+                    ReflectionProbeTimeSlicingMode.IndividualFaces;
+
+                probe.resolution =
+                    128;
+
+                probe.size =
+                    size;
+
+                probe.center =
+                    Vector3.zero;
+
+                probe.nearClipPlane =
+                    0.5f;
+
+                probe.farClipPlane =
+                    Mathf.Max(
+                        size.x,
+                        size.z) *
+                    0.85f;
+
+                probe.intensity =
+                    0.72f;
+
+                probe.blendDistance =
+                    Mathf.Min(
+                        size.x,
+                        size.z) *
+                    0.16f;
+
+                probe.hdr =
+                    true;
+
+                probe.boxProjection =
+                    true;
+
+                probe.cullingMask =
+                    ~0;
+
+                probe.clearFlags =
+                    ReflectionProbeClearFlags.Skybox;
+
+                cityReflectionProbes.Add(
+                    probe);
+            }
+        }
+
+        public static void RefreshCityReflectionProbes()
+        {
+            for (int i = 0;
+                 i < cityReflectionProbes.Count;
+                 i++)
+            {
+                ReflectionProbe probe =
+                    cityReflectionProbes[i];
+
+                if (probe == null ||
+                    !probe.isActiveAndEnabled)
+                {
+                    continue;
+                }
+
+                probe.RenderProbe();
+            }
         }
 
         private static void InstallGarageInterior()
