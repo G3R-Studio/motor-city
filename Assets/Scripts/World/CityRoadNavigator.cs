@@ -33,6 +33,9 @@ namespace MotorCity.World
             FieldCache =
                 new();
 
+        private static Type fcgWayContainerType;
+        private static bool fcgWayContainerTypeResolved;
+
         private static readonly Dictionary<int, List<Edge>> Adjacency =
             new();
 
@@ -348,19 +351,31 @@ namespace MotorCity.World
                 return false;
             }
 
-            MonoBehaviour[] behaviours =
-                cityRoot.GetComponentsInChildren<MonoBehaviour>(
+            Type wayContainerType =
+                ResolveFcgWayContainerType();
+
+            if (wayContainerType == null)
+            {
+                Debug.LogWarning(
+                    "Motor City navigator: FCG way container type was not found. " +
+                    "Road navigation is disabled.");
+
+                return false;
+            }
+
+            Component[] wayComponents =
+                cityRoot.GetComponentsInChildren(
+                    wayContainerType,
                     true);
 
-            foreach (MonoBehaviour behaviour in
-                     behaviours)
+            foreach (Component component in
+                     wayComponents)
             {
-                if (behaviour == null ||
-                    !LooksLikeFcgWayContainer(
-                        behaviour))
-                {
+                MonoBehaviour behaviour =
+                    component as MonoBehaviour;
+
+                if (behaviour == null)
                     continue;
-                }
 
                 List<Transform> waypoints =
                     ReadTransformList(
@@ -440,22 +455,56 @@ namespace MotorCity.World
                 Edges.Count >= 1;
         }
 
-        private static bool LooksLikeFcgWayContainer(
-            MonoBehaviour behaviour)
+        private static Type ResolveFcgWayContainerType()
         {
-            Type type =
-                behaviour.GetType();
+            if (fcgWayContainerTypeResolved)
+                return fcgWayContainerType;
 
-            return
-                FindField(
-                    type,
-                    "waypoints") != null &&
-                FindField(
-                    type,
-                    "nextWay0") != null &&
-                FindField(
-                    type,
-                    "nextWay1") != null;
+            fcgWayContainerTypeResolved =
+                true;
+
+            const string FullTypeName =
+                "FCG.FCGWaypointsContainer";
+
+            fcgWayContainerType =
+                Type.GetType(
+                    FullTypeName +
+                    ", Assembly-CSharp",
+                    false);
+
+            if (fcgWayContainerType != null)
+                return fcgWayContainerType;
+
+            foreach (System.Reflection.Assembly assembly in
+                     AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly == null)
+                    continue;
+
+                Type candidate;
+
+                try
+                {
+                    candidate =
+                        assembly.GetType(
+                            FullTypeName,
+                            false);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (candidate == null)
+                    continue;
+
+                fcgWayContainerType =
+                    candidate;
+
+                break;
+            }
+
+            return fcgWayContainerType;
         }
 
         private static void ConnectAuthoredLinks(
