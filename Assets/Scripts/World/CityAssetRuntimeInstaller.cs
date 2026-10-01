@@ -245,6 +245,8 @@ namespace MotorCity.World
                     RuntimeCityName;
             }
 
+            DisableLegacyFcgDayNight();
+
             // Runtime treats the authored city as read-only.
             // Colliders, props, parked vehicles, traffic signals and all
             // other map objects must come exactly from CityVisual.prefab.
@@ -264,6 +266,30 @@ namespace MotorCity.World
             InstallCityReflectionProbes();
 
             return true;
+        }
+
+        private static void DisableLegacyFcgDayNight()
+        {
+            if (activeCity == null)
+                return;
+
+            DayNight[] legacyControllers =
+                activeCity.GetComponentsInChildren<DayNight>(
+                    true);
+
+            for (int i = 0;
+                 i < legacyControllers.Length;
+                 i++)
+            {
+                DayNight controller =
+                    legacyControllers[i];
+
+                if (controller == null)
+                    continue;
+
+                controller.enabled =
+                    false;
+            }
         }
 
         private static void InstallCityReflectionProbes()
