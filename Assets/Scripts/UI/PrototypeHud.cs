@@ -1353,16 +1353,31 @@ namespace MotorCity.UI
                 CreateSafeAreaRoot(
                     canvasObject.transform);
 
+            RectTransform speedCanvasRoot =
+                CreateHudSubCanvas(
+                    safeAreaRoot,
+                    "Speed Canvas");
+
+            RectTransform statusCanvasRoot =
+                CreateHudSubCanvas(
+                    safeAreaRoot,
+                    "Status Canvas");
+
+            RectTransform driftCanvasRoot =
+                CreateHudSubCanvas(
+                    safeAreaRoot,
+                    "Drift Canvas");
+
             BuildPlayerCard(safeAreaRoot);
             BuildCharacterCard(safeAreaRoot);
             BuildSeasonPanel(safeAreaRoot);
-            BuildSpeedometer(safeAreaRoot);
+            BuildSpeedometer(speedCanvasRoot);
             BuildCountdownOverlay(safeAreaRoot);
-            BuildStatus(safeAreaRoot);
+            BuildStatus(statusCanvasRoot);
             BuildNavigator(safeAreaRoot);
             BuildNavigatorMenu(safeAreaRoot);
             BuildPauseMenu(safeAreaRoot);
-            BuildDriftPanel(safeAreaRoot);
+            BuildDriftPanel(driftCanvasRoot);
             BuildActivityResult(safeAreaRoot);
             BuildResultTouchControls(safeAreaRoot);
             BuildGarage(safeAreaRoot);
@@ -1421,6 +1436,47 @@ namespace MotorCity.UI
                         1f));
 
             ApplyAudioVolume();
+        }
+
+        private static RectTransform CreateHudSubCanvas(
+            Transform parent,
+            string name)
+        {
+            GameObject root =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Canvas));
+
+            root.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                root.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                Vector2.zero;
+
+            rect.anchorMax =
+                Vector2.one;
+
+            rect.offsetMin =
+                Vector2.zero;
+
+            rect.offsetMax =
+                Vector2.zero;
+
+            Canvas canvas =
+                root.GetComponent<Canvas>();
+
+            canvas.overrideSorting =
+                false;
+
+            canvas.pixelPerfect =
+                false;
+
+            return rect;
         }
 
         private sealed class TouchLocalizedLabel
