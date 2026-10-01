@@ -990,7 +990,7 @@ namespace MotorCity.World
 
             lightObject.transform.localRotation =
                 Quaternion.Euler(
-                    7f,
+                    5f,
                     0f,
                     0f);
 
@@ -1005,18 +1005,18 @@ namespace MotorCity.World
 
             light.color =
                 new Color(
-                    0.88f,
-                    0.93f,
+                    0.92f,
+                    0.95f,
                     1f);
 
             light.range =
-                46f;
-
-            light.spotAngle =
                 54f;
 
+            light.spotAngle =
+                50f;
+
             light.innerSpotAngle =
-                28f;
+                30f;
 
             light.bounceIntensity =
                 0f;
@@ -1092,28 +1092,28 @@ namespace MotorCity.World
 
             light.intensity =
                 Mathf.Lerp(
-                    8.0f,
-                    10.2f,
+                    10.0f,
+                    13.0f,
                     speed01) *
                 amount *
                 qualityIntensity;
 
             light.range =
                 Mathf.Lerp(
-                    46f,
-                    72f,
+                    54f,
+                    78f,
                     speed01) *
                 qualityRange;
 
             light.spotAngle =
                 Mathf.Lerp(
-                    54f,
-                    44f,
+                    50f,
+                    42f,
                     speed01);
 
             light.innerSpotAngle =
                 Mathf.Lerp(
-                    28f,
+                    30f,
                     24f,
                     speed01);
         }
