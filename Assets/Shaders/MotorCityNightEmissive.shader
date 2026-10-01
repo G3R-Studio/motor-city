@@ -203,10 +203,11 @@ Shader "MotorCity/NightEmissive"
                     saturate(
                         _MotorCityNightEmission);
 
-                // Daytime windows must behave like part of the facade, not as
-                // self-lit glass. Previous tint/lift made window texels survive
-                // distance fog as bright stripes.
-                half3 dayGlass = litBase;
+                half3 dayGlass =
+                    lerp(
+                        litBase,
+                        _DayGlassTint.rgb,
+                        _DayGlassLift);
 
                 half3 nightGlass =
                     lerp(
@@ -248,19 +249,15 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
-                half daylightReflection =
-                    saturate(1.0h - input.fogFactor * 2.2h);
-                daylightReflection *= daylightReflection;
-
                 half fresnelFade =
                     lerp(
-                        daylightReflection * 0.35h,
+                        1.0h,
                         0.055h,
                         nightAmount);
 
                 half specularFade =
                     lerp(
-                        daylightReflection * 0.30h,
+                        1.0h,
                         0.035h,
                         nightAmount);
 
@@ -281,10 +278,9 @@ Shader "MotorCity/NightEmissive"
                         input.emissionUv);
 
                 half nightFactor =
-                    smoothstep(
-                        0.58h,
-                        0.82h,
-                        nightAmount);
+                    saturate(
+                        (nightAmount - 0.30h) /
+                        0.70h);
 
                 half emissionMask =
                     emissionSample.a *
@@ -294,32 +290,17 @@ Shader "MotorCity/NightEmissive"
                             emissionSample.g,
                             emissionSample.b));
 
-                half fogVisibility =
-                    saturate(1.0h - input.fogFactor);
-                fogVisibility *= fogVisibility;
-
                 color +=
                     emissionSample.rgb *
                     _EmissionColor.rgb *
                     _EmissionStrength *
                     emissionMask *
-                    nightFactor *
-                    fogVisibility;
-
-                // Glass/facade textures retain more local contrast than concrete.
-                // Push their distant response slightly harder toward the scene fog
-                // so window strips do not remain visible after the building fades.
-                half facadeFog =
-                    saturate(input.fogFactor * 1.35h);
-                facadeFog =
-                    1.0h -
-                    (1.0h - facadeFog) *
-                    (1.0h - facadeFog);
+                    nightFactor;
 
                 color =
                     MixFog(
                         color,
-                        facadeFog);
+                        input.fogFactor);
 
                 return half4(color, 1.0h);
             }
