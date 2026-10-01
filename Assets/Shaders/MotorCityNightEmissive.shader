@@ -266,9 +266,11 @@ Shader "MotorCity/NightEmissive"
                     _FresnelColor.rgb *
                     fresnel *
                     _FresnelStrength *
+                    0.32h *
                     fresnelFade +
                     mainLight.color *
                     specular *
+                    0.38h *
                     specularFade;
 
                 half4 emissionSample =
