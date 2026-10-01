@@ -1085,10 +1085,10 @@ namespace MotorCity.World
                         0,
 
                     MotorCityQualityPreset.High =>
-                        6,
+                        2,
 
                     _ =>
-                        2
+                        1
                 };
 
             float maximumDistanceSquared =
@@ -1365,12 +1365,6 @@ namespace MotorCity.World
                     MotorCityQualityPreset.High
                         ? 0.58f
                         : 0.42f;
-
-                light.shadowResolution =
-                    MotorCityQualityRuntime.CurrentPreset ==
-                    MotorCityQualityPreset.High
-                        ? UnityEngine.Rendering.LightShadowResolution.Medium
-                        : UnityEngine.Rendering.LightShadowResolution.Low;
 
                 shadowedLampLights.Add(
                     light);
