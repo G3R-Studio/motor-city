@@ -1,5 +1,6 @@
 using MotorCity.Localization;
 using MotorCity.Input;
+using SpriteLessUI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -1064,11 +1065,62 @@ namespace MotorCity.UI
             AddGarageSurfaceShadow(
                 appearancePanel);
 
-            AddGarageNeonFrame(
-                appearancePanel,
-                new Color(0.54f, 0.30f, 1f, 0.28f),
-                new Color(0.28f, 0.66f, 1f, 0.32f),
-                3f);
+            // SpriteLess-UI trial: only this panel uses procedural rounded
+            // geometry for now. The rest of the garage stays untouched until
+            // this is visually approved.
+            Image appearanceImage =
+                appearancePanel.GetComponent<Image>();
+
+            if (appearanceImage != null)
+            {
+                appearanceImage.enabled =
+                    false;
+            }
+
+            SpriteLessImage appearanceShape =
+                appearancePanel.gameObject
+                    .AddComponent<SpriteLessImage>();
+
+            appearanceShape.Shape =
+                ProceduralShape.RoundedRectangle;
+            appearanceShape.color =
+                new Color(
+                    0.025f,
+                    0.035f,
+                    0.10f,
+                    0.88f);
+            appearanceShape.CornerRadius =
+                12f;
+            appearanceShape.BorderEnabled =
+                true;
+            appearanceShape.BorderWidth =
+                2f;
+            appearanceShape.BorderColor =
+                new Color(
+                    0.55f,
+                    0.43f,
+                    1f,
+                    0.92f);
+            appearanceShape.EdgeEffectEnabled =
+                true;
+            appearanceShape.EdgeEffectWidth =
+                8f;
+            appearanceShape.EdgeEffectDirection =
+                new Vector2(
+                    0f,
+                    -1f);
+            appearanceShape.EdgeEffectColor =
+                new Color(
+                    0.20f,
+                    0.58f,
+                    1f,
+                    0.10f);
+            appearanceShape.AntiAliasingEnabled =
+                true;
+            appearanceShape.AntiAliasingWidth =
+                1.25f;
+            appearanceShape.raycastTarget =
+                false;
 
             CreateAccent(
                 appearancePanel,
