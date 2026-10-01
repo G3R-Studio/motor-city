@@ -11,6 +11,7 @@ namespace MotorCity.Gameplay
         private const string MissionKey = "MotorCity.Season1.Mission";
         private const string ProgressKey = "MotorCity.Season1.Progress";
         private const string CompleteKey = "MotorCity.Season1.Complete";
+        private const string CycleKey = "MotorCity.Season1.Cycle";
         private const float MessageSeconds = 4.5f;
 
         private static readonly long SeasonOneStartUnix =
@@ -34,6 +35,7 @@ namespace MotorCity.Gameplay
         private SeasonMission[] missions;
         private int missionIndex;
         private int progress;
+        private int activeCycleIndex;
         private float messageTimer;
 
         public bool IsComplete { get; private set; }
@@ -155,37 +157,49 @@ namespace MotorCity.Gameplay
             }
         }
 
-        public bool IsSeasonOneActive
+        public bool IsSeasonOneActive =>
+            MotorCityPlatform.ServerUnixTime >=
+            SeasonOneStartUnix;
+
+        public int DaysRemaining
         {
             get
             {
                 long now =
                     MotorCityPlatform.ServerUnixTime;
 
-                return
-                    now >=
-                    SeasonOneStartUnix &&
-                    now <
-                    SeasonOneStartUnix +
-                    SeasonLengthDays *
-                    86400L;
-            }
-        }
+                if (now <
+                    SeasonOneStartUnix)
+                {
+                    return
+                        SeasonLengthDays;
+                }
 
-        public int DaysRemaining
-        {
-            get
-            {
-                long end =
-                    SeasonOneStartUnix +
+                long cycleSeconds =
                     SeasonLengthDays *
                     86400L;
+
+                long elapsed =
+                    Math.Max(
+                        0L,
+                        now -
+                        SeasonOneStartUnix);
+
+                long cycleStart =
+                    SeasonOneStartUnix +
+                    elapsed /
+                    cycleSeconds *
+                    cycleSeconds;
+
+                long cycleEnd =
+                    cycleStart +
+                    cycleSeconds;
 
                 long seconds =
                     Math.Max(
                         0L,
-                        end -
-                        MotorCityPlatform.ServerUnixTime);
+                        cycleEnd -
+                        now);
 
                 return
                     Mathf.CeilToInt(
@@ -284,6 +298,8 @@ namespace MotorCity.Gameplay
 
             BuildMissions();
 
+            ResolveSeasonCycle();
+
             IsComplete =
                 MotorCity.Persistence.MotorCitySaveService.GetInt(
                     CompleteKey,
@@ -331,6 +347,126 @@ namespace MotorCity.Gameplay
                         messageTimer -
                         Time.unscaledDeltaTime);
             }
+
+            if (!IsSeasonOneActive)
+                return;
+
+            int cycle =
+                CurrentCycleIndex();
+
+            if (cycle !=
+                activeCycleIndex)
+            {
+                BeginCycle(
+                    cycle);
+            }
+        }
+
+        private int CurrentCycleIndex()
+        {
+            long now =
+                MotorCityPlatform.ServerUnixTime;
+
+            if (now <
+                SeasonOneStartUnix)
+            {
+                return
+                    -1;
+            }
+
+            long cycleSeconds =
+                SeasonLengthDays *
+                86400L;
+
+            return
+                (int)Math.Max(
+                    0L,
+                    (now -
+                     SeasonOneStartUnix) /
+                    cycleSeconds);
+        }
+
+        private void ResolveSeasonCycle()
+        {
+            int currentCycle =
+                CurrentCycleIndex();
+
+            activeCycleIndex =
+                currentCycle;
+
+            if (currentCycle < 0)
+                return;
+
+            bool hasSavedCycle =
+                MotorCity.Persistence.MotorCitySaveService.HasKey(
+                    CycleKey);
+
+            int savedCycle =
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    CycleKey,
+                    currentCycle);
+
+            if ((hasSavedCycle &&
+                 savedCycle !=
+                    currentCycle) ||
+                (!hasSavedCycle &&
+                 currentCycle > 0))
+            {
+                ResetCycleProgress();
+            }
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                CycleKey,
+                currentCycle);
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+        }
+
+        private void BeginCycle(
+            int cycle)
+        {
+            activeCycleIndex =
+                cycle;
+
+            ResetCycleProgress();
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                CycleKey,
+                cycle);
+
+            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            if (RookiePathFinished())
+            {
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "season1.welcome",
+                        DaysRemaining);
+
+                messageTimer =
+                    MessageSeconds + 1f;
+            }
+        }
+
+        private void ResetCycleProgress()
+        {
+            missionIndex =
+                0;
+
+            progress =
+                0;
+
+            IsComplete =
+                false;
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                MissionKey);
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                ProgressKey);
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                CompleteKey);
         }
 
         private bool RookiePathFinished()
@@ -522,6 +658,9 @@ namespace MotorCity.Gameplay
 
             MotorCity.Persistence.MotorCitySaveService.DeleteKey(
                 CompleteKey);
+
+            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+                CycleKey);
 
             MotorCity.Persistence.MotorCitySaveService.Save();
         }
