@@ -21,6 +21,11 @@ namespace MotorCity.World
         private const float LampEnableDistance =
             110f;
 
+        public const float MorningTime01 = 0.32f;
+        public const float DayTime01 = 0.50f;
+        public const float EveningTime01 = 0.68f;
+        public const float NightTime01 = 0.00f;
+
         [SerializeField] private float fullCycleSeconds =
             480f;
 
@@ -81,17 +86,13 @@ namespace MotorCity.World
             ApplyStreetLights();
         }
 
-        public void SetDay()
-        {
-            SetTimeOfDay(
-                0.50f);
-        }
+        public void SetMorning() => SetTimeOfDay(MorningTime01);
 
-        public void SetNight()
-        {
-            SetTimeOfDay(
-                0.00f);
-        }
+        public void SetDay() => SetTimeOfDay(DayTime01);
+
+        public void SetEvening() => SetTimeOfDay(EveningTime01);
+
+        public void SetNight() => SetTimeOfDay(NightTime01);
 
         public void Initialize(
             Light sun)
@@ -291,24 +292,19 @@ namespace MotorCity.World
                     0f,
                     1f,
                     Mathf.InverseLerp(
-                        -0.12f,
-                        0.18f,
+                        -0.08f,
+                        0.22f,
                         solarHeight));
 
             NightAmount =
                 1f -
                 daylight;
 
+            float horizonAmount =
+                1f - Mathf.Clamp01(Mathf.Abs(solarHeight) / 0.28f);
+
             float twilight =
-                1f -
-                Mathf.SmoothStep(
-                    0f,
-                    1f,
-                    Mathf.InverseLerp(
-                        0.015f,
-                        0.20f,
-                        Mathf.Abs(
-                            solarHeight)));
+                horizonAmount * horizonAmount;
 
             Shader.SetGlobalFloat(
                 "_MotorCityNightEmission",
@@ -541,8 +537,7 @@ namespace MotorCity.World
             }
 
             bool useNightSkybox =
-                NightAmount >=
-                0.62f;
+                solarHeight < -0.10f;
 
             UpdateSkyboxTransition(
                 twilight,
