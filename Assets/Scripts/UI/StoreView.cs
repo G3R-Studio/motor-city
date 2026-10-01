@@ -17,11 +17,7 @@ namespace MotorCity.UI
             {
                 if (storeOpen)
                 {
-                    storeOpen =
-                        false;
-
-                    SetActiveIfChanged(
-                        storeOverlay,
+                    SetStoreOpen(
                         false);
 
                     RefreshDrivingEnabledForUi();
@@ -45,22 +41,15 @@ namespace MotorCity.UI
                     return;
                 }
 
-                storeOpen =
-                    opening;
-
-                SetActiveIfChanged(
-                    storeOverlay,
-                    storeOpen);
+                SetStoreOpen(
+                    opening);
 
                 if (storeOpen)
                 {
                     CloseNavigatorMenuVisualOnly();
 
-                    if (clubOverlay != null)
-                    {
-                        clubOverlay.SetActive(
-                            false);
-                    }
+                    SetClubOpen(
+                        false);
 
                     UpdateStoreOverlay();
                 }
@@ -78,11 +67,7 @@ namespace MotorCity.UI
 
             if (MotorCityInput.CancelPressed)
             {
-                storeOpen =
-                    false;
-
-                SetActiveIfChanged(
-                    storeOverlay,
+                SetStoreOpen(
                     false);
 
                 RefreshDrivingEnabledForUi();
