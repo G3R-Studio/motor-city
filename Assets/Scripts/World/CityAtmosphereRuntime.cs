@@ -15,14 +15,13 @@ namespace MotorCity.World
         public void Initialize(DayNightCycleController cycle)
         {
             dayNight = cycle;
-            BuildHaze();
-            MotorCityQualityRuntime.PresetChanged += ApplyQuality;
-            ApplyQuality();
+            // Particle haze is intentionally disabled. The imported fog particle
+            // material renders as visible billboards in the current URP/WebGL setup.
+            // Distance fog provides the atmospheric depth without transparent overdraw.
         }
 
         private void OnDestroy()
         {
-            MotorCityQualityRuntime.PresetChanged -= ApplyQuality;
             if (hazeMaterial != null)
                 Destroy(hazeMaterial);
         }
