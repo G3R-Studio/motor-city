@@ -1364,19 +1364,19 @@ namespace MotorCity.Gameplay
 
             TimeButton(
                 "УТРО",
-                0.25f);
+                DayNightCycleController.MorningTime01);
 
             TimeButton(
                 "ДЕНЬ",
-                0.50f);
+                DayNightCycleController.DayTime01);
 
             TimeButton(
                 "ВЕЧЕР",
-                0.72f);
+                DayNightCycleController.EveningTime01);
 
             TimeButton(
                 "НОЧЬ",
-                0.88f);
+                DayNightCycleController.NightTime01);
 
             GUILayout.EndHorizontal();
 
