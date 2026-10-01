@@ -1019,8 +1019,9 @@ namespace MotorCity.UI
             bool blocked =
                 HasBlockingModalUi();
 
-            car?.SetDrivingEnabled(
-                !blocked);
+            car?.SetDrivingBlocked(
+                "ModalUi",
+                blocked);
 
             MotorCityPlatformRuntime.SetGameplayUiPaused(
                 blocked);
