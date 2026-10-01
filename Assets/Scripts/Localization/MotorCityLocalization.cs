@@ -162,6 +162,7 @@ namespace MotorCity.Localization
                 { "upgrade.grip", E("ШИНЫ", "TIRES") },
                 { "upgrade.stability", E("ШАССИ", "CHASSIS") },
 
+                { "activity.any", E("ЛЮБАЯ АКТИВНОСТЬ", "ANY ACTIVITY") },
                 { "activity.delivery", E("ДОСТАВКА", "DELIVERY") },
                 { "activity.drift", E("ДРИФТ", "DRIFT") },
                 { "activity.sprint", E("УЛИЧНЫЙ СПРИНТ", "STREET SPRINT") },
