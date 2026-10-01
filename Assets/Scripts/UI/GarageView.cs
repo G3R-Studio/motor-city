@@ -88,14 +88,6 @@ namespace MotorCity.UI
 
             CreateAccent(
                 topBalance,
-                violet,
-                new Vector2(0f, 0f),
-                new Vector2(836f, 3f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f));
-
-            CreateAccent(
-                topBalance,
                 new Color(0.34f, 0.42f, 0.72f, 0.45f),
                 new Vector2(220f, 0f),
                 new Vector2(1f, 46f),
@@ -375,14 +367,6 @@ namespace MotorCity.UI
                 new Color(0.54f, 0.30f, 1f, 0.26f),
                 new Color(0.28f, 0.66f, 1f, 0.30f),
                 3f);
-
-            CreateAccent(
-                vehicleCard,
-                violet,
-                new Vector2(0f, 0f),
-                new Vector2(304f, 3f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f));
 
             Text vehicleCardTitle =
                 CreateText(
@@ -672,14 +656,21 @@ namespace MotorCity.UI
                     40f + i * 252f;
 
                 RectTransform row =
-                    CreatePanel(
+                    CreateGarageRoundedPanel(
                         panel,
                         $"Upgrade {i + 1}",
                         new Vector2(x, 74f),
                         new Vector2(228f, 184f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
-                        glassSoft);
+                        glassSoft,
+                        new Color(
+                            accents[i].r,
+                            accents[i].g,
+                            accents[i].b,
+                            0.48f),
+                        11f,
+                        1.5f);
 
                 AddGarageSurfaceShadow(
                     row);
@@ -698,30 +689,19 @@ namespace MotorCity.UI
                         0.30f),
                     3f);
 
-                CreateAccent(
-                    row,
-                    accents[i],
-                    Vector2.zero,
-                    new Vector2(196f, 3f),
-                    new Vector2(0.5f, 1f),
-                    new Vector2(0.5f, 1f));
+                SpriteLessImage rowImage =
+                    row.GetComponent<SpriteLessImage>();
 
-                CreateAccent(
-                    row,
-                    new Color(0.34f, 0.42f, 0.72f, 0.32f),
-                    new Vector2(0f, 48f),
-                    new Vector2(196f, 1f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f));
-
-                Image rowImage =
-                    row.GetComponent<Image>();
                 if (rowImage != null)
-                    rowImage.raycastTarget = true;
+                {
+                    rowImage.raycastTarget =
+                        true;
+                }
 
                 Button rowButton =
                     row.gameObject.AddComponent<Button>();
-                rowButton.targetGraphic = rowImage;
+                rowButton.targetGraphic =
+                    rowImage;
 
                 ColorBlock rowColors =
                     rowButton.colors;
@@ -838,27 +818,25 @@ namespace MotorCity.UI
                 garageDescriptionTexts[i].resizeTextMaxSize = 12;
 
                 RectTransform priceStrip =
-                    CreatePanel(
+                    CreateGarageRoundedPanel(
                         row,
                         "Upgrade Action Strip",
                         new Vector2(16f, 10f),
                         new Vector2(196f, 50f),
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
-                        new Color(0.045f, 0.055f, 0.14f, 0.92f));
-
-                Outline priceStripOutline =
-                    priceStrip.GetComponent<Outline>();
-
-                if (priceStripOutline != null)
-                {
-                    priceStripOutline.effectColor =
+                        new Color(
+                            0.045f,
+                            0.055f,
+                            0.14f,
+                            0.92f),
                         new Color(
                             accents[i].r,
                             accents[i].g,
                             accents[i].b,
-                            0.52f);
-                }
+                            0.58f),
+                        7f,
+                        1.25f);
 
                 garageUpgradeActionTexts[i] =
                     CreateText(
@@ -1111,19 +1089,7 @@ namespace MotorCity.UI
                     1f,
                     0.92f);
             appearanceShape.EdgeEffectEnabled =
-                true;
-            appearanceShape.EdgeEffectWidth =
-                8f;
-            appearanceShape.EdgeEffectDirection =
-                new Vector2(
-                    0f,
-                    -1f);
-            appearanceShape.EdgeEffectColor =
-                new Color(
-                    0.20f,
-                    0.58f,
-                    1f,
-                    0.10f);
+                false;
             appearanceShape.AntiAliasingEnabled =
                 true;
             appearanceShape.AntiAliasingWidth =
@@ -1153,14 +1119,6 @@ namespace MotorCity.UI
                     0.045f),
                 7f,
                 5f);
-
-            CreateAccent(
-                appearancePanel,
-                new Color(0.48f, 0.40f, 1f, 0.92f),
-                Vector2.zero,
-                new Vector2(448f, 3f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f));
 
             appearancePanel.SetAsFirstSibling();
 
@@ -1370,21 +1328,12 @@ namespace MotorCity.UI
             int fontSize,
             Color backgroundColor)
         {
-            bool useRoundedSpriteLess =
-                name == "Garage City Button";
-
             GameObject buttonObject =
-                useRoundedSpriteLess
-                    ? new GameObject(
-                        name,
-                        typeof(RectTransform),
-                        typeof(SpriteLessImage),
-                        typeof(Button))
-                    : new GameObject(
-                        name,
-                        typeof(RectTransform),
-                        typeof(Image),
-                        typeof(Button));
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(SpriteLessImage),
+                    typeof(Button));
 
             buttonObject.transform.SetParent(
                 parent,
@@ -1398,54 +1347,39 @@ namespace MotorCity.UI
             rect.anchoredPosition = anchoredPosition;
             rect.sizeDelta = size;
 
-            Graphic backgroundGraphic;
+            SpriteLessImage roundedImage =
+                buttonObject.GetComponent<SpriteLessImage>();
 
-            if (useRoundedSpriteLess)
-            {
-                SpriteLessImage roundedImage =
-                    buttonObject.GetComponent<SpriteLessImage>();
-
-                roundedImage.Shape =
-                    ProceduralShape.RoundedRectangle;
-                roundedImage.color =
-                    backgroundColor;
-                roundedImage.CornerRadius =
-                    13f;
-                roundedImage.BorderEnabled =
-                    true;
-                roundedImage.BorderWidth =
-                    1.75f;
-                roundedImage.BorderColor =
-                    new Color(
-                        0.60f,
-                        0.34f,
-                        1f,
-                        0.56f);
-                roundedImage.EdgeEffectEnabled =
-                    false;
-                roundedImage.AntiAliasingEnabled =
-                    true;
-                roundedImage.AntiAliasingWidth =
-                    1.25f;
-
-                backgroundGraphic =
-                    roundedImage;
-            }
-            else
-            {
-                Image image =
-                    buttonObject.GetComponent<Image>();
-                image.color =
-                    backgroundColor;
-
-                backgroundGraphic =
-                    image;
-            }
+            roundedImage.Shape =
+                ProceduralShape.RoundedRectangle;
+            roundedImage.color =
+                backgroundColor;
+            roundedImage.CornerRadius =
+                Mathf.Clamp(
+                    Mathf.Min(size.x, size.y) * 0.12f,
+                    7f,
+                    13f);
+            roundedImage.BorderEnabled =
+                true;
+            roundedImage.BorderWidth =
+                1.5f;
+            roundedImage.BorderColor =
+                new Color(
+                    0.48f,
+                    0.54f,
+                    1f,
+                    0.46f);
+            roundedImage.EdgeEffectEnabled =
+                false;
+            roundedImage.AntiAliasingEnabled =
+                true;
+            roundedImage.AntiAliasingWidth =
+                1.25f;
 
             Button button =
                 buttonObject.GetComponent<Button>();
             button.targetGraphic =
-                backgroundGraphic;
+                roundedImage;
 
             ColorBlock colors =
                 button.colors;
