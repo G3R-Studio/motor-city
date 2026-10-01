@@ -120,6 +120,16 @@ namespace MotorCity.World
         private static GameObject activeCity;
         private static GameObject activeGarageInterior;
         private static GameObject garagePresentationLighting;
+
+        private static readonly int GarageBaseColorId =
+            Shader.PropertyToID("_BaseColor");
+
+        private static readonly int GarageColorId =
+            Shader.PropertyToID("_Color");
+
+        private static readonly int GarageEmissionColorId =
+            Shader.PropertyToID("_EmissionColor");
+
         private static Bounds cityBounds;
         private static bool hasCityBounds;
 
@@ -471,6 +481,111 @@ namespace MotorCity.World
             {
                 garagePresentationLighting.SetActive(
                     active);
+            }
+
+            ApplyGarageInteriorMood(
+                active);
+        }
+
+        private static void ApplyGarageInteriorMood(
+            bool active)
+        {
+            if (activeGarageInterior == null)
+                return;
+
+            Renderer[] renderers =
+                activeGarageInterior.GetComponentsInChildren<Renderer>(
+                    true);
+
+            for (int r = 0;
+                 r < renderers.Length;
+                 r++)
+            {
+                Renderer renderer =
+                    renderers[r];
+
+                if (renderer == null ||
+                    renderer is ParticleSystemRenderer ||
+                    renderer is TrailRenderer ||
+                    renderer is LineRenderer ||
+                    renderer is SpriteRenderer)
+                {
+                    continue;
+                }
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                for (int m = 0;
+                     m < materials.Length;
+                     m++)
+                {
+                    Material material =
+                        materials[m];
+
+                    if (material == null)
+                        continue;
+
+                    MaterialPropertyBlock block =
+                        new();
+
+                    renderer.GetPropertyBlock(
+                        block,
+                        m);
+
+                    if (material.HasProperty(
+                            GarageBaseColorId))
+                    {
+                        Color source =
+                            material.GetColor(
+                                GarageBaseColorId);
+
+                        block.SetColor(
+                            GarageBaseColorId,
+                            active
+                                ? new Color(
+                                    source.r * 0.48f,
+                                    source.g * 0.52f,
+                                    source.b * 0.60f,
+                                    source.a)
+                                : source);
+                    }
+                    else if (material.HasProperty(
+                                 GarageColorId))
+                    {
+                        Color source =
+                            material.GetColor(
+                                GarageColorId);
+
+                        block.SetColor(
+                            GarageColorId,
+                            active
+                                ? new Color(
+                                    source.r * 0.48f,
+                                    source.g * 0.52f,
+                                    source.b * 0.60f,
+                                    source.a)
+                                : source);
+                    }
+
+                    if (material.HasProperty(
+                            GarageEmissionColorId))
+                    {
+                        Color sourceEmission =
+                            material.GetColor(
+                                GarageEmissionColorId);
+
+                        block.SetColor(
+                            GarageEmissionColorId,
+                            active
+                                ? sourceEmission * 0.42f
+                                : sourceEmission);
+                    }
+
+                    renderer.SetPropertyBlock(
+                        block,
+                        m);
+                }
             }
         }
 
