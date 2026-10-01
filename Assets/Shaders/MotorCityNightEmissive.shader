@@ -203,11 +203,19 @@ Shader "MotorCity/NightEmissive"
                     saturate(
                         _MotorCityNightEmission);
 
+                half3 dayGlassTint =
+                    lerp(
+                        half3(0.22h, 0.23h, 0.24h),
+                        litBase,
+                        0.55h);
+
                 half3 dayGlass =
                     lerp(
                         litBase,
-                        _DayGlassTint.rgb,
-                        _DayGlassLift);
+                        dayGlassTint,
+                        min(
+                            _DayGlassLift,
+                            0.14h));
 
                 half3 nightGlass =
                     lerp(
@@ -266,11 +274,11 @@ Shader "MotorCity/NightEmissive"
                     _FresnelColor.rgb *
                     fresnel *
                     _FresnelStrength *
-                    0.32h *
+                    0.10h *
                     fresnelFade +
                     mainLight.color *
                     specular *
-                    0.38h *
+                    0.12h *
                     specularFade;
 
                 half4 emissionSample =
