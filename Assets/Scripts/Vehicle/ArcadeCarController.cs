@@ -2195,7 +2195,12 @@ namespace MotorCity.Vehicle
             Vector3 position,
             Quaternion rotation)
         {
-            SetDrivingEnabled(false);
+            // Teleporting needs a short input lock while transforms and
+            // Rigidbody state are synchronized, but it must not leave the
+            // compatibility "Legacy" blocker behind after the teleport.
+            SetDrivingBlocked(
+                "Teleport",
+                true);
 
             transform.SetPositionAndRotation(
                 position,
@@ -2209,6 +2214,10 @@ namespace MotorCity.Vehicle
 
             ClearMotion();
             Physics.SyncTransforms();
+
+            SetDrivingBlocked(
+                "Teleport",
+                false);
         }
 
         public void ClearMotion()
