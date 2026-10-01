@@ -2174,8 +2174,9 @@ namespace MotorCity.Gameplay
                     3f,
                     () =>
                     {
-                        car?.SetDrivingEnabled(
-                            false);
+                        car?.SetDrivingBlocked(
+                            "ActivityCountdown",
+                            true);
 
                         lastAction =
                             "Mock ad закрыт - countdown начался";
@@ -2193,8 +2194,9 @@ namespace MotorCity.Gameplay
                         activities.End(
                             "sprint");
 
-                        car?.SetDrivingEnabled(
-                            true);
+                        car?.SetDrivingBlocked(
+                            "ActivityCountdown",
+                            false);
 
                         lastAction =
                             "Mock ad -> 3-2-1-GO -> gameplay: ГОТОВО";
@@ -2442,8 +2444,9 @@ namespace MotorCity.Gameplay
                 activities.HasResult)
             {
                 activities.DismissResult();
-                car?.SetDrivingEnabled(
-                    true);
+                car?.SetDrivingBlocked(
+                    "ActivityResult",
+                    false);
 
                 lastAction =
                     "Result закрыт";
@@ -2499,9 +2502,6 @@ namespace MotorCity.Gameplay
                 1.1f,
                 rotation);
 
-            car.SetDrivingEnabled(
-                true);
-
             lastAction =
                 "Телепорт: " +
                 position.x.ToString(
@@ -2552,8 +2552,12 @@ namespace MotorCity.Gameplay
                 }
             }
 
-            car?.SetDrivingEnabled(
-                true);
+            car?.SetDrivingBlocked(
+                "ActivityCountdown",
+                false);
+            car?.SetDrivingBlocked(
+                "ActivityResult",
+                false);
 
             lastAction =
                 "Активности отменены";
