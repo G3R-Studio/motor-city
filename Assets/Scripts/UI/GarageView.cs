@@ -1,6 +1,5 @@
 using MotorCity.Localization;
 using MotorCity.Input;
-using Coffee.UIEffects;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -1284,7 +1283,7 @@ namespace MotorCity.UI
             Outline outline =
                 buttonObject.AddComponent<Outline>();
             outline.effectColor =
-                new Color(0.42f, 0.52f, 1f, 0.32f);
+                new Color(0.42f, 0.52f, 1f, 0.45f);
             outline.effectDistance =
                 new Vector2(1f, -1f);
             outline.useGraphicAlpha =
@@ -1293,17 +1292,11 @@ namespace MotorCity.UI
             Shadow shadow =
                 buttonObject.AddComponent<Shadow>();
             shadow.effectColor =
-                new Color(0f, 0f, 0f, 0.38f);
+                new Color(0f, 0f, 0f, 0.42f);
             shadow.effectDistance =
                 new Vector2(0f, -4f);
             shadow.useGraphicAlpha =
                 true;
-
-            AddGarageNeonFrame(
-                rect,
-                new Color(0.58f, 0.34f, 1f, 0.30f),
-                new Color(0.30f, 0.72f, 1f, 0.34f),
-                2f);
 
             return buttonObject;
         }
@@ -1331,80 +1324,12 @@ namespace MotorCity.UI
             Color innerStrokeColor,
             float inset)
         {
-            if (target == null)
-                return;
-
-            Graphic graphic =
-                target.GetComponent<Graphic>();
-
-            if (graphic == null)
-                return;
-
-            UIEffect effect =
-                target.GetComponent<UIEffect>();
-
-            if (effect == null)
-            {
-                effect =
-                    target.gameObject.AddComponent<UIEffect>();
-            }
-
-            effect.allowToModifyMeshShape =
-                true;
-
-            effect.shadowMode =
-                ShadowMode.Outline8;
-
-            effect.shadowDistance =
-                new Vector2(
-                    2.25f,
-                    2.25f);
-
-            effect.shadowIteration =
-                2;
-
-            effect.shadowFade =
-                0.86f;
-
-            effect.shadowBlurIntensity =
-                0.72f;
-
-            effect.shadowColor =
-                new Color(
-                    outerGlowColor.r,
-                    outerGlowColor.g,
-                    outerGlowColor.b,
-                    Mathf.Clamp01(
-                        outerGlowColor.a * 1.15f));
-
-            effect.shadowColorGlow =
-                true;
-
-            effect.edgeMode =
-                EdgeMode.Plain;
-
-            effect.edgeWidth =
-                Mathf.Clamp(
-                    0.025f +
-                    inset * 0.008f,
-                    0.035f,
-                    0.065f);
-
-            effect.edgeColorFilter =
-                ColorFilter.Replace;
-
-            effect.edgeColor =
-                new Color(
-                    innerStrokeColor.r,
-                    innerStrokeColor.g,
-                    innerStrokeColor.b,
-                    Mathf.Clamp(
-                        innerStrokeColor.a + 0.40f,
-                        0.72f,
-                        0.96f));
-
-            effect.edgeColorGlow =
-                true;
+            // Disabled for now.
+            //
+            // UIEffect modifies the source Graphic itself, which changes the
+            // glass panel fill/alpha and makes the garage HUD wash out.
+            // Keep the hook in place so the layout code does not need to be
+            // rewritten again when a dedicated border-only solution is used.
         }
 
         private void AddGarageActionIcon(
