@@ -217,10 +217,7 @@ namespace MotorCity.Platform
                 1,
                 0f,
                 1,
-                2,
-                512,
-                false,
-                false);
+                512);
         }
 
         private static void ApplyMedium()
@@ -241,10 +238,7 @@ namespace MotorCity.Platform
                 2,
                 75f,
                 2,
-                4,
-                1024,
-                true,
-                true);
+                1024);
         }
 
         private static void ApplyHigh()
@@ -265,10 +259,7 @@ namespace MotorCity.Platform
                 4,
                 120f,
                 4,
-                8,
-                2048,
-                true,
-                true);
+                2048);
         }
 
         private static void ApplyUrpQuality(
@@ -276,10 +267,7 @@ namespace MotorCity.Platform
             int msaaSamples,
             float shadowDistance,
             int shadowCascadeCount,
-            int additionalLightsPerObject,
-            int mainShadowResolution,
-            bool softShadows,
-            bool additionalLightShadows)
+            int mainShadowResolution)
         {
             UniversalRenderPipelineAsset urp =
                 GraphicsSettings.currentRenderPipeline
@@ -308,22 +296,11 @@ namespace MotorCity.Platform
                     1,
                     4);
 
-            urp.additionalLightsPerObjectLimit =
-                Mathf.Clamp(
-                    additionalLightsPerObject,
-                    0,
-                    8);
-
             urp.mainLightShadowmapResolution =
                 Mathf.Max(
                     256,
                     mainShadowResolution);
 
-            urp.supportsSoftShadows =
-                softShadows;
-
-            urp.supportsAdditionalLightShadows =
-                additionalLightShadows;
         }
     }
 }
