@@ -805,8 +805,37 @@ namespace MotorCity.World
                     IsParkLamp(
                         sourceLight.transform);
 
-                // Preserve the exact light values authored in the city/prefabs.
-                // Runtime is responsible only for switching nearby lamps on/off.
+                // FCG's original spot lights are tuned for its demo scene.
+                // In Motor City's darker URP night they need a little more reach
+                // and a warmer practical-light color to illuminate the road.
+                sourceLight.color =
+                    isParkLamp
+                        ? new Color(1.00f, 0.82f, 0.62f)
+                        : new Color(1.00f, 0.76f, 0.48f);
+
+                sourceLight.intensity =
+                    isParkLamp
+                        ? 5.0f
+                        : 5.8f;
+
+                sourceLight.range =
+                    isParkLamp
+                        ? 14f
+                        : 17f;
+
+                sourceLight.spotAngle =
+                    isParkLamp
+                        ? 92f
+                        : 88f;
+
+                sourceLight.innerSpotAngle =
+                    isParkLamp
+                        ? 36f
+                        : 34f;
+
+                sourceLight.shadows =
+                    LightShadows.None;
+
                 sourceLight.enabled =
                     false;
 
