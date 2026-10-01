@@ -172,68 +172,15 @@ public static class FantasticCityGeneratorUrpFixer
         {
             int repairedGenerated =
                 0;
-            int renamedGenerated =
-                0;
-            int rebuiltFromOriginal =
-                0;
-            var missingOriginals =
-                new List<string>();
 
-            // Generated materials can be the only materials referenced by the
-            // saved workbench scene. Rebuild every one directly from the
-            // original FCG asset identified by the GUID suffix in its filename.
-            // Do not merely repair the generated material in-place: that can
-            // preserve a white/default URP state from an earlier bad pass.
             foreach (Material generated in
                      generatedMaterials)
             {
-                string generatedPath =
-                    AssetDatabase.GetAssetPath(generated);
-                string expectedObjectName =
-                    Path.GetFileNameWithoutExtension(generatedPath);
-
-                if (!string.IsNullOrWhiteSpace(expectedObjectName) &&
-                    !string.Equals(generated.name, expectedObjectName,
-                        StringComparison.Ordinal))
-                {
-                    generated.name = expectedObjectName;
-                    EditorUtility.SetDirty(generated);
-                    renamedGenerated++;
-                }
-
-                Material original =
-                    FindOriginalFcgMaterialForGenerated(
-                        generated,
-                        generated.name);
-
-                if (original != null)
-                {
-                    CreateOrUpdateUrpMaterial(
-                        original,
-                        urpLit,
-                        rebuiltFromOriginal);
-
-                    rebuiltFromOriginal++;
-                }
-                else
-                {
-                    missingOriginals.Add(
-                        AssetDatabase.GetAssetPath(generated));
-
-                    RepairGeneratedUrpMaterial(
-                        generated,
-                        urpLit);
-                }
+                RepairGeneratedUrpMaterial(
+                    generated,
+                    urpLit);
 
                 repairedGenerated++;
-            }
-
-            if (missingOriginals.Count > 0)
-            {
-                Debug.LogWarning(
-                    "Motor City: could not resolve original FCG material for " +
-                    missingOriginals.Count + " generated materials:\n" +
-                    string.Join("\n", missingOriginals));
             }
 
             int materialIndex =
@@ -325,9 +272,7 @@ public static class FantasticCityGeneratorUrpFixer
 
             Debug.Log(
                 "Motor City: Fantastic City Generator URP conversion complete. " +
-                $"Converted {converted.Count} source materials, renamed " +
-                $"{renamedGenerated} generated material objects, rebuilt " +
-                $"{rebuiltFromOriginal} generated materials from originals, repaired " +
+                $"Converted {converted.Count} source materials, repaired " +
                 $"{repairedGenerated} existing URP materials, updated " +
                 $"{changedRenderers} renderers and rebuilt " +
                 $"{trafficPrefabsUpdated} traffic car prefabs.");
@@ -1083,12 +1028,9 @@ public static class FantasticCityGeneratorUrpFixer
                 targetShader;
         }
 
-        // Keep the Material object's name identical to the asset filename.
-        // Unity 6 warns and repeatedly reimports NativeFormatImporter assets
-        // when the main object name differs from the .mat filename.
         material.name =
-            Path.GetFileNameWithoutExtension(
-                path);
+            "FCG_" +
+            source.name;
 
         material.enableInstancing =
             true;
@@ -1711,37 +1653,6 @@ public static class FantasticCityGeneratorUrpFixer
             (int)RenderQueue.Transparent;
     }
 
-    private static bool IsGenuinelyTransparentMaterial(
-        Material source,
-        string shaderName,
-        string materialName,
-        bool explicitTransparentMode)
-    {
-        // FCG contains several legacy Standard materials whose recovered
-        // render state can misleadingly look transparent after conversion.
-        // Only preserve transparency for materials that are semantically
-        // glass/window-like or whose source color actually uses alpha.
-        bool transparentName =
-            materialName.Contains("glass") ||
-            materialName.Contains("window") ||
-            materialName.Contains("windshield") ||
-            materialName.Contains("windscreen");
-
-        float sourceAlpha = 1f;
-        if (source.HasProperty("_Color"))
-            sourceAlpha = source.GetColor("_Color").a;
-        else if (source.HasProperty("_BaseColor"))
-            sourceAlpha = source.GetColor("_BaseColor").a;
-
-        bool meaningfulAlpha = sourceAlpha < 0.98f;
-        bool transparentShader =
-            shaderName.IndexOf("transparent", StringComparison.OrdinalIgnoreCase) >= 0;
-
-        return transparentName ||
-               meaningfulAlpha ||
-               (explicitTransparentMode && transparentShader);
-    }
-
     private static void ConfigureSurfaceType(
         Material source,
         Material destination)
@@ -1776,11 +1687,12 @@ public static class FantasticCityGeneratorUrpFixer
 
         bool transparent =
             !cutout &&
-            IsGenuinelyTransparentMaterial(
-                source,
-                shaderName,
-                materialName,
-                explicitTransparentMode);
+            (shaderName.IndexOf(
+                 "transparent",
+                 StringComparison.OrdinalIgnoreCase) >= 0 ||
+             source.renderQueue >=
+                 (int)RenderQueue.Transparent ||
+             explicitTransparentMode);
 
         destination.DisableKeyword(
             "_ALPHATEST_ON");
