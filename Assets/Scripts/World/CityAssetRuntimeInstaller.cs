@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 namespace MotorCity.World
@@ -120,6 +121,8 @@ namespace MotorCity.World
         private static GameObject activeCity;
         private static GameObject activeGarageInterior;
         private static GameObject garagePresentationLighting;
+        private static GameObject garagePresentationPostFx;
+        private static VolumeProfile garagePresentationVolumeProfile;
 
         private static readonly int GarageBaseColorId =
             Shader.PropertyToID("_BaseColor");
@@ -472,6 +475,9 @@ namespace MotorCity.World
 
             InstallGaragePresentationLighting(
                 garageTransform);
+
+            InstallGaragePresentationPostFx(
+                garageTransform);
         }
 
         public static void SetGaragePresentationLighting(
@@ -485,6 +491,12 @@ namespace MotorCity.World
 
             ApplyGarageInteriorMood(
                 active);
+
+            if (garagePresentationPostFx != null)
+            {
+                garagePresentationPostFx.SetActive(
+                    active);
+            }
         }
 
         private static void ApplyGarageInteriorMood(
@@ -544,9 +556,9 @@ namespace MotorCity.World
                             GarageBaseColorId,
                             active
                                 ? new Color(
-                                    source.r * 0.48f,
-                                    source.g * 0.52f,
-                                    source.b * 0.60f,
+                                    source.r * 0.60f,
+                                    source.g * 0.63f,
+                                    source.b * 0.70f,
                                     source.a)
                                 : source);
                     }
@@ -561,9 +573,9 @@ namespace MotorCity.World
                             GarageColorId,
                             active
                                 ? new Color(
-                                    source.r * 0.48f,
-                                    source.g * 0.52f,
-                                    source.b * 0.60f,
+                                    source.r * 0.60f,
+                                    source.g * 0.63f,
+                                    source.b * 0.70f,
                                     source.a)
                                 : source);
                     }
@@ -578,7 +590,7 @@ namespace MotorCity.World
                         block.SetColor(
                             GarageEmissionColorId,
                             active
-                                ? sourceEmission * 0.42f
+                                ? sourceEmission * 0.58f
                                 : sourceEmission);
                     }
 
@@ -587,6 +599,115 @@ namespace MotorCity.World
                         m);
                 }
             }
+        }
+
+        private static void InstallGaragePresentationPostFx(
+            Transform garageTransform)
+        {
+            if (garageTransform == null)
+                return;
+
+            const string volumeName =
+                "Garage Presentation Post FX";
+
+            Transform existing =
+                garageTransform.Find(
+                    volumeName);
+
+            if (existing != null)
+            {
+                garagePresentationPostFx =
+                    existing.gameObject;
+
+                garagePresentationPostFx.SetActive(
+                    false);
+
+                return;
+            }
+
+            garagePresentationPostFx =
+                new GameObject(
+                    volumeName);
+
+            garagePresentationPostFx.transform.SetParent(
+                garageTransform,
+                false);
+
+            Volume volume =
+                garagePresentationPostFx.AddComponent<Volume>();
+
+            volume.isGlobal =
+                true;
+            volume.priority =
+                120f;
+            volume.weight =
+                1f;
+
+            garagePresentationVolumeProfile =
+                ScriptableObject.CreateInstance<VolumeProfile>();
+
+            garagePresentationVolumeProfile.name =
+                "Garage Presentation Runtime Profile";
+
+            ColorAdjustments colorAdjustments =
+                garagePresentationVolumeProfile.Add<ColorAdjustments>(
+                    true);
+
+            colorAdjustments.postExposure.Override(
+                -0.15f);
+            colorAdjustments.contrast.Override(
+                18f);
+            colorAdjustments.saturation.Override(
+                8f);
+            colorAdjustments.colorFilter.Override(
+                new Color(
+                    0.94f,
+                    0.97f,
+                    1.00f,
+                    1f));
+
+            Bloom bloom =
+                garagePresentationVolumeProfile.Add<Bloom>(
+                    true);
+
+            bloom.threshold.Override(
+                1.05f);
+            bloom.intensity.Override(
+                0.34f);
+            bloom.scatter.Override(
+                0.56f);
+            bloom.clamp.Override(
+                8f);
+
+            Vignette vignette =
+                garagePresentationVolumeProfile.Add<Vignette>(
+                    true);
+
+            vignette.color.Override(
+                new Color(
+                    0.01f,
+                    0.015f,
+                    0.035f,
+                    1f));
+            vignette.intensity.Override(
+                0.17f);
+            vignette.smoothness.Override(
+                0.46f);
+            vignette.rounded.Override(
+                false);
+
+            Tonemapping tonemapping =
+                garagePresentationVolumeProfile.Add<Tonemapping>(
+                    true);
+
+            tonemapping.mode.Override(
+                TonemappingMode.ACES);
+
+            volume.sharedProfile =
+                garagePresentationVolumeProfile;
+
+            garagePresentationPostFx.SetActive(
+                false);
         }
 
         private static void InstallGaragePresentationLighting(
