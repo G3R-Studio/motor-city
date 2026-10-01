@@ -660,15 +660,15 @@ namespace MotorCity.World
                     true);
 
             colorAdjustments.postExposure.Override(
-                0.10f);
+                0.08f);
             colorAdjustments.contrast.Override(
-                12f);
+                16f);
             colorAdjustments.saturation.Override(
-                8f);
+                4f);
             colorAdjustments.colorFilter.Override(
                 new Color(
-                    0.94f,
-                    0.97f,
+                    0.95f,
+                    0.98f,
                     1.00f,
                     1f));
 
@@ -677,11 +677,11 @@ namespace MotorCity.World
                     true);
 
             bloom.threshold.Override(
-                1.05f);
+                0.92f);
             bloom.intensity.Override(
-                0.34f);
+                0.42f);
             bloom.scatter.Override(
-                0.56f);
+                0.60f);
             bloom.clamp.Override(
                 8f);
 
@@ -696,9 +696,9 @@ namespace MotorCity.World
                     0.035f,
                     1f));
             vignette.intensity.Override(
-                0.10f);
+                0.085f);
             vignette.smoothness.Override(
-                0.46f);
+                0.42f);
             vignette.rounded.Override(
                 false);
 
@@ -708,6 +708,36 @@ namespace MotorCity.World
 
             tonemapping.mode.Override(
                 TonemappingMode.ACES);
+
+            WhiteBalance whiteBalance =
+                garagePresentationVolumeProfile.Add<WhiteBalance>(
+                    true);
+
+            whiteBalance.temperature.Override(
+                -6f);
+            whiteBalance.tint.Override(
+                1f);
+
+            SplitToning splitToning =
+                garagePresentationVolumeProfile.Add<SplitToning>(
+                    true);
+
+            splitToning.shadows.Override(
+                new Color(
+                    0.40f,
+                    0.47f,
+                    0.58f,
+                    1f));
+
+            splitToning.highlights.Override(
+                new Color(
+                    0.62f,
+                    0.54f,
+                    0.43f,
+                    1f));
+
+            splitToning.balance.Override(
+                -4f);
 
             DepthOfField depthOfField =
                 garagePresentationVolumeProfile.Add<DepthOfField>(
@@ -781,9 +811,9 @@ namespace MotorCity.World
                     1.00f,
                     0.80f,
                     0.60f),
-                7.50f,
-                9.0f,
-                58f,
+                8.25f,
+                9.5f,
+                60f,
                 true);
 
             CreateGaragePresentationLight(
@@ -800,7 +830,7 @@ namespace MotorCity.World
                     0.10f,
                     0.58f,
                     1.00f),
-                3.20f,
+                2.35f,
                 7.0f,
                 54f,
                 false);
@@ -819,7 +849,7 @@ namespace MotorCity.World
                     0.78f,
                     0.12f,
                     1.00f),
-                1.35f,
+                0.72f,
                 5.5f,
                 50f,
                 false);
@@ -844,9 +874,9 @@ namespace MotorCity.World
                     1.00f,
                     0.56f,
                     0.28f),
-                1.45f,
-                6.2f,
-                62f,
+                1.75f,
+                6.5f,
+                64f,
                 false);
 
             CreateGaragePresentationLight(
@@ -866,7 +896,7 @@ namespace MotorCity.World
                     0.08f,
                     0.42f,
                     0.95f),
-                1.10f,
+                0.82f,
                 5.8f,
                 58f,
                 false);
