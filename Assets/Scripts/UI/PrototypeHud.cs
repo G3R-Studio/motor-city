@@ -224,7 +224,7 @@ namespace MotorCity.UI
         private float minimapRouteUpdateTimer;
         private float minimapDistanceUpdateTimer;
         private const float MinimapTargetResolveInterval = 0.10f;
-        private const float MinimapRouteUpdateInterval = 0.05f;
+        private const float MinimapRouteUpdateInterval = 0.10f;
 
         private GameObject navigatorPanel;
         private GameObject statusPanel;
