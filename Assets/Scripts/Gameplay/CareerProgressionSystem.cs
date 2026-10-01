@@ -97,8 +97,8 @@ namespace MotorCity.Gameplay
 
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown +=
-                    HandleActivityResult;
+                activityManager.ActivityCompleted +=
+                    HandleActivityCompleted;
             }
 
             // Handles saves created before career stages existed.
@@ -110,8 +110,8 @@ namespace MotorCity.Gameplay
         {
             if (activityManager != null)
             {
-                activityManager.ActivityResultShown -=
-                    HandleActivityResult;
+                activityManager.ActivityCompleted -=
+                    HandleActivityCompleted;
             }
         }
 
@@ -161,18 +161,14 @@ namespace MotorCity.Gameplay
             StatusText = string.Empty;
         }
 
-        private void HandleActivityResult(
-            string activityId,
-            bool success)
+        private void HandleActivityCompleted(
+            string activityId)
         {
             if (activityManager != null &&
                 !activityManager.SecondaryProgressionAllowed)
             {
                 return;
             }
-
-            if (!success)
-                return;
 
             switch (activityId)
             {
