@@ -50,6 +50,7 @@ namespace MotorCity.UI
         private RewardedBonusSystem rewardedBonus;
         private CosmeticStoreSystem cosmeticStore;
         private bool storeOpen;
+        private bool clubOpen;
         private GameObject pauseOverlay;
         private Text pauseQualityText;
         private Text pauseAudioText;
@@ -833,15 +834,11 @@ namespace MotorCity.UI
                     CloseNavigatorMenuVisualOnly();
                 }
 
-                storeOpen =
-                    false;
+                SetStoreOpen(
+                    false);
 
-                if (clubOverlay != null &&
-                    clubOverlay.activeSelf)
-                {
-                    clubOverlay.SetActive(
-                        false);
-                }
+                SetClubOpen(
+                    false);
 
                 SetActiveIfChanged(
                     statusPanel,
@@ -860,8 +857,7 @@ namespace MotorCity.UI
                 return;
             }
 
-            if (clubOverlay != null &&
-                clubOverlay.activeSelf)
+            if (clubOpen)
             {
                 UpdateClubOverlay();
             }
@@ -1075,14 +1071,46 @@ namespace MotorCity.UI
                 garageOpen);
         }
 
+        private void SetStoreOpen(
+            bool open)
+        {
+            storeOpen =
+                open;
+
+            SetActiveIfChanged(
+                storeOverlay,
+                open);
+        }
+
+        private void SetNavigatorMenuOpen(
+            bool open)
+        {
+            navigatorMenuOpen =
+                open;
+
+            SetActiveIfChanged(
+                navigatorMenuOverlay,
+                open);
+        }
+
+        private void SetClubOpen(
+            bool open)
+        {
+            clubOpen =
+                open;
+
+            SetActiveIfChanged(
+                clubOverlay,
+                open);
+        }
+
         private bool HasBlockingModalUi()
         {
             return
                 pauseMenuOpen ||
                 navigatorMenuOpen ||
                 storeOpen ||
-                (clubOverlay != null &&
-                 clubOverlay.activeSelf) ||
+                clubOpen ||
                 (garage != null &&
                  garage.IsOpen) ||
                 (activityManager != null &&
