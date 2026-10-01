@@ -1,3 +1,4 @@
+using System;
 using MotorCity.CameraSystem;
 using MotorCity.Input;
 using MotorCity.Localization;
@@ -49,6 +50,8 @@ namespace MotorCity.Gameplay
         public string StatusText { get; private set; } =
             MotorCityLocalization.Text(
                 "garage.marker_text");
+
+        public event Action Changed;
 
         public string VehicleName =>
             vehicleRoster == null
@@ -143,6 +146,27 @@ namespace MotorCity.Gameplay
             turbo = turboSystem;
             customization =
                 customizationSystem;
+
+            if (wallet != null)
+            {
+                wallet.CreditsEarned +=
+                    HandleCreditsChanged;
+
+                wallet.CreditsSpent +=
+                    HandleCreditsChanged;
+            }
+
+            if (vehicleRoster != null)
+            {
+                vehicleRoster.VehicleChanged +=
+                    HandleGarageDataChanged;
+            }
+
+            if (customization != null)
+            {
+                customization.CustomizationChanged +=
+                    HandleGarageDataChanged;
+            }
 
             vehicleAudio =
                 car == null
@@ -819,6 +843,7 @@ namespace MotorCity.Gameplay
             }
 
             ApplyUpgrades();
+            Changed?.Invoke();
         }
 
         private void TryBuy(UpgradeType type)
@@ -848,6 +873,7 @@ namespace MotorCity.Gameplay
             ApplyUpgrades();
             StatusText =
                 string.Empty;
+            Changed?.Invoke();
         }
 
         private void ApplyUpgrades()
@@ -1142,6 +1168,17 @@ namespace MotorCity.Gameplay
                     MaxLevel);
         }
 
+        private void HandleCreditsChanged(
+            int amount)
+        {
+            Changed?.Invoke();
+        }
+
+        private void HandleGarageDataChanged()
+        {
+            Changed?.Invoke();
+        }
+
         private void Save()
         {
             MotorCity.Persistence.MotorCitySaveService.SetInt(
@@ -1169,6 +1206,27 @@ namespace MotorCity.Gameplay
 
         private void OnDestroy()
         {
+            if (wallet != null)
+            {
+                wallet.CreditsEarned -=
+                    HandleCreditsChanged;
+
+                wallet.CreditsSpent -=
+                    HandleCreditsChanged;
+            }
+
+            if (vehicleRoster != null)
+            {
+                vehicleRoster.VehicleChanged -=
+                    HandleGarageDataChanged;
+            }
+
+            if (customization != null)
+            {
+                customization.CustomizationChanged -=
+                    HandleGarageDataChanged;
+            }
+
             RestoreDriving();
         }
 
