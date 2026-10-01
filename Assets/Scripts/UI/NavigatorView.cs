@@ -452,6 +452,10 @@ namespace MotorCity.UI
             storeOpen =
                 false;
 
+            SetActiveIfChanged(
+                storeOverlay,
+                false);
+
             RefreshDrivingEnabledForUi();
 
             UpdateNavigatorMenuText();
