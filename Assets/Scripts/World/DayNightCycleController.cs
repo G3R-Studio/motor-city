@@ -821,17 +821,17 @@ namespace MotorCity.World
                 sourceLight.range =
                     isParkLamp
                         ? 17f
-                        : 24f;
+                        : 50f;
 
                 sourceLight.spotAngle =
                     isParkLamp
                         ? 98f
-                        : 96f;
+                        : 150f;
 
                 sourceLight.innerSpotAngle =
                     isParkLamp
                         ? 40f
-                        : 38f;
+                        : 50f;
 
                 sourceLight.shadows =
                     LightShadows.None;
