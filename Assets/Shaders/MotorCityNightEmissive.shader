@@ -303,10 +303,20 @@ Shader "MotorCity/NightEmissive"
                     nightFactor *
                     fogVisibility;
 
+                // Glass/facade textures retain more local contrast than concrete.
+                // Push their distant response slightly harder toward the scene fog
+                // so window strips do not remain visible after the building fades.
+                half facadeFog =
+                    saturate(input.fogFactor * 1.35h);
+                facadeFog =
+                    1.0h -
+                    (1.0h - facadeFog) *
+                    (1.0h - facadeFog);
+
                 color =
                     MixFog(
                         color,
-                        input.fogFactor);
+                        facadeFog);
 
                 return half4(color, 1.0h);
             }
