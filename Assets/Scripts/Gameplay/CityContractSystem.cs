@@ -204,15 +204,14 @@ namespace MotorCity.Gameplay
                     return;
             }
 
-            if (IsNight())
+            if (activityId ==
+                "underground")
             {
                 nightProgress++;
             }
-            else if (activityId ==
-                     "underground")
+            else if (IsNight())
             {
-                changed =
-                    false;
+                nightProgress++;
             }
 
             if (!changed)
