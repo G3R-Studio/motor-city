@@ -278,9 +278,10 @@ Shader "MotorCity/NightEmissive"
                         input.emissionUv);
 
                 half nightFactor =
-                    saturate(
-                        (nightAmount - 0.30h) /
-                        0.70h);
+                    smoothstep(
+                        0.58h,
+                        0.82h,
+                        nightAmount);
 
                 half emissionMask =
                     emissionSample.a *
@@ -290,12 +291,17 @@ Shader "MotorCity/NightEmissive"
                             emissionSample.g,
                             emissionSample.b));
 
+                half fogVisibility =
+                    saturate(1.0h - input.fogFactor);
+                fogVisibility *= fogVisibility;
+
                 color +=
                     emissionSample.rgb *
                     _EmissionColor.rgb *
                     _EmissionStrength *
                     emissionMask *
-                    nightFactor;
+                    nightFactor *
+                    fogVisibility;
 
                 color =
                     MixFog(
