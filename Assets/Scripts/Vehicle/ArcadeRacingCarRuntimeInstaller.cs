@@ -35,6 +35,18 @@ namespace MotorCity.Vehicle
             RuntimeVehiclePrefabCache =
                 new(StringComparer.Ordinal);
 
+        private static readonly Dictionary<int, Dictionary<string, VehicleVisualCacheEntry>>
+            RuntimeVehicleVisualCache =
+                new();
+
+        private static readonly Dictionary<int, VehicleVisualCacheEntry>
+            ActiveVehicleVisualCache =
+                new();
+
+        private static readonly HashSet<int>
+            CachedRuntimeObjectIds =
+                new();
+
         private static Material runtimeNullMirrorMaterial;
 
         [RuntimeInitializeOnLoadMethod(
@@ -44,6 +56,9 @@ namespace MotorCity.Vehicle
             RuntimeUrpMaterialCache.Clear();
             RuntimeMirrorMaterialCache.Clear();
             RuntimeVehiclePrefabCache.Clear();
+            RuntimeVehicleVisualCache.Clear();
+            ActiveVehicleVisualCache.Clear();
+            CachedRuntimeObjectIds.Clear();
             runtimeNullMirrorMaterial = null;
         }
 
@@ -101,6 +116,14 @@ namespace MotorCity.Vehicle
                     resourcePath))
                 return false;
 
+            if (preserveAuthoredTransform &&
+                TryActivateCachedVehicleVisual(
+                    car,
+                    resourcePath))
+            {
+                return true;
+            }
+
             GameObject prefab =
                 LoadVehiclePrefab(
                     resourcePath);
@@ -126,7 +149,10 @@ namespace MotorCity.Vehicle
                 preserveAuthoredTransform,
                 explicitWheelCentersLocal,
                 explicitWheelRadius,
-                useVisualMeshCollider);
+                useVisualMeshCollider,
+                preserveAuthoredTransform
+                    ? resourcePath
+                    : null);
         }
 
         private static GameObject LoadVehiclePrefab(
@@ -170,7 +196,8 @@ namespace MotorCity.Vehicle
             bool preserveAuthoredTransform = false,
             Vector3[] explicitWheelCentersLocal = null,
             float explicitWheelRadius = 0f,
-            bool useVisualMeshCollider = true)
+            bool useVisualMeshCollider = true,
+            string cacheKey = null)
         {
             Transform carTransform = car.transform;
 
@@ -575,7 +602,202 @@ namespace MotorCity.Vehicle
                 wheelSync.Clear();
             }
 
+            if (preserveAuthoredTransform &&
+                !string.IsNullOrWhiteSpace(
+                    cacheKey))
+            {
+                CacheInstalledVehicleVisual(
+                    car,
+                    cacheKey,
+                    visual,
+                    spinRoots,
+                    centerLocal,
+                    measuredRadius,
+                    usePhysicsProxyMeshes,
+                    additionalSpinRoots,
+                    additionalOffsetsLocal,
+                    useVisualMeshCollider);
+            }
+
             return true;
+        }
+
+        private static bool TryActivateCachedVehicleVisual(
+            ArcadeCarController car,
+            string cacheKey)
+        {
+            if (car == null ||
+                string.IsNullOrWhiteSpace(
+                    cacheKey))
+            {
+                return false;
+            }
+
+            int carId =
+                car.GetInstanceID();
+
+            if (!RuntimeVehicleVisualCache.TryGetValue(
+                    carId,
+                    out Dictionary<string, VehicleVisualCacheEntry> perCar) ||
+                !perCar.TryGetValue(
+                    cacheKey,
+                    out VehicleVisualCacheEntry entry) ||
+                entry == null ||
+                entry.Visual == null)
+            {
+                return false;
+            }
+
+            if (ActiveVehicleVisualCache.TryGetValue(
+                    carId,
+                    out VehicleVisualCacheEntry active) &&
+                ReferenceEquals(
+                    active,
+                    entry) &&
+                entry.Visual.activeSelf)
+            {
+                return true;
+            }
+
+            ClearRuntimeVisual(
+                car.transform);
+
+            entry.SetActive(
+                true);
+
+            if (entry.UseVisualMeshCollider)
+            {
+                BoxCollider chassis =
+                    car.GetComponent<BoxCollider>();
+
+                if (chassis != null)
+                {
+                    chassis.enabled =
+                        false;
+                }
+            }
+
+            car.ConfigurePrometeoRig(
+                entry.WheelRoots,
+                entry.WheelCentersLocal,
+                entry.WheelRadius,
+                entry.ExternalVisualSync);
+
+            VehicleWheelVisualSync wheelSync =
+                car.GetComponent<VehicleWheelVisualSync>();
+
+            if (entry.ExternalVisualSync)
+            {
+                if (wheelSync == null)
+                {
+                    wheelSync =
+                        car.gameObject.AddComponent<VehicleWheelVisualSync>();
+                }
+
+                wheelSync.Bind(
+                    car,
+                    entry.WheelRoots);
+
+                for (int i = 0;
+                     i < entry.AdditionalSpinRoots.Length &&
+                     i < entry.AdditionalOffsetsLocal.Length;
+                     i++)
+                {
+                    int sourceWheelIndex =
+                        i == 0
+                            ? RearLeftIndex
+                            : RearRightIndex;
+
+                    wheelSync.BindAdditionalVisual(
+                        i,
+                        entry.AdditionalSpinRoots[i],
+                        sourceWheelIndex,
+                        entry.AdditionalOffsetsLocal[i]);
+                }
+            }
+            else if (wheelSync != null)
+            {
+                wheelSync.Clear();
+            }
+
+            ActiveVehicleVisualCache[
+                carId] =
+                entry;
+
+            return true;
+        }
+
+        private static void CacheInstalledVehicleVisual(
+            ArcadeCarController car,
+            string cacheKey,
+            GameObject visual,
+            Transform[] wheelRoots,
+            Vector3[] wheelCentersLocal,
+            float wheelRadius,
+            bool externalVisualSync,
+            Transform[] additionalSpinRoots,
+            Vector3[] additionalOffsetsLocal,
+            bool useVisualMeshCollider)
+        {
+            if (car == null ||
+                visual == null ||
+                string.IsNullOrWhiteSpace(
+                    cacheKey))
+            {
+                return;
+            }
+
+            int carId =
+                car.GetInstanceID();
+
+            if (!RuntimeVehicleVisualCache.TryGetValue(
+                    carId,
+                    out Dictionary<string, VehicleVisualCacheEntry> perCar))
+            {
+                perCar =
+                    new Dictionary<string, VehicleVisualCacheEntry>(
+                        StringComparer.Ordinal);
+
+                RuntimeVehicleVisualCache[
+                    carId] =
+                    perCar;
+            }
+
+            VehicleVisualCacheEntry entry =
+                new(
+                    visual,
+                    wheelRoots,
+                    wheelCentersLocal,
+                    wheelRadius,
+                    externalVisualSync,
+                    additionalSpinRoots,
+                    additionalOffsetsLocal,
+                    useVisualMeshCollider);
+
+            perCar[
+                cacheKey] =
+                entry;
+
+            ActiveVehicleVisualCache[
+                carId] =
+                entry;
+
+            CachedRuntimeObjectIds.Add(
+                visual.GetInstanceID());
+
+            for (int i = 0;
+                 i < entry.AdditionalSpinRoots.Length;
+                 i++)
+            {
+                Transform root =
+                    entry.AdditionalSpinRoots[i];
+
+                if (root != null)
+                {
+                    CachedRuntimeObjectIds.Add(
+                        root.gameObject.GetInstanceID());
+                }
+            }
         }
 
         private static void ClearRuntimeVisual(
@@ -583,6 +805,26 @@ namespace MotorCity.Vehicle
         {
             if (carRoot == null)
                 return;
+
+            int carId =
+                carRoot.gameObject.GetInstanceID();
+
+            if (ActiveVehicleVisualCache.TryGetValue(
+                    carId,
+                    out VehicleVisualCacheEntry active) &&
+                active != null)
+            {
+                active.SetActive(
+                    false);
+
+                ActiveVehicleVisualCache.Remove(
+                    carId);
+
+                VehicleWheelVisualSync wheelSync =
+                    carRoot.GetComponent<VehicleWheelVisualSync>();
+
+                wheelSync?.Clear();
+            }
 
             for (int i =
                      carRoot.childCount - 1;
@@ -613,11 +855,99 @@ namespace MotorCity.Vehicle
                     !prometeoProxy)
                     continue;
 
+                if (CachedRuntimeObjectIds.Contains(
+                        child.gameObject.GetInstanceID()))
+                {
+                    child.gameObject.SetActive(
+                        false);
+
+                    continue;
+                }
+
                 child.gameObject.SetActive(
                     false);
 
                 UnityEngine.Object.Destroy(
                     child.gameObject);
+            }
+        }
+
+        private sealed class VehicleVisualCacheEntry
+        {
+            public readonly GameObject Visual;
+            public readonly Transform[] WheelRoots;
+            public readonly Vector3[] WheelCentersLocal;
+            public readonly float WheelRadius;
+            public readonly bool ExternalVisualSync;
+            public readonly Transform[] AdditionalSpinRoots;
+            public readonly Vector3[] AdditionalOffsetsLocal;
+            public readonly bool UseVisualMeshCollider;
+
+            public VehicleVisualCacheEntry(
+                GameObject visual,
+                Transform[] wheelRoots,
+                Vector3[] wheelCentersLocal,
+                float wheelRadius,
+                bool externalVisualSync,
+                Transform[] additionalSpinRoots,
+                Vector3[] additionalOffsetsLocal,
+                bool useVisualMeshCollider)
+            {
+                Visual =
+                    visual;
+
+                WheelRoots =
+                    wheelRoots == null
+                        ? Array.Empty<Transform>()
+                        : (Transform[])wheelRoots.Clone();
+
+                WheelCentersLocal =
+                    wheelCentersLocal == null
+                        ? Array.Empty<Vector3>()
+                        : (Vector3[])wheelCentersLocal.Clone();
+
+                WheelRadius =
+                    wheelRadius;
+
+                ExternalVisualSync =
+                    externalVisualSync;
+
+                AdditionalSpinRoots =
+                    additionalSpinRoots == null
+                        ? Array.Empty<Transform>()
+                        : (Transform[])additionalSpinRoots.Clone();
+
+                AdditionalOffsetsLocal =
+                    additionalOffsetsLocal == null
+                        ? Array.Empty<Vector3>()
+                        : (Vector3[])additionalOffsetsLocal.Clone();
+
+                UseVisualMeshCollider =
+                    useVisualMeshCollider;
+            }
+
+            public void SetActive(
+                bool active)
+            {
+                if (Visual != null)
+                {
+                    Visual.SetActive(
+                        active);
+                }
+
+                for (int i = 0;
+                     i < AdditionalSpinRoots.Length;
+                     i++)
+                {
+                    Transform root =
+                        AdditionalSpinRoots[i];
+
+                    if (root != null)
+                    {
+                        root.gameObject.SetActive(
+                            active);
+                    }
+                }
             }
         }
 
