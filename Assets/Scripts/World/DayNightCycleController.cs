@@ -190,27 +190,24 @@ namespace MotorCity.World
             cityPostFxProfile.name = "MotorCity_RuntimePostFX";
             cityPostFxVolume.sharedProfile = cityPostFxProfile;
 
-            Tonemapping tonemapping = cityPostFxProfile.Add<Tonemapping>(true);
-            tonemapping.mode.Override(TonemappingMode.ACES);
-
             cityBloom = cityPostFxProfile.Add<Bloom>(true);
-            cityBloom.threshold.Override(1.05f);
-            cityBloom.intensity.Override(0.22f);
-            cityBloom.scatter.Override(0.62f);
-            cityBloom.clamp.Override(8f);
+            cityBloom.threshold.Override(1.15f);
+            cityBloom.intensity.Override(0.12f);
+            cityBloom.scatter.Override(0.55f);
+            cityBloom.clamp.Override(6f);
             cityBloom.highQualityFiltering.Override(false);
 
             cityColor = cityPostFxProfile.Add<ColorAdjustments>(true);
-            cityColor.postExposure.Override(0.04f);
-            cityColor.contrast.Override(10f);
-            cityColor.saturation.Override(5f);
+            cityColor.postExposure.Override(0f);
+            cityColor.contrast.Override(2f);
+            cityColor.saturation.Override(0f);
 
             WhiteBalance whiteBalance = cityPostFxProfile.Add<WhiteBalance>(true);
-            whiteBalance.temperature.Override(3f);
-            whiteBalance.tint.Override(-1f);
+            whiteBalance.temperature.Override(0f);
+            whiteBalance.tint.Override(0f);
 
             cityVignette = cityPostFxProfile.Add<Vignette>(true);
-            cityVignette.intensity.Override(0.075f);
+            cityVignette.intensity.Override(0.035f);
             cityVignette.smoothness.Override(0.28f);
             cityVignette.rounded.Override(false);
         }
@@ -318,17 +315,17 @@ namespace MotorCity.World
                 NightAmount);
 
             if (cityBloom != null)
-                cityBloom.intensity.value = Mathf.Lerp(0.22f, 0.38f, NightAmount);
+                cityBloom.intensity.value = Mathf.Lerp(0.12f, 0.22f, NightAmount);
 
             if (cityColor != null)
             {
-                cityColor.postExposure.value = Mathf.Lerp(-0.08f, 0.04f, daylight);
-                cityColor.contrast.value = Mathf.Lerp(13f, 10f, daylight);
-                cityColor.saturation.value = Mathf.Lerp(2f, 5f, daylight);
+                cityColor.postExposure.value = Mathf.Lerp(0.08f, 0f, daylight);
+                cityColor.contrast.value = Mathf.Lerp(4f, 2f, daylight);
+                cityColor.saturation.value = Mathf.Lerp(-2f, 0f, daylight);
             }
 
             if (cityVignette != null)
-                cityVignette.intensity.value = Mathf.Lerp(0.095f, 0.075f, daylight);
+                cityVignette.intensity.value = Mathf.Lerp(0.045f, 0.035f, daylight);
 
             IsNight =
                 NightAmount >=
@@ -590,8 +587,8 @@ namespace MotorCity.World
                     runtimeDaySkybox.SetFloat(
                         "_Exposure",
                         Mathf.Lerp(
-                            1f,
-                            0.20f,
+                            0.62f,
+                            0.16f,
                             Mathf.SmoothStep(
                                 0f,
                                 1f,
