@@ -656,12 +656,9 @@ namespace MotorCity.UI
             {
                 activityManager.DismissResult();
 
-                // Activity implementations still use the compatibility
-                // "Legacy" blocker for countdown/result locking. Clear only
-                // that blocker here; modal/pause/garage/front-end blockers
-                // remain independent inside ArcadeCarController.
-                car?.SetDrivingEnabled(
-                    true);
+                car?.SetDrivingBlocked(
+                    "ActivityResult",
+                    false);
 
                 RefreshDrivingEnabledForUi();
                 return;
