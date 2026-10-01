@@ -1653,6 +1653,37 @@ public static class FantasticCityGeneratorUrpFixer
             (int)RenderQueue.Transparent;
     }
 
+    private static bool IsGenuinelyTransparentMaterial(
+        Material source,
+        string shaderName,
+        string materialName,
+        bool explicitTransparentMode)
+    {
+        // FCG contains several legacy Standard materials whose recovered
+        // render state can misleadingly look transparent after conversion.
+        // Only preserve transparency for materials that are semantically
+        // glass/window-like or whose source color actually uses alpha.
+        bool transparentName =
+            materialName.Contains("glass") ||
+            materialName.Contains("window") ||
+            materialName.Contains("windshield") ||
+            materialName.Contains("windscreen");
+
+        float sourceAlpha = 1f;
+        if (source.HasProperty("_Color"))
+            sourceAlpha = source.GetColor("_Color").a;
+        else if (source.HasProperty("_BaseColor"))
+            sourceAlpha = source.GetColor("_BaseColor").a;
+
+        bool meaningfulAlpha = sourceAlpha < 0.98f;
+        bool transparentShader =
+            shaderName.IndexOf("transparent", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        return transparentName ||
+               meaningfulAlpha ||
+               (explicitTransparentMode && transparentShader);
+    }
+
     private static void ConfigureSurfaceType(
         Material source,
         Material destination)
@@ -1687,12 +1718,11 @@ public static class FantasticCityGeneratorUrpFixer
 
         bool transparent =
             !cutout &&
-            (shaderName.IndexOf(
-                 "transparent",
-                 StringComparison.OrdinalIgnoreCase) >= 0 ||
-             source.renderQueue >=
-                 (int)RenderQueue.Transparent ||
-             explicitTransparentMode);
+            IsGenuinelyTransparentMaterial(
+                source,
+                shaderName,
+                materialName,
+                explicitTransparentMode);
 
         destination.DisableKeyword(
             "_ALPHATEST_ON");
