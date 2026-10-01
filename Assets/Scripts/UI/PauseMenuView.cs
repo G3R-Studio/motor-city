@@ -612,6 +612,8 @@ namespace MotorCity.UI
             pauseMenuOpen =
                 true;
 
+            MotorCityInput.ClearVirtualState();
+
             pauseStoredTimeScale =
                 Time.timeScale;
 
@@ -678,13 +680,11 @@ namespace MotorCity.UI
             MotorCityMusicRuntime.SetPauseMenuPaused(
                 false);
 
-            car?.SetDrivingEnabled(
-                Time.timeScale > 0f);
+            MotorCityInput.ClearVirtualState();
+
+            RefreshDrivingEnabledForUi();
 
             UpdateTouchControlsVisibility();
-
-            MotorCityPlatformRuntime.SetGameplayUiPaused(
-                HasBlockingModalUi());
         }
 
         private void HandlePauseMenuInput()
