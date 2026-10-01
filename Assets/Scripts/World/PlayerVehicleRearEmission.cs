@@ -56,6 +56,9 @@ namespace MotorCity.World
         private Shader starterLampShader;
         private string vehicleId = "street";
         private float dayNightResolveTimer;
+        private float lastNight = -1f;
+        private bool lastBraking;
+        private bool rearEmissionStateInitialized;
 
         private void Awake()
         {
@@ -99,6 +102,26 @@ namespace MotorCity.World
                 (car != null &&
                  car.HandbrakeInputHeld);
 
+            if (rearEmissionStateInitialized &&
+                braking ==
+                    lastBraking &&
+                Mathf.Abs(
+                    night -
+                    lastNight) <
+                    0.01f)
+            {
+                return;
+            }
+
+            rearEmissionStateInitialized =
+                true;
+
+            lastBraking =
+                braking;
+
+            lastNight =
+                night;
+
             float brakeMultiplier =
                 Mathf.Lerp(
                     1.8f,
@@ -139,9 +162,6 @@ namespace MotorCity.World
                 binding.Material.SetColor(
                     "_EmissionColor",
                     emission);
-
-                binding.Material.EnableKeyword(
-                    "_EMISSION");
             }
 
             float frontIntensity =
@@ -199,6 +219,11 @@ namespace MotorCity.World
 
         public void RefreshVisual()
         {
+            rearEmissionStateInitialized =
+                false;
+            lastNight =
+                -1f;
+
             RestoreAndClearBindings();
             ClearStarterLampOverlays();
 
