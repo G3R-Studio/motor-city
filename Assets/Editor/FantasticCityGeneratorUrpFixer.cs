@@ -172,14 +172,19 @@ public static class FantasticCityGeneratorUrpFixer
         {
             int repairedGenerated =
                 0;
+            int rebuiltFromOriginal =
+                0;
+            var missingOriginals =
+                new List<string>();
 
+            // Generated materials can be the only materials referenced by the
+            // saved workbench scene. Rebuild every one directly from the
+            // original FCG asset identified by the GUID suffix in its filename.
+            // Do not merely repair the generated material in-place: that can
+            // preserve a white/default URP state from an earlier bad pass.
             foreach (Material generated in
                      generatedMaterials)
             {
-                // Never use the generated URP material itself as the source
-                // of truth. Rebuild it from the original FCG material. This
-                // makes Fix Materials idempotent and prevents a second run
-                // from turning the city into white/default materials.
                 Material original =
                     FindOriginalFcgMaterialForGenerated(
                         generated,
@@ -187,28 +192,32 @@ public static class FantasticCityGeneratorUrpFixer
 
                 if (original != null)
                 {
-                    CopyBaseMap(original, generated);
-                    CopyNormalMap(original, generated);
-                    CopyOcclusionMap(original, generated);
-                    CopyEmission(original, generated);
-                    CopySurfaceValues(original, generated);
-                    ConfigureMaterialAppearance(original, generated);
-                    ConfigureVolumetricLightBeamMaterial(original, generated);
-                    ConfigureSurfaceType(original, generated);
+                    CreateOrUpdateUrpMaterial(
+                        original,
+                        urpLit,
+                        rebuiltFromOriginal);
 
-                    if (IsNightEmissionMaterialName(original.name))
-                        ConfigureNightEmissionMaterial(original, generated);
-
-                    EditorUtility.SetDirty(generated);
+                    rebuiltFromOriginal++;
                 }
                 else
                 {
+                    missingOriginals.Add(
+                        AssetDatabase.GetAssetPath(generated));
+
                     RepairGeneratedUrpMaterial(
                         generated,
                         urpLit);
                 }
 
                 repairedGenerated++;
+            }
+
+            if (missingOriginals.Count > 0)
+            {
+                Debug.LogWarning(
+                    "Motor City: could not resolve original FCG material for " +
+                    missingOriginals.Count + " generated materials:\n" +
+                    string.Join("\n", missingOriginals));
             }
 
             int materialIndex =
@@ -300,7 +309,8 @@ public static class FantasticCityGeneratorUrpFixer
 
             Debug.Log(
                 "Motor City: Fantastic City Generator URP conversion complete. " +
-                $"Converted {converted.Count} source materials, repaired " +
+                $"Converted {converted.Count} source materials, rebuilt " +
+                $"{rebuiltFromOriginal} generated materials from originals, repaired " +
                 $"{repairedGenerated} existing URP materials, updated " +
                 $"{changedRenderers} renderers and rebuilt " +
                 $"{trafficPrefabsUpdated} traffic car prefabs.");
