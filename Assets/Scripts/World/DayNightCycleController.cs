@@ -437,8 +437,26 @@ namespace MotorCity.World
                     1f,
                     daylight);
 
-            // Fog is owned exclusively by CityAtmosphereRuntime. Keeping a second
-            // writer here caused conflicting fog distances every frame.
+            // CityAtmosphereRuntime was removed. Keep the lightweight
+            // distance haze owned here so the active day/night controller
+            // cannot leave the scene with stale fog settings.
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogStartDistance = 200f;
+            RenderSettings.fogEndDistance = 1250f;
+
+            Color fogDay =
+                new Color(0.56f, 0.61f, 0.66f);
+            Color fogNight =
+                new Color(0.075f, 0.095f, 0.13f);
+            Color fogDusk =
+                new Color(0.40f, 0.25f, 0.19f);
+
+            RenderSettings.fogColor =
+                Color.Lerp(
+                    Color.Lerp(fogNight, fogDay, daylight),
+                    fogDusk,
+                    twilight * 0.22f);
 
             Color sunColor =
                 settings != null
