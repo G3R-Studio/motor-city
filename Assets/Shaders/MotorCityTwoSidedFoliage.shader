@@ -4,7 +4,7 @@ Shader "MotorCity/TwoSidedFoliage"
     {
         [MainTexture] _BaseMap("Base Map", 2D) = "white" {}
         [MainColor] _BaseColor("Base Color", Color) = (1,1,1,1)
-        _Cutoff("Alpha Cutoff", Range(0,1)) = 0.12
+        _Cutoff("Alpha Cutoff", Range(0,1)) = 0.22
     }
 
     SubShader
