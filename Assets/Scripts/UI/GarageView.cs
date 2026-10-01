@@ -826,15 +826,15 @@ namespace MotorCity.UI
                         new Vector2(0f, 0f),
                         new Vector2(0f, 0f),
                         new Color(
+                            0.035f,
                             0.045f,
-                            0.055f,
                             0.13f,
                             0.82f),
                         new Color(
                             accents[i].r,
                             accents[i].g,
                             accents[i].b,
-                            0.58f),
+                            0.42f),
                         7f,
                         1.25f);
 
@@ -1417,15 +1417,6 @@ namespace MotorCity.UI
                     TextColor);
             text.text = label;
             MakeButtonTextCrisp(text);
-
-            Outline outline =
-                buttonObject.AddComponent<Outline>();
-            outline.effectColor =
-                new Color(0.42f, 0.52f, 1f, 0.45f);
-            outline.effectDistance =
-                new Vector2(1f, -1f);
-            outline.useGraphicAlpha =
-                true;
 
             Shadow shadow =
                 buttonObject.AddComponent<Shadow>();
