@@ -3078,6 +3078,12 @@ namespace MotorCity.UI
 
         private void OnDestroy()
         {
+            if (garage != null)
+            {
+                garage.Changed -=
+                    MarkGarageUiDirty;
+            }
+
             if (schematicMap != null &&
                 schematicMap.Texture != null)
             {
