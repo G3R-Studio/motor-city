@@ -268,6 +268,10 @@ namespace MotorCity.UI
                     storeOpen =
                         false;
 
+                    SetActiveIfChanged(
+                        storeOverlay,
+                        false);
+
                     garageOverlay?.SetActive(
                         false);
 
