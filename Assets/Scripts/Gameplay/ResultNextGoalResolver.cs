@@ -360,6 +360,9 @@ namespace MotorCity.Gameplay
         {
             return activityId switch
             {
+                "*" =>
+                    MotorCityLocalization.Text(
+                        "activity.any"),
                 "delivery" =>
                     MotorCityLocalization.Text(
                         "activity.delivery"),
