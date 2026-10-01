@@ -18,6 +18,9 @@ namespace MotorCity.World
         private Transform currentVisual;
         private bool anchorsDirty = true;
         private string vehicleId = "street";
+        private float lastLightAmount = -1f;
+        private float lastLightSpeed01 = -1f;
+        private float lastEmissionIntensity = -1f;
 
         private const string DeloreanOverlayName =
             "MotorCityDeloreanNightEmissionOverlay";
@@ -129,6 +132,9 @@ namespace MotorCity.World
             // authored visuals (currently Delorean) also expose emissive
             // headlamp/neon geometry that is driven by the night cycle.
             anchorsDirty = true;
+            lastLightAmount = -1f;
+            lastLightSpeed01 = -1f;
+            lastEmissionIntensity = -1f;
             RefreshAnchorsIfNeeded();
             RefreshNightEmissionBindings();
         }
@@ -748,6 +754,17 @@ namespace MotorCity.World
                         0.66f,
                         night));
 
+            if (Mathf.Abs(
+                    intensity -
+                    lastEmissionIntensity) <
+                    0.01f)
+            {
+                return;
+            }
+
+            lastEmissionIntensity =
+                intensity;
+
             for (int i = 0;
                  i < frontLampMaterials.Count;
                  i++)
@@ -770,9 +787,6 @@ namespace MotorCity.World
                         1f,
                         1f) *
                     intensity);
-
-                material.EnableKeyword(
-                    "_EMISSION");
             }
 
             for (int i = 0;
@@ -1040,6 +1054,24 @@ namespace MotorCity.World
                         25f,
                         180f,
                         car.SpeedKph);
+
+            if (Mathf.Abs(
+                    amount -
+                    lastLightAmount) <
+                    0.01f &&
+                Mathf.Abs(
+                    speed01 -
+                    lastLightSpeed01) <
+                    0.015f)
+            {
+                return;
+            }
+
+            lastLightAmount =
+                amount;
+
+            lastLightSpeed01 =
+                speed01;
 
             Configure(
                 left,
