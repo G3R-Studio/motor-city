@@ -767,7 +767,7 @@ namespace MotorCity.Gameplay
                 return frontEndFlow;
 
             frontEndFlow =
-                Object.FindAnyObjectByType<MotorCityFrontEndFlow>(
+                UnityEngine.Object.FindAnyObjectByType<MotorCityFrontEndFlow>(
                     FindObjectsInactive.Include);
 
             return frontEndFlow;
@@ -793,7 +793,7 @@ namespace MotorCity.Gameplay
             if (chaseCamera == null)
             {
                 chaseCamera =
-                    Object.FindAnyObjectByType<ChaseCamera>();
+                    UnityEngine.Object.FindAnyObjectByType<ChaseCamera>();
             }
 
             if (chaseCamera == null)
