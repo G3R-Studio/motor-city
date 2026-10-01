@@ -213,7 +213,7 @@ namespace MotorCity.Gameplay
 
             outsideTimer = 0f;
 
-            car.SetDrivingEnabled(false);
+            car.SetDrivingBlocked("ActivityCountdown", true);
         }
 
         private void UpdateCountdownStatus(
@@ -250,7 +250,7 @@ namespace MotorCity.Gameplay
             scoreAtStart = drift.TotalScore;
             outsideTimer = 0f;
 
-            car.SetDrivingEnabled(true);
+            car.SetDrivingBlocked("ActivityCountdown", false);
 
             UpdateActiveStatus();
         }
@@ -422,7 +422,9 @@ namespace MotorCity.Gameplay
             TimeRemaining = 0f;
             outsideTimer = 0f;
 
-            car.SetDrivingEnabled(false);
+            car.SetDrivingBlocked(
+                "ActivityResult",
+                true);
 
             activityManager.ShowResult(
                 ActivityId,
@@ -456,7 +458,9 @@ namespace MotorCity.Gameplay
             TimeRemaining = 0f;
             outsideTimer = 0f;
 
-            car.SetDrivingEnabled(false);
+            car.SetDrivingBlocked(
+                "ActivityResult",
+                true);
 
             activityManager.ShowResult(
                 ActivityId,
@@ -515,7 +519,12 @@ namespace MotorCity.Gameplay
             TimeRemaining = 0f;
             outsideTimer = 0f;
 
-            car?.SetDrivingEnabled(true);
+            car?.SetDrivingBlocked(
+                "ActivityCountdown",
+                false);
+            car?.SetDrivingBlocked(
+                "ActivityResult",
+                false);
             activityManager?.End(ActivityId);
 
             StatusText =
@@ -531,7 +540,12 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            car?.SetDrivingEnabled(true);
+            car?.SetDrivingBlocked(
+                "ActivityCountdown",
+                false);
+            car?.SetDrivingBlocked(
+                "ActivityResult",
+                false);
         }
 
         private static Vector3 Flat(
