@@ -1114,7 +1114,7 @@ namespace MotorCity.Vehicle
                 float upgradeStability =
                     GetStabilityDampingBonus() *
                     (currentDriveMode == DriveMode.Drift
-                        ? 0.22f
+                        ? 0.15f
                         : 1f);
 
                 body.angularDamping =
@@ -1137,14 +1137,13 @@ namespace MotorCity.Vehicle
                     _ => -22
                 };
 
-            return Mathf.Clamp(
+            return Mathf.Max(
+                20,
                 baseMaxSpeedKph +
                 vehicleSpeedBonus +
                 GetEngineSpeedBonus() +
                 GetMasterySpeedBonus() +
-                modeBonus,
-                20,
-                460);
+                modeBonus);
         }
 
         private int GetTunedAccelerationMultiplier()
@@ -1157,14 +1156,13 @@ namespace MotorCity.Vehicle
                     _ => 0
                 };
 
-            return Mathf.Clamp(
+            return Mathf.Max(
+                1,
                 accelerationMultiplier +
                 vehicleAccelerationBonus +
                 GetEngineAccelerationBonus() +
                 GetMasteryAccelerationBonus() +
-                modeBonus,
-                1,
-                32);
+                modeBonus);
         }
 
         private int GetMasterySpeedBonus()
@@ -1828,14 +1826,30 @@ namespace MotorCity.Vehicle
 
         private void ApplyWheelFriction()
         {
-            float upgradeGrip =
-                (1f +
-                 GetGripUpgradeBonus() +
-                 GetMasteryGripBonus()) *
+            float progressionGripBonus =
+                GetGripUpgradeBonus() +
+                GetMasteryGripBonus();
+
+            float vehicleGrip =
                 Mathf.Clamp(
                     vehicleGripMultiplier,
                     0.75f,
                     1.30f);
+
+            // Grip progression should improve normal/sport handling, but in
+            // Drift it must not erase the rear slip window. Keep only a small
+            // portion of upgrade/mastery grip and soften profile grip there.
+            float upgradeGrip =
+                currentDriveMode == DriveMode.Drift
+                    ? (1f +
+                       progressionGripBonus * 0.20f) *
+                      Mathf.Lerp(
+                          1f,
+                          vehicleGrip,
+                          0.35f)
+                    : (1f +
+                       progressionGripBonus) *
+                      vehicleGrip;
 
             for (int i = 0;
                  i <
