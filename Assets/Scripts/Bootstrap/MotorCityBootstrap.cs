@@ -1468,6 +1468,7 @@ namespace MotorCity.Bootstrap
             GameObject cameraObject = new("Main Camera");
             cameraObject.tag = "MainCamera";
             Camera camera = cameraObject.AddComponent<Camera>();
+            camera.allowHDR = true;
             cameraObject.AddComponent<AudioListener>();
 
             UniversalAdditionalCameraData cameraData =
