@@ -43,6 +43,8 @@ Shader "MotorCity/NightEmissive"
             #pragma multi_compile_instancing
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -192,6 +194,33 @@ Shader "MotorCity/NightEmissive"
                     diffuse *
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
+
+                #if defined(_ADDITIONAL_LIGHTS)
+                    uint additionalLightCount =
+                        GetAdditionalLightsCount();
+
+                    for (uint lightIndex = 0u;
+                         lightIndex < additionalLightCount;
+                         ++lightIndex)
+                    {
+                        Light additionalLight =
+                            GetAdditionalLight(
+                                lightIndex,
+                                input.positionWS);
+
+                        half additionalDiffuse =
+                            saturate(
+                                dot(
+                                    normalWS,
+                                    additionalLight.direction));
+
+                        lighting +=
+                            additionalLight.color *
+                            additionalDiffuse *
+                            additionalLight.distanceAttenuation *
+                            additionalLight.shadowAttenuation;
+                    }
+                #endif
 
                 half3 litBase =
                     baseSample.rgb *
