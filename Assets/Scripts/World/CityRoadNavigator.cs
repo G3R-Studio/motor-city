@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace MotorCity.World
 {
@@ -472,37 +475,24 @@ namespace MotorCity.World
                     ", Assembly-CSharp",
                     false);
 
-            if (fcgWayContainerType != null)
-                return fcgWayContainerType;
-
-            foreach (System.Reflection.Assembly assembly in
-                     AppDomain.CurrentDomain.GetAssemblies())
+#if UNITY_EDITOR
+            if (fcgWayContainerType == null)
             {
-                if (assembly == null)
-                    continue;
-
-                Type candidate;
-
-                try
+                foreach (Type candidate in
+                         TypeCache.GetTypesDerivedFrom<MonoBehaviour>())
                 {
-                    candidate =
-                        assembly.GetType(
-                            FullTypeName,
-                            false);
+                    if (candidate != null &&
+                        candidate.FullName ==
+                            FullTypeName)
+                    {
+                        fcgWayContainerType =
+                            candidate;
+
+                        break;
+                    }
                 }
-                catch
-                {
-                    continue;
-                }
-
-                if (candidate == null)
-                    continue;
-
-                fcgWayContainerType =
-                    candidate;
-
-                break;
             }
+#endif
 
             return fcgWayContainerType;
         }
