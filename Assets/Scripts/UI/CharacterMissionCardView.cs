@@ -580,6 +580,7 @@ namespace MotorCity.UI
                         100f);
             }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             Object[] matches =
                 Resources.LoadAll(
                     "MotorCity/UI/Characters");
@@ -604,6 +605,12 @@ namespace MotorCity.UI
                 $"'{characterId}' at Resources/{resourcePath}. " +
                 $"Objects visible in Resources/MotorCity/UI/Characters: {found}.",
                 this);
+#else
+            Debug.LogError(
+                "[MotorCity][Portrait] FAILED to load " +
+                $"'{characterId}' at Resources/{resourcePath}.",
+                this);
+#endif
 
             return null;
         }
