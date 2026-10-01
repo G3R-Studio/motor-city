@@ -300,11 +300,29 @@ namespace MotorCity.World
                         suffix
                 };
 
+            Shader hazeShader =
+                Shader.Find(
+                    "MotorCity/PanoramicHazeSkybox");
+
+            if (hazeShader != null &&
+                hazeShader.isSupported)
+            {
+                clone.shader =
+                    hazeShader;
+            }
+
             if (clone.HasProperty("_Exposure"))
             {
                 clone.SetFloat(
                     "_Exposure",
                     1f);
+            }
+
+            if (clone.HasProperty("_HazeHeight"))
+            {
+                clone.SetFloat(
+                    "_HazeHeight",
+                    0.34f);
             }
 
             return clone;
