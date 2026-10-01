@@ -620,8 +620,6 @@ namespace MotorCity.UI
             Time.timeScale =
                 0f;
 
-            FreezeWorldPresentation();
-
             AudioListener.pause =
                 true;
 
@@ -668,8 +666,6 @@ namespace MotorCity.UI
 
             Time.timeScale =
                 pauseStoredTimeScale;
-
-            ResumeWorldPresentation();
 
             if (Time.timeScale > 0f)
             {
