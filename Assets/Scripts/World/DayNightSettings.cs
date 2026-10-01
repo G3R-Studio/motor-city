@@ -8,7 +8,6 @@ namespace MotorCity.World
         [SerializeField] private Material daySkybox;
         [SerializeField] private Material eveningSkybox;
         [SerializeField] private Material nightSkybox;
-        [SerializeField] private GameObject atmosphereFogPrefab;
 
         [SerializeField] private Color daySkyColor =
             new(0.68f, 0.67f, 0.64f, 1f);
@@ -38,7 +37,6 @@ namespace MotorCity.World
         public Material DaySkybox => daySkybox;
         public Material EveningSkybox => eveningSkybox;
         public Material NightSkybox => nightSkybox;
-        public GameObject AtmosphereFogPrefab => atmosphereFogPrefab;
         public Color DaySkyColor => daySkyColor;
         public Color DayEquatorColor => dayEquatorColor;
         public Color NightSkyColor => nightSkyColor;
