@@ -235,7 +235,7 @@ namespace MotorCity.Bootstrap
             // that nearby FCG facades/materials remain untouched and readable.
             // This uses Unity's scene fog only; it never rewrites FCG materials.
             RenderSettings.fogColor = new Color(0.56f, 0.61f, 0.66f);
-            RenderSettings.fogStartDistance = 350f;
+            RenderSettings.fogStartDistance = 300f;
             RenderSettings.fogEndDistance = 1250f;
 
             Light sun =
