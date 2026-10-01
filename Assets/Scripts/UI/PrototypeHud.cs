@@ -903,8 +903,14 @@ namespace MotorCity.UI
 
             if (statusPanel.activeSelf)
             {
-                statusText.text = status;
-                RefreshStatusActivityIcon();
+                if (statusText.text !=
+                    status)
+                {
+                    statusText.text =
+                        status;
+
+                    RefreshStatusActivityIcon();
+                }
             }
 
             bool showDrift =
