@@ -120,6 +120,8 @@ namespace MotorCity.Vehicle
         private float vehicleBrakeMultiplier = 1f;
         private float vehiclePowerMultiplier = 1f;
         private float vehicleDriftMultiplier = 1f;
+        private float frontDriveTorqueMultiplier = 1f;
+        private float rearDriveTorqueMultiplier = 1f;
         private int vehicleMasteryLevel = 1;
         private DriveMode currentDriveMode =
             DriveMode.Comfort;
@@ -1062,6 +1064,12 @@ namespace MotorCity.Vehicle
                     "accelerationMultiplier",
                     tunedAcceleration);
                 SetPrometeoField(
+                    "frontDriveTorqueMultiplier",
+                    frontDriveTorqueMultiplier);
+                SetPrometeoField(
+                    "rearDriveTorqueMultiplier",
+                    rearDriveTorqueMultiplier);
+                SetPrometeoField(
                     "maxSteeringAngle",
                     tunedSteeringAngle);
                 SetPrometeoField(
@@ -1753,6 +1761,25 @@ namespace MotorCity.Vehicle
                     1.24f);
 
             ApplyDriveModeTuning();
+        }
+
+        public void SetDriveTorqueDistribution(
+            float frontMultiplier,
+            float rearMultiplier)
+        {
+            frontDriveTorqueMultiplier =
+                Mathf.Clamp(
+                    frontMultiplier,
+                    0f,
+                    2f);
+
+            rearDriveTorqueMultiplier =
+                Mathf.Clamp(
+                    rearMultiplier,
+                    0f,
+                    2f);
+
+            ApplyPrometeoTuning();
         }
 
         public void ApplyMasteryLevel(
