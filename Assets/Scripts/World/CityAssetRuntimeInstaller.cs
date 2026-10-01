@@ -173,15 +173,15 @@ namespace MotorCity.World
 
         public static Vector3 GarageCameraPosition { get; } =
             new(
-                -548.742432f,
-                3.82204652f,
-                -791.138062f);
+                -549.252f,
+                3.25f,
+                -792.25f);
 
         public static Quaternion GarageCameraRotation { get; } =
             Quaternion.Euler(
-                16.1413898f,
-                224.747299f,
-                -1.86650486e-05f);
+                11.5f,
+                224.75f,
+                0f);
 
         // Western broad junction in the large district, kept separate from
         // the street sprint start on the eastern side.
