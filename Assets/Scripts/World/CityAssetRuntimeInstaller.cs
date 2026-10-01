@@ -498,11 +498,6 @@ namespace MotorCity.World
                     active);
             }
 
-            if (garagePresentationNeon != null)
-            {
-                garagePresentationNeon.SetActive(
-                    active);
-            }
         }
 
         private static void ApplyGarageInteriorMood(
