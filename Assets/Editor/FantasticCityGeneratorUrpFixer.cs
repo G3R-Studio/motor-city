@@ -1066,9 +1066,12 @@ public static class FantasticCityGeneratorUrpFixer
                 targetShader;
         }
 
+        // Keep the Material object's name identical to the asset filename.
+        // Unity 6 warns and repeatedly reimports NativeFormatImporter assets
+        // when the main object name differs from the .mat filename.
         material.name =
-            "FCG_" +
-            source.name;
+            Path.GetFileNameWithoutExtension(
+                path);
 
         material.enableInstancing =
             true;
