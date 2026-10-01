@@ -1663,11 +1663,15 @@ public static class FantasticCityGeneratorUrpFixer
         // render state can misleadingly look transparent after conversion.
         // Only preserve transparency for materials that are semantically
         // glass/window-like or whose source color actually uses alpha.
+        // Grade1 is the FCG glass/fence material despite its generic name.
+        // Its source shader is Fade (_Mode = 2) with alpha ~0.30. Treating it
+        // as opaque fixes fog but destroys the authored glass fence.
         bool transparentName =
             materialName.Contains("glass") ||
             materialName.Contains("window") ||
             materialName.Contains("windshield") ||
-            materialName.Contains("windscreen");
+            materialName.Contains("windscreen") ||
+            NormalizeMaterialName(materialName) == "grade1";
 
         float sourceAlpha = 1f;
         if (source.HasProperty("_Color"))
@@ -1679,9 +1683,13 @@ public static class FantasticCityGeneratorUrpFixer
         bool transparentShader =
             shaderName.IndexOf("transparent", StringComparison.OrdinalIgnoreCase) >= 0;
 
+        // Standard Fade/Transparent materials are authoritative even when
+        // their legacy shader name does not literally contain "Transparent".
+        // Basket is _Mode 0 / alpha 1 and therefore remains opaque.
         return transparentName ||
                meaningfulAlpha ||
-               (explicitTransparentMode && transparentShader);
+               explicitTransparentMode ||
+               transparentShader;
     }
 
     private static void ConfigureSurfaceType(
