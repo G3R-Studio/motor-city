@@ -115,9 +115,6 @@ namespace MotorCity.World
                 car.TeleportTo(
                     position,
                     rotation);
-
-                car.SetDrivingEnabled(
-                    true);
             }
             else if (body != null)
             {
