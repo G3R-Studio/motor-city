@@ -35,16 +35,16 @@ namespace MotorCity.Vehicle
             RuntimeVehiclePrefabCache =
                 new(StringComparer.Ordinal);
 
-        private static readonly Dictionary<int, Dictionary<string, VehicleVisualCacheEntry>>
+        private static readonly Dictionary<ArcadeCarController, Dictionary<string, VehicleVisualCacheEntry>>
             RuntimeVehicleVisualCache =
                 new();
 
-        private static readonly Dictionary<int, VehicleVisualCacheEntry>
+        private static readonly Dictionary<ArcadeCarController, VehicleVisualCacheEntry>
             ActiveVehicleVisualCache =
                 new();
 
-        private static readonly HashSet<int>
-            CachedRuntimeObjectIds =
+        private static readonly HashSet<GameObject>
+            CachedRuntimeObjects =
                 new();
 
         private static Material runtimeNullMirrorMaterial;
@@ -58,7 +58,7 @@ namespace MotorCity.Vehicle
             RuntimeVehiclePrefabCache.Clear();
             RuntimeVehicleVisualCache.Clear();
             ActiveVehicleVisualCache.Clear();
-            CachedRuntimeObjectIds.Clear();
+            CachedRuntimeObjects.Clear();
             runtimeNullMirrorMaterial = null;
         }
 
@@ -633,11 +633,8 @@ namespace MotorCity.Vehicle
                 return false;
             }
 
-            int carId =
-                car.GetInstanceID();
-
             if (!RuntimeVehicleVisualCache.TryGetValue(
-                    carId,
+                    car,
                     out Dictionary<string, VehicleVisualCacheEntry> perCar) ||
                 !perCar.TryGetValue(
                     cacheKey,
@@ -649,7 +646,7 @@ namespace MotorCity.Vehicle
             }
 
             if (ActiveVehicleVisualCache.TryGetValue(
-                    carId,
+                    car,
                     out VehicleVisualCacheEntry active) &&
                 ReferenceEquals(
                     active,
@@ -721,7 +718,7 @@ namespace MotorCity.Vehicle
             }
 
             ActiveVehicleVisualCache[
-                carId] =
+                car] =
                 entry;
 
             return true;
@@ -747,11 +744,8 @@ namespace MotorCity.Vehicle
                 return;
             }
 
-            int carId =
-                car.GetInstanceID();
-
             if (!RuntimeVehicleVisualCache.TryGetValue(
-                    carId,
+                    car,
                     out Dictionary<string, VehicleVisualCacheEntry> perCar))
             {
                 perCar =
@@ -759,7 +753,7 @@ namespace MotorCity.Vehicle
                         StringComparer.Ordinal);
 
                 RuntimeVehicleVisualCache[
-                    carId] =
+                    car] =
                     perCar;
             }
 
@@ -780,11 +774,11 @@ namespace MotorCity.Vehicle
                 entry;
 
             ActiveVehicleVisualCache[
-                carId] =
+                car] =
                 entry;
 
-            CachedRuntimeObjectIds.Add(
-                visual.GetInstanceID());
+            CachedRuntimeObjects.Add(
+                visual);
 
             for (int i = 0;
                  i < entry.AdditionalSpinRoots.Length;
@@ -795,8 +789,8 @@ namespace MotorCity.Vehicle
 
                 if (root != null)
                 {
-                    CachedRuntimeObjectIds.Add(
-                        root.gameObject.GetInstanceID());
+                    CachedRuntimeObjects.Add(
+                        root.gameObject);
                 }
             }
         }
@@ -810,13 +804,9 @@ namespace MotorCity.Vehicle
             ArcadeCarController car =
                 carRoot.GetComponent<ArcadeCarController>();
 
-            int carId =
-                car != null
-                    ? car.GetInstanceID()
-                    : carRoot.gameObject.GetInstanceID();
-
-            if (ActiveVehicleVisualCache.TryGetValue(
-                    carId,
+            if (car != null &&
+                ActiveVehicleVisualCache.TryGetValue(
+                    car,
                     out VehicleVisualCacheEntry active) &&
                 active != null)
             {
@@ -824,7 +814,7 @@ namespace MotorCity.Vehicle
                     false);
 
                 ActiveVehicleVisualCache.Remove(
-                    carId);
+                    car);
 
                 VehicleWheelVisualSync wheelSync =
                     carRoot.GetComponent<VehicleWheelVisualSync>();
@@ -861,8 +851,8 @@ namespace MotorCity.Vehicle
                     !prometeoProxy)
                     continue;
 
-                if (CachedRuntimeObjectIds.Contains(
-                        child.gameObject.GetInstanceID()))
+                if (CachedRuntimeObjects.Contains(
+                        child.gameObject))
                 {
                     child.gameObject.SetActive(
                         false);
