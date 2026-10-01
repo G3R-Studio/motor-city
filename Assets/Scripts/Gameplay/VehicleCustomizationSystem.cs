@@ -704,6 +704,9 @@ namespace MotorCity.Gameplay
                     // implementation so the authored texture is shown exactly.
                     renderer.SetPropertyBlock(
                         null);
+
+                    renderer.reflectionProbeUsage =
+                        ReflectionProbeUsage.BlendProbes;
                 }
             }
 
@@ -1381,6 +1384,37 @@ namespace MotorCity.Gameplay
                     "_Color",
                     color);
             }
+
+            if (material.HasProperty(
+                    "_Smoothness"))
+            {
+                float authoredSmoothness =
+                    material.GetFloat(
+                        "_Smoothness");
+
+                block.SetFloat(
+                    "_Smoothness",
+                    Mathf.Max(
+                        authoredSmoothness,
+                        0.48f));
+            }
+
+            if (material.HasProperty(
+                    "_Metallic"))
+            {
+                float authoredMetallic =
+                    material.GetFloat(
+                        "_Metallic");
+
+                block.SetFloat(
+                    "_Metallic",
+                    Mathf.Max(
+                        authoredMetallic,
+                        0.10f));
+            }
+
+            renderer.reflectionProbeUsage =
+                ReflectionProbeUsage.BlendProbes;
 
             renderer.SetPropertyBlock(
                 block,
