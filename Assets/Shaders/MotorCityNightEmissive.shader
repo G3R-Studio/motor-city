@@ -203,11 +203,10 @@ Shader "MotorCity/NightEmissive"
                     saturate(
                         _MotorCityNightEmission);
 
-                half3 dayGlass =
-                    lerp(
-                        litBase,
-                        _DayGlassTint.rgb,
-                        _DayGlassLift);
+                // Daytime windows must behave like part of the facade, not as
+                // self-lit glass. Previous tint/lift made window texels survive
+                // distance fog as bright stripes.
+                half3 dayGlass = litBase;
 
                 half3 nightGlass =
                     lerp(
@@ -249,15 +248,19 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
+                half daylightReflection =
+                    saturate(1.0h - input.fogFactor * 2.2h);
+                daylightReflection *= daylightReflection;
+
                 half fresnelFade =
                     lerp(
-                        1.0h,
+                        daylightReflection * 0.35h,
                         0.055h,
                         nightAmount);
 
                 half specularFade =
                     lerp(
-                        1.0h,
+                        daylightReflection * 0.30h,
                         0.035h,
                         nightAmount);
 
