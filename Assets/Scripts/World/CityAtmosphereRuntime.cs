@@ -18,7 +18,6 @@ namespace MotorCity.World
             // Particle haze is intentionally disabled. The imported fog particle
             // material renders as visible billboards in the current URP/WebGL setup.
             // Distance fog provides the atmospheric depth without transparent overdraw.
-            FixTransparentCityGlass();
         }
 
         private void OnDestroy()
@@ -80,34 +79,6 @@ namespace MotorCity.World
                 new Color(0.30f, 0.36f, 0.44f, 0.028f),
                 night);
             hazeMaterial.color = tint;
-        }
-
-        private void FixTransparentCityGlass()
-        {
-            Shader foggedGlass = Shader.Find("MotorCity/FoggedGlass");
-            if (foggedGlass == null)
-                return;
-
-            Material[] materials = Resources.LoadAll<Material>("MotorCity/Environment/FCGMaterials");
-            foreach (Material material in materials)
-            {
-                if (material == null)
-                    continue;
-
-                string materialName = material.name.ToLowerInvariant();
-                bool plainGlass = materialName.Contains("glass") && !materialName.Contains("winglass");
-                if (!plainGlass)
-                    continue;
-
-                Color originalColor = material.HasProperty("_BaseColor")
-                    ? material.GetColor("_BaseColor")
-                    : new Color(0.17f, 0.19f, 0.25f, 1f);
-
-                originalColor.a = 1f;
-                material.shader = foggedGlass;
-                material.SetColor("_BaseColor", originalColor);
-                material.renderQueue = 2000;
-            }
         }
 
         private void BuildHaze()
