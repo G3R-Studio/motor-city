@@ -11,10 +11,7 @@ namespace MotorCity.UI
     {
         private void CloseNavigatorMenuVisualOnly()
         {
-            navigatorMenuOpen =
-                false;
-
-            navigatorMenuOverlay?.SetActive(
+            SetNavigatorMenuOpen(
                 false);
         }
 
@@ -440,20 +437,13 @@ namespace MotorCity.UI
                 return;
             }
 
-            navigatorMenuOpen =
-                true;
-
-            navigatorMenuOverlay?.SetActive(
+            SetNavigatorMenuOpen(
                 true);
 
-            clubOverlay?.SetActive(
+            SetClubOpen(
                 false);
 
-            storeOpen =
-                false;
-
-            SetActiveIfChanged(
-                storeOverlay,
+            SetStoreOpen(
                 false);
 
             RefreshDrivingEnabledForUi();
