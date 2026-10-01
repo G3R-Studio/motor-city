@@ -26,6 +26,10 @@ namespace MotorCity.Gameplay
         private DriftChallenge driftChallenge;
         private StreetSprintActivity streetSprint;
         private CircuitRaceActivity circuitRace;
+        private UndergroundSceneSystem underground;
+        private CityProfessionSystem professions;
+        private CarWashJobSystem carWash;
+        private TowTruckJobSystem towTruck;
         private VehicleRosterSystem vehicleRoster;
         private VehicleMasterySystem vehicleMastery;
         private TurboPetSystem turbo;
@@ -155,6 +159,25 @@ namespace MotorCity.Gameplay
                 "Garage",
                 false);
             ApplyUpgrades();
+        }
+
+        public void ConfigureCancelableActivities(
+            UndergroundSceneSystem undergroundSystem,
+            CityProfessionSystem professionSystem,
+            CarWashJobSystem carWashSystem,
+            TowTruckJobSystem towTruckSystem)
+        {
+            underground =
+                undergroundSystem;
+
+            professions =
+                professionSystem;
+
+            carWash =
+                carWashSystem;
+
+            towTruck =
+                towTruckSystem;
         }
 
         private void Update()
@@ -648,6 +671,10 @@ namespace MotorCity.Gameplay
             driftChallenge?.CancelActivity();
             streetSprint?.CancelActivity();
             circuitRace?.CancelActivity();
+            underground?.CancelActivity();
+            professions?.CancelActive();
+            carWash?.CancelWash();
+            towTruck?.CancelJob();
         }
 
         public void CloseAfterRookieCustomization()
