@@ -1345,9 +1345,6 @@ namespace MotorCity.Vehicle
                 wheelCenters,
                 0.36f);
 
-            Debug.Log(
-                "Motor City: using the built-in fallback wheel rig.");
-
             return true;
         }
 
