@@ -148,9 +148,7 @@ namespace MotorCity.Gameplay
             garageCenter =
                 MotorCity.World.CityAssetRuntimeInstaller.GaragePoint;
 
-            EngineLevel = Mathf.Clamp(MotorCity.Persistence.MotorCitySaveService.GetInt(EngineKey, 0), 0, MaxLevel);
-            GripLevel = Mathf.Clamp(MotorCity.Persistence.MotorCitySaveService.GetInt(GripKey, 0), 0, MaxLevel);
-            StabilityLevel = Mathf.Clamp(MotorCity.Persistence.MotorCitySaveService.GetInt(StabilityKey, 0), 0, MaxLevel);
+            LoadUpgradeLevels();
 
             IsOpen = false;
             car?.SetDrivingEnabled(true);
@@ -782,6 +780,8 @@ namespace MotorCity.Gameplay
                 offset,
                 out string status);
 
+            LoadUpgradeLevels();
+
             if (!string.IsNullOrWhiteSpace(
                     status))
             {
@@ -1024,11 +1024,102 @@ namespace MotorCity.Gameplay
             };
         }
 
+        private string UpgradeKey(
+            string baseKey)
+        {
+            string vehicleId =
+                vehicleRoster == null
+                    ? "beatall"
+                    : vehicleRoster.SelectedId;
+
+            return
+                $"{baseKey}.{vehicleId}";
+        }
+
+        private void LoadUpgradeLevels()
+        {
+            string engineKey =
+                UpgradeKey(
+                    EngineKey);
+
+            string gripKey =
+                UpgradeKey(
+                    GripKey);
+
+            string stabilityKey =
+                UpgradeKey(
+                    StabilityKey);
+
+            // Preserve existing players' upgrades on the car that is selected
+            // the first time the per-vehicle save format is encountered.
+            if (!MotorCity.Persistence.MotorCitySaveService.HasKey(
+                    engineKey) &&
+                MotorCity.Persistence.MotorCitySaveService.HasKey(
+                    EngineKey))
+            {
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    engineKey,
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        EngineKey,
+                        0));
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    gripKey,
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        GripKey,
+                        0));
+
+                MotorCity.Persistence.MotorCitySaveService.SetInt(
+                    stabilityKey,
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        StabilityKey,
+                        0));
+
+                MotorCity.Persistence.MotorCitySaveService.Save();
+            }
+
+            EngineLevel =
+                Mathf.Clamp(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        engineKey,
+                        0),
+                    0,
+                    MaxLevel);
+
+            GripLevel =
+                Mathf.Clamp(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        gripKey,
+                        0),
+                    0,
+                    MaxLevel);
+
+            StabilityLevel =
+                Mathf.Clamp(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        stabilityKey,
+                        0),
+                    0,
+                    MaxLevel);
+        }
+
         private void Save()
         {
-            MotorCity.Persistence.MotorCitySaveService.SetInt(EngineKey, EngineLevel);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(GripKey, GripLevel);
-            MotorCity.Persistence.MotorCitySaveService.SetInt(StabilityKey, StabilityLevel);
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                UpgradeKey(
+                    EngineKey),
+                EngineLevel);
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                UpgradeKey(
+                    GripKey),
+                GripLevel);
+
+            MotorCity.Persistence.MotorCitySaveService.SetInt(
+                UpgradeKey(
+                    StabilityKey),
+                StabilityLevel);
+
             MotorCity.Persistence.MotorCitySaveService.Save();
         }
 
