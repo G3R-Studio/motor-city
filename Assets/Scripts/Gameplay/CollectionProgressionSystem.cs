@@ -155,8 +155,7 @@ namespace MotorCity.Gameplay
                 RefreshSeconds;
 
             Recalculate(
-                activityManager == null ||
-                activityManager.SecondaryProgressionAllowed);
+                CanGrantProgressionRewards());
         }
 
         private void OnDestroy()
@@ -215,8 +214,18 @@ namespace MotorCity.Gameplay
         private void HandleVehicleChanged()
         {
             Recalculate(
-                activityManager == null ||
-                activityManager.SecondaryProgressionAllowed);
+                CanGrantProgressionRewards());
+        }
+
+        private bool CanGrantProgressionRewards()
+        {
+            if (activityManager == null)
+                return true;
+
+            return
+                activityManager.SecondaryProgressionAllowed &&
+                !activityManager.IsBusy &&
+                !activityManager.HasResult;
         }
 
         private void Recalculate(
