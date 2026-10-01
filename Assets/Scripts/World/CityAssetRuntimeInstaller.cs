@@ -121,6 +121,7 @@ namespace MotorCity.World
         private static GameObject activeCity;
         private static GameObject activeGarageInterior;
         private static GameObject garagePresentationLighting;
+        private static GameObject garagePresentationNeon;
         private static GameObject garagePresentationPostFx;
         private static VolumeProfile garagePresentationVolumeProfile;
 
@@ -476,6 +477,9 @@ namespace MotorCity.World
             InstallGaragePresentationLighting(
                 garageTransform);
 
+            InstallGaragePresentationNeon(
+                garageTransform);
+
             InstallGaragePresentationPostFx(
                 garageTransform);
         }
@@ -495,6 +499,12 @@ namespace MotorCity.World
             if (garagePresentationPostFx != null)
             {
                 garagePresentationPostFx.SetActive(
+                    active);
+            }
+
+            if (garagePresentationNeon != null)
+            {
+                garagePresentationNeon.SetActive(
                     active);
             }
         }
@@ -599,6 +609,177 @@ namespace MotorCity.World
                         m);
                 }
             }
+        }
+
+        private static void InstallGaragePresentationNeon(
+            Transform garageTransform)
+        {
+            if (garageTransform == null)
+                return;
+
+            const string rootName =
+                "Garage Presentation Neon";
+
+            Transform existing =
+                garageTransform.Find(
+                    rootName);
+
+            if (existing != null)
+            {
+                garagePresentationNeon =
+                    existing.gameObject;
+
+                garagePresentationNeon.SetActive(
+                    false);
+
+                return;
+            }
+
+            garagePresentationNeon =
+                new GameObject(
+                    rootName);
+
+            garagePresentationNeon.transform.SetParent(
+                garageTransform,
+                false);
+
+            // Visible practical strips give the room an authored neon identity.
+            CreateGarageNeonBar(
+                garagePresentationNeon.transform,
+                "Magenta Wall Bar",
+                new Vector3(
+                    -2.55f,
+                    1.25f,
+                    1.55f),
+                new Vector3(
+                    0.10f,
+                    1.25f,
+                    0.10f),
+                new Color(
+                    1.00f,
+                    0.10f,
+                    0.86f,
+                    1f));
+
+            CreateGarageNeonBar(
+                garagePresentationNeon.transform,
+                "Cyan Rear Bar",
+                new Vector3(
+                    1.25f,
+                    1.60f,
+                    2.35f),
+                new Vector3(
+                    1.45f,
+                    0.08f,
+                    0.10f),
+                new Color(
+                    0.08f,
+                    0.72f,
+                    1.00f,
+                    1f));
+
+            CreateGarageNeonBar(
+                garagePresentationNeon.transform,
+                "Violet Rear Bar",
+                new Vector3(
+                    -0.75f,
+                    1.05f,
+                    2.30f),
+                new Vector3(
+                    1.10f,
+                    0.07f,
+                    0.10f),
+                new Color(
+                    0.58f,
+                    0.18f,
+                    1.00f,
+                    1f));
+
+            garagePresentationNeon.SetActive(
+                false);
+        }
+
+        private static void CreateGarageNeonBar(
+            Transform parent,
+            string name,
+            Vector3 localPosition,
+            Vector3 localScale,
+            Color color)
+        {
+            GameObject bar =
+                GameObject.CreatePrimitive(
+                    PrimitiveType.Cube);
+
+            bar.name =
+                name;
+
+            bar.transform.SetParent(
+                parent,
+                false);
+
+            bar.transform.localPosition =
+                localPosition;
+
+            bar.transform.localRotation =
+                Quaternion.identity;
+
+            bar.transform.localScale =
+                localScale;
+
+            Collider collider =
+                bar.GetComponent<Collider>();
+
+            if (collider != null)
+            {
+                UnityEngine.Object.Destroy(
+                    collider);
+            }
+
+            Renderer renderer =
+                bar.GetComponent<Renderer>();
+
+            if (renderer == null)
+                return;
+
+            Shader shader =
+                Shader.Find(
+                    "Universal Render Pipeline/Unlit");
+
+            if (shader == null)
+            {
+                shader =
+                    Shader.Find(
+                        "Unlit/Color");
+            }
+
+            if (shader == null)
+                return;
+
+            Material material =
+                new(
+                    shader);
+
+            material.name =
+                name + " Material";
+
+            if (material.HasProperty(
+                    GarageBaseColorId))
+            {
+                material.SetColor(
+                    GarageBaseColorId,
+                    color);
+            }
+
+            if (material.HasProperty(
+                    GarageColorId))
+            {
+                material.SetColor(
+                    GarageColorId,
+                    color);
+            }
+
+            renderer.sharedMaterial =
+                material;
         }
 
         private static void InstallGaragePresentationPostFx(
