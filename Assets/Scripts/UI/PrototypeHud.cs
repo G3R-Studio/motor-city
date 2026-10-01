@@ -1420,9 +1420,9 @@ namespace MotorCity.UI
             driftPanel.SetActive(false);
             activityResultOverlay.SetActive(false);
             garageOverlay.SetActive(false);
-            clubOverlay.SetActive(false);
-            storeOverlay.SetActive(false);
-            navigatorMenuOverlay.SetActive(false);
+            SetClubOpen(false);
+            SetStoreOpen(false);
+            SetNavigatorMenuOpen(false);
             pauseOverlay.SetActive(false);
 
             const string audioSettingsVersionKey =
