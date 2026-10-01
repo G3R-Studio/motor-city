@@ -403,8 +403,9 @@ namespace MotorCity.Gameplay
                         elapsed),
                     ProfessionLevel);
 
-            car?.SetDrivingEnabled(
-                false);
+            car?.SetDrivingBlocked(
+                "ActivityResult",
+                true);
 
             activities.ShowResult(
                 activityId,
@@ -454,6 +455,10 @@ namespace MotorCity.Gameplay
 
             activities.DismissResult(false);
 
+            car.SetDrivingBlocked(
+                "ActivityResult",
+                false);
+
             active =
                 null;
 
@@ -470,9 +475,6 @@ namespace MotorCity.Gameplay
                     0f,
                     car.transform.eulerAngles.y,
                     0f));
-
-            car.SetDrivingEnabled(
-                true);
 
             StartProfession(
                 definition);
