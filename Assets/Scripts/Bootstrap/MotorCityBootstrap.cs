@@ -584,6 +584,12 @@ namespace MotorCity.Bootstrap
                 activityManager,
                 professions);
 
+            garage.ConfigureCancelableActivities(
+                underground,
+                professions,
+                carWash,
+                towTruck);
+
             ClubSystem club =
                 systems.AddComponent<ClubSystem>();
 
