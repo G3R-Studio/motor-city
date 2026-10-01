@@ -91,7 +91,7 @@ namespace MotorCity.Platform
                 return;
 
             int stored =
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                PlayerPrefs.GetInt(
                     SaveKey,
                     -1);
 
@@ -142,11 +142,11 @@ namespace MotorCity.Platform
             if (!save)
                 return;
 
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
+            PlayerPrefs.SetInt(
                 SaveKey,
                 (int)preset);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            PlayerPrefs.Save();
         }
 
         private static MotorCityQualityPreset DetectRecommendedPreset()
