@@ -1039,25 +1039,6 @@ public static class FantasticCityGeneratorUrpFixer
             source,
             material);
 
-        // Basket.png in this legacy FCG package is not a usable court
-        // albedo in URP: it produces the repeated corrupted atlas visible
-        // across every court. Keep the court as a clean matte surface.
-        if (NormalizeMaterialName(source.name) == "basket")
-        {
-            if (material.HasProperty("_BaseMap"))
-                material.SetTexture("_BaseMap", null);
-            if (material.HasProperty("_MainTex"))
-                material.SetTexture("_MainTex", null);
-
-            Color courtColor = new Color(0.32f, 0.36f, 0.34f, 1f);
-            if (material.HasProperty("_BaseColor"))
-                material.SetColor("_BaseColor", courtColor);
-            if (material.HasProperty("_Color"))
-                material.SetColor("_Color", courtColor);
-            if (material.HasProperty("_Smoothness"))
-                material.SetFloat("_Smoothness", 0.18f);
-        }
-
         CopyNormalMap(
             source,
             material);
@@ -1672,45 +1653,6 @@ public static class FantasticCityGeneratorUrpFixer
             (int)RenderQueue.Transparent;
     }
 
-    private static bool IsGenuinelyTransparentMaterial(
-        Material source,
-        string shaderName,
-        string materialName,
-        bool explicitTransparentMode)
-    {
-        // FCG contains several legacy Standard materials whose recovered
-        // render state can misleadingly look transparent after conversion.
-        // Only preserve transparency for materials that are semantically
-        // glass/window-like or whose source color actually uses alpha.
-        // Grade1 is the FCG glass/fence material despite its generic name.
-        // Its source shader is Fade (_Mode = 2) with alpha ~0.30. Treating it
-        // as opaque fixes fog but destroys the authored glass fence.
-        bool transparentName =
-            materialName.Contains("glass") ||
-            materialName.Contains("window") ||
-            materialName.Contains("windshield") ||
-            materialName.Contains("windscreen") ||
-            NormalizeMaterialName(materialName) == "grade1";
-
-        float sourceAlpha = 1f;
-        if (source.HasProperty("_Color"))
-            sourceAlpha = source.GetColor("_Color").a;
-        else if (source.HasProperty("_BaseColor"))
-            sourceAlpha = source.GetColor("_BaseColor").a;
-
-        bool meaningfulAlpha = sourceAlpha < 0.98f;
-        bool transparentShader =
-            shaderName.IndexOf("transparent", StringComparison.OrdinalIgnoreCase) >= 0;
-
-        // Standard Fade/Transparent materials are authoritative even when
-        // their legacy shader name does not literally contain "Transparent".
-        // Basket is _Mode 0 / alpha 1 and therefore remains opaque.
-        return transparentName ||
-               meaningfulAlpha ||
-               explicitTransparentMode ||
-               transparentShader;
-    }
-
     private static void ConfigureSurfaceType(
         Material source,
         Material destination)
@@ -1745,11 +1687,12 @@ public static class FantasticCityGeneratorUrpFixer
 
         bool transparent =
             !cutout &&
-            IsGenuinelyTransparentMaterial(
-                source,
-                shaderName,
-                materialName,
-                explicitTransparentMode);
+            (shaderName.IndexOf(
+                 "transparent",
+                 StringComparison.OrdinalIgnoreCase) >= 0 ||
+             source.renderQueue >=
+                 (int)RenderQueue.Transparent ||
+             explicitTransparentMode);
 
         destination.DisableKeyword(
             "_ALPHATEST_ON");
