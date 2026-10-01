@@ -829,7 +829,7 @@ namespace MotorCity.UI
                             0.045f,
                             0.055f,
                             0.14f,
-                            0.92f),
+                            0.64f),
                         new Color(
                             accents[i].r,
                             accents[i].g,
@@ -1010,7 +1010,7 @@ namespace MotorCity.UI
             root.offsetMax = Vector2.zero;
 
             Color navColor =
-                new Color(0.06f, 0.055f, 0.18f, 0.90f);
+                new Color(0.06f, 0.055f, 0.18f, 0.62f);
 
             garageActionButtons[0] =
                 CreateGarageActionButton(
@@ -1153,7 +1153,7 @@ namespace MotorCity.UI
                     new Vector2(16f, 16f),
                     appearanceButtonSize,
                     appearanceButtonFontSize,
-                    new Color(0.06f, 0.08f, 0.19f, 0.96f));
+                    new Color(0.06f, 0.08f, 0.19f, 0.64f));
 
             garageActionButtons[3] =
                 CreateGarageActionButton(
@@ -1165,7 +1165,7 @@ namespace MotorCity.UI
                     new Vector2(170f, 16f),
                     appearanceButtonSize,
                     appearanceButtonFontSize,
-                    new Color(0.06f, 0.08f, 0.19f, 0.96f));
+                    new Color(0.06f, 0.08f, 0.19f, 0.64f));
 
             garageActionButtons[4] =
                 CreateGarageActionButton(
@@ -1177,7 +1177,7 @@ namespace MotorCity.UI
                     new Vector2(326f, 16f),
                     appearanceButtonSize,
                     appearanceButtonFontSize,
-                    new Color(0.06f, 0.08f, 0.19f, 0.96f));
+                    new Color(0.06f, 0.08f, 0.19f, 0.64f));
 
             AddGarageActionIcon(
                 garageActionButtons[2],
@@ -1204,7 +1204,7 @@ namespace MotorCity.UI
                     new Vector2(-26f, 26f),
                     new Vector2(184f, 46f),
                     13,
-                    new Color(0.06f, 0.08f, 0.19f, 0.96f));
+                    new Color(0.06f, 0.08f, 0.19f, 0.64f));
 
             garageActionButtons[6] =
                 CreateGarageActionButton(
@@ -1216,7 +1216,7 @@ namespace MotorCity.UI
                     new Vector2(-28f, -18f),
                     new Vector2(258f, 66f),
                     24,
-                    new Color(0.16f, 0.06f, 0.32f, 0.96f));
+                    new Color(0.16f, 0.06f, 0.32f, 0.70f));
 
             RectTransform menuVisual =
                 CreateGarageRoundedPanel(
@@ -1226,7 +1226,7 @@ namespace MotorCity.UI
                     new Vector2(292f, 72f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
-                    new Color(0.06f, 0.055f, 0.18f, 0.94f),
+                    new Color(0.06f, 0.055f, 0.18f, 0.72f),
                     new Color(0.56f, 0.34f, 1f, 0.42f),
                     13f,
                     1.75f);
@@ -1385,9 +1385,9 @@ namespace MotorCity.UI
                 button.colors;
             colors.normalColor = Color.white;
             colors.highlightedColor =
-                new Color(1.15f, 1.12f, 1.25f, 1f);
+                new Color(1.08f, 1.06f, 1.14f, 0.96f);
             colors.pressedColor =
-                new Color(0.78f, 0.80f, 0.94f, 1f);
+                new Color(0.82f, 0.84f, 0.96f, 0.92f);
             colors.colorMultiplier = 1f;
             colors.fadeDuration = 0.08f;
             button.colors = colors;
