@@ -45,6 +45,8 @@ namespace MotorCity.World
         private Material runtimeDaySkybox;
         private Material runtimeEveningSkybox;
         private Material runtimeNightSkybox;
+        private GameObject atmosphereFogObject;
+        private ParticleSystem atmosphereFogParticles;
 
         private float time01;
         private float environmentUpdateTimer;
@@ -116,6 +118,7 @@ namespace MotorCity.World
                     1f);
 
             BuildRuntimeSkyboxes();
+            BuildAtmosphereFog();
             BuildCityPostProcessing();
             RefreshStreetLights();
 
@@ -163,6 +166,7 @@ namespace MotorCity.World
 
                 ResolveLampObserver();
                 ApplyStreetLights();
+                UpdateAtmosphereFogPosition();
 
             }
         }
@@ -184,6 +188,10 @@ namespace MotorCity.World
             if (runtimeNightSkybox != null)
                 Destroy(
                     runtimeNightSkybox);
+
+            if (atmosphereFogObject != null)
+                Destroy(
+                    atmosphereFogObject);
 
             if (cityPostFxProfile != null)
                 Destroy(cityPostFxProfile);
@@ -308,6 +316,166 @@ namespace MotorCity.World
             }
 
             return clone;
+        }
+
+        private void BuildAtmosphereFog()
+        {
+            if (settings == null ||
+                settings.AtmosphereFogPrefab == null)
+            {
+                return;
+            }
+
+            atmosphereFogObject =
+                Instantiate(
+                    settings.AtmosphereFogPrefab);
+
+            atmosphereFogObject.name =
+                "Motor City Distant Atmosphere Fog";
+
+            atmosphereFogObject.transform.localScale =
+                Vector3.one;
+
+            atmosphereFogParticles =
+                atmosphereFogObject.GetComponent<ParticleSystem>();
+
+            if (atmosphereFogParticles == null)
+                return;
+
+            ParticleSystem.MainModule main =
+                atmosphereFogParticles.main;
+
+            main.simulationSpace =
+                ParticleSystemSimulationSpace.Local;
+
+            main.startLifetime =
+                new ParticleSystem.MinMaxCurve(
+                    8f,
+                    14f);
+
+            main.startSize =
+                new ParticleSystem.MinMaxCurve(
+                    55f,
+                    110f);
+
+            main.startSpeed =
+                new ParticleSystem.MinMaxCurve(
+                    0.15f,
+                    0.55f);
+
+            ParticleSystem.ShapeModule shape =
+                atmosphereFogParticles.shape;
+
+            shape.shapeType =
+                ParticleSystemShapeType.Box;
+
+            shape.scale =
+                new Vector3(
+                    170f,
+                    22f,
+                    170f);
+
+            atmosphereFogParticles.Play(
+                true);
+
+            UpdateAtmosphereFogQuality();
+            UpdateAtmosphereFogPosition();
+        }
+
+        private void UpdateAtmosphereFogQuality()
+        {
+            if (atmosphereFogObject == null ||
+                atmosphereFogParticles == null)
+            {
+                return;
+            }
+
+            bool enabled =
+                MotorCityQualityRuntime.CurrentPreset !=
+                MotorCityQualityPreset.Low;
+
+            atmosphereFogObject.SetActive(
+                enabled);
+
+            if (!enabled)
+                return;
+
+            ParticleSystem.MainModule main =
+                atmosphereFogParticles.main;
+
+            ParticleSystem.EmissionModule emission =
+                atmosphereFogParticles.emission;
+
+            switch (MotorCityQualityRuntime.CurrentPreset)
+            {
+                case MotorCityQualityPreset.High:
+                    main.maxParticles =
+                        90;
+
+                    emission.rateOverTime =
+                        8f;
+                    break;
+
+                default:
+                    main.maxParticles =
+                        60;
+
+                    emission.rateOverTime =
+                        5f;
+                    break;
+            }
+        }
+
+        private void UpdateAtmosphereFogPosition()
+        {
+            if (atmosphereFogObject == null)
+                return;
+
+            UpdateAtmosphereFogQuality();
+
+            if (!atmosphereFogObject.activeSelf)
+                return;
+
+            Transform observer =
+                lampObserver;
+
+            if (observer == null)
+            {
+                Camera mainCamera =
+                    Camera.main;
+
+                if (mainCamera != null)
+                {
+                    observer =
+                        mainCamera.transform;
+                }
+            }
+
+            if (observer == null)
+                return;
+
+            Vector3 forward =
+                observer.forward;
+
+            forward.y =
+                0f;
+
+            if (forward.sqrMagnitude <
+                0.001f)
+            {
+                forward =
+                    Vector3.forward;
+            }
+
+            forward.Normalize();
+
+            atmosphereFogObject.transform.position =
+                observer.position +
+                forward * 150f +
+                Vector3.up * 10f;
+
+            atmosphereFogObject.transform.rotation =
+                Quaternion.identity;
         }
 
         private void ApplyEnvironment(
@@ -544,7 +712,7 @@ namespace MotorCity.World
             Color fogNight =
                 new Color(0.075f, 0.095f, 0.13f);
             Color fogDusk =
-                new Color(0.40f, 0.25f, 0.19f);
+                new Color(0.60f, 0.34f, 0.24f);
 
             Color baseFog =
                 Color.Lerp(
@@ -565,7 +733,25 @@ namespace MotorCity.World
                 Color.Lerp(
                     baseFog,
                     fogDusk,
-                    eveningAmount * 0.24f);
+                    eveningAmount * 0.52f);
+
+            if (atmosphereFogParticles != null)
+            {
+                ParticleSystem.MainModule fogMain =
+                    atmosphereFogParticles.main;
+
+                Color particleFogColor =
+                    RenderSettings.fogColor;
+
+                particleFogColor.a =
+                    Mathf.Lerp(
+                        0.10f,
+                        0.17f,
+                        twilight);
+
+                fogMain.startColor =
+                    particleFogColor;
+            }
 
             Color daySunColor =
                 new Color(
