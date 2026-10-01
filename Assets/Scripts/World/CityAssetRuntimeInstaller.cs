@@ -516,6 +516,9 @@ namespace MotorCity.World
             DayNightCycleController dayNight =
                 UnityEngine.Object.FindAnyObjectByType<DayNightCycleController>();
 
+            dayNight?.SetGaragePresentationEnvironment(
+                active);
+
             dayNight?.SetCityPostProcessingEnabled(
                 !active);
         }
