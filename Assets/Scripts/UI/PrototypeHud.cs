@@ -290,6 +290,9 @@ namespace MotorCity.UI
         private bool lastHudTouchPrompts;
         private bool hudLocalizationStateInitialized;
         private bool garageUiDirty = true;
+        private bool garageUiStateInitialized;
+        private bool lastGarageRookieColorStep;
+        private bool lastGarageMetaUnlocked;
 
         private readonly List<TouchLocalizedLabel> touchLocalizedLabels =
             new();
