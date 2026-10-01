@@ -511,6 +511,33 @@ namespace MotorCity.World
             if (activeGarageInterior == null)
                 return;
 
+            float garageEmissionMultiplier =
+                1f;
+
+            if (active)
+            {
+                DayNightCycleController dayNight =
+                    UnityEngine.Object.FindAnyObjectByType<DayNightCycleController>();
+
+                float nightAmount =
+                    dayNight != null
+                        ? dayNight.NightAmount
+                        : 0f;
+
+                // Day: keep the authored fluorescent panels readable.
+                // Twilight: soften them so they do not dominate the car.
+                // Night: strongly reduce the self-emissive white rectangle
+                // while actual garage lights provide the illumination.
+                garageEmissionMultiplier =
+                    Mathf.Lerp(
+                        0.74f,
+                        0.20f,
+                        Mathf.SmoothStep(
+                            0.15f,
+                            0.85f,
+                            nightAmount));
+            }
+
             Renderer[] renderers =
                 activeGarageInterior.GetComponentsInChildren<Renderer>(
                     true);
@@ -596,7 +623,8 @@ namespace MotorCity.World
                         block.SetColor(
                             GarageEmissionColorId,
                             active
-                                ? sourceEmission * 0.82f
+                                ? sourceEmission *
+                                  garageEmissionMultiplier
                                 : sourceEmission);
                     }
 
@@ -899,6 +927,50 @@ namespace MotorCity.World
                 0.82f,
                 5.8f,
                 58f,
+                false);
+
+            CreateGaragePresentationLight(
+                garagePresentationLighting.transform,
+                "Ceiling Fill Left",
+                new Vector3(
+                    -1.15f,
+                    2.55f,
+                    0.35f),
+                GarageVehiclePosition +
+                new Vector3(
+                    -0.55f,
+                    0.25f,
+                    0.15f),
+                LightType.Spot,
+                new Color(
+                    0.90f,
+                    0.94f,
+                    1.00f),
+                1.20f,
+                6.0f,
+                78f,
+                false);
+
+            CreateGaragePresentationLight(
+                garagePresentationLighting.transform,
+                "Ceiling Fill Right",
+                new Vector3(
+                    1.10f,
+                    2.55f,
+                    0.45f),
+                GarageVehiclePosition +
+                new Vector3(
+                    0.55f,
+                    0.25f,
+                    0.10f),
+                LightType.Spot,
+                new Color(
+                    0.90f,
+                    0.94f,
+                    1.00f),
+                1.05f,
+                6.0f,
+                78f,
                 false);
 
             garagePresentationLighting.SetActive(
