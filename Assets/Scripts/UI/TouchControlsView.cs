@@ -1586,8 +1586,7 @@ namespace MotorCity.UI
 
                 SetActiveIfChanged(
                     clubTouchControlsRoot,
-                    clubOverlay != null &&
-                    clubOverlay.activeSelf);
+                    clubOpen);
 
                 SetActiveIfChanged(
                     garageTouchControlsRoot,
