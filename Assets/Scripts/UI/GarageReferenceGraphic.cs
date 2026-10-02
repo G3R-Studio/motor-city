@@ -5,6 +5,7 @@ using UnityEngine.UI;
 namespace MotorCity.UI
 {
     // Vector UI artwork stays crisp at all canvas scales and requires no atlas.
+    [RequireComponent(typeof(CanvasRenderer))]
     public sealed class GarageReferenceGraphic : MaskableGraphic
     {
         public enum Symbol { Surface, Credits, Crown, Star, Wrench, Engine, Brake,
@@ -20,8 +21,9 @@ namespace MotorCity.UI
             if (replacedImage == null) return;
             if (syncImageColor && color != replacedImage.color)
                 color = replacedImage.color;
-            // Garage state refreshes may re-enable the old sprite.
-            replacedImage.enabled = false;
+            // Keep the old sprite as a fallback until the replacement is
+            // registered for rendering. State refreshes can re-enable it too.
+            replacedImage.enabled = (depth < 0 || canvasRenderer.cull) && replacedImage.sprite != null;
         }
 
         protected override void OnPopulateMesh(VertexHelper vh)
@@ -145,7 +147,9 @@ namespace MotorCity.UI
                            Cross(points[c],points[a],points[p])*orientation>=0){contains=true;break;}
                     }
                     if(contains)continue;
-                    mesh.AddTriangle(start+a,start+b,start+c);
+                    // Match Unity UI's clockwise triangle winding.
+                    if (orientation > 0) mesh.AddTriangle(start+a,start+c,start+b);
+                    else mesh.AddTriangle(start+a,start+b,start+c);
                     remaining.RemoveAt(i);clipped=true;break;
                 }
                 if(!clipped)break;
@@ -199,7 +203,7 @@ namespace MotorCity.UI
                 }
             }
             int count=mesh.currentVertCount-center-1;
-            for(int i=0;i<count;i++)mesh.AddTriangle(center,center+1+i,center+1+(i+1)%count);
+            for(int i=0;i<count;i++)mesh.AddTriangle(center,center+1+(i+1)%count,center+1+i);
         }
 
         private void NavigationSurface()

@@ -12,7 +12,8 @@ an invisible button over the mastery section rather than an extra visible card.
 
 `GarageReferenceGraphic` supplies rounded gradient fills, navigation shapes and
 vector icons. All decorative graphics ignore pointer events. The original button
-graphics continue to receive clicks. Colored padlock artwork follows vehicle
+graphics continue to receive clicks, except arrow/city navigation: their visible
+child graphics are the hit targets for the existing parent buttons. Colored padlock artwork follows vehicle
 availability, and price icon colors follow affordability.
 
 The main menu button calls `ShowMainMenuFromGarage`. Continuing after this return
@@ -29,3 +30,10 @@ In Unity, verify desktop and touch interaction, Russian and English labels,
 locked/unlocked cars, affordability and maxed upgrades, the rookie color step,
 passport opening, and main-menu return/continue. The existing HUD scaler and safe
 area handling provide screen scaling; compare the 16:9 game view to the reference.
+
+The custom graphics explicitly require `CanvasRenderer` and use clockwise UI
+triangle winding. Upgrade refreshes preserve the new action-label position and
+display numeric cost without the legacy currency prefix. Regression checks cover
+renderer presence and winding for all symbols. For runtime diagnosis, open the
+garage in Play mode and use `Motor City > Debug > Validate Garage UI`; this audits
+renderer presence, rect dimensions, depth, culling and navigation hit targets.

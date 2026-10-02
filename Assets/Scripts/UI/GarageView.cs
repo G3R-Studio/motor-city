@@ -2086,8 +2086,7 @@ namespace MotorCity.UI
                     garagePriceTexts[i].text =
                         maxed
                             ? string.Empty
-                            : garage.GetUpgradePrice(
-                                i);
+                            : garage.GetUpgradeCost(i).ToString("N0");
 
                     garagePriceTexts[i].gameObject.SetActive(
                         !maxed);
@@ -2107,14 +2106,12 @@ namespace MotorCity.UI
                             ? SecondaryTextColor
                             : GarageReferenceCyan;
 
-                    garageUpgradeActionTexts[i]
-                        .rectTransform
-                        .anchoredPosition =
-                            maxed
-                                ? Vector2.zero
-                                : new Vector2(
-                                    0f,
-                                    10f);
+                    ReferencePlace(garageUpgradeActionTexts[i].rectTransform,
+                        maxed ? 13f : 68f, maxed ? 24f : 7f,
+                        maxed ? 168f : 116f, 25f);
+                    Transform upgradeArrow = garageUpgradeActionTexts[i].transform.parent
+                        .Find("Reference Upgrade Arrow");
+                    if (upgradeArrow != null) upgradeArrow.gameObject.SetActive(!maxed);
                 }
 
                 bool affordable =

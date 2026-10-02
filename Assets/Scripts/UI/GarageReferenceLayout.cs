@@ -237,7 +237,7 @@ namespace MotorCity.UI
 
         private static Transform CreateReferenceObject(Transform parent, string name)
         {
-            var obj = new GameObject(name, typeof(RectTransform));
+            var obj = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer));
             obj.transform.SetParent(parent, false);
             return obj.transform;
         }
@@ -248,7 +248,6 @@ namespace MotorCity.UI
             // Use a child Graphic so an existing Image component can continue
             // receiving state updates (locked/unlocked) from the HUD.
             Image original = target.GetComponent<Image>();
-            if (original != null) original.enabled = false;
             var icon = CreateReferenceObject(target, "Reference Icon");
             RectTransform rect = icon as RectTransform;
             rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
@@ -257,6 +256,7 @@ namespace MotorCity.UI
             graphic.symbol = symbol; graphic.color = tint; graphic.raycastTarget = false;
             graphic.replacedImage = original;
             graphic.syncImageColor = target.name == "Upgrade Price Icon";
+            graphic.SetAllDirty();
             return graphic;
         }
 
@@ -278,6 +278,7 @@ namespace MotorCity.UI
             graphic.symbol = GarageReferenceGraphic.Symbol.Surface;
             graphic.color = bright ? new Color(.25f,.22f,.48f,.72f) : new Color(.16f,.12f,.32f,.73f);
             graphic.raycastTarget = false;
+            graphic.SetAllDirty();
             // Preserve the existing glow behind the fill and labels above it.
             surface.SetAsFirstSibling();
         }
@@ -291,7 +292,14 @@ namespace MotorCity.UI
             r.anchorMin = Vector2.zero; r.anchorMax = Vector2.one;
             r.offsetMin = r.offsetMax = Vector2.zero;
             var graphic = surface.gameObject.AddComponent<GarageReferenceGraphic>();
-            graphic.symbol = symbol; graphic.raycastTarget = false;
+            graphic.symbol = symbol;
+            // The visible child is also the button's hit target. The parent
+            // graphic is transparent and must not be relied on for navigation.
+            graphic.raycastTarget = true;
+            original.raycastTarget = false;
+            Button button = rect.GetComponent<Button>();
+            if (button != null) button.targetGraphic = graphic;
+            graphic.SetAllDirty();
             surface.SetAsFirstSibling();
         }
 
