@@ -454,6 +454,16 @@ public static class AmgGTVehicleImporter
                     materials[i] = body;
                     changed = true;
                 }
+                else if (materials[i] == null ||
+                         string.IsNullOrWhiteSpace(materialName) ||
+                         materialName.Contains("default-material") ||
+                         materialName == "default")
+                {
+                    // A broken/missing .mtl reference from Blender must never
+                    // leave the rebuilt AMG GT on Unity's white fallback.
+                    materials[i] = body;
+                    changed = true;
+                }
             }
 
             if (changed)
