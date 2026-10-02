@@ -858,47 +858,46 @@ namespace MotorCity.Gameplay
             }
         }
 
-        private void BuildNeon(
-            Bounds bounds)
+        private void BuildNeon(Bounds bounds)
         {
-            Color color =
-                AccentColors[
-                    SelectedNeonIndex - 1];
+            Color color = AccentColors[SelectedNeonIndex - 1];
+            bool hasBody = false;
+            foreach (Renderer bodyRenderer in FindVisualRoot().GetComponentsInChildren<Renderer>(true))
+                if (bodyRenderer != null && VehiclePaintMeshNames.IsBody(bodyRenderer.name)) hasBody = true;
+            // Named body bounds exclude the tyres; mount just below its floor.
+            // Generic models may include tyres, so keep the fallback above their bottom.
+            float underside = hasBody ? bounds.min.y - .025f
+                : bounds.min.y + Mathf.Clamp(bounds.size.y * .12f, .10f, .22f);
+            float sideOffset = bounds.extents.x * .68f;
+            float length = bounds.size.z * .68f;
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Vector3 position = new(bounds.center.x + side * sideOffset, underside, bounds.center.z);
+                GameObject strip = CreateAccentPart("Underglow Strip " + side, position,
+                    new Vector3(.035f, .025f, length), color);
+                Renderer renderer = strip.GetComponent<Renderer>();
+                renderer.sharedMaterial = neonMaterial;
+                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                renderer.receiveShadows = false;
+                block.Clear();
+                block.SetColor("_BaseColor", color * 4f);
+                block.SetColor("_Color", color * 4f);
+                block.SetColor("_EmissionColor", color * 4f);
+                renderer.SetPropertyBlock(block);
+                block.Clear();
 
-            GameObject lightObject =
-                new(
-                    "Underglow Light");
-
-            lightObject.transform.SetParent(
-                cosmeticsRoot.transform,
-                false);
-
-            lightObject.transform.localPosition =
-                new Vector3(
-                    bounds.center.x,
-                    bounds.min.y + 0.05f,
-                    bounds.center.z);
-
-            Light light =
-                lightObject.AddComponent<Light>();
-
-            light.type =
-                LightType.Point;
-            light.color =
-                color;
-            light.range =
-                Mathf.Clamp(
-                    bounds.size.z * 0.72f,
-                    2.2f,
-                    4.2f);
-            light.intensity =
-                2.4f;
-            light.shadows =
-                LightShadows.None;
-            light.renderMode =
-                LightRenderMode.ForcePixel;
+                GameObject lightObject = new("Underglow Light " + side);
+                lightObject.transform.SetParent(cosmeticsRoot.transform, false);
+                lightObject.transform.localPosition = position;
+                Light light = lightObject.AddComponent<Light>();
+                light.type = LightType.Point;
+                light.color = color;
+                light.range = Mathf.Clamp(bounds.size.z * 1.25f, 4f, 7f);
+                light.intensity = 3f;
+                light.shadows = LightShadows.None;
+                light.renderMode = LightRenderMode.ForcePixel;
+            }
         }
-
         private void BuildPlate(
             Bounds bounds)
         {
@@ -1171,70 +1170,31 @@ namespace MotorCity.Gameplay
 
         private Bounds ResolveCarBounds()
         {
-            Renderer[] renderers =
-                FindVisualRoot()
-                    .GetComponentsInChildren<Renderer>(
-                        true);
-
-            bool initialized =
-                false;
-
-            Bounds local =
-                new(
-                    Vector3.zero,
-                    new Vector3(
-                        1.8f,
-                        1.3f,
-                        4.2f));
-
-            foreach (Renderer renderer in
-                     renderers)
+            Renderer[] renderers = FindVisualRoot().GetComponentsInChildren<Renderer>(true);
+            bool hasBody = false;
+            foreach (Renderer renderer in renderers)
+                if (renderer != null && VehiclePaintMeshNames.IsBody(renderer.name)) hasBody = true;
+            bool initialized = false;
+            Bounds local = new(Vector3.zero, new Vector3(1.8f, 1.3f, 4.2f));
+            foreach (Renderer renderer in renderers)
             {
-                if (renderer == null ||
-                    renderer.transform.name.Contains(
-                        "Wheel",
-                        StringComparison.OrdinalIgnoreCase))
+                if (renderer == null || (hasBody && !VehiclePaintMeshNames.IsBody(renderer.name)) ||
+                    (!hasBody && renderer.name.Contains("wheel", StringComparison.OrdinalIgnoreCase))) continue;
+                // Transform the local mesh bounds, not the rotation-expanded
+                // world AABB. This keeps the underside fixed to the vehicle.
+                Bounds meshBounds = renderer.localBounds;
+                for (int corner = 0; corner < 8; corner++)
                 {
-                    continue;
-                }
-
-                Bounds world =
-                    renderer.bounds;
-
-                Vector3 center =
-                    car.transform.InverseTransformPoint(
-                        world.center);
-
-                Vector3 size =
-                    car.transform.InverseTransformVector(
-                        world.size);
-
-                size =
-                    new Vector3(
-                        Mathf.Abs(size.x),
-                        Mathf.Abs(size.y),
-                        Mathf.Abs(size.z));
-
-                Bounds item =
-                    new(
-                        center,
-                        size);
-
-                if (!initialized)
-                {
-                    local = item;
-                    initialized = true;
-                }
-                else
-                {
-                    local.Encapsulate(
-                        item);
+                    Vector3 point = meshBounds.center + Vector3.Scale(meshBounds.extents,
+                        new Vector3((corner & 1) == 0 ? -1 : 1,
+                            (corner & 2) == 0 ? -1 : 1, (corner & 4) == 0 ? -1 : 1));
+                    point = car.transform.InverseTransformPoint(renderer.transform.TransformPoint(point));
+                    if (!initialized) { local = new Bounds(point, Vector3.zero); initialized = true; }
+                    else local.Encapsulate(point);
                 }
             }
-
             return local;
         }
-
         private void ApplyColorBlock(
             Renderer renderer,
             Material material,
