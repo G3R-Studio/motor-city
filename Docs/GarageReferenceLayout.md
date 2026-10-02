@@ -1,39 +1,29 @@
 # Garage reference layout
 
-The garage HUD follows the supplied 1672 x 941 reference composition, mapped to
-the existing 1920 x 1080 canvas. `GarageReferenceLayout` positions and styles the
-existing controls once at construction. Vehicle selection, upgrade prices and
-levels, customization actions and progression remain connected to live game data.
+The garage HUD is constructed directly by `BuildGarage` in
+`GarageReferenceLayout.cs`, using the supplied 1672 x 941 composition mapped to
+the 1920 x 1080 canvas. `GarageView.cs` only refreshes live game data and passport
+content. Vehicle selection, upgrades, customization and progression retain their
+gameplay actions.
 
-The layout includes the four header metrics, large right vehicle card with seven
-stat rows and mastery, three lower upgrade cards, appearance controls, chevron
-navigation, city button and main menu button. The passport action is retained as
-an invisible button over the mastery section rather than an extra visible card.
+The garage has no legacy SpriteLess surfaces, separate glow frames, shadow or
+outline effects, texture decoration methods, hidden descriptions or offscreen
+controls. `GarageReferenceGraphic` draws each rounded gradient panel and its
+border in one mesh using the same contour. Navigation surfaces have their own
+matching contours. Icons are vector graphics without old sprite fallback layers.
+Each button targets its visible graphic. Decorative graphics ignore pointer
+input; the passport action uses a transparent hit area over the mastery section.
 
-`GarageReferenceGraphic` supplies rounded gradient fills, navigation shapes and
-vector icons. All decorative graphics ignore pointer events. The original button
-graphics continue to receive clicks, except arrow/city navigation: their visible
-child graphics are the hit targets for the existing parent buttons. Colored padlock artwork follows vehicle
-availability, and price icon colors follow affordability.
+The main menu button calls `ShowMainMenuFromGarage`; continuing resumes loaded
+gameplay. This change concerns the garage UI, not scene meshes, lighting or camera.
 
-The main menu button calls `ShowMainMenuFromGarage`. Continuing after this return
-resumes loaded gameplay without reloading the scene or replaying onboarding.
+Validation: production builder and icon code compiled against Unity API stubs.
+Checks passed for the fresh hierarchy, absence of old surfaces and outlines,
+single graphic per object, ten gameplay action bindings, hidden initial passport,
+stat track dimensions, mastery formatting and geometry for all 26 symbols.
+C# syntax and git whitespace checks passed. Unity Play mode was unavailable.
 
-This change affects UI, not garage meshes, lighting, materials or the camera.
-A rendered layout preview uses sample data and Unity API test stubs; it is not
-an in-game screenshot. Production layout/icon code compiled against those stubs,
-eight layout/state checks and mesh geometry checks for all 26 symbols passed,
-four main-menu return/resume checks passed against extracted production methods,
-and edited C# files passed syntax checks. A Unity editor/build was unavailable.
-
-In Unity, verify desktop and touch interaction, Russian and English labels,
-locked/unlocked cars, affordability and maxed upgrades, the rookie color step,
-passport opening, and main-menu return/continue. The existing HUD scaler and safe
-area handling provide screen scaling; compare the 16:9 game view to the reference.
-
-The custom graphics explicitly require `CanvasRenderer` and use clockwise UI
-triangle winding. Upgrade refreshes preserve the new action-label position and
-display numeric cost without the legacy currency prefix. Regression checks cover
-renderer presence and winding for all symbols. For runtime diagnosis, open the
-garage in Play mode and use `Motor City > Debug > Validate Garage UI`; this audits
-renderer presence, rect dimensions, depth, culling and navigation hit targets.
+In Unity, verify desktop/touch interaction, Russian/English labels, locked cars,
+affordability, maxed upgrades, onboarding, passport and main menu return.
+`Motor City > Debug > Validate Garage UI` audits renderer state, dimensions,
+button targets and unexpected legacy surfaces or shadow/outline effects.

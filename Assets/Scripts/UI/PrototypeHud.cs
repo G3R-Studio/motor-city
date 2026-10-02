@@ -266,7 +266,6 @@ namespace MotorCity.UI
         private GameObject garageTouchControlsRoot;
         private readonly GameObject[] garageActionButtons =
             new GameObject[7];
-        private Text garageControlsText;
         private readonly Image[] garageVehicleStatFills =
             new Image[7];
         private readonly Image[,] garageUpgradeLevelSegments =
@@ -325,27 +324,22 @@ namespace MotorCity.UI
         private Image garageHeaderLevelFill;
         private Image garageHeaderMasteryFill;
         private Text garageStatusText;
-        private Image garageVehicleStateIcon;
         private Text garageVehicleText;
         private Text garageNextVehicleText;
-        private Text garageVehicleStatsText;
         private readonly Text[] garageVehicleStatLabels =
             new Text[7];
         private readonly Text[] garageVehicleStatValues =
             new Text[7];
         private Text garageVehicleCharacterText;
         private Image garageMasteryFill;
-        private Text garageVehicleHistoryText;
-        private Text garageVehicleSpecializationText;
-        private Text garageCollectionText;
         private Text garagePassportTitleText;
         private Text garagePassportSummaryText;
         private Text garagePassportDisciplinesText;
         private Text garagePassportMasteryText;
         private Text garagePassportSpecializationText;
         private bool garagePassportOpen;
-        private readonly Image[] garagePriceIcons =
-            new Image[3];
+        private readonly GarageReferenceGraphic[] garagePriceIcons =
+            new GarageReferenceGraphic[3];
         private readonly Text[] garageTitleTexts =
             new Text[3];
         private readonly Text[] garageLevelTexts =
@@ -353,8 +347,6 @@ namespace MotorCity.UI
         private readonly Text[] garageUpgradeActionTexts =
             new Text[3];
         private readonly Text[] garagePriceTexts =
-            new Text[3];
-        private readonly Text[] garageDescriptionTexts =
             new Text[3];
 
         // Motor City racing UI palette, tuned to the imported Ville Seppanen kit.

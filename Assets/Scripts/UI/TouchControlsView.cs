@@ -387,7 +387,6 @@ namespace MotorCity.UI
                 };
         }
 
-
         private static bool ShouldUseTouchUi()
         {
             if (MotorCityInput.PreferTouchPrompts)
@@ -1580,12 +1579,6 @@ namespace MotorCity.UI
                     garageTouchControlsRoot,
                     garageOpen);
 
-                if (garageControlsText != null)
-                {
-                    garageControlsText.gameObject.SetActive(
-                        false);
-                }
-
                 return;
             }
 
@@ -1658,11 +1651,6 @@ namespace MotorCity.UI
                 garageTouchControlsRoot,
                 garageOpen);
 
-            if (garageControlsText != null)
-            {
-                garageControlsText.gameObject.SetActive(
-                    false);
-            }
         }
 
         private RectTransform CreateSafeAreaRoot(

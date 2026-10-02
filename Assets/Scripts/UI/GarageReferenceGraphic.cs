@@ -12,19 +12,7 @@ namespace MotorCity.UI
             Shock, Paint, Rim, Neon, Speed, Acceleration, Gear, Stability,
             Steering, Drift, Mass, Up, Left, Right, NavigationLeft, NavigationRight, CitySurface, Padlock, OpenPadlock }
         public Symbol symbol;
-        public Image replacedImage;
-        public bool syncImageColor;
         private VertexHelper mesh;
-
-        private void LateUpdate()
-        {
-            if (replacedImage == null) return;
-            if (syncImageColor && color != replacedImage.color)
-                color = replacedImage.color;
-            // Keep the old sprite as a fallback until the replacement is
-            // registered for rendering. State refreshes can re-enable it too.
-            replacedImage.enabled = (depth < 0 || canvasRenderer.cull) && replacedImage.sprite != null;
-        }
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
@@ -204,6 +192,30 @@ namespace MotorCity.UI
             }
             int count=mesh.currentVertCount-center-1;
             for(int i=0;i<count;i++)mesh.AddTriangle(center,center+1+(i+1)%count,center+1+i);
+            // The border shares the fill contour; no extra glow objects.
+            int border = mesh.currentVertCount;
+            for (int corner = 0; corner < 4; corner++)
+            {
+                Vector2 origin = corner switch {
+                    0 => new Vector2(r.xMax-radius,r.yMax-radius),
+                    1 => new Vector2(r.xMin+radius,r.yMax-radius),
+                    2 => new Vector2(r.xMin+radius,r.yMin+radius),
+                    _ => new Vector2(r.xMax-radius,r.yMin+radius) };
+                for (int step = 0; step <= 8; step++)
+                {
+                    float angle = (corner*90+step*90f/8)*Mathf.Deg2Rad;
+                    Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
+                    Color stroke = new(.65f,.58f,1f,.9f);
+                    mesh.AddVert(origin + direction * radius, stroke, Vector2.zero);
+                    mesh.AddVert(origin + direction * Mathf.Max(0, radius - 1.5f), stroke, Vector2.zero);
+                }
+            }
+            for (int i = 0; i < count; i++)
+            {
+                int a = border + i*2, b = border + ((i+1)%count)*2;
+                mesh.AddTriangle(a, b+1, b);
+                mesh.AddTriangle(a, a+1, b+1);
+            }
         }
 
         private void NavigationSurface()
@@ -217,7 +229,7 @@ namespace MotorCity.UI
             for(int i=0;i<points.Length;i++)
             {
                 Vector2 a=points[i],b=points[(i+1)%points.Length];
-                Line(a.x,a.y,b.x,b.y,5,new Color(.52f,.31f,1f,.14f));
+
                 Line(a.x,a.y,b.x,b.y,1.5f,new Color(.65f,.58f,1f,.9f));
             }
         }

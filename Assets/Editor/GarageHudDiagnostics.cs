@@ -20,7 +20,19 @@ namespace MotorCity.EditorTools
 
             Canvas.ForceUpdateCanvases();
             int active = 0;
-            int problems = 0;
+            int problems = 0;            Transform garageRoot = graphics[0].transform;
+            while (garageRoot.parent != null && garageRoot.name != "Garage Panel")
+                garageRoot = garageRoot.parent;
+            foreach (Shadow effect in garageRoot.GetComponentsInChildren<Shadow>(true))
+            {
+                Debug.LogError($"Garage UI: unexpected shadow/outline on {effect.name}.", effect);
+                problems++;
+            }
+            foreach (SpriteLessUI.SpriteLessImage surface in garageRoot.GetComponentsInChildren<SpriteLessUI.SpriteLessImage>(true))
+            {
+                Debug.LogError($"Garage UI: legacy garage surface remains on {surface.name}.", surface);
+                problems++;
+            }
             foreach (GarageReferenceGraphic graphic in graphics)
             {
                 CanvasRenderer renderer = graphic.GetComponent<CanvasRenderer>();
