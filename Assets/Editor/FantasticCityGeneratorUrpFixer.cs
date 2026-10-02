@@ -1664,7 +1664,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_BumpScale",
-                    0.58f);
+                    MotorCity.World.FcgGlassProfile.BumpScale);
             }
 
             if (destination.HasProperty(
@@ -1672,7 +1672,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_SpecularStrength",
-                    0.12f);
+                    MotorCity.World.FcgGlassProfile.SpecularStrength);
             }
 
             if (destination.HasProperty(
@@ -1680,7 +1680,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_FresnelStrength",
-                    1f);
+                    MotorCity.World.FcgGlassProfile.FresnelStrength);
             }
 
             if (destination.HasProperty(
@@ -1688,7 +1688,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_Roughness",
-                    0.28f);
+                    MotorCity.World.FcgGlassProfile.Roughness);
             }
 
             if (destination.HasProperty(
@@ -1696,7 +1696,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_ReflectionStrength",
-                    0.55f);
+                    MotorCity.World.FcgGlassProfile.ReflectionStrength);
             }
 
             if (destination.HasProperty(
@@ -1704,7 +1704,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_AuthoredCubeStrength",
-                    0f);
+                    MotorCity.World.FcgGlassProfile.AuthoredCubeStrength);
             }
 
             if (destination.HasProperty(
@@ -1712,11 +1712,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetColor(
                     "_DayGlassTint",
-                    new Color(
-                        0.20f,
-                        0.205f,
-                        0.21f,
-                        1f));
+                    MotorCity.World.FcgGlassProfile.DayGlassTint);
             }
         }
     }
