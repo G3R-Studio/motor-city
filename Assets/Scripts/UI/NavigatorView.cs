@@ -1556,8 +1556,7 @@ namespace MotorCity.UI
             navigatorPanel =
                 panel.gameObject;
 
-            ClearPanelChrome(
-                panel);
+            ApplyReferenceHudSurface(panel);
 
             minimapMaskSprite =
                 CreateCircularMinimapSprite(

@@ -176,32 +176,6 @@ namespace MotorCity.UI
             }
         }
 
-        private Texture2D ResolveVillePanelTexture(
-            string panelName)
-        {
-            if (uiThemeAssets == null)
-                return null;
-
-            return panelName switch
-            {
-                "Character Card" =>
-                    uiThemeAssets.characterPanel,
-
-                "Activity Status" =>
-                    uiThemeAssets.statusPanel,
-
-                "Drift HUD" =>
-                    uiThemeAssets.driftPanel,
-
-                "Navigation Target Strip" =>
-                    uiThemeAssets.targetPanel,
-
-                _ =>
-                    uiThemeAssets.rectanglePanel
-            };
-        }
-
-
         private static Sprite GetModalButtonSprite(
             Texture2D texture)
         {
@@ -239,399 +213,62 @@ namespace MotorCity.UI
             return modalButtonSprite;
         }
 
-        private void ApplyModalPanelTexture(
-            RectTransform panel)
+        private static void ApplyReferenceHudSurface(RectTransform panel, float alpha = 0.94f)
         {
-            if (panel == null)
-                return;
-
-            ClearPanelChrome(
-                panel);
-
-            Texture2D texture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.modalPanel;
-
-            if (texture == null)
-                return;
-
-            CreatePanelEdgeGlow(
-                panel,
-                texture,
-                ResolvePanelGlowColor(
-                    panel.name),
-                "Ville Modal Glow");
-
-            GameObject backgroundObject =
-                new(
-                    "Ville Modal Background",
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            backgroundObject.transform.SetParent(
-                panel,
-                false);
-
-            backgroundObject.transform.SetAsFirstSibling();
-
-            RectTransform rect =
-                backgroundObject.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                Vector2.zero;
-            rect.anchorMax =
-                Vector2.one;
-            rect.offsetMin =
-                Vector2.zero;
-            rect.offsetMax =
-                Vector2.zero;
-
-            Image image =
-                backgroundObject.GetComponent<Image>();
-
-            image.sprite =
-                GetSlicedPanelSprite(
-                    texture);
-            image.type =
-                Image.Type.Sliced;
-            image.fillCenter =
-                true;
-            image.pixelsPerUnitMultiplier =
-                1f;
-            image.color =
-                Color.white;
-            image.raycastTarget =
-                false;
+            if (panel == null) return;
+            Image image = panel.GetComponent<Image>();
+            if (image != null) { image.color = Color.clear; image.raycastTarget = false; }
+            foreach (Outline outline in panel.GetComponents<Outline>()) outline.enabled = false;
+            Transform existing = panel.Find("Reference HUD Surface");
+            if (existing != null) return;
+            RectTransform background = GarageObject(panel, "Reference HUD Surface");
+            background.SetAsFirstSibling();
+            background.anchorMin = Vector2.zero;
+            background.anchorMax = Vector2.one;
+            background.offsetMin = background.offsetMax = Vector2.zero;
+            GarageReferenceGraphic graphic = background.gameObject.AddComponent<GarageReferenceGraphic>();
+            graphic.symbol = GarageReferenceGraphic.Symbol.Surface;
+            graphic.color = new Color(.16f, .12f, .32f, alpha);
+            graphic.raycastTarget = false;
         }
 
-        private void ApplyVillePanelTexture(
-            RectTransform panel,
-            float alpha)
+        private void ApplyModalPanelTexture(RectTransform panel)
         {
-            if (panel == null)
-                return;
-
-            ClearPanelChrome(
-                panel);
-
-            Texture2D texture =
-                ResolveVillePanelTexture(
-                    panel.name);
-
-            if (texture == null)
-                return;
-
-            CreatePanelEdgeGlow(
-                panel,
-                texture,
-                ResolvePanelGlowColor(
-                    panel.name),
-                "Ville Panel Glow");
-
-            GameObject backgroundObject =
-                new(
-                    "Ville Panel Background",
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            backgroundObject.transform.SetParent(
-                panel,
-                false);
-
-            backgroundObject.transform.SetAsFirstSibling();
-
-            RectTransform rect =
-                backgroundObject.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                Vector2.zero;
-            rect.anchorMax =
-                Vector2.one;
-            rect.offsetMin =
-                Vector2.zero;
-            rect.offsetMax =
-                Vector2.zero;
-
-            Image image =
-                backgroundObject.GetComponent<Image>();
-
-            image.sprite =
-                GetSlicedPanelSprite(
-                    texture);
-            image.type =
-                Image.Type.Sliced;
-            image.fillCenter =
-                true;
-            image.pixelsPerUnitMultiplier =
-                1f;
-            image.color =
-                new Color(
-                    1f,
-                    1f,
-                    1f,
-                    Mathf.Clamp01(alpha));
-            image.raycastTarget =
-                false;
+            ApplyReferenceHudSurface(panel);
         }
 
-        private static Sprite GetSlicedPanelSprite(
-            Texture2D texture)
+        private void ApplyVillePanelTexture(RectTransform panel, float alpha)
         {
-            if (texture == null)
-                return null;
-
-            if (slicedPanelSprites.TryGetValue(
-                    texture,
-                    out Sprite cached) &&
-                cached != null)
-            {
-                return cached;
-            }
-
-            float minDimension =
-                Mathf.Min(
-                    texture.width,
-                    texture.height);
-
-            float border =
-                Mathf.Clamp(
-                    minDimension * 0.16f,
-                    12f,
-                    64f);
-
-            Sprite sprite =
-                Sprite.Create(
-                    texture,
-                    new Rect(
-                        0f,
-                        0f,
-                        texture.width,
-                        texture.height),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    100f,
-                    0u,
-                    SpriteMeshType.FullRect,
-                    new Vector4(
-                        border,
-                        border,
-                        border,
-                        border));
-
-            sprite.name =
-                texture.name +
-                " (Runtime 9-slice)";
-
-            slicedPanelSprites[texture] =
-                sprite;
-
-            return sprite;
+            ApplyReferenceHudSurface(panel, alpha);
         }
 
-        private static Color ResolvePanelGlowColor(
-            string panelName)
+        private void ApplyDrivingHudReferenceStyle(Transform root)
         {
-            if (string.IsNullOrWhiteSpace(
-                    panelName))
+            foreach (RectTransform panel in root.GetComponentsInChildren<RectTransform>(true))
+                if (panel.name == "Season Panel" || panel.name == "Character Portrait Frame"
+                    || panel.name == "Navigator Destination Card" || panel.name == "Navigator Icon Plate")
+                    ApplyReferenceHudSurface(panel);
+            foreach (Button button in root.GetComponentsInChildren<Button>(true))
             {
-                return new Color(
-                    0.34f,
-                    0.53f,
-                    1f,
-                    1f);
+                // Garage already builds its own vector controls. Steering/pedals
+                // retain their special hold/drag hit areas and transparent artwork.
+                bool excluded = false;
+                for (Transform current = button.transform; current != null; current = current.parent)
+                    if (current.name == "Garage Overlay" || current.name == "Touch Driving Controls")
+                        { excluded = true; break; }
+                if (excluded) continue;
+                Image image = button.GetComponent<Image>();
+                if (image == null) continue;
+                image.color = Color.clear;
+                image.raycastTarget = false;
+                foreach (Outline outline in button.GetComponents<Outline>()) outline.enabled = false;
+                GarageReferenceGraphic surface = button.gameObject.AddComponent<GarageReferenceGraphic>();
+                surface.symbol = GarageReferenceGraphic.Symbol.Surface;
+                surface.color = new Color(.16f, .12f, .32f, .94f);
+                surface.raycastTarget = true;
+                button.targetGraphic = surface;
             }
-
-            if (panelName.IndexOf(
-                    "Garage",
-                    System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return new Color(
-                    0.64f,
-                    0.42f,
-                    1f,
-                    1f);
-            }
-
-            if (panelName.IndexOf(
-                    "Store",
-                    System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return new Color(
-                    0.30f,
-                    0.58f,
-                    1f,
-                    1f);
-            }
-
-            if (panelName.IndexOf(
-                    "Club",
-                    System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return new Color(
-                    0.24f,
-                    0.82f,
-                    1f,
-                    1f);
-            }
-
-            if (panelName.IndexOf(
-                    "Drift",
-                    System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return new Color(
-                    1f,
-                    0.46f,
-                    0.14f,
-                    1f);
-            }
-
-            if (panelName.IndexOf(
-                    "Result",
-                    System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return new Color(
-                    0.50f,
-                    0.62f,
-                    1f,
-                    1f);
-            }
-
-            if (panelName.IndexOf(
-                    "Pause",
-                    System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return new Color(
-                    0.38f,
-                    0.52f,
-                    0.92f,
-                    1f);
-            }
-
-            return new Color(
-                0.34f,
-                0.53f,
-                1f,
-                1f);
         }
-
-        private static void CreatePanelEdgeGlow(
-            RectTransform panel,
-            Texture2D texture,
-            Color color,
-            string objectName)
-        {
-            if (panel == null ||
-                texture == null)
-            {
-                return;
-            }
-
-            Vector2 size =
-                panel.rect.size;
-
-            bool compactPanel =
-                size.y <= 72f ||
-                size.x <= 340f;
-
-            float outerExpansion =
-                compactPanel
-                    ? 8f
-                    : 14f;
-
-            float innerExpansion =
-                compactPanel
-                    ? 4f
-                    : 7f;
-
-            float outerAlpha =
-                compactPanel
-                    ? 0.028f
-                    : 0.075f;
-
-            float innerAlpha =
-                compactPanel
-                    ? 0.065f
-                    : 0.16f;
-
-            CreatePanelGlowLayer(
-                panel,
-                texture,
-                color,
-                objectName + " Outer",
-                outerExpansion,
-                outerAlpha);
-
-            CreatePanelGlowLayer(
-                panel,
-                texture,
-                color,
-                objectName + " Inner",
-                innerExpansion,
-                innerAlpha);
-        }
-
-        private static void CreatePanelGlowLayer(
-            RectTransform panel,
-            Texture2D texture,
-            Color color,
-            string objectName,
-            float expansion,
-            float alpha)
-        {
-            GameObject glowObject =
-                new(
-                    objectName,
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            glowObject.transform.SetParent(
-                panel,
-                false);
-
-            glowObject.transform.SetAsFirstSibling();
-
-            RectTransform rect =
-                glowObject.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                Vector2.zero;
-            rect.anchorMax =
-                Vector2.one;
-            rect.offsetMin =
-                new Vector2(
-                    -expansion,
-                    -expansion);
-            rect.offsetMax =
-                new Vector2(
-                    expansion,
-                    expansion);
-
-            Image image =
-                glowObject.GetComponent<Image>();
-
-            image.sprite =
-                GetSlicedPanelSprite(
-                    texture);
-            image.type =
-                Image.Type.Sliced;
-            image.fillCenter =
-                true;
-            image.pixelsPerUnitMultiplier =
-                1f;
-
-            image.color =
-                new Color(
-                    color.r,
-                    color.g,
-                    color.b,
-                    alpha);
-
-            image.raycastTarget =
-                false;
-        }
-
         private static void CreateAccent(
             Transform parent,
             Color color,

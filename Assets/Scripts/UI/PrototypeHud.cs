@@ -359,9 +359,9 @@ namespace MotorCity.UI
         private static readonly Color SecondaryTextColor =
             new(0.72f, 0.75f, 0.86f, 1f);
         private static readonly Color BlueAccent =
-            new(0.34f, 0.53f, 1f, 1f);
+            new(0.28f, 0.78f, 1f, 1f);
         private static readonly Color DriftAccent =
-            new(1f, 0.48f, 0.13f, 1f);
+            new(0.95f, 0.26f, 1f, 1f);
         private static readonly Color GarageAccent =
             new(0.62f, 0.42f, 1f, 1f);
 
@@ -1400,6 +1400,8 @@ namespace MotorCity.UI
             BuildTouchActivityCancelControl(safeAreaRoot);
             BuildTouchPauseControl(safeAreaRoot);
             BuildModalTouchControls(safeAreaRoot);
+            ApplyDrivingHudReferenceStyle(safeAreaRoot);
+            canvasObject.AddComponent<GarageCanvasRefresh>();
 
             driftPanel.SetActive(false);
             activityResultOverlay.SetActive(false);

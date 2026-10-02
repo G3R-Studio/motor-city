@@ -156,7 +156,7 @@ namespace MotorCity.UI
             {
                 statusText.sizeDelta =
                     new Vector2(
-                        lastTouchLayout ? 482f : 560f,
+                        lastTouchLayout ? 480f : 560f,
                         lastTouchLayout ? 38f : 42f);
 
                 Text label =
@@ -206,7 +206,7 @@ namespace MotorCity.UI
                 SetRect(playerCard, new Vector2(14f, -14f), new Vector2(340f, 116f), 1f);
                 SetRect(characterCard, new Vector2(14f, -14f), new Vector2(430f, 154f), 1f);
                 SetRect(speedometer, new Vector2(0f, 6f), new Vector2(226f, 166f), 0.90f);
-                SetRect(status, new Vector2(110f, -174f), new Vector2(560f, 54f), 1f);
+                SetRect(status, new Vector2(0f, -174f), new Vector2(560f, 54f), 1f);
                 SetRect(minimap, new Vector2(-14f, -14f), new Vector2(202f, 218f), 0.92f);
             }
             else
@@ -214,7 +214,7 @@ namespace MotorCity.UI
                 SetRect(playerCard, new Vector2(22f, -22f), new Vector2(392f, 132f), 1f);
                 SetRect(characterCard, new Vector2(22f, -22f), new Vector2(448f, 154f), 1f);
                 SetRect(speedometer, new Vector2(0f, 16f), new Vector2(258f, 190f), 1f);
-                SetRect(status, new Vector2(150f, -196f), new Vector2(640f, 58f), 1f);
+                SetRect(status, new Vector2(0f, -196f), new Vector2(640f, 58f), 1f);
                 SetRect(minimap, new Vector2(-22f, -22f), new Vector2(214f, 218f), 1f);
             }
         }
@@ -736,7 +736,7 @@ namespace MotorCity.UI
             if (text == null)
                 return;
 
-            text.resizeTextForBestFit = true;
+            text.resizeTextForBestFit = objectName != "Speed";
             text.resizeTextMinSize =
                 text.fontSize <= 11
                     ? Mathf.Max(

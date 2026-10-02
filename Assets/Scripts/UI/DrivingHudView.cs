@@ -265,125 +265,35 @@ namespace MotorCity.UI
 
         private void BuildSpeedometer(Transform canvas)
         {
-            RectTransform panel =
-                CreatePanel(
-                    canvas,
-                    "Speedometer",
-                    new Vector2(0f, 16f),
-                    new Vector2(258f, 190f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f),
-                    Color.clear);
+            RectTransform panel = CreatePanel(canvas, "Speedometer",
+                new Vector2(0f, 16f), new Vector2(258f, 190f),
+                new Vector2(.5f, 0f), new Vector2(.5f, 0f), Color.clear);
+            openingSpeedometerRoot = panel.gameObject;
+            speedNeedle = null;
+            speedNeedleGlowRect = null;
+            speedNeedleGlow = null;
 
-            openingSpeedometerRoot =
-                panel.gameObject;
+            RectTransform dial = CreatePanel(panel, "Speed Readout",
+                new Vector2(0f, 50f), new Vector2(238f, 104f),
+                new Vector2(.5f, 0f), new Vector2(.5f, 0f), Color.clear);
+            ApplyReferenceHudSurface(dial);
+            speedText = CreateText(dial, "Speed", 42, FontStyle.Bold,
+                TextAnchor.MiddleCenter, Vector2.zero, new Vector2(216f, 74f),
+                new Vector2(.5f, .5f), new Vector2(.5f, .5f), Color.white);
+            speedText.resizeTextForBestFit = false;
+            speedText.verticalOverflow = VerticalWrapMode.Overflow;
+            speedText.text = "0 " + MotorCityLocalization.Text("common.kmh");
 
-            // Keep only the numeric speed and the lower drive-mode panel.
-            speedNeedle =
-                null;
-            speedNeedleGlowRect =
-                null;
-            speedNeedleGlow =
-                null;
-
-            speedText =
-                CreateText(
-                    panel,
-                    "Speed",
-                    36,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(0f, 70f),
-                    new Vector2(220f, 48f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0.5f),
-                    new Color32(
-                        0xE4,
-                        0xE5,
-                        0xED,
-                        0xFF));
-
-            speedText.text =
-                "0 " +
-                MotorCityLocalization.Text(
-                    "common.kmh");
-
-            RectTransform driveModeChip;
-
-            Texture2D chipTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.driveModePanel;
-
-            if (chipTexture != null)
-            {
-                GameObject chipObject =
-                    new(
-                        "Drive Mode Indicator",
-                        typeof(RectTransform),
-                        typeof(RawImage));
-
-                chipObject.transform.SetParent(
-                    panel,
-                    false);
-
-                driveModeChip =
-                    chipObject.GetComponent<RectTransform>();
-
-                driveModeChip.anchorMin =
-                    new Vector2(0.5f, 0f);
-                driveModeChip.anchorMax =
-                    new Vector2(0.5f, 0f);
-                driveModeChip.pivot =
-                    new Vector2(0.5f, 0.5f);
-                driveModeChip.anchoredPosition =
-                    new Vector2(0f, 18f);
-                driveModeChip.sizeDelta =
-                    new Vector2(158f, 32f);
-
-                RawImage chipImage =
-                    chipObject.GetComponent<RawImage>();
-
-                chipImage.texture =
-                    chipTexture;
-                chipImage.color =
-                    Color.white;
-                chipImage.raycastTarget =
-                    false;
-            }
-            else
-            {
-                driveModeChip =
-                    CreatePanel(
-                        panel,
-                        "Drive Mode Indicator",
-                        new Vector2(0f, 18f),
-                        new Vector2(172f, 34f),
-                        new Vector2(0.5f, 0f),
-                        new Vector2(0.5f, 0.5f),
-                        PanelColor);
-            }
-
-            driveModeText =
-                CreateText(
-                    driveModeChip,
-                    "Drive Mode",
-                    12,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
-                    new Vector2(138f, 24f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
-                    BlueAccent);
-
-            lastDisplayedDriveMode =
-                null;
-
-            lastDisplayedSpeed =
-                int.MinValue;
+            RectTransform mode = CreatePanel(panel, "Drive Mode Indicator",
+                new Vector2(0f, 8f), new Vector2(172f, 34f),
+                new Vector2(.5f, 0f), new Vector2(.5f, 0f), Color.clear);
+            ApplyReferenceHudSurface(mode);
+            driveModeText = CreateText(mode, "Drive Mode", 15, FontStyle.Bold,
+                TextAnchor.MiddleCenter, Vector2.zero, new Vector2(148f, 28f),
+                new Vector2(.5f, .5f), new Vector2(.5f, .5f), GarageReferenceCyan);
+            lastDisplayedDriveMode = null;
+            lastDisplayedSpeed = int.MinValue;
         }
-
         private static Texture2D GetSpeedNeedleGlowTexture()
         {
             if (speedNeedleGlowTexture != null)
@@ -532,8 +442,6 @@ namespace MotorCity.UI
                 panel,
                 0.90f);
 
-            CenterStatusPanelChrome(
-                panel);
 
             statusActivityIcon =
                 CreateHudIcon(
@@ -541,7 +449,7 @@ namespace MotorCity.UI
                     "Status Activity Icon",
                     MotorCityIconLibrary.Reward,
                     new Vector2(
-                        -90f,
+                        18f,
                         0f),
                     new Vector2(
                         24f,
@@ -558,48 +466,11 @@ namespace MotorCity.UI
                     17,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
-                    new Vector2(-56f, 1f),
+                    new Vector2(58f, 0f),
                     new Vector2(560f, 42f),
                     new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f),
                     TextColor);
-        }
-
-        private static void CenterStatusPanelChrome(
-            RectTransform panel)
-        {
-            if (panel == null)
-                return;
-
-            const float visualOffsetX =
-                -112f;
-
-            foreach (RectTransform child in
-                     panel.GetComponentsInChildren<RectTransform>(
-                         true))
-            {
-                if (child == null ||
-                    child == panel)
-                {
-                    continue;
-                }
-
-                string childName =
-                    child.name;
-
-                if (childName == "Ville Panel Background" ||
-                    childName.StartsWith(
-                        "Ville Panel Glow"))
-                {
-                    Vector2 position =
-                        child.anchoredPosition;
-
-                    child.anchoredPosition =
-                        new Vector2(
-                            visualOffsetX,
-                            position.y);
-                }
-            }
         }
 
         private void RefreshStatusActivityIcon()
