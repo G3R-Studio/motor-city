@@ -39,17 +39,17 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BumpScale: 0.78
-    - _DayGlassLift: 0.34
+    - _BumpScale: 0.58
+    - _DayGlassLift: 0.28
     - _EmissionStrength: 3.72
-    - _FresnelStrength: 0.24
+    - _FresnelStrength: 0.1
     - _NightGlassLift: 0.1
-    - _SpecularStrength: 0.22
+    - _SpecularStrength: 0.09
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _DayGlassTint: {r: 0.15999997, g: 0.21999997, b: 0.27999997, a: 1}
+    - _DayGlassTint: {r: 0.2, g: 0.205, b: 0.21, a: 1}
     - _EmissionColor: {r: 0.73254716, g: 0.55654716, b: 0.36954716, a: 1}
-    - _FresnelColor: {r: 0.52, g: 0.65999997, b: 0.78, a: 1}
+    - _FresnelColor: {r: 0.55, g: 0.55, b: 0.54, a: 1}
     - _NightGlassTint: {r: 0.054999977, g: 0.064999975, b: 0.07499998, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
