@@ -816,6 +816,21 @@ namespace MotorCity.World
 
         public static void RefreshCityReflectionProbes()
         {
+            int expectedProbeCount =
+                CurrentCityReflectionProbeGridSize();
+
+            expectedProbeCount *=
+                expectedProbeCount;
+
+            if (activeCity != null &&
+                hasCityBounds &&
+                cityReflectionProbes.Count !=
+                    expectedProbeCount)
+            {
+                InstallCityReflectionProbes();
+                return;
+            }
+
             for (int i = 0;
                  i < cityReflectionProbes.Count;
                  i++)
