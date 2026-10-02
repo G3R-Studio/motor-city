@@ -4,6 +4,7 @@ using MotorCity.Platform;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 namespace MotorCity.World
 {
@@ -69,6 +70,12 @@ namespace MotorCity.World
         private Material runtimeDaySkybox;
         private Material runtimeEveningSkybox;
         private Material runtimeNightSkybox;
+        private Camera skyboxFadeCamera;
+        private Skybox skyboxFadeRenderer;
+        private RenderTexture skyboxFadeTexture;
+        private Canvas skyboxFadeCanvas;
+        private RawImage skyboxFadeImage;
+        private Vector2Int skyboxFadeSize;
 
         private float time01;
         private float environmentUpdateTimer;
@@ -181,6 +188,7 @@ namespace MotorCity.World
                     1f);
 
             BuildRuntimeSkyboxes();
+            BuildSkyboxCrossfadeOverlay();
             BuildCityPostProcessing();
 
             MotorCityQualityRuntime.PresetChanged -=
@@ -271,6 +279,25 @@ namespace MotorCity.World
             if (runtimeNightSkybox != null)
                 Destroy(
                     runtimeNightSkybox);
+
+            if (skyboxFadeTexture != null)
+            {
+                skyboxFadeTexture.Release();
+                Destroy(
+                    skyboxFadeTexture);
+            }
+
+            if (skyboxFadeCanvas != null)
+            {
+                Destroy(
+                    skyboxFadeCanvas.gameObject);
+            }
+
+            if (skyboxFadeCamera != null)
+            {
+                Destroy(
+                    skyboxFadeCamera.gameObject);
+            }
 
             if (cityPostFxProfile != null)
                 Destroy(cityPostFxProfile);
@@ -369,6 +396,250 @@ namespace MotorCity.World
                 CloneSkybox(
                     settings.NightSkybox,
                     "Night");
+        }
+
+        private void BuildSkyboxCrossfadeOverlay()
+        {
+            GameObject cameraObject =
+                new(
+                    "Motor City Skybox Crossfade Camera");
+
+            cameraObject.transform.SetParent(
+                transform,
+                false);
+
+            skyboxFadeCamera =
+                cameraObject.AddComponent<Camera>();
+
+            skyboxFadeCamera.enabled =
+                false;
+
+            skyboxFadeCamera.clearFlags =
+                CameraClearFlags.Skybox;
+
+            skyboxFadeCamera.cullingMask =
+                0;
+
+            skyboxFadeCamera.depth =
+                -100f;
+
+            skyboxFadeCamera.allowHDR =
+                false;
+
+            skyboxFadeCamera.allowMSAA =
+                false;
+
+            UniversalAdditionalCameraData cameraData =
+                cameraObject.AddComponent<UniversalAdditionalCameraData>();
+
+            cameraData.renderPostProcessing =
+                false;
+
+            skyboxFadeRenderer =
+                cameraObject.AddComponent<Skybox>();
+
+            GameObject canvasObject =
+                new(
+                    "Motor City Skybox Crossfade Overlay",
+                    typeof(RectTransform),
+                    typeof(Canvas),
+                    typeof(CanvasScaler));
+
+            canvasObject.transform.SetParent(
+                transform,
+                false);
+
+            skyboxFadeCanvas =
+                canvasObject.GetComponent<Canvas>();
+
+            skyboxFadeCanvas.renderMode =
+                RenderMode.ScreenSpaceOverlay;
+
+            skyboxFadeCanvas.sortingOrder =
+                -32000;
+
+            CanvasScaler scaler =
+                canvasObject.GetComponent<CanvasScaler>();
+
+            scaler.uiScaleMode =
+                CanvasScaler.ScaleMode.ScaleWithScreenSize;
+
+            scaler.referenceResolution =
+                new Vector2(
+                    1920f,
+                    1080f);
+
+            GameObject imageObject =
+                new(
+                    "Skybox Crossfade Image",
+                    typeof(RectTransform),
+                    typeof(RawImage));
+
+            imageObject.transform.SetParent(
+                canvasObject.transform,
+                false);
+
+            RectTransform imageRect =
+                imageObject.GetComponent<RectTransform>();
+
+            imageRect.anchorMin =
+                Vector2.zero;
+
+            imageRect.anchorMax =
+                Vector2.one;
+
+            imageRect.offsetMin =
+                Vector2.zero;
+
+            imageRect.offsetMax =
+                Vector2.zero;
+
+            skyboxFadeImage =
+                imageObject.GetComponent<RawImage>();
+
+            skyboxFadeImage.raycastTarget =
+                false;
+
+            skyboxFadeImage.color =
+                new Color(
+                    1f,
+                    1f,
+                    1f,
+                    0f);
+
+            canvasObject.SetActive(
+                false);
+        }
+
+        private void EnsureSkyboxFadeTexture(
+            Camera sourceCamera)
+        {
+            if (sourceCamera == null)
+                return;
+
+            int width =
+                Mathf.Max(
+                    2,
+                    sourceCamera.pixelWidth);
+
+            int height =
+                Mathf.Max(
+                    2,
+                    sourceCamera.pixelHeight);
+
+            Vector2Int required =
+                new(
+                    width,
+                    height);
+
+            if (skyboxFadeTexture != null &&
+                skyboxFadeSize ==
+                required)
+            {
+                return;
+            }
+
+            if (skyboxFadeTexture != null)
+            {
+                skyboxFadeCamera.targetTexture =
+                    null;
+
+                skyboxFadeTexture.Release();
+
+                Destroy(
+                    skyboxFadeTexture);
+            }
+
+            skyboxFadeTexture =
+                new RenderTexture(
+                    width,
+                    height,
+                    0,
+                    RenderTextureFormat.Default)
+                {
+                    name =
+                        "MotorCity_SkyboxCrossfade",
+                    useMipMap =
+                        false,
+                    autoGenerateMips =
+                        false
+                };
+
+            skyboxFadeTexture.Create();
+
+            skyboxFadeSize =
+                required;
+
+            skyboxFadeCamera.targetTexture =
+                skyboxFadeTexture;
+
+            skyboxFadeImage.texture =
+                skyboxFadeTexture;
+        }
+
+        private void RenderSkyboxFadeOverlay(
+            Material oldSkybox,
+            float alpha)
+        {
+            if (oldSkybox == null ||
+                skyboxFadeCamera == null ||
+                skyboxFadeRenderer == null ||
+                skyboxFadeCanvas == null ||
+                skyboxFadeImage == null)
+            {
+                return;
+            }
+
+            Camera sourceCamera =
+                Camera.main;
+
+            if (sourceCamera == null)
+                return;
+
+            EnsureSkyboxFadeTexture(
+                sourceCamera);
+
+            skyboxFadeCamera.transform.SetPositionAndRotation(
+                sourceCamera.transform.position,
+                sourceCamera.transform.rotation);
+
+            skyboxFadeCamera.fieldOfView =
+                sourceCamera.fieldOfView;
+
+            skyboxFadeCamera.aspect =
+                sourceCamera.aspect;
+
+            skyboxFadeCamera.nearClipPlane =
+                sourceCamera.nearClipPlane;
+
+            skyboxFadeCamera.farClipPlane =
+                sourceCamera.farClipPlane;
+
+            skyboxFadeRenderer.material =
+                oldSkybox;
+
+            skyboxFadeCanvas.gameObject.SetActive(
+                true);
+
+            skyboxFadeImage.color =
+                new Color(
+                    1f,
+                    1f,
+                    1f,
+                    Mathf.Clamp01(
+                        alpha));
+
+            skyboxFadeCamera.Render();
+        }
+
+        private void HideSkyboxFadeOverlay()
+        {
+            if (skyboxFadeCanvas != null &&
+                skyboxFadeCanvas.gameObject.activeSelf)
+            {
+                skyboxFadeCanvas.gameObject.SetActive(
+                    false);
+            }
         }
 
         private static Material CloneSkybox(
@@ -821,70 +1092,75 @@ namespace MotorCity.World
                     time01,
                     1f);
 
-            Material targetSkybox =
-                ResolveSkyboxForTime(
-                    t);
-
-            float exposure =
-                1f;
-
             const float halfWidth =
                 0.03f;
 
-            if (TryResolveSkyboxFade(
+            if (TryResolveSkyboxCrossfade(
                     t,
                     0.24f,
                     halfWidth,
                     runtimeNightSkybox,
                     runtimeMorningSkybox,
-                    out Material transitionSkybox,
-                    out float transitionExposure) ||
-                TryResolveSkyboxFade(
+                    out Material oldSkybox,
+                    out Material newSkybox,
+                    out float progress) ||
+                TryResolveSkyboxCrossfade(
                     t,
                     0.41f,
                     halfWidth,
                     runtimeMorningSkybox,
                     runtimeDaySkybox,
-                    out transitionSkybox,
-                    out transitionExposure) ||
-                TryResolveSkyboxFade(
+                    out oldSkybox,
+                    out newSkybox,
+                    out progress) ||
+                TryResolveSkyboxCrossfade(
                     t,
                     0.61f,
                     halfWidth,
                     runtimeDaySkybox,
                     runtimeEveningSkybox,
-                    out transitionSkybox,
-                    out transitionExposure) ||
-                TryResolveSkyboxFade(
+                    out oldSkybox,
+                    out newSkybox,
+                    out progress) ||
+                TryResolveSkyboxCrossfade(
                     t,
                     0.82f,
                     halfWidth,
                     runtimeEveningSkybox,
                     runtimeNightSkybox,
-                    out transitionSkybox,
-                    out transitionExposure))
+                    out oldSkybox,
+                    out newSkybox,
+                    out progress))
             {
-                targetSkybox =
-                    transitionSkybox;
+                if (newSkybox != null &&
+                    RenderSettings.skybox !=
+                    newSkybox)
+                {
+                    RenderSettings.skybox =
+                        newSkybox;
+                }
 
-                exposure =
-                    transitionExposure;
-            }
+                float eased =
+                    progress * progress *
+                    (3f - 2f * progress);
 
-            if (targetSkybox == null)
+                RenderSkyboxFadeOverlay(
+                    oldSkybox,
+                    1f - eased);
+
                 return;
-
-            if (targetSkybox.HasProperty(
-                    "_Exposure"))
-            {
-                targetSkybox.SetFloat(
-                    "_Exposure",
-                    exposure);
             }
 
-            if (force ||
-                RenderSettings.skybox !=
-                targetSkybox)
+            HideSkyboxFadeOverlay();
+
+            Material targetSkybox =
+                ResolveSkyboxForTime(
+                    t);
+
+            if (targetSkybox != null &&
+                (force ||
+                 RenderSettings.skybox !=
+                 targetSkybox))
             {
                 RenderSettings.skybox =
                     targetSkybox;
@@ -896,20 +1172,30 @@ namespace MotorCity.World
             }
         }
 
-        private static bool TryResolveSkyboxFade(
+        private static bool TryResolveSkyboxCrossfade(
             float time,
             float threshold,
             float halfWidth,
-            Material from,
-            Material to,
-            out Material skybox,
-            out float exposure)
+            Material oldSkybox,
+            Material newSkybox,
+            out Material from,
+            out Material to,
+            out float progress)
         {
-            skybox =
-                null;
+            from =
+                oldSkybox;
 
-            exposure =
-                1f;
+            to =
+                newSkybox;
+
+            progress =
+                0f;
+
+            if (from == null ||
+                to == null)
+            {
+                return false;
+            }
 
             float start =
                 threshold -
@@ -925,44 +1211,13 @@ namespace MotorCity.World
                 return false;
             }
 
-            if (time < threshold)
-            {
-                skybox =
-                    from;
+            progress =
+                Mathf.InverseLerp(
+                    start,
+                    end,
+                    time);
 
-                float progress =
-                    Mathf.InverseLerp(
-                        start,
-                        threshold,
-                        time);
-
-                exposure =
-                    1f -
-                    Mathf.SmoothStep(
-                        0f,
-                        1f,
-                        progress);
-            }
-            else
-            {
-                skybox =
-                    to;
-
-                float progress =
-                    Mathf.InverseLerp(
-                        threshold,
-                        end,
-                        time);
-
-                exposure =
-                    Mathf.SmoothStep(
-                        0f,
-                        1f,
-                        progress);
-            }
-
-            return
-                skybox != null;
+            return true;
         }
 
         private Material ResolveSkyboxForTime(
