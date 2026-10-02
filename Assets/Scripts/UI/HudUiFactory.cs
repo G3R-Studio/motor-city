@@ -266,7 +266,8 @@ namespace MotorCity.UI
                 // retain their special hold/drag hit areas and transparent artwork.
                 bool excluded = false;
                 for (Transform current = button.transform; current != null; current = current.parent)
-                    if (current.name == "Garage Overlay" || current.name == "Touch Driving Controls")
+                    if (current.name == "Garage Overlay" ||
+                        (current.name == "Touch Driving Controls" && button.name != "Interact"))
                         { excluded = true; break; }
                 if (excluded) continue;
                 Image image = button.GetComponent<Image>();
@@ -283,6 +284,27 @@ namespace MotorCity.UI
                 surface.color = new Color(.16f, .12f, .32f, .94f);
                 surface.raycastTarget = true;
                 button.targetGraphic = surface;
+                if (button.name == "Interact")
+                {
+                    Transform oldIcon = button.transform.Find("Action Icon");
+                    if (oldIcon != null) oldIcon.gameObject.SetActive(false);
+                    RectTransform iconRect = GarageObject(button.transform, "Reference Action Icon");
+                    iconRect.anchorMin = iconRect.anchorMax = iconRect.pivot = new Vector2(0f, .5f);
+                    iconRect.anchoredPosition = new Vector2(14f, 0f);
+                    iconRect.sizeDelta = new Vector2(24f, 24f);
+                    GarageReferenceGraphic icon = iconRect.gameObject.AddComponent<GarageReferenceGraphic>();
+                    icon.symbol = GarageReferenceGraphic.Symbol.Check;
+                    icon.color = GarageReferenceCyan;
+                    icon.raycastTarget = false;
+                    Text label = button.GetComponentInChildren<Text>();
+                    if (label != null)
+                    {
+                        label.fontSize = 19;
+                        label.resizeTextForBestFit = false;
+                        label.rectTransform.anchoredPosition = new Vector2(18f, 0f);
+                        label.rectTransform.sizeDelta = new Vector2(108f, 40f);
+                    }
+                }
             }
         }
         private static void CreateAccent(

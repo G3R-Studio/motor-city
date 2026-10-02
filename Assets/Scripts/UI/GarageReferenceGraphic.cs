@@ -10,7 +10,7 @@ namespace MotorCity.UI
     {
         public enum Symbol { Surface, Credits, Crown, Star, Wrench, Engine, Brake,
             Shock, Paint, Rim, Neon, Speed, Acceleration, Gear, Stability,
-            Steering, Drift, Mass, Up, Left, Right, NavigationLeft, NavigationRight, CitySurface, Padlock, OpenPadlock, MinimapRim, Keyboard }
+            Steering, Drift, Mass, Up, Left, Right, NavigationLeft, NavigationRight, CitySurface, Padlock, OpenPadlock, MinimapRim, Keyboard, Check }
         public Symbol symbol;
         private VertexHelper mesh;
 
@@ -25,6 +25,9 @@ namespace MotorCity.UI
             }
             switch (symbol)
             {
+                case Symbol.Check:
+                    Polygon(new Vector2(8,47),new Vector2(22,61),new Vector2(41,40),
+                        new Vector2(78,84),new Vector2(93,70),new Vector2(42,10)); break;
                 case Symbol.Keyboard:
                     Line(8,25,92,25,5); Line(92,25,92,75,5);
                     Line(92,75,8,75,5); Line(8,75,8,25,5);

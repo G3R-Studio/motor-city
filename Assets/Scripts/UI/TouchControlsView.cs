@@ -979,7 +979,7 @@ namespace MotorCity.UI
                     "touch.drive.action_short",
                     MotorCityInputAction.Interact,
                     Vector2.zero,
-                    new Vector2(118f, 48f));
+                    new Vector2(158f, 52f));
 
             Button interactUnityButton =
                 interactButton.GetComponent<Button>();

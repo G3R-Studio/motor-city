@@ -574,6 +574,10 @@ namespace MotorCity.UI
             if (target == null)
                 return;
 
+            Button button = target.GetComponent<Button>();
+            if (button != null && button.targetGraphic is GarageReferenceGraphic)
+                return;
+
             Image image =
                 target.GetComponent<Image>();
 
