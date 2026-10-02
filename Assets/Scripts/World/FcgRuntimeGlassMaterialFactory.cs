@@ -105,7 +105,7 @@ namespace MotorCity.World
 
                 material.SetFloat(
                     "_BumpScale",
-                    0.58f);
+                    FcgGlassProfile.BumpScale);
             }
             else
             {
@@ -150,47 +150,39 @@ namespace MotorCity.World
 
             material.SetColor(
                 "_DayGlassTint",
-                new Color(
-                    0.20f,
-                    0.205f,
-                    0.21f,
-                    1f));
+                FcgGlassProfile.DayGlassTint);
 
             material.SetFloat(
                 "_DayGlassLift",
-                0.32f);
+                FcgGlassProfile.DayGlassLift);
 
             material.SetColor(
                 "_NightGlassTint",
-                new Color(
-                    0.04f,
-                    0.045f,
-                    0.05f,
-                    1f));
+                FcgGlassProfile.NightGlassTint);
 
             material.SetFloat(
                 "_NightGlassLift",
-                0.16f);
+                FcgGlassProfile.NightGlassLift);
 
             material.SetFloat(
                 "_Roughness",
-                0.28f);
+                FcgGlassProfile.Roughness);
 
             material.SetFloat(
                 "_ReflectionStrength",
-                0.55f);
+                FcgGlassProfile.ReflectionStrength);
 
             material.SetFloat(
                 "_AuthoredCubeStrength",
-                0f);
+                FcgGlassProfile.AuthoredCubeStrength);
 
             material.SetFloat(
                 "_FresnelStrength",
-                1f);
+                FcgGlassProfile.FresnelStrength);
 
             material.SetFloat(
                 "_SpecularStrength",
-                0.12f);
+                FcgGlassProfile.SpecularStrength);
 
             material.SetFloat(
                 "_EmissionStrength",
