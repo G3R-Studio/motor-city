@@ -1603,6 +1603,9 @@ namespace MotorCity.World
                 true);
 
             ApplyStreetLights();
+
+            CityAssetRuntimeInstaller
+                .RefreshCityReflectionProbes();
         }
 
         private void ApplyLampShadows(
