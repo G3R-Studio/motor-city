@@ -617,8 +617,8 @@ namespace MotorCity.World
                         120f,
                         cityBounds.size.x * 0.56f),
                     Mathf.Max(
-                        80f,
-                        cityBounds.size.y + 30f),
+                        120f,
+                        cityBounds.size.y * 1.15f),
                     Mathf.Max(
                         120f,
                         cityBounds.size.z * 0.56f));
@@ -694,7 +694,7 @@ namespace MotorCity.World
                     0.85f;
 
                 probe.intensity =
-                    0.82f;
+                    0.90f;
 
                 probe.blendDistance =
                     Mathf.Min(
