@@ -262,7 +262,11 @@ namespace MotorCity.UI
                 image.color = Color.clear;
                 image.raycastTarget = false;
                 foreach (Outline outline in button.GetComponents<Outline>()) outline.enabled = false;
-                GarageReferenceGraphic surface = button.gameObject.AddComponent<GarageReferenceGraphic>();
+                // Unity allows only one Graphic per GameObject. Keep the
+                // existing Image and put vector artwork on its own child.
+                ApplyReferenceHudSurface(button.GetComponent<RectTransform>());
+                GarageReferenceGraphic surface = button.transform
+                    .Find("Reference HUD Surface").GetComponent<GarageReferenceGraphic>();
                 surface.symbol = GarageReferenceGraphic.Symbol.Surface;
                 surface.color = new Color(.16f, .12f, .32f, .94f);
                 surface.raycastTarget = true;
