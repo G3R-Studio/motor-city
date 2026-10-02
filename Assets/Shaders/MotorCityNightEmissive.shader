@@ -292,20 +292,33 @@ Shader "MotorCity/NightEmissive"
                         -viewDirWS,
                         normalWS);
 
-                half3 environmentReflection =
-                    max(
-                        SampleSH(
-                            reflectionDir),
-                        half3(
-                            0.0h,
-                            0.0h,
-                            0.0h));
-
-                // Rougher glass receives a softer, weaker environment term.
                 half roughness =
                     saturate(
                         _Roughness);
 
+                // Sample the renderer's actual reflection probe / environment
+                // cubemap. SampleSH is diffuse irradiance and only brightens
+                // the window; it cannot produce a readable reflection.
+                half perceptualRoughness =
+                    roughness;
+
+                half mipLevel =
+                    perceptualRoughness *
+                    6.0h;
+
+                half4 encodedReflection =
+                    SAMPLE_TEXTURECUBE_LOD(
+                        unity_SpecCube0,
+                        samplerunity_SpecCube0,
+                        reflectionDir,
+                        mipLevel);
+
+                half3 environmentReflection =
+                    DecodeHDREnvironment(
+                        encodedReflection,
+                        unity_SpecCube0_HDR);
+
+                // Rougher glass receives a softer, weaker environment term.
                 half reflectionEnergy =
                     _ReflectionStrength *
                     lerp(
