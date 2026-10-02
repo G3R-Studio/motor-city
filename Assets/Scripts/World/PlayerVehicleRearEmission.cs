@@ -1168,9 +1168,10 @@ namespace MotorCity.World
                     continue;
                 }
 
-                bool materialRearSpecific =
-                    LooksLikeRearLampName(
-                        materialName);
+                // Hybrid's red rear lamp polygons have an exported numeric name.
+                bool hybridRearLamp = vehicleId == "hybrid" &&
+                    materialName.Replace(" (instance)", "").Replace(" (clone)", "").Trim() == "material.004";
+                bool materialRearSpecific = hybridRearLamp || LooksLikeRearLampName(materialName);
 
                 bool genericLampMaterial =
                     LooksLikeLampMaterial(

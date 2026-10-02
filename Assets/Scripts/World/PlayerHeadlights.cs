@@ -295,6 +295,14 @@ namespace MotorCity.World
             RefreshNightEmissionBindings();
         }
 
+        private static bool IsDedicatedVehicleLamp(string id, string materialName)
+        {
+            string name = materialName.Replace(" (instance)", "").Replace(" (clone)", "").Trim();
+            // Hybrid exports its white lamp polygons as Material.005.
+            // Beatall has a dedicated colored lamp atlas for front and rear.
+            return (id == "hybrid" && name == "material.005") ||
+                (id == "beatall" && name == "beatallemission");
+        }
         private void RefreshNightEmissionBindings()
         {
             ClearNightEmissionOverlays();
@@ -341,7 +349,8 @@ namespace MotorCity.World
                     // Porsche and Peugeot expose dedicated headlight
                     // materials. Drive their real material emission at night
                     // instead of relying only on invisible Spot Lights.
-                    if (materialName.Contains("headlight") ||
+                    if (IsDedicatedVehicleLamp(vehicleId, materialName) ||
+                        materialName.Contains("headlight") ||
                         materialName.Contains("headlamp"))
                     {
                         if (source.HasProperty("_EmissionColor"))
