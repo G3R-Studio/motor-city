@@ -39,10 +39,6 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    - _ReflectionCube:
-        m_Texture: {fileID: 8900000, guid: b2ab35563b2e2794eb173c310a52347c, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 0.52
     - _AuthoredCubeStrength: 0
