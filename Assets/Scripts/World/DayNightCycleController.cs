@@ -287,19 +287,19 @@ namespace MotorCity.World
             cityTonemapping.mode.Override(TonemappingMode.ACES);
 
             cityBloom = cityPostFxProfile.Add<Bloom>(true);
-            cityBloom.threshold.Override(0.82f);
-            cityBloom.intensity.Override(0.07f);
-            cityBloom.scatter.Override(0.40f);
+            cityBloom.threshold.Override(1.05f);
+            cityBloom.intensity.Override(0.05f);
+            cityBloom.scatter.Override(0.34f);
             cityBloom.clamp.Override(6f);
             cityBloom.highQualityFiltering.Override(false);
 
             cityColor = cityPostFxProfile.Add<ColorAdjustments>(true);
             cityColor.postExposure.Override(0f);
-            cityColor.contrast.Override(10f);
-            cityColor.saturation.Override(3f);
+            cityColor.contrast.Override(8f);
+            cityColor.saturation.Override(2f);
 
             WhiteBalance whiteBalance = cityPostFxProfile.Add<WhiteBalance>(true);
-            whiteBalance.temperature.Override(-2f);
+            whiteBalance.temperature.Override(-1f);
             whiteBalance.tint.Override(0f);
 
             citySplitToning = cityPostFxProfile.Add<SplitToning>(true);
@@ -464,16 +464,16 @@ namespace MotorCity.World
             if (cityBloom != null)
             {
                 cityBloom.intensity.value =
-                    0.07f +
-                    twilight * 0.03f +
-                    NightAmount * 0.18f;
+                    0.05f +
+                    twilight * 0.035f +
+                    NightAmount * 0.12f;
             }
 
             if (cityColor != null)
             {
                 cityColor.postExposure.value = 0f;
-                cityColor.contrast.value = Mathf.Lerp(10f, 12f, NightAmount);
-                cityColor.saturation.value = Mathf.Lerp(3f, 1f, NightAmount);
+                cityColor.contrast.value = Mathf.Lerp(8f, 10f, NightAmount);
+                cityColor.saturation.value = Mathf.Lerp(2f, 0f, NightAmount);
             }
 
             if (cityVignette != null)
