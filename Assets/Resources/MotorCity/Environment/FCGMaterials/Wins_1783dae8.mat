@@ -47,11 +47,11 @@ Material:
     - _BumpScale: 0.52
     - _DayGlassLift: 0.32
     - _EmissionStrength: 3.72
-    - _FresnelStrength: 0.32
+    - _FresnelStrength: 0
     - _NightGlassLift: 0.12
-    - _ReflectionStrength: 0.14
+    - _ReflectionStrength: 0
     - _Roughness: 0.58
-    - _SpecularStrength: 0.03
+    - _SpecularStrength: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _DayGlassTint: {r: 0.17, g: 0.18, b: 0.19, a: 1}
