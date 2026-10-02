@@ -1636,6 +1636,30 @@ public static class FantasticCityGeneratorUrpFixer
         if (window)
         {
             if (destination.HasProperty(
+                    "_BaseColor"))
+            {
+                string windowName =
+                    NormalizeMaterialName(
+                        source.name);
+
+                bool genericGlass =
+                    windowName.StartsWith(
+                        "glass") &&
+                    !windowName.StartsWith(
+                        "winglass");
+
+                destination.SetColor(
+                    "_BaseColor",
+                    genericGlass
+                        ? new Color(
+                            0.25f,
+                            0.25f,
+                            0.25f,
+                            1f)
+                        : Color.white);
+            }
+
+            if (destination.HasProperty(
                     "_BumpScale"))
             {
                 destination.SetFloat(
@@ -1648,7 +1672,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_SpecularStrength",
-                    0.08f);
+                    0.12f);
             }
 
             if (destination.HasProperty(
@@ -1656,7 +1680,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_FresnelStrength",
-                    0.72f);
+                    1f);
             }
 
             if (destination.HasProperty(
@@ -1664,7 +1688,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_Roughness",
-                    0.36f);
+                    0.28f);
             }
 
             if (destination.HasProperty(
@@ -1672,7 +1696,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_ReflectionStrength",
-                    0.34f);
+                    0.55f);
             }
 
             if (destination.HasProperty(
@@ -1689,9 +1713,9 @@ public static class FantasticCityGeneratorUrpFixer
                 destination.SetColor(
                     "_DayGlassTint",
                     new Color(
-                        0.22f,
-                        0.225f,
-                        0.23f,
+                        0.20f,
+                        0.205f,
+                        0.21f,
                         1f));
             }
         }
