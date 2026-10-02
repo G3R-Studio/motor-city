@@ -12,10 +12,10 @@ namespace MotorCity.World
         public const float DayGlassLift = 0.32f;
         public const float NightGlassLift = 0.12f;
         public const float Roughness = 0.58f;
-        public const float ReflectionStrength = 0.14f;
+        public const float ReflectionStrength = 0f;
         public const float AuthoredCubeStrength = 0f;
-        public const float FresnelStrength = 0.32f;
-        public const float SpecularStrength = 0.03f;
+        public const float FresnelStrength = 0f;
+        public const float SpecularStrength = 0f;
 
         public static readonly Color DayGlassTint =
             new(
