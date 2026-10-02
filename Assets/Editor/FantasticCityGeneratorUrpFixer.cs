@@ -1470,7 +1470,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_Smoothness",
-                    0.12f);
+                    0.16f);
             }
 
             if (destination.HasProperty(
@@ -1478,7 +1478,23 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_BumpScale",
-                    0.62f);
+                    0.70f);
+            }
+
+            if (destination.HasProperty(
+                    "_SpecularHighlights"))
+            {
+                destination.SetFloat(
+                    "_SpecularHighlights",
+                    1f);
+            }
+
+            if (destination.HasProperty(
+                    "_EnvironmentReflections"))
+            {
+                destination.SetFloat(
+                    "_EnvironmentReflections",
+                    1f);
             }
         }
 
@@ -1497,7 +1513,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_SpecularStrength",
-                    0.09f);
+                    0.24f);
             }
 
             if (destination.HasProperty(
@@ -1505,7 +1521,35 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_FresnelStrength",
-                    0.10f);
+                    0.42f);
+            }
+
+            if (destination.HasProperty(
+                    "_Roughness"))
+            {
+                destination.SetFloat(
+                    "_Roughness",
+                    0.34f);
+            }
+
+            if (destination.HasProperty(
+                    "_ReflectionStrength"))
+            {
+                destination.SetFloat(
+                    "_ReflectionStrength",
+                    0.30f);
+            }
+
+            if (destination.HasProperty(
+                    "_DayGlassTint"))
+            {
+                destination.SetColor(
+                    "_DayGlassTint",
+                    new Color(
+                        0.19f,
+                        0.19f,
+                        0.19f,
+                        1f));
             }
         }
     }
