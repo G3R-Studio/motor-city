@@ -15,14 +15,8 @@ public static class AmgGTVehicleImporter
     private const string RearWheelSource =
         "Assets/VehicleAssets/AmgGT/rear_wheels.obj";
 
-    private const string SourceTexture =
-        "Assets/VehicleAssets/AmgGT/all.png";
-
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
-
-    private const string MaterialDirectory =
-        OutputDirectory + "/AmgGTMaterials";
 
     private const string OutputPrefab =
         OutputDirectory + "/AmgGT.prefab";
@@ -98,30 +92,6 @@ public static class AmgGTVehicleImporter
         Directory.CreateDirectory(
             OutputDirectory);
 
-        Directory.CreateDirectory(
-            MaterialDirectory);
-
-        Material bodyMaterial =
-            BuildMaterial(
-                "AmgGTBody",
-                Color.white,
-                0.72f,
-                false);
-
-        Material glassMaterial =
-            BuildMaterial(
-                "AmgGTGlass",
-                new Color(0.025f, 0.03f, 0.04f, 1f),
-                0.9f,
-                false);
-
-        Material emissionMaterial =
-            BuildMaterial(
-                "AmgGTEmission",
-                Color.white,
-                0.35f,
-                true);
-
         GameObject instance =
             PrefabUtility.InstantiatePrefab(
                 bodySource) as GameObject;
@@ -148,22 +118,10 @@ public static class AmgGTVehicleImporter
             instance.transform.localScale =
                 Vector3.one;
 
-            StripImportedPhysics(
-                instance);
-
             BuildWheelSet(
                 instance.transform,
                 frontWheelSource,
                 rearWheelSource);
-
-            AssignMaterials(
-                instance,
-                bodyMaterial,
-                glassMaterial,
-                emissionMaterial);
-
-            EnsureRenderersEnabled(
-                instance);
 
             GameObject saved =
                 PrefabUtility.SaveAsPrefabAsset(
@@ -324,153 +282,6 @@ public static class AmgGTVehicleImporter
             visual);
     }
 
-    private static Material BuildMaterial(
-        string materialName,
-        Color baseColor,
-        float smoothness,
-        bool emission)
-    {
-        string path =
-            MaterialDirectory +
-            "/" +
-            materialName +
-            ".mat";
-
-        Material material =
-            AssetDatabase.LoadAssetAtPath<Material>(
-                path);
-
-        Shader shader =
-            Shader.Find(
-                "Universal Render Pipeline/Lit");
-
-        if (shader == null)
-            shader = Shader.Find("Standard");
-
-        if (material == null)
-        {
-            material =
-                new Material(
-                    shader);
-
-            material.name =
-                materialName;
-
-            AssetDatabase.CreateAsset(
-                material,
-                path);
-        }
-        else if (shader != null &&
-                 material.shader != shader)
-        {
-            material.shader =
-                shader;
-        }
-
-        Texture texture =
-            AssetDatabase.LoadAssetAtPath<Texture>(
-                SourceTexture);
-
-        if (material.HasProperty("_BaseMap"))
-            material.SetTexture("_BaseMap", texture);
-
-        if (material.HasProperty("_MainTex"))
-            material.SetTexture("_MainTex", texture);
-
-        if (material.HasProperty("_BaseColor"))
-            material.SetColor("_BaseColor", baseColor);
-
-        if (material.HasProperty("_Color"))
-            material.SetColor("_Color", baseColor);
-
-        if (material.HasProperty("_Smoothness"))
-            material.SetFloat("_Smoothness", smoothness);
-
-        if (emission)
-        {
-            if (material.HasProperty("_EmissionMap"))
-                material.SetTexture("_EmissionMap", texture);
-
-            if (material.HasProperty("_EmissionColor"))
-                material.SetColor(
-                    "_EmissionColor",
-                    Color.black);
-
-            material.EnableKeyword("_EMISSION");
-            material.globalIlluminationFlags =
-                MaterialGlobalIlluminationFlags.None;
-        }
-        else
-        {
-            material.DisableKeyword("_EMISSION");
-        }
-
-        EditorUtility.SetDirty(
-            material);
-
-        return material;
-    }
-
-    private static void AssignMaterials(
-        GameObject root,
-        Material body,
-        Material glass,
-        Material emission)
-    {
-        foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(
-                     true))
-        {
-            if (renderer == null)
-                continue;
-
-            Material[] materials =
-                renderer.sharedMaterials;
-
-            bool changed = false;
-
-            for (int i = 0;
-                 i < materials.Length;
-                 i++)
-            {
-                string materialName =
-                    materials[i] != null
-                        ? materials[i].name.ToLowerInvariant()
-                        : string.Empty;
-
-                if (materialName.Contains("blackglass"))
-                {
-                    materials[i] = glass;
-                    changed = true;
-                }
-                else if (materialName.Contains("emmisive") ||
-                         materialName.Contains("emissive"))
-                {
-                    materials[i] = emission;
-                    changed = true;
-                }
-                else if (materialName.Contains("basegradient"))
-                {
-                    materials[i] = body;
-                    changed = true;
-                }
-                else if (materials[i] == null ||
-                         string.IsNullOrWhiteSpace(materialName) ||
-                         materialName.Contains("default-material") ||
-                         materialName == "default")
-                {
-                    // A broken/missing .mtl reference from Blender must never
-                    // leave the rebuilt AMG GT on Unity's white fallback.
-                    materials[i] = body;
-                    changed = true;
-                }
-            }
-
-            if (changed)
-                renderer.sharedMaterials = materials;
-        }
-    }
-
     private static void StripImportedPhysics(
         GameObject root)
     {
@@ -502,20 +313,5 @@ public static class AmgGTVehicleImporter
         }
     }
 
-    private static void EnsureRenderersEnabled(
-        GameObject root)
-    {
-        foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(
-                     true))
-        {
-            if (renderer == null)
-                continue;
 
-            renderer.enabled = true;
-
-            if (!renderer.gameObject.activeSelf)
-                renderer.gameObject.SetActive(true);
-        }
-    }
 }
