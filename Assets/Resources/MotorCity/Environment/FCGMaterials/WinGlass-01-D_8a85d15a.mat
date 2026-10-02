@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: FCG_WinGlass-01-D
+  m_Name: WinGlass-01-D_8a85d15a
   m_Shader: {fileID: 4800000, guid: 4b07b7e81a9a4f94b42fddf0f4c4b5ea, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
