@@ -245,6 +245,7 @@ namespace MotorCity.World
                     RuntimeCityName;
             }
 
+            RebindRuntimeCityMaterials();
             DisableLegacyFcgDayNight();
 
             // Runtime treats the authored city as read-only.
@@ -266,6 +267,223 @@ namespace MotorCity.World
             InstallCityReflectionProbes();
 
             return true;
+        }
+
+        private static void RebindRuntimeCityMaterials()
+        {
+            if (activeCity == null)
+                return;
+
+            Material[] generated =
+                Resources.LoadAll<Material>(
+                    "MotorCity/Environment/FCGMaterials");
+
+            if (generated == null ||
+                generated.Length == 0)
+            {
+                Debug.LogWarning(
+                    "Motor City: no generated FCG materials were found in Resources.");
+                return;
+            }
+
+            var materialMap =
+                new Dictionary<string, Material>(
+                    StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0;
+                 i < generated.Length;
+                 i++)
+            {
+                Material material =
+                    generated[i];
+
+                if (material == null)
+                    continue;
+
+                string key =
+                    RuntimeMaterialKey(
+                        material.name);
+
+                if (string.IsNullOrWhiteSpace(
+                        key))
+                {
+                    continue;
+                }
+
+                materialMap[key] =
+                    material;
+            }
+
+            int replaced =
+                0;
+
+            Renderer[] renderers =
+                activeCity.GetComponentsInChildren<Renderer>(
+                    true);
+
+            for (int r = 0;
+                 r < renderers.Length;
+                 r++)
+            {
+                Renderer renderer =
+                    renderers[r];
+
+                if (renderer == null)
+                    continue;
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                bool changed =
+                    false;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    Material current =
+                        materials[i];
+
+                    if (current == null)
+                        continue;
+
+                    string key =
+                        RuntimeMaterialKey(
+                            current.name);
+
+                    if (string.IsNullOrWhiteSpace(
+                            key) ||
+                        !materialMap.TryGetValue(
+                            key,
+                            out Material replacement) ||
+                        replacement == null ||
+                        replacement == current)
+                    {
+                        continue;
+                    }
+
+                    materials[i] =
+                        replacement;
+
+                    replaced++;
+                    changed =
+                        true;
+                }
+
+                if (changed)
+                {
+                    renderer.sharedMaterials =
+                        materials;
+                }
+
+                // The generated city should participate in the reflection
+                // probes unless an individual renderer explicitly opts out
+                // later for a special-purpose effect.
+                if (renderer.reflectionProbeUsage ==
+                    ReflectionProbeUsage.Off)
+                {
+                    renderer.reflectionProbeUsage =
+                        ReflectionProbeUsage.BlendProbes;
+                }
+            }
+
+            Debug.Log(
+                "Motor City: rebound " +
+                replaced +
+                " runtime FCG material slots to generated Resources materials.");
+        }
+
+        private static string RuntimeMaterialKey(
+            string materialName)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    materialName))
+            {
+                return string.Empty;
+            }
+
+            string value =
+                materialName
+                    .Replace(
+                        "(Instance)",
+                        string.Empty,
+                        StringComparison.OrdinalIgnoreCase)
+                    .Trim();
+
+            if (value.StartsWith(
+                    "FCG_",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                value =
+                    value.Substring(
+                        4);
+            }
+
+            int separator =
+                value.LastIndexOf(
+                    '_');
+
+            if (separator >= 0 &&
+                separator <
+                value.Length - 1)
+            {
+                string suffix =
+                    value.Substring(
+                        separator + 1);
+
+                if (suffix.Length == 8)
+                {
+                    bool hexadecimal =
+                        true;
+
+                    for (int i = 0;
+                         i < suffix.Length;
+                         i++)
+                    {
+                        char character =
+                            suffix[i];
+
+                        if (!Uri.IsHexDigit(
+                                character))
+                        {
+                            hexadecimal =
+                                false;
+                            break;
+                        }
+                    }
+
+                    if (hexadecimal)
+                    {
+                        value =
+                            value.Substring(
+                                0,
+                                separator);
+                    }
+                }
+            }
+
+            var buffer =
+                new System.Text.StringBuilder(
+                    value.Length);
+
+            for (int i = 0;
+                 i < value.Length;
+                 i++)
+            {
+                char character =
+                    char.ToLowerInvariant(
+                        value[i]);
+
+                if (char.IsLetterOrDigit(
+                        character))
+                {
+                    buffer.Append(
+                        character);
+                }
+            }
+
+            return
+                buffer.ToString();
         }
 
         private static void DisableLegacyFcgDayNight()
@@ -421,6 +639,10 @@ namespace MotorCity.World
                 cityReflectionProbes.Add(
                     probe);
             }
+
+            // ViaScripting probes do not contain a usable city capture until
+            // RenderProbe() is explicitly requested at least once.
+            RefreshCityReflectionProbes();
         }
 
         public static void RefreshCityReflectionProbes()
