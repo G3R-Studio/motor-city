@@ -104,7 +104,7 @@ public static class AmgGTVehicleImporter
         Material bodyMaterial =
             BuildMaterial(
                 "AmgGTBody",
-                new Color(0.68f, 0.07f, 0.055f, 1f),
+                Color.white,
                 0.72f,
                 false);
 
