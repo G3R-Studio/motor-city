@@ -1099,20 +1099,21 @@ public static class FantasticCityGeneratorUrpFixer
             IsCutoutFoliageMaterialName(
                 source.name);
 
+        bool architecturalGlass =
+            IsOpaqueArchitecturalGlassMaterialName(
+                source.name);
+
         bool nightEmissive =
+            !architecturalGlass &&
             IsNightEmissionMaterialName(
                 source.name);
 
         Shader targetShader =
-            nightEmissive
+            foliage
                 ? Shader.Find(
-                      "MotorCity/NightEmissive") ??
+                      "MotorCity/TwoSidedFoliage") ??
                   urpLit
-                : foliage
-                    ? Shader.Find(
-                          "MotorCity/TwoSidedFoliage") ??
-                      urpLit
-                    : urpLit;
+                : urpLit;
 
         Material material =
             AssetDatabase.LoadAssetAtPath<Material>(
@@ -1153,9 +1154,15 @@ public static class FantasticCityGeneratorUrpFixer
             source,
             material);
 
-        CopyEmission(
-            source,
-            material);
+        if (!architecturalGlass)
+        {
+            if (!architecturalGlass)
+            {
+                CopyEmission(
+                    source,
+                    material);
+            }
+        }
 
         CopySurfaceValues(
             source,
@@ -1183,7 +1190,12 @@ public static class FantasticCityGeneratorUrpFixer
                 material);
         }
 
-        if (nightEmissive)
+        if (architecturalGlass)
+        {
+            ConfigurePlainArchitecturalGlass(
+                material);
+        }
+        else if (nightEmissive)
         {
             ConfigureNightEmissionMaterial(
                 source,
@@ -2107,20 +2119,21 @@ public static class FantasticCityGeneratorUrpFixer
             IsCutoutFoliageMaterialName(
                 generatedName);
 
+        bool architecturalGlass =
+            IsOpaqueArchitecturalGlassMaterialName(
+                generatedName);
+
         bool nightEmissive =
+            !architecturalGlass &&
             IsNightEmissionMaterialName(
                 generatedName);
 
         Shader targetShader =
-            nightEmissive
+            foliage
                 ? Shader.Find(
-                      "MotorCity/NightEmissive") ??
+                      "MotorCity/TwoSidedFoliage") ??
                   urpLit
-                : foliage
-                    ? Shader.Find(
-                          "MotorCity/TwoSidedFoliage") ??
-                      urpLit
-                    : urpLit;
+                : urpLit;
 
         material.shader =
             targetShader;
@@ -2168,7 +2181,12 @@ public static class FantasticCityGeneratorUrpFixer
                 source,
                 material);
 
-            if (nightEmissive)
+            if (architecturalGlass)
+            {
+                ConfigurePlainArchitecturalGlass(
+                    material);
+            }
+            else if (nightEmissive)
             {
                 ConfigureNightEmissionMaterial(
                     source,
@@ -3045,6 +3063,50 @@ public static class FantasticCityGeneratorUrpFixer
         return
             FindOriginalFcgMaterial(
                 nightName);
+    }
+
+    private static void ConfigurePlainArchitecturalGlass(
+        Material material)
+    {
+        if (material == null)
+            return;
+
+        if (material.HasProperty("_Surface"))
+            material.SetFloat("_Surface", 0f);
+
+        if (material.HasProperty("_Blend"))
+            material.SetFloat("_Blend", 0f);
+
+        if (material.HasProperty("_SrcBlend"))
+            material.SetFloat("_SrcBlend", 1f);
+
+        if (material.HasProperty("_DstBlend"))
+            material.SetFloat("_DstBlend", 0f);
+
+        if (material.HasProperty("_ZWrite"))
+            material.SetFloat("_ZWrite", 1f);
+
+        if (material.HasProperty("_Metallic"))
+            material.SetFloat("_Metallic", 0f);
+
+        if (material.HasProperty("_Smoothness"))
+            material.SetFloat("_Smoothness", 0.05f);
+
+        if (material.HasProperty("_EnvironmentReflections"))
+            material.SetFloat("_EnvironmentReflections", 0f);
+
+        if (material.HasProperty("_SpecularHighlights"))
+            material.SetFloat("_SpecularHighlights", 0f);
+
+        if (material.HasProperty("_EmissionColor"))
+            material.SetColor("_EmissionColor", Color.black);
+
+        material.DisableKeyword("_EMISSION");
+        material.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        material.DisableKeyword("_ALPHABLEND_ON");
+        material.SetOverrideTag("RenderType", "Opaque");
+        material.renderQueue = (int)RenderQueue.Geometry;
     }
 
     private static void ConfigureNightEmissionMaterial(
