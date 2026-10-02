@@ -1029,8 +1029,8 @@ public static class FantasticCityGeneratorUrpFixer
         }
 
         material.name =
-            Path.GetFileNameWithoutExtension(
-                path);
+            "FCG_" +
+            source.name;
 
         material.enableInstancing =
             true;
@@ -1066,12 +1066,6 @@ public static class FantasticCityGeneratorUrpFixer
         ConfigureSurfaceType(
             source,
             material);
-
-        if (foliage)
-        {
-            ConfigureFoliageFallback(
-                material);
-        }
 
         if (nightEmissive)
         {
@@ -1675,10 +1669,6 @@ public static class FantasticCityGeneratorUrpFixer
             IsCutoutFoliageMaterialName(
                 materialName);
 
-        bool architecturalGlass =
-            IsOpaqueArchitecturalGlassMaterialName(
-                materialName);
-
         bool cutout =
             (foliage &&
              HasUsableAlphaTexture(destination)) ||
@@ -1696,7 +1686,6 @@ public static class FantasticCityGeneratorUrpFixer
                 2.5f;
 
         bool transparent =
-            !architecturalGlass &&
             !cutout &&
             (shaderName.IndexOf(
                  "transparent",
@@ -1836,43 +1825,6 @@ public static class FantasticCityGeneratorUrpFixer
             destination.SetFloat(
                 "_ZWrite",
                 1f);
-
-        if (architecturalGlass)
-        {
-            if (destination.HasProperty(
-                    "_BaseColor"))
-            {
-                Color color =
-                    destination.GetColor(
-                        "_BaseColor");
-
-                color.a = 1f;
-
-                destination.SetColor(
-                    "_BaseColor",
-                    color);
-            }
-
-            if (destination.HasProperty(
-                    "_Color"))
-            {
-                Color color =
-                    destination.GetColor(
-                        "_Color");
-
-                color.a = 1f;
-
-                destination.SetColor(
-                    "_Color",
-                    color);
-            }
-        }
-
-        destination.DisableKeyword(
-            "_ALPHAPREMULTIPLY_ON");
-
-        destination.DisableKeyword(
-            "_ALPHABLEND_ON");
 
         destination.SetOverrideTag(
             "RenderType",
@@ -2973,25 +2925,6 @@ public static class FantasticCityGeneratorUrpFixer
                 "_EmissionStrength",
                 strength);
         }
-    }
-
-    private static bool IsOpaqueArchitecturalGlassMaterialName(
-        string materialName)
-    {
-        string normalized =
-            NormalizeMaterialName(
-                materialName);
-
-        if (string.IsNullOrWhiteSpace(
-                normalized))
-            return false;
-
-        return
-            normalized == "glass01" ||
-            normalized.StartsWith(
-                "winglass") ||
-            normalized == "wins" ||
-            normalized == "wins02";
     }
 
     private static bool IsCutoutFoliageMaterialName(
