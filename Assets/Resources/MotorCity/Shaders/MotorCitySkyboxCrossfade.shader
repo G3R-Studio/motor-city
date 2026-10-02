@@ -55,6 +55,7 @@ Shader "MotorCity/SkyboxCrossfade"
             float4 _MotorCityMoonDirection;
             half4 _MotorCitySunDiscColor;
             half4 _MotorCityMoonDiscColor;
+            float _MotorCityCloudTime;
 
             float3 RotateAroundYInDegrees(
                 float3 direction,
@@ -209,9 +210,9 @@ Shader "MotorCity/SkyboxCrossfade"
                 sky += _MotorCityMoonDiscColor.rgb * moonDisc * lunarDetail * horizon;
 
                 // A world-oriented cloud layer: turning the camera does not move
-                // the clouds. Wind drifts continuously, independently of day length.
+                // the clouds. Wind uses the day/night controller's scaled clock.
                 float2 cloudPoint = viewRay.xz * 2.8 / max(viewRay.y + 0.12, 0.12);
-                cloudPoint += _Time.y * float2(0.018, 0.007);
+                cloudPoint += _MotorCityCloudTime * float2(0.018, 0.007);
                 float density = CloudDensity(cloudPoint);
                 float coverage = CloudNoise(cloudPoint * 0.32 + float2(31.2, 7.8));
                 float edge = 0.48 + (coverage - 0.5) * 0.16;

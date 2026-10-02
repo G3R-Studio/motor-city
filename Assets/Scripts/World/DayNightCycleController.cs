@@ -73,6 +73,8 @@ namespace MotorCity.World
         private Material lastReflectionSkybox;
 
         private float time01;
+        private double cloudTimeSeconds;
+        private static readonly int CloudTimeShaderId = Shader.PropertyToID("_MotorCityCloudTime");
         private float environmentUpdateTimer;
         private float lampUpdateTimer;
         private float observerResolveTimer;
@@ -190,6 +192,8 @@ namespace MotorCity.World
                     1f);
 
             BuildRuntimeSkyboxes();
+            cloudTimeSeconds = 0.0;
+            Shader.SetGlobalFloat(CloudTimeShaderId, 0f);
             BuildCityPostProcessing();
 
             MotorCityQualityRuntime.PresetChanged -=
@@ -215,12 +219,17 @@ namespace MotorCity.World
             if (!initialized)
                 return;
 
+            // Accumulate scaled time so changing speed never jumps cloud positions.
+            float worldDeltaTime = Time.deltaTime * TimeSpeed;
+            cloudTimeSeconds += worldDeltaTime;
+            Shader.SetGlobalFloat(CloudTimeShaderId, (float)cloudTimeSeconds);
+
             if (fullCycleSeconds > 0.1f)
             {
                 time01 =
                     Mathf.Repeat(
                         time01 +
-                        Time.deltaTime * TimeSpeed /
+                        worldDeltaTime /
                         fullCycleSeconds,
                         1f);
             }
