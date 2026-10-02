@@ -540,8 +540,27 @@ namespace MotorCity.World
                 }
             }
 
-            return
+            string key =
                 buffer.ToString();
+
+            return
+                key switch
+                {
+                    "winsnight" =>
+                        "wins",
+                    "wins02night" =>
+                        "wins02",
+                    "winglass01night" =>
+                        "winglass01",
+                    "winglass01dn" =>
+                        "winglass01d",
+                    "winglass03night" =>
+                        "winglass03",
+                    "winglass04night" =>
+                        "winglass04",
+                    _ =>
+                        key
+                };
         }
 
         private static void DisableLegacyFcgDayNight()
