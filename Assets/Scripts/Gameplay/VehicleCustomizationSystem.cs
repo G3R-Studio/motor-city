@@ -879,7 +879,7 @@ namespace MotorCity.Gameplay
                 centerZ = (minAxle + maxAxle) * .5f;
                 span = maxAxle - minAxle;
             }
-            for (int end = -1; end <= 1; end += 2)
+            for (int end = -1; end <= 1; end++)
             {
                 GameObject lightObject = new("Underglow Light " + end);
                 lightObject.transform.SetParent(cosmeticsRoot.transform, false);
@@ -890,11 +890,13 @@ namespace MotorCity.Gameplay
                 lightObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
                 Light light = lightObject.AddComponent<Light>();
                 light.type = LightType.Spot;
-                light.spotAngle = 160f;
-                light.innerSpotAngle = 105f;
+                light.spotAngle = 165f;
+                light.innerSpotAngle = 140f;
                 light.color = color;
                 light.range = Mathf.Clamp(bounds.size.z * 1.25f, 4f, 7f);
-                light.intensity = 1.4f;
+                // Overlapping broad cones fill the chassis length. Keep the
+                // middle source weaker because both end sources also reach it.
+                light.intensity = end == 0 ? .65f : 1.05f;
                 light.shadows = LightShadows.None;
                 light.renderMode = LightRenderMode.ForcePixel;
             }
