@@ -44,14 +44,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 0.58
-    - _AuthoredCubeStrength: 0.22
+    - _AuthoredCubeStrength: 0
     - _DayGlassLift: 0.28
     - _EmissionStrength: 3.2
-    - _FresnelStrength: 0.72
+    - _FresnelStrength: 0.32
     - _NightGlassLift: 0.1
-    - _ReflectionStrength: 0.62
-    - _Roughness: 0.3
-    - _SpecularStrength: 0.18
+    - _ReflectionStrength: 0.14
+    - _Roughness: 0.58
+    - _SpecularStrength: 0.06
     m_Colors:
     - _BaseColor: {r: 0.45283014, g: 0.45283014, b: 0.45283014, a: 0.92941177}
     - _DayGlassTint: {r: 0.19, g: 0.19, b: 0.19, a: 1}
