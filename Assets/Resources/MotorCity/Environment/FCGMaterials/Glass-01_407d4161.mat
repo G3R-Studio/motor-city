@@ -96,7 +96,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _ProbeDebug: 1
+    - _ProbeDebug: 0
     - _SpecularStrength: 0.06
     - _Roughness: 0.28
     - _ReflectionStrength: 0.52
