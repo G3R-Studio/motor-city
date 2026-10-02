@@ -718,15 +718,7 @@ namespace MotorCity.World
                     ReflectionProbeTimeSlicingMode.IndividualFaces;
 
                 probe.resolution =
-                    MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset switch
-                    {
-                        MotorCity.Platform.MotorCityQualityPreset.High =>
-                            128,
-                        MotorCity.Platform.MotorCityQualityPreset.Medium =>
-                            64,
-                        _ =>
-                            32
-                    };
+                    CurrentCityReflectionProbeResolution();
 
                 probe.size =
                     size;
@@ -773,6 +765,20 @@ namespace MotorCity.World
             RefreshCityReflectionProbes();
         }
 
+        private static int CurrentCityReflectionProbeResolution()
+        {
+            return
+                MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCity.Platform.MotorCityQualityPreset.High =>
+                        128,
+                    MotorCity.Platform.MotorCityQualityPreset.Medium =>
+                        64,
+                    _ =>
+                        32
+                };
+        }
+
         public static void RefreshCityReflectionProbes()
         {
             for (int i = 0;
@@ -786,6 +792,16 @@ namespace MotorCity.World
                     !probe.isActiveAndEnabled)
                 {
                     continue;
+                }
+
+                int targetResolution =
+                    CurrentCityReflectionProbeResolution();
+
+                if (probe.resolution !=
+                    targetResolution)
+                {
+                    probe.resolution =
+                        targetResolution;
                 }
 
                 probe.RenderProbe();
