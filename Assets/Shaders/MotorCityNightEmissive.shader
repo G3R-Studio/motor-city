@@ -9,16 +9,16 @@ Shader "MotorCity/NightEmissive"
         _BumpScale("Normal Strength", Range(0,2)) = 0.75
         [HDR] _EmissionColor("Emission Color", Color) = (1.0,0.62,0.28,1)
         _EmissionStrength("Emission Strength", Range(0,8)) = 2.6
-        _DayGlassTint("Day Glass Tint", Color) = (0.20,0.205,0.21,1)
-        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.32
+        _DayGlassTint("Day Glass Tint", Color) = (0.18,0.185,0.19,1)
+        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.38
         _NightGlassTint("Night Glass Tint", Color) = (0.04,0.045,0.05,1)
-        _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.16
-        _Roughness("Glass Roughness", Range(0.04,1)) = 0.28
-        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.55
+        _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.14
+        _Roughness("Glass Roughness", Range(0.04,1)) = 0.36
+        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.38
         [NoScaleOffset] _ReflectionCube("FCG Reflection Cube", Cube) = "" {}
         _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.00
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 1.00
-        _SpecularStrength("Sun Specular", Range(0,1)) = 0.12
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.65
+        _SpecularStrength("Sun Specular", Range(0,1)) = 0.08
     }
 
     SubShader
@@ -257,10 +257,8 @@ Shader "MotorCity/NightEmissive"
                     lerp(
                         _DayGlassTint.rgb,
                         authoredGlass,
-                        max(
-                            saturate(
-                                _DayGlassLift),
-                            0.32h));
+                        saturate(
+                            _DayGlassLift));
 
                 dayGlass *=
                     lerp(
@@ -272,10 +270,8 @@ Shader "MotorCity/NightEmissive"
                     lerp(
                         _NightGlassTint.rgb,
                         authoredGlass * 0.10h,
-                        max(
-                            saturate(
-                                _NightGlassLift),
-                            0.16h));
+                        saturate(
+                            _NightGlassLift));
 
                 half3 glassBase =
                     lerp(
@@ -309,10 +305,8 @@ Shader "MotorCity/NightEmissive"
                     lerp(
                         0.04h,
                         physicalFresnel,
-                        max(
-                            saturate(
-                                _FresnelStrength),
-                            1.0h));
+                        saturate(
+                            _FresnelStrength));
 
                 half3 reflectionDir =
                     reflect(
@@ -320,10 +314,8 @@ Shader "MotorCity/NightEmissive"
                         normalWS);
 
                 half roughness =
-                    min(
-                        saturate(
-                            _Roughness),
-                        0.28h);
+                    saturate(
+                        _Roughness);
 
                 float2 normalizedScreenSpaceUV =
                     GetNormalizedScreenSpaceUV(
@@ -356,9 +348,8 @@ Shader "MotorCity/NightEmissive"
                             _AuthoredCubeStrength));
 
                 half reflectionEnergy =
-                    max(
-                        _ReflectionStrength,
-                        0.55h) *
+                    saturate(
+                        _ReflectionStrength) *
                     lerp(
                         1.0h,
                         0.72h,
@@ -395,9 +386,8 @@ Shader "MotorCity/NightEmissive"
                     pow(
                         ndoth,
                         specularPower) *
-                    max(
-                        _SpecularStrength,
-                        0.12h) *
+                    saturate(
+                        _SpecularStrength) *
                     lerp(
                         1.0h,
                         0.45h,
