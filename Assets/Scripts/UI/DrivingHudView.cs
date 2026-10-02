@@ -274,18 +274,28 @@ namespace MotorCity.UI
             speedNeedleGlow = null;
 
             RectTransform dial = CreatePanel(panel, "Speed Readout",
-                new Vector2(0f, 50f), new Vector2(238f, 104f),
+                new Vector2(0f, 88f), new Vector2(238f, 104f),
                 new Vector2(.5f, 0f), new Vector2(.5f, 0f), Color.clear);
-            ApplyReferenceHudSurface(dial);
+            ClearPanelChrome(dial);
             speedText = CreateText(dial, "Speed", 42, FontStyle.Bold,
                 TextAnchor.MiddleCenter, Vector2.zero, new Vector2(216f, 74f),
                 new Vector2(.5f, .5f), new Vector2(.5f, .5f), Color.white);
             speedText.resizeTextForBestFit = false;
             speedText.verticalOverflow = VerticalWrapMode.Overflow;
-            speedText.text = "0 " + MotorCityLocalization.Text("common.kmh");
+            speedText.alignment = TextAnchor.MiddleRight;
+            speedText.alignByGeometry = false;
+            speedText.rectTransform.anchoredPosition = new Vector2(-46f, 0f);
+            speedText.rectTransform.sizeDelta = new Vector2(130f, 74f);
+            speedText.text = "0";
+            Text speedUnit = CreateText(dial, "Speed Unit", 23, FontStyle.Bold,
+                TextAnchor.MiddleLeft, new Vector2(28f, 0f), new Vector2(95f, 42f),
+                new Vector2(.5f, .5f), new Vector2(.5f, .5f), GarageReferenceLilac);
+            speedUnit.text = MotorCityLocalization.Text("common.kmh");
+            speedUnit.alignByGeometry = false;
+            speedUnit.resizeTextForBestFit = false;
 
             RectTransform mode = CreatePanel(panel, "Drive Mode Indicator",
-                new Vector2(0f, 8f), new Vector2(172f, 34f),
+                new Vector2(0f, 44f), new Vector2(172f, 38f),
                 new Vector2(.5f, 0f), new Vector2(.5f, 0f), Color.clear);
             ApplyReferenceHudSurface(mode);
             driveModeText = CreateText(mode, "Drive Mode", 15, FontStyle.Bold,

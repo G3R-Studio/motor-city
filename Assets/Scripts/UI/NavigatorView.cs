@@ -9,6 +9,7 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
+        private float minimapRouteOpacity;
         private void CloseNavigatorMenuVisualOnly()
         {
             SetNavigatorMenuOpen(
@@ -1000,6 +1001,7 @@ namespace MotorCity.UI
             if (!fixedRoadRouteValid ||
                 fixedRoadRoute.Count < 2)
             {
+                HideRouteDots();
                 return;
             }
 
@@ -1056,7 +1058,7 @@ namespace MotorCity.UI
                         1,
                         Mathf.CeilToInt(
                             length /
-                            12f));
+                            3f));
 
                 for (int step = 0;
                      step <= steps &&
@@ -1113,8 +1115,15 @@ namespace MotorCity.UI
                             true);
                     }
 
-                    dot.anchoredPosition =
-                        offset;
+                    dot.anchoredPosition = offset;
+                    Image routeImage = dot.GetComponent<Image>();
+                    float distance = offset.magnitude;
+                    float nearFade = Mathf.SmoothStep(0f, 1f, distance / 9f);
+                    float edgeFade = Mathf.SmoothStep(0f, 1f, (markerRadius - distance) / 9f);
+                    Color routeColor = routeImage.color;
+                    routeColor.a = Mathf.MoveTowards(routeColor.a, nearFade * edgeFade * minimapRouteOpacity * 0.96f,
+                        Time.unscaledDeltaTime * 4f);
+                    routeImage.color = routeColor;
 
                     if (reachedEdge)
                         break;
@@ -1122,7 +1131,6 @@ namespace MotorCity.UI
             }
 
             for (int i = placed;
-                 i < visibleRouteDotCount &&
                  i < minimapRouteDots.Length;
                  i++)
             {
@@ -1132,8 +1140,11 @@ namespace MotorCity.UI
                 if (dot != null &&
                     dot.gameObject.activeSelf)
                 {
-                    dot.gameObject.SetActive(
-                        false);
+                    Image routeImage = dot.GetComponent<Image>();
+                    Color routeColor = routeImage.color;
+                    routeColor.a = Mathf.MoveTowards(routeColor.a, 0f, Time.unscaledDeltaTime * 4f);
+                    routeImage.color = routeColor;
+                    if (routeColor.a <= 0f) dot.gameObject.SetActive(false);
                 }
             }
 
@@ -1161,6 +1172,14 @@ namespace MotorCity.UI
             if (!targetChanged &&
                 !offRoute)
             {
+                minimapRouteOpacity = Mathf.MoveTowards(minimapRouteOpacity, 1f, Time.unscaledDeltaTime * 4f);
+                return;
+            }
+
+            // Fade the old route before replacing its geometry on a detour.
+            if (fixedRoadRouteValid && minimapRouteOpacity > 0f)
+            {
+                minimapRouteOpacity = Mathf.MoveTowards(minimapRouteOpacity, 0f, Time.unscaledDeltaTime * 4f);
                 return;
             }
 
@@ -1330,10 +1349,8 @@ namespace MotorCity.UI
 
         private void HideRouteDots()
         {
-            int count =
-                Mathf.Min(
-                    visibleRouteDotCount,
-                    minimapRouteDots.Length);
+            int count = minimapRouteDots.Length;
+            minimapRouteOpacity = 0f;
 
             for (int i = 0;
                  i < count;
@@ -1345,8 +1362,11 @@ namespace MotorCity.UI
                 if (dot != null &&
                     dot.gameObject.activeSelf)
                 {
-                    dot.gameObject.SetActive(
-                        false);
+                    Image routeImage = dot.GetComponent<Image>();
+                    Color routeColor = routeImage.color;
+                    routeColor.a = Mathf.MoveTowards(routeColor.a, 0f, Time.unscaledDeltaTime * 4f);
+                    routeImage.color = routeColor;
+                    if (routeColor.a <= 0f) dot.gameObject.SetActive(false);
                 }
             }
 
@@ -1556,7 +1576,7 @@ namespace MotorCity.UI
             navigatorPanel =
                 panel.gameObject;
 
-            ApplyReferenceHudSurface(panel);
+            ClearPanelChrome(panel);
 
             minimapMaskSprite =
                 CreateCircularMinimapSprite(
@@ -1734,6 +1754,7 @@ namespace MotorCity.UI
                 Image dotImage =
                     dot.GetComponent<Image>();
 
+                dotImage.sprite = minimapMaskSprite;
                 dotImage.color =
                     new Color(
                         0.16f,
@@ -1743,6 +1764,7 @@ namespace MotorCity.UI
                 dotImage.raycastTarget =
                     false;
 
+                dotImage.color = new Color(.16f, .82f, 1f, 0f);
                 dot.SetActive(false);
                 minimapRouteDots[i] =
                     dotRect;
@@ -1828,9 +1850,7 @@ namespace MotorCity.UI
                         0f),
                     Color.clear);
 
-            ApplyVillePanelTexture(
-                targetStrip,
-                0.96f);
+            ClearPanelChrome(targetStrip);
 
             minimapTargetText =
                 CreateText(
@@ -1853,10 +1873,11 @@ namespace MotorCity.UI
 
             minimapTargetText.resizeTextForBestFit =
                 true;
+            minimapTargetText.fontSize = 18;
             minimapTargetText.resizeTextMinSize =
-                8;
+                16;
             minimapTargetText.resizeTextMaxSize =
-                11;
+                18;
             minimapTargetText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             minimapTargetText.verticalOverflow =
@@ -2124,8 +2145,7 @@ namespace MotorCity.UI
                     markerRadius;
             }
 
-            minimapRouteUpdateTimer -=
-                Time.unscaledDeltaTime;
+            minimapRouteUpdateTimer = 0f;
 
             if (minimapRouteUpdateTimer <= 0f)
             {

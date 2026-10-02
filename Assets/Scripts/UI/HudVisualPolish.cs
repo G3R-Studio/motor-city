@@ -186,7 +186,7 @@ namespace MotorCity.UI
                 minimapTarget.sizeDelta =
                     new Vector2(
                         lastTouchLayout ? 124f : 132f,
-                        lastTouchLayout ? 25f : 27f);
+                        lastTouchLayout ? 34f : 36f);
 
                 minimapTarget.anchoredPosition =
                     Vector2.zero;
@@ -746,14 +746,14 @@ namespace MotorCity.UI
                         11,
                         Mathf.RoundToInt(
                             text.fontSize * 0.78f));
+            text.resizeTextMinSize = Mathf.Max(15, text.resizeTextMinSize);
             text.resizeTextMaxSize =
                 text.fontSize;
             text.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             text.verticalOverflow =
                 VerticalWrapMode.Truncate;
-            text.alignByGeometry =
-                true;
+            text.alignByGeometry = false;
             text.lineSpacing =
                 1f;
 

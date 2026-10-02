@@ -187,7 +187,7 @@ namespace MotorCity.UI
         private RectTransform minimapPlayerArrow;
         private Text minimapTargetText;
         private readonly RectTransform[] minimapRouteDots =
-            new RectTransform[36];
+            new RectTransform[128];
         private int visibleRouteDotCount;
         private readonly List<Vector3> fixedRoadRoute =
             new();
@@ -759,26 +759,11 @@ namespace MotorCity.UI
                 Mathf.RoundToInt(
                     speed);
 
-            if (roundedSpeed !=
-                    lastDisplayedSpeed ||
-                speedText != null &&
-                !speedText.text.EndsWith(
-                    MotorCityLocalization.Text(
-                        "common.kmh")))
+            if (roundedSpeed != lastDisplayedSpeed && speedText != null)
             {
-                lastDisplayedSpeed =
-                    roundedSpeed;
-
-                if (speedText != null)
-                {
-                    speedText.text =
-                        roundedSpeed.ToString() +
-                        " " +
-                        MotorCityLocalization.Text(
-                            "common.kmh");
-                }
+                lastDisplayedSpeed = roundedSpeed;
+                speedText.text = roundedSpeed.ToString();
             }
-
             if (speedNeedle != null)
             {
                 float normalizedSpeed =

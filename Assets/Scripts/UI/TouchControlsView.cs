@@ -461,8 +461,8 @@ namespace MotorCity.UI
                 "HUD Drive Mode",
                 "touch.utility.mode",
                 MotorCityInputAction.CycleDriveMode,
-                new Vector2(142f, 38f),
-                new Vector2(96f, 44f));
+                new Vector2(0f, 20f),
+                new Vector2(172f, 38f));
 
             GameObject railObject =
                 new(

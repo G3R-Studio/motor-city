@@ -244,6 +244,18 @@ namespace MotorCity.UI
 
         private void ApplyDrivingHudReferenceStyle(Transform root)
         {
+            foreach (Text label in root.GetComponentsInChildren<Text>(true))
+            {
+                bool garageLabel = false;
+                for (Transform current = label.transform; current != null; current = current.parent)
+                    if (current.name == "Garage Overlay") { garageLabel = true; break; }
+                if (garageLabel) continue;
+                label.fontSize = Mathf.Max(15, label.fontSize);
+                label.resizeTextMinSize = 15;
+                label.resizeTextMaxSize = label.fontSize;
+                label.alignByGeometry = false;
+                label.verticalOverflow = VerticalWrapMode.Overflow;
+            }
             foreach (RectTransform panel in root.GetComponentsInChildren<RectTransform>(true))
                 if (panel.name == "Season Panel" || panel.name == "Character Portrait Frame"
                     || panel.name == "Navigator Destination Card" || panel.name == "Navigator Icon Plate")
@@ -361,6 +373,8 @@ namespace MotorCity.UI
             Text text =
                 go.GetComponent<Text>();
 
+            fontSize = Mathf.Max(15, Mathf.RoundToInt(fontSize * 1.2f));
+            rect.sizeDelta = new Vector2(size.x, Mathf.Max(size.y, fontSize * 1.45f));
             bool useTrueBold =
                 fontStyle == FontStyle.Bold &&
                 boldFont != null;
@@ -377,7 +391,7 @@ namespace MotorCity.UI
             text.alignment = alignment;
             text.color = color;
             text.raycastTarget = false;
-            text.alignByGeometry = true;
+            text.alignByGeometry = false;
             text.lineSpacing = 1f;
 
             text.horizontalOverflow =
