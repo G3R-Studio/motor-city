@@ -421,6 +421,9 @@ namespace MotorCity.World
                             continue;
                     }
 
+                    if (architecturalGlass)
+                        FcgRuntimeGlassMaterialFactory.ConfigureReflections(replacement);
+
                     if (replacement == current)
                         continue;
 

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MotorCity.World
 {
-    internal static class FcgRuntimeGlassMaterialFactory
+    public static class FcgRuntimeGlassMaterialFactory
     {
         public static bool IsArchitecturalGlassKey(
             string key)
@@ -168,9 +168,21 @@ namespace MotorCity.World
             material.renderQueue =
                 (int)UnityEngine.Rendering.RenderQueue.Geometry;
 
+            ConfigureReflections(material);
             return material;
         }
 
+        public static void ConfigureReflections(Material material)
+        {
+            if (material == null) return;
+            if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", .30f);
+            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", .88f);
+            if (material.HasProperty("_BumpScale")) material.SetFloat("_BumpScale", .12f);
+            if (material.HasProperty("_EnvironmentReflections")) material.SetFloat("_EnvironmentReflections", 1f);
+            if (material.HasProperty("_SpecularHighlights")) material.SetFloat("_SpecularHighlights", 1f);
+            material.DisableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
+            material.DisableKeyword("_SPECULARHIGHLIGHTS_OFF");
+        }
         private static Texture GetFirstTexture(
             Material material,
             params string[] properties)

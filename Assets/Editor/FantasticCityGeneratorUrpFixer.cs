@@ -3107,6 +3107,7 @@ public static class FantasticCityGeneratorUrpFixer
         material.DisableKeyword("_ALPHABLEND_ON");
         material.SetOverrideTag("RenderType", "Opaque");
         material.renderQueue = (int)RenderQueue.Geometry;
+        MotorCity.World.FcgRuntimeGlassMaterialFactory.ConfigureReflections(material);
     }
 
     private static void ConfigureNightEmissionMaterial(

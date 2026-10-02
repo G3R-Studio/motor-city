@@ -55,19 +55,19 @@ Material:
     - _AlphaClip: 0
     - _AuthoredCubeStrength: 0
     - _Blend: 0
-    - _BumpScale: 0.35
+    - _BumpScale: 0.12
     - _DayGlassLift: 0.32
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EmissionStrength: 3.2
-    - _EnvironmentReflections: 0
+    - _EnvironmentReflections: 1
     - _FresnelStrength: 0
-    - _Metallic: 0
+    - _Metallic: 0.3
     - _NightGlassLift: 0.12
     - _ReflectionStrength: 0
     - _Roughness: 0.58
-    - _Smoothness: 0.05
-    - _SpecularHighlights: 0
+    - _Smoothness: 0.88
+    - _SpecularHighlights: 1
     - _SpecularStrength: 0
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
