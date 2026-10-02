@@ -698,7 +698,7 @@ namespace MotorCity.World
                         ResolveBaseTexture(
                             source);
 
-                    if (hybridWhiteLamp) texture = Texture2D.whiteTexture;
+
                     if (texture == null)
                         continue;
 
