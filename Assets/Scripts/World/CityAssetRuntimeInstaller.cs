@@ -1003,9 +1003,22 @@ namespace MotorCity.World
                     probe.resolution =
                         targetResolution;
                 }
-
-                probe.RenderProbe();
             }
+
+            if (activeCity == null)
+                return;
+
+            CityReflectionProbeCaptureRunner runner =
+                activeCity.GetComponent<CityReflectionProbeCaptureRunner>();
+
+            if (runner == null)
+            {
+                runner =
+                    activeCity.AddComponent<CityReflectionProbeCaptureRunner>();
+            }
+
+            runner.Capture(
+                cityReflectionProbes);
         }
 
         private static void InstallGarageInterior()
