@@ -300,18 +300,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -7635826562936255635, guid: 3d5ae40573c095c4dac2239c0232054f, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: cf4b14fa9da0d654c9a15c4a2c7c4c5d, type: 2}
-    - target: {fileID: -7635826562936255635, guid: 3d5ae40573c095c4dac2239c0232054f, type: 3}
-      propertyPath: 'm_Materials.Array.data[1]'
-      value: 
-      objectReference: {fileID: 2100000, guid: dcc24c5809516914b86d159573897c25, type: 2}
-    - target: {fileID: -7635826562936255635, guid: 3d5ae40573c095c4dac2239c0232054f, type: 3}
-      propertyPath: 'm_Materials.Array.data[2]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 110a8f3d0fd89bf45a408d12e692566c, type: 2}
     - target: {fileID: 919132149155446097, guid: 3d5ae40573c095c4dac2239c0232054f, type: 3}
       propertyPath: m_Name
       value: AmgGT
