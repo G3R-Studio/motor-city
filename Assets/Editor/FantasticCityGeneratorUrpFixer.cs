@@ -1055,6 +1055,10 @@ public static class FantasticCityGeneratorUrpFixer
             source,
             material);
 
+        CopyReflectionCube(
+            source,
+            material);
+
         ConfigureMaterialAppearance(
             source,
             material);
@@ -1387,6 +1391,33 @@ public static class FantasticCityGeneratorUrpFixer
             MaterialGlobalIlluminationFlags.BakedEmissive;
     }
 
+    private static void CopyReflectionCube(
+        Material source,
+        Material destination)
+    {
+        if (source == null ||
+            destination == null ||
+            !source.HasProperty(
+                "_Cube") ||
+            !destination.HasProperty(
+                "_ReflectionCube"))
+        {
+            return;
+        }
+
+        Texture reflectionCube =
+            SafeGetTexture(
+                source,
+                "_Cube");
+
+        if (reflectionCube == null)
+            return;
+
+        destination.SetTexture(
+            "_ReflectionCube",
+            reflectionCube);
+    }
+
     private static void CopySurfaceValues(
         Material source,
         Material destination)
@@ -1513,7 +1544,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_SpecularStrength",
-                    0.24f);
+                    0.18f);
             }
 
             if (destination.HasProperty(
@@ -1521,7 +1552,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_FresnelStrength",
-                    0.42f);
+                    0.72f);
             }
 
             if (destination.HasProperty(
@@ -1529,7 +1560,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_Roughness",
-                    0.34f);
+                    0.30f);
             }
 
             if (destination.HasProperty(
@@ -1537,7 +1568,15 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_ReflectionStrength",
-                    0.30f);
+                    0.62f);
+            }
+
+            if (destination.HasProperty(
+                    "_AuthoredCubeStrength"))
+            {
+                destination.SetFloat(
+                    "_AuthoredCubeStrength",
+                    0.22f);
             }
 
             if (destination.HasProperty(
@@ -1990,6 +2029,10 @@ public static class FantasticCityGeneratorUrpFixer
                 material);
 
             CopySurfaceValues(
+                source,
+                material);
+
+            CopyReflectionCube(
                 source,
                 material);
 
