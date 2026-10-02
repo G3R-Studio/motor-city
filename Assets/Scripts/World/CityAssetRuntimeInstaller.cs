@@ -1097,8 +1097,7 @@ namespace MotorCity.World
         {
             if (garagePresentationLighting != null)
             {
-                garagePresentationLighting.SetActive(
-                    active);
+                garagePresentationLighting.SetActive(true);
             }
 
             ApplyGarageInteriorMood(
@@ -1426,249 +1425,54 @@ namespace MotorCity.World
             if (garageTransform == null)
                 return;
 
-            const string rigName =
-                "Garage Presentation Lighting";
-
-            Transform existing =
-                garageTransform.Find(
-                    rigName);
-
+            const string rigName = "Garage Presentation Lighting";
+            Transform existing = garageTransform.Find(rigName);
             if (existing != null)
             {
-                garagePresentationLighting =
-                    existing.gameObject;
-
-                garagePresentationLighting.SetActive(
-                    false);
-
-                return;
+                existing.gameObject.SetActive(false);
+                UnityEngine.Object.Destroy(existing.gameObject);
             }
 
-            garagePresentationLighting =
-                new GameObject(
-                    rigName);
-
-            garagePresentationLighting.transform.SetParent(
-                garageTransform,
-                false);
-
-            Vector3 vehicleLookPoint =
-                GarageVehiclePosition +
-                Vector3.up * 0.75f;
-
-            CreateGaragePresentationLight(
-                garagePresentationLighting.transform,
-                "Warm Key",
-                new Vector3(
-                    -0.85f,
-                    2.35f,
-                    1.10f),
-                vehicleLookPoint,
-                LightType.Spot,
-                new Color(
-                    1.00f,
-                    0.80f,
-                    0.60f),
-                8.25f,
-                9.5f,
-                60f,
-                true);
-
-            CreateGaragePresentationLight(
-                garagePresentationLighting.transform,
-                "Cyan Rim",
-                new Vector3(
-                    1.90f,
-                    1.55f,
-                    -0.45f),
-                vehicleLookPoint +
-                Vector3.up * 0.20f,
-                LightType.Spot,
-                new Color(
-                    0.10f,
-                    0.58f,
-                    1.00f),
-                2.35f,
-                7.0f,
-                54f,
-                false);
-
-            CreateGaragePresentationLight(
-                garagePresentationLighting.transform,
-                "Magenta Fill",
-                new Vector3(
-                    -1.70f,
-                    1.35f,
-                    -0.15f),
-                vehicleLookPoint +
-                Vector3.up * 0.10f,
-                LightType.Spot,
-                new Color(
-                    0.78f,
-                    0.12f,
-                    1.00f),
-                0.72f,
-                5.5f,
-                50f,
-                false);
-
-            // Background practical lights: they are intentionally soft and
-            // aimed away from the floor so the garage reads as a lit workshop
-            // instead of a uniformly white box.
-            CreateGaragePresentationLight(
-                garagePresentationLighting.transform,
-                "Rear Warm Practical",
-                new Vector3(
-                    -0.45f,
-                    2.30f,
-                    2.20f),
-                GarageVehiclePosition +
-                new Vector3(
-                    0f,
-                    1.20f,
-                    2.60f),
-                LightType.Spot,
-                new Color(
-                    1.00f,
-                    0.56f,
-                    0.28f),
-                1.75f,
-                6.5f,
-                64f,
-                false);
-
-            CreateGaragePresentationLight(
-                garagePresentationLighting.transform,
-                "Rear Cyan Practical",
-                new Vector3(
-                    2.10f,
-                    1.95f,
-                    1.85f),
-                GarageVehiclePosition +
-                new Vector3(
-                    0.65f,
-                    1.05f,
-                    2.10f),
-                LightType.Spot,
-                new Color(
-                    0.08f,
-                    0.42f,
-                    0.95f),
-                0.82f,
-                5.8f,
-                58f,
-                false);
-
-            CreateGaragePresentationLight(
-                garagePresentationLighting.transform,
-                "Ceiling Fill Left",
-                new Vector3(
-                    -1.15f,
-                    2.55f,
-                    0.35f),
-                GarageVehiclePosition +
-                new Vector3(
-                    -0.55f,
-                    0.25f,
-                    0.15f),
-                LightType.Spot,
-                new Color(
-                    0.90f,
-                    0.94f,
-                    1.00f),
-                1.20f,
-                6.0f,
-                78f,
-                false);
-
-            CreateGaragePresentationLight(
-                garagePresentationLighting.transform,
-                "Ceiling Fill Right",
-                new Vector3(
-                    1.10f,
-                    2.55f,
-                    0.45f),
-                GarageVehiclePosition +
-                new Vector3(
-                    0.55f,
-                    0.25f,
-                    0.10f),
-                LightType.Spot,
-                new Color(
-                    0.90f,
-                    0.94f,
-                    1.00f),
-                1.05f,
-                6.0f,
-                78f,
-                false);
-
-            garagePresentationLighting.SetActive(
-                false);
-        }
-
-        private static void CreateGaragePresentationLight(
-            Transform parent,
-            string name,
-            Vector3 localPosition,
-            Vector3 lookPoint,
-            LightType type,
-            Color color,
-            float intensity,
-            float range,
-            float spotAngle,
-            bool shadows)
-        {
-            GameObject lightObject =
-                new(
-                    name);
-
-            lightObject.transform.SetParent(
-                parent,
-                false);
-
-            lightObject.transform.localPosition =
-                localPosition;
-
-            if (type == LightType.Spot)
+            // Remove authored lights too: the interior has exactly one source.
+            foreach (Light oldLight in garageTransform.GetComponentsInChildren<Light>(true))
             {
-                Vector3 worldDirection =
-                    lookPoint -
-                    lightObject.transform.position;
-
-                if (worldDirection.sqrMagnitude >
-                    0.001f)
-                {
-                    lightObject.transform.rotation =
-                        Quaternion.LookRotation(
-                            worldDirection.normalized,
-                            Vector3.up);
-                }
+                oldLight.enabled = false;
+                UnityEngine.Object.Destroy(oldLight);
             }
 
-            Light light =
-                lightObject.AddComponent<Light>();
+            garagePresentationLighting = new GameObject(rigName);
+            garagePresentationLighting.transform.SetParent(garageTransform, false);
 
-            light.type =
-                type;
-            light.color =
-                color;
-            light.intensity =
-                intensity;
-            light.range =
-                range;
-            light.shadows =
-                shadows
-                    ? LightShadows.Soft
-                    : LightShadows.None;
+            Transform floor = FindChildByName(garageTransform, "Floor");
+            Transform ceiling = FindChildByName(garageTransform, "Ceiling");
+            Renderer floorRenderer = floor != null ? floor.GetComponent<Renderer>() : null;
+            Renderer ceilingRenderer = ceiling != null ? ceiling.GetComponent<Renderer>() : null;
+            Bounds roomBounds = floorRenderer != null
+                ? floorRenderer.bounds
+                : new Bounds(garageTransform.position, Vector3.one * 10f);
+            if (ceilingRenderer != null)
+                roomBounds.Encapsulate(ceilingRenderer.bounds);
 
-            if (type == LightType.Spot)
-            {
-                light.spotAngle =
-                    spotAngle;
-                light.innerSpotAngle =
-                    spotAngle * 0.58f;
-            }
+            // World-space dimensions account for the scaled garage prefab.
+            Vector3 lightPosition = roomBounds.center;
+            lightPosition.y = ceilingRenderer != null
+                ? ceilingRenderer.bounds.min.y - 0.35f
+                : roomBounds.max.y - 0.35f;
+            garagePresentationLighting.transform.position = lightPosition;
+
+            Light light = garagePresentationLighting.AddComponent<Light>();
+            light.type = LightType.Point;
+            light.lightmapBakeType = LightmapBakeType.Realtime;
+            light.color = new Color(1f, 0.94f, 0.85f);
+            light.range = Mathf.Max(12f, (roomBounds.extents + Vector3.up * roomBounds.extents.y).magnitude * 1.6f);
+            light.intensity = 4f;
+            light.cullingMask = ~0;
+            light.renderMode = LightRenderMode.ForcePixel;
+            light.shadows = LightShadows.Soft;
+            light.shadowStrength = 0.65f;
+            light.shadowBias = 0.03f;
+            light.shadowNormalBias = 0.2f;
+            light.enabled = true;
         }
 
         private static void InstallGarageReflectionProbe(
