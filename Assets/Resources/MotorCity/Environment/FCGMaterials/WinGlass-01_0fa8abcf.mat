@@ -47,10 +47,10 @@ Material:
     - _AuthoredCubeStrength: 0
     - _DayGlassLift: 0.28
     - _EmissionStrength: 3.58
-    - _FresnelStrength: 0.32
+    - _FresnelStrength: 0.36
     - _NightGlassLift: 0.1
-    - _ReflectionStrength: 0.14
-    - _Roughness: 0.58
+    - _ReflectionStrength: 0.2
+    - _Roughness: 0.48
     - _SpecularStrength: 0.06
     m_Colors:
     - _BaseColor: {r: 0.45283014, g: 0.45283014, b: 0.45283014, a: 0.92941177}
