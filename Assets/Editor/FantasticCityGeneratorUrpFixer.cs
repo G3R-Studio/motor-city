@@ -1542,7 +1542,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_SpecularStrength",
-                    0.07f);
+                    0.08f);
             }
 
             if (destination.HasProperty(
@@ -1550,7 +1550,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_FresnelStrength",
-                    0.38f);
+                    0.72f);
             }
 
             if (destination.HasProperty(
@@ -1558,7 +1558,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_Roughness",
-                    0.40f);
+                    0.36f);
             }
 
             if (destination.HasProperty(
@@ -1566,7 +1566,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_ReflectionStrength",
-                    0.26f);
+                    0.34f);
             }
 
             if (destination.HasProperty(
@@ -1583,9 +1583,9 @@ public static class FantasticCityGeneratorUrpFixer
                 destination.SetColor(
                     "_DayGlassTint",
                     new Color(
-                        0.19f,
-                        0.19f,
-                        0.19f,
+                        0.22f,
+                        0.225f,
+                        0.23f,
                         1f));
             }
         }
