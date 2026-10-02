@@ -1975,6 +1975,18 @@ public static class FantasticCityGeneratorUrpFixer
                 material);
         }
 
+        string generatedPath =
+            AssetDatabase.GetAssetPath(
+                material);
+
+        if (!string.IsNullOrWhiteSpace(
+                generatedPath))
+        {
+            material.name =
+                Path.GetFileNameWithoutExtension(
+                    generatedPath);
+        }
+
         material.enableInstancing =
             true;
 
