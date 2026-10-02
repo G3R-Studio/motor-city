@@ -19,6 +19,7 @@ Shader "MotorCity/NightEmissive"
         _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.00
         _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.72
         _SpecularStrength("Sun Specular", Range(0,1)) = 0.06
+        [Toggle] _ProbeDebug("Probe Debug", Float) = 0
     }
 
     SubShader
@@ -81,6 +82,7 @@ Shader "MotorCity/NightEmissive"
                 half _AuthoredCubeStrength;
                 half _FresnelStrength;
                 half _SpecularStrength;
+                half _ProbeDebug;
             CBUFFER_END
 
             float _MotorCityNightEmission;
@@ -410,6 +412,18 @@ Shader "MotorCity/NightEmissive"
                     sqrt(
                         saturate(
                             environmentReflection));
+
+                if (_ProbeDebug > 0.5h)
+                {
+                    half3 debugReflection =
+                        MixFog(
+                            shapedReflection,
+                            input.fogFactor);
+
+                    return half4(
+                        debugReflection,
+                        1.0h);
+                }
 
                 half3 color =
                     lerp(
