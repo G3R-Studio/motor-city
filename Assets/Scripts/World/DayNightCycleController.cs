@@ -69,6 +69,7 @@ namespace MotorCity.World
         private Material runtimeDaySkybox;
         private Material runtimeEveningSkybox;
         private Material runtimeNightSkybox;
+        private Material runtimeBlendedSkybox;
 
         private float time01;
         private float environmentUpdateTimer;
@@ -265,6 +266,10 @@ namespace MotorCity.World
                 Destroy(
                     runtimeNightSkybox);
 
+            if (runtimeBlendedSkybox != null)
+                Destroy(
+                    runtimeBlendedSkybox);
+
             if (cityPostFxProfile != null)
                 Destroy(cityPostFxProfile);
         }
@@ -362,6 +367,21 @@ namespace MotorCity.World
                 CloneSkybox(
                     settings.NightSkybox,
                     "Night");
+
+            Shader blendShader =
+                Shader.Find(
+                    "MotorCity/SkyboxCrossfade");
+
+            if (blendShader != null)
+            {
+                runtimeBlendedSkybox =
+                    new Material(
+                        blendShader)
+                    {
+                        name =
+                            "MotorCity_RuntimeSkyboxCrossfade"
+                    };
+            }
         }
 
         private static Material CloneSkybox(
@@ -772,6 +792,13 @@ namespace MotorCity.World
                 ResolveSkyboxForTime(
                     time01);
 
+            if (TryApplySkyboxBlend(
+                    time01))
+            {
+                targetSkybox =
+                    runtimeBlendedSkybox;
+            }
+
             if (targetSkybox != null &&
                 (force ||
                  RenderSettings.skybox !=
@@ -779,7 +806,12 @@ namespace MotorCity.World
             {
                 RenderSettings.skybox =
                     targetSkybox;
+            }
 
+            if (force ||
+                targetSkybox ==
+                runtimeBlendedSkybox)
+            {
                 DynamicGI.UpdateEnvironment();
             }
 
@@ -803,6 +835,211 @@ namespace MotorCity.World
                         .RefreshCityReflectionProbes();
                 }
             }
+        }
+
+        private bool TryApplySkyboxBlend(
+            float normalizedTime)
+        {
+            if (runtimeBlendedSkybox == null)
+                return false;
+
+            float t =
+                Mathf.Repeat(
+                    normalizedTime,
+                    1f);
+
+            const float transitionHalfWidth =
+                0.02f;
+
+            Material from =
+                null;
+
+            Material to =
+                null;
+
+            float blend =
+                0f;
+
+            if (TryResolveTransition(
+                    t,
+                    0.24f,
+                    transitionHalfWidth,
+                    runtimeNightSkybox,
+                    runtimeMorningSkybox,
+                    out from,
+                    out to,
+                    out blend) ||
+                TryResolveTransition(
+                    t,
+                    0.41f,
+                    transitionHalfWidth,
+                    runtimeMorningSkybox,
+                    runtimeDaySkybox,
+                    out from,
+                    out to,
+                    out blend) ||
+                TryResolveTransition(
+                    t,
+                    0.61f,
+                    transitionHalfWidth,
+                    runtimeDaySkybox,
+                    runtimeEveningSkybox,
+                    out from,
+                    out to,
+                    out blend) ||
+                TryResolveTransition(
+                    t,
+                    0.82f,
+                    transitionHalfWidth,
+                    runtimeEveningSkybox,
+                    runtimeNightSkybox,
+                    out from,
+                    out to,
+                    out blend))
+            {
+                Texture textureA =
+                    GetPanoramicSkyTexture(
+                        from);
+
+                Texture textureB =
+                    GetPanoramicSkyTexture(
+                        to);
+
+                if (textureA == null ||
+                    textureB == null)
+                {
+                    return false;
+                }
+
+                runtimeBlendedSkybox.SetTexture(
+                    "_TexA",
+                    textureA);
+
+                runtimeBlendedSkybox.SetTexture(
+                    "_TexB",
+                    textureB);
+
+                runtimeBlendedSkybox.SetFloat(
+                    "_Blend",
+                    blend);
+
+                runtimeBlendedSkybox.SetFloat(
+                    "_Exposure",
+                    Mathf.Lerp(
+                        GetSkyExposure(from),
+                        GetSkyExposure(to),
+                        blend));
+
+                runtimeBlendedSkybox.SetFloat(
+                    "_Rotation",
+                    Mathf.LerpAngle(
+                        GetSkyRotation(from),
+                        GetSkyRotation(to),
+                        blend));
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryResolveTransition(
+            float time,
+            float threshold,
+            float halfWidth,
+            Material fromMaterial,
+            Material toMaterial,
+            out Material from,
+            out Material to,
+            out float blend)
+        {
+            from =
+                fromMaterial;
+
+            to =
+                toMaterial;
+
+            blend =
+                0f;
+
+            if (from == null ||
+                to == null)
+            {
+                return false;
+            }
+
+            float start =
+                threshold -
+                halfWidth;
+
+            float end =
+                threshold +
+                halfWidth;
+
+            if (time < start ||
+                time > end)
+            {
+                return false;
+            }
+
+            blend =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.InverseLerp(
+                        start,
+                        end,
+                        time));
+
+            return true;
+        }
+
+        private static Texture GetPanoramicSkyTexture(
+            Material material)
+        {
+            if (material == null)
+                return null;
+
+            if (material.HasProperty(
+                    "_MainTex"))
+            {
+                Texture texture =
+                    material.GetTexture(
+                        "_MainTex");
+
+                if (texture != null)
+                    return texture;
+            }
+
+            return null;
+        }
+
+        private static float GetSkyExposure(
+            Material material)
+        {
+            if (material != null &&
+                material.HasProperty(
+                    "_Exposure"))
+            {
+                return material.GetFloat(
+                    "_Exposure");
+            }
+
+            return 1f;
+        }
+
+        private static float GetSkyRotation(
+            Material material)
+        {
+            if (material != null &&
+                material.HasProperty(
+                    "_Rotation"))
+            {
+                return material.GetFloat(
+                    "_Rotation");
+            }
+
+            return 0f;
         }
 
         private Material ResolveSkyboxForTime(
