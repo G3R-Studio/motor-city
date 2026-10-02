@@ -413,28 +413,16 @@ namespace MotorCity.UI
             if (canvasScaler == null)
                 return;
 
-            bool portrait =
-                Screen.height > Screen.width;
-
-            if (!force &&
-                portrait ==
-                lastPortraitLayout)
-            {
-                return;
-            }
-
-            lastPortraitLayout =
-                portrait;
-
+            // Author every runtime HUD screen in one deterministic 16:9
+            // coordinate system. Device/aspect adaptation is intentionally
+            // layered on top later instead of changing the design resolution.
             canvasScaler.referenceResolution =
-                portrait
-                    ? new Vector2(1080f, 1920f)
-                    : new Vector2(1920f, 1080f);
+                new Vector2(
+                    1920f,
+                    1080f);
 
             canvasScaler.matchWidthOrHeight =
-                portrait
-                    ? 0.35f
-                    : 0.5f;
+                0.5f;
         }
 
         private void BuildTouchUtilityControls(
