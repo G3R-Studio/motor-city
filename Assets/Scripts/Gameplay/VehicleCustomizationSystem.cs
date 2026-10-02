@@ -433,18 +433,6 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            if (VehicleId() == "hybrid")
-            {
-                ApplyHybridBodyColor(
-                    visual);
-
-                return;
-            }
-
-            Renderer[] renderers =
-                visual.GetComponentsInChildren<Renderer>(
-                    true);
-
             Color[] bodyColors =
                 BodyColorsForCurrentVehicle();
 
@@ -455,15 +443,15 @@ namespace MotorCity.Gameplay
                         0,
                         bodyColors.Length - 1)];
 
-            int paintedSlots =
-                0;
-
             foreach (Renderer renderer in
-                     renderers)
+                     visual.GetComponentsInChildren<Renderer>(
+                         true))
             {
                 if (renderer == null ||
                     IsWheelRenderer(
-                        renderer))
+                        renderer) ||
+                    !IsPrimaryBodyRenderer(
+                        renderer.transform))
                 {
                     continue;
                 }
@@ -478,9 +466,9 @@ namespace MotorCity.Gameplay
                     Material material =
                         materials[index];
 
-                    if (!LooksPaintable(
-                            renderer.transform.name,
-                            material))
+                    if (material == null ||
+                        IsExcludedMaterial(
+                            material.name))
                     {
                         continue;
                     }
@@ -490,160 +478,26 @@ namespace MotorCity.Gameplay
                         material,
                         index,
                         color);
-
-                    paintedSlots++;
-                }
-            }
-
-            if (paintedSlots > 0)
-                return;
-
-            Renderer fallback =
-                FindLargestBodyRenderer(
-                    renderers);
-
-            if (fallback == null)
-                return;
-
-            Material[] fallbackMaterials =
-                fallback.sharedMaterials;
-
-            for (int i = 0;
-                 i < fallbackMaterials.Length;
-                 i++)
-            {
-                Material material =
-                    fallbackMaterials[i];
-
-                if (material == null ||
-                    IsExcludedMaterial(
-                        material.name))
-                {
-                    continue;
-                }
-
-                ApplyColorBlock(
-                    fallback,
-                    material,
-                    i,
-                    color);
-            }
-        }
-
-        private void ApplyHybridBodyColor(
-            Transform visual)
-        {
-            Transform bodyRoot =
-                visual.Find(
-                    "Body");
-
-            if (bodyRoot == null)
-            {
-                foreach (Transform child in visual)
-                {
-                    if (child != null &&
-                        child.name.Equals(
-                            "Body",
-                            System.StringComparison.OrdinalIgnoreCase))
-                    {
-                        bodyRoot =
-                            child;
-
-                        break;
-                    }
-                }
-            }
-
-            if (bodyRoot == null)
-                return;
-
-            Renderer[] allRenderers =
-                visual.GetComponentsInChildren<Renderer>(
-                    true);
-
-            // Clear color overrides left by older generic Hybrid painting.
-            // Wheel styling is applied again immediately after body color.
-            foreach (Renderer renderer in
-                     allRenderers)
-            {
-                if (renderer == null)
-                    continue;
-
-                Material[] materials =
-                    renderer.sharedMaterials;
-
-                for (int i = 0;
-                     i < materials.Length;
-                     i++)
-                {
-                    renderer.SetPropertyBlock(
-                        null,
-                        i);
-                }
-            }
-
-            Color[] bodyColors =
-                BodyColorsForCurrentVehicle();
-
-            Color color =
-                bodyColors[
-                    Mathf.Clamp(
-                        SelectedColorIndex,
-                        0,
-                        bodyColors.Length - 1)];
-
-            Renderer[] bodyRenderers =
-                bodyRoot.GetComponentsInChildren<Renderer>(
-                    true);
-
-            foreach (Renderer renderer in
-                     bodyRenderers)
-            {
-                if (renderer == null)
-                    continue;
-
-                Material[] materials =
-                    renderer.sharedMaterials;
-
-                for (int i = 0;
-                     i < materials.Length;
-                     i++)
-                {
-                    Material material =
-                        materials[i];
-
-                    if (!IsHybridBodyPaintMaterial(
-                            material))
-                    {
-                        continue;
-                    }
-
-                    ApplyColorBlock(
-                        renderer,
-                        material,
-                        i,
-                        color);
                 }
             }
         }
 
-        private static bool IsHybridBodyPaintMaterial(
-            Material material)
+        private static bool IsPrimaryBodyRenderer(
+            Transform transform)
         {
-            if (material == null)
+            if (transform == null)
                 return false;
 
             string name =
-                material.name
+                transform.name
                     .Replace(
-                        " (Instance)",
+                        " (Clone)",
                         string.Empty)
-                    .Trim();
+                    .Trim()
+                    .ToLowerInvariant();
 
             return
-                name.Equals(
-                    "Material.001",
-                    System.StringComparison.OrdinalIgnoreCase);
+                name == "body";
         }
 
         private bool ApplyAuthoredStarterPaint(
@@ -1423,48 +1277,6 @@ namespace MotorCity.Gameplay
             block.Clear();
         }
 
-        private static bool LooksPaintable(
-            string objectName,
-            Material material)
-        {
-            string objectLower =
-                (objectName ?? string.Empty)
-                    .ToLowerInvariant();
-
-            string materialLower =
-                material != null
-                    ? material.name.ToLowerInvariant()
-                    : string.Empty;
-
-            if (IsWheelLike(
-                    objectLower) ||
-                IsExcludedMaterial(
-                    materialLower))
-            {
-                return false;
-            }
-
-            return
-                objectLower.Contains("body") ||
-                objectLower.Contains("hood") ||
-                objectLower.Contains("bonnet") ||
-                objectLower.Contains("bumper") ||
-                objectLower.Contains("door") ||
-                objectLower.Contains("fender") ||
-                objectLower.Contains("spoiler") ||
-                materialLower.Contains("body") ||
-                materialLower.Contains("paint") ||
-                materialLower.Contains("carpaint") ||
-                materialLower.Contains("vehicle") ||
-                materialLower.Contains("beatallbody") ||
-                materialLower.Contains("deloreanbody") ||
-                materialLower.Contains("amggtbody") ||
-                materialLower.Contains("porsche996body") ||
-                materialLower.Contains("peugeot306body") ||
-                materialLower.Contains("toyotaae86body") ||
-                materialLower.Contains("camarobody");
-        }
-
         private static bool IsWheelLike(
             string name)
         {
@@ -1595,40 +1407,6 @@ namespace MotorCity.Gameplay
                 lower.Contains("light") ||
                 lower.Contains("lamp") ||
                 lower.Contains("interior");
-        }
-
-        private static Renderer FindLargestBodyRenderer(
-            Renderer[] renderers)
-        {
-            Renderer best = null;
-            float bestVolume = 0f;
-
-            foreach (Renderer renderer in
-                     renderers)
-            {
-                if (renderer == null ||
-                    IsWheelRenderer(
-                        renderer))
-                {
-                    continue;
-                }
-
-                Vector3 size =
-                    renderer.bounds.size;
-
-                float volume =
-                    size.x *
-                    size.y *
-                    size.z;
-
-                if (volume <= bestVolume)
-                    continue;
-
-                best = renderer;
-                bestVolume = volume;
-            }
-
-            return best;
         }
 
         private string VehicleId()
