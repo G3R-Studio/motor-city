@@ -317,6 +317,10 @@ namespace MotorCity.World
             int replaced =
                 0;
 
+            var unresolvedGlass =
+                new HashSet<string>(
+                    StringComparer.OrdinalIgnoreCase);
+
             Renderer[] renderers =
                 activeCity.GetComponentsInChildren<Renderer>(
                     true);
@@ -352,15 +356,35 @@ namespace MotorCity.World
                             current.name);
 
                     if (string.IsNullOrWhiteSpace(
-                            key) ||
-                        !materialMap.TryGetValue(
-                            key,
-                            out Material replacement) ||
-                        replacement == null ||
-                        replacement == current)
+                            key))
                     {
                         continue;
                     }
+
+                    if (!materialMap.TryGetValue(
+                            key,
+                            out Material replacement) ||
+                        replacement == null)
+                    {
+                        if (key.StartsWith(
+                                "glass",
+                                StringComparison.OrdinalIgnoreCase) ||
+                            key.StartsWith(
+                                "winglass",
+                                StringComparison.OrdinalIgnoreCase) ||
+                            key.StartsWith(
+                                "wins",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            unresolvedGlass.Add(
+                                current.name);
+                        }
+
+                        continue;
+                    }
+
+                    if (replacement == current)
+                        continue;
 
                     materials[i] =
                         replacement;
@@ -391,6 +415,15 @@ namespace MotorCity.World
                 "Motor City: rebound " +
                 replaced +
                 " runtime FCG material slots to generated Resources materials.");
+
+            if (unresolvedGlass.Count > 0)
+            {
+                Debug.LogWarning(
+                    "Motor City: unresolved runtime glass materials: " +
+                    string.Join(
+                        ", ",
+                        unresolvedGlass));
+            }
         }
 
         private static string RuntimeMaterialKey(
