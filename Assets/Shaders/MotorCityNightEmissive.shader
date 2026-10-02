@@ -2,7 +2,7 @@ Shader "MotorCity/NightEmissive"
 {
     Properties
     {
-        [MainTexture] _BaseMap("Base Map", 2D) = "black" {}
+        [MainTexture] _BaseMap("Base Map", 2D) = "white" {}
         [MainColor] _BaseColor("Base Color", Color) = (1,1,1,1)
         _EmissionMap("Emission Map", 2D) = "black" {}
         [Normal] _BumpMap("Normal Map", 2D) = "bump" {}
@@ -153,7 +153,8 @@ Shader "MotorCity/NightEmissive"
                     SAMPLE_TEXTURE2D(
                         _BaseMap,
                         sampler_BaseMap,
-                        input.baseUv);
+                        input.baseUv) *
+                    _BaseColor;
 
                 half3 tangentWS =
                     normalize(
