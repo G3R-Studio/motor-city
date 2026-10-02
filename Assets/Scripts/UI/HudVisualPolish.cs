@@ -257,7 +257,7 @@ namespace MotorCity.UI
                 SetRect(
                     garage,
                     Vector2.zero,
-                    new Vector2(1080f, 1920f),
+                    new Vector2(1920f, 1080f),
                     1f);
             }
             else
