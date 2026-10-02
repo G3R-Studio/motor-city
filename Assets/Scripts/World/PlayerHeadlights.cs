@@ -373,7 +373,9 @@ namespace MotorCity.World
 
                     bool useMaskedFrontOverlay =
                         (vehicleId == "amggt" &&
-                         materialName.Contains("amggtemission")) ||
+                         (materialName.Contains("amggtemission") ||
+                          materialName.Contains("gradientemmisive") ||
+                          materialName.Contains("gradientemissive"))) ||
                         (vehicleId == "camaro" &&
                          (materialName.Contains("camarobloom") ||
                           materialName.Contains("color_bloom") ||
