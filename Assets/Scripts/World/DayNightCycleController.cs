@@ -666,24 +666,25 @@ namespace MotorCity.World
             // highlights and roads, pavements and the car read like wet plastic.
             // Direct headlights, street lights and emissive windows remain
             // unaffected, which gives the night scene more material separation.
+            // Material roughness now controls whether a surface reads as
+            // dry asphalt or reflective glass. Do not globally suppress
+            // reflections to fix the road: that also flattens every building
+            // window at sunrise/sunset.
             float baseReflectionIntensity =
                 Mathf.Lerp(
-                    0.12f,
-                    0.78f,
+                    0.18f,
+                    0.95f,
                     daylight);
 
-            // Sunrise/sunset skyboxes are highly saturated. Reduce indirect
-            // specular energy around the horizon so roads and glass do not
-            // turn into broad blue/orange plastic mirrors at twilight.
             RenderSettings.reflectionIntensity =
                 Mathf.Clamp(
                     baseReflectionIntensity *
                     Mathf.Lerp(
                         1f,
-                        0.52f,
+                        0.82f,
                         twilight),
-                    0.10f,
-                    0.78f);
+                    0.16f,
+                    0.95f);
 
             // CityAtmosphereRuntime was removed. Keep the lightweight
             // distance haze owned here so the active day/night controller
