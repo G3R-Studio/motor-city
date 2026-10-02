@@ -142,6 +142,48 @@ namespace MotorCity.UI
                 }
                 if(!clipped)break;
             }
+            var contour = new Vector2[points.Length];
+            for (int i = 0; i < points.Length; i++) contour[i] = Point(points[i]);
+            AntialiasContour(contour, tint);
+        }
+        // Coverage fringe in canvas units, so the transition stays one pixel
+        // wide at every window size. It is part of the same graphic mesh.
+        private void AntialiasContour(Vector2[] points, Color tint)
+        {
+            float area = 0;
+            for (int i = 0; i < points.Length; i++)
+            {
+                Vector2 a = points[i], b = points[(i+1)%points.Length];
+                area += a.x*b.y - b.x*a.y;
+            }
+            float orientation = area >= 0 ? 1 : -1;
+            float width = 1f / Mathf.Max(.01f, canvas != null ? canvas.scaleFactor : 1f);
+            Color transparent = new(tint.r, tint.g, tint.b, 0);
+            int start = mesh.currentVertCount;
+            for (int i = 0; i < points.Length; i++)
+            {
+                Vector2 p = points[i];
+                Vector2 incoming = (p - points[(i+points.Length-1)%points.Length]).normalized;
+                Vector2 outgoing = (points[(i+1)%points.Length] - p).normalized;
+                Vector2 n1 = new Vector2(incoming.y, -incoming.x) * orientation;
+                Vector2 n2 = new Vector2(outgoing.y, -outgoing.x) * orientation;
+                Vector2 bisector = (n1+n2).normalized;
+                float denominator = Mathf.Max(.25f, bisector.x*n2.x+bisector.y*n2.y);
+                mesh.AddVert(p, tint, Vector2.zero);
+                mesh.AddVert(p + bisector*(width/denominator), transparent, Vector2.zero);
+            }
+            for (int i = 0; i < points.Length; i++)
+            {
+                int a = start+i*2, b = start+((i+1)%points.Length)*2;
+                if (orientation > 0)
+                {
+                    mesh.AddTriangle(a,b,b+1); mesh.AddTriangle(a,b+1,a+1);
+                }
+                else
+                {
+                    mesh.AddTriangle(a,b+1,b); mesh.AddTriangle(a,a+1,b+1);
+                }
+            }
         }
         private static float Cross(Vector2 a,Vector2 b,Vector2 c) => (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
         private void Box(float x1,float y1,float x2,float y2) => Polygon(new Vector2(x1,y1),new Vector2(x2,y1),new Vector2(x2,y2),new Vector2(x1,y2));
@@ -171,6 +213,7 @@ namespace MotorCity.UI
         private void Surface()
         {
             Rect r=rectTransform.rect;
+            var outline = new List<Vector2>();
             int center=mesh.currentVertCount;
             mesh.AddVert(r.center,new Color(color.r*.45f,color.g*.45f,color.b*.55f,color.a),Vector2.zero);
             float radius=Mathf.Min(12,Mathf.Min(r.width,r.height)*.2f);
@@ -188,6 +231,7 @@ namespace MotorCity.UI
                     float t=Mathf.InverseLerp(r.yMin,r.yMax,p.y);
                     Color c=Color.Lerp(new Color(.035f,.035f,.09f,color.a),color,t);
                     mesh.AddVert(p,c,Vector2.zero);
+                    outline.Add(p);
                 }
             }
             int count=mesh.currentVertCount-center-1;
@@ -216,6 +260,7 @@ namespace MotorCity.UI
                 mesh.AddTriangle(a, b+1, b);
                 mesh.AddTriangle(a, a+1, b+1);
             }
+            AntialiasContour(outline.ToArray(), new Color(.65f,.58f,1f,.9f));
         }
 
         private void NavigationSurface()

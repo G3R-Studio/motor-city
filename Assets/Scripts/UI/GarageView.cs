@@ -417,9 +417,7 @@ namespace MotorCity.UI
                             ? SecondaryTextColor
                             : GarageReferenceCyan;
 
-                    ReferencePlace(garageUpgradeActionTexts[i].rectTransform,
-                        maxed ? 13f : 68f, maxed ? 24f : 7f,
-                        maxed ? 168f : 116f, 25f);
+                    ConfigureGarageUpgradeAction(garageUpgradeActionTexts[i], maxed);
                     Transform upgradeArrow = garageUpgradeActionTexts[i].transform.parent
                         .Find("Reference Upgrade Arrow");
                     if (upgradeArrow != null) upgradeArrow.gameObject.SetActive(!maxed);

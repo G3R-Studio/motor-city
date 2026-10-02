@@ -27,3 +27,10 @@ In Unity, verify desktop/touch interaction, Russian/English labels, locked cars,
 affordability, maxed upgrades, onboarding, passport and main menu return.
 `Motor City > Debug > Validate Garage UI` audits renderer state, dimensions,
 button targets and unexpected legacy surfaces or shadow/outline effects.
+Resize handling: `GarageCanvasRefresh` invalidates all garage text generators on
+window/canvas scale changes and shared font atlas rebuilds, including static
+labels. Best Fit is disabled. Completed upgrade actions use 26 reference pixels,
+a full action-strip rectangle and centered alignment; non-maxed actions restore
+the purchase layout. Vector surfaces/icons include transparent coverage fringes
+scaled to one screen pixel, without additional frame/glow objects. Stub regression
+checks also cover resize, atlas invalidation, idle stability and all AA meshes.

@@ -125,6 +125,7 @@ namespace MotorCity.UI
             garageActionButtons[5] = passportAction.gameObject;
             garageStatusText = ReferenceLabel(panel, "Garage Status", "", 26, 910, 1197, 24, 16);
             BuildGaragePassport(panel);
+            panel.gameObject.AddComponent<GarageCanvasRefresh>();
         }
 
         private void BuildGaragePassport(Transform panel)
@@ -196,7 +197,7 @@ namespace MotorCity.UI
             text.font = Resources.Load<Font>("MotorCity/Fonts/RobotoCondensed-Regular") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontStyle = FontStyle.Bold; text.alignment = TextAnchor.MiddleLeft;
             text.fontSize = Mathf.RoundToInt(size * GarageReferenceScale.y);
-            text.resizeTextForBestFit = true; text.resizeTextMinSize = Mathf.RoundToInt(text.fontSize * .82f); text.resizeTextMaxSize = text.fontSize;
+            text.resizeTextForBestFit = false; text.resizeTextMinSize = Mathf.RoundToInt(text.fontSize * .82f); text.resizeTextMaxSize = text.fontSize;
             text.color = tint ?? GarageReferenceLilac; text.raycastTarget = false; text.text = value;
             return text;
         }
@@ -206,6 +207,22 @@ namespace MotorCity.UI
             rect.anchoredPosition = Vector2.Scale(new Vector2(x, -y), GarageReferenceScale);
             rect.sizeDelta = Vector2.Scale(new Vector2(width, height), GarageReferenceScale);
         }
+        private static void ConfigureGarageUpgradeAction(Text actionText, bool maxed)
+        {
+
+            actionText.alignment = maxed ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft;
+            actionText.fontSize = Mathf.RoundToInt((maxed ? 26f : 18f) * GarageReferenceScale.y);
+            actionText.resizeTextForBestFit = false;
+            if (maxed)
+            {
+                RectTransform rect = actionText.rectTransform;
+                rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+                rect.pivot = new Vector2(.5f, .5f);
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+            }
+            else ReferencePlace(actionText.rectTransform, 68, 7, 116, 25);
+        }
+
         private static string GarageReferenceMasteryNumber(string value)
         {
             if (string.IsNullOrWhiteSpace(value)) return string.Empty;
