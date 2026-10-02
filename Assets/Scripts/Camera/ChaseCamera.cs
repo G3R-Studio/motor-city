@@ -66,7 +66,6 @@ namespace MotorCity.CameraSystem
         private bool garageMode;
         private bool garagePoseSnapPending;
         private Vector3 garageInitialPosition;
-        private Quaternion garageInitialRotation;
         private float openingPresentationTimer;
         private float openingPresentationDuration = 1.6f;
         private Vector3 openingPresentationStartPosition;
@@ -305,9 +304,6 @@ namespace MotorCity.CameraSystem
             garageInitialPosition =
                 initialPosition;
 
-            garageInitialRotation =
-                initialRotation;
-
             garagePoseSnapPending =
                 true;
 
@@ -380,7 +376,7 @@ namespace MotorCity.CameraSystem
 
             transform.SetPositionAndRotation(
                 initialPosition,
-                initialRotation);
+                ResolveGarageFraming(initialPosition));
         }
 
         public void ArmOpeningPresentation(
@@ -887,6 +883,21 @@ namespace MotorCity.CameraSystem
                 uiRaycastResults.Count > 0;
         }
 
+        private Quaternion ResolveGarageFraming(Vector3 cameraPosition)
+        {
+            // Center of the open reference-layout area: x=102..1165,
+            // y=94..694 on a 1672x941 canvas (viewport Y starts at the bottom).
+            const float viewportX = 633.5f / 1672f;
+            const float viewportY = 1f - 394f / 941f;
+            Vector3 subject = ResolveVehicleCameraBase() + Vector3.up * .92f;
+            Quaternion centered = Quaternion.LookRotation(subject - cameraPosition, Vector3.up);
+            float aspect = cameraComponent != null ? cameraComponent.aspect : 16f / 9f;
+            float halfHeight = Mathf.Tan(garageFieldOfView * .5f * Mathf.Deg2Rad);
+            Vector3 subjectRay = new((viewportX * 2f - 1f) * halfHeight * aspect,
+                (viewportY * 2f - 1f) * halfHeight, 1f);
+            return centered * Quaternion.Inverse(Quaternion.LookRotation(subjectRay, Vector3.up));
+        }
+
         private void LateUpdate()
         {
             if (target == null) return;
@@ -899,7 +910,7 @@ namespace MotorCity.CameraSystem
 
                 transform.SetPositionAndRotation(
                     garageInitialPosition,
-                    garageInitialRotation);
+                    ResolveGarageFraming(garageInitialPosition));
 
                 lastTargetPosition =
                     target.position;
@@ -1137,6 +1148,9 @@ namespace MotorCity.CameraSystem
                 Quaternion.LookRotation(
                     lookPoint - transform.position,
                     Vector3.up);
+
+            if (garageMode)
+                desiredRotation = ResolveGarageFraming(transform.position);
 
             transform.rotation =
                 snapAfterTeleport
