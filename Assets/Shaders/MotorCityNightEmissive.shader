@@ -9,16 +9,16 @@ Shader "MotorCity/NightEmissive"
         _BumpScale("Normal Strength", Range(0,2)) = 0.75
         [HDR] _EmissionColor("Emission Color", Color) = (1.0,0.62,0.28,1)
         _EmissionStrength("Emission Strength", Range(0,8)) = 2.6
-        _DayGlassTint("Day Glass Tint", Color) = (0.18,0.185,0.19,1)
-        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.38
-        _NightGlassTint("Night Glass Tint", Color) = (0.04,0.045,0.05,1)
-        _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.14
-        _Roughness("Glass Roughness", Range(0.04,1)) = 0.36
-        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.38
+        _DayGlassTint("Day Glass Tint", Color) = (0.12,0.13,0.14,1)
+        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.24
+        _NightGlassTint("Night Glass Tint", Color) = (0.025,0.03,0.04,1)
+        _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.10
+        _Roughness("Glass Roughness", Range(0.04,1)) = 0.28
+        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.52
         [NoScaleOffset] _ReflectionCube("FCG Reflection Cube", Cube) = "" {}
         _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.00
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.65
-        _SpecularStrength("Sun Specular", Range(0,1)) = 0.08
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.72
+        _SpecularStrength("Sun Specular", Range(0,1)) = 0.06
     }
 
     SubShader
@@ -284,10 +284,18 @@ Shader "MotorCity/NightEmissive"
                     normalize(
                         input.viewDirWS);
 
+                // Keep large architectural reflections coherent across the
+                // facade. The normal map still affects direct lighting and
+                // fine specular detail, but it must not fragment the entire
+                // sky/probe reflection into a grey noisy surface.
+                half3 reflectionNormalWS =
+                    normalize(
+                        input.normalWS);
+
                 half ndotv =
                     saturate(
                         dot(
-                            normalWS,
+                            reflectionNormalWS,
                             viewDirWS));
 
                 half grazing =
@@ -312,7 +320,7 @@ Shader "MotorCity/NightEmissive"
                 half3 reflectionDir =
                     reflect(
                         -viewDirWS,
-                        normalWS);
+                        reflectionNormalWS);
 
                 half roughness =
                     saturate(
@@ -362,8 +370,8 @@ Shader "MotorCity/NightEmissive"
                     saturate(
                         reflectionEnergy *
                         lerp(
-                            0.12h,
-                            0.95h,
+                            0.24h,
+                            1.0h,
                             fresnel));
 
                 half3 halfDirection =
@@ -396,10 +404,17 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
+                // Slightly lift environment contrast so the reflected sky and
+                // nearby city remain readable on dark FCG window textures.
+                half3 shapedReflection =
+                    sqrt(
+                        saturate(
+                            environmentReflection));
+
                 half3 color =
                     lerp(
                         glassBase,
-                        environmentReflection,
+                        shapedReflection,
                         reflectionMix) +
                     mainLight.color *
                     sunSpecular *
