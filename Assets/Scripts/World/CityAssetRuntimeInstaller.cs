@@ -266,8 +266,13 @@ namespace MotorCity.World
             ResolveGameplayLayout();
             InstallCityReflectionProbes();
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR
             LogGlassReflectionDiagnostics();
+#else
+            if (Debug.isDebugBuild)
+            {
+                LogGlassReflectionDiagnostics();
+            }
 #endif
 
             return true;
@@ -633,7 +638,6 @@ namespace MotorCity.World
             }
         }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
         private static void LogGlassReflectionDiagnostics()
         {
             if (activeCity == null)
@@ -774,7 +778,6 @@ namespace MotorCity.World
                 ", quality=" +
                 MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset);
         }
-#endif
 
         private static void InstallCityReflectionProbes()
         {
