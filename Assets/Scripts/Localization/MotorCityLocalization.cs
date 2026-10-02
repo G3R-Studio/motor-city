@@ -17,6 +17,8 @@ namespace MotorCity.Localization
                 { "garage.credits_label", E("КРЕДИТЫ", "CREDITS") },
                 { "garage.reputation_label", E("РЕПУТАЦИЯ", "REPUTATION") },
                 { "garage.mastery_label", E("МАСТЕРСТВО", "MASTERY") },
+                { "garage.level_label", E("УРОВЕНЬ", "LEVEL") },
+                { "garage.auto_mastery_label", E("МАСТЕРСТВО АВТО", "CAR MASTERY") },
                 { "common.rep", E("РЕПУТАЦИЯ", "REPUTATION") },
                 { "common.level", E("УР.", "LVL") },
                 { "common.xp", E("ОПЫТ", "XP") },

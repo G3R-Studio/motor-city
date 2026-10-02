@@ -33,6 +33,7 @@ namespace MotorCity.UI
         private Vector2Int lastFrontEndScreenSize;
         private Camera frontEndCamera;
         private bool pregameDebugVisible;
+        private bool returningToLoadedGameplay;
 
         private GameObject mainRoot;
         private RawImage mainBackgroundImage;
@@ -1345,6 +1346,14 @@ namespace MotorCity.UI
 
         private void ContinuePrimaryAction()
         {
+            if (returningToLoadedGameplay)
+            {
+                returningToLoadedGameplay = false;
+                continuingExistingSave = true;
+                EnterGameplay();
+                return;
+            }
+
             continuingExistingSave =
                 hasExistingProgress;
 
@@ -2219,6 +2228,16 @@ namespace MotorCity.UI
             // for release without touching menu/theme assets that are still
             // referenced by the front-end hierarchy.
             Resources.UnloadUnusedAssets();
+        }
+
+        public void ShowMainMenuFromGarage()
+        {
+            if (canvas == null || !gameplayReady) return;
+            MotorCityInput.ClearVirtualState();
+            returningToLoadedGameplay = true;
+            hasExistingProgress = true;
+            canvas.gameObject.SetActive(true);
+            ShowMainMenu();
         }
 
         private void ShowMainMenu()

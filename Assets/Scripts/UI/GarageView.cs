@@ -987,6 +987,7 @@ namespace MotorCity.UI
             garageControlsText.gameObject.SetActive(false);
 
             BuildGarageTouchControls(panel);
+            ApplyGarageReferenceLayout(panel);
         }
 
         private void BuildGarageTouchControls(
@@ -1714,12 +1715,9 @@ namespace MotorCity.UI
             if (garageLevelText != null)
             {
                 garageLevelText.text =
-                    MotorCityLocalization.Text(
-                        "common.level") +
-                    " " +
                     (activityManager != null
                         ? activityManager.ReputationLevel
-                        : 1);
+                        : 1).ToString();
             }
 
             if (garageHeaderMasteryText != null)
@@ -1727,9 +1725,13 @@ namespace MotorCity.UI
                 garageHeaderMasteryText.text =
                     metaUnlocked &&
                     garage != null
-                        ? garage.VehicleMasteryShort
+                        ? GarageReferenceMasteryNumber(garage.VehicleMasteryShort)
                         : string.Empty;
             }
+
+            if (garageReferenceMasteryValue != null)
+                garageReferenceMasteryValue.text = garageHeaderMasteryText != null
+                    ? garageHeaderMasteryText.text : string.Empty;
 
             if (garageHeaderLevelFill != null)
             {
@@ -1757,7 +1759,7 @@ namespace MotorCity.UI
                               Mathf.Clamp01(
                                   levelProgress)
                             : 0f,
-                        6f);
+                        fillRect.sizeDelta.y);
             }
 
             if (garageHeaderMasteryFill != null)
@@ -1780,7 +1782,7 @@ namespace MotorCity.UI
                             ? trackRect.rect.width *
                               masteryProgress
                             : 0f,
-                        6f);
+                        fillRect.sizeDelta.y);
             }
 
             if (garageVehicleText != null)
@@ -1842,6 +1844,13 @@ namespace MotorCity.UI
 
                 garageVehicleStateIcon.color =
                     stateColor;
+                if (garageReferenceVehicleState != null)
+                {
+                    garageReferenceVehicleState.symbol = garage.SelectedVehicleUnlocked
+                        ? GarageReferenceGraphic.Symbol.OpenPadlock
+                        : GarageReferenceGraphic.Symbol.Padlock;
+                    garageReferenceVehicleState.SetVerticesDirty();
+                }
             }
 
             {
@@ -1953,7 +1962,7 @@ namespace MotorCity.UI
                             trackRect != null
                                 ? trackRect.rect.width * progress
                                 : 0f,
-                            6f);
+                            fillRect.sizeDelta.y);
                 }
             }
 
@@ -2096,7 +2105,7 @@ namespace MotorCity.UI
                     garageUpgradeActionTexts[i].color =
                         maxed
                             ? SecondaryTextColor
-                            : TextColor;
+                            : GarageReferenceCyan;
 
                     garageUpgradeActionTexts[i]
                         .rectTransform
@@ -2128,7 +2137,7 @@ namespace MotorCity.UI
                                 1f);
 
                 garagePriceTexts[i].color =
-                    priceColor;
+                    affordable ? Color.white : priceColor;
 
                 if (garagePriceIcons[i] != null)
                 {
@@ -2164,30 +2173,7 @@ namespace MotorCity.UI
                         segment <
                         upgradeLevel;
 
-                    Color activeColor =
-                        i switch
-                        {
-                            0 =>
-                                new Color(
-                                    0.72f,
-                                    0.34f,
-                                    1f,
-                                    1f),
-
-                            1 =>
-                                new Color(
-                                    0.22f,
-                                    0.82f,
-                                    1f,
-                                    1f),
-
-                            _ =>
-                                new Color(
-                                    0.55f,
-                                    0.42f,
-                                    1f,
-                                    1f)
-                        };
+                    Color activeColor = new Color(0.72f, 0.20f, 1f, 1f);
 
                     segmentImage.color =
                         active
