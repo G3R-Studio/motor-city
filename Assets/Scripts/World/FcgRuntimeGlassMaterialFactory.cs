@@ -39,7 +39,7 @@ namespace MotorCity.World
 
             Shader shader =
                 Shader.Find(
-                    "MotorCity/NightEmissive");
+                    "Universal Render Pipeline/Lit");
 
             if (shader == null)
                 return null;
@@ -54,12 +54,6 @@ namespace MotorCity.World
                 GetFirstTexture(
                     source,
                     "_BumpMap");
-
-            Texture emissionTexture =
-                GetFirstTexture(
-                    source,
-                    "_EmissionMap",
-                    "_Illum");
 
             Material material =
                 new Material(
@@ -105,29 +99,10 @@ namespace MotorCity.World
 
                 material.SetFloat(
                     "_BumpScale",
-                    FcgGlassProfile.BumpScale);
-            }
-            else
-            {
-                material.SetFloat(
-                    "_BumpScale",
-                    0f);
-            }
+                    0.35f);
 
-            if (emissionTexture != null)
-            {
-                material.SetTexture(
-                    "_EmissionMap",
-                    emissionTexture);
-
-                CopyTextureTransform(
-                    source,
-                    material,
-                    "_EmissionMap",
-                    source.HasProperty(
-                        "_EmissionMap")
-                        ? "_EmissionMap"
-                        : "_MainTex");
+                material.EnableKeyword(
+                    "_NORMALMAP");
             }
 
             bool genericGlass =
@@ -148,48 +123,50 @@ namespace MotorCity.World
                         1f)
                     : Color.white);
 
-            material.SetColor(
-                "_DayGlassTint",
-                FcgGlassProfile.DayGlassTint);
+            material.SetFloat(
+                "_Surface",
+                0f);
 
             material.SetFloat(
-                "_DayGlassLift",
-                FcgGlassProfile.DayGlassLift);
-
-            material.SetColor(
-                "_NightGlassTint",
-                FcgGlassProfile.NightGlassTint);
+                "_Metallic",
+                0f);
 
             material.SetFloat(
-                "_NightGlassLift",
-                FcgGlassProfile.NightGlassLift);
+                "_Smoothness",
+                0.05f);
 
             material.SetFloat(
-                "_Roughness",
-                FcgGlassProfile.Roughness);
+                "_EnvironmentReflections",
+                0f);
 
             material.SetFloat(
-                "_ReflectionStrength",
-                FcgGlassProfile.ReflectionStrength);
+                "_SpecularHighlights",
+                0f);
 
             material.SetFloat(
-                "_AuthoredCubeStrength",
-                FcgGlassProfile.AuthoredCubeStrength);
+                "_ZWrite",
+                1f);
 
-            material.SetFloat(
-                "_FresnelStrength",
-                FcgGlassProfile.FresnelStrength);
+            if (material.HasProperty(
+                    "_EmissionColor"))
+            {
+                material.SetColor(
+                    "_EmissionColor",
+                    Color.black);
+            }
 
-            material.SetFloat(
-                "_SpecularStrength",
-                FcgGlassProfile.SpecularStrength);
+            material.DisableKeyword(
+                "_EMISSION");
 
-            material.SetFloat(
-                "_EmissionStrength",
-                genericGlass ||
-                emissionTexture == null
-                    ? 0f
-                    : 3.2f);
+            material.DisableKeyword(
+                "_SURFACE_TYPE_TRANSPARENT");
+
+            material.SetOverrideTag(
+                "RenderType",
+                "Opaque");
+
+            material.renderQueue =
+                (int)UnityEngine.Rendering.RenderQueue.Geometry;
 
             return material;
         }
