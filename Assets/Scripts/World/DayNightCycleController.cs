@@ -70,6 +70,7 @@ namespace MotorCity.World
         private Material runtimeEveningSkybox;
         private Material runtimeNightSkybox;
         private Material runtimeCrossfadeSkybox;
+        private Material lastReflectionSkybox;
 
         private float time01;
         private float environmentUpdateTimer;
@@ -926,6 +927,21 @@ namespace MotorCity.World
                 if (force)
                 {
                     DynamicGI.UpdateEnvironment();
+                }
+
+                if (targetSkybox !=
+                    runtimeCrossfadeSkybox &&
+                    targetSkybox !=
+                    lastReflectionSkybox)
+                {
+                    lastReflectionSkybox =
+                        targetSkybox;
+
+                    if (initialized)
+                    {
+                        CityAssetRuntimeInstaller
+                            .RefreshCityReflectionProbes();
+                    }
                 }
             }
         }
