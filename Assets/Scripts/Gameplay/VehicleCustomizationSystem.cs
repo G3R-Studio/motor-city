@@ -881,7 +881,7 @@ namespace MotorCity.Gameplay
             }
             for (int end = -2; end <= 2; end++)
             {
-                float positionZ = end == -2 ? bounds.min.z + bounds.size.z * .10f
+                float positionZ = end == -2 ? bounds.min.z + bounds.size.z * .22f
                     : end == 2 ? bounds.max.z - bounds.size.z * .10f
                     : centerZ + end * span * .23f;
                 GameObject lightObject = new("Underglow Light " + end);

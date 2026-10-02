@@ -346,10 +346,20 @@ namespace MotorCity.World
                         source.name
                             .ToLowerInvariant();
 
+                    bool hybridWhiteLamp = vehicleId == "hybrid" &&
+                        IsDedicatedVehicleLamp(vehicleId, materialName);
+                    if (hybridWhiteLamp && source.HasProperty("_EmissionColor"))
+                    {
+                        // Material.005 is shared by front and rear white strips.
+                        // Only the front overlay may emit; the base stays unlit.
+                        source.SetColor("_EmissionColor", Color.black);
+                        source.DisableKeyword("_EMISSION");
+                    }
+
                     // Porsche and Peugeot expose dedicated headlight
                     // materials. Drive their real material emission at night
                     // instead of relying only on invisible Spot Lights.
-                    if (IsDedicatedVehicleLamp(vehicleId, materialName) ||
+                    if ((!hybridWhiteLamp && IsDedicatedVehicleLamp(vehicleId, materialName)) ||
                         materialName.Contains("headlight") ||
                         materialName.Contains("headlamp"))
                     {
@@ -380,7 +390,7 @@ namespace MotorCity.World
                         continue;
                     }
 
-                    bool useMaskedFrontOverlay =
+                    bool useMaskedFrontOverlay = hybridWhiteLamp ||
                         (vehicleId == "amggt" &&
                          (materialName.Contains("amggtemission") ||
                           materialName.Contains("gradientemmisive") ||
@@ -399,6 +409,7 @@ namespace MotorCity.World
                         ResolveBaseTexture(
                             source);
 
+                    if (hybridWhiteLamp) texture = Texture2D.whiteTexture;
                     if (texture == null)
                         continue;
 
@@ -686,6 +697,7 @@ namespace MotorCity.World
                         ResolveBaseTexture(
                             source);
 
+                    if (hybridWhiteLamp) texture = Texture2D.whiteTexture;
                     if (texture == null)
                         continue;
 
