@@ -100,11 +100,15 @@ Shader "MotorCity/SkyboxCrossfade"
                     atan2(direction.x, direction.z);
 
                 float latitude =
-                    asin(clamp(direction.y, -1.0, 1.0));
+                    acos(
+                        clamp(
+                            direction.y,
+                            -1.0,
+                            1.0));
 
                 return float2(
                     longitude / (2.0 * PI) + 0.5,
-                    latitude / PI + 0.5);
+                    latitude / PI);
             }
 
             half4 Frag(Varyings input) : SV_Target
