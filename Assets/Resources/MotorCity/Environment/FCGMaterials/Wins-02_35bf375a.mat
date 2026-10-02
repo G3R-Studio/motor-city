@@ -38,15 +38,20 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
+    - _ReflectionCube:
+        m_Texture: {fileID: 8900000, guid: b2ab35563b2e2794eb173c310a52347c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 0.58
+    - _AuthoredCubeStrength: 0.22
     - _DayGlassLift: 0.28
     - _EmissionStrength: 3.2
-    - _FresnelStrength: 0.42
+    - _FresnelStrength: 0.72
     - _NightGlassLift: 0.1
-    - _ReflectionStrength: 0.3
-    - _Roughness: 0.34
-    - _SpecularStrength: 0.24
+    - _ReflectionStrength: 0.62
+    - _Roughness: 0.3
+    - _SpecularStrength: 0.18
     m_Colors:
     - _BaseColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 0.92941177}
     - _DayGlassTint: {r: 0.19, g: 0.19, b: 0.19, a: 1}
