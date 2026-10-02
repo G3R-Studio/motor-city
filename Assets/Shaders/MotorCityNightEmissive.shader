@@ -262,7 +262,7 @@ Shader "MotorCity/NightEmissive"
 
                 dayGlass *=
                     lerp(
-                        0.72h,
+                        0.88h,
                         1.0h,
                         ambientLevel);
 
