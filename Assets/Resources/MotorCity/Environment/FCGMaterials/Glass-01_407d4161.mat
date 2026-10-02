@@ -100,11 +100,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _SpecularStrength: 0.06
-    - _Roughness: 0.48
-    - _ReflectionStrength: 0.2
+    - _SpecularStrength: 0.07
+    - _Roughness: 0.4
+    - _ReflectionStrength: 0.26
     - _NightGlassLift: 0.12
-    - _FresnelStrength: 0.36
+    - _FresnelStrength: 0.38
     - _EmissionStrength: 0
     - _DayGlassLift: 0.3
     - _AuthoredCubeStrength: 0
