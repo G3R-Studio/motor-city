@@ -1156,12 +1156,9 @@ public static class FantasticCityGeneratorUrpFixer
 
         if (!architecturalGlass)
         {
-            if (!architecturalGlass)
-            {
-                CopyEmission(
-                    source,
-                    material);
-            }
+            CopyEmission(
+                source,
+                material);
         }
 
         CopySurfaceValues(
@@ -2161,9 +2158,12 @@ public static class FantasticCityGeneratorUrpFixer
                 source,
                 material);
 
-            CopyEmission(
-                source,
-                material);
+            if (!architecturalGlass)
+            {
+                CopyEmission(
+                    source,
+                    material);
+            }
 
             CopySurfaceValues(
                 source,
