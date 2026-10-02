@@ -69,6 +69,7 @@ namespace MotorCity.World
         private Material runtimeDaySkybox;
         private Material runtimeEveningSkybox;
         private Material runtimeNightSkybox;
+        private Material runtimeCrossfadeSkybox;
 
         private float time01;
         private float environmentUpdateTimer;
@@ -272,6 +273,10 @@ namespace MotorCity.World
                 Destroy(
                     runtimeNightSkybox);
 
+            if (runtimeCrossfadeSkybox != null)
+                Destroy(
+                    runtimeCrossfadeSkybox);
+
             if (cityPostFxProfile != null)
                 Destroy(cityPostFxProfile);
         }
@@ -369,6 +374,21 @@ namespace MotorCity.World
                 CloneSkybox(
                     settings.NightSkybox,
                     "Night");
+
+            Shader crossfadeShader =
+                Resources.Load<Shader>(
+                    "MotorCity/Shaders/MotorCitySkyboxCrossfade");
+
+            if (crossfadeShader != null)
+            {
+                runtimeCrossfadeSkybox =
+                    new Material(
+                        crossfadeShader)
+                    {
+                        name =
+                            "MotorCity_RuntimeSkyboxCrossfade"
+                    };
+            }
         }
 
         private static Material CloneSkybox(
@@ -821,26 +841,246 @@ namespace MotorCity.World
                     time01,
                     1f);
 
+            const float halfWidth =
+                0.035f;
+
+            if (runtimeCrossfadeSkybox != null &&
+                (TryResolveSkyboxCrossfade(
+                     t,
+                     0.24f,
+                     halfWidth,
+                     runtimeNightSkybox,
+                     runtimeMorningSkybox,
+                     out Material from,
+                     out Material to,
+                     out float progress) ||
+                 TryResolveSkyboxCrossfade(
+                     t,
+                     0.41f,
+                     halfWidth,
+                     runtimeMorningSkybox,
+                     runtimeDaySkybox,
+                     out from,
+                     out to,
+                     out progress) ||
+                 TryResolveSkyboxCrossfade(
+                     t,
+                     0.61f,
+                     halfWidth,
+                     runtimeDaySkybox,
+                     runtimeEveningSkybox,
+                     out from,
+                     out to,
+                     out progress) ||
+                 TryResolveSkyboxCrossfade(
+                     t,
+                     0.82f,
+                     halfWidth,
+                     runtimeEveningSkybox,
+                     runtimeNightSkybox,
+                     out from,
+                     out to,
+                     out progress)))
+            {
+                if (ConfigureCrossfadeSkybox(
+                        from,
+                        to,
+                        progress))
+                {
+                    if (RenderSettings.skybox !=
+                        runtimeCrossfadeSkybox)
+                    {
+                        RenderSettings.skybox =
+                            runtimeCrossfadeSkybox;
+                    }
+
+                    return;
+                }
+            }
+
             Material targetSkybox =
                 ResolveSkyboxForTime(
                     t);
 
-            if (targetSkybox == null)
-                return;
-
-            // Keep the authored skybox materials and their projection untouched.
-            // We only switch the active material here. A renderer-level crossfade
-            // must not invoke Camera.Render() inside URP because that corrupts
-            // the active render pass.
-            if (force ||
-                RenderSettings.skybox !=
-                targetSkybox)
+            if (targetSkybox != null &&
+                (force ||
+                 RenderSettings.skybox !=
+                 targetSkybox))
             {
                 RenderSettings.skybox =
                     targetSkybox;
 
-                DynamicGI.UpdateEnvironment();
+                if (force)
+                {
+                    DynamicGI.UpdateEnvironment();
+                }
             }
+        }
+
+        private bool ConfigureCrossfadeSkybox(
+            Material from,
+            Material to,
+            float progress)
+        {
+            if (runtimeCrossfadeSkybox == null ||
+                from == null ||
+                to == null ||
+                !from.HasProperty("_MainTex") ||
+                !to.HasProperty("_MainTex"))
+            {
+                return false;
+            }
+
+            Texture textureA =
+                from.GetTexture(
+                    "_MainTex");
+
+            Texture textureB =
+                to.GetTexture(
+                    "_MainTex");
+
+            if (textureA == null ||
+                textureB == null)
+            {
+                return false;
+            }
+
+            runtimeCrossfadeSkybox.SetTexture(
+                "_TexA",
+                textureA);
+
+            runtimeCrossfadeSkybox.SetTexture(
+                "_TexB",
+                textureB);
+
+            runtimeCrossfadeSkybox.SetColor(
+                "_TintA",
+                GetSkyboxColor(
+                    from,
+                    "_Tint",
+                    Color.gray));
+
+            runtimeCrossfadeSkybox.SetColor(
+                "_TintB",
+                GetSkyboxColor(
+                    to,
+                    "_Tint",
+                    Color.gray));
+
+            runtimeCrossfadeSkybox.SetFloat(
+                "_ExposureA",
+                GetSkyboxFloat(
+                    from,
+                    "_Exposure",
+                    1f));
+
+            runtimeCrossfadeSkybox.SetFloat(
+                "_ExposureB",
+                GetSkyboxFloat(
+                    to,
+                    "_Exposure",
+                    1f));
+
+            runtimeCrossfadeSkybox.SetFloat(
+                "_RotationA",
+                GetSkyboxFloat(
+                    from,
+                    "_Rotation",
+                    0f));
+
+            runtimeCrossfadeSkybox.SetFloat(
+                "_RotationB",
+                GetSkyboxFloat(
+                    to,
+                    "_Rotation",
+                    0f));
+
+            runtimeCrossfadeSkybox.SetFloat(
+                "_Blend",
+                Mathf.Clamp01(
+                    progress));
+
+            return true;
+        }
+
+        private static float GetSkyboxFloat(
+            Material material,
+            string property,
+            float fallback)
+        {
+            if (material != null &&
+                material.HasProperty(
+                    property))
+            {
+                return material.GetFloat(
+                    property);
+            }
+
+            return fallback;
+        }
+
+        private static Color GetSkyboxColor(
+            Material material,
+            string property,
+            Color fallback)
+        {
+            if (material != null &&
+                material.HasProperty(
+                    property))
+            {
+                return material.GetColor(
+                    property);
+            }
+
+            return fallback;
+        }
+
+        private static bool TryResolveSkyboxCrossfade(
+            float time,
+            float threshold,
+            float halfWidth,
+            Material oldSkybox,
+            Material newSkybox,
+            out Material from,
+            out Material to,
+            out float progress)
+        {
+            from =
+                oldSkybox;
+
+            to =
+                newSkybox;
+
+            progress =
+                0f;
+
+            if (from == null ||
+                to == null)
+            {
+                return false;
+            }
+
+            float start =
+                threshold -
+                halfWidth;
+
+            float end =
+                threshold +
+                halfWidth;
+
+            if (time < start ||
+                time > end)
+            {
+                return false;
+            }
+
+            progress =
+                Mathf.InverseLerp(
+                    start,
+                    end,
+                    time);
+
+            return true;
         }
 
         private Material ResolveSkyboxForTime(
