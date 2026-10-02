@@ -9,17 +9,16 @@ Shader "MotorCity/NightEmissive"
         _BumpScale("Normal Strength", Range(0,2)) = 0.75
         [HDR] _EmissionColor("Emission Color", Color) = (1.0,0.62,0.28,1)
         _EmissionStrength("Emission Strength", Range(0,8)) = 2.6
-        _DayGlassTint("Day Glass Tint", Color) = (0.12,0.13,0.14,1)
-        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.24
-        _NightGlassTint("Night Glass Tint", Color) = (0.025,0.03,0.04,1)
-        _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.10
-        _Roughness("Glass Roughness", Range(0.04,1)) = 0.28
-        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.52
+        _DayGlassTint("Day Glass Tint", Color) = (0.17,0.18,0.19,1)
+        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.32
+        _NightGlassTint("Night Glass Tint", Color) = (0.035,0.04,0.045,1)
+        _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.12
+        _Roughness("Glass Roughness", Range(0.04,1)) = 0.58
+        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.14
         [NoScaleOffset] _ReflectionCube("FCG Reflection Cube", Cube) = "" {}
         _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.00
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.72
-        _SpecularStrength("Sun Specular", Range(0,1)) = 0.06
-        [Toggle] _ProbeDebug("Probe Debug", Float) = 0
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.32
+        _SpecularStrength("Sun Specular", Range(0,1)) = 0.03
     }
 
     SubShader
@@ -82,7 +81,6 @@ Shader "MotorCity/NightEmissive"
                 half _AuthoredCubeStrength;
                 half _FresnelStrength;
                 half _SpecularStrength;
-                half _ProbeDebug;
             CBUFFER_END
 
             float _MotorCityNightEmission;
@@ -368,13 +366,17 @@ Shader "MotorCity/NightEmissive"
 
                 // Keep a readable reflection at normal incidence and let
                 // Schlick Fresnel smoothly increase it toward grazing angles.
+                half grazingReflection =
+                    pow(
+                        1.0h -
+                        ndotv,
+                        3.0h);
+
                 half reflectionMix =
                     saturate(
                         reflectionEnergy *
-                        lerp(
-                            0.24h,
-                            1.0h,
-                            fresnel));
+                        grazingReflection *
+                        0.42h);
 
                 half3 halfDirection =
                     normalize(
@@ -416,18 +418,6 @@ Shader "MotorCity/NightEmissive"
                             0.0h,
                             0.0h,
                             0.0h));
-
-                if (_ProbeDebug > 0.5h)
-                {
-                    half3 debugReflection =
-                        MixFog(
-                            shapedReflection,
-                            input.fogFactor);
-
-                    return half4(
-                        debugReflection,
-                        1.0h);
-                }
 
                 half3 color =
                     lerp(
