@@ -245,8 +245,8 @@ namespace MotorCity.World
                     RuntimeCityName;
             }
 
-            RebindRuntimeCityMaterials();
             DisableLegacyFcgDayNight();
+            RebindRuntimeCityMaterials();
 
             // Runtime treats the authored city as read-only.
             // Colliders, props, parked vehicles, traffic signals and all
