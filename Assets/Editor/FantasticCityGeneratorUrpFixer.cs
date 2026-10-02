@@ -311,6 +311,112 @@ public static class FantasticCityGeneratorUrpFixer
         }
     }
 
+    public static int RepairRuntimeHierarchyMaterials(
+        GameObject root)
+    {
+        if (root == null)
+            return 0;
+
+        Shader urpLit =
+            Shader.Find(
+                "Universal Render Pipeline/Lit");
+
+        if (urpLit == null)
+            return 0;
+
+        Renderer[] renderers =
+            root.GetComponentsInChildren<Renderer>(
+                true);
+
+        var converted =
+            new Dictionary<Material, Material>();
+
+        int changedRenderers =
+            0;
+
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer == null)
+                continue;
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            bool changed =
+                false;
+
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                Material source =
+                    materials[i];
+
+                if (source == null)
+                    continue;
+
+                if (IsGeneratedUrpMaterial(
+                        source))
+                {
+                    RepairGeneratedUrpMaterial(
+                        source,
+                        urpLit);
+
+                    continue;
+                }
+
+                if (!BelongsToFantasticCityGenerator(
+                        source))
+                {
+                    continue;
+                }
+
+                if (!converted.TryGetValue(
+                        source,
+                        out Material runtime))
+                {
+                    runtime =
+                        CreateOrUpdateUrpMaterial(
+                            source,
+                            urpLit,
+                            converted.Count);
+
+                    converted[source] =
+                        runtime;
+                }
+
+                if (runtime == null ||
+                    ReferenceEquals(
+                        runtime,
+                        source))
+                {
+                    continue;
+                }
+
+                materials[i] =
+                    runtime;
+
+                changed =
+                    true;
+            }
+
+            if (!changed)
+                continue;
+
+            renderer.sharedMaterials =
+                materials;
+
+            EditorUtility.SetDirty(
+                renderer);
+
+            changedRenderers++;
+        }
+
+        AssetDatabase.SaveAssets();
+
+        return changedRenderers;
+    }
+
     private static GameObject[] GetTrafficCarPrefabs(
         Scene scene)
     {
