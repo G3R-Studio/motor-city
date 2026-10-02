@@ -130,75 +130,6 @@ namespace MotorCity.World
                         : "_MainTex");
             }
 
-            Color sourceColor =
-                Color.white;
-
-            if (source.HasProperty(
-                    "_BaseColor"))
-            {
-                sourceColor =
-                    source.GetColor(
-                        "_BaseColor");
-            }
-            else if (source.HasProperty(
-                         "_Color"))
-            {
-                sourceColor =
-                    source.GetColor(
-                        "_Color");
-            }
-
-            sourceColor.a =
-                1f;
-
-            material.SetColor(
-                "_BaseColor",
-                sourceColor);
-
-            material.SetColor(
-                "_DayGlassTint",
-                new Color(
-                    0.19f,
-                    0.19f,
-                    0.19f,
-                    1f));
-
-            material.SetFloat(
-                "_DayGlassLift",
-                0.30f);
-
-            material.SetColor(
-                "_NightGlassTint",
-                new Color(
-                    0.045f,
-                    0.05f,
-                    0.055f,
-                    1f));
-
-            material.SetFloat(
-                "_NightGlassLift",
-                0.12f);
-
-            material.SetFloat(
-                "_Roughness",
-                0.40f);
-
-            material.SetFloat(
-                "_ReflectionStrength",
-                0.26f);
-
-            material.SetFloat(
-                "_AuthoredCubeStrength",
-                0f);
-
-            material.SetFloat(
-                "_FresnelStrength",
-                0.38f);
-
-            material.SetFloat(
-                "_SpecularStrength",
-                0.07f);
-
             bool genericGlass =
                 key.StartsWith(
                     "glass",
@@ -206,6 +137,60 @@ namespace MotorCity.World
                 !key.StartsWith(
                     "winglass",
                     StringComparison.OrdinalIgnoreCase);
+
+            material.SetColor(
+                "_BaseColor",
+                genericGlass
+                    ? new Color(
+                        0.25f,
+                        0.25f,
+                        0.25f,
+                        1f)
+                    : Color.white);
+
+            material.SetColor(
+                "_DayGlassTint",
+                new Color(
+                    0.20f,
+                    0.205f,
+                    0.21f,
+                    1f));
+
+            material.SetFloat(
+                "_DayGlassLift",
+                0.32f);
+
+            material.SetColor(
+                "_NightGlassTint",
+                new Color(
+                    0.04f,
+                    0.045f,
+                    0.05f,
+                    1f));
+
+            material.SetFloat(
+                "_NightGlassLift",
+                0.16f);
+
+            material.SetFloat(
+                "_Roughness",
+                0.28f);
+
+            material.SetFloat(
+                "_ReflectionStrength",
+                0.55f);
+
+            material.SetFloat(
+                "_AuthoredCubeStrength",
+                0f);
+
+            material.SetFloat(
+                "_FresnelStrength",
+                1f);
+
+            material.SetFloat(
+                "_SpecularStrength",
+                0.12f);
 
             material.SetFloat(
                 "_EmissionStrength",
