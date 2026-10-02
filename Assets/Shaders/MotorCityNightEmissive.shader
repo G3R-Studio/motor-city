@@ -13,10 +13,12 @@ Shader "MotorCity/NightEmissive"
         _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.30
         _NightGlassTint("Night Glass Tint", Color) = (0.045,0.05,0.055,1)
         _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.12
-        _Roughness("Glass Roughness", Range(0.04,1)) = 0.34
-        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.30
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.42
-        _SpecularStrength("Sun Specular", Range(0,1)) = 0.24
+        _Roughness("Glass Roughness", Range(0.04,1)) = 0.30
+        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.62
+        [NoScaleOffset] _ReflectionCube("FCG Reflection Cube", Cube) = "" {}
+        _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.22
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.72
+        _SpecularStrength("Sun Specular", Range(0,1)) = 0.18
     }
 
     SubShader
@@ -56,6 +58,8 @@ Shader "MotorCity/NightEmissive"
             SAMPLER(sampler_EmissionMap);
             TEXTURE2D(_BumpMap);
             SAMPLER(sampler_BumpMap);
+            TEXTURECUBE(_ReflectionCube);
+            SAMPLER(sampler_ReflectionCube);
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
@@ -71,6 +75,7 @@ Shader "MotorCity/NightEmissive"
                 half _NightGlassLift;
                 half _Roughness;
                 half _ReflectionStrength;
+                half _AuthoredCubeStrength;
                 half _FresnelStrength;
                 half _SpecularStrength;
             CBUFFER_END
@@ -280,12 +285,20 @@ Shader "MotorCity/NightEmissive"
                         ndotv,
                         5.0h);
 
-                half fresnel =
+                half physicalFresnel =
                     lerp(
                         0.04h,
                         1.0h,
-                        grazing) *
-                    _FresnelStrength;
+                        grazing);
+
+                // Strength controls how pronounced the angle response is,
+                // while the frontal dielectric reflection remains present.
+                half fresnel =
+                    lerp(
+                        0.04h,
+                        physicalFresnel,
+                        saturate(
+                            _FresnelStrength));
 
                 half3 reflectionDir =
                     reflect(
@@ -313,21 +326,38 @@ Shader "MotorCity/NightEmissive"
                         reflectionDir,
                         mipLevel);
 
-                half3 environmentReflection =
+                half3 probeReflection =
                     DecodeHDREnvironment(
                         encodedReflection,
                         unity_SpecCube0_HDR);
+
+                half3 authoredReflection =
+                    SAMPLE_TEXTURECUBE_LOD(
+                        _ReflectionCube,
+                        sampler_ReflectionCube,
+                        reflectionDir,
+                        mipLevel).rgb;
+
+                // FCG authored its windows around a dedicated reflection cube.
+                // Preserve a small amount of that authored detail while using
+                // realtime probes as the main reflection source.
+                half3 environmentReflection =
+                    lerp(
+                        probeReflection,
+                        authoredReflection,
+                        saturate(
+                            _AuthoredCubeStrength));
 
                 // Rougher glass receives a softer, weaker environment term.
                 half reflectionEnergy =
                     _ReflectionStrength *
                     lerp(
                         1.0h,
-                        0.34h,
+                        0.48h,
                         roughness) *
                     lerp(
                         1.0h,
-                        0.58h,
+                        0.62h,
                         nightAmount);
 
                 half3 halfDirection =
@@ -359,11 +389,20 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
+                half reflectionMix =
+                    saturate(
+                        (0.08h +
+                         fresnel * 0.92h) *
+                        reflectionEnergy);
+
+                // Reflection replaces part of the dark authored window texture
+                // instead of merely brightening it. This keeps facade detail
+                // while making the surface read as actual glass.
                 half3 color =
-                    glassBase +
-                    environmentReflection *
-                    fresnel *
-                    reflectionEnergy +
+                    lerp(
+                        glassBase,
+                        environmentReflection,
+                        reflectionMix) +
                     mainLight.color *
                     sunSpecular *
                     fresnel;
