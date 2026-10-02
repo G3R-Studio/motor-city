@@ -4,7 +4,7 @@ Shader "MotorCity/NightEmissive"
     {
         [MainTexture] _BaseMap("Base Map", 2D) = "white" {}
         [MainColor] _BaseColor("Base Color", Color) = (1,1,1,1)
-        _EmissionMap("Emission Map", 2D) = "white" {}
+        _EmissionMap("Emission Map", 2D) = "black" {}
         [Normal] _BumpMap("Normal Map", 2D) = "bump" {}
         _BumpScale("Normal Strength", Range(0,2)) = 0.75
         [HDR] _EmissionColor("Emission Color", Color) = (1.0,0.62,0.28,1)
