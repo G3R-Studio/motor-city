@@ -488,16 +488,66 @@ namespace MotorCity.Gameplay
             if (transform == null)
                 return false;
 
-            string name =
-                transform.name
+            string objectName =
+                NormalizeImportedPartName(
+                    transform.name);
+
+            if (IsBodyMiscName(
+                    objectName))
+            {
+                return false;
+            }
+
+            if (objectName == "body")
+                return true;
+
+            MeshFilter meshFilter =
+                transform.GetComponent<MeshFilter>();
+
+            if (meshFilter == null ||
+                meshFilter.sharedMesh == null)
+            {
+                return false;
+            }
+
+            string meshName =
+                NormalizeImportedPartName(
+                    meshFilter.sharedMesh.name);
+
+            if (IsBodyMiscName(
+                    meshName))
+            {
+                return false;
+            }
+
+            return
+                meshName == "body";
+        }
+
+        private static string NormalizeImportedPartName(
+            string name)
+        {
+            return
+                (name ?? string.Empty)
                     .Replace(
                         " (Clone)",
                         string.Empty)
                     .Trim()
                     .ToLowerInvariant();
+        }
 
+        private static bool IsBodyMiscName(
+            string name)
+        {
             return
-                name == "body";
+                name == "body_misc" ||
+                name == "body.misc" ||
+                name.StartsWith(
+                    "body_misc.",
+                    StringComparison.OrdinalIgnoreCase) ||
+                name.StartsWith(
+                    "body.misc.",
+                    StringComparison.OrdinalIgnoreCase);
         }
 
         private bool ApplyAuthoredStarterPaint(
