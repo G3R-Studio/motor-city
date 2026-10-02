@@ -217,6 +217,11 @@ namespace MotorCity.World
                         1f);
             }
 
+            // Move the celestial lights every frame. Environment/post FX can
+            // remain throttled, but shadow direction must not advance in 0.1 s
+            // steps or the sun visibly "ticks" across the sky.
+            ApplyCelestialRotation();
+
             environmentUpdateTimer -=
                 Time.deltaTime;
 
@@ -410,8 +415,7 @@ namespace MotorCity.World
             return clone;
         }
 
-        private void ApplyEnvironment(
-            bool force)
+        private void ApplyCelestialRotation()
         {
             if (directionalLight == null)
                 return;
@@ -425,6 +429,28 @@ namespace MotorCity.World
                     solarAngle,
                     sunYawDegrees,
                     0f);
+
+            if (moonLight != null)
+            {
+                moonLight.transform.rotation =
+                    Quaternion.Euler(
+                        solarAngle + 180f,
+                        sunYawDegrees + 180f,
+                        0f);
+            }
+        }
+
+        private void ApplyEnvironment(
+            bool force)
+        {
+            if (directionalLight == null)
+                return;
+
+            ApplyCelestialRotation();
+
+            float solarAngle =
+                time01 * 360f -
+                90f;
 
             float solarHeight =
                 -directionalLight.transform.forward.y;
@@ -768,14 +794,6 @@ namespace MotorCity.World
 
             if (moonLight != null)
             {
-                moonLight.transform.rotation =
-                    Quaternion.Euler(
-                        solarAngle +
-                        180f,
-                        sunYawDegrees +
-                        180f,
-                        0f);
-
                 moonLight.color =
                     moonColor;
 
@@ -849,7 +867,7 @@ namespace MotorCity.World
                     1f);
 
             const float transitionHalfWidth =
-                0.02f;
+                0.04f;
 
             Material from =
                 null;
