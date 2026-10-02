@@ -34,3 +34,9 @@ a full action-strip rectangle and centered alignment; non-maxed actions restore
 the purchase layout. Vector surfaces/icons include transparent coverage fringes
 scaled to one screen pixel, without additional frame/glow objects. Stub regression
 checks also cover resize, atlas invalidation, idle stability and all AA meshes.
+
+Garage labels explicitly allow vertical overflow so scale-dependent glyph line
+height cannot discard a whole line. Short labels/numbers use horizontal overflow;
+multiline descriptions retain wrapping. The level number has room for three
+and four digits, with its progress track moved to avoid overlap. Removing Best Fit
+alone had exposed the default Text truncation in tight header rectangles.

@@ -36,8 +36,8 @@ namespace MotorCity.UI
             GarageIcon(reputation, "Garage Reputation Icon", GarageReferenceGraphic.Symbol.Crown, new Color(1,.25f,.9f), 0, 8, 41, 36);
             GarageIcon(level, "Garage Level Icon", GarageReferenceGraphic.Symbol.Star, GarageReferenceCyan, 0, 6, 39, 39);
             ReferenceLabel(level, "Garage Level Label", MotorCityLocalization.Text("garage.level_label"), 54, 0, 120, 20, 16);
-            garageLevelText = ReferenceLabel(level, "Garage Level", "", 54, 22, 30, 28, 24, Color.white);
-            garageHeaderLevelFill = GarageTrack(level, "Garage Header Level Track", 86, 31, 85, 14);
+            garageLevelText = ReferenceLabel(level, "Garage Level", "", 54, 22, 54, 28, 24, Color.white);
+            garageHeaderLevelFill = GarageTrack(level, "Garage Header Level Track", 112, 31, 59, 14);
             ReferenceLabel(balance, "Garage Header Mastery Label", MotorCityLocalization.Text("garage.auto_mastery_label"), 698, 15, 161, 20, 16);
             garageHeaderMasteryText = ReferenceLabel(balance, "Garage Header Mastery", "", 698, 36, 62, 28, 24, Color.white);
             GarageIcon(balance, "Garage Wrench", GarageReferenceGraphic.Symbol.Wrench, GarageReferenceLilac, 645, 21, 42, 42);
@@ -196,6 +196,11 @@ namespace MotorCity.UI
             Text text = GarageRect(parent, name, x, y, w, h).gameObject.AddComponent<Text>();
             text.font = Resources.Load<Font>("MotorCity/Fonts/RobotoCondensed-Regular") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontStyle = FontStyle.Bold; text.alignment = TextAnchor.MiddleLeft;
+            // Dynamic glyph line height is rounded at the current canvas scale.
+            // Truncate can discard the entire first line in a tightly sized box.
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.horizontalOverflow = h < size * 2f
+                ? HorizontalWrapMode.Overflow : HorizontalWrapMode.Wrap;
             text.fontSize = Mathf.RoundToInt(size * GarageReferenceScale.y);
             text.resizeTextForBestFit = false; text.resizeTextMinSize = Mathf.RoundToInt(text.fontSize * .82f); text.resizeTextMaxSize = text.fontSize;
             text.color = tint ?? GarageReferenceLilac; text.raycastTarget = false; text.text = value;
