@@ -317,6 +317,12 @@ namespace MotorCity.World
             int replaced =
                 0;
 
+            int dynamicallyConvertedGlass =
+                0;
+
+            var dynamicGlassMap =
+                new Dictionary<Material, Material>();
+
             var unresolvedGlass =
                 new HashSet<string>(
                     StringComparer.OrdinalIgnoreCase);
@@ -361,26 +367,47 @@ namespace MotorCity.World
                         continue;
                     }
 
+                    bool architecturalGlass =
+                        FcgRuntimeGlassMaterialFactory
+                            .IsArchitecturalGlassKey(
+                                key);
+
                     if (!materialMap.TryGetValue(
                             key,
                             out Material replacement) ||
                         replacement == null)
                     {
-                        if (key.StartsWith(
-                                "glass",
-                                StringComparison.OrdinalIgnoreCase) ||
-                            key.StartsWith(
-                                "winglass",
-                                StringComparison.OrdinalIgnoreCase) ||
-                            key.StartsWith(
-                                "wins",
-                                StringComparison.OrdinalIgnoreCase))
+                        if (architecturalGlass)
                         {
-                            unresolvedGlass.Add(
-                                current.name);
+                            if (!dynamicGlassMap.TryGetValue(
+                                    current,
+                                    out replacement) ||
+                                replacement == null)
+                            {
+                                replacement =
+                                    FcgRuntimeGlassMaterialFactory
+                                        .Create(
+                                            current,
+                                            key);
+
+                                if (replacement != null)
+                                {
+                                    dynamicGlassMap[current] =
+                                        replacement;
+
+                                    dynamicallyConvertedGlass++;
+                                }
+                            }
+
+                            if (replacement == null)
+                            {
+                                unresolvedGlass.Add(
+                                    current.name);
+                            }
                         }
 
-                        continue;
+                        if (replacement == null)
+                            continue;
                     }
 
                     if (replacement == current)
@@ -403,18 +430,16 @@ namespace MotorCity.World
                 // The generated city should participate in the reflection
                 // probes unless an individual renderer explicitly opts out
                 // later for a special-purpose effect.
-                if (renderer.reflectionProbeUsage ==
-                    ReflectionProbeUsage.Off)
-                {
-                    renderer.reflectionProbeUsage =
-                        ReflectionProbeUsage.BlendProbes;
-                }
+                renderer.reflectionProbeUsage =
+                    ReflectionProbeUsage.BlendProbes;
             }
 
             Debug.Log(
                 "Motor City: rebound " +
                 replaced +
-                " runtime FCG material slots to generated Resources materials.");
+                " runtime FCG material slots; dynamically converted " +
+                dynamicallyConvertedGlass +
+                " unresolved architectural glass materials.");
 
             if (unresolvedGlass.Count > 0)
             {
