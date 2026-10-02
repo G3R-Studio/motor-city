@@ -37,10 +37,14 @@ Material:
         m_Texture: {fileID: 2800000, guid: 4102d5bac47cfa6489a057a503acf250, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ReflectionCube:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BumpScale: 0.52
     - _AuthoredCubeStrength: 0
+    - _BumpScale: 0.52
     - _DayGlassLift: 0.32
     - _EmissionStrength: 3.58
     - _FresnelStrength: 0.32
