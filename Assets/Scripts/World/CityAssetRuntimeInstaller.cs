@@ -610,10 +610,11 @@ namespace MotorCity.World
                     cityBounds.center +
                     offsets[i];
 
+                // Box-projected probes must live near the center of the
+                // volume they represent. Keeping them close to ground level
+                // makes reflections on high-rise facades collapse/stretch.
                 position.y =
-                    Mathf.Max(
-                        3.5f,
-                        cityBounds.min.y + 4f);
+                    cityBounds.center.y;
 
                 probeObject.transform.position =
                     position;
@@ -649,7 +650,7 @@ namespace MotorCity.World
                     0.85f;
 
                 probe.intensity =
-                    0.72f;
+                    0.82f;
 
                 probe.blendDistance =
                     Mathf.Min(
