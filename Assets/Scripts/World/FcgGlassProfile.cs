@@ -9,26 +9,26 @@ namespace MotorCity.World
     public static class FcgGlassProfile
     {
         public const float BumpScale = 0.52f;
-        public const float DayGlassLift = 0.24f;
-        public const float NightGlassLift = 0.10f;
-        public const float Roughness = 0.28f;
-        public const float ReflectionStrength = 0.52f;
+        public const float DayGlassLift = 0.32f;
+        public const float NightGlassLift = 0.12f;
+        public const float Roughness = 0.58f;
+        public const float ReflectionStrength = 0.14f;
         public const float AuthoredCubeStrength = 0f;
-        public const float FresnelStrength = 0.72f;
-        public const float SpecularStrength = 0.06f;
+        public const float FresnelStrength = 0.32f;
+        public const float SpecularStrength = 0.03f;
 
         public static readonly Color DayGlassTint =
             new(
-                0.12f,
-                0.13f,
-                0.14f,
+                0.17f,
+                0.18f,
+                0.19f,
                 1f);
 
         public static readonly Color NightGlassTint =
             new(
-                0.025f,
-                0.03f,
+                0.035f,
                 0.04f,
+                0.045f,
                 1f);
     }
 }
