@@ -34,7 +34,7 @@ Shader "MotorCity/SkyboxCrossfade"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma target 2.0
+            #pragma target 3.0
 
             #include "UnityCG.cginc"
 
@@ -118,6 +118,35 @@ Shader "MotorCity/SkyboxCrossfade"
                     sphereCoords;
             }
 
+            float CloudHash(float2 point)
+            {
+                float3 seed = frac(float3(point.xyx) * 0.1031);
+                seed += dot(seed, seed.yzx + 33.33);
+                return frac((seed.x + seed.y) * seed.z);
+            }
+
+            float CloudNoise(float2 point)
+            {
+                float2 cell = floor(point);
+                float2 blend = frac(point);
+                blend = blend * blend * (3.0 - 2.0 * blend);
+                return lerp(
+                    lerp(CloudHash(cell), CloudHash(cell + float2(1, 0)), blend.x),
+                    lerp(CloudHash(cell + float2(0, 1)), CloudHash(cell + float2(1, 1)), blend.x),
+                    blend.y);
+            }
+
+            float CloudDensity(float2 point)
+            {
+                float density = CloudNoise(point) * 0.5333;
+                point = point * 2.03 + float2(13.7, 9.2);
+                density += CloudNoise(point) * 0.2667;
+                point = point * 2.03 + float2(13.7, 9.2);
+                density += CloudNoise(point) * 0.1333;
+                point = point * 2.03 + float2(13.7, 9.2);
+                return density + CloudNoise(point) * 0.0667;
+            }
+
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -178,6 +207,27 @@ Shader "MotorCity/SkyboxCrossfade"
                 half lunarDetail = 0.80 + 0.20 * sin(viewRay.x*1700.0) * sin(viewRay.z*1300.0);
                 sky += _MotorCitySunDiscColor.rgb * (sunDisc + sunHalo) * horizon;
                 sky += _MotorCityMoonDiscColor.rgb * moonDisc * lunarDetail * horizon;
+
+                // A world-oriented cloud layer: turning the camera does not move
+                // the clouds. Wind drifts continuously, independently of day length.
+                float2 cloudPoint = viewRay.xz * 2.8 / max(viewRay.y + 0.12, 0.12);
+                cloudPoint += _Time.y * float2(0.018, 0.007);
+                float density = CloudDensity(cloudPoint);
+                float coverage = CloudNoise(cloudPoint * 0.32 + float2(31.2, 7.8));
+                float edge = 0.48 + (coverage - 0.5) * 0.16;
+                // Derivative filtering keeps distant cloud edges soft on resize.
+                float softness = max(0.085, fwidth(density) * 1.5);
+                half cloudAlpha = smoothstep(edge - softness, edge + softness, density);
+                cloudAlpha *= smoothstep(0.015, 0.16, viewRay.y) * 0.94;
+                half thickness = smoothstep(edge, edge + 0.24, density);
+                half3 cloudColor = lerp(half3(.025, .035, .06), half3(.91, .94, .98), daylight);
+                cloudColor *= lerp(1.0, 0.66, thickness);
+                half sunsetLight = dusk * (0.25 + 0.75 * pow(sunFacing, 4));
+                cloudColor = lerp(cloudColor, half3(.92, .46, .25) * lerp(1.0, .65, thickness), sunsetLight * .72);
+                cloudColor += half3(1.0, .85, .65) * daylight
+                    * pow(saturate(sunDot), 16) * (1.0 - thickness) * .22;
+                // Composite over the discs so thicker clouds obscure sun and moon.
+                sky = lerp(sky, cloudColor, cloudAlpha);
                 return half4(sky, 1.0h);
             }
             ENDCG
