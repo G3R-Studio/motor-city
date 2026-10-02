@@ -858,18 +858,40 @@ namespace MotorCity.Gameplay
         private void BuildNeon(Bounds bounds)
         {
             Color color = AccentColors[SelectedNeonIndex - 1];
-            // Invisible sources mounted inside the underside of the body.
-            // Height above the floor softens the pool instead of creating a hot dot.
             float underside = bounds.min.y + Mathf.Clamp(bounds.size.y * .20f, .22f, .35f);
-            float sideOffset = bounds.extents.x * .48f;
-            for (int side = -1; side <= 1; side += 2)
+            float centerZ = bounds.center.z;
+            float span = bounds.size.z * .65f;
+            // Wheel centers locate the passenger chassis between the axles,
+            // avoiding an asymmetric body mesh/spoiler shifting the pool rearward.
+            // The mounting height still comes exclusively from the body bounds.
+            float minAxle = float.PositiveInfinity, maxAxle = float.NegativeInfinity;
+            foreach (Renderer renderer in FindVisualRoot().GetComponentsInChildren<Renderer>(true))
             {
-                GameObject lightObject = new("Underglow Light " + side);
+                if (renderer == null || IsPrimaryBodyRenderer(renderer.transform) ||
+                    !(IsWheelHierarchy(renderer.transform) || IsNamedWheelPaintRenderer(renderer))) continue;
+                Vector3 center = car.transform.InverseTransformPoint(
+                    renderer.transform.TransformPoint(renderer.localBounds.center));
+                minAxle = Mathf.Min(minAxle, center.z);
+                maxAxle = Mathf.Max(maxAxle, center.z);
+            }
+            if (maxAxle - minAxle > .5f)
+            {
+                centerZ = (minAxle + maxAxle) * .5f;
+                span = maxAxle - minAxle;
+            }
+            for (int end = -1; end <= 1; end += 2)
+            {
+                GameObject lightObject = new("Underglow Light " + end);
                 lightObject.transform.SetParent(cosmeticsRoot.transform, false);
                 lightObject.transform.localPosition = new Vector3(
-                    bounds.center.x + side * sideOffset, underside, bounds.center.z);
+                    bounds.center.x, underside, centerZ + end * span * .23f);
+                // A point source also lit mirrors/roof. These wide soft cones
+                // emit only toward the ground and follow the vehicle's underside.
+                lightObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
                 Light light = lightObject.AddComponent<Light>();
-                light.type = LightType.Point;
+                light.type = LightType.Spot;
+                light.spotAngle = 160f;
+                light.innerSpotAngle = 105f;
                 light.color = color;
                 light.range = Mathf.Clamp(bounds.size.z * 1.25f, 4f, 7f);
                 light.intensity = 1.4f;
