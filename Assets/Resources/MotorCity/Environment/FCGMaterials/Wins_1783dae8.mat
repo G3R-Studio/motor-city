@@ -39,6 +39,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _ProbeDebug: 1
     - _BumpScale: 0.52
     - _AuthoredCubeStrength: 0
     - _DayGlassLift: 0.24
