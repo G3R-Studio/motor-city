@@ -311,12 +311,12 @@ namespace MotorCity.World
             cityColor.saturation.Override(2f);
 
             WhiteBalance whiteBalance = cityPostFxProfile.Add<WhiteBalance>(true);
-            whiteBalance.temperature.Override(-1f);
+            whiteBalance.temperature.Override(2f);
             whiteBalance.tint.Override(0f);
 
             citySplitToning = cityPostFxProfile.Add<SplitToning>(true);
-            citySplitToning.shadows.Override(new Color(0.43f, 0.48f, 0.56f, 1f));
-            citySplitToning.highlights.Override(new Color(0.57f, 0.52f, 0.45f, 1f));
+            citySplitToning.shadows.Override(new Color(0.50f, 0.49f, 0.47f, 1f));
+            citySplitToning.highlights.Override(new Color(0.57f, 0.53f, 0.47f, 1f));
             citySplitToning.balance.Override(0f);
 
             cityVignette = cityPostFxProfile.Add<Vignette>(true);
@@ -665,11 +665,24 @@ namespace MotorCity.World
             // highlights and roads, pavements and the car read like wet plastic.
             // Direct headlights, street lights and emissive windows remain
             // unaffected, which gives the night scene more material separation.
-            RenderSettings.reflectionIntensity =
+            float baseReflectionIntensity =
                 Mathf.Lerp(
-                    0.18f,
-                    1f,
+                    0.12f,
+                    0.78f,
                     daylight);
+
+            // Sunrise/sunset skyboxes are highly saturated. Reduce indirect
+            // specular energy around the horizon so roads and glass do not
+            // turn into broad blue/orange plastic mirrors at twilight.
+            RenderSettings.reflectionIntensity =
+                Mathf.Clamp(
+                    baseReflectionIntensity *
+                    Mathf.Lerp(
+                        1f,
+                        0.52f,
+                        twilight),
+                    0.10f,
+                    0.78f);
 
             // CityAtmosphereRuntime was removed. Keep the lightweight
             // distance haze owned here so the active day/night controller
