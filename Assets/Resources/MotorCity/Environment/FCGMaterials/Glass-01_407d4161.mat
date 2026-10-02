@@ -96,13 +96,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _SpecularStrength: 0.08
-    - _Roughness: 0.36
-    - _ReflectionStrength: 0.38
-    - _NightGlassLift: 0.14
-    - _FresnelStrength: 0.65
+    - _SpecularStrength: 0.06
+    - _Roughness: 0.28
+    - _ReflectionStrength: 0.52
+    - _NightGlassLift: 0.1
+    - _FresnelStrength: 0.72
     - _EmissionStrength: 0
-    - _DayGlassLift: 0.38
+    - _DayGlassLift: 0.24
     - _AuthoredCubeStrength: 0
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
@@ -139,8 +139,8 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _NightGlassTint: {r: 0.04, g: 0.045, b: 0.05, a: 1}
-    - _DayGlassTint: {r: 0.18, g: 0.185, b: 0.19, a: 1}
+    - _NightGlassTint: {r: 0.025, g: 0.03, b: 0.04, a: 1}
+    - _DayGlassTint: {r: 0.12, g: 0.13, b: 0.14, a: 1}
     - _BaseColor: {r: 0.25, g: 0.25, b: 0.25, a: 1}
     - _Color: {r: 0.17239225, g: 0.18874854, b: 0.24528292, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
