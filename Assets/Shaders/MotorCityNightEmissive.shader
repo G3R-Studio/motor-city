@@ -13,11 +13,11 @@ Shader "MotorCity/NightEmissive"
         _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.30
         _NightGlassTint("Night Glass Tint", Color) = (0.045,0.05,0.055,1)
         _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.12
-        _Roughness("Glass Roughness", Range(0.04,1)) = 0.58
-        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.14
+        _Roughness("Glass Roughness", Range(0.04,1)) = 0.48
+        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.20
         [NoScaleOffset] _ReflectionCube("FCG Reflection Cube", Cube) = "" {}
         _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.00
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.32
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.36
         _SpecularStrength("Sun Specular", Range(0,1)) = 0.06
     }
 
@@ -404,7 +404,7 @@ Shader "MotorCity/NightEmissive"
                     saturate(
                         grazingReflection *
                         reflectionEnergy *
-                        0.45h);
+                        0.52h);
 
                 half3 color =
                     lerp(
