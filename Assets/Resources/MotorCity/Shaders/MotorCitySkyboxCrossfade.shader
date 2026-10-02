@@ -118,17 +118,17 @@ Shader "MotorCity/SkyboxCrossfade"
                     sphereCoords;
             }
 
-            float CloudHash(float2 point)
+            float CloudHash(float2 cloudCoord)
             {
-                float3 seed = frac(float3(point.xyx) * 0.1031);
+                float3 seed = frac(float3(cloudCoord.xyx) * 0.1031);
                 seed += dot(seed, seed.yzx + 33.33);
                 return frac((seed.x + seed.y) * seed.z);
             }
 
-            float CloudNoise(float2 point)
+            float CloudNoise(float2 cloudCoord)
             {
-                float2 cell = floor(point);
-                float2 blend = frac(point);
+                float2 cell = floor(cloudCoord);
+                float2 blend = frac(cloudCoord);
                 blend = blend * blend * (3.0 - 2.0 * blend);
                 return lerp(
                     lerp(CloudHash(cell), CloudHash(cell + float2(1, 0)), blend.x),
@@ -136,15 +136,15 @@ Shader "MotorCity/SkyboxCrossfade"
                     blend.y);
             }
 
-            float CloudDensity(float2 point)
+            float CloudDensity(float2 cloudCoord)
             {
-                float density = CloudNoise(point) * 0.5333;
-                point = point * 2.03 + float2(13.7, 9.2);
-                density += CloudNoise(point) * 0.2667;
-                point = point * 2.03 + float2(13.7, 9.2);
-                density += CloudNoise(point) * 0.1333;
-                point = point * 2.03 + float2(13.7, 9.2);
-                return density + CloudNoise(point) * 0.0667;
+                float density = CloudNoise(cloudCoord) * 0.5333;
+                cloudCoord = cloudCoord * 2.03 + float2(13.7, 9.2);
+                density += CloudNoise(cloudCoord) * 0.2667;
+                cloudCoord = cloudCoord * 2.03 + float2(13.7, 9.2);
+                density += CloudNoise(cloudCoord) * 0.1333;
+                cloudCoord = cloudCoord * 2.03 + float2(13.7, 9.2);
+                return density + CloudNoise(cloudCoord) * 0.0667;
             }
 
             struct appdata
