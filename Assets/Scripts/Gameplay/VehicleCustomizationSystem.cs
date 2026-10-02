@@ -143,7 +143,6 @@ namespace MotorCity.Gameplay
 
         private GameObject cosmeticsRoot;
         private Material flatMaterial;
-        private Material neonMaterial;
         private bool photoInProgress;
 
         public event Action CustomizationChanged;
@@ -232,8 +231,6 @@ namespace MotorCity.Gameplay
             if (flatMaterial != null)
                 Destroy(flatMaterial);
 
-            if (neonMaterial != null)
-                Destroy(neonMaterial);
         }
 
         public void CycleBodyColor()
@@ -861,39 +858,21 @@ namespace MotorCity.Gameplay
         private void BuildNeon(Bounds bounds)
         {
             Color color = AccentColors[SelectedNeonIndex - 1];
-            bool hasBody = false;
-            foreach (Renderer bodyRenderer in FindVisualRoot().GetComponentsInChildren<Renderer>(true))
-                if (bodyRenderer != null && VehiclePaintMeshNames.IsBody(bodyRenderer.name)) hasBody = true;
-            // Named body bounds exclude the tyres; mount just below its floor.
-            // Generic models may include tyres, so keep the fallback above their bottom.
-            float underside = hasBody ? bounds.min.y - .025f
-                : bounds.min.y + Mathf.Clamp(bounds.size.y * .12f, .10f, .22f);
-            float sideOffset = bounds.extents.x * .68f;
-            float length = bounds.size.z * .68f;
+            // Invisible sources mounted inside the underside of the body.
+            // Height above the floor softens the pool instead of creating a hot dot.
+            float underside = bounds.min.y + Mathf.Clamp(bounds.size.y * .20f, .22f, .35f);
+            float sideOffset = bounds.extents.x * .48f;
             for (int side = -1; side <= 1; side += 2)
             {
-                Vector3 position = new(bounds.center.x + side * sideOffset, underside, bounds.center.z);
-                GameObject strip = CreateAccentPart("Underglow Strip " + side, position,
-                    new Vector3(.035f, .025f, length), color);
-                Renderer renderer = strip.GetComponent<Renderer>();
-                renderer.sharedMaterial = neonMaterial;
-                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                renderer.receiveShadows = false;
-                block.Clear();
-                block.SetColor("_BaseColor", color * 4f);
-                block.SetColor("_Color", color * 4f);
-                block.SetColor("_EmissionColor", color * 4f);
-                renderer.SetPropertyBlock(block);
-                block.Clear();
-
                 GameObject lightObject = new("Underglow Light " + side);
                 lightObject.transform.SetParent(cosmeticsRoot.transform, false);
-                lightObject.transform.localPosition = position;
+                lightObject.transform.localPosition = new Vector3(
+                    bounds.center.x + side * sideOffset, underside, bounds.center.z);
                 Light light = lightObject.AddComponent<Light>();
                 light.type = LightType.Point;
                 light.color = color;
                 light.range = Mathf.Clamp(bounds.size.z * 1.25f, 4f, 7f);
-                light.intensity = 3f;
+                light.intensity = 1.4f;
                 light.shadows = LightShadows.None;
                 light.renderMode = LightRenderMode.ForcePixel;
             }
@@ -1124,27 +1103,6 @@ namespace MotorCity.Gameplay
                         "MotorCity Cosmetic"
                 };
 
-            Shader unlit =
-                Shader.Find(
-                    "Universal Render Pipeline/Unlit") ??
-                Shader.Find(
-                    "Unlit/Color") ??
-                lit;
-
-            neonMaterial =
-                new Material(
-                    unlit)
-                {
-                    name =
-                        "MotorCity Neon"
-                };
-
-            if (neonMaterial.HasProperty(
-                    "_EmissionColor"))
-            {
-                neonMaterial.EnableKeyword(
-                    "_EMISSION");
-            }
         }
 
         private void ClearCosmetics()
@@ -1173,13 +1131,13 @@ namespace MotorCity.Gameplay
             Renderer[] renderers = FindVisualRoot().GetComponentsInChildren<Renderer>(true);
             bool hasBody = false;
             foreach (Renderer renderer in renderers)
-                if (renderer != null && VehiclePaintMeshNames.IsBody(renderer.name)) hasBody = true;
+                if (renderer != null && IsPrimaryBodyRenderer(renderer.transform)) hasBody = true;
             bool initialized = false;
             Bounds local = new(Vector3.zero, new Vector3(1.8f, 1.3f, 4.2f));
             foreach (Renderer renderer in renderers)
             {
-                if (renderer == null || (hasBody && !VehiclePaintMeshNames.IsBody(renderer.name)) ||
-                    (!hasBody && renderer.name.Contains("wheel", StringComparison.OrdinalIgnoreCase))) continue;
+                if (renderer == null || (hasBody && !IsPrimaryBodyRenderer(renderer.transform)) ||
+                    (!hasBody && IsWheelHierarchy(renderer.transform))) continue;
                 // Transform the local mesh bounds, not the rotation-expanded
                 // world AABB. This keeps the underside fixed to the vehicle.
                 Bounds meshBounds = renderer.localBounds;
