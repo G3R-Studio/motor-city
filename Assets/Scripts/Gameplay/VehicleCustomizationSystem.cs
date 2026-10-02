@@ -448,8 +448,6 @@ namespace MotorCity.Gameplay
                          true))
             {
                 if (renderer == null ||
-                    IsWheelRenderer(
-                        renderer) ||
                     !IsPrimaryBodyRenderer(
                         renderer.transform))
                 {
@@ -466,9 +464,7 @@ namespace MotorCity.Gameplay
                     Material material =
                         materials[index];
 
-                    if (material == null ||
-                        IsExcludedMaterial(
-                            material.name))
+                    if (material == null)
                     {
                         continue;
                     }
@@ -488,52 +484,29 @@ namespace MotorCity.Gameplay
             if (transform == null)
                 return false;
 
-            string objectName =
-                NormalizeImportedPartName(
-                    transform.name);
-
-            if (IsBodyMiscName(
-                    objectName))
-            {
+            string meshName = RendererMeshName(transform);
+            // A mesh's explicit role takes priority over a renamed holder.
+            if (IsBodyMiscName(VehiclePaintMeshNames.Normalize(meshName)))
                 return false;
-            }
-
-            if (objectName == "body")
-                return true;
-
-            MeshFilter meshFilter =
-                transform.GetComponent<MeshFilter>();
-
-            if (meshFilter == null ||
-                meshFilter.sharedMesh == null)
-            {
-                return false;
-            }
-
-            string meshName =
-                NormalizeImportedPartName(
-                    meshFilter.sharedMesh.name);
-
-            if (IsBodyMiscName(
-                    meshName))
-            {
-                return false;
-            }
-
-            return
-                meshName == "body";
+            return VehiclePaintMeshNames.IsBody(meshName) ||
+                   VehiclePaintMeshNames.IsBody(transform.name);
         }
 
-        private static string NormalizeImportedPartName(
-            string name)
+        private static string RendererMeshName(Transform transform)
         {
-            return
-                (name ?? string.Empty)
-                    .Replace(
-                        " (Clone)",
-                        string.Empty)
-                    .Trim()
-                    .ToLowerInvariant();
+            MeshFilter filter = transform.GetComponent<MeshFilter>();
+            if (filter != null && filter.sharedMesh != null)
+                return filter.sharedMesh.name;
+            SkinnedMeshRenderer skinned = transform.GetComponent<SkinnedMeshRenderer>();
+            return skinned != null && skinned.sharedMesh != null
+                ? skinned.sharedMesh.name : string.Empty;
+        }
+
+        private static bool IsNamedWheelPaintRenderer(Renderer renderer)
+        {
+            return renderer != null &&
+                (VehiclePaintMeshNames.IsWheelPaint(RendererMeshName(renderer.transform)) ||
+                 VehiclePaintMeshNames.IsWheelPaint(renderer.transform.name));
         }
 
         private static bool IsBodyMiscName(
@@ -541,12 +514,8 @@ namespace MotorCity.Gameplay
         {
             return
                 name == "body_misc" ||
-                name == "body.misc" ||
                 name.StartsWith(
-                    "body_misc.",
-                    StringComparison.OrdinalIgnoreCase) ||
-                name.StartsWith(
-                    "body.misc.",
+                    "body_misc_",
                     StringComparison.OrdinalIgnoreCase);
         }
 
@@ -656,8 +625,10 @@ namespace MotorCity.Gameplay
                 return;
 
             Renderer[] renderers =
-                car.GetComponentsInChildren<Renderer>(
+                visual.GetComponentsInChildren<Renderer>(
                     true);
+
+            bool hasNamedWheelPaint = Array.Exists(renderers, IsNamedWheelPaintRenderer);
 
             Color wheelColor =
                 SelectedWheelStyleIndex switch
@@ -694,8 +665,10 @@ namespace MotorCity.Gameplay
                 if (renderer == null ||
                     renderer is TrailRenderer ||
                     renderer is ParticleSystemRenderer ||
-                    !IsWheelRenderer(
-                        renderer))
+                    (hasNamedWheelPaint
+                        ? !IsNamedWheelPaintRenderer(renderer)
+                        : !IsWheelRenderer(renderer)) ||
+                    IsPrimaryBodyRenderer(renderer.transform))
                 {
                     continue;
                 }
@@ -715,8 +688,7 @@ namespace MotorCity.Gameplay
                         materials[i];
 
                     if (material == null ||
-                        IsRubberMaterial(
-                            material))
+                        (!hasNamedWheelPaint && IsRubberMaterial(material)))
                     {
                         continue;
                     }
@@ -726,7 +698,7 @@ namespace MotorCity.Gameplay
                     // wheel parent with generic Dark/Chrome materials.
                     // Support both layouts so every player vehicle can use
                     // the same garage wheel-color selector.
-                    if (!hierarchySaysWheel &&
+                    if (!hasNamedWheelPaint && !hierarchySaysWheel &&
                         !IsRimMaterial(
                             material))
                     {
@@ -1441,22 +1413,6 @@ namespace MotorCity.Gameplay
                 lower.Contains("tire") ||
                 lower.Contains("tyre") ||
                 lower.Contains("rubber");
-        }
-
-        private static bool IsExcludedMaterial(
-            string name)
-        {
-            string lower =
-                (name ?? string.Empty)
-                    .ToLowerInvariant();
-
-            return
-                lower.Contains("glass") ||
-                lower.Contains("window") ||
-                lower.Contains("chrome") ||
-                lower.Contains("light") ||
-                lower.Contains("lamp") ||
-                lower.Contains("interior");
         }
 
         private string VehicleId()
