@@ -9,16 +9,16 @@ Shader "MotorCity/NightEmissive"
         _BumpScale("Normal Strength", Range(0,2)) = 0.75
         [HDR] _EmissionColor("Emission Color", Color) = (1.0,0.62,0.28,1)
         _EmissionStrength("Emission Strength", Range(0,8)) = 2.6
-        _DayGlassTint("Day Glass Tint", Color) = (0.22,0.225,0.23,1)
-        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.18
-        _NightGlassTint("Night Glass Tint", Color) = (0.045,0.05,0.055,1)
-        _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.12
-        _Roughness("Glass Roughness", Range(0.04,1)) = 0.36
-        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.34
+        _DayGlassTint("Day Glass Tint", Color) = (0.20,0.205,0.21,1)
+        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.32
+        _NightGlassTint("Night Glass Tint", Color) = (0.04,0.045,0.05,1)
+        _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.16
+        _Roughness("Glass Roughness", Range(0.04,1)) = 0.28
+        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.55
         [NoScaleOffset] _ReflectionCube("FCG Reflection Cube", Cube) = "" {}
         _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.00
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.72
-        _SpecularStrength("Sun Specular", Range(0,1)) = 0.08
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 1.00
+        _SpecularStrength("Sun Specular", Range(0,1)) = 0.12
     }
 
     SubShader
@@ -232,48 +232,45 @@ Shader "MotorCity/NightEmissive"
                     }
                 #endif
 
-                half3 litBase =
-                    baseSample.rgb *
-                    max(
-                        lighting,
-                        half3(0.11h, 0.11h, 0.11h));
-
                 half nightAmount =
                     saturate(
                         _MotorCityNightEmission);
 
-                // FCG window textures contain bright interior detail.
-                // Keep daytime glass optically dense so those baked/interior
-                // shapes do not read like a transparent hole in the facade.
-                // Architectural glass stays opaque for the FCG facade,
-                // but its optical response follows a dielectric material:
-                // neutral base, angle-dependent Fresnel and rough environment
-                // reflection. The reflection color comes from the current
-                // ambient probe instead of a hard-coded blue tint.
-                // Keep the authored FCG window texture as the dominant
-                // surface information. The previous implementation replaced
-                // most of it with a constant grey tint, which made entire
-                // skyscraper facades read as flat plastic panels.
-                half tintAmount =
-                    saturate(
-                        _DayGlassLift);
+                // Opaque architectural glass is not a Lambertian wall.
+                // Treat the authored texture as tint/interior detail and let
+                // reflections/specular provide the material response.
+                half3 authoredGlass =
+                    sqrt(
+                        saturate(
+                            baseSample.rgb));
 
-                half3 authoredDayGlass =
-                    litBase *
-                    0.92h;
+                half ambientLevel =
+                    saturate(
+                        dot(
+                            ambient,
+                            half3(
+                                0.299h,
+                                0.587h,
+                                0.114h)) *
+                        1.35h);
 
                 half3 dayGlass =
                     lerp(
-                        authoredDayGlass,
-                        authoredDayGlass *
-                            _DayGlassTint.rgb *
-                            2.0h,
-                        tintAmount);
+                        _DayGlassTint.rgb,
+                        authoredGlass,
+                        saturate(
+                            _DayGlassLift));
+
+                dayGlass *=
+                    lerp(
+                        0.72h,
+                        1.0h,
+                        ambientLevel);
 
                 half3 nightGlass =
                     lerp(
-                        litBase * 0.16h,
                         _NightGlassTint.rgb,
+                        authoredGlass * 0.10h,
                         saturate(
                             _NightGlassLift));
 
@@ -293,8 +290,6 @@ Shader "MotorCity/NightEmissive"
                             normalWS,
                             viewDirWS));
 
-                // Schlick Fresnel for a dielectric surface. F0~=0.04 is a
-                // realistic baseline for ordinary architectural glass.
                 half grazing =
                     pow(
                         1.0h -
@@ -307,8 +302,6 @@ Shader "MotorCity/NightEmissive"
                         1.0h,
                         grazing);
 
-                // Strength controls how pronounced the angle response is,
-                // while the frontal dielectric reflection remains present.
                 half fresnel =
                     lerp(
                         0.04h,
@@ -325,9 +318,6 @@ Shader "MotorCity/NightEmissive"
                     saturate(
                         _Roughness);
 
-                // Use URP's full glossy-environment path. Unlike directly
-                // sampling unity_SpecCube0, this respects reflection-probe
-                // blending, box projection and the environment fallback.
                 float2 normalizedScreenSpaceUV =
                     GetNormalizedScreenSpaceUV(
                         input.positionHCS);
@@ -358,17 +348,22 @@ Shader "MotorCity/NightEmissive"
                         saturate(
                             _AuthoredCubeStrength));
 
-                // Rougher glass receives a softer, weaker environment term.
                 half reflectionEnergy =
                     _ReflectionStrength *
                     lerp(
                         1.0h,
-                        0.48h,
-                        roughness) *
-                    lerp(
-                        1.0h,
-                        0.62h,
+                        0.72h,
                         nightAmount);
+
+                // Keep a readable reflection at normal incidence and let
+                // Schlick Fresnel smoothly increase it toward grazing angles.
+                half reflectionMix =
+                    saturate(
+                        reflectionEnergy *
+                        lerp(
+                            0.12h,
+                            0.95h,
+                            fresnel));
 
                 half3 halfDirection =
                     normalize(
@@ -383,8 +378,8 @@ Shader "MotorCity/NightEmissive"
 
                 half specularPower =
                     lerp(
-                        192.0h,
-                        18.0h,
+                        256.0h,
+                        28.0h,
                         roughness);
 
                 half sunSpecular =
@@ -394,35 +389,19 @@ Shader "MotorCity/NightEmissive"
                     _SpecularStrength *
                     lerp(
                         1.0h,
-                        0.38h,
+                        0.45h,
                         roughness) *
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
-                // Let the physical Fresnel term control how much of the
-                // environment replaces the facade texture. This keeps a small
-                // readable reflection head-on and increases it naturally at
-                // grazing angles without coating the whole panel in gloss.
-                half reflectionMix =
-                    saturate(
-                        reflectionEnergy *
-                        lerp(
-                            0.10h,
-                            0.82h,
-                            fresnel));
-
-                half3 reflectedGlass =
+                half3 color =
                     lerp(
                         glassBase,
                         environmentReflection,
-                        reflectionMix);
-
-                half3 color =
-                    reflectedGlass +
+                        reflectionMix) +
                     mainLight.color *
                     sunSpecular *
-                    fresnel *
-                    0.32h;
+                    fresnel;
 
                 half4 emissionSample =
                     SAMPLE_TEXTURE2D(
