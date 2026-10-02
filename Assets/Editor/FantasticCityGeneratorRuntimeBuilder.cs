@@ -154,9 +154,14 @@ public static class FantasticCityGeneratorRuntimeBuilder
             clone.name =
                 "MotorCity_FCGCity";
 
-            // The authored FCG scene is the single source of truth.
-            // Building the runtime prefab must not alter colliders, traffic,
-            // cars, props, signals, lights or any other authored content.
+            int remappedRenderers =
+                FantasticCityGeneratorUrpFixer
+                    .RepairRuntimeHierarchyMaterials(
+                        clone);
+
+            // The authored FCG scene remains the geometry/gameplay source of
+            // truth, but every renderer is normalized to the current Motor
+            // City URP material set before the runtime prefab is serialized.
             PrefabUtility.SaveAsPrefabAsset(
                 clone,
                 RuntimePrefab);
@@ -180,8 +185,9 @@ public static class FantasticCityGeneratorRuntimeBuilder
                     : string.Empty);
 
             Debug.Log(
-                "Motor City: Fantastic City Generator runtime package copied without map modifications. " +
-                $"Source={scene.path}, Roots={includedRoots}, Renderers={renderers}, prefab={RuntimePrefab}");
+                "Motor City: Fantastic City Generator runtime package built with normalized URP materials. " +
+                $"Source={scene.path}, Roots={includedRoots}, Renderers={renderers}, " +
+                $"MaterialRemaps={remappedRenderers}, prefab={RuntimePrefab}");
 
             EditorUtility.DisplayDialog(
                 "Motor City - FCG Runtime City",
@@ -189,7 +195,8 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 $"Источник: {scene.path}\n" +
                 $"Включено: {includedRoots}\n" +
                 $"Renderer'ов: {renderers}\n\n" +
-                "CityVisual.prefab содержит город и найденные FCG traffic roots без автоматических изменений.",
+                $"Материалов Renderer'ов нормализовано: {remappedRenderers}\n\n" +
+                "CityVisual.prefab содержит город и traffic roots с актуальными Motor City URP-материалами.",
                 "OK");
         }
         catch (Exception exception)
