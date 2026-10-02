@@ -718,7 +718,15 @@ namespace MotorCity.World
                     ReflectionProbeTimeSlicingMode.IndividualFaces;
 
                 probe.resolution =
-                    128;
+                    MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset switch
+                    {
+                        MotorCity.Platform.MotorCityQualityPreset.High =>
+                            128,
+                        MotorCity.Platform.MotorCityQualityPreset.Medium =>
+                            64,
+                        _ =>
+                            32
+                    };
 
                 probe.size =
                     size;
