@@ -879,12 +879,15 @@ namespace MotorCity.Gameplay
                 centerZ = (minAxle + maxAxle) * .5f;
                 span = maxAxle - minAxle;
             }
-            for (int end = -1; end <= 1; end++)
+            for (int end = -2; end <= 2; end++)
             {
+                float positionZ = end == -2 ? bounds.min.z + bounds.size.z * .10f
+                    : end == 2 ? bounds.max.z - bounds.size.z * .10f
+                    : centerZ + end * span * .23f;
                 GameObject lightObject = new("Underglow Light " + end);
                 lightObject.transform.SetParent(cosmeticsRoot.transform, false);
                 lightObject.transform.localPosition = new Vector3(
-                    bounds.center.x, underside, centerZ + end * span * .23f);
+                    bounds.center.x, underside, positionZ);
                 // A point source also lit mirrors/roof. These wide soft cones
                 // emit only toward the ground and follow the vehicle's underside.
                 lightObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
