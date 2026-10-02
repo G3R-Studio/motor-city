@@ -1552,7 +1552,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_FresnelStrength",
-                    0.32f);
+                    0.36f);
             }
 
             if (destination.HasProperty(
@@ -1560,7 +1560,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_Roughness",
-                    0.58f);
+                    0.48f);
             }
 
             if (destination.HasProperty(
@@ -1568,7 +1568,7 @@ public static class FantasticCityGeneratorUrpFixer
             {
                 destination.SetFloat(
                     "_ReflectionStrength",
-                    0.14f);
+                    0.20f);
             }
 
             if (destination.HasProperty(
