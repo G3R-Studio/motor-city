@@ -653,116 +653,151 @@ namespace MotorCity.World
 
             cityReflectionProbes.Clear();
 
-            Vector3 size =
-                new Vector3(
+            int gridSize =
+                CurrentCityReflectionProbeGridSize();
+
+            float cellSizeX =
+                cityBounds.size.x /
+                gridSize;
+
+            float cellSizeZ =
+                cityBounds.size.z /
+                gridSize;
+
+            Vector3 probeSize =
+                new(
+                    Mathf.Max(
+                        100f,
+                        cellSizeX * 1.42f),
                     Mathf.Max(
                         120f,
-                        cityBounds.size.x * 0.56f),
+                        cityBounds.size.y * 1.12f),
                     Mathf.Max(
-                        120f,
-                        cityBounds.size.y * 1.15f),
-                    Mathf.Max(
-                        120f,
-                        cityBounds.size.z * 0.56f));
+                        100f,
+                        cellSizeZ * 1.42f));
 
-            float offsetX =
-                cityBounds.extents.x * 0.48f;
+            int probeIndex =
+                0;
 
-            float offsetZ =
-                cityBounds.extents.z * 0.48f;
-
-            Vector3[] offsets =
+            for (int z = 0;
+                 z < gridSize;
+                 z++)
             {
-                new(-offsetX, 0f, -offsetZ),
-                new(offsetX, 0f, -offsetZ),
-                new(-offsetX, 0f, offsetZ),
-                new(offsetX, 0f, offsetZ)
-            };
+                for (int x = 0;
+                     x < gridSize;
+                     x++)
+                {
+                    float normalizedX =
+                        (x + 0.5f) /
+                        gridSize;
 
-            for (int i = 0;
-                 i < offsets.Length;
-                 i++)
-            {
-                GameObject probeObject =
-                    new(
-                        "Motor City Reflection Probe " +
-                        (i + 1));
+                    float normalizedZ =
+                        (z + 0.5f) /
+                        gridSize;
 
-                probeObject.transform.SetParent(
-                    activeCity.transform,
-                    true);
+                    Vector3 position =
+                        new(
+                            Mathf.Lerp(
+                                cityBounds.min.x,
+                                cityBounds.max.x,
+                                normalizedX),
+                            cityBounds.center.y,
+                            Mathf.Lerp(
+                                cityBounds.min.z,
+                                cityBounds.max.z,
+                                normalizedZ));
 
-                Vector3 position =
-                    cityBounds.center +
-                    offsets[i];
+                    GameObject probeObject =
+                        new(
+                            "Motor City Reflection Probe " +
+                            (++probeIndex));
 
-                // Box-projected probes must live near the center of the
-                // volume they represent. Keeping them close to ground level
-                // makes reflections on high-rise facades collapse/stretch.
-                position.y =
-                    cityBounds.center.y;
+                    probeObject.transform.SetParent(
+                        activeCity.transform,
+                        true);
 
-                probeObject.transform.position =
-                    position;
+                    probeObject.transform.position =
+                        position;
 
-                ReflectionProbe probe =
-                    probeObject.AddComponent<ReflectionProbe>();
+                    ReflectionProbe probe =
+                        probeObject.AddComponent<ReflectionProbe>();
 
-                probe.mode =
-                    ReflectionProbeMode.Realtime;
+                    probe.mode =
+                        ReflectionProbeMode.Realtime;
 
-                probe.refreshMode =
-                    ReflectionProbeRefreshMode.ViaScripting;
+                    probe.refreshMode =
+                        ReflectionProbeRefreshMode.ViaScripting;
 
-                probe.timeSlicingMode =
-                    ReflectionProbeTimeSlicingMode.IndividualFaces;
+                    probe.timeSlicingMode =
+                        ReflectionProbeTimeSlicingMode.IndividualFaces;
 
-                probe.resolution =
-                    CurrentCityReflectionProbeResolution();
+                    probe.resolution =
+                        CurrentCityReflectionProbeResolution();
 
-                probe.size =
-                    size;
+                    probe.size =
+                        probeSize;
 
-                probe.center =
-                    Vector3.zero;
+                    probe.center =
+                        Vector3.zero;
 
-                probe.nearClipPlane =
-                    0.5f;
+                    probe.nearClipPlane =
+                        0.5f;
 
-                probe.farClipPlane =
-                    Mathf.Max(
-                        size.x,
-                        size.z) *
-                    0.85f;
+                    probe.farClipPlane =
+                        Mathf.Max(
+                            probeSize.x,
+                            Mathf.Max(
+                                probeSize.y,
+                                probeSize.z)) *
+                        0.78f;
 
-                probe.intensity =
-                    0.90f;
+                    probe.intensity =
+                        1.0f;
 
-                probe.blendDistance =
-                    Mathf.Min(
-                        size.x,
-                        size.z) *
-                    0.16f;
+                    probe.blendDistance =
+                        Mathf.Min(
+                            probeSize.x,
+                            probeSize.z) *
+                        0.22f;
 
-                probe.hdr =
-                    true;
+                    probe.importance =
+                        2;
 
-                probe.boxProjection =
-                    true;
+                    probe.hdr =
+                        true;
 
-                probe.cullingMask =
-                    ~0;
+                    probe.boxProjection =
+                        true;
 
-                probe.clearFlags =
-                    ReflectionProbeClearFlags.Skybox;
+                    probe.cullingMask =
+                        ~0;
 
-                cityReflectionProbes.Add(
-                    probe);
+                    probe.clearFlags =
+                        ReflectionProbeClearFlags.Skybox;
+
+                    cityReflectionProbes.Add(
+                        probe);
+                }
             }
 
-            // ViaScripting probes do not contain a usable city capture until
-            // RenderProbe() is explicitly requested at least once.
+            // Local probes contain much more useful architectural detail than
+            // four huge city-wide cubemaps. Capture them once after creation;
+            // subsequent refreshes happen only for sky/quality changes.
             RefreshCityReflectionProbes();
+        }
+
+        private static int CurrentCityReflectionProbeGridSize()
+        {
+            return
+                MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCity.Platform.MotorCityQualityPreset.High =>
+                        4,
+                    MotorCity.Platform.MotorCityQualityPreset.Medium =>
+                        3,
+                    _ =>
+                        2
+                };
         }
 
         private static int CurrentCityReflectionProbeResolution()
@@ -771,11 +806,11 @@ namespace MotorCity.World
                 MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset switch
                 {
                     MotorCity.Platform.MotorCityQualityPreset.High =>
-                        128,
+                        256,
                     MotorCity.Platform.MotorCityQualityPreset.Medium =>
-                        64,
+                        128,
                     _ =>
-                        32
+                        64
                 };
         }
 
