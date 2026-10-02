@@ -453,6 +453,15 @@ namespace MotorCity.UI
             root.sizeDelta =
                 Vector2.zero;
 
+            // Both controls share a parent, scale and baseline on desktop/touch.
+            Transform modeIndicator = openingSpeedometerRoot != null
+                ? openingSpeedometerRoot.transform.Find("Drive Mode Indicator") : null;
+            if (modeIndicator != null)
+            {
+                modeIndicator.SetParent(root, false);
+                RectTransform modeRect = (RectTransform)modeIndicator;
+                modeRect.anchoredPosition = new Vector2(-92f, 20f);
+            }
             // Driving mode is the only always-visible gameplay utility.
             // Keep it next to the speedometer so the top-centre remains free
             // for dialogue, mission notifications and XP feedback.
@@ -461,7 +470,7 @@ namespace MotorCity.UI
                 "HUD Drive Mode",
                 "touch.utility.mode",
                 MotorCityInputAction.CycleDriveMode,
-                new Vector2(0f, 20f),
+                new Vector2(92f, 39f),
                 new Vector2(172f, 38f));
 
             GameObject railObject =
@@ -1253,87 +1262,23 @@ namespace MotorCity.UI
             return group;
         }
 
-        private static void CreateTouchChevron(
-            Transform parent,
-            bool pointsRight)
+        private static void CreateTouchChevron(Transform parent, bool pointsRight)
         {
-            float sign =
-                pointsRight
-                    ? 1f
-                    : -1f;
-
-            CreateTouchChevronSegment(
-                parent,
-                new Vector2(
-                    sign * 11f,
-                    19f),
-                pointsRight
-                    ? -45f
-                    : 45f);
-
-            CreateTouchChevronSegment(
-                parent,
-                new Vector2(
-                    sign * 11f,
-                    -19f),
-                pointsRight
-                    ? 45f
-                    : -45f);
+            RectTransform rect = GarageObject(parent, "Arrow Stroke");
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
+            rect.sizeDelta = new Vector2(52f, 74f);
+            GarageReferenceGraphic arrow = rect.gameObject.AddComponent<GarageReferenceGraphic>();
+            arrow.symbol = pointsRight ? GarageReferenceGraphic.Symbol.Right : GarageReferenceGraphic.Symbol.Left;
+            arrow.color = Color.white;
+            arrow.raycastTarget = false;
         }
-
-        private static void CreateTouchChevronSegment(
-            Transform parent,
-            Vector2 position,
-            float rotation)
-        {
-            GameObject segment =
-                new(
-                    "Arrow Stroke",
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            segment.transform.SetParent(
-                parent,
-                false);
-
-            RectTransform rect =
-                segment.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                new Vector2(0.5f, 0.5f);
-            rect.anchorMax =
-                new Vector2(0.5f, 0.5f);
-            rect.pivot =
-                new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition =
-                position;
-            rect.sizeDelta =
-                new Vector2(62f, 7f);
-            rect.localRotation =
-                Quaternion.Euler(
-                    0f,
-                    0f,
-                    rotation);
-
-            Image image =
-                segment.GetComponent<Image>();
-
-            image.color =
-                new Color32(
-                    255,
-                    255,
-                    255,
-                    0xFF);
-            image.raycastTarget =
-                false;
-        }
-
         private static Sprite CreateTouchControlSprite(
             Texture2D texture)
         {
             if (texture == null)
                 return null;
 
+            texture.filterMode = FilterMode.Bilinear;
             Sprite sprite =
                 Sprite.Create(
                     texture,

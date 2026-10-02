@@ -1407,7 +1407,7 @@ namespace MotorCity.UI
                 1f;
 
             float feather =
-                1.5f;
+                Mathf.Max(1.5f, size / 168f);
 
             for (int y = 0;
                  y < size;
@@ -1580,7 +1580,7 @@ namespace MotorCity.UI
 
             minimapMaskSprite =
                 CreateCircularMinimapSprite(
-                    128);
+                    512);
 
             GameObject rimObject =
                 new(
@@ -1831,6 +1831,17 @@ namespace MotorCity.UI
 
             minimapTargetBlip =
                 minimapTargetIcon.rectTransform;
+            // Cover the stencil edge with one continuous antialiased ring.
+            rimImage.enabled = false;
+            RectTransform smoothRim = GarageObject(panel, "Minimap Smooth Rim");
+            smoothRim.anchorMin = smoothRim.anchorMax = new Vector2(.5f, 1f);
+            smoothRim.pivot = new Vector2(.5f, 1f);
+            smoothRim.anchoredPosition = new Vector2(0f, -10f);
+            smoothRim.sizeDelta = new Vector2(178f, 178f);
+            GarageReferenceGraphic rimGraphic = smoothRim.gameObject.AddComponent<GarageReferenceGraphic>();
+            rimGraphic.symbol = GarageReferenceGraphic.Symbol.MinimapRim;
+            rimGraphic.color = new Color(.65f, .58f, 1f, .95f);
+            rimGraphic.raycastTarget = false;
 
             RectTransform targetStrip =
                 CreatePanel(

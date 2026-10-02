@@ -10,7 +10,7 @@ namespace MotorCity.UI
     {
         public enum Symbol { Surface, Credits, Crown, Star, Wrench, Engine, Brake,
             Shock, Paint, Rim, Neon, Speed, Acceleration, Gear, Stability,
-            Steering, Drift, Mass, Up, Left, Right, NavigationLeft, NavigationRight, CitySurface, Padlock, OpenPadlock }
+            Steering, Drift, Mass, Up, Left, Right, NavigationLeft, NavigationRight, CitySurface, Padlock, OpenPadlock, MinimapRim }
         public Symbol symbol;
         private VertexHelper mesh;
 
@@ -18,6 +18,7 @@ namespace MotorCity.UI
         {
             vh.Clear(); mesh = vh;
             if (symbol == Symbol.Surface) { Surface(); return; }
+            if (symbol == Symbol.MinimapRim) { Ring(50,50,48,3); return; }
             if (symbol == Symbol.NavigationLeft || symbol == Symbol.NavigationRight || symbol == Symbol.CitySurface)
             {
                 NavigationSurface(); return;
@@ -197,11 +198,34 @@ namespace MotorCity.UI
         private void Circle(float x,float y,float radius) => Circle(x,y,radius,color);
         private void Circle(float x,float y,float radius,Color tint)
         {
-            Vector2[] points = new Vector2[32];
+            Vector2[] points = new Vector2[96];
             for(int i=0;i<points.Length;i++){float a=i*Mathf.PI*2/points.Length;points[i]=new Vector2(x+Mathf.Cos(a)*radius,y+Mathf.Sin(a)*radius);}
             Polygon(tint,points);
         }
-        private void Ring(float x,float y,float radius,float width) => Arc(x,y,radius,0,360,width);
+        private void Ring(float x,float y,float radius,float width)
+        {
+            const int segments = 96;
+            int start = mesh.currentVertCount;
+            var outer = new Vector2[segments];
+            var inner = new Vector2[segments];
+            for (int i = 0; i < segments; i++)
+            {
+                float angle = i * Mathf.PI * 2 / segments;
+                Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
+                outer[i] = Point(new Vector2(x,y) + direction * (radius + width * .5f));
+                Vector2 inside = Point(new Vector2(x,y) + direction * (radius - width * .5f));
+                inner[segments-1-i] = inside;
+                mesh.AddVert(outer[i], color, Vector2.zero);
+                mesh.AddVert(inside, color, Vector2.zero);
+            }
+            for (int i = 0; i < segments; i++)
+            {
+                int a = start+i*2, b = start+((i+1)%segments)*2;
+                mesh.AddTriangle(a,b+1,b); mesh.AddTriangle(a,a+1,b+1);
+            }
+            AntialiasContour(outer,color);
+            AntialiasContour(inner,color);
+        }
         private void Arc(float x,float y,float radius,float from,float to,float width)
         {
             for(int i=0;i<32;i++)
@@ -238,6 +262,7 @@ namespace MotorCity.UI
             for(int i=0;i<count;i++)mesh.AddTriangle(center,center+1+(i+1)%count,center+1+i);
             // The border shares the fill contour; no extra glow objects.
             int border = mesh.currentVertCount;
+            var innerBorder = new List<Vector2>();
             for (int corner = 0; corner < 4; corner++)
             {
                 Vector2 origin = corner switch {
@@ -252,6 +277,7 @@ namespace MotorCity.UI
                     Color stroke = new(.65f,.58f,1f,.9f);
                     mesh.AddVert(origin + direction * radius, stroke, Vector2.zero);
                     mesh.AddVert(origin + direction * Mathf.Max(0, radius - 1.5f), stroke, Vector2.zero);
+                    innerBorder.Add(origin + direction * Mathf.Max(0, radius - 1.5f));
                 }
             }
             for (int i = 0; i < count; i++)
@@ -261,6 +287,8 @@ namespace MotorCity.UI
                 mesh.AddTriangle(a, a+1, b+1);
             }
             AntialiasContour(outline.ToArray(), new Color(.65f,.58f,1f,.9f));
+            innerBorder.Reverse();
+            AntialiasContour(innerBorder.ToArray(), new Color(.65f,.58f,1f,.9f));
         }
 
         private void NavigationSurface()
