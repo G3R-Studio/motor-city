@@ -257,8 +257,10 @@ Shader "MotorCity/NightEmissive"
                     lerp(
                         _DayGlassTint.rgb,
                         authoredGlass,
-                        saturate(
-                            _DayGlassLift));
+                        max(
+                            saturate(
+                                _DayGlassLift),
+                            0.32h));
 
                 dayGlass *=
                     lerp(
@@ -270,8 +272,10 @@ Shader "MotorCity/NightEmissive"
                     lerp(
                         _NightGlassTint.rgb,
                         authoredGlass * 0.10h,
-                        saturate(
-                            _NightGlassLift));
+                        max(
+                            saturate(
+                                _NightGlassLift),
+                            0.16h));
 
                 half3 glassBase =
                     lerp(
@@ -305,8 +309,10 @@ Shader "MotorCity/NightEmissive"
                     lerp(
                         0.04h,
                         physicalFresnel,
-                        saturate(
-                            _FresnelStrength));
+                        max(
+                            saturate(
+                                _FresnelStrength),
+                            1.0h));
 
                 half3 reflectionDir =
                     reflect(
@@ -314,8 +320,10 @@ Shader "MotorCity/NightEmissive"
                         normalWS);
 
                 half roughness =
-                    saturate(
-                        _Roughness);
+                    min(
+                        saturate(
+                            _Roughness),
+                        0.28h);
 
                 float2 normalizedScreenSpaceUV =
                     GetNormalizedScreenSpaceUV(
@@ -348,7 +356,9 @@ Shader "MotorCity/NightEmissive"
                             _AuthoredCubeStrength));
 
                 half reflectionEnergy =
-                    _ReflectionStrength *
+                    max(
+                        _ReflectionStrength,
+                        0.55h) *
                     lerp(
                         1.0h,
                         0.72h,
@@ -385,7 +395,9 @@ Shader "MotorCity/NightEmissive"
                     pow(
                         ndoth,
                         specularPower) *
-                    _SpecularStrength *
+                    max(
+                        _SpecularStrength,
+                        0.12h) *
                     lerp(
                         1.0h,
                         0.45h,
