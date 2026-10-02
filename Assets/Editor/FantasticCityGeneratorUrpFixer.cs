@@ -1481,10 +1481,8 @@ public static class FantasticCityGeneratorUrpFixer
                 "road");
 
         bool window =
-            normalized.StartsWith(
-                "wins") ||
-            normalized.StartsWith(
-                "winglass");
+            IsOpaqueArchitecturalGlassMaterialName(
+                normalized);
 
         if (road)
         {
@@ -2873,18 +2871,8 @@ public static class FantasticCityGeneratorUrpFixer
             return false;
 
         return
-            normalized == "wins" ||
-            normalized == "wins02" ||
-            normalized.StartsWith(
-                "winsnight") ||
-            normalized.StartsWith(
-                "wins02night") ||
-            normalized.StartsWith(
-                "winglass01") ||
-            normalized.StartsWith(
-                "winglass03") ||
-            normalized.StartsWith(
-                "winglass04") ||
+            IsOpaqueArchitecturalGlassMaterialName(
+                normalized) ||
             normalized.Contains(
                 "nightwindow") ||
             normalized.Contains(
@@ -2982,7 +2970,20 @@ public static class FantasticCityGeneratorUrpFixer
             }
         }
 
+        string normalizedSourceName =
+            source != null
+                ? NormalizeMaterialName(
+                    source.name)
+                : string.Empty;
+
+        bool genericGlass =
+            normalizedSourceName.StartsWith(
+                "glass") &&
+            !normalizedSourceName.StartsWith(
+                "winglass");
+
         if (emissionTexture == null &&
+            !genericGlass &&
             destination.HasProperty(
                 "_BaseMap"))
         {
@@ -3052,9 +3053,13 @@ public static class FantasticCityGeneratorUrpFixer
         }
 
         float strength =
-            3.2f;
+            genericGlass &&
+            emissionTexture == null
+                ? 0f
+                : 3.2f;
 
         if (emissionSource != null &&
+            strength > 0f &&
             emissionSource.HasProperty(
                 "_Emission"))
         {
@@ -3086,11 +3091,12 @@ public static class FantasticCityGeneratorUrpFixer
             return false;
 
         return
-            normalized == "glass01" ||
+            normalized.StartsWith(
+                "glass") ||
             normalized.StartsWith(
                 "winglass") ||
-            normalized == "wins" ||
-            normalized == "wins02";
+            normalized.StartsWith(
+                "wins");
     }
 
     private static bool IsCutoutFoliageMaterialName(
