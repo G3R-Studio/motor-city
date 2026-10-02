@@ -13,12 +13,12 @@ Shader "MotorCity/NightEmissive"
         _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.30
         _NightGlassTint("Night Glass Tint", Color) = (0.045,0.05,0.055,1)
         _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.12
-        _Roughness("Glass Roughness", Range(0.04,1)) = 0.30
-        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.62
+        _Roughness("Glass Roughness", Range(0.04,1)) = 0.58
+        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.14
         [NoScaleOffset] _ReflectionCube("FCG Reflection Cube", Cube) = "" {}
-        _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.22
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.72
-        _SpecularStrength("Sun Specular", Range(0,1)) = 0.18
+        _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.00
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.32
+        _SpecularStrength("Sun Specular", Range(0,1)) = 0.06
     }
 
     SubShader
@@ -389,15 +389,23 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
+                // FCG's "windows" are often part of a large facade panel,
+                // not separate glass geometry. A broad reflection over the whole
+                // panel reads as wet plastic. Keep the authored facade texture as
+                // the dominant layer and reveal environment reflection only at
+                // grazing view angles.
+                half grazingReflection =
+                    pow(
+                        1.0h -
+                        ndotv,
+                        3.0h);
+
                 half reflectionMix =
                     saturate(
-                        (0.08h +
-                         fresnel * 0.92h) *
-                        reflectionEnergy);
+                        grazingReflection *
+                        reflectionEnergy *
+                        0.45h);
 
-                // Reflection replaces part of the dark authored window texture
-                // instead of merely brightening it. This keeps facade detail
-                // while making the surface read as actual glass.
                 half3 color =
                     lerp(
                         glassBase,
@@ -405,7 +413,8 @@ Shader "MotorCity/NightEmissive"
                         reflectionMix) +
                     mainLight.color *
                     sunSpecular *
-                    fresnel;
+                    fresnel *
+                    0.45h;
 
                 half4 emissionSample =
                     SAMPLE_TEXTURE2D(
