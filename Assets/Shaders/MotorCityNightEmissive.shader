@@ -9,13 +9,13 @@ Shader "MotorCity/NightEmissive"
         _BumpScale("Normal Strength", Range(0,2)) = 0.75
         [HDR] _EmissionColor("Emission Color", Color) = (1.0,0.62,0.28,1)
         _EmissionStrength("Emission Strength", Range(0,8)) = 2.6
-        _DayGlassTint("Day Glass Tint", Color) = (0.16,0.22,0.28,1)
-        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.34
+        _DayGlassTint("Day Glass Tint", Color) = (0.20,0.205,0.21,1)
+        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.28
         _NightGlassTint("Night Glass Tint", Color) = (0.055,0.065,0.075,1)
         _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.10
-        _FresnelColor("Fresnel Color", Color) = (0.52,0.66,0.78,1)
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.24
-        _SpecularStrength("Day Specular", Range(0,1)) = 0.22
+        _FresnelColor("Fresnel Color", Color) = (0.55,0.55,0.54,1)
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.10
+        _SpecularStrength("Day Specular", Range(0,1)) = 0.09
     }
 
     SubShader
@@ -305,11 +305,11 @@ Shader "MotorCity/NightEmissive"
                     _FresnelColor.rgb *
                     fresnel *
                     _FresnelStrength *
-                    0.10h *
+                    0.07h *
                     fresnelFade +
                     mainLight.color *
                     specular *
-                    0.12h *
+                    0.08h *
                     specularFade;
 
                 half4 emissionSample =
