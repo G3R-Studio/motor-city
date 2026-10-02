@@ -45,16 +45,16 @@ Material:
     m_Floats:
     - _BumpScale: 0.58
     - _AuthoredCubeStrength: 0
-    - _DayGlassLift: 0.28
+    - _DayGlassLift: 0.18
     - _EmissionStrength: 3.72
-    - _FresnelStrength: 0.38
+    - _FresnelStrength: 0.72
     - _NightGlassLift: 0.1
-    - _ReflectionStrength: 0.26
-    - _Roughness: 0.4
-    - _SpecularStrength: 0.07
+    - _ReflectionStrength: 0.34
+    - _Roughness: 0.36
+    - _SpecularStrength: 0.08
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _DayGlassTint: {r: 0.19, g: 0.19, b: 0.19, a: 1}
+    - _DayGlassTint: {r: 0.22, g: 0.225, b: 0.23, a: 1}
     - _EmissionColor: {r: 0.73254716, g: 0.55654716, b: 0.36954716, a: 1}
     - _FresnelColor: {r: 0.55, g: 0.55, b: 0.54, a: 1}
     - _NightGlassTint: {r: 0.054999977, g: 0.064999975, b: 0.07499998, a: 1}
