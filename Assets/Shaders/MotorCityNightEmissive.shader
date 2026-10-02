@@ -9,16 +9,16 @@ Shader "MotorCity/NightEmissive"
         _BumpScale("Normal Strength", Range(0,2)) = 0.75
         [HDR] _EmissionColor("Emission Color", Color) = (1.0,0.62,0.28,1)
         _EmissionStrength("Emission Strength", Range(0,8)) = 2.6
-        _DayGlassTint("Day Glass Tint", Color) = (0.19,0.19,0.19,1)
-        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.30
+        _DayGlassTint("Day Glass Tint", Color) = (0.22,0.225,0.23,1)
+        _DayGlassLift("Day Glass Lift", Range(0,1)) = 0.18
         _NightGlassTint("Night Glass Tint", Color) = (0.045,0.05,0.055,1)
         _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.12
-        _Roughness("Glass Roughness", Range(0.04,1)) = 0.40
-        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.26
+        _Roughness("Glass Roughness", Range(0.04,1)) = 0.36
+        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.34
         [NoScaleOffset] _ReflectionCube("FCG Reflection Cube", Cube) = "" {}
         _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.00
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.38
-        _SpecularStrength("Sun Specular", Range(0,1)) = 0.07
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.72
+        _SpecularStrength("Sun Specular", Range(0,1)) = 0.08
     }
 
     SubShader
@@ -250,12 +250,25 @@ Shader "MotorCity/NightEmissive"
                 // neutral base, angle-dependent Fresnel and rough environment
                 // reflection. The reflection color comes from the current
                 // ambient probe instead of a hard-coded blue tint.
+                // Keep the authored FCG window texture as the dominant
+                // surface information. The previous implementation replaced
+                // most of it with a constant grey tint, which made entire
+                // skyscraper facades read as flat plastic panels.
+                half tintAmount =
+                    saturate(
+                        _DayGlassLift);
+
+                half3 authoredDayGlass =
+                    litBase *
+                    0.92h;
+
                 half3 dayGlass =
                     lerp(
-                        _DayGlassTint.rgb,
-                        litBase * 0.72h,
-                        saturate(
-                            _DayGlassLift));
+                        authoredDayGlass,
+                        authoredDayGlass *
+                            _DayGlassTint.rgb *
+                            2.0h,
+                        tintAmount);
 
                 half3 nightGlass =
                     lerp(
@@ -386,37 +399,30 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
-                // FCG's "windows" are often part of a large facade panel,
-                // not separate glass geometry. A broad reflection over the whole
-                // panel reads as wet plastic. Keep the authored facade texture as
-                // the dominant layer and reveal environment reflection only at
-                // grazing view angles.
-                half grazingReflection =
-                    pow(
-                        1.0h -
-                        ndotv,
-                        3.0h);
-
-                half frontReflection =
-                    0.025h *
-                    reflectionEnergy;
-
+                // Let the physical Fresnel term control how much of the
+                // environment replaces the facade texture. This keeps a small
+                // readable reflection head-on and increases it naturally at
+                // grazing angles without coating the whole panel in gloss.
                 half reflectionMix =
                     saturate(
-                        frontReflection +
-                        grazingReflection *
                         reflectionEnergy *
-                        0.50h);
+                        lerp(
+                            0.10h,
+                            0.82h,
+                            fresnel));
 
-                half3 color =
+                half3 reflectedGlass =
                     lerp(
                         glassBase,
                         environmentReflection,
-                        reflectionMix) +
+                        reflectionMix);
+
+                half3 color =
+                    reflectedGlass +
                     mainLight.color *
                     sunSpecular *
                     fresnel *
-                    0.45h;
+                    0.32h;
 
                 half4 emissionSample =
                     SAMPLE_TEXTURE2D(
