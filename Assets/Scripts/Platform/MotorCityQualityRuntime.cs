@@ -228,7 +228,10 @@ namespace MotorCity.Platform
             QualitySettings.pixelLightCount = 1;
             QualitySettings.lodBias = 0.85f;
             QualitySettings.maximumLODLevel = 0;
-            QualitySettings.realtimeReflectionProbes = false;
+            // Architectural glass depends on environment probes.
+            // Medium is the default WebGL preset, so disabling probes here
+            // makes every city window fall back to a flat/dark response.
+            QualitySettings.realtimeReflectionProbes = true;
             QualitySettings.softParticles = false;
             QualitySettings.anisotropicFiltering =
                 AnisotropicFiltering.Enable;
