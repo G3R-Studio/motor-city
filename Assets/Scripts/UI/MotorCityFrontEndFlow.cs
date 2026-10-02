@@ -265,16 +265,9 @@ namespace MotorCity.UI
 
         private void BuildUi()
         {
-            font =
-                Resources.Load<Font>(
-                    "MotorCity/Fonts/Ubuntu-Regular") ??
-                Resources.GetBuiltinResource<Font>(
-                    "LegacyRuntime.ttf");
+            font = MotorCityTypography.Regular;
 
-            boldFont =
-                Resources.Load<Font>(
-                    "MotorCity/Fonts/Ubuntu-Bold") ??
-                font;
+            boldFont = MotorCityTypography.Bold;
             frontEndTheme =
                 Resources.Load<MotorCityUiThemeAssets>(
                     "MotorCity/UI/MotorCityUiThemeAssets");

@@ -196,8 +196,8 @@ namespace MotorCity.UI
         private Text ReferenceLabel(Transform parent, string name, string value, float x, float y, float w, float h, int size, Color? tint = null)
         {
             Text text = GarageRect(parent, name, x, y, w, h).gameObject.AddComponent<Text>();
-            text.font = Resources.Load<Font>("MotorCity/Fonts/RobotoCondensed-Regular") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            text.fontStyle = FontStyle.Bold; text.alignment = TextAnchor.MiddleLeft;
+            text.font = MotorCityTypography.Bold;
+            text.fontStyle = FontStyle.Normal; text.alignment = TextAnchor.MiddleLeft;
             // Dynamic glyph line height is rounded at the current canvas scale.
             // Truncate can discard the entire first line in a tightly sized box.
             text.verticalOverflow = VerticalWrapMode.Overflow;

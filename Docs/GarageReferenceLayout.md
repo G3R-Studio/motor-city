@@ -42,3 +42,5 @@ and four digits, with its progress track moved to avoid overlap. Removing Best F
 alone had exposed the default Text truncation in tight header rectangles.
 
 Upgrade tracks distribute five segments across their full width with equal, pixel-aligned gaps on resize. White chevrons are single joined polygons rather than two independent strokes.
+
+All generated game UI uses MotorCityTypography: Roboto Condensed Regular/Bold from googlefonts/roboto-2 (Apache 2.0; license bundled). Garage uses the real Bold font with FontStyle.Normal. Reference similarity is a visual approximation, not confirmed identification.

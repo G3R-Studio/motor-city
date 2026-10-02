@@ -1328,16 +1328,9 @@ namespace MotorCity.UI
             MotorCityMusicRuntime.EnsureExists();
             MotorCityIconLibrary.PrewarmCore();
 
-            font =
-                Resources.Load<Font>(
-                    "MotorCity/Fonts/Ubuntu-Regular") ??
-                Resources.GetBuiltinResource<Font>(
-                    "LegacyRuntime.ttf");
+            font = MotorCityTypography.Regular;
 
-            boldFont =
-                Resources.Load<Font>(
-                    "MotorCity/Fonts/Ubuntu-Bold") ??
-                font;
+            boldFont = MotorCityTypography.Bold;
 
             uiThemeAssets =
                 Resources.Load<MotorCityUiThemeAssets>(
