@@ -406,12 +406,16 @@ Shader "MotorCity/NightEmissive"
                     mainLight.distanceAttenuation *
                     mainLight.shadowAttenuation;
 
-                // Slightly lift environment contrast so the reflected sky and
-                // nearby city remain readable on dark FCG window textures.
+                // Reflection probes are HDR. Do not clamp them with saturate()
+                // before the camera tonemapper: that destroys all values above
+                // 1.0 and turns bright sky/city reflections into flat white.
                 half3 shapedReflection =
-                    sqrt(
-                        saturate(
-                            environmentReflection));
+                    max(
+                        environmentReflection,
+                        half3(
+                            0.0h,
+                            0.0h,
+                            0.0h));
 
                 if (_ProbeDebug > 0.5h)
                 {
