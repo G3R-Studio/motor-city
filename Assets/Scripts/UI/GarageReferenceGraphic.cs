@@ -91,9 +91,9 @@ namespace MotorCity.UI
                 case Symbol.Up:
                     Polygon(new Vector2(50,94),new Vector2(8,49),new Vector2(34,49),new Vector2(34,13),new Vector2(66,13),new Vector2(66,49),new Vector2(92,49));break;
                 case Symbol.Left:
-                    Line(74,92,23,50,13);Line(23,50,74,8,13);break;
+                    Polygon(new Vector2(80,87), new Vector2(35,50), new Vector2(80,13), new Vector2(68,3), new Vector2(11,50), new Vector2(68,97));break;
                 case Symbol.Right:
-                    Line(26,92,77,50,13);Line(77,50,26,8,13);break;
+                    Polygon(new Vector2(20,87), new Vector2(65,50), new Vector2(20,13), new Vector2(32,3), new Vector2(89,50), new Vector2(32,97));break;
             }
         }
 

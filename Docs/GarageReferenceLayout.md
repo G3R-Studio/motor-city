@@ -40,3 +40,5 @@ height cannot discard a whole line. Short labels/numbers use horizontal overflow
 multiline descriptions retain wrapping. The level number has room for three
 and four digits, with its progress track moved to avoid overlap. Removing Best Fit
 alone had exposed the default Text truncation in tight header rectangles.
+
+Upgrade tracks distribute five segments across their full width with equal, pixel-aligned gaps on resize. White chevrons are single joined polygons rather than two independent strokes.

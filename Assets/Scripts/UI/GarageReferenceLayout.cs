@@ -75,8 +75,10 @@ namespace MotorCity.UI
                 GarageIcon(upgrade, "Upgrade Icon", i == 0 ? GarageReferenceGraphic.Symbol.Engine : i == 1 ? GarageReferenceGraphic.Symbol.Brake : GarageReferenceGraphic.Symbol.Shock, GarageReferenceLilac, 18, 22, 52, 47);
                 garageTitleTexts[i] = ReferenceLabel(upgrade, "Upgrade Title", "", 87, 18, i == 2 ? 140 : 123, 29, 22, Color.white);
                 garageLevelTexts[i] = ReferenceLabel(upgrade, "Upgrade Level", "", 87, 50, 126, 25, 19);
+                RectTransform track = GarageRect(upgrade, "Upgrade Level Track", 18, 89, (i == 2 ? 231 : 218) - 36, 16);
                 for (int segment = 0; segment < 5; segment++)
-                    garageUpgradeLevelSegments[i, segment] = GarageBar(upgrade, "Upgrade Segment " + segment, 18 + segment * 37, 89, 36, 16);
+                    garageUpgradeLevelSegments[i, segment] = GarageBar(track, "Upgrade Segment " + segment, 0, 0, 0, 16);
+                track.gameObject.AddComponent<GarageUpgradeSegmentLayout>();
                 RectTransform strip = GarageSurface(upgrade, "Upgrade Action Strip", 13, 124, i == 2 ? 205 : 192, 71);
                 garageUpgradeActionTexts[i] = ReferenceLabel(strip, "Upgrade Action", "", 68, 7, 116, 25, 18, GarageReferenceCyan);
                 GarageIcon(strip, "Reference Upgrade Arrow", GarageReferenceGraphic.Symbol.Up, GarageReferenceGreen, 37, 12, 22, 20);
