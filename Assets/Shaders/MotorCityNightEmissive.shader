@@ -14,11 +14,11 @@ Shader "MotorCity/NightEmissive"
         _NightGlassTint("Night Glass Tint", Color) = (0.035,0.04,0.045,1)
         _NightGlassLift("Night Glass Lift", Range(0,1)) = 0.12
         _Roughness("Glass Roughness", Range(0.04,1)) = 0.58
-        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0.14
+        _ReflectionStrength("Environment Reflection", Range(0,1)) = 0
         [NoScaleOffset] _ReflectionCube("FCG Reflection Cube", Cube) = "" {}
         _AuthoredCubeStrength("FCG Cube Blend", Range(0,1)) = 0.00
-        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0.32
-        _SpecularStrength("Sun Specular", Range(0,1)) = 0.03
+        _FresnelStrength("Fresnel Strength", Range(0,1)) = 0
+        _SpecularStrength("Sun Specular", Range(0,1)) = 0
     }
 
     SubShader
