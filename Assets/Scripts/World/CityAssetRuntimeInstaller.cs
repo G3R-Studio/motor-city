@@ -310,8 +310,19 @@ namespace MotorCity.World
                     continue;
                 }
 
-                materialMap[key] =
-                    material;
+                if (!materialMap.TryGetValue(
+                        key,
+                        out Material existing) ||
+                    RuntimeMaterialPriority(
+                        material.name) >
+                    RuntimeMaterialPriority(
+                        existing != null
+                            ? existing.name
+                            : string.Empty))
+                {
+                    materialMap[key] =
+                        material;
+                }
             }
 
             int replaced =
@@ -449,6 +460,37 @@ namespace MotorCity.World
                         ", ",
                         unresolvedGlass));
             }
+        }
+
+        private static int RuntimeMaterialPriority(
+            string materialName)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    materialName))
+            {
+                return 0;
+            }
+
+            string value =
+                materialName.ToLowerInvariant();
+
+            // The runtime NightEmissive shader already performs the day/night
+            // transition. Legacy FCG night/DN materials must never win a
+            // duplicate canonical key such as Wins vs Wins-Night.
+            if (value.Contains(
+                    "night",
+                    StringComparison.OrdinalIgnoreCase) ||
+                value.Contains(
+                    "-dn",
+                    StringComparison.OrdinalIgnoreCase) ||
+                value.Contains(
+                    "_dn",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return 10;
+            }
+
+            return 100;
         }
 
         private static string RuntimeMaterialKey(
