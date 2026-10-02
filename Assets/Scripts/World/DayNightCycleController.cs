@@ -94,6 +94,8 @@ namespace MotorCity.World
         public bool IsNight { get; private set; }
         public float NightAmount { get; private set; }
         public float TimeOfDay01 => time01;
+        public float TimeSpeed { get; private set; } = 1f;
+        public void SetTimeSpeed(float multiplier) => TimeSpeed = Mathf.Clamp(multiplier, 0f, 60f);
         public int StreetLightCount => streetLightSourceCount;
         public int ParkLampCount => parkLampSourceCount;
         public int AutoCreatedStreetLightCount => 0;
@@ -168,8 +170,13 @@ namespace MotorCity.World
         public void Initialize(
             Light sun)
         {
-            directionalLight =
-                sun;
+            // Replace the authored scene sun with the cycle's own light.
+            GameObject sunObject = new("MotorCity Dynamic Sun");
+            sunObject.transform.SetParent(transform, false);
+            directionalLight = sunObject.AddComponent<Light>();
+            directionalLight.type = LightType.Directional;
+            RenderSettings.sun = directionalLight;
+            if (sun != null && sun != directionalLight) Destroy(sun.gameObject);
 
             settings =
                 Resources.Load<DayNightSettings>(
@@ -213,7 +220,7 @@ namespace MotorCity.World
                 time01 =
                     Mathf.Repeat(
                         time01 +
-                        Time.deltaTime /
+                        Time.deltaTime * TimeSpeed /
                         fullCycleSeconds,
                         1f);
             }
@@ -423,9 +430,7 @@ namespace MotorCity.World
             if (directionalLight == null)
                 return;
 
-            float solarAngle =
-                time01 * 360f -
-                90f;
+            float solarAngle = time01 * 360f - 90f;
 
             directionalLight.transform.rotation =
                 Quaternion.Euler(
@@ -447,7 +452,8 @@ namespace MotorCity.World
             Shader.SetGlobalVector("_MotorCityMoonDirection", moonDirection);
             float sunset = 1f - Mathf.Clamp01(Mathf.Abs(sunDirection.y) / .35f);
             Shader.SetGlobalColor("_MotorCitySunDiscColor",
-                Color.Lerp(new Color(1f,.95f,.78f), new Color(1f,.32f,.08f), sunset) * 4f);
+                Color.Lerp(new Color(1f,.95f,.78f), new Color(1f,.32f,.08f), sunset) *
+                (sunDirection.y > -.025f ? 4f : 0f));
             Shader.SetGlobalColor("_MotorCityMoonDiscColor", new Color(.62f,.72f,.92f) *
                 Mathf.SmoothStep(1f,0f,Mathf.InverseLerp(-.05f,.15f,sunDirection.y)));
         }
@@ -460,9 +466,7 @@ namespace MotorCity.World
 
             ApplyCelestialRotation();
 
-            float solarAngle =
-                time01 * 360f -
-                90f;
+            float solarAngle = time01 * 360f - 90f;
 
             float solarHeight =
                 -directionalLight.transform.forward.y;
@@ -862,6 +866,13 @@ namespace MotorCity.World
         private void ApplySkyboxTransition(
             bool force)
         {
+            // The procedural sky owns both celestial bodies at every time.
+            // Never switch back to a panorama with an embedded static sun.
+            if (runtimeCrossfadeSkybox != null)
+            {
+                RenderSettings.skybox = runtimeCrossfadeSkybox;
+                return;
+            }
             float t =
                 Mathf.Repeat(
                     time01,

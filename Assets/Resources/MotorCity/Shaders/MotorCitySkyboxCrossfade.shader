@@ -155,59 +155,19 @@ Shader "MotorCity/SkyboxCrossfade"
             half4 frag(
                 v2f input) : SV_Target
             {
-                float3 directionA =
-                    RotateAroundYInDegrees(
-                        input.direction,
-                        -_RotationA);
-
-                float3 directionB =
-                    RotateAroundYInDegrees(
-                        input.direction,
-                        -_RotationB);
-
-                float2 uvA =
-                    ToRadialCoords(
-                        directionA);
-
-                float2 uvB =
-                    ToRadialCoords(
-                        directionB);
-
-                half3 colorA =
-                    tex2D(
-                        _TexA,
-                        uvA).rgb;
-
-                half3 colorB =
-                    tex2D(
-                        _TexB,
-                        uvB).rgb;
-
-                colorA =
-                    colorA *
-                    _TintA.rgb *
-                    unity_ColorSpaceDouble.rgb *
-                    _ExposureA;
-
-                colorB =
-                    colorB *
-                    _TintB.rgb *
-                    unity_ColorSpaceDouble.rgb *
-                    _ExposureB;
-
-                half progress =
-                    saturate(
-                        _Blend);
-
-                progress =
-                    progress *
-                    progress *
-                    (3.0h -
-                     2.0h *
-                     progress);
-
-                half3 sky = lerp(colorA, colorB, progress);
+                // Procedural sky has no baked sun/moon from the old panoramas.
                 float3 viewRay = normalize(input.direction);
+                float solarHeight = _MotorCitySunDirection.y;
+                half daylight = smoothstep(-0.08, 0.22, solarHeight);
+                half dusk = 1.0 - smoothstep(0.02, 0.30, abs(solarHeight));
+                half elevation = pow(saturate(viewRay.y), 0.45);
+                half3 zenith = lerp(half3(.008,.015,.035), half3(.10,.30,.62), daylight);
+                half3 horizonColor = lerp(half3(.035,.045,.075), half3(.60,.73,.86), daylight);
+                horizonColor = lerp(horizonColor, half3(.82,.30,.12), dusk * .72);
+                half3 sky = lerp(horizonColor, zenith, elevation);
+                float sunFacing = saturate(dot(normalize(float3(viewRay.x,0,viewRay.z)+.0001),
+                    normalize(float3(_MotorCitySunDirection.x,0,_MotorCitySunDirection.z)+.0001)));
+                sky += half3(.32,.09,.015)*dusk*pow(sunFacing,8)*(1-elevation);
                 float sunDot = dot(viewRay, (_MotorCitySunDirection.xyz / max(length(_MotorCitySunDirection.xyz), 0.0001)));
                 float moonDot = dot(viewRay, (_MotorCityMoonDirection.xyz / max(length(_MotorCityMoonDirection.xyz), 0.0001)));
                 half horizon = smoothstep(-0.015, 0.025, viewRay.y);

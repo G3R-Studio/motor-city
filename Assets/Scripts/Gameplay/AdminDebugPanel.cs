@@ -1380,6 +1380,12 @@ namespace MotorCity.Gameplay
 
             GUILayout.EndHorizontal();
 
+            GUILayout.Label(dayNight != null ? "Скорость времени: ×" + dayNight.TimeSpeed.ToString("0") : "Время недоступно");
+            GUILayout.BeginHorizontal();
+            if (Button("ПАУЗА")) dayNight?.SetTimeSpeed(0f);
+            foreach (float speed in new[] {1f, 5f, 10f, 30f, 60f})
+                if (Button("×" + speed.ToString("0"))) dayNight?.SetTimeSpeed(speed);
+            GUILayout.EndHorizontal();
             Section(
                 "DISCOVERY");
 
