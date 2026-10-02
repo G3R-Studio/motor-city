@@ -253,6 +253,9 @@ namespace MotorCity.World
                     continue;
                 }
 
+                if (vehicleId == "beatall" && BindBeatallBrakeEmission(renderer))
+                    continue;
+
                 if (vehicleId == "street" &&
                     BindStarterLampMaterials(
                         renderer))
@@ -609,6 +612,45 @@ namespace MotorCity.World
             return material;
         }
 
+        private bool BindBeatallBrakeEmission(Renderer renderer)
+        {
+            MeshFilter filter = renderer.GetComponent<MeshFilter>();
+            if (filter == null || filter.sharedMesh == null || starterLampShader == null || !starterLampShader.isSupported)
+                return false;
+            Material[] materials = renderer.sharedMaterials;
+            bool found = false;
+            for (int i = 0; i < materials.Length; i++)
+            {
+                Material source = materials[i];
+                if (source == null || !source.name.ToLowerInvariant().Contains("beatallemission")) continue;
+                Texture texture = ResolveBaseTexture(source);
+                if (texture == null) continue;
+                // Shared atlas contains both front and rear lamps. The overlay
+                // selects red pixels in the rear half and starts with intensity zero.
+                if (source.HasProperty("_EmissionColor")) source.SetColor("_EmissionColor", Color.black);
+                source.DisableKeyword("_EMISSION");
+                Vector3 axis = renderer.transform.InverseTransformDirection(transform.forward).normalized;
+                ResolveProjectionRange(filter.sharedMesh.bounds, axis, out float min, out float max);
+                Material rear = CreateStarterOverlayMaterial(source, texture, axis,
+                    (min + max) * .5f, Mathf.Max(.02f, (max-min)*.025f), false);
+                GameObject root = new("MotorCityBeatallBrakeOverlay");
+                root.transform.SetParent(renderer.transform.parent, false);
+                root.transform.localPosition = renderer.transform.localPosition;
+                root.transform.localRotation = renderer.transform.localRotation;
+                root.transform.localScale = renderer.transform.localScale;
+                root.AddComponent<MeshFilter>().sharedMesh = filter.sharedMesh;
+                Material[] slots = new Material[materials.Length];
+                slots[i] = rear;
+                MeshRenderer overlayRenderer = root.AddComponent<MeshRenderer>();
+                overlayRenderer.sharedMaterials = slots;
+                overlayRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                overlayRenderer.receiveShadows = false;
+                runtimeMaterials.Add(rear);
+                starterLampOverlays.Add(new StarterLampOverlay {Root = root, RearMaterial = rear, FrontMaterial = null});
+                found = true;
+            }
+            return found;
+        }
         private bool BindDeloreanRearEmission(
             Renderer renderer)
         {

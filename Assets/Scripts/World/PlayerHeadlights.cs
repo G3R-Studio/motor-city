@@ -348,7 +348,8 @@ namespace MotorCity.World
 
                     bool hybridWhiteLamp = vehicleId == "hybrid" &&
                         IsDedicatedVehicleLamp(vehicleId, materialName);
-                    if (hybridWhiteLamp && source.HasProperty("_EmissionColor"))
+                    bool beatallLamp = vehicleId == "beatall" && IsDedicatedVehicleLamp(vehicleId, materialName);
+                    if ((hybridWhiteLamp || beatallLamp) && source.HasProperty("_EmissionColor"))
                     {
                         // Material.005 is shared by front and rear white strips.
                         // Only the front overlay may emit; the base stays unlit.
@@ -359,7 +360,7 @@ namespace MotorCity.World
                     // Porsche and Peugeot expose dedicated headlight
                     // materials. Drive their real material emission at night
                     // instead of relying only on invisible Spot Lights.
-                    if ((!hybridWhiteLamp && IsDedicatedVehicleLamp(vehicleId, materialName)) ||
+                    if ((!hybridWhiteLamp && !beatallLamp && IsDedicatedVehicleLamp(vehicleId, materialName)) ||
                         materialName.Contains("headlight") ||
                         materialName.Contains("headlamp"))
                     {
@@ -390,7 +391,7 @@ namespace MotorCity.World
                         continue;
                     }
 
-                    bool useMaskedFrontOverlay = hybridWhiteLamp ||
+                    bool useMaskedFrontOverlay = hybridWhiteLamp || beatallLamp ||
                         (vehicleId == "amggt" &&
                          (materialName.Contains("amggtemission") ||
                           materialName.Contains("gradientemmisive") ||
