@@ -48,9 +48,12 @@ Shader "MotorCity/NightEmissive"
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/GlobalIllumination.hlsl"
 
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
@@ -309,27 +312,24 @@ Shader "MotorCity/NightEmissive"
                     saturate(
                         _Roughness);
 
-                // Sample the renderer's actual reflection probe / environment
-                // cubemap. SampleSH is diffuse irradiance and only brightens
-                // the window; it cannot produce a readable reflection.
-                half perceptualRoughness =
-                    roughness;
-
-                half mipLevel =
-                    perceptualRoughness *
-                    6.0h;
-
-                half4 encodedReflection =
-                    SAMPLE_TEXTURECUBE_LOD(
-                        unity_SpecCube0,
-                        samplerunity_SpecCube0,
-                        reflectionDir,
-                        mipLevel);
+                // Use URP's full glossy-environment path. Unlike directly
+                // sampling unity_SpecCube0, this respects reflection-probe
+                // blending, box projection and the environment fallback.
+                float2 normalizedScreenSpaceUV =
+                    GetNormalizedScreenSpaceUV(
+                        input.positionHCS);
 
                 half3 probeReflection =
-                    DecodeHDREnvironment(
-                        encodedReflection,
-                        unity_SpecCube0_HDR);
+                    GlossyEnvironmentReflection(
+                        reflectionDir,
+                        input.positionWS,
+                        roughness,
+                        1.0h,
+                        normalizedScreenSpaceUV);
+
+                half mipLevel =
+                    PerceptualRoughnessToMipmapLevel(
+                        roughness);
 
                 half3 authoredReflection =
                     SAMPLE_TEXTURECUBE_LOD(
@@ -338,9 +338,6 @@ Shader "MotorCity/NightEmissive"
                         reflectionDir,
                         mipLevel).rgb;
 
-                // FCG authored its windows around a dedicated reflection cube.
-                // Preserve a small amount of that authored detail while using
-                // realtime probes as the main reflection source.
                 half3 environmentReflection =
                     lerp(
                         probeReflection,
