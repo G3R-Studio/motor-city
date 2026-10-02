@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MotorCity.World
 {
     public static class FcgRuntimeGlassMaterialFactory
     {
+        private static readonly HashSet<Material> windowMaterials = new();
         public static bool IsArchitecturalGlassKey(
             string key)
         {
@@ -105,6 +107,14 @@ namespace MotorCity.World
                     "_NORMALMAP");
             }
 
+            Texture emissionMask = GetFirstTexture(source, "_EmissionMap", "_Illum");
+            if (emissionMask != null)
+            {
+                material.SetTexture("_EmissionMap", emissionMask);
+                CopyTextureTransform(source, material, "_EmissionMap",
+                    source.HasProperty("_EmissionMap") ? "_EmissionMap" : "_Illum");
+            }
+
             bool genericGlass =
                 key.StartsWith(
                     "glass",
@@ -182,6 +192,20 @@ namespace MotorCity.World
             if (material.HasProperty("_SpecularHighlights")) material.SetFloat("_SpecularHighlights", 1f);
             material.DisableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
             material.DisableKeyword("_SPECULARHIGHLIGHTS_OFF");
+            // Only authored emission masks light windows; no whole-facade glow.
+            if (material.HasProperty("_EmissionMap") && material.GetTexture("_EmissionMap") != null)
+            {
+                material.EnableKeyword("_EMISSION");
+                windowMaterials.Add(material);
+            }
+        }
+        public static void UpdateWindowEmission(float night)
+        {
+            windowMaterials.RemoveWhere(material => material == null);
+            float intensity = Mathf.SmoothStep(0f, 2.4f, Mathf.InverseLerp(.15f, .75f, night));
+            foreach (Material material in windowMaterials)
+                if (material.HasProperty("_EmissionColor"))
+                    material.SetColor("_EmissionColor", new Color(1f, .78f, .48f, 1f) * intensity);
         }
         private static Texture GetFirstTexture(
             Material material,

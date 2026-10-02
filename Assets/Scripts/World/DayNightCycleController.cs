@@ -438,9 +438,18 @@ namespace MotorCity.World
                 moonLight.transform.rotation =
                     Quaternion.Euler(
                         solarAngle + 180f,
-                        sunYawDegrees + 180f,
+                        sunYawDegrees,
                         0f);
             }
+            Vector3 sunDirection = -directionalLight.transform.forward;
+            Vector3 moonDirection = moonLight != null ? -moonLight.transform.forward : -sunDirection;
+            Shader.SetGlobalVector("_MotorCitySunDirection", sunDirection);
+            Shader.SetGlobalVector("_MotorCityMoonDirection", moonDirection);
+            float sunset = 1f - Mathf.Clamp01(Mathf.Abs(sunDirection.y) / .35f);
+            Shader.SetGlobalColor("_MotorCitySunDiscColor",
+                Color.Lerp(new Color(1f,.95f,.78f), new Color(1f,.32f,.08f), sunset) * 4f);
+            Shader.SetGlobalColor("_MotorCityMoonDiscColor", new Color(.62f,.72f,.92f) *
+                Mathf.SmoothStep(1f,0f,Mathf.InverseLerp(-.05f,.15f,sunDirection.y)));
         }
 
         private void ApplyEnvironment(
@@ -470,6 +479,8 @@ namespace MotorCity.World
             NightAmount =
                 1f -
                 daylight;
+
+            FcgRuntimeGlassMaterialFactory.UpdateWindowEmission(NightAmount);
 
             float horizonAmount =
                 1f - Mathf.Clamp01(Mathf.Abs(solarHeight) / 0.28f);
@@ -916,6 +927,13 @@ namespace MotorCity.World
             Material targetSkybox =
                 ResolveSkyboxForTime(
                     t);
+
+            // Keep celestial discs visible between transition intervals too.
+            if (targetSkybox != null && ConfigureCrossfadeSkybox(targetSkybox, targetSkybox, 0f))
+            {
+                RenderSettings.skybox = runtimeCrossfadeSkybox;
+                return;
+            }
 
             if (targetSkybox != null &&
                 (force ||

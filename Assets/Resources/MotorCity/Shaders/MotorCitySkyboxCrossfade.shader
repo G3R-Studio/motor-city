@@ -51,6 +51,10 @@ Shader "MotorCity/SkyboxCrossfade"
             float _RotationB;
 
             half _Blend;
+            float4 _MotorCitySunDirection;
+            float4 _MotorCityMoonDirection;
+            half4 _MotorCitySunDiscColor;
+            half4 _MotorCityMoonDiscColor;
 
             float3 RotateAroundYInDegrees(
                 float3 direction,
@@ -148,7 +152,7 @@ Shader "MotorCity/SkyboxCrossfade"
                 return output;
             }
 
-            fixed4 frag(
+            half4 frag(
                 v2f input) : SV_Target
             {
                 float3 directionA =
@@ -202,12 +206,19 @@ Shader "MotorCity/SkyboxCrossfade"
                      2.0h *
                      progress);
 
-                return half4(
-                    lerp(
-                        colorA,
-                        colorB,
-                        progress),
-                    1.0h);
+                half3 sky = lerp(colorA, colorB, progress);
+                float3 viewRay = normalize(input.direction);
+                float sunDot = dot(viewRay, (_MotorCitySunDirection.xyz / max(length(_MotorCitySunDirection.xyz), 0.0001)));
+                float moonDot = dot(viewRay, (_MotorCityMoonDirection.xyz / max(length(_MotorCityMoonDirection.xyz), 0.0001)));
+                half horizon = smoothstep(-0.015, 0.025, viewRay.y);
+                half sunDisc = smoothstep(0.99980, 0.99991, sunDot);
+                half sunHalo = pow(saturate(sunDot), 256.0) * 0.14;
+                half moonDisc = smoothstep(0.99982, 0.99993, moonDot);
+                // Subtle procedural lunar surface, stable in world sky space.
+                half lunarDetail = 0.80 + 0.20 * sin(viewRay.x*1700.0) * sin(viewRay.z*1300.0);
+                sky += _MotorCitySunDiscColor.rgb * (sunDisc + sunHalo) * horizon;
+                sky += _MotorCityMoonDiscColor.rgb * moonDisc * lunarDetail * horizon;
+                return half4(sky, 1.0h);
             }
             ENDCG
         }
