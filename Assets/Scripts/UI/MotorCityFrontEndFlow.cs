@@ -324,6 +324,8 @@ namespace MotorCity.UI
             BuildIntro();
             BuildControlChoiceScreen();
             BuildLoadingScreen();
+            ApplyGarageStyleToFrontEnd();
+            canvasObject.AddComponent<GarageCanvasRefresh>();
 
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
@@ -2576,7 +2578,7 @@ namespace MotorCity.UI
                     ? boldFont
                     : font;
             text.text = value;
-            text.fontSize = size;
+            text.fontSize = Mathf.Max(24, size);
             text.fontStyle =
                 useTrueBold
                     ? FontStyle.Normal
@@ -2585,9 +2587,9 @@ namespace MotorCity.UI
             text.color = Color.white;
             text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             text.resizeTextForBestFit = false;
-            text.alignByGeometry = true;
+            text.alignByGeometry = false;
             text.lineSpacing = 1f;
             return text;
         }
@@ -2605,7 +2607,7 @@ namespace MotorCity.UI
             text.resizeTextMinSize =
                 Mathf.Clamp(
                     minimumSize,
-                    10,
+                    22,
                     text.fontSize);
 
             text.resizeTextMaxSize =
@@ -2867,85 +2869,11 @@ namespace MotorCity.UI
             return rect;
         }
 
-        private void AddSoftGlow(
-            RectTransform parent,
-            Color color,
-            float outerExpansion,
-            float innerExpansion,
-            float outerAlpha,
-            float innerAlpha)
+        private void AddSoftGlow(RectTransform parent, Color color,
+            float outerExpansion, float innerExpansion, float outerAlpha, float innerAlpha)
         {
-            CreateGlowLayer(
-                parent,
-                color,
-                outerExpansion,
-                outerAlpha,
-                "Glow Outer");
-
-            CreateGlowLayer(
-                parent,
-                color,
-                innerExpansion,
-                innerAlpha,
-                "Glow Inner");
+            FrontEndSurface(parent);
         }
-
-        private void CreateGlowLayer(
-            RectTransform parent,
-            Color color,
-            float expansion,
-            float alpha,
-            string objectName)
-        {
-            GameObject glow =
-                new(
-                    objectName,
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            glow.transform.SetParent(
-                parent,
-                false);
-
-            glow.transform.SetAsFirstSibling();
-
-            RectTransform rect =
-                glow.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                Vector2.zero;
-            rect.anchorMax =
-                Vector2.one;
-            rect.offsetMin =
-                new Vector2(
-                    -expansion,
-                    -expansion);
-            rect.offsetMax =
-                new Vector2(
-                    expansion,
-                    expansion);
-
-            Image image =
-                glow.GetComponent<Image>();
-
-            if (frontEndPanelSprite != null)
-            {
-                image.sprite =
-                    frontEndPanelSprite;
-                image.type =
-                    Image.Type.Sliced;
-            }
-
-            image.color =
-                new Color(
-                    color.r,
-                    color.g,
-                    color.b,
-                    alpha);
-            image.raycastTarget =
-                false;
-        }
-
         private void CreateAboutSection(
             Transform parent,
             string title,
@@ -3311,155 +3239,117 @@ namespace MotorCity.UI
         }
 
         private Button CreateButton(
-            Transform parent,
-            string label,
-            Vector2 position,
-            Vector2 dimensions,
-            UnityEngine.Events.UnityAction action,
-            Vector2? anchorOverride = null)
+            Transform parent, string label, Vector2 position, Vector2 dimensions,
+            UnityEngine.Events.UnityAction action, Vector2? anchorOverride = null)
         {
-            Vector2 anchor =
-                anchorOverride ??
-                new Vector2(0f, 0.5f);
-
-            GameObject go =
-                new(
-                    string.IsNullOrWhiteSpace(label)
-                        ? "Primary Button"
-                        : label + " Button",
-                    typeof(RectTransform),
-                    typeof(Image),
-                    typeof(Button));
-
-            go.transform.SetParent(
-                parent,
-                false);
-
-            RectTransform rect =
-                go.GetComponent<RectTransform>();
-
-            rect.anchorMin = anchor;
-            rect.anchorMax = anchor;
-            rect.pivot = anchor;
-            rect.anchoredPosition =
-                position;
-            rect.sizeDelta =
-                dimensions;
-
-            Image image =
-                go.GetComponent<Image>();
-
-            if (frontEndButtonSprite != null)
-            {
-                image.sprite =
-                    frontEndButtonSprite;
-                image.type =
-                    Image.Type.Simple;
-                image.preserveAspect =
-                    false;
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(
-                        0.075f,
-                        0.07f,
-                        0.12f,
-                        0.96f);
-            }
-
-            Button button =
-                go.GetComponent<Button>();
-
-            button.targetGraphic =
-                image;
-
-            ColorBlock colors =
-                button.colors;
-
-            colors.normalColor =
-                Color.white;
-            colors.highlightedColor =
-                new Color(
-                    0.96f,
-                    0.96f,
-                    1f,
-                    1f);
-            colors.pressedColor =
-                new Color(
-                    0.82f,
-                    0.80f,
-                    0.92f,
-                    1f);
-            colors.selectedColor =
-                colors.highlightedColor;
-            colors.colorMultiplier =
-                1f;
-            colors.fadeDuration =
-                0.08f;
-
-            button.colors =
-                colors;
-
-            if (go.GetComponent<UiButtonFeedback>() == null)
-            {
-                go.AddComponent<UiButtonFeedback>();
-            }
-
-            button.onClick.AddListener(
-                action);
-
-            Outline outline =
-                go.AddComponent<Outline>();
-
-            outline.effectColor =
-                new Color(
-                    0.40f,
-                    0.47f,
-                    0.92f,
-                    0.24f);
-            outline.effectDistance =
-                new Vector2(1f, -1f);
-            outline.useGraphicAlpha =
-                true;
-
-            Text text =
-                CreateText(
-                    go.transform,
-                    label,
-                    dimensions.y <= 54f
-                        ? FrontEndButtonFontSize
-                        : FrontEndPrimaryButtonFontSize,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    Vector2.zero,
-                    dimensions -
-                    new Vector2(12f, 8f),
-                    new Vector2(0.5f, 0.5f));
-
-            text.name =
-                "Label";
-
-            text.color =
-                new Color(
-                    0.94f,
-                    0.95f,
-                    1f,
-                    1f);
-
-            Shadow shadow =
-                text.gameObject.AddComponent<Shadow>();
-
-            shadow.effectColor =
-                new Color(0f, 0f, 0f, 0.75f);
-            shadow.effectDistance =
-                new Vector2(1f, -2f);
-
+            Vector2 anchor = anchorOverride ?? new Vector2(0f, .5f);
+            GameObject go = new(string.IsNullOrWhiteSpace(label) ? "Primary Button" : label + " Button",
+                typeof(RectTransform), typeof(GarageReferenceGraphic), typeof(Button));
+            go.transform.SetParent(parent, false);
+            RectTransform rect = go.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = rect.pivot = anchor;
+            rect.anchoredPosition = position;
+            rect.sizeDelta = dimensions;
+            GarageReferenceGraphic surface = go.GetComponent<GarageReferenceGraphic>();
+            surface.symbol = GarageReferenceGraphic.Symbol.Surface;
+            surface.color = new Color(.16f, .12f, .32f, .96f);
+            surface.raycastTarget = true;
+            Button button = go.GetComponent<Button>();
+            button.targetGraphic = surface;
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1.15f, 1.15f, 1.2f, 1f);
+            colors.pressedColor = new Color(.8f, .8f, .95f, 1f);
+            colors.selectedColor = colors.highlightedColor;
+            colors.fadeDuration = .1f;
+            button.colors = colors;
+            button.onClick.AddListener(() => { MotorCitySfxRuntime.PlayUiClick(); action?.Invoke(); });
+            Text text = CreateText(rect, label, dimensions.y <= 54f ? 24 : 28,
+                FontStyle.Bold, TextAnchor.MiddleCenter, Vector2.zero,
+                dimensions - new Vector2(32f, 8f), new Vector2(.5f, .5f));
+            text.name = "Label";
+            text.color = Color.white;
             return button;
         }
 
+        private static GarageReferenceGraphic FrontEndSurface(RectTransform panel)
+        {
+            Transform existing = panel.Find("Reference Menu Surface");
+            if (existing != null) return existing.GetComponent<GarageReferenceGraphic>();
+            Image oldImage = panel.GetComponent<Image>();
+            if (oldImage != null) { oldImage.color = Color.clear; oldImage.raycastTarget = false; }
+            GameObject background = new("Reference Menu Surface", typeof(RectTransform), typeof(GarageReferenceGraphic));
+            background.transform.SetParent(panel, false);
+            background.transform.SetAsFirstSibling();
+            RectTransform rect = background.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            GarageReferenceGraphic graphic = background.GetComponent<GarageReferenceGraphic>();
+            graphic.symbol = GarageReferenceGraphic.Symbol.Surface;
+            graphic.color = new Color(.16f, .12f, .32f, .96f);
+            graphic.raycastTarget = false;
+            return graphic;
+        }
+
+        private void ApplyGarageStyleToFrontEnd()
+        {
+            foreach (Outline outline in canvas.GetComponentsInChildren<Outline>(true)) outline.enabled = false;
+            foreach (RectTransform rect in canvas.GetComponentsInChildren<RectTransform>(true))
+            {
+                if (rect.name.EndsWith(" Panel") || rect.name.EndsWith(" Row") || rect.name.EndsWith(" Section"))
+                    FrontEndSurface(rect);
+                if (rect.name == "Accent Line" || rect.name == "Main Title Accent" || rect.name == "Main Soft Shade")
+                    rect.gameObject.SetActive(false);
+            }
+            foreach (Text text in canvas.GetComponentsInChildren<Text>(true))
+            {
+                text.alignByGeometry = false;
+                text.resizeTextMinSize = Mathf.Max(22, text.resizeTextMinSize);
+                text.resizeTextMaxSize = Mathf.Max(text.resizeTextMinSize, text.fontSize);
+                text.verticalOverflow = VerticalWrapMode.Overflow;
+            }
+            AddSharedBackground(controlChoiceRoot, .72f);
+            AddMenuButtonIcon(primaryButtonText.transform.parent, GarageReferenceGraphic.Symbol.Right);
+            foreach (Button button in mainRoot.GetComponentsInChildren<Button>(true))
+            {
+                Text label = button.GetComponentInChildren<Text>();
+                if (label == null || label == primaryButtonText) continue;
+                AddMenuButtonIcon(button.transform,
+                    label.text.Contains("НАСТРОЙКИ") || label.text.Contains("SETTINGS")
+                        ? GarageReferenceGraphic.Symbol.Wrench : GarageReferenceGraphic.Symbol.Star);
+            }
+            foreach (Button button in controlChoiceRoot.GetComponentsInChildren<Button>(true))
+            {
+                Text label = button.GetComponentInChildren<Text>();
+                if (label == null || button.GetComponent<RectTransform>().sizeDelta.x < 400f) continue;
+                GarageReferenceGraphic.Symbol icon = label.text.Contains("КЛАВИАТ") || label.text.Contains("KEYBOARD")
+                    ? GarageReferenceGraphic.Symbol.Keyboard
+                    : label.text.Contains("КОЛЕС") || label.text.Contains("WHEEL")
+                        ? GarageReferenceGraphic.Symbol.Steering : GarageReferenceGraphic.Symbol.Right;
+                AddMenuButtonIcon(button.transform, icon);
+            }
+        }
+
+        private static void AddMenuButtonIcon(Transform button, GarageReferenceGraphic.Symbol symbol)
+        {
+            GameObject obj = new("Menu Action Icon", typeof(RectTransform), typeof(GarageReferenceGraphic));
+            obj.transform.SetParent(button, false);
+            RectTransform rect = obj.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0f, .5f);
+            rect.anchoredPosition = new Vector2(22f, 0f);
+            rect.sizeDelta = new Vector2(38f, 38f);
+            GarageReferenceGraphic graphic = obj.GetComponent<GarageReferenceGraphic>();
+            graphic.symbol = symbol;
+            graphic.color = new Color(.28f, .78f, 1f, 1f);
+            graphic.raycastTarget = false;
+            Text label = button.GetComponentInChildren<Text>();
+            if (label != null)
+            {
+                label.rectTransform.anchoredPosition = new Vector2(25f, 0f);
+                label.rectTransform.sizeDelta = new Vector2(((RectTransform)button).sizeDelta.x - 100f,
+                    ((RectTransform)button).sizeDelta.y - 8f);
+            }
+        }
         private readonly struct IntroSlide
         {
             public readonly string RussianTitle;
