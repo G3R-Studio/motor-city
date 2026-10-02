@@ -272,7 +272,6 @@ namespace MotorCity.UI
         private readonly Image[,] garageUpgradeLevelSegments =
             new Image[3, 5];
         private CanvasScaler canvasScaler;
-        private bool lastPortraitLayout;
         private int lastDisplayedCredits = int.MinValue;
         private int lastDisplayedReputation = int.MinValue;
         private int lastDisplayedReputationLevel = int.MinValue;
