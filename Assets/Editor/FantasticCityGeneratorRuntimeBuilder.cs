@@ -224,7 +224,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 $"Включено: {includedRoots}\n" +
                 $"Renderer'ов: {renderers}\n\n" +
                 $"Материалов Renderer'ов нормализовано: {remappedRenderers}\n\n" +
-                "CityVisual.prefab содержит город и traffic roots с актуальными Motor City URP-материалами.",
+                "CityVisual.prefab содержит авторские корневые объекты Workbench: город, traffic, garage и background.",
                 "OK");
         }
         catch (Exception exception)
