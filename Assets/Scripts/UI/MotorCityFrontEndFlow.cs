@@ -2620,6 +2620,27 @@ namespace MotorCity.UI
                 VerticalWrapMode.Truncate;
         }
 
+        private void OnDestroy()
+        {
+            if (frontEndButtonSprite != null)
+            {
+                Destroy(
+                    frontEndButtonSprite);
+
+                frontEndButtonSprite =
+                    null;
+            }
+
+            if (frontEndPanelSprite != null)
+            {
+                Destroy(
+                    frontEndPanelSprite);
+
+                frontEndPanelSprite =
+                    null;
+            }
+        }
+
         private static Sprite CreateRuntimeUiSprite(
             Texture2D texture,
             bool sliced)
