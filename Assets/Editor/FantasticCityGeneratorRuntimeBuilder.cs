@@ -207,9 +207,6 @@ public static class FantasticCityGeneratorRuntimeBuilder
             //
             // Material conversion belongs only to the explicit "Fix Materials"
             // command. Build Runtime City only serializes the authored result.
-            int remappedRenderers =
-                0;
-
             PrefabUtility.SaveAsPrefabAsset(
                 clone,
                 RuntimePrefab);
@@ -244,7 +241,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
             Debug.Log(
                 "Motor City: Fantastic City Generator runtime package built from authored Workbench materials. " +
                 $"Source={scene.path}, Roots={includedRoots}, Renderers={renderers}, " +
-                $"MaterialRemaps={remappedRenderers}, prefab={RuntimePrefab}");
+                $"prefab={RuntimePrefab}");
 
             EditorUtility.DisplayDialog(
                 "Motor City - FCG Runtime City",
@@ -252,7 +249,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 $"Источник: {scene.path}\n" +
                 $"Включено: {includedRoots}\n" +
                 $"Renderer'ов: {renderers}\n\n" +
-                $"Материалов Renderer'ов нормализовано: {remappedRenderers}\n\n" +
+                "Материалы не изменялись при сборке.\n\n" +
                 "CityVisual.prefab содержит авторские корневые объекты Workbench: город, traffic, garage и background.",
                 "OK");
         }
