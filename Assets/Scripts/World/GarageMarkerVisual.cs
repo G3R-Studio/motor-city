@@ -22,9 +22,6 @@ namespace MotorCity.World
                 1f,
                 1f);
 
-        private const float MarkerRootHeight =
-            0.12f;
-
         private const float MaximumVisibleDistance =
             230f;
 
@@ -98,9 +95,7 @@ namespace MotorCity.World
                 return;
 
             transform.position =
-                garage.GarageCenter +
-                Vector3.up *
-                MarkerRootHeight;
+                garage.GarageCenter;
         }
 
         private void ResolveObserver()
