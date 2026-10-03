@@ -390,6 +390,37 @@ namespace MotorCity.World
                             .IsArchitecturalGlassKey(
                                 key);
 
+                    if (backdrop)
+                    {
+                        // Keep the authored dedicated backdrop shader exactly as
+                        // it is. If an old URP/Lit/legacy background slips into
+                        // CityVisual, rebuild only that slot as an unlit,
+                        // transparent, non-emissive runtime card.
+                        if (IsDedicatedBackdropMaterial(
+                                current))
+                        {
+                            continue;
+                        }
+
+                        Material safeBackdrop =
+                            FcgRuntimeGlassMaterialFactory
+                                .CreateBackdrop(
+                                    current);
+
+                        if (safeBackdrop != null &&
+                            safeBackdrop != current)
+                        {
+                            materials[i] =
+                                safeBackdrop;
+
+                            replaced++;
+                            changed =
+                                true;
+                        }
+
+                        continue;
+                    }
+
                     // CityVisual/FCG_Workbench is the authored source of truth.
                     // If the current material already uses a supported runtime
                     // shader, leave it completely untouched. This avoids
@@ -412,14 +443,7 @@ namespace MotorCity.World
                     Material replacement =
                         null;
 
-                    if (backdrop)
-                    {
-                        replacement =
-                            FcgRuntimeGlassMaterialFactory
-                                .CreateBackdrop(
-                                    current);
-                    }
-                    else if (materialMap.TryGetValue(
+                    if (materialMap.TryGetValue(
                                  key,
                                  out Material generatedReplacement) &&
                              IsRuntimeCompatibleMaterial(
@@ -519,6 +543,25 @@ namespace MotorCity.World
                         ", ",
                         unresolvedGlass));
             }
+        }
+
+        private static bool IsDedicatedBackdropMaterial(
+            Material material)
+        {
+            if (material == null ||
+                material.shader == null)
+            {
+                return false;
+            }
+
+            string shaderName =
+                material.shader.name ??
+                string.Empty;
+
+            return
+                shaderName.Equals(
+                    "MotorCity/CityBackdrop",
+                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool IsRuntimeCompatibleMaterial(
