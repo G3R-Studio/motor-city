@@ -1105,11 +1105,17 @@ public static class FantasticCityGeneratorUrpFixer
             shortGuid +
             ".mat";
 
+        bool backdrop =
+            IsBackdropMaterialName(
+                source.name);
+
         bool foliage =
+            !backdrop &&
             IsCutoutFoliageMaterialName(
                 source.name);
 
         bool architecturalGlass =
+            !backdrop &&
             IsOpaqueArchitecturalGlassMaterialName(
                 source.name);
 
@@ -1119,11 +1125,17 @@ public static class FantasticCityGeneratorUrpFixer
                 source.name);
 
         Shader targetShader =
-            foliage
+            backdrop
                 ? Shader.Find(
-                      "MotorCity/TwoSidedFoliage") ??
+                      "MotorCity/CityBackdrop") ??
+                  Shader.Find(
+                      "Universal Render Pipeline/Unlit") ??
                   urpLit
-                : urpLit;
+                : foliage
+                    ? Shader.Find(
+                          "MotorCity/TwoSidedFoliage") ??
+                      urpLit
+                    : urpLit;
 
         Material material =
             AssetDatabase.LoadAssetAtPath<Material>(
@@ -1155,6 +1167,17 @@ public static class FantasticCityGeneratorUrpFixer
         CopyBaseMap(
             source,
             material);
+
+        if (backdrop)
+        {
+            ConfigureBackdropMaterial(
+                material);
+
+            EditorUtility.SetDirty(
+                material);
+
+            return material;
+        }
 
         CopyNormalMap(
             source,
@@ -2122,11 +2145,17 @@ public static class FantasticCityGeneratorUrpFixer
                 ? material.name.Substring(4)
                 : material.name;
 
+        bool backdrop =
+            IsBackdropMaterialName(
+                generatedName);
+
         bool foliage =
+            !backdrop &&
             IsCutoutFoliageMaterialName(
                 generatedName);
 
         bool architecturalGlass =
+            !backdrop &&
             IsOpaqueArchitecturalGlassMaterialName(
                 generatedName);
 
@@ -2136,11 +2165,17 @@ public static class FantasticCityGeneratorUrpFixer
                 generatedName);
 
         Shader targetShader =
-            foliage
+            backdrop
                 ? Shader.Find(
-                      "MotorCity/TwoSidedFoliage") ??
+                      "MotorCity/CityBackdrop") ??
+                  Shader.Find(
+                      "Universal Render Pipeline/Unlit") ??
                   urpLit
-                : urpLit;
+                : foliage
+                    ? Shader.Find(
+                          "MotorCity/TwoSidedFoliage") ??
+                      urpLit
+                    : urpLit;
 
         material.shader =
             targetShader;
@@ -2149,6 +2184,37 @@ public static class FantasticCityGeneratorUrpFixer
             FindOriginalFcgMaterialForGenerated(
                 material,
                 generatedName);
+
+        if (source != null &&
+            backdrop)
+        {
+            CopyBaseMap(
+                source,
+                material);
+
+            ConfigureBackdropMaterial(
+                material);
+
+            string backdropPath =
+                AssetDatabase.GetAssetPath(
+                    material);
+
+            if (!string.IsNullOrWhiteSpace(
+                    backdropPath))
+            {
+                material.name =
+                    Path.GetFileNameWithoutExtension(
+                        backdropPath);
+            }
+
+            material.enableInstancing =
+                true;
+
+            EditorUtility.SetDirty(
+                material);
+
+            return;
+        }
 
         if (source != null)
         {
@@ -3276,6 +3342,76 @@ public static class FantasticCityGeneratorUrpFixer
                 "_EmissionStrength",
                 strength);
         }
+    }
+
+    private static bool IsBackdropMaterialName(
+        string materialName)
+    {
+        string normalized =
+            NormalizeMaterialName(
+                materialName);
+
+        if (string.IsNullOrWhiteSpace(
+                normalized))
+        {
+            return false;
+        }
+
+        return
+            normalized.StartsWith("back01") ||
+            normalized.Contains("background") ||
+            normalized.Contains("backdrop");
+    }
+
+    private static void ConfigureBackdropMaterial(
+        Material material)
+    {
+        if (material == null)
+            return;
+
+        // Backdrop is an unlit/transparent distant card. Do not synthesize
+        // emission, metallic/specular response or environment reflections:
+        // directional lights and reflection probes must never wash it white.
+        if (material.HasProperty("_EmissionColor"))
+            material.SetColor("_EmissionColor", Color.black);
+
+        if (material.HasProperty("_EmissionStrength"))
+            material.SetFloat("_EmissionStrength", 0f);
+
+        if (material.HasProperty("_Metallic"))
+            material.SetFloat("_Metallic", 0f);
+
+        if (material.HasProperty("_Smoothness"))
+            material.SetFloat("_Smoothness", 0f);
+
+        if (material.HasProperty("_EnvironmentReflections"))
+            material.SetFloat("_EnvironmentReflections", 0f);
+
+        if (material.HasProperty("_SpecularHighlights"))
+            material.SetFloat("_SpecularHighlights", 0f);
+
+        if (material.HasProperty("_Surface"))
+            material.SetFloat("_Surface", 1f);
+
+        if (material.HasProperty("_Blend"))
+            material.SetFloat("_Blend", 0f);
+
+        if (material.HasProperty("_SrcBlend"))
+            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+
+        if (material.HasProperty("_DstBlend"))
+            material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+
+        if (material.HasProperty("_ZWrite"))
+            material.SetFloat("_ZWrite", 0f);
+
+        material.DisableKeyword("_EMISSION");
+        material.DisableKeyword("_ENVIRONMENTREFLECTIONS_ON");
+        material.DisableKeyword("_SPECULARHIGHLIGHTS_ON");
+        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.SetOverrideTag("RenderType", "Transparent");
+        material.renderQueue =
+            (int)RenderQueue.Transparent;
     }
 
     private static bool IsOpaqueArchitecturalGlassMaterialName(
