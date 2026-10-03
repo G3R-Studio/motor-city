@@ -1392,9 +1392,17 @@ namespace MotorCity.Bootstrap
             GameObject marker =
                 new("Garage Marker");
 
+            if (garage != null)
+            {
+                marker.transform.position =
+                    garage.GarageCenter;
+            }
+
             GarageMarkerVisual visual =
                 marker.AddComponent<GarageMarkerVisual>();
-            visual.Bind(garage);
+
+            visual.Bind(
+                garage);
         }
 
         private static GameObject CreateAssetMarker(
