@@ -904,9 +904,6 @@ namespace MotorCity.World
                     time01,
                     1f);
 
-            const float halfWidth =
-                0.035f;
-
             Material targetSkybox =
                 ResolveSkyboxForTime(
                     t);
