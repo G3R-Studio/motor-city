@@ -138,6 +138,21 @@ namespace MotorCity.UI
         private RawImage speedNeedleGlow;
         private static Texture2D speedNeedleGlowTexture;
 
+        private readonly List<Sprite> runtimeOwnedSprites =
+            new();
+
+        private Sprite TrackRuntimeSprite(
+            Sprite sprite)
+        {
+            if (sprite != null)
+            {
+                runtimeOwnedSprites.Add(
+                    sprite);
+            }
+
+            return sprite;
+        }
+
         [RuntimeInitializeOnLoadMethod(
             RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetRuntimeUiCache()
