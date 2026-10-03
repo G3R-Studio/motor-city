@@ -71,25 +71,25 @@ public static class FantasticCityGeneratorRuntimeBuilder
             RuntimeRoot);
 
         GameObject trafficSystem =
-            FindSceneRoot(
+            FindSceneObject(
                 scene,
                 "Traffic System");
 
         GameObject carContainer =
-            FindSceneRoot(
+            FindSceneObject(
                 scene,
                 "CarContainer");
 
         GameObject garage =
-            FindSceneRoot(
+            FindSceneObject(
                 scene,
                 "garage");
 
         GameObject backdrop =
-            FindSceneRoot(
+            FindSceneObject(
                 scene,
                 "_Background 1") ??
-            FindSceneRoot(
+            FindSceneObject(
                 scene,
                 "MotorCity_Background");
 
@@ -111,23 +111,43 @@ public static class FantasticCityGeneratorRuntimeBuilder
         Transform sourceOriginalParent =
             source.transform.parent;
 
+        bool moveTrafficSeparately =
+            trafficSystem != null &&
+            !trafficSystem.transform.IsChildOf(
+                source.transform);
+
+        bool moveCarContainerSeparately =
+            carContainer != null &&
+            !carContainer.transform.IsChildOf(
+                source.transform);
+
+        bool moveGarageSeparately =
+            garage != null &&
+            !garage.transform.IsChildOf(
+                source.transform);
+
+        bool moveBackdropSeparately =
+            backdrop != null &&
+            !backdrop.transform.IsChildOf(
+                source.transform);
+
         Transform trafficOriginalParent =
-            trafficSystem != null
+            moveTrafficSeparately
                 ? trafficSystem.transform.parent
                 : null;
 
         Transform carContainerOriginalParent =
-            carContainer != null
+            moveCarContainerSeparately
                 ? carContainer.transform.parent
                 : null;
 
         Transform garageOriginalParent =
-            garage != null
+            moveGarageSeparately
                 ? garage.transform.parent
                 : null;
 
         Transform backdropOriginalParent =
-            backdrop != null
+            moveBackdropSeparately
                 ? backdrop.transform.parent
                 : null;
 
@@ -135,28 +155,28 @@ public static class FantasticCityGeneratorRuntimeBuilder
             temporaryPackage.transform,
             true);
 
-        if (trafficSystem != null)
+        if (moveTrafficSeparately)
         {
             trafficSystem.transform.SetParent(
                 temporaryPackage.transform,
                 true);
         }
 
-        if (carContainer != null)
+        if (moveCarContainerSeparately)
         {
             carContainer.transform.SetParent(
                 temporaryPackage.transform,
                 true);
         }
 
-        if (garage != null)
+        if (moveGarageSeparately)
         {
             garage.transform.SetParent(
                 temporaryPackage.transform,
                 true);
         }
 
-        if (backdrop != null)
+        if (moveBackdropSeparately)
         {
             backdrop.transform.SetParent(
                 temporaryPackage.transform,
@@ -259,28 +279,28 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 sourceOriginalParent,
                 true);
 
-            if (trafficSystem != null)
+            if (moveTrafficSeparately)
             {
                 trafficSystem.transform.SetParent(
                     trafficOriginalParent,
                     true);
             }
 
-            if (carContainer != null)
+            if (moveCarContainerSeparately)
             {
                 carContainer.transform.SetParent(
                     carContainerOriginalParent,
                     true);
             }
 
-            if (garage != null)
+            if (moveGarageSeparately)
             {
                 garage.transform.SetParent(
                     garageOriginalParent,
                     true);
             }
 
-            if (backdrop != null)
+            if (moveBackdropSeparately)
             {
                 backdrop.transform.SetParent(
                     backdropOriginalParent,
@@ -563,7 +583,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
         return result.ToString();
     }
 
-    private static GameObject FindSceneRoot(
+    private static GameObject FindSceneObject(
         Scene scene,
         string wantedName)
     {
@@ -577,17 +597,33 @@ public static class FantasticCityGeneratorRuntimeBuilder
             if (root == null)
                 continue;
 
-            string normalized =
-                NormalizeName(
-                    root.name);
+            Transform[] transforms =
+                root.GetComponentsInChildren<Transform>(
+                    true);
 
-            if (normalized ==
-                    wanted ||
-                normalized ==
-                    wanted +
-                    "clone")
+            for (int i = 0;
+                 i < transforms.Length;
+                 i++)
             {
-                return root;
+                Transform candidate =
+                    transforms[i];
+
+                if (candidate == null)
+                    continue;
+
+                string normalized =
+                    NormalizeName(
+                        candidate.name);
+
+                if (normalized ==
+                        wanted ||
+                    normalized ==
+                        wanted +
+                        "clone")
+                {
+                    return
+                        candidate.gameObject;
+                }
             }
         }
 
