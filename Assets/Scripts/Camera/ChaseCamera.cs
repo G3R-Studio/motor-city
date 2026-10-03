@@ -19,6 +19,7 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float speedDistanceBonus = 1.25f;
         [SerializeField] private float baseFieldOfView = 62f;
         [SerializeField] private float garageFieldOfView = 54f;
+        [SerializeField] private float garageDistance = 6.3f;
         [SerializeField] private float highSpeedFieldOfView = 72f;
         [SerializeField] private float fieldOfViewSharpness = 4.5f;
         [SerializeField] private float driftLookInfluence = 0.45f;
@@ -319,25 +320,29 @@ namespace MotorCity.CameraSystem
                 initialPosition -
                 pivot;
 
-            float orbitDistance =
-                Mathf.Max(
-                    minDistance,
-                    offset.magnitude);
+            Vector3 direction =
+                offset.sqrMagnitude >
+                0.0001f
+                    ? offset.normalized
+                    : -target.forward;
 
             distance =
                 Mathf.Clamp(
-                    orbitDistance,
+                    garageDistance,
                     minDistance,
                     maxDistance);
 
             targetDistance =
                 distance;
 
-            if (offset.sqrMagnitude >
+            garageInitialPosition =
+                pivot +
+                direction *
+                distance;
+
+            if (direction.sqrMagnitude >
                 0.0001f)
             {
-                Vector3 direction =
-                    offset.normalized;
 
                 pitch =
                     Mathf.Clamp(
@@ -375,8 +380,8 @@ namespace MotorCity.CameraSystem
                 false;
 
             transform.SetPositionAndRotation(
-                initialPosition,
-                ResolveGarageFraming(initialPosition));
+                garageInitialPosition,
+                ResolveGarageFraming(garageInitialPosition));
         }
 
         public void ArmOpeningPresentation(
