@@ -127,8 +127,6 @@ namespace MotorCity.UI
         private MotorCityUiThemeAssets uiThemeAssets;
         private static Sprite modalButtonSprite;
         private static Texture2D modalButtonSpriteSource;
-        private static readonly Dictionary<Texture2D, Sprite> slicedPanelSprites =
-            new();
 
         private Text moneyText;
         private Text reputationText;
@@ -139,6 +137,33 @@ namespace MotorCity.UI
         private RectTransform speedNeedleGlowRect;
         private RawImage speedNeedleGlow;
         private static Texture2D speedNeedleGlowTexture;
+
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetRuntimeUiCache()
+        {
+            if (modalButtonSprite != null)
+            {
+                Object.Destroy(
+                    modalButtonSprite);
+            }
+
+            if (speedNeedleGlowTexture != null)
+            {
+                Object.Destroy(
+                    speedNeedleGlowTexture);
+            }
+
+            modalButtonSprite =
+                null;
+
+            modalButtonSpriteSource =
+                null;
+
+            speedNeedleGlowTexture =
+                null;
+        }
+
         private DayNightCycleController dayNightCycle;
         private float dayNightResolveTimer;
         private Text statusText;
