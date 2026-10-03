@@ -16,6 +16,7 @@ namespace MotorCity.Vehicle
 
         private Material trailMaterial;
         private Material smokeMaterial;
+        private Texture2D smokeTexture;
         private Vector3 previousCarPosition;
 
         private void Awake()
@@ -386,6 +387,9 @@ namespace MotorCity.Vehicle
             Texture2D texture =
                 CreateSoftParticleTexture();
 
+            smokeTexture =
+                texture;
+
             if (material.HasProperty("_BaseMap"))
                 material.SetTexture("_BaseMap", texture);
             if (material.HasProperty("_MainTex"))
@@ -444,6 +448,36 @@ namespace MotorCity.Vehicle
                 25;
 
             return material;
+        }
+
+        private void OnDestroy()
+        {
+            if (trailMaterial != null)
+            {
+                Destroy(
+                    trailMaterial);
+
+                trailMaterial =
+                    null;
+            }
+
+            if (smokeMaterial != null)
+            {
+                Destroy(
+                    smokeMaterial);
+
+                smokeMaterial =
+                    null;
+            }
+
+            if (smokeTexture != null)
+            {
+                Destroy(
+                    smokeTexture);
+
+                smokeTexture =
+                    null;
+            }
         }
 
         private static Texture2D CreateSoftParticleTexture()
