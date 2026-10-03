@@ -378,54 +378,98 @@ namespace MotorCity.World
                         continue;
                     }
 
+                    bool backdrop =
+                        FcgRuntimeGlassMaterialFactory
+                            .IsBackdropKey(
+                                key);
+
                     bool architecturalGlass =
+                        !backdrop &&
                         FcgRuntimeGlassMaterialFactory
                             .IsArchitecturalGlassKey(
                                 key);
 
-                    if (!materialMap.TryGetValue(
-                            key,
-                            out Material replacement) ||
-                        replacement == null)
+                    // CityVisual/FCG_Workbench is the authored source of truth.
+                    // If the current material already uses a supported runtime
+                    // shader, leave it completely untouched. This avoids
+                    // changing shaders/keywords at runtime, keeps Workbench and
+                    // Game visuals aligned, and prevents needless URP/Lit
+                    // shader-variant compilation.
+                    if (IsRuntimeCompatibleMaterial(
+                            current))
                     {
                         if (architecturalGlass)
                         {
-                            if (!dynamicGlassMap.TryGetValue(
-                                    current,
-                                    out replacement) ||
-                                replacement == null)
+                            FcgRuntimeGlassMaterialFactory
+                                .TrackWindowEmission(
+                                    current);
+                        }
+
+                        continue;
+                    }
+
+                    Material replacement =
+                        null;
+
+                    if (backdrop)
+                    {
+                        replacement =
+                            FcgRuntimeGlassMaterialFactory
+                                .CreateBackdrop(
+                                    current);
+                    }
+                    else if (materialMap.TryGetValue(
+                                 key,
+                                 out Material generatedReplacement) &&
+                             IsRuntimeCompatibleMaterial(
+                                 generatedReplacement))
+                    {
+                        replacement =
+                            generatedReplacement;
+                    }
+
+                    if (replacement == null &&
+                        architecturalGlass)
+                    {
+                        if (!dynamicGlassMap.TryGetValue(
+                                current,
+                                out replacement) ||
+                            replacement == null)
+                        {
+                            replacement =
+                                FcgRuntimeGlassMaterialFactory
+                                    .Create(
+                                        current,
+                                        key);
+
+                            if (replacement != null)
                             {
-                                replacement =
-                                    FcgRuntimeGlassMaterialFactory
-                                        .Create(
-                                            current,
-                                            key);
+                                dynamicGlassMap[current] =
+                                    replacement;
 
-                                if (replacement != null)
-                                {
-                                    dynamicGlassMap[current] =
-                                        replacement;
-
-                                    dynamicallyConvertedGlass++;
-                                }
-                            }
-
-                            if (replacement == null)
-                            {
-                                unresolvedGlass.Add(
-                                    current.name);
+                                dynamicallyConvertedGlass++;
                             }
                         }
 
                         if (replacement == null)
-                            continue;
+                        {
+                            unresolvedGlass.Add(
+                                current.name);
+                        }
+                    }
+
+                    if (replacement == null ||
+                        replacement == current)
+                    {
+                        continue;
                     }
 
                     if (architecturalGlass)
-                        FcgRuntimeGlassMaterialFactory.ConfigureReflections(replacement);
-
-                    if (replacement == current)
-                        continue;
+                    {
+                        FcgRuntimeGlassMaterialFactory
+                            .TrackWindowEmission(
+                                replacement);
+                    }
 
                     materials[i] =
                         replacement;
@@ -441,11 +485,22 @@ namespace MotorCity.World
                         materials;
                 }
 
-                // The generated city should participate in the reflection
-                // probes unless an individual renderer explicitly opts out
-                // later for a special-purpose effect.
+                // Background/backdrop must never receive reflection-probe
+                // lighting. It is a distant visual card, not reflective city
+                // geometry. Everything else keeps the authored city probe
+                // behavior.
+                bool backdropRenderer =
+                    materials.Any(
+                        material =>
+                            material != null &&
+                            FcgRuntimeGlassMaterialFactory.IsBackdropKey(
+                                RuntimeMaterialKey(
+                                    material.name)));
+
                 renderer.reflectionProbeUsage =
-                    ReflectionProbeUsage.BlendProbes;
+                    backdropRenderer
+                        ? ReflectionProbeUsage.Off
+                        : ReflectionProbeUsage.BlendProbes;
             }
 
             Debug.Log(
@@ -463,6 +518,40 @@ namespace MotorCity.World
                         ", ",
                         unresolvedGlass));
             }
+        }
+
+        private static bool IsRuntimeCompatibleMaterial(
+            Material material)
+        {
+            if (material == null ||
+                material.shader == null)
+            {
+                return false;
+            }
+
+            string shaderName =
+                material.shader.name ??
+                string.Empty;
+
+            if (string.IsNullOrWhiteSpace(
+                    shaderName) ||
+                shaderName.Equals(
+                    "Hidden/InternalErrorShader",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return
+                shaderName.StartsWith(
+                    "Universal Render Pipeline/",
+                    StringComparison.OrdinalIgnoreCase) ||
+                shaderName.StartsWith(
+                    "MotorCity/",
+                    StringComparison.OrdinalIgnoreCase) ||
+                shaderName.StartsWith(
+                    "Shader Graphs/",
+                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static int RuntimeMaterialPriority(
