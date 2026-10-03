@@ -9,8 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Back-01
   m_Shader: {fileID: 4800000, guid: 823cafc3a2b64839bd97df330c19f955, type: 3}
-  m_Parent: {fileID: 2100000, guid: 71997182b728e554d857511786780fe1, type: 2}
-  m_ModifiedSerializedProperties: 6
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 5
@@ -29,8 +29,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Alpha: 1
     - _NightBrightness: 1
     m_Colors:
+    - _DayTint: {r: 0.78, g: 0.82, b: 0.86, a: 1}
     - _NightTint: {r: 0.054999977, g: 0.07499998, b: 0.10999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
