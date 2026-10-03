@@ -26,6 +26,31 @@ namespace MotorCity.Bootstrap
         private static bool platformGameReadySent;
         private static MotorCityFrontEndFlow frontEnd;
 
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticState()
+        {
+            RuntimeMaterialCache.Clear();
+
+            platformBootstrapReady =
+                false;
+
+            platformBootstrapPending =
+                false;
+
+            gameplayBuildRequested =
+                false;
+
+            gameplayBuildStarted =
+                false;
+
+            platformGameReadySent =
+                false;
+
+            frontEnd =
+                null;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void InitializeBootstrap()
         {
