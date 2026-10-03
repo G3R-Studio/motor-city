@@ -216,14 +216,6 @@ namespace MotorCity.EditorTools
                     "Assets/Resources/MotorCity/Byte/HaonByteVisual.prefab"
                 });
 
-            AppendDependencySection(
-                builder,
-                "GARAGE",
-                new[]
-                {
-                    "Assets/Resources/MotorCity/Garage/SimpleGarage.prefab"
-                });
-
             string[] vehicleRoots =
                 AssetDatabase.FindAssets(
                         "t:Prefab",
