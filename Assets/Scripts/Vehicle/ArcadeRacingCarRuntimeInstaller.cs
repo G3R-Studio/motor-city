@@ -53,6 +53,52 @@ namespace MotorCity.Vehicle
             RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetRuntimeMaterialCaches()
         {
+            var runtimeMaterials =
+                new HashSet<Material>();
+
+            foreach (Material material in
+                     RuntimeUrpMaterialCache.Values)
+            {
+                if (material != null)
+                {
+                    runtimeMaterials.Add(
+                        material);
+                }
+            }
+
+            foreach (Material material in
+                     RuntimeMirrorMaterialCache.Values)
+            {
+                if (material != null)
+                {
+                    runtimeMaterials.Add(
+                        material);
+                }
+            }
+
+            if (runtimeNullMirrorMaterial != null)
+            {
+                runtimeMaterials.Add(
+                    runtimeNullMirrorMaterial);
+            }
+
+            foreach (Material material in
+                     runtimeMaterials)
+            {
+                UnityEngine.Object.Destroy(
+                    material);
+            }
+
+            foreach (GameObject cachedObject in
+                     CachedRuntimeObjects)
+            {
+                if (cachedObject != null)
+                {
+                    UnityEngine.Object.Destroy(
+                        cachedObject);
+                }
+            }
+
             RuntimeUrpMaterialCache.Clear();
             RuntimeMirrorMaterialCache.Clear();
             RuntimeVehiclePrefabCache.Clear();
