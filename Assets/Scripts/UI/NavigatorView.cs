@@ -3122,6 +3122,22 @@ namespace MotorCity.UI
                 Destroy(
                     minimapMaskTexture);
             }
+
+            for (int i = 0;
+                 i < runtimeOwnedSprites.Count;
+                 i++)
+            {
+                Sprite sprite =
+                    runtimeOwnedSprites[i];
+
+                if (sprite != null)
+                {
+                    Destroy(
+                        sprite);
+                }
+            }
+
+            runtimeOwnedSprites.Clear();
         }
 
     }
