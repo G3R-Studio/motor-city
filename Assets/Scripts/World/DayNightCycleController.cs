@@ -227,13 +227,6 @@ namespace MotorCity.World
                 0f);
         }
 
-        private void OnDestroy()
-        {
-            Shader.SetGlobalFloat(
-                "_MotorCityNightEmission",
-                0f);
-        }
-
         private void Update()
         {
             if (!initialized)
@@ -289,6 +282,10 @@ namespace MotorCity.World
 
         private void OnDestroy()
         {
+            Shader.SetGlobalFloat(
+                "_MotorCityNightEmission",
+                0f);
+
             MotorCityQualityRuntime.PresetChanged -=
                 HandleQualityPresetChanged;
 
