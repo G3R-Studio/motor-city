@@ -390,29 +390,110 @@ public static class FantasticCityGeneratorRuntimeBuilder
                             material =>
                                 material == null));
 
+        Transform[] sourceTransforms =
+            sourceClone.GetComponentsInChildren<Transform>(
+                true);
+
+        Transform[] savedTransforms =
+            saved.GetComponentsInChildren<Transform>(
+                true);
+
+        int materialReferenceMismatches =
+            0;
+
+        int comparableRendererCount =
+            Mathf.Min(
+                sourceRenderers.Length,
+                savedRenderers.Length);
+
+        for (int rendererIndex = 0;
+             rendererIndex < comparableRendererCount;
+             rendererIndex++)
+        {
+            Renderer sourceRenderer =
+                sourceRenderers[
+                    rendererIndex];
+
+            Renderer savedRenderer =
+                savedRenderers[
+                    rendererIndex];
+
+            if (sourceRenderer == null ||
+                savedRenderer == null)
+            {
+                continue;
+            }
+
+            Material[] sourceMaterials =
+                sourceRenderer.sharedMaterials;
+
+            Material[] savedMaterials =
+                savedRenderer.sharedMaterials;
+
+            int comparableSlotCount =
+                Mathf.Min(
+                    sourceMaterials != null
+                        ? sourceMaterials.Length
+                        : 0,
+                    savedMaterials != null
+                        ? savedMaterials.Length
+                        : 0);
+
+            for (int slot = 0;
+                 slot < comparableSlotCount;
+                 slot++)
+            {
+                string sourcePath =
+                    sourceMaterials[slot] != null
+                        ? AssetDatabase.GetAssetPath(
+                            sourceMaterials[slot])
+                        : string.Empty;
+
+                string savedPath =
+                    savedMaterials[slot] != null
+                        ? AssetDatabase.GetAssetPath(
+                            savedMaterials[slot])
+                        : string.Empty;
+
+                if (!string.Equals(
+                        sourcePath,
+                        savedPath,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    materialReferenceMismatches++;
+                }
+            }
+        }
+
         bool mismatch =
             sourceRenderers.Length !=
                 savedRenderers.Length ||
+            sourceTransforms.Length !=
+                savedTransforms.Length ||
             sourceSlots !=
                 savedSlots ||
             sourceNullSlots !=
-                savedNullSlots;
+                savedNullSlots ||
+            materialReferenceMismatches >
+                0;
 
         if (mismatch)
         {
             Debug.LogWarning(
                 "Motor City: CityVisual validation mismatch after save. " +
-                $"Source renderers={sourceRenderers.Length}, saved renderers={savedRenderers.Length}, " +
+                $"Source transforms={sourceTransforms.Length}, saved transforms={savedTransforms.Length}, " +
+                $"source renderers={sourceRenderers.Length}, saved renderers={savedRenderers.Length}, " +
                 $"source material slots={sourceSlots}, saved material slots={savedSlots}, " +
-                $"source null slots={sourceNullSlots}, saved null slots={savedNullSlots}. " +
-                "Build Runtime City did not serialize the authored hierarchy 1:1.");
+                $"source null slots={sourceNullSlots}, saved null slots={savedNullSlots}, " +
+                $"material reference mismatches={materialReferenceMismatches}. " +
+                "Build Runtime City did not serialize the authored hierarchy/material references 1:1.");
         }
         else
         {
             Debug.Log(
                 "Motor City: CityVisual validation passed. " +
-                $"{savedRenderers.Length} renderers and {savedSlots} material slots " +
-                "were preserved by prefab serialization.");
+                $"{savedTransforms.Length} transforms, {savedRenderers.Length} renderers and " +
+                $"{savedSlots} material slots preserved their authored material references.");
         }
     }
 
