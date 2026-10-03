@@ -179,14 +179,17 @@ public static class FantasticCityGeneratorRuntimeBuilder
             clone.name =
                 "MotorCity_FCGCity";
 
+            // Runtime baking is intentionally material-passive. The
+            // Workbench is the visual source of truth, and its renderers may
+            // reference shared generated materials. Rebuilding or repairing
+            // those materials here would mutate the Workbench itself because
+            // the temporary clone shares the same material assets.
+            //
+            // Material conversion belongs only to the explicit "Fix Materials"
+            // command. Build Runtime City only serializes the authored result.
             int remappedRenderers =
-                FantasticCityGeneratorUrpFixer
-                    .RepairRuntimeHierarchyMaterials(
-                        clone);
+                0;
 
-            // The authored FCG scene remains the geometry/gameplay source of
-            // truth, but every renderer is normalized to the current Motor
-            // City URP material set before the runtime prefab is serialized.
             PrefabUtility.SaveAsPrefabAsset(
                 clone,
                 RuntimePrefab);
@@ -213,7 +216,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
                     : string.Empty);
 
             Debug.Log(
-                "Motor City: Fantastic City Generator runtime package built with normalized URP materials. " +
+                "Motor City: Fantastic City Generator runtime package built from authored Workbench materials. " +
                 $"Source={scene.path}, Roots={includedRoots}, Renderers={renderers}, " +
                 $"MaterialRemaps={remappedRenderers}, prefab={RuntimePrefab}");
 
