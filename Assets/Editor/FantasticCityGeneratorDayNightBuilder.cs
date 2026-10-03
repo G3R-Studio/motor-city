@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
 using System;
-using System.IO;
 using System.Linq;
 using MotorCity.World;
 using UnityEditor;
@@ -24,55 +23,6 @@ public static class FantasticCityGeneratorDayNightBuilder
     {
         EditorApplication.delayCall +=
             TryBuildSilently;
-    }
-
-    public static void BuildMenu()
-    {
-        Build(
-            true);
-    }
-
-    public static void ImportPrefabMenu()
-    {
-        string path =
-            EditorUtility.OpenFilePanel(
-                "Choose DayNight.prefab",
-                Environment.GetFolderPath(
-                    Environment.SpecialFolder.UserProfile),
-                "prefab");
-
-        if (string.IsNullOrWhiteSpace(
-                path))
-            return;
-
-        EnsureFolder(
-            "Assets/LocalGenerated");
-
-        string destination =
-            Path.GetFullPath(
-                ImportedSourcePath);
-
-        string source =
-            Path.GetFullPath(
-                path);
-
-        if (!string.Equals(
-                source,
-                destination,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            File.Copy(
-                source,
-                destination,
-                true);
-        }
-
-        AssetDatabase.ImportAsset(
-            ImportedSourcePath,
-            ImportAssetOptions.ForceUpdate);
-
-        Build(
-            true);
     }
 
     private static void TryBuildSilently()
