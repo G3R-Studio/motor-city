@@ -120,6 +120,7 @@ namespace MotorCity.World
             (Vector3[])UndergroundPreferred.Clone();
 
         private static GameObject activeCity;
+        private static GameObject materialBoundCity;
         private static GameObject activeGarageInterior;
         private static GameObject garagePresentationLighting;
         private static GameObject garagePresentationPostFx;
@@ -247,7 +248,17 @@ namespace MotorCity.World
             }
 
             DisableLegacyFcgDayNight();
-            RebindRuntimeCityMaterials();
+
+            // Material binding is a one-time compatibility pass for each
+            // instantiated city. Re-entering gameplay/garage or re-running
+            // bootstrap against the same city must not touch shader keywords
+            // or reassign materials again.
+            if (materialBoundCity != activeCity)
+            {
+                RebindRuntimeCityMaterials();
+                materialBoundCity =
+                    activeCity;
+            }
 
             // Runtime treats the authored city as read-only.
             // Colliders, props, parked vehicles, traffic signals and all
@@ -496,13 +507,6 @@ namespace MotorCity.World
                     if (IsRuntimeCompatibleMaterial(
                             current))
                     {
-                        if (architecturalGlass)
-                        {
-                            FcgRuntimeGlassMaterialFactory
-                                .TrackWindowEmission(
-                                    current);
-                        }
-
                         continue;
                     }
 
