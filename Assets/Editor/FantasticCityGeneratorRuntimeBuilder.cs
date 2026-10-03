@@ -16,12 +16,6 @@ public static class FantasticCityGeneratorRuntimeBuilder
     private const string RuntimePrefab =
         RuntimeRoot + "/CityVisual.prefab";
 
-    private const string FcgBackdropPrefab =
-        "Assets/Fantastic City Generator/BackGrounds/_Background 1.prefab";
-
-    private const string BackdropMaterial =
-        RuntimeRoot + "/FCGBackdrop.mat";
-
     [MenuItem("Motor City/Fantastic City Generator/5 - Build Runtime City")]
     public static void BuildRuntimeCity()
     {
@@ -86,10 +80,25 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 scene,
                 "CarContainer");
 
+        GameObject garage =
+            FindSceneRoot(
+                scene,
+                "garage");
 
         GameObject backdrop =
-            CreateRuntimeBackdrop(
-                source);
+            FindSceneRoot(
+                scene,
+                "_Background 1") ??
+            FindSceneRoot(
+                scene,
+                "MotorCity_Background");
+
+        if (backdrop == null)
+        {
+            Debug.LogWarning(
+                "Motor City: no authored background root was found in the FCG source scene. " +
+                "The runtime city will be built without a distant skyline.");
+        }
 
         GameObject temporaryPackage =
             new GameObject(
@@ -112,6 +121,16 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 ? carContainer.transform.parent
                 : null;
 
+        Transform garageOriginalParent =
+            garage != null
+                ? garage.transform.parent
+                : null;
+
+        Transform backdropOriginalParent =
+            backdrop != null
+                ? backdrop.transform.parent
+                : null;
+
         source.transform.SetParent(
             temporaryPackage.transform,
             true);
@@ -130,6 +149,13 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 true);
         }
 
+        if (garage != null)
+        {
+            garage.transform.SetParent(
+                temporaryPackage.transform,
+                true);
+        }
+
         if (backdrop != null)
         {
             backdrop.transform.SetParent(
@@ -142,11 +168,10 @@ public static class FantasticCityGeneratorRuntimeBuilder
 
         try
         {
-            // Clone the three FCG roots as one hierarchy. Instantiating them
-            // together is important because FCG traffic scripts can keep
-            // serialized references between Traffic System, CarContainer and
-            // City-Maker; Unity remaps those references correctly inside one
-            // cloned hierarchy.
+            // Clone the authored runtime roots as one hierarchy. Keeping
+            // City-Maker, traffic, garage and distant background together
+            // preserves their exact Workbench transforms and lets Unity remap
+            // serialized references inside the cloned hierarchy.
             clone =
                 UnityEngine.Object.Instantiate(
                     temporaryPackage);
@@ -179,6 +204,9 @@ public static class FantasticCityGeneratorRuntimeBuilder
                     : string.Empty) +
                 (carContainer != null
                     ? ", CarContainer"
+                    : string.Empty) +
+                (garage != null
+                    ? ", garage"
                     : string.Empty) +
                 (backdrop != null
                     ? ", Background"
@@ -236,10 +264,18 @@ public static class FantasticCityGeneratorRuntimeBuilder
                     true);
             }
 
+            if (garage != null)
+            {
+                garage.transform.SetParent(
+                    garageOriginalParent,
+                    true);
+            }
+
             if (backdrop != null)
             {
-                UnityEngine.Object.DestroyImmediate(
-                    backdrop);
+                backdrop.transform.SetParent(
+                    backdropOriginalParent,
+                    true);
             }
 
             if (temporaryPackage != null)
@@ -254,272 +290,6 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 previousActiveScene,
                 true);
         }
-    }
-
-    private static GameObject CreateRuntimeBackdrop(
-        GameObject citySource)
-    {
-        if (citySource == null)
-            return null;
-
-        GameObject prefab =
-            AssetDatabase.LoadAssetAtPath<GameObject>(
-                FcgBackdropPrefab);
-
-        if (prefab == null)
-        {
-            Debug.LogWarning(
-                "Motor City: FCG background prefab was not found. " +
-                "The runtime city will be built without the distant skyline.");
-
-            return null;
-        }
-
-        GameObject backdrop =
-            UnityEngine.Object.Instantiate(
-                prefab);
-
-        backdrop.name =
-            "MotorCity_Background";
-
-        Bounds cityBounds =
-            CalculateRendererBounds(
-                citySource);
-
-        Bounds backdropBounds =
-            CalculateRendererBounds(
-                backdrop);
-
-        float citySize =
-            Mathf.Max(
-                cityBounds.size.x,
-                cityBounds.size.z);
-
-        float backdropSize =
-            Mathf.Max(
-                backdropBounds.size.x,
-                backdropBounds.size.z);
-
-        if (citySize > 10f &&
-            backdropSize > 0.1f)
-        {
-            float desiredSize =
-                Mathf.Clamp(
-                    citySize * 1.45f,
-                    1400f,
-                    6500f);
-
-            float scale =
-                desiredSize /
-                backdropSize;
-
-            backdrop.transform.localScale *=
-                scale;
-        }
-
-        backdrop.transform.position =
-            new Vector3(
-                cityBounds.center.x,
-                cityBounds.min.y - 2f,
-                cityBounds.center.z);
-
-        Material material =
-            CreateOrUpdateBackdropMaterial(
-                backdrop);
-
-        foreach (Renderer renderer in
-                 backdrop.GetComponentsInChildren<Renderer>(true))
-        {
-            if (renderer == null)
-                continue;
-
-            if (material != null)
-            {
-                Material[] materials =
-                    renderer.sharedMaterials;
-
-                for (int i = 0;
-                     i < materials.Length;
-                     i++)
-                {
-                    materials[i] =
-                        material;
-                }
-
-                renderer.sharedMaterials =
-                    materials;
-            }
-
-            renderer.shadowCastingMode =
-                UnityEngine.Rendering.ShadowCastingMode.Off;
-
-            renderer.receiveShadows =
-                false;
-
-            renderer.lightProbeUsage =
-                UnityEngine.Rendering.LightProbeUsage.Off;
-
-            renderer.reflectionProbeUsage =
-                UnityEngine.Rendering.ReflectionProbeUsage.Off;
-
-            renderer.motionVectorGenerationMode =
-                MotionVectorGenerationMode.ForceNoMotion;
-        }
-
-        foreach (Collider collider in
-                 backdrop.GetComponentsInChildren<Collider>(true))
-        {
-            UnityEngine.Object.DestroyImmediate(
-                collider);
-        }
-
-        return backdrop;
-    }
-
-    private static Material CreateOrUpdateBackdropMaterial(
-        GameObject backdrop)
-    {
-        Shader shader =
-            Shader.Find(
-                "MotorCity/CityBackdrop");
-
-        if (shader == null)
-        {
-            Debug.LogWarning(
-                "Motor City: CityBackdrop shader was not found.");
-
-            return null;
-        }
-
-        Texture texture =
-            null;
-
-        Renderer sourceRenderer =
-            backdrop.GetComponentInChildren<Renderer>(
-                true);
-
-        if (sourceRenderer != null &&
-            sourceRenderer.sharedMaterial != null)
-        {
-            Material sourceMaterial =
-                sourceRenderer.sharedMaterial;
-
-            if (sourceMaterial.HasProperty(
-                    "_MainTex"))
-            {
-                texture =
-                    sourceMaterial.GetTexture(
-                        "_MainTex");
-            }
-            else if (sourceMaterial.HasProperty(
-                         "_BaseMap"))
-            {
-                texture =
-                    sourceMaterial.GetTexture(
-                        "_BaseMap");
-            }
-        }
-
-        Material material =
-            AssetDatabase.LoadAssetAtPath<Material>(
-                BackdropMaterial);
-
-        if (material == null)
-        {
-            material =
-                new Material(
-                    shader);
-
-            AssetDatabase.CreateAsset(
-                material,
-                BackdropMaterial);
-        }
-        else
-        {
-            material.shader =
-                shader;
-        }
-
-        material.name =
-            "MotorCity_FCGBackdrop";
-
-        material.enableInstancing =
-            true;
-
-        if (texture != null &&
-            material.HasProperty(
-                "_BaseMap"))
-        {
-            material.SetTexture(
-                "_BaseMap",
-                texture);
-        }
-
-        if (material.HasProperty(
-                "_DayTint"))
-        {
-            material.SetColor(
-                "_DayTint",
-                new Color(
-                    0.78f,
-                    0.82f,
-                    0.86f,
-                    1f));
-        }
-
-        if (material.HasProperty(
-                "_NightTint"))
-        {
-            material.SetColor(
-                "_NightTint",
-                new Color(
-                    0.055f,
-                    0.075f,
-                    0.11f,
-                    1f));
-        }
-
-        if (material.HasProperty(
-                "_NightBrightness"))
-        {
-            material.SetFloat(
-                "_NightBrightness",
-                0.42f);
-        }
-
-        EditorUtility.SetDirty(
-            material);
-
-        return material;
-    }
-
-    private static Bounds CalculateRendererBounds(
-        GameObject root)
-    {
-        Renderer[] renderers =
-            root.GetComponentsInChildren<Renderer>(
-                true);
-
-        if (renderers.Length == 0)
-        {
-            return
-                new Bounds(
-                    root.transform.position,
-                    Vector3.one);
-        }
-
-        Bounds bounds =
-            renderers[0].bounds;
-
-        for (int i = 1;
-             i < renderers.Length;
-             i++)
-        {
-            bounds.Encapsulate(
-                renderers[i].bounds);
-        }
-
-        return bounds;
     }
 
     private static string NormalizeName(
