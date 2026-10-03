@@ -216,6 +216,24 @@ namespace MotorCity.World
                 true;
         }
 
+        private void OnDisable()
+        {
+            // Shader globals survive long enough in the Editor to leave
+            // Scene View/material previews in the last runtime night state.
+            // Always return authored/editor previews to their daytime state
+            // when the runtime controller is disabled or Play Mode stops.
+            Shader.SetGlobalFloat(
+                "_MotorCityNightEmission",
+                0f);
+        }
+
+        private void OnDestroy()
+        {
+            Shader.SetGlobalFloat(
+                "_MotorCityNightEmission",
+                0f);
+        }
+
         private void Update()
         {
             if (!initialized)
