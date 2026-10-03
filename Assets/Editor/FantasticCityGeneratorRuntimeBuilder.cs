@@ -200,6 +200,10 @@ public static class FantasticCityGeneratorRuntimeBuilder
             int renderers =
                 clone.GetComponentsInChildren<Renderer>(true).Length;
 
+            ValidateSavedRuntimePrefab(
+                clone,
+                RuntimePrefab);
+
             string includedRoots =
                 "City-Maker" +
                 (trafficSystem != null
@@ -292,6 +296,101 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 openedTemporarily,
                 previousActiveScene,
                 true);
+        }
+    }
+
+    private static void ValidateSavedRuntimePrefab(
+        GameObject sourceClone,
+        string prefabPath)
+    {
+        if (sourceClone == null ||
+            string.IsNullOrWhiteSpace(
+                prefabPath))
+        {
+            return;
+        }
+
+        GameObject saved =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                prefabPath);
+
+        if (saved == null)
+        {
+            Debug.LogWarning(
+                "Motor City: runtime city validation could not load " +
+                prefabPath +
+                ".");
+
+            return;
+        }
+
+        Renderer[] sourceRenderers =
+            sourceClone.GetComponentsInChildren<Renderer>(
+                true);
+
+        Renderer[] savedRenderers =
+            saved.GetComponentsInChildren<Renderer>(
+                true);
+
+        int sourceSlots =
+            sourceRenderers.Sum(
+                renderer =>
+                    renderer != null &&
+                    renderer.sharedMaterials != null
+                        ? renderer.sharedMaterials.Length
+                        : 0);
+
+        int savedSlots =
+            savedRenderers.Sum(
+                renderer =>
+                    renderer != null &&
+                    renderer.sharedMaterials != null
+                        ? renderer.sharedMaterials.Length
+                        : 0);
+
+        int sourceNullSlots =
+            sourceRenderers.Sum(
+                renderer =>
+                    renderer == null ||
+                    renderer.sharedMaterials == null
+                        ? 0
+                        : renderer.sharedMaterials.Count(
+                            material =>
+                                material == null));
+
+        int savedNullSlots =
+            savedRenderers.Sum(
+                renderer =>
+                    renderer == null ||
+                    renderer.sharedMaterials == null
+                        ? 0
+                        : renderer.sharedMaterials.Count(
+                            material =>
+                                material == null));
+
+        bool mismatch =
+            sourceRenderers.Length !=
+                savedRenderers.Length ||
+            sourceSlots !=
+                savedSlots ||
+            sourceNullSlots !=
+                savedNullSlots;
+
+        if (mismatch)
+        {
+            Debug.LogWarning(
+                "Motor City: CityVisual validation mismatch after save. " +
+                $"Source renderers={sourceRenderers.Length}, saved renderers={savedRenderers.Length}, " +
+                $"source material slots={sourceSlots}, saved material slots={savedSlots}, " +
+                $"source null slots={sourceNullSlots}, saved null slots={savedNullSlots}. " +
+                "Build Runtime City did not serialize the authored hierarchy 1:1.");
+        }
+        else
+        {
+            Debug.Log(
+                "Motor City: CityVisual validation passed. " +
+                $"{savedRenderers.Length} renderers and {savedSlots} material slots " +
+                "were preserved by prefab serialization.");
         }
     }
 
