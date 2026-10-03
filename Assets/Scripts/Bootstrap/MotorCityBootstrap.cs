@@ -30,6 +30,16 @@ namespace MotorCity.Bootstrap
             RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticState()
         {
+            foreach (Material material in
+                     RuntimeMaterialCache.Values)
+            {
+                if (material != null)
+                {
+                    Object.Destroy(
+                        material);
+                }
+            }
+
             RuntimeMaterialCache.Clear();
 
             platformBootstrapReady =
