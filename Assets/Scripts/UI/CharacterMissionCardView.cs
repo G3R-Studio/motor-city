@@ -567,17 +567,18 @@ namespace MotorCity.UI
                     this);
 
                 return
-                    Sprite.Create(
-                        fallbackTexture,
-                        new Rect(
-                            0f,
-                            0f,
-                            fallbackTexture.width,
-                            fallbackTexture.height),
-                        new Vector2(
-                            0.5f,
-                            0.5f),
-                        100f);
+                    TrackRuntimeSprite(
+                        Sprite.Create(
+                            fallbackTexture,
+                            new Rect(
+                                0f,
+                                0f,
+                                fallbackTexture.width,
+                                fallbackTexture.height),
+                            new Vector2(
+                                0.5f,
+                                0.5f),
+                            100f));
             }
 
             if (Application.isEditor ||
