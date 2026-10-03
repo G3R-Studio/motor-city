@@ -743,8 +743,8 @@ namespace MotorCity.Gameplay
                 false);
 
             car.TeleportTo(
-                MotorCity.World.CityAssetRuntimeInstaller.GaragePoint,
-                MotorCity.World.CityAssetRuntimeInstaller.GarageSpawnRotation);
+                MotorCity.World.CityAssetRuntimeInstaller.GarageExitPosition,
+                MotorCity.World.CityAssetRuntimeInstaller.GarageExitRotation);
 
             car.SetGaragePresentationMode(
                 false);
