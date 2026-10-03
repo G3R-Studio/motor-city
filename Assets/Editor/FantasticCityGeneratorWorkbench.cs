@@ -50,6 +50,17 @@ public static class FantasticCityGeneratorWorkbench
             return;
         }
 
+        if (FantasticCityGeneratorSceneSource.FindCityRoot(
+                active) == null)
+        {
+            EditorUtility.DisplayDialog(
+                "Motor City - FCG Workbench",
+                "Новый workbench можно создать только из FCG-сцены, содержащей корневой City-Maker.\n\n" +
+                "Это защищает Prototype и другие сцены от случайного копирования в FCG_Workbench.",
+                "OK");
+            return;
+        }
+
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
             return;
 
