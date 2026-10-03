@@ -204,6 +204,8 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 clone,
                 RuntimePrefab);
 
+            ValidateGeneratedMaterialKeyConflicts();
+
             string includedRoots =
                 "City-Maker" +
                 (trafficSystem != null
@@ -392,6 +394,146 @@ public static class FantasticCityGeneratorRuntimeBuilder
                 $"{savedRenderers.Length} renderers and {savedSlots} material slots " +
                 "were preserved by prefab serialization.");
         }
+    }
+
+    private static void ValidateGeneratedMaterialKeyConflicts()
+    {
+        Material[] materials =
+            Resources.LoadAll<Material>(
+                "MotorCity/Environment/FCGMaterials");
+
+        if (materials == null ||
+            materials.Length == 0)
+        {
+            return;
+        }
+
+        var conflicts =
+            materials
+                .Where(material =>
+                    material != null)
+                .GroupBy(
+                    material =>
+                        RuntimeMaterialKeyForValidation(
+                            material.name),
+                    StringComparer.OrdinalIgnoreCase)
+                .Where(group =>
+                    !string.IsNullOrWhiteSpace(
+                        group.Key) &&
+                    group.Count() > 1)
+                .Select(group =>
+                    new
+                    {
+                        Key = group.Key,
+                        Materials = group
+                            .Select(material =>
+                                material.name)
+                            .OrderBy(name => name)
+                            .ToArray()
+                    })
+                .ToArray();
+
+        if (conflicts.Length == 0)
+        {
+            Debug.Log(
+                "Motor City: FCG runtime material validation found no duplicate canonical keys.");
+
+            return;
+        }
+
+        string details =
+            string.Join(
+                "\n",
+                conflicts.Select(
+                    conflict =>
+                        conflict.Key +
+                        " => " +
+                        string.Join(
+                            ", ",
+                            conflict.Materials)));
+
+        Debug.LogWarning(
+            "Motor City: FCG runtime material validation found duplicate canonical keys. " +
+            "The existing runtime rebind mechanic may choose between these generated materials " +
+            "by load order when their priority is equal. No materials were changed automatically.\n" +
+            details);
+    }
+
+    private static string RuntimeMaterialKeyForValidation(
+        string materialName)
+    {
+        if (string.IsNullOrWhiteSpace(
+                materialName))
+        {
+            return string.Empty;
+        }
+
+        string value =
+            materialName
+                .Replace(
+                    "(Instance)",
+                    string.Empty,
+                    StringComparison.OrdinalIgnoreCase)
+                .Trim();
+
+        if (value.StartsWith(
+                "FCG_",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            value =
+                value.Substring(
+                    4);
+        }
+
+        int separator =
+            value.LastIndexOf(
+                '_');
+
+        if (separator >= 0 &&
+            separator <
+                value.Length - 1)
+        {
+            string suffix =
+                value.Substring(
+                    separator + 1);
+
+            if (suffix.Length == 8 &&
+                suffix.All(
+                    Uri.IsHexDigit))
+            {
+                value =
+                    value.Substring(
+                        0,
+                        separator);
+            }
+        }
+
+        string key =
+            new string(
+                value
+                    .ToLowerInvariant()
+                    .Where(
+                        char.IsLetterOrDigit)
+                    .ToArray());
+
+        return
+            key switch
+            {
+                "winsnight" =>
+                    "wins",
+                "wins02night" =>
+                    "wins02",
+                "winglass01night" =>
+                    "winglass01",
+                "winglass01dn" =>
+                    "winglass01d",
+                "winglass03night" =>
+                    "winglass03",
+                "winglass04night" =>
+                    "winglass04",
+                _ =>
+                    key
+            };
     }
 
     private static string NormalizeName(
