@@ -786,10 +786,6 @@ namespace MotorCity.Gameplay
             vehicleAudio?.SetMuted(
                 active);
 
-            MotorCity.World.CityAssetRuntimeInstaller
-                .SetGaragePresentationLighting(
-                    active);
-
             if (chaseCamera == null)
             {
                 chaseCamera =
@@ -1238,10 +1234,6 @@ namespace MotorCity.Gameplay
 
             if (activityManager != null)
                 activityManager.End(ActivityId);
-
-            MotorCity.World.CityAssetRuntimeInstaller
-                .SetGaragePresentationLighting(
-                    false);
 
             IsOpen = false;
         }
