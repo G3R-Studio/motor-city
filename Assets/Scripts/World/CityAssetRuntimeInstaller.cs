@@ -1895,9 +1895,9 @@ namespace MotorCity.World
         {
             GaragePoint =
                 new Vector3(
-                    -585.822f,
-                    0.2f,
-                    505.109f);
+                    -421.68866f,
+                    0.182654113f,
+                    330.916077f);
 
             GarageSpawnRotation =
                 Quaternion.Euler(
