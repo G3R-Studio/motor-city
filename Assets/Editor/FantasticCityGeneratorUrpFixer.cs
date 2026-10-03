@@ -34,6 +34,16 @@ public static class FantasticCityGeneratorUrpFixer
             return;
         }
 
+        if (!EditorUtility.DisplayDialog(
+                "Motor City - FCG URP Fix",
+                "Fix Materials пересобирает/нормализует FCG-материалы и может перезаписать ручные правки в Assets/Resources/MotorCity/Environment/FCGMaterials.\n\n" +
+                "Используй эту команду только когда действительно нужно заново исправить материалы.",
+                "Продолжить",
+                "Отмена"))
+        {
+            return;
+        }
+
         Shader urpLit =
             Shader.Find(
                 "Universal Render Pipeline/Lit");
@@ -358,10 +368,10 @@ public static class FantasticCityGeneratorUrpFixer
                 if (IsGeneratedUrpMaterial(
                         source))
                 {
-                    RepairGeneratedUrpMaterial(
-                        source,
-                        urpLit);
-
+                    // Runtime baking must be non-destructive. Generated
+                    // materials can contain deliberate manual tuning (glass,
+                    // windows, foliage, etc.), so only the explicit
+                    // "Fix Materials" command is allowed to rebuild them.
                     continue;
                 }
 
