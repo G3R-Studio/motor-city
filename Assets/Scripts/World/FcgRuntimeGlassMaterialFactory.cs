@@ -7,6 +7,14 @@ namespace MotorCity.World
     public static class FcgRuntimeGlassMaterialFactory
     {
         private static readonly HashSet<Material> windowMaterials = new();
+
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetWindowMaterialTracking()
+        {
+            windowMaterials.Clear();
+        }
+
         public static bool IsArchitecturalGlassKey(
             string key)
         {
