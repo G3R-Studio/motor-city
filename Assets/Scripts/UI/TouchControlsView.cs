@@ -1272,7 +1272,7 @@ namespace MotorCity.UI
             arrow.color = Color.white;
             arrow.raycastTarget = false;
         }
-        private static Sprite CreateTouchControlSprite(
+        private Sprite CreateTouchControlSprite(
             Texture2D texture)
         {
             if (texture == null)
@@ -1300,7 +1300,9 @@ namespace MotorCity.UI
             sprite.hideFlags =
                 HideFlags.DontSave;
 
-            return sprite;
+            return
+                TrackRuntimeSprite(
+                    sprite);
         }
 
         private void CreateTouchControlBackdrop(
