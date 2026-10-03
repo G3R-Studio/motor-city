@@ -42,6 +42,8 @@ namespace MotorCity.World
 
             SnapToGarage();
 
+            RestartMarkerParticles();
+
             RefreshVisuals();
         }
 
@@ -85,6 +87,22 @@ namespace MotorCity.World
                 markerVfx.GetComponentsInChildren<ParticleSystem>(
                     true);
 
+            if (markerParticles != null)
+            {
+                foreach (ParticleSystem particles in
+                         markerParticles)
+                {
+                    if (particles == null)
+                        continue;
+
+                    ParticleSystem.MainModule main =
+                        particles.main;
+
+                    main.simulationSpace =
+                        ParticleSystemSimulationSpace.Local;
+                }
+            }
+
             ApplyGarageColor(
                 false);
         }
@@ -96,6 +114,25 @@ namespace MotorCity.World
 
             transform.position =
                 garage.GarageCenter;
+        }
+
+        private void RestartMarkerParticles()
+        {
+            if (markerParticles == null)
+                return;
+
+            foreach (ParticleSystem particles in
+                     markerParticles)
+            {
+                if (particles == null)
+                    continue;
+
+                particles.Clear(
+                    true);
+
+                particles.Play(
+                    true);
+            }
         }
 
         private void ResolveObserver()
