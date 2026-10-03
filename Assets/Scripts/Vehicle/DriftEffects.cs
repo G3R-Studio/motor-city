@@ -365,7 +365,7 @@ namespace MotorCity.Vehicle
             return material;
         }
 
-        private static Material CreateSmokeMaterial()
+        private Material CreateSmokeMaterial()
         {
             Shader shader =
                 Shader.Find(
