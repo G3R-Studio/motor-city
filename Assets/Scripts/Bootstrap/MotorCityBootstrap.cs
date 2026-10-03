@@ -908,7 +908,6 @@ namespace MotorCity.Bootstrap
         {
             if (CityAssetRuntimeInstaller.TryInstall())
             {
-                PlayerGarageRuntimeInstaller.TryInstall();
                 return;
             }
 
