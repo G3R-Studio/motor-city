@@ -28,36 +28,11 @@ public static class FantasticCityGeneratorLegacyImporterFixer
     private const string SupportedLine =
         "    materialLocation: 1";
 
-    private static bool startupScanQueued;
-
-    [InitializeOnLoadMethod]
-    private static void QueueStartupScan()
-    {
-        if (startupScanQueued)
-            return;
-
-        startupScanQueued = true;
-
-        EditorApplication.delayCall +=
-            RunStartupScan;
-    }
-
     [MenuItem("Motor City/Fantastic City Generator/0 - Repair Legacy FBX Importers")]
     public static void RepairAll()
     {
         RepairLegacyMaterialLocations(
             true);
-    }
-
-    private static void RunStartupScan()
-    {
-        startupScanQueued = false;
-
-        if (EditorApplication.isPlayingOrWillChangePlaymode)
-            return;
-
-        RepairLegacyMaterialLocations(
-            false);
     }
 
     private static void RepairLegacyMaterialLocations(
