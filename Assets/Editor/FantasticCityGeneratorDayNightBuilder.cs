@@ -26,6 +26,57 @@ public static class FantasticCityGeneratorDayNightBuilder
             TryBuildSilently;
     }
 
+    [MenuItem("Motor City/Fantastic City Generator/Rebuild DayNight Settings")]
+    public static void BuildMenu()
+    {
+        Build(
+            true);
+    }
+
+    [MenuItem("Motor City/Fantastic City Generator/Import DayNight Prefab...")]
+    public static void ImportPrefabMenu()
+    {
+        string path =
+            EditorUtility.OpenFilePanel(
+                "Choose DayNight.prefab",
+                Environment.GetFolderPath(
+                    Environment.SpecialFolder.UserProfile),
+                "prefab");
+
+        if (string.IsNullOrWhiteSpace(
+                path))
+            return;
+
+        EnsureFolder(
+            "Assets/LocalGenerated");
+
+        string destination =
+            Path.GetFullPath(
+                ImportedSourcePath);
+
+        string source =
+            Path.GetFullPath(
+                path);
+
+        if (!string.Equals(
+                source,
+                destination,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            File.Copy(
+                source,
+                destination,
+                true);
+        }
+
+        AssetDatabase.ImportAsset(
+            ImportedSourcePath,
+            ImportAssetOptions.ForceUpdate);
+
+        Build(
+            true);
+    }
+
     private static void TryBuildSilently()
     {
         if (AssetDatabase.LoadAssetAtPath<DayNightSettings>(
