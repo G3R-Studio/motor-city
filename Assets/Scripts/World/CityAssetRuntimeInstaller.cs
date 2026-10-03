@@ -139,6 +139,82 @@ namespace MotorCity.World
         private static readonly List<ReflectionProbe> cityReflectionProbes =
             new();
 
+        [RuntimeInitializeOnLoadMethod(
+            RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticState()
+        {
+            if (garagePresentationVolumeProfile != null)
+            {
+                UnityEngine.Object.Destroy(
+                    garagePresentationVolumeProfile);
+            }
+
+            activeCity =
+                null;
+
+            activeGarageInterior =
+                null;
+
+            garagePresentationLighting =
+                null;
+
+            garagePresentationPostFx =
+                null;
+
+            garagePresentationVolumeProfile =
+                null;
+
+            cityBounds =
+                default;
+
+            hasCityBounds =
+                false;
+
+            cityReflectionProbes.Clear();
+
+            deliveryRoute =
+                (Vector3[])DeliveryPreferred.Clone();
+
+            sprintRoute =
+                (Vector3[])SprintPreferred.Clone();
+
+            circuitRoute =
+                (Vector3[])CircuitPreferred.Clone();
+
+            undergroundRoute =
+                (Vector3[])UndergroundPreferred.Clone();
+
+            PlayerSpawnPoint =
+                new Vector3(
+                    -570f,
+                    0.25f,
+                    505.109f);
+
+            PlayerSpawnRotation =
+                Quaternion.Euler(
+                    0f,
+                    90f,
+                    0f);
+
+            GaragePoint =
+                new Vector3(
+                    -585.822f,
+                    0.2f,
+                    505.109f);
+
+            GarageSpawnRotation =
+                Quaternion.Euler(
+                    7.40436444e-05f,
+                    89.9998322f,
+                    -4.8625111e-06f);
+
+            DriftChallengePoint =
+                new Vector3(
+                    -450f,
+                    0.2f,
+                    150f);
+        }
+
         public static Vector3 PlayerSpawnPoint { get; private set; } =
             new(-570f, 0.25f, 505.109f);
 
