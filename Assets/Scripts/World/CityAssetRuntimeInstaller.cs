@@ -245,7 +245,6 @@ namespace MotorCity.World
                     RuntimeCityName;
             }
 
-            DisableLegacyFcgDayNight();
             RebindRuntimeCityMaterials();
 
             // Runtime treats the authored city as read-only.
@@ -606,30 +605,6 @@ namespace MotorCity.World
                     _ =>
                         key
                 };
-        }
-
-        private static void DisableLegacyFcgDayNight()
-        {
-            if (activeCity == null)
-                return;
-
-            DayNight[] legacyControllers =
-                activeCity.GetComponentsInChildren<DayNight>(
-                    true);
-
-            for (int i = 0;
-                 i < legacyControllers.Length;
-                 i++)
-            {
-                DayNight controller =
-                    legacyControllers[i];
-
-                if (controller == null)
-                    continue;
-
-                controller.enabled =
-                    false;
-            }
         }
 
         private static void InstallCityReflectionProbes()
