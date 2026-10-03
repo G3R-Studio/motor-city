@@ -2143,7 +2143,7 @@ public static class FantasticCityGeneratorUrpFixer
 
                 if (shortGuid.Length == 8 &&
                     shortGuid.All(
-                        IsHexCharacter))
+                        Uri.IsHexDigit))
                 {
                     string[] guids =
                         AssetDatabase.FindAssets(
