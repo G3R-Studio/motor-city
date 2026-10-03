@@ -421,6 +421,72 @@ namespace MotorCity.World
                         continue;
                     }
 
+                    // Restore the previous FCG window path exactly:
+                    // architectural window materials must use the generated
+                    // FCG counterparts because those carry the recovered
+                    // night-window emission masks/textures.
+                    if (architecturalGlass)
+                    {
+                        Material glassReplacement =
+                            null;
+
+                        if (materialMap.TryGetValue(
+                                key,
+                                out Material generatedGlass) &&
+                            generatedGlass != null)
+                        {
+                            glassReplacement =
+                                generatedGlass;
+                        }
+                        else
+                        {
+                            if (!dynamicGlassMap.TryGetValue(
+                                    current,
+                                    out glassReplacement) ||
+                                glassReplacement == null)
+                            {
+                                glassReplacement =
+                                    FcgRuntimeGlassMaterialFactory
+                                        .Create(
+                                            current,
+                                            key);
+
+                                if (glassReplacement != null)
+                                {
+                                    dynamicGlassMap[current] =
+                                        glassReplacement;
+
+                                    dynamicallyConvertedGlass++;
+                                }
+                            }
+
+                            if (glassReplacement == null)
+                            {
+                                unresolvedGlass.Add(
+                                    current.name);
+                            }
+                        }
+
+                        if (glassReplacement != null)
+                        {
+                            FcgRuntimeGlassMaterialFactory
+                                .ConfigureReflections(
+                                    glassReplacement);
+
+                            if (glassReplacement != current)
+                            {
+                                materials[i] =
+                                    glassReplacement;
+
+                                replaced++;
+                                changed =
+                                    true;
+                            }
+                        }
+
+                        continue;
+                    }
+
                     // CityVisual/FCG_Workbench is the authored source of truth.
                     // If the current material already uses a supported runtime
                     // shader, leave it completely untouched. This avoids
@@ -453,47 +519,10 @@ namespace MotorCity.World
                             generatedReplacement;
                     }
 
-                    if (replacement == null &&
-                        architecturalGlass)
-                    {
-                        if (!dynamicGlassMap.TryGetValue(
-                                current,
-                                out replacement) ||
-                            replacement == null)
-                        {
-                            replacement =
-                                FcgRuntimeGlassMaterialFactory
-                                    .Create(
-                                        current,
-                                        key);
-
-                            if (replacement != null)
-                            {
-                                dynamicGlassMap[current] =
-                                    replacement;
-
-                                dynamicallyConvertedGlass++;
-                            }
-                        }
-
-                        if (replacement == null)
-                        {
-                            unresolvedGlass.Add(
-                                current.name);
-                        }
-                    }
-
                     if (replacement == null ||
                         replacement == current)
                     {
                         continue;
-                    }
-
-                    if (architecturalGlass)
-                    {
-                        FcgRuntimeGlassMaterialFactory
-                            .TrackWindowEmission(
-                                replacement);
                     }
 
                     materials[i] =
