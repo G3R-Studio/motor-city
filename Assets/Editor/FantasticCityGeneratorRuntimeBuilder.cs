@@ -506,7 +506,7 @@ public static class FantasticCityGeneratorRuntimeBuilder
             return;
         }
 
-        var conflicts =
+        var ambiguousConflicts =
             materials
                 .Where(material =>
                     material != null)
@@ -517,24 +517,32 @@ public static class FantasticCityGeneratorRuntimeBuilder
                     StringComparer.OrdinalIgnoreCase)
                 .Where(group =>
                     !string.IsNullOrWhiteSpace(
-                        group.Key) &&
-                    group.Count() > 1)
-                .Select(group =>
-                    new
-                    {
-                        Key = group.Key,
-                        Materials = group
-                            .Select(material =>
-                                material.name)
-                            .OrderBy(name => name)
-                            .ToArray()
-                    })
+                        group.Key))
+                .SelectMany(group =>
+                    group
+                        .GroupBy(
+                            material =>
+                                RuntimeMaterialPriorityForValidation(
+                                    material.name))
+                        .Where(priorityGroup =>
+                            priorityGroup.Count() > 1)
+                        .Select(priorityGroup =>
+                            new
+                            {
+                                Key = group.Key,
+                                Priority = priorityGroup.Key,
+                                Materials = priorityGroup
+                                    .Select(material =>
+                                        material.name)
+                                    .OrderBy(name => name)
+                                    .ToArray()
+                            }))
                 .ToArray();
 
-        if (conflicts.Length == 0)
+        if (ambiguousConflicts.Length == 0)
         {
             Debug.Log(
-                "Motor City: FCG runtime material validation found no duplicate canonical keys.");
+                "Motor City: FCG runtime material validation found no ambiguous duplicate canonical keys.");
 
             return;
         }
@@ -542,19 +550,49 @@ public static class FantasticCityGeneratorRuntimeBuilder
         string details =
             string.Join(
                 "\n",
-                conflicts.Select(
+                ambiguousConflicts.Select(
                     conflict =>
                         conflict.Key +
-                        " => " +
+                        " [priority " +
+                        conflict.Priority +
+                        "] => " +
                         string.Join(
                             ", ",
                             conflict.Materials)));
 
         Debug.LogWarning(
-            "Motor City: FCG runtime material validation found duplicate canonical keys. " +
-            "The existing runtime rebind mechanic may choose between these generated materials " +
-            "by load order when their priority is equal. No materials were changed automatically.\n" +
+            "Motor City: FCG runtime material validation found ambiguous duplicate canonical keys. " +
+            "These materials have the same runtime priority, so the existing rebind mechanic can " +
+            "choose between them by Resources.LoadAll order. No materials were changed automatically.\n" +
             details);
+    }
+
+    private static int RuntimeMaterialPriorityForValidation(
+        string materialName)
+    {
+        if (string.IsNullOrWhiteSpace(
+                materialName))
+        {
+            return 0;
+        }
+
+        string value =
+            materialName.ToLowerInvariant();
+
+        if (value.Contains(
+                "night",
+                StringComparison.OrdinalIgnoreCase) ||
+            value.Contains(
+                "-dn",
+                StringComparison.OrdinalIgnoreCase) ||
+            value.Contains(
+                "_dn",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return 10;
+        }
+
+        return 100;
     }
 
     private static string RuntimeMaterialKeyForValidation(
