@@ -267,6 +267,18 @@ namespace MotorCity.World
                 142.676514f,
                 0f);
 
+        public static Vector3 GarageExitPosition { get; } =
+            new(
+                -413.192017f,
+                0.174802512f,
+                331.059753f);
+
+        public static Quaternion GarageExitRotation { get; } =
+            Quaternion.Euler(
+                359.607452f,
+                181.803848f,
+                0.0546497814f);
+
         public static Vector3 GarageCameraPosition { get; } =
             new(
                 -549.252f,
