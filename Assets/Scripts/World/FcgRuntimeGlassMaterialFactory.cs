@@ -7,6 +7,24 @@ namespace MotorCity.World
     public static class FcgRuntimeGlassMaterialFactory
     {
         private static readonly HashSet<Material> windowMaterials = new();
+
+        public static bool IsBackdropKey(
+            string key)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    key))
+            {
+                return false;
+            }
+
+            string normalized =
+                key.ToLowerInvariant();
+
+            return
+                normalized.StartsWith("back01") ||
+                normalized.Contains("background") ||
+                normalized.Contains("backdrop");
+        }
         public static bool IsArchitecturalGlassKey(
             string key)
         {
@@ -182,6 +200,110 @@ namespace MotorCity.World
             return material;
         }
 
+        public static Material CreateBackdrop(
+            Material source)
+        {
+            if (source == null)
+                return null;
+
+            Shader shader =
+                Shader.Find(
+                    "MotorCity/CityBackdrop") ??
+                Shader.Find(
+                    "Universal Render Pipeline/Unlit");
+
+            if (shader == null)
+                return null;
+
+            Material material =
+                new Material(
+                    shader)
+                {
+                    name =
+                        "MotorCity_Runtime_" +
+                        source.name,
+                    hideFlags =
+                        HideFlags.DontSave
+                };
+
+            Texture baseTexture =
+                GetFirstTexture(
+                    source,
+                    "_BaseMap",
+                    "_MainTex");
+
+            if (baseTexture != null &&
+                material.HasProperty(
+                    "_BaseMap"))
+            {
+                material.SetTexture(
+                    "_BaseMap",
+                    baseTexture);
+
+                CopyTextureTransform(
+                    source,
+                    material,
+                    "_BaseMap",
+                    source.HasProperty("_BaseMap")
+                        ? "_BaseMap"
+                        : "_MainTex");
+            }
+
+            // Backdrop is an unlit distant card. Never synthesize emission or
+            // reflective properties for it: those make sun/moon highlights
+            // wash the skyline toward white.
+            if (material.HasProperty("_EmissionColor"))
+                material.SetColor("_EmissionColor", Color.black);
+
+            if (material.HasProperty("_Metallic"))
+                material.SetFloat("_Metallic", 0f);
+
+            if (material.HasProperty("_Smoothness"))
+                material.SetFloat("_Smoothness", 0f);
+
+            if (material.HasProperty("_EnvironmentReflections"))
+                material.SetFloat("_EnvironmentReflections", 0f);
+
+            if (material.HasProperty("_SpecularHighlights"))
+                material.SetFloat("_SpecularHighlights", 0f);
+
+            if (material.HasProperty("_Surface"))
+                material.SetFloat("_Surface", 1f);
+
+            if (material.HasProperty("_SrcBlend"))
+                material.SetFloat("_SrcBlend", 5f);
+
+            if (material.HasProperty("_DstBlend"))
+                material.SetFloat("_DstBlend", 10f);
+
+            if (material.HasProperty("_ZWrite"))
+                material.SetFloat("_ZWrite", 0f);
+
+            material.DisableKeyword("_EMISSION");
+            material.DisableKeyword("_ENVIRONMENTREFLECTIONS_ON");
+            material.DisableKeyword("_SPECULARHIGHLIGHTS_ON");
+            material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            material.SetOverrideTag("RenderType", "Transparent");
+            material.renderQueue =
+                (int)UnityEngine.Rendering.RenderQueue.Transparent;
+
+            return material;
+        }
+
+        public static void TrackWindowEmission(
+            Material material)
+        {
+            if (material == null ||
+                !material.HasProperty("_EmissionMap") ||
+                material.GetTexture("_EmissionMap") == null)
+            {
+                return;
+            }
+
+            windowMaterials.Add(
+                material);
+        }
+
         public static void ConfigureReflections(Material material)
         {
             if (material == null) return;
@@ -196,7 +318,7 @@ namespace MotorCity.World
             if (material.HasProperty("_EmissionMap") && material.GetTexture("_EmissionMap") != null)
             {
                 material.EnableKeyword("_EMISSION");
-                windowMaterials.Add(material);
+                TrackWindowEmission(material);
             }
         }
         public static void UpdateWindowEmission(float night)
