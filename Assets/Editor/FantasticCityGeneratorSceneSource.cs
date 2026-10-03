@@ -49,6 +49,17 @@ public static class FantasticCityGeneratorSceneSource
             return;
         }
 
+        if (!IsLocalGeneratedScenePath(
+                assetPath))
+        {
+            EditorUtility.DisplayDialog(
+                "Motor City - FCG Source",
+                "Источник FCG должен находиться в Assets/LocalGenerated.\n\n" +
+                "Это защищает package/demo-сцены от случайного изменения.",
+                "OK");
+            return;
+        }
+
         Scene previous =
             SceneManager.GetActiveScene();
 
@@ -100,11 +111,13 @@ public static class FantasticCityGeneratorSceneSource
 
         if (!active.IsValid() ||
             !active.isLoaded ||
+            !FantasticCityGeneratorWorkbench.IsSafeWorkbench(
+                active) ||
             FindCityRoot(active) == null)
         {
             EditorUtility.DisplayDialog(
                 "Motor City - FCG Source",
-                "В активной сцене нет City-Maker.",
+                "Активная сцена должна быть сохранённой FCG-сценой в Assets/LocalGenerated и содержать City-Maker.",
                 "OK");
             return;
         }
@@ -153,6 +166,8 @@ public static class FantasticCityGeneratorSceneSource
 
         if (active.IsValid() &&
             active.isLoaded &&
+            FantasticCityGeneratorWorkbench.IsSafeWorkbench(
+                active) &&
             FindCityRoot(active) != null)
         {
             sourceScene =
@@ -317,6 +332,8 @@ public static class FantasticCityGeneratorSceneSource
             default;
 
         if (string.IsNullOrWhiteSpace(
+                assetPath) ||
+            !IsLocalGeneratedScenePath(
                 assetPath))
             return false;
 
@@ -364,6 +381,28 @@ public static class FantasticCityGeneratorSceneSource
         Debug.Log(
             "Motor City: FCG source scene selected: " +
             assetPath);
+    }
+
+    private static bool IsLocalGeneratedScenePath(
+        string assetPath)
+    {
+        if (string.IsNullOrWhiteSpace(
+                assetPath))
+            return false;
+
+        string normalized =
+            assetPath.Replace(
+                '\\',
+                '/');
+
+        string root =
+            FantasticCityGeneratorWorkbench.LocalRoot
+                .TrimEnd('/') +
+            "/";
+
+        return normalized.StartsWith(
+            root,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     private static string AbsoluteToAssetPath(
