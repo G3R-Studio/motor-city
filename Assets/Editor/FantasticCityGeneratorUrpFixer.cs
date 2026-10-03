@@ -799,84 +799,6 @@ public static class FantasticCityGeneratorUrpFixer
         return material;
     }
 
-    public static void DiagnoseMaterialsInActiveScene()
-    {
-        Scene scene =
-            SceneManager.GetActiveScene();
-
-        if (!scene.IsValid() ||
-            !scene.isLoaded)
-            return;
-
-        var counts =
-            new Dictionary<string, int>(
-                StringComparer.OrdinalIgnoreCase);
-
-        int fcgRendererCount =
-            0;
-
-        foreach (Renderer renderer in
-                 scene
-                     .GetRootGameObjects()
-                     .SelectMany(
-                         root =>
-                             root.GetComponentsInChildren<Renderer>(
-                                 true)))
-        {
-            bool usesFcg =
-                false;
-
-            foreach (Material material in
-                     renderer.sharedMaterials)
-            {
-                if (material == null)
-                    continue;
-
-                if (!BelongsToFantasticCityGenerator(
-                        material) &&
-                    !IsGeneratedUrpMaterial(
-                        material))
-                    continue;
-
-                usesFcg =
-                    true;
-
-                string shaderName =
-                    material.shader != null
-                        ? material.shader.name
-                        : "<missing shader>";
-
-                counts.TryGetValue(
-                    shaderName,
-                    out int count);
-
-                counts[shaderName] =
-                    count + 1;
-            }
-
-            if (usesFcg)
-                fcgRendererCount++;
-        }
-
-        string summary =
-            string.Join(
-                "\n",
-                counts
-                    .OrderByDescending(pair => pair.Value)
-                    .Select(
-                        pair =>
-                            $"{pair.Key}: {pair.Value}"));
-
-        Debug.Log(
-            "Motor City: FCG material diagnostic. " +
-            $"Renderers={fcgRendererCount}\n{summary}");
-
-        EditorUtility.DisplayDialog(
-            "Motor City - FCG Material Diagnostic",
-            $"FCG Renderer'ов: {fcgRendererCount}\n\n{summary}",
-            "OK");
-    }
-
     private static bool BelongsToFantasticCityGenerator(
         Material material)
     {
@@ -2260,18 +2182,6 @@ public static class FantasticCityGeneratorUrpFixer
                 materialName);
     }
 
-    private static bool IsHexCharacter(
-        char value)
-    {
-        return
-            (value >= '0' &&
-             value <= '9') ||
-            (value >= 'a' &&
-             value <= 'f') ||
-            (value >= 'A' &&
-             value <= 'F');
-    }
-
     private static Material FindOriginalFcgMaterial(
         string materialName)
     {
@@ -2950,27 +2860,6 @@ public static class FantasticCityGeneratorUrpFixer
             bestOffset;
 
         return true;
-    }
-
-    private static bool IsFoliageMaterialName(
-        string materialName)
-    {
-        if (string.IsNullOrWhiteSpace(
-                materialName))
-            return false;
-
-        string lower =
-            materialName.ToLowerInvariant();
-
-        return
-            lower.Contains("grass") ||
-            lower.Contains("tree") ||
-            lower.Contains("leaf") ||
-            lower.Contains("leaves") ||
-            lower.Contains("foliage") ||
-            lower.Contains("vegetation") ||
-            lower.Contains("fern") ||
-            lower.Contains("palm");
     }
 
     private static bool IsNightEmissionMaterialName(
