@@ -494,8 +494,6 @@ namespace MotorCity.World
 
             ApplyCelestialRotation();
 
-            float solarAngle = time01 * 360f - 90f;
-
             float solarHeight =
                 -directionalLight.transform.forward.y;
 
@@ -908,60 +906,6 @@ namespace MotorCity.World
 
             const float halfWidth =
                 0.035f;
-
-            if (runtimeCrossfadeSkybox != null &&
-                (TryResolveSkyboxCrossfade(
-                     t,
-                     0.24f,
-                     halfWidth,
-                     runtimeNightSkybox,
-                     runtimeMorningSkybox,
-                     out Material from,
-                     out Material to,
-                     out float progress) ||
-                 TryResolveSkyboxCrossfade(
-                     t,
-                     0.41f,
-                     halfWidth,
-                     runtimeMorningSkybox,
-                     runtimeDaySkybox,
-                     out from,
-                     out to,
-                     out progress) ||
-                 TryResolveSkyboxCrossfade(
-                     t,
-                     0.61f,
-                     halfWidth,
-                     runtimeDaySkybox,
-                     runtimeEveningSkybox,
-                     out from,
-                     out to,
-                     out progress) ||
-                 TryResolveSkyboxCrossfade(
-                     t,
-                     0.82f,
-                     halfWidth,
-                     runtimeEveningSkybox,
-                     runtimeNightSkybox,
-                     out from,
-                     out to,
-                     out progress)))
-            {
-                if (ConfigureCrossfadeSkybox(
-                        from,
-                        to,
-                        progress))
-                {
-                    if (RenderSettings.skybox !=
-                        runtimeCrossfadeSkybox)
-                    {
-                        RenderSettings.skybox =
-                            runtimeCrossfadeSkybox;
-                    }
-
-                    return;
-                }
-            }
 
             Material targetSkybox =
                 ResolveSkyboxForTime(
