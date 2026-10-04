@@ -705,6 +705,10 @@ namespace MotorCity.Gameplay
                     masteryLevel);
         }
 
+        // Overall progress for the garage's level / 10 display. MasteryProgress
+        // remains the XP progress within the current level for other consumers.
+        public float MasteryCompletion => Mathf.Clamp01(masteryLevel / 10f);
+
         public float MasteryProgress
         {
             get

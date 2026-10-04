@@ -91,6 +91,9 @@ namespace MotorCity.Gameplay
                 ? string.Empty
                 : vehicleRoster.GetMasteryShort();
 
+        public float VehicleMasteryCompletion =>
+            vehicleRoster == null ? 0f : vehicleRoster.MasteryCompletion;
+
         public float VehicleMasteryProgress =>
             vehicleRoster == null
                 ? 0f

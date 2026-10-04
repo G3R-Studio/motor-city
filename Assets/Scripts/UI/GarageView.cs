@@ -164,7 +164,7 @@ namespace MotorCity.UI
                 float masteryProgress =
                     metaUnlocked && garage != null
                         ? Mathf.Clamp01(
-                            garage.VehicleMasteryProgress)
+                            garage.VehicleMasteryCompletion)
                         : 0f;
 
                 fillRect.sizeDelta =
@@ -352,7 +352,7 @@ namespace MotorCity.UI
                 float progress =
                     metaUnlocked && garage != null
                         ? Mathf.Clamp01(
-                            garage.VehicleMasteryProgress)
+                            garage.VehicleMasteryCompletion)
                         : 0f;
 
                 float trackWidth =

@@ -48,14 +48,14 @@ namespace MotorCity.UI
             ReferenceLabel(card, "Garage Vehicle Card Title", MotorCityLocalization.Text("garage.my_car"), 87, 14, 277, 24, 18);
             garageVehicleText = ReferenceLabel(card, "Garage Vehicle", "", 87, 40, 291, 56, 24, Color.white);
             garageReferenceVehicleState = GarageIcon(card, "Garage Vehicle State Icon", GarageReferenceGraphic.Symbol.OpenPadlock, GarageReferenceGreen, 26, 22, 41, 49);
-            garageNextVehicleText = ReferenceLabel(card, "Garage Next Vehicle", "", 26, 104, 350, 44, 20, GarageReferenceGreen);
+            garageNextVehicleText = ReferenceLabel(card, "Garage Next Vehicle", "", 26, 104, 350, 80, 18, GarageReferenceGreen);
             GarageReferenceGraphic.Symbol[] stats = {GarageReferenceGraphic.Symbol.Speed, GarageReferenceGraphic.Symbol.Acceleration,
                 GarageReferenceGraphic.Symbol.Gear, GarageReferenceGraphic.Symbol.Stability, GarageReferenceGraphic.Symbol.Steering,
                 GarageReferenceGraphic.Symbol.Drift, GarageReferenceGraphic.Symbol.Mass};
             for (int i = 0; i < stats.Length; i++)
             {
-                float y = 171 + i * 36;
-                garageVehicleStatLabels[i] = ReferenceLabel(card, "Garage Stat Label " + i, "", 71, y, 119, 26, 18);
+                float y = 202 + i * 32;
+                garageVehicleStatLabels[i] = ReferenceLabel(card, "Garage Stat Label " + i, "", 71, y, 119, 26, 16);
                 garageVehicleStatValues[i] = ReferenceLabel(card, "Garage Stat Value " + i, "", 294, y, 82, 26, 18, Color.white);
                 garageVehicleStatValues[i].alignment = TextAnchor.MiddleRight;
                 garageVehicleStatFills[i] = GarageTrack(card, "Garage Stat Track " + i, 198, y + 7, 90, 14);
@@ -67,7 +67,7 @@ namespace MotorCity.UI
             garageReferenceMasteryValue.alignment = TextAnchor.MiddleRight;
             GarageIcon(card, "Garage Mastery Icon", GarageReferenceGraphic.Symbol.Crown, GarageReferenceCyan, 25, 608, 36, 36);
             garageMasteryFill = GarageTrack(card, "Garage Mastery Track", 76, 615, 286, 19);
-            foreach (float y in new[] {154f, 436f, 560f}) GarageBar(card, "Divider", 20, y, 356, 1);
+            foreach (float y in new[] {192f, 436f, 560f}) GarageBar(card, "Divider", 20, y, 356, 1);
 
             for (int i = 0; i < 3; i++)
             {
