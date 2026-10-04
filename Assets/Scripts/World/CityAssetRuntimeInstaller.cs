@@ -299,7 +299,13 @@ namespace MotorCity.World
             Physics.SyncTransforms();
 
             ResolveGameplayLayout();
-            InstallCityReflectionProbes();
+
+            // DayNightCycleController is initialized immediately after the city
+            // by MotorCityBootstrap. Create the probes now, but let that
+            // controller perform the first capture after sky/ambient/fog are
+            // in their final runtime state.
+            InstallCityReflectionProbes(
+                false);
 
             return true;
         }
@@ -643,7 +649,8 @@ namespace MotorCity.World
                 };
         }
 
-        private static void InstallCityReflectionProbes()
+        private static void InstallCityReflectionProbes(
+            bool captureImmediately = true)
         {
             if (activeCity == null ||
                 !hasCityBounds)
@@ -794,10 +801,13 @@ namespace MotorCity.World
                 }
             }
 
-            // Local probes contain much more useful architectural detail than
-            // four huge city-wide cubemaps. Capture them once after creation;
-            // subsequent refreshes happen only for sky/quality changes.
-            RefreshCityReflectionProbes();
+            // At startup DayNightCycleController captures these after it has
+            // applied the runtime sky/ambient/fog. Rebuilds caused by a quality
+            // change still capture immediately.
+            if (captureImmediately)
+            {
+                RefreshCityReflectionProbes();
+            }
         }
 
         private static int CurrentCityReflectionProbeGridSize()
