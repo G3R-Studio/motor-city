@@ -115,10 +115,17 @@ namespace MotorCity.Audio
         public static void SetSystemPaused(
             bool paused)
         {
-            EnsureExists();
+            if (instance == null)
+            {
+                if (!paused)
+                    return;
 
-            if (instance.systemPaused ==
-                paused)
+                EnsureExists();
+            }
+
+            if (instance == null ||
+                instance.systemPaused ==
+                    paused)
             {
                 return;
             }
@@ -132,10 +139,17 @@ namespace MotorCity.Audio
         public static void SetPauseMenuPaused(
             bool paused)
         {
-            EnsureExists();
+            if (instance == null)
+            {
+                if (!paused)
+                    return;
 
-            if (instance.pauseMenuPaused ==
-                paused)
+                EnsureExists();
+            }
+
+            if (instance == null ||
+                instance.pauseMenuPaused ==
+                    paused)
             {
                 return;
             }
@@ -209,6 +223,15 @@ namespace MotorCity.Audio
             LoadSettings();
             LoadMusic();
             BuildSource();
+        }
+
+        private void OnDestroy()
+        {
+            if (instance == this)
+            {
+                instance =
+                    null;
+            }
         }
 
         private void Update()
