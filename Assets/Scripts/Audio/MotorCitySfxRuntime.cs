@@ -114,9 +114,6 @@ namespace MotorCity.Audio
                 new(
                     "Motor City SFX");
 
-            DontDestroyOnLoad(
-                host);
-
             instance =
                 host.AddComponent<MotorCitySfxRuntime>();
         }
