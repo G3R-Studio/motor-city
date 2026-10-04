@@ -410,7 +410,7 @@ namespace MotorCity.Gameplay
             checkpointIndex = 0;
             currentLap = 1;
 
-            car.SetDrivingBlocked("ActivityCountdown", true);
+            car.SetDrivingBlocked("ActivityResult", true);
 
             string record =
                 newBest
