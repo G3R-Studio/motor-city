@@ -486,13 +486,6 @@ namespace MotorCity.World
                     ReflectionProbeUsage.BlendProbes;
             }
 
-            Debug.Log(
-                "Motor City: rebound " +
-                replaced +
-                " runtime FCG material slots; dynamically converted " +
-                dynamicallyConvertedGlass +
-                " unresolved architectural glass materials.");
-
             if (unresolvedGlass.Count > 0)
             {
                 Debug.LogWarning(
