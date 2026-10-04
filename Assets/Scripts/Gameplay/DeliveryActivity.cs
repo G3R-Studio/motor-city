@@ -226,12 +226,17 @@ namespace MotorCity.Gameplay
             bool elitePressed =
                 MotorCityInput.EliteModifierPressed;
 
+            if (elitePressed &&
+                !eliteUnlocked)
+            {
+                return;
+            }
+
             if (MotorCityInput.InteractPressed ||
                 elitePressed)
             {
                 eliteMode =
-                    elitePressed &&
-                    eliteUnlocked;
+                    elitePressed;
 
                 BeginCountdown();
             }
