@@ -1,17 +1,25 @@
-# Unity generated caches/build output
+# Motor City - Unity generated data
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-/Data/
-/TemplateData/
 [Ll]ogs/
 UserSettings/
 MemoryCaptures/
 Recordings/
+BuildReports/
 
-# IDE-generated files
+# Local build output
+[Bb]uild/
+[Bb]uilds/
+/Data/
+/TemplateData/
+
+# Unity crash and profiler output
+sysinfo.txt
+crashlytics-build.properties
+*.utmp
+
+# IDE and editor generated files
 .vs/
 .idea/
 .vscode/
@@ -24,17 +32,21 @@ Recordings/
 *.booproj
 *.svd
 
-# OS-generated files
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
 Thumbs.db
+Desktop.ini
 
-# Crash reports
-sysinfo.txt
+# Downloaded Unity package archives are local cache/install artifacts.
+# Imported package contents under Assets/ remain tracked when the game uses them.
+*.unitypackage
 
-# Unity Asset Store download/import helper cache.
-# Imported packages inside Assets/ are intentionally tracked for full recovery.
+# Unity Asset Store helper/import cache
 /Assets/AssetStoreTools*
 
-# Local FCG installer packages
+# Local Fantastic City Generator installer staging.
+# The production FCG source, workbench and runtime city are tracked elsewhere.
 /Assets/FCG/
 /Assets/FCG.meta
