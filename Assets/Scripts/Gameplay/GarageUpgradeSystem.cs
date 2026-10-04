@@ -907,10 +907,6 @@ namespace MotorCity.Gameplay
 
             light.type =
                 LightType.Point;
-
-            light.lightmapBakeType =
-                LightmapBakeType.Realtime;
-
             light.color =
                 new Color(
                     1f,
