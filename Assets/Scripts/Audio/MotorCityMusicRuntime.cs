@@ -313,6 +313,7 @@ namespace MotorCity.Audio
         private void BuildSource()
         {
             source =
+                gameObject.GetComponent<AudioSource>() ??
                 gameObject.AddComponent<AudioSource>();
 
             source.playOnAwake = false;
