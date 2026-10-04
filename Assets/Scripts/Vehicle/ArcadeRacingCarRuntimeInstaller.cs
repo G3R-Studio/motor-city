@@ -125,6 +125,8 @@ namespace MotorCity.Vehicle
 
         public static bool TryInstallNow(ArcadeCarController car)
         {
+            PruneDestroyedVehicleCacheEntries();
+
             if (car == null)
                 return false;
 
@@ -157,6 +159,8 @@ namespace MotorCity.Vehicle
             float explicitWheelRadius = 0f,
             bool useVisualMeshCollider = true)
         {
+            PruneDestroyedVehicleCacheEntries();
+
             if (car == null ||
                 string.IsNullOrWhiteSpace(
                     resourcePath))
@@ -199,6 +203,109 @@ namespace MotorCity.Vehicle
                 preserveAuthoredTransform
                     ? resourcePath
                     : null);
+        }
+
+        private static void PruneDestroyedVehicleCacheEntries()
+        {
+            if (RuntimeVehicleVisualCache.Count > 0)
+            {
+                List<ArcadeCarController> deadCars =
+                    null;
+
+                foreach (KeyValuePair<
+                             ArcadeCarController,
+                             Dictionary<string, VehicleVisualCacheEntry>>
+                         pair in RuntimeVehicleVisualCache)
+                {
+                    if (pair.Key == null)
+                    {
+                        deadCars ??=
+                            new List<ArcadeCarController>();
+
+                        deadCars.Add(
+                            pair.Key);
+
+                        continue;
+                    }
+
+                    if (pair.Value == null)
+                        continue;
+
+                    List<string> deadVisualKeys =
+                        null;
+
+                    foreach (KeyValuePair<string, VehicleVisualCacheEntry>
+                                 visualPair in pair.Value)
+                    {
+                        if (visualPair.Value == null ||
+                            visualPair.Value.Visual == null)
+                        {
+                            deadVisualKeys ??=
+                                new List<string>();
+
+                            deadVisualKeys.Add(
+                                visualPair.Key);
+                        }
+                    }
+
+                    if (deadVisualKeys != null)
+                    {
+                        for (int i = 0;
+                             i < deadVisualKeys.Count;
+                             i++)
+                        {
+                            pair.Value.Remove(
+                                deadVisualKeys[i]);
+                        }
+                    }
+                }
+
+                if (deadCars != null)
+                {
+                    for (int i = 0;
+                         i < deadCars.Count;
+                         i++)
+                    {
+                        RuntimeVehicleVisualCache.Remove(
+                            deadCars[i]);
+                    }
+                }
+            }
+
+            if (ActiveVehicleVisualCache.Count > 0)
+            {
+                List<ArcadeCarController> deadActiveCars =
+                    null;
+
+                foreach (KeyValuePair<ArcadeCarController, VehicleVisualCacheEntry>
+                             pair in ActiveVehicleVisualCache)
+                {
+                    if (pair.Key == null ||
+                        pair.Value == null ||
+                        pair.Value.Visual == null)
+                    {
+                        deadActiveCars ??=
+                            new List<ArcadeCarController>();
+
+                        deadActiveCars.Add(
+                            pair.Key);
+                    }
+                }
+
+                if (deadActiveCars != null)
+                {
+                    for (int i = 0;
+                         i < deadActiveCars.Count;
+                         i++)
+                    {
+                        ActiveVehicleVisualCache.Remove(
+                            deadActiveCars[i]);
+                    }
+                }
+            }
+
+            CachedRuntimeObjects.RemoveWhere(
+                item => item == null);
         }
 
         private static GameObject LoadVehiclePrefab(
