@@ -1,8 +1,34 @@
-# Git LFS for large Unity project assets.
-# Text-based Unity YAML files can become very large in generated/authored city
-# content, so scenes and prefabs are stored through LFS for reliable backup.
+# Motor City repository attributes
+# Keep source/YAML files normalized while large binary and near-limit authored
+# assets use Git LFS.
 
-# Large binary source/content assets.
+* text=auto
+
+# Project/source text
+*.cs text eol=lf
+*.shader text eol=lf
+*.hlsl text eol=lf
+*.cginc text eol=lf
+*.json text eol=lf
+*.asmdef text eol=lf
+*.asmref text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Unity text serialization
+*.meta text eol=lf
+*.asset text eol=lf
+*.mat text eol=lf
+*.controller text eol=lf
+*.anim text eol=lf
+*.lighting text eol=lf
+*.unity text eol=lf
+*.prefab text eol=lf
+
+# Large binary source/content assets
 *.fbx filter=lfs diff=lfs merge=lfs -text
 *.blend filter=lfs diff=lfs merge=lfs -text
 *.psd filter=lfs diff=lfs merge=lfs -text
@@ -17,9 +43,12 @@
 *.rar filter=lfs diff=lfs merge=lfs -text
 *.7z filter=lfs diff=lfs merge=lfs -text
 
+# These authored/generated city files are currently close to GitHub's 100 MiB
+# per-file limit, so future revisions must be stored through LFS.
+Assets/LocalGenerated/FCG_Workbench.unity filter=lfs diff=lfs merge=lfs -text
+Assets/Resources/MotorCity/Environment/CityVisual.prefab filter=lfs diff=lfs merge=lfs -text
 Assets/Resources/MotorCity/Environment/FCGTrafficCars/*.prefab filter=lfs diff=lfs merge=lfs -text
 
-# Small runtime audio clips restored from project history are stored directly
-# in Git. These two files predate the current blanket audio LFS rules.
+# Small runtime audio clips restored from project history stay directly in Git.
 Assets/Resources/MotorCity/Audio/CarEngine.wav -filter -diff -merge -text
 Assets/Resources/MotorCity/Audio/TireSkid.ogg -filter -diff -merge -text
