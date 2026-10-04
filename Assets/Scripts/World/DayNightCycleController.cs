@@ -1577,7 +1577,6 @@ namespace MotorCity.World
             light.transform.rotation = Quaternion.LookRotation(
                 (Vector3.down + heading * (park ? .04f : .18f)).normalized, heading);
             light.type = LightType.Spot;
-            light.lightmapBakeType = LightmapBakeType.Realtime;
             light.renderMode = LightRenderMode.ForcePixel;
             light.color = park ? new Color(1f, .84f, .66f) : new Color(1f, .91f, .79f);
             light.range = Mathf.Clamp(height * (park ? 3.0f : 3.5f), park ? 12f : 24f, park ? 24f : 48f);
