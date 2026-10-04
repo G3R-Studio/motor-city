@@ -3060,10 +3060,14 @@ namespace MotorCity.Vehicle
                         continue;
                     }
 
-                    if (old.shader != null &&
+                    bool supportedUrpMaterial =
+                        old.shader != null &&
+                        old.shader.isSupported &&
                         old.shader.name.StartsWith(
                             "Universal Render Pipeline/",
-                            StringComparison.Ordinal))
+                            StringComparison.Ordinal);
+
+                    if (supportedUrpMaterial)
                     {
                         upgraded[i] = old;
                         continue;
@@ -3078,9 +3082,23 @@ namespace MotorCity.Vehicle
                         continue;
                     }
 
+                    bool hasBaseMap =
+                        old.HasProperty("_BaseMap");
+
+                    bool hasMainTex =
+                        old.HasProperty("_MainTex");
+
+                    string sourceTextureProperty =
+                        hasBaseMap
+                            ? "_BaseMap"
+                            : hasMainTex
+                                ? "_MainTex"
+                                : null;
+
                     Texture baseTexture =
-                        old.HasProperty("_MainTex")
-                            ? old.GetTexture("_MainTex")
+                        sourceTextureProperty != null
+                            ? old.GetTexture(
+                                sourceTextureProperty)
                             : null;
 
                     Texture emissionTexture =
@@ -3089,9 +3107,11 @@ namespace MotorCity.Vehicle
                             : null;
 
                     Color oldColor =
-                        old.HasProperty("_Color")
-                            ? old.GetColor("_Color")
-                            : Color.white;
+                        old.HasProperty("_BaseColor")
+                            ? old.GetColor("_BaseColor")
+                            : old.HasProperty("_Color")
+                                ? old.GetColor("_Color")
+                                : Color.white;
 
                     Color emissionColor =
                         old.HasProperty("_EmissionColor")
@@ -3109,9 +3129,11 @@ namespace MotorCity.Vehicle
                             : 0f;
 
                     float smoothness =
-                        old.HasProperty("_Glossiness")
-                            ? old.GetFloat("_Glossiness")
-                            : 0.35f;
+                        old.HasProperty("_Smoothness")
+                            ? old.GetFloat("_Smoothness")
+                            : old.HasProperty("_Glossiness")
+                                ? old.GetFloat("_Glossiness")
+                                : 0.35f;
 
                     Material material = new(urpLit)
                     {
@@ -3123,13 +3145,22 @@ namespace MotorCity.Vehicle
                     if (baseTexture != null &&
                         material.HasProperty("_BaseMap"))
                     {
-                        material.SetTexture("_BaseMap", baseTexture);
-                        material.SetTextureScale(
+                        material.SetTexture(
                             "_BaseMap",
-                            old.GetTextureScale("_MainTex"));
-                        material.SetTextureOffset(
-                            "_BaseMap",
-                            old.GetTextureOffset("_MainTex"));
+                            baseTexture);
+
+                        if (sourceTextureProperty != null)
+                        {
+                            material.SetTextureScale(
+                                "_BaseMap",
+                                old.GetTextureScale(
+                                    sourceTextureProperty));
+
+                            material.SetTextureOffset(
+                                "_BaseMap",
+                                old.GetTextureOffset(
+                                    sourceTextureProperty));
+                        }
                     }
 
                     if (material.HasProperty("_BaseColor"))
