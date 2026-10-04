@@ -2570,7 +2570,7 @@ namespace MotorCity.UI
                 HorizontalWrapMode.Wrap;
 
             text.verticalOverflow =
-                VerticalWrapMode.Truncate;
+                VerticalWrapMode.Overflow;
         }
 
         private void OnDestroy()

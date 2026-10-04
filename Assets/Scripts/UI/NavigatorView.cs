@@ -233,7 +233,7 @@ namespace MotorCity.UI
             navigatorMenuText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             navigatorMenuText.verticalOverflow =
-                VerticalWrapMode.Truncate;
+                VerticalWrapMode.Overflow;
 
             navigatorDescriptionText =
                 CreateText(
@@ -265,7 +265,7 @@ namespace MotorCity.UI
             navigatorDescriptionText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             navigatorDescriptionText.verticalOverflow =
-                VerticalWrapMode.Truncate;
+                VerticalWrapMode.Overflow;
 
             navigatorDistanceText =
                 CreateText(
@@ -1893,7 +1893,7 @@ namespace MotorCity.UI
             minimapTargetText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             minimapTargetText.verticalOverflow =
-                VerticalWrapMode.Truncate;
+                VerticalWrapMode.Overflow;
 
             GameObject navigatorButtonObject =
                 new(

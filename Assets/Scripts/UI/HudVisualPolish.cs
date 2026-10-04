@@ -682,7 +682,7 @@ namespace MotorCity.UI
             text.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             text.verticalOverflow =
-                VerticalWrapMode.Truncate;
+                VerticalWrapMode.Overflow;
             text.alignByGeometry = false;
             text.lineSpacing =
                 1f;

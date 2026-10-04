@@ -12,7 +12,9 @@ namespace MotorCity.UI
             text.resizeTextForBestFit = false;
             text.alignByGeometry = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            if (text.GetComponent<MotorCityTextClip>() == null)
+                text.gameObject.AddComponent<MotorCityTextClip>();
             // Reserve line-height headroom instead of enlarging the cell into its neighbours.
             float height = text.rectTransform.rect.height;
             if (height > 0f)

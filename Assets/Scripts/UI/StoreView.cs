@@ -367,7 +367,7 @@ namespace MotorCity.UI
                 localizedText.horizontalOverflow =
                     HorizontalWrapMode.Wrap;
                 localizedText.verticalOverflow =
-                    VerticalWrapMode.Truncate;
+                    VerticalWrapMode.Overflow;
             }
 
             // Store-specific footer lives inside the modal, so controls no

@@ -75,7 +75,7 @@ namespace MotorCity.UI
                 HorizontalWrapMode.Wrap;
 
             text.verticalOverflow =
-                VerticalWrapMode.Truncate;
+                VerticalWrapMode.Overflow;
 
             RectTransform rect =
                 text.rectTransform;
@@ -418,7 +418,7 @@ namespace MotorCity.UI
             text.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             text.verticalOverflow =
-                VerticalWrapMode.Truncate;
+                VerticalWrapMode.Overflow;
 
             MotorCityTextLayout.Configure(text);
             text.resizeTextForBestFit = false;
