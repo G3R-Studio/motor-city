@@ -190,6 +190,12 @@ namespace MotorCity.World
             if (suppressSavesUntilReload)
                 return;
 
+            if (car != null &&
+                car.IsGaragePresentationMode)
+            {
+                return;
+            }
+
             Vector3 position =
                 body != null
                     ? body.position
