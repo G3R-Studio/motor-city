@@ -3112,10 +3112,10 @@ namespace MotorCity.UI
                 "PauseMenu",
                 false);
 
-            MotorCityPlatformRuntime.SetGameplayUiPaused(
+            MotorCity.Platform.MotorCityPlatformRuntime.SetGameplayUiPaused(
                 false);
 
-            MotorCityMusicRuntime.SetPauseMenuPaused(
+            MotorCity.Audio.MotorCityMusicRuntime.SetPauseMenuPaused(
                 false);
 
             if (schematicMap != null &&
