@@ -43,6 +43,7 @@ namespace MotorCity.UI
         private StoryMissionSystem story;
         private SeasonSystem season;
         private PhotoHuntSystem photoHunt;
+        private VehicleCustomizationSystem customization;
         private CityProfessionSystem professions;
         private CarWashJobSystem carWash;
         private TowTruckJobSystem towTruck;
@@ -444,6 +445,7 @@ namespace MotorCity.UI
             StoryMissionSystem storySystem,
             SeasonSystem seasonSystem,
             PhotoHuntSystem photoHuntSystem,
+            VehicleCustomizationSystem customizationSystem,
             CityProfessionSystem professionSystem,
             CarWashJobSystem carWashSystem,
             TowTruckJobSystem towTruckSystem,
@@ -495,6 +497,7 @@ namespace MotorCity.UI
             story = storySystem;
             season = seasonSystem;
             photoHunt = photoHuntSystem;
+            customization = customizationSystem;
             professions = professionSystem;
             carWash = carWashSystem;
             towTruck = towTruckSystem;
@@ -637,6 +640,12 @@ namespace MotorCity.UI
                 !HasBlockingModalUi())
             {
                 rewardedBonus?.TryShow();
+            }
+
+            if (MotorCityInput.TakePhotoPressed &&
+                !HasBlockingModalUi())
+            {
+                customization?.CapturePhoto();
             }
 
             slowHudUpdateTimer -=
