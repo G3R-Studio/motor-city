@@ -575,13 +575,18 @@ namespace MotorCity.Vehicle
                     visual,
                     ordered);
             }
-            else if (chassis != null)
+            else
             {
-                if (rotateLeft90 ||
-                    useAuthoredBusRig ||
-                    preserveAuthoredTransform ||
-                    targetLength >
-                    TargetLength + 0.1f)
+                chassis =
+                    EnsureFallbackChassisCollider(
+                        carTransform);
+
+                if (chassis != null &&
+                    (rotateLeft90 ||
+                     useAuthoredBusRig ||
+                     preserveAuthoredTransform ||
+                     targetLength >
+                     TargetLength + 0.1f))
                 {
                     ConfigureChassisFromVisual(
                         chassis,
@@ -593,8 +598,11 @@ namespace MotorCity.Vehicle
                         preserveAuthoredTransform);
                 }
 
-                chassis.enabled =
-                    true;
+                if (chassis != null)
+                {
+                    chassis.enabled =
+                        true;
+                }
             }
 
             bool needsExternalWheelSync =
@@ -1079,6 +1087,49 @@ namespace MotorCity.Vehicle
                 visual.GetComponentsInChildren<MeshFilter>(
                     true);
 
+            MeshFilter primaryBody =
+                FindPrimaryBodyMeshFilter(
+                    filters,
+                    wheels);
+
+            if (primaryBody != null)
+            {
+                BuildCompoundBodyCollider(
+                    primaryBody);
+            }
+        }
+
+        private static MeshFilter FindPrimaryBodyMeshFilter(
+            MeshFilter[] filters,
+            Transform[] wheels)
+        {
+            if (filters == null ||
+                filters.Length == 0)
+            {
+                return null;
+            }
+
+            MeshFilter namedBody =
+                null;
+
+            int namedBodyRank =
+                -1;
+
+            float namedBodyVolume =
+                -1f;
+
+            MeshFilter preferredFallback =
+                null;
+
+            float preferredFallbackVolume =
+                -1f;
+
+            MeshFilter anyFallback =
+                null;
+
+            float anyFallbackVolume =
+                -1f;
+
             foreach (MeshFilter filter in filters)
             {
                 if (filter == null ||
@@ -1090,18 +1141,159 @@ namespace MotorCity.Vehicle
                     continue;
                 }
 
+                // A vehicle can be made of many imported meshes. Only one mesh
+                // owns the physical body proxy; remove proxies left by older
+                // versions from every other mesh before choosing that owner.
+                RemoveBodyCollisionProxy(
+                    filter.transform);
+
                 if (IsBodyMiscMesh(
                         filter.transform))
                 {
-                    RemoveBodyCollisionProxy(
-                        filter.transform);
-
                     continue;
                 }
 
-                BuildCompoundBodyCollider(
-                    filter);
+                Bounds bounds =
+                    filter.sharedMesh.bounds;
+
+                float volume =
+                    Mathf.Abs(
+                        bounds.size.x *
+                        bounds.size.y *
+                        bounds.size.z);
+
+                if (volume >
+                    anyFallbackVolume)
+                {
+                    anyFallback =
+                        filter;
+
+                    anyFallbackVolume =
+                        volume;
+                }
+
+                string normalized =
+                    NormalizeCollisionMeshName(
+                        filter.transform.name);
+
+                int bodyRank =
+                    PrimaryBodyNameRank(
+                        normalized);
+
+                if (bodyRank >= 0 &&
+                    (bodyRank > namedBodyRank ||
+                     (bodyRank == namedBodyRank &&
+                      volume > namedBodyVolume)))
+                {
+                    namedBody =
+                        filter;
+
+                    namedBodyRank =
+                        bodyRank;
+
+                    namedBodyVolume =
+                        volume;
+                }
+
+                if (!IsDecorativeCollisionMesh(
+                        normalized) &&
+                    volume >
+                    preferredFallbackVolume)
+                {
+                    preferredFallback =
+                        filter;
+
+                    preferredFallbackVolume =
+                        volume;
+                }
             }
+
+            return
+                namedBody ??
+                preferredFallback ??
+                anyFallback;
+        }
+
+        private static int PrimaryBodyNameRank(
+            string normalized)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    normalized))
+            {
+                return -1;
+            }
+
+            if (normalized == "body" ||
+                normalized == "chassis")
+            {
+                return 3;
+            }
+
+            if (normalized.StartsWith(
+                    "body_",
+                    StringComparison.Ordinal) ||
+                normalized.StartsWith(
+                    "chassis_",
+                    StringComparison.Ordinal))
+            {
+                return 2;
+            }
+
+            if (normalized.Contains(
+                    "body",
+                    StringComparison.Ordinal) ||
+                normalized.Contains(
+                    "chassis",
+                    StringComparison.Ordinal))
+            {
+                return 1;
+            }
+
+            return -1;
+        }
+
+        private static bool IsDecorativeCollisionMesh(
+            string normalized)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    normalized))
+            {
+                return false;
+            }
+
+            string[] decorativeTokens =
+            {
+                "glass",
+                "window",
+                "windshield",
+                "windscreen",
+                "light",
+                "lamp",
+                "mirror",
+                "interior",
+                "seat",
+                "steer",
+                "license",
+                "plate",
+                "emission",
+                "trim",
+                "chrome",
+                "exhaust"
+            };
+
+            for (int i = 0;
+                 i < decorativeTokens.Length;
+                 i++)
+            {
+                if (normalized.Contains(
+                        decorativeTokens[i],
+                        StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool IsBodyMiscMesh(
@@ -1111,7 +1303,27 @@ namespace MotorCity.Vehicle
                 return false;
 
             string normalized =
-                transform.name
+                NormalizeCollisionMeshName(
+                    transform.name);
+
+            return
+                normalized == "body_misc" ||
+                normalized.StartsWith(
+                    "body_misc_",
+                    StringComparison.Ordinal);
+        }
+
+        private static string NormalizeCollisionMeshName(
+            string name)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    name))
+            {
+                return string.Empty;
+            }
+
+            return
+                name
                     .Replace(
                         " (Clone)",
                         string.Empty)
@@ -1126,12 +1338,6 @@ namespace MotorCity.Vehicle
                     .Replace(
                         '.',
                         '_');
-
-            return
-                normalized == "body_misc" ||
-                normalized.StartsWith(
-                    "body_misc_",
-                    StringComparison.Ordinal);
         }
 
         private static void RemoveBodyCollisionProxy(
@@ -1811,12 +2017,47 @@ namespace MotorCity.Vehicle
         private const int RearLeftIndex = 2;
         private const int RearRightIndex = 3;
 
+        private static BoxCollider EnsureFallbackChassisCollider(
+            Transform carRoot)
+        {
+            if (carRoot == null)
+                return null;
+
+            BoxCollider chassis =
+                carRoot.GetComponent<BoxCollider>();
+
+            if (chassis == null)
+            {
+                chassis =
+                    carRoot.gameObject.AddComponent<BoxCollider>();
+
+                chassis.size =
+                    new Vector3(
+                        1.9f,
+                        0.7f,
+                        4.2f);
+
+                chassis.center =
+                    new Vector3(
+                        0f,
+                        0.58f,
+                        0f);
+            }
+
+            return chassis;
+        }
+
         private static bool ConfigureFallbackRig(ArcadeCarController car)
         {
             if (car == null)
                 return false;
 
             Transform root = car.transform;
+
+            EnsureFallbackChassisCollider(
+                root);
+
+            string[] names =
             string[] names =
             {
                 "Wheel_FL",
