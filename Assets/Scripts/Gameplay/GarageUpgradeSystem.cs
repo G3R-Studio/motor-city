@@ -844,6 +844,9 @@ namespace MotorCity.Gameplay
         {
             if (garageLightingRig == null)
             {
+                if (!active)
+                    return;
+
                 BuildGarageLighting();
             }
 
@@ -1360,6 +1363,13 @@ namespace MotorCity.Gameplay
 
         private void RestoreDriving()
         {
+            if (IsOpen ||
+                transitionInProgress)
+            {
+                SetGaragePresentationSystems(
+                    false);
+            }
+
             car?.SetGaragePresentationMode(
                 false);
 
@@ -1367,6 +1377,7 @@ namespace MotorCity.Gameplay
                 activityManager.End(ActivityId);
 
             IsOpen = false;
+            transitionInProgress = false;
         }
 
         private static Vector3 Flat(Vector3 value)
