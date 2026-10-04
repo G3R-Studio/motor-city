@@ -225,7 +225,7 @@ namespace MotorCity.UI
                     TextColor);
 
             navigatorMenuText.resizeTextForBestFit =
-                true;
+                false;
             navigatorMenuText.resizeTextMinSize =
                 16;
             navigatorMenuText.resizeTextMaxSize =
@@ -257,7 +257,7 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             navigatorDescriptionText.resizeTextForBestFit =
-                true;
+                false;
             navigatorDescriptionText.resizeTextMinSize =
                 10;
             navigatorDescriptionText.resizeTextMaxSize =
@@ -1884,7 +1884,7 @@ namespace MotorCity.UI
                     TextColor);
 
             minimapTargetText.resizeTextForBestFit =
-                true;
+                false;
             minimapTargetText.fontSize = 18;
             minimapTargetText.resizeTextMinSize =
                 16;

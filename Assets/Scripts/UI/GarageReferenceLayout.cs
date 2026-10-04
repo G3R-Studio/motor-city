@@ -25,9 +25,9 @@ namespace MotorCity.UI
             panel.sizeDelta = new Vector2(1920, 1080);
 
             RectTransform balance = GarageSurface(panel, "Garage Top Balance", 405, 16, 871, 78);
-            RectTransform credits = GarageRect(balance, "Garage Credits Group", 36, 14, 163, 52);
-            RectTransform reputation = GarageRect(balance, "Garage Reputation Group", 227, 14, 169, 52);
-            RectTransform level = GarageRect(balance, "Garage Level Group", 429, 14, 172, 52);
+            RectTransform credits = GarageRect(balance, "Garage Credits Group", 36, 14, 170, 52);
+            RectTransform reputation = GarageRect(balance, "Garage Reputation Group", 227, 14, 178, 52);
+            RectTransform level = GarageRect(balance, "Garage Level Group", 429, 14, 178, 52);
             ReferenceLabel(credits, "Garage Credits Label", MotorCityLocalization.Text("garage.credits_label"), 54, 0, 112, 20, 16);
             garageMoneyText = ReferenceLabel(credits, "Garage Credits", "", 54, 22, 112, 28, 24, Color.white);
             ReferenceLabel(reputation, "Garage Reputation Label", MotorCityLocalization.Text("garage.reputation_label"), 57, 0, 116, 20, 16);
@@ -46,9 +46,9 @@ namespace MotorCity.UI
 
             RectTransform card = GarageSurface(panel, "Garage Vehicle Card", 1257, 213, 396, 665);
             ReferenceLabel(card, "Garage Vehicle Card Title", MotorCityLocalization.Text("garage.my_car"), 87, 14, 277, 24, 18);
-            garageVehicleText = ReferenceLabel(card, "Garage Vehicle", "", 87, 40, 291, 36, 29, Color.white);
+            garageVehicleText = ReferenceLabel(card, "Garage Vehicle", "", 87, 40, 291, 56, 24, Color.white);
             garageReferenceVehicleState = GarageIcon(card, "Garage Vehicle State Icon", GarageReferenceGraphic.Symbol.OpenPadlock, GarageReferenceGreen, 26, 22, 41, 49);
-            garageNextVehicleText = ReferenceLabel(card, "Garage Next Vehicle", "", 26, 89, 350, 59, 20, GarageReferenceGreen);
+            garageNextVehicleText = ReferenceLabel(card, "Garage Next Vehicle", "", 26, 104, 350, 44, 20, GarageReferenceGreen);
             GarageReferenceGraphic.Symbol[] stats = {GarageReferenceGraphic.Symbol.Speed, GarageReferenceGraphic.Symbol.Acceleration,
                 GarageReferenceGraphic.Symbol.Gear, GarageReferenceGraphic.Symbol.Stability, GarageReferenceGraphic.Symbol.Steering,
                 GarageReferenceGraphic.Symbol.Drift, GarageReferenceGraphic.Symbol.Mass};
@@ -56,11 +56,12 @@ namespace MotorCity.UI
             {
                 float y = 171 + i * 36;
                 garageVehicleStatLabels[i] = ReferenceLabel(card, "Garage Stat Label " + i, "", 71, y, 119, 26, 18);
-                garageVehicleStatValues[i] = ReferenceLabel(card, "Garage Stat Value " + i, "", 314, y, 60, 26, 18, Color.white);
-                garageVehicleStatFills[i] = GarageTrack(card, "Garage Stat Track " + i, 198, y + 7, 111, 14);
+                garageVehicleStatValues[i] = ReferenceLabel(card, "Garage Stat Value " + i, "", 294, y, 82, 26, 18, Color.white);
+                garageVehicleStatValues[i].alignment = TextAnchor.MiddleRight;
+                garageVehicleStatFills[i] = GarageTrack(card, "Garage Stat Track " + i, 198, y + 7, 90, 14);
                 GarageIcon(card, "Garage Stat Icon " + i, stats[i], GarageReferenceLilac, 27, y + 1, 27, 27);
             }
-            garageVehicleCharacterText = ReferenceLabel(card, "Garage Vehicle Character", "", 25, 451, 350, 95, 18);
+            garageVehicleCharacterText = ReferenceLabel(card, "Garage Vehicle Character", "", 25, 445, 350, 108, 17);
             ReferenceLabel(card, "Garage Mastery Label", MotorCityLocalization.Text("garage.mastery_label"), 25, 570, 205, 30, 20);
             garageReferenceMasteryValue = ReferenceLabel(card, "Garage Mastery Value", "", 310, 570, 64, 30, 23, Color.white);
             garageReferenceMasteryValue.alignment = TextAnchor.MiddleRight;
@@ -74,7 +75,8 @@ namespace MotorCity.UI
                 GarageBind(upgrade, i == 0 ? MotorCityInputAction.Upgrade1 : i == 1 ? MotorCityInputAction.Upgrade2 : MotorCityInputAction.Upgrade3);
                 GarageIcon(upgrade, "Upgrade Icon", i == 0 ? GarageReferenceGraphic.Symbol.Engine : i == 1 ? GarageReferenceGraphic.Symbol.Brake : GarageReferenceGraphic.Symbol.Shock, GarageReferenceLilac, 18, 22, 52, 47);
                 garageTitleTexts[i] = ReferenceLabel(upgrade, "Upgrade Title", "", 87, 18, i == 2 ? 140 : 123, 29, 22, Color.white);
-                garageLevelTexts[i] = ReferenceLabel(upgrade, "Upgrade Level", "", 87, 50, 126, 25, 19);
+                garageLevelTexts[i] = ReferenceLabel(upgrade, "Upgrade Level", "", 87, 50, 115, 25, 19);
+                garageTitleTexts[i].alignment = garageLevelTexts[i].alignment = TextAnchor.MiddleCenter;
                 RectTransform track = GarageRect(upgrade, "Upgrade Level Track", 18, 89, (i == 2 ? 231 : 218) - 36, 16);
                 for (int segment = 0; segment < 5; segment++)
                     garageUpgradeLevelSegments[i, segment] = GarageBar(track, "Upgrade Segment " + segment, 0, 0, 0, 16);
@@ -112,11 +114,11 @@ namespace MotorCity.UI
             RectTransform city = GarageSurface(actions, "Garage City Button", 1348, 18, 305, 76, GarageReferenceGraphic.Symbol.CitySurface);
             garageActionButtons[6] = city.gameObject;
             GarageBind(city, MotorCityInputAction.Interact);
-            ReferenceLabel(city, "Label", MotorCityLocalization.Text("garage.city_button"), 34, 15, 185, 45, 34, Color.white);
+            ReferenceLabel(city, "Label", MotorCityLocalization.Text("garage.city_button"), 34, 15, 185, 45, 34, Color.white).alignment = TextAnchor.MiddleCenter;
             GarageIcon(city, "Chevron", GarageReferenceGraphic.Symbol.Right, Color.white, 237, 15, 37, 48);
             RectTransform menu = GarageSurface(actions, "Garage Main Menu", 19, 21, 295, 69);
             GarageButton(menu).onClick.AddListener(OpenGarageMainMenu);
-            ReferenceLabel(menu, "Label", MotorCityLocalization.Text("garage.main_menu_button"), 81, 11, 205, 47, 26, Color.white);
+            ReferenceLabel(menu, "Label", MotorCityLocalization.Text("garage.main_menu_button"), 81, 11, 205, 47, 26, Color.white).alignment = TextAnchor.MiddleCenter;
             GarageIcon(menu, "Chevron", GarageReferenceGraphic.Symbol.Left, Color.white, 32, 8, 35, 51);
             RectTransform passportAction = GarageRect(actions, "Garage Passport", 1282, 783, 350, 74);
             Image passportHit = passportAction.gameObject.AddComponent<Image>();
@@ -197,13 +199,8 @@ namespace MotorCity.UI
             Text text = GarageRect(parent, name, x, y, w, h).gameObject.AddComponent<Text>();
             text.font = MotorCityTypography.Bold;
             text.fontStyle = FontStyle.Normal; text.alignment = TextAnchor.MiddleLeft;
-            // Dynamic glyph line height is rounded at the current canvas scale.
-            // Truncate can discard the entire first line in a tightly sized box.
-            text.verticalOverflow = VerticalWrapMode.Overflow;
-            text.horizontalOverflow = h < size * 2f
-                ? HorizontalWrapMode.Overflow : HorizontalWrapMode.Wrap;
             text.fontSize = Mathf.RoundToInt(size * GarageReferenceScale.y);
-            text.resizeTextForBestFit = false; text.resizeTextMinSize = Mathf.RoundToInt(text.fontSize * .82f); text.resizeTextMaxSize = text.fontSize;
+            MotorCityTextLayout.Configure(text);
             text.color = tint ?? GarageReferenceLilac; text.raycastTarget = false; text.text = value;
             return text;
         }
@@ -227,6 +224,7 @@ namespace MotorCity.UI
                 rect.offsetMin = rect.offsetMax = Vector2.zero;
             }
             else ReferencePlace(actionText.rectTransform, 68, 7, 116, 25);
+            MotorCityTextLayout.Configure(actionText);
         }
 
         private static string GarageReferenceMasteryNumber(string value)

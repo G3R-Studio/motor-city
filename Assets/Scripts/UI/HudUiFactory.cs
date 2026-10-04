@@ -72,7 +72,7 @@ namespace MotorCity.UI
                 false;
 
             text.horizontalOverflow =
-                HorizontalWrapMode.Overflow;
+                HorizontalWrapMode.Wrap;
 
             text.verticalOverflow =
                 VerticalWrapMode.Truncate;
@@ -254,7 +254,7 @@ namespace MotorCity.UI
                 label.resizeTextMinSize = 15;
                 label.resizeTextMaxSize = label.fontSize;
                 label.alignByGeometry = false;
-                label.verticalOverflow = VerticalWrapMode.Overflow;
+                MotorCityTextLayout.Configure(label);
             }
             foreach (RectTransform panel in root.GetComponentsInChildren<RectTransform>(true))
                 if (panel.name == "Season Panel" || panel.name == "Character Portrait Frame"
@@ -396,7 +396,6 @@ namespace MotorCity.UI
                 go.GetComponent<Text>();
 
             fontSize = Mathf.Max(15, Mathf.RoundToInt(fontSize * 1.2f));
-            rect.sizeDelta = new Vector2(size.x, Mathf.Max(size.y, fontSize * 1.45f));
             bool useTrueBold =
                 fontStyle == FontStyle.Bold &&
                 boldFont != null;
@@ -421,10 +420,8 @@ namespace MotorCity.UI
             text.verticalOverflow =
                 VerticalWrapMode.Truncate;
 
-            // Keep one readable typography rule across the runtime HUD.
-            // Dynamic text may shrink, but never all the way down to tiny
-            // 8-9 px glyphs unless that size was requested explicitly.
-            text.resizeTextForBestFit = true;
+            MotorCityTextLayout.Configure(text);
+            text.resizeTextForBestFit = false;
             text.resizeTextMinSize =
                 RuntimeTextMinSize(
                     fontSize);

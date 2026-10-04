@@ -598,7 +598,7 @@ namespace MotorCity.UI
                     20,
                     FontStyle.Normal,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -142f),
+                    new Vector2(0f, -164f),
                     new Vector2(760f, 54f),
                     new Vector2(0.5f, 1f));
 
@@ -664,9 +664,9 @@ namespace MotorCity.UI
                     IsRussian() ? "ОБ ИГРЕ" : "ABOUT MOTOR CITY",
                     44,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(56f, -52f),
-                    new Vector2(760f, 72f),
+                    TextAnchor.MiddleCenter,
+                    new Vector2(58f, -34f),
+                    new Vector2(1202f, 72f),
                     new Vector2(0f, 1f));
 
             heading.color =
@@ -680,9 +680,9 @@ namespace MotorCity.UI
                         : "MOTOR CITY is a city where your name is earned behind the wheel.",
                     FrontEndBodyFontSize,
                     FontStyle.Normal,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(58f, -112f),
-                    new Vector2(1160f, 64f),
+                    TextAnchor.MiddleCenter,
+                    new Vector2(58f, -118f),
+                    new Vector2(1202f, 64f),
                     new Vector2(0f, 1f));
 
             intro.color =
@@ -692,9 +692,9 @@ namespace MotorCity.UI
                 intro,
                 16);
 
-            float top = -205f;
-            float columnWidth = 560f;
-            float rowHeight = 122f;
+            float top = -196f;
+            float columnWidth = 590f;
+            float rowHeight = 150f;
 
             CreateAboutSection(
                 panel,
@@ -711,7 +711,7 @@ namespace MotorCity.UI
                 IsRussian()
                     ? "Открывай транспорт за репутацию, меняй внешний вид и улучшай характеристики в гараже."
                     : "Unlock vehicles through reputation, customize their look, and improve performance in the garage.",
-                new Vector2(700f, top),
+                new Vector2(670f, top),
                 new Vector2(columnWidth, rowHeight));
 
             CreateAboutSection(
@@ -720,7 +720,7 @@ namespace MotorCity.UI
                 IsRussian()
                     ? "Участвуй в спринтах, кольцевых гонках и дрифт-заездах."
                     : "Take part in sprints, circuit races and drift events.",
-                new Vector2(58f, top - 150f),
+                new Vector2(58f, top - 164f),
                 new Vector2(columnWidth, rowHeight));
 
             CreateAboutSection(
@@ -729,7 +729,7 @@ namespace MotorCity.UI
                 IsRussian()
                     ? "Дядя Витя и Турбо познакомят тебя с машиной и первым делом. Дальше история продолжится через жителей города."
                     : "Uncle Vitya and Turbo introduce you to the car and your first job. The story continues through people across the city.",
-                new Vector2(700f, top - 150f),
+                new Vector2(670f, top - 164f),
                 new Vector2(columnWidth, rowHeight));
 
             CreateAboutSection(
@@ -738,8 +738,8 @@ namespace MotorCity.UI
                 IsRussian()
                     ? "Основные действия доступны кнопками HUD. На телефоне используются экранные элементы управления."
                     : "Core actions are available through HUD buttons. Mobile uses on-screen driving controls.",
-                new Vector2(58f, top - 300f),
-                new Vector2(1202f, 100f));
+                new Vector2(58f, top - 328f),
+                new Vector2(1202f, 128f));
 
             CreateButton(
                 panel,
@@ -2540,7 +2540,7 @@ namespace MotorCity.UI
             text.color = Color.white;
             text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
+            MotorCityTextLayout.Configure(text);
             text.resizeTextForBestFit = false;
             text.alignByGeometry = false;
             text.lineSpacing = 1f;
@@ -2555,7 +2555,7 @@ namespace MotorCity.UI
                 return;
 
             text.resizeTextForBestFit =
-                true;
+                false;
 
             text.resizeTextMinSize =
                 Mathf.Clamp(
@@ -2869,7 +2869,7 @@ namespace MotorCity.UI
                     title,
                     20,
                     FontStyle.Bold,
-                    TextAnchor.UpperLeft,
+                    TextAnchor.MiddleCenter,
                     new Vector2(18f, -16f),
                     new Vector2(size.x - 36f, 30f),
                     new Vector2(0f, 1f));
@@ -2900,7 +2900,7 @@ namespace MotorCity.UI
                     body,
                     18,
                     FontStyle.Normal,
-                    TextAnchor.UpperLeft,
+                    TextAnchor.MiddleCenter,
                     new Vector2(18f, -50f),
                     new Vector2(
                         size.x - 36f,
@@ -3030,7 +3030,7 @@ namespace MotorCity.UI
                     label,
                     18,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
+                    TextAnchor.MiddleCenter,
                     new Vector2(26f, 0f),
                     new Vector2(210f, 58f),
                     new Vector2(0f, 0.5f));
@@ -3065,7 +3065,7 @@ namespace MotorCity.UI
                     "",
                     24,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
+                    TextAnchor.MiddleCenter,
                     new Vector2(280f, 0f),
                     new Vector2(250f, 58f),
                     new Vector2(0f, 0.5f));
@@ -3192,7 +3192,7 @@ namespace MotorCity.UI
                 text.alignByGeometry = false;
                 text.resizeTextMinSize = Mathf.Max(22, text.resizeTextMinSize);
                 text.resizeTextMaxSize = Mathf.Max(text.resizeTextMinSize, text.fontSize);
-                text.verticalOverflow = VerticalWrapMode.Overflow;
+                MotorCityTextLayout.Configure(text);
             }
             AddSharedBackground(controlChoiceRoot, .72f);
             AddMenuButtonIcon(primaryButtonText.transform.parent, GarageReferenceGraphic.Symbol.Right);

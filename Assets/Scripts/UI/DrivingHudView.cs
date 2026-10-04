@@ -278,10 +278,10 @@ namespace MotorCity.UI
                 TextAnchor.MiddleCenter, Vector2.zero, new Vector2(216f, 74f),
                 new Vector2(.5f, .5f), new Vector2(.5f, .5f), Color.white);
             speedText.resizeTextForBestFit = false;
-            speedText.verticalOverflow = VerticalWrapMode.Overflow;
+            MotorCityTextLayout.Configure(speedText);
             speedText.alignment = TextAnchor.MiddleRight;
             speedText.alignByGeometry = false;
-            speedText.rectTransform.anchoredPosition = new Vector2(-58f, 0f);
+            speedText.rectTransform.anchoredPosition = new Vector2(-54f, 0f);
             speedText.rectTransform.sizeDelta = new Vector2(130f, 74f);
             speedText.text = "0";
             Text speedUnit = CreateText(dial, "Speed Unit", 23, FontStyle.Bold,

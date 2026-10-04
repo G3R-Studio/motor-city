@@ -158,7 +158,7 @@ namespace MotorCity.UI
                 if (label != null)
                 {
                     label.resizeTextForBestFit =
-                        true;
+                        false;
                     label.resizeTextMinSize =
                         lastTouchLayout
                             ? 12
@@ -174,8 +174,7 @@ namespace MotorCity.UI
             if (minimapTarget != null)
             {
                 // The target strip itself is 148 px wide. Keep the label
-                // safely inside it so long objectives/distances can use Best
-                // Fit without painting underneath the navigator button.
+                // safely inside it without painting underneath the navigator button.
                 minimapTarget.sizeDelta =
                     new Vector2(
                         lastTouchLayout ? 124f : 132f,
@@ -184,6 +183,9 @@ namespace MotorCity.UI
                 minimapTarget.anchoredPosition =
                     Vector2.zero;
             }
+            // Apply bounds after responsive composition has sized the cells.
+            foreach (Text label in hudRoot.GetComponentsInChildren<Text>(true))
+                MotorCityTextLayout.Configure(label);
         }
 
         private void ApplyDesktopOrTouchComposition(bool touchLayout)
@@ -229,19 +231,19 @@ namespace MotorCity.UI
                 SetRect(
                     result,
                     Vector2.zero,
-                    new Vector2(560f, 302f),
+                    new Vector2(650f, 460f),
                     0.94f);
 
                 SetRect(
                     navigator,
                     Vector2.zero,
-                    new Vector2(520f, 292f),
+                    new Vector2(580f, 320f),
                     0.94f);
 
                 SetRect(
                     club,
                     Vector2.zero,
-                    new Vector2(520f, 334f),
+                    new Vector2(580f, 400f),
                     0.94f);
 
             }
@@ -250,7 +252,7 @@ namespace MotorCity.UI
                 SetRect(
                     result,
                     Vector2.zero,
-                    new Vector2(650f, 350f),
+                    new Vector2(650f, 460f),
                     1f);
 
                 SetRect(
@@ -262,7 +264,7 @@ namespace MotorCity.UI
                 SetRect(
                     club,
                     Vector2.zero,
-                    new Vector2(580f, 380f),
+                    new Vector2(580f, 400f),
                     1f);
 
             }
@@ -286,7 +288,7 @@ namespace MotorCity.UI
                 resultReward.anchoredPosition =
                     new Vector2(
                         touchLayout ? 18f : 20f,
-                        -198f);
+                        -206f);
 
                 resultReward.sizeDelta =
                     new Vector2(
@@ -664,7 +666,7 @@ namespace MotorCity.UI
             if (text == null)
                 return;
 
-            text.resizeTextForBestFit = objectName != "Speed";
+            text.resizeTextForBestFit = false;
             text.resizeTextMinSize =
                 text.fontSize <= 11
                     ? Mathf.Max(

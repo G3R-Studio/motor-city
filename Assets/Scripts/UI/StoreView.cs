@@ -236,7 +236,7 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text(
                     "store.selection_hint");
             selectionHint.resizeTextForBestFit =
-                true;
+                false;
             selectionHint.resizeTextMinSize =
                 9;
             selectionHint.resizeTextMaxSize =
@@ -357,7 +357,7 @@ namespace MotorCity.UI
                     continue;
 
                 localizedText.resizeTextForBestFit =
-                    true;
+                    false;
                 localizedText.resizeTextMinSize =
                     localizedText == storeDescriptionText
                         ? 10

@@ -47,8 +47,8 @@ namespace MotorCity.UI
                     "Club Panel",
                     Vector2.zero,
                     new Vector2(
-                        560f,
-                        360f),
+                        580f,
+                        400f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -157,7 +157,7 @@ namespace MotorCity.UI
                     TextAnchor.MiddleCenter,
                     new Vector2(
                         0f,
-                        -258f),
+                        -280f),
                     new Vector2(
                         480f,
                         24f),
@@ -178,7 +178,7 @@ namespace MotorCity.UI
                     TextAnchor.MiddleCenter,
                     new Vector2(
                         0f,
-                        -286f),
+                        -312f),
                     new Vector2(
                         480f,
                         28f),
@@ -203,7 +203,7 @@ namespace MotorCity.UI
                     TextAnchor.MiddleCenter,
                     new Vector2(
                         0f,
-                        -316f),
+                        -348f),
                     new Vector2(
                         480f,
                         22f),
