@@ -976,6 +976,44 @@ namespace MotorCity.Gameplay
                 suffix;
         }
 
+        private void BuildSharedMaterials()
+        {
+            Shader lit =
+                Shader.Find(
+                    "Universal Render Pipeline/Lit") ??
+                Shader.Find(
+                    "Standard");
+
+            flatMaterial =
+                new Material(
+                    lit)
+                {
+                    name =
+                        "MotorCity Cosmetic"
+                };
+        }
+
+        private void ClearCosmetics()
+        {
+            Transform existing =
+                car.transform.Find(
+                    CosmeticsRootName);
+
+            if (existing != null)
+                Destroy(existing.gameObject);
+
+            cosmeticsRoot =
+                null;
+        }
+
+        private Transform FindVisualRoot()
+        {
+            return
+                car.transform.Find(
+                    RuntimeVisualName) ??
+                car.transform;
+        }
+
         private string ColorNameKey(
             int index)
         {
