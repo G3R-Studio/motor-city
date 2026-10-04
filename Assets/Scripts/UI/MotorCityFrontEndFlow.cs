@@ -2192,9 +2192,6 @@ namespace MotorCity.UI
             MotorCityMusicRuntime.SetGameplayActive(
                 true);
 
-            Time.timeScale = 1f;
-            AudioListener.pause = false;
-
             car?.SetDrivingBlocked(
                 "FrontEnd",
                 false);
@@ -2202,6 +2199,15 @@ namespace MotorCity.UI
             canvas.gameObject.SetActive(false);
 
             MotorCityPlatformRuntime.MarkGameplayStarted();
+
+            if (MotorCityPlatformRuntime.IsGameplayResumeReady)
+            {
+                Time.timeScale =
+                    1f;
+
+                AudioListener.pause =
+                    false;
+            }
 
             if (!continuingExistingSave)
             {
