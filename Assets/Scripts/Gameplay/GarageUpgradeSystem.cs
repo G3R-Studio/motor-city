@@ -38,6 +38,7 @@ namespace MotorCity.Gameplay
         private PlayerVehicleAudio vehicleAudio;
         private ChaseCamera chaseCamera;
         private MotorCityFrontEndFlow frontEndFlow;
+        private GameObject garageLightingRig;
         private bool transitionInProgress;
 
         public int EngineLevel { get; private set; }
@@ -786,6 +787,9 @@ namespace MotorCity.Gameplay
             vehicleAudio?.SetMuted(
                 active);
 
+            SetGarageLighting(
+                active);
+
             if (chaseCamera == null)
             {
                 chaseCamera =
@@ -812,6 +816,104 @@ namespace MotorCity.Gameplay
                 chaseCamera.SetManualInputEnabled(
                     true);
             }
+        }
+
+        private void SetGarageLighting(
+            bool active)
+        {
+            if (garageLightingRig == null)
+            {
+                BuildGarageLighting();
+            }
+
+            if (garageLightingRig != null)
+            {
+                garageLightingRig.SetActive(
+                    active);
+            }
+        }
+
+        private void BuildGarageLighting()
+        {
+            garageLightingRig =
+                new GameObject(
+                    "MotorCity Garage Lighting");
+
+            garageLightingRig.transform.SetParent(
+                transform,
+                false);
+
+            CreateGaragePointLight(
+                "Garage Warm Light A",
+                new Vector3(
+                    -421.89328f,
+                    4.64230585f,
+                    333.540009f));
+
+            CreateGaragePointLight(
+                "Garage Warm Light B",
+                new Vector3(
+                    -413.215881f,
+                    4.5968709f,
+                    333.540009f));
+
+            garageLightingRig.SetActive(
+                false);
+        }
+
+        private void CreateGaragePointLight(
+            string lightName,
+            Vector3 worldPosition)
+        {
+            GameObject lightObject =
+                new GameObject(
+                    lightName);
+
+            lightObject.transform.SetParent(
+                garageLightingRig.transform,
+                false);
+
+            lightObject.transform.position =
+                worldPosition;
+
+            Light light =
+                lightObject.AddComponent<Light>();
+
+            light.type =
+                LightType.Point;
+
+            light.lightmapBakeType =
+                LightmapBakeType.Realtime;
+
+            light.color =
+                new Color(
+                    1f,
+                    0.94f,
+                    0.85f);
+
+            light.range =
+                12f;
+
+            light.intensity =
+                4f;
+
+            light.cullingMask =
+                ~0;
+
+            light.renderMode =
+                LightRenderMode.ForcePixel;
+
+            light.shadows =
+                LightShadows.Soft;
+
+            light.shadowStrength =
+                0.65f;
+
+            light.shadowBias =
+                0.03f;
+
+            light.shadowNormalBias =
+                0.2f;
         }
 
         private void TrySelectVehicle(
@@ -1221,6 +1323,15 @@ namespace MotorCity.Gameplay
             {
                 customization.CustomizationChanged -=
                     HandleGarageDataChanged;
+            }
+
+            if (garageLightingRig != null)
+            {
+                Destroy(
+                    garageLightingRig);
+
+                garageLightingRig =
+                    null;
             }
 
             RestoreDriving();
