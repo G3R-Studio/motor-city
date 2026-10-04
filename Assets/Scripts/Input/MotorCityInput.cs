@@ -32,11 +32,8 @@ namespace MotorCity.Input
         // 17 intentionally unused: retired vehicle purchase action.
         // 18 intentionally unused: retired Pixie skin action.
         CycleBodyColor = 19,
-        CycleSticker = 20,
-        CycleVinyl = 21,
         CycleWheels = 22,
         CycleNeon = 23,
-        CyclePlate = 24,
         TakePhoto = 27,
         ToggleVehiclePassport = 28,
         ToggleClub = 29,
@@ -148,20 +145,11 @@ namespace MotorCity.Input
             VirtualPressed(
                 MotorCityInputAction.CycleBodyColor);
 
-        public static bool CycleStickerPressed =>
-            VirtualPressed(MotorCityInputAction.CycleSticker);
-
-        public static bool CycleVinylPressed =>
-            VirtualPressed(MotorCityInputAction.CycleVinyl);
-
         public static bool CycleWheelsPressed =>
             VirtualPressed(MotorCityInputAction.CycleWheels);
 
         public static bool CycleNeonPressed =>
             VirtualPressed(MotorCityInputAction.CycleNeon);
-
-        public static bool CyclePlatePressed =>
-            VirtualPressed(MotorCityInputAction.CyclePlate);
 
 
 
