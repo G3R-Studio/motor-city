@@ -753,8 +753,9 @@ namespace MotorCity.Platform
         {
             PlayerAvailable = false;
 
-            if (message == null || !message.StartsWith("Local browser build:", StringComparison.Ordinal))
-                Debug.LogWarning("Motor City: Yandex SDK initialization failed: " + message);
+            Debug.LogWarning(
+                "Motor City: Yandex SDK initialization failed: " +
+                message);
 
             Action<YandexInitResult> callback =
                 initializeCallback;
