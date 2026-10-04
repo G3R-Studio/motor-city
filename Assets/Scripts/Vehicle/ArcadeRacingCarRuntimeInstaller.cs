@@ -2058,7 +2058,6 @@ namespace MotorCity.Vehicle
                 root);
 
             string[] names =
-            string[] names =
             {
                 "Wheel_FL",
                 "Wheel_FR",
