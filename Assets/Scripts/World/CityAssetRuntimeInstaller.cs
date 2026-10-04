@@ -885,18 +885,6 @@ namespace MotorCity.World
                 cityReflectionProbes);
         }
 
-        public static Vector3 SnapToNearestRoad(
-            Vector3 approximate)
-        {
-            if (activeCity == null)
-                return approximate;
-
-            return FindRoadPointNear(
-                approximate,
-                42f,
-                false);
-        }
-
         public static void ResolveNearestRoadResetPose(
             Vector3 approximate,
             Vector3 preferredForward,
