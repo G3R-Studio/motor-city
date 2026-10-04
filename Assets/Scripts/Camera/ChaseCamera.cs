@@ -61,20 +61,10 @@ namespace MotorCity.CameraSystem
         private int cameraTouchId = -1;
         private Vector2 lastCameraTouchPosition;
 
-        private bool openingPresentationArmed;
-        private bool openingPresentationActive;
         private bool manualInputEnabled = true;
         private bool garageMode;
         private bool garagePoseSnapPending;
         private Vector3 garageInitialPosition;
-        private float openingPresentationTimer;
-        private float openingPresentationDuration = 1.6f;
-        private Vector3 openingPresentationStartPosition;
-        private Quaternion openingPresentationStartRotation;
-        private float openingPresentationStartFov;
-
-        public bool IsOpeningPresentationActive =>
-            openingPresentationActive;
 
         private readonly List<RaycastResult> uiRaycastResults =
             new();
@@ -384,98 +374,6 @@ namespace MotorCity.CameraSystem
                 ResolveGarageFraming(garageInitialPosition));
         }
 
-        public void ArmOpeningPresentation(
-            float duration = 5f)
-        {
-            openingPresentationDuration =
-                Mathf.Max(
-                    1.2f,
-                    duration);
-
-            openingPresentationTimer =
-                0f;
-
-            openingPresentationArmed =
-                true;
-
-            openingPresentationActive =
-                false;
-        }
-
-        public void PlayOpeningPresentation(
-            float duration = 5f)
-        {
-            if (target == null)
-                return;
-
-            openingPresentationDuration =
-                Mathf.Max(
-                    1.2f,
-                    duration);
-
-            openingPresentationTimer =
-                0f;
-
-            openingPresentationActive =
-                true;
-
-            float startYaw =
-                target.eulerAngles.y -
-                78f;
-
-            Quaternion startOrbit =
-                Quaternion.Euler(
-                    12f,
-                    startYaw,
-                    0f);
-
-            Vector3 cameraBase =
-                ResolveVehicleCameraBase();
-
-            openingPresentationStartPosition =
-                cameraBase +
-                Vector3.up * 2.15f +
-                startOrbit *
-                new Vector3(
-                    0f,
-                    0f,
-                    -6.4f);
-
-            Vector3 lookPoint =
-                cameraBase +
-                Vector3.up * 0.95f;
-
-            openingPresentationStartRotation =
-                Quaternion.LookRotation(
-                    lookPoint -
-                    openingPresentationStartPosition,
-                    Vector3.up);
-
-            openingPresentationStartFov =
-                58f;
-
-            transform.position =
-                openingPresentationStartPosition;
-
-            transform.rotation =
-                openingPresentationStartRotation;
-
-            if (cameraComponent == null)
-            {
-                cameraComponent =
-                    GetComponent<Camera>();
-            }
-
-            if (cameraComponent != null)
-            {
-                cameraComponent.fieldOfView =
-                    openingPresentationStartFov;
-            }
-
-            hasLastTargetPosition =
-                false;
-        }
-
         private void Awake()
         {
             if (!EnhancedTouchSupport.enabled)
@@ -675,19 +573,6 @@ namespace MotorCity.CameraSystem
         private void Update()
         {
             if (target == null) return;
-
-            if (openingPresentationArmed &&
-                Time.timeScale > 0f)
-            {
-                openingPresentationArmed =
-                    false;
-
-                PlayOpeningPresentation(
-                    openingPresentationDuration);
-            }
-
-            if (openingPresentationActive)
-                return;
 
             if (!manualInputEnabled)
             {
@@ -983,111 +868,6 @@ namespace MotorCity.CameraSystem
                 ResolveStableCameraPosition(
                     cameraPivot,
                     desiredPosition);
-
-            if (openingPresentationActive)
-            {
-                openingPresentationTimer +=
-                    Time.unscaledDeltaTime;
-
-                float progress =
-                    Mathf.Clamp01(
-                        openingPresentationTimer /
-                        openingPresentationDuration);
-
-                float eased =
-                    progress * progress *
-                    (3f - 2f * progress);
-
-                // Real orbit: sweep from the rear-left quarter around the
-                // vehicle into the normal chase position while following the
-                // car vertically as it settles onto the road.
-                float orbitYaw =
-                    Mathf.Lerp(
-                        -78f,
-                        0f,
-                        eased);
-
-                float orbitPitch =
-                    Mathf.Lerp(
-                        12f,
-                        pitch,
-                        eased);
-
-                float orbitDistance =
-                    Mathf.Lerp(
-                        6.4f,
-                        dynamicDistance,
-                        eased);
-
-                float orbitHeight =
-                    Mathf.Lerp(
-                        2.15f,
-                        height,
-                        eased);
-
-                Quaternion openingOrbit =
-                    Quaternion.Euler(
-                        orbitPitch,
-                        target.eulerAngles.y +
-                        orbitYaw,
-                        0f);
-
-                Vector3 openingPivot =
-                    cameraBase +
-                    Vector3.up *
-                    orbitHeight;
-
-                Vector3 orbitPosition =
-                    openingPivot +
-                    openingOrbit *
-                    new Vector3(
-                        0f,
-                        0f,
-                        -orbitDistance);
-
-                transform.position =
-                    ResolveStableCameraPosition(
-                        openingPivot,
-                        orbitPosition);
-
-                Vector3 openingLookPoint =
-                    cameraBase +
-                    target.forward *
-                    Mathf.Lerp(
-                        0f,
-                        dynamicLookAhead,
-                        eased) +
-                    Vector3.up * 0.92f;
-
-                transform.rotation =
-                    Quaternion.LookRotation(
-                        openingLookPoint -
-                        transform.position,
-                        Vector3.up);
-
-                if (cameraComponent != null)
-                {
-                    cameraComponent.fieldOfView =
-                        Mathf.Lerp(
-                            openingPresentationStartFov,
-                            baseFieldOfView,
-                            eased);
-                }
-
-                lastTargetPosition =
-                    target.position;
-
-                hasLastTargetPosition =
-                    true;
-
-                if (progress >= 1f)
-                {
-                    openingPresentationActive =
-                        false;
-                }
-
-                return;
-            }
 
             transform.position =
                 snapAfterTeleport
