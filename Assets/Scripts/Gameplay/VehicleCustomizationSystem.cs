@@ -211,6 +211,9 @@ namespace MotorCity.Gameplay
             ArcadeCarController targetCar,
             VehicleRosterSystem vehicleRoster)
         {
+            if (roster != null)
+                roster.VehicleChanged -= OnVehicleChanged;
+
             car = targetCar;
             roster = vehicleRoster;
             block ??= new MaterialPropertyBlock();
