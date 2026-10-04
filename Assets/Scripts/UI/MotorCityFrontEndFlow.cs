@@ -1305,28 +1305,6 @@ namespace MotorCity.UI
             ContinuePrimaryAction();
         }
 
-        private void ShowControlChoice()
-        {
-            AudioListener.pause =
-                true;
-
-            MotorCityMusicRuntime.SetMenuActive(
-                true);
-
-            mainRoot.SetActive(
-                false);
-            aboutRoot.SetActive(
-                false);
-            settingsRoot.SetActive(
-                false);
-            introRoot.SetActive(
-                false);
-            loadingRoot.SetActive(
-                false);
-            controlChoiceRoot.SetActive(
-                true);
-        }
-
         private void ChooseControlScheme(
             MotorCityControlScheme scheme)
         {
@@ -2680,94 +2658,6 @@ namespace MotorCity.UI
                     border,
                     border,
                     border));
-        }
-
-        private RectTransform CreateGlassPanel(
-            Transform parent,
-            string name,
-            Vector2 position,
-            Vector2 size,
-            Vector2 anchor,
-            Vector2 pivot)
-        {
-            GameObject go =
-                new(
-                    name,
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            go.transform.SetParent(
-                parent,
-                false);
-
-            RectTransform rect =
-                go.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                anchor;
-            rect.anchorMax =
-                anchor;
-            rect.pivot =
-                pivot;
-            rect.anchoredPosition =
-                position;
-            rect.sizeDelta =
-                size;
-
-            Image image =
-                go.GetComponent<Image>();
-
-            if (frontEndPanelSprite != null)
-            {
-                image.sprite =
-                    frontEndPanelSprite;
-                image.type =
-                    Image.Type.Sliced;
-                image.color =
-                    new Color(
-                        0.20f,
-                        0.22f,
-                        0.30f,
-                        0.88f);
-            }
-            else
-            {
-                image.color =
-                    new Color(
-                        0.025f,
-                        0.035f,
-                        0.075f,
-                        0.90f);
-            }
-
-            Outline outline =
-                go.AddComponent<Outline>();
-
-            outline.effectColor =
-                new Color(
-                    0.48f,
-                    0.60f,
-                    1f,
-                    0.24f);
-            outline.effectDistance =
-                new Vector2(1f, -1f);
-            outline.useGraphicAlpha =
-                true;
-
-            AddSoftGlow(
-                rect,
-                new Color(
-                    0.34f,
-                    0.56f,
-                    1f,
-                    1f),
-                12f,
-                6f,
-                0.035f,
-                0.075f);
-
-            return
-                rect;
         }
 
         private static RectTransform CreateDecorativeRect(
