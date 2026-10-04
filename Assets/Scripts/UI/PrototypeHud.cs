@@ -482,6 +482,8 @@ namespace MotorCity.UI
         {
             garageUiDirty =
                 true;
+
+            RefreshDrivingEnabledForUi();
         }
 
         private static void SetActiveIfChanged(
