@@ -465,6 +465,10 @@ namespace MotorCity.Gameplay
 
             activityManager.DismissResult(false);
 
+            car.SetDrivingBlocked(
+                "ActivityResult",
+                false);
+
             Vector3 direction =
                 Flat(
                     route[1] -
