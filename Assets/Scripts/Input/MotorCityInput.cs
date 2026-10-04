@@ -129,35 +129,10 @@ namespace MotorCity.Input
             VirtualPressed(
                 MotorCityInputAction.NextVehicle);
 
-        public static bool Upgrade1Pressed =>
-            VirtualPressed(
-                MotorCityInputAction.Upgrade1);
-
-        public static bool Upgrade2Pressed =>
-            VirtualPressed(
-                MotorCityInputAction.Upgrade2);
-
-        public static bool Upgrade3Pressed =>
-            VirtualPressed(
-                MotorCityInputAction.Upgrade3);
-
-        public static bool CycleBodyColorPressed =>
-            VirtualPressed(
-                MotorCityInputAction.CycleBodyColor);
-
-        public static bool CycleWheelsPressed =>
-            VirtualPressed(MotorCityInputAction.CycleWheels);
-
-        public static bool CycleNeonPressed =>
-            VirtualPressed(MotorCityInputAction.CycleNeon);
-
 
 
         public static bool TakePhotoPressed =>
             VirtualPressed(MotorCityInputAction.TakePhoto);
-
-        public static bool ToggleVehiclePassportPressed =>
-            VirtualPressed(MotorCityInputAction.ToggleVehiclePassport);
 
         public static bool ToggleClubPressed =>
             VirtualPressed(MotorCityInputAction.ToggleClub);
