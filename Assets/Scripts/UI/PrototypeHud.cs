@@ -60,10 +60,6 @@ namespace MotorCity.UI
         private bool audioMuted;
         private float audioVolume = 1f;
         private float pauseStoredTimeScale = 1f;
-        private readonly Dictionary<Animator, float> pausedAnimatorSpeeds =
-            new();
-        private readonly List<ParticleSystem> pausedParticleSystems =
-            new();
         private const string AudioMutedSaveKey =
             "MotorCity.Settings.AudioMuted";
         private const string AudioVolumeSaveKey =
@@ -114,9 +110,6 @@ namespace MotorCity.UI
         private Text driveModeText;
         private Text speedText;
         private RectTransform speedNeedle;
-        private RectTransform speedNeedleGlowRect;
-        private RawImage speedNeedleGlow;
-        private static Texture2D speedNeedleGlowTexture;
 
         private readonly List<Sprite> runtimeOwnedSprites =
             new();
@@ -143,24 +136,14 @@ namespace MotorCity.UI
                     modalButtonSprite);
             }
 
-            if (speedNeedleGlowTexture != null)
-            {
-                Object.Destroy(
-                    speedNeedleGlowTexture);
-            }
-
             modalButtonSprite =
                 null;
 
             modalButtonSpriteSource =
                 null;
 
-            speedNeedleGlowTexture =
-                null;
         }
 
-        private DayNightCycleController dayNightCycle;
-        private float dayNightResolveTimer;
         private Text statusText;
         private Image statusActivityIcon;
         private Text driftText;
@@ -821,14 +804,7 @@ namespace MotorCity.UI
                 speedNeedle.localRotation =
                     needleRotation;
 
-                if (speedNeedleGlowRect != null)
-                {
-                    speedNeedleGlowRect.localRotation =
-                        needleRotation;
-                }
             }
-
-            UpdateSpeedNeedleGlow();
 
             bool resultOpen =
                 activityManager != null &&
