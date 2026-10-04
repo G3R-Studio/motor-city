@@ -12,18 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f1c9e2a4b6d4f0a9e3c8d7b5a1f2c6e, type: 3}
   m_Name: MotorCityUiThemeAssets
   m_EditorClassIdentifier:
-  speedometerPrimary: {fileID: 2800000, guid: 16a427486b115b9418ee68ed8e0cf575, type: 3}
-  needleLong: {fileID: 2800000, guid: 5ecd34f947bde9f42ac731c5eb08e8b7, type: 3}
-  rectanglePanel: {fileID: 2800000, guid: 65a80eb5c0b525d4daf1227c1bebbe88, type: 3}
-  characterPanel: {fileID: 2800000, guid: cd82d6aeef063f64e8729ee5d1971728, type: 3}
-  statusPanel: {fileID: 2800000, guid: ab5484d58cca50345bac5d6f9fb55fd6, type: 3}
-  driftPanel: {fileID: 2800000, guid: 38393fe24669c304a8af8fb579d60016, type: 3}
-  targetPanel: {fileID: 2800000, guid: 1b8dac2f7896f5d48b6dfaa82b0b096f, type: 3}
-  driveModePanel: {fileID: 2800000, guid: 54afa2cb96633904093df59e235c5b97, type: 3}
   minimapPlayerPointer: {fileID: 2800000, guid: 111f944690711f843bc0dd807bed35ae, type: 3}
   modalPanel: {fileID: 2800000, guid: 6339f5c7479c607408237dd63d79bf2e, type: 3}
   modalButton: {fileID: 2800000, guid: f340aa0b6927238499a9256a887c48b3, type: 3}
-  passportPanel: {fileID: 2800000, guid: c8a7ac821d316ef4dbc0eec7f34b093c, type: 3}
   touchThrottle: {fileID: 2800000, guid: 962cc78c87a41c940919caca5fa6d6cb, type: 3}
   touchBrake: {fileID: 2800000, guid: 0f6861ed6bf7f9344a23e31c8e4e8596, type: 3}
   touchHandbrake: {fileID: 2800000, guid: 1b66b2c64f8bc4d4c843137f32be02d3, type: 3}

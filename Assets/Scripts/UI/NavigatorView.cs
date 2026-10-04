@@ -1107,7 +1107,7 @@ namespace MotorCity.UI
 
                     RectTransform dot =
                         minimapRouteDots[
-                            placed++];
+                            placed];
 
                     if (!dot.gameObject.activeSelf)
                     {
@@ -1116,7 +1116,7 @@ namespace MotorCity.UI
                     }
 
                     dot.anchoredPosition = offset;
-                    Image routeImage = dot.GetComponent<Image>();
+                    Image routeImage = minimapRouteImages[placed++];
                     float distance = offset.magnitude;
                     float nearFade = Mathf.SmoothStep(0f, 1f, distance / 9f);
                     float edgeFade = Mathf.SmoothStep(0f, 1f, (markerRadius - distance) / 9f);
@@ -1140,7 +1140,7 @@ namespace MotorCity.UI
                 if (dot != null &&
                     dot.gameObject.activeSelf)
                 {
-                    Image routeImage = dot.GetComponent<Image>();
+                    Image routeImage = minimapRouteImages[i];
                     Color routeColor = routeImage.color;
                     routeColor.a = Mathf.MoveTowards(routeColor.a, 0f, Time.unscaledDeltaTime * 4f);
                     routeImage.color = routeColor;
@@ -1362,7 +1362,7 @@ namespace MotorCity.UI
                 if (dot != null &&
                     dot.gameObject.activeSelf)
                 {
-                    Image routeImage = dot.GetComponent<Image>();
+                    Image routeImage = minimapRouteImages[i];
                     Color routeColor = routeImage.color;
                     routeColor.a = Mathf.MoveTowards(routeColor.a, 0f, Time.unscaledDeltaTime * 4f);
                     routeImage.color = routeColor;
@@ -1766,6 +1766,7 @@ namespace MotorCity.UI
 
                 dotImage.color = new Color(.16f, .82f, 1f, 0f);
                 dot.SetActive(false);
+                minimapRouteImages[i] = dotImage;
                 minimapRouteDots[i] =
                     dotRect;
             }

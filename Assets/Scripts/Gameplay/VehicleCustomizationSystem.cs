@@ -142,7 +142,6 @@ namespace MotorCity.Gameplay
         private MaterialPropertyBlock block;
 
         private GameObject cosmeticsRoot;
-        private Material flatMaterial;
         private bool photoInProgress;
 
         public event Action CustomizationChanged;
@@ -218,7 +217,6 @@ namespace MotorCity.Gameplay
             if (roster != null)
                 roster.VehicleChanged += OnVehicleChanged;
 
-            BuildSharedMaterials();
             LoadForSelectedVehicle();
             ApplyAll();
         }
@@ -228,8 +226,6 @@ namespace MotorCity.Gameplay
             if (roster != null)
                 roster.VehicleChanged -= OnVehicleChanged;
 
-            if (flatMaterial != null)
-                Destroy(flatMaterial);
 
         }
 
@@ -239,7 +235,7 @@ namespace MotorCity.Gameplay
                 (SelectedColorIndex + 1) %
                 BodyColorCountForCurrentVehicle();
 
-            Changed();
+            Changed(ApplyBodyColor);
         }
 
         public void CycleWheelStyle()
@@ -247,7 +243,7 @@ namespace MotorCity.Gameplay
             SelectedWheelStyleIndex =
                 (SelectedWheelStyleIndex + 1) % 4;
 
-            Changed();
+            Changed(ApplyWheelStyle);
         }
 
         public void CycleNeon()
@@ -256,7 +252,7 @@ namespace MotorCity.Gameplay
                 (SelectedNeonIndex + 1) %
                 (AccentColors.Length + 1);
 
-            Changed();
+            Changed(RebuildNeon);
         }
 
         public void CapturePhoto()
@@ -281,10 +277,11 @@ namespace MotorCity.Gameplay
             photoInProgress = false;
         }
 
-        private void Changed()
+        private void Changed(Action applyChange)
         {
             SaveForSelectedVehicle();
-            ApplyAll();
+            if (car != null)
+                applyChange();
             CustomizationChanged?.Invoke();
         }
 
@@ -381,9 +378,14 @@ namespace MotorCity.Gameplay
             if (car == null)
                 return;
 
-            ClearCosmetics();
             ApplyBodyColor();
             ApplyWheelStyle();
+            RebuildNeon();
+        }
+
+        private void RebuildNeon()
+        {
+            ClearCosmetics();
             BuildCosmeticGeometry();
         }
 
@@ -976,23 +978,6 @@ namespace MotorCity.Gameplay
                 suffix;
         }
 
-        private void BuildSharedMaterials()
-        {
-            Shader lit =
-                Shader.Find(
-                    "Universal Render Pipeline/Lit") ??
-                Shader.Find(
-                    "Standard");
-
-            flatMaterial =
-                new Material(
-                    lit)
-                {
-                    name =
-                        "MotorCity Cosmetic"
-                };
-        }
-
         private void ClearCosmetics()
         {
             Transform existing =
@@ -1000,7 +985,10 @@ namespace MotorCity.Gameplay
                     CosmeticsRootName);
 
             if (existing != null)
+            {
+                existing.gameObject.SetActive(false);
                 Destroy(existing.gameObject);
+            }
 
             cosmeticsRoot =
                 null;

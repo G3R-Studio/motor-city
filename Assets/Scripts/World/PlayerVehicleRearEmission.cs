@@ -245,7 +245,7 @@ namespace MotorCity.World
                      renderers)
             {
                 if (renderer == null ||
-                    IsWheelRenderer(
+                    VehicleLampMaterialUtility.IsWheelRenderer(
                         renderer.transform) ||
                     IsMirrorRenderer(
                         renderer.transform))
@@ -295,7 +295,7 @@ namespace MotorCity.World
                          renderers)
                 {
                     if (renderer == null ||
-                        IsWheelRenderer(
+                        VehicleLampMaterialUtility.IsWheelRenderer(
                             renderer.transform))
                     {
                         continue;
@@ -439,7 +439,7 @@ namespace MotorCity.World
                         transform.forward)
                     .normalized;
 
-            ResolveProjectionRange(
+            VehicleLampMaterialUtility.ResolveProjectionRange(
                 mesh.bounds,
                 forwardAxis,
                 out float minimum,
@@ -567,7 +567,7 @@ namespace MotorCity.World
                 "_BaseMap",
                 texture);
 
-            CopyTextureTransform(
+            VehicleLampMaterialUtility.CopyTextureTransform(
                 source,
                 material);
 
@@ -623,14 +623,14 @@ namespace MotorCity.World
             {
                 Material source = materials[i];
                 if (source == null || !source.name.ToLowerInvariant().Contains("beatallemission")) continue;
-                Texture texture = ResolveBaseTexture(source);
+                Texture texture = VehicleLampMaterialUtility.ResolveBaseTexture(source);
                 if (texture == null) continue;
                 // Shared atlas contains both front and rear lamps. The overlay
                 // selects red pixels in the rear half and starts with intensity zero.
                 if (source.HasProperty("_EmissionColor")) source.SetColor("_EmissionColor", Color.black);
                 source.DisableKeyword("_EMISSION");
                 Vector3 axis = renderer.transform.InverseTransformDirection(transform.forward).normalized;
-                ResolveProjectionRange(filter.sharedMesh.bounds, axis, out float min, out float max);
+                VehicleLampMaterialUtility.ResolveProjectionRange(filter.sharedMesh.bounds, axis, out float min, out float max);
                 Material rear = CreateStarterOverlayMaterial(source, texture, axis,
                     (min + max) * .5f, Mathf.Max(.02f, (max-min)*.025f), false);
                 GameObject root = new("MotorCityBeatallBrakeOverlay");
@@ -698,7 +698,7 @@ namespace MotorCity.World
                 }
 
                 Texture texture =
-                    ResolveBaseTexture(
+                    VehicleLampMaterialUtility.ResolveBaseTexture(
                         source);
 
                 if (texture == null)
@@ -710,7 +710,7 @@ namespace MotorCity.World
                             transform.forward)
                         .normalized;
 
-                ResolveProjectionRange(
+                VehicleLampMaterialUtility.ResolveProjectionRange(
                     filter.sharedMesh.bounds,
                     forwardAxis,
                     out float minimum,
@@ -879,7 +879,7 @@ namespace MotorCity.World
                 }
 
                 Texture texture =
-                    ResolveBaseTexture(
+                    VehicleLampMaterialUtility.ResolveBaseTexture(
                         source);
 
                 if (texture == null)
@@ -891,7 +891,7 @@ namespace MotorCity.World
                             transform.forward)
                         .normalized;
 
-                ResolveProjectionRange(
+                VehicleLampMaterialUtility.ResolveProjectionRange(
                     filter.sharedMesh.bounds,
                     forwardAxis,
                     out float minimum,
@@ -1042,7 +1042,7 @@ namespace MotorCity.World
                             transform.forward)
                         .normalized;
 
-                ResolveProjectionRange(
+                VehicleLampMaterialUtility.ResolveProjectionRange(
                     filter.sharedMesh.bounds,
                     forwardAxis,
                     out float minimum,
@@ -1584,7 +1584,6 @@ namespace MotorCity.World
                 value.ToLowerInvariant();
         }
 
-
         private void CreateTexturedRearLampOverlay(
             Renderer sourceRenderer)
         {
@@ -1625,7 +1624,7 @@ namespace MotorCity.World
                         -transform.forward)
                     .normalized;
 
-            ResolveProjectionRange(
+            VehicleLampMaterialUtility.ResolveProjectionRange(
                 filter.sharedMesh.bounds,
                 rearAxis,
                 out float minimum,
@@ -1643,13 +1642,13 @@ namespace MotorCity.World
                         transform.up)
                     .normalized;
 
-            ResolveProjectionRange(
+            VehicleLampMaterialUtility.ResolveProjectionRange(
                 filter.sharedMesh.bounds,
                 lateralAxis,
                 out float lateralMinimum,
                 out float lateralMaximum);
 
-            ResolveProjectionRange(
+            VehicleLampMaterialUtility.ResolveProjectionRange(
                 filter.sharedMesh.bounds,
                 upAxis,
                 out float upMinimum,
@@ -1720,7 +1719,7 @@ namespace MotorCity.World
                     sourceMaterials[i];
 
                 Texture texture =
-                    ResolveBaseTexture(
+                    VehicleLampMaterialUtility.ResolveBaseTexture(
                         source);
 
                 Material overlay =
@@ -1736,7 +1735,7 @@ namespace MotorCity.World
                         ? texture
                         : Texture2D.blackTexture);
 
-                CopyTextureTransform(
+                VehicleLampMaterialUtility.CopyTextureTransform(
                     source,
                     overlay);
 
@@ -1965,7 +1964,7 @@ namespace MotorCity.World
                          true))
             {
                 if (item == null ||
-                    IsWheelRenderer(
+                    VehicleLampMaterialUtility.IsWheelRenderer(
                         item.transform))
                 {
                     continue;
@@ -2016,125 +2015,6 @@ namespace MotorCity.World
                     fullHorizontal * 0.58f &&
                 candidateWidth >=
                     fullWidth * 0.45f;
-        }
-
-        private static Texture ResolveBaseTexture(
-            Material material)
-        {
-            if (material == null)
-                return null;
-
-            if (material.HasProperty(
-                    "_BaseMap"))
-            {
-                Texture texture =
-                    material.GetTexture(
-                        "_BaseMap");
-
-                if (texture != null)
-                    return texture;
-            }
-
-            if (material.HasProperty(
-                    "_MainTex"))
-            {
-                return
-                    material.GetTexture(
-                        "_MainTex");
-            }
-
-            return null;
-        }
-
-        private static void CopyTextureTransform(
-            Material source,
-            Material destination)
-        {
-            if (source == null ||
-                destination == null)
-            {
-                return;
-            }
-
-            string property =
-                source.HasProperty(
-                    "_BaseMap")
-                    ? "_BaseMap"
-                    : "_MainTex";
-
-            if (!source.HasProperty(
-                    property))
-            {
-                return;
-            }
-
-            destination.SetTextureScale(
-                "_BaseMap",
-                source.GetTextureScale(
-                    property));
-
-            destination.SetTextureOffset(
-                "_BaseMap",
-                source.GetTextureOffset(
-                    property));
-        }
-
-        private static void ResolveProjectionRange(
-            Bounds bounds,
-            Vector3 axis,
-            out float minimum,
-            out float maximum)
-        {
-            minimum =
-                float.PositiveInfinity;
-
-            maximum =
-                float.NegativeInfinity;
-
-            Vector3 center =
-                bounds.center;
-
-            Vector3 extents =
-                bounds.extents;
-
-            for (int x = -1;
-                 x <= 1;
-                 x += 2)
-            {
-                for (int y = -1;
-                     y <= 1;
-                     y += 2)
-                {
-                    for (int z = -1;
-                         z <= 1;
-                         z += 2)
-                    {
-                        Vector3 corner =
-                            center +
-                            Vector3.Scale(
-                                extents,
-                                new Vector3(
-                                    x,
-                                    y,
-                                    z));
-
-                        float projection =
-                            Vector3.Dot(
-                                corner,
-                                axis);
-
-                        minimum =
-                            Mathf.Min(
-                                minimum,
-                                projection);
-
-                        maximum =
-                            Mathf.Max(
-                                maximum,
-                                projection);
-                    }
-                }
-            }
         }
 
         private void RemoveLegacyOverlays()
@@ -2289,31 +2169,5 @@ namespace MotorCity.World
             return false;
         }
 
-        private static bool IsWheelRenderer(
-            Transform item)
-        {
-            Transform cursor =
-                item;
-
-            while (cursor != null)
-            {
-                string name =
-                    cursor.name
-                        .ToLowerInvariant();
-
-                if (name.Contains("wheel") ||
-                    name.Contains("tire") ||
-                    name.Contains("tyre") ||
-                    name.Contains("rim"))
-                {
-                    return true;
-                }
-
-                cursor =
-                    cursor.parent;
-            }
-
-            return false;
-        }
     }
 }

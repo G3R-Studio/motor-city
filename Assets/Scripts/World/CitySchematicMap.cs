@@ -104,11 +104,7 @@ namespace MotorCity.World
         private readonly List<Vector3> roadPoints =
             new();
 
-        private static readonly Dictionary<Type, Dictionary<string, FieldInfo>>
-            FieldCache =
-                new();
-
-        public Texture2D Texture { get; private set; }
+public Texture2D Texture { get; private set; }
 
         public Bounds WorldBounds { get; private set; }
 
@@ -379,17 +375,17 @@ namespace MotorCity.World
                     continue;
 
                 FieldInfo waypointsField =
-                    FindField(
+                    AuthoredCityFieldCache.FindField(
                         behaviour.GetType(),
                         "waypoints");
 
                 FieldInfo next0Field =
-                    FindField(
+                    AuthoredCityFieldCache.FindField(
                         behaviour.GetType(),
                         "nextWay0");
 
                 FieldInfo next1Field =
-                    FindField(
+                    AuthoredCityFieldCache.FindField(
                         behaviour.GetType(),
                         "nextWay1");
 
@@ -491,17 +487,17 @@ namespace MotorCity.World
                     continue;
 
                 FieldInfo waypointsField =
-                    FindField(
+                    AuthoredCityFieldCache.FindField(
                         behaviour.GetType(),
                         "waypoints");
 
                 FieldInfo next0Field =
-                    FindField(
+                    AuthoredCityFieldCache.FindField(
                         behaviour.GetType(),
                         "nextWay0");
 
                 FieldInfo next1Field =
-                    FindField(
+                    AuthoredCityFieldCache.FindField(
                         behaviour.GetType(),
                         "nextWay1");
 
@@ -679,72 +675,6 @@ namespace MotorCity.World
                     }
                 }
             }
-        }
-
-        private static FieldInfo FindField(
-            Type type,
-            string fieldName)
-        {
-            if (type == null ||
-                string.IsNullOrEmpty(
-                    fieldName))
-            {
-                return null;
-            }
-
-            if (!FieldCache.TryGetValue(
-                    type,
-                    out Dictionary<string, FieldInfo> typeCache))
-            {
-                typeCache =
-                    new Dictionary<string, FieldInfo>(
-                        StringComparer.Ordinal);
-
-                FieldCache[
-                    type] =
-                    typeCache;
-            }
-
-            if (typeCache.TryGetValue(
-                    fieldName,
-                    out FieldInfo cached))
-            {
-                return
-                    cached;
-            }
-
-            Type current =
-                type;
-
-            while (current != null)
-            {
-                FieldInfo field =
-                    current.GetField(
-                        fieldName,
-                        BindingFlags.Instance |
-                        BindingFlags.Public |
-                        BindingFlags.NonPublic);
-
-                if (field != null)
-                {
-                    typeCache[
-                        fieldName] =
-                        field;
-
-                    return
-                        field;
-                }
-
-                current =
-                    current.BaseType;
-            }
-
-            typeCache[
-                fieldName] =
-                null;
-
-            return
-                null;
         }
 
         private Vector2 WorldToUv(

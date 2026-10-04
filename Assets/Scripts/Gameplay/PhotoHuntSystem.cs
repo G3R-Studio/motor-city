@@ -266,16 +266,6 @@ namespace MotorCity.Gameplay
                     continue;
                 }
 
-                string path =
-                    HierarchyPath(
-                        renderer.transform);
-
-                if (!LooksLikeTrafficCar(
-                        path))
-                {
-                    continue;
-                }
-
                 Vector3 target =
                     renderer.bounds.center;
 
@@ -310,6 +300,16 @@ namespace MotorCity.Gameplay
                     viewport.x > 0.92f ||
                     viewport.y < 0.08f ||
                     viewport.y > 0.92f)
+                {
+                    continue;
+                }
+
+                string path =
+                    HierarchyPath(
+                        renderer.transform);
+
+                if (!LooksLikeTrafficCar(
+                        path))
                 {
                     continue;
                 }

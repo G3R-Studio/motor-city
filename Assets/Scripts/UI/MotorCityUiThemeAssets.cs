@@ -7,18 +7,10 @@ namespace MotorCity.UI
         menuName = "Motor City/UI Theme Assets")]
     public sealed class MotorCityUiThemeAssets : ScriptableObject
     {
-        [Header("Ville Seppanen Racing HUD")]
-        public Texture2D speedometerPrimary;        public Texture2D needleLong;
-        public Texture2D rectanglePanel;
-        public Texture2D characterPanel;
-        public Texture2D statusPanel;
-        public Texture2D driftPanel;
-        public Texture2D targetPanel;
-        public Texture2D driveModePanel;
+        [Header("Shared UI textures")]
         public Texture2D minimapPlayerPointer;
         public Texture2D modalPanel;
         public Texture2D modalButton;
-        public Texture2D passportPanel;
 
         [Header("Touch driving controls")]
         public Texture2D touchThrottle;

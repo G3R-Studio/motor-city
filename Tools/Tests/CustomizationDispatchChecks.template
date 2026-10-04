@@ -1,0 +1,40 @@
+using System;
+public class CustomizationChecks
+{
+    public object car = new object();
+    public int SelectedColorIndex, SelectedWheelStyleIndex, SelectedNeonIndex;
+    private readonly int[] AccentColors = new int[3];
+    public int Saves, Paints, Wheels, Clears, Builds;
+    public event Action CustomizationChanged;
+    private int BodyColorCountForCurrentVehicle() => 4;
+    private void SaveForSelectedVehicle() { Saves++; }
+    private void ApplyBodyColor() { Paints++; }
+    private void ApplyWheelStyle() { Wheels++; }
+    private void ClearCosmetics() { Clears++; }
+    private void BuildCosmeticGeometry() { Builds++; }
+    /* SOURCE_METHODS */
+    public static void Run()
+    {
+        var c = new CustomizationChecks();
+        int events = 0;
+        c.CustomizationChanged += () => events++;
+        c.CycleBodyColor();
+        if (c.Paints != 1 || c.Wheels != 0 || c.Builds != 0 || c.Saves != 1)
+            throw new Exception("Paint rebuilt unrelated cosmetics");
+        c.CycleWheelStyle();
+        if (c.Paints != 1 || c.Wheels != 1 || c.Builds != 0)
+            throw new Exception("Wheels rebuilt unrelated cosmetics");
+        c.CycleNeon();
+        if (c.Paints != 1 || c.Wheels != 1 || c.Builds != 1 || c.Clears != 1 || events != 3)
+            throw new Exception("Neon application or change events incorrect");
+        c.ApplyAll();
+        if (c.Paints != 2 || c.Wheels != 2 || c.Builds != 2 || c.Clears != 2)
+            throw new Exception("Vehicle initialization must apply every cosmetic once");
+        for (int i = 0; i < 3; i++) c.CycleBodyColor();
+        if (c.SelectedColorIndex != 0) throw new Exception("Color cycle changed");
+        c.car = null;
+        int previous = c.Paints;
+        c.CycleBodyColor();
+        if (c.Paints != previous) throw new Exception("Missing car must not apply paint");
+    }
+}

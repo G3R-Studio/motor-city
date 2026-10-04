@@ -32,11 +32,7 @@ namespace MotorCity.World
         private static readonly Dictionary<Vector2Int, List<int>> NodeBuckets =
             new();
 
-        private static readonly Dictionary<Type, Dictionary<string, FieldInfo>>
-            FieldCache =
-                new();
-
-        private static Type fcgWayContainerType;
+private static Type fcgWayContainerType;
         private static bool fcgWayContainerTypeResolved;
 
         private static readonly Dictionary<int, List<Edge>> Adjacency =
@@ -635,7 +631,7 @@ namespace MotorCity.World
                 return null;
 
             FieldInfo field =
-                FindField(
+                AuthoredCityFieldCache.FindField(
                     behaviour.GetType(),
                     fieldName);
 
@@ -657,72 +653,6 @@ namespace MotorCity.World
 
             return
                 value as IEnumerable;
-        }
-
-        private static FieldInfo FindField(
-            Type type,
-            string fieldName)
-        {
-            if (type == null ||
-                string.IsNullOrEmpty(
-                    fieldName))
-            {
-                return null;
-            }
-
-            if (!FieldCache.TryGetValue(
-                    type,
-                    out Dictionary<string, FieldInfo> typeCache))
-            {
-                typeCache =
-                    new Dictionary<string, FieldInfo>(
-                        StringComparer.Ordinal);
-
-                FieldCache[
-                    type] =
-                    typeCache;
-            }
-
-            if (typeCache.TryGetValue(
-                    fieldName,
-                    out FieldInfo cached))
-            {
-                return
-                    cached;
-            }
-
-            Type current =
-                type;
-
-            while (current != null)
-            {
-                FieldInfo field =
-                    current.GetField(
-                        fieldName,
-                        BindingFlags.Instance |
-                        BindingFlags.Public |
-                        BindingFlags.NonPublic);
-
-                if (field != null)
-                {
-                    typeCache[
-                        fieldName] =
-                        field;
-
-                    return
-                        field;
-                }
-
-                current =
-                    current.BaseType;
-            }
-
-            typeCache[
-                fieldName] =
-                null;
-
-            return
-                null;
         }
 
         private static int FindOrAddNode(

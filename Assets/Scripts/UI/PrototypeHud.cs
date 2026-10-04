@@ -8,8 +8,6 @@ using MotorCity.Platform;
 using MotorCity.Vehicle;
 using MotorCity.World;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace MotorCity.UI
@@ -109,7 +107,6 @@ namespace MotorCity.UI
         private Text upgradesText;
         private Text driveModeText;
         private Text speedText;
-        private RectTransform speedNeedle;
 
         private readonly List<Sprite> runtimeOwnedSprites =
             new();
@@ -192,6 +189,7 @@ namespace MotorCity.UI
         private Text minimapTargetText;
         private readonly RectTransform[] minimapRouteDots =
             new RectTransform[128];
+        private readonly Image[] minimapRouteImages = new Image[128];
         private int visibleRouteDotCount;
         private readonly List<Vector3> fixedRoadRoute =
             new();
@@ -767,8 +765,7 @@ namespace MotorCity.UI
                                 BlueAccent
                         };
                 }
-    
-    
+
             }
 
             float speed =
@@ -784,29 +781,6 @@ namespace MotorCity.UI
             {
                 lastDisplayedSpeed = roundedSpeed;
                 speedText.text = roundedSpeed.ToString();
-            }
-            if (speedNeedle != null)
-            {
-                float normalizedSpeed =
-                    Mathf.Clamp01(
-                        speed /
-                        240f);
-
-                float needleAngle =
-                    Mathf.Lerp(
-                        135f,
-                        -135f,
-                        normalizedSpeed);
-
-                Quaternion needleRotation =
-                    Quaternion.Euler(
-                        0f,
-                        0f,
-                        needleAngle);
-
-                speedNeedle.localRotation =
-                    needleRotation;
-
             }
 
             bool resultOpen =
@@ -1305,34 +1279,9 @@ namespace MotorCity.UI
                 !blockInteraction;
         }
 
-        private static void EnsureUiEventSystem()
-        {
-            EventSystem existing =
-                Object.FindAnyObjectByType<EventSystem>();
-
-            if (existing != null)
-            {
-                if (existing.GetComponent<InputSystemUIInputModule>() == null)
-                {
-                    existing.gameObject.AddComponent<InputSystemUIInputModule>();
-                }
-
-                return;
-            }
-
-            GameObject eventSystemObject =
-                new(
-                    "Motor City UI EventSystem",
-                    typeof(EventSystem),
-                    typeof(InputSystemUIInputModule));
-
-            Object.DontDestroyOnLoad(
-                eventSystemObject);
-        }
-
         private void BuildUi()
         {
-            EnsureUiEventSystem();
+            MotorCityUiEventSystem.EnsureUiEventSystem();
             MotorCityMusicRuntime.EnsureExists();
             MotorCityIconLibrary.PrewarmCore();
 

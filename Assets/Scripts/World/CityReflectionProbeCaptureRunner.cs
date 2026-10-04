@@ -13,24 +13,31 @@ namespace MotorCity.World
     public sealed class CityReflectionProbeCaptureRunner : MonoBehaviour
     {
         private Coroutine captureRoutine;
+        private List<ReflectionProbe> pendingProbes;
         private bool fogWasEnabled;
         private bool fogOverrideActive;
 
         public void Capture(
             IReadOnlyList<ReflectionProbe> probes)
         {
+            if (probes == null || !isActiveAndEnabled)
+                return;
+
+            // Finish the active GPU capture. Keep only the latest refresh request
+            // instead of cancelling and submitting the same work repeatedly.
             if (captureRoutine != null)
             {
-                StopCoroutine(
-                    captureRoutine);
-
-                RestoreFog();
+                pendingProbes ??= new List<ReflectionProbe>();
+                pendingProbes.Clear();
+                for (int i = 0; i < probes.Count; i++)
+                    pendingProbes.Add(probes[i]);
+                return;
             }
 
             captureRoutine =
                 StartCoroutine(
                     CaptureRoutine(
-                        probes));
+                        new List<ReflectionProbe>(probes)));
         }
 
         private IEnumerator CaptureRoutine(
@@ -67,7 +74,7 @@ namespace MotorCity.World
                     int renderId =
                         probe.RenderProbe();
 
-                    while (!probe.IsFinishedRendering(
+                    while (renderId >= 0 && probe != null && !probe.IsFinishedRendering(
                                renderId))
                     {
                         yield return null;
@@ -77,12 +84,21 @@ namespace MotorCity.World
 
             RestoreFog();
 
-            captureRoutine =
-                null;
+            captureRoutine = null;
+            if (pendingProbes != null)
+            {
+                List<ReflectionProbe> next = pendingProbes;
+                pendingProbes = null;
+                Capture(next);
+            }
         }
 
         private void OnDisable()
         {
+            if (captureRoutine != null)
+                StopCoroutine(captureRoutine);
+            captureRoutine = null;
+            pendingProbes = null;
             RestoreFog();
         }
 

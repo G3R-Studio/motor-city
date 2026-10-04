@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using MotorCity.Input;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,9 +15,11 @@ namespace MotorCity.UI
         private const string HudRootName = "Motor City HUD";
 
         private Transform hudRoot;
+        private readonly Dictionary<string, RectTransform> rectCache = new();
         private int lastScreenWidth;
         private int lastScreenHeight;
         private bool lastTouchLayout;
+        private float bindRetryTimer;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
@@ -32,22 +34,16 @@ namespace MotorCity.UI
             Object.DontDestroyOnLoad(host);
         }
 
-        private IEnumerator Start()
-        {
-            while (hudRoot == null)
-            {
-                TryBind();
-                yield return new WaitForSecondsRealtime(0.25f);
-            }
-
-            ApplyVisualPass();
-        }
-
         private void Update()
         {
             if (hudRoot == null)
             {
-                TryBind();
+                bindRetryTimer -= Time.unscaledDeltaTime;
+                if (bindRetryTimer <= 0f)
+                {
+                    bindRetryTimer = 0.25f;
+                    TryBind();
+                }
                 return;
             }
 
@@ -68,6 +64,7 @@ namespace MotorCity.UI
             if (root == null)
                 return;
 
+            rectCache.Clear();
             hudRoot = root.transform;
             ApplyVisualPass();
         }
@@ -655,62 +652,6 @@ namespace MotorCity.UI
             }
         }
 
-        private void ApplyPanelTreatment(
-            string objectName,
-            Color color,
-            bool addTopHighlight)
-        {
-            RectTransform rect = FindRect(objectName);
-
-            if (rect == null)
-                return;
-
-            Image image = rect.GetComponent<Image>();
-            if (image != null)
-            {
-                image.color = color;
-                image.raycastTarget = false;
-            }
-
-            Outline outline = rect.GetComponent<Outline>();
-            if (outline == null)
-                outline = rect.gameObject.AddComponent<Outline>();
-
-            outline.effectColor = new Color(0.18f, 0.50f, 0.82f, 0.18f);
-            outline.effectDistance = new Vector2(1f, -1f);
-            outline.useGraphicAlpha = true;
-
-            if (addTopHighlight)
-                EnsureTopHighlight(rect);
-        }
-
-        private static void EnsureTopHighlight(RectTransform parent)
-        {
-            const string highlightName = "Visual Polish Highlight";
-
-            Transform existing = parent.Find(highlightName);
-            if (existing != null)
-                return;
-
-            GameObject lineObject = new(
-                highlightName,
-                typeof(RectTransform),
-                typeof(Image));
-
-            lineObject.transform.SetParent(parent, false);
-
-            RectTransform line = lineObject.GetComponent<RectTransform>();
-            line.anchorMin = new Vector2(0f, 1f);
-            line.anchorMax = new Vector2(1f, 1f);
-            line.pivot = new Vector2(0.5f, 1f);
-            line.anchoredPosition = new Vector2(0f, -1f);
-            line.sizeDelta = new Vector2(-20f, 2f);
-
-            Image image = lineObject.GetComponent<Image>();
-            image.color = new Color(0.16f, 0.62f, 1f, 0.32f);
-            image.raycastTarget = false;
-        }
-
         private void PolishCoreText(
             string objectName,
             float shadowAlpha)
@@ -790,10 +731,13 @@ namespace MotorCity.UI
             if (hudRoot == null)
                 return null;
 
-            Transform target = FindRecursive(hudRoot, objectName);
-            return target == null
-                ? null
-                : target as RectTransform;
+            if (rectCache.TryGetValue(objectName, out RectTransform cached) && cached != null)
+                return cached;
+
+            RectTransform rect = FindRecursive(hudRoot, objectName) as RectTransform;
+            if (rect != null)
+                rectCache[objectName] = rect;
+            return rect;
         }
 
         private static Transform FindRecursive(

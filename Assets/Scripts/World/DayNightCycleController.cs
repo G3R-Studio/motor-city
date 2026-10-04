@@ -886,7 +886,8 @@ namespace MotorCity.World
             // Never switch back to a panorama with an embedded static sun.
             if (runtimeCrossfadeSkybox != null)
             {
-                RenderSettings.skybox = runtimeCrossfadeSkybox;
+                if (RenderSettings.skybox != runtimeCrossfadeSkybox)
+                    RenderSettings.skybox = runtimeCrossfadeSkybox;
                 return;
             }
             float t =
@@ -1274,6 +1275,7 @@ namespace MotorCity.World
                     lightBudget,
                     lampCandidates.Count);
 
+            float duskFade = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.12f, .62f, NightAmount));
             for (int i = 0;
                  i < count;
                  i++)
@@ -1287,7 +1289,6 @@ namespace MotorCity.World
                 {
                     LampSource source = lampSources[lampCandidates[i].SourceIndex];
                     float distance = Mathf.Sqrt(lampCandidates[i].DistanceSquared);
-                    float duskFade = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.12f, .62f, NightAmount));
                     float distanceFade = Mathf.SmoothStep(0f, 1f,
                         Mathf.InverseLerp(lampDistance, lampDistance * .78f, distance));
                     light.intensity = source.BaseIntensity * duskFade * distanceFade;

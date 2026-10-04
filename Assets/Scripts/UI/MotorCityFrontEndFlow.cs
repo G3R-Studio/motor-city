@@ -8,9 +8,7 @@ using MotorCity.Persistence;
 using MotorCity.Platform;
 using MotorCity.Vehicle;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace MotorCity.UI
@@ -161,7 +159,7 @@ namespace MotorCity.UI
                 car != null &&
                 hud != null;
 
-            EnsureUiEventSystem();
+            MotorCityUiEventSystem.EnsureUiEventSystem();
             MotorCityMusicRuntime.EnsureExists();
             EnsureFrontEndCamera();
             ApplyLanguageOverride();
@@ -199,32 +197,6 @@ namespace MotorCity.UI
 
             BuildUi();
             ShowMainMenu();
-        }
-
-
-        private static void EnsureUiEventSystem()
-        {
-            EventSystem existing =
-                Object.FindAnyObjectByType<EventSystem>();
-
-            if (existing != null)
-            {
-                if (existing.GetComponent<InputSystemUIInputModule>() == null)
-                {
-                    existing.gameObject.AddComponent<InputSystemUIInputModule>();
-                }
-
-                return;
-            }
-
-            GameObject eventSystemObject =
-                new(
-                    "Motor City UI EventSystem",
-                    typeof(EventSystem),
-                    typeof(InputSystemUIInputModule));
-
-            Object.DontDestroyOnLoad(
-                eventSystemObject);
         }
 
         private void EnsureFrontEndCamera()
@@ -350,7 +322,6 @@ namespace MotorCity.UI
             image.raycastTarget = true;
             return root;
         }
-
 
         private void AddSharedBackground(
             GameObject root,
@@ -1092,7 +1063,6 @@ namespace MotorCity.UI
                 NextIntro,
                 new Vector2(1f, 0f));
         }
-
 
         private void BuildLoadingScreen()
         {
@@ -2448,7 +2418,6 @@ namespace MotorCity.UI
 
         private static bool IsRussian() =>
             MotorCityLocalization.LanguageCode == "ru";
-
 
 #if UNITY_EDITOR
         private void OnGUI()

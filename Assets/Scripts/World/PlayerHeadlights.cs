@@ -139,7 +139,8 @@ namespace MotorCity.World
             lastLightSpeed01 = -1f;
             lastEmissionIntensity = -1f;
             RefreshAnchorsIfNeeded();
-            RefreshNightEmissionBindings();
+            if (currentVisual == null)
+                RefreshNightEmissionBindings();
         }
 
         private void RefreshAnchorsIfNeeded()
@@ -182,7 +183,7 @@ namespace MotorCity.World
                      renderers)
             {
                 if (renderer == null ||
-                    IsWheelRenderer(
+                    VehicleLampMaterialUtility.IsWheelRenderer(
                         renderer.transform))
                 {
                     continue;
@@ -320,7 +321,7 @@ namespace MotorCity.World
                 if (renderer == null ||
                     renderer.gameObject.name ==
                         DeloreanOverlayName ||
-                    IsWheelRenderer(
+                    VehicleLampMaterialUtility.IsWheelRenderer(
                         renderer.transform))
                 {
                     continue;
@@ -407,7 +408,7 @@ namespace MotorCity.World
                         continue;
 
                     Texture texture =
-                        ResolveBaseTexture(
+                        VehicleLampMaterialUtility.ResolveBaseTexture(
                             source);
 
                     if (hybridWhiteLamp) texture = Texture2D.whiteTexture;
@@ -420,7 +421,7 @@ namespace MotorCity.World
                                 transform.forward)
                             .normalized;
 
-                    ResolveProjectionRange(
+                    VehicleLampMaterialUtility.ResolveProjectionRange(
                         filter.sharedMesh.bounds,
                         forwardAxis,
                         out float minimum,
@@ -457,13 +458,13 @@ namespace MotorCity.World
                                 transform.up)
                             .normalized;
 
-                    ResolveProjectionRange(
+                    VehicleLampMaterialUtility.ResolveProjectionRange(
                         filter.sharedMesh.bounds,
                         lateralAxis,
                         out float lateralMinimum,
                         out float lateralMaximum);
 
-                    ResolveProjectionRange(
+                    VehicleLampMaterialUtility.ResolveProjectionRange(
                         filter.sharedMesh.bounds,
                         upAxis,
                         out float upMinimum,
@@ -491,7 +492,7 @@ namespace MotorCity.World
                         "_BaseMap",
                         texture);
 
-                    CopyTextureTransform(
+                    VehicleLampMaterialUtility.CopyTextureTransform(
                         source,
                         overlayMaterial);
 
@@ -656,7 +657,7 @@ namespace MotorCity.World
                 if (renderer == null ||
                     renderer.gameObject.name ==
                         DeloreanOverlayName ||
-                    IsWheelRenderer(
+                    VehicleLampMaterialUtility.IsWheelRenderer(
                         renderer.transform))
                 {
                     continue;
@@ -695,9 +696,8 @@ namespace MotorCity.World
                     }
 
                     Texture texture =
-                        ResolveBaseTexture(
+                        VehicleLampMaterialUtility.ResolveBaseTexture(
                             source);
-
 
                     if (texture == null)
                         continue;
@@ -714,7 +714,7 @@ namespace MotorCity.World
                         "_BaseMap",
                         texture);
 
-                    CopyTextureTransform(
+                    VehicleLampMaterialUtility.CopyTextureTransform(
                         source,
                         overlayMaterial);
 
@@ -879,143 +879,12 @@ namespace MotorCity.World
             nightEmissionOverlays.Clear();
         }
 
-        private static Texture ResolveBaseTexture(
-            Material material)
-        {
-            if (material == null)
-                return null;
-
-            if (material.HasProperty(
-                    "_BaseMap"))
-            {
-                Texture texture =
-                    material.GetTexture(
-                        "_BaseMap");
-
-                if (texture != null)
-                    return texture;
-            }
-
-            if (material.HasProperty(
-                    "_MainTex"))
-            {
-                return
-                    material.GetTexture(
-                        "_MainTex");
-            }
-
-            return null;
-        }
-
-        private static void ResolveProjectionRange(
-            Bounds bounds,
-            Vector3 axis,
-            out float minimum,
-            out float maximum)
-        {
-            minimum = float.PositiveInfinity;
-            maximum = float.NegativeInfinity;
-
-            Vector3 center = bounds.center;
-            Vector3 extents = bounds.extents;
-
-            for (int x = -1; x <= 1; x += 2)
-            {
-                for (int y = -1; y <= 1; y += 2)
-                {
-                    for (int z = -1; z <= 1; z += 2)
-                    {
-                        Vector3 corner =
-                            center +
-                            Vector3.Scale(
-                                extents,
-                                new Vector3(x, y, z));
-
-                        float projection =
-                            Vector3.Dot(
-                                corner,
-                                axis);
-
-                        minimum =
-                            Mathf.Min(
-                                minimum,
-                                projection);
-
-                        maximum =
-                            Mathf.Max(
-                                maximum,
-                                projection);
-                    }
-                }
-            }
-        }
-
-        private static void CopyTextureTransform(
-            Material source,
-            Material destination)
-        {
-            if (source == null ||
-                destination == null)
-            {
-                return;
-            }
-
-            string property =
-                source.HasProperty(
-                    "_BaseMap")
-                    ? "_BaseMap"
-                    : "_MainTex";
-
-            if (!source.HasProperty(
-                    property))
-            {
-                return;
-            }
-
-            destination.SetTextureScale(
-                "_BaseMap",
-                source.GetTextureScale(
-                    property));
-
-            destination.SetTextureOffset(
-                "_BaseMap",
-                source.GetTextureOffset(
-                    property));
-        }
-
         private void OnDestroy()
         {
             MotorCityQualityRuntime.PresetChanged -=
                 HandleQualityPresetChanged;
 
             ClearNightEmissionOverlays();
-        }
-
-        private static bool IsWheelRenderer(
-            Transform item)
-        {
-            Transform cursor =
-                item;
-
-            while (cursor != null)
-            {
-                string name =
-                    cursor.name
-                        .ToLowerInvariant();
-
-                if (name.Contains("wheel") ||
-                    name.Contains("tire") ||
-                    name.Contains("tyre") ||
-                    name.Contains("rim"))
-                {
-                    return true;
-                }
-
-                cursor =
-                    cursor.parent;
-            }
-
-            return false;
         }
 
         private Light CreateHeadlight(

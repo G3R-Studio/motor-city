@@ -269,7 +269,6 @@ namespace MotorCity.UI
                 new Vector2(0f, 16f), new Vector2(258f, 190f),
                 new Vector2(.5f, 0f), new Vector2(.5f, 0f), Color.clear);
             openingSpeedometerRoot = panel.gameObject;
-            speedNeedle = null;
 
             RectTransform dial = CreatePanel(panel, "Speed Readout",
                 new Vector2(0f, 88f), new Vector2(238f, 104f),
