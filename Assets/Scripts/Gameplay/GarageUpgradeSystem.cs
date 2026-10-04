@@ -135,6 +135,27 @@ namespace MotorCity.Gameplay
             TurboPetSystem turboSystem,
             VehicleCustomizationSystem customizationSystem)
         {
+            if (wallet != null)
+            {
+                wallet.CreditsEarned -=
+                    HandleCreditsChanged;
+
+                wallet.CreditsSpent -=
+                    HandleCreditsChanged;
+            }
+
+            if (vehicleRoster != null)
+            {
+                vehicleRoster.VehicleChanged -=
+                    HandleGarageDataChanged;
+            }
+
+            if (customization != null)
+            {
+                customization.CustomizationChanged -=
+                    HandleGarageDataChanged;
+            }
+
             car = targetCar;
             wallet = targetWallet;
             activityManager = manager;
