@@ -127,7 +127,6 @@ namespace MotorCity.UI
             garageActionButtons[5] = passportAction.gameObject;
             garageStatusText = ReferenceLabel(panel, "Garage Status", "", 26, 910, 1197, 24, 16);
             BuildGaragePassport(panel);
-            panel.gameObject.AddComponent<GarageCanvasRefresh>();
         }
 
         private void BuildGaragePassport(Transform panel)
