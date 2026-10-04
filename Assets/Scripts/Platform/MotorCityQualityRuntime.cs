@@ -150,7 +150,7 @@ namespace MotorCity.Platform
                 browserUrp.shadowDistance = preset == MotorCityQualityPreset.High ? 40f : 0f;
                 browserUrp.msaaSampleCount = 1;
             }
-            QualitySettings.shadows = preset == MotorCityQualityPreset.High ? ShadowQuality.HardOnly : ShadowQuality.Disable;
+            QualitySettings.shadows = preset == MotorCityQualityPreset.High ? UnityEngine.ShadowQuality.HardOnly : UnityEngine.ShadowQuality.Disable;
 #endif
             PresetChanged?.Invoke();
 
