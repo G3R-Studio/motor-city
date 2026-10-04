@@ -74,9 +74,6 @@ namespace MotorCity.Audio
                 new GameObject(
                     "Motor City Music");
 
-            DontDestroyOnLoad(
-                host);
-
             instance =
                 host.AddComponent<MotorCityMusicRuntime>();
         }
