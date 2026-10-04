@@ -43,11 +43,13 @@
 *.rar filter=lfs diff=lfs merge=lfs -text
 *.7z filter=lfs diff=lfs merge=lfs -text
 
-# These authored/generated city files are currently close to GitHub's 100 MiB
-# per-file limit, so future revisions must be stored through LFS.
-Assets/LocalGenerated/FCG_Workbench.unity filter=lfs diff=lfs merge=lfs -text
-Assets/Resources/MotorCity/Environment/CityVisual.prefab filter=lfs diff=lfs merge=lfs -text
+# Runtime traffic prefabs are already managed through Git LFS.
 Assets/Resources/MotorCity/Environment/FCGTrafficCars/*.prefab filter=lfs diff=lfs merge=lfs -text
+
+# FCG_Workbench.unity and CityVisual.prefab are intentionally not switched to
+# LFS here without a real git-lfs migration. Both are close to GitHub's per-file
+# limit, so migrate their existing history/object storage deliberately before
+# allowing either file to grow further.
 
 # Small runtime audio clips restored from project history stay directly in Git.
 Assets/Resources/MotorCity/Audio/CarEngine.wav -filter -diff -merge -text
