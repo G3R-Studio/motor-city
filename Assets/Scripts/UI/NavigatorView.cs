@@ -1568,7 +1568,7 @@ namespace MotorCity.UI
                     canvas,
                     "Minimap",
                     new Vector2(-22f, -22f),
-                    new Vector2(214f, 218f),
+                    new Vector2(214f, 268f),
                     new Vector2(1f, 1f),
                     new Vector2(1f, 1f),
                     Color.clear);
@@ -1853,7 +1853,7 @@ namespace MotorCity.UI
                         6f),
                     new Vector2(
                         148f,
-                        34f),
+                        58f),
                     new Vector2(
                         0f,
                         0f),
@@ -1862,7 +1862,7 @@ namespace MotorCity.UI
                         0f),
                     Color.clear);
 
-            ClearPanelChrome(targetStrip);
+            ApplyReferenceHudSurface(targetStrip, .96f);
 
             minimapTargetText =
                 CreateText(
@@ -1874,7 +1874,7 @@ namespace MotorCity.UI
                     Vector2.zero,
                     new Vector2(
                         132f,
-                        27f),
+                        50f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -1916,7 +1916,7 @@ namespace MotorCity.UI
             navigatorButtonRect.pivot =
                 new Vector2(1f, 0f);
             navigatorButtonRect.anchoredPosition =
-                new Vector2(-8f, 8f);
+                new Vector2(-8f, 20f);
 
             navigatorButtonRect.sizeDelta =
                 new Vector2(40f, 30f);

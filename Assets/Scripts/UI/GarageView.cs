@@ -7,6 +7,16 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
+        private static void SetGarageTrackProgress(Image fill, float progress)
+        {
+            RectTransform rect = fill.rectTransform;
+            rect.anchorMin = new Vector2(0f, .5f);
+            rect.anchorMax = new Vector2(Mathf.Clamp01(progress), .5f);
+            rect.pivot = new Vector2(0f, .5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(0f, rect.sizeDelta.y);
+        }
+
         private void UpdateGarage()
         {
             bool rookieColorStep =
@@ -126,12 +136,6 @@ namespace MotorCity.UI
 
             if (garageHeaderLevelFill != null)
             {
-                RectTransform fillRect =
-                    garageHeaderLevelFill.rectTransform;
-
-                RectTransform trackRect =
-                    fillRect.parent as RectTransform;
-
                 int totalReputation =
                     activityManager != null
                         ? Mathf.Max(
@@ -143,14 +147,7 @@ namespace MotorCity.UI
                     (totalReputation % 500) /
                     500f;
 
-                fillRect.sizeDelta =
-                    new Vector2(
-                        trackRect != null
-                            ? trackRect.rect.width *
-                              Mathf.Clamp01(
-                                  levelProgress)
-                            : 0f,
-                        fillRect.sizeDelta.y);
+                SetGarageTrackProgress(garageHeaderLevelFill, levelProgress);
             }
 
             if (garageHeaderMasteryFill != null)
