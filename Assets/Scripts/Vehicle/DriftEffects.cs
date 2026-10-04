@@ -352,11 +352,6 @@ namespace MotorCity.Vehicle
                     (float)CullMode.Off);
             }
 
-            if (material.HasProperty("_SrcBlendAlpha")) material.SetFloat("_SrcBlendAlpha", (float)BlendMode.One);
-            if (material.HasProperty("_DstBlendAlpha")) material.SetFloat("_DstBlendAlpha", (float)BlendMode.OneMinusSrcAlpha);
-            material.DisableKeyword("_ALPHATEST_ON");
-            material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            material.DisableKeyword("_ALPHAMODULATE_ON");
             material.EnableKeyword(
                 "_SURFACE_TYPE_TRANSPARENT");
 
@@ -441,11 +436,6 @@ namespace MotorCity.Vehicle
             if (material.HasProperty("_ZWrite"))
                 material.SetFloat("_ZWrite", 0f);
 
-            if (material.HasProperty("_SrcBlendAlpha")) material.SetFloat("_SrcBlendAlpha", (float)BlendMode.One);
-            if (material.HasProperty("_DstBlendAlpha")) material.SetFloat("_DstBlendAlpha", (float)BlendMode.OneMinusSrcAlpha);
-            material.DisableKeyword("_ALPHATEST_ON");
-            material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            material.DisableKeyword("_ALPHAMODULATE_ON");
             material.EnableKeyword(
                 "_SURFACE_TYPE_TRANSPARENT");
 
