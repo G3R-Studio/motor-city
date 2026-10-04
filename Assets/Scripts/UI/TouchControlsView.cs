@@ -354,10 +354,7 @@ namespace MotorCity.UI
                     MotorCityInputAction.CycleNeon =>
                         MotorCityIconLibrary.Garage,
 
-                    MotorCityInputAction.CycleBodyColor or
-                    MotorCityInputAction.CycleSticker or
-                    MotorCityInputAction.CycleVinyl or
-                    MotorCityInputAction.CyclePlate =>
+                    MotorCityInputAction.CycleBodyColor =>
                         MotorCityIconLibrary.Reputation,
 
                     MotorCityInputAction.TakePhoto =>
