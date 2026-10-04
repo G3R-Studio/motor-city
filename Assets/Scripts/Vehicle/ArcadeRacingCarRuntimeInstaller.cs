@@ -108,21 +108,6 @@ namespace MotorCity.Vehicle
             runtimeNullMirrorMaterial = null;
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void ScheduleInstall()
-        {
-            GameObject runner = new("ARCADE Free Racing Car Installer");
-            DontDestroyOnLoad(runner);
-            runner.AddComponent<ArcadeRacingCarRuntimeInstaller>();
-        }
-
-        private void Start()
-        {
-            ArcadeCarController car = UnityEngine.Object.FindAnyObjectByType<ArcadeCarController>();
-            if (car != null) TryInstallNow(car);
-            UnityEngine.Object.Destroy(gameObject);
-        }
-
         public static bool TryInstallNow(ArcadeCarController car)
         {
             PruneDestroyedVehicleCacheEntries();
