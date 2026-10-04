@@ -576,7 +576,9 @@ namespace MotorCity.UI
                 false);
 
             Time.timeScale =
-                pauseStoredTimeScale;
+                MotorCityPlatformRuntime.IsGameplayResumeReady
+                    ? pauseStoredTimeScale
+                    : 0f;
 
             if (Time.timeScale > 0f)
             {
