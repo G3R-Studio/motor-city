@@ -1090,9 +1090,68 @@ namespace MotorCity.Vehicle
                     continue;
                 }
 
+                if (IsBodyMiscMesh(
+                        filter.transform))
+                {
+                    RemoveBodyCollisionProxy(
+                        filter.transform);
+
+                    continue;
+                }
+
                 BuildCompoundBodyCollider(
                     filter);
             }
+        }
+
+        private static bool IsBodyMiscMesh(
+            Transform transform)
+        {
+            if (transform == null)
+                return false;
+
+            string normalized =
+                transform.name
+                    .Replace(
+                        " (Clone)",
+                        string.Empty)
+                    .Replace(
+                        " (Instance)",
+                        string.Empty)
+                    .Trim()
+                    .ToLowerInvariant()
+                    .Replace(
+                        ' ',
+                        '_')
+                    .Replace(
+                        '.',
+                        '_');
+
+            return
+                normalized == "body_misc" ||
+                normalized.StartsWith(
+                    "body_misc_",
+                    StringComparison.Ordinal);
+        }
+
+        private static void RemoveBodyCollisionProxy(
+            Transform meshTransform)
+        {
+            if (meshTransform == null)
+                return;
+
+            Transform proxy =
+                meshTransform.Find(
+                    "MotorCityBodyCollisionProxy");
+
+            if (proxy == null)
+                return;
+
+            proxy.gameObject.SetActive(
+                false);
+
+            UnityEngine.Object.Destroy(
+                proxy.gameObject);
         }
 
         private static void BuildCompoundBodyCollider(
