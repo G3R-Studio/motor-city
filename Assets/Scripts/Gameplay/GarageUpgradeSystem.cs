@@ -1339,8 +1339,7 @@ namespace MotorCity.Gameplay
 
         private void RestoreDriving()
         {
-            car?.SetDrivingBlocked(
-                "Garage",
+            car?.SetGaragePresentationMode(
                 false);
 
             if (activityManager != null)
