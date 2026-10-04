@@ -384,6 +384,36 @@ namespace MotorCity.CameraSystem
                         value.z));
         }
 
+        private void OnDisable()
+        {
+            armed =
+                false;
+
+            if (!active)
+                return;
+
+            active =
+                false;
+
+            if (cinematicCamera != null)
+            {
+                cinematicCamera.enabled =
+                    false;
+            }
+
+            if (gameplayCamera != null)
+            {
+                gameplayCamera.enabled =
+                    true;
+            }
+
+            if (chaseCamera != null)
+            {
+                chaseCamera.enabled =
+                    chaseWasEnabled;
+            }
+        }
+
         private void OnDestroy()
         {
             if (cinematicCamera != null)
