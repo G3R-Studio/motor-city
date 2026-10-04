@@ -465,6 +465,13 @@ namespace MotorCity.UI
             driftSpots = driftSpotSystem;
             discoveries = discoverySystem;
             activityManager = manager;
+
+            if (garage != null)
+            {
+                garage.Changed -=
+                    MarkGarageUiDirty;
+            }
+
             garage = garageSystem;
 
             if (garage != null)
@@ -503,6 +510,15 @@ namespace MotorCity.UI
             {
                 ArmOpeningHudReveal(
                     5f);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (garage != null)
+            {
+                garage.Changed -=
+                    MarkGarageUiDirty;
             }
         }
 
