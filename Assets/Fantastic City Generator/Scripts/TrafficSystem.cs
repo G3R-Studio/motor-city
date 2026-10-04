@@ -494,11 +494,6 @@ namespace FCG
             IaCars =
                 runtime;
 
-            Debug.Log(
-                "Motor City: restored " +
-                runtime.Length +
-                " FCG traffic vehicle prefabs from runtime Resources.");
-
             return runtime;
         }
 
