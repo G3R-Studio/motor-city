@@ -2175,14 +2175,6 @@ namespace MotorCity.Vehicle
                 !presentationLock);
         }
 
-        public void SetDrivingEnabled(
-            bool enabled)
-        {
-            SetDrivingBlocked(
-                "Legacy",
-                !enabled);
-        }
-
         private void ApplyDrivingEnabled(
             bool enabled)
         {
