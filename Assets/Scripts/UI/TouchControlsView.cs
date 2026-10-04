@@ -1310,49 +1310,6 @@ namespace MotorCity.UI
                     sprite);
         }
 
-        private void CreateTouchControlBackdrop(
-            Transform parent,
-            string name,
-            Vector2 anchoredPosition,
-            Vector2 size,
-            Vector2 anchor,
-            Vector2 pivot)
-        {
-            GameObject backdropObject =
-                new(
-                    name,
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            backdropObject.transform.SetParent(
-                parent,
-                false);
-
-            RectTransform rect =
-                backdropObject.GetComponent<RectTransform>();
-
-            rect.anchorMin = anchor;
-            rect.anchorMax = anchor;
-            rect.pivot = pivot;
-            rect.anchoredPosition =
-                anchoredPosition;
-            rect.sizeDelta =
-                size;
-
-            Image image =
-                backdropObject.GetComponent<Image>();
-
-            image.color =
-                new Color(
-                    0.015f,
-                    0.035f,
-                    0.06f,
-                    0.24f);
-
-            image.raycastTarget =
-                false;
-        }
-
         private RectTransform CreateTouchHoldButton(
             Transform parent,
             string name,
@@ -1423,58 +1380,6 @@ namespace MotorCity.UI
                     label));
 
             return rect;
-        }
-
-        private void CreateTouchDirectionGlyph(
-            Transform parent,
-            float rotation)
-        {
-            if (parent == null)
-                return;
-
-            GameObject glyph =
-                new(
-                    "Direction Glyph",
-                    typeof(RectTransform));
-
-            glyph.transform.SetParent(
-                parent,
-                false);
-
-            RectTransform rect =
-                glyph.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                new Vector2(
-                    0.5f,
-                    0.5f);
-
-            rect.anchorMax =
-                new Vector2(
-                    0.5f,
-                    0.5f);
-
-            rect.pivot =
-                new Vector2(
-                    0.5f,
-                    0.5f);
-
-            rect.anchoredPosition =
-                Vector2.zero;
-
-            rect.sizeDelta =
-                new Vector2(
-                    34f,
-                    34f);
-
-            rect.localRotation =
-                Quaternion.Euler(
-                    0f,
-                    0f,
-                    rotation);
-
-            CreateMinimapPlayerChevron(
-                rect);
         }
 
         private void UpdateTouchControlsVisibility()
