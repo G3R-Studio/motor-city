@@ -953,10 +953,6 @@ namespace MotorCity.Bootstrap
                 CityAssetRuntimeInstaller.PlayerSpawnRotation;
             car.AddComponent<Rigidbody>();
 
-            BoxCollider chassis = car.AddComponent<BoxCollider>();
-            chassis.size = new Vector3(1.9f, 0.7f, 4.2f);
-            chassis.center = new Vector3(0f, 0.58f, 0f);
-
             Primitive("LowerBody", PrimitiveType.Cube, car.transform, new Vector3(1.86f, 0.48f, 4.18f), new Vector3(0f, 0.46f, 0f), bodyMaterial, false);
             Primitive("UpperBody", PrimitiveType.Cube, car.transform, new Vector3(1.72f, 0.25f, 3.5f), new Vector3(0f, 0.73f, -0.05f), bodyMaterial, false);
             Primitive("Cabin", PrimitiveType.Cube, car.transform, new Vector3(1.48f, 0.55f, 1.72f), new Vector3(0f, 1.02f, -0.25f), glassMaterial, false);
