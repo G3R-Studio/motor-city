@@ -260,12 +260,8 @@ namespace MotorCity.Bootstrap
             Physics.defaultSolverIterations = 10;
             Physics.defaultSolverVelocityIterations = 3;
 
-            Light sun =
-                CreateLighting();
-
             CreatePrototypeCity();
-            CreateDayNightCycle(
-                sun);
+            CreateDayNightCycle();
 
             ArcadeCarController car = CreateCar();
 
@@ -878,21 +874,7 @@ namespace MotorCity.Bootstrap
             }
         }
 
-        private static Light CreateLighting()
-        {
-            GameObject sunObject = new("Sun");
-            Light sun = sunObject.AddComponent<Light>();
-            sun.type = LightType.Directional;
-            sun.intensity = 1.05f;
-            sun.color = new Color(1f, 0.94f, 0.84f);
-            sun.shadows = LightShadows.Soft;
-            sun.transform.rotation = Quaternion.Euler(38f, -28f, 0f);
-
-            return sun;
-        }
-
-        private static void CreateDayNightCycle(
-            Light sun)
+        private static void CreateDayNightCycle()
         {
             GameObject cycleObject =
                 new("Day Night Cycle");
@@ -901,7 +883,7 @@ namespace MotorCity.Bootstrap
                 cycleObject.AddComponent<DayNightCycleController>();
 
             cycle.Initialize(
-                sun);
+                null);
         }
 
         private static void CreatePrototypeCity()
