@@ -946,9 +946,6 @@ namespace MotorCity.Bootstrap
             Vector3 playerSpawn =
                 CityAssetRuntimeInstaller.PlayerSpawnPoint;
 
-            playerSpawn.y =
-                0.1861947f;
-
             car.transform.position =
                 playerSpawn;
 
