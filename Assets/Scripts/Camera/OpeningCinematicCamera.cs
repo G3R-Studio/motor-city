@@ -18,19 +18,19 @@ namespace MotorCity.CameraSystem
         private Vector3 handoffEuler;
 
         private static readonly Vector3 AuthoredPoint1Position =
-            new(-541.669434f, 6.59657431f, 487.766144f);
+            new(-400.104065f, 6.555434576f, 298.150064f);
 
         private static readonly Vector3 AuthoredPoint1Rotation =
             new(2.92249942f, 302.455048f, 359.967285f);
 
         private static readonly Vector3 AuthoredPoint2Position =
-            new(-562.225525f, 8.18965721f, 490.249908f);
+            new(-420.660156f, 8.148517476f, 300.633828f);
 
         private static readonly Vector3 AuthoredPoint2Rotation =
             new(24.9240837f, 331.835785f, 359.967957f);
 
         private static readonly Vector3 AuthoredPoint3Position =
-            new(-573.453308f, 4.63408041f, 499.601898f);
+            new(-431.887939f, 4.592940676f, 309.985818f);
 
         private static readonly Vector3 AuthoredPoint3Rotation =
             new(19.939352f, 47.2972336f, 359.968933f);
