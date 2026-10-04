@@ -185,6 +185,6 @@ Do not commit Unity's generated `Library`, build output, Asset Store download ca
 
 ## Project audit and cleanup
 
-The native-game source/dependency audit and its verified cleanup are documented in [docs/AUDIT-2026-10-04.md](docs/AUDIT-2026-10-04.md). Source checks are repeatable with `pwsh -NoProfile -File Tools/check_cleanup.ps1` and `python Tools/audit_project.py --baseline 7bfc91e4`.
+The native-game source/dependency audit and its verified cleanup are documented in [Docs/AUDIT-2026-10-04.md](Docs/AUDIT-2026-10-04.md). Source checks are repeatable with `pwsh -NoProfile -File Tools/check_cleanup.ps1` and `python Tools/audit_project.py --baseline 7bfc91e4`.
 
 For imported dependencies and missing/repeated components, use **Motor City → Audit → Write project and loaded scene report** in Unity. The report is written under `Temp/MotorCityAudit`; it does not modify project assets or scenes. Source checks do not replace a Unity compilation, Play Mode validation or Profiler measurements.
