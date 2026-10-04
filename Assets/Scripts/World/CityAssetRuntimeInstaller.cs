@@ -802,9 +802,6 @@ namespace MotorCity.World
 
         private static int CurrentCityReflectionProbeGridSize()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            return 1;
-#else
             return
                 MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset switch
                 {
@@ -815,21 +812,20 @@ namespace MotorCity.World
                     _ =>
                         2
                 };
-#endif
         }
 
         private static int CurrentCityReflectionProbeResolution()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            return 64;
-#else
-            return MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset switch
-            {
-                MotorCity.Platform.MotorCityQualityPreset.High => 256,
-                MotorCity.Platform.MotorCityQualityPreset.Medium => 128,
-                _ => 64
-            };
-#endif
+            return
+                MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCity.Platform.MotorCityQualityPreset.High =>
+                        256,
+                    MotorCity.Platform.MotorCityQualityPreset.Medium =>
+                        128,
+                    _ =>
+                        64
+                };
         }
 
         public static void RefreshCityReflectionProbes()
