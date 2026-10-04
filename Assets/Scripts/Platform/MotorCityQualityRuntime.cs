@@ -39,14 +39,14 @@ namespace MotorCity.Platform
 
                         MotorCityQualityPreset.High =>
 #if UNITY_WEBGL && !UNITY_EDITOR
-                            16,
+                            24,
 #else
                             32,
 #endif
 
                         _ =>
 #if UNITY_WEBGL && !UNITY_EDITOR
-                            12
+                            18
 #else
                             28
 #endif
@@ -90,14 +90,6 @@ namespace MotorCity.Platform
             if (initialized)
                 return;
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-            UniversalRenderPipelineAsset webPipeline = Resources.Load<UniversalRenderPipelineAsset>("MotorCity/Rendering/MotorCityWebURP");
-            if (webPipeline != null)
-            {
-                GraphicsSettings.defaultRenderPipeline = webPipeline;
-                QualitySettings.renderPipeline = webPipeline;
-            }
-#endif
             int stored =
                 PlayerPrefs.GetInt(
                     SaveKey,
@@ -126,32 +118,25 @@ namespace MotorCity.Platform
 
             QualitySettings.vSyncCount = 0;
 
-            // Limit browser work per second; native players retain their frame pacing.
-#if UNITY_WEBGL && !UNITY_EDITOR
-            Application.targetFrameRate = preset == MotorCityQualityPreset.Low ? 30 : 60;
-#else
+            // Let the browser/device run as fast as it can. Quality presets
+            // should change visual cost, not impose an artificial FPS cap.
             Application.targetFrameRate = -1;
-#endif
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-            // Keep render targets and shader features stable across browser presets.
-            // Changing MSAA, shadow cascades and particle variants mid-frame is costly.
-            QualitySettings.shadows = UnityEngine.ShadowQuality.Disable;
-            QualitySettings.shadowDistance = 0f;
-            QualitySettings.softParticles = false;
-            QualitySettings.realtimeReflectionProbes = true;
-            QualitySettings.maximumLODLevel = 0;
-            QualitySettings.lodBias = preset == MotorCityQualityPreset.Low ? .65f : preset == MotorCityQualityPreset.High ? 1f : .85f;
-            QualitySettings.anisotropicFiltering = AnisotropicFiltering.Enable;
-            ApplyUrpQuality(preset == MotorCityQualityPreset.Low ? .7f : preset == MotorCityQualityPreset.High ? .95f : .8f, 1, 0f, 1, 512);
-#else
             switch (preset)
             {
-                case MotorCityQualityPreset.Low: ApplyLow(); break;
-                case MotorCityQualityPreset.High: ApplyHigh(); break;
-                default: ApplyMedium(); break;
+                case MotorCityQualityPreset.Low:
+                    ApplyLow();
+                    break;
+
+                case MotorCityQualityPreset.High:
+                    ApplyHigh();
+                    break;
+
+                default:
+                    ApplyMedium();
+                    break;
             }
-#endif
+
             PresetChanged?.Invoke();
 
             if (!save)
