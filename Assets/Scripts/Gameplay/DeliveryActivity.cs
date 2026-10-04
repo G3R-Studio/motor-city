@@ -223,13 +223,14 @@ namespace MotorCity.Gameplay
                     best,
                     eliteHint);
 
-            if (MotorCityInput.InteractPressed)
-            {
-                bool wantsElite =
-                    MotorCityInput.EliteModifierHeld;
+            bool elitePressed =
+                MotorCityInput.EliteModifierPressed;
 
+            if (MotorCityInput.InteractPressed ||
+                elitePressed)
+            {
                 eliteMode =
-                    wantsElite &&
+                    elitePressed &&
                     eliteUnlocked;
 
                 BeginCountdown();
