@@ -1185,12 +1185,6 @@ namespace MotorCity.World
                         2
                 };
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-            lampDistance = Mathf.Min(lampDistance, 95f);
-            lightBudget = MotorCityQualityRuntime.CurrentPreset == MotorCityQualityPreset.High ? 48 :
-                MotorCityQualityRuntime.CurrentPreset == MotorCityQualityPreset.Low ? 16 : 24;
-            shadowBudget = 0;
-#endif
             float maximumDistanceSquared =
                 lampDistance *
                 lampDistance;
