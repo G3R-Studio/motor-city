@@ -703,6 +703,7 @@ namespace MotorCity.Gameplay
             StatusText =
                 string.Empty;
 
+            Changed?.Invoke();
         }
 
         private void FinishGarageTransition()
@@ -781,6 +782,7 @@ namespace MotorCity.Gameplay
                 MotorCityLocalization.Text(
                     "garage.open_prompt");
 
+            Changed?.Invoke();
         }
 
         private MotorCityFrontEndFlow ResolveFrontEndFlow()
