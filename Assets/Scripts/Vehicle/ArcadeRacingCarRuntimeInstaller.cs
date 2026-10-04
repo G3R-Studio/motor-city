@@ -573,7 +573,8 @@ namespace MotorCity.Vehicle
 
                 ConfigureVisualMeshCollider(
                     visual,
-                    ordered);
+                    ordered,
+                    targetLength);
             }
             else if (chassis != null)
             {
@@ -1070,7 +1071,8 @@ namespace MotorCity.Vehicle
 
         private static void ConfigureVisualMeshCollider(
             GameObject visual,
-            Transform[] wheels)
+            Transform[] wheels,
+            float targetLength)
         {
             if (visual == null)
                 return;
@@ -1170,6 +1172,98 @@ namespace MotorCity.Vehicle
 
             if (!initialized)
                 return;
+
+            Vector3 visualScale =
+                visualTransform.lossyScale;
+
+            Vector3 absoluteScale =
+                new(
+                    Mathf.Max(
+                        0.0001f,
+                        Mathf.Abs(
+                            visualScale.x)),
+                    Mathf.Max(
+                        0.0001f,
+                        Mathf.Abs(
+                            visualScale.y)),
+                    Mathf.Max(
+                        0.0001f,
+                        Mathf.Abs(
+                            visualScale.z)));
+
+            Vector3 effectiveSize =
+                Vector3.Scale(
+                    localBounds.size,
+                    absoluteScale);
+
+            float maximumLength =
+                Mathf.Max(
+                    TargetLength,
+                    targetLength) *
+                1.10f;
+
+            float maximumCrossSection =
+                targetLength >= 6f
+                    ? 3.4f
+                    : 2.65f;
+
+            float[] dimensions =
+            {
+                effectiveSize.x,
+                effectiveSize.y,
+                effectiveSize.z
+            };
+
+            int lengthAxis =
+                0;
+
+            if (dimensions[1] >
+                dimensions[lengthAxis])
+            {
+                lengthAxis =
+                    1;
+            }
+
+            if (dimensions[2] >
+                dimensions[lengthAxis])
+            {
+                lengthAxis =
+                    2;
+            }
+
+            for (int axis = 0;
+                 axis < 3;
+                 axis++)
+            {
+                float maximum =
+                    axis == lengthAxis
+                        ? maximumLength
+                        : maximumCrossSection;
+
+                if (dimensions[axis] <=
+                    maximum)
+                {
+                    continue;
+                }
+
+                dimensions[axis] =
+                    maximum;
+            }
+
+            Vector3 clampedEffectiveSize =
+                new(
+                    dimensions[0],
+                    dimensions[1],
+                    dimensions[2]);
+
+            localBounds.size =
+                new Vector3(
+                    clampedEffectiveSize.x /
+                    absoluteScale.x,
+                    clampedEffectiveSize.y /
+                    absoluteScale.y,
+                    clampedEffectiveSize.z /
+                    absoluteScale.z);
 
             GameObject proxyRoot =
                 new GameObject(
