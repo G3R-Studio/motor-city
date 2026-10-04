@@ -13,29 +13,30 @@ namespace MotorCity.World
     public sealed class CityReflectionProbeCaptureRunner : MonoBehaviour
     {
         private Coroutine captureRoutine;
+        private IReadOnlyList<ReflectionProbe> pendingProbes;
         private bool fogWasEnabled;
         private bool fogOverrideActive;
 
         public void Capture(
             IReadOnlyList<ReflectionProbe> probes)
         {
+            if (probes == null || !isActiveAndEnabled) return;
             if (captureRoutine != null)
             {
-                StopCoroutine(
-                    captureRoutine);
-
-                RestoreFog();
+                pendingProbes = new List<ReflectionProbe>(probes);
+                return;
             }
 
             captureRoutine =
                 StartCoroutine(
                     CaptureRoutine(
-                        probes));
+                        new List<ReflectionProbe>(probes)));
         }
 
         private IEnumerator CaptureRoutine(
             IReadOnlyList<ReflectionProbe> probes)
         {
+#if !UNITY_WEBGL || UNITY_EDITOR
             fogWasEnabled =
                 RenderSettings.fog;
 
@@ -45,6 +46,7 @@ namespace MotorCity.World
             RenderSettings.fog =
                 false;
 
+#endif
             // Let the render loop observe the fog override before starting
             // the first cubemap capture.
             yield return null;
@@ -79,10 +81,19 @@ namespace MotorCity.World
 
             captureRoutine =
                 null;
+            if (pendingProbes != null)
+            {
+                IReadOnlyList<ReflectionProbe> next = pendingProbes;
+                pendingProbes = null;
+                Capture(next);
+            }
         }
 
         private void OnDisable()
         {
+            if (captureRoutine != null) StopCoroutine(captureRoutine);
+            captureRoutine = null;
+            pendingProbes = null;
             RestoreFog();
         }
 

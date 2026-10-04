@@ -39,14 +39,14 @@ namespace MotorCity.Platform
 
                         MotorCityQualityPreset.High =>
 #if UNITY_WEBGL && !UNITY_EDITOR
-                            24,
+                            16,
 #else
                             32,
 #endif
 
                         _ =>
 #if UNITY_WEBGL && !UNITY_EDITOR
-                            18
+                            12
 #else
                             28
 #endif
@@ -118,9 +118,12 @@ namespace MotorCity.Platform
 
             QualitySettings.vSyncCount = 0;
 
-            // Let the browser/device run as fast as it can. Quality presets
-            // should change visual cost, not impose an artificial FPS cap.
+            // Limit browser work per second; native players retain their frame pacing.
+#if UNITY_WEBGL && !UNITY_EDITOR
+            Application.targetFrameRate = preset == MotorCityQualityPreset.Low ? 30 : 60;
+#else
             Application.targetFrameRate = -1;
+#endif
 
             switch (preset)
             {
@@ -137,6 +140,18 @@ namespace MotorCity.Platform
                     break;
             }
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Browser presets have independent GPU limits even when an old
+            // desktop quality preference was saved on this device.
+            UniversalRenderPipelineAsset browserUrp = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+            if (browserUrp != null)
+            {
+                browserUrp.renderScale = preset == MotorCityQualityPreset.Low ? .7f : preset == MotorCityQualityPreset.High ? .95f : .8f;
+                browserUrp.shadowDistance = preset == MotorCityQualityPreset.High ? 40f : 0f;
+                browserUrp.msaaSampleCount = 1;
+            }
+            QualitySettings.shadows = preset == MotorCityQualityPreset.High ? ShadowQuality.HardOnly : ShadowQuality.Disable;
+#endif
             PresetChanged?.Invoke();
 
             if (!save)

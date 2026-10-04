@@ -118,6 +118,14 @@ mergeInto(LibraryManager.library, {
       return;
     }
 
+    // Unity Build And Run has no Yandex SDK endpoint. Use the existing
+    // offline platform fallback without requesting a missing /sdk.js.
+    var host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '::1') {
+      send('OnYandexInitFailed', 'Local browser build: using offline platform services');
+      return;
+    }
+
     var existing = document.querySelector('script[data-motor-city-yandex-sdk="1"]');
     if (existing) {
       existing.addEventListener('load', initializeSdk, { once: true });
