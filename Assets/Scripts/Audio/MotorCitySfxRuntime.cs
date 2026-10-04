@@ -211,6 +211,40 @@ namespace MotorCity.Audio
                     0.34f);
         }
 
+        private void OnDestroy()
+        {
+            if (instance == this)
+            {
+                instance =
+                    null;
+            }
+
+            DestroyRuntimeClip(
+                uiClick);
+            DestroyRuntimeClip(
+                success);
+            DestroyRuntimeClip(
+                failure);
+            DestroyRuntimeClip(
+                collision);
+            DestroyRuntimeClip(
+                countdownTick);
+            DestroyRuntimeClip(
+                countdownGo);
+            DestroyRuntimeClip(
+                newRecord);
+        }
+
+        private static void DestroyRuntimeClip(
+            AudioClip clip)
+        {
+            if (clip != null)
+            {
+                Destroy(
+                    clip);
+            }
+        }
+
         private void Play(
             AudioClip clip,
             float volume,
