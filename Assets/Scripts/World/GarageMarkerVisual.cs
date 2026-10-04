@@ -199,9 +199,11 @@ namespace MotorCity.World
                         transform.position);
 
             bool visible =
-                observer == null ||
-                distance <=
-                MaximumVisibleDistance;
+                garage != null &&
+                !garage.IsOpen &&
+                (observer == null ||
+                 distance <=
+                 MaximumVisibleDistance);
 
             if (markerVfx.activeSelf !=
                 visible)
