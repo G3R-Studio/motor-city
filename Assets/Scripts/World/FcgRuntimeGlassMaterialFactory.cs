@@ -7,11 +7,22 @@ namespace MotorCity.World
     public static class FcgRuntimeGlassMaterialFactory
     {
         private static readonly HashSet<Material> windowMaterials = new();
+        private static readonly HashSet<Material> runtimeCreatedMaterials = new();
 
         [RuntimeInitializeOnLoadMethod(
             RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetWindowMaterialTracking()
         {
+            foreach (Material material in runtimeCreatedMaterials)
+            {
+                if (material != null)
+                {
+                    UnityEngine.Object.Destroy(
+                        material);
+                }
+            }
+
+            runtimeCreatedMaterials.Clear();
             windowMaterials.Clear();
         }
 
@@ -185,6 +196,9 @@ namespace MotorCity.World
 
             material.renderQueue =
                 (int)UnityEngine.Rendering.RenderQueue.Geometry;
+
+            runtimeCreatedMaterials.Add(
+                material);
 
             ConfigureReflections(material);
             return material;
