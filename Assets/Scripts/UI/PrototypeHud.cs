@@ -99,27 +99,6 @@ namespace MotorCity.UI
                 direction);
         }
 
-        public bool FrontEndMusicMuted =>
-            MotorCityMusicRuntime.Muted;
-
-        public float FrontEndMusicVolume =>
-            MotorCityMusicRuntime.Volume;
-
-        public void FrontEndToggleMusic()
-        {
-            MotorCityMusicRuntime.ToggleMute();
-            RefreshPauseMenuText();
-        }
-
-        public void FrontEndAdjustMusic(
-            int direction)
-        {
-            MotorCityMusicRuntime.AdjustVolume(
-                direction);
-
-            RefreshPauseMenuText();
-        }
-
         private AchievementSystem achievements;
         private AdventureDirector adventureDirector;
 
