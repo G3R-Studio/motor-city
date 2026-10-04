@@ -3060,14 +3060,12 @@ namespace MotorCity.Vehicle
                         continue;
                     }
 
-                    bool supportedUrpMaterial =
+                    bool cleanUrpLitMaterial =
                         old.shader != null &&
                         old.shader.isSupported &&
-                        old.shader.name.StartsWith(
-                            "Universal Render Pipeline/",
-                            StringComparison.Ordinal);
+                        old.shader == urpLit;
 
-                    if (supportedUrpMaterial)
+                    if (cleanUrpLitMaterial)
                     {
                         upgraded[i] = old;
                         continue;
