@@ -821,7 +821,7 @@ namespace MotorCity.World
         private static int CurrentCityReflectionProbeResolution()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            return MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset == MotorCity.Platform.MotorCityQualityPreset.High ? 128 : 64;
+            return 64;
 #else
             return MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset switch
             {

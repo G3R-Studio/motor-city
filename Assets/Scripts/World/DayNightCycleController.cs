@@ -1189,7 +1189,7 @@ namespace MotorCity.World
             lampDistance = Mathf.Min(lampDistance, 95f);
             lightBudget = MotorCityQualityRuntime.CurrentPreset == MotorCityQualityPreset.High ? 48 :
                 MotorCityQualityRuntime.CurrentPreset == MotorCityQualityPreset.Low ? 16 : 24;
-            shadowBudget = MotorCityQualityRuntime.CurrentPreset == MotorCityQualityPreset.High ? 1 : 0;
+            shadowBudget = 0;
 #endif
             float maximumDistanceSquared =
                 lampDistance *

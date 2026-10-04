@@ -15,6 +15,7 @@ public sealed class MotorCityRuntimeShaderBuildProcessor : IPreprocessBuildWithR
         var serialized = new SerializedObject(settings);
         SerializedProperty shaders = serialized.FindProperty("m_AlwaysIncludedShaders");
         foreach (string name in new[] {
+            "Universal Render Pipeline/Lit",
             "Universal Render Pipeline/Unlit",
             "Universal Render Pipeline/Particles/Unlit"
         })
