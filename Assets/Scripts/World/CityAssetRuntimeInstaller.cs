@@ -20,6 +20,18 @@ namespace MotorCity.World
         private const float MarkerLift =
             0.05f;
 
+        private static readonly Vector3 AuthoredPlayerSpawnPoint =
+            new(
+                -428.434631f,
+                0.145054966f,
+                315.49292f);
+
+        private static readonly Quaternion AuthoredPlayerSpawnRotation =
+            Quaternion.Euler(
+                359.60907f,
+                89.3797455f,
+                3.25508745e-06f);
+
         // These targets follow the actual generated FCG grid from the
         // 2026-09-18 city report. Every road target is validated against
         // the exact MeshCollider triangle/submesh using the FCG_Roads material.
@@ -147,16 +159,10 @@ namespace MotorCity.World
                 (Vector3[])UndergroundPreferred.Clone();
 
             PlayerSpawnPoint =
-                new Vector3(
-                    -428.434631f,
-                    0.145054966f,
-                    315.49292f);
+                AuthoredPlayerSpawnPoint;
 
             PlayerSpawnRotation =
-                Quaternion.Euler(
-                    359.60907f,
-                    89.3797455f,
-                    3.25508745e-06f);
+                AuthoredPlayerSpawnRotation;
 
             GaragePoint =
                 new Vector3(
@@ -178,16 +184,10 @@ namespace MotorCity.World
         }
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
-            new(
-                -428.434631f,
-                0.145054966f,
-                315.49292f);
+            AuthoredPlayerSpawnPoint;
 
         public static Quaternion PlayerSpawnRotation { get; private set; } =
-            Quaternion.Euler(
-                359.60907f,
-                89.3797455f,
-                3.25508745e-06f);
+            AuthoredPlayerSpawnRotation;
 
         // Dedicated player garage on the authored parking apron.
         public static Vector3 GaragePoint { get; private set; } =
@@ -1131,16 +1131,10 @@ namespace MotorCity.World
                     -4.8625111e-06f);
 
             PlayerSpawnPoint =
-                new Vector3(
-                    -428.434631f,
-                    0.145054966f,
-                    315.49292f);
+                AuthoredPlayerSpawnPoint;
 
             PlayerSpawnRotation =
-                Quaternion.Euler(
-                    359.60907f,
-                    89.3797455f,
-                    3.25508745e-06f);
+                AuthoredPlayerSpawnRotation;
 
             DriftChallengePoint =
                 FindRoadPointNear(
