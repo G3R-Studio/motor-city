@@ -502,6 +502,22 @@ namespace MotorCity.UI
                 garage.Changed -=
                     MarkGarageUiDirty;
             }
+
+            for (int i = 0;
+                 i < runtimeOwnedSprites.Count;
+                 i++)
+            {
+                Sprite sprite =
+                    runtimeOwnedSprites[i];
+
+                if (sprite != null)
+                {
+                    Object.Destroy(
+                        sprite);
+                }
+            }
+
+            runtimeOwnedSprites.Clear();
         }
 
         private void MarkGarageUiDirty()
