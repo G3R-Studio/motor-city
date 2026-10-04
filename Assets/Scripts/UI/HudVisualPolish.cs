@@ -22,6 +22,9 @@ namespace MotorCity.UI
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
         {
+            if (Object.FindAnyObjectByType<HudVisualPolish>() != null)
+                return;
+
             GameObject host = new(
                 "Motor City HUD Visual Polish",
                 typeof(HudVisualPolish));
