@@ -976,16 +976,6 @@ namespace MotorCity.Gameplay
                 suffix;
         }
 
-        private string PresetPrefix(
-            int slot)
-        {
-            return
-                "MotorCity.Customization." +
-                VehicleId() +
-                ".Preset." +
-                slot;
-        }
-
         private string ColorNameKey(
             int index)
         {
