@@ -3104,6 +3104,20 @@ namespace MotorCity.UI
                     MarkGarageUiDirty;
             }
 
+            car?.SetDrivingBlocked(
+                "ModalUi",
+                false);
+
+            car?.SetDrivingBlocked(
+                "PauseMenu",
+                false);
+
+            MotorCityPlatformRuntime.SetGameplayUiPaused(
+                false);
+
+            MotorCityMusicRuntime.SetPauseMenuPaused(
+                false);
+
             if (schematicMap != null &&
                 schematicMap.Texture != null)
             {
