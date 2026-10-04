@@ -144,6 +144,7 @@ namespace MotorCity.UI
 
         }
 
+        private bool lastResultOpen;
         private Text statusText;
         private Image statusActivityIcon;
         private Text driftText;
@@ -811,6 +812,15 @@ namespace MotorCity.UI
             bool resultOpen =
                 activityManager != null &&
                 activityManager.HasResult;
+
+            if (resultOpen !=
+                lastResultOpen)
+            {
+                lastResultOpen =
+                    resultOpen;
+
+                RefreshDrivingEnabledForUi();
+            }
 
             SetActiveIfChanged(
                 activityResultOverlay,
