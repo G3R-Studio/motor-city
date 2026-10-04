@@ -120,16 +120,9 @@ namespace MotorCity.Input
             VirtualPressed(
                 MotorCityInputAction.Retry);
 
-        public static bool EliteModifierHeld =>
-            KeyHeld(
-                Key.LeftShift) ||
-            KeyHeld(
-                Key.RightShift) ||
-            VirtualIsHeld(
-                MotorCityInputAction.EliteModifier) ||
-            (PreferTouchPrompts &&
-             VirtualIsHeld(
-                 MotorCityInputAction.Handbrake));
+        public static bool EliteModifierPressed =>
+            VirtualPressed(
+                MotorCityInputAction.EliteModifier);
 
         public static bool PreviousVehiclePressed =>
             VirtualPressed(
