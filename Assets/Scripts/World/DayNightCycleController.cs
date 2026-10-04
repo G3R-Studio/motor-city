@@ -24,9 +24,12 @@ namespace MotorCity.World
         private const float LampGridCellSize =
             64f;
 
-        public const float MorningTime01 = 0.32f;
+        private const float SunriseTime01 = 0.18f;
+        private const float SunsetTime01 = 0.82f;
+
+        public const float MorningTime01 = 0.28f;
         public const float DayTime01 = 0.50f;
-        public const float EveningTime01 = 0.68f;
+        public const float EveningTime01 = 0.72f;
         public const float NightTime01 = 0.00f;
 
         [SerializeField] private float fullCycleSeconds =
@@ -417,7 +420,42 @@ namespace MotorCity.World
             if (directionalLight == null)
                 return;
 
-            float solarAngle = time01 * 360f - 90f;
+            float normalizedTime =
+                Mathf.Repeat(
+                    time01,
+                    1f);
+
+            float solarAngle;
+
+            if (normalizedTime >= SunriseTime01 &&
+                normalizedTime <= SunsetTime01)
+            {
+                float daylightPhase =
+                    Mathf.InverseLerp(
+                        SunriseTime01,
+                        SunsetTime01,
+                        normalizedTime);
+
+                solarAngle =
+                    daylightPhase * 180f;
+            }
+            else
+            {
+                float nightPhase =
+                    normalizedTime > SunsetTime01
+                        ? Mathf.InverseLerp(
+                            SunsetTime01,
+                            1f + SunriseTime01,
+                            normalizedTime)
+                        : Mathf.InverseLerp(
+                            SunsetTime01,
+                            1f + SunriseTime01,
+                            normalizedTime + 1f);
+
+                solarAngle =
+                    180f +
+                    nightPhase * 180f;
+            }
 
             directionalLight.transform.rotation =
                 Quaternion.Euler(
