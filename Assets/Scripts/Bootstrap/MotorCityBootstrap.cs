@@ -1582,15 +1582,6 @@ namespace MotorCity.Bootstrap
                 playOpeningPresentation);
         }
 
-        private static GameObject CreateVisualSurface(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
-        {
-            GameObject go = Primitive(name, type, position, scale, material);
-            Collider surfaceCollider = go.GetComponent<Collider>();
-            if (surfaceCollider != null) Object.Destroy(surfaceCollider);
-            go.isStatic = true;
-            return go;
-        }
-
         private static GameObject Primitive(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
         {
             GameObject go = GameObject.CreatePrimitive(type);
