@@ -8,6 +8,8 @@ namespace MotorCity.CameraSystem
         private Camera gameplayCamera;
         private Transform target;
         private Camera cinematicCamera;
+        private ChaseCamera chaseCamera;
+        private bool chaseWasEnabled;
 
         private bool armed;
         private bool active;
@@ -43,6 +45,9 @@ namespace MotorCity.CameraSystem
         {
             gameplayCamera =
                 GetComponent<Camera>();
+
+            chaseCamera =
+                GetComponent<ChaseCamera>();
 
             target =
                 followTarget;
@@ -248,6 +253,22 @@ namespace MotorCity.CameraSystem
             handoffEuler =
                 transform.eulerAngles;
 
+            if (chaseCamera == null)
+            {
+                chaseCamera =
+                    GetComponent<ChaseCamera>();
+            }
+
+            chaseWasEnabled =
+                chaseCamera != null &&
+                chaseCamera.enabled;
+
+            if (chaseCamera != null)
+            {
+                chaseCamera.enabled =
+                    false;
+            }
+
             cinematicCamera.transform.SetPositionAndRotation(
                 AuthoredPoint1Position,
                 Quaternion.Euler(
@@ -278,6 +299,12 @@ namespace MotorCity.CameraSystem
             {
                 gameplayCamera.enabled =
                     true;
+            }
+
+            if (chaseCamera != null)
+            {
+                chaseCamera.enabled =
+                    chaseWasEnabled;
             }
         }
 
