@@ -177,12 +177,20 @@ namespace MotorCity.UI
                 // safely inside it without painting underneath the navigator button.
                 minimapTarget.sizeDelta =
                     new Vector2(
-                        lastTouchLayout ? 124f : 132f,
+                        140f,
                         50f);
 
                 minimapTarget.anchoredPosition =
-                    Vector2.zero;
+                    new Vector2(-23f, 0f);
             }
+            RectTransform navigationStrip = FindRect("Navigation Target Strip");
+            if (navigationStrip != null)
+                navigationStrip.sizeDelta = new Vector2(lastTouchLayout ? 186f : 198f, 58f);
+            // Keep the utility rail below the complete map and destination footer.
+            RectTransform utilityRail = FindRect("HUD Utility Rail");
+            RectTransform quickMenu = FindRect("HUD Secondary Actions");
+            if (utilityRail != null) utilityRail.anchoredPosition = new Vector2(-18f, -310f);
+            if (quickMenu != null) quickMenu.anchoredPosition = new Vector2(-134f, -310f);
             // Apply bounds after responsive composition has sized the cells.
             foreach (Text label in hudRoot.GetComponentsInChildren<Text>(true))
                 MotorCityTextLayout.Configure(label);

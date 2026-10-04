@@ -1852,7 +1852,7 @@ namespace MotorCity.UI
                         8f,
                         6f),
                     new Vector2(
-                        148f,
+                        198f,
                         58f),
                     new Vector2(
                         0f,
@@ -1871,9 +1871,9 @@ namespace MotorCity.UI
                     11,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    Vector2.zero,
+                    new Vector2(-23f, 0f),
                     new Vector2(
-                        132f,
+                        140f,
                         50f),
                     new Vector2(
                         0.5f,
@@ -2236,7 +2236,7 @@ namespace MotorCity.UI
                             MotorCityLocalization.Format(
                                 "hud.distance",
                                 label,
-                                roundedDistance);
+                                roundedDistance).Replace("   ", "\n");
                     }
                 }
             }

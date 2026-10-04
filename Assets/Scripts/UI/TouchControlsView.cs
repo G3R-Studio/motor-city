@@ -497,7 +497,7 @@ namespace MotorCity.UI
             rail.pivot =
                 new Vector2(1f, 1f);
             rail.anchoredPosition =
-                new Vector2(-18f, -250f);
+                new Vector2(-18f, -310f);
             rail.sizeDelta =
                 new Vector2(108f, 154f);
 
@@ -557,7 +557,7 @@ namespace MotorCity.UI
             menu.pivot =
                 new Vector2(1f, 1f);
             menu.anchoredPosition =
-                new Vector2(-134f, -250f);
+                new Vector2(-134f, -310f);
             menu.sizeDelta =
                 new Vector2(120f, 198f);
 
