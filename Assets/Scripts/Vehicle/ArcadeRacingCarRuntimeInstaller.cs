@@ -573,8 +573,7 @@ namespace MotorCity.Vehicle
 
                 ConfigureVisualMeshCollider(
                     visual,
-                    ordered,
-                    targetLength);
+                    ordered);
             }
             else if (chassis != null)
             {
@@ -1071,223 +1070,29 @@ namespace MotorCity.Vehicle
 
         private static void ConfigureVisualMeshCollider(
             GameObject visual,
-            Transform[] wheels,
-            float targetLength)
+            Transform[] wheels)
         {
             if (visual == null)
                 return;
 
-            const string ProxyRootName =
-                "MotorCityBodyCollisionProxy";
-
-            Transform visualTransform =
-                visual.transform;
-
-            Transform oldRoot =
-                visualTransform.Find(
-                    ProxyRootName);
-
-            if (oldRoot != null)
-            {
-                UnityEngine.Object.Destroy(
-                    oldRoot.gameObject);
-            }
-
-            Renderer[] renderers =
-                visual.GetComponentsInChildren<Renderer>(
+            MeshFilter[] filters =
+                visual.GetComponentsInChildren<MeshFilter>(
                     true);
 
-            bool initialized =
-                false;
-
-            Bounds localBounds =
-                default;
-
-            foreach (Renderer renderer in renderers)
+            foreach (MeshFilter filter in filters)
             {
-                if (renderer == null ||
+                if (filter == null ||
+                    filter.sharedMesh == null ||
                     IsWheelRenderer(
-                        renderer.transform,
+                        filter.transform,
                         wheels))
                 {
                     continue;
                 }
 
-                Bounds worldBounds =
-                    renderer.bounds;
-
-                Vector3 min =
-                    worldBounds.min;
-
-                Vector3 max =
-                    worldBounds.max;
-
-                for (int x = 0;
-                     x < 2;
-                     x++)
-                {
-                    for (int y = 0;
-                         y < 2;
-                         y++)
-                    {
-                        for (int z = 0;
-                             z < 2;
-                             z++)
-                        {
-                            Vector3 worldCorner =
-                                new(
-                                    x == 0
-                                        ? min.x
-                                        : max.x,
-                                    y == 0
-                                        ? min.y
-                                        : max.y,
-                                    z == 0
-                                        ? min.z
-                                        : max.z);
-
-                            Vector3 localCorner =
-                                visualTransform.InverseTransformPoint(
-                                    worldCorner);
-
-                            if (!initialized)
-                            {
-                                localBounds =
-                                    new Bounds(
-                                        localCorner,
-                                        Vector3.zero);
-
-                                initialized =
-                                    true;
-                            }
-                            else
-                            {
-                                localBounds.Encapsulate(
-                                    localCorner);
-                            }
-                        }
-                    }
-                }
+                BuildCompoundBodyCollider(
+                    filter);
             }
-
-            if (!initialized)
-                return;
-
-            Vector3 visualScale =
-                visualTransform.lossyScale;
-
-            Vector3 absoluteScale =
-                new(
-                    Mathf.Max(
-                        0.0001f,
-                        Mathf.Abs(
-                            visualScale.x)),
-                    Mathf.Max(
-                        0.0001f,
-                        Mathf.Abs(
-                            visualScale.y)),
-                    Mathf.Max(
-                        0.0001f,
-                        Mathf.Abs(
-                            visualScale.z)));
-
-            Vector3 effectiveSize =
-                Vector3.Scale(
-                    localBounds.size,
-                    absoluteScale);
-
-            float maximumLength =
-                Mathf.Max(
-                    TargetLength,
-                    targetLength) *
-                1.10f;
-
-            float maximumCrossSection =
-                targetLength >= 6f
-                    ? 3.4f
-                    : 2.65f;
-
-            float[] dimensions =
-            {
-                effectiveSize.x,
-                effectiveSize.y,
-                effectiveSize.z
-            };
-
-            int lengthAxis =
-                0;
-
-            if (dimensions[1] >
-                dimensions[lengthAxis])
-            {
-                lengthAxis =
-                    1;
-            }
-
-            if (dimensions[2] >
-                dimensions[lengthAxis])
-            {
-                lengthAxis =
-                    2;
-            }
-
-            for (int axis = 0;
-                 axis < 3;
-                 axis++)
-            {
-                float maximum =
-                    axis == lengthAxis
-                        ? maximumLength
-                        : maximumCrossSection;
-
-                if (dimensions[axis] <=
-                    maximum)
-                {
-                    continue;
-                }
-
-                dimensions[axis] =
-                    maximum;
-            }
-
-            Vector3 clampedEffectiveSize =
-                new(
-                    dimensions[0],
-                    dimensions[1],
-                    dimensions[2]);
-
-            localBounds.size =
-                new Vector3(
-                    clampedEffectiveSize.x /
-                    absoluteScale.x,
-                    clampedEffectiveSize.y /
-                    absoluteScale.y,
-                    clampedEffectiveSize.z /
-                    absoluteScale.z);
-
-            GameObject proxyRoot =
-                new GameObject(
-                    ProxyRootName);
-
-            proxyRoot.transform.SetParent(
-                visualTransform,
-                false);
-
-            proxyRoot.transform.localPosition =
-                Vector3.zero;
-
-            proxyRoot.transform.localRotation =
-                Quaternion.identity;
-
-            proxyRoot.transform.localScale =
-                Vector3.one;
-
-            // Keep one five-piece compound body for the whole vehicle rather
-            // than creating five colliders for every MeshFilter.
-            BuildBoundsOnlyCompoundBodyCollider(
-                visualTransform,
-                localBounds,
-                proxyRoot.transform);
         }
 
         private static void BuildCompoundBodyCollider(
