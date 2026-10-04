@@ -44,7 +44,7 @@ The editable Fantastic City Generator source scene is:
 
 `Assets/LocalGenerated/FCG_Workbench.unity`
 
-Both files are large and are explicitly protected by Git LFS rules.
+Both files are currently close to GitHub's per-file size limit. They remain tracked in their existing form; moving them to LFS requires a deliberate `git lfs migrate` operation rather than only adding an attribute rule.
 
 Vehicle movement is provided by Prometeo. Motor City owns the higher-level gameplay layer around it, including input bridging, wheel-rig setup, handling profiles, upgrades, drift state, effects, persistence, vehicle switching and telemetry.
 
