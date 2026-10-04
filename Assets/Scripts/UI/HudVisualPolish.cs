@@ -429,10 +429,10 @@ namespace MotorCity.UI
                     continue;
 
                 Shadow shadow =
-                    label.GetComponent<Shadow>();
+                    FindPlainShadow(
+                        label.gameObject);
 
-                if (shadow == null ||
-                    shadow is Outline)
+                if (shadow == null)
                 {
                     shadow =
                         label.gameObject
@@ -747,13 +747,42 @@ namespace MotorCity.UI
             rect.localScale =
                 Vector3.one;
 
-            Shadow shadow = rect.GetComponent<Shadow>();
-            if (shadow == null || shadow is Outline)
+            Shadow shadow =
+                FindPlainShadow(
+                    rect.gameObject);
+
+            if (shadow == null)
                 shadow = rect.gameObject.AddComponent<Shadow>();
 
             shadow.effectColor = new Color(0f, 0f, 0f, shadowAlpha);
             shadow.effectDistance = new Vector2(1f, -2f);
             shadow.useGraphicAlpha = true;
+        }
+
+        private static Shadow FindPlainShadow(
+            GameObject target)
+        {
+            if (target == null)
+                return null;
+
+            Shadow[] shadows =
+                target.GetComponents<Shadow>();
+
+            for (int i = 0;
+                 i < shadows.Length;
+                 i++)
+            {
+                Shadow shadow =
+                    shadows[i];
+
+                if (shadow != null &&
+                    shadow is not Outline)
+                {
+                    return shadow;
+                }
+            }
+
+            return null;
         }
 
         private RectTransform FindRect(string objectName)
