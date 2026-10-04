@@ -1,58 +1,42 @@
 # Motor City
 
-Browser-first open-world driving game prototype for Yandex Games, built with Unity 6.6 and URP.
+Motor City is a browser-first open-world driving game for Yandex Games, built with Unity 6.6 and URP.
+
+This repository describes the current playable project. It is not a development roadmap.
 
 ## Current project state
 
-The repository contains the current playable project rather than a roadmap. The active gameplay build is centered on `Assets/Scenes/Prototype.unity`; the scene itself stays intentionally lightweight and `MotorCityBootstrap` assembles the runtime systems in code.
+- Unity `6000.6.1f1`;
+- Universal Render Pipeline `17.6.0`;
+- production scene: `Assets/Scenes/Prototype.unity`;
+- `Prototype.unity` is the only enabled build scene;
+- runtime systems are assembled primarily by `MotorCityBootstrap`;
+- WebGL/Yandex Games is the main release target;
+- Git LFS is required for large source/runtime assets.
 
-Current core features include:
+The game currently includes:
 
-- Unity `6000.6.1f1` + URP;
-- Prometeo-based vehicle physics behind the Motor City `ArcadeCarController` bridge;
-- keyboard/gamepad driving plus runtime HUD/touch controls;
+- open-city driving with keyboard/gamepad and mobile touch controls;
+- Prometeo-based vehicle physics behind Motor City's `ArcadeCarController`;
 - Comfort / Sport / Drift driving modes;
-- persistent credits, REP, upgrades, vehicle mastery/history/specialization and save data;
-- delivery, drift, sprint, circuit, speed-trap, drift-spot, discovery and additional city activity systems;
-- runtime HUD, garage, navigator, pause, store, club and result interfaces;
-- Yandex/WebGL platform, cloud-save, purchase, analytics and remote-config integration code;
-- a baked Fantastic City Generator runtime city plus a tracked editable FCG workbench;
-- day/night, street lighting, player headlights, rear-light emission and traffic optimization;
-- runtime-built activity/garage markers;
-- Pixie/Byte companion visual prepared from the tracked Haon source assets;
-- a temporary admin/debug panel for development testing.
+- vehicle rescue and recovery;
+- persistent credits, REP, upgrades, mastery, history and specialization;
+- delivery, drift, sprint, circuit, speed-trap, drift-spot, discovery, car-wash, tow-truck and profession gameplay;
+- garage vehicle selection, upgrades, color/rim/neon customization and vehicle presentation camera;
+- navigator/minimap, HUD, pause, store, club and result interfaces;
+- first-session onboarding and story/front-end flow;
+- Yandex/WebGL platform integration code, saves, purchases, analytics and remote configuration;
+- baked Fantastic City Generator city with a tracked editable workbench;
+- dynamic day/night cycle, sky transitions, street lighting, headlights and rear-light emission;
+- runtime activity and garage markers;
+- Pixie companion visuals including Haon SD and supporter-only Amane Kisora variants;
+- developer/admin tools that remain excluded from normal release gameplay where appropriate.
 
-## Vehicles
+## Runtime architecture
 
-The playable garage currently contains ten vehicles:
+`MotorCityBootstrap` creates and wires most gameplay systems after `Prototype.unity` loads. The production scene is intentionally lightweight.
 
-1. **BEATALL** - compact classic and the first car in the garage hierarchy.
-2. **STREETER** - balanced city car.
-3. **PUG 306** - light compact hatchback.
-4. **TORO 86** - lively classic coupe.
-5. **HYBRED** - quick, grippy modern sports car.
-6. **STUTT 996** - compact sports coupe.
-7. **AMGON GT** - planted modern grand tourer.
-8. **CAMARON** - wide modern muscle car.
-9. **DELOREON** - supporter-pack exclusive vehicle.
-10. **BUSIK** - final vehicle in the garage hierarchy.
-
-The permanent **MOTOR CITY SUPPORTER PACK** includes 5,000 credits, the **DELOREON**, and the restored exclusive **Pixie EX (Amane Kisora)** visual.
-
-- STREETER: `Assets/Resources/MotorCity/PlayerCarVisual.prefab`
-- HYBRED: `Assets/Resources/MotorCity/Vehicles/Player/Hybrid.prefab`
-- BEATALL: `Assets/Resources/MotorCity/Vehicles/Player/Beatall.prefab` (generated from `Assets/VehicleAssets/Beatall/beatall.obj`)
-- DELOREON: `Assets/Resources/MotorCity/Vehicles/Player/Delorean.prefab` (generated from `Assets/VehicleAssets/Delorean/delorean.obj` plus front/rear wheel OBJ files)
-- AMGON GT: `Assets/Resources/MotorCity/Vehicles/Player/AmgGT.prefab` (generated from `Assets/VehicleAssets/AmgGT/amggt.obj` plus front/rear wheel OBJ files)
-- STUTT 996: `Assets/Resources/MotorCity/Vehicles/Player/Porsche996.prefab` (generated from `Assets/VehicleAssets/Porsche996/996.obj` plus front/rear wheel OBJ files)
-- PUG 306: `Assets/Resources/MotorCity/Vehicles/Player/Peugeot306.prefab` (generated from `Assets/VehicleAssets/Peugeot306/306.obj` plus `all_wheels.obj`)
-- TORO 86: `Assets/Resources/MotorCity/Vehicles/Player/ToyotaAE86.prefab` (generated from `Assets/VehicleAssets/ToyotaAE86/ae86.obj` plus `all_wheels.obj`)
-- CAMARON: `Assets/Resources/MotorCity/Vehicles/Player/Camaro.prefab` (generated from `Assets/VehicleAssets/Camaro/camaro.obj` plus `all_wheels.obj`)
-- BUSIK: `Assets/Resources/MotorCity/Vehicles/Player/Bus.prefab` (generated from `Assets/VehicleAssets/Bus/bus.obj`, `all_wheels.obj` and `citytransportpalette.png`)
-
-## City
-
-The runtime city is stored at:
+The runtime city is loaded from:
 
 `Assets/Resources/MotorCity/Environment/CityVisual.prefab`
 
@@ -60,29 +44,80 @@ The editable Fantastic City Generator source scene is:
 
 `Assets/LocalGenerated/FCG_Workbench.unity`
 
-The workbench is deliberately tracked because it is the editable source for the currently baked city. The runtime builder keeps `CityVisual.prefab` as the gameplay-facing baked copy.
+Both files are large and are explicitly protected by Git LFS rules.
 
-The production FCG editor toolchain retained by the project covers:
+Vehicle movement is provided by Prometeo. Motor City owns the higher-level gameplay layer around it, including input bridging, wheel-rig setup, handling profiles, upgrades, drift state, effects, persistence, vehicle switching and telemetry.
 
-- opening/creating the workbench;
-- locating the saved source scene;
-- URP material conversion;
-- day/night settings generation;
-- baking the runtime city prefab.
+## Vehicles
 
-Historical one-off FCG repair/diagnostic scripts and package demo scenes are not part of the cleaned production project.
+The playable garage contains ten vehicles:
 
-## Runtime architecture
+1. **BEATALL** - starting compact classic.
+2. **STREETER** - balanced city car.
+3. **PUG 306** - light compact hatchback.
+4. **TORO 86** - lively classic coupe.
+5. **HYBRED** - quick modern sports car.
+6. **STUTT 996** - compact sports coupe.
+7. **AMGON GT** - modern grand tourer.
+8. **CAMARON** - modern muscle car.
+9. **DELOREON** - supporter-pack exclusive.
+10. **BUSIK** - final vehicle in the reputation ladder.
 
-`MotorCityBootstrap` creates and wires the gameplay systems after the Prototype scene loads. This is why the build scene contains very little authored scene hierarchy.
+The permanent **MOTOR CITY SUPPORTER PACK** includes 5,000 credits, **DELOREON** and the exclusive **Pixie EX (Amane Kisora)** visual.
 
-Vehicle movement is provided by Prometeo, while Motor City owns the higher-level behavior: input proxies, wheel-rig creation, handling profiles, upgrades, drift state, smoke/tire marks, persistence and gameplay telemetry.
+Current runtime vehicle resources:
 
-`Prototype.unity` is the production bootstrap scene and the only enabled build scene.
+- STREETER: `Assets/Resources/MotorCity/PlayerCarVisual.prefab`;
+- HYBRED: `Assets/Resources/MotorCity/Vehicles/Player/Hybrid.prefab`;
+- BEATALL: `Assets/Resources/MotorCity/Vehicles/Player/Beatall.prefab`;
+- PUG 306: `Assets/Resources/MotorCity/Vehicles/Player/Peugeot306.prefab`;
+- TORO 86: `Assets/Resources/MotorCity/Vehicles/Player/ToyotaAE86.prefab`;
+- STUTT 996: `Assets/Resources/MotorCity/Vehicles/Player/Porsche996.prefab`;
+- AMGON GT: `Assets/Resources/MotorCity/Vehicles/Player/AmgGT.prefab`;
+- CAMARON: `Assets/Resources/MotorCity/Vehicles/Player/Camaro.prefab`;
+- DELOREON: `Assets/Resources/MotorCity/Vehicles/Player/Delorean.prefab`;
+- BUSIK: `Assets/Resources/MotorCity/Vehicles/Player/Bus.prefab`.
 
-## Controls
+Most non-STREETER vehicle prefabs are prepared from project-tracked OBJ/source assets and keep their authored mesh hierarchy for paint, wheel and lighting logic.
 
-Keyboard/gamepad driving controls that remain active:
+## Garage
+
+Garage gameplay is owned by `GarageUpgradeSystem`, the runtime HUD and `ChaseCamera`.
+
+The current garage source content is retained under:
+
+`Assets/Resources/MotorCity/Garage`
+
+That folder currently contains the garage FBX/MTL and its texture set. The obsolete duplicate `SimpleGarage.prefab` and its meta file have been removed.
+
+The older `MotorCity_PlayerGarage_Runtime` and `MotorCity_SimpleGarage` runtime-installer systems are no longer part of the game.
+
+Current garage interaction uses the city garage marker and a deliberately small interaction radius so the player must be close to the entrance to open the garage.
+
+## City and visuals
+
+The city uses a baked FCG runtime prefab while the editable source remains in the tracked workbench.
+
+Current visual systems include:
+
+- URP materials and project-specific runtime material handling;
+- architectural window emission for night lighting;
+- dedicated city-backdrop shader without runtime metallic/specular treatment;
+- dynamic morning/day/evening/night sky transitions;
+- Fantasy Skybox FREE `FS013` sky materials for the four authored time-of-day states;
+- realtime reflection-probe refreshes at controlled day/night and quality transitions;
+- city fog and post-processing;
+- street lights, player headlights and rear emission;
+- activity/garage marker VFX based on the imported Magic Circle asset;
+- foliage cutout handling for FCG vegetation.
+
+## Input
+
+The project currently has Unity Input System `1.20.0` installed.
+
+`ProjectSettings` uses **Active Input Handling = Both**, because current gameplay still contains compatibility paths for the legacy Input Manager while Motor City's own input layer also handles virtual/touch actions.
+
+Current driving controls include:
 
 - `W/S` or Up/Down - throttle / reverse;
 - `A/D` or Left/Right - steering;
@@ -92,48 +127,58 @@ Keyboard/gamepad driving controls that remain active:
 - `E` - contextual interaction;
 - `Esc` - cancel/close;
 - `Enter` - retry/restart where applicable;
-- `F10` or backquote - Editor-only admin/debug panel (not compiled into release gameplay).
+- `F10` or backquote - editor/development admin panel.
 
-Actions such as drive-mode switching, rescue, pause, store, club, rewarded bonus, navigator, garage vehicle selection/upgrades and customization are exposed through the runtime HUD/touch-button input layer rather than dedicated keyboard bindings.
+Drive-mode switching, rescue, pause, store, club, rewarded bonus, navigator, garage selection/upgrades and customization are exposed through the runtime HUD/touch-action layer.
 
-## Repository layout
+## Persistence and platform
 
-Important project-owned paths:
+Motor City keeps persistent progression through the project save-service layer.
+
+Tracked gameplay state includes credits, reputation, selected vehicle, upgrades, mastery and other progression systems.
+
+The repository also contains Yandex/WebGL integration for platform readiness, cloud/save workflows, purchases, analytics and remote configuration.
+
+## Important repository paths
 
 - `Assets/Scripts` - runtime game code;
 - `Assets/Editor` - current editor/build/import tooling;
-- `Assets/Resources/MotorCity` - runtime-loaded Motor City content;
-- `Assets/Art/MotorCity` - Motor City source UI/marker/garage art;
-- `Assets/MotorCity` - clean Motor City authoring prototypes;
+- `Assets/Resources/MotorCity` - runtime-loaded Motor City resources;
+- `Assets/Resources/MotorCity/Garage` - current garage FBX/MTL/texture source set;
+- `Assets/Resources/MotorCity/Environment` - runtime city, day/night settings and generated environment materials;
+- `Assets/Art/MotorCity` - project-owned source art;
+- `Assets/VehicleAssets` - vehicle source meshes used by project import/build tooling;
 - `Assets/LocalGenerated` - tracked editable FCG workbench;
-- `Assets/Settings` - URP/build profile assets;
+- `Assets/Settings` - URP and graphics settings;
 - `ProjectSettings` - Unity project configuration;
-- `Packages` - Unity package manifest plus the embedded spring-bone package.
+- `Packages` - Unity package manifest and embedded packages.
 
-Third-party source folders still present are retained because current generated/runtime content or editor rebuild tooling depends on them. Their demo scenes, guide assets and clearly unused sample material have been removed where safe.
+Unity-generated caches and build output such as `Library`, `Temp`, `obj`, `Logs`, `UserSettings` and local build folders are intentionally ignored.
+
+## Third-party packages currently used
+
+The project still depends on imported content or code from:
+
+- **ARCADE: FREE Racing Car** - STREETER source visual/material variants;
+- **PROMETEO: Car Controller** - vehicle-controller foundation;
+- **Fantasy Skybox FREE** - current FS013 morning/day/evening/night sky materials;
+- **Free Game VFX - Magic Circle** - base particle prefab used by Motor City activity and garage markers;
+- **Haon SD Series Free Bundle** - standard Pixie visual source;
+- **Amane Kisora-chan (FREE ver)** - supporter-exclusive Pixie EX source;
+- **Fantastic City Generator** - city authoring source/toolchain;
+- **Gudamore / Free Sports Car content** - retained vehicle source content where referenced;
+- **Kenney CC0 artwork** - UI/icon source content where referenced.
+
+Generated Motor City prefabs can still reference source prefabs, meshes, materials or animations inside these imported packages. Do not delete an entire third-party package solely because a Motor City copy exists under `Resources`; verify prefab/GUID dependencies first.
 
 ## Opening the project
 
 1. Install Unity `6000.6.1f1` with Web Build Support.
-2. Clone the repository with Git LFS available.
-3. Run `git lfs pull` if LFS objects were not materialized automatically.
+2. Clone the repository with Git LFS installed.
+3. Run `git lfs pull` if large objects were not materialized automatically.
 4. Open the repository root in Unity Hub.
-5. Allow Unity to recreate `Library`, shader caches and generated IDE files.
-6. Open `Assets/Scenes/Prototype.unity` if it is not already open.
+5. Allow Unity to recreate local caches.
+6. Open `Assets/Scenes/Prototype.unity`.
 7. Press Play.
 
-The repository intentionally does not track Unity-generated caches such as `Library`, `Temp`, `obj`, `Logs`, `UserSettings`, IDE project files or editor caches.
-
-## Third-party dependencies
-
-The project currently uses source/content from several third-party packages, including:
-
-- Mena - ARCADE: FREE Racing Car;
-- Mena - PROMETEO: Car Controller;
-- Fantastic City Generator;
-- Gudamore - Free Sports Car;
-- Haon SD Series Free Bundle;
-- Eric VFX Studio Magic Circle;
-- Kenney CC0 UI/icon artwork.
-
-Project-specific source notes are stored under `Assets/ThirdParty`. Original package/license terms continue to apply to their respective assets.
+Do not commit Unity's generated `Library`, build output, Asset Store download cache or downloaded `.unitypackage` archives.
