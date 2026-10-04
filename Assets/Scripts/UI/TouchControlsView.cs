@@ -473,6 +473,14 @@ namespace MotorCity.UI
                 new Vector2(92f, 39f),
                 new Vector2(172f, 38f));
 
+            CreateLocalizedTouchPulseButton(
+                root,
+                "HUD Elite",
+                "touch.utility.elite",
+                MotorCityInputAction.EliteModifier,
+                new Vector2(92f, 84f),
+                new Vector2(172f, 38f));
+
             GameObject railObject =
                 new(
                     "HUD Utility Rail",
