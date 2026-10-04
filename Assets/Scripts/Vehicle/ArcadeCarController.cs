@@ -97,6 +97,7 @@ namespace MotorCity.Vehicle
             new(StringComparer.Ordinal);
         private bool presentationLock;
         private float presentationLockTimer;
+        private bool garagePresentationMode;
         private bool warnedMissingPrometeo;
         private bool throttleHeld;
         private bool reverseHeld;
@@ -2079,9 +2080,14 @@ namespace MotorCity.Vehicle
             }
         }
 
+        public bool IsGaragePresentationMode =>
+            garagePresentationMode;
+
         public void SetGaragePresentationMode(
             bool enabled)
         {
+            garagePresentationMode =
+                enabled;
             if (!enabled)
             {
                 resetHoldTimer =
