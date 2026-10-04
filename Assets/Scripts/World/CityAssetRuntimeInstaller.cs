@@ -32,6 +32,18 @@ namespace MotorCity.World
                 89.3797455f,
                 3.25508745e-06f);
 
+        private static readonly Vector3 AuthoredGaragePoint =
+            new(
+                -421.68866f,
+                0.182654113f,
+                330.916077f);
+
+        private static readonly Quaternion AuthoredGarageSpawnRotation =
+            Quaternion.Euler(
+                7.40436444e-05f,
+                89.9998322f,
+                -4.8625111e-06f);
+
         // These targets follow the actual generated FCG grid from the
         // 2026-09-18 city report. Every road target is validated against
         // the exact MeshCollider triangle/submesh using the FCG_Roads material.
@@ -165,16 +177,10 @@ namespace MotorCity.World
                 AuthoredPlayerSpawnRotation;
 
             GaragePoint =
-                new Vector3(
-                    -421.68866f,
-                    0.182654113f,
-                    330.916077f);
+                AuthoredGaragePoint;
 
             GarageSpawnRotation =
-                Quaternion.Euler(
-                    7.40436444e-05f,
-                    89.9998322f,
-                    -4.8625111e-06f);
+                AuthoredGarageSpawnRotation;
 
             DriftChallengePoint =
                 new Vector3(
@@ -191,22 +197,13 @@ namespace MotorCity.World
 
         // Dedicated player garage on the authored parking apron.
         public static Vector3 GaragePoint { get; private set; } =
-            new(
-                -421.68866f,
-                0.182654113f,
-                330.916077f);
+            AuthoredGaragePoint;
 
         public static Quaternion GarageSpawnRotation { get; private set; } =
-            Quaternion.Euler(
-                7.40436444e-05f,
-                89.9998322f,
-                -4.8625111e-06f);
+            AuthoredGarageSpawnRotation;
 
         public static Vector3 GarageVehiclePosition { get; } =
-            new(
-                -421.68866f,
-                0.182654113f,
-                330.916077f);
+            AuthoredGaragePoint;
 
         public static Quaternion GarageVehicleRotation { get; } =
             Quaternion.Euler(
@@ -1129,16 +1126,10 @@ namespace MotorCity.World
         private static void ResolveGameplayLayout()
         {
             GaragePoint =
-                new Vector3(
-                    -421.68866f,
-                    0.182654113f,
-                    330.916077f);
+                AuthoredGaragePoint;
 
             GarageSpawnRotation =
-                Quaternion.Euler(
-                    7.40436444e-05f,
-                    89.9998322f,
-                    -4.8625111e-06f);
+                AuthoredGarageSpawnRotation;
 
             PlayerSpawnPoint =
                 AuthoredPlayerSpawnPoint;
