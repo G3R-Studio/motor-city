@@ -10,7 +10,9 @@ namespace MotorCity.UI
     {
         public enum Symbol { Surface, Credits, Crown, Star, Wrench, Engine, Brake,
             Shock, Paint, Rim, Neon, Speed, Acceleration, Gear, Stability,
-            Steering, Drift, Mass, Up, Left, Right, NavigationLeft, NavigationRight, CitySurface, Padlock, OpenPadlock, MinimapRim, Keyboard, Check }
+            Steering, Drift, Mass, Up, Left, Right, NavigationLeft, NavigationRight,
+            CitySurface, Padlock, OpenPadlock, MinimapRim, Keyboard, Check,
+            Camera, Gift, Shop, MenuGrid, Pause }
         public Symbol symbol;
         private VertexHelper mesh;
 
@@ -28,6 +30,22 @@ namespace MotorCity.UI
                 case Symbol.Check:
                     Polygon(new Vector2(8,47),new Vector2(22,61),new Vector2(41,40),
                         new Vector2(78,84),new Vector2(93,70),new Vector2(42,10)); break;
+                case Symbol.Camera:
+                    Box(10,22,90,76); Box(29,76,50,88); Ring(57,49,19,7);
+                    Box(17,64,28,72); break;
+                case Symbol.Gift:
+                    Box(12,17,88,68); Box(8,68,92,82);
+                    Line(50,17,50,82,7,Dark);
+                    Ring(36,86,12,6); Ring(64,86,12,6); break;
+                case Symbol.Shop:
+                    Box(15,20,85,61); Line(24,61,31,82,6);
+                    Line(31,82,88,82,6); Circle(32,11,7); Circle(72,11,7);
+                    Line(24,49,84,49,5,Dark); break;
+                case Symbol.MenuGrid:
+                    Box(10,58,34,82); Box(38,58,62,82); Box(66,58,90,82);
+                    Box(10,26,34,50); Box(38,26,62,50); Box(66,26,90,50); break;
+                case Symbol.Pause:
+                    Box(24,18,42,82); Box(58,18,76,82); break;
                 case Symbol.Keyboard:
                     Line(8,25,92,25,5); Line(92,25,92,75,5);
                     Line(92,75,8,75,5); Line(8,75,8,25,5);
