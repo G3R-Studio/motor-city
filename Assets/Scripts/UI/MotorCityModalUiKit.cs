@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -113,6 +114,11 @@ namespace MotorCity.UI
             title.text =
                 MotorCityLocalization.Text(
                     titleLocalizationKey);
+
+            touchLocalizedLabels.Add(
+                new TouchLocalizedLabel(
+                    title,
+                    titleLocalizationKey));
 
             RectTransform content =
                 GarageObject(
@@ -235,6 +241,11 @@ namespace MotorCity.UI
             label.text =
                 MotorCityLocalization.Text(
                     labelLocalizationKey);
+
+            touchLocalizedLabels.Add(
+                new TouchLocalizedLabel(
+                    label,
+                    labelLocalizationKey));
 
             Text value =
                 CreateText(
