@@ -17,6 +17,11 @@ namespace MotorCity.Vehicle
             public readonly float LowPassCutoff;
             public readonly float DistortionLevel;
             public readonly float SpeedReference;
+            public readonly int GearCount;
+            public readonly float ShiftDuration;
+            public readonly float ShiftPitchDrop;
+            public readonly float ShiftVolumeDip;
+            public readonly float ThrottleOffPitchDrop;
 
             public EngineProfile(
                 float minPitch,
@@ -25,7 +30,12 @@ namespace MotorCity.Vehicle
                 float maxVolume,
                 float lowPassCutoff,
                 float distortionLevel,
-                float speedReference)
+                float speedReference,
+                int gearCount = 6,
+                float shiftDuration = 0.16f,
+                float shiftPitchDrop = 0.24f,
+                float shiftVolumeDip = 0.08f,
+                float throttleOffPitchDrop = 0.10f)
             {
                 MinPitch = minPitch;
                 MaxPitch = maxPitch;
@@ -34,6 +44,11 @@ namespace MotorCity.Vehicle
                 LowPassCutoff = lowPassCutoff;
                 DistortionLevel = distortionLevel;
                 SpeedReference = speedReference;
+                GearCount = Mathf.Max(1, gearCount);
+                ShiftDuration = Mathf.Max(0.05f, shiftDuration);
+                ShiftPitchDrop = Mathf.Max(0f, shiftPitchDrop);
+                ShiftVolumeDip = Mathf.Max(0f, shiftVolumeDip);
+                ThrottleOffPitchDrop = Mathf.Max(0f, throttleOffPitchDrop);
             }
         }
 
@@ -48,6 +63,14 @@ namespace MotorCity.Vehicle
         private EngineProfile activeProfile;
         private float nextCollisionSoundTime;
         private bool muted;
+
+        private int currentGear = 1;
+        private float shiftTimer;
+        private float throttleOffTimer;
+        private bool previousThrottle;
+
+        private const float ThrottleOffDuration = 0.24f;
+        private const float DownshiftHysteresis = 0.82f;
 
         private void Awake()
         {
@@ -149,7 +172,23 @@ namespace MotorCity.Vehicle
                 ResolveProfile(
                     vehicleId);
 
+            ResetTransmissionAudioState();
             ApplyEngineProfile();
+        }
+
+        private void ResetTransmissionAudioState()
+        {
+            currentGear =
+                1;
+
+            shiftTimer =
+                0f;
+
+            throttleOffTimer =
+                0f;
+
+            previousThrottle =
+                false;
         }
 
         private void ApplyEngineProfile()
@@ -197,6 +236,9 @@ namespace MotorCity.Vehicle
                     }
                 }
 
+                previousThrottle =
+                    false;
+
                 return;
             }
 
@@ -223,13 +265,14 @@ namespace MotorCity.Vehicle
                     rpmReference,
                     wheelRpm);
 
-            // RPM gives the engine sound its immediate response to wheel speed
-            // and slip, while the speed component prevents extreme pitch spikes
-            // during wheelspin or brief airborne moments.
-            float engineLoad01 =
-                Mathf.Clamp01(
-                    rpm01 * 0.68f +
-                    speed01 * 0.32f);
+            bool forwardDriving =
+                car.ForwardSpeedKph >=
+                -1f;
+
+            float forwardSpeed =
+                Mathf.Max(
+                    0f,
+                    car.ForwardSpeedKph);
 
             bool throttle =
                 MotorCityInput.ThrottleHeld ||
@@ -240,6 +283,37 @@ namespace MotorCity.Vehicle
                     ? 1f
                     : 0f;
 
+            UpdateTransmissionAudioState(
+                forwardSpeed,
+                forwardDriving,
+                throttle);
+
+            float gearRpm01 =
+                ResolveGearRpm01(
+                    forwardSpeed);
+
+            // Virtual gears give the loop a repeating rise/drop cadence.
+            // Wheel RPM still contributes a little so wheelspin and load remain
+            // audible without letting slip destroy the simulated gear curve.
+            float engineLoad01 =
+                forwardDriving
+                    ? Mathf.Clamp01(
+                        gearRpm01 * 0.82f +
+                        rpm01 * 0.18f)
+                    : Mathf.Clamp01(
+                        rpm01 * 0.72f +
+                        speed01 * 0.28f);
+
+            float shiftEnvelope =
+                ResolveEnvelope(
+                    shiftTimer,
+                    activeProfile.ShiftDuration);
+
+            float throttleOffEnvelope =
+                ResolveEnvelope(
+                    throttleOffTimer,
+                    ThrottleOffDuration);
+
             if (engineSource != null)
             {
                 float targetEngineVolume =
@@ -247,14 +321,27 @@ namespace MotorCity.Vehicle
                         activeProfile.IdleVolume,
                         activeProfile.MaxVolume,
                         speed01) +
-                    throttleAmount * 0.05f;
+                    throttleAmount * 0.05f -
+                    shiftEnvelope *
+                    activeProfile.ShiftVolumeDip -
+                    throttleOffEnvelope *
+                    0.025f;
+
+                targetEngineVolume =
+                    Mathf.Max(
+                        0f,
+                        targetEngineVolume);
 
                 float targetEnginePitch =
                     Mathf.Lerp(
                         activeProfile.MinPitch,
                         activeProfile.MaxPitch,
                         engineLoad01) +
-                    throttleAmount * 0.045f;
+                    throttleAmount * 0.045f -
+                    shiftEnvelope *
+                    activeProfile.ShiftPitchDrop -
+                    throttleOffEnvelope *
+                    activeProfile.ThrottleOffPitchDrop;
 
                 engineSource.volume =
                     Mathf.MoveTowards(
@@ -268,7 +355,26 @@ namespace MotorCity.Vehicle
                         engineSource.pitch,
                         targetEnginePitch,
                         Time.unscaledDeltaTime *
-                        1.9f);
+                        (shiftTimer > 0f
+                            ? 4.8f
+                            : 2.4f));
+
+                if (engineLowPass != null)
+                {
+                    float transientDarkening =
+                        Mathf.Max(
+                            shiftEnvelope * 0.12f,
+                            throttleOffEnvelope * 0.28f);
+
+                    engineLowPass.cutoffFrequency =
+                        Mathf.Lerp(
+                            activeProfile.LowPassCutoff,
+                            Mathf.Max(
+                                900f,
+                                activeProfile.LowPassCutoff *
+                                0.64f),
+                            transientDarkening);
+                }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
                 if (EnsureClipReadyForWeb(
@@ -292,7 +398,186 @@ namespace MotorCity.Vehicle
 #endif
             }
 
+            previousThrottle =
+                throttle;
+
             UpdateTireAudio();
+        }
+
+        private void UpdateTransmissionAudioState(
+            float forwardSpeed,
+            bool forwardDriving,
+            bool throttle)
+        {
+            float dt =
+                Time.unscaledDeltaTime;
+
+            if (shiftTimer > 0f)
+            {
+                shiftTimer =
+                    Mathf.Max(
+                        0f,
+                        shiftTimer - dt);
+            }
+
+            if (throttleOffTimer > 0f)
+            {
+                throttleOffTimer =
+                    Mathf.Max(
+                        0f,
+                        throttleOffTimer - dt);
+            }
+
+            if (previousThrottle &&
+                !throttle &&
+                forwardDriving &&
+                forwardSpeed > 12f)
+            {
+                throttleOffTimer =
+                    ThrottleOffDuration;
+            }
+
+            if (!forwardDriving)
+            {
+                currentGear =
+                    1;
+
+                return;
+            }
+
+            int gearCount =
+                Mathf.Max(
+                    1,
+                    activeProfile.GearCount);
+
+            currentGear =
+                Mathf.Clamp(
+                    currentGear,
+                    1,
+                    gearCount);
+
+            if (shiftTimer > 0f)
+                return;
+
+            float upshiftSpeed =
+                GearBoundarySpeed(
+                    currentGear,
+                    gearCount,
+                    activeProfile.SpeedReference);
+
+            if (currentGear < gearCount &&
+                throttle &&
+                forwardSpeed >= upshiftSpeed)
+            {
+                currentGear++;
+
+                shiftTimer =
+                    activeProfile.ShiftDuration;
+
+                return;
+            }
+
+            if (currentGear <= 1)
+                return;
+
+            float previousBoundary =
+                GearBoundarySpeed(
+                    currentGear - 1,
+                    gearCount,
+                    activeProfile.SpeedReference);
+
+            if (forwardSpeed <
+                previousBoundary *
+                DownshiftHysteresis)
+            {
+                currentGear--;
+            }
+        }
+
+        private float ResolveGearRpm01(
+            float forwardSpeed)
+        {
+            int gearCount =
+                Mathf.Max(
+                    1,
+                    activeProfile.GearCount);
+
+            int gear =
+                Mathf.Clamp(
+                    currentGear,
+                    1,
+                    gearCount);
+
+            float minSpeed =
+                gear <= 1
+                    ? 0f
+                    : GearBoundarySpeed(
+                        gear - 1,
+                        gearCount,
+                        activeProfile.SpeedReference) *
+                      0.78f;
+
+            float maxSpeed =
+                GearBoundarySpeed(
+                    gear,
+                    gearCount,
+                    activeProfile.SpeedReference);
+
+            return
+                Mathf.Clamp01(
+                    Mathf.InverseLerp(
+                        minSpeed,
+                        Mathf.Max(
+                            minSpeed + 1f,
+                            maxSpeed),
+                        forwardSpeed));
+        }
+
+        private static float GearBoundarySpeed(
+            int gear,
+            int gearCount,
+            float speedReference)
+        {
+            float t =
+                Mathf.Clamp01(
+                    gear /
+                    (float)Mathf.Max(
+                        1,
+                        gearCount));
+
+            // Lower gears are shorter; upper gears stretch out progressively.
+            float shaped =
+                Mathf.Pow(
+                    t,
+                    1.22f);
+
+            return
+                Mathf.Max(
+                    1f,
+                    speedReference *
+                    shaped);
+        }
+
+        private static float ResolveEnvelope(
+            float timer,
+            float duration)
+        {
+            if (timer <= 0f ||
+                duration <= 0f)
+            {
+                return 0f;
+            }
+
+            float progress =
+                1f -
+                Mathf.Clamp01(
+                    timer /
+                    duration);
+
+            return
+                Mathf.Sin(
+                    progress *
+                    Mathf.PI);
         }
 
         private void UpdateTireAudio()
@@ -560,7 +845,12 @@ namespace MotorCity.Vehicle
                         0.34f,
                         3000f,
                         0.10f,
-                        105f),
+                        105f,
+                        gearCount: 5,
+                        shiftDuration: 0.24f,
+                        shiftPitchDrop: 0.16f,
+                        shiftVolumeDip: 0.06f,
+                        throttleOffPitchDrop: 0.06f),
 
                 _ =>
                     new EngineProfile(
