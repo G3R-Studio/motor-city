@@ -594,7 +594,25 @@ namespace MotorCity.World
                     Shader sourceShader =
                         source.shader;
 
-                    if (sourceShader != null &&
+                    string rendererName =
+                        renderer.transform.name;
+
+                    bool forcePlantFallback =
+                        rendererName.Equals(
+                            "Plant-01",
+                            StringComparison.OrdinalIgnoreCase) ||
+                        rendererName.Equals(
+                            "Plant-01 (1)",
+                            StringComparison.OrdinalIgnoreCase) ||
+                        renderer.transform.root.name.Equals(
+                            "Plant-01",
+                            StringComparison.OrdinalIgnoreCase) ||
+                        renderer.transform.root.name.Equals(
+                            "Plant-01 (1)",
+                            StringComparison.OrdinalIgnoreCase);
+
+                    if (!forcePlantFallback &&
+                        sourceShader != null &&
                         sourceShader.isSupported)
                     {
                         // Keep working authored materials exactly as-is.
@@ -733,6 +751,7 @@ namespace MotorCity.World
                     }
 
                     bool alphaCutout =
+                        forcePlantFallback ||
                         source.HasProperty(
                             "_Cutoff") ||
                         source.IsKeywordEnabled(
@@ -745,7 +764,9 @@ namespace MotorCity.World
                                 "_Cutoff")
                                 ? source.GetFloat(
                                     "_Cutoff")
-                                : 0.35f;
+                                : forcePlantFallback
+                                    ? 0.45f
+                                    : 0.35f;
 
                         if (runtime.HasProperty(
                                 "_AlphaClip"))
