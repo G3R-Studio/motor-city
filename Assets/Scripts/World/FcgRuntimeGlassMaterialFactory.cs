@@ -47,6 +47,29 @@ namespace MotorCity.World
                     StringComparison.OrdinalIgnoreCase);
         }
 
+        public static Material CloneForRuntime(
+            Material source)
+        {
+            if (source == null)
+                return null;
+
+            Material material =
+                new Material(
+                    source)
+                {
+                    name =
+                        "MotorCity_Runtime_" +
+                        source.name,
+                    hideFlags =
+                        HideFlags.DontSave
+                };
+
+            runtimeCreatedMaterials.Add(
+                material);
+
+            return material;
+        }
+
         public static Material Create(
             Material source,
             string key)
