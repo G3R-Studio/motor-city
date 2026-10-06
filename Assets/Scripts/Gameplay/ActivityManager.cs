@@ -20,6 +20,7 @@ namespace MotorCity.Gameplay
         public bool ResultSuccess { get; private set; }
         public int ResultReputationReward { get; private set; }
         public bool ResultIsRookieDelivery { get; private set; }
+        public bool ResultIsRookieSprint { get; private set; }
         public bool ResultIsNewRecord { get; private set; }
         public int ResultMasteryXp { get; private set; }
         public string ResultSecondaryProgress { get; private set; } =
@@ -39,10 +40,14 @@ namespace MotorCity.Gameplay
             onboarding == null ||
             onboarding.IsComplete;
 
+        // Kept for DeliveryActivity compatibility. The v2 rookie path no
+        // longer uses delivery as its first activity.
         public bool IsRookieDeliveryStep =>
+            false;
+
+        public bool IsRookieSprintStep =>
             onboarding != null &&
-            !onboarding.IsComplete &&
-            onboarding.CurrentStep == 4;
+            onboarding.IsRookieSprintStep;
 
         public bool IsOnboardingActive =>
             onboarding != null &&
@@ -262,12 +267,20 @@ namespace MotorCity.Gameplay
                 return true;
             }
 
-            return onboarding.CurrentStep switch
+            if (onboarding.IsGarageStep ||
+                onboarding.IsCustomizationStep)
             {
-                4 => id == "delivery",
-                5 or 6 => id == "garage",
-                _ => false
-            };
+                return
+                    id == "garage";
+            }
+
+            if (onboarding.IsRookieSprintStep)
+            {
+                return
+                    id == "sprint";
+            }
+
+            return false;
         }
 
         public void SetStorySystem(
@@ -370,11 +383,17 @@ namespace MotorCity.Gameplay
                 newRecord;
 
             ResultIsRookieDelivery =
+                false;
+
+            // Capture this before ActivityCompleted is raised below. The
+            // onboarding system advances to its completion presentation when
+            // that event fires, so checking the step afterwards would be too
+            // late to identify the special first-race result.
+            ResultIsRookieSprint =
                 success &&
-                activityId == "delivery" &&
+                activityId == "sprint" &&
                 onboarding != null &&
-                !onboarding.IsComplete &&
-                onboarding.CurrentStep == 4;
+                onboarding.IsRookieSprintStep;
 
             MotorCitySfxRuntime.PlayActivityResult(
                 success);
@@ -514,6 +533,7 @@ namespace MotorCity.Gameplay
             ResultReputationReward = 0;
             ResultSuccess = false;
             ResultIsRookieDelivery = false;
+            ResultIsRookieSprint = false;
             ResultIsNewRecord = false;
             ResultMasteryXp = 0;
             ResultSecondaryProgress =
