@@ -117,6 +117,22 @@ namespace MotorCity.Input
             VirtualPressed(
                 MotorCityInputAction.Retry);
 
+        public static bool ResultContinuePressed
+        {
+            get
+            {
+#if UNITY_WEBGL && !UNITY_EDITOR
+                // Escape is reserved by the browser/player shell. Result
+                // screens use their explicit Continue button in WebGL.
+                return
+                    VirtualPressed(
+                        MotorCityInputAction.Cancel);
+#else
+                return CancelPressed;
+#endif
+            }
+        }
+
         public static bool EliteModifierPressed =>
             VirtualPressed(
                 MotorCityInputAction.EliteModifier);
