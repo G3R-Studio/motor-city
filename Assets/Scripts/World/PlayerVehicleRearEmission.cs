@@ -16,6 +16,11 @@ namespace MotorCity.World
         private const string RuntimeVisualName =
             "MotorCityVehicleVisual_Runtime";
 
+        // Do not duplicate complete vehicle meshes just to mask lamp polygons.
+        // On several imported cars those overlays cover body/wheel submeshes
+        // and render magenta. Existing authored lamp materials still work.
+        private const bool EnableMeshLampOverlays = false;
+
         // Name used by the old implementation that projected red geometry over
         // the rear of every renderer. Keep this only so old runtime objects are
         // cleaned up when entering play mode after the fix.
@@ -425,6 +430,8 @@ namespace MotorCity.World
             int materialIndex,
             int materialCount)
         {
+            if (!EnableMeshLampOverlays)
+                return;
             Texture texture =
                 ResolveEmissionTexture(
                     sourceMaterial,
@@ -654,6 +661,8 @@ namespace MotorCity.World
         private bool BindDeloreanRearEmission(
             Renderer renderer)
         {
+            if (!EnableMeshLampOverlays)
+                return false;
             if (renderer == null ||
                 starterLampShader == null ||
                 !starterLampShader.isSupported)
@@ -835,6 +844,8 @@ namespace MotorCity.World
         private bool BindAmgRearEmission(
             Renderer renderer)
         {
+            if (!EnableMeshLampOverlays)
+                return false;
             if (renderer == null ||
                 starterLampShader == null ||
                 !starterLampShader.isSupported)
@@ -988,6 +999,8 @@ namespace MotorCity.World
         private bool BindPorscheInnerRearEmission(
             Renderer renderer)
         {
+            if (!EnableMeshLampOverlays)
+                return false;
             if (renderer == null ||
                 starterLampShader == null ||
                 !starterLampShader.isSupported)
