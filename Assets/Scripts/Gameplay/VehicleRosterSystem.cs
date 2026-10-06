@@ -22,6 +22,109 @@ namespace MotorCity.Gameplay
                 ? profiles[SelectedIndex].Id
                 : "beatall";
 
+        private static readonly string[] SavedRosterIds =
+        {
+            "beatall",
+            "street",
+            "peugeot306",
+            "toyotaae86",
+            "hybrid",
+            "porsche996",
+            "amggt",
+            "camaro",
+            "delorean",
+            "bus"
+        };
+
+        private static readonly string[] SavedRosterResources =
+        {
+            "MotorCity/Vehicles/Player/Beatall",
+            "MotorCity/PlayerCarVisual",
+            "MotorCity/Vehicles/Player/Peugeot306",
+            "MotorCity/Vehicles/Player/ToyotaAE86",
+            "MotorCity/Vehicles/Player/Hybrid",
+            "MotorCity/Vehicles/Player/Porsche996",
+            "MotorCity/Vehicles/Player/AmgGT",
+            "MotorCity/Vehicles/Player/Camaro",
+            "MotorCity/Vehicles/Player/Delorean",
+            "MotorCity/Vehicles/Player/Bus"
+        };
+
+        public static bool TryResolveSavedPresentationVehicle(
+            out string vehicleId,
+            out string resourcePath)
+        {
+            int stored =
+                Mathf.Clamp(
+                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                        SelectedKey,
+                        0),
+                    0,
+                    SavedRosterIds.Length - 1);
+
+            int rosterVersion =
+                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    "MotorCity.Vehicle.RosterOrderVersion",
+                    0);
+
+            if (rosterVersion < 2)
+            {
+                string[] oldOrder =
+                {
+                    "street",
+                    "hybrid",
+                    "beatall",
+                    "delorean",
+                    "amggt",
+                    "porsche996",
+                    "peugeot306",
+                    "toyotaae86",
+                    "camaro",
+                    "bus"
+                };
+
+                string oldId =
+                    oldOrder[
+                        Mathf.Clamp(
+                            stored,
+                            0,
+                            oldOrder.Length - 1)];
+
+                int migrated =
+                    Array.IndexOf(
+                        SavedRosterIds,
+                        oldId);
+
+                if (migrated >= 0)
+                {
+                    stored =
+                        migrated;
+                }
+            }
+
+            vehicleId =
+                SavedRosterIds[stored];
+
+            resourcePath =
+                SavedRosterResources[stored];
+
+            if (Resources.Load<GameObject>(
+                    resourcePath) != null)
+            {
+                return true;
+            }
+
+            vehicleId =
+                SavedRosterIds[0];
+
+            resourcePath =
+                SavedRosterResources[0];
+
+            return
+                Resources.Load<GameObject>(
+                    resourcePath) != null;
+        }
+
         public event Action VehicleChanged;
 
         private int masteryLevel = 1;
