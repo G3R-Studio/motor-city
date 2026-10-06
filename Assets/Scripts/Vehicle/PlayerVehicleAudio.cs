@@ -86,7 +86,10 @@ namespace MotorCity.Vehicle
 
                 engineSource.volume = 0f;
                 engineSource.loop = true;
+
+#if !UNITY_WEBGL || UNITY_EDITOR
                 engineSource.Play();
+#endif
             }
             else
             {
@@ -267,8 +270,17 @@ namespace MotorCity.Vehicle
                         Time.unscaledDeltaTime *
                         1.9f);
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+                if (EnsureClipReadyForWeb(
+                        engineClip) &&
+                    !engineSource.isPlaying)
+                {
+                    engineSource.Play();
+                }
+#else
                 if (!engineSource.isPlaying)
                     engineSource.Play();
+#endif
             }
 
             UpdateTireAudio();
@@ -318,13 +330,43 @@ namespace MotorCity.Vehicle
 
             if (tireSource.volume > 0.005f)
             {
+#if UNITY_WEBGL && !UNITY_EDITOR
+                if (EnsureClipReadyForWeb(
+                        tireClip) &&
+                    !tireSource.isPlaying)
+                {
+                    tireSource.Play();
+                }
+#else
                 if (!tireSource.isPlaying)
                     tireSource.Play();
+#endif
             }
             else if (tireSource.isPlaying)
             {
                 tireSource.Stop();
             }
+        }
+
+        private static bool EnsureClipReadyForWeb(
+            AudioClip clip)
+        {
+            if (clip == null)
+                return false;
+
+            if (clip.loadState ==
+                AudioDataLoadState.Loaded)
+            {
+                return true;
+            }
+
+            if (clip.loadState ==
+                AudioDataLoadState.Unloaded)
+            {
+                clip.LoadAudioData();
+            }
+
+            return false;
         }
 
         private void OnCollisionEnter(
