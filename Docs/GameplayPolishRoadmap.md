@@ -1217,16 +1217,19 @@ VehicleVisualChanged
 
 ## Tutorial
 
-- [ ] Новый step enum/state
-- [ ] Gas step
-- [ ] Brake step
-- [ ] Steering step
-- [ ] Garage route
-- [ ] Customization step
-- [ ] Beginner race
-- [ ] Save compatibility
-- [ ] Localization
-- [ ] Remove mandatory long intro
+> Rookie Path v2 реализован: `газ → тормоз → поворот → гараж → любое изменение внешности → короткий rookie-спринт`. Старые обязательные intro slides и 5-секундная opening lock убраны из нового прохождения. Обычный городской спринт сохранён отдельно; rookie race использует короткий участок проверенного маршрута и не записывает обычный best time. Ожидается игровая проверка полного чистого старта и восстановления между шагами.
+
+- [x] Новый step/state contract
+- [x] Gas step
+- [x] Brake step
+- [x] Steering step
+- [x] Garage route
+- [x] Customization step
+- [x] Beginner race
+- [x] Save compatibility / v1 migration
+- [x] Localization RU/EN
+- [x] Remove mandatory long intro
+- [ ] Полная игровая проверка нового первого запуска
 
 ## Main menu vehicle
 
