@@ -2226,7 +2226,7 @@ namespace MotorCity.UI
             if (!continuingExistingSave)
             {
                 onboarding?.ShowWelcomeAfterDelay(
-                    5f);
+                    0.6f);
             }
         }
 
