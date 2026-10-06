@@ -1202,7 +1202,7 @@ VehicleVisualChanged
 
 ## UI-kit
 
-> Общий modal UI-kit добавлен в `Assets/Scripts/UI/MotorCityModalUiKit.cs`. Меню паузы переведено на него и проверено в игре. Реализация: `25a98b05ca542fde8ad86cd22c4d95c733c90162`, `5c5b7ca1ba89cfb76573c59879fa9b95e43bd3e8`, `7d5e4efb78520593ada73306b5d4822acf3e322f`, `130f0086b53a847d760f69e7f317ed6fe7513a42`.
+> Общий modal UI-kit добавлен в `Assets/Scripts/UI/MotorCityModalUiKit.cs`. Меню паузы переведено на него и проверено в игре. Front-end settings/control choice переведены на layout helpers в `Assets/Scripts/UI/MotorCityFrontEndModalUi.cs`; действия окна результата переведены на общий `ButtonRow + PrimaryButton`. Текущая реализация ожидает игровую проверку settings/control choice/result.
 
 - [x] MotorCityModalWindow
 - [x] MotorCitySettingsRow
@@ -1210,8 +1210,10 @@ VehicleVisualChanged
 - [x] MotorCityButtonRow
 - [x] Общие layout constants
 - [x] Pause migration
-- [ ] Settings migration
-- [ ] Result modal migration
+- [x] Settings migration
+- [x] Control choice migration
+- [x] Result modal actions migration
+- [ ] Проверить settings/control choice/result в игре
 
 ## Tutorial
 
