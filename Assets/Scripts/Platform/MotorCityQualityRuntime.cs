@@ -272,6 +272,16 @@ namespace MotorCity.Platform
             int shadowCascadeCount,
             int mainShadowResolution)
         {
+#if UNITY_EDITOR
+            // In Play Mode GraphicsSettings.currentRenderPipeline points to the
+            // serialized project asset. Mutating it here dirties MotorCityURP.asset
+            // and leaves the selected runtime quality written back to Git.
+            // Player builds receive their own runtime instance, so only the
+            // Editor needs this guard.
+            if (Application.isPlaying)
+                return;
+#endif
+
             UniversalRenderPipelineAsset urp =
                 GraphicsSettings.currentRenderPipeline
                     as UniversalRenderPipelineAsset;
