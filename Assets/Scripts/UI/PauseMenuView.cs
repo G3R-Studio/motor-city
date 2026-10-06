@@ -454,10 +454,15 @@ namespace MotorCity.UI
 
             GarageReferenceGraphic.Symbol? utilityIcon =
                 objectName == "HUD Pause"
-                    ? GarageReferenceGraphic.Symbol.Keyboard
+                    ? GarageReferenceGraphic.Symbol.Pause
                     : objectName == "HUD More"
-                        ? GarageReferenceGraphic.Symbol.Gear
+                        ? GarageReferenceGraphic.Symbol.MenuGrid
                         : null;
+
+            Color utilityIconColor =
+                objectName == "HUD Pause"
+                    ? new Color(0.42f, 0.72f, 1f, 1f)
+                    : new Color(0.72f, 0.48f, 1f, 1f);
 
             if (utilityIcon.HasValue)
             {
@@ -491,7 +496,7 @@ namespace MotorCity.UI
                     utilityIcon.Value;
 
                 icon.color =
-                    TextColor;
+                    utilityIconColor;
 
                 icon.raycastTarget =
                     false;
