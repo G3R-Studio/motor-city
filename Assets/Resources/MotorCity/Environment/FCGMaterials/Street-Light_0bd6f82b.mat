@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: FCG_Street-Light
+  m_Name: Street-Light_0bd6f82b
   m_Shader: {fileID: 4800000, guid: f3b8e68b4c9d4d8c8d99f19b72aa4a1e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
