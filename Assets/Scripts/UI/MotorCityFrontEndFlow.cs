@@ -2171,7 +2171,9 @@ if (hud != null)
             // Clearing the RawImage reference makes completed slides eligible
             // for release without touching menu/theme assets that are still
             // referenced by the front-end hierarchy.
+#if !UNITY_WEBGL || UNITY_EDITOR
             Resources.UnloadUnusedAssets();
+#endif
         }
 
         public void ShowMainMenuFromGarage()
