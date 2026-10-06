@@ -19,17 +19,16 @@ namespace MotorCity.UI
 
         private void UpdateGarage()
         {
-            bool rookieColorStep =
+            bool rookieCustomizationStep =
                 onboarding != null &&
-                !onboarding.IsComplete &&
-                onboarding.CurrentStep == 6;
+                onboarding.IsCustomizationStep;
 
             bool metaUnlocked =
                 activityManager != null &&
                 activityManager.SecondaryProgressionAllowed;
 
             if (!garageUiStateInitialized ||
-                rookieColorStep !=
+                rookieCustomizationStep !=
                     lastGarageRookieColorStep ||
                 metaUnlocked !=
                     lastGarageMetaUnlocked)
@@ -38,7 +37,7 @@ namespace MotorCity.UI
                     true;
 
                 lastGarageRookieColorStep =
-                    rookieColorStep;
+                    rookieCustomizationStep;
 
                 lastGarageMetaUnlocked =
                     metaUnlocked;
@@ -54,9 +53,12 @@ namespace MotorCity.UI
                 if (garageActionButtons[i] == null)
                     continue;
 
+                // During the tutorial the player may make any appearance
+                // change: body color, wheel style or neon. Vehicle switching,
+                // passport and unrelated meta controls stay out of the way.
                 bool visible =
-                    !rookieColorStep ||
-                    i == 2 ||
+                    !rookieCustomizationStep ||
+                    (i >= 2 && i <= 4) ||
                     i == 6;
 
                 SetActiveIfChanged(
@@ -485,7 +487,7 @@ namespace MotorCity.UI
             }
 
             garageStatusText.text =
-                rookieColorStep
+                rookieCustomizationStep
                     ? onboarding.ObjectiveLine
                     : string.Empty;
         }
