@@ -1497,12 +1497,13 @@ namespace MotorCity.UI
 
         private void Update()
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_WEBGL
             if (!gameplayReady &&
-                Keyboard.current != null &&
-                Keyboard.current.f10Key.wasPressedThisFrame)
+                MotorCityInput.AdminTogglePressed)
             {
-}
+                pregameDebugVisible =
+                    !pregameDebugVisible;
+            }
 #endif
 
             ApplyFrontEndResponsiveLayout(
@@ -2495,7 +2496,7 @@ namespace MotorCity.UI
         private static bool IsRussian() =>
             MotorCityLocalization.LanguageCode == "ru";
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_WEBGL
         private void OnGUI()
         {
             if (gameplayReady ||
@@ -2532,38 +2533,15 @@ namespace MotorCity.UI
                         104f,
                         300f,
                         42f),
-                    "ЧИСТЫЙ СТАРТ"))
+                    "QA RESET SAVE"))
             {
+                MotorCitySaveService.ResetProgressForTesting();
+
                 ResetForTesting();
 
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.PlayerCredits");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Player.Reputation");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Onboarding.Step");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Onboarding.Complete");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Story.Mission");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Story.Progress");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Story.Complete");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Vehicle.Position.Has");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Vehicle.Position.X");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Vehicle.Position.Y");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Vehicle.Position.Z");
-                MotorCitySaveService.DeleteKey(
-                    "MotorCity.Vehicle.Position.Yaw");
+                hasExistingProgress =
+                    false;
 
-                MotorCitySaveService.FlushNow();
-
-                hasExistingProgress = false;
                 RefreshMainMenuText();
             }
 
@@ -2573,7 +2551,7 @@ namespace MotorCity.UI
                     154f,
                     310f,
                     24f),
-                "F10 - закрыть");
+                "O - закрыть");
         }
 #endif
 
