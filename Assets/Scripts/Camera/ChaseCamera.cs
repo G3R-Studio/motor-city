@@ -45,6 +45,13 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float touchSensitivity = 0.11f;
         [SerializeField] private float minPitch = -8f;
         [SerializeField] private float maxPitch = 55f;
+
+        [Header("Garage Orbit")]
+        [SerializeField] private float garageMouseSensitivity = 0.14f;
+        [SerializeField] private float garageTouchSensitivity = 0.105f;
+        [SerializeField] private float garageMinPitch = 5f;
+        [SerializeField] private float garageMaxPitch = 28f;
+
         [SerializeField] private float minDistance = 4.5f;
         [SerializeField] private float maxDistance = 12f;
         [SerializeField] private float zoomStep = 0.9f;
@@ -67,6 +74,7 @@ namespace MotorCity.CameraSystem
         private float vehicleVisualCenterRefreshTimer;
         private int cameraTouchId = -1;
         private Vector2 lastCameraTouchPosition;
+        private bool garageMouseOrbitActive;
         private float currentTurnLagYaw;
         private float lastVehicleYaw;
         private bool hasLastVehicleYaw;
@@ -292,6 +300,9 @@ namespace MotorCity.CameraSystem
 
             cameraTouchId =
                 -1;
+
+            garageMouseOrbitActive =
+                false;
 
             if (!enabled)
             {
@@ -610,14 +621,57 @@ namespace MotorCity.CameraSystem
             }
 
             Mouse mouse = Mouse.current;
-            bool orbiting = mouse != null && mouse.rightButton.isPressed;
+            bool orbiting = false;
 
-            if (orbiting)
+            if (mouse != null)
             {
-                Vector2 delta = mouse.delta.ReadValue();
-                ApplyOrbitDelta(
-                    delta,
-                    mouseSensitivity);
+                if (garageMode)
+                {
+                    if (mouse.leftButton.wasPressedThisFrame)
+                    {
+                        Vector2 pointerPosition =
+                            mouse.position.ReadValue();
+
+                        garageMouseOrbitActive =
+                            !IsScreenPointOverUi(
+                                pointerPosition);
+                    }
+
+                    if (mouse.leftButton.wasReleasedThisFrame)
+                    {
+                        garageMouseOrbitActive =
+                            false;
+                    }
+
+                    orbiting =
+                        garageMouseOrbitActive &&
+                        mouse.leftButton.isPressed;
+
+                    if (orbiting)
+                    {
+                        Vector2 delta =
+                            mouse.delta.ReadValue();
+
+                        ApplyOrbitDelta(
+                            delta,
+                            garageMouseSensitivity);
+                    }
+                }
+                else
+                {
+                    orbiting =
+                        mouse.rightButton.isPressed;
+
+                    if (orbiting)
+                    {
+                        Vector2 delta =
+                            mouse.delta.ReadValue();
+
+                        ApplyOrbitDelta(
+                            delta,
+                            mouseSensitivity);
+                    }
+                }
             }
 
             bool touchOrbiting =
@@ -670,11 +724,21 @@ namespace MotorCity.CameraSystem
                 delta.y *
                 sensitivity;
 
+            float activeMinPitch =
+                garageMode
+                    ? garageMinPitch
+                    : minPitch;
+
+            float activeMaxPitch =
+                garageMode
+                    ? garageMaxPitch
+                    : maxPitch;
+
             pitch =
                 Mathf.Clamp(
                     pitch,
-                    minPitch,
-                    maxPitch);
+                    activeMinPitch,
+                    activeMaxPitch);
 
             lastManualInputTime =
                 Time.time;
@@ -731,7 +795,9 @@ namespace MotorCity.CameraSystem
 
                     ApplyOrbitDelta(
                         delta,
-                        touchSensitivity);
+                        garageMode
+                            ? garageTouchSensitivity
+                            : touchSensitivity);
 
                     return true;
                 }
@@ -874,7 +940,10 @@ namespace MotorCity.CameraSystem
 
             bool manualOrbitActive =
                 (Mouse.current != null &&
-                 Mouse.current.rightButton.isPressed) ||
+                 (garageMode
+                     ? garageMouseOrbitActive &&
+                       Mouse.current.leftButton.isPressed
+                     : Mouse.current.rightButton.isPressed)) ||
                 cameraTouchId >= 0;
 
             float targetTurnLagYaw =
