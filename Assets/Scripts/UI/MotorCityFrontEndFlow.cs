@@ -2108,14 +2108,14 @@ namespace MotorCity.UI
 
                 frontEndCamera = null;
             }
-if (hud != null)
+            if (hud != null)
             {
-                frontEndAudioMuted =
-                    hud.FrontEndAudioMuted;
-
-                frontEndAudioVolume =
-                    hud.FrontEndAudioVolume;
+                hud.FrontEndApplyAudioSettings(
+                    frontEndAudioMuted,
+                    frontEndAudioVolume);
             }
+
+            ApplyFrontEndAudioVolume();
 
             gameplayReady = true;
             gameplayReadyAt = loadingTimer;
@@ -2134,6 +2134,17 @@ if (hud != null)
 
             MotorCityMusicRuntime.SetGameplayActive(
                 true);
+
+            if (hud != null)
+            {
+                hud.FrontEndApplyAudioSettings(
+                    frontEndAudioMuted,
+                    frontEndAudioVolume);
+            }
+            else
+            {
+                ApplyFrontEndAudioVolume();
+            }
 
             car?.SetDrivingBlocked(
                 "FrontEnd",
