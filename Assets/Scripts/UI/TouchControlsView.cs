@@ -267,13 +267,14 @@ namespace MotorCity.UI
                 name ==
                 "Navigator Touch Controls Close";
 
-            GarageReferenceGraphic.Symbol? actionIcon =
-                suppressActionIcon
-                    ? null
-                    : TouchActionGarageIcon(
-                        action);
+            bool hasActionIcon =
+                !suppressActionIcon &&
+                TryGetActionVisual(
+                    action,
+                    out GarageReferenceGraphic.Symbol actionIcon,
+                    out Color actionIconColor);
 
-            if (actionIcon.HasValue)
+            if (hasActionIcon)
             {
                 RectTransform iconRect =
                     GarageObject(
@@ -302,10 +303,10 @@ namespace MotorCity.UI
                         GarageReferenceGraphic>();
 
                 icon.symbol =
-                    actionIcon.Value;
+                    actionIcon;
 
                 icon.color =
-                    TextColor;
+                    actionIconColor;
 
                 icon.raycastTarget =
                     false;
@@ -324,14 +325,14 @@ namespace MotorCity.UI
                         : 12,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    actionIcon.HasValue
+                    hasActionIcon
                         ? new Vector2(
                             10f,
                             0f)
                         : Vector2.zero,
                     size -
                     new Vector2(
-                        actionIcon.HasValue
+                        hasActionIcon
                             ? 32f
                             : 8f,
                         6f),
@@ -355,54 +356,143 @@ namespace MotorCity.UI
                 buttonObject;
         }
 
-        private static GarageReferenceGraphic.Symbol?
-            TouchActionGarageIcon(
-                MotorCityInputAction action)
+        private static bool TryGetActionVisual(
+            MotorCityInputAction action,
+            out GarageReferenceGraphic.Symbol symbol,
+            out Color color)
         {
-            return
-                action switch
-                {
-                    MotorCityInputAction.Interact =>
-                        GarageReferenceGraphic.Symbol.Check,
+            color =
+                new Color(
+                    0.42f,
+                    0.82f,
+                    1f,
+                    1f);
 
-                    MotorCityInputAction.Upgrade1 or
-                    MotorCityInputAction.Upgrade2 or
-                    MotorCityInputAction.Upgrade3 =>
-                        GarageReferenceGraphic.Symbol.Up,
+            switch (action)
+            {
+                case MotorCityInputAction.Interact:
+                case MotorCityInputAction.Cancel:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Check;
+                    color =
+                        new Color(0.30f, 1f, 0.58f, 1f);
+                    return true;
 
-                    MotorCityInputAction.CycleDriveMode =>
-                        GarageReferenceGraphic.Symbol.Gear,
+                case MotorCityInputAction.Retry:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.NavigationRight;
+                    color =
+                        new Color(0.38f, 0.72f, 1f, 1f);
+                    return true;
 
-                    MotorCityInputAction.CycleWheels =>
-                        GarageReferenceGraphic.Symbol.Rim,
+                case MotorCityInputAction.EliteModifier:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Crown;
+                    color =
+                        new Color(0.92f, 0.34f, 1f, 1f);
+                    return true;
 
-                    MotorCityInputAction.CycleNeon =>
-                        GarageReferenceGraphic.Symbol.Neon,
+                case MotorCityInputAction.PreviousVehicle:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.NavigationLeft;
+                    return true;
 
-                    MotorCityInputAction.CycleBodyColor =>
-                        GarageReferenceGraphic.Symbol.Paint,
+                case MotorCityInputAction.NextVehicle:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.NavigationRight;
+                    return true;
 
-                    MotorCityInputAction.PreviousVehicle =>
-                        GarageReferenceGraphic.Symbol.NavigationLeft,
+                case MotorCityInputAction.Upgrade1:
+                case MotorCityInputAction.Upgrade2:
+                case MotorCityInputAction.Upgrade3:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Up;
+                    color =
+                        new Color(0.30f, 1f, 0.58f, 1f);
+                    return true;
 
-                    MotorCityInputAction.NextVehicle =>
-                        GarageReferenceGraphic.Symbol.NavigationRight,
+                case MotorCityInputAction.CycleDriveMode:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Gear;
+                    color =
+                        new Color(0.38f, 0.82f, 1f, 1f);
+                    return true;
 
-                    MotorCityInputAction.ToggleNavigator =>
-                        GarageReferenceGraphic.Symbol.NavigationRight,
+                case MotorCityInputAction.Rescue:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Wrench;
+                    color =
+                        new Color(1f, 0.56f, 0.16f, 1f);
+                    return true;
 
-                    MotorCityInputAction.ToggleVehiclePassport =>
-                        GarageReferenceGraphic.Symbol.Check,
+                case MotorCityInputAction.CycleBodyColor:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Paint;
+                    color =
+                        new Color(1f, 0.36f, 0.86f, 1f);
+                    return true;
 
-                    MotorCityInputAction.Retry =>
-                        GarageReferenceGraphic.Symbol.NavigationRight,
+                case MotorCityInputAction.CycleWheels:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Rim;
+                    color =
+                        new Color(0.56f, 0.78f, 1f, 1f);
+                    return true;
 
-                    MotorCityInputAction.Cancel =>
-                        GarageReferenceGraphic.Symbol.Check,
+                case MotorCityInputAction.CycleNeon:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Neon;
+                    color =
+                        new Color(0.94f, 0.28f, 1f, 1f);
+                    return true;
 
-                    _ =>
-                        GarageReferenceGraphic.Symbol.Gear
-                };
+                case MotorCityInputAction.TakePhoto:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Camera;
+                    color =
+                        new Color(0.20f, 0.86f, 1f, 1f);
+                    return true;
+
+                case MotorCityInputAction.ToggleVehiclePassport:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Check;
+                    color =
+                        new Color(0.72f, 0.66f, 1f, 1f);
+                    return true;
+
+                case MotorCityInputAction.ToggleClub:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Crown;
+                    color =
+                        new Color(0.78f, 0.34f, 1f, 1f);
+                    return true;
+
+                case MotorCityInputAction.RewardedBonus:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Gift;
+                    color =
+                        new Color(1f, 0.78f, 0.18f, 1f);
+                    return true;
+
+                case MotorCityInputAction.ToggleStore:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Shop;
+                    color =
+                        new Color(0.30f, 1f, 0.58f, 1f);
+                    return true;
+
+                case MotorCityInputAction.ToggleNavigator:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.NavigationRight;
+                    color =
+                        new Color(0.22f, 0.78f, 1f, 1f);
+                    return true;
+
+                default:
+                    symbol =
+                        GarageReferenceGraphic.Symbol.Check;
+                    return false;
+            }
         }
 
         private static bool ShouldUseTouchUi()
