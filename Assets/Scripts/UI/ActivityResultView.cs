@@ -360,7 +360,8 @@ namespace MotorCity.UI
                 iconRect.gameObject.AddComponent<
                     GarageReferenceGraphic>();
 
-            if (!MotorCityButtonVisuals.TryForAction(
+            if (!MotorCityButtonVisuals.TryForButton(
+                    localizationKey + " " + name,
                     action,
                     out GarageReferenceGraphic.Symbol iconSymbol,
                     out Color iconColor))
