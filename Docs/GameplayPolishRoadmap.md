@@ -1166,13 +1166,15 @@ VehicleVisualChanged
 
 ## Камера
 
-- [ ] Убрать сильный speed distance bonus
-- [ ] Настроить FOV curve
-- [ ] Разделить FOV gain/return smoothing
-- [ ] Добавить turn lag
-- [ ] Проверить drift look
-- [ ] Проверить orbit input
-- [ ] Проверить collision camera
+> Реализация этапа внесена в commit `e6bf6ecef82aeb283d499c20e4cf177daaf554e0`. Ожидается игровая проверка перед переходом к Audio.
+
+- [x] Убрать сильный speed distance bonus и искусственное позиционное отставание
+- [x] Настроить FOV curve
+- [x] Разделить FOV gain/return smoothing
+- [x] Добавить turn lag
+- [ ] Проверить drift look в игре
+- [ ] Проверить orbit input в игре
+- [ ] Проверить collision camera в игре
 
 ## Audio
 
