@@ -1873,7 +1873,8 @@ namespace MotorCity.UI
                 return;
 
             bool touchUi =
-                ShouldUseTouchUi();
+                ShouldUseTouchUi() ||
+                touchLayoutEditing;
 
             bool garageOpen =
                 garage != null &&
