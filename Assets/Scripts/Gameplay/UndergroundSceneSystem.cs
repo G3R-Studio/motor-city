@@ -588,7 +588,7 @@ namespace MotorCity.Gameplay
                 current);
         }
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_WEBGL
         public void CancelRunForTesting()
         {
             if (IsActive ||
