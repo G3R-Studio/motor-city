@@ -226,7 +226,7 @@ namespace MotorCity.Gameplay
                 lastAction);
 
             GUILayout.Label(
-                "F10 / TILDE - закрыть панель");
+                "O - открыть / закрыть панель");
 
             GUILayout.EndScrollView();
 
