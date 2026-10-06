@@ -334,16 +334,16 @@ namespace MotorCity.UI
                 panel,
                 "Pause Resume",
                 "pause.resume",
-                new Vector2(-158f, -164f),
-                new Vector2(300f, 50f),
+                new Vector2(-121f, -164f),
+                new Vector2(228f, 50f),
                 ClosePauseMenu);
 
             CreatePauseButton(
                 panel,
                 "Pause Main Menu",
                 "pause.main_menu",
-                new Vector2(158f, -164f),
-                new Vector2(300f, 50f),
+                new Vector2(121f, -164f),
+                new Vector2(228f, 50f),
                 OpenPauseMainMenu);
         }
 
