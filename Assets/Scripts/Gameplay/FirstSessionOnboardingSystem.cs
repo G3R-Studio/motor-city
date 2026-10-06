@@ -1,5 +1,6 @@
 using MotorCity.Input;
 using MotorCity.Localization;
+using MotorCity.Persistence;
 using MotorCity.Vehicle;
 using UnityEngine;
 
@@ -12,12 +13,23 @@ namespace MotorCity.Gameplay
             "MotorCity.Onboarding.Step";
         private const string CompleteKey =
             "MotorCity.Onboarding.Complete";
-        private const float MessageSeconds =
-            4f;
-        private const float TurboHandoffSeconds =
-            4.35f;
-        private const float CompletionPresentationSeconds =
-            5f;
+        private const string FlowVersionKey =
+            "MotorCity.Onboarding.FlowVersion";
+
+        private const int CurrentFlowVersion = 2;
+
+        public const int ThrottleStep = 0;
+        public const int BrakeStep = 1;
+        public const int SteeringStep = 2;
+        public const int GarageStep = 3;
+        public const int CustomizationStep = 4;
+        public const int RookieSprintStep = 5;
+        public const int CompletionStep = 6;
+
+        private const int TutorialTaskCount = 6;
+        private const float MessageSeconds = 4f;
+        private const float CompletionPresentationSeconds = 5f;
+        private const float MinimumBrakeSpeedKph = 7f;
 
         private ArcadeCarController car;
         private PlayerWallet wallet;
@@ -28,14 +40,14 @@ namespace MotorCity.Gameplay
         private VehicleCustomizationSystem customization;
 
         private int step;
-        private float drivenDistance;
         private Vector3 lastPosition;
-        private bool activitySucceeded;
         private float messageTimer;
         private float messageDelayTimer;
-        private float introTimer;
-        private int customizationColorIndexAtStepStart =
-            -1;
+        private float completionTimer;
+
+        private int customizationColorIndexAtStepStart = -1;
+        private int customizationWheelIndexAtStepStart = -1;
+        private int customizationNeonIndexAtStepStart = -1;
 
         public bool IsComplete { get; private set; }
 
@@ -46,17 +58,41 @@ namespace MotorCity.Gameplay
             Mathf.Clamp(
                 step + 1,
                 1,
-                7);
+                TutorialTaskCount);
 
         public int StepCount =>
-            7;
+            TutorialTaskCount;
 
         public int CurrentRewardCredits =>
+            0;
+
+        public bool IsThrottleStep =>
             !IsComplete &&
-            (step == 2 ||
-             step == 3)
-                ? 250
-                : 0;
+            step == ThrottleStep;
+
+        public bool IsBrakeStep =>
+            !IsComplete &&
+            step == BrakeStep;
+
+        public bool IsSteeringStep =>
+            !IsComplete &&
+            step == SteeringStep;
+
+        public bool IsGarageStep =>
+            !IsComplete &&
+            step == GarageStep;
+
+        public bool IsCustomizationStep =>
+            !IsComplete &&
+            step == CustomizationStep;
+
+        public bool IsRookieSprintStep =>
+            !IsComplete &&
+            step == RookieSprintStep;
+
+        public bool IsCompletionPresentationStep =>
+            !IsComplete &&
+            step == CompletionStep;
 
         public bool ShowMessage =>
             messageDelayTimer <= 0f &&
@@ -74,34 +110,34 @@ namespace MotorCity.Gameplay
                 return
                     step switch
                     {
-                        0 =>
+                        ThrottleStep =>
                             MotorCityLocalization.Text(
                                 ResolveThrottleObjectiveKey()),
-                        1 =>
+
+                        BrakeStep =>
+                            MotorCityLocalization.Text(
+                                ResolveBrakeObjectiveKey()),
+
+                        SteeringStep =>
                             MotorCityLocalization.Text(
                                 ResolveSteeringObjectiveKey()),
-                        2 =>
-                            MotorCityLocalization.Format(
-                                "onboarding.drive",
-                                Mathf.Min(
-                                    80,
-                                    Mathf.RoundToInt(
-                                        drivenDistance))),
-                        3 =>
-                            MotorCityLocalization.Text(
-                                "onboarding.reward_handoff"),
-                        4 =>
-                            MotorCityLocalization.Text(
-                                ResolveActivityObjectiveKey()),
-                        5 =>
+
+                        GarageStep =>
                             MotorCityLocalization.Text(
                                 "onboarding.garage"),
-                        6 =>
+
+                        CustomizationStep =>
                             MotorCityLocalization.Text(
                                 "onboarding.customize"),
-                        7 =>
+
+                        RookieSprintStep =>
+                            MotorCityLocalization.Text(
+                                ResolveRookieSprintObjectiveKey()),
+
+                        CompletionStep =>
                             MotorCityLocalization.Text(
                                 "onboarding.complete_next"),
+
                         _ =>
                             turbo != null
                                 ? turbo.DailyObjectiveLine
@@ -122,10 +158,13 @@ namespace MotorCity.Gameplay
         {
             car =
                 targetCar;
+
             wallet =
                 targetWallet;
+
             reputation =
                 targetReputation;
+
             activities =
                 activityManager;
 
@@ -134,29 +173,43 @@ namespace MotorCity.Gameplay
 
             garage =
                 garageSystem;
+
             turbo =
                 turboSystem;
+
             customization =
                 customizationSystem;
 
             bool hasOnboardingSave =
-                MotorCity.Persistence.MotorCitySaveService.HasKey(
+                MotorCitySaveService.HasKey(
                     StepKey) ||
-                MotorCity.Persistence.MotorCitySaveService.HasKey(
+                MotorCitySaveService.HasKey(
                     CompleteKey);
 
             IsComplete =
-                MotorCity.Persistence.MotorCitySaveService.GetInt(
+                MotorCitySaveService.GetInt(
                     CompleteKey,
                     0) != 0;
 
-            step =
+            int savedStep =
                 Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(
+                    MotorCitySaveService.GetInt(
                         StepKey,
-                        0),
-                    0,
-                    7);
+                        ThrottleStep),
+                    ThrottleStep,
+                    CompletionStep);
+
+            int savedFlowVersion =
+                MotorCitySaveService.GetInt(
+                    FlowVersionKey,
+                    0);
+
+            step =
+                IsComplete
+                    ? CompletionStep
+                    : MigrateStep(
+                        savedStep,
+                        savedFlowVersion);
 
             if (!IsComplete &&
                 !hasOnboardingSave &&
@@ -165,6 +218,8 @@ namespace MotorCity.Gameplay
                 CompleteSilently();
                 return;
             }
+
+            PersistFlowVersion();
 
             if (car != null)
             {
@@ -184,10 +239,9 @@ namespace MotorCity.Gameplay
                     OnCustomizationChanged;
             }
 
-            if (!IsComplete &&
-                step == 6)
+            if (IsCustomizationStep)
             {
-                CaptureCustomizationColorBaseline();
+                CaptureCustomizationBaseline();
             }
 
             if (!IsComplete)
@@ -226,72 +280,45 @@ namespace MotorCity.Gameplay
             if (IsComplete)
                 return;
 
-            TrackDistance();
-
             switch (step)
             {
-                case 0:
-                    // The first step must prove that the player actually
-                    // found the acceleration control. Vehicle movement on its
-                    // own (spawn settling, slope, collision) must never skip
-                    // the tutorial.
-                    if (MotorCityInput.ThrottleHeld ||
-                        MotorCityInput.ReverseHeld)
+                case ThrottleStep:
+                    // Require the actual throttle control. Spawn movement,
+                    // slopes and reverse input must not skip the first lesson.
+                    if (MotorCityInput.ThrottleHeld)
                     {
                         Advance(
                             "onboarding.good_throttle");
                     }
                     break;
 
-                case 1:
+                case BrakeStep:
+                    // In the current Prometeo bridge the reverse control is
+                    // also the service brake while the vehicle is moving
+                    // forward. Require forward motion so reversing in place
+                    // cannot satisfy the lesson.
+                    if (MotorCityInput.ReverseHeld &&
+                        car != null &&
+                        car.ForwardSpeedKph >=
+                            MinimumBrakeSpeedKph)
+                    {
+                        Advance(
+                            "onboarding.good_brake");
+                    }
+                    break;
+
+                case SteeringStep:
                     if ((MotorCityInput.SteerLeftHeld ||
                          MotorCityInput.SteerRightHeld) &&
                         car != null &&
                         car.SpeedKph > 4f)
                     {
-                        drivenDistance = 0f;
-                        lastPosition =
-                            car.transform.position;
-
                         Advance(
                             "onboarding.good_steer");
                     }
                     break;
 
-                case 2:
-                    if (drivenDistance >= 80f)
-                    {
-                        wallet?.AddCredits(
-                            250);
-
-                        Advance(
-                            "onboarding.first_reward");
-                    }
-                    break;
-
-                case 3:
-                    // Let the first reward breathe before changing the
-                    // character card to Turbo and introducing the first job.
-                    introTimer +=
-                        Time.unscaledDeltaTime;
-
-                    if (introTimer >=
-                        TurboHandoffSeconds)
-                    {
-                        Advance(
-                            "onboarding.turbo_ready");
-                    }
-                    break;
-
-                case 4:
-                    if (activitySucceeded)
-                    {
-                        Advance(
-                            "onboarding.activity_done");
-                    }
-                    break;
-
-                case 5:
+                case GarageStep:
                     if (garage != null &&
                         garage.IsOpen)
                     {
@@ -300,23 +327,31 @@ namespace MotorCity.Gameplay
                     }
                     break;
 
-                case 6:
-                    // Completion is driven by the customization event.
+                case CustomizationStep:
+                    // Completion is driven by CustomizationChanged so a real
+                    // visual change is required.
                     break;
 
-                case 7:
-                    introTimer +=
+                case RookieSprintStep:
+                    // Completion is driven by ActivityCompleted("sprint").
+                    break;
+
+                case CompletionStep:
+                    completionTimer +=
                         Time.unscaledDeltaTime;
 
-                    if (introTimer >=
+                    if (completionTimer >=
                         CompletionPresentationSeconds)
                     {
                         Complete();
                     }
                     break;
+            }
 
-                default:
-                    break;
+            if (car != null)
+            {
+                lastPosition =
+                    car.transform.position;
             }
         }
 
@@ -351,6 +386,19 @@ namespace MotorCity.Gameplay
                 };
         }
 
+        private static string ResolveBrakeObjectiveKey()
+        {
+            return
+                MotorCityInput.CurrentControlScheme switch
+                {
+                    MotorCityControlScheme.Keyboard =>
+                        "onboarding.brake.keyboard",
+
+                    _ =>
+                        "onboarding.brake.touch"
+                };
+        }
+
         private static string ResolveSteeringObjectiveKey()
         {
             return
@@ -367,35 +415,41 @@ namespace MotorCity.Gameplay
                 };
         }
 
-        private static string ResolveActivityObjectiveKey()
+        private static string ResolveRookieSprintObjectiveKey()
         {
             return
                 MotorCityInput.CurrentControlScheme ==
                 MotorCityControlScheme.Keyboard
-                    ? "onboarding.activity.keyboard"
-                    : "onboarding.activity.touch";
+                    ? "onboarding.race.keyboard"
+                    : "onboarding.race.touch";
         }
 
         private void OnCustomizationChanged()
         {
-            if (IsComplete ||
-                step != 6 ||
+            if (!IsCustomizationStep ||
                 customization == null)
             {
                 return;
             }
 
-            if (customizationColorIndexAtStepStart < 0)
+            if (customizationColorIndexAtStepStart < 0 ||
+                customizationWheelIndexAtStepStart < 0 ||
+                customizationNeonIndexAtStepStart < 0)
             {
-                CaptureCustomizationColorBaseline();
+                CaptureCustomizationBaseline();
                 return;
             }
 
-            if (customization.SelectedColorIndex ==
-                customizationColorIndexAtStepStart)
-            {
+            bool changed =
+                customization.SelectedColorIndex !=
+                    customizationColorIndexAtStepStart ||
+                customization.SelectedWheelStyleIndex !=
+                    customizationWheelIndexAtStepStart ||
+                customization.SelectedNeonIndex !=
+                    customizationNeonIndexAtStepStart;
+
+            if (!changed)
                 return;
-            }
 
             garage?.CloseAfterRookieCustomization();
 
@@ -403,53 +457,43 @@ namespace MotorCity.Gameplay
                 "onboarding.customized");
         }
 
-        private void CaptureCustomizationColorBaseline()
+        private void CaptureCustomizationBaseline()
         {
+            if (customization == null)
+            {
+                customizationColorIndexAtStepStart =
+                    -1;
+
+                customizationWheelIndexAtStepStart =
+                    -1;
+
+                customizationNeonIndexAtStepStart =
+                    -1;
+
+                return;
+            }
+
             customizationColorIndexAtStepStart =
-                customization == null
-                    ? -1
-                    : customization.SelectedColorIndex;
+                customization.SelectedColorIndex;
+
+            customizationWheelIndexAtStepStart =
+                customization.SelectedWheelStyleIndex;
+
+            customizationNeonIndexAtStepStart =
+                customization.SelectedNeonIndex;
         }
 
         private void OnActivityCompleted(
             string activityId)
         {
-            // The first job deliberately teaches the blue delivery
-            // marker, so unrelated ambient challenges must not skip it.
-            if (!IsComplete &&
-                step == 4 &&
-                activityId == "delivery")
+            if (!IsRookieSprintStep ||
+                activityId != "sprint")
             {
-                activitySucceeded =
-                    true;
-            }
-        }
-
-        private void TrackDistance()
-        {
-            if (car == null)
                 return;
-
-            Vector3 current =
-                car.transform.position;
-
-            Vector3 delta =
-                current -
-                lastPosition;
-
-            delta.y = 0f;
-
-            float distance =
-                delta.magnitude;
-
-            if (distance <= 30f)
-            {
-                drivenDistance +=
-                    distance;
             }
 
-            lastPosition =
-                current;
+            Advance(
+                "onboarding.race_done");
         }
 
         private void Advance(
@@ -457,21 +501,25 @@ namespace MotorCity.Gameplay
         {
             step =
                 Mathf.Min(
-                    7,
+                    CompletionStep,
                     step + 1);
 
-            introTimer = 0f;
+            completionTimer =
+                0f;
 
-            if (step == 6)
+            if (step ==
+                CustomizationStep)
             {
-                CaptureCustomizationColorBaseline();
+                CaptureCustomizationBaseline();
             }
 
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
+            MotorCitySaveService.SetInt(
                 StepKey,
                 step);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            PersistFlowVersion();
+
+            MotorCitySaveService.Save();
 
             StatusText =
                 MotorCityLocalization.Text(
@@ -483,21 +531,21 @@ namespace MotorCity.Gameplay
 
         private void Complete()
         {
-            IsComplete = true;
+            IsComplete =
+                true;
 
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
+            MotorCitySaveService.SetInt(
                 CompleteKey,
                 1);
 
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
+            MotorCitySaveService.SetInt(
                 StepKey,
-                7);
+                CompletionStep);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            PersistFlowVersion();
 
-            // The 7/7 completion presentation has already been visible
-            // before this point. Do not restart another onboarding message
-            // over the first story objective.
+            MotorCitySaveService.Save();
+
             messageTimer =
                 0f;
 
@@ -555,38 +603,33 @@ namespace MotorCity.Gameplay
             if (IsComplete)
                 return;
 
-            step++;
+            step =
+                Mathf.Min(
+                    CompletionStep,
+                    step + 1);
 
-            if (step >= StepCount)
-            {
-                IsComplete = true;
-                step = StepCount;
+            completionTimer =
+                0f;
 
-                MotorCity.Persistence.MotorCitySaveService.SetInt(
-                    CompleteKey,
-                    1);
-            }
-            else
+            if (step ==
+                CustomizationStep)
             {
-                MotorCity.Persistence.MotorCitySaveService.DeleteKey(
-                    CompleteKey);
+                CaptureCustomizationBaseline();
             }
 
-            drivenDistance = 0f;
-            activitySucceeded = false;
-            introTimer = 0f;
-            customizationColorIndexAtStepStart = -1;
+            MotorCitySaveService.DeleteKey(
+                CompleteKey);
 
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
+            MotorCitySaveService.SetInt(
                 StepKey,
                 step);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            PersistFlowVersion();
+
+            MotorCitySaveService.Save();
 
             StatusText =
-                IsComplete
-                    ? string.Empty
-                    : ObjectiveLine;
+                ObjectiveLine;
 
             messageTimer =
                 MessageSeconds;
@@ -594,32 +637,52 @@ namespace MotorCity.Gameplay
 
         public void CompleteForTesting()
         {
-            step = StepCount;
-            IsComplete = true;
+            step =
+                CompletionStep;
 
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
+            IsComplete =
+                true;
+
+            MotorCitySaveService.SetInt(
                 StepKey,
                 step);
 
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
+            MotorCitySaveService.SetInt(
                 CompleteKey,
                 1);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            PersistFlowVersion();
 
-            StatusText = string.Empty;
-            messageTimer = 0f;
-            messageDelayTimer = 0f;
+            MotorCitySaveService.Save();
+
+            StatusText =
+                string.Empty;
+
+            messageTimer =
+                0f;
+
+            messageDelayTimer =
+                0f;
         }
 
         public void ResetForTesting()
         {
-            IsComplete = false;
-            step = 0;
-            drivenDistance = 0f;
-            activitySucceeded = false;
-            introTimer = 0f;
+            IsComplete =
+                false;
+
+            step =
+                ThrottleStep;
+
+            completionTimer =
+                0f;
+
             customizationColorIndexAtStepStart =
+                -1;
+
+            customizationWheelIndexAtStepStart =
+                -1;
+
+            customizationNeonIndexAtStepStart =
                 -1;
 
             if (car != null)
@@ -628,13 +691,17 @@ namespace MotorCity.Gameplay
                     car.transform.position;
             }
 
-            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+            MotorCitySaveService.DeleteKey(
                 StepKey);
 
-            MotorCity.Persistence.MotorCitySaveService.DeleteKey(
+            MotorCitySaveService.DeleteKey(
                 CompleteKey);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            MotorCitySaveService.SetInt(
+                FlowVersionKey,
+                CurrentFlowVersion);
+
+            MotorCitySaveService.Save();
 
             StatusText =
                 MotorCityLocalization.Text(
@@ -649,17 +716,68 @@ namespace MotorCity.Gameplay
 
         private void CompleteSilently()
         {
-            IsComplete = true;
+            IsComplete =
+                true;
 
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
+            step =
+                CompletionStep;
+
+            MotorCitySaveService.SetInt(
                 CompleteKey,
                 1);
 
-            MotorCity.Persistence.MotorCitySaveService.SetInt(
+            MotorCitySaveService.SetInt(
                 StepKey,
-                7);
+                CompletionStep);
 
-            MotorCity.Persistence.MotorCitySaveService.Save();
+            PersistFlowVersion();
+
+            MotorCitySaveService.Save();
+        }
+
+        private void PersistFlowVersion()
+        {
+            MotorCitySaveService.SetInt(
+                FlowVersionKey,
+                CurrentFlowVersion);
+        }
+
+        private static int MigrateStep(
+            int savedStep,
+            int savedFlowVersion)
+        {
+            if (savedFlowVersion >=
+                CurrentFlowVersion)
+            {
+                return
+                    Mathf.Clamp(
+                        savedStep,
+                        ThrottleStep,
+                        CompletionStep);
+            }
+
+            // Flow v1:
+            // 0 throttle, 1 steer, 2 drive, 3 reward handoff,
+            // 4 delivery, 5 garage, 6 customize, 7 completion.
+            // Keep as much progress as possible while inserting the new brake
+            // lesson and replacing delivery with the final rookie sprint.
+            return savedStep switch
+            {
+                <= 0 =>
+                    ThrottleStep,
+
+                1 =>
+                    BrakeStep,
+
+                2 or 3 or 4 or 5 =>
+                    GarageStep,
+
+                6 =>
+                    CustomizationStep,
+
+                _ =>
+                    RookieSprintStep
+            };
         }
 
         private bool IsLegacyPlayer()
