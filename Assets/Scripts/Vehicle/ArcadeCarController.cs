@@ -112,8 +112,10 @@ namespace MotorCity.Vehicle
         private int engineUpgradeLevel;
         private int gripUpgradeLevel;
         private int stabilityUpgradeLevel;
-        private int vehicleSpeedBonus;
-        private int vehicleAccelerationBonus;
+        private int vehicleBaseMaxSpeedKph =
+            155;
+        private int vehicleBaseAccelerationTune =
+            7;
         private float vehicleGripMultiplier = 1f;
         private float vehicleStabilityBonus;
         private float vehicleMassMultiplier = 1f;
@@ -1226,18 +1228,17 @@ namespace MotorCity.Vehicle
             int modeBonus =
                 currentDriveMode switch
                 {
-                    DriveMode.Sport => 18,
-                    DriveMode.Drift => -18,
-                    _ => -25
+                    DriveMode.Sport => 8,
+                    DriveMode.Drift => -8,
+                    _ => 0
                 };
 
             return Mathf.Clamp(
-                baseMaxSpeedKph +
-                vehicleSpeedBonus +
+                vehicleBaseMaxSpeedKph +
                 GetEngineSpeedBonus() +
                 GetMasterySpeedBonus() +
                 modeBonus,
-                60,
+                90,
                 220);
         }
 
@@ -1246,19 +1247,18 @@ namespace MotorCity.Vehicle
             int modeBonus =
                 currentDriveMode switch
                 {
-                    DriveMode.Sport => 2,
-                    DriveMode.Drift => 1,
+                    DriveMode.Sport => 1,
+                    DriveMode.Drift => 0,
                     _ => 0
                 };
 
             return Mathf.Clamp(
-                accelerationMultiplier +
-                vehicleAccelerationBonus +
+                vehicleBaseAccelerationTune +
                 GetEngineAccelerationBonus() +
                 GetMasteryAccelerationBonus() +
                 modeBonus,
                 4,
-                14);
+                13);
         }
 
         private int GetMasterySpeedBonus()
@@ -1266,18 +1266,16 @@ namespace MotorCity.Vehicle
             return
                 Mathf.Max(
                     0,
-                    vehicleMasteryLevel - 1) *
+                    vehicleMasteryLevel - 1) /
                 2;
         }
 
         private int GetMasteryAccelerationBonus()
         {
             return
-                vehicleMasteryLevel >= 7
-                    ? 2
-                    : vehicleMasteryLevel >= 4
-                        ? 1
-                        : 0;
+                vehicleMasteryLevel >= 6
+                    ? 1
+                    : 0;
         }
 
         private float GetMasteryGripBonus()
@@ -1295,7 +1293,7 @@ namespace MotorCity.Vehicle
                 Mathf.Max(
                     0,
                     vehicleMasteryLevel - 1) *
-                0.012f;
+                0.005f;
         }
 
         private int GetEngineSpeedBonus()
@@ -1303,11 +1301,11 @@ namespace MotorCity.Vehicle
             return
                 engineUpgradeLevel switch
                 {
-                    1 => 10,
-                    2 => 22,
-                    3 => 36,
-                    4 => 52,
-                    5 => 70,
+                    1 => 3,
+                    2 => 6,
+                    3 => 9,
+                    4 => 12,
+                    5 => 15,
                     _ => 0
                 };
         }
@@ -1317,11 +1315,11 @@ namespace MotorCity.Vehicle
             return
                 engineUpgradeLevel switch
                 {
-                    1 => 1,
-                    2 => 2,
-                    3 => 4,
-                    4 => 6,
-                    5 => 8,
+                    1 => 0,
+                    2 => 1,
+                    3 => 1,
+                    4 => 2,
+                    5 => 2,
                     _ => 0
                 };
         }
@@ -1331,11 +1329,11 @@ namespace MotorCity.Vehicle
             return
                 engineUpgradeLevel switch
                 {
-                    1 => 0.12f,
-                    2 => 0.25f,
-                    3 => 0.40f,
-                    4 => 0.58f,
-                    5 => 0.78f,
+                    1 => 0.05f,
+                    2 => 0.10f,
+                    3 => 0.16f,
+                    4 => 0.22f,
+                    5 => 0.30f,
                     _ => 0f
                 };
         }
@@ -1790,8 +1788,8 @@ namespace MotorCity.Vehicle
         }
 
         public void ApplyVehicleProfile(
-            int speedBonusKph,
-            int accelerationBonus,
+            int topSpeedKph,
+            int accelerationTune,
             float gripMultiplier,
             float stabilityBonus,
             float massMultiplier,
@@ -1800,17 +1798,17 @@ namespace MotorCity.Vehicle
             float powerMultiplier,
             float driftMultiplier)
         {
-            vehicleSpeedBonus =
+            vehicleBaseMaxSpeedKph =
                 Mathf.Clamp(
-                    speedBonusKph,
-                    -50,
-                    80);
+                    topSpeedKph,
+                    90,
+                    205);
 
-            vehicleAccelerationBonus =
+            vehicleBaseAccelerationTune =
                 Mathf.Clamp(
-                    accelerationBonus,
-                    -4,
-                    6);
+                    accelerationTune,
+                    4,
+                    10);
 
             vehicleGripMultiplier =
                 Mathf.Clamp(
@@ -1828,19 +1826,19 @@ namespace MotorCity.Vehicle
                 Mathf.Clamp(
                     massMultiplier,
                     0.82f,
-                    1.18f);
+                    1.30f);
 
             vehicleSteeringMultiplier =
                 Mathf.Clamp(
                     steeringMultiplier,
-                    0.88f,
+                    0.80f,
                     1.16f);
 
             vehicleBrakeMultiplier =
                 Mathf.Clamp(
                     brakeMultiplier,
-                    0.88f,
-                    1.22f);
+                    0.90f,
+                    1.35f);
 
             vehiclePowerMultiplier =
                 Mathf.Clamp(
@@ -1851,7 +1849,7 @@ namespace MotorCity.Vehicle
             vehicleDriftMultiplier =
                 Mathf.Clamp(
                     driftMultiplier,
-                    0.78f,
+                    0.68f,
                     1.24f);
 
             ApplyDriveModeTuning();
