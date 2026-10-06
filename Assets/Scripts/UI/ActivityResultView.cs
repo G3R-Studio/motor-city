@@ -270,7 +270,9 @@ namespace MotorCity.UI
                     "touch.result.retry",
                     () =>
                         MotorCityInput.PulseVirtual(
-                            MotorCityInputAction.Retry));
+                            MotorCityInputAction.Retry),
+                    semanticAction:
+                        MotorCityInputAction.Retry);
 
             resultRetryButton =
                 retryButton.gameObject;
@@ -282,7 +284,9 @@ namespace MotorCity.UI
                     "touch.result.continue",
                     () =>
                         MotorCityInput.PulseVirtual(
-                            MotorCityInputAction.Cancel));
+                            MotorCityInputAction.Cancel),
+                    semanticAction:
+                        MotorCityInputAction.Cancel);
 
             resultContinueButton =
                 continueButton.gameObject;
