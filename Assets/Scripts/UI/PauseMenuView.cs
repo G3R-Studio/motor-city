@@ -452,11 +452,22 @@ namespace MotorCity.UI
             button.onClick.AddListener(
                 action);
 
+            bool allowUtilityIcon =
+                objectName == "HUD Pause" ||
+                objectName == "HUD More";
+
+            GarageReferenceGraphic.Symbol utilityIcon =
+                GarageReferenceGraphic.Symbol.Pause;
+
+            Color utilityIconColor =
+                TextColor;
+
             bool hasUtilityIcon =
+                allowUtilityIcon &&
                 MotorCityButtonVisuals.TryForSemantic(
                     objectName + " " + localizationKey,
-                    out GarageReferenceGraphic.Symbol utilityIcon,
-                    out Color utilityIconColor);
+                    out utilityIcon,
+                    out utilityIconColor);
 
             if (hasUtilityIcon)
             {
