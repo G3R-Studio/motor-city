@@ -234,6 +234,215 @@ namespace MotorCity.Persistence
             }
         }
 
+        public static void ResetProgressForTesting()
+        {
+            EnsureLoaded();
+
+            SaveDocument previous =
+                document;
+
+            SaveDocument reset =
+                new()
+                {
+                    Version =
+                        CurrentVersion,
+                    Revision =
+                        Math.Max(
+                            1L,
+                            previous.Revision),
+                    LastSyncedRevision =
+                        Math.Min(
+                            previous.LastSyncedRevision,
+                            previous.Revision),
+                    CloudRevision =
+                        previous.CloudRevision,
+                    ServerModifiedUnixTime =
+                        previous.ServerModifiedUnixTime
+                };
+
+            CopyPreservedTestingEntries(
+                previous,
+                reset);
+
+            DeleteLegacyProgressKeys(
+                previous);
+
+            // Keep one QA-only marker so the cloud resolver sees this reset as
+            // a real local edit instead of treating an empty local document as
+            // permission to restore the older remote progress.
+            reset.Ints.Add(
+                new IntEntry
+                {
+                    Key =
+                        "MotorCity.QA.ProgressReset",
+                    Value =
+                        1
+                });
+
+            document =
+                reset;
+
+            initialized =
+                true;
+
+            dirty =
+                false;
+
+            needsFlush =
+                false;
+
+            Touch();
+
+            StoreJson(
+                true);
+        }
+
+        private static void CopyPreservedTestingEntries(
+            SaveDocument source,
+            SaveDocument target)
+        {
+            foreach (IntEntry entry in
+                     source.Ints)
+            {
+                if (!IsPreservedTestingKey(
+                        entry.Key))
+                {
+                    continue;
+                }
+
+                target.Ints.Add(
+                    new IntEntry
+                    {
+                        Key =
+                            entry.Key,
+                        Value =
+                            entry.Value
+                    });
+            }
+
+            foreach (FloatEntry entry in
+                     source.Floats)
+            {
+                if (!IsPreservedTestingKey(
+                        entry.Key))
+                {
+                    continue;
+                }
+
+                target.Floats.Add(
+                    new FloatEntry
+                    {
+                        Key =
+                            entry.Key,
+                        Value =
+                            entry.Value
+                    });
+            }
+
+            foreach (StringEntry entry in
+                     source.Strings)
+            {
+                if (!IsPreservedTestingKey(
+                        entry.Key))
+                {
+                    continue;
+                }
+
+                target.Strings.Add(
+                    new StringEntry
+                    {
+                        Key =
+                            entry.Key,
+                        Value =
+                            entry.Value
+                    });
+            }
+        }
+
+        private static void DeleteLegacyProgressKeys(
+            SaveDocument source)
+        {
+            foreach (IntEntry entry in
+                     source.Ints)
+            {
+                if (!IsPreservedTestingKey(
+                        entry.Key))
+                {
+                    PlayerPrefs.DeleteKey(
+                        entry.Key);
+                }
+            }
+
+            foreach (FloatEntry entry in
+                     source.Floats)
+            {
+                if (!IsPreservedTestingKey(
+                        entry.Key))
+                {
+                    PlayerPrefs.DeleteKey(
+                        entry.Key);
+                }
+            }
+
+            foreach (StringEntry entry in
+                     source.Strings)
+            {
+                if (!IsPreservedTestingKey(
+                        entry.Key))
+                {
+                    PlayerPrefs.DeleteKey(
+                        entry.Key);
+                }
+            }
+
+            // Important legacy progress keys can exist outside the JSON if the
+            // project was launched on an old save before migration-on-read.
+            string[] knownLegacyProgressKeys =
+            {
+                "MotorCity.FrontEnd.IntroCompleted",
+                "MotorCity.Onboarding.Step",
+                "MotorCity.Onboarding.Complete",
+                "MotorCity.Onboarding.FlowVersion",
+                "MotorCity.PlayerCredits",
+                "MotorCity.Player.Reputation",
+                "MotorCity.Story.Mission",
+                "MotorCity.Story.Progress",
+                "MotorCity.Story.Complete",
+                "MotorCity.Vehicle.Position.Has",
+                "MotorCity.Vehicle.Position.X",
+                "MotorCity.Vehicle.Position.Y",
+                "MotorCity.Vehicle.Position.Z",
+                "MotorCity.Vehicle.Position.Yaw"
+            };
+
+            foreach (string key in
+                     knownLegacyProgressKeys)
+            {
+                PlayerPrefs.DeleteKey(
+                    key);
+            }
+
+            PlayerPrefs.Save();
+        }
+
+        private static bool IsPreservedTestingKey(
+            string key)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    key))
+            {
+                return false;
+            }
+
+            return
+                key.StartsWith(
+                    "MotorCity.Settings.",
+                    StringComparison.Ordinal) ||
+                key.StartsWith(
+                    "MotorCity.Purchase.",
+                    StringComparison.Ordinal);
+        }
+
         public static void Save()
         {
             EnsureLoaded();
