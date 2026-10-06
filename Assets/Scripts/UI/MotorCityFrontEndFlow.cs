@@ -1349,12 +1349,11 @@ namespace MotorCity.UI
             continuingExistingSave =
                 hasExistingProgress;
 
-            // Keep the lore intro for a brand-new save, but do not re-enable
-            // the old five-second vehicle presentation lock. After the lore
-            // slides the flow continues into loading, control selection and
-            // the interactive driving tutorial.
+            // A brand-new save keeps both parts of the authored
+            // opening: first the lore slides, then the in-city cinematic
+            // camera handoff. Existing saves skip the cinematic on Continue.
             openingPresentationRequested =
-                false;
+                !continuingExistingSave;
 
             AudioListener.pause =
                 true;
