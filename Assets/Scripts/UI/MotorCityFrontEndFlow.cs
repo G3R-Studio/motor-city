@@ -2214,6 +2214,18 @@ namespace MotorCity.UI
                 ApplyFrontEndAudioVolume();
             }
 
+            bool waitForOpeningCinematic =
+                !continuingExistingSave &&
+                openingPresentationRequested;
+
+            if (waitForOpeningCinematic)
+            {
+                // The onboarding system is already alive while the opening
+                // flyover plays. Hold its first message completely so its
+                // visibility timer cannot expire behind the HUD reveal.
+                onboarding?.HoldWelcomeMessage();
+            }
+
             car?.SetDrivingBlocked(
                 "FrontEnd",
                 false);
@@ -2233,9 +2245,39 @@ namespace MotorCity.UI
 
             if (!continuingExistingSave)
             {
-                onboarding?.ShowWelcomeAfterDelay(
-                    0.6f);
+                if (waitForOpeningCinematic)
+                {
+                    StartCoroutine(
+                        ShowWelcomeAfterOpeningCinematic());
+                }
+                else
+                {
+                    onboarding?.ShowWelcomeAfterDelay(
+                        0.6f);
+                }
             }
+        }
+
+        private IEnumerator ShowWelcomeAfterOpeningCinematic()
+        {
+            OpeningCinematicCamera openingCamera =
+                Object.FindAnyObjectByType<
+                    OpeningCinematicCamera>();
+
+            if (openingCamera != null)
+            {
+                while (openingCamera != null &&
+                       openingCamera.IsPendingOrActive)
+                {
+                    yield return null;
+                }
+
+                // Let the final cinematic/HUD handoff frame render first.
+                yield return null;
+            }
+
+            onboarding?.ShowWelcomeAfterDelay(
+                0.15f);
         }
 
         private void ReleaseIntroResources()
