@@ -543,22 +543,26 @@ namespace MotorCity.UI
 
             return statIndex switch
             {
+                // Speed is now the actual base top speed from the same vehicle
+                // profile that drives physics, not a hidden bonus value.
                 0 =>
                     Mathf.InverseLerp(
-                        -30f,
-                        70f,
+                        90f,
+                        205f,
                         signedValue),
 
+                // Acceleration is the vehicle's base Prometeo tune. Upgrades
+                // add only a small amount so the car's identity stays intact.
                 1 =>
                     Mathf.InverseLerp(
-                        -5f,
-                        15f,
+                        4f,
+                        10f,
                         signedValue),
 
                 _ =>
                     Mathf.InverseLerp(
-                        -25f,
-                        50f,
+                        -30f,
+                        35f,
                         signedValue)
             };
         }
