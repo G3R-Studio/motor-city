@@ -17,7 +17,7 @@ namespace MotorCity.World
         // vehicle meshes share lamp materials with large body/wheel submeshes,
         // causing the overlay shader to render the whole mesh magenta.
         // Real Light components and direct material-emission bindings remain.
-        private const bool EnableMeshLampOverlays = false;
+        private static readonly bool EnableMeshLampOverlays = false;
 
         private float dayNightResolveTimer;
         private ArcadeCarController car;
