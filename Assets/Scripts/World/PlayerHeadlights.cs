@@ -13,6 +13,12 @@ namespace MotorCity.World
         private const string RuntimeVisualName =
             "MotorCityVehicleVisual_Runtime";
 
+        // Mesh-duplicating lamp overlays are disabled for now. Several imported
+        // vehicle meshes share lamp materials with large body/wheel submeshes,
+        // causing the overlay shader to render the whole mesh magenta.
+        // Real Light components and direct material-emission bindings remain.
+        private const bool EnableMeshLampOverlays = false;
+
         private float dayNightResolveTimer;
         private ArcadeCarController car;
         private Transform currentVisual;
@@ -384,6 +390,9 @@ namespace MotorCity.World
                         continue;
                     }
 
+                    if (!EnableMeshLampOverlays)
+                        continue;
+
                     if (filter == null ||
                         filter.sharedMesh == null ||
                         starterLampShader == null ||
@@ -645,7 +654,8 @@ namespace MotorCity.World
                 }
             }
 
-            if (vehicleId != "delorean" ||
+            if (!EnableMeshLampOverlays ||
+                vehicleId != "delorean" ||
                 deloreanEmissionShader == null ||
                 !deloreanEmissionShader.isSupported)
             {
