@@ -47,6 +47,18 @@ namespace MotorCity.UI
             EnsureStage();
             EnsureRenderTexture();
 
+            if (targetImage != null)
+            {
+                targetImage.texture =
+                    renderTexture;
+
+                targetImage.color =
+                    Color.white;
+
+                targetImage.raycastTarget =
+                    false;
+            }
+
             SetVisible(
                 true);
 
