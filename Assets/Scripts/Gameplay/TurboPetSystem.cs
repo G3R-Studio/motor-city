@@ -968,9 +968,29 @@ namespace MotorCity.Gameplay
 
         private Bounds ResolveCarLocalBounds()
         {
+            if (car == null)
+            {
+                return new Bounds(
+                    Vector3.zero,
+                    new Vector3(
+                        1.8f,
+                        1.4f,
+                        4f));
+            }
+
+            // Pixie's anchor must be based on the actual vehicle body only.
+            // Using every Renderer under the car also includes runtime neon,
+            // effects, helper geometry and other presentation objects. A bad
+            // helper bound can otherwise move Pixie hundreds of metres away.
+            Transform vehicleVisual =
+                car.transform.Find(
+                    "MotorCityVehicleVisual_Runtime");
+
             Renderer[] renderers =
-                car.GetComponentsInChildren<Renderer>(
-                    true);
+                vehicleVisual != null
+                    ? vehicleVisual.GetComponentsInChildren<Renderer>(
+                        true)
+                    : Array.Empty<Renderer>();
 
             bool initialized =
                 false;
@@ -986,8 +1006,11 @@ namespace MotorCity.Gameplay
             foreach (Renderer renderer in
                      renderers)
             {
-                if (renderer == null)
+                if (renderer == null ||
+                    !renderer.enabled)
+                {
                     continue;
+                }
 
                 Bounds world =
                     renderer.bounds;
@@ -996,18 +1019,29 @@ namespace MotorCity.Gameplay
                     car.transform.InverseTransformPoint(
                         world.center);
 
-                Vector3 size =
-                    car.transform.InverseTransformVector(
-                        world.size);
+                Vector3 extentsWorld =
+                    world.extents;
 
-                size =
-                    new Vector3(
+                Vector3 size =
+                    new(
                         Mathf.Abs(
-                            size.x),
+                            car.transform.InverseTransformVector(
+                                new Vector3(
+                                    extentsWorld.x,
+                                    0f,
+                                    0f)).x) * 2f,
                         Mathf.Abs(
-                            size.y),
+                            car.transform.InverseTransformVector(
+                                new Vector3(
+                                    0f,
+                                    extentsWorld.y,
+                                    0f)).y) * 2f,
                         Mathf.Abs(
-                            size.z));
+                            car.transform.InverseTransformVector(
+                                new Vector3(
+                                    0f,
+                                    0f,
+                                    extentsWorld.z)).z) * 2f);
 
                 Bounds item =
                     new(
@@ -1028,6 +1062,52 @@ namespace MotorCity.Gameplay
                         item);
                 }
             }
+
+            if (!initialized)
+            {
+                BoxCollider chassis =
+                    car.GetComponent<BoxCollider>();
+
+                if (chassis != null)
+                {
+                    local =
+                        new Bounds(
+                            chassis.center,
+                            chassis.size);
+                }
+            }
+
+            // Final sanity bounds. Pixie is a close companion and should never
+            // derive an anchor from an obviously invalid presentation bound.
+            local.extents =
+                new Vector3(
+                    Mathf.Clamp(
+                        local.extents.x,
+                        0.45f,
+                        2.2f),
+                    Mathf.Clamp(
+                        local.extents.y,
+                        0.45f,
+                        2.2f),
+                    Mathf.Clamp(
+                        local.extents.z,
+                        1.0f,
+                        4.5f));
+
+            local.center =
+                new Vector3(
+                    Mathf.Clamp(
+                        local.center.x,
+                        -1.5f,
+                        1.5f),
+                    Mathf.Clamp(
+                        local.center.y,
+                        0f,
+                        2.0f),
+                    Mathf.Clamp(
+                        local.center.z,
+                        -1.5f,
+                        1.5f));
 
             return local;
         }
