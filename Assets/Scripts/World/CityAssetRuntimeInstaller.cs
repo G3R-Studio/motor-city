@@ -1,3 +1,4 @@
+using MotorCity.Diagnostics;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -285,6 +286,8 @@ namespace MotorCity.World
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             ConvertUnsupportedCityMaterialsForWeb();
+            MotorCityWebMaterialDiagnostics.Run(
+                activeCity);
 #endif
 
             // Runtime treats the authored city as read-only.
