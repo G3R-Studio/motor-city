@@ -439,6 +439,13 @@ namespace MotorCity.UI
             bool rookieDeliveryResult =
                 activityManager.ResultIsRookieDelivery;
 
+            bool rookieSprintResult =
+                activityManager.ResultIsRookieSprint;
+
+            bool rookieResult =
+                rookieDeliveryResult ||
+                rookieSprintResult;
+
             if (resultNextGoalText != null)
             {
                 string nextGoal =
@@ -472,7 +479,7 @@ namespace MotorCity.UI
             }
 
             bool replayable =
-                !rookieDeliveryResult &&
+                !rookieResult &&
                 IsReplayableResult(
                     activityManager.ResultActivityId);
 
@@ -706,8 +713,11 @@ namespace MotorCity.UI
                 return;
             }
 
-            if (activityManager.ResultIsRookieDelivery)
+            if (activityManager.ResultIsRookieDelivery ||
+                activityManager.ResultIsRookieSprint)
+            {
                 return;
+            }
 
             bool restart =
                 MotorCityInput.RetryPressed;
