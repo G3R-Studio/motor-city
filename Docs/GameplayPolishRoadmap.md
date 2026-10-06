@@ -1178,13 +1178,15 @@ VehicleVisualChanged
 
 ## Audio
 
-- [ ] Добавить simulated gear state
-- [ ] Добавить shift thresholds
-- [ ] Добавить hysteresis
-- [ ] Добавить pitch drop
-- [ ] Добавить volume dip
-- [ ] Поддержать shift clip
-- [ ] Добавить throttle-off detection
+> Базовая реализация внесена в commit `215f96625b7918f63d6677c86e293e0bf58f4523`. Отдельных shift/throttle-off AudioClip в Resources сейчас нет, поэтому эффект реализован через engine loop и ожидает игровой проверки.
+
+- [x] Добавить simulated gear state
+- [x] Добавить shift thresholds
+- [x] Добавить hysteresis
+- [x] Добавить pitch drop
+- [x] Добавить volume dip
+- [ ] Поддержать отдельный shift clip, когда появится подходящий аудиофайл
+- [x] Добавить throttle-off detection
 - [ ] Проверить WebGL audio
 
 ## Garage orbit
