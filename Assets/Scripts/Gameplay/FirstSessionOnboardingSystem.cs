@@ -40,7 +40,6 @@ namespace MotorCity.Gameplay
         private VehicleCustomizationSystem customization;
 
         private int step;
-        private Vector3 lastPosition;
         private float messageTimer;
         private float messageDelayTimer;
         private float completionTimer;
@@ -191,13 +190,12 @@ namespace MotorCity.Gameplay
                     CompleteKey,
                     0) != 0;
 
+            // Do not clamp before migration: flow v1 had step 7 while v2
+            // ends at step 6, and clamping would lose the distinction.
             int savedStep =
-                Mathf.Clamp(
-                    MotorCitySaveService.GetInt(
-                        StepKey,
-                        ThrottleStep),
-                    ThrottleStep,
-                    CompletionStep);
+                MotorCitySaveService.GetInt(
+                    StepKey,
+                    ThrottleStep);
 
             int savedFlowVersion =
                 MotorCitySaveService.GetInt(
@@ -220,12 +218,6 @@ namespace MotorCity.Gameplay
             }
 
             PersistFlowVersion();
-
-            if (car != null)
-            {
-                lastPosition =
-                    car.transform.position;
-            }
 
             if (activities != null)
             {
@@ -348,11 +340,6 @@ namespace MotorCity.Gameplay
                     break;
             }
 
-            if (car != null)
-            {
-                lastPosition =
-                    car.transform.position;
-            }
         }
 
         private void OnDestroy()
@@ -685,12 +672,6 @@ namespace MotorCity.Gameplay
             customizationNeonIndexAtStepStart =
                 -1;
 
-            if (car != null)
-            {
-                lastPosition =
-                    car.transform.position;
-            }
-
             MotorCitySaveService.DeleteKey(
                 StepKey);
 
@@ -763,7 +744,7 @@ namespace MotorCity.Gameplay
             // lesson and replacing delivery with the final rookie sprint.
             return savedStep switch
             {
-                <= 0 =>
+                0 =>
                     ThrottleStep,
 
                 1 =>
