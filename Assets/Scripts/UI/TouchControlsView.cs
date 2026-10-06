@@ -1478,18 +1478,11 @@ namespace MotorCity.UI
                 activityManager != null &&
                 activityManager.HasResult;
 
+            // Result actions now live inside the modal itself on
+            // every platform, so the legacy bottom touch row stays hidden.
             SetActiveIfChanged(
                 resultTouchControlsRoot,
-                resultOpen);
-
-            if (resultRetryTouchButton != null)
-            {
-                SetActiveIfChanged(
-                    resultRetryTouchButton,
-                    resultOpen &&
-                    IsReplayableResult(
-                        activityManager.ResultActivityId));
-            }
+                false);
 
             SetActiveIfChanged(
                 navigatorTouchControlsRoot,
