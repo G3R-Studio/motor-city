@@ -267,28 +267,48 @@ namespace MotorCity.UI
                 name ==
                 "Navigator Touch Controls Close";
 
-            Sprite actionIcon =
+            GarageReferenceGraphic.Symbol? actionIcon =
                 suppressActionIcon
                     ? null
-                    : TouchActionIcon(
+                    : TouchActionGarageIcon(
                         action);
 
-            if (actionIcon != null)
+            if (actionIcon.HasValue)
             {
-                CreateHudIcon(
-                    rect,
-                    "Action Icon",
-                    actionIcon,
+                RectTransform iconRect =
+                    GarageObject(
+                        rect,
+                        "Action Icon");
+
+                iconRect.anchorMin =
+                    iconRect.anchorMax =
+                    iconRect.pivot =
+                        new Vector2(
+                            0f,
+                            0.5f);
+
+                iconRect.anchoredPosition =
                     new Vector2(
-                        -size.x * 0.5f + 18f,
-                        0f),
+                        10f,
+                        0f);
+
+                iconRect.sizeDelta =
                     new Vector2(
-                        19f,
-                        19f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    TextColor);
+                        20f,
+                        20f);
+
+                GarageReferenceGraphic icon =
+                    iconRect.gameObject.AddComponent<
+                        GarageReferenceGraphic>();
+
+                icon.symbol =
+                    actionIcon.Value;
+
+                icon.color =
+                    TextColor;
+
+                icon.raycastTarget =
+                    false;
             }
 
             bool compactGarageButton =
@@ -304,15 +324,15 @@ namespace MotorCity.UI
                         : 12,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    actionIcon != null
+                    actionIcon.HasValue
                         ? new Vector2(
-                            9f,
+                            10f,
                             0f)
                         : Vector2.zero,
                     size -
                     new Vector2(
-                        actionIcon != null
-                            ? 30f
+                        actionIcon.HasValue
+                            ? 32f
                             : 8f,
                         6f),
                     new Vector2(0.5f, 0.5f),
@@ -335,52 +355,53 @@ namespace MotorCity.UI
                 buttonObject;
         }
 
-        private static Sprite TouchActionIcon(
-            MotorCityInputAction action)
+        private static GarageReferenceGraphic.Symbol?
+            TouchActionGarageIcon(
+                MotorCityInputAction action)
         {
             return
                 action switch
                 {
                     MotorCityInputAction.Interact =>
-                        MotorCityIconLibrary.Confirm,
+                        GarageReferenceGraphic.Symbol.Check,
 
                     MotorCityInputAction.Upgrade1 or
                     MotorCityInputAction.Upgrade2 or
                     MotorCityInputAction.Upgrade3 =>
-                        MotorCityIconLibrary.Upgrades,
+                        GarageReferenceGraphic.Symbol.Up,
 
-                    MotorCityInputAction.CycleDriveMode or
-                    MotorCityInputAction.CycleWheels or
+                    MotorCityInputAction.CycleDriveMode =>
+                        GarageReferenceGraphic.Symbol.Gear,
+
+                    MotorCityInputAction.CycleWheels =>
+                        GarageReferenceGraphic.Symbol.Rim,
+
                     MotorCityInputAction.CycleNeon =>
-                        MotorCityIconLibrary.Garage,
+                        GarageReferenceGraphic.Symbol.Neon,
 
                     MotorCityInputAction.CycleBodyColor =>
-                        MotorCityIconLibrary.Reputation,
+                        GarageReferenceGraphic.Symbol.Paint,
 
-                    MotorCityInputAction.TakePhoto =>
-                        MotorCityIconLibrary.ForActivity(
-                            ActivityIcon.PhotoHunt),
+                    MotorCityInputAction.PreviousVehicle =>
+                        GarageReferenceGraphic.Symbol.NavigationLeft,
 
-                    MotorCityInputAction.ToggleVehiclePassport =>
-                        MotorCityIconLibrary.ForSystem(
-                            SystemIcon.VehicleHistory),
-
-                    MotorCityInputAction.ToggleClub =>
-                        MotorCityIconLibrary.ForSystem(
-                            SystemIcon.Club),
-
-                    MotorCityInputAction.RewardedBonus =>
-                        MotorCityIconLibrary.Reward,
-
-                    MotorCityInputAction.ToggleStore =>
-                        MotorCityIconLibrary.Store,
+                    MotorCityInputAction.NextVehicle =>
+                        GarageReferenceGraphic.Symbol.NavigationRight,
 
                     MotorCityInputAction.ToggleNavigator =>
-                        MotorCityIconLibrary.ForActivity(
-                            ActivityIcon.Discovery),
+                        GarageReferenceGraphic.Symbol.NavigationRight,
+
+                    MotorCityInputAction.ToggleVehiclePassport =>
+                        GarageReferenceGraphic.Symbol.Check,
+
+                    MotorCityInputAction.Retry =>
+                        GarageReferenceGraphic.Symbol.NavigationRight,
+
+                    MotorCityInputAction.Cancel =>
+                        GarageReferenceGraphic.Symbol.Check,
 
                     _ =>
-                        null
+                        GarageReferenceGraphic.Symbol.Gear
                 };
         }
 
