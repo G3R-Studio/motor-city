@@ -272,10 +272,19 @@ namespace MotorCity.Vehicle
 
 #if UNITY_WEBGL && !UNITY_EDITOR
                 if (EnsureClipReadyForWeb(
-                        engineClip) &&
-                    !engineSource.isPlaying)
+                        engineClip))
                 {
-                    engineSource.Play();
+                    if (engineSource.clip !=
+                        engineClip)
+                    {
+                        engineSource.clip =
+                            engineClip;
+                    }
+
+                    if (!engineSource.isPlaying)
+                    {
+                        engineSource.Play();
+                    }
                 }
 #else
                 if (!engineSource.isPlaying)
@@ -332,10 +341,19 @@ namespace MotorCity.Vehicle
             {
 #if UNITY_WEBGL && !UNITY_EDITOR
                 if (EnsureClipReadyForWeb(
-                        tireClip) &&
-                    !tireSource.isPlaying)
+                        tireClip))
                 {
-                    tireSource.Play();
+                    if (tireSource.clip !=
+                        tireClip)
+                    {
+                        tireSource.clip =
+                            tireClip;
+                    }
+
+                    if (!tireSource.isPlaying)
+                    {
+                        tireSource.Play();
+                    }
                 }
 #else
                 if (!tireSource.isPlaying)
@@ -414,7 +432,11 @@ namespace MotorCity.Vehicle
             AudioSource source =
                 audioObject.AddComponent<AudioSource>();
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            source.clip = null;
+#else
             source.clip = clip;
+#endif
             source.loop = true;
             source.playOnAwake = false;
             source.spatialBlend = spatialBlend;
