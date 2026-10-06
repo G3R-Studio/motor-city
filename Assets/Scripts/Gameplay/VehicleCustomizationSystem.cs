@@ -139,6 +139,7 @@ namespace MotorCity.Gameplay
 
         private ArcadeCarController car;
         private VehicleRosterSystem roster;
+        private bool deferredApplyPending;
         private MaterialPropertyBlock block;
 
         private GameObject cosmeticsRoot;
@@ -219,6 +220,22 @@ namespace MotorCity.Gameplay
 
             LoadForSelectedVehicle();
             ApplyAll();
+            deferredApplyPending = true;
+        }
+
+        private void LateUpdate()
+        {
+            if (!deferredApplyPending)
+                return;
+
+            deferredApplyPending = false;
+
+            // Components added to the player car (lights/rear emission, etc.)
+            // finish their Start-time visual setup after Initialize(). Reapply
+            // persisted cosmetics once at the end of that first frame so those
+            // startup material changes cannot restore prefab/default visuals.
+            LoadForSelectedVehicle();
+            ApplyAll();
         }
 
         private void OnDestroy()
@@ -289,6 +306,7 @@ namespace MotorCity.Gameplay
         {
             LoadForSelectedVehicle();
             ApplyAll();
+            deferredApplyPending = true;
         }
 
         private void LoadForSelectedVehicle()
@@ -639,8 +657,6 @@ namespace MotorCity.Gameplay
                 visual.GetComponentsInChildren<Renderer>(
                     true);
 
-            bool hasNamedWheelPaint = Array.Exists(renderers, IsNamedWheelPaintRenderer);
-
             Color wheelColor =
                 SelectedWheelStyleIndex switch
                 {
@@ -669,6 +685,25 @@ namespace MotorCity.Gameplay
                             0.40f,
                             1f)
                 };
+
+            // STREETER uses the original ARCADE wheel hierarchy
+            // (Front/Rear Left/Right Wheel) rather than the authored
+            // *_wheels_misc mesh contract used by newer cars. Keep its
+            // dedicated legacy path so its rim colors always react to the
+            // garage selector, even if another mesh happens to match a named
+            // paint role.
+            if (VehicleId() == "street")
+            {
+                ApplyStreetWheelStyle(
+                    renderers,
+                    wheelColor);
+                return;
+            }
+
+            bool hasNamedWheelPaint =
+                Array.Exists(
+                    renderers,
+                    IsNamedWheelPaintRenderer);
 
             foreach (Renderer renderer in
                      renderers)
@@ -723,6 +758,69 @@ namespace MotorCity.Gameplay
                         wheelColor);
                 }
             }
+        }
+
+        private static void ApplyStreetWheelStyle(
+            Renderer[] renderers,
+            Color wheelColor)
+        {
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null ||
+                    renderer is TrailRenderer ||
+                    renderer is ParticleSystemRenderer ||
+                    !IsWheelHierarchy(renderer.transform))
+                {
+                    continue;
+                }
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    Material material =
+                        materials[i];
+
+                    if (material == null ||
+                        IsRubberMaterial(material))
+                    {
+                        continue;
+                    }
+
+                    ApplyColorBlockStatic(
+                        renderer,
+                        material,
+                        i,
+                        wheelColor);
+                }
+            }
+        }
+
+        private static void ApplyColorBlockStatic(
+            Renderer renderer,
+            Material material,
+            int materialIndex,
+            Color color)
+        {
+            MaterialPropertyBlock propertyBlock =
+                new();
+
+            renderer.GetPropertyBlock(
+                propertyBlock,
+                materialIndex);
+
+            if (material.HasProperty("_BaseColor"))
+                propertyBlock.SetColor("_BaseColor", color);
+
+            if (material.HasProperty("_Color"))
+                propertyBlock.SetColor("_Color", color);
+
+            renderer.SetPropertyBlock(
+                propertyBlock,
+                materialIndex);
         }
 
         private void BuildCosmeticGeometry()
