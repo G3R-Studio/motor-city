@@ -1324,9 +1324,13 @@ namespace MotorCity.UI
         {
             if (returningToLoadedGameplay)
             {
-                returningToLoadedGameplay = false;
-                continuingExistingSave = true;
-                EnterGameplay();
+                returningToLoadedGameplay =
+                    false;
+
+                continuingExistingSave =
+                    true;
+
+                ShowControlChoiceAfterLoading();
                 return;
             }
 
