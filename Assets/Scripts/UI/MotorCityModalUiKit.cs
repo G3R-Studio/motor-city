@@ -224,7 +224,7 @@ namespace MotorCity.UI
                 new Vector2(0f, 0f);
 
             labelRect.anchorMax =
-                new Vector2(0.32f, 1f);
+                new Vector2(0.30f, 1f);
 
             labelRect.offsetMin =
                 new Vector2(18f, 8f);
@@ -253,10 +253,10 @@ namespace MotorCity.UI
                 value.rectTransform;
 
             valueRect.anchorMin =
-                new Vector2(0.32f, 0f);
+                new Vector2(0.30f, 0f);
 
             valueRect.anchorMax =
-                new Vector2(0.62f, 1f);
+                new Vector2(0.53f, 1f);
 
             valueRect.offsetMin =
                 new Vector2(2f, 8f);
@@ -270,7 +270,7 @@ namespace MotorCity.UI
                     objectName + " Controls");
 
             controls.anchorMin =
-                new Vector2(0.62f, 0f);
+                new Vector2(0.53f, 0f);
 
             controls.anchorMax =
                 new Vector2(1f, 1f);
