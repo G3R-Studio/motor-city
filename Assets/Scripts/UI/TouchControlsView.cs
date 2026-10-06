@@ -275,7 +275,7 @@ namespace MotorCity.UI
             bool hasActionIcon =
                 !suppressActionIcon &&
                 MotorCityButtonVisuals.TryForButton(
-                    localizationKey + " " + name,
+                    localizationKey,
                     action,
                     out actionIcon,
                     out actionIconColor);
