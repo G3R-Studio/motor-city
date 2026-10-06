@@ -8,13 +8,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: FCG_Street-Light
-  m_Shader: {fileID: 4800000, guid: 99db4ac3a197471ca1a92e04ef554da8, type: 3}
+  m_Shader: {fileID: 4800000, guid: f3b8e68b4c9d4d8c8d99f19b72aa4a1e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords:
-  - _ALPHATEST_ON
-  - _EMISSION
+  m_InvalidKeywords: []
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
