@@ -156,6 +156,12 @@ namespace MotorCity.Vehicle
             TrailRenderer trail =
                 go.AddComponent<TrailRenderer>();
 
+            if (trailMaterial == null)
+            {
+                trail.enabled = false;
+                return trail;
+            }
+
             trail.material = trailMaterial;
             trail.time = 5f;
             trail.startWidth = 0.19f;
@@ -309,6 +315,9 @@ namespace MotorCity.Vehicle
 
             if (shader == null)
                 shader = Shader.Find("Unlit/Color");
+
+            if (shader == null)
+                shader = Shader.Find("Universal Render Pipeline/Lit");
 
             if (shader == null)
             {
