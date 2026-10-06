@@ -97,7 +97,7 @@ namespace MotorCity.UI
                     return true;
 
                 case MotorCityInputAction.ToggleNavigator:
-                    symbol = GarageReferenceGraphic.Symbol.MinimapRim;
+                    symbol = GarageReferenceGraphic.Symbol.Right;
                     color = Cyan;
                     return true;
 
@@ -106,6 +106,26 @@ namespace MotorCity.UI
                     color = Cyan;
                     return false;
             }
+        }
+
+        public static bool TryForButton(
+            string semantic,
+            MotorCityInputAction action,
+            out GarageReferenceGraphic.Symbol symbol,
+            out Color color)
+        {
+            if (TryForSemantic(
+                    semantic,
+                    out symbol,
+                    out color))
+            {
+                return true;
+            }
+
+            return TryForAction(
+                action,
+                out symbol,
+                out color);
         }
 
         public static bool TryForSemantic(
@@ -118,9 +138,16 @@ namespace MotorCity.UI
                     ? string.Empty
                     : semantic.Trim().ToLowerInvariant();
 
+            if (ContainsAny(value, "close", "закрыть"))
+            {
+                symbol = GarageReferenceGraphic.Symbol.Close;
+                color = Orange;
+                return true;
+            }
+
             if (ContainsAny(value, "navigator", "навига"))
             {
-                symbol = GarageReferenceGraphic.Symbol.MinimapRim;
+                symbol = GarageReferenceGraphic.Symbol.Right;
                 color = Cyan;
                 return true;
             }
