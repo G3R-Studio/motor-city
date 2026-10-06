@@ -310,6 +310,14 @@ namespace MotorCity.Vehicle
             if (shader == null)
                 shader = Shader.Find("Unlit/Color");
 
+            if (shader == null)
+            {
+                Debug.LogWarning(
+                    "Motor City: drift trail shader is unavailable.");
+
+                return null;
+            }
+
             Material material =
                 new(shader);
 
@@ -380,6 +388,14 @@ namespace MotorCity.Vehicle
                 shader =
                     Shader.Find(
                         "Sprites/Default");
+
+            if (shader == null)
+            {
+                Debug.LogWarning(
+                    "Motor City: drift smoke shader is unavailable.");
+
+                return null;
+            }
 
             Material material =
                 new(shader);
