@@ -26,12 +26,12 @@ namespace MotorCity.Vehicle
             "MotorCity.Vehicle.DriveMode";
 
         [Header("Prometeo tuning")]
-        [SerializeField] private int baseMaxSpeedKph = 250;
-        [SerializeField] private int maxReverseSpeedKph = 55;
-        [SerializeField] private int accelerationMultiplier = 12;
+        [SerializeField] private int baseMaxSpeedKph = 180;
+        [SerializeField] private int maxReverseSpeedKph = 42;
+        [SerializeField] private int accelerationMultiplier = 8;
         [SerializeField] private float steeringSpeed = 0.68f;
-        [SerializeField] private int brakeForce = 900;
-        [SerializeField] private int decelerationMultiplier = 1;
+        [SerializeField] private int brakeForce = 1500;
+        [SerializeField] private int decelerationMultiplier = 2;
         [SerializeField] private int handbrakeDriftMultiplier = 7;
         [SerializeField] private Vector3 bodyMassCenter =
             new(0f, 0.32f, 0.05f);
@@ -41,10 +41,10 @@ namespace MotorCity.Vehicle
         [SerializeField] private float angularDamping = 0.22f;
 
         [Header("Power assist")]
-        [SerializeField] private float basePowerAssistAcceleration = 4.2f;
-        [SerializeField] private float driftPowerAssistAcceleration = 2.4f;
-        [SerializeField] private float reversePowerAssistAcceleration = 2.2f;
-        [SerializeField] private float powerAssistFadeStartKph = 175f;
+        [SerializeField] private float basePowerAssistAcceleration = 2.8f;
+        [SerializeField] private float driftPowerAssistAcceleration = 1.8f;
+        [SerializeField] private float reversePowerAssistAcceleration = 1.6f;
+        [SerializeField] private float powerAssistFadeStartKph = 115f;
 
         [Header("Prometeo WheelColliders")]
         [SerializeField] private float fallbackWheelRadius = 0.36f;
@@ -127,6 +127,8 @@ namespace MotorCity.Vehicle
         private DriveMode currentDriveMode =
             DriveMode.Comfort;
         private float driveModeMessageTimer;
+        private string controlHintMessage;
+        private float controlHintMessageTimer;
 
         public DriveMode CurrentDriveMode =>
             currentDriveMode;
@@ -161,6 +163,16 @@ namespace MotorCity.Vehicle
 
         public bool ShowDriveModeMessage =>
             driveModeMessageTimer > 0f;
+
+        public bool ShowControlHintMessage =>
+            controlHintMessageTimer > 0f &&
+            !string.IsNullOrWhiteSpace(
+                controlHintMessage);
+
+        public string ControlHintMessage =>
+            ShowControlHintMessage
+                ? controlHintMessage
+                : string.Empty;
 
         public float SpeedKph =>
             body == null
@@ -316,10 +328,27 @@ namespace MotorCity.Vehicle
             if (drivingEnabled &&
                 resetHoldTimer <= 0f &&
                 MotorCityInput.CycleDriveModePressed &&
-                !conflictingControlPressed &&
-                SpeedKph <= 1f)
+                !conflictingControlPressed)
             {
-                CycleDriveMode();
+                if (SpeedKph <= 1f)
+                {
+                    CycleDriveMode();
+                }
+                else
+                {
+                    ShowControlHint(
+                        MotorCityLocalization.Text(
+                            "drive.stop_to_switch"));
+                }
+            }
+
+            if (drivingEnabled &&
+                MotorCityInput.EliteModifierPressed &&
+                SpeedKph > 1f)
+            {
+                ShowControlHint(
+                    MotorCityLocalization.Text(
+                        "elite.stop_to_use"));
             }
 
             if (driveModeMessageTimer > 0f)
@@ -329,6 +358,21 @@ namespace MotorCity.Vehicle
                         0f,
                         driveModeMessageTimer -
                         Time.deltaTime);
+            }
+
+            if (controlHintMessageTimer > 0f)
+            {
+                controlHintMessageTimer =
+                    Mathf.Max(
+                        0f,
+                        controlHintMessageTimer -
+                        Time.unscaledDeltaTime);
+
+                if (controlHintMessageTimer <= 0f)
+                {
+                    controlHintMessage =
+                        null;
+                }
             }
 
             if (turboAssistTimer > 0f)
@@ -1023,13 +1067,13 @@ namespace MotorCity.Vehicle
                 currentDriveMode switch
                 {
                     DriveMode.Sport =>
-                        brakeForce + 260,
+                        brakeForce + 500,
                     DriveMode.Drift =>
                         Mathf.Max(
-                            650,
-                            brakeForce - 100),
+                            1100,
+                            brakeForce + 100),
                     _ =>
-                        brakeForce + 60
+                        brakeForce + 300
                 };
 
             int tunedBrakeForce =
@@ -1133,18 +1177,19 @@ namespace MotorCity.Vehicle
             int modeBonus =
                 currentDriveMode switch
                 {
-                    DriveMode.Sport => 30,
-                    DriveMode.Drift => -12,
-                    _ => -22
+                    DriveMode.Sport => 18,
+                    DriveMode.Drift => -18,
+                    _ => -25
                 };
 
-            return Mathf.Max(
-                20,
+            return Mathf.Clamp(
                 baseMaxSpeedKph +
                 vehicleSpeedBonus +
                 GetEngineSpeedBonus() +
                 GetMasterySpeedBonus() +
-                modeBonus);
+                modeBonus,
+                60,
+                220);
         }
 
         private int GetTunedAccelerationMultiplier()
@@ -1152,18 +1197,19 @@ namespace MotorCity.Vehicle
             int modeBonus =
                 currentDriveMode switch
                 {
-                    DriveMode.Sport => 4,
-                    DriveMode.Drift => 2,
+                    DriveMode.Sport => 2,
+                    DriveMode.Drift => 1,
                     _ => 0
                 };
 
-            return Mathf.Max(
-                1,
+            return Mathf.Clamp(
                 accelerationMultiplier +
                 vehicleAccelerationBonus +
                 GetEngineAccelerationBonus() +
                 GetMasteryAccelerationBonus() +
-                modeBonus);
+                modeBonus,
+                4,
+                14);
         }
 
         private int GetMasterySpeedBonus()
@@ -1978,6 +2024,16 @@ namespace MotorCity.Vehicle
                 wheel.sidewaysFriction =
                     sideways;
             }
+        }
+
+        private void ShowControlHint(
+            string message)
+        {
+            controlHintMessage =
+                message;
+
+            controlHintMessageTimer =
+                3.6f;
         }
 
         public void CycleDriveMode()
