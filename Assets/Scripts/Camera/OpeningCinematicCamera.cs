@@ -40,6 +40,10 @@ namespace MotorCity.CameraSystem
         public bool IsActive =>
             active;
 
+        public bool IsPendingOrActive =>
+            armed ||
+            active;
+
         public void Initialize(
             Transform followTarget)
         {
