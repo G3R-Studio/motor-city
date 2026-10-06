@@ -421,10 +421,12 @@ namespace MotorCity.UI
                 VerticalWrapMode.Overflow;
 
             MotorCityTextLayout.Configure(text);
-            text.resizeTextForBestFit = false;
+            text.resizeTextForBestFit = true;
             text.resizeTextMinSize =
-                RuntimeTextMinSize(
-                    fontSize);
+                Mathf.Max(
+                    10,
+                    RuntimeTextMinSize(
+                        fontSize));
             text.resizeTextMaxSize =
                 fontSize;
 
