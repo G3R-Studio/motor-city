@@ -42,8 +42,8 @@ namespace MotorCity.UI
                     Line(31,82,88,82,6); Circle(32,11,7); Circle(72,11,7);
                     Line(24,49,84,49,5,Dark); break;
                 case Symbol.MenuGrid:
-                    Box(10,58,34,82); Box(38,58,62,82); Box(66,58,90,82);
-                    Box(10,26,34,50); Box(38,26,62,50); Box(66,26,90,50); break;
+                    Box(12,58,42,88); Box(58,58,88,88);
+                    Box(12,12,42,42); Box(58,12,88,42); break;
                 case Symbol.Pause:
                     Box(24,18,42,82); Box(58,18,76,82); break;
                 case Symbol.Keyboard:
