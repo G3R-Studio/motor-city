@@ -76,6 +76,9 @@ namespace MotorCity.Gameplay
                 980f,
                 860f);
 
+        private int lastGuiScreenWidth;
+        private int lastGuiScreenHeight;
+
         public void Initialize(
             PlayerWallet playerWallet,
             PlayerReputation playerReputation,
@@ -162,12 +165,104 @@ namespace MotorCity.Gameplay
             if (!visible)
                 return;
 
+            PrepareGuiForScreen();
+
             windowRect =
                 GUI.Window(
                     WindowId,
                     windowRect,
                     DrawWindow,
-                    "MOTOR CITY - ПОЛНЫЙ QA ADMIN");
+                    "MOTOR CITY - QA ADMIN");
+        }
+
+        private void PrepareGuiForScreen()
+        {
+            Font regular =
+                MotorCityTypography.Regular;
+
+            Font bold =
+                MotorCityTypography.Bold;
+
+            GUI.skin.font =
+                regular;
+
+            GUI.skin.label.font =
+                regular;
+            GUI.skin.label.fontSize =
+                15;
+
+            GUI.skin.button.font =
+                bold;
+            GUI.skin.button.fontSize =
+                14;
+
+            GUI.skin.box.font =
+                regular;
+            GUI.skin.box.fontSize =
+                14;
+
+            GUI.skin.window.font =
+                bold;
+            GUI.skin.window.fontSize =
+                15;
+
+            if (Screen.width ==
+                    lastGuiScreenWidth &&
+                Screen.height ==
+                    lastGuiScreenHeight)
+            {
+                return;
+            }
+
+            lastGuiScreenWidth =
+                Screen.width;
+
+            lastGuiScreenHeight =
+                Screen.height;
+
+            float width =
+                Mathf.Min(
+                    1080f,
+                    Mathf.Max(
+                        620f,
+                        Screen.width -
+                        40f));
+
+            float height =
+                Mathf.Min(
+                    780f,
+                    Mathf.Max(
+                        460f,
+                        Screen.height -
+                        92f));
+
+            windowRect.width =
+                width;
+
+            windowRect.height =
+                height;
+
+            windowRect.x =
+                Mathf.Clamp(
+                    (Screen.width -
+                     width) *
+                    0.5f,
+                    8f,
+                    Mathf.Max(
+                        8f,
+                        Screen.width -
+                        width -
+                        8f));
+
+            windowRect.y =
+                Mathf.Clamp(
+                    42f,
+                    8f,
+                    Mathf.Max(
+                        8f,
+                        Screen.height -
+                        height -
+                        8f));
         }
 
         private void DrawWindow(
@@ -178,7 +273,7 @@ namespace MotorCity.Gameplay
                     selectedTab,
                     Tabs,
                     GUILayout.Height(
-                        32f));
+                        38f));
 
             GUILayout.Space(
                 4f);
@@ -2728,9 +2823,9 @@ namespace MotorCity.Gameplay
                 GUILayout.Button(
                     text,
                     GUILayout.MinWidth(
-                        110f),
+                        126f),
                     GUILayout.Height(
-                        30f));
+                        34f));
         }
     }
 }
