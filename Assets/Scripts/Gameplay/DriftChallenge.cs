@@ -186,6 +186,13 @@ namespace MotorCity.Gameplay
                 return;
             }
 
+            if (elitePressed &&
+                car != null &&
+                car.SpeedKph > 1f)
+            {
+                return;
+            }
+
             if (MotorCityInput.InteractPressed ||
                 elitePressed)
             {
