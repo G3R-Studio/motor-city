@@ -957,9 +957,7 @@ namespace MotorCity.World
             }
 
             cityReflectionProbes.Clear();
-            return;
-#endif
-
+#else
             if (activeCity == null ||
                 !hasCityBounds)
             {
@@ -1116,6 +1114,7 @@ namespace MotorCity.World
             {
                 RefreshCityReflectionProbes();
             }
+#endif
         }
 
         private static int CurrentCityReflectionProbeGridSize()
@@ -1150,8 +1149,7 @@ namespace MotorCity.World
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             return;
-#endif
-
+#else
             int expectedProbeCount =
                 CurrentCityReflectionProbeGridSize();
 
@@ -1205,6 +1203,7 @@ namespace MotorCity.World
 
             runner.Capture(
                 cityReflectionProbes);
+#endif
         }
 
         public static void ResolveNearestRoadResetPose(
