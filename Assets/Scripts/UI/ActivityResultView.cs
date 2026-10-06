@@ -243,169 +243,49 @@ namespace MotorCity.UI
             resultControlsText.text =
                 string.Empty;
 
-            resultRetryButton =
-                CreateResultActionButton(
-                    activityResultOverlay.transform,
+            RectTransform actions =
+                CreateButtonRow(
+                    panel,
+                    "Result Actions");
+
+            actions.anchorMin =
+                new Vector2(0.5f, 0f);
+
+            actions.anchorMax =
+                new Vector2(0.5f, 0f);
+
+            actions.pivot =
+                new Vector2(0.5f, 0f);
+
+            actions.anchoredPosition =
+                new Vector2(0f, 24f);
+
+            actions.sizeDelta =
+                new Vector2(500f, 50f);
+
+            Button retryButton =
+                CreatePrimaryButton(
+                    actions,
                     "Result Retry Button",
                     "touch.result.retry",
-                    MotorCityInputAction.Retry,
-                    new Vector2(-110f, -270f),
-                    new Vector2(190f, 50f));
+                    () =>
+                        MotorCityInput.PulseVirtual(
+                            MotorCityInputAction.Retry));
 
-            resultContinueButton =
-                CreateResultActionButton(
-                    activityResultOverlay.transform,
+            resultRetryButton =
+                retryButton.gameObject;
+
+            Button continueButton =
+                CreatePrimaryButton(
+                    actions,
                     "Result Continue Button",
                     "touch.result.continue",
-                    MotorCityInputAction.Cancel,
-                    new Vector2(120f, -270f),
-                    new Vector2(230f, 50f));
-        }
+                    () =>
+                        MotorCityInput.PulseVirtual(
+                            MotorCityInputAction.Cancel));
 
-        private GameObject CreateResultActionButton(
-            Transform parent,
-            string name,
-            string localizationKey,
-            MotorCityInputAction action,
-            Vector2 anchoredPosition,
-            Vector2 size)
-        {
-            GameObject buttonObject =
-                new(
-                    name,
-                    typeof(RectTransform),
-                    typeof(Image),
-                    typeof(Button));
-
-            buttonObject.transform.SetParent(
-                parent,
-                false);
-
-            RectTransform rect =
-                buttonObject.GetComponent<RectTransform>();
-
-            rect.anchorMin =
-                new Vector2(0.5f, 0.5f);
-            rect.anchorMax =
-                new Vector2(0.5f, 0.5f);
-            rect.pivot =
-                new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition =
-                anchoredPosition;
-            rect.sizeDelta =
-                size;
-
-            Image image =
-                buttonObject.GetComponent<Image>();
-
-            Sprite buttonSprite =
-                GetModalButtonSprite(
-                    uiThemeAssets == null
-                        ? null
-                        : uiThemeAssets.modalButton);
-
-            if (buttonSprite != null)
-            {
-                image.sprite =
-                    buttonSprite;
-                image.type =
-                    Image.Type.Simple;
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(
-                        0.075f,
-                        0.07f,
-                        0.12f,
-                        0.96f);
-            }
-
-            Button button =
-                buttonObject.GetComponent<Button>();
-
-            button.targetGraphic =
-                image;
-
-            button.onClick.AddListener(
-                () =>
-                    MotorCityInput.PulseVirtual(
-                        action));
-
-            RectTransform iconRect =
-                GarageObject(
-                    rect,
-                    "Reference Action Icon");
-
-            iconRect.anchorMin =
-                iconRect.anchorMax =
-                iconRect.pivot =
-                    new Vector2(
-                        0f,
-                        0.5f);
-
-            iconRect.anchoredPosition =
-                new Vector2(
-                    16f,
-                    0f);
-
-            iconRect.sizeDelta =
-                new Vector2(
-                    24f,
-                    24f);
-
-            GarageReferenceGraphic icon =
-                iconRect.gameObject.AddComponent<
-                    GarageReferenceGraphic>();
-
-            if (!MotorCityButtonVisuals.TryForButton(
-                    localizationKey + " " + name,
-                    action,
-                    out GarageReferenceGraphic.Symbol iconSymbol,
-                    out Color iconColor))
-            {
-                iconSymbol =
-                    GarageReferenceGraphic.Symbol.Check;
-
-                iconColor =
-                    TextColor;
-            }
-
-            icon.symbol =
-                iconSymbol;
-
-            icon.color =
-                iconColor;
-
-            icon.raycastTarget =
-                false;
-
-            Text label =
-                CreateText(
-                    rect,
-                    "Label",
-                    15,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(
-                        12f,
-                        0f),
-                    size -
-                    new Vector2(12f, 8f),
-                    new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f),
-                    TextColor);
-
-            label.text =
-                MotorCityLocalization.Text(
-                    localizationKey);
-
-            MakeButtonTextCrisp(
-                label);
-
-            return buttonObject;
+            resultContinueButton =
+                continueButton.gameObject;
         }
 
         private void BuildResultTouchControls(
@@ -596,34 +476,6 @@ namespace MotorCity.UI
             {
                 resultRetryButton.SetActive(
                     replayable);
-            }
-
-            if (resultContinueButton != null)
-            {
-                RectTransform continueRect =
-                    resultContinueButton.GetComponent<
-                        RectTransform>();
-
-                if (continueRect != null)
-                {
-                    continueRect.anchoredPosition =
-                        replayable
-                            ? new Vector2(
-                                120f,
-                                -270f)
-                            : new Vector2(
-                                0f,
-                                -270f);
-
-                    continueRect.sizeDelta =
-                        replayable
-                            ? new Vector2(
-                                230f,
-                                50f)
-                            : new Vector2(
-                                310f,
-                                50f);
-                }
             }
 
             if (resultRetryTouchButton != null)
