@@ -411,6 +411,14 @@ namespace MotorCity.Audio
                 return;
             }
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            if (!EnsureClipReadyForWeb(
+                    menuClip))
+            {
+                return;
+            }
+#endif
+
             bool alreadyPlayingMenu =
                 source.clip == menuClip &&
                 source.isPlaying;
@@ -458,6 +466,14 @@ namespace MotorCity.Audio
                 if (clip == null)
                     continue;
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+                if (!EnsureClipReadyForWeb(
+                        clip))
+                {
+                    continue;
+                }
+#endif
+
                 source.Stop();
                 source.loop = false;
                 source.clip =
@@ -469,6 +485,27 @@ namespace MotorCity.Audio
                 source.Play();
                 return;
             }
+        }
+
+        private static bool EnsureClipReadyForWeb(
+            AudioClip clip)
+        {
+            if (clip == null)
+                return false;
+
+            if (clip.loadState ==
+                AudioDataLoadState.Loaded)
+            {
+                return true;
+            }
+
+            if (clip.loadState ==
+                AudioDataLoadState.Unloaded)
+            {
+                clip.LoadAudioData();
+            }
+
+            return false;
         }
 
         private bool IsCurrentCityClip()
