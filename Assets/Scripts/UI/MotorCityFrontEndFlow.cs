@@ -567,111 +567,120 @@ namespace MotorCity.UI
                     Color.black;
             }
 
-            RectTransform panel =
-                CreateFrontEndPanel(
+            FrontEndModalWindow window =
+                CreateFrontEndModalWindow(
                     controlChoiceRoot.transform,
                     "Control Choice Panel",
-                    Vector2.zero,
-                    new Vector2(980f, 650f));
-
-            Text title =
-                CreateText(
-                    panel,
                     IsRussian()
                         ? "КАКОЕ УПРАВЛЕНИЕ ВЫ ПРЕДПОЧИТАЕТЕ?"
                         : "WHICH CONTROL STYLE DO YOU PREFER?",
-                    38,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(0f, -70f),
-                    new Vector2(840f, 82f),
-                    new Vector2(0.5f, 1f));
-
-            title.color =
-                new Color(0.94f, 0.97f, 1f, 1f);
+                    new Vector2(980f, 650f),
+                    132f);
 
             Text hint =
-                CreateText(
-                    panel,
+                CreateFrontEndLayoutText(
+                    window.Content,
                     IsRussian()
                         ? "Выбор можно сделать перед каждым запуском игры."
                         : "You can choose again every time you enter the game.",
                     20,
                     FontStyle.Normal,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -164f),
-                    new Vector2(760f, 54f),
-                    new Vector2(0.5f, 1f));
+                    54f,
+                    new Color(0.68f, 0.78f, 0.90f, 1f));
 
-            hint.color =
-                new Color(0.68f, 0.78f, 0.90f, 1f);
+            ConfigureFrontEndTextFit(
+                hint,
+                16);
 
-            CreateButton(
-                panel,
+            RectTransform keyboardRow =
+                CreateFrontEndActionRow(
+                    window.Content,
+                    "Keyboard Control Row",
+                    72f);
+
+            CreateFrontEndLayoutButton(
+                keyboardRow,
                 IsRussian()
                     ? "УПРАВЛЕНИЕ С КЛАВИАТУРЫ"
                     : "KEYBOARD CONTROLS",
-                new Vector2(0f, -245f),
-                new Vector2(620f, 72f),
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Keyboard),
-                new Vector2(0.5f, 1f));
+                620f,
+                72f);
 
-            CreateButton(
-                panel,
+            RectTransform wheelRow =
+                CreateFrontEndActionRow(
+                    window.Content,
+                    "Wheel Control Row",
+                    72f);
+
+            CreateFrontEndLayoutButton(
+                wheelRow,
                 IsRussian()
                     ? "УПРАВЛЕНИЕ РУЛЕВЫМ КОЛЕСОМ"
                     : "STEERING WHEEL",
-                new Vector2(-95f, -338f),
-                new Vector2(430f, 72f),
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Wheel),
-                new Vector2(0.5f, 1f));
+                430f,
+                72f);
 
-            CreateButton(
-                panel,
+            CreateFrontEndLayoutButton(
+                wheelRow,
                 IsRussian()
                     ? "НАСТРОИТЬ"
                     : "CUSTOMIZE",
-                new Vector2(230f, -338f),
-                new Vector2(170f, 72f),
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Wheel,
                     true),
-                new Vector2(0.5f, 1f));
+                170f,
+                72f);
 
-            CreateButton(
-                panel,
+            RectTransform arrowsRow =
+                CreateFrontEndActionRow(
+                    window.Content,
+                    "Arrows Control Row",
+                    72f);
+
+            CreateFrontEndLayoutButton(
+                arrowsRow,
                 IsRussian()
                     ? "УПРАВЛЕНИЕ СТРЕЛКАМИ"
                     : "LEFT / RIGHT ARROWS",
-                new Vector2(-95f, -431f),
-                new Vector2(430f, 72f),
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Arrows),
-                new Vector2(0.5f, 1f));
+                430f,
+                72f);
 
-            CreateButton(
-                panel,
+            CreateFrontEndLayoutButton(
+                arrowsRow,
                 IsRussian()
                     ? "НАСТРОИТЬ"
                     : "CUSTOMIZE",
-                new Vector2(230f, -431f),
-                new Vector2(170f, 72f),
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Arrows,
                     true),
-                new Vector2(0.5f, 1f));
+                170f,
+                72f);
 
-            CreateButton(
-                panel,
+            CreateFrontEndFlexibleSpacer(
+                window.Content,
+                "Control Choice Spacer");
+
+            RectTransform backRow =
+                CreateFrontEndActionRow(
+                    window.Content,
+                    "Control Choice Back Row",
+                    54f);
+
+            CreateFrontEndLayoutButton(
+                backRow,
                 IsRussian()
                     ? "НАЗАД"
                     : "BACK",
-                new Vector2(0f, -535f),
-                new Vector2(220f, 54f),
                 ShowMainMenu,
-                new Vector2(0.5f, 1f));
+                220f,
+                54f);
         }
 
         private void BuildAbout()
@@ -777,70 +786,73 @@ namespace MotorCity.UI
 
         private void BuildSettings()
         {
-            RectTransform panel =
-                CreateFrontEndPanel(
+            FrontEndModalWindow window =
+                CreateFrontEndModalWindow(
                     settingsRoot.transform,
                     "Settings Panel",
-                    Vector2.zero,
+                    IsRussian()
+                        ? "НАСТРОЙКИ"
+                        : "SETTINGS",
                     new Vector2(1180f, 760f));
 
-            Text heading =
-                CreateText(
-                    panel,
-                    IsRussian() ? "НАСТРОЙКИ" : "SETTINGS",
-                    44,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(54f, -50f),
-                    new Vector2(720f, 72f),
-                    new Vector2(0f, 1f));
-
-            heading.color =
-                new Color(0.90f, 0.95f, 1f, 1f);
-
-            CreateSettingsRow(
-                panel,
-                IsRussian() ? "ГРАФИКА" : "GRAPHICS",
-                -145f,
+            CreateFrontEndSettingsLayoutRow(
+                window.Content,
+                IsRussian()
+                    ? "ГРАФИКА"
+                    : "GRAPHICS",
                 out settingsQualityText,
                 () => ChangeQuality(-1),
                 () => ChangeQuality(1),
                 null);
 
-            CreateSettingsRow(
-                panel,
-                IsRussian() ? "ЗВУК" : "AUDIO",
-                -245f,
+            CreateFrontEndSettingsLayoutRow(
+                window.Content,
+                IsRussian()
+                    ? "ЗВУК"
+                    : "AUDIO",
                 out settingsAudioText,
                 () => AdjustAudio(-1),
                 () => AdjustAudio(1),
                 ToggleAudio);
 
-            CreateSettingsRow(
-                panel,
-                IsRussian() ? "МУЗЫКА" : "MUSIC",
-                -345f,
+            CreateFrontEndSettingsLayoutRow(
+                window.Content,
+                IsRussian()
+                    ? "МУЗЫКА"
+                    : "MUSIC",
                 out settingsMusicText,
                 () => AdjustMusic(-1),
                 () => AdjustMusic(1),
                 ToggleMusic);
 
-            CreateSettingsRow(
-                panel,
-                IsRussian() ? "ЯЗЫК" : "LANGUAGE",
-                -445f,
+            CreateFrontEndSettingsLayoutRow(
+                window.Content,
+                IsRussian()
+                    ? "ЯЗЫК"
+                    : "LANGUAGE",
                 out settingsLanguageText,
                 null,
                 null,
                 ToggleLanguage);
 
-            CreateButton(
-                panel,
-                IsRussian() ? "НАЗАД" : "BACK",
-                new Vector2(54f, 44f),
-                new Vector2(260f, 58f),
+            CreateFrontEndFlexibleSpacer(
+                window.Content,
+                "Settings Spacer");
+
+            RectTransform actions =
+                CreateFrontEndActionRow(
+                    window.Content,
+                    "Settings Actions",
+                    58f);
+
+            CreateFrontEndLayoutButton(
+                actions,
+                IsRussian()
+                    ? "НАЗАД"
+                    : "BACK",
                 ShowMainMenu,
-                new Vector2(0f, 0f));
+                260f,
+                58f);
 
             RefreshSettingsText();
         }
