@@ -975,7 +975,11 @@ namespace MotorCity.Gameplay
                 targetLength,
                 false,
                 null,
-                preserveAuthoredTransform);
+                preserveAuthoredTransform,
+                null,
+                0f,
+                true,
+                profile.Id);
 
             car.ApplyVehicleProfile(
                 profile.TopSpeedKph,
