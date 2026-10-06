@@ -1637,6 +1637,21 @@ namespace MotorCity.Bootstrap
                         ? "Universal Render Pipeline/Lit"
                         : "Standard");
 
+            if (shader == null && srp)
+            {
+                shader =
+                    Shader.Find(
+                        "Universal Render Pipeline/Unlit");
+            }
+
+            if (shader == null)
+            {
+                Debug.LogError(
+                    "Motor City: no compatible runtime material shader is available.");
+
+                return null;
+            }
+
             Material material =
                 new(shader)
                 {
