@@ -79,7 +79,8 @@ namespace MotorCity.UI
         private float introAutoTimer;
         private float introVisualTimer;
         private const float IntroAutoSeconds = 7f;
-        private const float LoadingDurationSeconds = 2.6f;
+        private const float LoadingDurationSeconds = 4.5f;
+        private const float GameplayReadySettleSeconds = 2.0f;
 
         private const int FrontEndButtonFontSize = 20;
         private const int FrontEndPrimaryButtonFontSize = 23;
@@ -1945,7 +1946,9 @@ namespace MotorCity.UI
             float waitingProgress =
                 Mathf.Min(
                     0.90f,
-                    loadingTimer / 2.2f * 0.90f);
+                    loadingTimer /
+                    LoadingDurationSeconds *
+                    0.90f);
 
             float progress =
                 waitingProgress;
@@ -1955,7 +1958,7 @@ namespace MotorCity.UI
                 float finishProgress =
                     Mathf.Clamp01(
                         (loadingTimer - gameplayReadyAt) /
-                        0.65f);
+                        GameplayReadySettleSeconds);
 
                 progress =
                     Mathf.Lerp(
@@ -2032,6 +2035,15 @@ namespace MotorCity.UI
                             ? "ЗАПУСКАЕМ МАРШРУТЫ..."
                             : "STARTING THE ROUTES...";
                 }
+                else if (gameplayReady &&
+                         loadingTimer - gameplayReadyAt <
+                             GameplayReadySettleSeconds)
+                {
+                    loadingStatusText.text =
+                        IsRussian()
+                            ? "ГОТОВИМ ГОРОД..."
+                            : "PREPARING THE CITY...";
+                }
                 else
                 {
                     loadingStatusText.text =
@@ -2042,7 +2054,11 @@ namespace MotorCity.UI
             }
 
             if (!gameplayReady ||
-                progress < 0.999f)
+                progress < 0.999f ||
+                loadingTimer <
+                    LoadingDurationSeconds ||
+                loadingTimer - gameplayReadyAt <
+                    GameplayReadySettleSeconds)
             {
                 return;
             }
