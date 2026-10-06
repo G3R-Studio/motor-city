@@ -694,8 +694,13 @@ namespace MotorCity.Gameplay
             // paint role.
             if (VehicleId() == "street")
             {
+                // STREETER's wheel transforms are detached from the runtime
+                // visual and reparented under ArcadeRacingWheelSpin_* by the
+                // runtime installer. Search from the car root so the actual
+                // four rendered wheels are included.
                 ApplyStreetWheelStyle(
-                    renderers,
+                    car.GetComponentsInChildren<Renderer>(
+                        true),
                     wheelColor);
                 return;
             }
