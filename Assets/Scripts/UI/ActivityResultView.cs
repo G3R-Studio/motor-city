@@ -45,7 +45,7 @@ namespace MotorCity.UI
                     activityResultOverlay.transform,
                     "Activity Result",
                     Vector2.zero,
-                    new Vector2(650f, 460f),
+                    new Vector2(680f, 500f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     Color.clear);
@@ -121,7 +121,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, -32f),
-                    new Vector2(520f, 26f),
+                    new Vector2(560f, 30f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
@@ -133,8 +133,8 @@ namespace MotorCity.UI
                     32,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -80f),
-                    new Vector2(520f, 48f),
+                    new Vector2(0f, -86f),
+                    new Vector2(560f, 52f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
@@ -146,8 +146,8 @@ namespace MotorCity.UI
                     18,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -142f),
-                    new Vector2(520f, 48f),
+                    new Vector2(0f, -150f),
+                    new Vector2(560f, 56f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
@@ -158,8 +158,8 @@ namespace MotorCity.UI
                     "Result Reward Icon",
                     MotorCityIconLibrary.Reward,
                     new Vector2(
-                        -176f,
-                        -206f),
+                        -214f,
+                        -218f),
                     new Vector2(
                         30f,
                         30f),
@@ -179,8 +179,8 @@ namespace MotorCity.UI
                     25,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(20f, -206f),
-                    new Vector2(430f, 38f),
+                    new Vector2(12f, -218f),
+                    new Vector2(520f, 44f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
@@ -192,8 +192,8 @@ namespace MotorCity.UI
                     17,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -258f),
-                    new Vector2(500f, 28f),
+                    new Vector2(0f, -270f),
+                    new Vector2(540f, 32f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     BlueAccent);
@@ -205,8 +205,8 @@ namespace MotorCity.UI
                     15,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -296f),
-                    new Vector2(520f, 62f),
+                    new Vector2(0f, -314f),
+                    new Vector2(570f, 74f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
@@ -218,8 +218,8 @@ namespace MotorCity.UI
                     16,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, -368f),
-                    new Vector2(500f, 34f),
+                    new Vector2(0f, -390f),
+                    new Vector2(560f, 44f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     BlueAccent);
@@ -231,18 +231,131 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Result Controls",
-                    15,
+                    13,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 26f),
-                    new Vector2(560f, 28f),
+                    new Vector2(0f, 82f),
+                    new Vector2(560f, 24f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
                     SecondaryTextColor);
 
             resultControlsText.text =
+                string.Empty;
+
+            resultRetryButton =
+                CreateResultActionButton(
+                    panel,
+                    "Result Retry Button",
+                    "touch.result.retry",
+                    MotorCityInputAction.Retry,
+                    new Vector2(-102f, 30f),
+                    new Vector2(180f, 48f));
+
+            resultContinueButton =
+                CreateResultActionButton(
+                    panel,
+                    "Result Continue Button",
+                    "touch.result.continue",
+                    MotorCityInputAction.Cancel,
+                    new Vector2(112f, 30f),
+                    new Vector2(220f, 48f));
+        }
+
+        private GameObject CreateResultActionButton(
+            Transform parent,
+            string name,
+            string localizationKey,
+            MotorCityInputAction action,
+            Vector2 anchoredPosition,
+            Vector2 size)
+        {
+            GameObject buttonObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(0.5f, 0f);
+            rect.anchorMax =
+                new Vector2(0.5f, 0f);
+            rect.pivot =
+                new Vector2(0.5f, 0f);
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            Sprite buttonSprite =
+                GetModalButtonSprite(
+                    uiThemeAssets == null
+                        ? null
+                        : uiThemeAssets.modalButton);
+
+            if (buttonSprite != null)
+            {
+                image.sprite =
+                    buttonSprite;
+                image.type =
+                    Image.Type.Simple;
+                image.color =
+                    Color.white;
+            }
+            else
+            {
+                image.color =
+                    new Color(
+                        0.075f,
+                        0.07f,
+                        0.12f,
+                        0.96f);
+            }
+
+            Button button =
+                buttonObject.GetComponent<Button>();
+
+            button.targetGraphic =
+                image;
+
+            button.onClick.AddListener(
+                () =>
+                    MotorCityInput.PulseVirtual(
+                        action));
+
+            Text label =
+                CreateText(
+                    rect,
+                    "Label",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    size -
+                    new Vector2(12f, 8f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
+
+            label.text =
                 MotorCityLocalization.Text(
-                    "hud.result_controls");
+                    localizationKey);
+
+            MakeButtonTextCrisp(
+                label);
+
+            return buttonObject;
         }
 
         private void BuildResultTouchControls(
@@ -417,28 +530,51 @@ namespace MotorCity.UI
 
             if (resultControlsText != null)
             {
-                bool showKeyboardInstructions =
-                    !MotorCityInput.PreferTouchPrompts;
-
                 resultControlsText.gameObject.SetActive(
-                    showKeyboardInstructions);
+                    false);
 
                 resultControlsText.text =
-                    showKeyboardInstructions
-                        ? MotorCityLocalization.Text(
-                            rookieDeliveryResult
-                                ? "hud.result_continue_only"
-                                : IsReplayableResult(
-                                    activityManager.ResultActivityId)
-                                    ? "hud.result_controls"
-                                    : "hud.result_continue_only")
-                        : string.Empty;
+                    string.Empty;
             }
 
             bool replayable =
                 !rookieDeliveryResult &&
                 IsReplayableResult(
                     activityManager.ResultActivityId);
+
+            if (resultRetryButton != null)
+            {
+                resultRetryButton.SetActive(
+                    replayable);
+            }
+
+            if (resultContinueButton != null)
+            {
+                RectTransform continueRect =
+                    resultContinueButton.GetComponent<
+                        RectTransform>();
+
+                if (continueRect != null)
+                {
+                    continueRect.anchoredPosition =
+                        replayable
+                            ? new Vector2(
+                                112f,
+                                30f)
+                            : new Vector2(
+                                0f,
+                                30f);
+
+                    continueRect.sizeDelta =
+                        replayable
+                            ? new Vector2(
+                                220f,
+                                48f)
+                            : new Vector2(
+                                300f,
+                                48f);
+                }
+            }
 
             if (resultRetryTouchButton != null)
             {
@@ -652,7 +788,7 @@ namespace MotorCity.UI
                 !activityManager.HasResult)
                 return;
 
-            if (MotorCityInput.CancelPressed)
+            if (MotorCityInput.ResultContinuePressed)
             {
                 activityManager.DismissResult();
 
