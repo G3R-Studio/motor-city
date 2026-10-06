@@ -378,9 +378,49 @@ namespace MotorCity.Gameplay
             if (car == null)
                 return;
 
+            ClearStaleVehiclePropertyBlocks();
             ApplyBodyColor();
             ApplyWheelStyle();
             RebuildNeon();
+        }
+
+        private void ClearStaleVehiclePropertyBlocks()
+        {
+            Transform visual =
+                FindVisualRoot();
+
+            if (visual == null)
+                return;
+
+            foreach (Renderer renderer in
+                     visual.GetComponentsInChildren<Renderer>(
+                         true))
+            {
+                if (renderer == null ||
+                    renderer is TrailRenderer ||
+                    renderer is ParticleSystemRenderer)
+                {
+                    continue;
+                }
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                // Clear both the renderer-wide block and every per-material
+                // block. Cached vehicle visuals survive selection changes, so
+                // stale overrides must not leak into the next activation.
+                renderer.SetPropertyBlock(
+                    null);
+
+                for (int materialIndex = 0;
+                     materialIndex < materials.Length;
+                     materialIndex++)
+                {
+                    renderer.SetPropertyBlock(
+                        null,
+                        materialIndex);
+                }
+            }
         }
 
         private void RebuildNeon()
