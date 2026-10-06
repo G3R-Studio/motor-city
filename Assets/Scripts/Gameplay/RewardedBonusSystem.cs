@@ -125,6 +125,11 @@ namespace MotorCity.Gameplay
         {
             ResolveDay();
 
+            if (!MotorCityPlatform.SupportsAds)
+            {
+                return;
+            }
+
             if (!CanRequest)
             {
                 StatusText = PromptLine;
