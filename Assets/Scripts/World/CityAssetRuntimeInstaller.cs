@@ -282,6 +282,10 @@ namespace MotorCity.World
 
             RebindRuntimeCityMaterials();
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            ConvertUnsupportedCityMaterialsForWeb();
+#endif
+
             // Runtime treats the authored city as read-only.
             // Colliders, props, parked vehicles, traffic signals and all
             // other map objects must come exactly from CityVisual.prefab.
@@ -538,6 +542,208 @@ namespace MotorCity.World
             }
 
             return 100;
+        }
+
+        private static void ConvertUnsupportedCityMaterialsForWeb()
+        {
+            if (activeCity == null)
+                return;
+
+            Shader urpLit =
+                Shader.Find(
+                    "Universal Render Pipeline/Lit");
+
+            if (urpLit == null)
+                return;
+
+            var converted =
+                new Dictionary<Material, Material>();
+
+            Renderer[] renderers =
+                activeCity.GetComponentsInChildren<Renderer>(
+                    true);
+
+            foreach (Renderer renderer in
+                     renderers)
+            {
+                if (renderer == null)
+                    continue;
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                if (materials == null ||
+                    materials.Length == 0)
+                {
+                    continue;
+                }
+
+                bool changed =
+                    false;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    Material source =
+                        materials[i];
+
+                    if (source == null)
+                        continue;
+
+                    Shader sourceShader =
+                        source.shader;
+
+                    string shaderName =
+                        sourceShader != null
+                            ? sourceShader.name
+                            : string.Empty;
+
+                    if (shaderName.StartsWith(
+                            "Universal Render Pipeline/",
+                            StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    if (converted.TryGetValue(
+                            source,
+                            out Material cached) &&
+                        cached != null)
+                    {
+                        materials[i] =
+                            cached;
+
+                        changed =
+                            true;
+
+                        continue;
+                    }
+
+                    Material runtime =
+                        new Material(
+                            urpLit)
+                        {
+                            name =
+                                source.name +
+                                "_MotorCityWeb",
+                            hideFlags =
+                                HideFlags.DontSave
+                        };
+
+                    string[] textureProperties =
+                        source.GetTexturePropertyNames();
+
+                    string sourceTextureProperty =
+                        null;
+
+                    Texture baseTexture =
+                        null;
+
+                    string[] preferred =
+                    {
+                        "_BaseMap",
+                        "_MainTex",
+                        "_Albedo",
+                        "_BaseColorMap"
+                    };
+
+                    foreach (string property in
+                             preferred)
+                    {
+                        if (Array.IndexOf(
+                                textureProperties,
+                                property) < 0)
+                        {
+                            continue;
+                        }
+
+                        Texture candidate =
+                            source.GetTexture(
+                                property);
+
+                        if (candidate == null)
+                            continue;
+
+                        sourceTextureProperty =
+                            property;
+                        baseTexture =
+                            candidate;
+                        break;
+                    }
+
+                    if (baseTexture != null)
+                    {
+                        runtime.SetTexture(
+                            "_BaseMap",
+                            baseTexture);
+
+                        runtime.SetTextureScale(
+                            "_BaseMap",
+                            source.GetTextureScale(
+                                sourceTextureProperty));
+
+                        runtime.SetTextureOffset(
+                            "_BaseMap",
+                            source.GetTextureOffset(
+                                sourceTextureProperty));
+                    }
+
+                    Color baseColor =
+                        Color.white;
+
+                    if (source.HasProperty(
+                            "_BaseColor"))
+                    {
+                        baseColor =
+                            source.GetColor(
+                                "_BaseColor");
+                    }
+                    else if (source.HasProperty(
+                                 "_Color"))
+                    {
+                        baseColor =
+                            source.GetColor(
+                                "_Color");
+                    }
+
+                    runtime.SetColor(
+                        "_BaseColor",
+                        baseColor);
+
+                    if (source.HasProperty(
+                            "_EmissionColor"))
+                    {
+                        Color emission =
+                            source.GetColor(
+                                "_EmissionColor");
+
+                        if (emission.maxColorComponent >
+                            0.001f)
+                        {
+                            runtime.SetColor(
+                                "_EmissionColor",
+                                emission);
+
+                            runtime.EnableKeyword(
+                                "_EMISSION");
+                        }
+                    }
+
+                    converted[source] =
+                        runtime;
+                    materials[i] =
+                        runtime;
+                    changed =
+                        true;
+                }
+
+                if (changed)
+                {
+                    renderer.sharedMaterials =
+                        materials;
+                }
+            }
         }
 
         private static string RuntimeMaterialKey(
