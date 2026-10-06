@@ -360,13 +360,23 @@ namespace MotorCity.UI
                 iconRect.gameObject.AddComponent<
                     GarageReferenceGraphic>();
 
+            if (!MotorCityButtonVisuals.TryForAction(
+                    action,
+                    out GarageReferenceGraphic.Symbol iconSymbol,
+                    out Color iconColor))
+            {
+                iconSymbol =
+                    GarageReferenceGraphic.Symbol.Check;
+
+                iconColor =
+                    TextColor;
+            }
+
             icon.symbol =
-                action == MotorCityInputAction.Retry
-                    ? GarageReferenceGraphic.Symbol.NavigationRight
-                    : GarageReferenceGraphic.Symbol.Check;
+                iconSymbol;
 
             icon.color =
-                TextColor;
+                iconColor;
 
             icon.raycastTarget =
                 false;
