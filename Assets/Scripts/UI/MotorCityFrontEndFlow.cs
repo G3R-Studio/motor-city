@@ -622,8 +622,8 @@ namespace MotorCity.UI
                 IsRussian()
                     ? "УПРАВЛЕНИЕ РУЛЕВЫМ КОЛЕСОМ"
                     : "STEERING WHEEL",
-                new Vector2(0f, -338f),
-                new Vector2(620f, 72f),
+                new Vector2(-95f, -338f),
+                new Vector2(430f, 72f),
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Wheel),
                 new Vector2(0.5f, 1f));
@@ -631,12 +631,36 @@ namespace MotorCity.UI
             CreateButton(
                 panel,
                 IsRussian()
+                    ? "НАСТРОИТЬ"
+                    : "CUSTOMIZE",
+                new Vector2(230f, -338f),
+                new Vector2(170f, 72f),
+                () => ChooseControlScheme(
+                    MotorCityControlScheme.Wheel,
+                    true),
+                new Vector2(0.5f, 1f));
+
+            CreateButton(
+                panel,
+                IsRussian()
                     ? "УПРАВЛЕНИЕ СТРЕЛКАМИ"
                     : "LEFT / RIGHT ARROWS",
-                new Vector2(0f, -431f),
-                new Vector2(620f, 72f),
+                new Vector2(-95f, -431f),
+                new Vector2(430f, 72f),
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Arrows),
+                new Vector2(0.5f, 1f));
+
+            CreateButton(
+                panel,
+                IsRussian()
+                    ? "НАСТРОИТЬ"
+                    : "CUSTOMIZE",
+                new Vector2(230f, -431f),
+                new Vector2(170f, 72f),
+                () => ChooseControlScheme(
+                    MotorCityControlScheme.Arrows,
+                    true),
                 new Vector2(0.5f, 1f));
 
             CreateButton(
@@ -1277,7 +1301,8 @@ namespace MotorCity.UI
         }
 
         private void ChooseControlScheme(
-            MotorCityControlScheme scheme)
+            MotorCityControlScheme scheme,
+            bool customizeLayout = false)
         {
             MotorCityInput.SetControlScheme(
                 scheme);
@@ -1286,6 +1311,13 @@ namespace MotorCity.UI
                 false);
 
             EnterGameplay();
+
+            if (customizeLayout &&
+                scheme !=
+                    MotorCityControlScheme.Keyboard)
+            {
+                hud?.BeginTouchLayoutEdit();
+            }
         }
 
         private void ContinuePrimaryAction()
