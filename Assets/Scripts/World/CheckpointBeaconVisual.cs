@@ -817,6 +817,14 @@ namespace MotorCity.World
                 Shader.Find(
                     "Standard");
 
+            if (shader == null)
+            {
+                Debug.LogWarning(
+                    "Motor City: checkpoint beacon shader is unavailable.");
+
+                return null;
+            }
+
             Material material =
                 new(
                     shader)
