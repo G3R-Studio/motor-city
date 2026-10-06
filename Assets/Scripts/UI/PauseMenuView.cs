@@ -452,29 +452,49 @@ namespace MotorCity.UI
             button.onClick.AddListener(
                 action);
 
-            Sprite utilityIcon =
+            GarageReferenceGraphic.Symbol? utilityIcon =
                 objectName == "HUD Pause"
-                    ? MotorCityIconLibrary.Pause
+                    ? GarageReferenceGraphic.Symbol.Keyboard
                     : objectName == "HUD More"
-                        ? MotorCityIconLibrary.More
+                        ? GarageReferenceGraphic.Symbol.Gear
                         : null;
 
-            if (utilityIcon != null)
+            if (utilityIcon.HasValue)
             {
-                CreateHudIcon(
-                    rect,
-                    "Action Icon",
-                    utilityIcon,
+                RectTransform iconRect =
+                    GarageObject(
+                        rect,
+                        "Action Icon");
+
+                iconRect.anchorMin =
+                    iconRect.anchorMax =
+                    iconRect.pivot =
+                        new Vector2(
+                            0f,
+                            0.5f);
+
+                iconRect.anchoredPosition =
                     new Vector2(
-                        -size.x * 0.5f + 18f,
-                        0f),
+                        10f,
+                        0f);
+
+                iconRect.sizeDelta =
                     new Vector2(
-                        19f,
-                        19f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    TextColor);
+                        20f,
+                        20f);
+
+                GarageReferenceGraphic icon =
+                    iconRect.gameObject.AddComponent<
+                        GarageReferenceGraphic>();
+
+                icon.symbol =
+                    utilityIcon.Value;
+
+                icon.color =
+                    TextColor;
+
+                icon.raycastTarget =
+                    false;
             }
 
             Text text =
@@ -491,13 +511,13 @@ namespace MotorCity.UI
                             : UiButtonFontSize,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    utilityIcon != null
-                        ? new Vector2(9f, 0f)
+                    utilityIcon.HasValue
+                        ? new Vector2(10f, 0f)
                         : Vector2.zero,
                     size -
                     new Vector2(
-                        utilityIcon != null
-                            ? 30f
+                        utilityIcon.HasValue
+                            ? 32f
                             : 8f,
                         6f),
                     new Vector2(0.5f, 0.5f),
