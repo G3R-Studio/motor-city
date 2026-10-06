@@ -19,7 +19,7 @@ namespace MotorCity.World
         // Do not duplicate complete vehicle meshes just to mask lamp polygons.
         // On several imported cars those overlays cover body/wheel submeshes
         // and render magenta. Existing authored lamp materials still work.
-        private const bool EnableMeshLampOverlays = false;
+        private static readonly bool EnableMeshLampOverlays = false;
 
         // Name used by the old implementation that projected red geometry over
         // the rear of every renderer. Keep this only so old runtime objects are
