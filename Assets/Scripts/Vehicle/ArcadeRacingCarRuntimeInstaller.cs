@@ -142,7 +142,8 @@ namespace MotorCity.Vehicle
             bool preserveAuthoredTransform = false,
             Vector3[] explicitWheelCentersLocal = null,
             float explicitWheelRadius = 0f,
-            bool useVisualMeshCollider = true)
+            bool useVisualMeshCollider = true,
+            string collisionProfileId = null)
         {
             PruneDestroyedVehicleCacheEntries();
 
@@ -187,7 +188,8 @@ namespace MotorCity.Vehicle
                 useVisualMeshCollider,
                 preserveAuthoredTransform
                     ? resourcePath
-                    : null);
+                    : null,
+                collisionProfileId);
         }
 
         private static void PruneDestroyedVehicleCacheEntries()
@@ -335,7 +337,8 @@ namespace MotorCity.Vehicle
             Vector3[] explicitWheelCentersLocal = null,
             float explicitWheelRadius = 0f,
             bool useVisualMeshCollider = true,
-            string cacheKey = null)
+            string cacheKey = null,
+            string collisionProfileId = null)
         {
             Transform carTransform = car.transform;
 
@@ -665,7 +668,8 @@ namespace MotorCity.Vehicle
 
                 ConfigureVisualMeshCollider(
                     visual,
-                    ordered);
+                    ordered,
+                    collisionProfileId);
             }
             else
             {
@@ -1170,7 +1174,8 @@ namespace MotorCity.Vehicle
 
         private static void ConfigureVisualMeshCollider(
             GameObject visual,
-            Transform[] wheels)
+            Transform[] wheels,
+            string collisionProfileId)
         {
             if (visual == null)
                 return;
@@ -1187,7 +1192,8 @@ namespace MotorCity.Vehicle
             if (primaryBody != null)
             {
                 BuildCompoundBodyCollider(
-                    primaryBody);
+                    primaryBody,
+                    collisionProfileId);
             }
         }
 
@@ -1453,7 +1459,8 @@ namespace MotorCity.Vehicle
         }
 
         private static void BuildCompoundBodyCollider(
-            MeshFilter filter)
+            MeshFilter filter,
+            string collisionProfileId)
         {
             if (filter == null ||
                 filter.sharedMesh == null)
@@ -1496,6 +1503,14 @@ namespace MotorCity.Vehicle
 
             proxyRoot.transform.localScale =
                 Vector3.one;
+
+            if (TryBuildVehicleCollisionProfile(
+                    collisionProfileId,
+                    meshBounds,
+                    proxyRoot.transform))
+            {
+                return;
+            }
 
             if (!sourceMesh.isReadable)
             {
@@ -1667,6 +1682,259 @@ namespace MotorCity.Vehicle
 
                 collider.size =
                     size;
+            }
+        }
+
+        private readonly struct CollisionBoxSpec
+        {
+            public readonly float LongCenter;
+            public readonly float LongSize;
+            public readonly float Width;
+            public readonly float Height;
+            public readonly float Bottom;
+
+            public CollisionBoxSpec(
+                float longCenter,
+                float longSize,
+                float width,
+                float height,
+                float bottom)
+            {
+                LongCenter = longCenter;
+                LongSize = longSize;
+                Width = width;
+                Height = height;
+                Bottom = bottom;
+            }
+        }
+
+        private static bool TryBuildVehicleCollisionProfile(
+            string vehicleId,
+            Bounds bounds,
+            Transform proxyRoot)
+        {
+            CollisionBoxSpec[] profile =
+                ResolveVehicleCollisionProfile(
+                    vehicleId);
+
+            if (profile == null ||
+                profile.Length == 0 ||
+                proxyRoot == null)
+            {
+                return false;
+            }
+
+            bool longAlongZ =
+                bounds.size.z >=
+                bounds.size.x;
+
+            float longSize =
+                longAlongZ
+                    ? bounds.size.z
+                    : bounds.size.x;
+
+            float widthSize =
+                longAlongZ
+                    ? bounds.size.x
+                    : bounds.size.z;
+
+            float longCenter =
+                longAlongZ
+                    ? bounds.center.z
+                    : bounds.center.x;
+
+            float widthCenter =
+                longAlongZ
+                    ? bounds.center.x
+                    : bounds.center.z;
+
+            float height =
+                Mathf.Max(
+                    0.05f,
+                    bounds.size.y);
+
+            for (int i = 0;
+                 i < profile.Length;
+                 i++)
+            {
+                CollisionBoxSpec spec =
+                    profile[i];
+
+                GameObject part =
+                    new GameObject(
+                        "BodyCollider_Profile_" +
+                        i);
+
+                part.transform.SetParent(
+                    proxyRoot,
+                    false);
+
+                float partLongCenter =
+                    longCenter +
+                    spec.LongCenter *
+                    longSize;
+
+                float partHeight =
+                    Mathf.Max(
+                        0.05f,
+                        height *
+                        spec.Height);
+
+                float partY =
+                    bounds.min.y +
+                    height *
+                    spec.Bottom +
+                    partHeight *
+                    0.5f;
+
+                Vector3 center =
+                    longAlongZ
+                        ? new Vector3(
+                            widthCenter,
+                            partY,
+                            partLongCenter)
+                        : new Vector3(
+                            partLongCenter,
+                            partY,
+                            widthCenter);
+
+                Vector3 size =
+                    longAlongZ
+                        ? new Vector3(
+                            widthSize *
+                            spec.Width,
+                            partHeight,
+                            longSize *
+                            spec.LongSize)
+                        : new Vector3(
+                            longSize *
+                            spec.LongSize,
+                            partHeight,
+                            widthSize *
+                            spec.Width);
+
+                part.transform.localPosition =
+                    center;
+                part.transform.localRotation =
+                    Quaternion.identity;
+                part.transform.localScale =
+                    Vector3.one;
+
+                BoxCollider collider =
+                    part.AddComponent<BoxCollider>();
+
+                collider.center =
+                    Vector3.zero;
+                collider.size =
+                    size;
+            }
+
+            return true;
+        }
+
+        private static CollisionBoxSpec[]
+            ResolveVehicleCollisionProfile(
+                string vehicleId)
+        {
+            switch (vehicleId)
+            {
+                case "beatall":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.82f, 0.94f, 0.34f, 0.05f),
+                        new CollisionBoxSpec(-0.12f, 0.46f, 0.82f, 0.58f, 0.30f),
+                        new CollisionBoxSpec(-0.39f, 0.22f, 0.90f, 0.35f, 0.08f),
+                        new CollisionBoxSpec(0.39f, 0.22f, 0.88f, 0.28f, 0.08f)
+                    };
+
+                case "street":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.86f, 0.90f, 0.32f, 0.05f),
+                        new CollisionBoxSpec(-0.06f, 0.46f, 0.80f, 0.56f, 0.30f),
+                        new CollisionBoxSpec(-0.40f, 0.20f, 0.84f, 0.34f, 0.08f),
+                        new CollisionBoxSpec(0.40f, 0.20f, 0.82f, 0.24f, 0.08f)
+                    };
+
+                case "peugeot306":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.86f, 0.90f, 0.34f, 0.05f),
+                        new CollisionBoxSpec(-0.06f, 0.54f, 0.84f, 0.60f, 0.29f),
+                        new CollisionBoxSpec(-0.40f, 0.20f, 0.88f, 0.40f, 0.08f),
+                        new CollisionBoxSpec(0.40f, 0.20f, 0.84f, 0.24f, 0.08f)
+                    };
+
+                case "toyotaae86":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.88f, 0.88f, 0.31f, 0.05f),
+                        new CollisionBoxSpec(-0.08f, 0.42f, 0.78f, 0.58f, 0.29f),
+                        new CollisionBoxSpec(-0.40f, 0.20f, 0.82f, 0.34f, 0.08f),
+                        new CollisionBoxSpec(0.24f, 0.28f, 0.84f, 0.25f, 0.08f),
+                        new CollisionBoxSpec(0.45f, 0.12f, 0.76f, 0.18f, 0.08f)
+                    };
+
+                case "hybrid":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.84f, 0.88f, 0.36f, 0.05f),
+                        new CollisionBoxSpec(-0.03f, 0.50f, 0.82f, 0.58f, 0.30f),
+                        new CollisionBoxSpec(-0.40f, 0.18f, 0.82f, 0.30f, 0.08f),
+                        new CollisionBoxSpec(0.40f, 0.18f, 0.80f, 0.25f, 0.08f)
+                    };
+
+                case "porsche996":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.88f, 0.90f, 0.29f, 0.05f),
+                        new CollisionBoxSpec(-0.08f, 0.40f, 0.78f, 0.56f, 0.28f),
+                        new CollisionBoxSpec(-0.41f, 0.17f, 0.80f, 0.27f, 0.08f),
+                        new CollisionBoxSpec(0.22f, 0.28f, 0.84f, 0.23f, 0.08f),
+                        new CollisionBoxSpec(0.44f, 0.14f, 0.76f, 0.15f, 0.08f)
+                    };
+
+                case "amggt":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.90f, 0.92f, 0.27f, 0.05f),
+                        new CollisionBoxSpec(-0.13f, 0.34f, 0.80f, 0.50f, 0.27f),
+                        new CollisionBoxSpec(-0.43f, 0.14f, 0.82f, 0.25f, 0.08f),
+                        new CollisionBoxSpec(0.18f, 0.36f, 0.88f, 0.23f, 0.08f),
+                        new CollisionBoxSpec(0.45f, 0.14f, 0.80f, 0.15f, 0.08f)
+                    };
+
+                case "camaro":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.90f, 0.94f, 0.30f, 0.05f),
+                        new CollisionBoxSpec(-0.08f, 0.40f, 0.82f, 0.55f, 0.29f),
+                        new CollisionBoxSpec(-0.42f, 0.16f, 0.88f, 0.28f, 0.08f),
+                        new CollisionBoxSpec(0.20f, 0.34f, 0.90f, 0.24f, 0.08f),
+                        new CollisionBoxSpec(0.45f, 0.14f, 0.82f, 0.17f, 0.08f)
+                    };
+
+                case "delorean":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.90f, 0.90f, 0.27f, 0.05f),
+                        new CollisionBoxSpec(-0.09f, 0.38f, 0.76f, 0.52f, 0.28f),
+                        new CollisionBoxSpec(-0.43f, 0.14f, 0.78f, 0.28f, 0.08f),
+                        new CollisionBoxSpec(0.13f, 0.24f, 0.82f, 0.24f, 0.08f),
+                        new CollisionBoxSpec(0.33f, 0.22f, 0.79f, 0.18f, 0.08f),
+                        new CollisionBoxSpec(0.47f, 0.08f, 0.70f, 0.12f, 0.08f)
+                    };
+
+                case "bus":
+                    return new[]
+                    {
+                        new CollisionBoxSpec(0f, 0.94f, 0.80f, 0.24f, 0.04f),
+                        new CollisionBoxSpec(0f, 0.90f, 0.78f, 0.68f, 0.24f),
+                        new CollisionBoxSpec(-0.02f, 0.82f, 0.74f, 0.10f, 0.88f)
+                    };
+
+                default:
+                    return null;
             }
         }
 
