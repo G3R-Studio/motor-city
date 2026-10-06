@@ -689,6 +689,9 @@ namespace MotorCity.Gameplay
 
             messageDelayTimer =
                 0f;
+
+            messageHeld =
+                false;
         }
 
         public void ResetForTesting()
@@ -732,6 +735,9 @@ namespace MotorCity.Gameplay
 
             messageDelayTimer =
                 0f;
+
+            messageHeld =
+                false;
         }
 
         private void CompleteSilently()
