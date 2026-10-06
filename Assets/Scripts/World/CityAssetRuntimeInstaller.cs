@@ -655,6 +655,27 @@ namespace MotorCity.World
         private static void InstallCityReflectionProbes(
             bool captureImmediately = true)
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Realtime cubemap captures are disproportionately expensive in
+            // browsers. Web uses ambient/sky lighting instead.
+            for (int i = 0;
+                 i < cityReflectionProbes.Count;
+                 i++)
+            {
+                ReflectionProbe oldProbe =
+                    cityReflectionProbes[i];
+
+                if (oldProbe != null)
+                {
+                    UnityEngine.Object.Destroy(
+                        oldProbe.gameObject);
+                }
+            }
+
+            cityReflectionProbes.Clear();
+            return;
+#endif
+
             if (activeCity == null ||
                 !hasCityBounds)
             {
@@ -843,6 +864,10 @@ namespace MotorCity.World
 
         public static void RefreshCityReflectionProbes()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return;
+#endif
+
             int expectedProbeCount =
                 CurrentCityReflectionProbeGridSize();
 
