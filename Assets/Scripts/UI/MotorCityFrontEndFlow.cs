@@ -1349,9 +1349,10 @@ namespace MotorCity.UI
             continuingExistingSave =
                 hasExistingProgress;
 
-            // The v2 first-run flow teaches the game through play. The old
-            // six-slide presentation and its five-second vehicle lock are no
-            // longer part of the mandatory new-game path.
+            // Keep the lore intro for a brand-new save, but do not re-enable
+            // the old five-second vehicle presentation lock. After the lore
+            // slides the flow continues into loading, control selection and
+            // the interactive driving tutorial.
             openingPresentationRequested =
                 false;
 
@@ -1361,25 +1362,32 @@ namespace MotorCity.UI
             mainRoot.SetActive(
                 false);
 
-            introRoot.SetActive(
-                false);
-
-            if (!continuingExistingSave)
+            if (continuingExistingSave)
             {
-                // Preserve the legacy key so a partially started v2 save is
-                // still recognised as progress on the next launch, without
-                // ever forcing the retired slideshow back into the flow.
-                MotorCitySaveService.SetInt(
-                    IntroCompleteKey,
-                    1);
+                introRoot.SetActive(
+                    false);
 
-                MotorCitySaveService.Save();
-
-                hasExistingProgress =
-                    true;
+                StartLoadingTransition();
+                return;
             }
 
-            StartLoadingTransition();
+            introIndex =
+                0;
+
+            introRoot.SetActive(
+                true);
+
+            if (introPreviousImage != null)
+            {
+                introPreviousImage.texture =
+                    null;
+
+                introPreviousImage.color =
+                    Color.black;
+            }
+
+            ResetIntroVisualState();
+            RefreshIntro();
         }
 
         private void NextIntro()
