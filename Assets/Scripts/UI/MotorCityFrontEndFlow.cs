@@ -3219,7 +3219,15 @@ namespace MotorCity.UI
                 MotorCityTextLayout.Configure(text);
             }
             AddSharedBackground(controlChoiceRoot, .72f);
-            AddMenuButtonIcon(primaryButtonText.transform.parent, GarageReferenceGraphic.Symbol.Right);
+            MotorCityButtonVisuals.TryForSemantic(
+                primaryButtonText.text,
+                out GarageReferenceGraphic.Symbol primaryIcon,
+                out Color primaryIconColor);
+
+            AddMenuButtonIcon(
+                primaryButtonText.transform.parent,
+                primaryIcon,
+                primaryIconColor);
             foreach (Button button in mainRoot.GetComponentsInChildren<Button>(true))
             {
                 Text label = button.GetComponentInChildren<Text>();
