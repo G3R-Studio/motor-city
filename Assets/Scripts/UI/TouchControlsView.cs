@@ -7,6 +7,21 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
+        private RectTransform touchDrivingRootRect;
+        private RectTransform touchThrottleRect;
+        private RectTransform touchBrakeRect;
+        private RectTransform touchHandbrakeRect;
+        private RectTransform touchActionRect;
+        private Vector2 touchThrottleDefaultPosition;
+        private Vector2 touchBrakeDefaultPosition;
+        private Vector2 touchHandbrakeDefaultPosition;
+        private Vector2 touchActionDefaultPosition;
+        private Vector2 touchWheelDefaultPosition;
+        private Vector2 touchArrowDefaultPosition;
+        private MotorCityControlScheme touchLayoutAppliedScheme =
+            (MotorCityControlScheme)(-1);
+        private bool touchLayoutEditing;
+        private GameObject touchLayoutEditorRoot;
         private void RefreshTouchLocalizedLabels()
         {
             foreach (TouchLocalizedLabel binding in
@@ -896,6 +911,9 @@ namespace MotorCity.UI
             RectTransform root =
                 touchControlsRoot.GetComponent<RectTransform>();
 
+            touchDrivingRootRect =
+                root;
+
             root.anchorMin = Vector2.zero;
             root.anchorMax = Vector2.one;
             root.offsetMin = Vector2.zero;
@@ -911,7 +929,8 @@ namespace MotorCity.UI
             // Keep the driving HUD close to the reference layout: steering on
             // the left, pedals on the right, handbrake above the pedals.
             // Artwork is intentionally translucent so it never hides the road.
-            CreateTouchArtHoldButton(
+            touchThrottleRect =
+                CreateTouchArtHoldButton(
                 root,
                 "Throttle",
                 MotorCityInputAction.Throttle,
@@ -924,7 +943,8 @@ namespace MotorCity.UI
                 new Vector2(92f, 156f),
                 new Color32(255, 255, 255, 0x64));
 
-            CreateTouchArtHoldButton(
+            touchBrakeRect =
+                CreateTouchArtHoldButton(
                 root,
                 "Reverse",
                 MotorCityInputAction.Reverse,
@@ -942,7 +962,8 @@ namespace MotorCity.UI
                     ? null
                     : uiThemeAssets.touchHandbrake;
 
-            CreateTouchArtHoldButton(
+            touchHandbrakeRect =
+                CreateTouchArtHoldButton(
                 root,
                 "Handbrake",
                 MotorCityInputAction.Handbrake,
@@ -987,6 +1008,9 @@ namespace MotorCity.UI
             RectTransform interactRect =
                 interactButton.GetComponent<RectTransform>();
 
+            touchActionRect =
+                interactRect;
+
             interactRect.anchorMin =
                 new Vector2(1f, 0f);
             interactRect.anchorMax =
@@ -1004,6 +1028,26 @@ namespace MotorCity.UI
                 CreateTouchArrowSteeringGroup(
                     root);
 
+            touchThrottleDefaultPosition =
+                touchThrottleRect.anchoredPosition;
+            touchBrakeDefaultPosition =
+                touchBrakeRect.anchoredPosition;
+            touchHandbrakeDefaultPosition =
+                touchHandbrakeRect.anchoredPosition;
+            touchActionDefaultPosition =
+                touchActionRect.anchoredPosition;
+            touchWheelDefaultPosition =
+                touchWheelSteeringRoot
+                    .GetComponent<RectTransform>()
+                    .anchoredPosition;
+            touchArrowDefaultPosition =
+                touchArrowSteeringRoot
+                    .GetComponent<RectTransform>()
+                    .anchoredPosition;
+
+            ApplyTouchControlLayout(
+                true);
+
             bool wheelScheme =
                 MotorCityInput.CurrentControlScheme ==
                 MotorCityControlScheme.Wheel;
@@ -1013,6 +1057,466 @@ namespace MotorCity.UI
 
             touchArrowSteeringRoot.SetActive(
                 !wheelScheme);
+        }
+
+        public void BeginTouchLayoutEdit()
+        {
+            MotorCityControlScheme scheme =
+                MotorCityInput.CurrentControlScheme;
+
+            if (scheme ==
+                MotorCityControlScheme.Keyboard)
+            {
+                return;
+            }
+
+            touchLayoutEditing =
+                true;
+
+            car?.SetDrivingBlocked(
+                "TouchLayoutEditor",
+                true);
+
+            MotorCityInput.ClearVirtualState();
+
+            ApplyTouchControlLayout(
+                true);
+
+            BuildTouchLayoutEditor();
+
+            if (touchLayoutEditorRoot != null)
+            {
+                touchLayoutEditorRoot.SetActive(
+                    true);
+
+                touchLayoutEditorRoot.transform.SetAsLastSibling();
+            }
+
+            ConfigureTouchLayoutHandles(
+                true);
+        }
+
+        private void EndTouchLayoutEdit()
+        {
+            touchLayoutEditing =
+                false;
+
+            ConfigureTouchLayoutHandles(
+                false);
+
+            if (touchLayoutEditorRoot != null)
+            {
+                touchLayoutEditorRoot.SetActive(
+                    false);
+            }
+
+            MotorCityInput.ClearVirtualState();
+
+            car?.SetDrivingBlocked(
+                "TouchLayoutEditor",
+                false);
+        }
+
+        private void ResetTouchLayout()
+        {
+            MotorCityControlScheme scheme =
+                MotorCityInput.CurrentControlScheme;
+
+            foreach (string key in new[]
+                     {
+                         "Steering",
+                         "Throttle",
+                         "Brake",
+                         "Handbrake",
+                         "Action"
+                     })
+            {
+                TouchControlLayoutStore.Reset(
+                    scheme,
+                    key);
+            }
+
+            touchLayoutAppliedScheme =
+                (MotorCityControlScheme)(-1);
+
+            ApplyTouchControlLayout(
+                true);
+        }
+
+        private void ApplyTouchControlLayout(
+            bool force = false)
+        {
+            if (touchDrivingRootRect == null ||
+                touchThrottleRect == null ||
+                touchBrakeRect == null ||
+                touchHandbrakeRect == null ||
+                touchActionRect == null ||
+                touchWheelSteeringRoot == null ||
+                touchArrowSteeringRoot == null)
+            {
+                return;
+            }
+
+            MotorCityControlScheme scheme =
+                MotorCityInput.CurrentControlScheme;
+
+            if (scheme ==
+                MotorCityControlScheme.Keyboard)
+            {
+                return;
+            }
+
+            if (!force &&
+                touchLayoutAppliedScheme ==
+                    scheme)
+            {
+                return;
+            }
+
+            touchLayoutAppliedScheme =
+                scheme;
+
+            touchThrottleRect.anchoredPosition =
+                TouchControlLayoutStore.Load(
+                    scheme,
+                    "Throttle",
+                    touchThrottleDefaultPosition);
+
+            touchBrakeRect.anchoredPosition =
+                TouchControlLayoutStore.Load(
+                    scheme,
+                    "Brake",
+                    touchBrakeDefaultPosition);
+
+            touchHandbrakeRect.anchoredPosition =
+                TouchControlLayoutStore.Load(
+                    scheme,
+                    "Handbrake",
+                    touchHandbrakeDefaultPosition);
+
+            touchActionRect.anchoredPosition =
+                TouchControlLayoutStore.Load(
+                    scheme,
+                    "Action",
+                    touchActionDefaultPosition);
+
+            RectTransform steeringRect =
+                scheme ==
+                MotorCityControlScheme.Wheel
+                    ? touchWheelSteeringRoot
+                        .GetComponent<RectTransform>()
+                    : touchArrowSteeringRoot
+                        .GetComponent<RectTransform>();
+
+            Vector2 steeringDefault =
+                scheme ==
+                MotorCityControlScheme.Wheel
+                    ? touchWheelDefaultPosition
+                    : touchArrowDefaultPosition;
+
+            steeringRect.anchoredPosition =
+                TouchControlLayoutStore.Load(
+                    scheme,
+                    "Steering",
+                    steeringDefault);
+        }
+
+        private void ConfigureTouchLayoutHandles(
+            bool editing)
+        {
+            MotorCityControlScheme scheme =
+                MotorCityInput.CurrentControlScheme;
+
+            ConfigureTouchLayoutHandle(
+                touchThrottleRect == null
+                    ? null
+                    : touchThrottleRect.gameObject,
+                touchThrottleRect,
+                "Throttle",
+                scheme,
+                editing);
+
+            ConfigureTouchLayoutHandle(
+                touchBrakeRect == null
+                    ? null
+                    : touchBrakeRect.gameObject,
+                touchBrakeRect,
+                "Brake",
+                scheme,
+                editing);
+
+            ConfigureTouchLayoutHandle(
+                touchHandbrakeRect == null
+                    ? null
+                    : touchHandbrakeRect.gameObject,
+                touchHandbrakeRect,
+                "Handbrake",
+                scheme,
+                editing);
+
+            ConfigureTouchLayoutHandle(
+                touchActionRect == null
+                    ? null
+                    : touchActionRect.gameObject,
+                touchActionRect,
+                "Action",
+                scheme,
+                editing);
+
+            if (scheme ==
+                MotorCityControlScheme.Wheel)
+            {
+                TouchSteeringWheel wheel =
+                    touchWheelSteeringRoot
+                        .GetComponentInChildren<TouchSteeringWheel>(
+                            true);
+
+                if (wheel != null)
+                {
+                    ConfigureTouchLayoutHandle(
+                        wheel.gameObject,
+                        touchWheelSteeringRoot
+                            .GetComponent<RectTransform>(),
+                        "Steering",
+                        scheme,
+                        editing);
+                }
+            }
+            else
+            {
+                foreach (TouchHoldInputButton arrow in
+                         touchArrowSteeringRoot
+                             .GetComponentsInChildren<TouchHoldInputButton>(
+                                 true))
+                {
+                    ConfigureTouchLayoutHandle(
+                        arrow.gameObject,
+                        touchArrowSteeringRoot
+                            .GetComponent<RectTransform>(),
+                        "Steering",
+                        scheme,
+                        editing);
+                }
+            }
+        }
+
+        private void ConfigureTouchLayoutHandle(
+            GameObject source,
+            RectTransform target,
+            string key,
+            MotorCityControlScheme scheme,
+            bool editing)
+        {
+            if (source == null ||
+                target == null)
+            {
+                return;
+            }
+
+            TouchControlLayoutDragHandle handle =
+                source.GetComponent<
+                    TouchControlLayoutDragHandle>();
+
+            if (handle == null)
+            {
+                handle =
+                    source.AddComponent<
+                        TouchControlLayoutDragHandle>();
+            }
+
+            handle.Bind(
+                target,
+                touchDrivingRootRect,
+                scheme,
+                key);
+
+            handle.enabled =
+                editing;
+
+            TouchHoldInputButton hold =
+                source.GetComponent<
+                    TouchHoldInputButton>();
+
+            if (hold != null)
+                hold.enabled =
+                    !editing;
+
+            TouchPulseInputButton pulse =
+                source.GetComponent<
+                    TouchPulseInputButton>();
+
+            if (pulse != null)
+                pulse.enabled =
+                    !editing;
+
+            TouchSteeringWheel wheel =
+                source.GetComponent<
+                    TouchSteeringWheel>();
+
+            if (wheel != null)
+                wheel.enabled =
+                    !editing;
+
+            Button button =
+                source.GetComponent<Button>();
+
+            if (button != null)
+                button.enabled =
+                    !editing;
+        }
+
+        private void BuildTouchLayoutEditor()
+        {
+            if (touchLayoutEditorRoot != null ||
+                touchDrivingRootRect == null)
+            {
+                return;
+            }
+
+            touchLayoutEditorRoot =
+                new GameObject(
+                    "Touch Layout Editor",
+                    typeof(RectTransform));
+
+            touchLayoutEditorRoot.transform.SetParent(
+                touchDrivingRootRect,
+                false);
+
+            RectTransform root =
+                touchLayoutEditorRoot.GetComponent<
+                    RectTransform>();
+
+            root.anchorMin =
+                Vector2.zero;
+            root.anchorMax =
+                Vector2.one;
+            root.offsetMin =
+                Vector2.zero;
+            root.offsetMax =
+                Vector2.zero;
+
+            Text hint =
+                CreateText(
+                    root,
+                    "Layout Hint",
+                    18,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(
+                        0f,
+                        -28f),
+                    new Vector2(
+                        760f,
+                        44f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    new Vector2(
+                        0.5f,
+                        1f),
+                    TextColor);
+
+            hint.text =
+                MotorCityLocalization.Text(
+                    "touch.layout.hint");
+
+            CreateTouchLayoutEditorButton(
+                root,
+                "Layout Reset",
+                MotorCityLocalization.Text(
+                    "touch.layout.reset"),
+                new Vector2(
+                    -115f,
+                    -82f),
+                ResetTouchLayout);
+
+            CreateTouchLayoutEditorButton(
+                root,
+                "Layout Done",
+                MotorCityLocalization.Text(
+                    "touch.layout.done"),
+                new Vector2(
+                    115f,
+                    -82f),
+                EndTouchLayoutEdit);
+        }
+
+        private void CreateTouchLayoutEditorButton(
+            Transform parent,
+            string name,
+            string label,
+            Vector2 anchoredPosition,
+            UnityEngine.Events.UnityAction action)
+        {
+            GameObject buttonObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<
+                    RectTransform>();
+
+            rect.anchorMin =
+                new Vector2(
+                    0.5f,
+                    1f);
+            rect.anchorMax =
+                rect.anchorMin;
+            rect.pivot =
+                new Vector2(
+                    0.5f,
+                    1f);
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                new Vector2(
+                    200f,
+                    48f);
+
+            Image image =
+                buttonObject.GetComponent<Image>();
+
+            image.color =
+                new Color(
+                    0.07f,
+                    0.05f,
+                    0.16f,
+                    0.94f);
+
+            Button button =
+                buttonObject.GetComponent<Button>();
+
+            button.onClick.AddListener(
+                action);
+
+            Text text =
+                CreateText(
+                    rect,
+                    "Label",
+                    15,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    Vector2.zero,
+                    new Vector2(
+                        184f,
+                        40f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    TextColor);
+
+            text.text =
+                label;
         }
 
         private static Vector2 FitTouchArtSize(
@@ -1421,6 +1925,8 @@ namespace MotorCity.UI
                 touchControlsRoot,
                 !HasBlockingModalUi());
 
+            ApplyTouchControlLayout();
+
             bool wheelScheme =
                 MotorCityInput.CurrentControlScheme ==
                 MotorCityControlScheme.Wheel;
@@ -1432,6 +1938,42 @@ namespace MotorCity.UI
             SetActiveIfChanged(
                 touchArrowSteeringRoot,
                 !wheelScheme);
+
+            if (touchLayoutEditing)
+            {
+                SetActiveIfChanged(
+                    touchControlsRoot,
+                    true);
+                SetActiveIfChanged(
+                    touchUtilityRoot,
+                    false);
+                SetActiveIfChanged(
+                    touchActivityCancelRoot,
+                    false);
+                SetActiveIfChanged(
+                    resultTouchControlsRoot,
+                    false);
+                SetActiveIfChanged(
+                    navigatorTouchControlsRoot,
+                    false);
+                SetActiveIfChanged(
+                    storeTouchControlsRoot,
+                    false);
+                SetActiveIfChanged(
+                    clubTouchControlsRoot,
+                    false);
+                SetActiveIfChanged(
+                    garageTouchControlsRoot,
+                    false);
+
+                if (touchLayoutEditorRoot != null)
+                {
+                    touchLayoutEditorRoot.SetActive(
+                        true);
+                }
+
+                return;
+            }
 
             SetActiveIfChanged(
                 touchPauseRoot,
