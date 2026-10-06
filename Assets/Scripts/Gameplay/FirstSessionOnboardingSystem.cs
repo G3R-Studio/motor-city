@@ -42,6 +42,7 @@ namespace MotorCity.Gameplay
         private int step;
         private float messageTimer;
         private float messageDelayTimer;
+        private bool messageHeld;
         private float completionTimer;
 
         private int customizationColorIndexAtStepStart = -1;
@@ -94,6 +95,7 @@ namespace MotorCity.Gameplay
             step == CompletionStep;
 
         public bool ShowMessage =>
+            !messageHeld &&
             messageDelayTimer <= 0f &&
             messageTimer > 0f;
 
@@ -252,21 +254,24 @@ namespace MotorCity.Gameplay
             if (Time.timeScale <= 0f)
                 return;
 
-            if (messageDelayTimer > 0f)
+            if (!messageHeld)
             {
-                messageDelayTimer =
-                    Mathf.Max(
-                        0f,
-                        messageDelayTimer -
-                        Time.unscaledDeltaTime);
-            }
-            else if (messageTimer > 0f)
-            {
-                messageTimer =
-                    Mathf.Max(
-                        0f,
-                        messageTimer -
-                        Time.unscaledDeltaTime);
+                if (messageDelayTimer > 0f)
+                {
+                    messageDelayTimer =
+                        Mathf.Max(
+                            0f,
+                            messageDelayTimer -
+                            Time.unscaledDeltaTime);
+                }
+                else if (messageTimer > 0f)
+                {
+                    messageTimer =
+                        Mathf.Max(
+                            0f,
+                            messageTimer -
+                            Time.unscaledDeltaTime);
+                }
             }
 
             if (IsComplete)
@@ -508,6 +513,9 @@ namespace MotorCity.Gameplay
 
             MotorCitySaveService.Save();
 
+            messageHeld =
+                false;
+
             StatusText =
                 MotorCityLocalization.Text(
                     messageKey);
@@ -538,6 +546,28 @@ namespace MotorCity.Gameplay
 
             messageDelayTimer =
                 0f;
+
+            messageHeld =
+                false;
+        }
+
+        public void HoldWelcomeMessage()
+        {
+            if (IsComplete)
+                return;
+
+            StatusText =
+                MotorCityLocalization.Text(
+                    "onboarding.welcome");
+
+            messageTimer =
+                MessageSeconds;
+
+            messageDelayTimer =
+                0f;
+
+            messageHeld =
+                true;
         }
 
         public void ShowWelcomeAfterDelay(
@@ -557,12 +587,18 @@ namespace MotorCity.Gameplay
                 Mathf.Max(
                     0f,
                     delaySeconds);
+
+            messageHeld =
+                false;
         }
 
         public void ShowPathPrompt()
         {
             if (IsComplete)
                 return;
+
+            messageHeld =
+                false;
 
             StatusText =
                 MotorCityLocalization.Text(
@@ -576,6 +612,9 @@ namespace MotorCity.Gameplay
         {
             if (IsComplete)
                 return;
+
+            messageHeld =
+                false;
 
             StatusText =
                 MotorCityLocalization.Text(
