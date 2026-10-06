@@ -281,6 +281,12 @@ namespace MotorCity.World
 
         private void BuildCityPostProcessing()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Keep the browser path fill-rate friendly. The scene still uses
+            // its authored sky, fog and lighting without full-screen post FX.
+            return;
+#endif
+
             GameObject volumeObject = new("Motor City Global Post FX");
             volumeObject.transform.SetParent(transform, false);
 
@@ -1185,6 +1191,26 @@ namespace MotorCity.World
                     _ =>
                         2
                 };
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            lampDistance =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low => 60f,
+                    MotorCityQualityPreset.High => 95f,
+                    _ => 75f
+                };
+
+            lightBudget =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low => 12,
+                    MotorCityQualityPreset.High => 32,
+                    _ => 20
+                };
+
+            shadowBudget = 0;
+#endif
 
             float maximumDistanceSquared =
                 lampDistance *
