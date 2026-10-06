@@ -158,12 +158,10 @@ namespace MotorCity.Input
         {
             get
             {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_WEBGL
                 return
                     KeyPressed(
-                        Key.F10) ||
-                    KeyPressed(
-                        Key.Backquote) ||
+                        Key.O) ||
                     VirtualPressed(
                         MotorCityInputAction.AdminToggle);
 #else
