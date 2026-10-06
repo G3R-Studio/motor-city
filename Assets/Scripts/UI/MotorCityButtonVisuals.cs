@@ -138,6 +138,48 @@ namespace MotorCity.UI
                     ? string.Empty
                     : semantic.Trim().ToLowerInvariant();
 
+            if (ContainsAny(
+                    value,
+                    "prev",
+                    "previous",
+                    "back",
+                    "назад"))
+            {
+                symbol =
+                    GarageReferenceGraphic.Symbol.NavigationLeft;
+                color =
+                    LightBlue;
+                return true;
+            }
+
+            if (ContainsAny(
+                    value,
+                    "next",
+                    "дальше",
+                    "след"))
+            {
+                symbol =
+                    GarageReferenceGraphic.Symbol.NavigationRight;
+                color =
+                    LightBlue;
+                return true;
+            }
+
+            if (ContainsAny(
+                    value,
+                    "select",
+                    "join",
+                    "choose",
+                    "выбрать",
+                    "вступ"))
+            {
+                symbol =
+                    GarageReferenceGraphic.Symbol.Check;
+                color =
+                    Green;
+                return true;
+            }
+
             if (ContainsAny(value, "close", "закрыть"))
             {
                 symbol = GarageReferenceGraphic.Symbol.Close;
