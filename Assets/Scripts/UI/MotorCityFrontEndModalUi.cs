@@ -139,6 +139,33 @@ namespace MotorCity.UI
                     titleText);
         }
 
+        private void CreateFrontEndFlexibleSpacer(
+            Transform parent,
+            string objectName = "Flexible Spacer")
+        {
+            GameObject spacer =
+                new(
+                    objectName,
+                    typeof(RectTransform),
+                    typeof(LayoutElement));
+
+            spacer.transform.SetParent(
+                parent,
+                false);
+
+            LayoutElement element =
+                spacer.GetComponent<LayoutElement>();
+
+            element.minHeight =
+                0f;
+
+            element.preferredHeight =
+                0f;
+
+            element.flexibleHeight =
+                1f;
+        }
+
         private RectTransform CreateFrontEndActionRow(
             Transform parent,
             string objectName,
