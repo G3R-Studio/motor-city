@@ -1202,12 +1202,14 @@ VehicleVisualChanged
 
 ## UI-kit
 
-- [ ] MotorCityModalWindow
-- [ ] MotorCitySettingsRow
-- [ ] MotorCityPrimaryButton
-- [ ] MotorCityButtonRow
-- [ ] Общие layout constants
-- [ ] Pause migration
+> Общий modal UI-kit добавлен в `Assets/Scripts/UI/MotorCityModalUiKit.cs`. Первым на него переведено меню паузы. Реализация: `25a98b05ca542fde8ad86cd22c4d95c733c90162`, `5c5b7ca1ba89cfb76573c59879fa9b95e43bd3e8`, `7d5e4efb78520593ada73306b5d4822acf3e322f`, `130f0086b53a847d760f69e7f317ed6fe7513a42`. Ожидается игровая проверка паузы перед переносом следующих окон.
+
+- [x] MotorCityModalWindow
+- [x] MotorCitySettingsRow
+- [x] MotorCityPrimaryButton
+- [x] MotorCityButtonRow
+- [x] Общие layout constants
+- [x] Pause migration
 - [ ] Settings migration
 - [ ] Result modal migration
 
