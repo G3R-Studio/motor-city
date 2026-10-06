@@ -596,7 +596,7 @@ namespace MotorCity.UI
             RectTransform keyboardRow =
                 CreateFrontEndActionRow(
                     window.Content,
-                    "Keyboard Control Row",
+                    "Keyboard Control Actions",
                     72f);
 
             CreateFrontEndLayoutButton(
@@ -612,7 +612,7 @@ namespace MotorCity.UI
             RectTransform wheelRow =
                 CreateFrontEndActionRow(
                     window.Content,
-                    "Wheel Control Row",
+                    "Wheel Control Actions",
                     72f);
 
             CreateFrontEndLayoutButton(
@@ -639,7 +639,7 @@ namespace MotorCity.UI
             RectTransform arrowsRow =
                 CreateFrontEndActionRow(
                     window.Content,
-                    "Arrows Control Row",
+                    "Arrows Control Actions",
                     72f);
 
             CreateFrontEndLayoutButton(
@@ -670,7 +670,7 @@ namespace MotorCity.UI
             RectTransform backRow =
                 CreateFrontEndActionRow(
                     window.Content,
-                    "Control Choice Back Row",
+                    "Control Choice Back Actions",
                     54f);
 
             CreateFrontEndLayoutButton(
@@ -2989,211 +2989,6 @@ namespace MotorCity.UI
             ConfigureFrontEndTextFit(
                 sectionBody,
                 14);
-        }
-
-        private void CreateSettingsRow(
-            Transform parent,
-            string label,
-            float y,
-            out Text valueText,
-            UnityEngine.Events.UnityAction minusAction,
-            UnityEngine.Events.UnityAction plusAction,
-            UnityEngine.Events.UnityAction wideAction)
-        {
-            GameObject row =
-                new(
-                    label + " Row",
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            row.transform.SetParent(
-                parent,
-                false);
-
-            RectTransform rowRect =
-                row.GetComponent<RectTransform>();
-
-            rowRect.anchorMin =
-                new Vector2(0.5f, 1f);
-            rowRect.anchorMax =
-                new Vector2(0.5f, 1f);
-            rowRect.pivot =
-                new Vector2(0.5f, 1f);
-            rowRect.anchoredPosition =
-                new Vector2(0f, y);
-            rowRect.sizeDelta =
-                new Vector2(1050f, 88f);
-
-            Image rowImage =
-                row.GetComponent<Image>();
-
-            rowImage.color =
-                new Color(
-                    0.024f,
-                    0.04f,
-                    0.078f,
-                    0.84f);
-
-            AddSoftGlow(
-                rowRect,
-                new Color(
-                    0.28f,
-                    0.58f,
-                    1f,
-                    1f),
-                6f,
-                3f,
-                0.035f,
-                0.075f);
-
-            Outline outline =
-                row.AddComponent<Outline>();
-
-            outline.effectColor =
-                new Color(
-                    0.36f,
-                    0.64f,
-                    1f,
-                    0.18f);
-            outline.effectDistance =
-                new Vector2(1f, -1f);
-            outline.useGraphicAlpha =
-                true;
-
-            GameObject accent =
-                new(
-                    "Accent Line",
-                    typeof(RectTransform),
-                    typeof(Image));
-
-            accent.transform.SetParent(
-                rowRect,
-                false);
-
-            RectTransform accentRect =
-                accent.GetComponent<RectTransform>();
-
-            accentRect.anchorMin =
-                new Vector2(0f, 1f);
-            accentRect.anchorMax =
-                new Vector2(1f, 1f);
-            accentRect.pivot =
-                new Vector2(0.5f, 1f);
-            accentRect.anchoredPosition =
-                Vector2.zero;
-            accentRect.sizeDelta =
-                new Vector2(0f, 3f);
-
-            Image accentImage =
-                accent.GetComponent<Image>();
-
-            accentImage.color =
-                new Color(
-                    0.26f,
-                    0.80f,
-                    1f,
-                    0.90f);
-            accentImage.raycastTarget =
-                false;
-
-            Text labelText =
-                CreateText(
-                    rowRect,
-                    label,
-                    18,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(26f, 0f),
-                    new Vector2(210f, 58f),
-                    new Vector2(0f, 0.5f));
-
-            labelText.color =
-                new Color(
-                    0.46f,
-                    0.82f,
-                    1f,
-                    1f);
-
-            Shadow labelShadow =
-                labelText.gameObject
-                    .AddComponent<Shadow>();
-
-            labelShadow.effectColor =
-                new Color(
-                    0f,
-                    0f,
-                    0f,
-                    0.70f);
-            labelShadow.effectDistance =
-                new Vector2(1f, -1f);
-
-            ConfigureFrontEndTextFit(
-                labelText,
-                14);
-
-            valueText =
-                CreateText(
-                    rowRect,
-                    "",
-                    24,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(280f, 0f),
-                    new Vector2(250f, 58f),
-                    new Vector2(0f, 0.5f));
-
-            valueText.color =
-                new Color(
-                    0.95f,
-                    0.96f,
-                    1f,
-                    1f);
-
-            ConfigureFrontEndTextFit(
-                valueText,
-                16);
-
-            if (minusAction != null)
-            {
-                CreateButton(
-                    rowRect,
-                    "−",
-                    new Vector2(610f, 0f),
-                    new Vector2(72f, 50f),
-                    minusAction,
-                    new Vector2(0f, 0.5f));
-            }
-
-            if (plusAction != null)
-            {
-                CreateButton(
-                    rowRect,
-                    "+",
-                    new Vector2(696f, 0f),
-                    new Vector2(72f, 50f),
-                    plusAction,
-                    new Vector2(0f, 0.5f));
-            }
-
-            if (wideAction != null)
-            {
-                CreateButton(
-                    rowRect,
-                    label ==
-                        (IsRussian()
-                            ? "ЯЗЫК"
-                            : "LANGUAGE")
-                        ? (IsRussian()
-                            ? "СМЕНИТЬ"
-                            : "CHANGE")
-                        : (IsRussian()
-                            ? "ВКЛ / ВЫКЛ"
-                            : "ON / OFF"),
-                    new Vector2(790f, 0f),
-                    new Vector2(210f, 50f),
-                    wideAction,
-                    new Vector2(0f, 0.5f));
-            }
         }
 
         private Button CreateButton(
