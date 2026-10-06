@@ -281,6 +281,7 @@ namespace MotorCity.World
             }
 
             RebindRuntimeCityMaterials();
+            RepairMissingPlantMaterials();
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             ConvertUnsupportedCityMaterialsForWeb();
@@ -542,6 +543,83 @@ namespace MotorCity.World
             }
 
             return 100;
+        }
+
+        private static void RepairMissingPlantMaterials()
+        {
+            if (activeCity == null)
+                return;
+
+            Material vegetation =
+                Resources.Load<Material>(
+                    "MotorCity/Environment/FCGMaterials/Vegetation_811454d6");
+
+            if (vegetation == null)
+            {
+                Debug.LogWarning(
+                    "Motor City: FCG vegetation fallback material is missing.");
+
+                return;
+            }
+
+            Renderer[] renderers =
+                activeCity.GetComponentsInChildren<Renderer>(
+                    true);
+
+            foreach (Renderer renderer in
+                     renderers)
+            {
+                if (renderer == null)
+                    continue;
+
+                string objectName =
+                    renderer.gameObject.name;
+
+                if (!objectName.Equals(
+                        "Plant-01",
+                        StringComparison.OrdinalIgnoreCase) &&
+                    !objectName.Equals(
+                        "Plant-01 (1)",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                Material[] materials =
+                    renderer.sharedMaterials;
+
+                if (materials == null ||
+                    materials.Length == 0)
+                {
+                    renderer.sharedMaterial =
+                        vegetation;
+
+                    continue;
+                }
+
+                bool changed =
+                    false;
+
+                for (int i = 0;
+                     i < materials.Length;
+                     i++)
+                {
+                    if (materials[i] != null)
+                        continue;
+
+                    materials[i] =
+                        vegetation;
+
+                    changed =
+                        true;
+                }
+
+                if (changed)
+                {
+                    renderer.sharedMaterials =
+                        materials;
+                }
+            }
         }
 
         private static void ConvertUnsupportedCityMaterialsForWeb()
