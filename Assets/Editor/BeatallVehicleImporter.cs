@@ -310,6 +310,22 @@ public static class BeatallVehicleImporter
         }
         else
         {
+            if (material.HasProperty(
+                    "_EmissionMap"))
+            {
+                material.SetTexture(
+                    "_EmissionMap",
+                    null);
+            }
+
+            if (material.HasProperty(
+                    "_EmissionColor"))
+            {
+                material.SetColor(
+                    "_EmissionColor",
+                    Color.black);
+            }
+
             material.DisableKeyword(
                 "_EMISSION");
         }
