@@ -631,6 +631,9 @@ namespace MotorCity.Localization
             { "touch.drive.brake", E("ТОРМ / НАЗАД", "BRAKE / REV") },
             { "touch.drive.handbrake_short", E("РУЧНИК", "HANDBRAKE") },
             { "touch.drive.action_short", E("ДЕЙСТВИЕ", "ACTION") },
+            { "touch.layout.hint", E("ПЕРЕТАЩИТЕ ЭЛЕМЕНТЫ УПРАВЛЕНИЯ В УДОБНЫЕ МЕСТА", "DRAG THE CONTROLS TO COMFORTABLE POSITIONS") },
+            { "touch.layout.reset", E("СБРОСИТЬ", "RESET") },
+            { "touch.layout.done", E("ГОТОВО", "DONE") },
             { "touch.drive.rescue_short", E("СПАСТИ", "RESCUE") },
 
                 { "daily.title", E("ЕЖЕДНЕВНЫЕ ПРИКЛЮЧЕНИЯ", "DAILY ADVENTURES") },
