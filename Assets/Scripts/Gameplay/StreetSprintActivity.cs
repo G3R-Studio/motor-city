@@ -12,6 +12,10 @@ namespace MotorCity.Gameplay
         private const string BestTimeKey =
             "MotorCity.Sprint.BestTime";
         private const int EliteRequiredLevel = 3;
+        private const int RookieRewardCredits = 250;
+        private const float RookieGoldTimeSeconds = 75f;
+        private const float RookieSilverTimeSeconds = 100f;
+        private const float RookieBronzeTimeSeconds = 130f;
 
         [Header("Награда")]
         [SerializeField] private int baseRewardCredits = 550;
@@ -32,10 +36,12 @@ namespace MotorCity.Gameplay
         private PlayerWallet wallet;
         private ActivityManager activityManager;
         private Vector3[] route;
+        private Vector3[] rookieRoute;
         private int checkpointIndex;
         private bool armed = true;
         private bool isCountingDown;
         private bool eliteMode;
+        private bool rookieMode;
 
         public bool IsActive { get; private set; }
         public bool IsCountingDown => isCountingDown;
@@ -45,13 +51,45 @@ namespace MotorCity.Gameplay
         public int CheckpointIndex => checkpointIndex;
         public int CheckpointCount => route?.Length ?? 0;
 
-        public Vector3 CurrentTarget =>
-            route == null || route.Length == 0
-                ? Vector3.zero
-                : route[Mathf.Clamp(
-                    checkpointIndex,
-                    0,
-                    route.Length - 1)];
+        private Vector3[] CurrentRoute
+        {
+            get
+            {
+                bool rookieContext =
+                    rookieMode ||
+                    (!IsActive &&
+                     !isCountingDown &&
+                     activityManager != null &&
+                     activityManager.IsRookieSprintStep);
+
+                if (rookieContext &&
+                    rookieRoute != null &&
+                    rookieRoute.Length >= 2)
+                {
+                    return rookieRoute;
+                }
+
+                return route;
+            }
+        }
+
+        public Vector3 CurrentTarget
+        {
+            get
+            {
+                Vector3[] activeRoute =
+                    CurrentRoute;
+
+                return
+                    activeRoute == null ||
+                    activeRoute.Length == 0
+                        ? Vector3.zero
+                        : activeRoute[Mathf.Clamp(
+                            checkpointIndex,
+                            0,
+                            activeRoute.Length - 1)];
+            }
+        }
 
         public bool TryGetNextTarget(
             out Vector3 target)
@@ -59,8 +97,11 @@ namespace MotorCity.Gameplay
             target =
                 CurrentTarget;
 
-            if (route == null ||
-                route.Length < 2)
+            Vector3[] activeRoute =
+                CurrentRoute;
+
+            if (activeRoute == null ||
+                activeRoute.Length < 2)
             {
                 return false;
             }
@@ -69,13 +110,13 @@ namespace MotorCity.Gameplay
                 checkpointIndex + 1;
 
             if (nextIndex < 0 ||
-                nextIndex >= route.Length)
+                nextIndex >= activeRoute.Length)
             {
                 return false;
             }
 
             target =
-                route[nextIndex];
+                activeRoute[nextIndex];
 
             return true;
         }
@@ -92,6 +133,9 @@ namespace MotorCity.Gameplay
             wallet = targetWallet;
             activityManager = manager;
             route = CityAssetRuntimeInstaller.SprintRoute;
+            rookieRoute =
+                BuildRookieRoute(
+                    route);
 
             BestTimeSeconds =
                 Mathf.Max(
@@ -103,11 +147,14 @@ namespace MotorCity.Gameplay
 
         private void Update()
         {
+            Vector3[] activeRoute =
+                CurrentRoute;
+
             if (car == null ||
                 wallet == null ||
                 activityManager == null ||
-                route == null ||
-                route.Length < 2)
+                activeRoute == null ||
+                activeRoute.Length < 2)
                 return;
 
             if (isCountingDown)
@@ -141,7 +188,7 @@ namespace MotorCity.Gameplay
             float distance =
                 Vector3.Distance(
                     Flat(car.transform.position),
-                    Flat(route[0]));
+                    Flat(activeRoute[0]));
 
             IsNearStart =
                 distance <= startRadius;
@@ -228,7 +275,11 @@ namespace MotorCity.Gameplay
             if (MotorCityInput.InteractPressed ||
                 elitePressed)
             {
+                rookieMode =
+                    activityManager.IsRookieSprintStep;
+
                 eliteMode =
+                    !rookieMode &&
                     elitePressed;
 
                 BeginCountdown();
@@ -308,8 +359,12 @@ namespace MotorCity.Gameplay
 
             checkpointIndex++;
 
-            if (checkpointIndex >=
-                route.Length)
+            Vector3[] activeRoute =
+                CurrentRoute;
+
+            if (activeRoute == null ||
+                checkpointIndex >=
+                activeRoute.Length)
             {
                 CompleteSprint();
                 return;
@@ -327,7 +382,9 @@ namespace MotorCity.Gameplay
                         ? MotorCityLocalization.Text("activity.elite_sprint")
                         : MotorCityLocalization.Text("hud.sprint"),
                     checkpointIndex + 1,
-                    route.Length,
+                    CurrentRoute == null
+                        ? 0
+                        : CurrentRoute.Length,
                     ElapsedSeconds,
                     CurrentTierHint());
         }
@@ -335,11 +392,25 @@ namespace MotorCity.Gameplay
         private string CurrentTierHint()
         {
             float gold =
-                eliteMode ? 180f : goldTimeSeconds;
+                rookieMode
+                    ? RookieGoldTimeSeconds
+                    : eliteMode
+                        ? 180f
+                        : goldTimeSeconds;
+
             float silver =
-                eliteMode ? 225f : silverTimeSeconds;
+                rookieMode
+                    ? RookieSilverTimeSeconds
+                    : eliteMode
+                        ? 225f
+                        : silverTimeSeconds;
+
             float bronze =
-                eliteMode ? 275f : bronzeTimeSeconds;
+                rookieMode
+                    ? RookieBronzeTimeSeconds
+                    : eliteMode
+                        ? 275f
+                        : bronzeTimeSeconds;
 
             if (ElapsedSeconds <= gold)
                 return MotorCityLocalization.Format("activity.tier_time", MotorCityLocalization.Text("medal.gold"), gold);
@@ -355,33 +426,29 @@ namespace MotorCity.Gameplay
 
         private void CompleteSprint()
         {
-            int bonus =
-                Mathf.RoundToInt(
-                    Mathf.Lerp(
-                        maximumTimeBonusCredits,
-                        0f,
-                        Mathf.InverseLerp(
-                            eliteMode ? 165f : 185f,
-                            eliteMode ? 275f : bronzeTimeSeconds,
-                            ElapsedSeconds)));
-
-            int reward =
-                baseRewardCredits +
-                bonus;
-
-            if (eliteMode)
-            {
-                reward =
-                    Mathf.RoundToInt(
-                        reward * 1.6f);
-            }
+            bool completedRookieRace =
+                rookieMode;
 
             float gold =
-                eliteMode ? 180f : goldTimeSeconds;
+                completedRookieRace
+                    ? RookieGoldTimeSeconds
+                    : eliteMode
+                        ? 180f
+                        : goldTimeSeconds;
+
             float silver =
-                eliteMode ? 225f : silverTimeSeconds;
+                completedRookieRace
+                    ? RookieSilverTimeSeconds
+                    : eliteMode
+                        ? 225f
+                        : silverTimeSeconds;
+
             float bronze =
-                eliteMode ? 275f : bronzeTimeSeconds;
+                completedRookieRace
+                    ? RookieBronzeTimeSeconds
+                    : eliteMode
+                        ? 275f
+                        : bronzeTimeSeconds;
 
             string tier =
                 ElapsedSeconds <= gold
@@ -392,10 +459,39 @@ namespace MotorCity.Gameplay
                             ? MotorCityLocalization.Text("medal.bronze")
                             : MotorCityLocalization.Text("common.finish");
 
+            int bonus =
+                completedRookieRace
+                    ? 0
+                    : Mathf.RoundToInt(
+                        Mathf.Lerp(
+                            maximumTimeBonusCredits,
+                            0f,
+                            Mathf.InverseLerp(
+                                eliteMode ? 165f : 185f,
+                                eliteMode
+                                    ? 275f
+                                    : bronzeTimeSeconds,
+                                ElapsedSeconds)));
+
+            int reward =
+                completedRookieRace
+                    ? RookieRewardCredits
+                    : baseRewardCredits +
+                      bonus;
+
+            if (!completedRookieRace &&
+                eliteMode)
+            {
+                reward =
+                    Mathf.RoundToInt(
+                        reward * 1.6f);
+            }
+
             bool newBest =
-                BestTimeSeconds <= 0f ||
-                ElapsedSeconds <
-                BestTimeSeconds;
+                !completedRookieRace &&
+                (BestTimeSeconds <= 0f ||
+                 ElapsedSeconds <
+                    BestTimeSeconds);
 
             if (newBest)
             {
@@ -415,34 +511,61 @@ namespace MotorCity.Gameplay
             IsActive = false;
             checkpointIndex = 0;
 
-            car.SetDrivingBlocked("ActivityResult", true);
+            car.SetDrivingBlocked(
+                "ActivityResult",
+                true);
 
             string record =
+                !completedRookieRace &&
                 newBest
-                    ? MotorCityLocalization.Text("activity.new_record_inline")
-                    : BestTimeSeconds > 0f
-                        ? MotorCityLocalization.Format("activity.record_inline", BestTimeSeconds)
+                    ? MotorCityLocalization.Text(
+                        "activity.new_record_inline")
+                    : !completedRookieRace &&
+                      BestTimeSeconds > 0f
+                        ? MotorCityLocalization.Format(
+                            "activity.record_inline",
+                            BestTimeSeconds)
                         : string.Empty;
 
             activityManager.ShowResult(
                 ActivityId,
-                eliteMode
-                    ? MotorCityLocalization.Text("activity.elite_sprint")
-                    : MotorCityLocalization.Text("activity.sprint"),
+                completedRookieRace
+                    ? MotorCityLocalization.Text(
+                        "onboarding.first_race_title")
+                    : eliteMode
+                        ? MotorCityLocalization.Text(
+                            "activity.elite_sprint")
+                        : MotorCityLocalization.Text(
+                            "activity.sprint"),
                 MotorCityLocalization.Format(
                     "activity.result_primary_time",
                     ElapsedSeconds),
-                MotorCityLocalization.Format(
-                    "activity.result_tier_bonus_record",
-                    tier,
-                    bonus,
-                    record),
+                completedRookieRace
+                    ? MotorCityLocalization.Format(
+                        "onboarding.first_race_result",
+                        tier)
+                    : MotorCityLocalization.Format(
+                        "activity.result_tier_bonus_record",
+                        tier,
+                        bonus,
+                        record),
                 reward,
                 true,
                 newBest);
 
             StatusText =
-                MotorCityLocalization.Format("activity.status_reward", MotorCityLocalization.Text("hud.sprint"), tier, reward);
+                completedRookieRace
+                    ? MotorCityLocalization.Text(
+                        "onboarding.race_done")
+                    : MotorCityLocalization.Format(
+                        "activity.status_reward",
+                        MotorCityLocalization.Text(
+                            "hud.sprint"),
+                        tier,
+                        reward);
+
+            rookieMode =
+                false;
         }
 
         public void RestartFromResult()
@@ -451,6 +574,7 @@ namespace MotorCity.Gameplay
                 !activityManager.HasResult ||
                 activityManager.ResultActivityId !=
                     ActivityId ||
+                activityManager.ResultIsRookieSprint ||
                 route == null ||
                 route.Length < 2 ||
                 car == null)
@@ -502,6 +626,8 @@ namespace MotorCity.Gameplay
             IsActive = false;
             isCountingDown = false;
             armed = false;
+            rookieMode = false;
+            eliteMode = false;
             checkpointIndex = 0;
             ElapsedSeconds = 0f;
 
@@ -532,6 +658,48 @@ namespace MotorCity.Gameplay
             car?.SetDrivingBlocked(
                 "ActivityResult",
                 false);
+        }
+
+        private static Vector3[] BuildRookieRoute(
+            Vector3[] source)
+        {
+            if (source == null ||
+                source.Length < 2)
+            {
+                return source;
+            }
+
+            // The regular sprint loops around most of the district. The
+            // tutorial uses the already validated west/north section from
+            // indices 5..10, which begins reasonably close to the garage and
+            // remains long enough to teach checkpoint following.
+            int start =
+                source.Length >= 11
+                    ? 5
+                    : 0;
+
+            int count =
+                Mathf.Min(
+                    6,
+                    source.Length - start);
+
+            if (count < 2)
+            {
+                return source;
+            }
+
+            Vector3[] result =
+                new Vector3[count];
+
+            for (int i = 0;
+                 i < count;
+                 i++)
+            {
+                result[i] =
+                    source[start + i];
+            }
+
+            return result;
         }
 
         private static Vector3 Flat(
