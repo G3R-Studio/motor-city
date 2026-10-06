@@ -600,6 +600,8 @@ namespace MotorCity.Localization
                 { "onboarding.race.keyboard", E("Доедь до старта первой гонки, остановись и нажми E.", "Drive to the first race start, stop, and press E.") },
                 { "onboarding.race.touch", E("Доедь до старта первой гонки, остановись и нажми ДЕЙСТВИЕ.", "Drive to the first race start, stop, and press ACTION.") },
                 { "onboarding.first_race_title", E("ПЕРВАЯ ГОНКА", "FIRST RACE") },
+                { "onboarding.race.ready.keyboard", E("E - НАЧАТЬ ПЕРВУЮ ГОНКУ", "E - START FIRST RACE") },
+                { "onboarding.race.ready.touch", E("ДЕЙСТВИЕ - НАЧАТЬ ПЕРВУЮ ГОНКУ", "ACTION - START FIRST RACE") },
                 { "onboarding.first_race_result", E("Первая гонка завершена · {0}", "First race complete · {0}") },
                 { "onboarding.race_done", E("Финиш. Основы пройдены - дальше город открыт для тебя.", "Finish. The basics are done - the city is open to you now.") },
                 { "hud.first_race_target", E("ПЕРВАЯ ГОНКА · СПРИНТ", "FIRST RACE · SPRINT") },
