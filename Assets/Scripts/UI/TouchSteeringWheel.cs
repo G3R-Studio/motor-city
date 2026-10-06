@@ -12,11 +12,16 @@ namespace MotorCity.UI
     {
         [SerializeField] private float maximumRotation = 120f;
         [SerializeField] private float returnSpeed = 260f;
+        [SerializeField] private float dragFollowSpeed = 720f;
+        [SerializeField] private float pointerDeadRadiusPixels = 24f;
+        [SerializeField] private float outputDeadZone = 0.025f;
 
         private RectTransform rect;
         private bool dragging;
+        private int activePointerId = int.MinValue;
         private float pointerAngleAtPress;
         private float wheelAngleAtPress;
+        private float targetWheelAngle;
         private float wheelAngle;
 
         private void Awake()
@@ -27,24 +32,44 @@ namespace MotorCity.UI
 
         private void Update()
         {
-            if (!dragging)
+            float target =
+                dragging
+                    ? targetWheelAngle
+                    : 0f;
+
+            float speed =
+                dragging
+                    ? dragFollowSpeed
+                    : returnSpeed;
+
+            wheelAngle =
+                Mathf.MoveTowardsAngle(
+                    wheelAngle,
+                    target,
+                    speed *
+                    Time.unscaledDeltaTime);
+
+            if (!dragging &&
+                Mathf.Abs(wheelAngle) < 0.05f)
             {
                 wheelAngle =
-                    Mathf.MoveTowards(
-                        wheelAngle,
-                        0f,
-                        returnSpeed *
-                        Time.unscaledDeltaTime);
-
-                Apply();
+                    0f;
             }
+
+            Apply();
         }
 
         public void OnPointerDown(
             PointerEventData eventData)
         {
+            if (dragging)
+                return;
+
             dragging =
                 true;
+
+            activePointerId =
+                eventData.pointerId;
 
             pointerAngleAtPress =
                 PointerAngle(
@@ -52,13 +77,26 @@ namespace MotorCity.UI
 
             wheelAngleAtPress =
                 wheelAngle;
+
+            targetWheelAngle =
+                wheelAngle;
         }
 
         public void OnDrag(
             PointerEventData eventData)
         {
-            if (!dragging)
+            if (!dragging ||
+                eventData.pointerId != activePointerId)
+            {
                 return;
+            }
+
+            if (PointerRadius(
+                    eventData) <
+                pointerDeadRadiusPixels)
+            {
+                return;
+            }
 
             float currentAngle =
                 PointerAngle(
@@ -69,21 +107,28 @@ namespace MotorCity.UI
                     pointerAngleAtPress,
                     currentAngle);
 
-            wheelAngle =
+            targetWheelAngle =
                 Mathf.Clamp(
                     wheelAngleAtPress +
                     delta,
                     -maximumRotation,
                     maximumRotation);
-
-            Apply();
         }
 
         public void OnPointerUp(
             PointerEventData eventData)
         {
+            if (eventData.pointerId != activePointerId)
+                return;
+
             dragging =
                 false;
+
+            activePointerId =
+                int.MinValue;
+
+            targetWheelAngle =
+                0f;
         }
 
         private float PointerAngle(
@@ -92,20 +137,37 @@ namespace MotorCity.UI
             if (rect == null)
                 return 0f;
 
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    rect,
-                    eventData.position,
+            Vector2 center =
+                RectTransformUtility.WorldToScreenPoint(
                     eventData.pressEventCamera,
-                    out Vector2 local))
-            {
-                return 0f;
-            }
+                    rect.position);
+
+            Vector2 direction =
+                eventData.position -
+                center;
 
             return
                 Mathf.Atan2(
-                    local.y,
-                    local.x) *
+                    direction.y,
+                    direction.x) *
                 Mathf.Rad2Deg;
+        }
+
+        private float PointerRadius(
+            PointerEventData eventData)
+        {
+            if (rect == null)
+                return 0f;
+
+            Vector2 center =
+                RectTransformUtility.WorldToScreenPoint(
+                    eventData.pressEventCamera,
+                    rect.position);
+
+            return
+                Vector2.Distance(
+                    eventData.position,
+                    center);
         }
 
         private void Apply()
@@ -119,17 +181,31 @@ namespace MotorCity.UI
                         wheelAngle);
             }
 
-            MotorCityInput.SetVirtualSteering(
+            float steering =
                 maximumRotation <= 0.01f
                     ? 0f
                     : -wheelAngle /
-                      maximumRotation);
+                      maximumRotation;
+
+            if (Mathf.Abs(steering) <
+                outputDeadZone)
+            {
+                steering =
+                    0f;
+            }
+
+            MotorCityInput.SetVirtualSteering(
+                steering);
         }
 
         private void OnDisable()
         {
             dragging =
                 false;
+            activePointerId =
+                int.MinValue;
+            targetWheelAngle =
+                0f;
             wheelAngle =
                 0f;
 
