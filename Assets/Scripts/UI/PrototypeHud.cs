@@ -93,6 +93,34 @@ namespace MotorCity.UI
                 direction);
         }
 
+        public void FrontEndApplyAudioSettings(
+            bool muted,
+            float volume)
+        {
+            audioMuted =
+                muted;
+
+            audioVolume =
+                Mathf.Clamp01(
+                    volume);
+
+            ApplyAudioVolume();
+
+            MotorCitySaveService.SetInt(
+                AudioMutedSaveKey,
+                audioMuted
+                    ? 1
+                    : 0);
+
+            MotorCitySaveService.SetFloat(
+                AudioVolumeSaveKey,
+                audioVolume);
+
+            MotorCitySaveService.Save();
+
+            RefreshPauseMenuText();
+        }
+
         private AchievementSystem achievements;
         private AdventureDirector adventureDirector;
 
