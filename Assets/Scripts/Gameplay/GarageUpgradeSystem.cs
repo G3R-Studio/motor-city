@@ -207,6 +207,10 @@ namespace MotorCity.Gameplay
             car?.SetDrivingBlocked(
                 "Garage",
                 false);
+
+            SetGarageLighting(
+                true);
+
             ApplyUpgrades();
         }
 
@@ -849,16 +853,16 @@ namespace MotorCity.Gameplay
         {
             if (garageLightingRig == null)
             {
-                if (!active)
-                    return;
-
                 BuildGarageLighting();
             }
 
-            if (garageLightingRig != null)
+            if (garageLightingRig != null &&
+                !garageLightingRig.activeSelf)
             {
+                // Garage warm lights are part of the world lighting now,
+                // not a temporary presentation effect.
                 garageLightingRig.SetActive(
-                    active);
+                    true);
             }
         }
 
@@ -887,7 +891,7 @@ namespace MotorCity.Gameplay
                     333.540009f));
 
             garageLightingRig.SetActive(
-                false);
+                true);
         }
 
         private void CreateGaragePointLight(
