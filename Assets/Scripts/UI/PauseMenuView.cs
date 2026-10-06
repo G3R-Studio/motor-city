@@ -334,9 +334,50 @@ namespace MotorCity.UI
                 panel,
                 "Pause Resume",
                 "pause.resume",
-                new Vector2(0f, -164f),
+                new Vector2(-158f, -164f),
                 new Vector2(300f, 50f),
                 ClosePauseMenu);
+
+            CreatePauseButton(
+                panel,
+                "Pause Main Menu",
+                "pause.main_menu",
+                new Vector2(158f, -164f),
+                new Vector2(300f, 50f),
+                OpenPauseMainMenu);
+        }
+
+        private void OpenPauseMainMenu()
+        {
+            MotorCityInput.ClearVirtualState();
+
+            pauseMenuOpen =
+                false;
+
+            pauseOverlay?.SetActive(
+                false);
+
+            MotorCityMusicRuntime.SetPauseMenuPaused(
+                false);
+
+            car?.SetDrivingBlocked(
+                "PauseMenu",
+                false);
+
+            MotorCityPlatformRuntime.SetGameplayUiPaused(
+                false);
+
+            MotorCityFrontEndFlow frontEnd =
+                Object.FindAnyObjectByType<
+                    MotorCityFrontEndFlow>();
+
+            if (frontEnd != null)
+            {
+                frontEnd.ShowMainMenuFromGarage();
+                return;
+            }
+
+            ClosePauseMenu();
         }
 
         private void CreatePauseButton(
