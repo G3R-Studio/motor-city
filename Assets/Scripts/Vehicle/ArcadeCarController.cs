@@ -267,6 +267,53 @@ namespace MotorCity.Vehicle
 
         private void Awake()
         {
+            // Existing serialized scene/prefab values can preserve the older
+            // arcade tuning, so enforce the city-scale baseline at runtime.
+            baseMaxSpeedKph =
+                Mathf.Min(
+                    baseMaxSpeedKph,
+                    180);
+
+            maxReverseSpeedKph =
+                Mathf.Min(
+                    maxReverseSpeedKph,
+                    42);
+
+            accelerationMultiplier =
+                Mathf.Min(
+                    accelerationMultiplier,
+                    8);
+
+            brakeForce =
+                Mathf.Max(
+                    brakeForce,
+                    1500);
+
+            decelerationMultiplier =
+                Mathf.Max(
+                    decelerationMultiplier,
+                    2);
+
+            basePowerAssistAcceleration =
+                Mathf.Min(
+                    basePowerAssistAcceleration,
+                    2.8f);
+
+            driftPowerAssistAcceleration =
+                Mathf.Min(
+                    driftPowerAssistAcceleration,
+                    1.8f);
+
+            reversePowerAssistAcceleration =
+                Mathf.Min(
+                    reversePowerAssistAcceleration,
+                    1.6f);
+
+            powerAssistFadeStartKph =
+                Mathf.Min(
+                    powerAssistFadeStartKph,
+                    115f);
+
             currentDriveMode =
                 (DriveMode)Mathf.Clamp(
                     MotorCity.Persistence.MotorCitySaveService.GetInt(
@@ -1077,9 +1124,11 @@ namespace MotorCity.Vehicle
                 };
 
             int tunedBrakeForce =
-                Mathf.RoundToInt(
-                    baseBrakeForce *
-                    vehicleBrakeMultiplier);
+                Mathf.Max(
+                    1500,
+                    Mathf.RoundToInt(
+                        baseBrakeForce *
+                        vehicleBrakeMultiplier));
 
             Vector3 tunedCenterOfMass =
                 bodyMassCenter +
