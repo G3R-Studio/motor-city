@@ -1,3 +1,4 @@
+using MotorCity.Input;
 using MotorCity.Localization;
 using UnityEngine;
 using UnityEngine.UI;
@@ -378,7 +379,8 @@ namespace MotorCity.UI
             string localizationKey,
             UnityEngine.Events.UnityAction action,
             float preferredWidth = -1f,
-            bool compact = false)
+            bool compact = false,
+            MotorCityInputAction? semanticAction = null)
         {
             GameObject buttonObject =
                 new(
@@ -488,6 +490,61 @@ namespace MotorCity.UI
                     1f;
             }
 
+            bool hasSemanticIcon =
+                semanticAction.HasValue;
+
+            if (hasSemanticIcon)
+            {
+                RectTransform iconRect =
+                    GarageObject(
+                        rect,
+                        "Action Icon");
+
+                iconRect.anchorMin =
+                    iconRect.anchorMax =
+                    iconRect.pivot =
+                        new Vector2(
+                            0f,
+                            0.5f);
+
+                iconRect.anchoredPosition =
+                    new Vector2(
+                        14f,
+                        0f);
+
+                iconRect.sizeDelta =
+                    new Vector2(
+                        24f,
+                        24f);
+
+                GarageReferenceGraphic icon =
+                    iconRect.gameObject.AddComponent<
+                        GarageReferenceGraphic>();
+
+                if (!MotorCityButtonVisuals.TryForButton(
+                        localizationKey + " " +
+                        objectName,
+                        semanticAction.Value,
+                        out GarageReferenceGraphic.Symbol iconSymbol,
+                        out Color iconColor))
+                {
+                    iconSymbol =
+                        GarageReferenceGraphic.Symbol.Check;
+
+                    iconColor =
+                        TextColor;
+                }
+
+                icon.symbol =
+                    iconSymbol;
+
+                icon.color =
+                    iconColor;
+
+                icon.raycastTarget =
+                    false;
+            }
+
             Text label =
                 CreateText(
                     rect,
@@ -513,7 +570,11 @@ namespace MotorCity.UI
                 Vector2.one;
 
             labelRect.offsetMin =
-                new Vector2(4f, 3f);
+                new Vector2(
+                    hasSemanticIcon
+                        ? 40f
+                        : 4f,
+                    3f);
 
             labelRect.offsetMax =
                 new Vector2(-4f, -3f);
