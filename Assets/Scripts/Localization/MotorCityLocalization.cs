@@ -534,6 +534,7 @@ namespace MotorCity.Localization
                 { "pause.controls_touch", E("НАСТРОЙКИ И ПРОДОЛЖЕНИЕ", "SETTINGS AND RESUME") },
                 { "pause.audio_touch", E("ЗВУК ВКЛ / ВЫКЛ", "TOGGLE AUDIO") },
                 { "pause.resume", E("ПРОДОЛЖИТЬ", "RESUME") },
+                { "pause.main_menu", E("ГЛАВНОЕ МЕНЮ", "MAIN MENU") },
                 { "pause.quality_hint", E("ГРАФИКА", "GRAPHICS") },
                 { "pause.audio_hint", E("ЗВУК ИГРЫ", "GAME AUDIO") },
                 { "pause.quality_less", E("КАЧЕСТВО −", "QUALITY −") },
