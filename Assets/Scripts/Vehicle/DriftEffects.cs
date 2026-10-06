@@ -362,6 +362,23 @@ namespace MotorCity.Vehicle
             if (material.HasProperty("_ZWrite"))
                 material.SetFloat("_ZWrite", 0f);
 
+            if (material.HasProperty("_Metallic"))
+                material.SetFloat("_Metallic", 0f);
+
+            if (material.HasProperty("_Smoothness"))
+                material.SetFloat("_Smoothness", 0f);
+
+            if (material.HasProperty("_SpecularHighlights"))
+                material.SetFloat("_SpecularHighlights", 0f);
+
+            if (material.HasProperty("_EnvironmentReflections"))
+                material.SetFloat("_EnvironmentReflections", 0f);
+
+            material.DisableKeyword("_SPECULARHIGHLIGHTS_OFF");
+            material.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
+            material.DisableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
+            material.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
+
             if (material.HasProperty("_Cull"))
             {
                 material.SetFloat(
