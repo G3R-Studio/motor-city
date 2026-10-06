@@ -1449,9 +1449,7 @@ namespace MotorCity.UI
                 Keyboard.current != null &&
                 Keyboard.current.f10Key.wasPressedThisFrame)
             {
-                pregameDebugVisible =
-                    !pregameDebugVisible;
-            }
+}
 #endif
 
             ApplyFrontEndResponsiveLayout(
@@ -2110,10 +2108,7 @@ namespace MotorCity.UI
 
                 frontEndCamera = null;
             }
-
-            pregameDebugVisible = false;
-
-            if (hud != null)
+if (hud != null)
             {
                 frontEndAudioMuted =
                     hud.FrontEndAudioMuted;
