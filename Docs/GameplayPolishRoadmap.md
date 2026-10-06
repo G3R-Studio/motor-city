@@ -1213,7 +1213,7 @@ VehicleVisualChanged
 - [x] Settings migration
 - [x] Control choice migration
 - [x] Result modal actions migration
-- [ ] Проверить settings/control choice/result в игре
+- [x] Проверить settings/control choice/result в игре
 
 ## Tutorial
 
