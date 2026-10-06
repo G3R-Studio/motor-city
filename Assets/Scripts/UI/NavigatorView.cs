@@ -168,6 +168,12 @@ namespace MotorCity.UI
             navigatorIconPlateImage =
                 iconPlate.GetComponent<Image>();
 
+            if (navigatorIconPlateImage != null)
+            {
+                navigatorIconPlateImage.enabled =
+                    false;
+            }
+
             navigatorIconImage =
                 CreateHudIcon(
                     iconPlate,
