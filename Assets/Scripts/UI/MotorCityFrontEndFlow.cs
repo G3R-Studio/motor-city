@@ -13,7 +13,7 @@ using UnityEngine.UI;
 
 namespace MotorCity.UI
 {
-    public sealed class MotorCityFrontEndFlow : MonoBehaviour
+    public sealed partial class MotorCityFrontEndFlow : MonoBehaviour
     {
         private const string IntroCompleteKey = "MotorCity.FrontEnd.IntroCompleted";
         private const string LanguageKey = "MotorCity.Settings.LanguageOverride";
