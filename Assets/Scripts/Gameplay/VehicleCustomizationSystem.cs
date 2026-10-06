@@ -760,7 +760,7 @@ namespace MotorCity.Gameplay
             }
         }
 
-        private static void ApplyStreetWheelStyle(
+        private void ApplyStreetWheelStyle(
             Renderer[] renderers,
             Color wheelColor)
         {
@@ -790,37 +790,13 @@ namespace MotorCity.Gameplay
                         continue;
                     }
 
-                    ApplyColorBlockStatic(
+                    ApplyColorBlock(
                         renderer,
                         material,
                         i,
                         wheelColor);
                 }
             }
-        }
-
-        private static void ApplyColorBlockStatic(
-            Renderer renderer,
-            Material material,
-            int materialIndex,
-            Color color)
-        {
-            MaterialPropertyBlock propertyBlock =
-                new();
-
-            renderer.GetPropertyBlock(
-                propertyBlock,
-                materialIndex);
-
-            if (material.HasProperty("_BaseColor"))
-                propertyBlock.SetColor("_BaseColor", color);
-
-            if (material.HasProperty("_Color"))
-                propertyBlock.SetColor("_Color", color);
-
-            renderer.SetPropertyBlock(
-                propertyBlock,
-                materialIndex);
         }
 
         private void BuildCosmeticGeometry()
