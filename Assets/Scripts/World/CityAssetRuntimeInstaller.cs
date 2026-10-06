@@ -552,12 +552,33 @@ namespace MotorCity.World
 
             Material vegetation =
                 Resources.Load<Material>(
-                    "MotorCity/Environment/FCGMaterials/Vegetation_811454d6");
+                    "MotorCity/Environment/FCGMaterials/Trees-01_02e4ddcf");
+
+            if (vegetation == null)
+            {
+                vegetation =
+                    Resources.Load<Material>(
+                        "MotorCity/Environment/FCGMaterials/Trees-01_7d6ab47c");
+            }
+
+            if (vegetation == null)
+            {
+                vegetation =
+                    Resources.Load<Material>(
+                        "MotorCity/Environment/FCGMaterials/Trees-01_c99cec0c");
+            }
+
+            if (vegetation == null)
+            {
+                vegetation =
+                    Resources.Load<Material>(
+                        "MotorCity/Environment/FCGMaterials/Trees-01_de54ebd2");
+            }
 
             if (vegetation == null)
             {
                 Debug.LogWarning(
-                    "Motor City: FCG vegetation fallback material is missing.");
+                    "Motor City: FCG Trees-01 fallback material is missing.");
 
                 return;
             }
