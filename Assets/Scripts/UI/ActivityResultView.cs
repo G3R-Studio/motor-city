@@ -245,21 +245,21 @@ namespace MotorCity.UI
 
             resultRetryButton =
                 CreateResultActionButton(
-                    panel,
+                    activityResultOverlay.transform,
                     "Result Retry Button",
                     "touch.result.retry",
                     MotorCityInputAction.Retry,
-                    new Vector2(-102f, 30f),
-                    new Vector2(180f, 48f));
+                    new Vector2(-110f, -270f),
+                    new Vector2(190f, 50f));
 
             resultContinueButton =
                 CreateResultActionButton(
-                    panel,
+                    activityResultOverlay.transform,
                     "Result Continue Button",
                     "touch.result.continue",
                     MotorCityInputAction.Cancel,
-                    new Vector2(112f, 30f),
-                    new Vector2(220f, 48f));
+                    new Vector2(120f, -270f),
+                    new Vector2(230f, 50f));
         }
 
         private GameObject CreateResultActionButton(
@@ -285,11 +285,11 @@ namespace MotorCity.UI
                 buttonObject.GetComponent<RectTransform>();
 
             rect.anchorMin =
-                new Vector2(0.5f, 0f);
+                new Vector2(0.5f, 0.5f);
             rect.anchorMax =
-                new Vector2(0.5f, 0f);
+                new Vector2(0.5f, 0.5f);
             rect.pivot =
-                new Vector2(0.5f, 0f);
+                new Vector2(0.5f, 0.5f);
             rect.anchoredPosition =
                 anchoredPosition;
             rect.sizeDelta =
@@ -334,6 +334,43 @@ namespace MotorCity.UI
                     MotorCityInput.PulseVirtual(
                         action));
 
+            RectTransform iconRect =
+                GarageObject(
+                    rect,
+                    "Reference Action Icon");
+
+            iconRect.anchorMin =
+                iconRect.anchorMax =
+                iconRect.pivot =
+                    new Vector2(
+                        0f,
+                        0.5f);
+
+            iconRect.anchoredPosition =
+                new Vector2(
+                    16f,
+                    0f);
+
+            iconRect.sizeDelta =
+                new Vector2(
+                    24f,
+                    24f);
+
+            GarageReferenceGraphic icon =
+                iconRect.gameObject.AddComponent<
+                    GarageReferenceGraphic>();
+
+            icon.symbol =
+                action == MotorCityInputAction.Retry
+                    ? GarageReferenceGraphic.Symbol.NavigationRight
+                    : GarageReferenceGraphic.Symbol.Check;
+
+            icon.color =
+                TextColor;
+
+            icon.raycastTarget =
+                false;
+
             Text label =
                 CreateText(
                     rect,
@@ -341,7 +378,9 @@ namespace MotorCity.UI
                     15,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    Vector2.zero,
+                    new Vector2(
+                        12f,
+                        0f),
                     size -
                     new Vector2(12f, 8f),
                     new Vector2(0.5f, 0.5f),
@@ -559,20 +598,20 @@ namespace MotorCity.UI
                     continueRect.anchoredPosition =
                         replayable
                             ? new Vector2(
-                                112f,
-                                30f)
+                                120f,
+                                -270f)
                             : new Vector2(
                                 0f,
-                                30f);
+                                -270f);
 
                     continueRect.sizeDelta =
                         replayable
                             ? new Vector2(
-                                220f,
-                                48f)
+                                230f,
+                                50f)
                             : new Vector2(
-                                300f,
-                                48f);
+                                310f,
+                                50f);
                 }
             }
 
