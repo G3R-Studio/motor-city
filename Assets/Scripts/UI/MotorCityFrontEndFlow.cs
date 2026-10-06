@@ -3224,23 +3224,36 @@ namespace MotorCity.UI
             {
                 Text label = button.GetComponentInChildren<Text>();
                 if (label == null || label == primaryButtonText) continue;
-                AddMenuButtonIcon(button.transform,
-                    label.text.Contains("НАСТРОЙКИ") || label.text.Contains("SETTINGS")
-                        ? GarageReferenceGraphic.Symbol.Wrench : GarageReferenceGraphic.Symbol.Star);
+                MotorCityButtonVisuals.TryForSemantic(
+                    label.text,
+                    out GarageReferenceGraphic.Symbol icon,
+                    out Color iconColor);
+
+                AddMenuButtonIcon(
+                    button.transform,
+                    icon,
+                    iconColor);
             }
             foreach (Button button in controlChoiceRoot.GetComponentsInChildren<Button>(true))
             {
                 Text label = button.GetComponentInChildren<Text>();
                 if (label == null || button.GetComponent<RectTransform>().sizeDelta.x < 400f) continue;
-                GarageReferenceGraphic.Symbol icon = label.text.Contains("КЛАВИАТ") || label.text.Contains("KEYBOARD")
-                    ? GarageReferenceGraphic.Symbol.Keyboard
-                    : label.text.Contains("КОЛЕС") || label.text.Contains("WHEEL")
-                        ? GarageReferenceGraphic.Symbol.Steering : GarageReferenceGraphic.Symbol.Right;
-                AddMenuButtonIcon(button.transform, icon);
+                MotorCityButtonVisuals.TryForSemantic(
+                    label.text,
+                    out GarageReferenceGraphic.Symbol icon,
+                    out Color iconColor);
+
+                AddMenuButtonIcon(
+                    button.transform,
+                    icon,
+                    iconColor);
             }
         }
 
-        private static void AddMenuButtonIcon(Transform button, GarageReferenceGraphic.Symbol symbol)
+        private static void AddMenuButtonIcon(
+            Transform button,
+            GarageReferenceGraphic.Symbol symbol,
+            Color color)
         {
             GameObject obj = new("Menu Action Icon", typeof(RectTransform), typeof(GarageReferenceGraphic));
             obj.transform.SetParent(button, false);
@@ -3250,7 +3263,7 @@ namespace MotorCity.UI
             rect.sizeDelta = new Vector2(38f, 38f);
             GarageReferenceGraphic graphic = obj.GetComponent<GarageReferenceGraphic>();
             graphic.symbol = symbol;
-            graphic.color = new Color(.28f, .78f, 1f, 1f);
+            graphic.color = color;
             graphic.raycastTarget = false;
             Text label = button.GetComponentInChildren<Text>();
             if (label != null)
