@@ -2250,19 +2250,8 @@ namespace MotorCity.UI
                 onboarding != null &&
                 !onboarding.IsComplete)
             {
-                if (onboarding.CurrentStep == 4 &&
-                    delivery != null)
-                {
-                    target =
-                        delivery.CurrentTarget;
-                    label =
-                        MotorCityLocalization.Text(
-                            "hud.first_activity_target");
-                    showRoadRoute = true;
-                    return;
-                }
-
-                if (onboarding.CurrentStep == 5 &&
+                if ((onboarding.IsGarageStep ||
+                     onboarding.IsCustomizationStep) &&
                     garage != null)
                 {
                     target =
@@ -2270,6 +2259,18 @@ namespace MotorCity.UI
                     label =
                         MotorCityLocalization.Text(
                             "hud.garage");
+                    showRoadRoute = true;
+                    return;
+                }
+
+                if (onboarding.IsRookieSprintStep &&
+                    streetSprint != null)
+                {
+                    target =
+                        streetSprint.CurrentTarget;
+                    label =
+                        MotorCityLocalization.Text(
+                            "hud.first_race_target");
                     showRoadRoute = true;
                     return;
                 }
