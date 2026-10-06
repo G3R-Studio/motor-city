@@ -452,19 +452,13 @@ namespace MotorCity.UI
             button.onClick.AddListener(
                 action);
 
-            GarageReferenceGraphic.Symbol? utilityIcon =
-                objectName == "HUD Pause"
-                    ? GarageReferenceGraphic.Symbol.Pause
-                    : objectName == "HUD More"
-                        ? GarageReferenceGraphic.Symbol.MenuGrid
-                        : null;
+            bool hasUtilityIcon =
+                MotorCityButtonVisuals.TryForSemantic(
+                    objectName + " " + localizationKey,
+                    out GarageReferenceGraphic.Symbol utilityIcon,
+                    out Color utilityIconColor);
 
-            Color utilityIconColor =
-                objectName == "HUD Pause"
-                    ? new Color(0.42f, 0.72f, 1f, 1f)
-                    : new Color(0.72f, 0.48f, 1f, 1f);
-
-            if (utilityIcon.HasValue)
+            if (hasUtilityIcon)
             {
                 RectTransform iconRect =
                     GarageObject(
@@ -493,7 +487,7 @@ namespace MotorCity.UI
                         GarageReferenceGraphic>();
 
                 icon.symbol =
-                    utilityIcon.Value;
+                    utilityIcon;
 
                 icon.color =
                     utilityIconColor;
@@ -516,12 +510,12 @@ namespace MotorCity.UI
                             : UiButtonFontSize,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    utilityIcon.HasValue
+                    hasUtilityIcon
                         ? new Vector2(10f, 0f)
                         : Vector2.zero,
                     size -
                     new Vector2(
-                        utilityIcon.HasValue
+                        hasUtilityIcon
                             ? 32f
                             : 8f,
                         6f),
