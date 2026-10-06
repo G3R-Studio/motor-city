@@ -15,15 +15,22 @@ namespace MotorCity.CameraSystem
         [SerializeField] private float height = 2.25f;
         [SerializeField] private float positionSharpness = 7.5f;
         [SerializeField] private float rotationSharpness = 10f;
-        [SerializeField] private float speedLookAhead = 3.8f;
-        [SerializeField] private float speedDistanceBonus = 1.25f;
+        [SerializeField] private float speedLookAhead = 3.2f;
+        [SerializeField] private float speedDistanceBonus = 0.25f;
         [SerializeField] private float baseFieldOfView = 62f;
         [SerializeField] private float garageFieldOfView = 54f;
         [SerializeField] private float garageDistance = 6.3f;
-        [SerializeField] private float highSpeedFieldOfView = 72f;
-        [SerializeField] private float fieldOfViewSharpness = 4.5f;
+        [SerializeField] private float highSpeedFieldOfView = 77f;
+        [SerializeField] private float fieldOfViewGainSharpness = 5.5f;
+        [SerializeField] private float fieldOfViewReturnSharpness = 2.8f;
         [SerializeField] private float driftLookInfluence = 0.45f;
         [SerializeField] private float maxDriftLookAngle = 22f;
+
+        [Header("Turn Camera Lag")]
+        [SerializeField] private float turnLagInfluence = 0.055f;
+        [SerializeField] private float maxTurnLagAngle = 6f;
+        [SerializeField] private float turnLagSharpness = 5.5f;
+        [SerializeField] private float minimumTurnLagSpeedKph = 8f;
         [SerializeField] private float teleportSnapDistance = 28f;
 
         [Header("Obstacle Avoidance")]
@@ -60,6 +67,9 @@ namespace MotorCity.CameraSystem
         private float vehicleVisualCenterRefreshTimer;
         private int cameraTouchId = -1;
         private Vector2 lastCameraTouchPosition;
+        private float currentTurnLagYaw;
+        private float lastVehicleYaw;
+        private bool hasLastVehicleYaw;
 
         private bool manualInputEnabled = true;
         private bool garageMode;
@@ -88,6 +98,17 @@ namespace MotorCity.CameraSystem
 
             hasLastTargetPosition =
                 false;
+
+            currentTurnLagYaw =
+                0f;
+
+            lastVehicleYaw =
+                target != null
+                    ? target.eulerAngles.y
+                    : 0f;
+
+            hasLastVehicleYaw =
+                target != null;
 
             hasVehicleVisualCenter =
                 false;
@@ -294,6 +315,12 @@ namespace MotorCity.CameraSystem
 
             garageInitialPosition =
                 initialPosition;
+
+            currentTurnLagYaw =
+                0f;
+
+            hasLastVehicleYaw =
+                false;
 
             garagePoseSnapPending =
                 true;
@@ -818,19 +845,99 @@ namespace MotorCity.CameraSystem
                 ? 0f
                 : Mathf.InverseLerp(20f, 180f, car.SpeedKph);
 
+            float speedCurve =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    speed01);
+
             float dynamicDistance =
-                distance + speedDistanceBonus * speed01;
+                distance +
+                speedDistanceBonus *
+                speedCurve;
 
             float dynamicLookAhead =
                 Mathf.Lerp(
                     0f,
                     speedLookAhead,
-                    speed01);
+                    speedCurve);
+
+            bool targetTeleported =
+                !hasLastTargetPosition ||
+                Vector3.Distance(
+                    lastTargetPosition,
+                    target.position) >=
+                teleportSnapDistance;
+
+            float vehicleYaw =
+                target.eulerAngles.y;
+
+            bool manualOrbitActive =
+                (Mouse.current != null &&
+                 Mouse.current.rightButton.isPressed) ||
+                cameraTouchId >= 0;
+
+            float targetTurnLagYaw =
+                0f;
+
+            if (!garageMode &&
+                !manualOrbitActive &&
+                !targetTeleported &&
+                hasLastVehicleYaw &&
+                car != null &&
+                car.SpeedKph >=
+                    minimumTurnLagSpeedKph)
+            {
+                float yawDelta =
+                    Mathf.DeltaAngle(
+                        lastVehicleYaw,
+                        vehicleYaw);
+
+                float yawSpeed =
+                    yawDelta /
+                    Mathf.Max(
+                        Time.deltaTime,
+                        0.0001f);
+
+                float speedInfluence =
+                    Mathf.InverseLerp(
+                        minimumTurnLagSpeedKph,
+                        80f,
+                        car.SpeedKph);
+
+                targetTurnLagYaw =
+                    Mathf.Clamp(
+                        -yawSpeed *
+                        turnLagInfluence *
+                        speedInfluence,
+                        -maxTurnLagAngle,
+                        maxTurnLagAngle);
+            }
+
+            if (targetTeleported ||
+                garageMode)
+            {
+                currentTurnLagYaw =
+                    0f;
+            }
+            else
+            {
+                currentTurnLagYaw =
+                    Mathf.Lerp(
+                        currentTurnLagYaw,
+                        targetTurnLagYaw,
+                        1f -
+                        Mathf.Exp(
+                            -turnLagSharpness *
+                            Time.deltaTime));
+            }
 
             Quaternion orbitRotation =
                 Quaternion.Euler(
                     pitch,
-                    target.eulerAngles.y + yawOffset,
+                    vehicleYaw +
+                    yawOffset +
+                    currentTurnLagYaw,
                     0f);
 
             Vector3 orbitOffset =
@@ -849,11 +956,7 @@ namespace MotorCity.CameraSystem
                 orbitOffset;
 
             bool snapAfterTeleport =
-                !hasLastTargetPosition ||
-                Vector3.Distance(
-                    lastTargetPosition,
-                    target.position) >=
-                teleportSnapDistance;
+                targetTeleported;
 
             if (snapAfterTeleport)
             {
@@ -868,6 +971,18 @@ namespace MotorCity.CameraSystem
                 ResolveStableCameraPosition(
                     cameraPivot,
                     desiredPosition);
+
+            if (!snapAfterTeleport &&
+                hasLastTargetPosition)
+            {
+                // Carry the camera by the vehicle's world translation before
+                // smoothing the relative offset. Without this, the position
+                // lerp produces several metres of artificial trailing at high
+                // speed, making the camera appear to fall behind the car.
+                transform.position +=
+                    target.position -
+                    lastTargetPosition;
+            }
 
             transform.position =
                 snapAfterTeleport
@@ -951,6 +1066,12 @@ namespace MotorCity.CameraSystem
             hasLastTargetPosition =
                 true;
 
+            lastVehicleYaw =
+                vehicleYaw;
+
+            hasLastVehicleYaw =
+                true;
+
             if (cameraComponent != null)
             {
                 float targetFov =
@@ -959,14 +1080,20 @@ namespace MotorCity.CameraSystem
                         : Mathf.Lerp(
                             baseFieldOfView,
                             highSpeedFieldOfView,
-                            speed01);
+                            speedCurve);
+
+                float fovSharpness =
+                    targetFov >
+                    cameraComponent.fieldOfView
+                        ? fieldOfViewGainSharpness
+                        : fieldOfViewReturnSharpness;
 
                 cameraComponent.fieldOfView =
                     Mathf.Lerp(
                         cameraComponent.fieldOfView,
                         targetFov,
                         1f - Mathf.Exp(
-                            -fieldOfViewSharpness *
+                            -fovSharpness *
                             Time.deltaTime));
             }
         }
