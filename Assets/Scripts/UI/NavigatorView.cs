@@ -1985,11 +1985,16 @@ namespace MotorCity.UI
                 navigatorVectorIcon.gameObject.AddComponent<
                     GarageReferenceGraphic>();
 
+            MotorCityButtonVisuals.TryForSemantic(
+                "navigator",
+                out GarageReferenceGraphic.Symbol navigatorSymbol,
+                out Color navigatorColor);
+
             navigatorIcon.symbol =
-                GarageReferenceGraphic.Symbol.NavigationRight;
+                navigatorSymbol;
 
             navigatorIcon.color =
-                TextColor;
+                navigatorColor;
 
             navigatorIcon.raycastTarget =
                 false;
