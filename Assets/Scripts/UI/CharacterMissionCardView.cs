@@ -362,7 +362,9 @@ namespace MotorCity.UI
                 !onboarding.IsComplete)
             {
                 bool turboStep =
-                    onboarding.CurrentStep >= 4;
+                    onboarding.IsCustomizationStep ||
+                    onboarding.IsRookieSprintStep ||
+                    onboarding.IsCompletionPresentationStep;
 
                 name =
                     MotorCityLocalization.Text(
