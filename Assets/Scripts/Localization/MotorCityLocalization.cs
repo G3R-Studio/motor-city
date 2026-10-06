@@ -56,6 +56,8 @@ namespace MotorCity.Localization
                 { "drive.comfort.desc", E("стабильная повседневная езда", "stable everyday driving") },
                 { "drive.sport.desc", E("максимальная тяга и сцепление", "maximum grip and response") },
                 { "drive.drift.desc", E("острый руль и свободная задняя ось", "sharp steering and freer rear axle") },
+                { "drive.stop_to_switch", E("Сначала полностью остановите автомобиль, чтобы сменить режим езды.", "Come to a complete stop before changing drive mode.") },
+                { "elite.stop_to_use", E("ЭЛИТА — сложный вариант задания с повышенной наградой. Для запуска полностью остановитесь у точки старта.", "ELITE is a harder activity variant with higher rewards. Come to a complete stop at the start point to use it.") },
 
                 { "vehicle.hybrid.name", E("ХАЙБРЕД", "HYBRED") },
                 { "vehicle.beatall.name", E("БИТЛ", "BEATALL") },
