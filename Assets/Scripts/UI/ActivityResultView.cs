@@ -385,11 +385,11 @@ namespace MotorCity.UI
                 resultRewardText,
                 18f);
 
+            bool hasMastery =
+                activityManager.ResultMasteryXp > 0;
+
             if (resultMasteryText != null)
             {
-                bool hasMastery =
-                    activityManager.ResultMasteryXp > 0;
-
                 resultMasteryText.text =
                     hasMastery
                         ? MotorCityLocalization.Format(
@@ -401,18 +401,21 @@ namespace MotorCity.UI
                     hasMastery);
             }
 
+            string secondaryProgress =
+                activityManager.ResultSecondaryProgress ??
+                string.Empty;
+
+            bool hasSecondaryProgress =
+                !string.IsNullOrWhiteSpace(
+                    secondaryProgress);
+
             if (resultSecondaryProgressText != null)
             {
-                string secondary =
-                    activityManager.ResultSecondaryProgress ??
-                    string.Empty;
-
                 resultSecondaryProgressText.text =
-                    secondary;
+                    secondaryProgress;
 
                 resultSecondaryProgressText.gameObject.SetActive(
-                    !string.IsNullOrWhiteSpace(
-                        secondary));
+                    hasSecondaryProgress);
             }
 
             Color accent =
@@ -461,12 +464,39 @@ namespace MotorCity.UI
                             "onboarding.result_next_garage");
                 }
 
+                bool hasNextGoal =
+                    !string.IsNullOrWhiteSpace(
+                        nextGoal);
+
                 resultNextGoalText.text =
                     nextGoal;
 
                 resultNextGoalText.gameObject.SetActive(
-                    !string.IsNullOrWhiteSpace(
-                        nextGoal));
+                    hasNextGoal);
+
+                if (hasNextGoal)
+                {
+                    RectTransform nextGoalRect =
+                        resultNextGoalText.rectTransform;
+
+                    // The old fixed -390 Y assumed mastery and secondary
+                    // progress were both visible. On sparse results (notably
+                    // the first race) that left the next-goal line directly
+                    // above the bottom action row and caused text/button
+                    // overlap after UI scaling. Compact the footer upward when
+                    // those optional rows are absent.
+                    float nextGoalY =
+                        hasSecondaryProgress
+                            ? -390f
+                            : hasMastery
+                                ? -350f
+                                : -320f;
+
+                    nextGoalRect.anchoredPosition =
+                        new Vector2(
+                            0f,
+                            nextGoalY);
+                }
             }
 
             if (resultControlsText != null)
