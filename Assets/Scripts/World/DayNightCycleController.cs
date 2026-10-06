@@ -284,9 +284,7 @@ namespace MotorCity.World
 #if UNITY_WEBGL && !UNITY_EDITOR
             // Keep the browser path fill-rate friendly. The scene still uses
             // its authored sky, fog and lighting without full-screen post FX.
-            return;
-#endif
-
+#else
             GameObject volumeObject = new("Motor City Global Post FX");
             volumeObject.transform.SetParent(transform, false);
 
@@ -327,6 +325,7 @@ namespace MotorCity.World
             cityVignette.intensity.Override(0.055f);
             cityVignette.smoothness.Override(0.30f);
             cityVignette.rounded.Override(false);
+#endif
         }
 
         private void CreateMoonLight()
