@@ -295,12 +295,14 @@ namespace MotorCity.Audio
                 Resources.Load<AudioClip>(
                     "MotorCity/Music/menu_01");
 
+#if !UNITY_WEBGL || UNITY_EDITOR
             if (menuClip != null &&
                 menuClip.loadState ==
                     AudioDataLoadState.Unloaded)
             {
                 menuClip.LoadAudioData();
             }
+#endif
 
             cityClips =
                 new AudioClip[
@@ -314,6 +316,7 @@ namespace MotorCity.Audio
                     Resources.Load<AudioClip>(
                         CityTrackPaths[i]);
 
+#if !UNITY_WEBGL || UNITY_EDITOR
                 if (cityClips[i] != null &&
                     cityClips[i].loadState ==
                         AudioDataLoadState.Unloaded)
@@ -324,6 +327,7 @@ namespace MotorCity.Audio
                     // instead of hitching on the first frame of a new song.
                     cityClips[i].LoadAudioData();
                 }
+#endif
             }
 
             cityOrder =
@@ -499,12 +503,10 @@ namespace MotorCity.Audio
                 return true;
             }
 
-            if (clip.loadState ==
-                AudioDataLoadState.Unloaded)
-            {
-                clip.LoadAudioData();
-            }
-
+            // WebGL clips are configured with preloadAudioData.
+            // Do not call LoadAudioData() manually here: before the browser
+            // AudioContext is unlocked Unity WebAudio queries clip metadata
+            // and produces repeated "sound is not loaded yet" warnings.
             return false;
         }
 
