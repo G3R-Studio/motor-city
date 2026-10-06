@@ -723,6 +723,11 @@ namespace MotorCity.Gameplay
                         ? 0.58f
                         : 0.66f);
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+                ConvertPixieMaterialsForWeb(
+                    externalVisual);
+#endif
+
                 externalAnimator =
                     externalVisual.GetComponentInChildren<Animator>(
                         true);
@@ -1369,6 +1374,170 @@ namespace MotorCity.Gameplay
                 false;
 
             BuildVisual();
+        }
+
+        private static void ConvertPixieMaterialsForWeb(
+            GameObject root)
+        {
+            if (root == null)
+                return;
+
+            Shader urpLit =
+                Shader.Find(
+                    "Universal Render Pipeline/Lit");
+
+            if (urpLit == null)
+            {
+                Debug.LogWarning(
+                    "Motor City: URP/Lit shader is unavailable for the Web Pixie fallback.");
+
+                return;
+            }
+
+            var converted =
+                new Dictionary<Material, Material>();
+
+            foreach (Renderer renderer in
+                     root.GetComponentsInChildren<Renderer>(
+                         true))
+            {
+                if (renderer == null)
+                    continue;
+
+                Material[] source =
+                    renderer.sharedMaterials;
+
+                if (source == null ||
+                    source.Length == 0)
+                {
+                    continue;
+                }
+
+                Material[] assigned =
+                    new Material[source.Length];
+
+                bool changed =
+                    false;
+
+                for (int i = 0;
+                     i < source.Length;
+                     i++)
+                {
+                    Material original =
+                        source[i];
+
+                    if (original == null)
+                    {
+                        assigned[i] =
+                            null;
+
+                        continue;
+                    }
+
+                    string shaderName =
+                        original.shader != null
+                            ? original.shader.name
+                            : string.Empty;
+
+                    if (shaderName.StartsWith(
+                            "Universal Render Pipeline/",
+                            StringComparison.Ordinal))
+                    {
+                        assigned[i] =
+                            original;
+
+                        continue;
+                    }
+
+                    if (converted.TryGetValue(
+                            original,
+                            out Material cached) &&
+                        cached != null)
+                    {
+                        assigned[i] =
+                            cached;
+
+                        changed =
+                            true;
+
+                        continue;
+                    }
+
+                    Texture mainTexture =
+                        original.HasProperty(
+                            "_BaseMap")
+                            ? original.GetTexture(
+                                "_BaseMap")
+                            : original.HasProperty(
+                                "_MainTex")
+                                ? original.GetTexture(
+                                    "_MainTex")
+                                : null;
+
+                    Color color =
+                        original.HasProperty(
+                            "_BaseColor")
+                            ? original.GetColor(
+                                "_BaseColor")
+                            : original.HasProperty(
+                                "_Color")
+                                ? original.GetColor(
+                                    "_Color")
+                                : Color.white;
+
+                    Material runtime =
+                        new Material(
+                            urpLit)
+                        {
+                            name =
+                                original.name +
+                                "_MotorCityWeb",
+                            hideFlags =
+                                HideFlags.DontSave
+                        };
+
+                    if (mainTexture != null &&
+                        runtime.HasProperty(
+                            "_BaseMap"))
+                    {
+                        runtime.SetTexture(
+                            "_BaseMap",
+                            mainTexture);
+                    }
+
+                    if (runtime.HasProperty(
+                            "_BaseColor"))
+                    {
+                        runtime.SetColor(
+                            "_BaseColor",
+                            color);
+                    }
+
+                    if (runtime.HasProperty(
+                            "_Smoothness"))
+                    {
+                        runtime.SetFloat(
+                            "_Smoothness",
+                            0.35f);
+                    }
+
+                    converted[
+                        original] =
+                        runtime;
+
+                    assigned[i] =
+                        runtime;
+
+                    changed =
+                        true;
+                }
+
+                if (changed)
+                {
+                    renderer.sharedMaterials =
+                        assigned;
+                }
+            }
         }
 
         private void RefreshVisualSkin()
