@@ -2048,8 +2048,8 @@ namespace MotorCity.UI
                 {
                     loadingStatusText.text =
                         IsRussian()
-                            ? "ПОЕХАЛИ."
-                            : "LET'S DRIVE.";
+                            ? "ПОЕХАЛИ"
+                            : "LET'S DRIVE";
                 }
             }
 
