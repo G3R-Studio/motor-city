@@ -136,15 +136,15 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.beatall.name"),
                     "MotorCity/Vehicles/Player/Beatall",
                     0,
-                    -15,
-                    1,
+                    135,
+                    6,
                     0.98f,
                     -0.01f,
-                    0.88f,
-                    1.08f,
-                    0.96f,
-                    0.96f,
-                    1.08f,
+                    0.86f,
+                    1.09f,
+                    1.10f,
+                    0.92f,
+                    1.10f,
                     MotorCityLocalization.Text("vehicle.beatall.desc")),
 
                     new VehicleProfile(
@@ -152,8 +152,8 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.street.name"),
                     "MotorCity/PlayerCarVisual",
                     250,
-                    0,
-                    0,
+                    155,
+                    7,
                     1.00f,
                     0.00f,
                     1.00f,
@@ -168,15 +168,15 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.peugeot306.name"),
                     "MotorCity/Vehicles/Player/Peugeot306",
                     700,
-                    5,
-                    1,
-                    1.07f,
+                    150,
+                    7,
+                    1.06f,
                     0.02f,
                     0.90f,
                     1.10f,
-                    1.05f,
-                    0.98f,
-                    0.98f,
+                    1.12f,
+                    0.96f,
+                    0.96f,
                     MotorCityLocalization.Text("vehicle.peugeot306.desc")),
 
                     new VehicleProfile(
@@ -184,14 +184,14 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.toyotaae86.name"),
                     "MotorCity/Vehicles/Player/ToyotaAE86",
                     1300,
-                    8,
-                    1,
-                    0.96f,
-                    -0.03f,
+                    155,
+                    7,
+                    0.95f,
+                    -0.02f,
                     0.86f,
                     1.14f,
-                    1.02f,
-                    1.02f,
+                    1.06f,
+                    1.00f,
                     1.20f,
                     MotorCityLocalization.Text("vehicle.toyotaae86.desc")),
 
@@ -200,13 +200,13 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.hybrid.name"),
                     "MotorCity/Vehicles/Player/Hybrid",
                     2100,
-                    20,
-                    3,
-                    1.12f,
-                    0.05f,
-                    0.92f,
-                    1.08f,
+                    175,
+                    9,
                     1.10f,
+                    0.05f,
+                    0.94f,
+                    1.08f,
+                    1.14f,
                     1.08f,
                     0.90f,
                     MotorCityLocalization.Text("vehicle.hybrid.desc")),
@@ -216,13 +216,13 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.porsche996.name"),
                     "MotorCity/Vehicles/Player/Porsche996",
                     3100,
-                    32,
-                    2,
-                    1.15f,
+                    190,
+                    9,
+                    1.14f,
                     0.06f,
-                    0.95f,
+                    0.96f,
                     1.12f,
-                    1.12f,
+                    1.18f,
                     1.08f,
                     0.96f,
                     MotorCityLocalization.Text("vehicle.porsche996.desc")),
@@ -232,13 +232,13 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.amggt.name"),
                     "MotorCity/Vehicles/Player/AmgGT",
                     4300,
-                    42,
-                    3,
+                    195,
+                    9,
                     1.10f,
                     0.09f,
-                    1.06f,
+                    1.08f,
                     1.02f,
-                    1.15f,
+                    1.20f,
                     1.12f,
                     0.92f,
                     MotorCityLocalization.Text("vehicle.amggt.desc")),
@@ -248,13 +248,13 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.camaro.name"),
                     "MotorCity/Vehicles/Player/Camaro",
                     5700,
-                    35,
-                    4,
-                    1.02f,
-                    0.08f,
-                    1.14f,
+                    180,
+                    10,
+                    1.01f,
+                    0.07f,
+                    1.15f,
                     0.92f,
-                    1.08f,
+                    1.10f,
                     1.18f,
                     1.12f,
                     MotorCityLocalization.Text("vehicle.camaro.desc")),
@@ -264,14 +264,14 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.delorean.name"),
                     "MotorCity/Vehicles/Player/Delorean",
                     0,
-                    45,
-                    3,
-                    1.10f,
-                    0.08f,
-                    0.98f,
+                    185,
+                    9,
+                    1.08f,
+                    0.07f,
+                    1.00f,
                     1.07f,
-                    1.12f,
-                    1.12f,
+                    1.15f,
+                    1.10f,
                     1.02f,
                     MotorCityLocalization.Text("vehicle.delorean.desc")),
 
@@ -280,15 +280,15 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.bus.name"),
                     "MotorCity/Vehicles/Player/Bus",
                     7500,
-                    -45,
-                    -2,
-                    1.06f,
+                    105,
+                    4,
+                    1.04f,
                     0.12f,
-                    1.18f,
-                    0.88f,
-                    1.18f,
-                    1.15f,
-                    0.78f,
+                    1.26f,
+                    0.82f,
+                    1.30f,
+                    1.10f,
+                    0.72f,
                     MotorCityLocalization.Text("vehicle.bus.desc"))
                 };
 
@@ -768,15 +768,13 @@ namespace MotorCity.Gameplay
                 profiles[SelectedIndex];
 
             string speed =
-                Signed(
-                    profile.SpeedBonus) +
+                profile.TopSpeedKph +
                 " " +
                 MotorCityLocalization.Text(
                     "common.kmh").ToLowerInvariant();
 
             string accel =
-                Signed(
-                    profile.AccelerationBonus);
+                profile.AccelerationTune.ToString();
 
             int grip =
                 Mathf.RoundToInt(
@@ -980,8 +978,8 @@ namespace MotorCity.Gameplay
                 preserveAuthoredTransform);
 
             car.ApplyVehicleProfile(
-                profile.SpeedBonus,
-                profile.AccelerationBonus,
+                profile.TopSpeedKph,
+                profile.AccelerationTune,
                 profile.GripMultiplier,
                 profile.StabilityBonus,
                 profile.MassMultiplier,
@@ -1092,8 +1090,8 @@ namespace MotorCity.Gameplay
             public readonly string DisplayName;
             public readonly string ResourcePath;
             public readonly int RequiredRep;
-            public readonly int SpeedBonus;
-            public readonly int AccelerationBonus;
+            public readonly int TopSpeedKph;
+            public readonly int AccelerationTune;
             public readonly float GripMultiplier;
             public readonly float StabilityBonus;
             public readonly float MassMultiplier;
@@ -1108,8 +1106,8 @@ namespace MotorCity.Gameplay
                 string displayName,
                 string resourcePath,
                 int requiredRep,
-                int speedBonus,
-                int accelerationBonus,
+                int topSpeedKph,
+                int accelerationTune,
                 float gripMultiplier,
                 float stabilityBonus,
                 float massMultiplier,
@@ -1123,9 +1121,10 @@ namespace MotorCity.Gameplay
                 DisplayName = displayName;
                 ResourcePath = resourcePath;
                 RequiredRep = requiredRep;
-                SpeedBonus = speedBonus;
-                AccelerationBonus =
-                    accelerationBonus;
+                TopSpeedKph =
+                    topSpeedKph;
+                AccelerationTune =
+                    accelerationTune;
                 GripMultiplier =
                     gripMultiplier;
                 StabilityBonus =
