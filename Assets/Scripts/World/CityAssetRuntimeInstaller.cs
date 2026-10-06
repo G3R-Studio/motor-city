@@ -421,46 +421,59 @@ namespace MotorCity.World
                             .IsArchitecturalGlassKey(
                                 key);
 
-                    if (!materialMap.TryGetValue(
+                    bool hasAuthoredReplacement =
+                        materialMap.TryGetValue(
                             key,
-                            out Material replacement) ||
-                        replacement == null)
+                            out Material replacement) &&
+                        replacement != null;
+
+                    if (architecturalGlass)
                     {
-                        if (architecturalGlass)
+                        Material runtimeSource =
+                            hasAuthoredReplacement
+                                ? replacement
+                                : current;
+
+                        if (!dynamicGlassMap.TryGetValue(
+                                runtimeSource,
+                                out replacement) ||
+                            replacement == null)
                         {
-                            if (!dynamicGlassMap.TryGetValue(
-                                    current,
-                                    out replacement) ||
-                                replacement == null)
-                            {
-                                replacement =
-                                    FcgRuntimeGlassMaterialFactory
+                            replacement =
+                                hasAuthoredReplacement
+                                    ? FcgRuntimeGlassMaterialFactory
+                                        .CloneForRuntime(
+                                            runtimeSource)
+                                    : FcgRuntimeGlassMaterialFactory
                                         .Create(
-                                            current,
+                                            runtimeSource,
                                             key);
 
-                                if (replacement != null)
-                                {
-                                    dynamicGlassMap[current] =
-                                        replacement;
-
-                                    dynamicallyConvertedGlass++;
-                                }
-                            }
-
-                            if (replacement == null)
+                            if (replacement != null)
                             {
-                                unresolvedGlass.Add(
-                                    current.name);
+                                dynamicGlassMap[runtimeSource] =
+                                    replacement;
+
+                                dynamicallyConvertedGlass++;
                             }
                         }
 
                         if (replacement == null)
-                            continue;
-                    }
+                        {
+                            unresolvedGlass.Add(
+                                current.name);
 
-                    if (architecturalGlass)
-                        FcgRuntimeGlassMaterialFactory.ConfigureReflections(replacement);
+                            continue;
+                        }
+
+                        FcgRuntimeGlassMaterialFactory
+                            .ConfigureReflections(
+                                replacement);
+                    }
+                    else if (!hasAuthoredReplacement)
+                    {
+                        continue;
+                    }
 
                     if (replacement == current)
                         continue;
