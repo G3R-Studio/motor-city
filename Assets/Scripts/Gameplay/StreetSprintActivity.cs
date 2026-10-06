@@ -49,7 +49,8 @@ namespace MotorCity.Gameplay
         public float ElapsedSeconds { get; private set; }
         public float BestTimeSeconds { get; private set; }
         public int CheckpointIndex => checkpointIndex;
-        public int CheckpointCount => route?.Length ?? 0;
+        public int CheckpointCount =>
+            CurrentRoute?.Length ?? 0;
 
         private Vector3[] CurrentRoute
         {
@@ -311,11 +312,14 @@ namespace MotorCity.Gameplay
             int shown)
         {
             string activityName =
-                eliteMode
+                rookieMode
                     ? MotorCityLocalization.Text(
-                        "activity.elite_sprint")
-                    : MotorCityLocalization.Text(
-                        "hud.sprint");
+                        "onboarding.first_race_title")
+                    : eliteMode
+                        ? MotorCityLocalization.Text(
+                            "activity.elite_sprint")
+                        : MotorCityLocalization.Text(
+                            "hud.sprint");
 
             StatusText =
                 shown <= 0
@@ -378,9 +382,14 @@ namespace MotorCity.Gameplay
             StatusText =
                 MotorCityLocalization.Format(
                     "activity.checkpoint",
-                    eliteMode
-                        ? MotorCityLocalization.Text("activity.elite_sprint")
-                        : MotorCityLocalization.Text("hud.sprint"),
+                    rookieMode
+                        ? MotorCityLocalization.Text(
+                            "onboarding.first_race_title")
+                        : eliteMode
+                            ? MotorCityLocalization.Text(
+                                "activity.elite_sprint")
+                            : MotorCityLocalization.Text(
+                                "hud.sprint"),
                     checkpointIndex + 1,
                     CurrentRoute == null
                         ? 0
