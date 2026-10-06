@@ -1124,6 +1124,14 @@ namespace MotorCity.World
             bool night =
                 NightAmount >= 0.12f;
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            if (garageLight != null &&
+                garageLight.enabled)
+            {
+                garageLight.enabled =
+                    false;
+            }
+#else
             if (garageLight != null &&
                 garageLight.enabled !=
                     night)
@@ -1131,6 +1139,7 @@ namespace MotorCity.World
                 garageLight.enabled =
                     night;
             }
+#endif
 
             if (lampSources.Count == 0)
             {
@@ -1193,22 +1202,11 @@ namespace MotorCity.World
                 };
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            lampDistance =
-                MotorCityQualityRuntime.CurrentPreset switch
-                {
-                    MotorCityQualityPreset.Low => 60f,
-                    MotorCityQualityPreset.High => 95f,
-                    _ => 75f
-                };
-
-            lightBudget =
-                MotorCityQualityRuntime.CurrentPreset switch
-                {
-                    MotorCityQualityPreset.Low => 12,
-                    MotorCityQualityPreset.High => 32,
-                    _ => 20
-                };
-
+            // Avoid first-use additional-light shader stalls in browsers.
+            // Web keeps emissive windows/materials and vehicle headlights,
+            // but does not enable city realtime Light components.
+            lampDistance = 0f;
+            lightBudget = 0;
             shadowBudget = 0;
 #endif
 
