@@ -264,8 +264,7 @@ namespace MotorCity.UI
                 });
 
             bool suppressActionIcon =
-                name ==
-                "Navigator Touch Controls Close";
+                false;
 
             GarageReferenceGraphic.Symbol actionIcon =
                 GarageReferenceGraphic.Symbol.Check;
@@ -275,7 +274,8 @@ namespace MotorCity.UI
 
             bool hasActionIcon =
                 !suppressActionIcon &&
-                MotorCityButtonVisuals.TryForAction(
+                MotorCityButtonVisuals.TryForButton(
+                    localizationKey + " " + name,
                     action,
                     out actionIcon,
                     out actionIconColor);
