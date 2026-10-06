@@ -9,10 +9,22 @@ namespace MotorCity.UI
         public static void Configure(Text text)
         {
             if (text == null) return;
-            text.resizeTextForBestFit = false;
+            int requestedFontSize =
+                Mathf.Max(
+                    1,
+                    text.fontSize);
+
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize =
+                Mathf.Max(
+                    10,
+                    Mathf.RoundToInt(
+                        requestedFontSize * 0.62f));
+            text.resizeTextMaxSize =
+                requestedFontSize;
             text.alignByGeometry = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
             if (text.GetComponent<MotorCityTextClip>() == null)
                 text.gameObject.AddComponent<MotorCityTextClip>();
             // Reserve line-height headroom instead of enlarging the cell into its neighbours.
