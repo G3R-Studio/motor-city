@@ -929,7 +929,17 @@ namespace MotorCity.Gameplay
                 Shader.Find(
                     "Universal Render Pipeline/Lit") ??
                 Shader.Find(
+                    "Universal Render Pipeline/Unlit") ??
+                Shader.Find(
                     "Standard");
+
+            if (shader == null)
+            {
+                Debug.LogWarning(
+                    "Motor City: tow-job runtime shader is unavailable.");
+
+                return;
+            }
 
             serviceMaterial =
                 new Material(
