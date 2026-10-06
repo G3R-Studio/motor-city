@@ -1191,12 +1191,14 @@ VehicleVisualChanged
 
 ## Garage orbit
 
-- [ ] Сделать garage-specific orbit behavior
-- [ ] ЛКМ drag
-- [ ] Touch swipe
-- [ ] UI raycast protection
-- [ ] Проверить смену авто
-- [ ] Проверить zoom
+> Базовая реализация внесена в commit `f7f9f12438b0a5b4b67e12bb7f37e30f21fed0eb`. Ожидается игровая проверка.
+
+- [x] Сделать garage-specific orbit behavior
+- [x] ЛКМ drag
+- [x] Touch swipe
+- [x] UI raycast protection
+- [ ] Проверить смену авто в игре
+- [ ] Проверить zoom в игре
 
 ## UI-kit
 
