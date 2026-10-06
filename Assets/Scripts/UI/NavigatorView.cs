@@ -1888,7 +1888,7 @@ namespace MotorCity.UI
             navigatorButtonRect.pivot =
                 new Vector2(1f, 0f);
             navigatorButtonRect.anchoredPosition =
-                new Vector2(-8f, 20f);
+                new Vector2(-18f, 20f);
 
             navigatorButtonRect.sizeDelta =
                 new Vector2(40f, 30f);
