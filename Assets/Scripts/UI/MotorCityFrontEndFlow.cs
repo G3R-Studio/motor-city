@@ -1349,8 +1349,11 @@ namespace MotorCity.UI
             continuingExistingSave =
                 hasExistingProgress;
 
+            // The v2 first-run flow teaches the game through play. The old
+            // six-slide presentation and its five-second vehicle lock are no
+            // longer part of the mandatory new-game path.
             openingPresentationRequested =
-                !hasExistingProgress;
+                false;
 
             AudioListener.pause =
                 true;
@@ -1358,32 +1361,25 @@ namespace MotorCity.UI
             mainRoot.SetActive(
                 false);
 
-            if (continuingExistingSave)
-            {
-                introRoot.SetActive(
-                    false);
-
-                StartLoadingTransition();
-                return;
-            }
-
-            introIndex =
-                0;
-
             introRoot.SetActive(
-                true);
+                false);
 
-            if (introPreviousImage != null)
+            if (!continuingExistingSave)
             {
-                introPreviousImage.texture =
-                    null;
+                // Preserve the legacy key so a partially started v2 save is
+                // still recognised as progress on the next launch, without
+                // ever forcing the retired slideshow back into the flow.
+                MotorCitySaveService.SetInt(
+                    IntroCompleteKey,
+                    1);
 
-                introPreviousImage.color =
-                    Color.black;
+                MotorCitySaveService.Save();
+
+                hasExistingProgress =
+                    true;
             }
 
-            ResetIntroVisualState();
-            RefreshIntro();
+            StartLoadingTransition();
         }
 
         private void NextIntro()
