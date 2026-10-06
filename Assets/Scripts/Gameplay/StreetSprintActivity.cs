@@ -232,52 +232,76 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            string best =
-                BestTimeSeconds > 0f
-                    ? MotorCityLocalization.Format("activity.best_short", BestTimeSeconds)
-                    : string.Empty;
-
-            bool eliteUnlocked =
-                activityManager.HasDisciplineLevel(
-                    DisciplineType.Racing,
-                    EliteRequiredLevel);
-
-            string eliteHint =
-                eliteUnlocked
-                    ? MotorCityLocalization.Text("activity.elite_hint")
-                    : MotorCityLocalization.Format("activity.elite_locked", MotorCityLocalization.Text("discipline.racing"), EliteRequiredLevel);
-
-            StatusText =
-                MotorCityLocalization.Format(
-                    "activity.start_time",
-                    MotorCityLocalization.Text("hud.sprint"),
-                    goldTimeSeconds,
-                    silverTimeSeconds,
-                    bronzeTimeSeconds,
-                    best,
-                    eliteHint);
+            bool rookieReady =
+                activityManager.IsRookieSprintStep;
 
             bool elitePressed =
+                !rookieReady &&
                 MotorCityInput.EliteModifierPressed;
 
-            if (elitePressed &&
-                !eliteUnlocked)
+            if (rookieReady)
             {
-                return;
+                StatusText =
+                    MotorCityLocalization.Text(
+                        MotorCityInput.CurrentControlScheme ==
+                        MotorCityControlScheme.Keyboard
+                            ? "onboarding.race.ready.keyboard"
+                            : "onboarding.race.ready.touch");
             }
-
-            if (elitePressed &&
-                car != null &&
-                car.SpeedKph > 1f)
+            else
             {
-                return;
+                string best =
+                    BestTimeSeconds > 0f
+                        ? MotorCityLocalization.Format(
+                            "activity.best_short",
+                            BestTimeSeconds)
+                        : string.Empty;
+
+                bool eliteUnlocked =
+                    activityManager.HasDisciplineLevel(
+                        DisciplineType.Racing,
+                        EliteRequiredLevel);
+
+                string eliteHint =
+                    eliteUnlocked
+                        ? MotorCityLocalization.Text(
+                            "activity.elite_hint")
+                        : MotorCityLocalization.Format(
+                            "activity.elite_locked",
+                            MotorCityLocalization.Text(
+                                "discipline.racing"),
+                            EliteRequiredLevel);
+
+                StatusText =
+                    MotorCityLocalization.Format(
+                        "activity.start_time",
+                        MotorCityLocalization.Text(
+                            "hud.sprint"),
+                        goldTimeSeconds,
+                        silverTimeSeconds,
+                        bronzeTimeSeconds,
+                        best,
+                        eliteHint);
+
+                if (elitePressed &&
+                    !eliteUnlocked)
+                {
+                    return;
+                }
+
+                if (elitePressed &&
+                    car != null &&
+                    car.SpeedKph > 1f)
+                {
+                    return;
+                }
             }
 
             if (MotorCityInput.InteractPressed ||
                 elitePressed)
             {
                 rookieMode =
-                    activityManager.IsRookieSprintStep;
+                    rookieReady;
 
                 eliteMode =
                     !rookieMode &&
@@ -291,7 +315,11 @@ namespace MotorCity.Gameplay
         {
             activityManager.RequestStart(
                 ActivityId,
-                MotorCityLocalization.Text("activity.sprint"),
+                rookieMode
+                    ? MotorCityLocalization.Text(
+                        "onboarding.first_race_title")
+                    : MotorCityLocalization.Text(
+                        "activity.sprint"),
                 countdownSeconds,
                 BeginPreparedCountdown,
                 UpdateCountdownStatus,
