@@ -1233,14 +1233,19 @@ VehicleVisualChanged
 
 ## Main menu vehicle
 
-- [ ] MainMenuVehiclePresenter
-- [ ] Presentation anchor
-- [ ] Selected vehicle load
-- [ ] Body color apply
-- [ ] Wheel color apply
-- [ ] Neon apply
-- [ ] Menu camera framing
-- [ ] Cleanup on gameplay start
+> Базовая реализация добавлена: отдельный presentation-only экземпляр выбранной машины рендерится поверх фонового изображения главного меню через RenderTexture. Выбор машины и косметика читаются напрямую из save, поэтому preview работает до загрузки gameplay и обновляется после возврата из гаража. Добавлено лёгкое idle-движение, отдельный подиум/свет и underglow. Ожидается визуальная проверка на разных машинах и в WebGL/mobile.
+
+- [x] MainMenuVehiclePresenter
+- [x] Presentation anchor
+- [x] Selected vehicle load
+- [x] Body color apply
+- [x] Wheel color apply
+- [x] Neon apply
+- [x] Menu camera framing
+- [x] Cleanup / disable outside main menu
+- [ ] Проверить разные машины и косметику в игре
+- [ ] Проверить возврат из гаража → главное меню
+- [ ] Проверить WebGL/mobile performance
 
 ## Technical pass
 
