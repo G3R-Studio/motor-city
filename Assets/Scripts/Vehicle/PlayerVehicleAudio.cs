@@ -378,12 +378,9 @@ namespace MotorCity.Vehicle
                 return true;
             }
 
-            if (clip.loadState ==
-                AudioDataLoadState.Unloaded)
-            {
-                clip.LoadAudioData();
-            }
-
+            // Engine/tire clips use preloadAudioData. Calling
+            // LoadAudioData() manually in WebGL before the browser unlocks
+            // AudioContext creates metadata/length warnings in the JS backend.
             return false;
         }
 
