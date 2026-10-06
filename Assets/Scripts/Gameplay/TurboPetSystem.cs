@@ -1464,27 +1464,84 @@ namespace MotorCity.Gameplay
                         continue;
                     }
 
+                    string textureProperty =
+                        null;
+
                     Texture mainTexture =
-                        original.HasProperty(
-                            "_BaseMap")
-                            ? original.GetTexture(
-                                "_BaseMap")
-                            : original.HasProperty(
-                                "_MainTex")
-                                ? original.GetTexture(
-                                    "_MainTex")
-                                : null;
+                        null;
+
+                    string[] preferredTextureProperties =
+                    {
+                        "_BaseMap",
+                        "_MainTex",
+                        "_1st_ShadeMap",
+                        "_BaseColorMap"
+                    };
+
+                    string[] availableTextureProperties =
+                        original.GetTexturePropertyNames();
+
+                    foreach (string preferred in
+                             preferredTextureProperties)
+                    {
+                        if (Array.IndexOf(
+                                availableTextureProperties,
+                                preferred) < 0)
+                        {
+                            continue;
+                        }
+
+                        Texture candidate =
+                            original.GetTexture(
+                                preferred);
+
+                        if (candidate == null)
+                            continue;
+
+                        textureProperty =
+                            preferred;
+                        mainTexture =
+                            candidate;
+                        break;
+                    }
+
+                    if (mainTexture == null)
+                    {
+                        foreach (string propertyName in
+                                 availableTextureProperties)
+                        {
+                            Texture candidate =
+                                original.GetTexture(
+                                    propertyName);
+
+                            if (candidate == null)
+                                continue;
+
+                            textureProperty =
+                                propertyName;
+                            mainTexture =
+                                candidate;
+                            break;
+                        }
+                    }
 
                     Color color =
-                        original.HasProperty(
-                            "_BaseColor")
-                            ? original.GetColor(
-                                "_BaseColor")
-                            : original.HasProperty(
-                                "_Color")
-                                ? original.GetColor(
-                                    "_Color")
-                                : Color.white;
+                        Color.white;
+
+                    if (original.HasProperty(
+                            "_BaseColor"))
+                    {
+                        color =
+                            original.GetColor(
+                                "_BaseColor");
+                    }
+                    else if (original.HasProperty(
+                                 "_Color"))
+                    {
+                        color =
+                            original.GetColor(
+                                "_Color");
+                    }
 
                     Material runtime =
                         new Material(
@@ -1504,6 +1561,20 @@ namespace MotorCity.Gameplay
                         runtime.SetTexture(
                             "_BaseMap",
                             mainTexture);
+
+                        if (!string.IsNullOrEmpty(
+                                textureProperty))
+                        {
+                            runtime.SetTextureScale(
+                                "_BaseMap",
+                                original.GetTextureScale(
+                                    textureProperty));
+
+                            runtime.SetTextureOffset(
+                                "_BaseMap",
+                                original.GetTextureOffset(
+                                    textureProperty));
+                        }
                     }
 
                     if (runtime.HasProperty(
