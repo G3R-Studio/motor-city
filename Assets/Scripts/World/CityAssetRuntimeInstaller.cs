@@ -594,15 +594,12 @@ namespace MotorCity.World
                     Shader sourceShader =
                         source.shader;
 
-                    string shaderName =
-                        sourceShader != null
-                            ? sourceShader.name
-                            : string.Empty;
-
-                    if (shaderName.StartsWith(
-                            "Universal Render Pipeline/",
-                            StringComparison.Ordinal))
+                    if (sourceShader != null &&
+                        sourceShader.isSupported)
                     {
+                        // Keep working authored materials exactly as-is.
+                        // This preserves foliage/background alpha cutouts and
+                        // avoids adding Lit reflections to billboard textures.
                         continue;
                     }
 
@@ -710,6 +707,66 @@ namespace MotorCity.World
                     runtime.SetColor(
                         "_BaseColor",
                         baseColor);
+
+                    if (runtime.HasProperty(
+                            "_Metallic"))
+                    {
+                        runtime.SetFloat(
+                            "_Metallic",
+                            0f);
+                    }
+
+                    if (runtime.HasProperty(
+                            "_Smoothness"))
+                    {
+                        runtime.SetFloat(
+                            "_Smoothness",
+                            0f);
+                    }
+
+                    if (runtime.HasProperty(
+                            "_SpecularHighlights"))
+                    {
+                        runtime.SetFloat(
+                            "_SpecularHighlights",
+                            0f);
+                    }
+
+                    bool alphaCutout =
+                        source.HasProperty(
+                            "_Cutoff") ||
+                        source.IsKeywordEnabled(
+                            "_ALPHATEST_ON");
+
+                    if (alphaCutout)
+                    {
+                        float cutoff =
+                            source.HasProperty(
+                                "_Cutoff")
+                                ? source.GetFloat(
+                                    "_Cutoff")
+                                : 0.35f;
+
+                        if (runtime.HasProperty(
+                                "_AlphaClip"))
+                        {
+                            runtime.SetFloat(
+                                "_AlphaClip",
+                                1f);
+                        }
+
+                        if (runtime.HasProperty(
+                                "_Cutoff"))
+                        {
+                            runtime.SetFloat(
+                                "_Cutoff",
+                                Mathf.Clamp01(
+                                    cutoff));
+                        }
+
+                        runtime.EnableKeyword(
+                            "_ALPHATEST_ON");
+                    }
 
                     if (source.HasProperty(
                             "_EmissionColor"))
