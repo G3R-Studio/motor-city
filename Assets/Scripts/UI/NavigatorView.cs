@@ -318,41 +318,7 @@ namespace MotorCity.UI
             outline.useGraphicAlpha =
                 true;
 
-            GameObject accentObject =
-                new(
-                    "Navigator Card Accent",
-                    typeof(RectTransform),
-                    typeof(Image));
 
-            accentObject.transform.SetParent(
-                card,
-                false);
-
-            RectTransform accentRect =
-                accentObject.GetComponent<RectTransform>();
-
-            accentRect.anchorMin =
-                new Vector2(0f, 1f);
-            accentRect.anchorMax =
-                new Vector2(1f, 1f);
-            accentRect.pivot =
-                new Vector2(0.5f, 1f);
-            accentRect.anchoredPosition =
-                Vector2.zero;
-            accentRect.sizeDelta =
-                new Vector2(0f, 3f);
-
-            Image accentImage =
-                accentObject.GetComponent<Image>();
-
-            accentImage.color =
-                new Color(
-                    0.38f,
-                    0.72f,
-                    1f,
-                    0.92f);
-            accentImage.raycastTarget =
-                false;
         }
 
         private void HandleNavigatorMenu()
@@ -1989,21 +1955,38 @@ namespace MotorCity.UI
             navigatorButton.onClick.AddListener(
                 ToggleNavigatorMenu);
 
-            Sprite navigatorIcon =
-                MotorCityIconLibrary.Get(
-                    "flag");
-
-            if (navigatorIcon != null)
-            {
-                CreateHudIcon(
+            RectTransform navigatorVectorIcon =
+                GarageObject(
                     navigatorButtonRect,
-                    "Navigator Icon",
-                    navigatorIcon,
-                    Vector2.zero,
-                    new Vector2(17f, 17f),
-                    new Vector2(0.5f, 0.5f),
-                    TextColor);
-            }
+                    "Navigator Vector Icon");
+
+            navigatorVectorIcon.anchorMin =
+                navigatorVectorIcon.anchorMax =
+                navigatorVectorIcon.pivot =
+                    new Vector2(
+                        0.5f,
+                        0.5f);
+
+            navigatorVectorIcon.anchoredPosition =
+                Vector2.zero;
+
+            navigatorVectorIcon.sizeDelta =
+                new Vector2(
+                    18f,
+                    18f);
+
+            GarageReferenceGraphic navigatorIcon =
+                navigatorVectorIcon.gameObject.AddComponent<
+                    GarageReferenceGraphic>();
+
+            navigatorIcon.symbol =
+                GarageReferenceGraphic.Symbol.NavigationRight;
+
+            navigatorIcon.color =
+                TextColor;
+
+            navigatorIcon.raycastTarget =
+                false;
         }
 
         private void UpdateNavigator(
