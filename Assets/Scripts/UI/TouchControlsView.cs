@@ -267,12 +267,18 @@ namespace MotorCity.UI
                 name ==
                 "Navigator Touch Controls Close";
 
+            GarageReferenceGraphic.Symbol actionIcon =
+                GarageReferenceGraphic.Symbol.Check;
+
+            Color actionIconColor =
+                TextColor;
+
             bool hasActionIcon =
                 !suppressActionIcon &&
                 TryGetActionVisual(
                     action,
-                    out GarageReferenceGraphic.Symbol actionIcon,
-                    out Color actionIconColor);
+                    out actionIcon,
+                    out actionIconColor);
 
             if (hasActionIcon)
             {
