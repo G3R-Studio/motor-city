@@ -891,6 +891,14 @@ namespace MotorCity.Bootstrap
         {
             if (CityAssetRuntimeInstaller.TryInstall())
             {
+#if UNITY_WEBGL && !UNITY_EDITOR
+                GameObject auditObject =
+                    new("Motor City WebGL Material Audit");
+
+                auditObject.AddComponent<
+                    WebGlMaterialRuntimeAudit>();
+#endif
+
                 return;
             }
 
