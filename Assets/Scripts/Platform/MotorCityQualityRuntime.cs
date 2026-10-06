@@ -205,7 +205,43 @@ namespace MotorCity.Platform
                 UnityEngine.ShadowQuality.Disable;
             QualitySettings.shadowDistance = 0f;
             QualitySettings.pixelLightCount = 0;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            QualitySettings.lodBias = 0.50f;
+            QualitySettings.maximumLODLevel = 1;
+#else
             QualitySettings.lodBias = 0.65f;
+            QualitySettings.maximumLODLevel = 1;
+#endif
+            QualitySettings.realtimeReflectionProbes = false;
+            QualitySettings.softParticles = false;
+            QualitySettings.anisotropicFiltering =
+                AnisotropicFiltering.Disable;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            ApplyUrpQuality(
+                0.60f,
+                1,
+                0f,
+                1,
+                256);
+#else
+            ApplyUrpQuality(
+                0.75f,
+                1,
+                0f,
+                1,
+                512);
+#endif
+        }
+
+        private static void ApplyMedium()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            QualitySettings.shadows =
+                UnityEngine.ShadowQuality.Disable;
+            QualitySettings.shadowDistance = 0f;
+            QualitySettings.pixelLightCount = 0;
+            QualitySettings.lodBias = 0.70f;
             QualitySettings.maximumLODLevel = 1;
             QualitySettings.realtimeReflectionProbes = false;
             QualitySettings.softParticles = false;
@@ -213,24 +249,18 @@ namespace MotorCity.Platform
                 AnisotropicFiltering.Disable;
 
             ApplyUrpQuality(
-                0.75f,
+                0.72f,
                 1,
                 0f,
                 1,
-                512);
-        }
-
-        private static void ApplyMedium()
-        {
+                256);
+#else
             QualitySettings.shadows =
                 UnityEngine.ShadowQuality.HardOnly;
             QualitySettings.shadowDistance = 55f;
             QualitySettings.pixelLightCount = 1;
             QualitySettings.lodBias = 0.85f;
             QualitySettings.maximumLODLevel = 0;
-            // Architectural glass depends on environment probes.
-            // Medium is the default WebGL preset, so disabling probes here
-            // makes every city window fall back to a flat/dark response.
             QualitySettings.realtimeReflectionProbes = true;
             QualitySettings.softParticles = false;
             QualitySettings.anisotropicFiltering =
@@ -242,10 +272,30 @@ namespace MotorCity.Platform
                 75f,
                 2,
                 1024);
+#endif
         }
 
         private static void ApplyHigh()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            QualitySettings.shadows =
+                UnityEngine.ShadowQuality.HardOnly;
+            QualitySettings.shadowDistance = 40f;
+            QualitySettings.pixelLightCount = 1;
+            QualitySettings.lodBias = 0.85f;
+            QualitySettings.maximumLODLevel = 0;
+            QualitySettings.realtimeReflectionProbes = false;
+            QualitySettings.softParticles = false;
+            QualitySettings.anisotropicFiltering =
+                AnisotropicFiltering.Enable;
+
+            ApplyUrpQuality(
+                0.85f,
+                2,
+                40f,
+                1,
+                512);
+#else
             QualitySettings.shadows =
                 UnityEngine.ShadowQuality.All;
             QualitySettings.shadowDistance = 95f;
@@ -263,6 +313,7 @@ namespace MotorCity.Platform
                 120f,
                 4,
                 2048);
+#endif
         }
 
         private static void ApplyUrpQuality(
