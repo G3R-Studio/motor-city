@@ -63,6 +63,8 @@ namespace MotorCity.UI
 
             MotorCitySaveService.DeleteKey(
                 key + ".y");
+
+            MotorCitySaveService.Save();
         }
 
         private static string BaseKey(
