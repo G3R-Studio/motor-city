@@ -12,7 +12,7 @@ namespace MotorCity.UI
             Shock, Paint, Rim, Neon, Speed, Acceleration, Gear, Stability,
             Steering, Drift, Mass, Up, Left, Right, NavigationLeft, NavigationRight,
             CitySurface, Padlock, OpenPadlock, MinimapRim, Keyboard, Check,
-            Camera, Gift, Shop, MenuGrid, Pause }
+            Camera, Gift, Shop, MenuGrid, Pause, Close }
         public Symbol symbol;
         private VertexHelper mesh;
 
@@ -46,6 +46,8 @@ namespace MotorCity.UI
                     Box(12,12,42,42); Box(58,12,88,42); break;
                 case Symbol.Pause:
                     Box(24,18,42,82); Box(58,18,76,82); break;
+                case Symbol.Close:
+                    Line(20,20,80,80,10); Line(20,80,80,20,10); break;
                 case Symbol.Keyboard:
                     Line(8,25,92,25,5); Line(92,25,92,75,5);
                     Line(92,75,8,75,5); Line(8,75,8,25,5);
