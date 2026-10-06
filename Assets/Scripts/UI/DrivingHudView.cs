@@ -550,6 +550,13 @@ namespace MotorCity.UI
 
         private string ResolveTransientNotification()
         {
+            if (car != null &&
+                car.ShowControlHintMessage)
+            {
+                return
+                    car.ControlHintMessage;
+            }
+
             if (onboarding != null &&
                 !onboarding.IsComplete)
             {
