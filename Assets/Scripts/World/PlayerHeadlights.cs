@@ -23,7 +23,7 @@ namespace MotorCity.World
         private ArcadeCarController car;
         private Transform currentVisual;
         private bool anchorsDirty = true;
-        private string vehicleId = "street";
+        private string vehicleId = VehicleIds.Street;
         private float lastLightAmount = -1f;
         private float lastLightSpeed01 = -1f;
         private float lastEmissionIntensity = -1f;
@@ -134,7 +134,7 @@ namespace MotorCity.World
         {
             vehicleId =
                 string.IsNullOrWhiteSpace(id)
-                    ? "street"
+                    ? VehicleIds.Street
                     : id.ToLowerInvariant();
 
             // Positioning stays geometry-based for every vehicle, while some
@@ -307,8 +307,8 @@ namespace MotorCity.World
             string name = materialName.Replace(" (instance)", "").Replace(" (clone)", "").Trim();
             // Hybrid exports its white lamp polygons as Material.005.
             // Beatall has a dedicated colored lamp atlas for front and rear.
-            return (id == "hybrid" && name == "material.005") ||
-                (id == "beatall" && name == "beatallemission");
+            return (id == VehicleIds.Hybrid && name == "material.005") ||
+                (id == VehicleIds.Beatall && name == "beatallemission");
         }
         private void RefreshNightEmissionBindings()
         {
@@ -353,9 +353,9 @@ namespace MotorCity.World
                         source.name
                             .ToLowerInvariant();
 
-                    bool hybridWhiteLamp = vehicleId == "hybrid" &&
+                    bool hybridWhiteLamp = vehicleId == VehicleIds.Hybrid &&
                         IsDedicatedVehicleLamp(vehicleId, materialName);
-                    bool beatallLamp = vehicleId == "beatall" && IsDedicatedVehicleLamp(vehicleId, materialName);
+                    bool beatallLamp = vehicleId == VehicleIds.Beatall && IsDedicatedVehicleLamp(vehicleId, materialName);
                     if ((hybridWhiteLamp || beatallLamp) && source.HasProperty("_EmissionColor"))
                     {
                         // Material.005 is shared by front and rear white strips.
@@ -402,15 +402,15 @@ namespace MotorCity.World
                     }
 
                     bool useMaskedFrontOverlay = hybridWhiteLamp || beatallLamp ||
-                        (vehicleId == "amggt" &&
+                        (vehicleId == VehicleIds.AmgGT &&
                          (materialName.Contains("amggtemission") ||
                           materialName.Contains("gradientemmisive") ||
                           materialName.Contains("gradientemissive"))) ||
-                        (vehicleId == "camaro" &&
+                        (vehicleId == VehicleIds.Camaro &&
                          (materialName.Contains("camarobloom") ||
                           materialName.Contains("color_bloom") ||
                           materialName.Contains("bloom"))) ||
-                        (vehicleId == "bus" &&
+                        (vehicleId == VehicleIds.Bus &&
                          materialName.Contains("busatlas"));
 
                     if (!useMaskedFrontOverlay)
@@ -437,9 +437,9 @@ namespace MotorCity.World
                         out float maximum);
 
                     float cutoffFraction =
-                        vehicleId == "bus"
+                        vehicleId == VehicleIds.Bus
                             ? 0.70f
-                            : vehicleId == "camaro"
+                            : vehicleId == VehicleIds.Camaro
                                 ? 0.72f
                                 : 0.62f;
 
@@ -547,7 +547,7 @@ namespace MotorCity.World
                             : 0f);
 
                     bool useBusUvMask =
-                        vehicleId == "bus";
+                        vehicleId == VehicleIds.Bus;
 
                     overlayMaterial.SetFloat(
                         "_UvMask",
@@ -655,7 +655,7 @@ namespace MotorCity.World
             }
 
             if (!EnableMeshLampOverlays ||
-                vehicleId != "delorean" ||
+                vehicleId != VehicleIds.Delorean ||
                 deloreanEmissionShader == null ||
                 !deloreanEmissionShader.isSupported)
             {
