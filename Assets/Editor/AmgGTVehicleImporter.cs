@@ -24,6 +24,9 @@ public static class AmgGTVehicleImporter
     private const string BuildSessionKey =
         "MotorCity.AmgGTVehicleBuilt.V1";
 
+    private const string SourceHashKey =
+        "MotorCity.AmgGTVehicleSourceHash.V1";
+
     static AmgGTVehicleImporter()
     {
         EditorApplication.delayCall +=
@@ -41,24 +44,26 @@ public static class AmgGTVehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(
-                OutputPrefab) != null)
+        string dependencyHash =
+            StandardVehicleImportUtility.DependencyHash(
+                BodySource,
+                    FrontWheelSource,
+                    RearWheelSource);
+
+        if (!StandardVehicleImportUtility.ShouldRebuild(
+                OutputPrefab,
+                SourceHashKey,
+                dependencyHash))
         {
             return;
         }
 
-        if (SessionState.GetBool(
-                BuildSessionKey,
-                false))
+        if (Build(false))
         {
-            return;
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey,
+                dependencyHash);
         }
-
-        SessionState.SetBool(
-            BuildSessionKey,
-            true);
-
-        Build(false);
     }
 
     private static bool Build(
