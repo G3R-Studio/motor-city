@@ -148,127 +148,6 @@ namespace MotorCity.Gameplay
         public event Action CustomizationChanged;
         public event Action PhotoTaken;
 
-        public static int LoadSavedColorIndex(
-            string vehicleId)
-        {
-            Color[] colors =
-                BodyColorsForVehicle(
-                    vehicleId);
-
-            return
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(
-                        Key(
-                            vehicleId,
-                            "Color"),
-                        0),
-                    0,
-                    Mathf.Max(
-                        0,
-                        colors.Length - 1));
-        }
-
-        public static int LoadSavedWheelStyleIndex(
-            string vehicleId)
-        {
-            return
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(
-                        Key(
-                            vehicleId,
-                            "Wheels"),
-                        0),
-                    0,
-                    3);
-        }
-
-        public static int LoadSavedNeonIndex(
-            string vehicleId)
-        {
-            return
-                Mathf.Clamp(
-                    MotorCity.Persistence.MotorCitySaveService.GetInt(
-                        Key(
-                            vehicleId,
-                            "Neon"),
-                        0),
-                    0,
-                    AccentColors.Length);
-        }
-
-        public static Color ResolveBodyColorForPresentation(
-            string vehicleId,
-            int colorIndex)
-        {
-            Color[] colors =
-                BodyColorsForVehicle(
-                    vehicleId);
-
-            return
-                colors[
-                    Mathf.Clamp(
-                        colorIndex,
-                        0,
-                        Mathf.Max(
-                            0,
-                            colors.Length - 1))];
-        }
-
-        public static Color ResolveWheelColorForPresentation(
-            int wheelStyleIndex)
-        {
-            return
-                wheelStyleIndex switch
-                {
-                    1 =>
-                        new Color(
-                            0.85f,
-                            0.87f,
-                            0.92f,
-                            1f),
-
-                    2 =>
-                        new Color(
-                            0.07f,
-                            0.08f,
-                            0.10f,
-                            1f),
-
-                    3 =>
-                        new Color(
-                            0.95f,
-                            0.68f,
-                            0.12f,
-                            1f),
-
-                    _ =>
-                        new Color(
-                            0.34f,
-                            0.36f,
-                            0.40f,
-                            1f)
-                };
-        }
-
-        public static bool TryResolveNeonColorForPresentation(
-            int neonIndex,
-            out Color color)
-        {
-            if (neonIndex <= 0 ||
-                neonIndex > AccentColors.Length)
-            {
-                color =
-                    Color.clear;
-
-                return false;
-            }
-
-            color =
-                AccentColors[neonIndex - 1];
-
-            return true;
-        }
-
         public int SelectedColorIndex { get; private set; }
         public int SelectedWheelStyleIndex { get; private set; }
         public int SelectedNeonIndex { get; private set; }
@@ -459,14 +338,9 @@ namespace MotorCity.Gameplay
 
         private Color[] BodyColorsForCurrentVehicle()
         {
-            return
-                BodyColorsForVehicle(
-                    VehicleId());
-        }
+            string id =
+                VehicleId();
 
-        private static Color[] BodyColorsForVehicle(
-            string id)
-        {
             return
                 id == "hybrid"
                     ? HybridBodyColors
