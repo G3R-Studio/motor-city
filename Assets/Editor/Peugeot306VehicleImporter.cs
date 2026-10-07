@@ -150,6 +150,9 @@ public static class Peugeot306VehicleImporter
             StripImportedPhysics(instance);
             BuildWheelSet(instance.transform, wheelSource);
 
+            if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                    instance))
+            {
             AssignMaterials(
                 instance,
                 paint,
@@ -161,6 +164,7 @@ public static class Peugeot306VehicleImporter
                 rearLights,
                 frontPlate,
                 rearPlate);
+            }
 
             EnsureRenderersEnabled(instance);
 
