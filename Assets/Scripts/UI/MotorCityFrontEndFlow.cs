@@ -35,7 +35,6 @@ namespace MotorCity.UI
 
         private GameObject mainRoot;
         private RawImage mainBackgroundImage;
-        private MainMenuVehiclePresenter mainMenuVehiclePresenter;
         private GameObject aboutRoot;
         private GameObject settingsRoot;
         private GameObject introRoot;
@@ -451,61 +450,6 @@ namespace MotorCity.UI
 
                 bgObject.transform.SetAsFirstSibling();
             }
-
-            GameObject previewObject =
-                new(
-                    "Main Vehicle Preview",
-                    typeof(RectTransform),
-                    typeof(RawImage));
-
-            previewObject.transform.SetParent(
-                mainRoot.transform,
-                false);
-
-            RectTransform previewRect =
-                previewObject.GetComponent<
-                    RectTransform>();
-
-            previewRect.anchorMin =
-                new Vector2(
-                    0.40f,
-                    0.04f);
-
-            previewRect.anchorMax =
-                new Vector2(
-                    1f,
-                    0.98f);
-
-            previewRect.offsetMin =
-                Vector2.zero;
-
-            previewRect.offsetMax =
-                Vector2.zero;
-
-            RawImage previewImage =
-                previewObject.GetComponent<
-                    RawImage>();
-
-            previewImage.color =
-                Color.white;
-
-            previewImage.raycastTarget =
-                false;
-
-            mainMenuVehiclePresenter =
-                GetComponent<
-                    MainMenuVehiclePresenter>();
-
-            if (mainMenuVehiclePresenter ==
-                null)
-            {
-                mainMenuVehiclePresenter =
-                    gameObject.AddComponent<
-                        MainMenuVehiclePresenter>();
-            }
-
-            mainMenuVehiclePresenter.Initialize(
-                previewImage);
 
             // Very soft left-side readability shade. It should disappear into
             // the artwork rather than look like a separate panel.
@@ -1414,9 +1358,6 @@ namespace MotorCity.UI
             AudioListener.pause =
                 true;
 
-            mainMenuVehiclePresenter?.SetVisible(
-                false);
-
             mainRoot.SetActive(
                 false);
 
@@ -2007,9 +1948,6 @@ namespace MotorCity.UI
 
         private void StartLoadingTransition()
         {
-            mainMenuVehiclePresenter?.SetVisible(
-                false);
-
             MotorCityMusicRuntime.SetMenuActive(
                 false);
 
@@ -2257,9 +2195,6 @@ namespace MotorCity.UI
 
         private void EnterGameplay()
         {
-            mainMenuVehiclePresenter?.SetVisible(
-                false);
-
             ReleaseIntroResources();
 
             MotorCityMusicRuntime.SetMenuActive(
@@ -2387,12 +2322,6 @@ namespace MotorCity.UI
                 true);
 
             mainRoot.SetActive(true);
-
-            mainMenuVehiclePresenter?.SetVisible(
-                true);
-
-            mainMenuVehiclePresenter?.Refresh();
-
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
             introRoot.SetActive(false);
@@ -2408,9 +2337,6 @@ namespace MotorCity.UI
 
         private void ShowAbout()
         {
-            mainMenuVehiclePresenter?.SetVisible(
-                false);
-
             AudioListener.pause = true;
             MotorCityMusicRuntime.SetMenuActive(
                 true);
@@ -2424,9 +2350,6 @@ namespace MotorCity.UI
 
         private void ShowSettings()
         {
-            mainMenuVehiclePresenter?.SetVisible(
-                false);
-
             AudioListener.pause = true;
             MotorCityMusicRuntime.SetMenuActive(
                 true);
