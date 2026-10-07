@@ -16,19 +16,37 @@ namespace MotorCity.Audio
 
         private const int CurrentSettingsVersion = 2;
 
+        private static readonly string[] MenuTrackPaths =
+        {
+            "MotorCity/Music/menu_01",
+            "MotorCity/Music/menu_02"
+        };
+
         private static readonly string[] CityTrackPaths =
         {
             "MotorCity/Music/track_01",
             "MotorCity/Music/track_02",
             "MotorCity/Music/track_03",
             "MotorCity/Music/track_04",
-            "MotorCity/Music/track_05"
+            "MotorCity/Music/track_05",
+            "MotorCity/Music/track_06",
+            "MotorCity/Music/track_07",
+            "MotorCity/Music/track_08",
+            "MotorCity/Music/track_09",
+            "MotorCity/Music/track_10",
+            "MotorCity/Music/track_11",
+            "MotorCity/Music/track_12",
+            "MotorCity/Music/track_13",
+            "MotorCity/Music/track_14"
         };
 
         private static MotorCityMusicRuntime instance;
 
         private AudioSource source;
-        private AudioClip menuClip;
+        private AudioClip[] menuClips;
+        private int[] menuOrder;
+        private int menuOrderIndex;
+        private int lastMenuTrackIndex = -1;
         private AudioClip[] cityClips;
         private int[] cityOrder;
         private int cityOrderIndex;
@@ -236,16 +254,25 @@ namespace MotorCity.Audio
 
         private void Update()
         {
-            if (!gameplayActive ||
-                menuActive ||
-                musicMuted ||
+            if (musicMuted ||
                 IsRuntimePaused ||
                 source == null)
             {
                 return;
             }
 
-            if (!source.isPlaying)
+            if (menuActive)
+            {
+                if (!source.isPlaying)
+                {
+                    PlayNextMenuTrack();
+                }
+
+                return;
+            }
+
+            if (gameplayActive &&
+                !source.isPlaying)
             {
                 PlayNextCityTrack();
             }
@@ -291,18 +318,33 @@ namespace MotorCity.Audio
 
         private void LoadMusic()
         {
-            menuClip =
-                Resources.Load<AudioClip>(
-                    "MotorCity/Music/menu_01");
+            menuClips =
+                new AudioClip[
+                    MenuTrackPaths.Length];
+
+            for (int i = 0;
+                 i < MenuTrackPaths.Length;
+                 i++)
+            {
+                menuClips[i] =
+                    Resources.Load<AudioClip>(
+                        MenuTrackPaths[i]);
 
 #if !UNITY_WEBGL || UNITY_EDITOR
-            if (menuClip != null &&
-                menuClip.loadState ==
-                    AudioDataLoadState.Unloaded)
-            {
-                menuClip.LoadAudioData();
-            }
+                if (menuClips[i] != null &&
+                    menuClips[i].loadState ==
+                        AudioDataLoadState.Unloaded)
+                {
+                    menuClips[i].LoadAudioData();
+                }
 #endif
+            }
+
+            menuOrder =
+                new int[
+                    menuClips.Length];
+
+            ShuffleMenuOrder();
 
             cityClips =
                 new AudioClip[
@@ -386,7 +428,12 @@ namespace MotorCity.Audio
 
             if (menuActive)
             {
-                PlayMenuMusic();
+                if (!IsCurrentMenuClip() ||
+                    !source.isPlaying)
+                {
+                    PlayNextMenuTrack();
+                }
+
                 return;
             }
 
@@ -407,36 +454,79 @@ namespace MotorCity.Audio
             }
         }
 
-        private void PlayMenuMusic()
+        private void PlayNextMenuTrack()
         {
             if (source == null ||
-                menuClip == null)
+                menuClips == null ||
+                menuClips.Length == 0)
             {
                 return;
             }
+
+            int attempts =
+                menuClips.Length;
+
+            while (attempts-- > 0)
+            {
+                if (menuOrderIndex >=
+                    menuOrder.Length)
+                {
+                    ShuffleMenuOrder();
+                }
+
+                int trackIndex =
+                    menuOrder[
+                        menuOrderIndex++];
+
+                AudioClip clip =
+                    menuClips[
+                        trackIndex];
+
+                if (clip == null)
+                    continue;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            if (!EnsureClipReadyForWeb(
-                    menuClip))
-            {
-                return;
-            }
+                if (!EnsureClipReadyForWeb(
+                        clip))
+                {
+                    continue;
+                }
 #endif
 
-            bool alreadyPlayingMenu =
-                source.clip == menuClip &&
-                source.isPlaying;
+                source.Stop();
+                source.loop = false;
+                source.clip =
+                    clip;
 
-            source.loop = true;
+                lastMenuTrackIndex =
+                    trackIndex;
 
-            if (alreadyPlayingMenu)
+                source.Play();
                 return;
+            }
+        }
 
-            source.Stop();
-            source.clip =
-                menuClip;
+        private bool IsCurrentMenuClip()
+        {
+            if (source == null ||
+                source.clip == null ||
+                menuClips == null)
+            {
+                return false;
+            }
 
-            source.Play();
+            for (int i = 0;
+                 i < menuClips.Length;
+                 i++)
+            {
+                if (source.clip ==
+                    menuClips[i])
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void PlayNextCityTrack()
@@ -531,6 +621,65 @@ namespace MotorCity.Audio
             }
 
             return false;
+        }
+
+        private void ShuffleMenuOrder()
+        {
+            if (menuOrder == null ||
+                menuOrder.Length == 0)
+            {
+                return;
+            }
+
+            for (int i = 0;
+                 i < menuOrder.Length;
+                 i++)
+            {
+                menuOrder[i] =
+                    i;
+            }
+
+            for (int i =
+                     menuOrder.Length - 1;
+                 i > 0;
+                 i--)
+            {
+                int swapIndex =
+                    Random.Range(
+                        0,
+                        i + 1);
+
+                int temp =
+                    menuOrder[i];
+
+                menuOrder[i] =
+                    menuOrder[swapIndex];
+
+                menuOrder[swapIndex] =
+                    temp;
+            }
+
+            if (menuOrder.Length > 1 &&
+                menuOrder[0] ==
+                lastMenuTrackIndex)
+            {
+                int swapIndex =
+                    Random.Range(
+                        1,
+                        menuOrder.Length);
+
+                int temp =
+                    menuOrder[0];
+
+                menuOrder[0] =
+                    menuOrder[swapIndex];
+
+                menuOrder[swapIndex] =
+                    temp;
+            }
+
+            menuOrderIndex =
+                0;
         }
 
         private void ShuffleCityOrder()
