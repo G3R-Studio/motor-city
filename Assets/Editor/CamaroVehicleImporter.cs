@@ -10,6 +10,12 @@ public static class CamaroVehicleImporter
 
     private const string WheelSource =
         "Assets/VehicleAssets/Camaro/all_wheels.obj";
+    private const string StandardFrontWheelSource =
+        "Assets/VehicleAssets/Camaro/front_wheels.obj";
+
+    private const string StandardRearWheelSource =
+        "Assets/VehicleAssets/Camaro/rear_wheels.obj";
+
 
     private const string ColorTextureSource =
         "Assets/VehicleAssets/Camaro/Color.png";
@@ -72,10 +78,27 @@ public static class CamaroVehicleImporter
         GameObject bodySource =
             AssetDatabase.LoadAssetAtPath<GameObject>(BodySource);
 
-        GameObject wheelSource =
-            AssetDatabase.LoadAssetAtPath<GameObject>(WheelSource);
+        GameObject standardFrontWheelSource =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                StandardFrontWheelSource);
 
-        if (bodySource == null || wheelSource == null)
+        GameObject standardRearWheelSource =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                StandardRearWheelSource);
+
+        bool useStandardWheelLayout =
+            standardFrontWheelSource != null &&
+            standardRearWheelSource != null;
+
+        GameObject wheelSource =
+            useStandardWheelLayout
+                ? null
+                : AssetDatabase.LoadAssetAtPath<GameObject>(
+                    WheelSource);
+
+        if (bodySource == null ||
+            (!useStandardWheelLayout &&
+             wheelSource == null))
         {
             if (verbose)
             {
@@ -147,7 +170,23 @@ public static class CamaroVehicleImporter
                 Vector3.one * 1.10f;
 
             StripImportedPhysics(instance);
-            BuildWheelSet(instance.transform, wheelSource);
+            if (useStandardWheelLayout)
+            {
+                StandardVehicleImportUtility.BuildStandardWheelSet(
+                    instance.transform,
+                    standardFrontWheelSource,
+                    standardRearWheelSource,
+                    new Vector3(-0.855f, 0.392f, 1.340f),
+                    new Vector3(0.855f, 0.392f, 1.340f),
+                    new Vector3(-0.855f, 0.392f, -1.335f),
+                    new Vector3(0.855f, 0.392f, -1.335f));
+            }
+            else
+            {
+                BuildWheelSet(
+                    instance.transform,
+                    wheelSource);
+            }
             if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
                     instance))
             {
