@@ -162,11 +162,15 @@ public static class DeloreanVehicleImporter
                 frontWheelSource,
                 rearWheelSource);
 
+            if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                    instance))
+            {
             AssignMaterials(
                 instance,
                 bodyMaterial,
                 glassMaterial,
                 emissionMaterial);
+            }
 
             EnsureRenderersEnabled(
                 instance);
