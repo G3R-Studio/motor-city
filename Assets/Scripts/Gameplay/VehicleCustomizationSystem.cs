@@ -139,7 +139,6 @@ namespace MotorCity.Gameplay
 
         private ArcadeCarController car;
         private VehicleRosterSystem roster;
-        private bool deferredApplyPending;
         private MaterialPropertyBlock block;
 
         private GameObject cosmeticsRoot;
@@ -209,31 +208,18 @@ namespace MotorCity.Gameplay
             VehicleRosterSystem vehicleRoster)
         {
             if (roster != null)
-                roster.VehicleChanged -= OnVehicleChanged;
+                roster.VehicleVisualReady -= OnVehicleVisualReady;
 
             car = targetCar;
             roster = vehicleRoster;
             block ??= new MaterialPropertyBlock();
 
             if (roster != null)
-                roster.VehicleChanged += OnVehicleChanged;
+                roster.VehicleVisualReady += OnVehicleVisualReady;
 
-            LoadForSelectedVehicle();
-            ApplyAll();
-            deferredApplyPending = true;
-        }
-
-        private void LateUpdate()
-        {
-            if (!deferredApplyPending)
-                return;
-
-            deferredApplyPending = false;
-
-            // Components added to the player car (lights/rear emission, etc.)
-            // finish their Start-time visual setup after Initialize(). Reapply
-            // persisted cosmetics once at the end of that first frame so those
-            // startup material changes cannot restore prefab/default visuals.
+            // Roster initialization happens before customization is created, so
+            // apply the already-ready initial visual once explicitly. Later
+            // vehicle changes arrive through VehicleVisualReady.
             LoadForSelectedVehicle();
             ApplyAll();
         }
@@ -302,11 +288,10 @@ namespace MotorCity.Gameplay
             CustomizationChanged?.Invoke();
         }
 
-        private void OnVehicleChanged()
+        private void OnVehicleVisualReady()
         {
             LoadForSelectedVehicle();
             ApplyAll();
-            deferredApplyPending = true;
         }
 
         private void LoadForSelectedVehicle()
