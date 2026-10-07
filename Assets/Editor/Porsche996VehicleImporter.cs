@@ -158,20 +158,8 @@ public static class Porsche996VehicleImporter
                 frontWheelSource,
                 rearWheelSource);
 
-            if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
-                    instance))
-            {
-            AssignMaterials(
-                instance,
-                paint,
-                glass,
-                chrome,
-                dark,
-                plastic,
-                headlights,
-                indicators,
-                rearLights);
-            }
+            // Keep body/body_misc material slots authored in OBJ/MTL.
+            // The shared runtime installer upgrades them for URP, matching Beatall.
 
             EnsureRenderersEnabled(instance);
 
