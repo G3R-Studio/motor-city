@@ -112,11 +112,18 @@ public static class CamaroVehicleImporter
         Directory.CreateDirectory(OutputDirectory);
         Directory.CreateDirectory(MaterialDirectory);
 
-        Texture2D colorTexture =
-            AssetDatabase.LoadAssetAtPath<Texture2D>(
-                ColorTextureSource);
+        bool standardBodyLayout =
+            StandardVehicleImportUtility.UsesStandardBodyLayout(
+                bodySource);
 
-        if (colorTexture == null)
+        Texture2D colorTexture =
+            standardBodyLayout
+                ? null
+                : AssetDatabase.LoadAssetAtPath<Texture2D>(
+                    ColorTextureSource);
+
+        if (!standardBodyLayout &&
+            colorTexture == null)
         {
             if (verbose)
             {
@@ -127,9 +134,8 @@ public static class CamaroVehicleImporter
             return false;
         }
 
-        // The source OBJ uses a single Color.png atlas for both the body and
-        // wheel material. Keep the base tint white so the authored UV colors
-        // remain visible instead of flattening the whole car to one red tone.
+        // Legacy Camaro uses a single Color.png atlas. Standardized body/body_misc
+        // exports keep their authored OBJ/MTL materials instead.
         Material paint = BuildMaterial(
             "CamaroBody",
             Color.white,
