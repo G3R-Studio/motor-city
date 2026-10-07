@@ -158,6 +158,9 @@ public static class Porsche996VehicleImporter
                 frontWheelSource,
                 rearWheelSource);
 
+            if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                    instance))
+            {
             AssignMaterials(
                 instance,
                 paint,
@@ -168,6 +171,7 @@ public static class Porsche996VehicleImporter
                 headlights,
                 indicators,
                 rearLights);
+            }
 
             EnsureRenderersEnabled(instance);
 
