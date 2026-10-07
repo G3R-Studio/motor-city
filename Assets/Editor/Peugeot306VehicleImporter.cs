@@ -273,8 +273,13 @@ public static class Peugeot306VehicleImporter
         visual.name =
             name + "_visual";
 
+        // Preserve the exact visual offset used by the previous
+        // Peugeot wheel setup so the wheels stay in their old positions.
         visual.transform.localPosition =
-            Vector3.zero;
+            new Vector3(
+                -0.03f,
+                0f,
+                0f);
 
         visual.transform.localRotation =
             Quaternion.identity;
