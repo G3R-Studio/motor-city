@@ -186,20 +186,8 @@ public static class ToyotaAE86VehicleImporter
                     wheelSource);
             }
 
-            if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
-                    instance))
-            {
-            AssignMaterials(
-                instance,
-                paint,
-                glass,
-                chrome,
-                dark,
-                plastic,
-                indicators,
-                rearLights,
-                rearPlate);
-            }
+            // Keep body/body_misc material slots authored in OBJ/MTL.
+            // The shared runtime installer upgrades them for URP, matching Beatall.
 
             EnsureRenderersEnabled(instance);
 
