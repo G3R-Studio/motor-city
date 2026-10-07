@@ -59,7 +59,7 @@ namespace MotorCity.Vehicle
         private AudioDistortionFilter engineDistortion;
         private AudioClip engineClip;
         private AudioClip tireClip;
-        private string vehicleId = "street";
+        private string vehicleId = VehicleIds.Street;
         private EngineProfile activeProfile;
         private float nextCollisionSoundTime;
         private bool muted;
@@ -165,7 +165,7 @@ namespace MotorCity.Vehicle
         {
             vehicleId =
                 string.IsNullOrWhiteSpace(id)
-                    ? "street"
+                    ? VehicleIds.Street
                     : id.Trim().ToLowerInvariant();
 
             activeProfile =
@@ -738,7 +738,7 @@ namespace MotorCity.Vehicle
             return id switch
             {
                 // Baseline modern road car.
-                "street" =>
+                VehicleIds.Street =>
                     new EngineProfile(
                         0.72f,
                         1.68f,
@@ -749,7 +749,7 @@ namespace MotorCity.Vehicle
                         180f),
 
                 // Same source clip, but cleaner, quieter and less aggressive.
-                "hybrid" =>
+                VehicleIds.Hybrid =>
                     new EngineProfile(
                         0.88f,
                         1.42f,
@@ -760,7 +760,7 @@ namespace MotorCity.Vehicle
                         165f),
 
                 // Older compact engine: softer top end and slightly rougher.
-                "beatall" =>
+                VehicleIds.Beatall =>
                     new EngineProfile(
                         0.68f,
                         1.52f,
@@ -771,7 +771,7 @@ namespace MotorCity.Vehicle
                         165f),
 
                 // Deeper V6-like character.
-                "delorean" =>
+                VehicleIds.Delorean =>
                     new EngineProfile(
                         0.66f,
                         1.46f,
@@ -782,7 +782,7 @@ namespace MotorCity.Vehicle
                         175f),
 
                 // AMG GT: low, darker and heavier.
-                "amggt" =>
+                VehicleIds.AmgGT =>
                     new EngineProfile(
                         0.56f,
                         1.28f,
@@ -793,7 +793,7 @@ namespace MotorCity.Vehicle
                         185f),
 
                 // Porsche 996: brighter and higher-revving.
-                "porsche996" =>
+                VehicleIds.Porsche996 =>
                     new EngineProfile(
                         0.84f,
                         1.86f,
@@ -804,7 +804,7 @@ namespace MotorCity.Vehicle
                         205f),
 
                 // Small naturally aspirated inline-four character.
-                "peugeot306" =>
+                VehicleIds.Peugeot306 =>
                     new EngineProfile(
                         0.77f,
                         1.72f,
@@ -815,7 +815,7 @@ namespace MotorCity.Vehicle
                         180f),
 
                 // AE86: light and clearly higher-pitched.
-                "toyotaae86" =>
+                VehicleIds.ToyotaAE86 =>
                     new EngineProfile(
                         0.92f,
                         2.00f,
@@ -826,7 +826,7 @@ namespace MotorCity.Vehicle
                         205f),
 
                 // Camaro: deepest passenger-car profile.
-                "camaro" =>
+                VehicleIds.Camaro =>
                     new EngineProfile(
                         0.52f,
                         1.20f,
@@ -837,7 +837,7 @@ namespace MotorCity.Vehicle
                         175f),
 
                 // Bus: low-revving and heavily filtered like a large diesel.
-                "bus" =>
+                VehicleIds.Bus =>
                     new EngineProfile(
                         0.46f,
                         0.92f,
