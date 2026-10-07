@@ -75,7 +75,7 @@ namespace MotorCity.Gameplay
 
             currentVehicleId =
                 roster == null
-                    ? "street"
+                    ? VehicleIds.Street
                     : roster.SelectedId;
 
             LoadCurrentVehicle();
@@ -183,16 +183,16 @@ namespace MotorCity.Gameplay
 
             string[] vehicleIds =
             {
-                "beatall",
-                "street",
-                "peugeot306",
-                "toyotaae86",
-                "hybrid",
-                "porsche996",
-                "amggt",
-                "camaro",
-                "delorean",
-                "bus"
+                VehicleIds.Beatall,
+                VehicleIds.Street,
+                VehicleIds.Peugeot306,
+                VehicleIds.ToyotaAE86,
+                VehicleIds.Hybrid,
+                VehicleIds.Porsche996,
+                VehicleIds.AmgGT,
+                VehicleIds.Camaro,
+                VehicleIds.Delorean,
+                VehicleIds.Bus
             };
 
             foreach (string vehicleId in vehicleIds)
@@ -209,7 +209,7 @@ namespace MotorCity.Gameplay
 
             currentVehicleId =
                 roster == null
-                    ? "street"
+                    ? VehicleIds.Street
                     : roster.SelectedId;
 
             LoadCurrentVehicle();
@@ -222,16 +222,16 @@ namespace MotorCity.Gameplay
 
             string[] vehicleIds =
             {
-                "beatall",
-                "street",
-                "peugeot306",
-                "toyotaae86",
-                "hybrid",
-                "porsche996",
-                "amggt",
-                "camaro",
-                "delorean",
-                "bus"
+                VehicleIds.Beatall,
+                VehicleIds.Street,
+                VehicleIds.Peugeot306,
+                VehicleIds.ToyotaAE86,
+                VehicleIds.Hybrid,
+                VehicleIds.Porsche996,
+                VehicleIds.AmgGT,
+                VehicleIds.Camaro,
+                VehicleIds.Delorean,
+                VehicleIds.Bus
             };
 
             foreach (string vehicleId in vehicleIds)
@@ -248,7 +248,7 @@ namespace MotorCity.Gameplay
 
             currentVehicleId =
                 roster == null
-                    ? "street"
+                    ? VehicleIds.Street
                     : roster.SelectedId;
 
             LoadCurrentVehicle();
@@ -338,7 +338,7 @@ namespace MotorCity.Gameplay
 
             currentVehicleId =
                 roster == null
-                    ? "street"
+                    ? VehicleIds.Street
                     : roster.SelectedId;
 
             LoadCurrentVehicle();
