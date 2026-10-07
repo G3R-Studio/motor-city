@@ -371,7 +371,12 @@ namespace MotorCity.Gameplay
             MotorCity.Persistence.MotorCitySaveService.SetInt(Key(id, "Color"), SelectedColorIndex);
             MotorCity.Persistence.MotorCitySaveService.SetInt(Key(id, "Wheels"), SelectedWheelStyleIndex);
             MotorCity.Persistence.MotorCitySaveService.SetInt(Key(id, "Neon"), SelectedNeonIndex);
-            MotorCity.Persistence.MotorCitySaveService.Save();
+
+            // Customization changes are explicit player actions and must survive
+            // an immediate game/browser restart. Save() only stages the JSON in
+            // PlayerPrefs memory, while FlushNow() commits it to persistent
+            // storage straight away.
+            MotorCity.Persistence.MotorCitySaveService.FlushNow();
         }
 
         private void ApplyAll()
