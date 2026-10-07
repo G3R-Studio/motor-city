@@ -12,8 +12,10 @@ public static class BeatallVehicleImporter
     private const string SourceTexture =
         "Assets/VehicleAssets/Beatall/all.png";
 
-    private const string SourceWheelModel =
-        "Assets/VehicleAssets/Beatall/beatall_wheels.obj";
+    // Beatall uses one authored wheel source for both axles.
+    // Unlike AmgGT there is no separate rear_wheels.obj.
+    private const string WheelSource =
+        "Assets/VehicleAssets/Beatall/front_wheels.obj";
 
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
@@ -100,7 +102,7 @@ public static class BeatallVehicleImporter
 
         Hash128 wheelHash =
             AssetDatabase.GetAssetDependencyHash(
-                SourceWheelModel);
+                WheelSource);
 
         Hash128 textureHash =
             AssetDatabase.GetAssetDependencyHash(
@@ -121,7 +123,7 @@ public static class BeatallVehicleImporter
 
         GameObject wheelSource =
             AssetDatabase.LoadAssetAtPath<GameObject>(
-                SourceWheelModel);
+                WheelSource);
 
         if (source == null ||
             wheelSource == null)
@@ -129,7 +131,7 @@ public static class BeatallVehicleImporter
             if (verbose)
             {
                 Debug.LogWarning(
-                    "Motor City: Beatall body or wheel OBJ is missing.");
+                    "Motor City: Beatall body or front_wheels OBJ is missing.");
             }
 
             return false;
@@ -469,9 +471,10 @@ public static class BeatallVehicleImporter
             return;
         }
 
-        // These are the original authored Beatall wheel centers from the
-        // source model before the wheels were exported to their own OBJ.
-        // The body itself is not translated, rotated or re-scaled here.
+        // The revised Beatall follows the same split-visual approach as AmgGT,
+        // but exposes one shared front_wheels OBJ instead of separate front
+        // and rear wheel sources. Instantiate that same authored wheel visual
+        // at all four axle positions.
         CreateWheel(
             parent,
             wheelSource,
