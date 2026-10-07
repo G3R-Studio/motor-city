@@ -30,6 +30,9 @@ public static class DeloreanVehicleImporter
     private const string BuildSessionKey =
         "MotorCity.DeloreanVehicleBuilt.V1";
 
+    private const string SourceHashKey =
+        "MotorCity.DeloreanVehicleSourceHash.V1";
+
     static DeloreanVehicleImporter()
     {
         EditorApplication.delayCall +=
@@ -47,24 +50,27 @@ public static class DeloreanVehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(
-                OutputPrefab) != null)
+        string dependencyHash =
+            StandardVehicleImportUtility.DependencyHash(
+                BodySource,
+                    FrontWheelSource,
+                    RearWheelSource,
+                    SourceTexture);
+
+        if (!StandardVehicleImportUtility.ShouldRebuild(
+                OutputPrefab,
+                SourceHashKey,
+                dependencyHash))
         {
             return;
         }
 
-        if (SessionState.GetBool(
-                BuildSessionKey,
-                false))
+        if (Build(false))
         {
-            return;
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey,
+                dependencyHash);
         }
-
-        SessionState.SetBool(
-            BuildSessionKey,
-            true);
-
-        Build(false);
     }
 
     private static bool Build(
