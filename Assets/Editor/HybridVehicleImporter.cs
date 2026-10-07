@@ -23,6 +23,9 @@ public static class HybridVehicleImporter
     private const string BuildSessionKey =
         "MotorCity.HybridVehicleBuilt.V3";
 
+    private const string SourceHashKey =
+        "MotorCity.HybridVehicleSourceHash.V1";
+
     static HybridVehicleImporter()
     {
         EditorApplication.delayCall +=
@@ -40,24 +43,26 @@ public static class HybridVehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(
-                OutputPrefab) != null)
+        string dependencyHash =
+            StandardVehicleImportUtility.DependencyHash(
+                BodySource,
+                    LeftWheelSource,
+                    RightWheelSource);
+
+        if (!StandardVehicleImportUtility.ShouldRebuild(
+                OutputPrefab,
+                SourceHashKey,
+                dependencyHash))
         {
             return;
         }
 
-        if (SessionState.GetBool(
-                BuildSessionKey,
-                false))
+        if (Build(false))
         {
-            return;
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey,
+                dependencyHash);
         }
-
-        SessionState.SetBool(
-            BuildSessionKey,
-            true);
-
-        Build(false);
     }
 
     private static bool Build(
