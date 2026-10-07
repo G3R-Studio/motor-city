@@ -92,48 +92,6 @@ public static class Porsche996VehicleImporter
         }
 
         Directory.CreateDirectory(OutputDirectory);
-        Directory.CreateDirectory(MaterialDirectory);
-
-        Material paint = BuildMaterial(
-            "Porsche996Body",
-            new Color(0.665676f, 0.409637f, 0.000902f, 1f),
-            0.72f);
-
-        Material glass = BuildMaterial(
-            "Porsche996Glass",
-            new Color(0.015f, 0.018f, 0.024f, 1f),
-            0.92f);
-
-        Material chrome = BuildMaterial(
-            "Porsche996Chrome",
-            new Color(0.36f, 0.37f, 0.39f, 1f),
-            0.82f);
-
-        Material dark = BuildMaterial(
-            "Porsche996Dark",
-            new Color(0.018f, 0.018f, 0.02f, 1f),
-            0.42f);
-
-        Material plastic = BuildMaterial(
-            "Porsche996Plastic",
-            new Color(0.047f, 0.047f, 0.047f, 1f),
-            0.36f);
-
-        Material headlights = BuildMaterial(
-            "Porsche996Headlights",
-            new Color(0.8f, 0.8f, 0.8f, 1f),
-            0.82f);
-
-        Material indicators = BuildMaterial(
-            "Porsche996Indicators",
-            new Color(0.2509f, 0.0445f, 0.015f, 1f),
-            0.50f);
-
-        Material rearLights = BuildMaterial(
-            "Porsche996RearLights",
-            new Color(0.1191f, 0.0087f, 0.0087f, 1f),
-            0.50f);
-
         GameObject instance =
             PrefabUtility.InstantiatePrefab(bodySource) as GameObject;
 
