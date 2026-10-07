@@ -6,35 +6,29 @@ using UnityEngine;
 public static class ToyotaAE86VehicleImporter
 {
     private const string BodySource =
-        "Assets/VehicleAssets/ToyotaAE86/ae86.obj";
+        "Assets/VehicleAssets/ToyotaAE86/toyotaae86.obj";
 
+    // Updated AE86 follows the Beatall/Peugeot layout:
+    // one authored front_wheels OBJ is reused on both axles.
     private const string WheelSource =
-        "Assets/VehicleAssets/ToyotaAE86/all_wheels.obj";
-    private const string StandardFrontWheelSource =
         "Assets/VehicleAssets/ToyotaAE86/front_wheels.obj";
-
-    private const string StandardRearWheelSource =
-        "Assets/VehicleAssets/ToyotaAE86/rear_wheels.obj";
-
 
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
-
-    private const string MaterialDirectory =
-        OutputDirectory + "/ToyotaAE86Materials";
 
     private const string OutputPrefab =
         OutputDirectory + "/ToyotaAE86.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.ToyotaAE86VehicleBuilt.V1";
+        "MotorCity.ToyotaAE86VehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.ToyotaAE86VehicleSourceHash.V1";
+        "MotorCity.ToyotaAE86VehicleSourceHash.V2";
 
     static ToyotaAE86VehicleImporter()
     {
-        EditorApplication.delayCall += TryAutoBuild;
+        EditorApplication.delayCall +=
+            TryAutoBuild;
     }
 
     [MenuItem("Motor City/Vehicles/Rebuild ToyotaAE86")]
@@ -48,12 +42,18 @@ public static class ToyotaAE86VehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                BodySource) == null ||
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                WheelSource) == null)
+        {
+            return;
+        }
+
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
-                    StandardFrontWheelSource,
-                    StandardRearWheelSource,
-                    WheelSource);
+                WheelSource);
 
         if (!StandardVehicleImportUtility.ShouldRebuild(
                 OutputPrefab,
@@ -71,86 +71,87 @@ public static class ToyotaAE86VehicleImporter
         }
     }
 
-    private static bool Build(bool verbose)
+    private static bool Build(
+        bool verbose)
     {
         GameObject bodySource =
-            AssetDatabase.LoadAssetAtPath<GameObject>(BodySource);
-
-        GameObject standardFrontWheelSource =
             AssetDatabase.LoadAssetAtPath<GameObject>(
-                StandardFrontWheelSource);
-
-        GameObject standardRearWheelSource =
-            AssetDatabase.LoadAssetAtPath<GameObject>(
-                StandardRearWheelSource);
-
-        bool useStandardWheelLayout =
-            standardFrontWheelSource != null &&
-            standardRearWheelSource != null;
+                BodySource);
 
         GameObject wheelSource =
-            useStandardWheelLayout
-                ? null
-                : AssetDatabase.LoadAssetAtPath<GameObject>(
-                    WheelSource);
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                WheelSource);
 
         if (bodySource == null ||
-            (!useStandardWheelLayout &&
-             wheelSource == null))
+            wheelSource == null)
         {
             if (verbose)
             {
                 Debug.LogWarning(
-                    "Motor City: ToyotaAE86 body/wheel OBJ source is missing.");
+                    "Motor City: ToyotaAE86 body or front_wheels OBJ is missing.");
             }
 
             return false;
         }
 
-        Directory.CreateDirectory(OutputDirectory);
+        if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                bodySource))
+        {
+            if (verbose)
+            {
+                Debug.LogWarning(
+                    "Motor City: updated ToyotaAE86 must contain body and body_misc meshes.");
+            }
+
+            return false;
+        }
+
+        Directory.CreateDirectory(
+            OutputDirectory);
+
         GameObject instance =
-            PrefabUtility.InstantiatePrefab(bodySource) as GameObject;
+            PrefabUtility.InstantiatePrefab(
+                bodySource) as GameObject;
 
         if (instance == null)
-            instance = Object.Instantiate(bodySource);
+        {
+            instance =
+                Object.Instantiate(
+                    bodySource);
+        }
 
         if (instance == null)
             return false;
 
-        instance.name = "ToyotaAE86";
+        instance.name =
+            "ToyotaAE86";
 
         try
         {
-            instance.transform.position = Vector3.zero;
-            instance.transform.rotation = Quaternion.identity;
-            instance.transform.localScale = Vector3.one;
+            instance.transform.position =
+                Vector3.zero;
 
-            StripImportedPhysics(instance);
-            if (useStandardWheelLayout)
-            {
-                StandardVehicleImportUtility.BuildStandardWheelSet(
-                    instance.transform,
-                    standardFrontWheelSource,
-                    standardRearWheelSource,
-                    new Vector3(-0.655f, 0.303f, 1.300f),
-                    new Vector3(0.655f, 0.303f, 1.300f),
-                    new Vector3(-0.655f, 0.303f, -1.170f),
-                    new Vector3(0.655f, 0.303f, -1.170f));
-            }
-            else
-            {
-                BuildWheelSet(
-                    instance.transform,
-                    wheelSource);
-            }
+            instance.transform.rotation =
+                Quaternion.identity;
 
-            // Keep body/body_misc material slots authored in OBJ/MTL.
-            // The shared runtime installer upgrades them for URP, matching Beatall.
+            instance.transform.localScale =
+                Vector3.one;
 
-            EnsureRenderersEnabled(instance);
+            StripImportedPhysics(
+                instance);
+
+            // Keep OBJ/MTL material assignments exactly like Beatall.
+            BuildWheelSet(
+                instance.transform,
+                wheelSource);
+
+            EnsureRenderersEnabled(
+                instance);
 
             GameObject saved =
-                PrefabUtility.SaveAsPrefabAsset(instance, OutputPrefab);
+                PrefabUtility.SaveAsPrefabAsset(
+                    instance,
+                    OutputPrefab);
 
             if (saved == null)
                 return false;
@@ -160,16 +161,20 @@ public static class ToyotaAE86VehicleImporter
 
             if (verbose)
             {
+                Selection.activeObject =
+                    AssetDatabase.LoadAssetAtPath<GameObject>(
+                        OutputPrefab);
+
                 Debug.Log(
-                    "Motor City: ToyotaAE86 runtime visual rebuilt. " +
-                    "Runtime path: MotorCity/Vehicles/Player/ToyotaAE86");
+                    "Motor City: ToyotaAE86 rebuilt from toyotaae86.obj + shared front_wheels.obj.");
             }
 
             return true;
         }
         finally
         {
-            Object.DestroyImmediate(instance);
+            Object.DestroyImmediate(
+                instance);
         }
     }
 
@@ -177,35 +182,45 @@ public static class ToyotaAE86VehicleImporter
         Transform parent,
         GameObject wheelSource)
     {
-        // Body: 1.863 x 1.157 x 4.312 m, Z-forward.
-        // Wheel mesh: 0.245 x 0.606 x 0.606 m and centered on its pivot.
-        // Axle centers below are measured from the authored wheel arches.
+        // Preserve the exact wheel-holder positions used by the previous AE86.
         CreateWheel(
             parent,
             wheelSource,
             "front_left",
-            new Vector3(-0.655f, 0.303f, 1.300f),
+            new Vector3(
+                -0.655f,
+                0.303f,
+                1.300f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "front_right",
-            new Vector3(0.655f, 0.303f, 1.300f),
+            new Vector3(
+                0.655f,
+                0.303f,
+                1.300f),
             true);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_left",
-            new Vector3(-0.655f, 0.303f, -1.170f),
+            new Vector3(
+                -0.655f,
+                0.303f,
+                -1.170f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_right",
-            new Vector3(0.655f, 0.303f, -1.170f),
+            new Vector3(
+                0.655f,
+                0.303f,
+                -1.170f),
             true);
     }
 
@@ -214,17 +229,29 @@ public static class ToyotaAE86VehicleImporter
         GameObject source,
         string name,
         Vector3 localPosition,
-        bool oppositeSide)
+        bool rightSide)
     {
-        GameObject holder = new GameObject(name);
+        GameObject holder =
+            new GameObject(
+                name);
 
-        holder.transform.SetParent(parent, false);
-        holder.transform.localPosition = localPosition;
+        holder.transform.SetParent(
+            parent,
+            false);
+
+        holder.transform.localPosition =
+            localPosition;
+
         holder.transform.localRotation =
-            oppositeSide
+            rightSide
                 ? Quaternion.identity
-                : Quaternion.Euler(0f, 180f, 0f);
-        holder.transform.localScale = Vector3.one;
+                : Quaternion.Euler(
+                    0f,
+                    180f,
+                    0f);
+
+        holder.transform.localScale =
+            Vector3.one;
 
         GameObject visual =
             PrefabUtility.InstantiatePrefab(
@@ -232,157 +259,88 @@ public static class ToyotaAE86VehicleImporter
                 holder.transform) as GameObject;
 
         if (visual == null)
-            visual = Object.Instantiate(source, holder.transform);
+        {
+            visual =
+                Object.Instantiate(
+                    source,
+                    holder.transform);
+        }
 
         if (visual == null)
             return;
 
-        visual.name = name + "_visual";
-        // Keep the mesh centered on the steering holder. The inward
-        // offset belongs on the holder itself; otherwise the visual orbits
-        // around an off-centre pivot when the front wheels steer.
+        visual.name =
+            name + "_visual";
+
+        // Preserve the old AE86 visual offset exactly.
         visual.transform.localPosition =
             Vector3.zero;
-        visual.transform.localRotation = Quaternion.identity;
-        visual.transform.localScale = Vector3.one;
 
-        StripImportedPhysics(visual);
+        visual.transform.localRotation =
+            Quaternion.identity;
+
+        visual.transform.localScale =
+            Vector3.one;
+
+        StripImportedPhysics(
+            visual);
     }
 
-    private static Material BuildMaterial(
-        string materialName,
-        Color color,
-        float smoothness)
-    {
-        string path =
-            MaterialDirectory + "/" + materialName + ".mat";
-
-        Material material =
-            AssetDatabase.LoadAssetAtPath<Material>(path);
-
-        Shader shader =
-            Shader.Find("Universal Render Pipeline/Lit");
-
-        if (shader == null)
-            shader = Shader.Find("Standard");
-
-        if (material == null)
-        {
-            material = new Material(shader);
-            material.name = materialName;
-            AssetDatabase.CreateAsset(material, path);
-        }
-        else if (shader != null && material.shader != shader)
-        {
-            material.shader = shader;
-        }
-
-        if (material.HasProperty("_BaseColor"))
-            material.SetColor("_BaseColor", color);
-
-        if (material.HasProperty("_Color"))
-            material.SetColor("_Color", color);
-
-        if (material.HasProperty("_Smoothness"))
-            material.SetFloat("_Smoothness", smoothness);
-
-        material.DisableKeyword("_EMISSION");
-        EditorUtility.SetDirty(material);
-        return material;
-    }
-
-    private static void AssignMaterials(
-        GameObject root,
-        Material paint,
-        Material glass,
-        Material chrome,
-        Material dark,
-        Material plastic,
-        Material indicators,
-        Material rearLights,
-        Material rearPlate)
-    {
-        foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(true))
-        {
-            if (renderer == null)
-                continue;
-
-            Material[] materials = renderer.sharedMaterials;
-            bool changed = false;
-
-            for (int i = 0; i < materials.Length; i++)
-            {
-                string name =
-                    materials[i] != null
-                        ? materials[i].name.ToLowerInvariant()
-                        : string.Empty;
-
-                Material replacement = null;
-
-                if (name.Contains("blackglass"))
-                    replacement = glass;
-                else if (name.Contains("carpaint"))
-                    replacement = paint;
-                else if (name.Contains("chrome"))
-                    replacement = chrome;
-                else if (name.Contains("indicator"))
-                    replacement = indicators;
-                else if (name.Contains("rearlight"))
-                    replacement = rearLights;
-                else if (name.Contains("yellowplate"))
-                    replacement = rearPlate;
-                else if (name.Contains("plastic"))
-                    replacement = plastic;
-                else if (name.Contains("empty"))
-                    replacement = dark;
-
-                if (replacement == null)
-                    continue;
-
-                materials[i] = replacement;
-                changed = true;
-            }
-
-            if (changed)
-                renderer.sharedMaterials = materials;
-        }
-    }
-
-    private static void StripImportedPhysics(GameObject root)
+    private static void StripImportedPhysics(
+        GameObject root)
     {
         foreach (Collider collider in
-                 root.GetComponentsInChildren<Collider>(true))
+                 root.GetComponentsInChildren<Collider>(
+                     true))
         {
-            Object.DestroyImmediate(collider);
+            if (collider != null)
+            {
+                Object.DestroyImmediate(
+                    collider);
+            }
         }
 
         foreach (Rigidbody body in
-                 root.GetComponentsInChildren<Rigidbody>(true))
+                 root.GetComponentsInChildren<Rigidbody>(
+                     true))
         {
-            Object.DestroyImmediate(body);
+            if (body != null)
+            {
+                Object.DestroyImmediate(
+                    body);
+            }
         }
 
         foreach (MonoBehaviour behaviour in
-                 root.GetComponentsInChildren<MonoBehaviour>(true))
+                 root.GetComponentsInChildren<MonoBehaviour>(
+                     true))
         {
             if (behaviour != null)
-                Object.DestroyImmediate(behaviour);
+            {
+                Object.DestroyImmediate(
+                    behaviour);
+            }
         }
     }
 
-    private static void EnsureRenderersEnabled(GameObject root)
+    private static void EnsureRenderersEnabled(
+        GameObject root)
     {
         foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(true))
+                 root.GetComponentsInChildren<Renderer>(
+                     true))
         {
             if (renderer == null)
                 continue;
 
-            renderer.enabled = true;
+            renderer.enabled =
+                true;
 
-            if (!renderer.gameObject.activeSelf)
-                renderer.gameObject.SetActive(true);
+            renderer.shadowCastingMode =
+                UnityEngine.Rendering.ShadowCastingMode.On;
+
+            renderer.receiveShadows =
+                true;
         }
     }
 }
