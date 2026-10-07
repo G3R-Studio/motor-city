@@ -10,6 +10,12 @@ public static class ToyotaAE86VehicleImporter
 
     private const string WheelSource =
         "Assets/VehicleAssets/ToyotaAE86/all_wheels.obj";
+    private const string StandardFrontWheelSource =
+        "Assets/VehicleAssets/ToyotaAE86/front_wheels.obj";
+
+    private const string StandardRearWheelSource =
+        "Assets/VehicleAssets/ToyotaAE86/rear_wheels.obj";
+
 
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
@@ -45,6 +51,8 @@ public static class ToyotaAE86VehicleImporter
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
+                    StandardFrontWheelSource,
+                    StandardRearWheelSource,
                     WheelSource);
 
         if (!StandardVehicleImportUtility.ShouldRebuild(
@@ -68,10 +76,27 @@ public static class ToyotaAE86VehicleImporter
         GameObject bodySource =
             AssetDatabase.LoadAssetAtPath<GameObject>(BodySource);
 
-        GameObject wheelSource =
-            AssetDatabase.LoadAssetAtPath<GameObject>(WheelSource);
+        GameObject standardFrontWheelSource =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                StandardFrontWheelSource);
 
-        if (bodySource == null || wheelSource == null)
+        GameObject standardRearWheelSource =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                StandardRearWheelSource);
+
+        bool useStandardWheelLayout =
+            standardFrontWheelSource != null &&
+            standardRearWheelSource != null;
+
+        GameObject wheelSource =
+            useStandardWheelLayout
+                ? null
+                : AssetDatabase.LoadAssetAtPath<GameObject>(
+                    WheelSource);
+
+        if (bodySource == null ||
+            (!useStandardWheelLayout &&
+             wheelSource == null))
         {
             if (verbose)
             {
@@ -143,7 +168,23 @@ public static class ToyotaAE86VehicleImporter
             instance.transform.localScale = Vector3.one;
 
             StripImportedPhysics(instance);
-            BuildWheelSet(instance.transform, wheelSource);
+            if (useStandardWheelLayout)
+            {
+                StandardVehicleImportUtility.BuildStandardWheelSet(
+                    instance.transform,
+                    standardFrontWheelSource,
+                    standardRearWheelSource,
+                    new Vector3(-0.655f, 0.303f, 1.300f),
+                    new Vector3(0.655f, 0.303f, 1.300f),
+                    new Vector3(-0.655f, 0.303f, -1.170f),
+                    new Vector3(0.655f, 0.303f, -1.170f));
+            }
+            else
+            {
+                BuildWheelSet(
+                    instance.transform,
+                    wheelSource);
+            }
 
             if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
                     instance))
