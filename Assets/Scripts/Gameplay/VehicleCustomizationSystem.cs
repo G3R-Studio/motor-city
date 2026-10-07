@@ -222,6 +222,28 @@ namespace MotorCity.Gameplay
             // vehicle changes arrive through VehicleVisualReady.
             LoadForSelectedVehicle();
             ApplyAll();
+
+            // Some visual-side Start() callbacks still run later in the same
+            // bootstrap frame and may restore authored/default material state.
+            // Re-apply the saved customization once at end-of-frame so the
+            // initially selected car never settles on its stock appearance.
+            StartCoroutine(
+                ReapplyInitialCustomizationAtEndOfFrame());
+        }
+
+        private IEnumerator ReapplyInitialCustomizationAtEndOfFrame()
+        {
+            yield return
+                new WaitForEndOfFrame();
+
+            if (car == null ||
+                roster == null)
+            {
+                yield break;
+            }
+
+            LoadForSelectedVehicle();
+            ApplyAll();
         }
 
         private void OnDestroy()
