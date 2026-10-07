@@ -1,3 +1,4 @@
+using MotorCity.Vehicle;
 using UnityEngine;
 
 namespace MotorCity.World
@@ -111,28 +112,12 @@ namespace MotorCity.World
         internal static bool IsWheelRenderer(
             Transform item)
         {
-            Transform cursor =
-                item;
-
-            while (cursor != null)
-            {
-                string name =
-                    cursor.name
-                        .ToLowerInvariant();
-
-                if (name.Contains("wheel") ||
-                    name.Contains("tire") ||
-                    name.Contains("tyre") ||
-                    name.Contains("rim"))
-                {
-                    return true;
-                }
-
-                cursor =
-                    cursor.parent;
-            }
-
-            return false;
+            return
+                VehicleVisualRoleUtility.IsWheelHierarchy(
+                    item,
+                    null,
+                    32,
+                    false);
         }
     }
 }
