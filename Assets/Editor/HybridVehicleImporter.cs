@@ -14,6 +14,12 @@ public static class HybridVehicleImporter
     private const string RightWheelSource =
         "Assets/VehicleAssets/Hybrid/wheels2.obj";
 
+    private const string StandardFrontWheelSource =
+        "Assets/VehicleAssets/Hybrid/front_wheels.obj";
+
+    private const string StandardRearWheelSource =
+        "Assets/VehicleAssets/Hybrid/rear_wheels.obj";
+
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
 
@@ -46,6 +52,8 @@ public static class HybridVehicleImporter
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
+                    StandardFrontWheelSource,
+                    StandardRearWheelSource,
                     LeftWheelSource,
                     RightWheelSource);
 
@@ -72,17 +80,34 @@ public static class HybridVehicleImporter
             AssetDatabase.LoadAssetAtPath<GameObject>(
                 BodySource);
 
-        GameObject leftWheelSource =
+        GameObject standardFrontWheelSource =
             AssetDatabase.LoadAssetAtPath<GameObject>(
-                LeftWheelSource);
+                StandardFrontWheelSource);
+
+        GameObject standardRearWheelSource =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                StandardRearWheelSource);
+
+        bool useStandardWheelLayout =
+            standardFrontWheelSource != null &&
+            standardRearWheelSource != null;
+
+        GameObject leftWheelSource =
+            useStandardWheelLayout
+                ? null
+                : AssetDatabase.LoadAssetAtPath<GameObject>(
+                    LeftWheelSource);
 
         GameObject rightWheelSource =
-            AssetDatabase.LoadAssetAtPath<GameObject>(
-                RightWheelSource);
+            useStandardWheelLayout
+                ? null
+                : AssetDatabase.LoadAssetAtPath<GameObject>(
+                    RightWheelSource);
 
         if (bodySource == null ||
-            leftWheelSource == null ||
-            rightWheelSource == null)
+            (!useStandardWheelLayout &&
+             (leftWheelSource == null ||
+              rightWheelSource == null)))
         {
             if (verbose)
             {
@@ -126,10 +151,36 @@ public static class HybridVehicleImporter
             StripImportedRuntimeComponents(
                 body);
 
-            BuildWheelSet(
-                root.transform,
-                leftWheelSource,
-                rightWheelSource);
+            if (useStandardWheelLayout)
+            {
+                StandardVehicleImportUtility.BuildStandardWheelSet(
+                    root.transform,
+                    standardFrontWheelSource,
+                    standardRearWheelSource,
+                    new Vector3(
+                        -0.589f,
+                        0.242f,
+                        1.253f),
+                    new Vector3(
+                        0.587f,
+                        0.242f,
+                        1.253f),
+                    new Vector3(
+                        -0.600f,
+                        0.242f,
+                        -0.654f),
+                    new Vector3(
+                        0.600f,
+                        0.242f,
+                        -0.654f));
+            }
+            else
+            {
+                BuildWheelSet(
+                    root.transform,
+                    leftWheelSource,
+                    rightWheelSource);
+            }
 
             StripImportedRuntimeComponents(
                 root);
