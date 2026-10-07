@@ -112,12 +112,17 @@ namespace MotorCity.Gameplay
             new(0.045f, 0.045f, 0.05f, 1f)
         };
 
-        // Bus uses a baked multicolor palette texture, so body recoloring is
-        // intentionally disabled. A single white option keeps the garage color
-        // selector stable without tinting the atlas.
+        // The updated Bus importer separates the paintable body from
+        // body_misc, so the shell can now use the normal garage color cycle
+        // without tinting glass, trim or the authored city palette details.
         private static readonly Color[] BusBodyColors =
         {
-            Color.white
+            new(0.78f, 0.09f, 0.07f, 1f),
+            new(0.08f, 0.28f, 0.68f, 1f),
+            new(0.08f, 0.46f, 0.19f, 1f),
+            new(0.94f, 0.68f, 0.10f, 1f),
+            new(0.88f, 0.88f, 0.86f, 1f),
+            new(0.055f, 0.055f, 0.06f, 1f)
         };
 
 
@@ -1127,7 +1132,18 @@ namespace MotorCity.Gameplay
             if (vehicleId == VehicleIds.Bus)
             {
                 return
-                    "customization.color_white";
+                    Mathf.Clamp(
+                        index,
+                        0,
+                        BusBodyColors.Length - 1) switch
+                    {
+                        0 => "customization.color_red",
+                        1 => "customization.color_blue",
+                        2 => "customization.color_green",
+                        3 => "customization.color_yellow",
+                        4 => "customization.color_white",
+                        _ => "customization.color_black"
+                    };
             }
 
             int paletteIndex =
