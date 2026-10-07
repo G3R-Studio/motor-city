@@ -59,7 +59,7 @@ namespace MotorCity.World
         private Transform currentVisual;
         private Shader maskedRearShader;
         private Shader starterLampShader;
-        private string vehicleId = "street";
+        private string vehicleId = VehicleIds.Street;
         private float dayNightResolveTimer;
         private float lastNight = -1f;
         private bool lastBraking;
@@ -223,7 +223,7 @@ namespace MotorCity.World
         {
             vehicleId =
                 string.IsNullOrWhiteSpace(id)
-                    ? "street"
+                    ? VehicleIds.Street
                     : id.ToLowerInvariant();
 
             RefreshVisual();
@@ -265,31 +265,31 @@ namespace MotorCity.World
                     continue;
                 }
 
-                if (vehicleId == "beatall" && BindBeatallBrakeEmission(renderer))
+                if (vehicleId == VehicleIds.Beatall && BindBeatallBrakeEmission(renderer))
                     continue;
 
-                if (vehicleId == "street" &&
+                if (vehicleId == VehicleIds.Street &&
                     BindStarterLampMaterials(
                         renderer))
                 {
                     continue;
                 }
 
-                if (vehicleId == "delorean" &&
+                if (vehicleId == VehicleIds.Delorean &&
                     BindDeloreanRearEmission(
                         renderer))
                 {
                     continue;
                 }
 
-                if (vehicleId == "amggt" &&
+                if (vehicleId == VehicleIds.AmgGT &&
                     BindAmgRearEmission(
                         renderer))
                 {
                     continue;
                 }
 
-                if (vehicleId == "porsche996" &&
+                if (vehicleId == VehicleIds.Porsche996 &&
                     BindPorscheInnerRearEmission(
                         renderer))
                 {
@@ -1214,7 +1214,7 @@ namespace MotorCity.World
                     continue;
                 }
 
-                if (vehicleId == "porsche996" &&
+                if (vehicleId == VehicleIds.Porsche996 &&
                     materialName.Contains("rearlight"))
                 {
                     if (source.HasProperty("_EmissionColor"))
@@ -1231,7 +1231,7 @@ namespace MotorCity.World
                 }
 
                 // Hybrid's red rear lamp polygons have an exported numeric name.
-                bool hybridRearLamp = vehicleId == "hybrid" &&
+                bool hybridRearLamp = vehicleId == VehicleIds.Hybrid &&
                     materialName.Replace(" (instance)", "").Replace(" (clone)", "").Trim() == "material.004";
                 bool materialRearSpecific = hybridRearLamp || LooksLikeRearLampName(materialName);
 
@@ -1936,7 +1936,7 @@ namespace MotorCity.World
             out float blueLow,
             out float blueHigh)
         {
-            if (vehicleId == "amggt")
+            if (vehicleId == VehicleIds.AmgGT)
             {
                 rearCutoffFraction = 0.58f;
                 rearSoftnessFraction = 0.045f;
