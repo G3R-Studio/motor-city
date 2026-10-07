@@ -15,23 +15,17 @@ public static class DeloreanVehicleImporter
     private const string RearWheelSource =
         "Assets/VehicleAssets/Delorean/rear_wheels.obj";
 
-    private const string SourceTexture =
-        "Assets/VehicleAssets/Delorean/all.png";
-
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
-
-    private const string MaterialDirectory =
-        OutputDirectory + "/DeloreanMaterials";
 
     private const string OutputPrefab =
         OutputDirectory + "/Delorean.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.DeloreanVehicleBuilt.V1";
+        "MotorCity.DeloreanVehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.DeloreanVehicleSourceHash.V1";
+        "MotorCity.DeloreanVehicleSourceHash.V2";
 
     static DeloreanVehicleImporter()
     {
@@ -50,12 +44,21 @@ public static class DeloreanVehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                BodySource) == null ||
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                FrontWheelSource) == null ||
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                RearWheelSource) == null)
+        {
+            return;
+        }
+
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
-                    FrontWheelSource,
-                    RearWheelSource,
-                    SourceTexture);
+                FrontWheelSource,
+                RearWheelSource);
 
         if (!StandardVehicleImportUtility.ShouldRebuild(
                 OutputPrefab,
@@ -96,6 +99,18 @@ public static class DeloreanVehicleImporter
             {
                 Debug.LogWarning(
                     "Motor City: Delorean body/front/rear OBJ source is missing.");
+            }
+
+            return false;
+        }
+
+        if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                bodySource))
+        {
+            if (verbose)
+            {
+                Debug.LogWarning(
+                    "Motor City: updated Delorean must contain body and body_misc meshes.");
             }
 
             return false;
@@ -158,8 +173,7 @@ public static class DeloreanVehicleImporter
             if (verbose)
             {
                 Debug.Log(
-                    "Motor City: Delorean runtime visual rebuilt. " +
-                    "Runtime path: MotorCity/Vehicles/Player/Delorean");
+                    "Motor City: Delorean rebuilt from delorean.obj + authored front/rear wheel OBJs.");
             }
 
             return true;
@@ -278,143 +292,6 @@ public static class DeloreanVehicleImporter
 
         StripImportedPhysics(
             visual);
-    }
-
-    private static Material BuildMaterial(
-        string materialName,
-        Color baseColor,
-        float smoothness,
-        bool emission)
-    {
-        string path =
-            MaterialDirectory +
-            "/" +
-            materialName +
-            ".mat";
-
-        Material material =
-            AssetDatabase.LoadAssetAtPath<Material>(
-                path);
-
-        Shader shader =
-            Shader.Find(
-                "Universal Render Pipeline/Lit");
-
-        if (shader == null)
-            shader = Shader.Find("Standard");
-
-        if (material == null)
-        {
-            material =
-                new Material(
-                    shader);
-
-            material.name =
-                materialName;
-
-            AssetDatabase.CreateAsset(
-                material,
-                path);
-        }
-        else if (shader != null &&
-                 material.shader != shader)
-        {
-            material.shader =
-                shader;
-        }
-
-        Texture texture =
-            AssetDatabase.LoadAssetAtPath<Texture>(
-                SourceTexture);
-
-        if (material.HasProperty("_BaseMap"))
-            material.SetTexture("_BaseMap", texture);
-
-        if (material.HasProperty("_MainTex"))
-            material.SetTexture("_MainTex", texture);
-
-        if (material.HasProperty("_BaseColor"))
-            material.SetColor("_BaseColor", baseColor);
-
-        if (material.HasProperty("_Color"))
-            material.SetColor("_Color", baseColor);
-
-        if (material.HasProperty("_Smoothness"))
-            material.SetFloat("_Smoothness", smoothness);
-
-        if (emission)
-        {
-            if (material.HasProperty("_EmissionMap"))
-                material.SetTexture("_EmissionMap", texture);
-
-            if (material.HasProperty("_EmissionColor"))
-                material.SetColor(
-                    "_EmissionColor",
-                    Color.black);
-
-            material.EnableKeyword("_EMISSION");
-            material.globalIlluminationFlags =
-                MaterialGlobalIlluminationFlags.None;
-        }
-        else
-        {
-            material.DisableKeyword("_EMISSION");
-        }
-
-        EditorUtility.SetDirty(
-            material);
-
-        return material;
-    }
-
-    private static void AssignMaterials(
-        GameObject root,
-        Material body,
-        Material glass,
-        Material emission)
-    {
-        foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(
-                     true))
-        {
-            if (renderer == null)
-                continue;
-
-            Material[] materials =
-                renderer.sharedMaterials;
-
-            bool changed = false;
-
-            for (int i = 0;
-                 i < materials.Length;
-                 i++)
-            {
-                string materialName =
-                    materials[i] != null
-                        ? materials[i].name.ToLowerInvariant()
-                        : string.Empty;
-
-                if (materialName.Contains("blackglass"))
-                {
-                    materials[i] = glass;
-                    changed = true;
-                }
-                else if (materialName.Contains("emmisive") ||
-                         materialName.Contains("emissive"))
-                {
-                    materials[i] = emission;
-                    changed = true;
-                }
-                else if (materialName.Contains("basegradient"))
-                {
-                    materials[i] = body;
-                    changed = true;
-                }
-            }
-
-            if (changed)
-                renderer.sharedMaterials = materials;
-        }
     }
 
     private static void StripImportedPhysics(
