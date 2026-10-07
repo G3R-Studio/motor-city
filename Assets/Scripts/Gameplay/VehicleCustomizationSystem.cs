@@ -327,23 +327,23 @@ namespace MotorCity.Gameplay
                 VehicleId();
 
             return
-                id == "hybrid"
+                id == VehicleIds.Hybrid
                     ? HybridBodyColors
-                    : id == "beatall"
+                    : id == VehicleIds.Beatall
                         ? BeatallBodyColors
-                        : id == "delorean"
+                        : id == VehicleIds.Delorean
                             ? DeloreanBodyColors
-                            : id == "amggt"
+                            : id == VehicleIds.AmgGT
                                 ? AmgGTBodyColors
-                                : id == "porsche996"
+                                : id == VehicleIds.Porsche996
                                     ? Porsche996BodyColors
-                                    : id == "peugeot306"
+                                    : id == VehicleIds.Peugeot306
                                         ? Peugeot306BodyColors
-                                        : id == "toyotaae86"
+                                        : id == VehicleIds.ToyotaAE86
                                             ? ToyotaAE86BodyColors
-                                            : id == "camaro"
+                                            : id == VehicleIds.Camaro
                                                 ? CamaroBodyColors
-                                                : id == "bus"
+                                                : id == VehicleIds.Bus
                                                     ? BusBodyColors
                                                     : StreetBodyColors;
         }
@@ -440,7 +440,7 @@ namespace MotorCity.Gameplay
             if (visual == null)
                 return;
 
-            if (VehicleId() == "street" &&
+            if (VehicleId() == VehicleIds.Street &&
                 ApplyAuthoredStarterPaint(
                     visual))
             {
@@ -677,7 +677,7 @@ namespace MotorCity.Gameplay
             // dedicated legacy path so its rim colors always react to the
             // garage selector, even if another mesh happens to match a named
             // paint role.
-            if (VehicleId() == "street")
+            if (VehicleId() == VehicleIds.Street)
             {
                 // STREETER's wheel transforms are detached from the runtime
                 // visual and reparented under ArcadeRacingWheelSpin_* by the
@@ -1068,7 +1068,7 @@ namespace MotorCity.Gameplay
             return
                 roster != null
                     ? roster.SelectedId
-                    : "street";
+                    : VehicleIds.Street;
         }
 
         private static string Key(
@@ -1112,7 +1112,7 @@ namespace MotorCity.Gameplay
             string vehicleId =
                 VehicleId();
 
-            if (vehicleId == "street")
+            if (vehicleId == VehicleIds.Street)
             {
                 return
                     index switch
@@ -1125,7 +1125,7 @@ namespace MotorCity.Gameplay
                     };
             }
 
-            if (vehicleId == "hybrid")
+            if (vehicleId == VehicleIds.Hybrid)
             {
                 return
                     "customization.hybrid." +
@@ -1135,7 +1135,7 @@ namespace MotorCity.Gameplay
                         HybridBodyColors.Length - 1);
             }
 
-            if (vehicleId == "beatall")
+            if (vehicleId == VehicleIds.Beatall)
             {
                 return
                     Mathf.Clamp(
@@ -1152,7 +1152,7 @@ namespace MotorCity.Gameplay
                     };
             }
 
-            if (vehicleId == "bus")
+            if (vehicleId == VehicleIds.Bus)
             {
                 return
                     "customization.color_white";
@@ -1164,7 +1164,7 @@ namespace MotorCity.Gameplay
                     0,
                     BodyColorCountForCurrentVehicle() - 1);
 
-            if (vehicleId == "delorean")
+            if (vehicleId == VehicleIds.Delorean)
             {
                 return
                     paletteIndex switch
@@ -1178,7 +1178,7 @@ namespace MotorCity.Gameplay
                     };
             }
 
-            if (vehicleId == "amggt")
+            if (vehicleId == VehicleIds.AmgGT)
             {
                 return
                     paletteIndex switch
