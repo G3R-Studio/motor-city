@@ -25,7 +25,10 @@ public static class BeatallVehicleImporter
         OutputDirectory + "/Beatall.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.BeatallVehicleBuilt.V2";
+        "MotorCity.BeatallVehicleBuilt.V3";
+
+    private const string SourceHashKey =
+        "MotorCity.BeatallVehicleSourceHash.V1";
 
     static BeatallVehicleImporter()
     {
@@ -50,15 +53,29 @@ public static class BeatallVehicleImporter
             return;
         }
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(
-                OutputPrefab) != null)
-        {
-            return;
-        }
+        string sourceHash =
+            ResolveSourceDependencyHash();
 
-        if (SessionState.GetBool(
+        bool prefabMissing =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                OutputPrefab) == null;
+
+        bool sourceChanged =
+            !string.Equals(
+                EditorPrefs.GetString(
+                    SourceHashKey,
+                    string.Empty),
+                sourceHash,
+                StringComparison.Ordinal);
+
+        bool builtThisSession =
+            SessionState.GetBool(
                 BuildSessionKey,
-                false))
+                false);
+
+        if (!prefabMissing &&
+            !sourceChanged &&
+            builtThisSession)
         {
             return;
         }
@@ -67,7 +84,32 @@ public static class BeatallVehicleImporter
             BuildSessionKey,
             true);
 
-        Build(false);
+        if (Build(false))
+        {
+            EditorPrefs.SetString(
+                SourceHashKey,
+                sourceHash);
+        }
+    }
+
+    private static string ResolveSourceDependencyHash()
+    {
+        Hash128 modelHash =
+            AssetDatabase.GetAssetDependencyHash(
+                SourceModel);
+
+        Hash128 wheelHash =
+            AssetDatabase.GetAssetDependencyHash(
+                SourceWheelModel);
+
+        Hash128 textureHash =
+            AssetDatabase.GetAssetDependencyHash(
+                SourceTexture);
+
+        return
+            modelHash + "|" +
+            wheelHash + "|" +
+            textureHash;
     }
 
     private static bool Build(
@@ -364,6 +406,17 @@ public static class BeatallVehicleImporter
                         ? materials[i].name.ToLowerInvariant()
                         : string.Empty;
 
+                bool beatallBodyMisc =
+                    renderer.name.Equals(
+                        "body_misc",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    (renderer is MeshRenderer &&
+                     renderer.GetComponent<MeshFilter>()?.sharedMesh != null &&
+                     renderer.GetComponent<MeshFilter>()
+                         .sharedMesh.name.Equals(
+                             "body_misc",
+                             StringComparison.OrdinalIgnoreCase));
+
                 if (name.Contains(
                         "blackglass"))
                 {
@@ -383,8 +436,14 @@ public static class BeatallVehicleImporter
                         true;
                 }
                 else if (name.Contains(
-                             "basegradient"))
+                             "basegradient") ||
+                         (beatallBodyMisc &&
+                          materials[i] == null))
                 {
+                    // The revised Beatall exports the complete body as the
+                    // body_misc mesh. Keep any missing/default slot on that
+                    // renderer on the authored body material rather than
+                    // allowing Unity's missing material shader to show pink.
                     materials[i] =
                         body;
                     changed =
