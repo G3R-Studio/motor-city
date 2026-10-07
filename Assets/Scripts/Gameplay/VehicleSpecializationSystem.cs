@@ -1,4 +1,5 @@
 using MotorCity.Localization;
+using MotorCity.Vehicle;
 using UnityEngine;
 
 namespace MotorCity.Gameplay
@@ -95,61 +96,61 @@ namespace MotorCity.Gameplay
 
             return roster.SelectedId switch
             {
-                "beatall" =>
+                VehicleIds.Beatall =>
                     activityId == "drift"
                         ? 25
                         : 0,
 
-                "street" =>
+                VehicleIds.Street =>
                     IsCoreActivity(
                         activityId)
                         ? 10
                         : 0,
 
-                "peugeot306" =>
+                VehicleIds.Peugeot306 =>
                     activityId == "delivery"
                         ? 35
                         : 0,
 
-                "toyotaae86" =>
+                VehicleIds.ToyotaAE86 =>
                     activityId == "drift"
                         ? 40
                         : 0,
 
-                "hybrid" =>
+                VehicleIds.Hybrid =>
                     activityId == "sprint"
                         ? 25
                         : activityId == "circuit"
                             ? 20
                             : 0,
 
-                "porsche996" =>
+                VehicleIds.Porsche996 =>
                     activityId == "circuit"
                         ? 35
                         : activityId == "sprint"
                             ? 15
                             : 0,
 
-                "amggt" =>
+                VehicleIds.AmgGT =>
                     activityId == "sprint"
                         ? 25
                         : activityId == "circuit"
                             ? 20
                             : 0,
 
-                "camaro" =>
+                VehicleIds.Camaro =>
                     activityId == "sprint" ||
                     activityId == "drift"
                         ? 25
                         : 0,
 
-                "delorean" =>
+                VehicleIds.Delorean =>
                     IsCoreActivity(
                         activityId)
                         ? 15
                         : 0,
 
-                "bus" =>
+                VehicleIds.Bus =>
                     activityId == "delivery"
                         ? 40
                         : 0,
@@ -216,34 +217,34 @@ namespace MotorCity.Gameplay
 
             return roster.SelectedId switch
             {
-                "beatall" =>
+                VehicleIds.Beatall =>
                     MotorCityLocalization.Text("specialization.light_drift"),
 
-                "street" =>
+                VehicleIds.Street =>
                     MotorCityLocalization.Text("specialization.default"),
 
-                "peugeot306" =>
+                VehicleIds.Peugeot306 =>
                     MotorCityLocalization.Text("specialization.courier"),
 
-                "toyotaae86" =>
+                VehicleIds.ToyotaAE86 =>
                     MotorCityLocalization.Text("specialization.drift"),
 
-                "hybrid" =>
+                VehicleIds.Hybrid =>
                     MotorCityLocalization.Text("specialization.tech_sport"),
 
-                "porsche996" =>
+                VehicleIds.Porsche996 =>
                     MotorCityLocalization.Text("specialization.circuit"),
 
-                "amggt" =>
+                VehicleIds.AmgGT =>
                     MotorCityLocalization.Text("specialization.grand_tourer"),
 
-                "camaro" =>
+                VehicleIds.Camaro =>
                     MotorCityLocalization.Text("specialization.muscle"),
 
-                "delorean" =>
+                VehicleIds.Delorean =>
                     MotorCityLocalization.Text("specialization.allrounder"),
 
-                "bus" =>
+                VehicleIds.Bus =>
                     MotorCityLocalization.Text("specialization.heavy_courier"),
 
                 _ =>
@@ -258,34 +259,34 @@ namespace MotorCity.Gameplay
 
             return roster.SelectedId switch
             {
-                "beatall" =>
+                VehicleIds.Beatall =>
                     MotorCityLocalization.Text("specialization.light_drift_desc"),
 
-                "street" =>
+                VehicleIds.Street =>
                     MotorCityLocalization.Text("specialization.default_desc"),
 
-                "peugeot306" =>
+                VehicleIds.Peugeot306 =>
                     MotorCityLocalization.Text("specialization.courier_desc"),
 
-                "toyotaae86" =>
+                VehicleIds.ToyotaAE86 =>
                     MotorCityLocalization.Text("specialization.drift_desc"),
 
-                "hybrid" =>
+                VehicleIds.Hybrid =>
                     MotorCityLocalization.Text("specialization.tech_sport_desc"),
 
-                "porsche996" =>
+                VehicleIds.Porsche996 =>
                     MotorCityLocalization.Text("specialization.circuit_desc"),
 
-                "amggt" =>
+                VehicleIds.AmgGT =>
                     MotorCityLocalization.Text("specialization.grand_tourer_desc"),
 
-                "camaro" =>
+                VehicleIds.Camaro =>
                     MotorCityLocalization.Text("specialization.muscle_desc"),
 
-                "delorean" =>
+                VehicleIds.Delorean =>
                     MotorCityLocalization.Text("specialization.allrounder_desc"),
 
-                "bus" =>
+                VehicleIds.Bus =>
                     MotorCityLocalization.Text("specialization.heavy_courier_desc"),
 
                 _ =>
