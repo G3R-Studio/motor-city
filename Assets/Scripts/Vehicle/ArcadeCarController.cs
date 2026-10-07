@@ -1100,6 +1100,22 @@ namespace MotorCity.Vehicle
                     baseSteeringAngle *
                     vehicleSteeringMultiplier);
 
+            // Prometeo's steering model is authored for roughly 10-45 degrees.
+            // The old Drift value could exceed 60-70 degrees after the vehicle
+            // steering multiplier (AE86 reached about 71 degrees). At speed
+            // that makes the front WheelColliders scrub almost sideways and
+            // produces severe understeer: the car initially reacts, then
+            // pushes straight. Keep Drift steering inside a usable physical
+            // range instead of adding artificial yaw forces.
+            if (currentDriveMode == DriveMode.Drift)
+            {
+                tunedSteeringAngle =
+                    Mathf.Clamp(
+                        tunedSteeringAngle,
+                        38,
+                        48);
+            }
+
             float tunedSteeringSpeed =
                 (currentDriveMode switch
                 {
