@@ -20,6 +20,9 @@ public static class CamaroVehicleImporter
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
 
+    private const string MaterialDirectory =
+        OutputDirectory + "/CamaroMaterials";
+
     private const string OutputPrefab =
         OutputDirectory + "/Camaro.prefab";
 
@@ -113,6 +116,12 @@ public static class CamaroVehicleImporter
 
         Directory.CreateDirectory(
             OutputDirectory);
+        Directory.CreateDirectory(
+            MaterialDirectory);
+
+        Material glassMaterial =
+            BuildGlassMaterial(
+                "CamaroGlass");
 
         GameObject instance =
             PrefabUtility.InstantiatePrefab(
@@ -145,7 +154,11 @@ public static class CamaroVehicleImporter
             StripImportedPhysics(
                 instance);
 
-            // Preserve OBJ/MTL material slots exactly as authored. The shared
+            ReplaceBlackGlassMaterials(
+                instance,
+                glassMaterial);
+
+            // Preserve all other OBJ/MTL material slots exactly as authored. The shared
             // runtime vehicle installer performs the URP conversion, matching
             // AmgGT and the revised Beatall.
             BuildWheelSet(
@@ -184,6 +197,156 @@ public static class CamaroVehicleImporter
         {
             UnityEngine.Object.DestroyImmediate(
                 instance);
+        }
+    }
+
+    private static Material BuildGlassMaterial(
+        string materialName)
+    {
+        string path =
+            MaterialDirectory + "/" + materialName + ".mat";
+
+        Material material =
+            AssetDatabase.LoadAssetAtPath<Material>(
+                path);
+
+        Shader shader =
+            Shader.Find(
+                "Universal Render Pipeline/Lit");
+
+        if (shader == null)
+            shader = Shader.Find("Standard");
+
+        if (material == null)
+        {
+            material =
+                new Material(shader);
+            material.name =
+                materialName;
+            AssetDatabase.CreateAsset(
+                material,
+                path);
+        }
+        else if (shader != null &&
+                 material.shader != shader)
+        {
+            material.shader =
+                shader;
+        }
+
+        if (material.HasProperty("_BaseMap"))
+            material.SetTexture("_BaseMap", null);
+
+        if (material.HasProperty("_MainTex"))
+            material.SetTexture("_MainTex", null);
+
+        Color glassColor =
+            new Color(
+                0.035f,
+                0.055f,
+                0.075f,
+                0.58f);
+
+        if (material.HasProperty("_BaseColor"))
+            material.SetColor("_BaseColor", glassColor);
+
+        if (material.HasProperty("_Color"))
+            material.SetColor("_Color", glassColor);
+
+        if (material.HasProperty("_Metallic"))
+            material.SetFloat("_Metallic", 0.18f);
+
+        if (material.HasProperty("_Smoothness"))
+            material.SetFloat("_Smoothness", 0.92f);
+
+        if (material.HasProperty("_Surface"))
+            material.SetFloat("_Surface", 1f);
+
+        if (material.HasProperty("_Blend"))
+            material.SetFloat("_Blend", 0f);
+
+        if (material.HasProperty("_SrcBlend"))
+            material.SetFloat(
+                "_SrcBlend",
+                (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+
+        if (material.HasProperty("_DstBlend"))
+            material.SetFloat(
+                "_DstBlend",
+                (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+
+        if (material.HasProperty("_ZWrite"))
+            material.SetFloat("_ZWrite", 0f);
+
+        material.SetOverrideTag(
+            "RenderType",
+            "Transparent");
+
+        material.EnableKeyword(
+            "_SURFACE_TYPE_TRANSPARENT");
+        material.DisableKeyword(
+            "_ALPHAPREMULTIPLY_ON");
+
+        material.renderQueue =
+            (int)UnityEngine.Rendering.RenderQueue.Transparent;
+
+        if (material.HasProperty("_EmissionColor"))
+            material.SetColor("_EmissionColor", Color.black);
+
+        material.DisableKeyword("_EMISSION");
+        EditorUtility.SetDirty(material);
+        return material;
+    }
+
+    private static void ReplaceBlackGlassMaterials(
+        GameObject root,
+        Material glassMaterial)
+    {
+        if (root == null ||
+            glassMaterial == null)
+        {
+            return;
+        }
+
+        foreach (Renderer renderer in
+                 root.GetComponentsInChildren<Renderer>(
+                     true))
+        {
+            if (renderer == null)
+                continue;
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            bool changed =
+                false;
+
+            for (int i = 0;
+                 i < materials.Length;
+                 i++)
+            {
+                Material source =
+                    materials[i];
+
+                if (source == null ||
+                    source.name.IndexOf(
+                        "blackglass",
+                        StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    continue;
+                }
+
+                materials[i] =
+                    glassMaterial;
+                changed =
+                    true;
+            }
+
+            if (changed)
+            {
+                renderer.sharedMaterials =
+                    materials;
+            }
         }
     }
 
