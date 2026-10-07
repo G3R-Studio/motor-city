@@ -26,6 +26,9 @@ public static class CamaroVehicleImporter
     private const string BuildSessionKey =
         "MotorCity.CamaroVehicleBuilt.V1";
 
+    private const string SourceHashKey =
+        "MotorCity.CamaroVehicleSourceHash.V1";
+
     static CamaroVehicleImporter()
     {
         EditorApplication.delayCall += TryAutoBuild;
@@ -42,14 +45,26 @@ public static class CamaroVehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(OutputPrefab) != null)
-            return;
+        string dependencyHash =
+            StandardVehicleImportUtility.DependencyHash(
+                BodySource,
+                    WheelSource,
+                    ColorTextureSource);
 
-        if (SessionState.GetBool(BuildSessionKey, false))
+        if (!StandardVehicleImportUtility.ShouldRebuild(
+                OutputPrefab,
+                SourceHashKey,
+                dependencyHash))
+        {
             return;
+        }
 
-        SessionState.SetBool(BuildSessionKey, true);
-        Build(false);
+        if (Build(false))
+        {
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey,
+                dependencyHash);
+        }
     }
 
     private static bool Build(bool verbose)
