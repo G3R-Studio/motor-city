@@ -108,48 +108,6 @@ public static class ToyotaAE86VehicleImporter
         }
 
         Directory.CreateDirectory(OutputDirectory);
-        Directory.CreateDirectory(MaterialDirectory);
-
-        Material paint = BuildMaterial(
-            "ToyotaAE86Body",
-            new Color(0.665676f, 0.409637f, 0.000902f, 1f),
-            0.62f);
-
-        Material glass = BuildMaterial(
-            "ToyotaAE86Glass",
-            new Color(0.015f, 0.018f, 0.024f, 1f),
-            0.90f);
-
-        Material chrome = BuildMaterial(
-            "ToyotaAE86Chrome",
-            new Color(0.30f, 0.31f, 0.33f, 1f),
-            0.76f);
-
-        Material dark = BuildMaterial(
-            "ToyotaAE86Dark",
-            new Color(0.012f, 0.012f, 0.014f, 1f),
-            0.34f);
-
-        Material plastic = BuildMaterial(
-            "ToyotaAE86Plastic",
-            new Color(0.047f, 0.047f, 0.047f, 1f),
-            0.32f);
-
-        Material indicators = BuildMaterial(
-            "ToyotaAE86Indicators",
-            new Color(0.2509f, 0.0445f, 0.015f, 1f),
-            0.46f);
-
-        Material rearLights = BuildMaterial(
-            "ToyotaAE86RearLights",
-            new Color(0.119f, 0.009f, 0.009f, 1f),
-            0.46f);
-
-        Material rearPlate = BuildMaterial(
-            "ToyotaAE86RearPlate",
-            new Color(0.80f, 0.347f, 0.062f, 1f),
-            0.25f);
-
         GameObject instance =
             PrefabUtility.InstantiatePrefab(bodySource) as GameObject;
 
