@@ -20,17 +20,14 @@ public static class BeatallVehicleImporter
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
 
-    private const string MaterialDirectory =
-        OutputDirectory + "/BeatallMaterials";
-
     private const string OutputPrefab =
         OutputDirectory + "/Beatall.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.BeatallVehicleBuilt.V3";
+        "MotorCity.BeatallVehicleBuilt.V4";
 
     private const string SourceHashKey =
-        "MotorCity.BeatallVehicleSourceHash.V1";
+        "MotorCity.BeatallVehicleSourceHash.V2";
 
     static BeatallVehicleImporter()
     {
@@ -140,30 +137,6 @@ public static class BeatallVehicleImporter
         Directory.CreateDirectory(
             OutputDirectory);
 
-        Directory.CreateDirectory(
-            MaterialDirectory);
-
-        Material bodyMaterial =
-            BuildMaterial(
-                "BeatallBody",
-                new Color(0.92f, 0.92f, 0.92f, 1f),
-                0.55f,
-                false);
-
-        Material glassMaterial =
-            BuildMaterial(
-                "BeatallGlass",
-                new Color(0.025f, 0.03f, 0.04f, 1f),
-                0.88f,
-                false);
-
-        Material emissionMaterial =
-            BuildMaterial(
-                "BeatallEmission",
-                Color.white,
-                0.35f,
-                true);
-
         GameObject instance =
             PrefabUtility.InstantiatePrefab(
                 source) as GameObject;
@@ -193,15 +166,12 @@ public static class BeatallVehicleImporter
             StripImportedPhysics(
                 instance);
 
+            // Keep the OBJ/MTL material assignments exactly like AmgGT.
+            // ArcadeRacingCarRuntimeInstaller performs the shared pipeline
+            // upgrade for body/body_misc/wheel materials at runtime.
             BuildWheelSet(
                 instance.transform,
                 wheelSource);
-
-            AssignMaterials(
-                instance,
-                bodyMaterial,
-                glassMaterial,
-                emissionMaterial);
 
             EnsureRenderersEnabled(
                 instance);
@@ -231,233 +201,6 @@ public static class BeatallVehicleImporter
         {
             UnityEngine.Object.DestroyImmediate(
                 instance);
-        }
-    }
-
-    private static Material BuildMaterial(
-        string materialName,
-        Color baseColor,
-        float smoothness,
-        bool emission)
-    {
-        string path =
-            MaterialDirectory +
-            "/" +
-            materialName +
-            ".mat";
-
-        Material material =
-            AssetDatabase.LoadAssetAtPath<Material>(
-                path);
-
-        Shader shader =
-            Shader.Find(
-                "Universal Render Pipeline/Lit");
-
-        if (shader == null)
-        {
-            shader =
-                Shader.Find(
-                    "Standard");
-        }
-
-        if (material == null)
-        {
-            material =
-                new Material(
-                    shader);
-
-            material.name =
-                materialName;
-
-            AssetDatabase.CreateAsset(
-                material,
-                path);
-        }
-        else if (shader != null &&
-                 material.shader != shader)
-        {
-            material.shader =
-                shader;
-        }
-
-        Texture texture =
-            AssetDatabase.LoadAssetAtPath<Texture>(
-                SourceTexture);
-
-        if (material.HasProperty(
-                "_BaseMap"))
-        {
-            material.SetTexture(
-                "_BaseMap",
-                texture);
-        }
-
-        if (material.HasProperty(
-                "_MainTex"))
-        {
-            material.SetTexture(
-                "_MainTex",
-                texture);
-        }
-
-        if (material.HasProperty(
-                "_BaseColor"))
-        {
-            material.SetColor(
-                "_BaseColor",
-                baseColor);
-        }
-
-        if (material.HasProperty(
-                "_Color"))
-        {
-            material.SetColor(
-                "_Color",
-                baseColor);
-        }
-
-        if (material.HasProperty(
-                "_Smoothness"))
-        {
-            material.SetFloat(
-                "_Smoothness",
-                smoothness);
-        }
-
-        if (emission)
-        {
-            Color emissionColor =
-                Color.white * 1.6f;
-
-            if (material.HasProperty(
-                    "_EmissionMap"))
-            {
-                material.SetTexture(
-                    "_EmissionMap",
-                    texture);
-            }
-
-            if (material.HasProperty(
-                    "_EmissionColor"))
-            {
-                material.SetColor(
-                    "_EmissionColor",
-                    emissionColor);
-            }
-
-            material.EnableKeyword(
-                "_EMISSION");
-
-            material.globalIlluminationFlags =
-                MaterialGlobalIlluminationFlags.None;
-        }
-        else
-        {
-            if (material.HasProperty(
-                    "_EmissionMap"))
-            {
-                material.SetTexture(
-                    "_EmissionMap",
-                    null);
-            }
-
-            if (material.HasProperty(
-                    "_EmissionColor"))
-            {
-                material.SetColor(
-                    "_EmissionColor",
-                    Color.black);
-            }
-
-            material.DisableKeyword(
-                "_EMISSION");
-        }
-
-        EditorUtility.SetDirty(
-            material);
-
-        return material;
-    }
-
-    private static void AssignMaterials(
-        GameObject root,
-        Material body,
-        Material glass,
-        Material emission)
-    {
-        foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(
-                     true))
-        {
-            if (renderer == null)
-                continue;
-
-            Material[] materials =
-                renderer.sharedMaterials;
-
-            bool changed =
-                false;
-
-            for (int i = 0;
-                 i < materials.Length;
-                 i++)
-            {
-                string name =
-                    materials[i] != null
-                        ? materials[i].name.ToLowerInvariant()
-                        : string.Empty;
-
-                bool beatallBodyMisc =
-                    renderer.name.Equals(
-                        "body_misc",
-                        StringComparison.OrdinalIgnoreCase) ||
-                    (renderer is MeshRenderer &&
-                     renderer.GetComponent<MeshFilter>()?.sharedMesh != null &&
-                     renderer.GetComponent<MeshFilter>()
-                         .sharedMesh.name.Equals(
-                             "body_misc",
-                             StringComparison.OrdinalIgnoreCase));
-
-                if (name.Contains(
-                        "blackglass"))
-                {
-                    materials[i] =
-                        glass;
-                    changed =
-                        true;
-                }
-                else if (name.Contains(
-                             "emmisive") ||
-                         name.Contains(
-                             "emissive"))
-                {
-                    materials[i] =
-                        emission;
-                    changed =
-                        true;
-                }
-                else if (name.Contains(
-                             "basegradient") ||
-                         (beatallBodyMisc &&
-                          materials[i] == null))
-                {
-                    // The revised Beatall exports the complete body as the
-                    // body_misc mesh. Keep any missing/default slot on that
-                    // renderer on the authored body material rather than
-                    // allowing Unity's missing material shader to show pink.
-                    materials[i] =
-                        body;
-                    changed =
-                        true;
-                }
-            }
-
-            if (changed)
-            {
-                renderer.sharedMaterials =
-                    materials;
-            }
         }
     }
 
