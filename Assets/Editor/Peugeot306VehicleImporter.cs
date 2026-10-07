@@ -6,35 +6,29 @@ using UnityEngine;
 public static class Peugeot306VehicleImporter
 {
     private const string BodySource =
-        "Assets/VehicleAssets/Peugeot306/306.obj";
+        "Assets/VehicleAssets/Peugeot306/peugeot306.obj";
 
+    // Revised Peugeot follows the Beatall export layout:
+    // one front_wheels OBJ is reused on both axles.
     private const string WheelSource =
-        "Assets/VehicleAssets/Peugeot306/all_wheels.obj";
-    private const string StandardFrontWheelSource =
         "Assets/VehicleAssets/Peugeot306/front_wheels.obj";
-
-    private const string StandardRearWheelSource =
-        "Assets/VehicleAssets/Peugeot306/rear_wheels.obj";
-
 
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
-
-    private const string MaterialDirectory =
-        OutputDirectory + "/Peugeot306Materials";
 
     private const string OutputPrefab =
         OutputDirectory + "/Peugeot306.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.Peugeot306VehicleBuilt.V1";
+        "MotorCity.Peugeot306VehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.Peugeot306VehicleSourceHash.V1";
+        "MotorCity.Peugeot306VehicleSourceHash.V2";
 
     static Peugeot306VehicleImporter()
     {
-        EditorApplication.delayCall += TryAutoBuild;
+        EditorApplication.delayCall +=
+            TryAutoBuild;
     }
 
     [MenuItem("Motor City/Vehicles/Rebuild Peugeot306")]
@@ -48,12 +42,18 @@ public static class Peugeot306VehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                BodySource) == null ||
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                WheelSource) == null)
+        {
+            return;
+        }
+
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
-                    StandardFrontWheelSource,
-                    StandardRearWheelSource,
-                    WheelSource);
+                WheelSource);
 
         if (!StandardVehicleImportUtility.ShouldRebuild(
                 OutputPrefab,
@@ -71,146 +71,87 @@ public static class Peugeot306VehicleImporter
         }
     }
 
-    private static bool Build(bool verbose)
+    private static bool Build(
+        bool verbose)
     {
         GameObject bodySource =
-            AssetDatabase.LoadAssetAtPath<GameObject>(BodySource);
-
-        GameObject standardFrontWheelSource =
             AssetDatabase.LoadAssetAtPath<GameObject>(
-                StandardFrontWheelSource);
-
-        GameObject standardRearWheelSource =
-            AssetDatabase.LoadAssetAtPath<GameObject>(
-                StandardRearWheelSource);
-
-        bool useStandardWheelLayout =
-            standardFrontWheelSource != null &&
-            standardRearWheelSource != null;
+                BodySource);
 
         GameObject wheelSource =
-            useStandardWheelLayout
-                ? null
-                : AssetDatabase.LoadAssetAtPath<GameObject>(
-                    WheelSource);
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                WheelSource);
 
         if (bodySource == null ||
-            (!useStandardWheelLayout &&
-             wheelSource == null))
+            wheelSource == null)
         {
             if (verbose)
             {
                 Debug.LogWarning(
-                    "Motor City: Peugeot306 body/wheel OBJ source is missing.");
+                    "Motor City: Peugeot306 body or front_wheels OBJ is missing.");
             }
 
             return false;
         }
 
-        Directory.CreateDirectory(OutputDirectory);
-        Directory.CreateDirectory(MaterialDirectory);
+        if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                bodySource))
+        {
+            if (verbose)
+            {
+                Debug.LogWarning(
+                    "Motor City: updated Peugeot306 must contain body and body_misc meshes.");
+            }
 
-        Material paint = BuildMaterial(
-            "Peugeot306Body",
-            new Color(0.665676f, 0.409637f, 0.000902f, 1f),
-            0.64f);
+            return false;
+        }
 
-        Material glass = BuildMaterial(
-            "Peugeot306Glass",
-            new Color(0.015f, 0.018f, 0.024f, 1f),
-            0.90f);
-
-        Material chrome = BuildMaterial(
-            "Peugeot306Chrome",
-            new Color(0.31f, 0.32f, 0.34f, 1f),
-            0.78f);
-
-        Material dark = BuildMaterial(
-            "Peugeot306Dark",
-            new Color(0.012f, 0.012f, 0.014f, 1f),
-            0.34f);
-
-        Material plastic = BuildMaterial(
-            "Peugeot306Plastic",
-            new Color(0.047f, 0.047f, 0.047f, 1f),
-            0.32f);
-
-        Material headlights = BuildMaterial(
-            "Peugeot306Headlights",
-            new Color(0.80f, 0.80f, 0.80f, 1f),
-            0.76f);
-
-        Material rearLights = BuildMaterial(
-            "Peugeot306RearLights",
-            new Color(0.119f, 0.009f, 0.009f, 1f),
-            0.46f);
-
-        Material frontPlate = BuildMaterial(
-            "Peugeot306FrontPlate",
-            new Color(0.80f, 0.80f, 0.80f, 1f),
-            0.25f);
-
-        Material rearPlate = BuildMaterial(
-            "Peugeot306RearPlate",
-            new Color(0.80f, 0.347f, 0.062f, 1f),
-            0.25f);
+        Directory.CreateDirectory(
+            OutputDirectory);
 
         GameObject instance =
-            PrefabUtility.InstantiatePrefab(bodySource) as GameObject;
+            PrefabUtility.InstantiatePrefab(
+                bodySource) as GameObject;
 
         if (instance == null)
-            instance = Object.Instantiate(bodySource);
+        {
+            instance =
+                Object.Instantiate(
+                    bodySource);
+        }
 
         if (instance == null)
             return false;
 
-        instance.name = "Peugeot306";
+        instance.name =
+            "Peugeot306";
 
         try
         {
-            instance.transform.position = Vector3.zero;
-            instance.transform.rotation = Quaternion.identity;
-            instance.transform.localScale = Vector3.one;
+            instance.transform.position =
+                Vector3.zero;
 
-            StripImportedPhysics(instance);
-            if (useStandardWheelLayout)
-            {
-                StandardVehicleImportUtility.BuildStandardWheelSet(
-                    instance.transform,
-                    standardFrontWheelSource,
-                    standardRearWheelSource,
-                    new Vector3(-0.780f, 0.336f, 1.240f),
-                    new Vector3(0.780f, 0.336f, 1.240f),
-                    new Vector3(-0.780f, 0.336f, -1.395f),
-                    new Vector3(0.780f, 0.336f, -1.395f));
-            }
-            else
-            {
-                BuildWheelSet(
-                    instance.transform,
-                    wheelSource);
-            }
+            instance.transform.rotation =
+                Quaternion.identity;
 
-            if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
-                    instance))
-            {
-            AssignMaterials(
-                instance,
-                paint,
-                glass,
-                chrome,
-                dark,
-                plastic,
-                headlights,
-                rearLights,
-                frontPlate,
-                rearPlate);
-            }
+            instance.transform.localScale =
+                Vector3.one;
 
-            EnsureRenderersEnabled(instance);
+            StripImportedPhysics(
+                instance);
+
+            // Keep OBJ/MTL materials authored exactly like Beatall.
+            BuildWheelSet(
+                instance.transform,
+                wheelSource);
+
+            EnsureRenderersEnabled(
+                instance);
 
             GameObject saved =
-                PrefabUtility.SaveAsPrefabAsset(instance, OutputPrefab);
+                PrefabUtility.SaveAsPrefabAsset(
+                    instance,
+                    OutputPrefab);
 
             if (saved == null)
                 return false;
@@ -220,16 +161,20 @@ public static class Peugeot306VehicleImporter
 
             if (verbose)
             {
+                Selection.activeObject =
+                    AssetDatabase.LoadAssetAtPath<GameObject>(
+                        OutputPrefab);
+
                 Debug.Log(
-                    "Motor City: Peugeot306 runtime visual rebuilt. " +
-                    "Runtime path: MotorCity/Vehicles/Player/Peugeot306");
+                    "Motor City: Peugeot306 rebuilt from peugeot306.obj + shared front_wheels.obj.");
             }
 
             return true;
         }
         finally
         {
-            Object.DestroyImmediate(instance);
+            Object.DestroyImmediate(
+                instance);
         }
     }
 
@@ -237,35 +182,46 @@ public static class Peugeot306VehicleImporter
         Transform parent,
         GameObject wheelSource)
     {
-        // Body: 1.954 x 1.293 x 4.209 m, Z-forward.
-        // Wheel mesh: 0.292 x 0.672 x 0.672 m and nearly centered on its pivot.
-        // Axle centers are measured from the authored wheel arches.
+        // Preserve the already tuned Peugeot axle centres while switching the
+        // visual source to the same shared-wheel layout used by Beatall.
         CreateWheel(
             parent,
             wheelSource,
             "front_left",
-            new Vector3(-0.780f, 0.336f, 1.240f),
+            new Vector3(
+                -0.780f,
+                0.336f,
+                1.240f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "front_right",
-            new Vector3(0.780f, 0.336f, 1.240f),
+            new Vector3(
+                0.780f,
+                0.336f,
+                1.240f),
             true);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_left",
-            new Vector3(-0.780f, 0.336f, -1.395f),
+            new Vector3(
+                -0.780f,
+                0.336f,
+                -1.395f),
             false);
 
         CreateWheel(
             parent,
             wheelSource,
             "rear_right",
-            new Vector3(0.780f, 0.336f, -1.395f),
+            new Vector3(
+                0.780f,
+                0.336f,
+                -1.395f),
             true);
     }
 
@@ -274,17 +230,29 @@ public static class Peugeot306VehicleImporter
         GameObject source,
         string name,
         Vector3 localPosition,
-        bool oppositeSide)
+        bool rightSide)
     {
-        GameObject holder = new GameObject(name);
+        GameObject holder =
+            new GameObject(
+                name);
 
-        holder.transform.SetParent(parent, false);
-        holder.transform.localPosition = localPosition;
+        holder.transform.SetParent(
+            parent,
+            false);
+
+        holder.transform.localPosition =
+            localPosition;
+
         holder.transform.localRotation =
-            oppositeSide
+            rightSide
                 ? Quaternion.identity
-                : Quaternion.Euler(0f, 180f, 0f);
-        holder.transform.localScale = Vector3.one;
+                : Quaternion.Euler(
+                    0f,
+                    180f,
+                    0f);
+
+        holder.transform.localScale =
+            Vector3.one;
 
         GameObject visual =
             PrefabUtility.InstantiatePrefab(
@@ -292,160 +260,87 @@ public static class Peugeot306VehicleImporter
                 holder.transform) as GameObject;
 
         if (visual == null)
-            visual = Object.Instantiate(source, holder.transform);
+        {
+            visual =
+                Object.Instantiate(
+                    source,
+                    holder.transform);
+        }
 
         if (visual == null)
             return;
 
-        visual.name = name + "_visual";
+        visual.name =
+            name + "_visual";
 
-        // Cancel the tiny residual X offset of the exported wheel pivot.
         visual.transform.localPosition =
-            new Vector3(-0.03f, 0f, 0f);
+            Vector3.zero;
 
-        visual.transform.localRotation = Quaternion.identity;
-        visual.transform.localScale = Vector3.one;
+        visual.transform.localRotation =
+            Quaternion.identity;
 
-        StripImportedPhysics(visual);
+        visual.transform.localScale =
+            Vector3.one;
+
+        StripImportedPhysics(
+            visual);
     }
 
-    private static Material BuildMaterial(
-        string materialName,
-        Color color,
-        float smoothness)
-    {
-        string path =
-            MaterialDirectory + "/" + materialName + ".mat";
-
-        Material material =
-            AssetDatabase.LoadAssetAtPath<Material>(path);
-
-        Shader shader =
-            Shader.Find("Universal Render Pipeline/Lit");
-
-        if (shader == null)
-            shader = Shader.Find("Standard");
-
-        if (material == null)
-        {
-            material = new Material(shader);
-            material.name = materialName;
-            AssetDatabase.CreateAsset(material, path);
-        }
-        else if (shader != null && material.shader != shader)
-        {
-            material.shader = shader;
-        }
-
-        if (material.HasProperty("_BaseColor"))
-            material.SetColor("_BaseColor", color);
-
-        if (material.HasProperty("_Color"))
-            material.SetColor("_Color", color);
-
-        if (material.HasProperty("_Smoothness"))
-            material.SetFloat("_Smoothness", smoothness);
-
-        material.DisableKeyword("_EMISSION");
-        EditorUtility.SetDirty(material);
-        return material;
-    }
-
-    private static void AssignMaterials(
-        GameObject root,
-        Material paint,
-        Material glass,
-        Material chrome,
-        Material dark,
-        Material plastic,
-        Material headlights,
-        Material rearLights,
-        Material frontPlate,
-        Material rearPlate)
-    {
-        foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(true))
-        {
-            if (renderer == null)
-                continue;
-
-            Material[] materials = renderer.sharedMaterials;
-            bool changed = false;
-
-            for (int i = 0; i < materials.Length; i++)
-            {
-                string name =
-                    materials[i] != null
-                        ? materials[i].name.ToLowerInvariant()
-                        : string.Empty;
-
-                Material replacement = null;
-
-                if (name.Contains("blackglass"))
-                    replacement = glass;
-                else if (name.Contains("carpaint"))
-                    replacement = paint;
-                else if (name.Contains("chrome"))
-                    replacement = chrome;
-                else if (name.Contains("headlight"))
-                    replacement = headlights;
-                else if (name.Contains("rearlight"))
-                    replacement = rearLights;
-                else if (name.Contains("yellowplate"))
-                    replacement = rearPlate;
-                else if (name.Contains("numberplate"))
-                    replacement = frontPlate;
-                else if (name.Contains("plastic"))
-                    replacement = plastic;
-                else if (name.Contains("empty"))
-                    replacement = dark;
-
-                if (replacement == null)
-                    continue;
-
-                materials[i] = replacement;
-                changed = true;
-            }
-
-            if (changed)
-                renderer.sharedMaterials = materials;
-        }
-    }
-
-    private static void StripImportedPhysics(GameObject root)
+    private static void StripImportedPhysics(
+        GameObject root)
     {
         foreach (Collider collider in
-                 root.GetComponentsInChildren<Collider>(true))
+                 root.GetComponentsInChildren<Collider>(
+                     true))
         {
-            Object.DestroyImmediate(collider);
+            if (collider != null)
+            {
+                Object.DestroyImmediate(
+                    collider);
+            }
         }
 
         foreach (Rigidbody body in
-                 root.GetComponentsInChildren<Rigidbody>(true))
+                 root.GetComponentsInChildren<Rigidbody>(
+                     true))
         {
-            Object.DestroyImmediate(body);
+            if (body != null)
+            {
+                Object.DestroyImmediate(
+                    body);
+            }
         }
 
         foreach (MonoBehaviour behaviour in
-                 root.GetComponentsInChildren<MonoBehaviour>(true))
+                 root.GetComponentsInChildren<MonoBehaviour>(
+                     true))
         {
             if (behaviour != null)
-                Object.DestroyImmediate(behaviour);
+            {
+                Object.DestroyImmediate(
+                    behaviour);
+            }
         }
     }
 
-    private static void EnsureRenderersEnabled(GameObject root)
+    private static void EnsureRenderersEnabled(
+        GameObject root)
     {
         foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(true))
+                 root.GetComponentsInChildren<Renderer>(
+                     true))
         {
             if (renderer == null)
                 continue;
 
-            renderer.enabled = true;
+            renderer.enabled =
+                true;
 
-            if (!renderer.gameObject.activeSelf)
-                renderer.gameObject.SetActive(true);
+            renderer.shadowCastingMode =
+                UnityEngine.Rendering.ShadowCastingMode.On;
+
+            renderer.receiveShadows =
+                true;
         }
     }
 }
