@@ -9,7 +9,7 @@ public static class BusVehicleImporter
         "Assets/VehicleAssets/Bus/bus.obj";
 
     private const string WheelSource =
-        "Assets/VehicleAssets/Bus/all_wheels.obj";
+        "Assets/VehicleAssets/Bus/front_wheels.obj";
 
     private const string PaletteSource =
         "Assets/VehicleAssets/Bus/citytransportpalette.png";
@@ -24,7 +24,10 @@ public static class BusVehicleImporter
         OutputDirectory + "/Bus.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.BusVehicleBuilt.V1";
+        "MotorCity.BusVehicleBuilt.V2";
+
+    private const string SourceHashKey =
+        "MotorCity.BusVehicleSourceHash.V2";
 
     static BusVehicleImporter()
     {
@@ -42,14 +45,36 @@ public static class BusVehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(OutputPrefab) != null)
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                BodySource) == null ||
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                WheelSource) == null ||
+            AssetDatabase.LoadAssetAtPath<Texture2D>(
+                PaletteSource) == null)
+        {
             return;
+        }
 
-        if (SessionState.GetBool(BuildSessionKey, false))
+        string dependencyHash =
+            StandardVehicleImportUtility.DependencyHash(
+                BodySource,
+                WheelSource,
+                PaletteSource);
+
+        if (!StandardVehicleImportUtility.ShouldRebuild(
+                OutputPrefab,
+                SourceHashKey,
+                dependencyHash))
+        {
             return;
+        }
 
-        SessionState.SetBool(BuildSessionKey, true);
-        Build(false);
+        if (Build(false))
+        {
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey,
+                dependencyHash);
+        }
     }
 
     private static bool Build(bool verbose)
@@ -70,7 +95,19 @@ public static class BusVehicleImporter
             if (verbose)
             {
                 Debug.LogWarning(
-                    "Motor City: Bus body/wheel OBJ or citytransportpalette.png is missing.");
+                    "Motor City: Bus body/front_wheels OBJ or citytransportpalette.png is missing.");
+            }
+
+            return false;
+        }
+
+        if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                bodySource))
+        {
+            if (verbose)
+            {
+                Debug.LogWarning(
+                    "Motor City: updated Bus must contain body and body_misc meshes.");
             }
 
             return false;
@@ -79,10 +116,13 @@ public static class BusVehicleImporter
         Directory.CreateDirectory(OutputDirectory);
         Directory.CreateDirectory(MaterialDirectory);
 
-        // Both source meshes use the same UV palette. Keep tint white so the
-        // authored bus colors, glass, lights and trim remain exactly as baked
-        // into citytransportpalette.png.
-        Material bodyMaterial =
+        // body is the paintable shell; body_misc keeps the authored palette,
+        // glass, trim and other details.
+        Material paintMaterial =
+            BuildPaintMaterial(
+                "BusPaint");
+
+        Material miscMaterial =
             BuildAtlasMaterial(
                 "BusAtlas",
                 palette,
@@ -114,7 +154,11 @@ public static class BusVehicleImporter
 
             StripImportedPhysics(instance);
             BuildWheelSet(instance.transform, wheelSource);
-            AssignMaterials(instance, bodyMaterial, wheelMaterial);
+            AssignMaterials(
+                instance,
+                paintMaterial,
+                miscMaterial,
+                wheelMaterial);
             EnsureRenderersEnabled(instance);
 
             GameObject saved =
@@ -131,8 +175,7 @@ public static class BusVehicleImporter
             if (verbose)
             {
                 Debug.Log(
-                    "Motor City: Bus runtime visual rebuilt. " +
-                    "Runtime path: MotorCity/Vehicles/Player/Bus");
+                    "Motor City: Bus rebuilt with paintable body and shared front_wheels source.");
             }
 
             return true;
@@ -225,6 +268,66 @@ public static class BusVehicleImporter
         StripImportedPhysics(visual);
     }
 
+    private static Material BuildPaintMaterial(
+        string materialName)
+    {
+        string path =
+            MaterialDirectory + "/" + materialName + ".mat";
+
+        Material material =
+            AssetDatabase.LoadAssetAtPath<Material>(
+                path);
+
+        Shader shader =
+            Shader.Find(
+                "Universal Render Pipeline/Lit");
+
+        if (shader == null)
+            shader = Shader.Find("Standard");
+
+        if (material == null)
+        {
+            material =
+                new Material(shader);
+            material.name =
+                materialName;
+            AssetDatabase.CreateAsset(
+                material,
+                path);
+        }
+        else if (shader != null &&
+                 material.shader != shader)
+        {
+            material.shader =
+                shader;
+        }
+
+        if (material.HasProperty("_BaseMap"))
+            material.SetTexture("_BaseMap", null);
+
+        if (material.HasProperty("_MainTex"))
+            material.SetTexture("_MainTex", null);
+
+        if (material.HasProperty("_BaseColor"))
+            material.SetColor("_BaseColor", Color.white);
+
+        if (material.HasProperty("_Color"))
+            material.SetColor("_Color", Color.white);
+
+        if (material.HasProperty("_Metallic"))
+            material.SetFloat("_Metallic", 0.12f);
+
+        if (material.HasProperty("_Smoothness"))
+            material.SetFloat("_Smoothness", 0.56f);
+
+        if (material.HasProperty("_EmissionColor"))
+            material.SetColor("_EmissionColor", Color.black);
+
+        material.DisableKeyword("_EMISSION");
+        EditorUtility.SetDirty(material);
+        return material;
+    }
+
     private static Material BuildAtlasMaterial(
         string materialName,
         Texture2D palette,
@@ -280,17 +383,28 @@ public static class BusVehicleImporter
 
     private static void AssignMaterials(
         GameObject root,
-        Material bodyMaterial,
+        Material paintMaterial,
+        Material miscMaterial,
         Material wheelMaterial)
     {
         foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(true))
+                 root.GetComponentsInChildren<Renderer>(
+                     true))
         {
             if (renderer == null)
                 continue;
 
             bool wheelRenderer =
-                IsWheelHierarchy(renderer.transform);
+                IsWheelHierarchy(
+                    renderer.transform);
+
+            string meshName =
+                renderer.GetComponent<MeshFilter>()?.sharedMesh?.name ??
+                renderer.transform.name;
+
+            string normalized =
+                VehiclePaintMeshNames.Normalize(
+                    meshName);
 
             Material[] materials =
                 renderer.sharedMaterials;
@@ -299,10 +413,41 @@ public static class BusVehicleImporter
                  i < materials.Length;
                  i++)
             {
-                materials[i] =
-                    wheelRenderer
-                        ? wheelMaterial
-                        : bodyMaterial;
+                if (wheelRenderer)
+                {
+                    materials[i] =
+                        wheelMaterial;
+                    continue;
+                }
+
+                if (VehiclePaintMeshNames.IsBody(
+                        normalized))
+                {
+                    materials[i] =
+                        paintMaterial;
+                    continue;
+                }
+
+                if (normalized == "body_misc" ||
+                    normalized.StartsWith(
+                        "body_misc_",
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    // Preserve authored blackGlass if this slot is explicitly
+                    // glass; everything else in body_misc keeps the city atlas.
+                    string sourceName =
+                        materials[i] != null
+                            ? materials[i].name
+                            : string.Empty;
+
+                    if (sourceName.IndexOf(
+                            "blackglass",
+                            System.StringComparison.OrdinalIgnoreCase) < 0)
+                    {
+                        materials[i] =
+                            miscMaterial;
+                    }
+                }
             }
 
             renderer.sharedMaterials =
