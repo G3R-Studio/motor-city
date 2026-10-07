@@ -26,6 +26,9 @@ public static class Porsche996VehicleImporter
     private const string BuildSessionKey =
         "MotorCity.Porsche996VehicleBuilt.V1";
 
+    private const string SourceHashKey =
+        "MotorCity.Porsche996VehicleSourceHash.V1";
+
     static Porsche996VehicleImporter()
     {
         EditorApplication.delayCall += TryAutoBuild;
@@ -42,14 +45,26 @@ public static class Porsche996VehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(OutputPrefab) != null)
-            return;
+        string dependencyHash =
+            StandardVehicleImportUtility.DependencyHash(
+                BodySource,
+                    FrontWheelSource,
+                    RearWheelSource);
 
-        if (SessionState.GetBool(BuildSessionKey, false))
+        if (!StandardVehicleImportUtility.ShouldRebuild(
+                OutputPrefab,
+                SourceHashKey,
+                dependencyHash))
+        {
             return;
+        }
 
-        SessionState.SetBool(BuildSessionKey, true);
-        Build(false);
+        if (Build(false))
+        {
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey,
+                dependencyHash);
+        }
     }
 
     private static bool Build(bool verbose)
