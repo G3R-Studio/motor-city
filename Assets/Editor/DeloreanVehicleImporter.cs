@@ -162,15 +162,8 @@ public static class DeloreanVehicleImporter
                 frontWheelSource,
                 rearWheelSource);
 
-            if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
-                    instance))
-            {
-            AssignMaterials(
-                instance,
-                bodyMaterial,
-                glassMaterial,
-                emissionMaterial);
-            }
+            // Keep body/body_misc material slots authored in OBJ/MTL.
+            // The shared runtime installer upgrades them for URP, matching Beatall.
 
             EnsureRenderersEnabled(
                 instance);
