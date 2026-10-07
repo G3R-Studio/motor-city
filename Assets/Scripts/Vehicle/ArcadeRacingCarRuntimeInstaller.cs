@@ -666,10 +666,40 @@ namespace MotorCity.Vehicle
                 RemoveOldRuntimeMeshColliders(
                     visual);
 
-                ConfigureVisualMeshCollider(
-                    visual,
-                    ordered,
-                    collisionProfileId);
+                bool visualColliderReady =
+                    ConfigureVisualMeshCollider(
+                        visual,
+                        ordered,
+                        collisionProfileId);
+
+                if (!visualColliderReady)
+                {
+                    chassis =
+                        EnsureFallbackChassisCollider(
+                            carTransform);
+
+                    if (chassis != null)
+                    {
+                        ConfigureChassisFromVisual(
+                            chassis,
+                            carTransform,
+                            visual.transform,
+                            ordered,
+                            measuredRadius,
+                            targetLength,
+                            preserveAuthoredTransform);
+
+                        chassis.enabled =
+                            true;
+                    }
+
+                    Debug.LogWarning(
+                        "[MotorCity][VehicleCollision] No primary body mesh " +
+                        "was resolved for vehicle '" +
+                        (collisionProfileId ?? "unknown") +
+                        "'. Falling back to a geometry-based BoxCollider.",
+                        car);
+                }
             }
             else
             {
@@ -1172,13 +1202,13 @@ namespace MotorCity.Vehicle
             }
         }
 
-        private static void ConfigureVisualMeshCollider(
+        private static bool ConfigureVisualMeshCollider(
             GameObject visual,
             Transform[] wheels,
             string collisionProfileId)
         {
             if (visual == null)
-                return;
+                return false;
 
             MeshFilter[] filters =
                 visual.GetComponentsInChildren<MeshFilter>(
@@ -1189,12 +1219,14 @@ namespace MotorCity.Vehicle
                     filters,
                     wheels);
 
-            if (primaryBody != null)
-            {
-                BuildCompoundBodyCollider(
-                    primaryBody,
-                    collisionProfileId);
-            }
+            if (primaryBody == null)
+                return false;
+
+            BuildCompoundBodyCollider(
+                primaryBody,
+                collisionProfileId);
+
+            return true;
         }
 
         private static MeshFilter FindPrimaryBodyMeshFilter(
