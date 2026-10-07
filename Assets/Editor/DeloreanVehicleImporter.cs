@@ -104,30 +104,6 @@ public static class DeloreanVehicleImporter
         Directory.CreateDirectory(
             OutputDirectory);
 
-        Directory.CreateDirectory(
-            MaterialDirectory);
-
-        Material bodyMaterial =
-            BuildMaterial(
-                "DeloreanBody",
-                new Color(0.72f, 0.74f, 0.76f, 1f),
-                0.65f,
-                false);
-
-        Material glassMaterial =
-            BuildMaterial(
-                "DeloreanGlass",
-                new Color(0.025f, 0.03f, 0.04f, 1f),
-                0.9f,
-                false);
-
-        Material emissionMaterial =
-            BuildMaterial(
-                "DeloreanEmission",
-                Color.white,
-                0.35f,
-                true);
-
         GameObject instance =
             PrefabUtility.InstantiatePrefab(
                 bodySource) as GameObject;
