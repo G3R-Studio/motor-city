@@ -56,6 +56,32 @@ public static class StandardVehicleImportUtility
         return false;
     }
 
+    public static GameObject LoadPreferredWheelSource(
+        string standardPath,
+        string legacyPath)
+    {
+        GameObject standard =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                standardPath);
+
+        if (standard != null)
+            return standard;
+
+        return
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                legacyPath);
+    }
+
+    public static bool HasAsset(
+        string assetPath)
+    {
+        return
+            !string.IsNullOrWhiteSpace(
+                assetPath) &&
+            AssetDatabase.LoadMainAssetAtPath(
+                assetPath) != null;
+    }
+
     public static string DependencyHash(
         params string[] assetPaths)
     {
