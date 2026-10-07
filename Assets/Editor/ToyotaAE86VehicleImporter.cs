@@ -23,6 +23,9 @@ public static class ToyotaAE86VehicleImporter
     private const string BuildSessionKey =
         "MotorCity.ToyotaAE86VehicleBuilt.V1";
 
+    private const string SourceHashKey =
+        "MotorCity.ToyotaAE86VehicleSourceHash.V1";
+
     static ToyotaAE86VehicleImporter()
     {
         EditorApplication.delayCall += TryAutoBuild;
@@ -39,14 +42,25 @@ public static class ToyotaAE86VehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(OutputPrefab) != null)
-            return;
+        string dependencyHash =
+            StandardVehicleImportUtility.DependencyHash(
+                BodySource,
+                    WheelSource);
 
-        if (SessionState.GetBool(BuildSessionKey, false))
+        if (!StandardVehicleImportUtility.ShouldRebuild(
+                OutputPrefab,
+                SourceHashKey,
+                dependencyHash))
+        {
             return;
+        }
 
-        SessionState.SetBool(BuildSessionKey, true);
-        Build(false);
+        if (Build(false))
+        {
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey,
+                dependencyHash);
+        }
     }
 
     private static bool Build(bool verbose)
