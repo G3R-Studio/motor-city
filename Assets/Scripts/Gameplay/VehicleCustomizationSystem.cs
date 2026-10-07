@@ -455,27 +455,11 @@ namespace MotorCity.Gameplay
                         0,
                         bodyColors.Length - 1)];
 
-            bool beatall =
-                VehicleId() ==
-                VehicleIds.Beatall;
-
             foreach (Renderer renderer in
                      visual.GetComponentsInChildren<Renderer>(
                          true))
             {
-                if (renderer == null)
-                {
-                    continue;
-                }
-
-                bool beatallBodyMisc =
-                    beatall &&
-                    IsBodyMiscName(
-                        VehiclePaintMeshNames.Normalize(
-                            RendererMeshName(
-                                renderer.transform)));
-
-                if (!beatallBodyMisc &&
+                if (renderer == null ||
                     !IsPrimaryBodyRenderer(
                         renderer.transform))
                 {
@@ -493,13 +477,6 @@ namespace MotorCity.Gameplay
                         materials[index];
 
                     if (material == null)
-                    {
-                        continue;
-                    }
-
-                    if (beatallBodyMisc &&
-                        IsBeatallNonPaintMaterial(
-                            material))
                     {
                         continue;
                     }
@@ -619,24 +596,6 @@ namespace MotorCity.Gameplay
             }
 
             return applied;
-        }
-
-        private static bool IsBeatallNonPaintMaterial(
-            Material material)
-        {
-            if (material == null)
-                return true;
-
-            string name =
-                material.name
-                    .ToLowerInvariant();
-
-            return
-                name.Contains("glass") ||
-                name.Contains("window") ||
-                name.Contains("mirror") ||
-                name.Contains("emission") ||
-                name.Contains("emissive");
         }
 
         private static bool IsStarterPaintMaterial(
