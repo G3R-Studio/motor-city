@@ -81,7 +81,14 @@ namespace MotorCity.World
 
         private void Start()
         {
-            RefreshVisual();
+            // VehicleRosterSystem already calls SetVehicleId/RefreshVisual
+            // during bootstrap before customization is initialized. Avoid a
+            // second material rebuild in Start(), because that used to happen
+            // after customization and forced a LateUpdate re-apply workaround.
+            if (currentVisual == null)
+            {
+                RefreshVisual();
+            }
         }
 
         private void Update()
