@@ -509,58 +509,6 @@ namespace MotorCity.Vehicle
 
             UpdateTelemetry();
             ApplyPowerAssist();
-            ApplyDriftSteeringYawAssist();
-        }
-
-        private void ApplyDriftSteeringYawAssist()
-        {
-            if (body == null ||
-                currentDriveMode != DriveMode.Drift ||
-                !drivingEnabled ||
-                GroundedWheels < 2 ||
-                SpeedKph < 14f)
-            {
-                return;
-            }
-
-            float steering =
-                MotorCityInput.SteeringAxis;
-
-            if (Mathf.Abs(steering) < 0.08f)
-                return;
-
-            float speedFactor =
-                Mathf.InverseLerp(
-                    14f,
-                    75f,
-                    SpeedKph);
-
-            float slipFactor =
-                Mathf.InverseLerp(
-                    0f,
-                    24f,
-                    Mathf.Abs(
-                        SlipAngleDegrees));
-
-            // Give the chassis the yaw that the steered front tires alone
-            // cannot reliably generate once rear-drive torque starts pushing
-            // the car forward. This is player-directed only: no steering input
-            // means no assist torque.
-            float yawAcceleration =
-                Mathf.Lerp(
-                    2.4f,
-                    5.2f,
-                    speedFactor) *
-                Mathf.Lerp(
-                    1f,
-                    0.62f,
-                    slipFactor);
-
-            body.AddTorque(
-                transform.up *
-                steering *
-                yawAcceleration,
-                ForceMode.Acceleration);
         }
 
         public void ApplySuspensionPreset(
