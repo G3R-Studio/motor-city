@@ -403,7 +403,7 @@ public static class BusVehicleImporter
                 renderer.transform.name;
 
             string normalized =
-                VehiclePaintMeshNames.Normalize(
+                NormalizeMeshName(
                     meshName);
 
             Material[] materials =
@@ -420,7 +420,7 @@ public static class BusVehicleImporter
                     continue;
                 }
 
-                if (VehiclePaintMeshNames.IsBody(
+                if (IsBodyMeshName(
                         normalized))
                 {
                     materials[i] =
@@ -453,6 +453,48 @@ public static class BusVehicleImporter
             renderer.sharedMaterials =
                 materials;
         }
+    }
+
+    private static string NormalizeMeshName(
+        string name)
+    {
+        if (string.IsNullOrWhiteSpace(
+                name))
+        {
+            return string.Empty;
+        }
+
+        string normalized =
+            name.Trim()
+                .ToLowerInvariant();
+
+        int instanceSuffix =
+            normalized.IndexOf(
+                " (instance)",
+                System.StringComparison.Ordinal);
+
+        if (instanceSuffix >= 0)
+        {
+            normalized =
+                normalized.Substring(
+                    0,
+                    instanceSuffix);
+        }
+
+        return normalized;
+    }
+
+    private static bool IsBodyMeshName(
+        string name)
+    {
+        return
+            name == "body" ||
+            name.StartsWith(
+                "body_",
+                System.StringComparison.OrdinalIgnoreCase) &&
+            !name.StartsWith(
+                "body_misc",
+                System.StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsWheelHierarchy(
