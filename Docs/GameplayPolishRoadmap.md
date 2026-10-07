@@ -981,13 +981,21 @@ VehicleVisualChanged
 
 ## Technical pass
 
-- [ ] Audit vehicle id magic checks
-- [ ] Audit mesh-name runtime checks
-- [ ] Audit material-name runtime checks
-- [ ] Audit initialization order
-- [ ] Introduce visual lifecycle events
-- [ ] Remove redundant delayed re-apply where possible
-- [ ] Add diagnostics for unresolved vehicle parts
+> Выполнен безопасный runtime-pass без полной переделки vehicle architecture. Стабильные gameplay/save ID вынесены в `VehicleIds`; fallback-классификация wheel/rim/tire вынесена в `VehicleVisualRoleUtility`; кастомизация теперь реагирует на отдельный `VehicleVisualReady` вместо зависимости от порядка `Start/LateUpdate`. Повторная перестройка rear-emission материалов в `Start()` устранена. Если новая модель не отдаёт подходящий body mesh для collision proxy, installer теперь возвращает geometry-based `BoxCollider` и пишет диагностическое предупреждение вместо машины без кузовной коллизии.
+>
+> Намеренно оставлены до будущей замены моделей: per-vehicle suspension/target-length/drivetrain tuning в `VehicleRosterSystem`; Street authored StarterPaint compatibility; collision mesh-name ranking как fallback для старых/сторонних моделей; lamp/material-name matching там, где импортированные assets пока не имеют explicit role metadata. Это совместимость с текущими assets, а не новая зависимость UI/tutorial/audio.
+
+- [x] Audit vehicle id magic checks
+- [x] Audit mesh-name runtime checks
+- [x] Audit material-name runtime checks
+- [x] Audit initialization order
+- [x] Introduce visual lifecycle events
+- [x] Remove redundant delayed re-apply where possible
+- [x] Centralize fallback wheel/rim/tire classification
+- [x] Add diagnostics/fallback for unresolved body collision mesh
+- [ ] Проверить смену нескольких машин после lifecycle refactor
+- [ ] Проверить сохранённую кастомизацию после перезапуска
+- [ ] Проверить headlights / brake lights / neon после смены машины
 
 ---
 
