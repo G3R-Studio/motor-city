@@ -1593,6 +1593,13 @@ namespace MotorCity.Vehicle
 
         public void ApplyStraightLineStability()
         {
+            // Drift mode must leave yaw and lateral velocity to the player.
+            // Running the straight-line assist here fights drift initiation:
+            // before IsSliding becomes true it cancels the developing slip and
+            // applies counter-yaw torque that straightens the car.
+            if (currentDriveMode == DriveMode.Drift)
+                return;
+
             if (body == null ||
                 !drivingEnabled ||
                 resetHoldTimer > 0f ||
