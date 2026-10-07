@@ -227,9 +227,7 @@ namespace MotorCity.Gameplay
         private void OnDestroy()
         {
             if (roster != null)
-                roster.VehicleChanged -= OnVehicleChanged;
-
-
+                roster.VehicleVisualReady -= OnVehicleVisualReady;
         }
 
         public void CycleBodyColor()
