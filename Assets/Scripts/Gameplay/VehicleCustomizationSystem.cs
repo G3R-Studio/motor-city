@@ -950,16 +950,9 @@ namespace MotorCity.Gameplay
         private static bool IsWheelLike(
             string name)
         {
-            string lower =
-                (name ?? string.Empty)
-                    .ToLowerInvariant();
-
             return
-                lower.Contains("wheel") ||
-                lower.Contains("tire") ||
-                lower.Contains("tyre") ||
-                lower.Contains("rim") ||
-                lower.Contains("alloy");
+                VehicleVisualRoleUtility.IsWheelLikeName(
+                    name);
         }
 
         private static bool IsWheelRenderer(
@@ -994,73 +987,27 @@ namespace MotorCity.Gameplay
         private static bool IsWheelHierarchy(
             Transform transform)
         {
-            Transform current =
-                transform;
-
-            int depth =
-                0;
-
-            while (current != null &&
-                   depth++ < 8)
-            {
-                if (IsWheelLike(
-                        current.name))
-                {
-                    return true;
-                }
-
-                if (current.name.Equals(
-                        RuntimeVisualName,
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    break;
-                }
-
-                current =
-                    current.parent;
-            }
-
-            return false;
+            return
+                VehicleVisualRoleUtility.IsWheelHierarchy(
+                    transform,
+                    RuntimeVisualName,
+                    8);
         }
 
         private static bool IsRimMaterial(
             Material material)
         {
-            if (material == null)
-                return false;
-
-            string lower =
-                material.name
-                    .Replace(
-                        " (Instance)",
-                        string.Empty)
-                    .ToLowerInvariant();
-
             return
-                lower.Contains("rim") ||
-                lower.Contains("wheel") ||
-                lower.Contains("alloy") ||
-                lower.Contains("disc") ||
-                lower.Contains("disk");
+                VehicleVisualRoleUtility.IsRimMaterial(
+                    material);
         }
 
         private static bool IsRubberMaterial(
             Material material)
         {
-            if (material == null)
-                return false;
-
-            string lower =
-                material.name
-                    .Replace(
-                        " (Instance)",
-                        string.Empty)
-                    .ToLowerInvariant();
-
             return
-                lower.Contains("tire") ||
-                lower.Contains("tyre") ||
-                lower.Contains("rubber");
+                VehicleVisualRoleUtility.IsRubberMaterial(
+                    material);
         }
 
         private string VehicleId()
