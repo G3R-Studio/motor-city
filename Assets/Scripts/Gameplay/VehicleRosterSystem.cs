@@ -24,6 +24,12 @@ namespace MotorCity.Gameplay
 
         public event Action VehicleChanged;
 
+        // Fired after the selected runtime visual has been installed/activated
+        // and vehicle-dependent visual systems have been pointed at it.
+        // Visual consumers (customization, presentation effects) should prefer
+        // this over VehicleChanged, which also represents gameplay selection.
+        public event Action VehicleVisualReady;
+
         private int masteryLevel = 1;
         private int masteryXp;
         private int masteryLevelStartXp;
@@ -1035,6 +1041,8 @@ namespace MotorCity.Gameplay
 
             if (vehicleAudio != null)
                 vehicleAudio.SetVehicleId(profile.Id);
+
+            VehicleVisualReady?.Invoke();
         }
 
         private bool IsUnlocked(
