@@ -178,14 +178,14 @@ public static class Porsche996VehicleImporter
             parent,
             frontSource,
             "front_left",
-            new Vector3(-0.700f, 0.332f, 1.165f),
+            new Vector3(-0.663f, 0.332f, 1.165f),
             false);
 
         CreateWheel(
             parent,
             frontSource,
             "front_right",
-            new Vector3(0.700f, 0.332f, 1.165f),
+            new Vector3(0.663f, 0.332f, 1.165f),
             true);
 
         CreateWheel(
