@@ -1879,7 +1879,7 @@ namespace MotorCity.Vehicle
                         new CollisionBoxSpec(0.39f, 0.22f, 0.88f, 0.28f, 0.08f)
                     };
 
-                case "street":
+                case VehicleIds.Street:
                     return new[]
                     {
                         new CollisionBoxSpec(0f, 0.86f, 0.90f, 0.32f, 0.05f),
@@ -1946,7 +1946,7 @@ namespace MotorCity.Vehicle
                         new CollisionBoxSpec(0.45f, 0.14f, 0.82f, 0.17f, 0.08f)
                     };
 
-                case "delorean":
+                case VehicleIds.Delorean:
                     return new[]
                     {
                         new CollisionBoxSpec(0f, 0.90f, 0.90f, 0.27f, 0.05f),
@@ -1957,7 +1957,7 @@ namespace MotorCity.Vehicle
                         new CollisionBoxSpec(0.47f, 0.08f, 0.70f, 0.12f, 0.08f)
                     };
 
-                case "bus":
+                case VehicleIds.Bus:
                     return new[]
                     {
                         new CollisionBoxSpec(0f, 0.94f, 0.80f, 0.24f, 0.04f),
