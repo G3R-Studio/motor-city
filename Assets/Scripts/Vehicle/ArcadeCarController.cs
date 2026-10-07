@@ -1616,10 +1616,14 @@ namespace MotorCity.Vehicle
             if (currentDriveMode == DriveMode.Drift)
                 return;
 
+            // Read steering directly in the physics tick. The cached
+            // steeringInputHeld value is populated in Update(), so FixedUpdate()
+            // could briefly see the previous frame's value exactly when the
+            // player starts turning and apply a straightening impulse.
             if (body == null ||
                 !drivingEnabled ||
                 resetHoldTimer > 0f ||
-                steeringInputHeld ||
+                Mathf.Abs(MotorCityInput.SteeringAxis) > 0.02f ||
                 handbrakeHeld ||
                 GroundedWheels < 3 ||
                 SpeedKph < 10f)
@@ -1762,6 +1766,14 @@ namespace MotorCity.Vehicle
                 SpeedKph <= lowSpeedThresholdKph
                     ? lowSpeedRearBrakeTorque
                     : rearBrakeTorque;
+
+            if (currentDriveMode == DriveMode.Drift)
+            {
+                // Drift already runs with reduced rear lateral grip. Applying
+                // the full 5200/9500 Nm rear lock on top of that causes snap
+                // spins instead of a controllable initiation.
+                torque *= 0.62f;
+            }
 
             for (int i = RearLeft; i <= RearRight; i++)
             {
@@ -2027,14 +2039,14 @@ namespace MotorCity.Vehicle
                             upgradeGrip;
 
                         sideways.extremumSlip =
-                            rear ? 0.38f : 0.27f;
+                            rear ? 0.34f : 0.27f;
                         sideways.asymptoteSlip =
-                            rear ? 0.78f : 0.58f;
+                            rear ? 0.68f : 0.58f;
                         sideways.extremumValue = 1f;
                         sideways.asymptoteValue =
-                            rear ? 0.62f : 0.76f;
+                            rear ? 0.68f : 0.76f;
                         sideways.stiffness =
-                            (rear ? 0.70f : 1.20f) *
+                            (rear ? 0.86f : 1.16f) *
                             upgradeGrip;
                         break;
 
