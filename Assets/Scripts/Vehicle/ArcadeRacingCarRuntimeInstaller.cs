@@ -31,6 +31,9 @@ namespace MotorCity.Vehicle
         private static readonly Dictionary<Material, Material>
             RuntimeMirrorMaterialCache = new();
 
+        private static readonly Dictionary<Material, Material>
+            RuntimeGlassMaterialCache = new();
+
         private static readonly Dictionary<string, GameObject>
             RuntimeVehiclePrefabCache =
                 new(StringComparer.Ordinal);
@@ -76,6 +79,16 @@ namespace MotorCity.Vehicle
                 }
             }
 
+            foreach (Material material in
+                     RuntimeGlassMaterialCache.Values)
+            {
+                if (material != null)
+                {
+                    runtimeMaterials.Add(
+                        material);
+                }
+            }
+
             if (runtimeNullMirrorMaterial != null)
             {
                 runtimeMaterials.Add(
@@ -101,6 +114,7 @@ namespace MotorCity.Vehicle
 
             RuntimeUrpMaterialCache.Clear();
             RuntimeMirrorMaterialCache.Clear();
+            RuntimeGlassMaterialCache.Clear();
             RuntimeVehiclePrefabCache.Clear();
             RuntimeVehicleVisualCache.Clear();
             ActiveVehicleVisualCache.Clear();
@@ -3360,6 +3374,16 @@ namespace MotorCity.Vehicle
                         continue;
                     }
 
+                    if (LooksLikeVehicleGlassMaterial(
+                            old))
+                    {
+                        upgraded[i] =
+                            GetOrCreateVehicleGlassMaterial(
+                                urpLit,
+                                old);
+                        continue;
+                    }
+
                     if (old.shader != null &&
                         old.shader.name.StartsWith(
                             "Universal Render Pipeline/",
@@ -3495,6 +3519,178 @@ namespace MotorCity.Vehicle
 
                 renderer.sharedMaterials = upgraded;
             }
+        }
+
+        private static bool LooksLikeVehicleGlassMaterial(
+            Material material)
+        {
+            if (material == null)
+                return false;
+
+            string name =
+                material.name ??
+                string.Empty;
+
+            return
+                name.IndexOf(
+                    "blackglass",
+                    StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf(
+                    "black_glass",
+                    StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf(
+                    "camaroglass",
+                    StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static Material GetOrCreateVehicleGlassMaterial(
+            Shader urpLit,
+            Material source)
+        {
+            if (source != null &&
+                RuntimeGlassMaterialCache.TryGetValue(
+                    source,
+                    out Material cached) &&
+                cached != null)
+            {
+                return cached;
+            }
+
+            Material material =
+                new(urpLit)
+                {
+                    name =
+                        (source != null
+                            ? source.name
+                            : "VehicleGlass") +
+                        "_MotorCityGlassURP",
+                    enableInstancing = true,
+                    hideFlags = HideFlags.DontSave
+                };
+
+            if (material.HasProperty("_BaseMap"))
+            {
+                material.SetTexture(
+                    "_BaseMap",
+                    null);
+            }
+
+            if (material.HasProperty("_MainTex"))
+            {
+                material.SetTexture(
+                    "_MainTex",
+                    null);
+            }
+
+            Color glassColor =
+                new(
+                    0.025f,
+                    0.045f,
+                    0.065f,
+                    0.36f);
+
+            if (material.HasProperty("_BaseColor"))
+            {
+                material.SetColor(
+                    "_BaseColor",
+                    glassColor);
+            }
+
+            if (material.HasProperty("_Color"))
+            {
+                material.SetColor(
+                    "_Color",
+                    glassColor);
+            }
+
+            if (material.HasProperty("_Metallic"))
+            {
+                material.SetFloat(
+                    "_Metallic",
+                    0.04f);
+            }
+
+            if (material.HasProperty("_Smoothness"))
+            {
+                material.SetFloat(
+                    "_Smoothness",
+                    0.94f);
+            }
+
+            if (material.HasProperty("_Surface"))
+            {
+                material.SetFloat(
+                    "_Surface",
+                    1f);
+            }
+
+            if (material.HasProperty("_Blend"))
+            {
+                material.SetFloat(
+                    "_Blend",
+                    0f);
+            }
+
+            if (material.HasProperty("_AlphaClip"))
+            {
+                material.SetFloat(
+                    "_AlphaClip",
+                    0f);
+            }
+
+            if (material.HasProperty("_SrcBlend"))
+            {
+                material.SetFloat(
+                    "_SrcBlend",
+                    (float)BlendMode.SrcAlpha);
+            }
+
+            if (material.HasProperty("_DstBlend"))
+            {
+                material.SetFloat(
+                    "_DstBlend",
+                    (float)BlendMode.OneMinusSrcAlpha);
+            }
+
+            if (material.HasProperty("_ZWrite"))
+            {
+                material.SetFloat(
+                    "_ZWrite",
+                    0f);
+            }
+
+            material.SetOverrideTag(
+                "RenderType",
+                "Transparent");
+
+            material.EnableKeyword(
+                "_SURFACE_TYPE_TRANSPARENT");
+            material.DisableKeyword(
+                "_ALPHATEST_ON");
+            material.DisableKeyword(
+                "_ALPHAPREMULTIPLY_ON");
+
+            material.renderQueue =
+                (int)RenderQueue.Transparent;
+
+            if (material.HasProperty("_EmissionColor"))
+            {
+                material.SetColor(
+                    "_EmissionColor",
+                    Color.black);
+            }
+
+            material.DisableKeyword(
+                "_EMISSION");
+
+            if (source != null)
+            {
+                RuntimeGlassMaterialCache[
+                    source] =
+                    material;
+            }
+
+            return material;
         }
 
         private static void FixMirrorMaterialsForCurrentPipeline(
