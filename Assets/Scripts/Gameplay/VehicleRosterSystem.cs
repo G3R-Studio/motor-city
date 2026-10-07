@@ -20,7 +20,7 @@ namespace MotorCity.Gameplay
         public string SelectedId =>
             Valid(SelectedIndex)
                 ? profiles[SelectedIndex].Id
-                : "beatall";
+                : VehicleIds.Beatall;
 
         public event Action VehicleChanged;
 
@@ -138,7 +138,7 @@ namespace MotorCity.Gameplay
                     // Each car has a gameplay identity, not just a different mesh.
                     // The reputation ladder makes the garage itself part of progression.
                     new VehicleProfile(
-                    "beatall",
+                    VehicleIds.Beatall,
                     MotorCityLocalization.Text("vehicle.beatall.name"),
                     "MotorCity/Vehicles/Player/Beatall",
                     0,
@@ -154,7 +154,7 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.beatall.desc")),
 
                     new VehicleProfile(
-                    "street",
+                    VehicleIds.Street,
                     MotorCityLocalization.Text("vehicle.street.name"),
                     "MotorCity/PlayerCarVisual",
                     250,
@@ -170,7 +170,7 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.street.desc")),
 
                     new VehicleProfile(
-                    "peugeot306",
+                    VehicleIds.Peugeot306,
                     MotorCityLocalization.Text("vehicle.peugeot306.name"),
                     "MotorCity/Vehicles/Player/Peugeot306",
                     700,
@@ -186,7 +186,7 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.peugeot306.desc")),
 
                     new VehicleProfile(
-                    "toyotaae86",
+                    VehicleIds.ToyotaAE86,
                     MotorCityLocalization.Text("vehicle.toyotaae86.name"),
                     "MotorCity/Vehicles/Player/ToyotaAE86",
                     1300,
@@ -202,7 +202,7 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.toyotaae86.desc")),
 
                     new VehicleProfile(
-                    "hybrid",
+                    VehicleIds.Hybrid,
                     MotorCityLocalization.Text("vehicle.hybrid.name"),
                     "MotorCity/Vehicles/Player/Hybrid",
                     2100,
@@ -218,7 +218,7 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.hybrid.desc")),
 
                     new VehicleProfile(
-                    "porsche996",
+                    VehicleIds.Porsche996,
                     MotorCityLocalization.Text("vehicle.porsche996.name"),
                     "MotorCity/Vehicles/Player/Porsche996",
                     3100,
@@ -234,7 +234,7 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.porsche996.desc")),
 
                     new VehicleProfile(
-                    "amggt",
+                    VehicleIds.AmgGT,
                     MotorCityLocalization.Text("vehicle.amggt.name"),
                     "MotorCity/Vehicles/Player/AmgGT",
                     4300,
@@ -250,7 +250,7 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.amggt.desc")),
 
                     new VehicleProfile(
-                    "camaro",
+                    VehicleIds.Camaro,
                     MotorCityLocalization.Text("vehicle.camaro.name"),
                     "MotorCity/Vehicles/Player/Camaro",
                     5700,
@@ -266,7 +266,7 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.camaro.desc")),
 
                     new VehicleProfile(
-                    "delorean",
+                    VehicleIds.Delorean,
                     MotorCityLocalization.Text("vehicle.delorean.name"),
                     "MotorCity/Vehicles/Player/Delorean",
                     0,
@@ -282,7 +282,7 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("vehicle.delorean.desc")),
 
                     new VehicleProfile(
-                    "bus",
+                    VehicleIds.Bus,
                     MotorCityLocalization.Text("vehicle.bus.name"),
                     "MotorCity/Vehicles/Player/Bus",
                     7500,
@@ -315,16 +315,16 @@ namespace MotorCity.Gameplay
             {
                 string[] oldOrder =
                 {
-                    "street",
-                    "hybrid",
-                    "beatall",
-                    "delorean",
-                    "amggt",
-                    "porsche996",
-                    "peugeot306",
-                    "toyotaae86",
-                    "camaro",
-                    "bus"
+                    VehicleIds.Street,
+                    VehicleIds.Hybrid,
+                    VehicleIds.Beatall,
+                    VehicleIds.Delorean,
+                    VehicleIds.AmgGT,
+                    VehicleIds.Porsche996,
+                    VehicleIds.Peugeot306,
+                    VehicleIds.ToyotaAE86,
+                    VehicleIds.Camaro,
+                    VehicleIds.Bus
                 };
 
                 int oldIndex =
@@ -394,7 +394,7 @@ namespace MotorCity.Gameplay
                     profiles.Length - 1);
 
             while (Valid(candidate) &&
-                   profiles[candidate].Id == "delorean" &&
+                   profiles[candidate].Id == VehicleIds.Delorean &&
                    !IsUnlocked(candidate))
             {
                 int skipped =
@@ -430,7 +430,7 @@ namespace MotorCity.Gameplay
 
             if (!IsUnlocked(candidate))
             {
-                if (profile.Id == "delorean")
+                if (profile.Id == VehicleIds.Delorean)
                 {
                     status =
                         MotorCityLocalization.Format(
@@ -577,7 +577,7 @@ namespace MotorCity.Gameplay
 
                 if (profile == null ||
                     profile.Id ==
-                        "delorean" ||
+                        VehicleIds.Delorean ||
                     !HasVisual(
                         i) ||
                     IsUnlocked(
@@ -651,7 +651,7 @@ namespace MotorCity.Gameplay
 
             if (!IsUnlocked(next))
             {
-                if (nextProfile.Id == "delorean")
+                if (nextProfile.Id == VehicleIds.Delorean)
                 {
                     return
                         MotorCityLocalization.Format(
@@ -837,17 +837,17 @@ namespace MotorCity.Gameplay
                 profiles[SelectedIndex];
 
             bool preserveAuthoredTransform =
-                profile.Id == "hybrid" ||
-                profile.Id == "beatall" ||
-                profile.Id == "delorean" ||
-                profile.Id == "amggt" ||
-                profile.Id == "porsche996" ||
-                profile.Id == "peugeot306" ||
-                profile.Id == "toyotaae86" ||
-                profile.Id == "camaro" ||
-                profile.Id == "bus";
+                profile.Id == VehicleIds.Hybrid ||
+                profile.Id == VehicleIds.Beatall ||
+                profile.Id == VehicleIds.Delorean ||
+                profile.Id == VehicleIds.AmgGT ||
+                profile.Id == VehicleIds.Porsche996 ||
+                profile.Id == VehicleIds.Peugeot306 ||
+                profile.Id == VehicleIds.ToyotaAE86 ||
+                profile.Id == VehicleIds.Camaro ||
+                profile.Id == VehicleIds.Bus;
 
-            if (profile.Id == "hybrid")
+            if (profile.Id == VehicleIds.Hybrid)
             {
                 // Hybrid is a compact Asset Store model, so scale it to a
                 // normal city-car footprint and use a short, well-damped
@@ -859,7 +859,7 @@ namespace MotorCity.Gameplay
                     0.44f,
                     0.42f);
             }
-            else if (profile.Id == "beatall")
+            else if (profile.Id == VehicleIds.Beatall)
             {
                 // Beatall is a short classic hatchback. Keep the body planted
                 // without giving it the taller generic STREET suspension.
@@ -870,7 +870,7 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.18f);
             }
-            else if (profile.Id == "delorean")
+            else if (profile.Id == VehicleIds.Delorean)
             {
                 car.ApplySuspensionPreset(
                     0.08f,
@@ -879,7 +879,7 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.24f);
             }
-            else if (profile.Id == "amggt")
+            else if (profile.Id == VehicleIds.AmgGT)
             {
                 // Low modern GT coupe: short travel, firm spring and controlled
                 // damping so the body stays planted without looking lifted.
@@ -890,7 +890,7 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.22f);
             }
-            else if (profile.Id == "porsche996")
+            else if (profile.Id == VehicleIds.Porsche996)
             {
                 car.ApplySuspensionPreset(
                     0.09f,
@@ -899,7 +899,7 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.24f);
             }
-            else if (profile.Id == "peugeot306")
+            else if (profile.Id == VehicleIds.Peugeot306)
             {
                 // Taller compact hatchback: a little more travel and softer
                 // damping than the low coupes, while keeping the body planted.
@@ -910,7 +910,7 @@ namespace MotorCity.Gameplay
                     0.48f,
                     0.28f);
             }
-            else if (profile.Id == "toyotaae86")
+            else if (profile.Id == VehicleIds.ToyotaAE86)
             {
                 // Lightweight classic coupe: compact travel with a slightly
                 // freer rear-biased feel while staying stable in normal driving.
@@ -921,7 +921,7 @@ namespace MotorCity.Gameplay
                     0.47f,
                     0.26f);
             }
-            else if (profile.Id == "camaro")
+            else if (profile.Id == VehicleIds.Camaro)
             {
                 // Wide modern muscle coupe: firm spring, short travel and
                 // slightly heavier damping to keep the broad body controlled.
@@ -932,7 +932,7 @@ namespace MotorCity.Gameplay
                     0.46f,
                     0.22f);
             }
-            else if (profile.Id == "bus")
+            else if (profile.Id == VehicleIds.Bus)
             {
                 // Long city bus: more travel and damping for the tall body,
                 // while keeping it stable enough for the shared player rig.
@@ -954,23 +954,23 @@ namespace MotorCity.Gameplay
             }
 
             float targetLength =
-                profile.Id == "hybrid"
+                profile.Id == VehicleIds.Hybrid
                     ? 4.45f
-                    : profile.Id == "beatall"
+                    : profile.Id == VehicleIds.Beatall
                         ? 4.485f
-                        : profile.Id == "delorean"
+                        : profile.Id == VehicleIds.Delorean
                             ? 4.62f
-                            : profile.Id == "amggt"
+                            : profile.Id == VehicleIds.AmgGT
                                 ? 4.30f
-                                : profile.Id == "porsche996"
+                                : profile.Id == VehicleIds.Porsche996
                                     ? 4.20f
-                                    : profile.Id == "peugeot306"
+                                    : profile.Id == VehicleIds.Peugeot306
                                         ? 4.21f
-                                        : profile.Id == "toyotaae86"
+                                        : profile.Id == VehicleIds.ToyotaAE86
                                             ? 4.31f
-                                            : profile.Id == "camaro"
+                                            : profile.Id == VehicleIds.Camaro
                                                 ? 5.104f
-                                                : profile.Id == "bus"
+                                                : profile.Id == VehicleIds.Bus
                                                     ? 7.9375f
                                                     : 4.35f;
 
@@ -1003,15 +1003,15 @@ namespace MotorCity.Gameplay
             // existing AWD behavior until their drivetrain is authored.
             switch (profile.Id)
             {
-                case "peugeot306":
+                case VehicleIds.Peugeot306:
                     car.SetDriveTorqueDistribution(
                         2f,
                         0f);
                     break;
 
-                case "toyotaae86":
-                case "camaro":
-                case "bus":
+                case VehicleIds.ToyotaAE86:
+                case VehicleIds.Camaro:
+                case VehicleIds.Bus:
                     car.SetDriveTorqueDistribution(
                         0f,
                         2f);
@@ -1054,7 +1054,7 @@ namespace MotorCity.Gameplay
             VehicleProfile profile =
                 profiles[index];
 
-            if (profile.Id == "delorean")
+            if (profile.Id == VehicleIds.Delorean)
             {
                 return
                     CosmeticStoreSystem.SupporterPackOwned;
