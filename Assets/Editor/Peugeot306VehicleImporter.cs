@@ -23,6 +23,9 @@ public static class Peugeot306VehicleImporter
     private const string BuildSessionKey =
         "MotorCity.Peugeot306VehicleBuilt.V1";
 
+    private const string SourceHashKey =
+        "MotorCity.Peugeot306VehicleSourceHash.V1";
+
     static Peugeot306VehicleImporter()
     {
         EditorApplication.delayCall += TryAutoBuild;
@@ -39,14 +42,25 @@ public static class Peugeot306VehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(OutputPrefab) != null)
-            return;
+        string dependencyHash =
+            StandardVehicleImportUtility.DependencyHash(
+                BodySource,
+                    WheelSource);
 
-        if (SessionState.GetBool(BuildSessionKey, false))
+        if (!StandardVehicleImportUtility.ShouldRebuild(
+                OutputPrefab,
+                SourceHashKey,
+                dependencyHash))
+        {
             return;
+        }
 
-        SessionState.SetBool(BuildSessionKey, true);
-        Build(false);
+        if (Build(false))
+        {
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey,
+                dependencyHash);
+        }
     }
 
     private static bool Build(bool verbose)
