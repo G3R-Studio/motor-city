@@ -123,9 +123,6 @@ namespace MotorCity.Vehicle
         private float vehicleBrakeMultiplier = 1f;
         private float vehiclePowerMultiplier = 1f;
         private float vehicleDriftMultiplier = 1f;
-        private float driftRearSidewaysGripMultiplier = 1f;
-        private float driftHandbrakeStrengthMultiplier = 1f;
-        private float driftAngularDampingBonus;
         private float frontDriveTorqueMultiplier = 1f;
         private float rearDriveTorqueMultiplier = 1f;
         private int vehicleMasteryLevel = 1;
@@ -1222,10 +1219,7 @@ namespace MotorCity.Vehicle
                         angularDamping +
                         vehicleStabilityBonus +
                         upgradeStability +
-                        modeDamping +
-                        (currentDriveMode == DriveMode.Drift
-                            ? driftAngularDampingBonus
-                            : 0f));
+                        modeDamping);
             }
         }
 
@@ -1404,10 +1398,7 @@ namespace MotorCity.Vehicle
                 Mathf.RoundToInt(
                     (baseValue +
                      modeOffset) *
-                    vehicleDriftMultiplier *
-                    (currentDriveMode == DriveMode.Drift
-                        ? driftHandbrakeStrengthMultiplier
-                        : 1f)),
+                    vehicleDriftMultiplier),
                 2,
                 12);
         }
@@ -1864,32 +1855,6 @@ namespace MotorCity.Vehicle
             ApplyDriveModeTuning();
         }
 
-        public void SetDriftHandlingTuning(
-            float rearSidewaysGripMultiplier,
-            float handbrakeStrengthMultiplier,
-            float angularDampingBonus)
-        {
-            driftRearSidewaysGripMultiplier =
-                Mathf.Clamp(
-                    rearSidewaysGripMultiplier,
-                    0.80f,
-                    1.40f);
-
-            driftHandbrakeStrengthMultiplier =
-                Mathf.Clamp(
-                    handbrakeStrengthMultiplier,
-                    0.65f,
-                    1.20f);
-
-            driftAngularDampingBonus =
-                Mathf.Clamp(
-                    angularDampingBonus,
-                    0f,
-                    0.15f);
-
-            ApplyDriveModeTuning();
-        }
-
         public void SetDriveTorqueDistribution(
             float frontMultiplier,
             float rearMultiplier)
@@ -2046,10 +2011,7 @@ namespace MotorCity.Vehicle
                         sideways.asymptoteValue =
                             rear ? 0.62f : 0.76f;
                         sideways.stiffness =
-                            (rear
-                                ? 0.70f *
-                                  driftRearSidewaysGripMultiplier
-                                : 1.20f) *
+                            (rear ? 0.70f : 1.20f) *
                             upgradeGrip;
                         break;
 
