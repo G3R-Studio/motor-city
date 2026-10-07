@@ -6,7 +6,7 @@ using UnityEngine;
 public static class Porsche996VehicleImporter
 {
     private const string BodySource =
-        "Assets/VehicleAssets/Porsche996/996.obj";
+        "Assets/VehicleAssets/Porsche996/porsche996.obj";
 
     private const string FrontWheelSource =
         "Assets/VehicleAssets/Porsche996/front_wheels.obj";
@@ -17,17 +17,15 @@ public static class Porsche996VehicleImporter
     private const string OutputDirectory =
         "Assets/Resources/MotorCity/Vehicles/Player";
 
-    private const string MaterialDirectory =
-        OutputDirectory + "/Porsche996Materials";
 
     private const string OutputPrefab =
         OutputDirectory + "/Porsche996.prefab";
 
     private const string BuildSessionKey =
-        "MotorCity.Porsche996VehicleBuilt.V1";
+        "MotorCity.Porsche996VehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.Porsche996VehicleSourceHash.V1";
+        "MotorCity.Porsche996VehicleSourceHash.V2";
 
     static Porsche996VehicleImporter()
     {
@@ -45,11 +43,21 @@ public static class Porsche996VehicleImporter
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                BodySource) == null ||
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                FrontWheelSource) == null ||
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                RearWheelSource) == null)
+        {
+            return;
+        }
+
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
-                    FrontWheelSource,
-                    RearWheelSource);
+                FrontWheelSource,
+                RearWheelSource);
 
         if (!StandardVehicleImportUtility.ShouldRebuild(
                 OutputPrefab,
@@ -86,6 +94,18 @@ public static class Porsche996VehicleImporter
             {
                 Debug.LogWarning(
                     "Motor City: Porsche996 body/front/rear OBJ source is missing.");
+            }
+
+            return false;
+        }
+
+        if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                bodySource))
+        {
+            if (verbose)
+            {
+                Debug.LogWarning(
+                    "Motor City: updated Porsche996 must contain body and body_misc meshes.");
             }
 
             return false;
@@ -133,8 +153,7 @@ public static class Porsche996VehicleImporter
             if (verbose)
             {
                 Debug.Log(
-                    "Motor City: Porsche996 runtime visual rebuilt. " +
-                    "Runtime path: MotorCity/Vehicles/Player/Porsche996");
+                    "Motor City: Porsche996 rebuilt from porsche996.obj + authored front/rear wheel OBJs.");
             }
 
             return true;
@@ -219,106 +238,6 @@ public static class Porsche996VehicleImporter
         visual.transform.localScale = Vector3.one;
 
         StripImportedPhysics(visual);
-    }
-
-    private static Material BuildMaterial(
-        string materialName,
-        Color color,
-        float smoothness)
-    {
-        string path =
-            MaterialDirectory + "/" + materialName + ".mat";
-
-        Material material =
-            AssetDatabase.LoadAssetAtPath<Material>(path);
-
-        Shader shader =
-            Shader.Find("Universal Render Pipeline/Lit");
-
-        if (shader == null)
-            shader = Shader.Find("Standard");
-
-        if (material == null)
-        {
-            material = new Material(shader);
-            material.name = materialName;
-            AssetDatabase.CreateAsset(material, path);
-        }
-        else if (shader != null && material.shader != shader)
-        {
-            material.shader = shader;
-        }
-
-        if (material.HasProperty("_BaseColor"))
-            material.SetColor("_BaseColor", color);
-
-        if (material.HasProperty("_Color"))
-            material.SetColor("_Color", color);
-
-        if (material.HasProperty("_Smoothness"))
-            material.SetFloat("_Smoothness", smoothness);
-
-        material.DisableKeyword("_EMISSION");
-        EditorUtility.SetDirty(material);
-        return material;
-    }
-
-    private static void AssignMaterials(
-        GameObject root,
-        Material paint,
-        Material glass,
-        Material chrome,
-        Material dark,
-        Material plastic,
-        Material headlights,
-        Material indicators,
-        Material rearLights)
-    {
-        foreach (Renderer renderer in
-                 root.GetComponentsInChildren<Renderer>(true))
-        {
-            if (renderer == null)
-                continue;
-
-            Material[] materials = renderer.sharedMaterials;
-            bool changed = false;
-
-            for (int i = 0; i < materials.Length; i++)
-            {
-                string name =
-                    materials[i] != null
-                        ? materials[i].name.ToLowerInvariant()
-                        : string.Empty;
-
-                Material replacement = null;
-
-                if (name.Contains("blackglass"))
-                    replacement = glass;
-                else if (name.Contains("carpaint"))
-                    replacement = paint;
-                else if (name.Contains("chrome"))
-                    replacement = chrome;
-                else if (name.Contains("headlight"))
-                    replacement = headlights;
-                else if (name.Contains("indicator"))
-                    replacement = indicators;
-                else if (name.Contains("rearlight"))
-                    replacement = rearLights;
-                else if (name.Contains("plastic"))
-                    replacement = plastic;
-                else if (name.Contains("empty"))
-                    replacement = dark;
-
-                if (replacement == null)
-                    continue;
-
-                materials[i] = replacement;
-                changed = true;
-            }
-
-            if (changed)
-                renderer.sharedMaterials = materials;
-        }
     }
 
     private static void StripImportedPhysics(GameObject root)
