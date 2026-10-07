@@ -998,25 +998,6 @@ namespace MotorCity.Gameplay
                 profile.PowerMultiplier,
                 profile.DriftMultiplier);
 
-            // Reset per-vehicle drift overrides first so switching away from a
-            // specially tuned car cannot leak its Drift Mode behavior.
-            car.SetDriftHandlingTuning(
-                1f,
-                1f,
-                0f);
-
-            if (profile.Id == VehicleIds.ToyotaAE86)
-            {
-                // AE86 is already RWD and has a drift-focused profile. The
-                // generic Drift Mode made the rear too loose and the handbrake
-                // too aggressive, causing snap spins instead of controllable
-                // sustained oversteer.
-                car.SetDriftHandlingTuning(
-                    1.22f,
-                    0.82f,
-                    0.06f);
-            }
-
             // Drivetrain assignments are limited to the vehicles explicitly
             // identified in the physics audit. Other profiles retain the
             // existing AWD behavior until their drivetrain is authored.
