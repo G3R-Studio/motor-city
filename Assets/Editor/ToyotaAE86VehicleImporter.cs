@@ -145,6 +145,9 @@ public static class ToyotaAE86VehicleImporter
             StripImportedPhysics(instance);
             BuildWheelSet(instance.transform, wheelSource);
 
+            if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                    instance))
+            {
             AssignMaterials(
                 instance,
                 paint,
@@ -155,6 +158,7 @@ public static class ToyotaAE86VehicleImporter
                 indicators,
                 rearLights,
                 rearPlate);
+            }
 
             EnsureRenderersEnabled(instance);
 
