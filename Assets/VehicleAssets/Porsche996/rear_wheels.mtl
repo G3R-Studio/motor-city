@@ -1,7 +1,7 @@
 # Blender 5.2.2 LTS MTL File: 'None'
 # www.blender.org
 
-newmtl chrome
+newmtl chrome.002
 Ns 106.003265
 Ka 1.000000 1.000000 1.000000
 Kd 0.232032 0.232032 0.232032
@@ -11,7 +11,7 @@ Ni 1.500000
 d 1.000000
 illum 3
 
-newmtl empty
+newmtl empty.002
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.009254 0.009254 0.009254
@@ -21,7 +21,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 
-newmtl plastic
+newmtl plastic.002
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.047156 0.047156 0.047156
