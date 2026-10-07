@@ -3374,11 +3374,11 @@ namespace MotorCity.Vehicle
                         continue;
                     }
 
-                    if (LooksLikeVehicleGlassMaterial(
+                    if (LooksLikeDarkGlassMaterial(
                             old))
                     {
                         upgraded[i] =
-                            GetOrCreateVehicleGlassMaterial(
+                            GetOrCreateDarkGlassMaterial(
                                 urpLit,
                                 old);
                         continue;
@@ -3521,7 +3521,7 @@ namespace MotorCity.Vehicle
             }
         }
 
-        private static bool LooksLikeVehicleGlassMaterial(
+        private static bool LooksLikeDarkGlassMaterial(
             Material material)
         {
             if (material == null)
@@ -3537,13 +3537,10 @@ namespace MotorCity.Vehicle
                     StringComparison.OrdinalIgnoreCase) >= 0 ||
                 name.IndexOf(
                     "black_glass",
-                    StringComparison.OrdinalIgnoreCase) >= 0 ||
-                name.IndexOf(
-                    "camaroglass",
                     StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        private static Material GetOrCreateVehicleGlassMaterial(
+        private static Material GetOrCreateDarkGlassMaterial(
             Shader urpLit,
             Material source)
         {
@@ -3562,108 +3559,62 @@ namespace MotorCity.Vehicle
                     name =
                         (source != null
                             ? source.name
-                            : "VehicleGlass") +
-                        "_MotorCityGlassURP",
+                            : "BlackGlass") +
+                        "_MotorCityDarkGlassURP",
                     enableInstancing = true,
                     hideFlags = HideFlags.DontSave
                 };
 
+            // blackGlass is deliberately texture-free. The Delorean look is a
+            // dark, glossy opaque pane rather than physically transparent glass.
             if (material.HasProperty("_BaseMap"))
-            {
-                material.SetTexture(
-                    "_BaseMap",
-                    null);
-            }
+                material.SetTexture("_BaseMap", null);
 
             if (material.HasProperty("_MainTex"))
-            {
-                material.SetTexture(
-                    "_MainTex",
-                    null);
-            }
+                material.SetTexture("_MainTex", null);
 
             Color glassColor =
                 new(
+                    0.018f,
                     0.025f,
-                    0.045f,
-                    0.065f,
-                    0.36f);
+                    0.040f,
+                    1f);
 
             if (material.HasProperty("_BaseColor"))
-            {
-                material.SetColor(
-                    "_BaseColor",
-                    glassColor);
-            }
+                material.SetColor("_BaseColor", glassColor);
 
             if (material.HasProperty("_Color"))
-            {
-                material.SetColor(
-                    "_Color",
-                    glassColor);
-            }
+                material.SetColor("_Color", glassColor);
 
             if (material.HasProperty("_Metallic"))
-            {
-                material.SetFloat(
-                    "_Metallic",
-                    0.04f);
-            }
+                material.SetFloat("_Metallic", 0.12f);
 
             if (material.HasProperty("_Smoothness"))
-            {
-                material.SetFloat(
-                    "_Smoothness",
-                    0.94f);
-            }
+                material.SetFloat("_Smoothness", 0.90f);
 
+            // Keep it fully opaque: this matches the authored Delorean glass
+            // treatment and avoids seeing straight through the cabin.
             if (material.HasProperty("_Surface"))
-            {
-                material.SetFloat(
-                    "_Surface",
-                    1f);
-            }
-
-            if (material.HasProperty("_Blend"))
-            {
-                material.SetFloat(
-                    "_Blend",
-                    0f);
-            }
-
-            if (material.HasProperty("_AlphaClip"))
-            {
-                material.SetFloat(
-                    "_AlphaClip",
-                    0f);
-            }
+                material.SetFloat("_Surface", 0f);
 
             if (material.HasProperty("_SrcBlend"))
-            {
                 material.SetFloat(
                     "_SrcBlend",
-                    (float)BlendMode.SrcAlpha);
-            }
+                    (float)BlendMode.One);
 
             if (material.HasProperty("_DstBlend"))
-            {
                 material.SetFloat(
                     "_DstBlend",
-                    (float)BlendMode.OneMinusSrcAlpha);
-            }
+                    (float)BlendMode.Zero);
 
             if (material.HasProperty("_ZWrite"))
-            {
-                material.SetFloat(
-                    "_ZWrite",
-                    0f);
-            }
+                material.SetFloat("_ZWrite", 1f);
 
             material.SetOverrideTag(
                 "RenderType",
-                "Transparent");
+                "Opaque");
 
-            material.EnableKeyword(
+            material.DisableKeyword(
                 "_SURFACE_TYPE_TRANSPARENT");
             material.DisableKeyword(
                 "_ALPHATEST_ON");
@@ -3671,17 +3622,12 @@ namespace MotorCity.Vehicle
                 "_ALPHAPREMULTIPLY_ON");
 
             material.renderQueue =
-                (int)RenderQueue.Transparent;
+                (int)RenderQueue.Geometry;
 
             if (material.HasProperty("_EmissionColor"))
-            {
-                material.SetColor(
-                    "_EmissionColor",
-                    Color.black);
-            }
+                material.SetColor("_EmissionColor", Color.black);
 
-            material.DisableKeyword(
-                "_EMISSION");
+            material.DisableKeyword("_EMISSION");
 
             if (source != null)
             {
