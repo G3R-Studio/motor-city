@@ -72,6 +72,133 @@ public static class StandardVehicleImportUtility
                 legacyPath);
     }
 
+    public static void BuildStandardWheelSet(
+        Transform parent,
+        GameObject frontSource,
+        GameObject rearSource,
+        Vector3 frontLeft,
+        Vector3 frontRight,
+        Vector3 rearLeft,
+        Vector3 rearRight)
+    {
+        if (parent == null ||
+            frontSource == null ||
+            rearSource == null)
+        {
+            return;
+        }
+
+        CreateStandardWheel(
+            parent,
+            frontSource,
+            "front_left",
+            frontLeft,
+            false);
+
+        CreateStandardWheel(
+            parent,
+            frontSource,
+            "front_right",
+            frontRight,
+            true);
+
+        CreateStandardWheel(
+            parent,
+            rearSource,
+            "rear_left",
+            rearLeft,
+            false);
+
+        CreateStandardWheel(
+            parent,
+            rearSource,
+            "rear_right",
+            rearRight,
+            true);
+    }
+
+    private static void CreateStandardWheel(
+        Transform parent,
+        GameObject source,
+        string name,
+        Vector3 localPosition,
+        bool rightSide)
+    {
+        GameObject holder =
+            new GameObject(
+                name);
+
+        holder.transform.SetParent(
+            parent,
+            false);
+
+        holder.transform.localPosition =
+            localPosition;
+
+        // Standardized wheel exports follow the AmgGT convention:
+        // source authored for the right side, mirror the left side around Y.
+        holder.transform.localRotation =
+            rightSide
+                ? Quaternion.identity
+                : Quaternion.Euler(
+                    0f,
+                    180f,
+                    0f);
+
+        holder.transform.localScale =
+            Vector3.one;
+
+        GameObject visual =
+            PrefabUtility.InstantiatePrefab(
+                source,
+                holder.transform) as GameObject;
+
+        if (visual == null)
+        {
+            visual =
+                UnityEngine.Object.Instantiate(
+                    source,
+                    holder.transform);
+        }
+
+        if (visual == null)
+            return;
+
+        visual.name =
+            name + "_visual";
+
+        visual.transform.localPosition =
+            Vector3.zero;
+
+        visual.transform.localRotation =
+            Quaternion.identity;
+
+        visual.transform.localScale =
+            Vector3.one;
+
+        foreach (Collider collider in
+                 visual.GetComponentsInChildren<Collider>(
+                     true))
+        {
+            if (collider != null)
+            {
+                UnityEngine.Object.DestroyImmediate(
+                    collider);
+            }
+        }
+
+        foreach (Rigidbody body in
+                 visual.GetComponentsInChildren<Rigidbody>(
+                     true))
+        {
+            if (body != null)
+            {
+                UnityEngine.Object.DestroyImmediate(
+                    body);
+            }
+        }
+    }
+
     public static bool HasAsset(
         string assetPath)
     {
