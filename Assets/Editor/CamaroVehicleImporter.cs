@@ -148,7 +148,11 @@ public static class CamaroVehicleImporter
 
             StripImportedPhysics(instance);
             BuildWheelSet(instance.transform, wheelSource);
+            if (!StandardVehicleImportUtility.UsesStandardBodyLayout(
+                    instance))
+            {
             AssignMaterials(instance, paint, bloom, wheel);
+            }
             EnsureRenderersEnabled(instance);
 
             GameObject saved =
