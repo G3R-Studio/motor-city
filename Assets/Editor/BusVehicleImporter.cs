@@ -440,7 +440,19 @@ public static class BusVehicleImporter
                             ? materials[i].name
                             : string.Empty;
 
-                    if (sourceName.IndexOf(
+                    // Never replace the newly-authored front/rear lamp
+                    // materials with BusAtlas. Their exact OBJ submeshes
+                    // must remain independent for day/night/brake emission.
+                    bool authoredLamp =
+                        sourceName.StartsWith(
+                            "MC_Headlight",
+                            System.StringComparison.OrdinalIgnoreCase) ||
+                        sourceName.StartsWith(
+                            "MC_Brake",
+                            System.StringComparison.OrdinalIgnoreCase);
+
+                    if (!authoredLamp &&
+                        sourceName.IndexOf(
                             "blackglass",
                             System.StringComparison.OrdinalIgnoreCase) < 0)
                     {
