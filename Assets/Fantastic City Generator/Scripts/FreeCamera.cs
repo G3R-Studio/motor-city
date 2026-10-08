@@ -67,10 +67,9 @@ namespace FCG
         }
 
 
-    }
-
         private static bool Held(Keyboard keyboard, Key key)
         {
             return keyboard != null && keyboard[key].isPressed;
         }
+    }
 }
