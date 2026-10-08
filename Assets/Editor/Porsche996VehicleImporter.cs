@@ -8,6 +8,9 @@ public static class Porsche996VehicleImporter
     private const string BodySource =
         "Assets/VehicleAssets/Porsche996/porsche996.obj";
 
+    private const string MaterialSource =
+        "Assets/VehicleAssets/Porsche996/porsche996.mtl";
+
     private const string FrontWheelSource =
         "Assets/VehicleAssets/Porsche996/front_wheels.obj";
 
@@ -25,7 +28,7 @@ public static class Porsche996VehicleImporter
         "MotorCity.Porsche996VehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.Porsche996VehicleSourceHash.V2";
+        "MotorCity.Porsche996VehicleSourceHash.V3";
 
     static Porsche996VehicleImporter()
     {
@@ -56,6 +59,7 @@ public static class Porsche996VehicleImporter
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
+                MaterialSource,
                 FrontWheelSource,
                 RearWheelSource);
 
