@@ -1036,6 +1036,12 @@ namespace MotorCity.Gameplay
                 deloreanLights = car.gameObject.AddComponent<DeloreanAuthoredLights>();
             deloreanLights.SetVehicleId(profile.Id);
 
+            AmgGTAuthoredLights amgLights =
+                car.GetComponent<AmgGTAuthoredLights>();
+            if (amgLights == null)
+                amgLights = car.gameObject.AddComponent<AmgGTAuthoredLights>();
+            amgLights.SetVehicleId(profile.Id);
+
             PlayerVehicleRearEmission rearEmission =
                 car.GetComponent<PlayerVehicleRearEmission>();
 
