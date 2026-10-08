@@ -8,6 +8,9 @@ public static class BusVehicleImporter
     private const string BodySource =
         "Assets/VehicleAssets/Bus/bus.obj";
 
+    private const string MaterialSource =
+        "Assets/VehicleAssets/Bus/bus.mtl";
+
     private const string WheelSource =
         "Assets/VehicleAssets/Bus/front_wheels.obj";
 
@@ -27,7 +30,7 @@ public static class BusVehicleImporter
         "MotorCity.BusVehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.BusVehicleSourceHash.V2";
+        "MotorCity.BusVehicleSourceHash.V3";
 
     static BusVehicleImporter()
     {
@@ -58,6 +61,7 @@ public static class BusVehicleImporter
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
+                MaterialSource,
                 WheelSource,
                 PaletteSource);
 
