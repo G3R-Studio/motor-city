@@ -185,6 +185,7 @@ namespace MotorCity.Gameplay
                 "discovery");
         }
 
+#if UNITY_EDITOR || DEBUG
         public void DiscoverForTesting(
             int index)
         {
@@ -242,6 +243,8 @@ namespace MotorCity.Gameplay
             messageTimer =
                 0f;
         }
+
+#endif
 
         public Vector3 GetDiscoveryPosition(int index)
         {
