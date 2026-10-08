@@ -481,6 +481,7 @@ namespace MotorCity.Gameplay
             return true;
         }
 
+#if UNITY_EDITOR || DEBUG
         public bool SelectVehicleForTesting(
             int index,
             out string status)
@@ -522,6 +523,8 @@ namespace MotorCity.Gameplay
 
             return true;
         }
+
+#endif
 
         public string GetGarageLine()
         {
