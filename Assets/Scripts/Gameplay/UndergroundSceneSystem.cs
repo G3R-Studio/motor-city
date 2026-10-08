@@ -532,6 +532,7 @@ namespace MotorCity.Gameplay
             Save();
         }
 
+#if UNITY_EDITOR || DEBUG
         public void AddCredForTesting(
             int amount)
         {
@@ -613,6 +614,8 @@ namespace MotorCity.Gameplay
             messageTimer =
                 MessageSeconds;
         }
+
+#endif
 
         private void HandleActivityResult(
             string activityId)
