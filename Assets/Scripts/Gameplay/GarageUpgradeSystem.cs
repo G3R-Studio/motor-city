@@ -617,6 +617,7 @@ namespace MotorCity.Gameplay
             };
         }
 
+#if UNITY_EDITOR || DEBUG
         private void SetUpgradeLevelsForTesting(
             int engine,
             int grip,
@@ -652,6 +653,8 @@ namespace MotorCity.Gameplay
                 level,
                 level);
         }
+
+#endif
 
         private void OpenGarage()
         {
