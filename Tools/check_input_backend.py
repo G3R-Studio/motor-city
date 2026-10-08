@@ -50,7 +50,7 @@ def errors() -> list[str]:
             continue
 
         source = config.read_text(encoding="utf-8-sig")
-        values = re.findall(r"\\bactiveInputHandler:\\s*([012])\\b", source)
+        values = re.findall(r"activeInputHandler:\s*([012])", source)
         if values != ["1"]:
             problems.append(
                 f"{relative}: expected exactly one activeInputHandler: 1 "
@@ -76,6 +76,13 @@ def errors() -> list[str]:
 
 
 def main() -> int:
+    # Guard against accidental regex over-escaping in this script itself.
+    if re.findall(r"activeInputHandler:\s*([012])", "  activeInputHandler: 1") != ["1"]:
+        print("Motor City input backend checker internal settings-regex test FAILED.")
+        return 1
+    if not LEGACY_CALL.search("if (Input.GetKeyDown(KeyCode.N))"):
+        print("Motor City input backend checker internal legacy-input detection test FAILED.")
+        return 1
     problems = errors()
     if problems:
         print("Motor City input backend check FAILED:")
