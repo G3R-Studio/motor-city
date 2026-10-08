@@ -177,6 +177,7 @@ namespace MotorCity.Gameplay
             return 0;
         }
 
+#if UNITY_EDITOR || DEBUG
         public void ResetAllForTesting()
         {
             SaveCurrentVehicle();
@@ -331,6 +332,8 @@ namespace MotorCity.Gameplay
             distanceMeters += step;
             dirty = true;
         }
+
+#endif
 
         private void HandleVehicleChanged()
         {
