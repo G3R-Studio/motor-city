@@ -1,5 +1,49 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+// This source template is compiled by a SEPARATE Add-Type -TypeDefinition call.
+// PowerShell does not automatically reference the in-memory assembly compiled
+// by previous Add-Type calls. The minimal UnityEngine surface for the
+// extracted REAL gameplay methods must be declared in this same compilation.
+// These types are test-only and never enter Unity player assemblies.
+namespace UnityEngine
+{
+    public class Material { }
+
+    public class Transform
+    {
+        public Renderer[] renderers = Array.Empty<Renderer>();
+
+        public T[] GetComponentsInChildren<T>(bool includeInactive)
+        {
+            if (typeof(T) == typeof(Renderer))
+                return (T[])(object)renderers;
+            return Array.Empty<T>();
+        }
+    }
+
+    public class Renderer
+    {
+        public Material[] sharedMaterials = Array.Empty<Material>();
+        public int GlobalPropertyBlockClears;
+        public readonly List<int> SlotPropertyBlockClears = new List<int>();
+
+        public void SetPropertyBlock(object block)
+        {
+            if (block == null) GlobalPropertyBlockClears++;
+        }
+
+        public void SetPropertyBlock(object block, int index)
+        {
+            if (block == null) SlotPropertyBlockClears.Add(index);
+        }
+    }
+
+    public class TrailRenderer : Renderer { }
+    public class ParticleSystemRenderer : Renderer { }
+}
+
 public class CustomizationChecks
 {
     public object car = new object();
