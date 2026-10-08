@@ -14,7 +14,36 @@ namespace UnityEngine
     }
     public struct Bounds { public Vector3 center,extents; }
     public static class Mathf { public static float Min(float a,float b)=>Math.Min(a,b); public static float Max(float a,float b)=>Math.Max(a,b); }
-    public class Transform { public string name; public Transform parent; }
+    public class Transform
+    {
+        public string name;
+        public Transform parent;
+        public Renderer[] renderers = Array.Empty<Renderer>();
+        public T[] GetComponentsInChildren<T>(bool includeInactive)
+        {
+            if (typeof(T) == typeof(Renderer))
+                return (T[])(object)renderers;
+            return Array.Empty<T>();
+        }
+    }
+    // Shared Unity stubs for the extracted vehicle customization tests.
+    // Keep them here so Add-Type uses one consistent UnityEngine test assembly.
+    public class Renderer
+    {
+        public Material[] sharedMaterials = Array.Empty<Material>();
+        public int GlobalPropertyBlockClears;
+        public readonly List<int> SlotPropertyBlockClears = new List<int>();
+        public void SetPropertyBlock(object block)
+        {
+            if (block == null) GlobalPropertyBlockClears++;
+        }
+        public void SetPropertyBlock(object block, int index)
+        {
+            if (block == null) SlotPropertyBlockClears.Add(index);
+        }
+    }
+    public class TrailRenderer : Renderer { }
+    public class ParticleSystemRenderer : Renderer { }
     public class Material
     {
         // Used by the production VehicleVisualRoleUtility material classifiers.
