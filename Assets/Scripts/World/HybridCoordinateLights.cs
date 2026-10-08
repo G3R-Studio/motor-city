@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MotorCity.Input;
 using MotorCity.Vehicle;
@@ -126,6 +125,16 @@ namespace MotorCity.World
 
             if (currentVisual == null)
                 return;
+
+            // Remove any leftover roots from the previous point-sphere
+            // prototype when a cached visual is reused.
+            Transform legacyLights =
+                currentVisual.Find("MotorCityHybridCoordinateLights");
+            if (legacyLights != null)
+            {
+                legacyLights.gameObject.SetActive(false);
+                Destroy(legacyLights.gameObject);
+            }
 
             Renderer[] renderers =
                 currentVisual.GetComponentsInChildren<Renderer>(true);
