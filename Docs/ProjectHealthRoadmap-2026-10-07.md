@@ -14,13 +14,13 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 
 # 0. Трекер выполнения (обновляется после каждого этапа)
 
-> **Дата начала трекинга:** 2026-10-08. **Текущий статус:** Phase 0 — Freeze / baseline (открыта из-за архивных/physics/Console gates); Phase 1 — Release safety / P0.1 (закрыта по применимым gate; полная WebGL release matrix в Phase 12).
+> **Дата начала трекинга:** 2026-10-08. **Текущий статус:** Phase 0 — Freeze / baseline (закрыта по подтверждённым проверкам; screenshot-файлы неполны); Phase 1 — Release safety / P0.1 (закрыта; полная WebGL release matrix в Phase 12).
 > **Правило отметок:** `[x]` ставится только после выполнения работы **и** проверки применимых verification gates, включая подтверждение в Unity от пользователя. Работа в GitHub без проверки в Unity не считается завершённой фазой. `[ ]` — не завершено, даже если код уже подготовлен.
 > **Рабочий процесс:** одна фаза (или отдельно оговорённый подпункт) за раз → проверка ссылок/GUID и зависимостей по Gate A–F → изменение отдельным коммитом в `main` → статические проверки → инструкция для Unity → подтверждение пользователя → обновление галочек и журнала. Никаких удалений без Gate G.
 
 ## Обзор фаз
 
-- [ ] **Phase 0 — Freeze / baseline** — В РАБОТЕ: зафиксировать состояние до чистки
+- [x] **Phase 0 — Freeze / baseline** — ЗАКРЫТА: статический baseline, Console и visual smoke подтверждены; physics source audit задокументирован. Отсутствующий полный screenshot archive раскрыт как ограничение доказательной базы.
 - [x] **Phase 1 — Release safety** — P0.1: QA guards, статические release/source gates и подтверждённые Desktop Release/Development smoke. WebGL Mobile Release — Phase 12.
 - [ ] **Phase 2 — Automated gates** — P0.2, CI и аудиты
 - [ ] **Phase 3 — Vehicle contract** — P0.3, единый контракт моделей
@@ -96,6 +96,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 1 / 25-file QA declaration review | Через GitHub `fetch_file` просмотрены все 25 ранее учтённых C# файлов с объявлениями `ForTesting` (24 gameplay/UI/world + save service): во всех методы находятся внутри `#if`-блоков; все директивы сбалансированы. Это source structure check, **не** запуск скрипта, анализ полной ветки препроцессора или Unity compile. | **[x] Полный перечень объявлений проанализирован структурно**; **[ ]** проверка фактических Release-веток скриптом и завершение call-site/build gates. |
 | 2026-10-09 | Phase 0/1 / single-run verification | Добавлен `Tools/check_phase_0_1.py`: одним запуском вызывает существующие Input backend, Release QA и static audit Python проверки и сообщает о ненулевых кодах возврата; `Tools/check_cleanup.ps1` и Unity runtime gate перечислены отдельно. | **[x] Runner исходник добавлен** (`40d18a6`); **[ ]** исполнение в локальном проекте, Editor/WebGL final smoke и незавершённые Phase 0 archival/Console gates. |
 | 2026-10-09 | Phase 0/1 / итоговые статические проверки и Unity smoke | Пользователь запустил `py -3 Tools/check_phase_0_1.py`: **PASS** Input backend; **PASS** WebGL release QA guards (137 C#); **PASS** static audit (246 scripts, 3234 serialized, 2330 GUIDs, 0 dangling refs). `pwsh -NoProfile -File Tools/check_cleanup.ps1`: **PASS** 242 C# syntax Editor/native/WebGL, все source/regression gates. Пользователь подтвердил: «игра работает отлично». | **[x] Итоговый source gate + пользовательский runtime smoke**; **[ ]** формальная Console-wide warning-free фиксация, архив скриншотов, physics deep audit Phase 0, явная матрица WebGL Mobile Release Phase 12. |
+| 2026-10-09 | Phase 0 / closure evidence | Пользователь прямо подтвердил чистую Unity Console без предупреждений/ошибок и визуальную проверку всех 10 машин, дня/ночи/остекления. Проведён read-only аудит `ArcadeCarController`/`HandbrakePhysicsAssist` — отдельный отчёт `Docs/Baselines/Phase0DrivingPhysicsAudit-2026-10-09.md`. Full screenshot archive не создан, Phase 10 physics benchmarking отдельно. | **[x] Phase 0 — baseline/smoke/source audit закрыта**; **[x] Phase 1 закрыта ранее**. Архив изображений — документированное ограничение, а не выдуманный артефакт. |
 
 
 ---
@@ -1090,7 +1091,7 @@ shader/material/prefab могут ссылаться сериализованн�
 - [x] Bus — базовая работа подтверждена пользователем 2026-10-08; отдельного скриншота нет.
 - [x] Фары ночью и стоп-сигналы при торможении — пользователь 2026-10-08 подтвердил «да» на прямой вопрос о выполненной проверке. Подтверждение ручное; дополнительных новых ночных скриншотов нет.
 - [x] Цвет кузова, смена дисков и неона — пользователь 2026-10-08 подтвердил «да» на прямой вопрос о выполненной проверке. Не требовать повторять проверку без конкретной причины.
-- [ ] Полный визуальный архив день/ночь и обзор остекления со всех сторон (360°) — отдельно не подтверждены; 3 скриншота гаража приложены. Это ограничение полноты **архива доказательств**, не опровержение пользовательской проверки функциональности.
+- [x] Ручная проверка визуала день/ночь и остекления всех 10 машин подтверждена пользователем 2026-10-09. Полного набора screenshot-файлов в репозитории нет; ранее имелись три снимка гаража. Это завершает visual smoke gate, но не создание архива доказательств.
 
 **Проверка Phase 0 (последовательно):**
 
@@ -1102,13 +1103,13 @@ shader/material/prefab могут ссылаться сериализованн�
 6. Зафиксируйте результаты в журнале выше; проверенный статус `Phase 0` отмечается `[x]` только после выполнения всех применимых подпунктов ниже.
 
 - [x] новый **статический** audit baseline: результаты JSON зафиксированы в журнале; Unity asset/scene report и визуальный baseline остаются отдельными незакрытыми проверками;
-- [ ] Console clean **от любых** предупреждений: пользователь ранее подтвердил отсутствие новых красных ошибок и Missing Script после `Double-Block-09`, а 2026-10-08 21:25 UTC — исчезновение известного **Input Manager deprecation warning** после миграции. Таким образом два известных дефекта/предупреждения сняты; для отметки общей Console без любых предупреждений пока нет полного снимка/журнала. Не требовать повторных smoke-тестов всех машин.
+- [x] Console clean **от любых** предупреждений: 2026-10-09 пользователь прямо подтвердил, что после запуска игры нет ни ошибок, ни предупреждений. Ранее отдельно подтверждалось устранение Missing Script и Input Manager warning.
 - [x] **Prefab/material Git baseline зафиксирован**: [`Docs/Baselines/PrefabMaterialInventory-2026-10-08.json`](Baselines/PrefabMaterialInventory-2026-10-08.json) — 647 prefab, 207 `.mat`, у всех 854 есть `.meta`, сохранены Git SHA asset/.meta, размеры и 14 критических GUID. Источник: `ec98dc91d8fcbbae4ce23d1953aeddcaa1097382`; подробности и правила проверки зависимостей в [`PrefabMaterialBaseline-2026-10-08.md`](Baselines/PrefabMaterialBaseline-2026-10-08.md). Только **Git baseline**: Unity shader/material slots и runtime-состояние требуют отдельного аудита. Ни один игровой ассет не изменён;
 - [x] **Unity Audit All Project Materials** — пользователь предоставил 2026-10-08 вывод `Motor City → Diagnostics → Audit All Project Materials`: **Materials scanned: 767, Null shaders: 0, Unsupported shaders: 0**. Это проверка всех материалов, найденных через `AssetDatabase.FindAssets("t:Material")` в Unity, включая импортированные материалы, а не только 207 отдельных Git `.mat`. Аудит не проверяет пустые слоты `Renderer.sharedMaterials` и не доказывает отсутствие shader-проблем в WebGL;
 - [x] **Unity Audit Materials In Open Scene** — пользователь предоставил 2026-10-08 результат `Motor City → Diagnostics → Audit Materials In Open Scene` для `Prototype` после запроса на проверку загруженного города: `Missing material slots: 0`, `Unsupported/null-shader materials: 0`. Это подтверждает, что у проверенных Renderer в загруженной сцене нет пустых слотов и неподдерживаемых/нулевых шейдеров. Метод проверки — `Renderer.sharedMaterials` и `material.shader.isSupported`; WebGL shader compatibility, будущие динамические объекты и сравнение материала между разными режимами рендера отдельно не проверялись;
-- [ ] архив скриншотов каждой машины день/ночь/гараж: есть 3 снимка гаража (Street/Beatall/Peugeot306); остальные скриншоты не приложены. **Работоспособность всех 10 машин отдельно уже подтверждена**, архивная полнота — отдельный gate;
+- [x] Ручная визуальная проверка каждой машины день/ночь/гараж: 2026-10-09 пользователь прямо подтвердил, что визуал всех 10 автомобилей, включая остекление, проверен и «всё отлично». **Файловый архив** остаётся неполным (ранее переданы 3 скриншота); не называть его созданным.
 - [x] Steering / mobile input smoke notes записаны 2026-10-08: пользователь подтвердил, что **уже проверял** оба режима мобильного управления (стрелки и рулевое колесо), газ, тормоз, ручник и настройку расположения кнопок. Новых замечаний в ответе не сообщил; повторного тестирования не требовать.
-- [ ] Глубокий driving/physics audit: отдельная проверка `FixedUpdate`, сил/поворота/трения, режима езды и влияния ручника по Phase 10; факт пользовательской проверки органов управления **не закрывает** эту задачу.
+- [x] Phase 0 driving/physics source audit: проведён read-only разбор `ArcadeCarController` и `HandbrakePhysicsAssist`: physics FixedUpdate, силы и стабильность, WheelCollider, grip/drive modes, тормоз, ручник и reset. Отчёт: [`Phase0DrivingPhysicsAudit-2026-10-09.md`](Baselines/Phase0DrivingPhysicsAudit-2026-10-09.md). Количественная калибровка/коллизии остаются Phase 10.
 
 ### Исправление Missing Script в Double-Block-09 (2026-10-08)
 
