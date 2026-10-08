@@ -194,6 +194,7 @@ namespace MotorCity.Gameplay
             Save();
         }
 
+#if UNITY_EDITOR || DEBUG
         public void CompleteCurrentForTesting()
         {
             if (AllLegendsDefeated)
@@ -265,6 +266,8 @@ namespace MotorCity.Gameplay
             messageTimer =
                 MessageSeconds;
         }
+
+#endif
 
         private void HandleActivityResult(
             string activityId)
