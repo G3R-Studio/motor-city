@@ -309,6 +309,7 @@ namespace MotorCity.Gameplay
                 4.5f;
         }
 
+#if UNITY_EDITOR || DEBUG
         public void SetClubForTesting(
             int index)
         {
@@ -372,6 +373,8 @@ namespace MotorCity.Gameplay
             StatusText = string.Empty;
             messageTimer = 0f;
         }
+
+#endif
 
         private void OnActivityCompleted(
             string activityId)
