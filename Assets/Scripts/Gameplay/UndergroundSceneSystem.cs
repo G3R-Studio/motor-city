@@ -533,7 +533,6 @@ namespace MotorCity.Gameplay
         }
 
 #if UNITY_EDITOR || DEBUG
-#if UNITY_EDITOR || DEBUG
         public void AddCredForTesting(
             int amount)
         {
@@ -590,7 +589,7 @@ namespace MotorCity.Gameplay
                 current);
         }
 
-#if UNITY_EDITOR || UNITY_WEBGL
+#if UNITY_EDITOR || DEBUG
         public void CancelRunForTesting()
         {
             if (IsActive ||
@@ -615,8 +614,6 @@ namespace MotorCity.Gameplay
             messageTimer =
                 MessageSeconds;
         }
-
-#endif
 
 #endif
 
