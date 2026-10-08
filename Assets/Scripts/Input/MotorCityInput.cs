@@ -340,7 +340,6 @@ namespace MotorCity.Input
                 Application.isMobilePlatform ||
                 SystemInfo.deviceType ==
                     DeviceType.Handheld ||
-                UnityEngine.Input.touchSupported ||
                 Touchscreen.current != null;
 
 #if UNITY_EDITOR
