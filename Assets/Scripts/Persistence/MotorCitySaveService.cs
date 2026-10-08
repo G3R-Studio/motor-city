@@ -234,6 +234,7 @@ namespace MotorCity.Persistence
             }
         }
 
+#if UNITY_EDITOR || DEBUG
         public static void ResetProgressForTesting()
         {
             EnsureLoaded();
@@ -296,6 +297,8 @@ namespace MotorCity.Persistence
             StoreJson(
                 true);
         }
+
+#endif
 
         private static void CopyPreservedTestingEntries(
             SaveDocument source,
