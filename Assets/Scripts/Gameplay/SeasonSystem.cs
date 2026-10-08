@@ -604,6 +604,7 @@ namespace MotorCity.Gameplay
                 missions[missionIndex];
         }
 
+#if UNITY_EDITOR || DEBUG
         public void AdvanceMissionForTesting()
         {
             if (missions == null ||
@@ -687,6 +688,8 @@ namespace MotorCity.Gameplay
 
             Save();
         }
+
+#endif
 
         private void Save()
         {
