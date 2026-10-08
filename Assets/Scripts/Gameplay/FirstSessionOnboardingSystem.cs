@@ -624,6 +624,7 @@ namespace MotorCity.Gameplay
                 MessageSeconds;
         }
 
+#if UNITY_EDITOR || DEBUG
         public void AdvanceStepForTesting()
         {
             if (IsComplete)
@@ -739,6 +740,8 @@ namespace MotorCity.Gameplay
             messageHeld =
                 false;
         }
+
+#endif
 
         private void CompleteSilently()
         {
