@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace FCG
 {
@@ -12,6 +13,8 @@ namespace FCG
         public float mouseSensitivityY = 5.0f;
 
         float rotY = 0.0f;
+        float forwardAxis;
+        float strafeAxis;
 
         void Start()
         {
@@ -22,21 +25,34 @@ namespace FCG
         void Update()
         {
             // rotation        
-            if (Input.GetMouseButton(1))
+            Mouse mouse = Mouse.current;
+            if (mouse != null && mouse.rightButton.isPressed)
             {
-                float rotX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * mouseSensitivityX;
-                rotY += Input.GetAxis("Mouse Y") * mouseSensitivityY;
+                float rotX = transform.localEulerAngles.y + (mouse.delta.ReadValue().x * 0.1f) * mouseSensitivityX;
+                rotY += (mouse.delta.ReadValue().y * 0.1f) * mouseSensitivityY;
                 rotY = Mathf.Clamp(rotY, -89.5f, 89.5f);
                 transform.localEulerAngles = new Vector3(-rotY, rotX, 0.0f);
             }
 
-            float forward = Input.GetAxis("Vertical");
-            float strafe = Input.GetAxis("Horizontal");
+            Keyboard keyboard = Keyboard.current;
+            float forwardTarget =
+                (Held(keyboard, Key.W) || Held(keyboard, Key.UpArrow) ? 1f : 0f) -
+                (Held(keyboard, Key.S) || Held(keyboard, Key.DownArrow) ? 1f : 0f);
+            float strafeTarget =
+                (Held(keyboard, Key.D) || Held(keyboard, Key.RightArrow) ? 1f : 0f) -
+                (Held(keyboard, Key.A) || Held(keyboard, Key.LeftArrow) ? 1f : 0f);
+
+            // Preserve the Input Manager's default Horizontal/Vertical
+            // acceleration and deceleration rate of 3 per second.
+            forwardAxis = Mathf.MoveTowards(forwardAxis, forwardTarget, 3f * Time.deltaTime);
+            strafeAxis = Mathf.MoveTowards(strafeAxis, strafeTarget, 3f * Time.deltaTime);
+            float forward = forwardAxis;
+            float strafe = strafeAxis;
 
             // move forwards/backwards
             if (forward != 0.0f)
             {
-                float speed = Input.GetKey(KeyCode.LeftShift) ? speedFast : speedNormal;
+                float speed = Held(keyboard, Key.LeftShift) ? speedFast : speedNormal;
                 Vector3 trans = new Vector3(0.0f, 0.0f, forward * speed * Time.deltaTime);
                 gameObject.transform.localPosition += gameObject.transform.localRotation * trans;
             }
@@ -44,7 +60,7 @@ namespace FCG
             // strafe left/right
             if (strafe != 0.0f)
             {
-                float speed = Input.GetKey(KeyCode.LeftShift) ? speedFast : speedNormal;
+                float speed = Held(keyboard, Key.LeftShift) ? speedFast : speedNormal;
                 Vector3 trans = new Vector3(strafe * speed * Time.deltaTime, 0.0f, 0.0f);
                 gameObject.transform.localPosition += gameObject.transform.localRotation * trans;
             }
@@ -53,4 +69,8 @@ namespace FCG
 
     }
 
+        private static bool Held(Keyboard keyboard, Key key)
+        {
+            return keyboard != null && keyboard[key].isPressed;
+        }
 }
