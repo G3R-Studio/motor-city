@@ -47,9 +47,11 @@ try {
         $source.Substring($match.Index, $offset - $match.Index)
     }
     $template = [IO.File]::ReadAllText((Join-Path $projectRoot 'Tools/Tests/CustomizationDispatchChecks.template'))
-    # This is its own Add-Type compilation, separate from the lamp tests.
-    # The template deliberately defines its own minimal UnityEngine test
-    # stubs alongside extracted REAL methods to avoid dynamic assembly refs.
+    # Each Add-Type compilation is separate, but all its types remain loaded
+    # inside this PowerShell process. Do not define UnityEngine.Transform or
+    # any other UnityEngine stub for the second time: the customization
+    # template uses MotorCityCleanupTests.Customization to avoid collisions.
+    # Its local doubles compile with the seven extracted REAL methods.
     Add-Type -TypeDefinition $template.Replace('/* SOURCE_METHODS */', ($methods -join "`n"))
     [CustomizationChecks]::Run()
     Write-Output 'Cosmetic dispatch, property-block cleanup, save/events, vehicle initialization and color-cycle checks passed.'
