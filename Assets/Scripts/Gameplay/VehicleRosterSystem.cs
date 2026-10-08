@@ -1024,6 +1024,12 @@ namespace MotorCity.Gameplay
                     break;
             }
 
+            HybridCoordinateLights hybridLights =
+                car.GetComponent<HybridCoordinateLights>();
+            if (hybridLights == null)
+                hybridLights = car.gameObject.AddComponent<HybridCoordinateLights>();
+            hybridLights.SetVehicleId(profile.Id);
+
             PlayerVehicleRearEmission rearEmission =
                 car.GetComponent<PlayerVehicleRearEmission>();
 
