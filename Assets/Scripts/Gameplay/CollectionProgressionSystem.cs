@@ -167,6 +167,7 @@ namespace MotorCity.Gameplay
             }
         }
 
+#if UNITY_EDITOR || DEBUG
         public void RecalculateForTesting()
         {
             Recalculate(
@@ -210,6 +211,8 @@ namespace MotorCity.Gameplay
 
             SaveClaimedTier();
         }
+
+#endif
 
         private void HandleVehicleChanged()
         {
