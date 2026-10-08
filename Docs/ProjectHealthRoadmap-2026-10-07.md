@@ -12,6 +12,36 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 
 ---
 
+# 0. Трекер выполнения (обновляется после каждого этапа)
+
+> **Дата начала трекинга:** 2026-10-08. **Текущая фаза:** Phase 0 — Freeze / baseline.
+> **Правило отметок:** `[x]` ставится только после выполнения работы **и** проверки применимых verification gates, включая подтверждение в Unity от пользователя. Работа в GitHub без проверки в Unity не считается завершённой фазой. `[ ]` — не завершено, даже если код уже подготовлен.
+> **Рабочий процесс:** одна фаза (или отдельно оговорённый подпункт) за раз → проверка ссылок/GUID и зависимостей по Gate A–F → изменение отдельным коммитом в `main` → статические проверки → инструкция для Unity → подтверждение пользователя → обновление галочек и журнала. Никаких удалений без Gate G.
+
+## Обзор фаз
+
+- [ ] **Phase 0 — Freeze / baseline** — В РАБОТЕ: зафиксировать состояние до чистки
+- [ ] **Phase 1 — Release safety** — P0.1, убрать QA/admin из production
+- [ ] **Phase 2 — Automated gates** — P0.2, CI и аудиты
+- [ ] **Phase 3 — Vehicle contract** — P0.3, единый контракт моделей
+- [ ] **Phase 4 — Vehicle material/lamp roles** — P0.4, материал/роль/владелец
+- [ ] **Phase 5 — Low-risk dead cleanup** — только доказанные неиспользуемые файлы
+- [ ] **Phase 6 — Bootstrap/lifecycle** — жизненный цикл и события
+- [ ] **Phase 7 — UI ownership** — единый владелец интерфейса
+- [ ] **Phase 8 — Save/progression** — сохранения и миграции
+- [ ] **Phase 9 — City/runtime** — город, материалы, производительность
+- [ ] **Phase 10 — Vehicle physics** — физика и мобильное управление
+- [ ] **Phase 11 — Final asset/package cleanup** — ассеты, пакеты, дубликаты
+- [ ] **Phase 12 — Release matrix** — итоговая Editor/WebGL Development/WebGL Release матрица
+
+## Журнал выполнения
+
+| Дата | Фаза | Действие | Статус / доказательство |
+| --- | --- | --- | --- |
+| 2026-10-08 | Phase 0 | Введён трекер этапов по существующей roadmap, код игры не менялся | Подготовка выполнена; baseline, Unity smoke и WebGL ещё не проверены |
+
+---
+
 ## 1. Текущий масштаб проекта
 
 На момент аудита:
@@ -973,89 +1003,102 @@ shader/material/prefab могут ссылаться сериализованн�
 
 ## Phase 0 — Freeze / baseline
 
-- новый audit baseline;
-- Console clean;
-- записать current prefab/material state;
-- сохранить screenshots каждой машины день/ночь/гараж;
-- сохранить steering/physics smoke notes.
+**Цель:** зафиксировать текущее состояние после обновлений машин, света и стёкол **до любых удалений**. Старый аудит от 2026-10-07 — исходное описание проблем, но не подтверждённый baseline текущего кода.
+
+**Проверка Phase 0 (последовательно):**
+
+1. В PowerShell 7 из корня проекта выполните `git status` — не должно быть незавершённого merge или конфликтов. Сохраните короткий hash команды `git rev-parse --short HEAD`. Если есть локальные незакоммиченные изменения, ничего не сбрасывайте; сначала завершите merge/commit.
+2. Выполните `pwsh -NoProfile -File Tools/check_cleanup.ps1` и сохраните весь вывод. Это Roslyn/source-тесты, **не** Unity compile.
+3. Выполните `py -3 Tools/audit_project.py --output Temp/MotorCityAudit/static-audit.json` и сохраните JSON. Кандидаты без GUID-reference **не разрешены к удалению**.
+4. В Unity откройте `Assets/Scenes/Prototype.unity`, дождитесь компиляции, откройте `Motor City → Audit → Write project and loaded scene report`, сохраните отчёт. Зафиксируйте ошибки Console, включая существующие предупреждения, отдельно от новых.
+5. Play Mode: главное меню → выбор управления → город → гараж → пауза → главное меню → Continue; переключите все машины. Сделайте для каждой скриншот в гараже, днём и ночью, отдельно отметьте paint/glass/headlights/brake/wheels и поведение руля, газа, тормоза, ручника.
+6. Зафиксируйте результаты в журнале выше; проверенный статус `Phase 0` отмечается `[x]` только после выполнения всех применимых подпунктов ниже.
+
+- [ ] новый audit baseline;
+- [ ] Console clean;
+- [ ] записать current prefab/material state;
+- [ ] сохранить screenshots каждой машины день/ночь/гараж;
+- [ ] сохранить steering/physics smoke notes.
 
 ## Phase 1 — Release safety
 
-- MOTORCITY_QA / DEVELOPMENT_BUILD;
-- убрать AdminDebugPanel и QA RESET SAVE из release;
-- mock-ad/testing entrypoints из release;
-- release WebGL smoke.
+- [ ] MOTORCITY_QA / DEVELOPMENT_BUILD;
+- [ ] убрать AdminDebugPanel и QA RESET SAVE из release;
+- [ ] mock-ad/testing entrypoints из release;
+- [ ] release WebGL smoke.
 
 ## Phase 2 — Automated gates
 
-- CI;
-- Roslyn/static tests;
-- GUID audit;
-- Unity compile/test;
-- dependency/build report.
+- [ ] CI;
+- [ ] Roslyn/static tests;
+- [ ] GUID audit;
+- [ ] Unity compile/test;
+- [ ] dependency/build report.
 
 ## Phase 3 — Vehicle contract
 
-- один visual naming resolver;
-- validation всех моделей;
-- Hybrid body contract;
-- importers;
-- wheel transforms snapshot tests.
+- [ ] один visual naming resolver;
+- [ ] validation всех моделей;
+- [ ] Hybrid body contract;
+- [ ] importers;
+- [ ] wheel transforms snapshot tests.
 
 ## Phase 4 — Vehicle material/lamp roles
 
-- explicit body/glass/mirror/lamp/rim roles;
-- migrate one vehicle at a time;
-- remove numeric/material-name magic only after migration.
+- [ ] explicit body/glass/mirror/lamp/rim roles;
+- [ ] migrate one vehicle at a time;
+- [ ] remove numeric/material-name magic only after migration.
 
 ## Phase 5 — Low-risk dead cleanup
 
-- dead constants;
-- stale generated materials;
-- obsolete editor migration tools;
-- exact orphan assets confirmed by all gates.
+- [ ] dead constants;
+- [ ] stale generated materials;
+- [ ] obsolete editor migration tools;
+- [ ] exact orphan assets confirmed by all gates.
 
 ## Phase 6 — Bootstrap/lifecycle
 
-- split bootstrap by phases;
-- singleton/DontDestroy audit;
-- event subscribe/unsubscribe audit.
+- [ ] split bootstrap by phases;
+- [ ] singleton/DontDestroy audit;
+- [ ] event subscribe/unsubscribe audit.
 
 ## Phase 7 — UI ownership
 
-- remove double layout ownership;
-- HudVisualPolish dependency reduction;
-- split FrontEnd/Navigator/Touch UI files.
+- [ ] remove double layout ownership;
+- [ ] HudVisualPolish dependency reduction;
+- [ ] split FrontEnd/Navigator/Touch UI files.
 
 ## Phase 8 — Save/progression
 
-- key registry;
-- device/cloud/QA separation;
-- migration tests;
-- save restart/cloud conflict tests.
+- [ ] key registry;
+- [ ] device/cloud/QA separation;
+- [ ] migration tests;
+- [ ] save restart/cloud conflict tests.
 
 ## Phase 9 — City/runtime
 
-- remove startup diagnostics from release;
-- migrate runtime material repairs to Editor builder;
-- profiler-driven city optimization.
+- [ ] remove startup diagnostics from release;
+- [ ] migrate runtime material repairs to Editor builder;
+- [ ] profiler-driven city optimization.
 
 ## Phase 10 — Vehicle physics
 
-- FixedUpdate force/steer/friction trace;
-- drive modes;
-- handbrake;
-- mobile input timing;
-- only then tuning.
+- [ ] FixedUpdate force/steer/friction trace;
+- [ ] drive modes;
+- [ ] handbrake;
+- [ ] mobile input timing;
+- [ ] only then tuning.
 
 ## Phase 11 — final asset/package cleanup
 
-- third-party packages;
-- duplicate textures;
-- source vs runtime city storage;
-- LFS migration if chosen.
+- [ ] third-party packages;
+- [ ] duplicate textures;
+- [ ] source vs runtime city storage;
+- [ ] LFS migration if chosen.
 
 ## Phase 12 — release matrix
+
+- [ ] Матрица Editor / WebGL Dev / WebGL Release ниже полностью проверена; все отрицательные проверки (QA в Release, missing scripts/materials) прошли.
 
 Проверить минимум:
 
