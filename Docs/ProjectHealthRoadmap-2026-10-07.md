@@ -66,6 +66,8 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 
 | 2026-10-09 | Phase 1 / P0.1 | QA/Admin guards in `AdminDebugPanel`, `MotorCityInput`, `MotorCityFrontEndFlow`, `MotorCityBootstrap` and interstitial mock switched from `UNITY_EDITOR || UNITY_WEBGL` to `UNITY_EDITOR || DEVELOPMENT_BUILD` (10 guards across 5 files). Post-write source read-back: no old guards in these files; preprocessor #if/#endif balanced. | **[x] Source patch prepared**; **[ ] Unity Editor compile/Play Mode smoke**, **[ ] WebGL Development QA visibility**, **[ ] WebGL Release QA absence**. Do not close Phase 1 until user runtime confirmation. |
 
+| 2026-10-09 | Phase 1 / P0.1 follow-up | Unity Console reported 10 `UAC0009` warnings from deprecated `DEVELOPMENT_BUILD` guards. Replaced all 10 in 5 QA-related C# files with `UNITY_EDITOR || DEBUG`; post-write reads show 0 deprecated guards and balanced preprocessor directives. | **[x] Source fix**; **[ ] Unity Console warning-clear confirmation**, **[ ] Development QA present / Release QA absent**. `DEBUG` behavior still must be verified in actual build profiles. |
+
 ---
 
 ## 1. Текущий масштаб проекта
