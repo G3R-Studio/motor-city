@@ -309,6 +309,7 @@ namespace MotorCity.Gameplay
             };
         }
 
+#if UNITY_EDITOR || DEBUG
         public void CompleteGoldForTesting(
             int index)
         {
@@ -362,6 +363,8 @@ namespace MotorCity.Gameplay
             messageTimer =
                 0f;
         }
+
+#endif
 
         public Vector3 GetSpotPosition(int index)
         {
