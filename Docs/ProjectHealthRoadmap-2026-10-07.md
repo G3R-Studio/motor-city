@@ -14,7 +14,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 
 # 0. Трекер выполнения (обновляется после каждого этапа)
 
-> **Дата начала трекинга:** 2026-10-08. **Текущая фаза:** Phase 0 — Freeze / baseline.
+> **Дата начала трекинга:** 2026-10-08. **Текущий статус:** Phase 0 — Freeze / baseline (открыта); Phase 1 — Release safety / P0.1 (частично проверена, не закрыта).
 > **Правило отметок:** `[x]` ставится только после выполнения работы **и** проверки применимых verification gates, включая подтверждение в Unity от пользователя. Работа в GitHub без проверки в Unity не считается завершённой фазой. `[ ]` — не завершено, даже если код уже подготовлен.
 > **Рабочий процесс:** одна фаза (или отдельно оговорённый подпункт) за раз → проверка ссылок/GUID и зависимостей по Gate A–F → изменение отдельным коммитом в `main` → статические проверки → инструкция для Unity → подтверждение пользователя → обновление галочек и журнала. Никаких удалений без Gate G.
 
@@ -33,6 +33,16 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 - [ ] **Phase 10 — Vehicle physics** — физика и мобильное управление
 - [ ] **Phase 11 — Final asset/package cleanup** — ассеты, пакеты, дубликаты
 - [ ] **Phase 12 — Release matrix** — итоговая Editor/WebGL Development/WebGL Release матрица
+
+## Подтверждённые проверки (это не закрытие всей фазы)
+
+- [x] Phase 0: source/regression проверки и статический GUID audit; Unity Editor/Play Mode baseline.
+- [x] Phase 0: устранены два Missing Script; проверены материалы в Unity и миграция Input System (New).
+- [x] Phase 1 / P0.1: Unity Console — предупреждения `UAC0009` исчезли по подтверждению пользователя.
+- [x] Phase 1 / P0.1: WebGL Desktop Release — запуск, управление, отсутствие QA/Admin по подтверждению пользователя.
+- [x] Phase 1 / P0.1: WebGL Development — запуск и доступность QA/Admin по подтверждению пользователя.
+- [ ] Phase 1 / P0.1: итоговая проверка всех QA/mock/reset путей перед закрытием фазы.
+- [ ] Phase 12: формальная матрица сборок, включая WebGL Mobile Release; не считать её выполненной по Desktop smoke.
 
 ## Журнал выполнения
 
@@ -65,13 +75,9 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-08 | Phase 0 / Input / WebGL | В ответ на просьбу проверить WebGL Desktop в браузере пользователь сообщил: «в webgl всё нормально, уже проверял». Дополнен `Docs/InputSystemMigration-2026-10-08.md` (`ecd2960`). | **[x] WebGL работоспособность подтверждена пользователем**; не требовать повторного общего smoke. **[ ]** Отдельных артефактов/отчётов для Desktop и Mobile Release после миграции нет; эти формальные gates остаются в Phase 12. Phase 0 ещё открыт по иным документационным/техническим пунктам |
 
 | 2026-10-09 | Phase 1 / P0.1 | QA/Admin guards in `AdminDebugPanel`, `MotorCityInput`, `MotorCityFrontEndFlow`, `MotorCityBootstrap` and interstitial mock switched from `UNITY_EDITOR || UNITY_WEBGL` to `UNITY_EDITOR || DEVELOPMENT_BUILD` (10 guards across 5 files). Post-write source read-back: no old guards in these files; preprocessor #if/#endif balanced. | **[x] Source patch prepared**; **[ ] Unity Editor compile/Play Mode smoke**, **[ ] WebGL Development QA visibility**, **[ ] WebGL Release QA absence**. Do not close Phase 1 until user runtime confirmation. |
-
 | 2026-10-09 | Phase 1 / P0.1 follow-up | Unity Console reported 10 `UAC0009` warnings from deprecated `DEVELOPMENT_BUILD` guards. Replaced all 10 in 5 QA-related C# files with `UNITY_EDITOR || DEBUG`; post-write reads show 0 deprecated guards and balanced preprocessor directives. | **[x] Source fix**; **[ ] Unity Console warning-clear confirmation**, **[ ] Development QA present / Release QA absent**. `DEBUG` behavior still must be verified in actual build profiles. |
-
 | 2026-10-09 | Phase 1 / WebGL Desktop Release | Пользователь подтвердил «всё чётко» после инструкции собрать `Web - Desktop - Release`, проверить запуск, управление и отсутствие QA/Admin-панели. | **[x] Desktop Release ручной smoke по подтверждению пользователя**; **[ ] Development WebGL проверка наличия QA**, **[ ] Mobile Release и формальная build matrix**. |
-
 | 2026-10-09 | Phase 1 / WebGL Development | После проверки Desktop Release пользователь подтвердил «всё чётко» для WebGL Development: QA/Admin доступна, игра работает. | **[x] Development WebGL ручной smoke по подтверждению пользователя**; **[x] Desktop Release QA isolation по предыдущему подтверждению**. **[ ]** Phase 1 окончательно закрывать только после сверки всех P0.1 QA/mock/reset paths и релевантных gates; **[ ]** формальная Mobile Release матрица. |
-
 ---
 
 ## 1. Текущий масштаб проекта
