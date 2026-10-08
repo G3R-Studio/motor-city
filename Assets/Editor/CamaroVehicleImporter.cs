@@ -9,6 +9,9 @@ public static class CamaroVehicleImporter
     private const string BodySource =
         "Assets/VehicleAssets/Camaro/camaro.obj";
 
+    private const string MaterialSource =
+        "Assets/VehicleAssets/Camaro/camaro.mtl";
+
     // Updated Camaro follows the same wheel export layout as Beatall:
     // one authored front_wheels source is reused on both axles.
     private const string WheelSource =
@@ -27,7 +30,7 @@ public static class CamaroVehicleImporter
         "MotorCity.CamaroVehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.CamaroVehicleSourceHash.V2";
+        "MotorCity.CamaroVehicleSourceHash.V3";
 
     static CamaroVehicleImporter()
     {
@@ -57,6 +60,7 @@ public static class CamaroVehicleImporter
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
+                MaterialSource,
                 WheelSource,
                 ColorTextureSource);
 
