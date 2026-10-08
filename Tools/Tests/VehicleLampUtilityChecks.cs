@@ -17,6 +17,8 @@ namespace UnityEngine
     public class Transform { public string name; public Transform parent; }
     public class Material
     {
+        // Used by the production VehicleVisualRoleUtility material classifiers.
+        public string name;
         public readonly Dictionary<string,Texture> textures=new Dictionary<string,Texture>();
         public readonly Dictionary<string,Vector2> scales=new Dictionary<string,Vector2>(),offsets=new Dictionary<string,Vector2>();
         public bool HasProperty(string p)=>textures.ContainsKey(p);
@@ -44,5 +46,11 @@ public static class VehicleLampUtilityChecks
         if(min!= -3.5f||max!=10.5f)throw new Exception("Lamp projection bounds changed");
         var wheel=new UnityEngine.Transform{name="front wheel"};var child=new UnityEngine.Transform{name="mesh",parent=wheel};
         if(!MotorCity.World.VehicleLampMaterialUtility.IsWheelRenderer(child)||MotorCity.World.VehicleLampMaterialUtility.IsWheelRenderer(new UnityEngine.Transform{name="Body"}))throw new Exception("Wheel exclusion changed");
+        var rim=new UnityEngine.Transform{name="Rear Rim"};
+        var alloy=new UnityEngine.Transform{name="Alloy"};
+        if(!MotorCity.World.VehicleLampMaterialUtility.IsWheelRenderer(rim))throw new Exception("Rim hierarchy exclusion changed");
+        if(MotorCity.World.VehicleLampMaterialUtility.IsWheelRenderer(alloy))throw new Exception("Alloy must not be classified as a wheel by lamp helper");
+        if(!MotorCity.Vehicle.VehicleVisualRoleUtility.IsWheelHierarchy(alloy))throw new Exception("Shared role utility should still support alloy");
+        if(!MotorCity.Vehicle.VehicleVisualRoleUtility.IsRimMaterial(new UnityEngine.Material{name="car rim (Instance)"}))throw new Exception("Rim material classification changed");
     }
 }
