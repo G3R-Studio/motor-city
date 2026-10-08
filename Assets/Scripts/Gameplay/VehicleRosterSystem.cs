@@ -1030,6 +1030,12 @@ namespace MotorCity.Gameplay
                 hybridLights = car.gameObject.AddComponent<HybridCoordinateLights>();
             hybridLights.SetVehicleId(profile.Id);
 
+            DeloreanAuthoredLights deloreanLights =
+                car.GetComponent<DeloreanAuthoredLights>();
+            if (deloreanLights == null)
+                deloreanLights = car.gameObject.AddComponent<DeloreanAuthoredLights>();
+            deloreanLights.SetVehicleId(profile.Id);
+
             PlayerVehicleRearEmission rearEmission =
                 car.GetComponent<PlayerVehicleRearEmission>();
 
