@@ -317,6 +317,18 @@ not a Bus-prefab defect. Do not hand-edit vehicle prefabs/materials to hide it.
 The future fix belongs in `PlayerVehicleRearEmission` lifecycle/fallback logic
 and must be verified across all cached vehicle switches.
 
+### Runtime smoke observation — no regressions
+
+Manual Play Mode observation after the runtime audits:
+
+- no red Console errors observed;
+- no visible gameplay/visual breakages observed during the current smoke pass;
+- confirmed cached rear-lamp missing-material warnings remain the only known
+  runtime material/lifecycle defect from this pass.
+
+This is recorded as a baseline observation only. Save/restart and WebGL gates
+remain separate and must still be completed explicitly.
+
 ### Build dependency report
 
 - Enabled build scenes: **1**
@@ -341,12 +353,12 @@ not the scene-only count.
 | Gate | Result | Notes |
 | --- | --- | --- |
 | Unity compile | PENDING | |
-| Console before Play | PENDING | |
+| Console before Play | PASS | No red errors reported during the current Unity run |
 | Project audit missing scripts | BASELINE ISSUE | 2 missing components in FCG Double-Block-09 Water/Water-B |
 | Scene material audit | CONFIRMED BASELINE ISSUE | Missing slots grow 4 -> 6 -> 8 across cached AmgGT/Bus/Delorean legacy rear-lamp overlays |
 | All-project material audit | PASS | 766 materials, 0 null shaders, 0 unsupported shaders |
 | Build dependency report | PASS | City 339.64 MiB / 526 deps; vehicles 2.31 MiB / 41 deps |
-| Runtime scene audit | PASS WITH BASELINE ISSUES | 3479 scripts / 788 lights / 22597 renderers; no runtime scene missing-script additions |\n| Main menu flow | PENDING | |
+| Runtime scene audit | PASS WITH BASELINE ISSUES | 3479 scripts / 788 lights / 22597 renderers; no runtime scene missing-script additions; no red runtime errors observed |\n| Main menu flow | PENDING | |
 | Pause -> Main Menu -> Continue | PENDING | |
 | Every vehicle visual | PENDING | |
 | Keyboard controls | PENDING | |
