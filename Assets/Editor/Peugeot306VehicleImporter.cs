@@ -8,6 +8,9 @@ public static class Peugeot306VehicleImporter
     private const string BodySource =
         "Assets/VehicleAssets/Peugeot306/peugeot306.obj";
 
+    private const string MaterialSource =
+        "Assets/VehicleAssets/Peugeot306/peugeot306.mtl";
+
     // Revised Peugeot follows the Beatall export layout:
     // one front_wheels OBJ is reused on both axles.
     private const string WheelSource =
@@ -23,7 +26,7 @@ public static class Peugeot306VehicleImporter
         "MotorCity.Peugeot306VehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.Peugeot306VehicleSourceHash.V2";
+        "MotorCity.Peugeot306VehicleSourceHash.V3";
 
     static Peugeot306VehicleImporter()
     {
@@ -53,6 +56,7 @@ public static class Peugeot306VehicleImporter
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
+                MaterialSource,
                 WheelSource);
 
         if (!StandardVehicleImportUtility.ShouldRebuild(
