@@ -1042,6 +1042,12 @@ namespace MotorCity.Gameplay
                 amgLights = car.gameObject.AddComponent<AmgGTAuthoredLights>();
             amgLights.SetVehicleId(profile.Id);
 
+            VehicleAuthoredLampLights authoredLights =
+                car.GetComponent<VehicleAuthoredLampLights>();
+            if (authoredLights == null)
+                authoredLights = car.gameObject.AddComponent<VehicleAuthoredLampLights>();
+            authoredLights.SetVehicleId(profile.Id);
+
             PlayerVehicleRearEmission rearEmission =
                 car.GetComponent<PlayerVehicleRearEmission>();
 
