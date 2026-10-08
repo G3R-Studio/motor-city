@@ -205,6 +205,23 @@ namespace MotorCity.World
                 return;
             }
 
+            if (vehicleId == VehicleIds.AmgGT)
+            {
+                // Area-weighted centers of the left/right MC_Headlight faces
+                // in Assets/VehicleAssets/AmgGT/amggt.obj (Z-forward).
+                // Keep the same existing night-gated Spot Light behavior.
+                left.transform.position = currentVisual.TransformPoint(
+                    new Vector3(-0.67457f, 0.50094f, 1.68872f));
+                right.transform.position = currentVisual.TransformPoint(
+                    new Vector3(0.67457f, 0.50094f, 1.68872f));
+
+                // The actual lamp surfaces are driven exclusively by
+                // AmgGTAuthoredLights, not these legacy material bindings.
+                ClearNightEmissionOverlays();
+                frontLampMaterials.Clear();
+                return;
+            }
+
             Renderer[] renderers =
                 currentVisual.GetComponentsInChildren<Renderer>(
                     true);
@@ -352,7 +369,8 @@ namespace MotorCity.World
             // never manipulate those imported materials or add overlays.
             if (currentVisual == null ||
                 vehicleId == VehicleIds.Hybrid ||
-                vehicleId == VehicleIds.Delorean)
+                vehicleId == VehicleIds.Delorean ||
+                vehicleId == VehicleIds.AmgGT)
                 return;
 
             Renderer[] renderers =
