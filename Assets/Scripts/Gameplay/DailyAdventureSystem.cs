@@ -265,6 +265,7 @@ namespace MotorCity.Gameplay
             }
         }
 
+#if UNITY_EDITOR || DEBUG
         public void CompleteForTesting()
         {
             for (int i = 0;
@@ -305,6 +306,8 @@ namespace MotorCity.Gameplay
             messageTimer =
                 MessageSeconds;
         }
+
+#endif
 
         private void CompleteDay()
         {
