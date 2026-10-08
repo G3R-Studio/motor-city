@@ -229,18 +229,74 @@ python Tools/audit_project.py --baseline 5d67e12acec3265b93329e0464c67394ad78385
 Release WebGL baseline особенно важен для Phase 1, потому что именно там
 будет удаляться production exposure QA/Admin функций.
 
-## 9. Baseline result table
+## 9. Captured baseline results — 2026-10-08
 
-Заполняется после ручного Unity прохода.
+Получены Unity-generated отчёты с baseline `main`.
+
+### Project audit
+
+- Imported project assets: **2007**
+- Enabled build scene: `Assets/Scenes/Prototype.unity`
+- Existing source-prefab Missing Script:
+  - `Assets/Fantastic City Generator/Roads/Prefab/Double-Block-09.prefab`
+  - `Double-Block-09/Meshes/Water`: 1 missing script
+  - `Double-Block-09/Meshes/Water-B`: 1 missing script
+- Edit-mode loaded `Prototype`: **0 scripts, 0 lights, 0 renderers**
+
+The `Double-Block-09.prefab` GUID is
+`117dc5da96c6fef48a8f4f0f03a504b9`. Static repository search finds its
+direct serialized consumer in `Assets/Fantastic City Generator/Generate.prefab`.
+Do not remove or repair the components blindly: first verify the runtime baked
+city in Play Mode.
+
+Because `Prototype` has zero renderers in Edit Mode, the open-scene material
+audit before Play Mode does not validate the dynamically installed city and
+vehicle renderers. Repeat **Motor City -> Diagnostics -> Audit Materials In Open Scene**
+while Play Mode is running and the city/vehicle have finished loading.
+
+### Material audit
+
+Open scene material audit:
+- Missing material slots: **0**
+- Unsupported/null-shader materials: **0**
+
+All-project material audit:
+- Materials scanned: **766**
+- Null shaders: **0**
+- Unsupported shaders: **0**
+
+Result: **PASS**, with the runtime Play Mode re-check still required because the
+edit-mode scene itself contains no renderers.
+
+### Build dependency report
+
+- Enabled build scenes: **1**
+- Scene: `Assets/Scenes/Prototype.unity`
+- Direct scene dependencies reported: **1**
+- Direct scene raw size: **3.58 KiB**
+- FCG / CITY roots: **1**
+- FCG / CITY unique dependencies: **526**
+- FCG / CITY raw dependency size: **339.64 MiB**
+- `CityVisual.prefab`: **99.47 MiB**
+- PLAYER VEHICLES roots: **9**
+- PLAYER VEHICLES unique dependencies: **41**
+- PLAYER VEHICLES raw dependency size: **2.31 MiB**
+
+The scene dependency count of 1 is expected to be incomplete for runtime-loaded
+content: Motor City installs major content through Resources/runtime bootstrap.
+Use the dedicated FCG/CITY and PLAYER VEHICLES sections for cleanup decisions,
+not the scene-only count.
+
+## 10. Baseline result table
 
 | Gate | Result | Notes |
 | --- | --- | --- |
 | Unity compile | PENDING | |
 | Console before Play | PENDING | |
-| Project audit missing scripts | PENDING | |
-| Scene material audit | PENDING | |
-| All-project material audit | PENDING | |
-| Build dependency report | PENDING | |
+| Project audit missing scripts | BASELINE ISSUE | 2 missing components in FCG Double-Block-09 Water/Water-B |
+| Scene material audit | PASS / RUNTIME RECHECK | 0/0 in Edit Mode, but Prototype has 0 renderers before Play |
+| All-project material audit | PASS | 766 materials, 0 null shaders, 0 unsupported shaders |
+| Build dependency report | PASS | City 339.64 MiB / 526 deps; vehicles 2.31 MiB / 41 deps |
 | Main menu flow | PENDING | |
 | Pause -> Main Menu -> Continue | PENDING | |
 | Every vehicle visual | PENDING | |
@@ -251,7 +307,7 @@ Release WebGL baseline особенно важен для Phase 1, потому 
 | WebGL Development | PENDING | |
 | WebGL Release | PENDING | |
 
-## 10. Phase 0 exit criteria
+## 11. Phase 0 exit criteria
 
 Phase 0 можно считать закрытым, когда:
 
