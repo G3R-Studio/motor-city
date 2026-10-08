@@ -513,6 +513,18 @@ namespace MotorCity.Gameplay
                         continue;
                     }
 
+                    // Hybrid's OBJ has body, accent, brake and white lamp
+                    // polygons in the same renderer. Paint only its authored
+                    // body material; property blocks on lamp slots would tint
+                    // the real headlights/brake lenses the player's car color.
+                    if (VehicleId() == VehicleIds.Hybrid &&
+                        !material.name.StartsWith(
+                            "Material.001",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
                     ApplyColorBlock(
                         renderer,
                         material,
