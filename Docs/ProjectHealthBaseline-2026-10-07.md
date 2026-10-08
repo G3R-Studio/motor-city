@@ -268,6 +268,35 @@ All-project material audit:
 Result: **PASS**, with the runtime Play Mode re-check still required because the
 edit-mode scene itself contains no renderers.
 
+### Runtime Play Mode audit
+
+Runtime audit captured after the dynamically installed city/vehicle loaded:
+
+- Prototype scripts: **3479**
+- Prototype lights: **788**
+- Prototype renderers: **22597**
+- No additional loaded-scene Missing Script errors were reported.
+- The two FCG `Double-Block-09` Missing Script entries remain source-prefab baseline issues.
+
+Runtime material audit found a vehicle-cache lifecycle issue:
+
+- cached Bus path:
+  `PlayerCar/MotorCityVehicleVisual_Runtime_Cached_MotorCity_Vehicles_Player_Bus/bus_root/body_misc/MotorCityRearLampEmission`
+- slot 0: missing material
+- slot 1: missing material
+
+Repository inspection shows the stale object is created by
+`PlayerVehicleRearEmission.CreateTexturedRearLampOverlay()`.
+The class declares mesh lamp overlays disabled, but its no-binding fallback still
+calls that method. On vehicle switch, temporary runtime materials are destroyed
+while the Bus visual is preserved in `RuntimeVehicleVisualCache`, leaving the
+legacy overlay object inside the inactive cached Bus with destroyed/null material
+references.
+
+Status: **BASELINE RUNTIME ISSUE**. Do not hand-edit the Bus prefab. Fix should
+be made in the rear-emission lifecycle/fallback code and verified by repeatedly
+switching Bus -> another vehicle -> Bus while running the material audit.
+
 ### Build dependency report
 
 - Enabled build scenes: **1**
@@ -294,10 +323,10 @@ not the scene-only count.
 | Unity compile | PENDING | |
 | Console before Play | PENDING | |
 | Project audit missing scripts | BASELINE ISSUE | 2 missing components in FCG Double-Block-09 Water/Water-B |
-| Scene material audit | PASS / RUNTIME RECHECK | 0/0 in Edit Mode, but Prototype has 0 renderers before Play |
+| Scene material audit | BASELINE ISSUE | Edit Mode 0/0; runtime finds 2 null slots in cached Bus legacy rear-lamp overlay |
 | All-project material audit | PASS | 766 materials, 0 null shaders, 0 unsupported shaders |
 | Build dependency report | PASS | City 339.64 MiB / 526 deps; vehicles 2.31 MiB / 41 deps |
-| Main menu flow | PENDING | |
+| Runtime scene audit | PASS WITH BASELINE ISSUES | 3479 scripts / 788 lights / 22597 renderers; no runtime scene missing-script additions |\n| Main menu flow | PENDING | |
 | Pause -> Main Menu -> Continue | PENDING | |
 | Every vehicle visual | PENDING | |
 | Keyboard controls | PENDING | |
