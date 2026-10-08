@@ -251,10 +251,11 @@ namespace MotorCity.World
 
             RemoveLegacyOverlays();
 
-            // Hybrid and DeLorean use their own authored material slots
-            // for stop lamps. Avoid legacy bindings and mesh overlays.
+            // Hybrid, DeLorean and AMG GT use dedicated authored materials
+            // for stop lamps. Avoid duplicate legacy bindings/overlays.
             if (vehicleId == VehicleIds.Hybrid ||
-                vehicleId == VehicleIds.Delorean)
+                vehicleId == VehicleIds.Delorean ||
+                vehicleId == VehicleIds.AmgGT)
                 return;
 
             Renderer[] renderers =
