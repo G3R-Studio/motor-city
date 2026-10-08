@@ -251,9 +251,9 @@ namespace MotorCity.World
 
             RemoveLegacyOverlays();
 
-            // Hybrid rear lamps use authored coordinate anchors instead of
-            // material/color detection. The separate coordinate controller
-            // handles reverse and handbrake at any hour.
+            // Hybrid's authored Material.004 faces are driven by
+            // HybridCoordinateLights, including reverse and handbrake.
+            // Do not create a second emission binding for this vehicle.
             if (vehicleId == VehicleIds.Hybrid)
                 return;
 
