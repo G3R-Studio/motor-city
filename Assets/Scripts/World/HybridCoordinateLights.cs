@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MotorCity.Input;
 using MotorCity.Vehicle;
@@ -5,166 +6,234 @@ using UnityEngine;
 
 namespace MotorCity.World
 {
-    // Hybrid only: explicit Blender-authored lamp positions. No material-name
-    // or pixel-color detection. Other cars retain their existing lighting.
+    /// <summary>
+    /// Drives Hybrid's authored lamp polygons, not positioned primitives.
+    /// hybrid.obj splits the rear white faces out of Material.005 into
+    /// Material.005_RearUnlit. No mesh copies, color searches or lamp overlays.
+    /// </summary>
     public sealed class HybridCoordinateLights : MonoBehaviour
     {
-        private const string VisualName = "MotorCityVehicleVisual_Runtime";
-        private const string RootName = "MotorCityHybridCoordinateLights";
-        private static readonly Vector3[] Front =
-        {
-            new(-0.4199f, 0.4040f, 1.6630f),
-            new( 0.4199f, 0.4040f, 1.6630f)
-        };
-        private static readonly Vector3[] Rear =
-        {
-            new(-0.3842f, 0.5957f, -1.0700f),
-            new( 0.3842f, 0.5957f, -1.0700f)
-        };
-        private static readonly Vector3[] Accent =
-        {
-            new(-0.1937f, 0.3907f, 1.8150f),
-            new( 0.1937f, 0.3907f, 1.8150f),
-            new(-0.3916f, 0.3734f, -1.1540f),
-            new( 0.3916f, 0.3734f, -1.1540f)
-        };
+        private const string RuntimeVisualName = "MotorCityVehicleVisual_Runtime";
+        private const string AccentName = "Material.003";
+        private const string BrakeName = "Material.004";
+        private const string FrontName = "Material.005";
 
-        private readonly List<Renderer> frontRenderers = new();
-        private readonly List<Renderer> rearRenderers = new();
-        private readonly List<Material> ownedMaterials = new();
+        private enum LampKind
+        {
+            Accent,
+            Brake,
+            Front
+        }
+
+        private sealed class Binding
+        {
+            public Renderer Renderer;
+            public int Slot;
+            public Material Original;
+            public Material Instance;
+            public LampKind Kind;
+        }
+
+        private readonly List<Binding> bindings = new();
         private Transform currentVisual;
-        private GameObject lightsRoot;
-        private DayNightCycleController dayNight;
         private ArcadeCarController car;
-        private bool hybrid;
-        private bool lastFront;
-        private bool lastRear;
-        private bool initialized;
+        private DayNightCycleController dayNight;
+        private string vehicleId = VehicleIds.Street;
+        private bool applied;
+        private bool previousBrake;
+        private float previousFront = -1f;
+        private float dayNightLookupTimer;
+
+        private static readonly Color AccentEmission =
+            new Color(0.015f, 0.28f, 0.95f) * 1.15f;
+        private static readonly Color BrakeEmission =
+            new Color(1f, 0.015f, 0.005f) * 3.2f;
+        private static readonly Color HeadlightEmission =
+            new Color(0.94f, 0.97f, 1f) * 3.0f;
 
         private void Awake()
         {
             car = GetComponent<ArcadeCarController>();
         }
 
-        public void SetVehicleId(string vehicleId)
+        public void SetVehicleId(string id)
         {
-            hybrid = vehicleId == VehicleIds.Hybrid;
+            vehicleId = string.IsNullOrEmpty(id)
+                ? VehicleIds.Street
+                : id.ToLowerInvariant();
             Rebuild();
         }
 
         private void Update()
         {
-            if (!hybrid)
+            if (vehicleId != VehicleIds.Hybrid)
                 return;
 
-            Transform active = transform.Find(VisualName);
-            if (active != currentVisual || lightsRoot == null)
+            Transform visual = transform.Find(RuntimeVisualName);
+            if (visual != currentVisual)
                 Rebuild();
 
-            if (lightsRoot == null)
+            if (currentVisual == null)
                 return;
 
             if (dayNight == null)
-                dayNight = FindAnyObjectByType<DayNightCycleController>();
+            {
+                dayNightLookupTimer -= Time.unscaledDeltaTime;
+                if (dayNightLookupTimer <= 0f)
+                {
+                    dayNightLookupTimer = 1f;
+                    dayNight = FindAnyObjectByType<DayNightCycleController>();
+                }
+            }
 
-            bool night = dayNight != null && dayNight.NightAmount > 0.50f;
-            bool brake = MotorCityInput.ReverseHeld ||
+            float nightAmount = dayNight == null ? 0f : dayNight.NightAmount;
+            float front = Mathf.SmoothStep(0f, 1f,
+                Mathf.InverseLerp(0.34f, 0.72f, nightAmount));
+            bool braking = MotorCityInput.ReverseHeld ||
                 (car != null && car.HandbrakeInputHeld);
 
-            if (initialized && night == lastFront && brake == lastRear)
+            if (applied && braking == previousBrake &&
+                Mathf.Abs(previousFront - front) < 0.01f)
                 return;
 
-            initialized = true;
-            lastFront = night;
-            lastRear = brake;
-            SetActive(frontRenderers, night);
-            SetActive(rearRenderers, brake);
+            previousBrake = braking;
+            previousFront = front;
+            applied = true;
+
+            foreach (Binding binding in bindings)
+            {
+                if (binding.Instance == null)
+                    continue;
+
+                Color emission = binding.Kind switch
+                {
+                    LampKind.Accent => AccentEmission,
+                    LampKind.Brake => braking ? BrakeEmission : Color.black,
+                    _ => HeadlightEmission * front
+                };
+
+                binding.Instance.SetColor("_EmissionColor", emission);
+            }
         }
 
         private void Rebuild()
         {
-            Cleanup();
-            currentVisual = hybrid ? transform.Find(VisualName) : null;
+            RestoreBindings();
+
+            currentVisual = vehicleId == VehicleIds.Hybrid
+                ? transform.Find(RuntimeVisualName)
+                : null;
+
             if (currentVisual == null)
                 return;
 
-            // Put local anchors on the instantiated visual so its authored
-            // transform, scaling and vehicle motion are inherited.
-            lightsRoot = new GameObject(RootName);
-            lightsRoot.transform.SetParent(currentVisual, false);
-            AddPoints(Front, "Front", new Color(0.94f, 0.97f, 1f), 0.075f, frontRenderers);
-            AddPoints(Rear, "Brake", new Color(1f, 0.025f, 0.01f), 0.09f, rearRenderers);
-            AddPoints(Accent, "Cyan Accent", new Color(0.01f, 0.67f, 1f), 0.032f, null);
-            initialized = false;
-            SetActive(frontRenderers, false);
-            SetActive(rearRenderers, false);
-        }
+            Renderer[] renderers =
+                currentVisual.GetComponentsInChildren<Renderer>(true);
 
-        private void AddPoints(Vector3[] points, string prefix, Color color,
-            float diameter, List<Renderer> controlled)
-        {
-            for (int i = 0; i < points.Length; i++)
+            foreach (Renderer renderer in renderers)
             {
-                GameObject point = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                point.name = prefix + " " + (i + 1);
-                point.transform.SetParent(lightsRoot.transform, false);
-                point.transform.localPosition = points[i];
-                point.transform.localScale = Vector3.one * diameter;
-                Collider collider = point.GetComponent<Collider>();
-                if (collider != null)
-                    Destroy(collider);
-
-                Renderer renderer = point.GetComponent<Renderer>();
-                Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
-                if (shader == null)
-                    shader = Shader.Find("Unlit/Color");
-                if (shader == null)
-                {
-                    renderer.enabled = false;
+                if (renderer == null ||
+                    VehicleLampMaterialUtility.IsWheelRenderer(renderer.transform))
                     continue;
+
+                Material[] slots = renderer.sharedMaterials;
+                bool changed = false;
+
+                for (int slot = 0; slot < slots.Length; slot++)
+                {
+                    Material original = slots[slot];
+                    if (original == null)
+                        continue;
+
+                    LampKind kind;
+                    string name = NormalizeMaterialName(original.name);
+
+                    if (name == AccentName.ToLowerInvariant())
+                        kind = LampKind.Accent;
+                    else if (name == BrakeName.ToLowerInvariant())
+                        kind = LampKind.Brake;
+                    else if (name == FrontName.ToLowerInvariant())
+                        kind = LampKind.Front;
+                    else
+                        continue; // Includes Material.005_RearUnlit and all body/glass.
+
+                    // Never change imported or shared materials: other vehicles,
+                    // cached prefabs and garage colors may refer to them.
+                    Material instance = new Material(original)
+                    {
+                        name = original.name + " (Hybrid Lamp Runtime)"
+                    };
+
+                    if (!instance.HasProperty("_EmissionColor"))
+                    {
+                        Debug.LogWarning("Motor City: Hybrid lamp material " +
+                            original.name + " has no _EmissionColor property.");
+                        Destroy(instance);
+                        continue;
+                    }
+
+                    instance.EnableKeyword("_EMISSION");
+                    instance.SetColor("_EmissionColor",
+                        kind == LampKind.Accent ? AccentEmission : Color.black);
+
+                    bindings.Add(new Binding
+                    {
+                        Renderer = renderer,
+                        Slot = slot,
+                        Original = original,
+                        Instance = instance,
+                        Kind = kind
+                    });
+
+                    slots[slot] = instance;
+                    changed = true;
                 }
 
-                Material material = new Material(shader);
-                material.name = "MotorCity Hybrid " + prefix + " Runtime";
-                if (material.HasProperty("_BaseColor"))
-                    material.SetColor("_BaseColor", color);
-                if (material.HasProperty("_Color"))
-                    material.SetColor("_Color", color);
-                renderer.sharedMaterial = material;
-                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                renderer.receiveShadows = false;
-                ownedMaterials.Add(material);
-                controlled?.Add(renderer);
+                if (changed)
+                    renderer.sharedMaterials = slots;
             }
+
+            // These are the actual authored faces; never add spheres, strips or
+            // cloned whole-mesh renderers. Brake and front start disabled.
+            applied = false;
+            previousFront = -1f;
         }
 
-        private static void SetActive(List<Renderer> renderers, bool active)
+        private static string NormalizeMaterialName(string name)
         {
-            foreach (Renderer renderer in renderers)
-                if (renderer != null)
-                    renderer.enabled = active;
+            return name.Replace(" (Instance)", "")
+                .Replace(" (Clone)", "")
+                .Trim()
+                .ToLowerInvariant();
         }
 
-        private void Cleanup()
+        private void RestoreBindings()
         {
-            frontRenderers.Clear();
-            rearRenderers.Clear();
-            if (lightsRoot != null)
+            foreach (Binding binding in bindings)
             {
-                lightsRoot.SetActive(false);
-                Destroy(lightsRoot);
-                lightsRoot = null;
+                if (binding.Renderer != null)
+                {
+                    Material[] slots = binding.Renderer.sharedMaterials;
+                    if (binding.Slot < slots.Length &&
+                        slots[binding.Slot] == binding.Instance)
+                    {
+                        slots[binding.Slot] = binding.Original;
+                        binding.Renderer.sharedMaterials = slots;
+                    }
+                }
+
+                if (binding.Instance != null)
+                    Destroy(binding.Instance);
             }
-            foreach (Material material in ownedMaterials)
-                if (material != null)
-                    Destroy(material);
-            ownedMaterials.Clear();
-            initialized = false;
+
+            bindings.Clear();
+            applied = false;
+            previousFront = -1f;
         }
 
         private void OnDestroy()
         {
-            Cleanup();
+            RestoreBindings();
         }
     }
 }
