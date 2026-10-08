@@ -21,7 +21,14 @@ try {
 
     Add-Type -Path Tools/Tests/CityFieldCacheChecks.cs,Assets/Scripts/World/AuthoredCityFieldCache.cs
     [CityFieldCacheChecks]::Run()
-    Add-Type -Path Tools/Tests/VehicleLampUtilityChecks.cs,Assets/Scripts/World/VehicleLampMaterialUtility.cs
+    # VehicleLampMaterialUtility now resolves wheel roles through the shared
+    # VehicleVisualRoleUtility. Compile both real helpers with the Unity stubs,
+    # rather than testing an obsolete stand-alone copy of wheel detection.
+    Add-Type -Path @(
+        'Tools/Tests/VehicleLampUtilityChecks.cs'
+        'Assets/Scripts/World/VehicleLampMaterialUtility.cs'
+        'Assets/Scripts/Vehicle/VehicleVisualRoleUtility.cs'
+    )
     [VehicleLampUtilityChecks]::Run()
     Write-Output 'Shared field cache and lamp material/UV/projection checks passed.'
 
