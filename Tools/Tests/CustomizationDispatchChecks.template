@@ -2,6 +2,8 @@ using System;
 public class CustomizationChecks
 {
     public object car = new object();
+    public UnityEngine.Transform visual = new UnityEngine.Transform();
+    private UnityEngine.Transform FindVisualRoot() => visual;
     public int SelectedColorIndex, SelectedWheelStyleIndex, SelectedNeonIndex;
     private readonly int[] AccentColors = new int[3];
     public int Saves, Paints, Wheels, Clears, Builds;
@@ -27,9 +29,54 @@ public class CustomizationChecks
         c.CycleNeon();
         if (c.Paints != 1 || c.Wheels != 1 || c.Builds != 1 || c.Clears != 1 || events != 3)
             throw new Exception("Neon application or change events incorrect");
+        // Real ApplyAll() first calls the extracted source method
+        // ClearStaleVehiclePropertyBlocks(). Verify renderer-wide AND
+        // per-material blocks are cleared, while trail and particle
+        // renderers are left alone.
+        var body = new UnityEngine.Renderer
+        {
+            sharedMaterials = new UnityEngine.Material[]
+            {
+                new UnityEngine.Material(), new UnityEngine.Material()
+            }
+        };
+        var glass = new UnityEngine.Renderer
+        {
+            sharedMaterials = new UnityEngine.Material[]
+            {
+                new UnityEngine.Material()
+            }
+        };
+        var trail = new UnityEngine.TrailRenderer
+        {
+            sharedMaterials = new UnityEngine.Material[] { new UnityEngine.Material() }
+        };
+        var particles = new UnityEngine.ParticleSystemRenderer
+        {
+            sharedMaterials = new UnityEngine.Material[] { new UnityEngine.Material() }
+        };
+        c.visual.renderers = new UnityEngine.Renderer[] { body, glass, trail, particles };
+
         c.ApplyAll();
         if (c.Paints != 2 || c.Wheels != 2 || c.Builds != 2 || c.Clears != 2)
             throw new Exception("Vehicle initialization must apply every cosmetic once");
+        if (body.GlobalPropertyBlockClears != 1 ||
+            body.SlotPropertyBlockClears.Count != 2 ||
+            body.SlotPropertyBlockClears[0] != 0 ||
+            body.SlotPropertyBlockClears[1] != 1 ||
+            glass.GlobalPropertyBlockClears != 1 ||
+            glass.SlotPropertyBlockClears.Count != 1 ||
+            glass.SlotPropertyBlockClears[0] != 0)
+            throw new Exception("Active vehicle material property blocks were not all cleared");
+        if (trail.GlobalPropertyBlockClears != 0 ||
+            trail.SlotPropertyBlockClears.Count != 0 ||
+            particles.GlobalPropertyBlockClears != 0 ||
+            particles.SlotPropertyBlockClears.Count != 0)
+            throw new Exception("Effects renderers should retain their own property blocks");
+
+        // A visual that has not been installed must be safe to skip.
+        c.visual = null;
+        c.ClearStaleVehiclePropertyBlocks();
         for (int i = 0; i < 3; i++) c.CycleBodyColor();
         if (c.SelectedColorIndex != 0) throw new Exception("Color cycle changed");
         c.car = null;
