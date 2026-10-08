@@ -46,6 +46,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-08 | Phase 0 | Четвёртый запуск: кастомизационный `Add-Type` попытался повторно объявить `UnityEngine.Transform` (конфликт типов) | Использован уникальный namespace `MotorCityCleanupTests.Customization`; все тестовые типы и извлечённый исходный C# проверены статически. Полный runtime-прогон ожидается |
 | 2026-10-08 | Phase 0 | Пользователь подтвердил **полностью успешный** `pwsh -NoProfile -File Tools/check_cleanup.ps1` на 242 C# файлах, включая reflection, field/lamp и cosmetic тесты | **[x] Статическая/source проверка закрыта**; Unity compile, static-audit JSON и прочие Phase 0 пункты ещё впереди |
 | 2026-10-08 | Phase 0 | Принят и проверен `static-audit.json`: 4471 файлов, 2329 GUID, 3232 serialized assets, 246 C#; 0 дубли GUID, 0 deleted/dangling refs, 241 кандидатов без входящих GUID | **[x] Статический baseline записан**. Кандидатов не удалять: требуются динамические/импортные и Unity dependency gates. Отчёт не содержит Git SHA; Unity/Console/visual baseline ещё ожидаются |
+| 2026-10-08 | Phase 0 | Пользователь прислал Unity Console и `project-audit.txt`. Найдены 2 Missing Script в `Double-Block-09.prefab` (Water/Water-B) на одном GUID `296cbc687256a5b47bc5c557f8bdd095`; найден inbound reference из `Generate.prefab`. В Console предупреждение Input Manager (deprecated); активный `Prototype` в Edit Mode пустой (`0/0/0`). | **[x] Edit Mode Unity audit baseline записан**, но Missing Script/Console warning **не исправлены**; Play Mode аудит, снимки машин и physics smoke впереди. Никаких удалений/изменений префаба |
 
 ---
 
@@ -1018,7 +1019,7 @@ shader/material/prefab могут ссылаться сериализованн�
 - [x] Roslyn синтаксис: 242 C# файла, `UNITY_EDITOR`, native player, `UNITY_WEBGL`; пользователь подтвердил успешный вывод 2026-10-08. Тесты очереди/снимка/тумана/отключения reflection также прошли.
 - [x] Полный `Tools/check_cleanup.ps1` — **подтверждён пользователем 2026-10-08**: `All 242 C# sources passed syntax checks (Editor, native player, WebGL).`; reflection queue / caller snapshot / fog restoration / disable; shared field cache; lamp material/UV/projection; cosmetic dispatch / property-block cleanup / save/events / vehicle initialization / color cycle. Финальная строка: `All cleanup syntax and source checks passed.` Это source/stub testing, **не** Unity compile и не WebGL build.
 - [x] Сформирован и проверен пользователем предоставленный `static-audit.json` (2026-10-08; локальный отчёт `Temp/MotorCityAudit/static-audit.json`): 4 471 файлов, 2 329 asset GUID, 3 232 serialized files, 246 C# файлов (включая тестовые), 0 duplicate GUID, 0 deleted assets, 0 dangling references к удалённым ассетам, 241 unreferenced candidates. JSON корректен, кандидаты уникальны. **Список кандидатов не является разрешением на удаление.** Отчёт не содержит hash HEAD, поэтому конкретный анализируемый коммит нельзя подтвердить по одному JSON.
-- [ ] Отчёт Unity Audit и Console зафиксированы.
+- [x] Unity Edit Mode audit и скриншот Console **зафиксированы 2026-10-08**: `project-audit.txt` (2026-10-08 20:39:45Z), `Assets/Scenes/Prototype.unity` — единственная build scene, imported assets = 2014. Console: 1 warning про Input Manager deprecation, 1 info о записи отчёта, красных ошибок на предоставленном снимке не видно. Audit обнаружил **2 missing script**, оба в `Assets/Fantastic City Generator/Roads/Prefab/Double-Block-09.prefab`, объектах `Water` и `Water-B`; оригинальный GUID скрипта `296cbc687256a5b47bc5c557f8bdd095`. Оба ссылаются на один GUID; `Generate.prefab` содержит serialized ссылку на `Double-Block-09.prefab` GUID `117dc5da96c6fef48a8f4f0f03a504b9` — **не удалять вслепую**. `Prototype: 0 scripts, 0 lights, 0 renderers` относится к пустой сцене в Edit Mode; runtime Bootstrap создаёт содержимое при Play. Эти findings — зафиксированный исходный baseline, **не исправленные проблемы**.
 
 **Проверка Phase 0 (последовательно):**
 
@@ -1030,7 +1031,7 @@ shader/material/prefab могут ссылаться сериализованн�
 6. Зафиксируйте результаты в журнале выше; проверенный статус `Phase 0` отмечается `[x]` только после выполнения всех применимых подпунктов ниже.
 
 - [x] новый **статический** audit baseline: результаты JSON зафиксированы в журнале; Unity asset/scene report и визуальный baseline остаются отдельными незакрытыми проверками;
-- [ ] Console clean;
+- [ ] Console clean: по скриншоту нет красных ошибок, но есть Input Manager deprecation warning. 2 missing script записаны в project audit (см. ниже); не путать с отсутствием ошибок Console. Решение о допустимых известных предупреждениях и устранение missing scripts — после проверки зависимостей;
 - [ ] записать current prefab/material state;
 - [ ] сохранить screenshots каждой машины день/ночь/гараж;
 - [ ] сохранить steering/physics smoke notes.
