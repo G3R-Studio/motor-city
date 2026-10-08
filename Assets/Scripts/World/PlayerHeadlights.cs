@@ -186,6 +186,25 @@ namespace MotorCity.World
                 return;
             }
 
+            if (vehicleId == VehicleIds.Delorean)
+            {
+                // Area-weighted centers of MC_Headlight_L/R polygons in
+                // Assets/VehicleAssets/Delorean/delorean.obj (Z-forward).
+                // These are the real lamp surfaces, not the overall car bounds.
+                // The visual root carries the installer scale/transform.
+                left.transform.position = currentVisual.TransformPoint(
+                    new Vector3(-0.56166f, 0.73236f, 2.30980f));
+                right.transform.position = currentVisual.TransformPoint(
+                    new Vector3(0.56164f, 0.73236f, 2.30981f));
+
+                // The DeLorean's actual illuminated face materials are
+                // exclusively driven by DeloreanAuthoredLights. Keep road
+                // illumination night-gated by ApplyLights() as before.
+                ClearNightEmissionOverlays();
+                frontLampMaterials.Clear();
+                return;
+            }
+
             Renderer[] renderers =
                 currentVisual.GetComponentsInChildren<Renderer>(
                     true);
