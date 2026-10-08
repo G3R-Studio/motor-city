@@ -137,8 +137,15 @@ namespace MotorCity.World
                 for (int slot = 0; slot < slots.Length; slot++)
                 {
                     Material original = slots[slot];
-                    if (original == null ||
-                        !TryGetLampKind(original.name, out LampKind kind))
+                    if (original == null)
+                        continue;
+
+                    // Prefer the five explicit material names. Some imported
+                    // prefabs replace those names with a generated/converted
+                    // material; the authored submesh bounds then identify the
+                    // exact same polygons without sampling texture colors.
+                    if (!TryGetLampKind(original.name, out LampKind kind) &&
+                        !TryGetKindFromAuthoredSubmesh(renderer, slot, out kind))
                         continue;
 
                     // An imported material may also be used by a cached car
@@ -188,10 +195,96 @@ namespace MotorCity.World
 
             if (bindings.Count == 0)
             {
+                // Include actual material names to distinguish stale prefab
+                // imports from Unity renaming/merging the material slots.
+                List<string> observed = new();
+                foreach (Renderer renderer in
+                         currentVisual.GetComponentsInChildren<Renderer>(true))
+                {
+                    if (renderer == null ||
+                        VehicleLampMaterialUtility.IsWheelRenderer(renderer.transform))
+                        continue;
+
+                    foreach (Material material in renderer.sharedMaterials)
+                    {
+                        if (material != null && observed.Count < 16)
+                            observed.Add(renderer.name + ": " + material.name);
+                    }
+                }
+
                 Debug.LogWarning(
-                    "Motor City: no MC_* DeLorean lamp material slots found. " +
-                    "Rebuild the DeLorean prefab from its updated OBJ.");
+                    "Motor City: DeLorean MC lamp polygons could not be bound. " +
+                    "Imported slots: [" + string.Join("; ", observed) + "]. " +
+                    "Use Motor City > Vehicles > Rebuild Delorean, then check " +
+                    "the delorean.obj Model Importer material settings.");
             }
+        }
+
+        // Exact local-space bounds measured from the committed
+        // Delorean/delorean.obj MC_* polygon groups. Used only when Unity
+        // drops/replaces a material's authored name during prefab import.
+        // Never classify using pixel color or a broad front/rear cutoff.
+        private static bool TryGetKindFromAuthoredSubmesh(
+            Renderer renderer, int slot, out LampKind kind)
+        {
+            kind = default;
+            MeshFilter filter = renderer.GetComponent<MeshFilter>();
+            if (filter == null || filter.sharedMesh == null)
+                return false;
+
+            Mesh mesh = filter.sharedMesh;
+            if (slot >= mesh.subMeshCount)
+                return false;
+
+            // This geometry exists only on DeLorean's body_misc mesh,
+            // not the wheels or body paint.
+            string rendererName = renderer.name.ToLowerInvariant();
+            string meshName = mesh.name.ToLowerInvariant();
+            if (!rendererName.Contains("body_misc") &&
+                !meshName.Contains("body_misc"))
+                return false;
+
+            // SubMeshDescriptor.bounds is available for imported meshes
+            // without accessing the non-readable vertex buffer.
+            Bounds bounds = mesh.GetSubMesh(slot).bounds;
+            if (MatchesBounds(bounds,
+                    new Vector3(-0.754994f, 0.678464f, 2.291579f),
+                    new Vector3(-0.381872f, 0.786028f, 2.333040f)) ||
+                MatchesBounds(bounds,
+                    new Vector3(0.381852f, 0.678464f, 2.291592f),
+                    new Vector3(0.754973f, 0.786028f, 2.333049f)))
+            {
+                kind = LampKind.Headlight;
+                return true;
+            }
+
+            if (MatchesBounds(bounds,
+                    new Vector3(0.359479f, 0.811863f, -2.166042f),
+                    new Vector3(0.572289f, 0.905231f, -2.110843f)) ||
+                MatchesBounds(bounds,
+                    new Vector3(-0.572206f, 0.811863f, -2.166055f),
+                    new Vector3(-0.359398f, 0.905231f, -2.110856f)))
+            {
+                kind = LampKind.Brake;
+                return true;
+            }
+
+            if (MatchesBounds(bounds,
+                    new Vector3(-0.774788f, 0.333617f, -1.531649f),
+                    new Vector3(0.774849f, 1.142584f, 1.974952f)))
+            {
+                kind = LampKind.Cyan;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool MatchesBounds(Bounds actual, Vector3 min, Vector3 max)
+        {
+            const float tolerance = 0.015f;
+            return (actual.min - min).sqrMagnitude <= tolerance * tolerance &&
+                (actual.max - max).sqrMagnitude <= tolerance * tolerance;
         }
 
         private static bool TryGetLampKind(string materialName, out LampKind kind)
@@ -199,12 +292,19 @@ namespace MotorCity.World
             // Runtime model conversion appends _URP to imported material
             // names, and Unity can append (Instance)/(Clone).
             string name = materialName.Trim();
-            name = name.Replace(" (Instance)", "")
-                .Replace(" (Clone)", "")
-                .Trim();
+            // The importer can order the instance/clone and URP suffixes
+            // differently (e.g. MC_Cyan (Instance)_URP).
+            for (int i = 0; i < 3; i++)
+            {
+                if (name.EndsWith("_URP", StringComparison.OrdinalIgnoreCase))
+                    name = name.Substring(0, name.Length - 4).Trim();
 
-            if (name.EndsWith("_URP", StringComparison.OrdinalIgnoreCase))
-                name = name.Substring(0, name.Length - 4);
+                if (name.EndsWith(" (Instance)", StringComparison.OrdinalIgnoreCase))
+                    name = name.Substring(0, name.Length - 11).Trim();
+
+                if (name.EndsWith(" (Clone)", StringComparison.OrdinalIgnoreCase))
+                    name = name.Substring(0, name.Length - 8).Trim();
+            }
 
             if (name.Equals("MC_Cyan", StringComparison.OrdinalIgnoreCase))
             {
