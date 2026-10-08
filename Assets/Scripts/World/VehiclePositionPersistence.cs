@@ -158,6 +158,7 @@ namespace MotorCity.World
                 false);
         }
 
+#if UNITY_EDITOR || DEBUG
         public void ResetForTesting()
         {
             suppressSavesUntilReload = true;
@@ -177,6 +178,8 @@ namespace MotorCity.World
 
             MotorCity.Persistence.MotorCitySaveService.FlushNow();
         }
+
+#endif
 
         public void SaveNow()
         {
