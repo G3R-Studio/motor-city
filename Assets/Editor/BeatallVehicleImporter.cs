@@ -9,6 +9,9 @@ public static class BeatallVehicleImporter
     private const string SourceModel =
         "Assets/VehicleAssets/Beatall/beatall.obj";
 
+    private const string MaterialSource =
+        "Assets/VehicleAssets/Beatall/beatall.mtl";
+
     private const string SourceTexture =
         "Assets/VehicleAssets/Beatall/all.png";
 
@@ -27,7 +30,7 @@ public static class BeatallVehicleImporter
         "MotorCity.BeatallVehicleBuilt.V4";
 
     private const string SourceHashKey =
-        "MotorCity.BeatallVehicleSourceHash.V2";
+        "MotorCity.BeatallVehicleSourceHash.V3";
 
     static BeatallVehicleImporter()
     {
@@ -105,10 +108,15 @@ public static class BeatallVehicleImporter
             AssetDatabase.GetAssetDependencyHash(
                 SourceTexture);
 
+        Hash128 materialHash =
+            AssetDatabase.GetAssetDependencyHash(
+                MaterialSource);
+
         return
             modelHash + "|" +
             wheelHash + "|" +
-            textureHash;
+            textureHash + "|" +
+            materialHash;
     }
 
     private static bool Build(
