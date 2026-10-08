@@ -152,6 +152,7 @@ namespace MotorCity.Gameplay
                     MaxLevel);
         }
 
+#if UNITY_EDITOR || DEBUG
         public void SetReputationForTesting(
             DisciplineType type,
             int value)
@@ -216,6 +217,8 @@ namespace MotorCity.Gameplay
                 DisciplineType.Delivery,
                 level);
         }
+
+#endif
 
         private void HandleActivityResult(
             string activityId)
