@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 public class CustomizationChecks
 {
     public object car = new object();
