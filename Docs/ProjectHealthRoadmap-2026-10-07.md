@@ -44,6 +44,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-08 | Phase 0 | Повторный запуск: 242 C# / reflection / field cache / lamp checks пройдены; cosmetic source-test остановился на `ClearStaleVehiclePropertyBlocks` (`CS0103`) | В тесты добавлен реальный метод и его Unity stub/регрессии; ожидаем повторный запуск, полный gate ещё не пройден |
 | 2026-10-08 | Phase 0 | Третий запуск: предыдущие проверки пройдены, но cosmetic `Add-Type` не видел namespace `UnityEngine` из другого динамического assembly (`CS0246`) | Устранена зависимость между отдельными `Add-Type` компиляциями; статически проверены все семь методов и типы. Запуск PowerShell у пользователя **ещё не подтверждён** |
 | 2026-10-08 | Phase 0 | Четвёртый запуск: кастомизационный `Add-Type` попытался повторно объявить `UnityEngine.Transform` (конфликт типов) | Использован уникальный namespace `MotorCityCleanupTests.Customization`; все тестовые типы и извлечённый исходный C# проверены статически. Полный runtime-прогон ожидается |
+| 2026-10-08 | Phase 0 | Пользователь подтвердил **полностью успешный** `pwsh -NoProfile -File Tools/check_cleanup.ps1` на 242 C# файлах, включая reflection, field/lamp и cosmetic тесты | **[x] Статическая/source проверка закрыта**; Unity compile, static-audit JSON и прочие Phase 0 пункты ещё впереди |
 
 ---
 
@@ -1014,7 +1015,7 @@ shader/material/prefab могут ссылаться сериализованн�
 
 - [x] Git-синхронизация и чистый рабочий каталог подтверждены пользователем: `git fetch origin`, `git pull --ff-only origin main`, `git status` (clean), `git rev-parse --short HEAD` → `3db9cf2a` (2026-10-08). Это **только подготовка**, не завершённый audit baseline.
 - [x] Roslyn синтаксис: 242 C# файла, `UNITY_EDITOR`, native player, `UNITY_WEBGL`; пользователь подтвердил успешный вывод 2026-10-08. Тесты очереди/снимка/тумана/отключения reflection также прошли.
-- [ ] Полный `Tools/check_cleanup.ps1`: подтверждены 242/242 C# syntax, reflection, field cache и lamp/UV/projection проверки. Четвёртый запуск остановился на дублировании `UnityEngine.Transform` между отдельными сборками `Add-Type` (повторное определение из кастомизационного теста). Исправлено принципиально: **тестовые заглушки кастомизации изолированы** в `MotorCityCleanupTests.Customization` (`7c66f14`), также уточнён harness (`cdfb1bd`). Проверены статически все 7 извлекаемых методов, используемые типы, независимость сборок и отсутствие пересекающихся типов. **Полный `pwsh` прогон на компьютере пользователя ещё ожидается; галочку `[x]` ставить только после успешного завершения.**
+- [x] Полный `Tools/check_cleanup.ps1` — **подтверждён пользователем 2026-10-08**: `All 242 C# sources passed syntax checks (Editor, native player, WebGL).`; reflection queue / caller snapshot / fog restoration / disable; shared field cache; lamp material/UV/projection; cosmetic dispatch / property-block cleanup / save/events / vehicle initialization / color cycle. Финальная строка: `All cleanup syntax and source checks passed.` Это source/stub testing, **не** Unity compile и не WebGL build.
 - [ ] Сформирован и проверен `Temp/MotorCityAudit/static-audit.json`.
 - [ ] Отчёт Unity Audit и Console зафиксированы.
 
