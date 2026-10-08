@@ -21,12 +21,12 @@ SETTINGS = [
 # Input System. "Input." alone is not used: it would also match valid
 # MotorCity.Input namespace references and virtual input code.
 LEGACY_CALL = re.compile(
-    r"(?<![\\w.])(?:UnityEngine\\.)?Input\\."
+    r"(?<![\w.])(?:UnityEngine\.)?Input\."
     r"(?:Get[A-Za-z0-9_]*|touchSupported|touchCount|touches|"
     r"mousePosition|mouseScrollDelta|anyKey|anyKeyDown|"
-    r"acceleration|gyro|compass)\\b"
+    r"acceleration|gyro|compass)\b"
 )
-LEGACY_TYPE = re.compile(r"\\bUnityEngine\\.Input\\b")
+LEGACY_TYPE = re.compile(r"\bUnityEngine\.Input\b")
 
 
 def errors() -> list[str]:
