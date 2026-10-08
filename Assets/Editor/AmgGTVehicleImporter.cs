@@ -9,6 +9,9 @@ public static class AmgGTVehicleImporter
     private const string BodySource =
         "Assets/VehicleAssets/AmgGT/amggt.obj";
 
+    private const string MaterialSource =
+        "Assets/VehicleAssets/AmgGT/amggt.mtl";
+
     private const string FrontWheelSource =
         "Assets/VehicleAssets/AmgGT/front_wheels.obj";
 
@@ -25,7 +28,7 @@ public static class AmgGTVehicleImporter
         "MotorCity.AmgGTVehicleBuilt.V1";
 
     private const string SourceHashKey =
-        "MotorCity.AmgGTVehicleSourceHash.V1";
+        "MotorCity.AmgGTVehicleSourceHash.V2";
 
     static AmgGTVehicleImporter()
     {
@@ -47,8 +50,9 @@ public static class AmgGTVehicleImporter
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
-                    FrontWheelSource,
-                    RearWheelSource);
+                MaterialSource,
+                FrontWheelSource,
+                RearWheelSource);
 
         if (!StandardVehicleImportUtility.ShouldRebuild(
                 OutputPrefab,
