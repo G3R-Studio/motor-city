@@ -482,6 +482,7 @@ namespace MotorCity.Gameplay
                 MessageSeconds;
         }
 
+#if UNITY_EDITOR || DEBUG
         public void ResetForTesting()
         {
             if (missions == null ||
@@ -558,6 +559,8 @@ namespace MotorCity.Gameplay
             Save();
             AnnounceCurrentMission();
         }
+
+#endif
 
         private void BuildMissions()
         {
