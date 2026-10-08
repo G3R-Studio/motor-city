@@ -226,6 +226,7 @@ namespace MotorCity.Gameplay
             Save();
         }
 
+#if UNITY_EDITOR || DEBUG
         public void AddAttentionForTesting(
             float amount)
         {
@@ -248,6 +249,8 @@ namespace MotorCity.Gameplay
 
             Save();
         }
+
+#endif
 
         private void HandleActivityResult(
             string activityId)
