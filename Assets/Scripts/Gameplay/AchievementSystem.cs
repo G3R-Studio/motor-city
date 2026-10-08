@@ -164,6 +164,7 @@ namespace MotorCity.Gameplay
             EvaluateAll();
         }
 
+#if UNITY_EDITOR || DEBUG
         public void UnlockNextForTesting()
         {
             string[] keys =
@@ -257,6 +258,8 @@ namespace MotorCity.Gameplay
             messageTimer =
                 0f;
         }
+
+#endif
 
         private void EvaluateAll()
         {
