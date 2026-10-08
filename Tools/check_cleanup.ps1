@@ -34,7 +34,7 @@ try {
 
     # Compile the changed cosmetic dispatch methods directly from source.
     $source = [IO.File]::ReadAllText((Join-Path $projectRoot 'Assets/Scripts/Gameplay/VehicleCustomizationSystem.cs'))
-    $methods = foreach ($name in @('CycleBodyColor','CycleWheelStyle','CycleNeon','Changed','ApplyAll','RebuildNeon')) {
+    $methods = foreach ($name in @('CycleBodyColor','CycleWheelStyle','CycleNeon','Changed','ApplyAll','ClearStaleVehiclePropertyBlocks','RebuildNeon')) {
         $match = [regex]::Match($source, '        (?:public|private) void ' + $name + '\([^)]*\)\s*\{')
         if (!$match.Success) { throw "Missing cosmetic method: $name" }
         $offset = $match.Index + $match.Length
