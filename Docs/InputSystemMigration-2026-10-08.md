@@ -1,6 +1,6 @@
 # Motor City — переход на Input System (New), 2026-10-08
 
-**Статус:** код и настройки в `main` подготовлены; пользователь 2026-10-08 подтвердил, что управление после обновления работает, а `Tools/check_cleanup.ps1` прошёл на 242 C# файлах. Первая версия `check_input_backend.py` обнаружила ошибку **в самом регулярном выражении проверочного скрипта** и дополнительный legacy `Input.GetKeyDown` в `ShiftAtRuntime.cs`; оба исходника исправлены, **повторный запуск скрипта, Console и WebGL ещё не подтверждены**. Никаких галочек за полный verification gate до проверки не ставить.
+**Статус:** **Unity Editor input migration gate пройден по подтверждению пользователя (2026-10-08 21:25 UTC)**. После перевода backend на Input System (New) управление работает, `Tools/check_cleanup.ps1` проверил 242 C# файла, исправленный `py -3 Tools/check_input_backend.py` завершился `PASSED`, а прежнее предупреждение **Input Manager deprecation исчезло**. Важное ограничение: это результат тестирования пользователем в Unity Editor, **не WebGL-проверка**; отдельные WebGL Desktop/Mobile Release build и браузерные smoke остаются открытыми. Общая чистота всей Console (все возможные предупреждения) по одному сообщению не доказана.
 
 ## Почему появилась жёлтая строка Input Manager deprecation
 
@@ -30,8 +30,19 @@
 
 - `pwsh -NoProfile -File Tools/check_cleanup.ps1` — **PASS**: `All 242 C# sources passed syntax checks ... All cleanup syntax and source checks passed.` Это не заменяет сборку WebGL.
 - `py -3 Tools/check_input_backend.py` — **FAIL** (до исправления): 3× `found []`, хотя в Git и проектных настройках `activeInputHandler: 1`, поскольку в Python raw regex ошибочно были удвоены `\\b` и `\\s`; 1× `Assets/Fantastic City Generator/DayNight/ShiftAtRuntime.cs:24: Input.GetKeyDown(KeyCode.N)`.
-- Исправления в `main`: `f03f3d4` (правильный regex и self-tests), `73010b9` (новая система ввода в `ShiftAtRuntime`). Повторный прогон `py -3 Tools/check_input_backend.py` **пока не получен**, поэтому guard gate открыт.
-- Нет нового скриншота Console и отдельного подтверждения, что предупреждение Input Manager deprecation исчезло. WebGL Desktop/Mobile build gates также открыты.
+- Исправления в `main`: `f03f3d4` (правильный regex и self-tests), `73010b9` (новая система ввода в `ShiftAtRuntime`). **Этот промежуточный FAIL был снят успешным повторным запуском 21:25 UTC**, см. следующий раздел.
+- На момент 21:22 UTC ещё не было подтверждения исчезновения предупреждения. **Получено в 21:25 UTC** (см. следующий раздел). Скриншота всей Console нет, WebGL Desktop/Mobile build gates остаются открытыми.
+
+## Повторная проверка 2026-10-08 21:25 UTC — Unity Editor PASS
+
+После коммитов `f03f3d4` и `73010b9` пользователь повторно запустил `py -3 Tools/check_input_backend.py`. Результат: `Motor City input backend source/settings checks passed.`; глобальный PlayerSettings и оба WebGL release профиля с Input System (New); пакет установлен; legacy Input API в `Assets/**/*.cs` не найдены. Пользователь также подтвердил: **«предупреждение исчезло»** — в контексте предупреждения Unity `Input Manager deprecation`.
+
+- [x] Guard и внутренняя самопроверка regex/detector — PASS по выводу пользователя.
+- [x] `check_cleanup.ps1` — PASS (242 C#), результат от 21:22 UTC.
+- [x] Управление в Unity Editor работает по подтверждению пользователя после смены backend.
+- [x] Известное предупреждение Input Manager deprecation исчезло по подтверждению пользователя.
+- [ ] Нет отдельной гарантии отсутствия **всех** других предупреждений Console; новый полный скриншот не предоставлен.
+- [ ] WebGL Desktop/Mobile Release: сборка и управление в браузере **не подтверждены**.
 
 ## Обязательные verification gates
 
