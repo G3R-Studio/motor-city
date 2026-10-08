@@ -8,8 +8,8 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Bus/citytransportpalette.png
-map_d D:/GitHub/motor-city/Assets/VehicleAssets/Bus/citytransportpalette.png
+map_Kd citytransportpalette.png
+map_d citytransportpalette.png
 
 newmtl MC_Headlight
 Ns 250.000000
@@ -18,8 +18,8 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Bus/citytransportpalette.png
-map_d D:/GitHub/motor-city/Assets/VehicleAssets/Bus/citytransportpalette.png
+map_Kd citytransportpalette.png
+map_d citytransportpalette.png
 
 newmtl Material.006
 Ns 250.000000
@@ -28,8 +28,8 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Bus/citytransportpalette.png
-map_d D:/GitHub/motor-city/Assets/VehicleAssets/Bus/citytransportpalette.png
+map_Kd citytransportpalette.png
+map_d citytransportpalette.png
 
 newmtl blackGlass.003
 Ns 1000.000000
