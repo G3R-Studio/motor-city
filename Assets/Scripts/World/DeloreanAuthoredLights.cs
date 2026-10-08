@@ -66,7 +66,7 @@ namespace MotorCity.World
             if (vehicleId != VehicleIds.Delorean)
                 return;
 
-            Transform visual = transform.Find(RuntimeVisualName);
+            Transform visual = FindActiveRuntimeVisual();
             if (visual != currentVisual)
                 Rebuild();
 
@@ -118,7 +118,7 @@ namespace MotorCity.World
             RestoreBindings();
 
             currentVisual = vehicleId == VehicleIds.Delorean
-                ? transform.Find(RuntimeVisualName)
+                ? FindActiveRuntimeVisual()
                 : null;
 
             if (currentVisual == null)
@@ -328,6 +328,24 @@ namespace MotorCity.World
 
             kind = default;
             return false;
+        }
+
+        private Transform FindActiveRuntimeVisual()
+        {
+            // During vehicle changes, a previous visual can still exist
+            // until Destroy() completes at the end of the frame. Never bind
+            // DeLorean emission to that inactive placeholder or cached car.
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = transform.GetChild(i);
+                if (child.name == RuntimeVisualName &&
+                    child.gameObject.activeInHierarchy)
+                {
+                    return child;
+                }
+            }
+
+            return null;
         }
 
         private void RestoreBindings()
