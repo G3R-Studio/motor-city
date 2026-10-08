@@ -127,6 +127,7 @@ namespace MotorCity.Gameplay
                     Time.deltaTime);
         }
 
+#if UNITY_EDITOR || DEBUG
         public void SetStageForTesting(
             int stage)
         {
@@ -160,6 +161,8 @@ namespace MotorCity.Gameplay
             messageTimer = 0f;
             StatusText = string.Empty;
         }
+
+#endif
 
         private void HandleActivityCompleted(
             string activityId)
