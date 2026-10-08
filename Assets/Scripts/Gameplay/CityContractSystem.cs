@@ -119,6 +119,7 @@ namespace MotorCity.Gameplay
             Save();
         }
 
+#if UNITY_EDITOR || DEBUG
         public void CompleteCurrentForTesting()
         {
             ContractDefinition contract =
@@ -165,6 +166,8 @@ namespace MotorCity.Gameplay
                 MessageSeconds;
             Save();
         }
+
+#endif
 
         private void HandleActivityCompleted(
             string activityId)
