@@ -8,6 +8,9 @@ public static class ToyotaAE86VehicleImporter
     private const string BodySource =
         "Assets/VehicleAssets/ToyotaAE86/toyotaae86.obj";
 
+    private const string MaterialSource =
+        "Assets/VehicleAssets/ToyotaAE86/toyotaae86.mtl";
+
     // Updated AE86 follows the Beatall/Peugeot layout:
     // one authored front_wheels OBJ is reused on both axles.
     private const string WheelSource =
@@ -23,7 +26,7 @@ public static class ToyotaAE86VehicleImporter
         "MotorCity.ToyotaAE86VehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.ToyotaAE86VehicleSourceHash.V2";
+        "MotorCity.ToyotaAE86VehicleSourceHash.V3";
 
     static ToyotaAE86VehicleImporter()
     {
@@ -53,6 +56,7 @@ public static class ToyotaAE86VehicleImporter
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
+                MaterialSource,
                 WheelSource);
 
         if (!StandardVehicleImportUtility.ShouldRebuild(
