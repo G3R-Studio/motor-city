@@ -9,6 +9,9 @@ public static class DeloreanVehicleImporter
     private const string BodySource =
         "Assets/VehicleAssets/Delorean/delorean.obj";
 
+    private const string MaterialSource =
+        "Assets/VehicleAssets/Delorean/delorean.mtl";
+
     private const string FrontWheelSource =
         "Assets/VehicleAssets/Delorean/front_wheels.obj";
 
@@ -25,7 +28,7 @@ public static class DeloreanVehicleImporter
         "MotorCity.DeloreanVehicleBuilt.V2";
 
     private const string SourceHashKey =
-        "MotorCity.DeloreanVehicleSourceHash.V2";
+        "MotorCity.DeloreanVehicleSourceHash.V3";
 
     static DeloreanVehicleImporter()
     {
@@ -57,6 +60,7 @@ public static class DeloreanVehicleImporter
         string dependencyHash =
             StandardVehicleImportUtility.DependencyHash(
                 BodySource,
+                MaterialSource,
                 FrontWheelSource,
                 RearWheelSource);
 
