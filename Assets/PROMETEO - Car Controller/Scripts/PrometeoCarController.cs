@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using MotorCity.Input;
+using UnityEngine.InputSystem;
 
 public class PrometeoCarController : MonoBehaviour
 {
@@ -337,39 +338,39 @@ public class PrometeoCarController : MonoBehaviour
 
       }else{
 
-        if(Input.GetKey(KeyCode.W)){
+        if(IsKeyHeld(Key.W)){
           CancelInvoke("DecelerateCar");
           deceleratingCar = false;
           GoForward();
         }
-        if(Input.GetKey(KeyCode.S)){
+        if(IsKeyHeld(Key.S)){
           CancelInvoke("DecelerateCar");
           deceleratingCar = false;
           GoReverse();
         }
 
-        if(Input.GetKey(KeyCode.A)){
+        if(IsKeyHeld(Key.A)){
           TurnLeft();
         }
-        if(Input.GetKey(KeyCode.D)){
+        if(IsKeyHeld(Key.D)){
           TurnRight();
         }
-        if(Input.GetKey(KeyCode.Space)){
+        if(IsKeyHeld(Key.Space)){
           CancelInvoke("DecelerateCar");
           deceleratingCar = false;
           Handbrake();
         }
-        if(Input.GetKeyUp(KeyCode.Space)){
+        if(WasKeyReleased(Key.Space)){
           RecoverTraction();
         }
-        if((!Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.W))){
+        if((!IsKeyHeld(Key.S) && !IsKeyHeld(Key.W))){
           ThrottleOff();
         }
-        if((!Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.W)) && !Input.GetKey(KeyCode.Space) && !deceleratingCar){
+        if((!IsKeyHeld(Key.S) && !IsKeyHeld(Key.W)) && !IsKeyHeld(Key.Space) && !deceleratingCar){
           InvokeRepeating("DecelerateCar", 0f, 0.1f);
           deceleratingCar = true;
         }
-        if(!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D) && steeringAxis != 0f){
+        if(!IsKeyHeld(Key.A) && !IsKeyHeld(Key.D) && steeringAxis != 0f){
           ResetSteeringAngle();
         }
 
@@ -770,4 +771,16 @@ public class PrometeoCarController : MonoBehaviour
       // Do not restore the startup curves cached by Prometeo.
     }
 
+
+    private static bool IsKeyHeld(Key key)
+    {
+      Keyboard keyboard = Keyboard.current;
+      return keyboard != null && keyboard[key].isPressed;
+    }
+
+    private static bool WasKeyReleased(Key key)
+    {
+      Keyboard keyboard = Keyboard.current;
+      return keyboard != null && keyboard[key].wasReleasedThisFrame;
+    }
 }
