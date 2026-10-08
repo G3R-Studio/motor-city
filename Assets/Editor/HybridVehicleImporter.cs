@@ -6,7 +6,7 @@ using UnityEngine;
 public static class HybridVehicleImporter
 {
     private const string BodySource =
-        "Assets/VehicleAssets/Hybrid/body.obj";
+        "Assets/VehicleAssets/Hybrid/hybrid.obj";
 
     private const string LeftWheelSource =
         "Assets/VehicleAssets/Hybrid/wheels1.obj";
@@ -214,7 +214,7 @@ public static class HybridVehicleImporter
                         OutputPrefab);
 
                 Debug.Log(
-                    "Motor City: Hybrid rebuilt from body.obj + wheels1.obj + wheels2.obj. " +
+                    "Motor City: Hybrid rebuilt from hybrid.obj + wheels1.obj + wheels2.obj. " +
                     "Runtime path: MotorCity/Vehicles/Player/Hybrid");
             }
 
