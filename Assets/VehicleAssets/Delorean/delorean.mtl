@@ -8,8 +8,8 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
-map_Ke D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
+map_Kd all.png
+map_Ke all.png
 
 newmtl MC_Brake_R
 Ns 0.000000
@@ -18,8 +18,8 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
-map_Ke D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
+map_Kd all.png
+map_Ke all.png
 
 newmtl MC_Cyan
 Ns 0.000000
@@ -28,8 +28,8 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
-map_Ke D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
+map_Kd all.png
+map_Ke all.png
 
 newmtl MC_Headlight_L
 Ns 0.000000
@@ -38,8 +38,8 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
-map_Ke D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
+map_Kd all.png
+map_Ke all.png
 
 newmtl MC_Headlight_R
 Ns 0.000000
@@ -48,8 +48,8 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
-map_Ke D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
+map_Kd all.png
+map_Ke all.png
 
 newmtl baseGradient.003
 Ns 217.455490
@@ -59,7 +59,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
+map_Kd all.png
 
 newmtl blackGlass.001
 Ns 1000.000000
@@ -78,5 +78,5 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
-map_Ke D:/GitHub/motor-city/Assets/VehicleAssets/Delorean/all.png
+map_Kd all.png
+map_Ke all.png
