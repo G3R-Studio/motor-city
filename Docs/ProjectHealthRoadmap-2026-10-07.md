@@ -78,6 +78,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 1 / WebGL Desktop Release | Пользователь подтвердил «всё чётко» после инструкции собрать `Web - Desktop - Release`, проверить запуск, управление и отсутствие QA/Admin-панели. | **[x] Desktop Release ручной smoke по подтверждению пользователя**; **[ ] Development WebGL проверка наличия QA**, **[ ] Mobile Release и формальная build matrix**. |
 | 2026-10-09 | Phase 1 / WebGL Development | После проверки Desktop Release пользователь подтвердил «всё чётко» для WebGL Development: QA/Admin доступна, игра работает. | **[x] Development WebGL ручной smoke по подтверждению пользователя**; **[x] Desktop Release QA isolation по предыдущему подтверждению**. **[ ]** Phase 1 окончательно закрывать только после сверки всех P0.1 QA/mock/reset paths и релевантных gates; **[ ]** формальная Mobile Release матрица. |
 | 2026-10-09 | Phase 0/1 ревизия | Сверены Phase 0 и Phase 1 checkpoints: выполненные source/Unity smoke подтверждены; незакрыты визуальный архив, полная Console, physics audit, Mobile Release matrix; в Phase 1 проверены guards и выявлен открытый runtime API `MotorCitySaveService.ResetProgressForTesting()`. | **[x] Ревизия статусов**; **[ ]** Phase 0 не закрыта из-за оставшихся gates; **[ ]** Phase 1 не закрыта до полного QA API/call-site audit. Не трактовать наличие метода как доказанный exploit. |
+| 2026-10-09 | Phase 1 / QA save reset | `MotorCitySaveService.ResetProgressForTesting()` защищён `#if UNITY_EDITOR || DEBUG`; единственный прямой caller в `MotorCityFrontEndFlow` защищён тем же условием. | **[x] Source guard**; **[ ]** Unity compile / Development и Release smoke после изменения, прочие testing API требуют проверки. |
 
 
 ---
@@ -1112,7 +1113,7 @@ shader/material/prefab могут ссылаться сериализованн�
 - [x] Вызов `ForceNextEditorMock`, mock-поля и mock-сценарии interstitial runtime защищены таким же QA guard; исходники проверены.
 - [x] WebGL Desktop Release: пользователь подтвердил успешный запуск, управление и отсутствие QA/Admin.
 - [x] WebGL Development: пользователь подтвердил запуск и доступность QA/Admin.
-- [ ] Заключительный аудит **всех** `*ForTesting`, mock/reset и косвенных путей вызова: метод `MotorCitySaveService.ResetProgressForTesting()` по-прежнему определён в runtime API, поэтому нельзя утверждать, что *все* тестовые entrypoints исключены из release. Установить контракт безопасности и проверить все call sites/ifdef.
+- [ ] Заключительный аудит **всех** `*ForTesting`, mock/reset и косвенных путей вызова: `MotorCitySaveService.ResetProgressForTesting()` дополнительно помещён под `UNITY_EDITOR || DEBUG` (коммит `59ec7e9`); остаётся полный аудит других `*ForTesting`, mock/reset call sites и Unity verification после этого изменения.
 - [ ] Отдельная проверка WebGL Mobile Release и полная формальная матрица остаются в Phase 12; не подменять их Desktop-проверкой.
 
 **Критерий закрытия Phase 1:** аудит тестовых путей завершён, все QA entrypoints корректно изолированы; соответствующие source/Unity smoke подтверждены.
