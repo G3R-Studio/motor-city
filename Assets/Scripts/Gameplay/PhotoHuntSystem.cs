@@ -491,6 +491,7 @@ namespace MotorCity.Gameplay
                 "photo_hunt");
         }
 
+#if UNITY_EDITOR || DEBUG
         public void CompleteAlbumForTesting()
         {
             int landmarks =
@@ -603,6 +604,8 @@ namespace MotorCity.Gameplay
             messageTimer =
                 0f;
         }
+
+#endif
 
         private void Load()
         {
