@@ -39,6 +39,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | Дата | Фаза | Действие | Статус / доказательство |
 | --- | --- | --- | --- |
 | 2026-10-08 | Phase 0 | Введён трекер этапов по существующей roadmap, код игры не менялся | Подготовка выполнена; baseline, Unity smoke и WebGL ещё не проверены |
+| 2026-10-08 | Phase 0 | Пользователь подтвердил `git fetch` → `git pull --ff-only` → `git status` → `HEAD 3db9cf2a` | Git синхронизирован, рабочее дерево чистое; source-тесты и аудит впереди |
 
 ---
 
@@ -1004,6 +1005,13 @@ shader/material/prefab могут ссылаться сериализованн�
 ## Phase 0 — Freeze / baseline
 
 **Цель:** зафиксировать текущее состояние после обновлений машин, света и стёкол **до любых удалений**. Старый аудит от 2026-10-07 — исходное описание проблем, но не подтверждённый baseline текущего кода.
+
+**Проверенные подготовительные шаги:**
+
+- [x] Git-синхронизация и чистый рабочий каталог подтверждены пользователем: `git fetch origin`, `git pull --ff-only origin main`, `git status` (clean), `git rev-parse --short HEAD` → `3db9cf2a` (2026-10-08). Это **только подготовка**, не завершённый audit baseline.
+- [ ] Статические/source-тесты: `pwsh -NoProfile -File Tools/check_cleanup.ps1`; ожидание полного вывода.
+- [ ] Сформирован и проверен `Temp/MotorCityAudit/static-audit.json`.
+- [ ] Отчёт Unity Audit и Console зафиксированы.
 
 **Проверка Phase 0 (последовательно):**
 
