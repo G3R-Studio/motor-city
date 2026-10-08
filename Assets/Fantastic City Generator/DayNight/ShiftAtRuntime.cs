@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /*
 Just an example of how to switch day and night at runtime
@@ -21,7 +22,8 @@ public class ShiftAtRuntime : MonoBehaviour
     private void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.N))
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard != null && keyboard.nKey.wasPressedThisFrame)
         {
             if (dayNight)
             {
