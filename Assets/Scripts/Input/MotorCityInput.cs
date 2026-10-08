@@ -174,7 +174,7 @@ namespace MotorCity.Input
         {
             get
             {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
                 return
                     KeyPressed(
                         Key.O) ||
