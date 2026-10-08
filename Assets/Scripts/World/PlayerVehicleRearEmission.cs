@@ -236,6 +236,9 @@ namespace MotorCity.World
             lastNight =
                 -1f;
 
+            // Remove legacy overlays across active and cached vehicle visuals
+            // before destroying their temporary materials.
+            RemoveLegacyOverlays();
             RestoreAndClearBindings();
             ClearStarterLampOverlays();
 
@@ -300,7 +303,8 @@ namespace MotorCity.World
                     renderer);
             }
 
-            if (lampBindings.Count == 0 &&
+            if (EnableMeshLampOverlays &&
+                lampBindings.Count == 0 &&
                 starterLampOverlays.Count == 0)
             {
                 foreach (Renderer renderer in
@@ -2039,11 +2043,10 @@ namespace MotorCity.World
 
         private void RemoveLegacyOverlays()
         {
-            if (currentVisual == null)
-                return;
-
+            // Cached vehicle visuals are inactive but persist under the car.
+            // Scan all children, not only the newly selected active visual.
             Transform[] transforms =
-                currentVisual.GetComponentsInChildren<
+                transform.GetComponentsInChildren<
                     Transform>(
                     true);
 
@@ -2051,7 +2054,6 @@ namespace MotorCity.World
                      transforms)
             {
                 if (item == null ||
-                    item == currentVisual ||
                     item.name !=
                     LegacyOverlayName)
                 {
