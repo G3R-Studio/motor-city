@@ -1,6 +1,6 @@
 # Motor City — переход на Input System (New), 2026-10-08
 
-**Статус:** код и настройки в `main` подготовлены; Unity compile, Play Mode и WebGL проверки ещё **не подтверждены** пользователем. Никаких галочек за runtime-работоспособность до проверки не ставить.
+**Статус:** код и настройки в `main` подготовлены; пользователь 2026-10-08 подтвердил, что управление после обновления работает, а `Tools/check_cleanup.ps1` прошёл на 242 C# файлах. Первая версия `check_input_backend.py` обнаружила ошибку **в самом регулярном выражении проверочного скрипта** и дополнительный legacy `Input.GetKeyDown` в `ShiftAtRuntime.cs`; оба исходника исправлены, **повторный запуск скрипта, Console и WebGL ещё не подтверждены**. Никаких галочек за полный verification gate до проверки не ставить.
 
 ## Почему появилась жёлтая строка Input Manager deprecation
 
@@ -16,12 +16,22 @@
 | `Assets/Scripts/Input/MotorCityInput.cs` | `UnityEngine.Input.touchSupported` убран; используется `Touchscreen.current != null` плюс прежние проверки мобильной платформы/Device Simulator | Все управляющие действия, PlayerPrefs, виртуальный руль и кнопки |
 | `Assets/PROMETEO - Car Controller/Scripts/PrometeoCarController.cs` | Только legacy keyboard fallback переведён с `Input.GetKey/GetKeyUp` на `Keyboard.current[key].isPressed/wasReleasedThisFrame` через два метода | Физика, прокси-путь, трение, колёсные коллайдеры и обработка руля |
 | `Assets/Fantastic City Generator/Scripts/FreeCamera.cs` | Сторонняя вспомогательная камера использует `Mouse.current`, `Keyboard.current`; для движения сохранено приблизительное сглаживание осей 3/с | Позиции/повороты игрового chase camera не затронуты |
+| `Assets/Fantastic City Generator/DayNight/ShiftAtRuntime.cs` | Оставшийся `Input.GetKeyDown(KeyCode.N)` заменён на `Keyboard.current.nKey.wasPressedThisFrame` (commit `73010b9`) | Переключение ночи клавишей N и методы `DayNight` сохранены |
 | `ProjectSettings/ProjectSettings.asset` | `activeInputHandler: 2 → 1` | Остальные PlayerSettings |
 | `Assets/Settings/Build Profiles/Web - Mobile - Release.asset` | Сериализованный `activeInputHandler: 2 → 1` | Остальные настройки WebGL Mobile Release |
 | `Assets/Settings/Build Profiles/Web - Desktop - Release.asset` | Сериализованный `activeInputHandler: 2 → 1` | Остальные настройки WebGL Desktop Release |
-| `Tools/check_input_backend.py` | Read-only проверка глобального/двух WebGL профилей, наличия пакета и legacy API ссылок в `Assets/**/*.cs` | Не запускает Unity и не меняет файлы |
+| `Tools/check_input_backend.py` | Read-only проверка трёх настроек backend, пакета, legacy API и самопроверки regex/detector; исправлена изначально переэкранированная строка `activeInputHandler` (commit `f03f3d4`) | Не запускает Unity и не меняет файлы |
 
 **Не удалять** `ProjectSettings/InputManager.asset` и сторонний `PrometeoCarController`: они могут быть частью исходных пакетов/импортёров, а физика использует Prometeo.
+
+## Промежуточный прогон 2026-10-08 21:22 UTC
+
+Пользователь подтвердил **«управление работает»** после установки новой версии и прислал результаты:
+
+- `pwsh -NoProfile -File Tools/check_cleanup.ps1` — **PASS**: `All 242 C# sources passed syntax checks ... All cleanup syntax and source checks passed.` Это не заменяет сборку WebGL.
+- `py -3 Tools/check_input_backend.py` — **FAIL** (до исправления): 3× `found []`, хотя в Git и проектных настройках `activeInputHandler: 1`, поскольку в Python raw regex ошибочно были удвоены `\\b` и `\\s`; 1× `Assets/Fantastic City Generator/DayNight/ShiftAtRuntime.cs:24: Input.GetKeyDown(KeyCode.N)`.
+- Исправления в `main`: `f03f3d4` (правильный regex и self-tests), `73010b9` (новая система ввода в `ShiftAtRuntime`). Повторный прогон `py -3 Tools/check_input_backend.py` **пока не получен**, поэтому guard gate открыт.
+- Нет нового скриншота Console и отдельного подтверждения, что предупреждение Input Manager deprecation исчезло. WebGL Desktop/Mobile build gates также открыты.
 
 ## Обязательные verification gates
 
