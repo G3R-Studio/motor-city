@@ -174,7 +174,7 @@ namespace MotorCity.Input
         {
             get
             {
-#if UNITY_EDITOR || UNITY_WEBGL
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                 return
                     KeyPressed(
                         Key.O) ||
