@@ -30,7 +30,7 @@ namespace MotorCity.Platform
         private Action requestCompleted;
         private bool waitingForGameplayResume;
         private Action resumeCompleted;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private bool forceNextEditorMock;
         private float editorMockCloseRealtime;
         private Action editorMockCompleted;
@@ -116,7 +116,7 @@ namespace MotorCity.Platform
                     requestSerial);
             }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             if (editorMockCompleted != null &&
                 Time.realtimeSinceStartup >=
                     editorMockCloseRealtime)
@@ -195,7 +195,7 @@ namespace MotorCity.Platform
             completedActivities++;
         }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         public void ForceNextEditorMock()
         {
             forceNextEditorMock =
@@ -220,7 +220,7 @@ namespace MotorCity.Platform
                 return;
             }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             if (forceNextEditorMock &&
                 IsExplicitAdActivity(
                     activityId))
@@ -336,7 +336,7 @@ namespace MotorCity.Platform
                 completed;
         }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private void BeginEditorMock(
             Action completed)
         {
