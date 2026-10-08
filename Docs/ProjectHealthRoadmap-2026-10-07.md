@@ -40,6 +40,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | --- | --- | --- | --- |
 | 2026-10-08 | Phase 0 | Введён трекер этапов по существующей roadmap, код игры не менялся | Подготовка выполнена; baseline, Unity smoke и WebGL ещё не проверены |
 | 2026-10-08 | Phase 0 | Пользователь подтвердил `git fetch` → `git pull --ff-only` → `git status` → `HEAD 3db9cf2a` | Git синхронизирован, рабочее дерево чистое; source-тесты и аудит впереди |
+| 2026-10-08 | Phase 0 | `check_cleanup.ps1`: 242 C# синтаксически корректны (Editor/native/WebGL), reflection-проверки прошли. Source-тест VehicleLampMaterialUtility остановился на `CS0234` из-за отсутствующей зависимости | Исправлен только тестовый harness (`fac2c5f`, `85725b4`); повторный запуск ожидается, полный gate открыт |
 
 ---
 
@@ -1009,7 +1010,8 @@ shader/material/prefab могут ссылаться сериализованн�
 **Проверенные подготовительные шаги:**
 
 - [x] Git-синхронизация и чистый рабочий каталог подтверждены пользователем: `git fetch origin`, `git pull --ff-only origin main`, `git status` (clean), `git rev-parse --short HEAD` → `3db9cf2a` (2026-10-08). Это **только подготовка**, не завершённый audit baseline.
-- [ ] Статические/source-тесты: `pwsh -NoProfile -File Tools/check_cleanup.ps1`; ожидание полного вывода.
+- [x] Roslyn синтаксис: 242 C# файла, `UNITY_EDITOR`, native player, `UNITY_WEBGL`; пользователь подтвердил успешный вывод 2026-10-08. Тесты очереди/снимка/тумана/отключения reflection также прошли.
+- [ ] Полный `Tools/check_cleanup.ps1`: первый запуск прервался на `CS0234`, потому что исходниковому тесту не хватало `VehicleVisualRoleUtility.cs`. Тестовый harness и Unity-заглушка исправлены в `fac2c5f` / `85725b4`; ожидается повторный запуск. **Не отмечать как успешный до вывода всех тестов.**
 - [ ] Сформирован и проверен `Temp/MotorCityAudit/static-audit.json`.
 - [ ] Отчёт Unity Audit и Console зафиксированы.
 
