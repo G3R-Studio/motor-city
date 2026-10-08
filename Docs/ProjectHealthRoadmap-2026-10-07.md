@@ -70,6 +70,8 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 
 | 2026-10-09 | Phase 1 / WebGL Desktop Release | Пользователь подтвердил «всё чётко» после инструкции собрать `Web - Desktop - Release`, проверить запуск, управление и отсутствие QA/Admin-панели. | **[x] Desktop Release ручной smoke по подтверждению пользователя**; **[ ] Development WebGL проверка наличия QA**, **[ ] Mobile Release и формальная build matrix**. |
 
+| 2026-10-09 | Phase 1 / WebGL Development | После проверки Desktop Release пользователь подтвердил «всё чётко» для WebGL Development: QA/Admin доступна, игра работает. | **[x] Development WebGL ручной smoke по подтверждению пользователя**; **[x] Desktop Release QA isolation по предыдущему подтверждению**. **[ ]** Phase 1 окончательно закрывать только после сверки всех P0.1 QA/mock/reset paths и релевантных gates; **[ ]** формальная Mobile Release матрица. |
+
 ---
 
 ## 1. Текущий масштаб проекта
