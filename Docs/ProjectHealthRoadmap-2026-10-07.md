@@ -21,7 +21,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 ## Обзор фаз
 
 - [ ] **Phase 0 — Freeze / baseline** — В РАБОТЕ: зафиксировать состояние до чистки
-- [ ] **Phase 1 — Release safety** — P0.1, убрать QA/admin из production
+- [ ] **Phase 1 — Release safety** — P0.1, QA UI изолирован; финальный аудит testing API открыт
 - [ ] **Phase 2 — Automated gates** — P0.2, CI и аудиты
 - [ ] **Phase 3 — Vehicle contract** — P0.3, единый контракт моделей
 - [ ] **Phase 4 — Vehicle material/lamp roles** — P0.4, материал/роль/владелец
@@ -77,6 +77,8 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 1 / P0.1 follow-up | Unity Console reported 10 `UAC0009` warnings from deprecated `DEVELOPMENT_BUILD` guards. Replaced all 10 in 5 QA-related C# files with `UNITY_EDITOR || DEBUG`; post-write reads show 0 deprecated guards and balanced preprocessor directives. | **[x] Source fix**; **[ ] Unity Console warning-clear confirmation**, **[ ] Development QA present / Release QA absent**. `DEBUG` behavior still must be verified in actual build profiles. |
 | 2026-10-09 | Phase 1 / WebGL Desktop Release | Пользователь подтвердил «всё чётко» после инструкции собрать `Web - Desktop - Release`, проверить запуск, управление и отсутствие QA/Admin-панели. | **[x] Desktop Release ручной smoke по подтверждению пользователя**; **[ ] Development WebGL проверка наличия QA**, **[ ] Mobile Release и формальная build matrix**. |
 | 2026-10-09 | Phase 1 / WebGL Development | После проверки Desktop Release пользователь подтвердил «всё чётко» для WebGL Development: QA/Admin доступна, игра работает. | **[x] Development WebGL ручной smoke по подтверждению пользователя**; **[x] Desktop Release QA isolation по предыдущему подтверждению**. **[ ]** Phase 1 окончательно закрывать только после сверки всех P0.1 QA/mock/reset paths и релевантных gates; **[ ]** формальная Mobile Release матрица. |
+| 2026-10-09 | Phase 0/1 ревизия | Сверены Phase 0 и Phase 1 checkpoints: выполненные source/Unity smoke подтверждены; незакрыты визуальный архив, полная Console, physics audit, Mobile Release matrix; в Phase 1 проверены guards и выявлен открытый runtime API `MotorCitySaveService.ResetProgressForTesting()`. | **[x] Ревизия статусов**; **[ ]** Phase 0 не закрыта из-за оставшихся gates; **[ ]** Phase 1 не закрыта до полного QA API/call-site audit. Не трактовать наличие метода как доказанный exploit. |
+
 
 ---
 
@@ -1103,10 +1105,17 @@ shader/material/prefab могут ссылаться сериализованн�
 
 ## Phase 1 — Release safety
 
-- [ ] MOTORCITY_QA / DEVELOPMENT_BUILD;
-- [ ] убрать AdminDebugPanel и QA RESET SAVE из release;
-- [ ] mock-ad/testing entrypoints из release;
-- [ ] release WebGL smoke.
+**Ревизия 2026-10-09:** `DEVELOPMENT_BUILD` вызвал 10 предупреждений `UAC0009`, поэтому фактический guard теперь `UNITY_EDITOR || DEBUG`, а не `MOTORCITY_QA`/`DEVELOPMENT_BUILD`. Не возвращать deprecated define. Проверки ниже относятся к уже подтверждённым сценариям, а не к автоматическому доказательству полного исключения всех тестовых API из release.
+
+- [x] Выбран и внедрён QA guard `UNITY_EDITOR || DEBUG` в пяти связанных C# файлах (10 preprocessor guards); пользователь подтвердил исчезновение `UAC0009` в Unity.
+- [x] `AdminDebugPanel`, hotkey и pregame `QA RESET SAVE` защищены QA guard; в WebGL Desktop Release пользователь подтвердил отсутствие доступной QA-панели.
+- [x] Вызов `ForceNextEditorMock`, mock-поля и mock-сценарии interstitial runtime защищены таким же QA guard; исходники проверены.
+- [x] WebGL Desktop Release: пользователь подтвердил успешный запуск, управление и отсутствие QA/Admin.
+- [x] WebGL Development: пользователь подтвердил запуск и доступность QA/Admin.
+- [ ] Заключительный аудит **всех** `*ForTesting`, mock/reset и косвенных путей вызова: метод `MotorCitySaveService.ResetProgressForTesting()` по-прежнему определён в runtime API, поэтому нельзя утверждать, что *все* тестовые entrypoints исключены из release. Установить контракт безопасности и проверить все call sites/ifdef.
+- [ ] Отдельная проверка WebGL Mobile Release и полная формальная матрица остаются в Phase 12; не подменять их Desktop-проверкой.
+
+**Критерий закрытия Phase 1:** аудит тестовых путей завершён, все QA entrypoints корректно изолированы; соответствующие source/Unity smoke подтверждены.
 
 ## Phase 2 — Automated gates
 
