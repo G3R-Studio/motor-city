@@ -1048,6 +1048,15 @@ namespace MotorCity.Gameplay
                 authoredLights = car.gameObject.AddComponent<VehicleAuthoredLampLights>();
             authoredLights.SetVehicleId(profile.Id);
 
+            // Match the Street car's glossy, softly tinted window look on
+            // other player vehicles without altering the Street material,
+            // body paint, lamp polygons or imported shared source materials.
+            PlayerVehicleGlassAppearance glassAppearance =
+                car.GetComponent<PlayerVehicleGlassAppearance>();
+            if (glassAppearance == null)
+                glassAppearance = car.gameObject.AddComponent<PlayerVehicleGlassAppearance>();
+            glassAppearance.SetVehicleId(profile.Id);
+
             PlayerVehicleRearEmission rearEmission =
                 car.GetComponent<PlayerVehicleRearEmission>();
 
