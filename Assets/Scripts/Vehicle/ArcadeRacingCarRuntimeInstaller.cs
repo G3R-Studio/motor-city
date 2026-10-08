@@ -1043,6 +1043,13 @@ namespace MotorCity.Vehicle
                 child.gameObject.SetActive(
                     false);
 
+                // Destroy() is deferred until the end of the frame. The
+                // initial ARCADE placeholder and its replacement otherwise
+                // share RuntimeVisualName during roster initialization,
+                // making transform.Find() bind lamps to the inactive AFRC
+                // model instead of the newly installed vehicle.
+                child.name += "_Retiring";
+
                 UnityEngine.Object.Destroy(
                     child.gameObject);
             }
