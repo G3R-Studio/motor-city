@@ -7,9 +7,9 @@ using UnityEngine.Rendering;
 namespace MotorCity.World
 {
     /// <summary>
-    /// Adds neutral, glossy URP glass to the actual window submeshes of
-    /// imported player vehicles. The Street/AFRC car keeps its authored
-    /// baked-glass appearance completely unchanged.
+    /// Adds opaque, camera-angle-dependent reflective glass to the actual
+    /// window polygons of imported player vehicles. The Street/AFRC car
+    /// keeps its authored baked-glass appearance completely unchanged.
     ///
     /// No mesh overlays or geometry edits: each detected blackGlass slot
     /// receives its own runtime material. Cached visuals and source
@@ -90,10 +90,17 @@ namespace MotorCity.World
             if (currentVisual == null)
                 return;
 
-            Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+            // Keep a material asset in Resources so the custom shader is
+            // included in desktop and WebGL builds, not just in the Editor.
+            Material template = Resources.Load<Material>("MotorCity/VehicleGlass");
+            Shader shader = template != null
+                ? template.shader
+                : Shader.Find("MotorCity/VehicleGlass");
             if (shader == null || !shader.isSupported)
             {
-                Debug.LogWarning("Motor City: URP Lit shader unavailable for vehicle glass.");
+                Debug.LogWarning(
+                    "Motor City: MotorCity/VehicleGlass shader unavailable. " +
+                    "Check Assets/Resources/MotorCity/VehicleGlass.mat.");
                 return;
             }
 
@@ -114,12 +121,13 @@ namespace MotorCity.World
                     if (original == null || !IsWindowMaterial(original.name))
                         continue;
 
-                    Material glass = new Material(shader)
-                    {
-                        name = "MotorCity_" + vehicleId + "_Glass_Runtime",
-                        hideFlags = HideFlags.DontSave,
-                        enableInstancing = true
-                    };
+                    Material glass = template != null
+                        ? new Material(template)
+                        : new Material(shader);
+
+                    glass.name = "MotorCity_" + vehicleId + "_Glass_Runtime";
+                    glass.hideFlags = HideFlags.DontSave;
+                    glass.enableInstancing = true;
 
                     ConfigureGlass(glass);
                     slots[slot] = glass;
@@ -137,11 +145,9 @@ namespace MotorCity.World
                 if (changed)
                 {
                     renderer.sharedMaterials = slots;
-                    // Transparent car windows should not cast black opaque
-                    // shadows over the passenger cabin or surrounding paint.
-                    // Only disable shadows for dedicated all-glass renderers.
-                    // On mixed body_misc renderers, leave renderer-wide
-                    // settings unchanged.
+                    // Only the authored window material slot changes;
+                    // other body_misc submeshes keep their original material,
+                    // shadows, body colors, and light emission.
                 }
             }
 
@@ -188,47 +194,28 @@ namespace MotorCity.World
 
         private static void ConfigureGlass(Material glass)
         {
-            // A neutral charcoal/steel tint follows the Street car's
-            // understated, reflective windows. Do not preserve the imported
-            // pure-black Kd or palette texture: both made the old glass look
-            // like painted plastic or bright, flat blue.
-            Color tint = new Color(0.24f, 0.255f, 0.27f, 0.72f);
-            glass.SetColor("_BaseColor", tint);
-            if (glass.HasProperty("_BaseMap"))
-                glass.SetTexture("_BaseMap", Texture2D.whiteTexture);
+            // Do not use alpha blending here. The previous 0.72 alpha made
+            // the interior and whole street visible through the windows,
+            // especially on the Bus. This deliberately writes opaque depth.
+            //
+            // The custom shader computes a Schlick-like Fresnel falloff in
+            // world space, from near-black face-on to neutral grey at grazing
+            // angles, plus a desaturated glossy probe/sky reflection.
+            // These highlights move as the player's camera rotates.
+            glass.SetColor("_BaseColor",
+                new Color(0.024f, 0.028f, 0.035f, 1f));
+            glass.SetColor("_EdgeColor",
+                new Color(0.22f, 0.235f, 0.25f, 1f));
+            glass.SetFloat("_FresnelPower", 2.8f);
+            glass.SetFloat("_ReflectionStrength", 0.42f);
+            glass.SetFloat("_Smoothness", 0.91f);
+            glass.SetFloat("_SpecularStrength", 0.18f);
 
-            glass.SetFloat("_Metallic", 0.13f);
-            glass.SetFloat("_Smoothness", 0.94f);
-            glass.SetFloat("_EnvironmentReflections", 1f);
-            glass.SetFloat("_SpecularHighlights", 1f);
-
-            // URP Lit transparent, premultiplied: preserves clear Fresnel/
-            // sky-probe highlights over the slightly see-through dark tint.
-            // Must set both properties AND shader keywords; changing the
-            // alpha property alone still renders an opaque URP material.
-            glass.SetFloat("_Surface", 1f);
-            glass.SetFloat("_Blend", 1f);
-            glass.SetFloat("_BlendModePreserveSpecular", 1f);
-            glass.SetFloat("_SrcBlend", (float)BlendMode.One);
-            glass.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-            glass.SetFloat("_SrcBlendAlpha", (float)BlendMode.One);
-            glass.SetFloat("_DstBlendAlpha", (float)BlendMode.OneMinusSrcAlpha);
-            glass.SetFloat("_ZWrite", 0f);
-            glass.SetFloat("_Cull", (float)CullMode.Back);
-            glass.SetFloat("_AlphaClip", 0f);
-            glass.SetFloat("_ReceiveShadows", 0f);
-            glass.SetColor("_EmissionColor", Color.black);
-
-            glass.DisableKeyword("_EMISSION");
-            glass.DisableKeyword("_ALPHATEST_ON");
-            glass.DisableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
-            glass.DisableKeyword("_SPECULARHIGHLIGHTS_OFF");
-            glass.DisableKeyword("_RECEIVE_SHADOWS_OFF");
-            glass.EnableKeyword("_RECEIVE_SHADOWS_OFF");
-            glass.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-            glass.EnableKeyword("_ALPHAPREMULTIPLY_ON");
-            glass.SetOverrideTag("RenderType", "Transparent");
-            glass.renderQueue = (int)RenderQueue.Transparent;
+            // The shader's SubShader is Opaque, Cull Back, ZWrite On.
+            // Keep the material's queue/tag consistent with the actual
+            // shader so no old URP-transparent states can survive.
+            glass.SetOverrideTag("RenderType", "Opaque");
+            glass.renderQueue = (int)RenderQueue.Geometry;
         }
 
         private void RestoreBindings()
