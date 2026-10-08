@@ -1281,6 +1281,7 @@ namespace MotorCity.UI
                 0f;
         }
 
+#if UNITY_EDITOR || DEBUG
         public void ResetForTesting()
         {
             MotorCitySaveService.DeleteKey(
@@ -1306,6 +1307,8 @@ namespace MotorCity.UI
                 ShowMainMenu();
             }
         }
+
+#endif
 
         private void BeginPrimaryAction()
         {
