@@ -251,10 +251,10 @@ namespace MotorCity.World
 
             RemoveLegacyOverlays();
 
-            // Hybrid's authored Material.004 faces are driven by
-            // HybridCoordinateLights, including reverse and handbrake.
-            // Do not create a second emission binding for this vehicle.
-            if (vehicleId == VehicleIds.Hybrid)
+            // Hybrid and DeLorean use their own authored material slots
+            // for stop lamps. Avoid legacy bindings and mesh overlays.
+            if (vehicleId == VehicleIds.Hybrid ||
+                vehicleId == VehicleIds.Delorean)
                 return;
 
             Renderer[] renderers =
