@@ -178,6 +178,7 @@ namespace MotorCity.Gameplay
             }
         }
 
+#if UNITY_EDITOR || DEBUG
         public void CompleteCurrentForTesting()
         {
             if (coolingDown)
@@ -231,6 +232,8 @@ namespace MotorCity.Gameplay
             messageTimer =
                 MessageSeconds;
         }
+
+#endif
 
         private void HandleActivityCompleted(
             string activityId)
