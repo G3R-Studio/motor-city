@@ -328,7 +328,10 @@ namespace MotorCity.World
             ClearNightEmissionOverlays();
             frontLampMaterials.Clear();
 
-            if (currentVisual == null)
+            // Hybrid emission is driven on its authored polygons by
+            // HybridCoordinateLights. Keep this component's real Spot Lights,
+            // but never manipulate Hybrid's imported/shared materials here.
+            if (currentVisual == null || vehicleId == VehicleIds.Hybrid)
                 return;
 
             Renderer[] renderers =
