@@ -1496,7 +1496,7 @@ namespace MotorCity.UI
 
         private void Update()
         {
-#if UNITY_EDITOR || UNITY_WEBGL
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (!gameplayReady &&
                 MotorCityInput.AdminTogglePressed)
             {
@@ -2537,7 +2537,7 @@ namespace MotorCity.UI
         private static bool IsRussian() =>
             MotorCityLocalization.LanguageCode == "ru";
 
-#if UNITY_EDITOR || UNITY_WEBGL
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         private void OnGUI()
         {
             if (gameplayReady ||
