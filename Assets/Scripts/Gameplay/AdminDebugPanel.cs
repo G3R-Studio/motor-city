@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || UNITY_WEBGL
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using MotorCity.CameraSystem;
 using MotorCity.Input;
 using MotorCity.Platform;
