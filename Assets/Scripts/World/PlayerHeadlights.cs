@@ -173,6 +173,19 @@ namespace MotorCity.World
                 return;
             }
 
+            if (vehicleId == VehicleIds.Hybrid)
+            {
+                // Exact Blender-authored locations in the model's Unity axes.
+                // Preserve the existing night/day Spot Light intensity logic.
+                left.transform.position = currentVisual.TransformPoint(
+                    new Vector3(-0.4199f, 0.4040f, 1.6630f));
+                right.transform.position = currentVisual.TransformPoint(
+                    new Vector3(0.4199f, 0.4040f, 1.6630f));
+                ClearNightEmissionOverlays();
+                frontLampMaterials.Clear();
+                return;
+            }
+
             Renderer[] renderers =
                 currentVisual.GetComponentsInChildren<Renderer>(
                     true);
