@@ -122,8 +122,11 @@ namespace MotorCity.World
                         0.72f,
                         night));
 
+            // AE86 pop-up headlamps are hidden and have no visible lens
+            // material yet. Keep the prepared Spot Lights switched off
+            // until a future headlamp deployment system is implemented.
             ApplyLights(
-                amount);
+                vehicleId == VehicleIds.ToyotaAE86 ? 0f : amount);
 
             ApplyNightVisualEmission(
                 night);
@@ -217,6 +220,58 @@ namespace MotorCity.World
 
                 // The actual lamp surfaces are driven exclusively by
                 // AmgGTAuthoredLights, not these legacy material bindings.
+                ClearNightEmissionOverlays();
+                frontLampMaterials.Clear();
+                return;
+            }
+
+            if (VehicleAuthoredLampLights.HandlesVehicle(vehicleId))
+            {
+                // Area-weighted centers of front headlamp polygons in the
+                // corresponding committed vehicle OBJ. Root TransformPoint
+                // preserves the authored model scale and runtime placement.
+                Vector3 leftCenter;
+                Vector3 rightCenter;
+
+                switch (vehicleId)
+                {
+                    case VehicleIds.Peugeot306:
+                        leftCenter = new Vector3(-0.643283f, 0.715391f, 1.796826f);
+                        rightCenter = new Vector3(0.643283f, 0.715391f, 1.796826f);
+                        break;
+
+                    case VehicleIds.Porsche996:
+                        leftCenter = new Vector3(-0.593339f, 0.619163f, 1.856690f);
+                        rightCenter = new Vector3(0.593339f, 0.619163f, 1.856690f);
+                        break;
+
+                    case VehicleIds.Camaro:
+                        leftCenter = new Vector3(-0.670924f, 0.732116f, 2.154945f);
+                        rightCenter = new Vector3(0.670924f, 0.732116f, 2.154945f);
+                        break;
+
+                    case VehicleIds.Bus:
+                        // Bus's geometry is slightly offset from local X=0.
+                        leftCenter = new Vector3(-0.609755f, 0.663840f, 2.644730f);
+                        rightCenter = new Vector3(0.637271f, 0.663840f, 2.644730f);
+                        break;
+
+                    case VehicleIds.Beatall:
+                        leftCenter = new Vector3(-0.423514f, 0.580207f, 1.405105f);
+                        rightCenter = new Vector3(0.412683f, 0.580207f, 1.405105f);
+                        break;
+
+                    default:
+                        // Toyota AE86: placeholders at closed popup housings.
+                        // Never emit road light before real lenses and their
+                        // deployment state are available (see Update()).
+                        leftCenter = new Vector3(-0.60f, 0.68f, 2.0f);
+                        rightCenter = new Vector3(0.60f, 0.68f, 2.0f);
+                        break;
+                }
+
+                left.transform.position = currentVisual.TransformPoint(leftCenter);
+                right.transform.position = currentVisual.TransformPoint(rightCenter);
                 ClearNightEmissionOverlays();
                 frontLampMaterials.Clear();
                 return;
@@ -370,7 +425,8 @@ namespace MotorCity.World
             if (currentVisual == null ||
                 vehicleId == VehicleIds.Hybrid ||
                 vehicleId == VehicleIds.Delorean ||
-                vehicleId == VehicleIds.AmgGT)
+                vehicleId == VehicleIds.AmgGT ||
+                VehicleAuthoredLampLights.HandlesVehicle(vehicleId))
                 return;
 
             Renderer[] renderers =
