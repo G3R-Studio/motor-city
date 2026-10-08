@@ -163,6 +163,7 @@ namespace MotorCity.Gameplay
             ResolveLevel();
         }
 
+#if UNITY_EDITOR || DEBUG
         public void SetCurrentLevelForTesting(
             int level)
         {
@@ -211,6 +212,8 @@ namespace MotorCity.Gameplay
             MotorCity.Persistence.MotorCitySaveService.Save();
             LoadCurrentVehicle();
         }
+
+#endif
 
         private void HandleVehicleChanged()
         {
