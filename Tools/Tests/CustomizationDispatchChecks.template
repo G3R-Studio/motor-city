@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using MotorCityCleanupTests.Customization;
 
-// This source template is compiled by a SEPARATE Add-Type -TypeDefinition call.
-// PowerShell does not automatically reference the in-memory assembly compiled
-// by previous Add-Type calls. The minimal UnityEngine surface for the
-// extracted REAL gameplay methods must be declared in this same compilation.
-// These types are test-only and never enter Unity player assemblies.
-namespace UnityEngine
+// The lamp and reflection tests already declare UnityEngine stubs in other
+// Add-Type assemblies. Give the cosmetics tests a private namespace: PowerShell
+// loads all three assemblies into one process and rejects duplicate full type
+// names even when separate Add-Type calls compile the sources independently.
+// The extracted production methods use unqualified Unity type names, which
+// resolve to these test-only doubles via the using directive above.
+namespace MotorCityCleanupTests.Customization
 {
     public class Material { }
 
@@ -47,8 +48,8 @@ namespace UnityEngine
 public class CustomizationChecks
 {
     public object car = new object();
-    public UnityEngine.Transform visual = new UnityEngine.Transform();
-    private UnityEngine.Transform FindVisualRoot() => visual;
+    public MotorCityCleanupTests.Customization.Transform visual = new MotorCityCleanupTests.Customization.Transform();
+    private MotorCityCleanupTests.Customization.Transform FindVisualRoot() => visual;
     public int SelectedColorIndex, SelectedWheelStyleIndex, SelectedNeonIndex;
     private readonly int[] AccentColors = new int[3];
     public int Saves, Paints, Wheels, Clears, Builds;
@@ -78,29 +79,29 @@ public class CustomizationChecks
         // ClearStaleVehiclePropertyBlocks(). Verify renderer-wide AND
         // per-material blocks are cleared, while trail and particle
         // renderers are left alone.
-        var body = new UnityEngine.Renderer
+        var body = new MotorCityCleanupTests.Customization.Renderer
         {
-            sharedMaterials = new UnityEngine.Material[]
+            sharedMaterials = new MotorCityCleanupTests.Customization.Material[]
             {
-                new UnityEngine.Material(), new UnityEngine.Material()
+                new MotorCityCleanupTests.Customization.Material(), new MotorCityCleanupTests.Customization.Material()
             }
         };
-        var glass = new UnityEngine.Renderer
+        var glass = new MotorCityCleanupTests.Customization.Renderer
         {
-            sharedMaterials = new UnityEngine.Material[]
+            sharedMaterials = new MotorCityCleanupTests.Customization.Material[]
             {
-                new UnityEngine.Material()
+                new MotorCityCleanupTests.Customization.Material()
             }
         };
-        var trail = new UnityEngine.TrailRenderer
+        var trail = new MotorCityCleanupTests.Customization.TrailRenderer
         {
-            sharedMaterials = new UnityEngine.Material[] { new UnityEngine.Material() }
+            sharedMaterials = new MotorCityCleanupTests.Customization.Material[] { new MotorCityCleanupTests.Customization.Material() }
         };
-        var particles = new UnityEngine.ParticleSystemRenderer
+        var particles = new MotorCityCleanupTests.Customization.ParticleSystemRenderer
         {
-            sharedMaterials = new UnityEngine.Material[] { new UnityEngine.Material() }
+            sharedMaterials = new MotorCityCleanupTests.Customization.Material[] { new MotorCityCleanupTests.Customization.Material() }
         };
-        c.visual.renderers = new UnityEngine.Renderer[] { body, glass, trail, particles };
+        c.visual.renderers = new MotorCityCleanupTests.Customization.Renderer[] { body, glass, trail, particles };
 
         c.ApplyAll();
         if (c.Paints != 2 || c.Wheels != 2 || c.Builds != 2 || c.Clears != 2)
