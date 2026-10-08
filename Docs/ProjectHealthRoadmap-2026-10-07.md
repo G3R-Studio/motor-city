@@ -45,6 +45,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-08 | Phase 0 | Третий запуск: предыдущие проверки пройдены, но cosmetic `Add-Type` не видел namespace `UnityEngine` из другого динамического assembly (`CS0246`) | Устранена зависимость между отдельными `Add-Type` компиляциями; статически проверены все семь методов и типы. Запуск PowerShell у пользователя **ещё не подтверждён** |
 | 2026-10-08 | Phase 0 | Четвёртый запуск: кастомизационный `Add-Type` попытался повторно объявить `UnityEngine.Transform` (конфликт типов) | Использован уникальный namespace `MotorCityCleanupTests.Customization`; все тестовые типы и извлечённый исходный C# проверены статически. Полный runtime-прогон ожидается |
 | 2026-10-08 | Phase 0 | Пользователь подтвердил **полностью успешный** `pwsh -NoProfile -File Tools/check_cleanup.ps1` на 242 C# файлах, включая reflection, field/lamp и cosmetic тесты | **[x] Статическая/source проверка закрыта**; Unity compile, static-audit JSON и прочие Phase 0 пункты ещё впереди |
+| 2026-10-08 | Phase 0 | Принят и проверен `static-audit.json`: 4471 файлов, 2329 GUID, 3232 serialized assets, 246 C#; 0 дубли GUID, 0 deleted/dangling refs, 241 кандидатов без входящих GUID | **[x] Статический baseline записан**. Кандидатов не удалять: требуются динамические/импортные и Unity dependency gates. Отчёт не содержит Git SHA; Unity/Console/visual baseline ещё ожидаются |
 
 ---
 
@@ -1016,7 +1017,7 @@ shader/material/prefab могут ссылаться сериализованн�
 - [x] Git-синхронизация и чистый рабочий каталог подтверждены пользователем: `git fetch origin`, `git pull --ff-only origin main`, `git status` (clean), `git rev-parse --short HEAD` → `3db9cf2a` (2026-10-08). Это **только подготовка**, не завершённый audit baseline.
 - [x] Roslyn синтаксис: 242 C# файла, `UNITY_EDITOR`, native player, `UNITY_WEBGL`; пользователь подтвердил успешный вывод 2026-10-08. Тесты очереди/снимка/тумана/отключения reflection также прошли.
 - [x] Полный `Tools/check_cleanup.ps1` — **подтверждён пользователем 2026-10-08**: `All 242 C# sources passed syntax checks (Editor, native player, WebGL).`; reflection queue / caller snapshot / fog restoration / disable; shared field cache; lamp material/UV/projection; cosmetic dispatch / property-block cleanup / save/events / vehicle initialization / color cycle. Финальная строка: `All cleanup syntax and source checks passed.` Это source/stub testing, **не** Unity compile и не WebGL build.
-- [ ] Сформирован и проверен `Temp/MotorCityAudit/static-audit.json`.
+- [x] Сформирован и проверен пользователем предоставленный `static-audit.json` (2026-10-08; локальный отчёт `Temp/MotorCityAudit/static-audit.json`): 4 471 файлов, 2 329 asset GUID, 3 232 serialized files, 246 C# файлов (включая тестовые), 0 duplicate GUID, 0 deleted assets, 0 dangling references к удалённым ассетам, 241 unreferenced candidates. JSON корректен, кандидаты уникальны. **Список кандидатов не является разрешением на удаление.** Отчёт не содержит hash HEAD, поэтому конкретный анализируемый коммит нельзя подтвердить по одному JSON.
 - [ ] Отчёт Unity Audit и Console зафиксированы.
 
 **Проверка Phase 0 (последовательно):**
@@ -1028,7 +1029,7 @@ shader/material/prefab могут ссылаться сериализованн�
 5. Play Mode: главное меню → выбор управления → город → гараж → пауза → главное меню → Continue; переключите все машины. Сделайте для каждой скриншот в гараже, днём и ночью, отдельно отметьте paint/glass/headlights/brake/wheels и поведение руля, газа, тормоза, ручника.
 6. Зафиксируйте результаты в журнале выше; проверенный статус `Phase 0` отмечается `[x]` только после выполнения всех применимых подпунктов ниже.
 
-- [ ] новый audit baseline;
+- [x] новый **статический** audit baseline: результаты JSON зафиксированы в журнале; Unity asset/scene report и визуальный baseline остаются отдельными незакрытыми проверками;
 - [ ] Console clean;
 - [ ] записать current prefab/material state;
 - [ ] сохранить screenshots каждой машины день/ночь/гараж;
