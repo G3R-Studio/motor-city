@@ -692,7 +692,7 @@ namespace MotorCity.Bootstrap
                 liveEvents,
                 adventureDirector);
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             AdminDebugPanel adminPanel =
                 systems.AddComponent<AdminDebugPanel>();
 
