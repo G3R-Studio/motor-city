@@ -1,6 +1,26 @@
 # Blender 5.2.2 LTS MTL File: 'None'
 # www.blender.org
 
+newmtl MC_Brake
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/AmgGT/all.png
+map_Ke D:/GitHub/motor-city/Assets/VehicleAssets/AmgGT/all.png
+
+newmtl MC_Headlight
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/AmgGT/all.png
+map_Ke D:/GitHub/motor-city/Assets/VehicleAssets/AmgGT/all.png
+
 newmtl baseGradient.008
 Ns 217.455490
 Ka 1.000000 1.000000 1.000000
@@ -9,7 +29,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd all.png
+map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/AmgGT/all.png
 
 newmtl blackGlass.008
 Ns 1000.000000
@@ -28,5 +48,5 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd all.png
-map_Ke all.png
+map_Kd D:/GitHub/motor-city/Assets/VehicleAssets/AmgGT/all.png
+map_Ke D:/GitHub/motor-city/Assets/VehicleAssets/AmgGT/all.png
