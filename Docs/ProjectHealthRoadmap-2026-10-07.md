@@ -42,6 +42,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-08 | Phase 0 | Пользователь подтвердил `git fetch` → `git pull --ff-only` → `git status` → `HEAD 3db9cf2a` | Git синхронизирован, рабочее дерево чистое; source-тесты и аудит впереди |
 | 2026-10-08 | Phase 0 | `check_cleanup.ps1`: 242 C# синтаксически корректны (Editor/native/WebGL), reflection-проверки прошли. Source-тест VehicleLampMaterialUtility остановился на `CS0234` из-за отсутствующей зависимости | Исправлен только тестовый harness (`fac2c5f`, `85725b4`); повторный запуск ожидается, полный gate открыт |
 | 2026-10-08 | Phase 0 | Повторный запуск: 242 C# / reflection / field cache / lamp checks пройдены; cosmetic source-test остановился на `ClearStaleVehiclePropertyBlocks` (`CS0103`) | В тесты добавлен реальный метод и его Unity stub/регрессии; ожидаем повторный запуск, полный gate ещё не пройден |
+| 2026-10-08 | Phase 0 | Третий запуск: предыдущие проверки пройдены, но cosmetic `Add-Type` не видел namespace `UnityEngine` из другого динамического assembly (`CS0246`) | Устранена зависимость между отдельными `Add-Type` компиляциями; статически проверены все семь методов и типы. Запуск PowerShell у пользователя **ещё не подтверждён** |
 
 ---
 
@@ -1012,7 +1013,7 @@ shader/material/prefab могут ссылаться сериализованн�
 
 - [x] Git-синхронизация и чистый рабочий каталог подтверждены пользователем: `git fetch origin`, `git pull --ff-only origin main`, `git status` (clean), `git rev-parse --short HEAD` → `3db9cf2a` (2026-10-08). Это **только подготовка**, не завершённый audit baseline.
 - [x] Roslyn синтаксис: 242 C# файла, `UNITY_EDITOR`, native player, `UNITY_WEBGL`; пользователь подтвердил успешный вывод 2026-10-08. Тесты очереди/снимка/тумана/отключения reflection также прошли.
-- [ ] Полный `Tools/check_cleanup.ps1`: повторный запуск подтвердил синтаксис 242 C# файлов, reflection, field-cache и lamp/UV/projection тесты. Остановился в косметических тестах на `CS0103` (`ClearStaleVehiclePropertyBlocks` отсутствовал в изолированной компиляции). Добавлена компиляция **реального метода** и тестовые проверки renderer/per-slot очистки (`8071b31`, `b430cb3`, `e5d5138`, `c224861`); ждём полного успешного вывода на машине пользователя. **Без успешного прогона не отмечать `[x]`.**
+- [ ] Полный `Tools/check_cleanup.ps1`: пользователь подтвердил успешный синтаксис 242 C# файлов, reflection, field-cache и lamp/UV/projection тесты. Третий запуск остановился в изолированном cosmetic `Add-Type` на `CS0246` (`UnityEngine` не был доступен из соседней динамической сборки). Исправлена **причина**, не игровой код: `CustomizationDispatchChecks.template` теперь содержит собственные Unity-заглушки в той же компиляции (`d9d6d09`), удалены ненужные межтестовые заглушки (`b27ce5b`), полный успех теперь выводится явно (`ebbf052`). Все семь извлекаемых методов и их типы проверены статически; ждём подтверждения реального PowerShell прогона. **До него не ставить `[x]`.**
 - [ ] Сформирован и проверен `Temp/MotorCityAudit/static-audit.json`.
 - [ ] Отчёт Unity Audit и Console зафиксированы.
 
