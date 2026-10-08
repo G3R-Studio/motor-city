@@ -47,9 +47,13 @@ try {
         $source.Substring($match.Index, $offset - $match.Index)
     }
     $template = [IO.File]::ReadAllText((Join-Path $projectRoot 'Tools/Tests/CustomizationDispatchChecks.template'))
+    # This is its own Add-Type compilation, separate from the lamp tests.
+    # The template deliberately defines its own minimal UnityEngine test
+    # stubs alongside extracted REAL methods to avoid dynamic assembly refs.
     Add-Type -TypeDefinition $template.Replace('/* SOURCE_METHODS */', ($methods -join "`n"))
     [CustomizationChecks]::Run()
-    Write-Output 'Cosmetic dispatch, save/events, vehicle initialization and color-cycle checks passed.'
+    Write-Output 'Cosmetic dispatch, property-block cleanup, save/events, vehicle initialization and color-cycle checks passed.'
+    Write-Output 'All cleanup syntax and source checks passed.'
 }
 finally {
     Pop-Location
