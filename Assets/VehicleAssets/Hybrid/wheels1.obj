@@ -1,6 +1,6 @@
 # Blender 5.2.2 LTS
 # www.blender.org
-mtllib front_wheels.mtl
+mtllib wheels1.mtl
 o front_wheels
 g front_wheels
 v -0.005413 -0.005654 -0.028681
