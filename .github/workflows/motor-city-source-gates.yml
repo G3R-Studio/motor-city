@@ -1,0 +1,56 @@
+name: Motor City Source Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: motor-city-gates-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-gates:
+    name: Static, GUID and C# source gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Phase 0/1 static gates
+        run: python3 Tools/check_phase_0_1.py
+
+      - name: Run Roslyn syntax and regression checks
+        shell: pwsh
+        run: ./Tools/check_cleanup.ps1
+
+      - name: Upload dependency audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motor-city-static-audit
+          path: Temp/MotorCityAudit/static-audit.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  ui-layout:
+    name: UI source layout gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run UI layout source checks
+        shell: pwsh
+        run: ./Tools/check_ui_layout.ps1
