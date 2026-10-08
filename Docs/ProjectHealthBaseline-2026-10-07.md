@@ -278,24 +278,44 @@ Runtime audit captured after the dynamically installed city/vehicle loaded:
 - No additional loaded-scene Missing Script errors were reported.
 - The two FCG `Double-Block-09` Missing Script entries remain source-prefab baseline issues.
 
-Runtime material audit found a vehicle-cache lifecycle issue:
+Runtime material audit found a confirmed vehicle-cache lifecycle issue.
 
-- cached Bus path:
-  `PlayerCar/MotorCityVehicleVisual_Runtime_Cached_MotorCity_Vehicles_Player_Bus/bus_root/body_misc/MotorCityRearLampEmission`
-- slot 0: missing material
-- slot 1: missing material
+Observed while switching vehicles:
 
-Repository inspection shows the stale object is created by
-`PlayerVehicleRearEmission.CreateTexturedRearLampOverlay()`.
-The class declares mesh lamp overlays disabled, but its no-binding fallback still
-calls that method. On vehicle switch, temporary runtime materials are destroyed
-while the Bus visual is preserved in `RuntimeVehicleVisualCache`, leaving the
-legacy overlay object inside the inactive cached Bus with destroyed/null material
-references.
+- first audit: **4 missing slots** in cached AmgGT legacy rear-lamp overlays;
+- next audit: **6 missing slots** after cached Bus was added;
+- next audit: **8 missing slots** with cached Delorean legacy rear-lamp overlays;
+- affected paths are all below
+  `MotorCityVehicleVisual_Runtime_Cached_.../MotorCityRearLampEmission`.
 
-Status: **BASELINE RUNTIME ISSUE**. Do not hand-edit the Bus prefab. Fix should
-be made in the rear-emission lifecycle/fallback code and verified by repeatedly
-switching Bus -> another vehicle -> Bus while running the material audit.
+Confirmed lifecycle:
+
+1. `ArcadeRacingCarRuntimeInstaller.ClearRuntimeVisual()` deactivates the
+   current vehicle and preserves it in `RuntimeVehicleVisualCache`, renaming it
+   to `MotorCityVehicleVisual_Runtime_Cached_<resource>`.
+2. `VehicleRosterSystem.ApplySelectedVehicle()` installs/activates the next
+   visual, then calls `PlayerVehicleRearEmission.SetVehicleId()`.
+3. `SetVehicleId()` calls `RefreshVisual()`.
+4. `RefreshVisual()` calls `RestoreAndClearBindings()` before resolving the
+   newly active visual.
+5. The old legacy overlay GameObjects are not tracked as removable overlay roots.
+   Their Materials are tracked in `runtimeMaterials` / bindings and are
+   destroyed.
+6. Because the old visual has already been renamed/deactivated into the cache,
+   `RemoveLegacyOverlays()` runs against the new active visual, not the old
+   cached visual.
+7. The cached vehicle therefore keeps `MotorCityRearLampEmission` renderers
+   whose material references now resolve as destroyed/null.
+
+There is also a policy contradiction in `PlayerVehicleRearEmission`:
+`EnableMeshLampOverlays = false`, but the zero-binding fallback still calls
+`CreateTexturedRearLampOverlay()`, and that method itself does not check the
+flag.
+
+Status: **CONFIRMED BASELINE RUNTIME ISSUE** affecting multiple cached vehicles,
+not a Bus-prefab defect. Do not hand-edit vehicle prefabs/materials to hide it.
+The future fix belongs in `PlayerVehicleRearEmission` lifecycle/fallback logic
+and must be verified across all cached vehicle switches.
 
 ### Build dependency report
 
@@ -323,7 +343,7 @@ not the scene-only count.
 | Unity compile | PENDING | |
 | Console before Play | PENDING | |
 | Project audit missing scripts | BASELINE ISSUE | 2 missing components in FCG Double-Block-09 Water/Water-B |
-| Scene material audit | BASELINE ISSUE | Edit Mode 0/0; runtime finds 2 null slots in cached Bus legacy rear-lamp overlay |
+| Scene material audit | CONFIRMED BASELINE ISSUE | Missing slots grow 4 -> 6 -> 8 across cached AmgGT/Bus/Delorean legacy rear-lamp overlays |
 | All-project material audit | PASS | 766 materials, 0 null shaders, 0 unsupported shaders |
 | Build dependency report | PASS | City 339.64 MiB / 526 deps; vehicles 2.31 MiB / 41 deps |
 | Runtime scene audit | PASS WITH BASELINE ISSUES | 3479 scripts / 788 lights / 22597 renderers; no runtime scene missing-script additions |\n| Main menu flow | PENDING | |
