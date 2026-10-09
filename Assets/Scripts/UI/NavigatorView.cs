@@ -59,8 +59,8 @@ namespace MotorCity.UI
                     "Navigator Menu",
                     Vector2.zero,
                     new Vector2(
-                        560f,
-                        300f),
+                        580f,
+                        320f),
                     new Vector2(
                         0.5f,
                         0.5f),
