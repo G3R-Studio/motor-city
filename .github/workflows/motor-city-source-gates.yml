@@ -81,3 +81,32 @@ jobs:
           path: Temp/MotorCityAudit/UnityPhase2/
           if-no-files-found: warn
           retention-days: 14
+
+  unity-webgl:
+    name: Unity 6 WebGL build and report
+    # Run only via Actions -> Run workflow with UNITY_WEBGL_CI_ENABLED=true.
+    if: ${{ github.event_name == 'workflow_dispatch' && vars.UNITY_WEBGL_CI_ENABLED == 'true' && vars.UNITY_CI_ENABLED == 'true' }}
+    runs-on: [self-hosted, Windows, X64, unity6000]
+    timeout-minutes: 120
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build WebGL in Unity batch mode
+        shell: pwsh
+        run: ./Tools/run_unity_phase2.ps1 -BuildWebGL
+
+      - name: Upload WebGL build reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motor-city-webgl-build-report
+          path: |
+            Temp/MotorCityAudit/UnityPhase2/unity-batch.log
+            Temp/MotorCityAudit/UnityPhase2/unity-compile.txt
+            Temp/MotorCityAudit/UnityPhase2/unity-dependencies.txt
+            Temp/MotorCityAudit/UnityPhase2/unity-build.txt
+          if-no-files-found: warn
+          retention-days: 14
