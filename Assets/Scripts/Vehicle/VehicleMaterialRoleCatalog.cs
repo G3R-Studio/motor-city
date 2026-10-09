@@ -59,6 +59,18 @@ namespace MotorCity.Vehicle
                 name = name.Substring(0, name.Length - 4);
             switch (name)
             {
+                case "mirror":
+                case "mirror_glass":
+                case "mirror_surface":
+                    return VehicleMaterialRole.Mirror;
+                case "rim":
+                case "wheel_rim":
+                case "alloy":
+                    return VehicleMaterialRole.Rim;
+                case "tire":
+                case "tyre":
+                case "rubber":
+                    return VehicleMaterialRole.Rubber;
                 case "carpaint":
                 case "carpaint_002":
                     return VehicleMaterialRole.Body;
