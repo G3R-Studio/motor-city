@@ -1,0 +1,491 @@
+{
+  "description": "Authored prefab-local wheel Transform pose snapshot; regenerated only after reviewed vehicle import updates.",
+  "vehicles": {
+    "Beatall": {
+      "rear_left": {
+        "position": [
+          -0.600407,
+          0.2620855,
+          -0.968537
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "rear_right": {
+        "position": [
+          0.600407,
+          0.2620855,
+          -0.968537
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_right": {
+        "position": [
+          0.573373,
+          0.2620855,
+          1.057121
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_left": {
+        "position": [
+          -0.573373,
+          0.2620855,
+          1.057121
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      }
+    },
+    "Peugeot306": {
+      "front_left": {
+        "position": [
+          -0.78,
+          0.336,
+          1.24
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "rear_left": {
+        "position": [
+          -0.78,
+          0.336,
+          -1.395
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "front_right": {
+        "position": [
+          0.78,
+          0.336,
+          1.24
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "rear_right": {
+        "position": [
+          0.78,
+          0.336,
+          -1.395
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    "ToyotaAE86": {
+      "rear_right": {
+        "position": [
+          0.655,
+          0.303,
+          -1.17
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_right": {
+        "position": [
+          0.655,
+          0.303,
+          1.3
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_left": {
+        "position": [
+          -0.655,
+          0.303,
+          1.3
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "rear_left": {
+        "position": [
+          -0.655,
+          0.303,
+          -1.17
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      }
+    },
+    "Hybrid": {
+      "rear_left": {
+        "position": [
+          -0.6,
+          0.242,
+          -0.654
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_left": {
+        "position": [
+          -0.589,
+          0.242,
+          1.253
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "rear_right": {
+        "position": [
+          0.6,
+          0.242,
+          -0.654
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_right": {
+        "position": [
+          0.587,
+          0.242,
+          1.253
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    "Porsche996": {
+      "front_left": {
+        "position": [
+          -0.663,
+          0.332,
+          1.165
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "rear_left": {
+        "position": [
+          -0.7,
+          0.332,
+          -1.07
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "rear_right": {
+        "position": [
+          0.7,
+          0.332,
+          -1.07
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_right": {
+        "position": [
+          0.663,
+          0.332,
+          1.165
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    "AmgGT": {
+      "rear_right": {
+        "position": [
+          0.77,
+          0.319,
+          -1.17
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_right": {
+        "position": [
+          0.779,
+          0.303,
+          1.21
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "rear_left": {
+        "position": [
+          -0.77,
+          0.319,
+          -1.17
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "front_left": {
+        "position": [
+          -0.779,
+          0.303,
+          1.21
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      }
+    },
+    "Camaro": {
+      "rear_right": {
+        "position": [
+          0.855,
+          0.392,
+          -1.335
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "rear_left": {
+        "position": [
+          -0.855,
+          0.392,
+          -1.335
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "front_right": {
+        "position": [
+          0.855,
+          0.392,
+          1.34
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_left": {
+        "position": [
+          -0.855,
+          0.392,
+          1.34
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      }
+    },
+    "Delorean": {
+      "rear_right": {
+        "position": [
+          0.855,
+          0.37497,
+          -1.185
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "rear_left": {
+        "position": [
+          -0.855,
+          0.41997,
+          -1.185
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "front_left": {
+        "position": [
+          -0.865,
+          0.38146,
+          1.445
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "front_right": {
+        "position": [
+          0.865,
+          0.33646,
+          1.445
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    "Bus": {
+      "rear_right": {
+        "position": [
+          -0.71,
+          0.34,
+          -2.045
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "front_right": {
+        "position": [
+          -0.71,
+          0.34,
+          1.765
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "rear_left": {
+        "position": [
+          0.71,
+          0.34,
+          -2.045
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      },
+      "front_left": {
+        "position": [
+          0.71,
+          0.34,
+          1.765
+        ],
+        "rotation": [
+          0,
+          1,
+          0,
+          -4.371139e-8
+        ]
+      }
+    }
+  }
+}
