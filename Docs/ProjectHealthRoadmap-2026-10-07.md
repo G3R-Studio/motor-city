@@ -99,6 +99,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 0 / closure evidence | Пользователь прямо подтвердил чистую Unity Console без предупреждений/ошибок и визуальную проверку всех 10 машин, дня/ночи/остекления. Проведён read-only аудит `ArcadeCarController`/`HandbrakePhysicsAssist` — отдельный отчёт `Docs/Baselines/Phase0DrivingPhysicsAudit-2026-10-09.md`. Full screenshot archive не создан, Phase 10 physics benchmarking отдельно. | **[x] Phase 0 — baseline/smoke/source audit закрыта**; **[x] Phase 1 закрыта ранее**. Архив изображений — документированное ограничение, а не выдуманный артефакт. |
 | 2026-10-09 | Phase 2 / GitHub Actions source CI | Создан `.github/workflows/motor-city-source-gates.yml`: push/PR/manual, Python Input/QA/GUID audit, PowerShell Roslyn/regressions и UI-layout проверки; static JSON загружается как artifact. Первый GitHub Actions run `37862442676` обнаружен в статусе `in_progress` на коммите `a1deaf96`. | **[x] CI wiring и статические gates настроены**; **[ ]** дождаться реального workflow PASS; Unity compile/build report требуют отдельной реализации и не подменяются Roslyn. |
 | 2026-10-09 | Phase 2 / UI CI failure fix | В GitHub Actions `37862472936` source/GUID/Roslyn job — PASS; UI job — FAIL: `Text` stub missing best-fit properties. Приведены к актуальному `MotorCityTextLayout` тестовые stubs/expectations (`c899e4e`), без изменения игры. Начался retry `37862711786`. | **[x] Root cause найдена и test-only fix запушен**; **[ ]** результат нового CI run; Unity build runner ещё не настроен. |
+| 2026-10-09 | Phase 2 / Unity batch gate source | Добавлены Unity Editor entrypoints `MotorCityPhase2BatchGate.Validate` / `.BuildWebGL`, reuse существующего `MotorCityBuildDependencyReport`; `Tools/run_unity_phase2.ps1` вызывает Editor 6000.6.1f1 в batch mode, проверяет exit code и обязательные отчёты, не трогая Build Profiles. | **[x] Исходники batch gate и отчётов подготовлены** (`2ce75d6`, `eb772c8`, `6255b3e`); **[ ]** actual Unity compile/build и CI Unity runner с лицензией. |
 
 
 ---
@@ -1153,8 +1154,8 @@ shader/material/prefab могут ссылаться сериализованн�
 - [x] CI workflow создан: `.github/workflows/motor-city-source-gates.yml`, push `main`, PR и manual; первый запуск отслеживается, итоговый PASS пока не подтверждён;
 - [x] Roslyn/static source gate подключён: `Tools/check_cleanup.ps1`, `Tools/check_phase_0_1.py` и `Tools/check_ui_layout.ps1`;
 - [x] GUID audit подключён: `Tools/audit_project.py` через consolidated runner, JSON публикуется как Actions artifact;
-- [ ] Автоматический Unity compile/test: требуется Unity Editor в CI, лицензия/runner и отдельная настройка; PowerShell Roslyn syntax gate не равен Unity compile;
-- [ ] dependency/**build** report: статический dependency JSON артефакт настроен; Unity build report не собирается до Unity CI.
+- [ ] Unity Editor compile/test в CI: добавлены `Assets/Editor/MotorCityPhase2BatchGate.cs` и `Tools/run_unity_phase2.ps1`, которые запускают Unity 6000.6.1f1 в `-batchmode`, проверяют импортируемые build scenes и сохраняют compile/dependency отчёты. **Локальный Unity gate ещё не запускался; CI runner с Unity и лицензией ещё не подключён.**
+- [ ] dependency/**build** report: статический dependency JSON уже создаётся CI; Unity batch gate умеет сохранять `unity-dependencies.txt`, `unity-compile.txt`, а при запуске с `-BuildWebGL` — `unity-build.txt` и WebGL output. **Ещё не выполнен на реальном Unity Editor/runner.**
 
 ## Phase 3 — Vehicle contract
 
