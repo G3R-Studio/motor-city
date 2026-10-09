@@ -38,6 +38,7 @@ namespace MotorCity.EditorTools
                     int unassigned = 0;
                     int materialSlots = 0;
                     int taggedSlots = 0;
+                    int catalogSlots = 0;
                     foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
                     {
                         if (renderer == null)
@@ -49,6 +50,9 @@ namespace MotorCity.EditorTools
                         for (int slot = 0; slot < materials.Length; ++slot)
                         {
                             materialSlots++;
+                            if (materials[slot] != null &&
+                                VehicleMaterialRoleCatalog.Resolve(materials[slot].name) != VehicleMaterialRole.None)
+                                catalogSlots++;
                             VehicleMaterialRole role = authored == null
                                 ? VehicleMaterialRole.None : authored.RolesAt(slot);
                             if (role == VehicleMaterialRole.None)
@@ -69,7 +73,8 @@ namespace MotorCity.EditorTools
                         ", explicitly tagged=" + explicitRoles +
                         ", unassigned=" + unassigned +
                         ", material slots=" + materialSlots +
-                        ", explicitly tagged slots=" + taggedSlots);
+                        ", explicitly tagged slots=" + taggedSlots +
+                        ", catalog-resolved slots=" + catalogSlots);
                     if (renderers < 4)
                         throw new InvalidOperationException(vehicle + ": missing visual renderers");
                 }
