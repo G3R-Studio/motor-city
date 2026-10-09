@@ -255,7 +255,8 @@ namespace MotorCity.Bootstrap
 
             ArcadeCarController car = InitializePlayerVehicle(
                 out VehiclePositionPersistence positionPersistence,
-                out DriftTracker drift);
+                out DriftTracker drift,
+                out bool playOpeningPresentation);
 
             GameObject systems = new("Gameplay Systems");
 
@@ -786,11 +787,12 @@ namespace MotorCity.Bootstrap
 
         private static ArcadeCarController InitializePlayerVehicle(
             out VehiclePositionPersistence positionPersistence,
-            out DriftTracker drift)
+            out DriftTracker drift,
+            out bool playOpeningPresentation)
         {
             ArcadeCarController car = CreateCar();
 
-            bool playOpeningPresentation =
+            playOpeningPresentation =
                 frontEnd == null ||
                 frontEnd.OpeningPresentationRequested;
 
