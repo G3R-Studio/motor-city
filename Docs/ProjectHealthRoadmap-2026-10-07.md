@@ -36,7 +36,7 @@
 - [x] Phase 4: каталог и runtime mapping ролей, безопасная поддержка неразмеченных atlas slots; полный CI [run 37938850246](https://github.com/G3R-Studio/motor-city/actions/runs/37938850246). Это **не** утверждение, что каждый смешанный submesh художественно размечен.
 - [x] Phase 5: удалены восемь мёртвых `BuildSessionKey` constants, сохранён используемый `SourceHashKey`; добавлены аудиты `Tools/check_phase5_cleanup.py` и `MotorCityPhase5DependencyAudit`.
 - [x] Phase 5: исходные material assets и FCG migration tools сохранены как потенциально необходимые; статический/UI/Unity CI подтверждён [run 37977156229](https://github.com/G3R-Studio/motor-city/actions/runs/37977156229) на `24a2bac`. WebGL job в этом запуске **skipped**, не PASS.
-- [x] Phase 6: baseline source-инвариантов bootstrap, постоянных hosts и кандидатов событийных подписок добавлен в `Tools/check_phase6_lifecycle.py` и CI (`e666174`). Результат этого нового CI не зафиксирован как PASS.
+- [x] Phase 6: baseline source-инвариантов bootstrap, постоянных hosts и кандидатов событийных подписок добавлен в `Tools/check_phase6_lifecycle.py` и CI (`e666174`). Source gate подтверждён GitHub Actions #107, Unity Editor PASS; WebGL остался skipped.
 
 ## Фазы 0–5 — результаты и ограничения
 
@@ -90,6 +90,7 @@
 - [x] Добавлен CI source baseline: SubsystemRegistration, AfterSceneLoad, sceneLoaded subscriptions, once-only flags и перечень постоянных hosts.
 - [x] Сформирован автоматический inventory вероятных мест событийных подписок — **не** вывод об утечках.
 - [ ] Полностью разделить `MotorCityBootstrap` на логические фазы без изменения порядка platform → remote config → pending purchases → cloud → frontend → gameplay. Выполнен крупный source split: `InitializeCoreAndWorld`, `InitializePlayerVehicle` и единый `InitializeGameplayStages` с последовательными `InitializeGameplayServices`, `InitializeVehicleProgression`, `InitializeActivitiesAndRewards`, `InitializePresentationAndHud` (`6c0719a`); порядок теперь охраняет CI (`160af05`). Дальше — Unity CI, runtime повторной загрузки и разбор lifecycle хозяев.
+- [x] Source hardening persistent lifecycle: `MotorCityVirtualInputRuntime` и `HudVisualPolish` добавлены duplicate guards в Awake; `MotorCityBootstrap.ResetStaticState` снимает sceneLoaded handler (`0bef984`, `d86244d`, `d24c650`). Source gate дополнен `a9ca501`; Unity CI по этому пакету ожидается.
 - [ ] Проверить singleton/`DontDestroyOnLoad` инстансы в runtime, повторную загрузку `Prototype`, domain reload.
 - [ ] Сопоставить подписки с OnDisable/OnDestroy и исправить подтверждённые утечки.
 - [ ] Unity Editor CI и WebGL smoke после рефакторинга: Unity CI на `1e41eef` обнаружил CS0103 (исправлено `035104a`), проверка на итоговом `b72b3a6` ещё требуется; WebGL после этих правок не проверен.
