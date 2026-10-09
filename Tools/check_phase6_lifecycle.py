@@ -130,10 +130,42 @@ def main() -> int:
                 "manual_review_required": True,
             })
 
+    # Known scene lifecycle callback: compare exact registrations with the
+    # protected reset/re-install patterns, not incidental arithmetic operators.
+    lifecycle_callbacks = {
+        "SceneManager.sceneLoaded": {
+            "subscribes": len(re.findall(r"SceneManager\\.sceneLoaded\\s*\\+=\\s*OnSceneLoaded", bootstrap)),
+            "unsubscribes": len(re.findall(r"SceneManager\\.sceneLoaded\\s*-=\\s*OnSceneLoaded", bootstrap)),
+            "owner": BOOTSTRAP,
+        },
+    }
+    scene_callback = lifecycle_callbacks["SceneManager.sceneLoaded"]
+    if scene_callback["subscribes"] != 1 or scene_callback["unsubscribes"] < 2:
+        errors.append("Bootstrap sceneLoaded callback lifecycle no longer matches reset/re-install contract")
+
+    # This is source-level evidence only. Runtime domain-reload-disabled and
+    # repeated scene-load tests remain independent requirements.
+    singleton_guards = {
+        "Input/MotorCityVirtualInputRuntime.cs": "GetEntityId()",
+        "UI/HudVisualPolish.cs": "GetEntityId()",
+        "Audio/MotorCitySfxRuntime.cs": "instance != this",
+        "Audio/MotorCityMusicRuntime.cs": "instance != this",
+    }
+    for rel, token in singleton_guards.items():
+        src = (SCRIPTS / rel).read_text(encoding="utf-8-sig")
+        if "private void Awake()" not in src or token not in src:
+            errors.append(f"Singleton duplicate guard not found: {rel}")
+    for rel in ("Audio/MotorCitySfxRuntime.cs", "Audio/MotorCityMusicRuntime.cs"):
+        src = (SCRIPTS / rel).read_text(encoding="utf-8-sig")
+        if "private void OnDestroy()" not in src or "instance == this" not in src:
+            errors.append(f"Audio singleton static reference cleanup absent: {rel}")
+
     report = {
         "phase": 6,
         "bootstrap_invariants": found,
         "persistent_hosts": persistent,
+        "lifecycle_callbacks": lifecycle_callbacks,
+        "singleton_guard_sources": singleton_guards,
         "event_assignment_inventory": event_inventory,
         "event_inventory_note": "Operators are only candidate locations, not proof of event leaks.",
         "safe_to_restructure_without_scene_tests": False,
