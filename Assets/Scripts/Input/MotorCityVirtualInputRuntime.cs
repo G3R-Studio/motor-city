@@ -22,6 +22,23 @@ namespace MotorCity.Input
                 host);
         }
 
+        private void Awake()
+        {
+            MotorCityVirtualInputRuntime[] runtimes =
+                FindObjectsByType<MotorCityVirtualInputRuntime>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+
+            foreach (MotorCityVirtualInputRuntime runtime in runtimes)
+            {
+                if (runtime != this && runtime.GetInstanceID() < GetInstanceID())
+                {
+                    Destroy(gameObject);
+                    return;
+                }
+            }
+        }
+
         private void Update()
         {
             MotorCityInput.BeginVirtualInputFrame();
