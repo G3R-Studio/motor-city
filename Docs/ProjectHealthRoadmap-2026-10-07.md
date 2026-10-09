@@ -114,6 +114,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 3 / isolated production WheelCollider probe | Unity gate uses temporary `ArcadeCarController.ConfigurePrometeoRig` for all 9 visual prefabs and checks 4 colliders' radii, suspension and center alignment; verifies imported prefab dependencies. No scene, authored prefab or runtime physics changes. | Implementation committed (`c9e1dfe`), new CI still running; importer rebuild and full on-road physics test are not proven. |
 | 2026-10-09 | Phase 3 / full rebuild CI prepared | Добавлен opt-in manual/tagged `[phase3-full-check]` importer gate на self-hosted Unity Editor: запускает настоящий `Build(false)` девяти импортёров, проверяет load prefab, восстанавливает байты исходных префабов. Независимый isolated WheelCollider probe проверяет 4 physical colliders на каждую модель. | Доказательство runtime/editor full-check ещё ожидается; автозапуск при обычном push тяжёлый rebuild не запускает. |
 | 2026-10-09 | Phase 3 / complete full CI verification | [GitHub Actions run `37933469484`](https://github.com/G3R-Studio/motor-city/actions/runs/37933469484), commit `e21df5c`: 4/4 jobs success — source/GUID/C#, UI, Unity Editor (real 9-importer `Build(false)` with prefab rollback + isolated physical wheel rig) и WebGL player build; 3 artifacts uploaded. Все 10 авто визуально подтверждены пользователем ранее. | **[x] Phase 3 CLOSED**. Runtime on-road vehicle physics benchmark deferred to Phase 10; separate Desktop/Mobile release profile matrix remains Phase 12. |
+| 2026-10-09 | Phase 4 / explicit role API + read-only audit | Added `VehicleVisualRoles` flags (body/glass/mirror/front-rear lamp/rim/rubber) and Unity Editor material-role coverage inventory across 9 prefabs, saved as `vehicle-material-roles.txt` in Unity CI artifact. Existing materials, prefabs and lamp logic untouched. | Phase 4 in progress: role assignments/migration and fallback removal remain open; new CI result pending. |
 
 
 ---
@@ -1190,9 +1191,11 @@ shader/material/prefab могут ссылаться сериализованн�
 
 ## Phase 4 — Vehicle material/lamp roles
 
-- [ ] explicit body/glass/mirror/lamp/rim roles;
-- [ ] migrate one vehicle at a time;
-- [ ] remove numeric/material-name magic only after migration.
+- [x] explicit role **type/API** for body/glass/mirror/front+rear lamp/rim/rubber — `VehicleVisualRoles` and `VehicleMaterialRole` added, without changing existing materials;
+- [ ] migrate one vehicle at a time — explicit roles are not yet assigned to prefab renderers; first establish role-by-renderer inventory;
+- [ ] remove numeric/material-name magic only after migration — existing runtime fallbacks remain intact.
+
+**2026-10-09 initial Phase 4 safety package:** read-only `MotorCityVehicleMaterialRoleAudit.Validate()` covers all 9 authored Player prefabs through Unity and outputs `Temp/MotorCityAudit/UnityPhase2/vehicle-material-roles.txt` with explicit versus unassigned renderer counts. Hooked into the existing Unity batch gate. It deliberately does not infer or rewrite material assignments or mark existing renderers as migrated. Visual QA already confirmed by user. New CI PASS pending.
 
 ## Phase 5 — Low-risk dead cleanup
 
