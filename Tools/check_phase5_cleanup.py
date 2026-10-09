@@ -52,6 +52,18 @@ def main():
     for a, b in duplicate_material_guids:
         errors.append(f"Duplicate material GUID: {a} and {b}")
 
+    # These editor utilities still expose live repair/build commands. In
+    # particular, URP repair can regenerate FCG runtime materials and traffic
+    # prefabs; deleting the tool based only on the absence of direct code calls
+    # would remove a supported recovery path.
+    migration_uses = {
+        "FantasticCityGeneratorLegacyImporterFixer.cs": "legacy FBX materialLocation recovery",
+        "FantasticCityGeneratorUrpFixer.cs": "FCG materials and traffic prefab repair",
+    }
+    for name, purpose in migration_uses.items():
+        if migrators[name]["menu_commands"] == 0:
+            errors.append(f"{name}: expected manual recovery menu missing ({purpose})")
+
     # GUID-only scans are insufficient to declare Resources.Load, AssetDatabase
     # derived paths, editor-generated and Addressables assets safe for removal.
     # Preserve all existing material/prefab assets until the Unity dependency
@@ -62,6 +74,8 @@ def main():
         "dead_importer_constants_removed": len(IMPORTERS),
         "material_assets_preserved_pending_dependency_review": len(materials),
         "editor_migration_tools_retained": migrators,
+        "editor_migration_tool_recovery_roles": migration_uses,
+        "classification": "No deletion candidates certified; Resources and editor-generated assets remain protected.",
         "legacy_fbx_importers_needing_migration": legacy_location,
         "material_guid_duplicates": duplicate_material_guids,
         "orphan_asset_deletions": 0,
