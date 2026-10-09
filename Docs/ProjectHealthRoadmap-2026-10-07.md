@@ -97,6 +97,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 0/1 / single-run verification | Добавлен `Tools/check_phase_0_1.py`: одним запуском вызывает существующие Input backend, Release QA и static audit Python проверки и сообщает о ненулевых кодах возврата; `Tools/check_cleanup.ps1` и Unity runtime gate перечислены отдельно. | **[x] Runner исходник добавлен** (`40d18a6`); **[ ]** исполнение в локальном проекте, Editor/WebGL final smoke и незавершённые Phase 0 archival/Console gates. |
 | 2026-10-09 | Phase 0/1 / итоговые статические проверки и Unity smoke | Пользователь запустил `py -3 Tools/check_phase_0_1.py`: **PASS** Input backend; **PASS** WebGL release QA guards (137 C#); **PASS** static audit (246 scripts, 3234 serialized, 2330 GUIDs, 0 dangling refs). `pwsh -NoProfile -File Tools/check_cleanup.ps1`: **PASS** 242 C# syntax Editor/native/WebGL, все source/regression gates. Пользователь подтвердил: «игра работает отлично». | **[x] Итоговый source gate + пользовательский runtime smoke**; **[ ]** формальная Console-wide warning-free фиксация, архив скриншотов, physics deep audit Phase 0, явная матрица WebGL Mobile Release Phase 12. |
 | 2026-10-09 | Phase 0 / closure evidence | Пользователь прямо подтвердил чистую Unity Console без предупреждений/ошибок и визуальную проверку всех 10 машин, дня/ночи/остекления. Проведён read-only аудит `ArcadeCarController`/`HandbrakePhysicsAssist` — отдельный отчёт `Docs/Baselines/Phase0DrivingPhysicsAudit-2026-10-09.md`. Full screenshot archive не создан, Phase 10 physics benchmarking отдельно. | **[x] Phase 0 — baseline/smoke/source audit закрыта**; **[x] Phase 1 закрыта ранее**. Архив изображений — документированное ограничение, а не выдуманный артефакт. |
+| 2026-10-09 | Phase 2 / GitHub Actions source CI | Создан `.github/workflows/motor-city-source-gates.yml`: push/PR/manual, Python Input/QA/GUID audit, PowerShell Roslyn/regressions и UI-layout проверки; static JSON загружается как artifact. Первый GitHub Actions run `37862442676` обнаружен в статусе `in_progress` на коммите `a1deaf96`. | **[x] CI wiring и статические gates настроены**; **[ ]** дождаться реального workflow PASS; Unity compile/build report требуют отдельной реализации и не подменяются Roslyn. |
 
 
 ---
@@ -1144,11 +1145,11 @@ shader/material/prefab могут ссылаться сериализованн�
 
 ## Phase 2 — Automated gates
 
-- [ ] CI;
-- [ ] Roslyn/static tests;
-- [ ] GUID audit;
-- [ ] Unity compile/test;
-- [ ] dependency/build report.
+- [x] CI workflow создан: `.github/workflows/motor-city-source-gates.yml`, push `main`, PR и manual; первый запуск отслеживается, итоговый PASS пока не подтверждён;
+- [x] Roslyn/static source gate подключён: `Tools/check_cleanup.ps1`, `Tools/check_phase_0_1.py` и `Tools/check_ui_layout.ps1`;
+- [x] GUID audit подключён: `Tools/audit_project.py` через consolidated runner, JSON публикуется как Actions artifact;
+- [ ] Автоматический Unity compile/test: требуется Unity Editor в CI, лицензия/runner и отдельная настройка; PowerShell Roslyn syntax gate не равен Unity compile;
+- [ ] dependency/**build** report: статический dependency JSON артефакт настроен; Unity build report не собирается до Unity CI.
 
 ## Phase 3 — Vehicle contract
 
