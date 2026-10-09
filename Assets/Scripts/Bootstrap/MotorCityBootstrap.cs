@@ -251,41 +251,11 @@ namespace MotorCity.Bootstrap
 
             gameplayBuildStarted = true;
 
-            MotorCityQualityRuntime.Initialize();
-            MotorCityInput.RefreshTouchPromptPreference();
+            InitializeCoreAndWorld();
 
-            Time.fixedDeltaTime = 0.02f;
-            Physics.gravity = new Vector3(0f, -9.81f, 0f);
-            Physics.defaultContactOffset = 0.01f;
-            Physics.defaultSolverIterations = 10;
-            Physics.defaultSolverVelocityIterations = 3;
-
-            CreatePrototypeCity();
-            CreateDayNightCycle();
-
-            ArcadeCarController car = CreateCar();
-
-            bool playOpeningPresentation =
-                frontEnd == null ||
-                frontEnd.OpeningPresentationRequested;
-
-            if (playOpeningPresentation)
-            {
-                car.BeginOpeningPresentationLock(
-                    5f);
-            }
-
-            ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
-            car.gameObject.AddComponent<PlayerHeadlights>();
-            car.gameObject.AddComponent<PlayerVehicleRearEmission>();
-
-            BindFcgTrafficPlayer(
-                car.transform);
-
-            VehiclePositionPersistence positionPersistence =
-                car.gameObject.AddComponent<VehiclePositionPersistence>();
-
-            DriftTracker drift = car.gameObject.AddComponent<DriftTracker>();
+            ArcadeCarController car = InitializePlayerVehicle(
+                out VehiclePositionPersistence positionPersistence,
+                out DriftTracker drift);
 
             GameObject systems = new("Gameplay Systems");
 
@@ -795,6 +765,53 @@ namespace MotorCity.Bootstrap
                 reputation,
                 onboarding,
                 runtimeHud);
+        }
+
+        // Phase 6: keep the original bootstrap call order while separating
+        // the core/world and player-vehicle setup responsibilities.
+        private static void InitializeCoreAndWorld()
+        {
+            MotorCityQualityRuntime.Initialize();
+            MotorCityInput.RefreshTouchPromptPreference();
+
+            Time.fixedDeltaTime = 0.02f;
+            Physics.gravity = new Vector3(0f, -9.81f, 0f);
+            Physics.defaultContactOffset = 0.01f;
+            Physics.defaultSolverIterations = 10;
+            Physics.defaultSolverVelocityIterations = 3;
+
+            CreatePrototypeCity();
+            CreateDayNightCycle();
+        }
+
+        private static ArcadeCarController InitializePlayerVehicle(
+            out VehiclePositionPersistence positionPersistence,
+            out DriftTracker drift)
+        {
+            ArcadeCarController car = CreateCar();
+
+            bool playOpeningPresentation =
+                frontEnd == null ||
+                frontEnd.OpeningPresentationRequested;
+
+            if (playOpeningPresentation)
+            {
+                car.BeginOpeningPresentationLock(
+                    5f);
+            }
+
+            ArcadeRacingCarRuntimeInstaller.TryInstallNow(car);
+            car.gameObject.AddComponent<PlayerHeadlights>();
+            car.gameObject.AddComponent<PlayerVehicleRearEmission>();
+
+            BindFcgTrafficPlayer(
+                car.transform);
+
+            positionPersistence =
+                car.gameObject.AddComponent<VehiclePositionPersistence>();
+
+            drift = car.gameObject.AddComponent<DriftTracker>();
+            return car;
         }
 
         private static void NotifyPlatformGameReady()
