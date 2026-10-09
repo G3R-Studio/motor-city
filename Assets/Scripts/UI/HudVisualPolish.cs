@@ -43,7 +43,7 @@ namespace MotorCity.UI
 
             foreach (HudVisualPolish instance in instances)
             {
-                if (instance != this && instance.GetInstanceID() < GetInstanceID())
+                if (instance != this && instance.GetEntityId() < GetEntityId())
                 {
                     Object.Destroy(gameObject);
                     return;
