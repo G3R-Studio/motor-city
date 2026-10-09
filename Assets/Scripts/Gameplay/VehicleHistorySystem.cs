@@ -255,6 +255,7 @@ namespace MotorCity.Gameplay
             LoadCurrentVehicle();
             ResetPositionSample();
         }
+#endif
 
         private string LegacyStatus
         {
@@ -332,8 +333,6 @@ namespace MotorCity.Gameplay
             distanceMeters += step;
             dirty = true;
         }
-
-#endif
 
         private void HandleVehicleChanged()
         {
