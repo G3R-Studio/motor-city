@@ -47,6 +47,9 @@ jobs:
       - name: Audit Phase 6 bootstrap and runtime lifecycle
         run: python3 Tools/check_phase6_lifecycle.py
 
+      - name: Audit Phase 7 UI layout ownership
+        run: python3 Tools/check_phase7_ui_ownership.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
