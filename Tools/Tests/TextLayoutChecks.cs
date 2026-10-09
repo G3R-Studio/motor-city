@@ -6,6 +6,7 @@ namespace UnityEngine
         public static int Min(int a, int b) => Math.Min(a, b);
         public static int Max(int a, int b) => Math.Max(a, b);
         public static int FloorToInt(float value) => (int)Math.Floor(value);
+        public static int RoundToInt(float value) => (int)Math.Round(value, MidpointRounding.ToEven);
     }
     public struct Rect { public float height; public float xMin, xMax, yMin, yMax; }
     public class Transform { }
@@ -51,6 +52,8 @@ namespace UnityEngine.UI
         public UnityEngine.GameObject gameObject = new UnityEngine.GameObject();
         public T GetComponent<T>() where T : class => gameObject.component as T;
         public bool resizeTextForBestFit = true;
+        public int resizeTextMinSize;
+        public int resizeTextMaxSize;
         public bool alignByGeometry = true;
         public int fontSize;
         public string text;
@@ -67,10 +70,11 @@ public static class TextLayoutChecks
         var text = new UnityEngine.UI.Text { fontSize = 24 };
         text.rectTransform.rect = new UnityEngine.Rect { height = 28 };
         MotorCity.UI.MotorCityTextLayout.Configure(text);
-        if (text.fontSize != 21 || text.resizeTextForBestFit || text.alignByGeometry)
-            throw new Exception("Tight labels must reserve line height and use a fixed font.");
+        if (text.fontSize != 21 || !text.resizeTextForBestFit || text.alignByGeometry ||
+            text.resizeTextMinSize != 15 || text.resizeTextMaxSize != 24)
+            throw new Exception("Tight labels must reserve line height and configure adaptive fit limits.");
         if (text.horizontalOverflow != UnityEngine.UI.HorizontalWrapMode.Wrap ||
-            text.verticalOverflow != UnityEngine.UI.VerticalWrapMode.Overflow)
+            text.verticalOverflow != UnityEngine.UI.VerticalWrapMode.Truncate)
             throw new Exception("Text must stay within its allocated cell.");
         object clip = text.gameObject.component;
         if (!(clip is MotorCity.UI.MotorCityTextClip)) throw new Exception("Text needs geometric bounds.");
