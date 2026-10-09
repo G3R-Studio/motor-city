@@ -82,7 +82,7 @@ def main() -> int:
     # Each modal panel has one geometry owner: its builder. The visual
     # polish still handles inner text/details but cannot resize the root.
     modal_owners = {
-        "Activity Result": ("ActivityResultView.cs", "650f", "460f"),
+        "Activity Result": ("ActivityResultView.cs", "650f", "520f"),
         "Navigator Menu": ("NavigatorView.cs", "580f", "320f"),
         "Club Panel": ("ClubView.cs", "580f", "400f"),
     }
@@ -130,6 +130,23 @@ def main() -> int:
     if "resultReward.anchoredPosition =" in polish or "resultReward.sizeDelta =" in polish:
         errors.append("Result reward geometry must be owned by ActivityResultView")
 
+    # Result footer must fit even when mastery, secondary progress and
+    # next-goal lines all appear. Coordinates are builder-local units.
+    # Button row uses bottom pivot, so its top edge is -height+24+50.
+    result_panel_height = 520
+    actions_bottom = 24
+    actions_height = 50
+    next_goal_top = -390
+    next_goal_height = 44
+    footer_gap = (-result_panel_height + actions_bottom + actions_height) - (
+        next_goal_top - next_goal_height
+    )
+    if footer_gap > -12:
+        errors.append("Result footer has insufficient clearance between next goal and actions")
+    result_view = (UI / "ActivityResultView.cs").read_text(encoding="utf-8-sig")
+    for marker in ("new Vector2(650f, 520f)", "new Vector2(500f, 50f)", "new Vector2(0f, 24f)"):
+        if marker not in result_view:
+            errors.append(f"Result footer geometry contract missing: {marker}")
     report = {
         "phase": 7,
         "kind": "source inventory (does not prove overlapping RectTransform instances)",
