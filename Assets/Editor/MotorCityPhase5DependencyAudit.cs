@@ -24,41 +24,68 @@ namespace MotorCity.EditorTools
               .OrderBy(path => path, StringComparer.Ordinal)
               .ToArray();
 
-            var roots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
-                if (scene != null && scene.enabled && !string.IsNullOrEmpty(scene.path))
-                    roots.Add(scene.path);
+            // Keep scene dependencies separate from Resources. Including every
+            // Resources asset as a root would mark every material as reachable
+            // and make the audit unable to distinguish load-only materials.
+            var sceneRoots = EditorBuildSettings.scenes
+                .Where(scene => scene != null && scene.enabled &&
+                                !string.IsNullOrEmpty(scene.path))
+                .Select(scene => scene.path)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            var sceneDependencies = new HashSet<string>(
+                AssetDatabase.GetDependencies(sceneRoots, true),
+                StringComparer.OrdinalIgnoreCase);
 
-            // Any asset inside Resources can be loaded by string at runtime.
-            foreach (string guid in AssetDatabase.FindAssets("", new[]
+            string[] resourceRoots = AssetDatabase.FindAssets("", new[]
             {
                 "Assets/Resources/MotorCity"
-            }))
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (!string.IsNullOrWhiteSpace(path) &&
-                    !AssetDatabase.IsValidFolder(path))
-                    roots.Add(path);
-            }
+            }).Select(AssetDatabase.GUIDToAssetPath)
+              .Where(path => !string.IsNullOrWhiteSpace(path) &&
+                             !AssetDatabase.IsValidFolder(path))
+              .Distinct(StringComparer.OrdinalIgnoreCase)
+              .ToArray();
+            var resourceDependencies = new HashSet<string>(
+                AssetDatabase.GetDependencies(resourceRoots, true),
+                StringComparer.OrdinalIgnoreCase);
 
-            var reachable = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string asset in AssetDatabase.GetDependencies(roots.ToArray(), true))
-                reachable.Add(asset);
-
+            int sceneCount = 0;
+            int resourceOnlyCount = 0;
+            int protectedCount = 0;
             var lines = new List<string>
             {
                 "Phase 5 material dependency inventory (read-only)",
-                "All Resources material assets are protected from deletion even if not linked from an enabled scene.",
-                "Root assets checked: " + roots.Count,
+                "SCENE_DEPENDENCY = linked from an enabled build scene.",
+                "RESOURCE_DEPENDENCY = reachable via Resources content, but not enabled scenes.",
+                "DYNAMIC_RESOURCE = in Resources, possibly loaded by runtime string even without static references.",
+                "Every listed material is protected; no status proves safe deletion.",
+                "Enabled scene roots: " + sceneRoots.Length,
+                "Resources roots: " + resourceRoots.Length,
                 "Material assets checked: " + allMaterials.Length
             };
             foreach (string material in allMaterials)
             {
-                // A material in Resources is loadable dynamically regardless of the
-                // static reachability result. Do not label it an orphan.
-                lines.Add((reachable.Contains(material) ? "DEPENDENCY" : "DYNAMIC_RESOURCE")
-                    + " | " + material);
+                string category;
+                if (sceneDependencies.Contains(material))
+                {
+                    category = "SCENE_DEPENDENCY";
+                    sceneCount++;
+                }
+                else if (resourceDependencies.Contains(material))
+                {
+                    category = "RESOURCE_DEPENDENCY";
+                    resourceOnlyCount++;
+                }
+                else
+                {
+                    category = "DYNAMIC_RESOURCE";
+                    protectedCount++;
+                }
+                lines.Add(category + " | " + material);
             }
+            lines.Add("Summary: scene=" + sceneCount +
+                      ", resource-only=" + resourceOnlyCount +
+                      ", dynamic=" + protectedCount);
 
             string folder = Path.GetFullPath("Temp/MotorCityAudit/UnityPhase2");
             Directory.CreateDirectory(folder);
