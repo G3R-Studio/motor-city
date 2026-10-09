@@ -14,6 +14,8 @@ $report = Join-Path $root 'Temp/MotorCityAudit/UnityPhase2'
 New-Item -ItemType Directory -Path $report -Force | Out-Null
 $env:MOTORCITY_PHASE2_REPORT_DIR = $report
 $log = Join-Path $report 'unity-batch.log'
+$expected = if ($BuildWebGL) { 'unity-build.txt' } else { 'unity-compile.txt' }
+Remove-Item -LiteralPath (Join-Path $report $expected) -Force -ErrorAction SilentlyContinue
 $method = if ($BuildWebGL) {
     'MotorCity.EditorTools.MotorCityPhase2BatchGate.BuildWebGL'
 } else {
@@ -28,7 +30,6 @@ if ($code -ne 0) {
     if (Test-Path $log) { Get-Content $log -Tail 90 }
     throw "Unity Phase 2 validation failed."
 }
-$expected = if ($BuildWebGL) { 'unity-build.txt' } else { 'unity-compile.txt' }
 if (!(Test-Path (Join-Path $report $expected))) {
     if (Test-Path $log) { Get-Content $log -Tail 90 }
     throw "Unity exited 0 but required report '$expected' is missing."
