@@ -131,6 +131,44 @@
 - [ ] Негативные проверки: QA/Admin/QA reset **отсутствуют** в Release; missing scripts/materials/shaders = 0.
 - [ ] После последнего релевантного кода — финальный WebGL/Unity regression gate.
 
+## Реестр обнаруженных проблем и отложенных проверок (сохранён из аудита 2026-10-07)
+
+Этот раздел — **не список подтверждённых текущих багов**. Это исходные находки, риски и отложенные проверки, которым назначена следующая фаза. Не путать обнаруженный архитектурный риск с воспроизведённым дефектом.
+
+| ID | Обнаруженная проблема или риск | Состояние / куда вернуться |
+| --- | --- | --- |
+| F0-01 | 2 Missing Script на `Double-Block-09/Water` и `Water-B` | **Исправлено и проверено**, `4da9a30`, Unity audit + визуал; не открывать без регрессии |
+| F0-02 | Deprecated Input Manager + legacy Input API в части C# и WebGL profiles | **Исправлено**, Input System New и Unity/источники PASS; отдельная матрица Release — Phase 12 |
+| F1-01 | QA/Admin раньше попадала в production WebGL; test/reset/mock API | **Основная изоляция исправлена и проверена**; полный отрицательный Release API/call-site gate проверить в Phase 12 |
+| F3-01 | Hybrid `i8_body/i8_misc`, legacy `wheels1/wheels2`, различия role naming | Контракт/импортёры проверены. **Legacy Hybrid wheels не удалять**, точные authored dependencies сохранять; дорожная физика в Phase 10 |
+| F4-01 | Общие atlas/material slots `chrome`, `plastic`, `Material.00x`, `Color`, `baseGradient`; Hybrid `Material.004/.005` | Безопасная role mapping миграция готова. **Неразмеченные слоты/fallback остаются**; полное устранение name magic только после submesh mapping и отдельных lamp regressions |
+| F4-02 | `PlayerVehicleRearEmission` (~2,2k строк) объединяет binding/overlay/mesh heuristics/night | Отложен модульный split `LampRoleResolver` / `LampMaterialBinding` / `LampOverlayFactory` / `RearLampController`, после visual role tests |
+| F5-01 | Вероятно старые `BeatallMaterials/{BeatallBody,BeatallGlass,BeatallEmission}.mat`, аналогичные `AmgGTMaterials` и `DeloreanMaterials` | **Кандидаты, не подтверждённые orphan assets**. Проверить Unity dependency, реальные импортёры, prefab slots, Resources/load, день/ночь/brake/customization, WebGL перед удалением |
+| F5-02 | FCG Legacy FBX Importer Fixer и URP Fixer могут казаться мёртвыми по C# refs | **Сохранять**: ручные восстановительные инструменты, включая возможный повторный импорт старых FCG assets; `Assets/Simple Garage` в прежнем дереве отсутствовала |
+| F6-01 | `MotorCityBootstrap` вручную создаёт многие системы и зависит от порядка platform/persistence → world/vehicle → progression/activities → UI/QA | Phase 6: модульный split с сохранением порядка и проверкой повторной загрузки |
+| F6-02 | `DontDestroyOnLoad` в UI EventSystem, VirtualInput, HudVisualPolish, SFX/Music, Bootstrap, Yandex | Phase 6: таблица creation/duplicate guard/static reset/OnDestroy, тест domain reload и отсутствия двух EventSystem/AudioListener |
+| F6-03 | Stale event subscriptions/static caches и старый HUD polish после scene reload | Phase 6: сравнить конкретные subscribe/unsubscribe, Unity reload/restart tests; текстовый счёт `+=/-=` сам по себе не доказательство |
+| F7-01 | `HudVisualPolish` меняет размеры/позиции поверх `PrototypeHud`, `GarageReferenceLayout`, `NavigatorView`, `TouchControlsView`, ищет GO по строкам | Phase 7: единый владелец RectTransform; `GarageReferenceLayout` является активным builder, **не удалять** |
+| F8-01 | Прямые `PlayerPrefs` в `MotorCityInput` и `MotorCityQualityRuntime` при существующем SaveService | Phase 8: registry и классы device-local/cloud/entitlement/QA/legacy, не переносить device settings в cloud случайно |
+| F8-02 | QA `ResetProgressForTesting` и legacy/cloud revision metadata | QA entrypoint изолирован; Phase 8: тест сохранения/миграции/cloud resolver после QA reset и restart |
+| F9-01 | `CityAssetRuntimeInstaller.RepairMissingPlantMaterials`: hash-suffixed `Trees-01` paths, поиск `Plant-01` и массовый renderer scan | Phase 9: до удаления repair перенести коррекцию в Editor builder, validate `CityVisual.prefab` в Unity/WebGL |
+| F9-02 | `MotorCityWebMaterialDiagnostics.Run(activeCity)` выполняет обход большого города в production WebGL | Phase 9: проверить фактический release guard и перенести подробный scan в QA/Editor; не удалять диагностику, пока не сохранены полезные проверки |
+| F9-03 | Крупный runtime city (исходный аудит: 22 559 renderers, 788 lights) | Phase 9: Profiler CPU/GC/batches/physics/memory/loading Low/Medium/High; никаких оптимизаций вслепую |
+| F10-01 | `ArcadeRacingCarRuntimeInstaller` объединяет visual/collision/wheels/material/cache/legacy ARCADE | Phase 10: выделение `VehicleVisualLoader`, `VehicleWheelBinder`, `VehicleCollisionBuilder`, `VehicleMaterialPipeline`, `VehicleVisualCache` без изменения поведения |
+| F10-02 | `ArcadeCarController` объединяет steering, wheel rig, friction, force, drive modes, handbrake, locks и mobile input | Phase 10: `FixedUpdate` tracing `steerAngle`, sideways/forward friction, AddForce/AddTorque, cadence (~0.12s), input Update → FixedUpdate; не вводить новый yaw assist до трассировки |
+| F10-03 | `MotorCityVirtualInputRuntime` BeforeSceneLoad/Update/LateUpdate управляет pressed/held semantics | **Не удалять**; Phase 6/10 проверка жизненного цикла и сброса virtual state при menu/garage/pause |
+| F11-01 | Дубликат `Eric VFX .../circle2.PNG` и `Resources/MotorCity/UI/Loading/circle2.PNG` | **Оба имеют разных consumers** (GUID и `Resources.Load` соответственно). Не дедуплицировать без миграции ссылок |
+| F11-02 | Совпадающие `AmgGT/all.png`, `Beatall/all.png`, `Delorean/all.png`; Hybrid `wheels1/2.mtl`; Porsche/Toyota wheel MTL | Phase 11: exact duplicates ещё не основание для удаления; требуются reimport, refs и vehicle visual regressions |
+| F11-03 | FCG source / Workbench / runtime Environment — разные уровни pipeline; Workbench не входит в build | Phase 11: не удалять Workbench, пока не доказана воспроизводимость; решение по LFS отдельно |
+| F11-04 | SpringBone, ToonShader, SpriteLess UI, SapphiArt, Fantasy Skybox, Eric VFX, FCG, ARCADE FREE, Prometeo | Phase 11: dependency report + serialized GUID + shader/prefab usage + licences до package удаления |
+| F12-01 | Недостаточно подтверждения отдельно `Web - Desktop - Release` и `Web - Mobile - Release` после всех изменений | Phase 12: фактические сборки, браузерные keyboard/touch tests, Console, QA absence, save scenarios |
+
+### Отдельные functional regression gates
+
+- **Activities/onboarding/navigation (Phase 7–8 / финальная Phase 12):** для `ActivityManager`, `ActivityStartFlow`, StreetSprint, CircuitRace, DriftChallenge, Delivery, `FirstSessionOnboardingSystem`, `ResultNextGoalResolver`, `NavigatorView` проверить idle → start/ad → countdown → active → cancel/result → reward/save **ровно один раз** → next goal; interruption по pause/menu и onboarding override. Не удалять «лишние» состояния без transition tests.
+- **Lighting (Phase 4 contract + Phase 12):** day/off, night/on, brake, reverse (при наличии), отсутствие свечения кузова/зеркал; убрать старые material-name branches только после проверки всех автомобилей.
+- **Touch settings (Phase 8/10/12):** keyboard/arrows/wheel transitions, положение кнопок, сброс virtual state, WebGL mobile detection и device simulation; не совмещать рискованную миграцию input state с tuning physics.
+
 ## Dependency / deletion gate (обязателен для каждого удаления)
 
 1. **A — C# symbols/calls:** прямые, косвенные и reflection-ссылки.
