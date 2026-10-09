@@ -95,8 +95,7 @@ namespace MotorCity.UI
             lastScreenHeight = Screen.height;
             lastTouchLayout = UseLandscapeTouchLayout();
 
-            // NavigatorView owns the Minimap and Navigation Target Strip geometry.
-            ApplyDesktopOrTouchComposition(lastTouchLayout);
+            // HUD builders own root geometry; this pass only styles visuals.
             ClearPanelBackdrop("Player Card");
             ClearPanelBackdrop("Character Card");
             ClearPanelBackdrop("Activity Status");
@@ -166,23 +165,6 @@ namespace MotorCity.UI
             // Apply bounds after responsive composition has sized the cells.
             foreach (Text label in hudRoot.GetComponentsInChildren<Text>(true))
                 MotorCityTextLayout.Configure(label);
-        }
-
-        private void ApplyDesktopOrTouchComposition(bool touchLayout)
-        {
-            RectTransform playerCard = FindRect("Player Card");
-            RectTransform characterCard = FindRect("Character Card");
-
-            if (touchLayout)
-            {
-                SetRect(playerCard, new Vector2(14f, -14f), new Vector2(340f, 116f), 1f);
-                SetRect(characterCard, new Vector2(14f, -14f), new Vector2(430f, 154f), 1f);
-            }
-            else
-            {
-                SetRect(playerCard, new Vector2(22f, -22f), new Vector2(392f, 132f), 1f);
-                SetRect(characterCard, new Vector2(22f, -22f), new Vector2(448f, 154f), 1f);
-            }
         }
 
         private void ApplyModalComposition(
