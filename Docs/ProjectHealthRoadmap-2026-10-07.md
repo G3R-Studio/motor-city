@@ -98,6 +98,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 0/1 / итоговые статические проверки и Unity smoke | Пользователь запустил `py -3 Tools/check_phase_0_1.py`: **PASS** Input backend; **PASS** WebGL release QA guards (137 C#); **PASS** static audit (246 scripts, 3234 serialized, 2330 GUIDs, 0 dangling refs). `pwsh -NoProfile -File Tools/check_cleanup.ps1`: **PASS** 242 C# syntax Editor/native/WebGL, все source/regression gates. Пользователь подтвердил: «игра работает отлично». | **[x] Итоговый source gate + пользовательский runtime smoke**; **[ ]** формальная Console-wide warning-free фиксация, архив скриншотов, physics deep audit Phase 0, явная матрица WebGL Mobile Release Phase 12. |
 | 2026-10-09 | Phase 0 / closure evidence | Пользователь прямо подтвердил чистую Unity Console без предупреждений/ошибок и визуальную проверку всех 10 машин, дня/ночи/остекления. Проведён read-only аудит `ArcadeCarController`/`HandbrakePhysicsAssist` — отдельный отчёт `Docs/Baselines/Phase0DrivingPhysicsAudit-2026-10-09.md`. Full screenshot archive не создан, Phase 10 physics benchmarking отдельно. | **[x] Phase 0 — baseline/smoke/source audit закрыта**; **[x] Phase 1 закрыта ранее**. Архив изображений — документированное ограничение, а не выдуманный артефакт. |
 | 2026-10-09 | Phase 2 / GitHub Actions source CI | Создан `.github/workflows/motor-city-source-gates.yml`: push/PR/manual, Python Input/QA/GUID audit, PowerShell Roslyn/regressions и UI-layout проверки; static JSON загружается как artifact. Первый GitHub Actions run `37862442676` обнаружен в статусе `in_progress` на коммите `a1deaf96`. | **[x] CI wiring и статические gates настроены**; **[ ]** дождаться реального workflow PASS; Unity compile/build report требуют отдельной реализации и не подменяются Roslyn. |
+| 2026-10-09 | Phase 2 / UI CI failure fix | В GitHub Actions `37862472936` source/GUID/Roslyn job — PASS; UI job — FAIL: `Text` stub missing best-fit properties. Приведены к актуальному `MotorCityTextLayout` тестовые stubs/expectations (`c899e4e`), без изменения игры. Начался retry `37862711786`. | **[x] Root cause найдена и test-only fix запушен**; **[ ]** результат нового CI run; Unity build runner ещё не настроен. |
 
 
 ---
@@ -1144,6 +1145,10 @@ shader/material/prefab могут ссылаться сериализованн�
 **Критерий закрытия Phase 1:** аудит тестовых путей завершён, все QA entrypoints корректно изолированы; соответствующие source/Unity smoke подтверждены.
 
 ## Phase 2 — Automated gates
+
+**CI troubleshooting (2026-10-09):** первый полный запуск workflow `37862472936` завершился failure: `Static, GUID and C# source gates` — **success**, `UI source layout gate` — **failure** (stub `UnityEngine.UI.Text` без `resizeTextMinSize`/`resizeTextMaxSize`; несовпадение ожиданий с актуальными настройками best-fit/overflow). Исправлены изолированные тестовые заглушки и утверждения в `Tools/Tests/TextLayoutChecks.cs` (коммит `c899e4e`), игровой UI не изменён. Запущена повторная CI-проверка `37862711786`; не отмечать её успешной до завершения.
+
+
 
 - [x] CI workflow создан: `.github/workflows/motor-city-source-gates.yml`, push `main`, PR и manual; первый запуск отслеживается, итоговый PASS пока не подтверждён;
 - [x] Roslyn/static source gate подключён: `Tools/check_cleanup.ps1`, `Tools/check_phase_0_1.py` и `Tools/check_ui_layout.ps1`;
