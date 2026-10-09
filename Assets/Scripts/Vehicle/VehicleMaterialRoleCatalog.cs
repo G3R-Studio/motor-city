@@ -38,6 +38,8 @@ namespace MotorCity.Vehicle
                         ? VehicleMaterialRole.None
                         : Resolve(materials[i].name);
                     if (roles[i] == VehicleMaterialRole.None)
+                        roles[i] = ResolveExplicitRendererName(renderer.name);
+                    if (roles[i] == VehicleMaterialRole.None)
                         continue;
 
                     any = true;
@@ -50,6 +52,31 @@ namespace MotorCity.Vehicle
                 component.AssignRuntimeSlots(roles);
             }
             return assignedSlots;
+        }
+
+        // Exact renderer part names are authoritative even with an opaque atlas.
+        // No shared material, shader, mesh, or prefab modifications.
+        private static VehicleMaterialRole ResolveExplicitRendererName(string value)
+        {
+            switch (VehicleVisualRoleUtility.NormalizeVisualName(value))
+            {
+                case "mirror":
+                case "rearview_mirror":
+                case "side_mirror":
+                case "mirror_glass":
+                    return VehicleMaterialRole.Mirror;
+                case "rim":
+                case "wheel_rim":
+                case "alloy_rim":
+                    return VehicleMaterialRole.Rim;
+                case "tire":
+                case "tyre":
+                case "wheel_tire":
+                case "rubber":
+                    return VehicleMaterialRole.Rubber;
+                default:
+                    return VehicleMaterialRole.None;
+            }
         }
 
         public static VehicleMaterialRole Resolve(string sourceName)

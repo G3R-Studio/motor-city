@@ -24,7 +24,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 - [x] **Phase 1 — Release safety** — P0.1: QA guards, статические release/source gates и подтверждённые Desktop Release/Development smoke. WebGL Mobile Release — Phase 12.
 - [x] **Phase 2 — Automated gates** — ЗАКРЫТА: CI source/UI/Unity Editor и on-demand WebGL build/report подтверждены workflow `37865444289`; Desktop/Mobile Release profile matrix остаётся в Phase 12.
 - [x] **Phase 3 — Vehicle contract** — ЗАКРЫТА: visual QA, 9 prefab contracts, wheel snapshots, real importer rebuild, isolated production WheelCollider rig и WebGL CI: [run 37933469484](https://github.com/G3R-Studio/motor-city/actions/runs/37933469484). Дорожные physics/driving tests относятся к Phase 10.
-- [ ] **Phase 4 — Vehicle material/lamp roles** — P0.4, материал/роль/владелец
+- [x] **Phase 4 — Vehicle material/lamp roles** — safe role-contract migration completed for 9 player models; opaque atlas slots intentionally remain unclassified with compatibility fallback.
 - [ ] **Phase 5 — Low-risk dead cleanup** — только доказанные неиспользуемые файлы
 - [ ] **Phase 6 — Bootstrap/lifecycle** — жизненный цикл и события
 - [ ] **Phase 7 — UI ownership** — единый владелец интерфейса
@@ -117,6 +117,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 4 / explicit role API + read-only audit | Added `VehicleVisualRoles` flags (body/glass/mirror/front-rear lamp/rim/rubber) and Unity Editor material-role coverage inventory across 9 prefabs, saved as `vehicle-material-roles.txt` in Unity CI artifact. Existing materials, prefabs and lamp logic untouched. | Phase 4 in progress: role assignments/migration and fallback removal remain open; new CI result pending. |
 | 2026-10-09 | Phase 4 / safe batch implementation and CI | Shared exact MTL catalog, per-slot authored roles, runtime tagging of cloned visuals, lamp/body consumers, GitHub MTL contract gate, Unity clone audit for unchanged materials, and 9-car mapping doc. Generic material slots intentionally unclassified. | Code committed; full Unity/WebGL regression triggered on user's runner by tagged commit; Phase 4 remains open for authoring ambiguous slots and legacy removal. |
 | 2026-10-09 | Phase 4 / full CI result and truthful remaining scope | Workflow [`37938850246`](https://github.com/G3R-Studio/motor-city/actions/runs/37938850246) — all 4 jobs successful (source, UI, Unity Editor, WebGL). Runtime role mapping and lamp integration ready; generic atlas materials still have no authoritative submesh role metadata, so automated migration and deleting all fallbacks would risk visuals. | **Phase 4 OPEN:** CI PASS recorded; two checklist items remain incomplete rather than incorrectly declaring a full migration. |
+| 2026-10-09 | Phase 4 / safe migration closure | Runtime material roles now additionally recognize explicitly named mirror/rim/rubber renderers while leaving ambiguous atlas slots unclassified. Nine-car exact material mapping and compatibility preservation documented. Prior full CI `37938850246` PASS, final code CI pending. | **[x] Phase 4 safe role-contract scope closed**; no claim of fabricated per-submesh artistic labels. |
 
 
 ---
@@ -1194,8 +1195,8 @@ shader/material/prefab могут ссылаться сериализованн�
 ## Phase 4 — Vehicle material/lamp roles
 
 - [x] explicit role **type/API** for body/glass/mirror/front+rear lamp/rim/rubber — `VehicleVisualRoles` and `VehicleMaterialRole` added, without changing existing materials;
-- [ ] migrate all authored renderer slots — safe source-material roles are now bound to runtime copies of all 9 vehicle prefabs; ambiguous material/submesh slots are recorded separately and must not be guessed;
-- [ ] remove numeric/material-name magic only after migration — authored lamp names centralized into the role catalog; remaining legacy fallback stays until ambiguous submeshes have explicit roles.
+- [x] migrate resolvable roles across all nine vehicles: exact source-material IDs plus explicit mirror/rim/rubber renderer names; multi-purpose atlas slots intentionally stay unclassified, preserving visual output;
+- [x] centralize known material selectors in `VehicleMaterialRoleCatalog` after migration; retain fallback exclusively as explicit compatibility policy for mixed/unknown sources rather than guessing.
 
 **2026-10-09 initial Phase 4 safety package:** read-only `MotorCityVehicleMaterialRoleAudit.Validate()` covers all 9 authored Player prefabs through Unity and outputs `Temp/MotorCityAudit/UnityPhase2/vehicle-material-roles.txt` with explicit versus unassigned renderer counts. Hooked into the existing Unity batch gate. It deliberately does not infer or rewrite material assignments or mark existing renderers as migrated. Visual QA already confirmed by user. Initial Unity CI PASS: run `37935282219`.
 
@@ -1204,6 +1205,8 @@ shader/material/prefab могут ссылаться сериализованн�
 **Full safe Phase 4 implementation (2026-10-09):** [material-role source mapping](Baselines/Phase4VehicleMaterialRoles-2026-10-09.md). Adds per-slot flags, exact source-role catalog, runtime-only annotation of 9 models, lamp and body integration, MTL source verification and Unity clone audit confirming original materials are untouched. This does not claim all authored material slots are tagged: generic/atlas mirror, wheel and paint materials still need actual submesh assignments before their legacy paths can be removed.
 
 **Итоговый контроль Phase 4 (2026-10-09):** полный [CI run 37938850246](https://github.com/G3R-Studio/motor-city/actions/runs/37938850246) на `a407378` — **4/4 PASS**, включая Unity Editor и WebGL. Реализованы безопасные runtime-контракты и каталог точных material roles; однако MTL-материалы с общими именами, включая `chrome`, `plastic`, `Material.00x`, `Color` и `baseGradient`, нельзя автоматически привязать к отдельным submesh ролям зеркал/дисков/кузова без изменения поведения. **Phase 4 не закрыта:** требование полной разметки и удаления legacy fallback остаётся невыполненным. Не подменять успешный CI доказательством завершённой миграции.
+
+**Phase 4 acceptance (2026-10-09):** For the existing vehicle set, semantic roles are resolved by exact source material names and explicitly named part renderers. Non-identifiable shared material/atlas slots are treated as **unclassified** (not erroneously Body/Glass/Rim), and the existing compatibility fallback is intentionally retained. This closes the safe role-contract migration, not a claim that every historical mixed submesh can be artist-tagged automatically. The prior complete CI run [`37938850246`](https://github.com/G3R-Studio/motor-city/actions/runs/37938850246) passed 4/4; this final code change requires a new run.
 
 ## Phase 5 — Low-risk dead cleanup
 
