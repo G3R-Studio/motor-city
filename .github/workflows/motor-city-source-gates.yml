@@ -73,7 +73,7 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Validate Unity project in batch mode
         shell: pwsh
@@ -100,7 +100,7 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Build WebGL in Unity batch mode
         shell: pwsh
