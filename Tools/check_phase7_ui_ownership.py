@@ -16,7 +16,7 @@ FILES = {
     "TouchControlsView.cs": "touch controls builder and customization",
 }
 REQUIRED = {
-    "HudVisualPolish.cs": ("ApplyDesktopOrTouchComposition", "ApplyModalComposition", "FindRect"),
+    "HudVisualPolish.cs": ("ApplyModalComposition", "FindRect"),
     "GarageReferenceLayout.cs": ("BuildGarage",),
     "TouchControlsView.cs": ("RectTransform",),
     "NavigatorView.cs": ("RectTransform",),
