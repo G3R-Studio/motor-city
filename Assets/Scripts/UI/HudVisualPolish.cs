@@ -758,8 +758,16 @@ namespace MotorCity.UI
             if (hudRoot == null)
                 return null;
 
-            if (rectCache.TryGetValue(objectName, out RectTransform cached) && cached != null)
-                return cached;
+            // Layout builders may replace individual HUD children while the
+            // persistent polish host remains alive. Never modify a detached
+            // RectTransform left behind in the name cache.
+            if (rectCache.TryGetValue(objectName, out RectTransform cached))
+            {
+                if (cached != null && cached.IsChildOf(hudRoot))
+                    return cached;
+
+                rectCache.Remove(objectName);
+            }
 
             RectTransform rect = FindRecursive(hudRoot, objectName) as RectTransform;
             if (rect != null)
