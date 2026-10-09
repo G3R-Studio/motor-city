@@ -108,6 +108,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 2 / CI WebGL build PASS — closure | Проверен [workflow `37865444289`](https://github.com/G3R-Studio/motor-city/actions/runs/37865444289) на коммите `4600408`: **success**, все четыре jobs зелёные, в том числе `Unity 6 WebGL build and report`. Выгружены 3 artifacts: `motor-city-static-audit`, `motor-city-unity-validation`, `motor-city-webgl-build-report`. | **[x] Phase 2 закрыта** — CI и отчёты подтверждены; полная Desktop/Mobile Release/browser matrix — Phase 12. |
 | 2026-10-09 | Phase 3 / wheel prefab baseline | Проведён read-only осмотр всех 9 отдельных Player vehicle prefabs: каждый содержит `front_left`, `front_right`, `rear_left`, `rear_right` по одному разу. Street — fallback ID. Добавлен `Tools/check_vehicle_contract.py` и CI step; сборки/визуалы не изменены. | **[x] Source wheel naming inventory и CI wiring**; **[ ]** первый CI PASS, численные wheel snapshots, Hybrid body contract и importer/visual resolver audit. Phase 3 открыта. |
 | 2026-10-09 | Phase 3 / numeric wheel pivot snapshots | Из девяти Player `.prefab` зафиксированы локальные `position` и `rotation` для `front_left/right`, `rear_left/right` в `Docs/Baselines/VehicleWheelTransforms-2026-10-09.json` (`2ead32c`). `Tools/check_vehicle_contract.py` теперь разбирает GameObject→Transform fileID и сравнивает числа с baseline (`01f2aee`). Не изменены сами префабы. | **[x] Snapshot исходники и проверка в CI подготовлены**; **[ ]** результат нового workflow, actual wheel collider pose/runtime sync, visual resolver/importer и Hybrid contract. |
+| 2026-10-09 | Phase 3 / shared visual and Hybrid importer gates | `VehicleVisualRoleUtility.NormalizeVisualName` подключён к `StandardVehicleImportUtility`; добавлен `Tools/check_vehicle_importers.py` с проверкой девяти импортёров и Hybrid OBJ/body source, подключён к GitHub Actions (`8a67604`). Игровые префабы не менялись. | Source modifications complete; CI `37928460643` queued; importer rebuild and runtime validation still open. |
 
 
 ---
@@ -1173,10 +1174,10 @@ shader/material/prefab могут ссылаться сериализованн�
 **Первый source baseline (2026-10-09):** все девять отдельных Player prefabs (`Beatall`, `Peugeot306`, `ToyotaAE86`, `Hybrid`, `Porsche996`, `AmgGT`, `Camaro`, `Delorean`, `Bus`) просмотрены через GitHub: у каждого по одному объекту `front_left`, `front_right`, `rear_left`, `rear_right`. `Street` — fallback ID без отдельного authored Player prefab. Добавлен read-only `Tools/check_vehicle_contract.py` и шаг в GitHub Actions (`54cd5b4`, `f7f4efa`). Это проверка наличия/именования, **не** доказательство корректной геометрии или wheel bindings в Unity; первая CI execution ещё ожидается.
 
 
-- [ ] один visual naming resolver;
+- [x] один visual naming resolver: общий `VehicleVisualRoleUtility.NormalizeVisualName` используется `StandardVehicleImportUtility`;
 - [ ] validation всех моделей: структурная проверка колесных узлов 9 префабов подготовлена; полный visual/material/wheel alignment audit ещё открыт;
-- [ ] Hybrid body contract;
-- [ ] importers;
+- [x] Hybrid body source contract: `HybridVehicleImporter` создаёт `Body` из `hybrid.obj`, проверка исходных OBJ и importer code подключена к CI;
+- [ ] importers: 9 source importers охвачены автоматическим аудитом `Tools/check_vehicle_importers.py`; реальный rebuild/visual regression ещё не подтверждён.
 - [x] wheel transforms snapshot tests: численные prefab-local `position`/`rotation` всех 4 pivots для 9 Player prefabs сохранены в [`VehicleWheelTransforms-2026-10-09.json`](Baselines/VehicleWheelTransforms-2026-10-09.json); `Tools/check_vehicle_contract.py` сравнивает snapshot с YAML при каждом CI. Runtime WheelCollider alignment — отдельно.
 
 ## Phase 4 — Vehicle material/lamp roles
