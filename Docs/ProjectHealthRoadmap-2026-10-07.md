@@ -1192,10 +1192,12 @@ shader/material/prefab могут ссылаться сериализованн�
 ## Phase 4 — Vehicle material/lamp roles
 
 - [x] explicit role **type/API** for body/glass/mirror/front+rear lamp/rim/rubber — `VehicleVisualRoles` and `VehicleMaterialRole` added, without changing existing materials;
-- [ ] migrate one vehicle at a time — explicit roles are not yet assigned to prefab renderers; first establish role-by-renderer inventory;
+- [ ] migrate one vehicle at a time — paint customization now gives explicitly tagged Body renderers precedence, while all untagged imports keep their former name-based fallback. Renderer tagging/migration remains open;
 - [ ] remove numeric/material-name magic only after migration — existing runtime fallbacks remain intact.
 
-**2026-10-09 initial Phase 4 safety package:** read-only `MotorCityVehicleMaterialRoleAudit.Validate()` covers all 9 authored Player prefabs through Unity and outputs `Temp/MotorCityAudit/UnityPhase2/vehicle-material-roles.txt` with explicit versus unassigned renderer counts. Hooked into the existing Unity batch gate. It deliberately does not infer or rewrite material assignments or mark existing renderers as migrated. Visual QA already confirmed by user. New CI PASS pending.
+**2026-10-09 initial Phase 4 safety package:** read-only `MotorCityVehicleMaterialRoleAudit.Validate()` covers all 9 authored Player prefabs through Unity and outputs `Temp/MotorCityAudit/UnityPhase2/vehicle-material-roles.txt` with explicit versus unassigned renderer counts. Hooked into the existing Unity batch gate. It deliberately does not infer or rewrite material assignments or mark existing renderers as migrated. Visual QA already confirmed by user. Initial Unity CI PASS: run `37935282219`.
+
+**Phase 4 integration step (2026-10-09):** `VehiclePaintMeshNames.Normalize` reuses the canonical visual name resolver; `VehicleCustomizationSystem.IsPrimaryBodyRenderer` honors explicit Body role when assigned, with legacy fallback unchanged for untagged assets. No prefab or material assets changed. Latest CI awaiting confirmation.
 
 ## Phase 5 — Low-risk dead cleanup
 
