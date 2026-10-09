@@ -15,7 +15,7 @@
 | 4 — Material/lamp roles | ✅ Безопасный контракт закрыт | неизвестные atlas/submesh роли остаются unclassified, с совместимым fallback |
 | 5 — Dead cleanup | 🟡 Безопасная часть выполнена | удаление неподтверждённых assets запрещено; recovery tools сохраняются |
 | 6 — Bootstrap/lifecycle | ✅ Закрыта в проверенном scope | source/UI/Unity/WebGL CI PASS; обычный Play Mode и Domain Reload подтверждены; браузерная матрица — Phase 12 |
-| 7 — UI ownership | 🟡 Начата | inventory layout owners подключён в CI; переносы впереди |
+| 7 — UI ownership | 🟡 Код выполнен, ожидается итоговый QA | владельцы геометрии разделены; итоговый CI и единый Play Mode ещё требуются |
 | 8 — Save/progression | ⬜ Открыта | ключи, миграции, cloud и restart |
 | 9 — City/runtime | ⬜ Открыта | диагностика release, материалы, profiler |
 | 10 — Vehicle physics | ⬜ Открыта | trace/steer/friction/mobile timing |
@@ -108,8 +108,9 @@
 - [x] Сняты повторные записи `Minimap` и `Navigation Target Strip` из `HudVisualPolish`: десктопные координаты уже задаёт `NavigatorView`, `UseLandscapeTouchLayout()` сейчас всегда возвращает `false`. Настроен source gate на единственного владельца (`70adc745`, `13cad558`). CI и итоговый Play Mode по этому пакету ещё требуются.
 - [x] Корневые modal panels `Activity Result`, `Navigator Menu`, `Club Panel` переданы соответственно `ActivityResultView`, `NavigatorView`, `ClubView`; размеры перенесены из действующего desktop visual polish в builder без изменения итоговой геометрии. `HudVisualPolish` оставлен для содержимого и текста. CI-контракт `c402642`; финальный Unity CI/Play Mode ещё требуются.
 - [x] Удалены повторные записи геометрии `Speedometer`, `Activity Status` и `Minimap Target Label` из `HudVisualPolish`: `DrivingHudView` и `NavigatorView` уже создают desktop layout с теми же значениями. Добавлен source gate (`26626cc`, `0d994da`); проверка CI/Play Mode после общего пакета остаётся.
-- [ ] Устранить конкурирующие layout writes, определить единственного владельца.
-- [ ] Уменьшить `HudVisualPolish` зависимости; безопасно разделить FrontEnd/Navigator/Touch UI.
+- [x] Финальный source-level перенос: `Player Card` / `Character Card`, `Active Objective`, `Status Text`, `Result Details`, `Result Reward`, `Result Reward Icon` больше не получают geometry writes от `HudVisualPolish`. Значения desktop-layout перенесены в builder, добавлен ownership gate. Итоговый CI и единый ручной smoke ещё ожидаются.
+- [x] Устранить подтверждённые конкурирующие root/child layout writes, определить владельцев в проверенном объёме. Не утверждаем отсутствие всех возможных runtime конфликтов.
+- [x] Уменьшить geometry-зависимости `HudVisualPolish`: root layouts закреплены за DrivingHudView/CharacterMissionCardView, модальные панели — за собственными builder, навигация — NavigatorView, utility/touch — TouchControlsView. Полный split FrontEnd не требуется для доказанных конфликтов.
 - [ ] Regression: русские/английские надписи, масштаб, touch и меню.
 
 ## Phase 8 — Save/progression
