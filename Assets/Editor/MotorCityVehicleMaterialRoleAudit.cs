@@ -36,20 +36,40 @@ namespace MotorCity.EditorTools
                     int renderers = 0;
                     int explicitRoles = 0;
                     int unassigned = 0;
+                    int materialSlots = 0;
+                    int taggedSlots = 0;
                     foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
                     {
                         if (renderer == null)
                             continue;
                         renderers++;
                         VehicleVisualRoles authored = renderer.GetComponent<VehicleVisualRoles>();
-                        if (authored != null && authored.Roles != VehicleMaterialRole.None)
+                        bool hasExplicit = false;
+                        Material[] materials = renderer.sharedMaterials;
+                        for (int slot = 0; slot < materials.Length; ++slot)
+                        {
+                            materialSlots++;
+                            VehicleMaterialRole role = authored == null
+                                ? VehicleMaterialRole.None : authored.RolesAt(slot);
+                            if (role == VehicleMaterialRole.None)
+                                continue;
+                            taggedSlots++;
+                            hasExplicit = true;
+                            if ((role & VehicleMaterialRole.FrontLamp) != 0 &&
+                                (role & VehicleMaterialRole.RearLamp) != 0)
+                                throw new InvalidOperationException(vehicle +
+                                    ": conflicting front/rear lamp role at " + renderer.name + ":" + slot);
+                        }
+                        if (hasExplicit)
                             explicitRoles++;
                         else
                             unassigned++;
                     }
                     lines.Add(vehicle + ": renderers=" + renderers +
                         ", explicitly tagged=" + explicitRoles +
-                        ", unassigned=" + unassigned);
+                        ", unassigned=" + unassigned +
+                        ", material slots=" + materialSlots +
+                        ", explicitly tagged slots=" + taggedSlots);
                     if (renderers < 4)
                         throw new InvalidOperationException(vehicle + ": missing visual renderers");
                 }
