@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace MotorCity.Vehicle
 {
     /// <summary>
@@ -7,6 +9,49 @@ namespace MotorCity.Vehicle
     /// </summary>
     public static class VehicleMaterialRoleCatalog
     {
+        /// <summary>
+        /// Annotate only unambiguous authored material slots on a runtime clone.
+        /// This neither edits shared materials nor writes prefab assets.
+        /// Existing artist-assigned roles always win.
+        /// </summary>
+        public static int AnnotateRuntimeVisual(GameObject root)
+        {
+            if (root == null)
+                return 0;
+
+            int assignedSlots = 0;
+            foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null)
+                    continue;
+
+                VehicleVisualRoles authored = renderer.GetComponent<VehicleVisualRoles>();
+                if (authored != null)
+                    continue;
+
+                Material[] materials = renderer.sharedMaterials;
+                var roles = new VehicleMaterialRole[materials.Length];
+                bool any = false;
+                for (int i = 0; i < materials.Length; ++i)
+                {
+                    roles[i] = materials[i] == null
+                        ? VehicleMaterialRole.None
+                        : Resolve(materials[i].name);
+                    if (roles[i] == VehicleMaterialRole.None)
+                        continue;
+
+                    any = true;
+                    assignedSlots++;
+                }
+                if (!any)
+                    continue;
+
+                VehicleVisualRoles component = renderer.gameObject.AddComponent<VehicleVisualRoles>();
+                component.AssignRuntimeSlots(roles);
+            }
+            return assignedSlots;
+        }
+
         public static VehicleMaterialRole Resolve(string sourceName)
         {
             string name = VehicleVisualRoleUtility.NormalizeVisualName(sourceName);
