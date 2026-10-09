@@ -1219,6 +1219,8 @@ shader/material/prefab могут ссылаться сериализованн�
 
 **Дополнительный этап аудита Phase 5:** Unity batch gate теперь создаёт `phase5-material-dependencies.txt`: проверяются зависимости включённых сцен и всех ассетов под `Resources/MotorCity`. Материалы в Resources сохраняются, поскольку возможна динамическая загрузка; отсутствие прямой связи со сценой не является основанием для удаления. Python gate дополнительно проверяет `materialLocation: 0` в FBX meta и повторяющиеся GUID материалов. До получения отчётов и доказательства отсутствия динамических ссылок очистка материалов/миграторов остаётся незавершённой.
 
+**Phase 5 evidence review (2026-10-09):** Three checks (source/GUID/C#, UI layout, Unity Editor batch) passed on the Phase 5 syntax-fix commit `1dea2b7`; WebGL was skipped by opt-in policy, not counted as a PASS. A subsequent Unity audit improvement (`b2f64ac`) separates enabled build-scene dependencies from Resources-only dependencies; its report still requires CI artifact inspection. The two FCG editor migration tools are **not dead code**: the FBX repair command is an importer recovery path and the URP fixer can rebuild runtime city materials/traffic prefabs. Keep both (`738d3e3` adds CI guard for their menu commands). Because `Resources.Load`, generated paths and manual editor workflows remain possible, no stale generated material or orphan asset is certified safe for deletion. **Phase 5 safe source cleanup/audit is implemented; destructive asset cleanup remains blocked, not silently marked done.** No user visual recheck is needed for these tooling-only changes.
+
 ## Phase 6 — Bootstrap/lifecycle
 
 - [ ] split bootstrap by phases;
