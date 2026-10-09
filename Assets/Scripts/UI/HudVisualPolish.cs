@@ -188,19 +188,8 @@ namespace MotorCity.UI
                 }
             }
 
-            RectTransform minimapTarget = FindRect("Minimap Target Label");
-            if (minimapTarget != null)
-            {
-                // The target strip itself is 148 px wide. Keep the label
-                // safely inside it without painting underneath the navigator button.
-                minimapTarget.sizeDelta =
-                    new Vector2(
-                        140f,
-                        50f);
-
-                minimapTarget.anchoredPosition =
-                    new Vector2(-23f, 0f);
-            }
+            // NavigatorView creates the target label at its final size and
+            // position. Avoid rewriting its geometry in a second owner.
             // TouchControlsView owns utility rail and secondary action positions.
             // Their builder already applies the same coordinates; do not
             // overwrite these controls from the persistent visual polish.
@@ -213,22 +202,16 @@ namespace MotorCity.UI
         {
             RectTransform playerCard = FindRect("Player Card");
             RectTransform characterCard = FindRect("Character Card");
-            RectTransform speedometer = FindRect("Speedometer");
-            RectTransform status = FindRect("Activity Status");
 
             if (touchLayout)
             {
                 SetRect(playerCard, new Vector2(14f, -14f), new Vector2(340f, 116f), 1f);
                 SetRect(characterCard, new Vector2(14f, -14f), new Vector2(430f, 154f), 1f);
-                SetRect(speedometer, new Vector2(0f, 6f), new Vector2(226f, 166f), 0.90f);
-                SetRect(status, new Vector2(0f, -174f), new Vector2(560f, 54f), 1f);
             }
             else
             {
                 SetRect(playerCard, new Vector2(22f, -22f), new Vector2(392f, 132f), 1f);
                 SetRect(characterCard, new Vector2(22f, -22f), new Vector2(448f, 154f), 1f);
-                SetRect(speedometer, new Vector2(0f, 16f), new Vector2(258f, 190f), 1f);
-                SetRect(status, new Vector2(0f, -196f), new Vector2(640f, 58f), 1f);
             }
         }
 
