@@ -32,6 +32,9 @@ jobs:
       - name: Run Phase 0/1 static gates
         run: python3 Tools/check_phase_0_1.py
 
+      - name: Check Phase 3 vehicle prefab and wheel contract
+        run: python3 Tools/check_vehicle_contract.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
