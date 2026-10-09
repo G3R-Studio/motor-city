@@ -254,51 +254,16 @@ namespace MotorCity.World
             }
         }
 
-        private static bool TryResolveKind(
-            string id, string sourceName, out LampKind kind)
+        private static bool TryResolveKind(string id, string sourceName, out LampKind kind)
         {
-            string name = NormalizeName(sourceName);
-            bool front;
-            bool brake;
-
-            if (id == VehicleIds.Peugeot306 || id == VehicleIds.Porsche996)
+            VehicleMaterialRole role = VehicleMaterialRoleCatalog.Resolve(sourceName);
+            if (role == VehicleMaterialRole.RearLamp)
             {
-                // The user's Porsche Blender scene shows .001 suffixes,
-                // while the current committed OBJ/MTL exports use no suffix.
-                // Both spellings are supported, scoped to this car only.
-                front = name == "headlights" || name == "headlights.001";
-                brake = name == "rearlights" || name == "rearlights.001";
+                kind = LampKind.Brake;
+                return true;
             }
-            else if (id == VehicleIds.ToyotaAE86)
-            {
-                front = false;
-                brake = name == "rearlights.002";
-            }
-            else
-            {
-                front = name == "mc_headlight";
-                brake = name == "mc_brake";
-            }
-
-            kind = front ? LampKind.Front : LampKind.Brake;
-            return front || brake;
-        }
-
-        private static string NormalizeName(string source)
-        {
-            string name = (source ?? string.Empty).Trim();
-            // Unity and URP can append their suffixes in either order.
-            for (int i = 0; i < 4; ++i)
-            {
-                if (name.EndsWith("_URP", StringComparison.OrdinalIgnoreCase))
-                    name = name.Substring(0, name.Length - 4).Trim();
-                if (name.EndsWith(" (Instance)", StringComparison.OrdinalIgnoreCase))
-                    name = name.Substring(0, name.Length - 11).Trim();
-                if (name.EndsWith(" (Clone)", StringComparison.OrdinalIgnoreCase))
-                    name = name.Substring(0, name.Length - 8).Trim();
-            }
-
-            return name.ToLowerInvariant();
+            kind = LampKind.Front;
+            return role == VehicleMaterialRole.FrontLamp && id != VehicleIds.ToyotaAE86;
         }
 
         private void RestoreBindings()
