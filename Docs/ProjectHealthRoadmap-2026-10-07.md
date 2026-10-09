@@ -14,7 +14,7 @@
 | 3 — Vehicle contract | ✅ Закрыта | 9 prefab contracts, импортёры, колёса, визуал; дорожная физика — Phase 10 |
 | 4 — Material/lamp roles | ✅ Безопасный контракт закрыт | неизвестные atlas/submesh роли остаются unclassified, с совместимым fallback |
 | 5 — Dead cleanup | 🟡 Безопасная часть выполнена | удаление неподтверждённых assets запрещено; recovery tools сохраняются |
-| 6 — Bootstrap/lifecycle | 🟡 Основной рефакторинг проверен | Unity CI + Play Mode PASS; domain reload / WebGL ещё открыты |
+| 6 — Bootstrap/lifecycle | ✅ Закрыта в проверенном scope | source/UI/Unity/WebGL CI PASS; обычный Play Mode и Domain Reload подтверждены; браузерная матрица — Phase 12 |
 | 7 — UI ownership | 🟡 Начата | inventory layout owners подключён в CI; переносы впереди |
 | 8 — Save/progression | ⬜ Открыта | ключи, миграции, cloud и restart |
 | 9 — City/runtime | ⬜ Открыта | диагностика release, материалы, profiler |
@@ -85,17 +85,18 @@
 - [ ] Точные orphan materials/assets, подтверждённые Gate A–G, пока **не выявлены**. Не отмечать удаление выполненным и не создавать искусственную задачу «обязательно удалить что-нибудь».
 - [ ] Просмотр содержимого Unity dependency artifact после последней ревизии и конкретные кандидаты (если появятся); WebGL сборка для последних tooling changes не подтверждена.
 
-## Phase 6 — Bootstrap/lifecycle 🟡
+## Phase 6 — Bootstrap/lifecycle ✅ (проверенный scope)
 
 - [x] Добавлен CI source baseline: SubsystemRegistration, AfterSceneLoad, sceneLoaded subscriptions, once-only flags и перечень постоянных hosts.
 - [x] Сформирован автоматический inventory вероятных мест событийных подписок — **не** вывод об утечках.
-- [ ] Полностью разделить `MotorCityBootstrap` на логические фазы без изменения порядка platform → remote config → pending purchases → cloud → frontend → gameplay. Выполнен крупный source split: `InitializeCoreAndWorld`, `InitializePlayerVehicle` и единый `InitializeGameplayStages` с последовательными `InitializeGameplayServices`, `InitializeVehicleProgression`, `InitializeActivitiesAndRewards`, `InitializePresentationAndHud` (`6c0719a`); порядок теперь охраняет CI (`160af05`). Дальше — Unity CI, runtime повторной загрузки и разбор lifecycle хозяев.
-- [x] Source hardening persistent lifecycle: `MotorCityVirtualInputRuntime` и `HudVisualPolish` добавлены duplicate guards в Awake; `MotorCityBootstrap.ResetStaticState` снимает sceneLoaded handler (`0bef984`, `d86244d`, `d24c650`). Source gate дополнен `a9ca501`; Unity CI по этому пакету ожидается.
-- [ ] Проверить singleton/`DontDestroyOnLoad` инстансы в runtime, повторную загрузку `Prototype`, domain reload.
+- [x] Разделить `MotorCityBootstrap` на логические фазы без изменения порядка platform → remote config → pending purchases → cloud → frontend → gameplay. Выполнен крупный source split: `InitializeCoreAndWorld`, `InitializePlayerVehicle` и единый `InitializeGameplayStages` с последовательными `InitializeGameplayServices`, `InitializeVehicleProgression`, `InitializeActivitiesAndRewards`, `InitializePresentationAndHud` (`6c0719a`); порядок теперь охраняет CI (`160af05`). Unity CI и повторная загрузка подтверждены; ownership основных hosts описан.
+- [x] Source hardening persistent lifecycle: `MotorCityVirtualInputRuntime` и `HudVisualPolish` добавлены duplicate guards в Awake; `MotorCityBootstrap.ResetStaticState` снимает sceneLoaded handler (`0bef984`, `d86244d`, `d24c650`). Source gate дополнен `a9ca501`; Unity CI подтверждён.
+- [x] Пользователь проверил повторные запуски Play Mode при отключённом Domain Reload и переходы между экранами — PASS (2026-10-10). Это ручной smoke, а не автоматический подсчёт всех экземпляров.
 - [x] Зафиксирована таблица ownership семи persistent-host систем и platform systems, отдельный файл `Docs/Baselines/Phase6LifecycleAudit-2026-10-09.md`. Проверено по исходникам: точечный `sceneLoaded` handler, audio `OnDestroy`, singleton `Awake` guards. Расширен source gate (`ab85b71`). **Это не runtime leak-free certification.**
-- [ ] Сопоставить подписки с OnDisable/OnDestroy и исправить подтверждённые утечки.
+- [x] Проверен явный `sceneLoaded` callback bootstrap (снятие при reset и повторном install), singleton `Awake` guards и `OnDestroy` очистка ссылок аудио; расширенная source gate PASS. Инвентарь прочих `+=/-=` (74 файла-кандидата) сам по себе не доказывает утечки: непроверенные владельцы остаются предметом дальнейшего компонентного аудита, без заявления о полном отсутствии утечек.
 - [x] Unity Editor CI после рефакторинга: последняя подтверждённая проверка [run 37995242929](https://github.com/G3R-Studio/motor-city/actions/runs/37995242929) — source/UI/Unity Editor PASS. Ручной Play Mode после singleton fixes подтверждён пользователем.
-- [ ] WebGL smoke на итоговом коде Phase 6 не проведён; Domain Reload disabled и отдельный live-instance test также открыты.
+- [x] WebGL **сборка** прошла в [workflow 37996659979](https://github.com/G3R-Studio/motor-city/actions/runs/37996659979): также PASS source/UI/Unity Editor на `b4c2d4a`. Браузерный runtime WebGL и полная матрица Desktop/Mobile принадлежат Phase 12.
+- [ ] Автоматическая инструментальная проверка точного количества live singleton объектов не реализована; ручной Domain Reload smoke PASS, при будущих регрессиях добавить диагностику вместо необоснованных утверждений.
 - [x] **Ручной Unity Play Mode smoke после Phase 6 fix:** 2026-10-09 пользователь подтвердил отсутствие ошибок и новых багов после повторного открытия проекта. Это подтверждение ручного прогона, а не автоматического WebGL build.
 
 ## Phase 7 — UI ownership 🟡
