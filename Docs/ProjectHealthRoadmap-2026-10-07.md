@@ -22,7 +22,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 
 - [x] **Phase 0 — Freeze / baseline** — ЗАКРЫТА: статический baseline, Console и visual smoke подтверждены; physics source audit задокументирован. Отсутствующий полный screenshot archive раскрыт как ограничение доказательной базы.
 - [x] **Phase 1 — Release safety** — P0.1: QA guards, статические release/source gates и подтверждённые Desktop Release/Development smoke. WebGL Mobile Release — Phase 12.
-- [ ] **Phase 2 — Automated gates** — P0.2, CI и аудиты
+- [x] **Phase 2 — Automated gates** — ЗАКРЫТА: CI source/UI/Unity Editor и on-demand WebGL build/report подтверждены workflow `37865444289`; Desktop/Mobile Release profile matrix остаётся в Phase 12.
 - [ ] **Phase 3 — Vehicle contract** — P0.3, единый контракт моделей
 - [ ] **Phase 4 — Vehicle material/lamp roles** — P0.4, материал/роль/владелец
 - [ ] **Phase 5 — Low-risk dead cleanup** — только доказанные неиспользуемые файлы
@@ -105,6 +105,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 2 / Windows self-hosted Unity CI PASS | GitHub Actions run [`37863706056`](https://github.com/G3R-Studio/motor-city/actions/runs/37863706056) на `39ce6a2`: **success**, три задания зелёные — Static/GUID/C#, UI layout и Unity 6 Editor batch validation на self-hosted Windows runner (3m05s), два артефакта. Это Unity Editor gate, не WebGL player build. | **[x] Unity Editor CI подключён и прошёл**, **[x] CI dependency reports**; **[ ]** если Phase 2 требует именно WebGL player build/report, проверить его отдельно, не подменять Editor-валидацией. |
 | 2026-10-09 | Phase 2 / optional WebGL CI | Добавлен `unity-webgl` job для Windows `unity6000` runner: только `workflow_dispatch` при `UNITY_WEBGL_CI_ENABLED=true` и `UNITY_CI_ENABLED=true`; сборка запускает `Tools/run_unity_phase2.ps1 -BuildWebGL`, выгружает только логи и отчёты. Настройка описана в `Docs/UnityCI-Phase2.md`. | **[x] CI job подготовлен** (`702a793`); **[ ]** WebGL Build Support и реальный successful player build ещё не подтверждены; named Release profiles — Phase 12. |
 | 2026-10-09 | Phase 2 / WebGL CI compiler fix | GitHub Actions WebGL run [`37864408073`](https://github.com/G3R-Studio/motor-city/actions/runs/37864408073): source/UI/Unity Editor PASS; WebGL FAIL на 5 `CS0103` в `VehicleHistorySystem` (`LegacyStatus`, `FavoriteDiscipline`, `TrackDistance`). Причина — эти production-members были ошибочно окружены QA `#if UNITY_EDITOR || DEBUG` вместе с `*ForTesting`. Перенесён `#endif` сразу после последнего тестового метода; gameplay members теперь входят в Release. | **[x] Root cause исправлена** (`617c046`); **[ ]** повторная реальная WebGL-сборка и проверка её отчёта; Phase 2 открыта. |
+| 2026-10-09 | Phase 2 / CI WebGL build PASS — closure | Проверен [workflow `37865444289`](https://github.com/G3R-Studio/motor-city/actions/runs/37865444289) на коммите `4600408`: **success**, все четыре jobs зелёные, в том числе `Unity 6 WebGL build and report`. Выгружены 3 artifacts: `motor-city-static-audit`, `motor-city-unity-validation`, `motor-city-webgl-build-report`. | **[x] Phase 2 закрыта** — CI и отчёты подтверждены; полная Desktop/Mobile Release/browser matrix — Phase 12. |
 
 
 ---
@@ -1152,6 +1153,9 @@ shader/material/prefab могут ссылаться сериализованн�
 
 ## Phase 2 — Automated gates
 
+**Verification gate (2026-10-09):** [GitHub Actions run 37865444289](https://github.com/G3R-Studio/motor-city/actions/runs/37865444289), commit `4600408`: **success**, четыре jobs — source/GUID/Roslyn, UI layout, Unity 6 Editor batch validation, Unity 6 WebGL build and report; artifacts `motor-city-static-audit`, `motor-city-unity-validation`, `motor-city-webgl-build-report`. WebGL был запущен вручную по opt-in настройке, не является проверкой обоих Release Build Profiles/браузеров — это Phase 12.
+
+
 **CI troubleshooting (2026-10-09):** первый полный запуск workflow `37862472936` завершился failure: `Static, GUID and C# source gates` — **success**, `UI source layout gate` — **failure** (stub `UnityEngine.UI.Text` без `resizeTextMinSize`/`resizeTextMaxSize`; несовпадение ожиданий с актуальными настройками best-fit/overflow). Исправлены изолированные тестовые заглушки и утверждения в `Tools/Tests/TextLayoutChecks.cs` (коммит `c899e4e`), игровой UI не изменён. Запущена повторная CI-проверка `37862711786`; не отмечать её успешной до завершения.
 
 
@@ -1160,7 +1164,7 @@ shader/material/prefab могут ссылаться сериализованн�
 - [x] Roslyn/static source gate подключён: `Tools/check_cleanup.ps1`, `Tools/check_phase_0_1.py` и `Tools/check_ui_layout.ps1`;
 - [x] GUID audit подключён: `Tools/audit_project.py` через consolidated runner, JSON публикуется как Actions artifact;
 - [x] Unity Editor compile/test в CI: **локальная batch-mode валидация подтверждена пользователем 2026-10-09: PASS, Unity 6000.6.1f1, `Prototype.unity`, отчёты в `Temp/MotorCityAudit/UnityPhase2`.** Добавлены `Assets/Editor/MotorCityPhase2BatchGate.cs` и `Tools/run_unity_phase2.ps1`, которые запускают Unity 6000.6.1f1 в `-batchmode`, проверяют импортируемые build scenes и сохраняют compile/dependency отчёты. **Локальный Unity gate и self-hosted Windows CI пройдены: GitHub Actions `37863706056` — success, Unity validation зелёная.**
-- [x] dependency report (статический и Unity Editor): статический dependency JSON уже создаётся CI; Unity batch gate умеет сохранять `unity-dependencies.txt`, `unity-compile.txt`, а при запуске с `-BuildWebGL` — `unity-build.txt` и WebGL output. **Ещё не выполнен на реальном Unity Editor/runner.**
+- [x] dependency/build report (статический, Unity Editor и WebGL): статический dependency JSON уже создаётся CI; Unity batch gate умеет сохранять `unity-dependencies.txt`, `unity-compile.txt`, а при запуске с `-BuildWebGL` — `unity-build.txt` и WebGL output. **Ещё не выполнен на реальном Unity Editor/runner.**
 
 ## Phase 3 — Vehicle contract
 
