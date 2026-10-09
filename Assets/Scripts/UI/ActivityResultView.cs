@@ -147,7 +147,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, -150f),
-                    new Vector2(560f, 56f),
+                    new Vector2(570f, 58f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
@@ -158,8 +158,8 @@ namespace MotorCity.UI
                     "Result Reward Icon",
                     MotorCityIconLibrary.Reward,
                     new Vector2(
-                        -214f,
-                        -218f),
+                        -184f,
+                        -198f),
                     new Vector2(
                         30f,
                         30f),
@@ -179,8 +179,8 @@ namespace MotorCity.UI
                     25,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(12f, -218f),
-                    new Vector2(520f, 44f),
+                    new Vector2(20f, -206f),
+                    new Vector2(400f, 46f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
