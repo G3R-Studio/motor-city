@@ -62,6 +62,12 @@ def main() -> int:
                       "private static ArcadeCarController InitializePlayerVehicle("):
         if signature not in bootstrap:
             errors.append(f"Missing Phase 6 extracted stage: {signature}")
+    # This value is needed after vehicle creation by camera and HUD setup.
+    # Keep it in the caller's scope when extracting vehicle bootstrap.
+    if "out bool playOpeningPresentation" not in bootstrap:
+        errors.append("Opening presentation state is not returned to the bootstrap caller")
+    if not re.search(r"InitializePlayerVehicle\\s*\\([\\s\\S]*?out bool playOpeningPresentation\\s*\\)", bootstrap):
+        errors.append("Bootstrap caller does not receive opening presentation state")
     # A sceneLoaded subscription without a matching unsubscription risks
     # duplicate callbacks on domain reload or another bootstrap installation.
     if len(re.findall(CHECKS["scene_hook"], bootstrap)) != len(re.findall(CHECKS["scene_dedup"], bootstrap)):
