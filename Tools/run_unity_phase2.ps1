@@ -23,10 +23,18 @@ $method = if ($BuildWebGL) {
 }
 Write-Host "Unity Phase 2 gate: $method"
 Write-Host "Editor: $UnityPath"
-& $UnityPath -batchmode -nographics -quit -projectPath $root -executeMethod $method -logFile $log
-$code = $LASTEXITCODE
+# Unity.exe is a Windows GUI-subsystem executable; direct invocation from pwsh
+# can leave LASTEXITCODE unset. Start-Process gives a reliable exit code.
+$argsUnity = @(
+    '-batchmode', '-nographics', '-quit',
+    '-projectPath', ('"' + $root + '"'),
+    '-executeMethod', $method,
+    '-logFile', ('"' + $log + '"')
+)
+$process = Start-Process -FilePath $UnityPath -ArgumentList $argsUnity -Wait -PassThru
+$code = $process.ExitCode
 if ($code -ne 0) {
-    Write-Host "Unity exited $code. Last log lines:"
+    Write-Host "Unity exited with code $code. Last log lines:"
     if (Test-Path $log) { Get-Content $log -Tail 90 }
     throw "Unity Phase 2 validation failed."
 }
