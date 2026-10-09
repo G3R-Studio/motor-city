@@ -66,7 +66,7 @@ def main() -> int:
     # Keep it in the caller's scope when extracting vehicle bootstrap.
     if "out bool playOpeningPresentation" not in bootstrap:
         errors.append("Opening presentation state is not returned to the bootstrap caller")
-    if not re.search(r"InitializePlayerVehicle\\s*\\([\\s\\S]*?out bool playOpeningPresentation\\s*\\)", bootstrap):
+    if not re.search(r"InitializePlayerVehicle\s*\([\s\S]*?out bool playOpeningPresentation\s*\)", bootstrap):
         errors.append("Bootstrap caller does not receive opening presentation state")
     # A sceneLoaded subscription without a matching unsubscription risks
     # duplicate callbacks on domain reload or another bootstrap installation.
