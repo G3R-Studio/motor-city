@@ -49,7 +49,7 @@ def main() -> int:
             errors.append(f"Bootstrap invariant absent: {name}")
     # A sceneLoaded subscription without a matching unsubscription risks
     # duplicate callbacks on domain reload or another bootstrap installation.
-    if bootstrap.count("SceneManager.sceneLoaded +=") != bootstrap.count("SceneManager.sceneLoaded -="):
+    if len(re.findall(CHECKS["scene_hook"], bootstrap)) != len(re.findall(CHECKS["scene_dedup"], bootstrap)):
         errors.append("sceneLoaded add/remove counts differ")
 
     persistent = {}
