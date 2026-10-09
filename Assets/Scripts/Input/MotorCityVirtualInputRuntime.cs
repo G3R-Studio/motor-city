@@ -31,7 +31,7 @@ namespace MotorCity.Input
 
             foreach (MotorCityVirtualInputRuntime runtime in runtimes)
             {
-                if (runtime != this && runtime.GetInstanceID() < GetInstanceID())
+                if (runtime != this && runtime.GetEntityId() < GetEntityId())
                 {
                     Destroy(gameObject);
                     return;
