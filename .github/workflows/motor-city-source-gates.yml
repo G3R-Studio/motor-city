@@ -54,3 +54,30 @@ jobs:
       - name: Run UI layout source checks
         shell: pwsh
         run: ./Tools/check_ui_layout.ps1
+
+  unity-editor:
+    name: Unity 6 Editor batch validation
+    # Register a Windows self-hosted runner with Unity 6000.6.1f1 installed,
+    # activated for CI use under a valid license. No credentials go in Git.
+    # The job is skipped until repository variable UNITY_CI_ENABLED is 'true'.
+    if: ${{ vars.UNITY_CI_ENABLED == 'true' }}
+    runs-on: [self-hosted, Windows, X64, unity6000]
+    timeout-minutes: 60
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Unity project in batch mode
+        shell: pwsh
+        run: ./Tools/run_unity_phase2.ps1
+
+      - name: Upload Unity validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motor-city-unity-validation
+          path: Temp/MotorCityAudit/UnityPhase2/
+          if-no-files-found: warn
+          retention-days: 14
