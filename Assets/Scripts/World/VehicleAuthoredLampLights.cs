@@ -158,14 +158,28 @@ namespace MotorCity.World
                     VehicleLampMaterialUtility.IsWheelRenderer(renderer.transform))
                     continue;
 
+                VehicleVisualRoles explicitRoles = renderer.GetComponent<VehicleVisualRoles>();
                 Material[] slots = renderer.sharedMaterials;
                 bool changed = false;
 
                 for (int slot = 0; slot < slots.Length; ++slot)
                 {
                     Material source = slots[slot];
-                    if (source == null ||
-                        !TryResolveKind(vehicleId, source.name, out LampKind kind))
+                    if (source == null)
+                        continue;
+                    LampKind kind;
+                    if (explicitRoles != null &&
+                        explicitRoles.RolesAt(slot) != VehicleMaterialRole.None)
+                    {
+                        VehicleMaterialRole role = explicitRoles.RolesAt(slot);
+                        if ((role & VehicleMaterialRole.FrontLamp) != 0)
+                            kind = LampKind.Front;
+                        else if ((role & VehicleMaterialRole.RearLamp) != 0)
+                            kind = LampKind.Brake;
+                        else
+                            continue;
+                    }
+                    else if (!TryResolveKind(vehicleId, source.name, out kind))
                         continue;
 
                     Material runtime = new Material(source)
