@@ -1,4 +1,5 @@
 using System;
+using MotorCity.Vehicle;
 
 namespace MotorCity.Gameplay
 {
@@ -7,11 +8,7 @@ namespace MotorCity.Gameplay
     {
         public static string Normalize(string name)
         {
-            return (name ?? string.Empty)
-                .Replace(" (Clone)", string.Empty)
-                .Replace(" (Instance)", string.Empty)
-                .Trim().ToLowerInvariant()
-                .Replace(' ', '_').Replace('.', '_');
+            return VehicleVisualRoleUtility.NormalizeVisualName(name);
         }
 
         public static bool IsBody(string name) => Matches(name, "body");
