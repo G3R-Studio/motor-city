@@ -95,6 +95,7 @@ namespace MotorCity.UI
             lastScreenHeight = Screen.height;
             lastTouchLayout = UseLandscapeTouchLayout();
 
+            // NavigatorView owns the Minimap and Navigation Target Strip geometry.
             ApplyDesktopOrTouchComposition(lastTouchLayout);
             ClearPanelBackdrop("Player Card");
             ClearPanelBackdrop("Character Card");
@@ -200,9 +201,6 @@ namespace MotorCity.UI
                 minimapTarget.anchoredPosition =
                     new Vector2(-23f, 0f);
             }
-            RectTransform navigationStrip = FindRect("Navigation Target Strip");
-            if (navigationStrip != null)
-                navigationStrip.sizeDelta = new Vector2(lastTouchLayout ? 186f : 198f, 58f);
             // TouchControlsView owns utility rail and secondary action positions.
             // Their builder already applies the same coordinates; do not
             // overwrite these controls from the persistent visual polish.
@@ -217,7 +215,6 @@ namespace MotorCity.UI
             RectTransform characterCard = FindRect("Character Card");
             RectTransform speedometer = FindRect("Speedometer");
             RectTransform status = FindRect("Activity Status");
-            RectTransform minimap = FindRect("Minimap");
 
             if (touchLayout)
             {
@@ -225,7 +222,6 @@ namespace MotorCity.UI
                 SetRect(characterCard, new Vector2(14f, -14f), new Vector2(430f, 154f), 1f);
                 SetRect(speedometer, new Vector2(0f, 6f), new Vector2(226f, 166f), 0.90f);
                 SetRect(status, new Vector2(0f, -174f), new Vector2(560f, 54f), 1f);
-                SetRect(minimap, new Vector2(-14f, -14f), new Vector2(202f, 268f), 0.92f);
             }
             else
             {
@@ -233,7 +229,6 @@ namespace MotorCity.UI
                 SetRect(characterCard, new Vector2(22f, -22f), new Vector2(448f, 154f), 1f);
                 SetRect(speedometer, new Vector2(0f, 16f), new Vector2(258f, 190f), 1f);
                 SetRect(status, new Vector2(0f, -196f), new Vector2(640f, 58f), 1f);
-                SetRect(minimap, new Vector2(-22f, -22f), new Vector2(214f, 268f), 1f);
             }
         }
 
