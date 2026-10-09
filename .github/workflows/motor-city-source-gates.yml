@@ -44,6 +44,9 @@ jobs:
       - name: Audit Phase 5 safe cleanup and protected materials
         run: python3 Tools/check_phase5_cleanup.py
 
+      - name: Audit Phase 6 bootstrap and runtime lifecycle
+        run: python3 Tools/check_phase6_lifecycle.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
