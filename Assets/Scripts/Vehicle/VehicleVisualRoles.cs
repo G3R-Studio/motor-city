@@ -25,6 +25,12 @@ namespace MotorCity.Vehicle
 
         [SerializeField] private VehicleMaterialRole[] slotRoles;
 
+        // Runtime-only metadata assignment. Never mutates renderer material slots.
+        public void AssignRuntimeSlots(VehicleMaterialRole[] values)
+        {
+            slotRoles = values;
+        }
+
         public VehicleMaterialRole RolesAt(int slot)
         {
             return slotRoles != null && slot >= 0 && slot < slotRoles.Length
