@@ -79,6 +79,20 @@ def main() -> int:
         if f'"{name}"' not in navigator_source:
             errors.append(f"Navigator layout builder missing: {name}")
 
+    # Each modal panel has one geometry owner: its builder. The visual
+    # polish still handles inner text/details but cannot resize the root.
+    modal_owners = {
+        "Activity Result": ("ActivityResultView.cs", "650f", "460f"),
+        "Navigator Menu": ("NavigatorView.cs", "580f", "320f"),
+        "Club Panel": ("ClubView.cs", "580f", "400f"),
+    }
+    for name, (owner, width, height) in modal_owners.items():
+        src = (UI / owner).read_text(encoding="utf-8-sig")
+        if f'"{name}"' not in src or width not in src or height not in src:
+            errors.append(f"Modal builder geometry contract missing: {owner}: {name}")
+        if re.search(r'FindRect\s*\(\s*"' + re.escape(name) + r'"', polish):
+            errors.append(f"Modal root has duplicate geometry owner in polish: {name}")
+
     report = {
         "phase": 7,
         "kind": "source inventory (does not prove overlapping RectTransform instances)",
