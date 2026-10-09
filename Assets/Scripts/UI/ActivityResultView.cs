@@ -45,7 +45,9 @@ namespace MotorCity.UI
                     activityResultOverlay.transform,
                     "Activity Result",
                     Vector2.zero,
-                    new Vector2(650f, 460f),
+                    // Leave vertical room for secondary progress and the next
+                    // event line above the bottom action buttons.
+                    new Vector2(650f, 520f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     Color.clear);
