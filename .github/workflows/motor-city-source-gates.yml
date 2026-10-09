@@ -35,6 +35,9 @@ jobs:
       - name: Check Phase 3 vehicle prefab and wheel contract
         run: python3 Tools/check_vehicle_contract.py
 
+      - name: Audit Phase 3 vehicle importers and Hybrid body
+        run: python3 Tools/check_vehicle_importers.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
