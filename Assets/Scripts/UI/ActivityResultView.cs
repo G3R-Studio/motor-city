@@ -45,7 +45,7 @@ namespace MotorCity.UI
                     activityResultOverlay.transform,
                     "Activity Result",
                     Vector2.zero,
-                    new Vector2(680f, 500f),
+                    new Vector2(650f, 460f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     Color.clear);
