@@ -15,11 +15,11 @@ namespace MotorCity.UI
                     canvas,
                     "Player Card",
                     new Vector2(
-                        18f,
-                        -18f),
+                        22f,
+                        -22f),
                     new Vector2(
-                        360f,
-                        124f),
+                        392f,
+                        132f),
                     new Vector2(
                         0f,
                         1f),
