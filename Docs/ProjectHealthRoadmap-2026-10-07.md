@@ -15,7 +15,7 @@
 | 4 — Material/lamp roles | ✅ Безопасный контракт закрыт | неизвестные atlas/submesh роли остаются unclassified, с совместимым fallback |
 | 5 — Dead cleanup | 🟡 Безопасная часть выполнена | удаление неподтверждённых assets запрещено; recovery tools сохраняются |
 | 6 — Bootstrap/lifecycle | ✅ Закрыта в проверенном scope | source/UI/Unity/WebGL CI PASS; обычный Play Mode и Domain Reload подтверждены; браузерная матрица — Phase 12 |
-| 7 — UI ownership | 🟡 Код выполнен, ожидается итоговый QA | владельцы геометрии разделены; итоговый CI и единый Play Mode ещё требуются |
+| 7 — UI ownership | ✅ Закрыта в проверенном объёме | UI/source/Unity CI PASS, итоговый Play Mode PASS; WebGL browser matrix — Phase 12 |
 | 8 — Save/progression | ⬜ Открыта | ключи, миграции, cloud и restart |
 | 9 — City/runtime | ⬜ Открыта | диагностика release, материалы, profiler |
 | 10 — Vehicle physics | ⬜ Открыта | trace/steer/friction/mobile timing |
@@ -99,7 +99,7 @@
 - [ ] Автоматическая инструментальная проверка точного количества live singleton объектов не реализована; ручной Domain Reload smoke PASS, при будущих регрессиях добавить диагностику вместо необоснованных утверждений.
 - [x] **Ручной Unity Play Mode smoke после Phase 6 fix:** 2026-10-09 пользователь подтвердил отсутствие ошибок и новых багов после повторного открытия проекта. Это подтверждение ручного прогона, а не автоматического WebGL build.
 
-## Phase 7 — UI ownership 🟡
+## Phase 7 — UI ownership ✅
 
 - [x] Начальный source inventory `Tools/check_phase7_ui_ownership.py`: роли HUD polish, PrototypeHud, GarageReferenceLayout, NavigatorView, TouchControlsView; отчёт по позициям/размерам и named targets, подключён в CI (`fd9790a`). Это **не** доказательство конкретного двойного owner на каждом элементе; Unity CI по новому gate ожидается.
 
@@ -112,7 +112,7 @@
 - [x] Устранить подтверждённые конкурирующие root/child layout writes, определить владельцев в проверенном объёме. Не утверждаем отсутствие всех возможных runtime конфликтов.
 - [x] Уменьшить geometry-зависимости `HudVisualPolish`: root layouts закреплены за DrivingHudView/CharacterMissionCardView, модальные панели — за собственными builder, навигация — NavigatorView, utility/touch — TouchControlsView. Полный split FrontEnd не требуется для доказанных конфликтов.
 - [x] Исправлена выявленная пользователем регрессия окна результата: при одновременном mastery/secondary progress/next event кнопки перекрывали строку события. Высота Activity Result увеличена до 520, размеры и позиция footer закреплены за ActivityResultView, CI проверяет минимальный зазор 12 единиц (коммиты `c319cef`, `b3eb257`). Runtime QA ещё требуется.
-- [ ] Regression: русские/английские надписи, масштаб, touch и меню.
+- [x] Итоговый Play Mode после устранения наложения текста и кнопок результатов — PASS по подтверждению пользователя (2026-10-10); последний CI [run 38005440827](https://github.com/G3R-Studio/motor-city/actions/runs/38005440827): source/UI/Unity Editor PASS, WebGL skipped. Полная браузерная матрица и отдельные device/localization сценарии остаются в Phase 12.
 
 ## Phase 8 — Save/progression
 
