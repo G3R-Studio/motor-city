@@ -540,6 +540,10 @@ namespace MotorCity.Gameplay
             if (transform == null)
                 return false;
 
+            VehicleVisualRoles authoredRoles = transform.GetComponent<VehicleVisualRoles>();
+            if (authoredRoles != null && authoredRoles.Roles != VehicleMaterialRole.None)
+                return authoredRoles.Has(VehicleMaterialRole.Body);
+
             string meshName = RendererMeshName(transform);
             // A mesh's explicit role takes priority over a renamed holder.
             if (IsBodyMiscName(VehiclePaintMeshNames.Normalize(meshName)))
