@@ -25,6 +25,33 @@ namespace MotorCity.Vehicle
                 .Replace('.', '_');
         }
 
+        /// <summary>
+        /// Resolves artist metadata, runtime slot roles, then conservative
+        /// source-material role entries without editing the material.
+        /// </summary>
+        public static VehicleMaterialRole ResolveMaterialRole(Renderer renderer, int slot)
+        {
+            if (renderer == null || slot < 0)
+                return VehicleMaterialRole.None;
+
+            Material[] materials = renderer.sharedMaterials;
+            if (slot >= materials.Length)
+                return VehicleMaterialRole.None;
+
+            VehicleVisualRoles authored = renderer.GetComponent<VehicleVisualRoles>();
+            if (authored != null)
+            {
+                VehicleMaterialRole tagged = authored.RolesAt(slot);
+                if (tagged != VehicleMaterialRole.None)
+                    return tagged;
+            }
+
+            Material material = materials[slot];
+            return material == null
+                ? VehicleMaterialRole.None
+                : VehicleMaterialRoleCatalog.Resolve(material.name);
+        }
+
         public static bool IsWheelHierarchy(
             Transform transform,
             string stopAtName = null,
