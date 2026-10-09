@@ -93,8 +93,19 @@ def main() -> int:
             errors.append("Gameplay Systems host must be created exactly once")
     # A sceneLoaded subscription without a matching unsubscription risks
     # duplicate callbacks on domain reload or another bootstrap installation.
-    if len(re.findall(CHECKS["scene_hook"], bootstrap)) != len(re.findall(CHECKS["scene_dedup"], bootstrap)):
-        errors.append("sceneLoaded add/remove counts differ")
+    if len(re.findall(CHECKS["scene_hook"], bootstrap)) != 1:
+        errors.append("Expected one sceneLoaded registration")
+    if len(re.findall(CHECKS["scene_dedup"], bootstrap)) < 2:
+        errors.append("Scene subscription must be removed at reset and before re-installation")
+    reset_section = bootstrap.split("private static void ResetStaticState()", 1)[-1].split(
+        "private static void InitializeBootstrap()", 1
+    )[0]
+    if not re.search(r"SceneManager\.sceneLoaded\s*-=", reset_section):
+        errors.append("SubsystemRegistration must clear sceneLoaded callback")
+    for rel in ("Input/MotorCityVirtualInputRuntime.cs", "UI/HudVisualPolish.cs"):
+        source = (SCRIPTS / rel).read_text(encoding="utf-8-sig")
+        if "private void Awake()" not in source or "GetInstanceID()" not in source:
+            errors.append(f"Missing duplicate guard at Awake: {rel}")
 
     persistent = {}
     for rel, purpose in PERSISTENT.items():
