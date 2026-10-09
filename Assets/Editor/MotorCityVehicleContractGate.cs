@@ -32,6 +32,9 @@ namespace MotorCity.EditorTools
                 if (prefab == null)
                     throw new InvalidOperationException("Missing vehicle prefab: " + path);
 
+                string[] dependencies = AssetDatabase.GetDependencies(path, true);
+                if (dependencies.Length < 2)
+                    throw new InvalidOperationException(vehicle + ": missing imported prefab dependencies");
                 GameObject instance = null;
                 try
                 {
@@ -68,6 +71,7 @@ namespace MotorCity.EditorTools
                     if (instance.GetComponentsInChildren<Renderer>(true).Length < 4)
                         throw new InvalidOperationException(vehicle + ": visual prefab has fewer than four renderers");
                     ValidatePhysicsRig(vehicle, transforms, lines);
+                    lines.Add(vehicle + ": " + dependencies.Length + " resolved Unity asset dependencies");
                     lines.Add(vehicle + ": wheel names, finite poses, visual children and renderers validated");
                 }
                 finally
