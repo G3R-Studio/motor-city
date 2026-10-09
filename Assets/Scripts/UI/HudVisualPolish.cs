@@ -34,6 +34,23 @@ namespace MotorCity.UI
             Object.DontDestroyOnLoad(host);
         }
 
+        private void Awake()
+        {
+            HudVisualPolish[] instances =
+                Object.FindObjectsByType<HudVisualPolish>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+
+            foreach (HudVisualPolish instance in instances)
+            {
+                if (instance != this && instance.GetInstanceID() < GetInstanceID())
+                {
+                    Object.Destroy(gameObject);
+                    return;
+                }
+            }
+        }
+
         private void Update()
         {
             if (hudRoot == null)
