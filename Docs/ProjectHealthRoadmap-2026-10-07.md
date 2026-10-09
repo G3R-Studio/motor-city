@@ -89,7 +89,7 @@
 
 - [x] Добавлен CI source baseline: SubsystemRegistration, AfterSceneLoad, sceneLoaded subscriptions, once-only flags и перечень постоянных hosts.
 - [x] Сформирован автоматический inventory вероятных мест событийных подписок — **не** вывод об утечках.
-- [ ] Полностью разделить `MotorCityBootstrap` на логические фазы без изменения порядка platform → remote config → pending purchases → cloud → frontend → gameplay. Первый этап [x]: `InitializeCoreAndWorld` и `InitializePlayerVehicle` выделены из `TryBuildPrototype` (`1aa1d21`), их порядок охраняется source CI (`1b98d75`); ожидается Unity CI.
+- [ ] Полностью разделить `MotorCityBootstrap` на логические фазы без изменения порядка platform → remote config → pending purchases → cloud → frontend → gameplay. Выполнен крупный source split: `InitializeCoreAndWorld`, `InitializePlayerVehicle` и единый `InitializeGameplayStages` с последовательными `InitializeGameplayServices`, `InitializeVehicleProgression`, `InitializeActivitiesAndRewards`, `InitializePresentationAndHud` (`6c0719a`); порядок теперь охраняет CI (`160af05`). Дальше — Unity CI, runtime повторной загрузки и разбор lifecycle хозяев.
 - [ ] Проверить singleton/`DontDestroyOnLoad` инстансы в runtime, повторную загрузку `Prototype`, domain reload.
 - [ ] Сопоставить подписки с OnDisable/OnDestroy и исправить подтверждённые утечки.
 - [ ] Unity Editor CI и WebGL smoke после рефакторинга: Unity CI на `1e41eef` обнаружил CS0103 (исправлено `035104a`), проверка на итоговом `b72b3a6` ещё требуется; WebGL после этих правок не проверен.
