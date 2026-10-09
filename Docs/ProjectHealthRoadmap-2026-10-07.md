@@ -107,6 +107,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 2 / WebGL CI compiler fix | GitHub Actions WebGL run [`37864408073`](https://github.com/G3R-Studio/motor-city/actions/runs/37864408073): source/UI/Unity Editor PASS; WebGL FAIL на 5 `CS0103` в `VehicleHistorySystem` (`LegacyStatus`, `FavoriteDiscipline`, `TrackDistance`). Причина — эти production-members были ошибочно окружены QA `#if UNITY_EDITOR || DEBUG` вместе с `*ForTesting`. Перенесён `#endif` сразу после последнего тестового метода; gameplay members теперь входят в Release. | **[x] Root cause исправлена** (`617c046`); **[ ]** повторная реальная WebGL-сборка и проверка её отчёта; Phase 2 открыта. |
 | 2026-10-09 | Phase 2 / CI WebGL build PASS — closure | Проверен [workflow `37865444289`](https://github.com/G3R-Studio/motor-city/actions/runs/37865444289) на коммите `4600408`: **success**, все четыре jobs зелёные, в том числе `Unity 6 WebGL build and report`. Выгружены 3 artifacts: `motor-city-static-audit`, `motor-city-unity-validation`, `motor-city-webgl-build-report`. | **[x] Phase 2 закрыта** — CI и отчёты подтверждены; полная Desktop/Mobile Release/browser matrix — Phase 12. |
 | 2026-10-09 | Phase 3 / wheel prefab baseline | Проведён read-only осмотр всех 9 отдельных Player vehicle prefabs: каждый содержит `front_left`, `front_right`, `rear_left`, `rear_right` по одному разу. Street — fallback ID. Добавлен `Tools/check_vehicle_contract.py` и CI step; сборки/визуалы не изменены. | **[x] Source wheel naming inventory и CI wiring**; **[ ]** первый CI PASS, численные wheel snapshots, Hybrid body contract и importer/visual resolver audit. Phase 3 открыта. |
+| 2026-10-09 | Phase 3 / numeric wheel pivot snapshots | Из девяти Player `.prefab` зафиксированы локальные `position` и `rotation` для `front_left/right`, `rear_left/right` в `Docs/Baselines/VehicleWheelTransforms-2026-10-09.json` (`2ead32c`). `Tools/check_vehicle_contract.py` теперь разбирает GameObject→Transform fileID и сравнивает числа с baseline (`01f2aee`). Не изменены сами префабы. | **[x] Snapshot исходники и проверка в CI подготовлены**; **[ ]** результат нового workflow, actual wheel collider pose/runtime sync, visual resolver/importer и Hybrid contract. |
 
 
 ---
@@ -1176,7 +1177,7 @@ shader/material/prefab могут ссылаться сериализованн�
 - [ ] validation всех моделей: структурная проверка колесных узлов 9 префабов подготовлена; полный visual/material/wheel alignment audit ещё открыт;
 - [ ] Hybrid body contract;
 - [ ] importers;
-- [ ] wheel transforms snapshot tests: 4 именованных pivot на prefab подтверждены структурно; численные snapshots позиций/вращений ещё не созданы.
+- [x] wheel transforms snapshot tests: численные prefab-local `position`/`rotation` всех 4 pivots для 9 Player prefabs сохранены в [`VehicleWheelTransforms-2026-10-09.json`](Baselines/VehicleWheelTransforms-2026-10-09.json); `Tools/check_vehicle_contract.py` сравнивает snapshot с YAML при каждом CI. Runtime WheelCollider alignment — отдельно.
 
 ## Phase 4 — Vehicle material/lamp roles
 
