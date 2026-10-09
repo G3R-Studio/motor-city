@@ -12,6 +12,19 @@ namespace MotorCity.Vehicle
     /// </summary>
     public static class VehicleVisualRoleUtility
     {
+        // Canonical normalization for imported renderer and mesh names.
+        // Keep authored wheel/material roles authoritative; this is a fallback.
+        public static string NormalizeVisualName(string value)
+        {
+            return (value ?? string.Empty)
+                .Replace(" (Clone)", string.Empty)
+                .Replace(" (Instance)", string.Empty)
+                .Trim()
+                .ToLowerInvariant()
+                .Replace(' ', '_')
+                .Replace('.', '_');
+        }
+
         public static bool IsWheelHierarchy(
             Transform transform,
             string stopAtName = null,
@@ -106,13 +119,7 @@ namespace MotorCity.Vehicle
         private static string NormalizeMaterialName(
             string name)
         {
-            return
-                (name ?? string.Empty)
-                .Replace(
-                    " (Instance)",
-                    string.Empty)
-                .Trim()
-                .ToLowerInvariant();
+            return NormalizeVisualName(name);
         }
     }
 }
