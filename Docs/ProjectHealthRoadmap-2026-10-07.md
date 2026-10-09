@@ -14,8 +14,8 @@
 | 3 — Vehicle contract | ✅ Закрыта | 9 prefab contracts, импортёры, колёса, визуал; дорожная физика — Phase 10 |
 | 4 — Material/lamp roles | ✅ Безопасный контракт закрыт | неизвестные atlas/submesh роли остаются unclassified, с совместимым fallback |
 | 5 — Dead cleanup | 🟡 Безопасная часть выполнена | удаление неподтверждённых assets запрещено; recovery tools сохраняются |
-| 6 — Bootstrap/lifecycle | 🟡 Начата | статический audit подключён, refactor и runtime gates впереди |
-| 7 — UI ownership | ⬜ Открыта | конфликтующие владельцы layout |
+| 6 — Bootstrap/lifecycle | 🟡 Основной рефакторинг проверен | Unity CI + Play Mode PASS; domain reload / WebGL ещё открыты |
+| 7 — UI ownership | 🟡 Начата | inventory layout owners подключён в CI; переносы впереди |
 | 8 — Save/progression | ⬜ Открыта | ключи, миграции, cloud и restart |
 | 9 — City/runtime | ⬜ Открыта | диагностика release, материалы, profiler |
 | 10 — Vehicle physics | ⬜ Открыта | trace/steer/friction/mobile timing |
@@ -94,10 +94,13 @@
 - [ ] Проверить singleton/`DontDestroyOnLoad` инстансы в runtime, повторную загрузку `Prototype`, domain reload.
 - [x] Зафиксирована таблица ownership семи persistent-host систем и platform systems, отдельный файл `Docs/Baselines/Phase6LifecycleAudit-2026-10-09.md`. Проверено по исходникам: точечный `sceneLoaded` handler, audio `OnDestroy`, singleton `Awake` guards. Расширен source gate (`ab85b71`). **Это не runtime leak-free certification.**
 - [ ] Сопоставить подписки с OnDisable/OnDestroy и исправить подтверждённые утечки.
-- [ ] Unity Editor CI и WebGL smoke после рефакторинга: Unity CI на `1e41eef` обнаружил CS0103 (исправлено `035104a`), проверка на итоговом `b72b3a6` ещё требуется; WebGL после этих правок не проверен.
+- [x] Unity Editor CI после рефакторинга: последняя подтверждённая проверка [run 37995242929](https://github.com/G3R-Studio/motor-city/actions/runs/37995242929) — source/UI/Unity Editor PASS. Ручной Play Mode после singleton fixes подтверждён пользователем.
+- [ ] WebGL smoke на итоговом коде Phase 6 не проведён; Domain Reload disabled и отдельный live-instance test также открыты.
 - [x] **Ручной Unity Play Mode smoke после Phase 6 fix:** 2026-10-09 пользователь подтвердил отсутствие ошибок и новых багов после повторного открытия проекта. Это подтверждение ручного прогона, а не автоматического WebGL build.
 
-## Phase 7 — UI ownership
+## Phase 7 — UI ownership 🟡
+
+- [x] Начальный source inventory `Tools/check_phase7_ui_ownership.py`: роли HUD polish, PrototypeHud, GarageReferenceLayout, NavigatorView, TouchControlsView; отчёт по позициям/размерам и named targets, подключён в CI (`fd9790a`). Это **не** доказательство конкретного двойного owner на каждом элементе; Unity CI по новому gate ожидается.
 
 - [ ] Устранить конкурирующие layout writes, определить единственного владельца.
 - [ ] Уменьшить `HudVisualPolish` зависимости; безопасно разделить FrontEnd/Navigator/Touch UI.
