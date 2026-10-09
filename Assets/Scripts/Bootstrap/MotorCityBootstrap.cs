@@ -258,514 +258,593 @@ namespace MotorCity.Bootstrap
                 out DriftTracker drift,
                 out bool playOpeningPresentation);
 
-            GameObject systems = new("Gameplay Systems");
-
-            MotorCityPlatformRuntime platformRuntime =
-                Object.FindAnyObjectByType<MotorCityPlatformRuntime>();
-
-            if (platformRuntime == null)
-            {
-                platformRuntime =
-                    systems.AddComponent<MotorCityPlatformRuntime>();
-
-                platformRuntime.InitializePlatform();
-            }
-
-            if (Object.FindAnyObjectByType<MotorCitySaveRuntime>() ==
-                null)
-            {
-                systems.AddComponent<MotorCitySaveRuntime>();
-            }
-
-            PlayerReputation reputation =
-                systems.AddComponent<PlayerReputation>();
-            ActivityManager activityManager =
-                systems.AddComponent<ActivityManager>();
-            activityManager.Initialize(
-                reputation);
-
-            ActivityStartFlow activityStartFlow =
-                systems.AddComponent<ActivityStartFlow>();
-
-            activityStartFlow.Initialize(
-                activityManager);
-
-            activityManager.SetStartFlow(
-                activityStartFlow);
-
-            PlayerWallet wallet =
-                systems.AddComponent<PlayerWallet>();
-
-            MotorCityAnalyticsRuntime analytics =
-                systems.AddComponent<MotorCityAnalyticsRuntime>();
-
-            analytics.Initialize(
-                activityManager,
-                wallet);
-
-            DisciplineReputationSystem disciplineReputation =
-                systems.AddComponent<DisciplineReputationSystem>();
-
-            disciplineReputation.Initialize(
-                activityManager);
-
-            activityManager.SetDisciplineReputation(
-                disciplineReputation);
-
-            CareerProgressionSystem career =
-                systems.AddComponent<CareerProgressionSystem>();
-
-            career.Initialize(
-                activityManager,
-                wallet,
-                reputation);
-
-            CityContractSystem contracts =
-                systems.AddComponent<CityContractSystem>();
-
-            contracts.Initialize(
-                activityManager,
-                wallet,
-                reputation);
-
-            CityLiveEventSystem liveEvents =
-                systems.AddComponent<CityLiveEventSystem>();
-
-            liveEvents.Initialize(
-                activityManager,
-                wallet,
-                reputation);
-
-            UndergroundSceneSystem underground =
-                systems.AddComponent<UndergroundSceneSystem>();
-
-            underground.Initialize(
-                activityManager,
-                wallet,
-                reputation,
-                car);
-
-            drift.Initialize(wallet, activityManager);
-
-            VehicleRosterSystem vehicleRoster =
-                systems.AddComponent<VehicleRosterSystem>();
-            vehicleRoster.Initialize(
+            InitializeGameplayStages(
                 car,
-                reputation);
-
-            VehicleCustomizationSystem customization =
-                systems.AddComponent<VehicleCustomizationSystem>();
-
-            customization.Initialize(
-                car,
-                vehicleRoster);
-
-            VehicleMasterySystem vehicleMastery =
-                systems.AddComponent<VehicleMasterySystem>();
-
-            vehicleMastery.Initialize(
-                activityManager,
-                vehicleRoster,
-                car);
-
-            VehicleSpecializationSystem vehicleSpecialization =
-                systems.AddComponent<VehicleSpecializationSystem>();
-
-            vehicleSpecialization.Initialize(
-                activityManager,
-                wallet,
-                vehicleRoster,
-                vehicleMastery);
-
-            VehicleHistorySystem vehicleHistory =
-                systems.AddComponent<VehicleHistorySystem>();
-
-            vehicleHistory.Initialize(
-                car,
-                vehicleRoster,
-                activityManager);
-
-            CollectionProgressionSystem collection =
-                systems.AddComponent<CollectionProgressionSystem>();
-
-            collection.Initialize(
-                wallet,
-                reputation,
-                activityManager,
-                vehicleRoster,
-                vehicleMastery,
-                vehicleHistory);
-
-            CityLegendSystem legends =
-                systems.AddComponent<CityLegendSystem>();
-
-            legends.Initialize(
-                activityManager,
-                wallet,
-                reputation,
-                disciplineReputation,
-                vehicleMastery);
-
-            positionPersistence.RestoreSavedPosition();
-
-            DeliveryActivity delivery = systems.AddComponent<DeliveryActivity>();
-            delivery.Initialize(car, wallet, activityManager);
-
-            DriftChallenge driftChallenge = systems.AddComponent<DriftChallenge>();
-            driftChallenge.Initialize(car, drift, wallet, activityManager);
-
-            StreetSprintActivity streetSprint = systems.AddComponent<StreetSprintActivity>();
-            streetSprint.Initialize(car, wallet, activityManager);
-
-            CircuitRaceActivity circuitRace = systems.AddComponent<CircuitRaceActivity>();
-            circuitRace.Initialize(car, wallet, activityManager);
-
-            SpeedTrapSystem speedTraps =
-                systems.AddComponent<SpeedTrapSystem>();
-            speedTraps.Initialize(
-                car,
-                wallet,
-                reputation,
-                activityManager);
-
-            DriftSpotSystem driftSpots =
-                systems.AddComponent<DriftSpotSystem>();
-            driftSpots.Initialize(
-                car,
+                positionPersistence,
                 drift,
-                wallet,
-                reputation,
-                activityManager);
-
-            DiscoverySystem discoveries =
-                systems.AddComponent<DiscoverySystem>();
-            discoveries.Initialize(
-                car,
-                wallet,
-                reputation,
-                activityManager);
-
-            TurboPetSystem turbo =
-                systems.AddComponent<TurboPetSystem>();
-
-            turbo.Initialize(
-                car,
-                wallet,
-                activityManager,
-                discoveries);
-
-            DailyAdventureSystem dailyAdventures =
-                systems.AddComponent<DailyAdventureSystem>();
-
-            dailyAdventures.Initialize(
-                activityManager,
-                wallet,
-                turbo);
-
-            GarageUpgradeSystem garage = systems.AddComponent<GarageUpgradeSystem>();
-            garage.Initialize(
-                car,
-                wallet,
-                activityManager,
-                delivery,
-                driftChallenge,
-                streetSprint,
-                circuitRace,
-                vehicleRoster,
-                vehicleMastery,
-                turbo,
-                customization);
-
-            CityRiskSystem cityRisk =
-                systems.AddComponent<CityRiskSystem>();
-
-            cityRisk.Initialize(
-                car,
-                activityManager,
-                garage,
-                vehicleRoster,
-                underground);
-
-            FirstSessionOnboardingSystem onboarding =
-                systems.AddComponent<FirstSessionOnboardingSystem>();
-
-            onboarding.Initialize(
-                car,
-                wallet,
-                reputation,
-                activityManager,
-                garage,
-                turbo,
-                customization);
-
-            StoryMissionSystem story =
-                systems.AddComponent<StoryMissionSystem>();
-
-            story.Initialize(
-                activityManager,
-                wallet,
-                reputation,
-                turbo,
-                onboarding);
-
-            SeasonSystem season =
-                systems.AddComponent<SeasonSystem>();
-
-            season.Initialize(
-                activityManager,
-                wallet,
-                reputation,
-                turbo,
-                onboarding,
-                story);
-
-            ResultNextGoalResolver resultNextGoalResolver =
-                systems.AddComponent<ResultNextGoalResolver>();
-
-            resultNextGoalResolver.Initialize(
-                onboarding,
-                story,
-                vehicleRoster,
-                reputation,
-                dailyAdventures,
-                season,
-                liveEvents,
-                null);
-
-            activityManager.SetResultNextGoalResolver(
-                resultNextGoalResolver);
-
-            PhotoHuntSystem photoHunt =
-                systems.AddComponent<PhotoHuntSystem>();
-
-            photoHunt.Initialize(
-                car,
-                wallet,
-                reputation,
-                activityManager,
-                discoveries,
-                customization);
-
-            CityProfessionSystem professions =
-                systems.AddComponent<CityProfessionSystem>();
-
-            professions.Initialize(
-                car,
-                wallet,
-                activityManager,
-                turbo);
-
-            CarWashJobSystem carWash =
-                systems.AddComponent<CarWashJobSystem>();
-
-            carWash.Initialize(
-                car,
-                wallet,
-                activityManager,
-                professions);
-
-            TowTruckJobSystem towTruck =
-                systems.AddComponent<TowTruckJobSystem>();
-
-            towTruck.Initialize(
-                car,
-                wallet,
-                activityManager,
-                professions);
-
-            garage.ConfigureCancelableActivities(
-                underground,
-                professions,
-                carWash,
-                towTruck);
-
-            ClubSystem club =
-                systems.AddComponent<ClubSystem>();
-
-            club.Initialize(
-                activityManager,
-                wallet,
-                reputation);
-
-            activityManager.SetResultProgressSystems(
-                vehicleMastery,
-                dailyAdventures,
-                season,
-                club);
-
-            RewardedBonusSystem rewardedBonus =
-                systems.AddComponent<RewardedBonusSystem>();
-
-            rewardedBonus.Initialize(
-                wallet,
-                activityManager);
-
-            MotorCityInterstitialRuntime interstitialRuntime =
-                systems.AddComponent<MotorCityInterstitialRuntime>();
-
-            interstitialRuntime.Initialize(
-                activityManager);
-
-            activityStartFlow.SetInterstitialRuntime(
-                interstitialRuntime);
-
-            CosmeticStoreSystem cosmeticStore =
-                systems.AddComponent<CosmeticStoreSystem>();
-
-            cosmeticStore.Initialize();
-
-            LeaderboardSyncSystem leaderboardSync =
-                systems.AddComponent<LeaderboardSyncSystem>();
-
-            leaderboardSync.Initialize(
-                reputation,
-                collection,
-                activityManager);
-
-            AchievementSystem achievements =
-                systems.AddComponent<AchievementSystem>();
-
-            achievements.Initialize(
-                wallet,
-                reputation,
-                activityManager,
-                discoveries,
-                photoHunt,
-                vehicleRoster,
-                story,
-                season,
-                professions);
-
-            AdventureDirector adventureDirector =
-                systems.AddComponent<AdventureDirector>();
-
-            adventureDirector.Initialize(
-                activityManager,
-                career,
-                contracts,
-                liveEvents,
-                legends,
-                underground,
-                cityRisk,
-                turbo,
-                onboarding,
-                dailyAdventures,
-                story,
-                season);
-
-            resultNextGoalResolver.Initialize(
-                onboarding,
-                story,
-                vehicleRoster,
-                reputation,
-                dailyAdventures,
-                season,
-                liveEvents,
-                adventureDirector);
-
-#if UNITY_EDITOR || DEBUG
-            AdminDebugPanel adminPanel =
-                systems.AddComponent<AdminDebugPanel>();
-
-            adminPanel.Initialize(
-                wallet,
-                reputation,
-                disciplineReputation,
-                vehicleMastery,
-                vehicleRoster,
-                garage,
-                career,
-                vehicleHistory,
-                vehicleSpecialization,
-                collection,
-                legends,
-                contracts,
-                liveEvents,
-                underground,
-                cityRisk,
-                activityManager,
-                car,
-                delivery,
-                driftChallenge,
-                streetSprint,
-                circuitRace,
-                story,
-                onboarding);
-#endif
-
-            CreateDeliveryMarker(delivery, activityManager);
-            CreateDriftChallengeMarker(driftChallenge, activityManager);
-            CreateStreetSprintMarker(streetSprint, activityManager);
-            CreateCircuitRaceMarker(circuitRace, activityManager);
-            CreateDiscoveryMarkers(discoveries);
-            CreateGarageMarker(garage);
-            CreateUndergroundMarker(underground);
-            CreateUndergroundCheckpointMarker(underground);
-            CreateProfessionMarkers(professions);
-            CreateProfessionCheckpointMarker(professions);
-            CreateCarWashMarker(carWash);
-            CreateTowTruckMarker(towTruck);
-            CreateTowCheckpointMarker(towTruck);
-
-            CreateCamera(
-                car.transform,
                 playOpeningPresentation);
+        }
 
-            CreateHud(
-                car,
-                wallet,
-                drift,
-                delivery,
-                driftChallenge,
-                streetSprint,
-                circuitRace,
-                speedTraps,
-                driftSpots,
-                discoveries,
-                activityManager,
-                garage,
-                career,
-                vehicleHistory,
-                vehicleSpecialization,
-                collection,
-                legends,
-                contracts,
-                liveEvents,
-                underground,
-                cityRisk,
-                turbo,
-                onboarding,
-                dailyAdventures,
-                story,
-                season,
-                photoHunt,
-                customization,
-                professions,
-                carWash,
-                towTruck,
-                club,
-                rewardedBonus,
-                cosmeticStore,
-                achievements,
-                adventureDirector,
-                playOpeningPresentation);
+        // Stage boundaries preserve the exact original AddComponent/Initialize order.
+        // Local functions keep cross-stage references explicit without an early DI rewrite.
+        private static void InitializeGameplayStages(
+            ArcadeCarController car,
+            VehiclePositionPersistence positionPersistence,
+            DriftTracker drift,
+            bool playOpeningPresentation)
+        {
+            GameObject systems;
+            PlayerReputation reputation;
+            ActivityManager activityManager;
+            ActivityStartFlow activityStartFlow;
+            PlayerWallet wallet;
+            DisciplineReputationSystem disciplineReputation;
+            CareerProgressionSystem career;
+            CityContractSystem contracts;
+            CityLiveEventSystem liveEvents;
+            UndergroundSceneSystem underground;
+            VehicleRosterSystem vehicleRoster;
+            VehicleCustomizationSystem customization;
+            VehicleMasterySystem vehicleMastery;
+            VehicleSpecializationSystem vehicleSpecialization;
+            VehicleHistorySystem vehicleHistory;
+            CollectionProgressionSystem collection;
+            CityLegendSystem legends;
+            DeliveryActivity delivery;
+            DriftChallenge driftChallenge;
+            StreetSprintActivity streetSprint;
+            CircuitRaceActivity circuitRace;
+            SpeedTrapSystem speedTraps;
+            DriftSpotSystem driftSpots;
+            DiscoverySystem discoveries;
+            TurboPetSystem turbo;
+            DailyAdventureSystem dailyAdventures;
+            GarageUpgradeSystem garage;
+            CityRiskSystem cityRisk;
+            FirstSessionOnboardingSystem onboarding;
+            StoryMissionSystem story;
+            SeasonSystem season;
+            PhotoHuntSystem photoHunt;
+            CityProfessionSystem professions;
+            CarWashJobSystem carWash;
+            TowTruckJobSystem towTruck;
+            ClubSystem club;
+            RewardedBonusSystem rewardedBonus;
+            CosmeticStoreSystem cosmeticStore;
+            AchievementSystem achievements;
+            AdventureDirector adventureDirector;
 
-            PrototypeHud runtimeHud =
-                Object.FindAnyObjectByType<PrototypeHud>();
+            InitializeGameplayServices();
+            InitializeVehicleProgression();
+            InitializeActivitiesAndRewards();
+            InitializePresentationAndHud();
 
-            if (frontEnd == null)
+            void InitializeGameplayServices()
             {
-                frontEnd =
-                    Object.FindAnyObjectByType<
-                        MotorCityFrontEndFlow>();
+                systems = new("Gameplay Systems");
+
+                MotorCityPlatformRuntime platformRuntime =
+                    Object.FindAnyObjectByType<MotorCityPlatformRuntime>();
+
+                if (platformRuntime == null)
+                {
+                    platformRuntime =
+                        systems.AddComponent<MotorCityPlatformRuntime>();
+
+                    platformRuntime.InitializePlatform();
+                }
+
+                if (Object.FindAnyObjectByType<MotorCitySaveRuntime>() ==
+                    null)
+                {
+                    systems.AddComponent<MotorCitySaveRuntime>();
+                }
+
+                reputation =
+                    systems.AddComponent<PlayerReputation>();
+                activityManager =
+                    systems.AddComponent<ActivityManager>();
+                activityManager.Initialize(
+                    reputation);
+
+                activityStartFlow =
+                    systems.AddComponent<ActivityStartFlow>();
+
+                activityStartFlow.Initialize(
+                    activityManager);
+
+                activityManager.SetStartFlow(
+                    activityStartFlow);
+
+                wallet =
+                    systems.AddComponent<PlayerWallet>();
+
+                MotorCityAnalyticsRuntime analytics =
+                    systems.AddComponent<MotorCityAnalyticsRuntime>();
+
+                analytics.Initialize(
+                    activityManager,
+                    wallet);
+
+                disciplineReputation =
+                    systems.AddComponent<DisciplineReputationSystem>();
+
+                disciplineReputation.Initialize(
+                    activityManager);
+
+                activityManager.SetDisciplineReputation(
+                    disciplineReputation);
+
+                career =
+                    systems.AddComponent<CareerProgressionSystem>();
+
+                career.Initialize(
+                    activityManager,
+                    wallet,
+                    reputation);
+
+                contracts =
+                    systems.AddComponent<CityContractSystem>();
+
+                contracts.Initialize(
+                    activityManager,
+                    wallet,
+                    reputation);
+
+                liveEvents =
+                    systems.AddComponent<CityLiveEventSystem>();
+
+                liveEvents.Initialize(
+                    activityManager,
+                    wallet,
+                    reputation);
+
+                underground =
+                    systems.AddComponent<UndergroundSceneSystem>();
+
+                underground.Initialize(
+                    activityManager,
+                    wallet,
+                    reputation,
+                    car);
+
+                drift.Initialize(wallet, activityManager);
+
+
             }
 
-            frontEnd?.AttachGameplay(
-                car,
-                wallet,
-                reputation,
-                onboarding,
-                runtimeHud);
+            void InitializeVehicleProgression()
+            {
+                vehicleRoster =
+                    systems.AddComponent<VehicleRosterSystem>();
+                vehicleRoster.Initialize(
+                    car,
+                    reputation);
+
+                customization =
+                    systems.AddComponent<VehicleCustomizationSystem>();
+
+                customization.Initialize(
+                    car,
+                    vehicleRoster);
+
+                vehicleMastery =
+                    systems.AddComponent<VehicleMasterySystem>();
+
+                vehicleMastery.Initialize(
+                    activityManager,
+                    vehicleRoster,
+                    car);
+
+                vehicleSpecialization =
+                    systems.AddComponent<VehicleSpecializationSystem>();
+
+                vehicleSpecialization.Initialize(
+                    activityManager,
+                    wallet,
+                    vehicleRoster,
+                    vehicleMastery);
+
+                vehicleHistory =
+                    systems.AddComponent<VehicleHistorySystem>();
+
+                vehicleHistory.Initialize(
+                    car,
+                    vehicleRoster,
+                    activityManager);
+
+                collection =
+                    systems.AddComponent<CollectionProgressionSystem>();
+
+                collection.Initialize(
+                    wallet,
+                    reputation,
+                    activityManager,
+                    vehicleRoster,
+                    vehicleMastery,
+                    vehicleHistory);
+
+                legends =
+                    systems.AddComponent<CityLegendSystem>();
+
+                legends.Initialize(
+                    activityManager,
+                    wallet,
+                    reputation,
+                    disciplineReputation,
+                    vehicleMastery);
+
+                positionPersistence.RestoreSavedPosition();
+
+
+            }
+
+            void InitializeActivitiesAndRewards()
+            {
+                delivery = systems.AddComponent<DeliveryActivity>();
+                delivery.Initialize(car, wallet, activityManager);
+
+                driftChallenge = systems.AddComponent<DriftChallenge>();
+                driftChallenge.Initialize(car, drift, wallet, activityManager);
+
+                streetSprint = systems.AddComponent<StreetSprintActivity>();
+                streetSprint.Initialize(car, wallet, activityManager);
+
+                circuitRace = systems.AddComponent<CircuitRaceActivity>();
+                circuitRace.Initialize(car, wallet, activityManager);
+
+                speedTraps =
+                    systems.AddComponent<SpeedTrapSystem>();
+                speedTraps.Initialize(
+                    car,
+                    wallet,
+                    reputation,
+                    activityManager);
+
+                driftSpots =
+                    systems.AddComponent<DriftSpotSystem>();
+                driftSpots.Initialize(
+                    car,
+                    drift,
+                    wallet,
+                    reputation,
+                    activityManager);
+
+                discoveries =
+                    systems.AddComponent<DiscoverySystem>();
+                discoveries.Initialize(
+                    car,
+                    wallet,
+                    reputation,
+                    activityManager);
+
+                turbo =
+                    systems.AddComponent<TurboPetSystem>();
+
+                turbo.Initialize(
+                    car,
+                    wallet,
+                    activityManager,
+                    discoveries);
+
+                dailyAdventures =
+                    systems.AddComponent<DailyAdventureSystem>();
+
+                dailyAdventures.Initialize(
+                    activityManager,
+                    wallet,
+                    turbo);
+
+                garage = systems.AddComponent<GarageUpgradeSystem>();
+                garage.Initialize(
+                    car,
+                    wallet,
+                    activityManager,
+                    delivery,
+                    driftChallenge,
+                    streetSprint,
+                    circuitRace,
+                    vehicleRoster,
+                    vehicleMastery,
+                    turbo,
+                    customization);
+
+                cityRisk =
+                    systems.AddComponent<CityRiskSystem>();
+
+                cityRisk.Initialize(
+                    car,
+                    activityManager,
+                    garage,
+                    vehicleRoster,
+                    underground);
+
+                onboarding =
+                    systems.AddComponent<FirstSessionOnboardingSystem>();
+
+                onboarding.Initialize(
+                    car,
+                    wallet,
+                    reputation,
+                    activityManager,
+                    garage,
+                    turbo,
+                    customization);
+
+                story =
+                    systems.AddComponent<StoryMissionSystem>();
+
+                story.Initialize(
+                    activityManager,
+                    wallet,
+                    reputation,
+                    turbo,
+                    onboarding);
+
+                season =
+                    systems.AddComponent<SeasonSystem>();
+
+                season.Initialize(
+                    activityManager,
+                    wallet,
+                    reputation,
+                    turbo,
+                    onboarding,
+                    story);
+
+                ResultNextGoalResolver resultNextGoalResolver =
+                    systems.AddComponent<ResultNextGoalResolver>();
+
+                resultNextGoalResolver.Initialize(
+                    onboarding,
+                    story,
+                    vehicleRoster,
+                    reputation,
+                    dailyAdventures,
+                    season,
+                    liveEvents,
+                    null);
+
+                activityManager.SetResultNextGoalResolver(
+                    resultNextGoalResolver);
+
+                photoHunt =
+                    systems.AddComponent<PhotoHuntSystem>();
+
+                photoHunt.Initialize(
+                    car,
+                    wallet,
+                    reputation,
+                    activityManager,
+                    discoveries,
+                    customization);
+
+                professions =
+                    systems.AddComponent<CityProfessionSystem>();
+
+                professions.Initialize(
+                    car,
+                    wallet,
+                    activityManager,
+                    turbo);
+
+                carWash =
+                    systems.AddComponent<CarWashJobSystem>();
+
+                carWash.Initialize(
+                    car,
+                    wallet,
+                    activityManager,
+                    professions);
+
+                towTruck =
+                    systems.AddComponent<TowTruckJobSystem>();
+
+                towTruck.Initialize(
+                    car,
+                    wallet,
+                    activityManager,
+                    professions);
+
+                garage.ConfigureCancelableActivities(
+                    underground,
+                    professions,
+                    carWash,
+                    towTruck);
+
+                club =
+                    systems.AddComponent<ClubSystem>();
+
+                club.Initialize(
+                    activityManager,
+                    wallet,
+                    reputation);
+
+                activityManager.SetResultProgressSystems(
+                    vehicleMastery,
+                    dailyAdventures,
+                    season,
+                    club);
+
+                rewardedBonus =
+                    systems.AddComponent<RewardedBonusSystem>();
+
+                rewardedBonus.Initialize(
+                    wallet,
+                    activityManager);
+
+                MotorCityInterstitialRuntime interstitialRuntime =
+                    systems.AddComponent<MotorCityInterstitialRuntime>();
+
+                interstitialRuntime.Initialize(
+                    activityManager);
+
+                activityStartFlow.SetInterstitialRuntime(
+                    interstitialRuntime);
+
+                cosmeticStore =
+                    systems.AddComponent<CosmeticStoreSystem>();
+
+                cosmeticStore.Initialize();
+
+                LeaderboardSyncSystem leaderboardSync =
+                    systems.AddComponent<LeaderboardSyncSystem>();
+
+                leaderboardSync.Initialize(
+                    reputation,
+                    collection,
+                    activityManager);
+
+                achievements =
+                    systems.AddComponent<AchievementSystem>();
+
+                achievements.Initialize(
+                    wallet,
+                    reputation,
+                    activityManager,
+                    discoveries,
+                    photoHunt,
+                    vehicleRoster,
+                    story,
+                    season,
+                    professions);
+
+                adventureDirector =
+                    systems.AddComponent<AdventureDirector>();
+
+                adventureDirector.Initialize(
+                    activityManager,
+                    career,
+                    contracts,
+                    liveEvents,
+                    legends,
+                    underground,
+                    cityRisk,
+                    turbo,
+                    onboarding,
+                    dailyAdventures,
+                    story,
+                    season);
+
+                resultNextGoalResolver.Initialize(
+                    onboarding,
+                    story,
+                    vehicleRoster,
+                    reputation,
+                    dailyAdventures,
+                    season,
+                    liveEvents,
+                    adventureDirector);
+
+    #if UNITY_EDITOR || DEBUG
+                AdminDebugPanel adminPanel =
+                    systems.AddComponent<AdminDebugPanel>();
+
+                adminPanel.Initialize(
+                    wallet,
+                    reputation,
+                    disciplineReputation,
+                    vehicleMastery,
+                    vehicleRoster,
+                    garage,
+                    career,
+                    vehicleHistory,
+                    vehicleSpecialization,
+                    collection,
+                    legends,
+                    contracts,
+                    liveEvents,
+                    underground,
+                    cityRisk,
+                    activityManager,
+                    car,
+                    delivery,
+                    driftChallenge,
+                    streetSprint,
+                    circuitRace,
+                    story,
+                    onboarding);
+    #endif
+
+
+            }
+
+            void InitializePresentationAndHud()
+            {
+                CreateDeliveryMarker(delivery, activityManager);
+                CreateDriftChallengeMarker(driftChallenge, activityManager);
+                CreateStreetSprintMarker(streetSprint, activityManager);
+                CreateCircuitRaceMarker(circuitRace, activityManager);
+                CreateDiscoveryMarkers(discoveries);
+                CreateGarageMarker(garage);
+                CreateUndergroundMarker(underground);
+                CreateUndergroundCheckpointMarker(underground);
+                CreateProfessionMarkers(professions);
+                CreateProfessionCheckpointMarker(professions);
+                CreateCarWashMarker(carWash);
+                CreateTowTruckMarker(towTruck);
+                CreateTowCheckpointMarker(towTruck);
+
+                CreateCamera(
+                    car.transform,
+                    playOpeningPresentation);
+
+                CreateHud(
+                    car,
+                    wallet,
+                    drift,
+                    delivery,
+                    driftChallenge,
+                    streetSprint,
+                    circuitRace,
+                    speedTraps,
+                    driftSpots,
+                    discoveries,
+                    activityManager,
+                    garage,
+                    career,
+                    vehicleHistory,
+                    vehicleSpecialization,
+                    collection,
+                    legends,
+                    contracts,
+                    liveEvents,
+                    underground,
+                    cityRisk,
+                    turbo,
+                    onboarding,
+                    dailyAdventures,
+                    story,
+                    season,
+                    photoHunt,
+                    customization,
+                    professions,
+                    carWash,
+                    towTruck,
+                    club,
+                    rewardedBonus,
+                    cosmeticStore,
+                    achievements,
+                    adventureDirector,
+                    playOpeningPresentation);
+
+                PrototypeHud runtimeHud =
+                    Object.FindAnyObjectByType<PrototypeHud>();
+
+                if (frontEnd == null)
+                {
+                    frontEnd =
+                        Object.FindAnyObjectByType<
+                            MotorCityFrontEndFlow>();
+                }
+
+                frontEnd?.AttachGameplay(
+                    car,
+                    wallet,
+                    reputation,
+                    onboarding,
+                    runtimeHud);
+            }
         }
 
         // Phase 6: keep the original bootstrap call order while separating
