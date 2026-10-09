@@ -106,6 +106,30 @@ def main() -> int:
         if f'"{name}"' not in (UI / owner).read_text(encoding="utf-8-sig"):
             errors.append(f"Expected geometry owner is missing {name}: {owner}")
 
+    # Final Phase 7 ownership: builders own root HUD cards and result/text
+    # geometry; the persistent visual pass must not resize them.
+    final_owners = {
+        "Player Card": "DrivingHudView.cs",
+        "Character Card": "CharacterMissionCardView.cs",
+        "Active Objective": "DrivingHudView.cs",
+        "Status Text": "DrivingHudView.cs",
+        "Result Details": "ActivityResultView.cs",
+        "Result Reward": "ActivityResultView.cs",
+        "Result Reward Icon": "ActivityResultView.cs",
+    }
+    for name, owner in final_owners.items():
+        owner_src = (UI / owner).read_text(encoding="utf-8-sig")
+        if f'"{name}"' not in owner_src:
+            errors.append(f"Missing final geometry owner: {name} in {owner}")
+        if name != "Result Reward" and re.search(
+            r'FindRect\s*\(\s*"' + re.escape(name) + r'"', polish
+        ):
+            errors.append(f"Builder-owned HUD geometry reclaimed by polish: {name}")
+    if "ApplyDesktopOrTouchComposition(" in polish:
+        errors.append("HUD polish must not own player/character card root geometry")
+    if "resultReward.anchoredPosition =" in polish or "resultReward.sizeDelta =" in polish:
+        errors.append("Result reward geometry must be owned by ActivityResultView")
+
     report = {
         "phase": 7,
         "kind": "source inventory (does not prove overlapping RectTransform instances)",
