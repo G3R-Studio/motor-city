@@ -23,6 +23,7 @@ namespace MotorCity.EditorTools
 
             // Phase 3: load each authored vehicle prefab and check wheel contracts.
             MotorCityVehicleContractGate.Validate();
+            MotorCityVehicleMaterialRoleAudit.Validate();
             if (Environment.GetEnvironmentVariable("MOTORCITY_PHASE3_REBUILD") == "1")
                 MotorCityImporterRebuildGate.Validate();
 
