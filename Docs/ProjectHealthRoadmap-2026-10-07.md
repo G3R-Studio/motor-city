@@ -1227,6 +1227,8 @@ shader/material/prefab могут ссылаться сериализованн�
 - [ ] singleton/DontDestroy audit;
 - [ ] event subscribe/unsubscribe audit.
 
+**Phase 6 kickoff (2026-10-09):** исходная точка зафиксирована в `Tools/check_phase6_lifecycle.py` и GitHub source CI. Gate проверяет наличие SubsystemRegistration/AfterSceneLoad hooks, защиту и парность sceneLoaded handlers, platform/gameplay once-only flags и пять постоянных runtime hosts; JSON inventory собирает возможные места событийных подписок для дальнейшего разбирательства. Это **source baseline, не доказательство отсутствия утечек или завершённый lifecycle refactor**. Следующие критерии: модульное разделение огромного `MotorCityBootstrap` без изменения порядка platform → remote config → purchases → cloud → frontend → gameplay; конкретный аудит подписок; Unity Editor/WebGL Play Mode regression и сценарий повторного открытия Prototype. Результат нового CI пока не подтверждён.
+
 ## Phase 7 — UI ownership
 
 - [ ] remove double layout ownership;
