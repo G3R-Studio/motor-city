@@ -235,57 +235,9 @@ namespace MotorCity.UI
         private void ApplyModalComposition(
             bool touchLayout)
         {
-            RectTransform result =
-                FindRect("Activity Result");
-
-            RectTransform navigator =
-                FindRect("Navigator Menu");
-
-            RectTransform club =
-                FindRect("Club Panel");
-
-            if (touchLayout)
-            {
-                SetRect(
-                    result,
-                    Vector2.zero,
-                    new Vector2(650f, 460f),
-                    0.94f);
-
-                SetRect(
-                    navigator,
-                    Vector2.zero,
-                    new Vector2(580f, 320f),
-                    0.94f);
-
-                SetRect(
-                    club,
-                    Vector2.zero,
-                    new Vector2(580f, 400f),
-                    0.94f);
-
-            }
-            else
-            {
-                SetRect(
-                    result,
-                    Vector2.zero,
-                    new Vector2(650f, 460f),
-                    1f);
-
-                SetRect(
-                    navigator,
-                    Vector2.zero,
-                    new Vector2(580f, 320f),
-                    1f);
-
-                SetRect(
-                    club,
-                    Vector2.zero,
-                    new Vector2(580f, 400f),
-                    1f);
-
-            }
+            // ActivityResultView, NavigatorView and ClubView own the modal
+            // panel geometry. Their builders use the previously polished
+            // desktop sizes, so the pass only styles modal contents.
 
             RectTransform resultDetails =
                 FindRect("Result Details");
