@@ -1217,6 +1217,8 @@ shader/material/prefab могут ссылаться сериализованн�
 
 **Phase 5 large safe cleanup package (2026-10-09):** `Tools/check_phase5_cleanup.py` runs in CI, writes `Temp/MotorCityAudit/phase5-cleanup.json` and protects material assets/migration tools against unsupported deletions. Source cleanup is complete; asset removal is deliberately evidence-gated, so Phase 5 stays open until exact candidates can be established. No vehicle visuals, gameplay, source assets or prefabs were altered.
 
+**Дополнительный этап аудита Phase 5:** Unity batch gate теперь создаёт `phase5-material-dependencies.txt`: проверяются зависимости включённых сцен и всех ассетов под `Resources/MotorCity`. Материалы в Resources сохраняются, поскольку возможна динамическая загрузка; отсутствие прямой связи со сценой не является основанием для удаления. Python gate дополнительно проверяет `materialLocation: 0` в FBX meta и повторяющиеся GUID материалов. До получения отчётов и доказательства отсутствия динамических ссылок очистка материалов/миграторов остаётся незавершённой.
+
 ## Phase 6 — Bootstrap/lifecycle
 
 - [ ] split bootstrap by phases;
