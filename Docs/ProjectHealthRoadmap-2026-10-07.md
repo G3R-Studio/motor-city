@@ -104,6 +104,7 @@
 - [x] Начальный source inventory `Tools/check_phase7_ui_ownership.py`: роли HUD polish, PrototypeHud, GarageReferenceLayout, NavigatorView, TouchControlsView; отчёт по позициям/размерам и named targets, подключён в CI (`fd9790a`). Это **не** доказательство конкретного двойного owner на каждом элементе; Unity CI по новому gate ожидается.
 
 - [x] Исправлено повторное использование отсоединённых `RectTransform` из кеша `HudVisualPolish.FindRect`: повторная проверка `IsChildOf(hudRoot)` и инвалидирование. Новые source guards отделяют touch-control geometry (`TouchControlsView`/персонализация) от внешнего HUD polish. Ожидается CI и проверка Play Mode после кода (`3c21ca9`, `6258e5a`).
+- [x] Устранено подтверждённое дублирование координат `HUD Utility Rail` / `HUD Secondary Actions`: единственный владелец позиций — `TouchControlsView`; записи `HudVisualPolish` удалены без изменения чисел; CI запрещает возврат двойного layout owner (`89bf443`, `f864333`). Ожидается итоговый CI и Play Mode после этого изменения.
 - [ ] Устранить конкурирующие layout writes, определить единственного владельца.
 - [ ] Уменьшить `HudVisualPolish` зависимости; безопасно разделить FrontEnd/Navigator/Touch UI.
 - [ ] Regression: русские/английские надписи, масштаб, touch и меню.
