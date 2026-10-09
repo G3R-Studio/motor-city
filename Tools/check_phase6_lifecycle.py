@@ -47,6 +47,21 @@ def main() -> int:
     for name, present in found.items():
         if not present:
             errors.append(f"Bootstrap invariant absent: {name}")
+    # Phase 6 stage extraction must preserve order: runtime world first,
+    # player rig next, gameplay systems after that.
+    stage_calls = [
+        "InitializeCoreAndWorld();",
+        "InitializePlayerVehicle(",
+        'new("Gameplay Systems")',
+    ]
+    offsets = [bootstrap.find(token, bootstrap.find("private static void TryBuildPrototype("))
+               for token in stage_calls]
+    if any(offset < 0 for offset in offsets) or offsets != sorted(offsets):
+        errors.append("Core/world, player and gameplay systems stage order changed")
+    for signature in ("private static void InitializeCoreAndWorld()",
+                      "private static ArcadeCarController InitializePlayerVehicle("):
+        if signature not in bootstrap:
+            errors.append(f"Missing Phase 6 extracted stage: {signature}")
     # A sceneLoaded subscription without a matching unsubscription risks
     # duplicate callbacks on domain reload or another bootstrap installation.
     if len(re.findall(CHECKS["scene_hook"], bootstrap)) != len(re.findall(CHECKS["scene_dedup"], bootstrap)):
