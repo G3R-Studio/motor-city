@@ -297,24 +297,8 @@ public static class StandardVehicleImportUtility
                 : string.Empty;
     }
 
-    private static string Normalize(
-        string value)
+    private static string Normalize(string value)
     {
-        return
-            (value ?? string.Empty)
-            .Replace(
-                " (Clone)",
-                string.Empty)
-            .Replace(
-                " (Instance)",
-                string.Empty)
-            .Trim()
-            .ToLowerInvariant()
-            .Replace(
-                ' ',
-                '_')
-            .Replace(
-                '.',
-                '_');
+        return MotorCity.Vehicle.VehicleVisualRoleUtility.NormalizeVisualName(value);
     }
 }
