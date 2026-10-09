@@ -38,6 +38,9 @@ jobs:
       - name: Audit Phase 3 vehicle importers and Hybrid body
         run: python3 Tools/check_vehicle_importers.py
 
+      - name: Validate Phase 4 authored material role manifest
+        run: python3 Tools/check_phase4_material_roles.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
@@ -93,7 +96,7 @@ jobs:
   unity-webgl:
     name: Unity 6 WebGL build and report
     # Run only via Actions -> Run workflow with UNITY_WEBGL_CI_ENABLED=true.
-    if: ${{ (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[phase3-full-check]')) && vars.UNITY_WEBGL_CI_ENABLED == 'true' && vars.UNITY_CI_ENABLED == 'true' }}
+    if: ${{ (github.event_name == 'workflow_dispatch' || (contains(github.event.head_commit.message, '[phase3-full-check]') || contains(github.event.head_commit.message, '[phase4-full-check]'))) && vars.UNITY_WEBGL_CI_ENABLED == 'true' && vars.UNITY_CI_ENABLED == 'true' }}
     runs-on: [self-hosted, Windows, X64, unity6000]
     timeout-minutes: 120
     steps:
