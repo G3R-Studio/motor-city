@@ -22,9 +22,6 @@ public static class Peugeot306VehicleImporter
     private const string OutputPrefab =
         OutputDirectory + "/Peugeot306.prefab";
 
-    private const string BuildSessionKey =
-        "MotorCity.Peugeot306VehicleBuilt.V2";
-
     private const string SourceHashKey =
         "MotorCity.Peugeot306VehicleSourceHash.V3";
 

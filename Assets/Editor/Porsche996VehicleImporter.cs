@@ -24,9 +24,6 @@ public static class Porsche996VehicleImporter
     private const string OutputPrefab =
         OutputDirectory + "/Porsche996.prefab";
 
-    private const string BuildSessionKey =
-        "MotorCity.Porsche996VehicleBuilt.V2";
-
     private const string SourceHashKey =
         "MotorCity.Porsche996VehicleSourceHash.V3";
 

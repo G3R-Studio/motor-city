@@ -26,9 +26,6 @@ public static class HybridVehicleImporter
     private const string OutputPrefab =
         OutputDirectory + "/Hybrid.prefab";
 
-    private const string BuildSessionKey =
-        "MotorCity.HybridVehicleBuilt.V3";
-
     private const string SourceHashKey =
         "MotorCity.HybridVehicleSourceHash.V1";
 

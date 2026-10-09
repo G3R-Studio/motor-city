@@ -22,9 +22,6 @@ public static class ToyotaAE86VehicleImporter
     private const string OutputPrefab =
         OutputDirectory + "/ToyotaAE86.prefab";
 
-    private const string BuildSessionKey =
-        "MotorCity.ToyotaAE86VehicleBuilt.V2";
-
     private const string SourceHashKey =
         "MotorCity.ToyotaAE86VehicleSourceHash.V3";
 

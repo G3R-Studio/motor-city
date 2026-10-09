@@ -1210,10 +1210,12 @@ shader/material/prefab могут ссылаться сериализованн�
 
 ## Phase 5 — Low-risk dead cleanup
 
-- [ ] dead constants;
-- [ ] stale generated materials;
-- [ ] obsolete editor migration tools;
-- [ ] exact orphan assets confirmed by all gates.
+- [x] dead constants: removed eight truly unused `BuildSessionKey` constants from source importers, retaining live `SourceHashKey` dependency caching;
+- [ ] stale generated materials: all preserved until a Unity asset dependency and dynamic Resources path audit proves them unnecessary;
+- [ ] obsolete editor migration tools: retained legacy FCG FBX/URP migration tools until Unity metadata/importer state shows they are obsolete;
+- [ ] exact orphan assets confirmed by all gates: no unproven asset was deleted.
+
+**Phase 5 large safe cleanup package (2026-10-09):** `Tools/check_phase5_cleanup.py` runs in CI, writes `Temp/MotorCityAudit/phase5-cleanup.json` and protects material assets/migration tools against unsupported deletions. Source cleanup is complete; asset removal is deliberately evidence-gated, so Phase 5 stays open until exact candidates can be established. No vehicle visuals, gameplay, source assets or prefabs were altered.
 
 ## Phase 6 — Bootstrap/lifecycle
 

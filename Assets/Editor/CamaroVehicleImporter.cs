@@ -26,9 +26,6 @@ public static class CamaroVehicleImporter
     private const string OutputPrefab =
         OutputDirectory + "/Camaro.prefab";
 
-    private const string BuildSessionKey =
-        "MotorCity.CamaroVehicleBuilt.V2";
-
     private const string SourceHashKey =
         "MotorCity.CamaroVehicleSourceHash.V3";
 

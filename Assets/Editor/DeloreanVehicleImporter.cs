@@ -24,9 +24,6 @@ public static class DeloreanVehicleImporter
     private const string OutputPrefab =
         OutputDirectory + "/Delorean.prefab";
 
-    private const string BuildSessionKey =
-        "MotorCity.DeloreanVehicleBuilt.V2";
-
     private const string SourceHashKey =
         "MotorCity.DeloreanVehicleSourceHash.V3";
 

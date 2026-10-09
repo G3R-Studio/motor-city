@@ -24,9 +24,6 @@ public static class AmgGTVehicleImporter
     private const string OutputPrefab =
         OutputDirectory + "/AmgGT.prefab";
 
-    private const string BuildSessionKey =
-        "MotorCity.AmgGTVehicleBuilt.V1";
-
     private const string SourceHashKey =
         "MotorCity.AmgGTVehicleSourceHash.V2";
 

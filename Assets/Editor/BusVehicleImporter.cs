@@ -26,9 +26,6 @@ public static class BusVehicleImporter
     private const string OutputPrefab =
         OutputDirectory + "/Bus.prefab";
 
-    private const string BuildSessionKey =
-        "MotorCity.BusVehicleBuilt.V2";
-
     private const string SourceHashKey =
         "MotorCity.BusVehicleSourceHash.V3";
 
