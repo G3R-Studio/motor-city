@@ -344,6 +344,7 @@ namespace MotorCity.Vehicle
 
             GameObject visual = Instantiate(prefab, carTransform);
             visual.name = RuntimeVisualName;
+            VehicleMaterialRoleCatalog.AnnotateRuntimeVisual(visual);
 
             if (!preserveAuthoredTransform)
             {
