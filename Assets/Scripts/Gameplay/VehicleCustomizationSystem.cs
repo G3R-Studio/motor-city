@@ -541,8 +541,17 @@ namespace MotorCity.Gameplay
                 return false;
 
             VehicleVisualRoles authoredRoles = transform.GetComponent<VehicleVisualRoles>();
-            if (authoredRoles != null && authoredRoles.Roles != VehicleMaterialRole.None)
-                return authoredRoles.Has(VehicleMaterialRole.Body);
+            if (authoredRoles != null)
+            {
+                if (authoredRoles.Roles != VehicleMaterialRole.None)
+                    return authoredRoles.Has(VehicleMaterialRole.Body);
+
+                Renderer markedRenderer = transform.GetComponent<Renderer>();
+                if (markedRenderer != null &&
+                    markedRenderer.sharedMaterials.Length == 1 &&
+                    authoredRoles.RolesAt(0) != VehicleMaterialRole.None)
+                    return authoredRoles.RolesAt(0) == VehicleMaterialRole.Body;
+            }
 
             string meshName = RendererMeshName(transform);
             // A mesh's explicit role takes priority over a renamed holder.
