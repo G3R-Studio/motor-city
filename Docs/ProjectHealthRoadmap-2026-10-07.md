@@ -92,7 +92,8 @@
 - [ ] Полностью разделить `MotorCityBootstrap` на логические фазы без изменения порядка platform → remote config → pending purchases → cloud → frontend → gameplay. Первый этап [x]: `InitializeCoreAndWorld` и `InitializePlayerVehicle` выделены из `TryBuildPrototype` (`1aa1d21`), их порядок охраняется source CI (`1b98d75`); ожидается Unity CI.
 - [ ] Проверить singleton/`DontDestroyOnLoad` инстансы в runtime, повторную загрузку `Prototype`, domain reload.
 - [ ] Сопоставить подписки с OnDisable/OnDestroy и исправить подтверждённые утечки.
-- [ ] Unity Editor и WebGL smoke после рефакторинга; новая Phase 6 CI проверка ожидает подтверждения.
+- [ ] Unity Editor CI и WebGL smoke после рефакторинга: Unity CI на `1e41eef` обнаружил CS0103 (исправлено `035104a`), проверка на итоговом `b72b3a6` ещё требуется; WebGL после этих правок не проверен.
+- [x] **Ручной Unity Play Mode smoke после Phase 6 fix:** 2026-10-09 пользователь подтвердил отсутствие ошибок и новых багов после повторного открытия проекта. Это подтверждение ручного прогона, а не автоматического WebGL build.
 
 ## Phase 7 — UI ownership
 
