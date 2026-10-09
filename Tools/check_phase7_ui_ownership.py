@@ -58,7 +58,7 @@ def main() -> int:
         "Touch Action", "Touch Steering Wheel",
     )
     for name in touch_owned:
-        if re.search(r'FindRect\\s*\\(\\s*"' + re.escape(name) + r'"', polish):
+        if re.search(r'FindRect\s*\(\s*"' + re.escape(name) + r'"', polish):
             errors.append(f"Polish must not claim a touch-control geometry target: {name}")
     report = {
         "phase": 7,
