@@ -21,6 +21,9 @@ namespace MotorCity.EditorTools
                 if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scene) == null)
                     throw new InvalidOperationException("Missing build scene: " + scene);
 
+            // Phase 3: load each authored vehicle prefab and check wheel contracts.
+            MotorCityVehicleContractGate.Validate();
+
             // Existing dependency reporter resolves scene, vehicle and city dependencies.
             if (!EditorApplication.ExecuteMenuItem("Tools/Motor City/Build/Generate Dependency Report"))
                 throw new InvalidOperationException("Dependency report menu command failed");
