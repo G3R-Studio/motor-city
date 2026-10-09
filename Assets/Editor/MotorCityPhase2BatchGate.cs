@@ -23,6 +23,8 @@ namespace MotorCity.EditorTools
 
             // Phase 3: load each authored vehicle prefab and check wheel contracts.
             MotorCityVehicleContractGate.Validate();
+            if (Environment.GetEnvironmentVariable("MOTORCITY_PHASE3_REBUILD") == "1")
+                MotorCityImporterRebuildGate.Validate();
 
             // Existing dependency reporter resolves scene, vehicle and city dependencies.
             if (!EditorApplication.ExecuteMenuItem("Tools/Motor City/Build/Generate Dependency Report"))
