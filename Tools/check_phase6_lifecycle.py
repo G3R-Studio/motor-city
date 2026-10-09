@@ -134,8 +134,8 @@ def main() -> int:
     # protected reset/re-install patterns, not incidental arithmetic operators.
     lifecycle_callbacks = {
         "SceneManager.sceneLoaded": {
-            "subscribes": len(re.findall(r"SceneManager\\.sceneLoaded\\s*\\+=\\s*OnSceneLoaded", bootstrap)),
-            "unsubscribes": len(re.findall(r"SceneManager\\.sceneLoaded\\s*-=\\s*OnSceneLoaded", bootstrap)),
+            "subscribes": len(re.findall(r"SceneManager\.sceneLoaded\s*\+=\s*OnSceneLoaded", bootstrap)),
+            "unsubscribes": len(re.findall(r"SceneManager\.sceneLoaded\s*-\s*=\s*OnSceneLoaded", bootstrap)),
             "owner": BOOTSTRAP,
         },
     }
