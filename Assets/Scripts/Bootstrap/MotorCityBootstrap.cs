@@ -30,6 +30,9 @@ namespace MotorCity.Bootstrap
             RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticState()
         {
+            // Domain reload can be disabled in Editor Play Mode; clean the
+            // previous registration before installing a new bootstrap hook.
+            SceneManager.sceneLoaded -= OnSceneLoaded;
             foreach (Material material in
                      RuntimeMaterialCache.Values)
             {
