@@ -68,6 +68,29 @@ def main() -> int:
         errors.append("Opening presentation state is not returned to the bootstrap caller")
     if not re.search(r"InitializePlayerVehicle\s*\([\s\S]*?out bool playOpeningPresentation\s*\)", bootstrap):
         errors.append("Bootstrap caller does not receive opening presentation state")
+    # Ordered stage calls are intentional: services before vehicle progression,
+    # activities before HUD, with QA kept under its compile guard.
+    stage_names = (
+        "InitializeGameplayServices",
+        "InitializeVehicleProgression",
+        "InitializeActivitiesAndRewards",
+        "InitializePresentationAndHud",
+    )
+    gameplay_stage = bootstrap.split("private static void InitializeGameplayStages(", 1)
+    if len(gameplay_stage) != 2:
+        errors.append("Missing grouped gameplay stage bootstrap")
+    else:
+        stage_body = gameplay_stage[1].split(
+            "private static void InitializeCoreAndWorld(", 1
+        )[0]
+        calls = [stage_body.find(f"{name}();") for name in stage_names]
+        if any(p < 0 for p in calls) or calls != sorted(calls):
+            errors.append("Gameplay stages must run services, progression, activities, HUD in order")
+        for name in stage_names:
+            if f"void {name}()" not in stage_body:
+                errors.append(f"Missing local gameplay stage: {name}")
+        if stage_body.count('new("Gameplay Systems")') != 1:
+            errors.append("Gameplay Systems host must be created exactly once")
     # A sceneLoaded subscription without a matching unsubscription risks
     # duplicate callbacks on domain reload or another bootstrap installation.
     if len(re.findall(CHECKS["scene_hook"], bootstrap)) != len(re.findall(CHECKS["scene_dedup"], bootstrap)):
