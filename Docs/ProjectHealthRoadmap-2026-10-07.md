@@ -106,6 +106,7 @@ UnityEvent, Editor importer, PlayerPrefs/save key или compile define.
 | 2026-10-09 | Phase 2 / optional WebGL CI | Добавлен `unity-webgl` job для Windows `unity6000` runner: только `workflow_dispatch` при `UNITY_WEBGL_CI_ENABLED=true` и `UNITY_CI_ENABLED=true`; сборка запускает `Tools/run_unity_phase2.ps1 -BuildWebGL`, выгружает только логи и отчёты. Настройка описана в `Docs/UnityCI-Phase2.md`. | **[x] CI job подготовлен** (`702a793`); **[ ]** WebGL Build Support и реальный successful player build ещё не подтверждены; named Release profiles — Phase 12. |
 | 2026-10-09 | Phase 2 / WebGL CI compiler fix | GitHub Actions WebGL run [`37864408073`](https://github.com/G3R-Studio/motor-city/actions/runs/37864408073): source/UI/Unity Editor PASS; WebGL FAIL на 5 `CS0103` в `VehicleHistorySystem` (`LegacyStatus`, `FavoriteDiscipline`, `TrackDistance`). Причина — эти production-members были ошибочно окружены QA `#if UNITY_EDITOR || DEBUG` вместе с `*ForTesting`. Перенесён `#endif` сразу после последнего тестового метода; gameplay members теперь входят в Release. | **[x] Root cause исправлена** (`617c046`); **[ ]** повторная реальная WebGL-сборка и проверка её отчёта; Phase 2 открыта. |
 | 2026-10-09 | Phase 2 / CI WebGL build PASS — closure | Проверен [workflow `37865444289`](https://github.com/G3R-Studio/motor-city/actions/runs/37865444289) на коммите `4600408`: **success**, все четыре jobs зелёные, в том числе `Unity 6 WebGL build and report`. Выгружены 3 artifacts: `motor-city-static-audit`, `motor-city-unity-validation`, `motor-city-webgl-build-report`. | **[x] Phase 2 закрыта** — CI и отчёты подтверждены; полная Desktop/Mobile Release/browser matrix — Phase 12. |
+| 2026-10-09 | Phase 3 / wheel prefab baseline | Проведён read-only осмотр всех 9 отдельных Player vehicle prefabs: каждый содержит `front_left`, `front_right`, `rear_left`, `rear_right` по одному разу. Street — fallback ID. Добавлен `Tools/check_vehicle_contract.py` и CI step; сборки/визуалы не изменены. | **[x] Source wheel naming inventory и CI wiring**; **[ ]** первый CI PASS, численные wheel snapshots, Hybrid body contract и importer/visual resolver audit. Phase 3 открыта. |
 
 
 ---
@@ -1168,11 +1169,14 @@ shader/material/prefab могут ссылаться сериализованн�
 
 ## Phase 3 — Vehicle contract
 
+**Первый source baseline (2026-10-09):** все девять отдельных Player prefabs (`Beatall`, `Peugeot306`, `ToyotaAE86`, `Hybrid`, `Porsche996`, `AmgGT`, `Camaro`, `Delorean`, `Bus`) просмотрены через GitHub: у каждого по одному объекту `front_left`, `front_right`, `rear_left`, `rear_right`. `Street` — fallback ID без отдельного authored Player prefab. Добавлен read-only `Tools/check_vehicle_contract.py` и шаг в GitHub Actions (`54cd5b4`, `f7f4efa`). Это проверка наличия/именования, **не** доказательство корректной геометрии или wheel bindings в Unity; первая CI execution ещё ожидается.
+
+
 - [ ] один visual naming resolver;
-- [ ] validation всех моделей;
+- [ ] validation всех моделей: структурная проверка колесных узлов 9 префабов подготовлена; полный visual/material/wheel alignment audit ещё открыт;
 - [ ] Hybrid body contract;
 - [ ] importers;
-- [ ] wheel transforms snapshot tests.
+- [ ] wheel transforms snapshot tests: 4 именованных pivot на prefab подтверждены структурно; численные snapshots позиций/вращений ещё не созданы.
 
 ## Phase 4 — Vehicle material/lamp roles
 
