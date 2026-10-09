@@ -155,38 +155,8 @@ namespace MotorCity.UI
             PolishTouchButtons();
             RestoreDrivingControlAppearance();
 
-            RectTransform objective = FindRect("Active Objective");
-            if (objective != null && !lastTouchLayout)
-            {
-                objective.sizeDelta =
-                    new Vector2(294f, objective.sizeDelta.y);
-            }
-
-            RectTransform statusText = FindRect("Status Text");
-            if (statusText != null)
-            {
-                statusText.sizeDelta =
-                    new Vector2(
-                        lastTouchLayout ? 480f : 560f,
-                        lastTouchLayout ? 38f : 42f);
-
-                Text label =
-                    statusText.GetComponent<Text>();
-
-                if (label != null)
-                {
-                    label.resizeTextForBestFit =
-                        false;
-                    label.resizeTextMinSize =
-                        lastTouchLayout
-                            ? 12
-                            : 13;
-                    label.resizeTextMaxSize =
-                        label.fontSize;
-                    label.alignment =
-                        TextAnchor.MiddleLeft;
-                }
-            }
+            // DrivingHudView owns the objective and status text geometry.
+            // Keep text styling here without resizing builder-owned nodes.
 
             // NavigatorView creates the target label at its final size and
             // position. Avoid rewriting its geometry in a second owner.
@@ -222,32 +192,11 @@ namespace MotorCity.UI
             // panel geometry. Their builders use the previously polished
             // desktop sizes, so the pass only styles modal contents.
 
-            RectTransform resultDetails =
-                FindRect("Result Details");
-
-            if (resultDetails != null)
-            {
-                resultDetails.sizeDelta =
-                    new Vector2(
-                        touchLayout ? 500f : 570f,
-                        58f);
-            }
-
             RectTransform resultReward =
                 FindRect("Result Reward");
 
             if (resultReward != null)
             {
-                resultReward.anchoredPosition =
-                    new Vector2(
-                        touchLayout ? 18f : 20f,
-                        -206f);
-
-                resultReward.sizeDelta =
-                    new Vector2(
-                        touchLayout ? 360f : 400f,
-                        46f);
-
                 Text rewardLabel =
                     resultReward.GetComponent<Text>();
 
@@ -258,16 +207,6 @@ namespace MotorCity.UI
                 }
             }
 
-            RectTransform resultRewardIcon =
-                FindRect("Result Reward Icon");
-
-            if (resultRewardIcon != null)
-            {
-                resultRewardIcon.anchoredPosition =
-                    new Vector2(
-                        touchLayout ? -166f : -184f,
-                        -198f);
-            }
         }
 
         private void PolishTouchButtons()
