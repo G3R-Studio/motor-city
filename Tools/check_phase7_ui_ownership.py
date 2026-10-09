@@ -36,13 +36,13 @@ def main() -> int:
         rows.append({
             "path": path.relative_to(ROOT).as_posix(),
             "role": role,
-            "sizeDelta_assignments": len(re.findall(r"\\.sizeDelta\\s*=", src)),
-            "anchoredPosition_assignments": len(re.findall(r"\\.anchoredPosition\\s*=", src)),
-            "named_rect_lookups": len(re.findall(r"\\bFindRect\\s*\\(", src)),
-            "runtime_find_calls": len(re.findall(r"\\bGameObject\\.Find\\s*\\(", src)),
+            "sizeDelta_assignments": len(re.findall(r"\.sizeDelta\s*=", src)),
+            "anchoredPosition_assignments": len(re.findall(r"\.anchoredPosition\s*=", src)),
+            "named_rect_lookups": len(re.findall(r"\bFindRect\s*\(", src)),
+            "runtime_find_calls": len(re.findall(r"\bGameObject\.Find\s*\(", src)),
         })
     polish = (UI / "HudVisualPolish.cs").read_text(encoding="utf-8-sig")
-    names = sorted(set(re.findall(r'FindRect\\s*\\(\\s*"([^"]+)"', polish)))
+    names = sorted(set(re.findall(r'FindRect\s*\(\s*"([^"]+)"', polish)))
     if not names:
         errors.append("HUD polish name-bound layout inventory is unexpectedly empty")
     report = {
