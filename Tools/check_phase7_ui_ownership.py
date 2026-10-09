@@ -45,11 +45,27 @@ def main() -> int:
     names = sorted(set(re.findall(r'FindRect\s*\(\s*"([^"]+)"', polish)))
     if not names:
         errors.append("HUD polish name-bound layout inventory is unexpectedly empty")
+    # Dynamic UI builders can replace a child without replacing the HUD root.
+    # A persistent post-layout pass must never reuse detached cached targets.
+    if "cached.IsChildOf(hudRoot)" not in polish or "rectCache.Remove(objectName)" not in polish:
+        errors.append("HUD polish must invalidate cached targets detached from the active HUD")
+
+    # Driving controls are owned by TouchControlsView and the user's layout
+    # customization. HudVisualPolish may style controls but must not take over
+    # their transform geometry.
+    touch_owned = (
+        "Touch Throttle", "Touch Brake", "Touch Handbrake",
+        "Touch Action", "Touch Steering Wheel",
+    )
+    for name in touch_owned:
+        if re.search(r'FindRect\\s*\\(\\s*"' + re.escape(name) + r'"', polish):
+            errors.append(f"Polish must not claim a touch-control geometry target: {name}")
     report = {
         "phase": 7,
         "kind": "source inventory (does not prove overlapping RectTransform instances)",
         "owners": rows,
         "hud_polish_named_targets": names,
+        "touch_geometry_owned_by": "TouchControlsView / player customization",
         "risk": "Polish may write sizes/positions after HUD, navigator and touch builders.",
         "rule": "Do not delete builders or move layout writes until per-object runtime ownership is mapped.",
         "errors": errors,
