@@ -69,12 +69,39 @@ namespace MotorCity.EditorTools
                         else
                             unassigned++;
                     }
+                    GameObject preview = null;
+                    int runtimeTagged = 0;
+                    try
+                    {
+                        // Exercise annotation on an isolated clone, never on the asset.
+                        preview = UnityEngine.Object.Instantiate(root);
+                        var originals = new Dictionary<Renderer, Material[]>();
+                        foreach (Renderer r in preview.GetComponentsInChildren<Renderer>(true))
+                            originals[r] = r.sharedMaterials;
+                        runtimeTagged = VehicleMaterialRoleCatalog.AnnotateRuntimeVisual(preview);
+                        foreach (var pair in originals)
+                        {
+                            Material[] after = pair.Key.sharedMaterials;
+                            if (after.Length != pair.Value.Length)
+                                throw new InvalidOperationException(vehicle + ": runtime annotation changed material count");
+                            for (int j = 0; j < after.Length; ++j)
+                                if (after[j] != pair.Value[j])
+                                    throw new InvalidOperationException(vehicle + ": runtime annotation changed material slot");
+                        }
+                    }
+                    finally
+                    {
+                        if (preview != null)
+                            UnityEngine.Object.DestroyImmediate(preview);
+                    }
+
                     lines.Add(vehicle + ": renderers=" + renderers +
                         ", explicitly tagged=" + explicitRoles +
                         ", unassigned=" + unassigned +
                         ", material slots=" + materialSlots +
                         ", explicitly tagged slots=" + taggedSlots +
-                        ", catalog-resolved slots=" + catalogSlots);
+                        ", catalog-resolved slots=" + catalogSlots +
+                        ", runtime tagged slots=" + runtimeTagged);
                     if (renderers < 4)
                         throw new InvalidOperationException(vehicle + ": missing visual renderers");
                 }
