@@ -203,11 +203,9 @@ namespace MotorCity.UI
             RectTransform navigationStrip = FindRect("Navigation Target Strip");
             if (navigationStrip != null)
                 navigationStrip.sizeDelta = new Vector2(lastTouchLayout ? 186f : 198f, 58f);
-            // Keep the utility rail below the complete map and destination footer.
-            RectTransform utilityRail = FindRect("HUD Utility Rail");
-            RectTransform quickMenu = FindRect("HUD Secondary Actions");
-            if (utilityRail != null) utilityRail.anchoredPosition = new Vector2(-18f, -310f);
-            if (quickMenu != null) quickMenu.anchoredPosition = new Vector2(-134f, -310f);
+            // TouchControlsView owns utility rail and secondary action positions.
+            // Their builder already applies the same coordinates; do not
+            // overwrite these controls from the persistent visual polish.
             // Apply bounds after responsive composition has sized the cells.
             foreach (Text label in hudRoot.GetComponentsInChildren<Text>(true))
                 MotorCityTextLayout.Configure(label);
