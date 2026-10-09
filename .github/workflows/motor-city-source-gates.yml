@@ -77,6 +77,8 @@ jobs:
 
       - name: Validate Unity project in batch mode
         shell: pwsh
+        env:
+          MOTORCITY_PHASE3_REBUILD: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
         run: ./Tools/run_unity_phase2.ps1
 
       - name: Upload Unity validation reports
