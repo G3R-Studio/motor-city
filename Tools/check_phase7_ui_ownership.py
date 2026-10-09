@@ -69,6 +69,16 @@ def main() -> int:
     for name in ("HUD Utility Rail", "HUD Secondary Actions"):
         if f'"{name}"' not in touch_source:
             errors.append(f"Touch control layout owner missing: {name}")
+    # NavigatorView builds the minimap and target strip using the exact
+    # desktop geometry formerly repeated by the visual polish pass.
+    for name in ("Minimap", "Navigation Target Strip"):
+        if re.search(r'FindRect\s*\(\s*"' + re.escape(name) + r'"', polish):
+            errors.append(f"Duplicate navigator geometry writer in HUD polish: {name}")
+    navigator_source = (UI / "NavigatorView.cs").read_text(encoding="utf-8-sig")
+    for name in ("Minimap", "Navigation Target Strip"):
+        if f'"{name}"' not in navigator_source:
+            errors.append(f"Navigator layout builder missing: {name}")
+
     report = {
         "phase": 7,
         "kind": "source inventory (does not prove overlapping RectTransform instances)",
