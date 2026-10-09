@@ -111,6 +111,7 @@
 - [x] Финальный source-level перенос: `Player Card` / `Character Card`, `Active Objective`, `Status Text`, `Result Details`, `Result Reward`, `Result Reward Icon` больше не получают geometry writes от `HudVisualPolish`. Значения desktop-layout перенесены в builder, добавлен ownership gate. Итоговый CI и единый ручной smoke ещё ожидаются.
 - [x] Устранить подтверждённые конкурирующие root/child layout writes, определить владельцев в проверенном объёме. Не утверждаем отсутствие всех возможных runtime конфликтов.
 - [x] Уменьшить geometry-зависимости `HudVisualPolish`: root layouts закреплены за DrivingHudView/CharacterMissionCardView, модальные панели — за собственными builder, навигация — NavigatorView, utility/touch — TouchControlsView. Полный split FrontEnd не требуется для доказанных конфликтов.
+- [x] Исправлена выявленная пользователем регрессия окна результата: при одновременном mastery/secondary progress/next event кнопки перекрывали строку события. Высота Activity Result увеличена до 520, размеры и позиция footer закреплены за ActivityResultView, CI проверяет минимальный зазор 12 единиц (коммиты `c319cef`, `b3eb257`). Runtime QA ещё требуется.
 - [ ] Regression: русские/английские надписи, масштаб, touch и меню.
 
 ## Phase 8 — Save/progression
