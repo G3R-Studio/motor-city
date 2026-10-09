@@ -23,6 +23,14 @@ namespace MotorCity.Vehicle
         [SerializeField] private VehicleMaterialRole roles;
         public VehicleMaterialRole Roles => roles;
 
+        [SerializeField] private VehicleMaterialRole[] slotRoles;
+
+        public VehicleMaterialRole RolesAt(int slot)
+        {
+            return slotRoles != null && slot >= 0 && slot < slotRoles.Length
+                ? slotRoles[slot] : roles;
+        }
+
         public bool Has(VehicleMaterialRole role)
         {
             return (roles & role) == role;
