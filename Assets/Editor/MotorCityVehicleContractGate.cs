@@ -59,8 +59,14 @@ namespace MotorCity.EditorTools
                             throw new InvalidOperationException(vehicle + ": invalid wheel pose " + wheelName);
                         if (found.lossyScale.sqrMagnitude < 0.000001f)
                             throw new InvalidOperationException(vehicle + ": zero wheel scale " + wheelName);
+                        if (found.childCount == 0)
+                            throw new InvalidOperationException(vehicle + ": wheel has no visual child " + wheelName);
+                        if (found.GetComponentsInChildren<Renderer>(true).Length == 0)
+                            throw new InvalidOperationException(vehicle + ": wheel has no renderer " + wheelName);
                     }
-                    lines.Add(vehicle + ": 4 unique wheel transforms; prefab loaded");
+                    if (instance.GetComponentsInChildren<Renderer>(true).Length < 4)
+                        throw new InvalidOperationException(vehicle + ": visual prefab has fewer than four renderers");
+                    lines.Add(vehicle + ": wheel names, finite poses, visual children and renderers validated");
                 }
                 finally
                 {
