@@ -60,6 +60,15 @@ def main() -> int:
     for name in touch_owned:
         if re.search(r'FindRect\s*\(\s*"' + re.escape(name) + r'"', polish):
             errors.append(f"Polish must not claim a touch-control geometry target: {name}")
+    # Utility action geometry is authored in TouchControlsView. Prevent
+    # reintroducing a second position writer in HudVisualPolish.
+    for name in ("HUD Utility Rail", "HUD Secondary Actions"):
+        if re.search(r'FindRect\s*\(\s*"' + re.escape(name) + r'"', polish):
+            errors.append(f"Duplicate utility action layout owner in HUD polish: {name}")
+    touch_source = (UI / "TouchControlsView.cs").read_text(encoding="utf-8-sig")
+    for name in ("HUD Utility Rail", "HUD Secondary Actions"):
+        if f'"{name}"' not in touch_source:
+            errors.append(f"Touch control layout owner missing: {name}")
     report = {
         "phase": 7,
         "kind": "source inventory (does not prove overlapping RectTransform instances)",
