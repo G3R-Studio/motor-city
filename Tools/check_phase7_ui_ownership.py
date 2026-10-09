@@ -93,6 +93,19 @@ def main() -> int:
         if re.search(r'FindRect\s*\(\s*"' + re.escape(name) + r'"', polish):
             errors.append(f"Modal root has duplicate geometry owner in polish: {name}")
 
+    # Builder coordinates match the final desktop layout; visual polish
+    # should not re-assign these exact RectTransforms on every resize.
+    geometry_owners = {
+        "Speedometer": "DrivingHudView.cs",
+        "Activity Status": "DrivingHudView.cs",
+        "Minimap Target Label": "NavigatorView.cs",
+    }
+    for name, owner in geometry_owners.items():
+        if re.search(r'FindRect\s*\(\s*"' + re.escape(name) + r'"', polish):
+            errors.append(f"Polish reclaims builder-owned geometry: {name}")
+        if f'"{name}"' not in (UI / owner).read_text(encoding="utf-8-sig"):
+            errors.append(f"Expected geometry owner is missing {name}: {owner}")
+
     report = {
         "phase": 7,
         "kind": "source inventory (does not prove overlapping RectTransform instances)",
