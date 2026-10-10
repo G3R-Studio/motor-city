@@ -27,9 +27,14 @@ def main() -> int:
         "stable_v1_storage_key": '"MotorCity.Save.Json.v1"' in service,
         "corrupt_backup_key": '"MotorCity.Save.CorruptBackup.v1"' in service,
         "corrupt_backup_before_delete": (
-            service.find("PlayerPrefs.SetString(\n                        CorruptBackupKey,") >= 0
-            and service.find("CorruptBackupKey,\n                        json)") <
-            service.find("PlayerPrefs.DeleteKey(\n                        StorageKey)")
+            service.find("PlayerPrefs.SetString(\n                        ActiveBackupKey,") >= 0
+            and service.find("ActiveBackupKey,\n                        json)") <
+                service.find("PlayerPrefs.DeleteKey(\n                        ActiveStorageKey)")
+        ),
+        "isolated_editor_recovery": (
+            "VerifyIsolatedPlayerPrefsRecovery()" in service
+            and "PlayerPrefs.DeleteKey(testStorage)" in service
+            and "PlayerPrefs.DeleteKey(testBackup)" in service
         ),
         "schema_version_2": "CurrentVersion = 2;" in service,
         "save_envelope_validation": (
