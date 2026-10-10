@@ -76,6 +76,20 @@ def main() -> int:
     blobs = tracked_blobs()
     tracked = set(blobs)
 
+    # Preserve the read-only Unity Editor inspection in automatic CI.
+    # The Python inventory itself cannot resolve serialized Unity dependencies.
+    unity_script = ROOT / "Assets/Editor/MotorCityPhase11DependencyAudit.cs"
+    unity_meta = ROOT / "Assets/Editor/MotorCityPhase11DependencyAudit.cs.meta"
+    unity_batch = ROOT / "Assets/Editor/MotorCityPhase2BatchGate.cs"
+    if not unity_script.is_file() or not unity_meta.is_file():
+        errors.append("Phase 11 Unity Editor dependency audit or .meta is missing")
+    elif not meta_guid("Assets/Editor/MotorCityPhase11DependencyAudit.cs"):
+        errors.append("Phase 11 Unity Editor dependency audit GUID missing")
+    elif "AssetDatabase.GetDependencies(" not in unity_script.read_text(encoding="utf-8-sig"):
+        errors.append("Phase 11 Unity audit lost AssetDatabase dependency scanning")
+    if "MotorCityPhase11DependencyAudit.Validate(folder)" not in unity_batch.read_text(encoding="utf-8-sig"):
+        errors.append("Unity batch must execute the Phase 11 dependency audit")
+
     # Unity treats the source Workbench and baked Resources prefab as different
     # roles. Their separation is deliberate, even though both are large.
     for path in PROTECTED:
