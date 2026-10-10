@@ -73,3 +73,18 @@ covered by this static gate and remain in the Phase 8 integration QA.
 The Unity Editor serialization gate now calls `MotorCitySaveService.VerifyIsolatedPlayerPrefsRecovery` (editor-only). It creates GUID-namespaced temporary PlayerPrefs storage and backup keys, validates malformed local JSON backup, migrates one legacy integer on read, saves it, clears the in-memory document to simulate reloading, and verifies the saved value. A `finally` block deletes temporary keys and restores all previous service state. The production `MotorCity.Save.Json.v1` and `MotorCity.Save.CorruptBackup.v1` keys are never used by this test.
 
 This is still not a full process restart test and does not exercise live Yandex cloud callbacks or actual user save files.
+
+## Final Phase 8 automated integration package
+
+- Unity Editor invokes the **production** `MotorCityCloudSaveRuntime.ShouldUseRemote` through the editor-only `VerifyConflictResolutionForEditor` entry point. It checks empty/fresh device, newer/older cloud, same-cloud unsynced local edits, newer server time, revision tie-breaks and legacy modified time.
+- Isolated GUID-key `PlayerPrefs` now additionally verifies snapshot-attempted-revision acknowledgement: an edit made after `ExportCloudJson` stays unsynced after `MarkCloudUploadSucceeded`. Invalid remote JSON import must leave local progress intact.
+- Tests avoid real production save keys and never contact Yandex SDK. No live two-device cloud test, forced network failure callback integration, or process restart is executed here.
+
+## Final user acceptance still required
+
+1. On the existing profile, note credits/garage/story progress. Quit the game normally, restart it, and verify the same progress remains.
+2. Perform another activity, restart again, and verify the newer result.
+3. In an authenticated Yandex Games environment, check save and reload. For genuine cross-device conflict QA, use a dedicated test account rather than risking the main profile; offline/cloud conflict outcomes must be explicitly inspected.
+4. Confirm no UI regression or console error.
+
+Phase 8 cannot be represented as fully verified in live Yandex cloud without those checks.
