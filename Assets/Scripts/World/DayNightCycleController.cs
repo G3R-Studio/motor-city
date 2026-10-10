@@ -67,7 +67,6 @@ namespace MotorCity.World
         private Material runtimeEveningSkybox;
         private Material runtimeNightSkybox;
         private Material runtimeCrossfadeSkybox;
-        private Material lastReflectionSkybox;
 
         private float time01;
         private double cloudTimeSeconds;
@@ -163,8 +162,6 @@ namespace MotorCity.World
             ApplyEnvironment(
                 true);
 
-            CityAssetRuntimeInstaller
-                .RefreshCityReflectionProbes();
 
             initialized =
                 true;
@@ -854,21 +851,11 @@ namespace MotorCity.World
                 IsNight !=
                 lastNightState)
             {
-                bool nightChanged =
-                    IsNight !=
-                    lastNightState;
-
                 lastNightState =
                     IsNight;
 
                 ApplyStreetLights();
 
-                if (nightChanged &&
-                    initialized)
-                {
-                    CityAssetRuntimeInstaller
-                        .RefreshCityReflectionProbes();
-                }
             }
         }
 
@@ -905,20 +892,6 @@ namespace MotorCity.World
                     DynamicGI.UpdateEnvironment();
                 }
 
-                if (targetSkybox !=
-                    runtimeCrossfadeSkybox &&
-                    targetSkybox !=
-                    lastReflectionSkybox)
-                {
-                    lastReflectionSkybox =
-                        targetSkybox;
-
-                    if (initialized)
-                    {
-                        CityAssetRuntimeInstaller
-                            .RefreshCityReflectionProbes();
-                    }
-                }
             }
         }
 
@@ -1375,8 +1348,6 @@ namespace MotorCity.World
 
             ApplyStreetLights();
 
-            CityAssetRuntimeInstaller
-                .RefreshCityReflectionProbes();
         }
 
         private static Vector2Int LampCell(
