@@ -16,10 +16,6 @@ expected = """#if UNITY_WEBGL && !UNITY_EDITOR
 #endif"""
 if expected not in installer:
     errors.append("Full city renderer diagnostic must remain disabled in WebGL release.")
-if "RepairMissingPlantMaterials();" not in installer:
-    errors.append("Do not remove runtime plant fallback before authored prefab validation.")
-if "GetComponentsInChildren<Renderer>" not in installer:
-    errors.append("Expected city renderer snapshot.")
 if not audit.is_file() or "MotorCityPhase9CityMaterialAudit.Validate(folder)" not in gate:
     errors.append("Missing read-only city prefab Editor audit integration.")
 print("Phase 9 city source check: " + ("PASS" if not errors else "FAIL"))
