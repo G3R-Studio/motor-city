@@ -78,7 +78,7 @@ namespace MotorCity.EditorTools
                     "MOTORCITY_PHASE12_REPORT_DIR");
 
             if (string.IsNullOrWhiteSpace(folder))
-                folder = "Temp/MotorCityAudit/Phase12";
+                folder = "Builds/Phase12";
 
             folder = Path.GetFullPath(folder);
             Directory.CreateDirectory(folder);
