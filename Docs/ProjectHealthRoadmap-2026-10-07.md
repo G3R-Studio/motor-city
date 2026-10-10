@@ -16,7 +16,7 @@
 | 5 — Dead cleanup | 🟡 Безопасная часть выполнена | удаление неподтверждённых assets запрещено; recovery tools сохраняются |
 | 6 — Bootstrap/lifecycle | ✅ Закрыта в проверенном scope | source/UI/Unity/WebGL CI PASS; обычный Play Mode и Domain Reload подтверждены; браузерная матрица — Phase 12 |
 | 7 — UI ownership | ✅ Закрыта в проверенном объёме | UI/source/Unity CI PASS, итоговый Play Mode PASS; WebGL browser matrix — Phase 12 |
-| 8 — Save/progression | 🟡 Начата | ключи/совместимость под CI; runtime миграции/cloud и restart впереди |
+| 8 — Save/progression | 🟡 Локальный scope PASS, cloud pending | CI Unity/source PASS (#38069503126); Play Mode + restart PASS по пользователю; Yandex cloud/device QA ещё открыта |
 | 9 — City/runtime | ⬜ Открыта | диагностика release, материалы, profiler |
 | 10 — Vehicle physics | ⬜ Открыта | trace/steer/friction/mobile timing |
 | 11 — Asset/packages | ⬜ Открыта | пакеты, дубликаты, источник города |
@@ -114,7 +114,10 @@
 - [x] Исправлена выявленная пользователем регрессия окна результата: при одновременном mastery/secondary progress/next event кнопки перекрывали строку события. Высота Activity Result увеличена до 520, размеры и позиция footer закреплены за ActivityResultView, CI проверяет минимальный зазор 12 единиц (коммиты `c319cef`, `b3eb257`). Runtime QA ещё требуется.
 - [x] Итоговый Play Mode после устранения наложения текста и кнопок результатов — PASS по подтверждению пользователя (2026-10-10); последний CI [run 38005440827](https://github.com/G3R-Studio/motor-city/actions/runs/38005440827): source/UI/Unity Editor PASS, WebGL skipped. Полная браузерная матрица и отдельные device/localization сценарии остаются в Phase 12.
 
-## Phase 8 — Save/progression 🟡
+## Phase 8 — Save/progression 🟡 (локальные сохранения проверены, Yandex cloud ожидает QA)
+
+- [x] Итоговая приёмка локального прогресса: пользователь подтвердил Play Mode/restart PASS 2026-10-10 после CI [#38069503126](https://github.com/G3R-Studio/motor-city/actions/runs/38069503126) (Unity Editor, source, UI PASS; WebGL skipped). Это не подтверждает реальную синхронизацию Yandex Games между устройствами.
+- [ ] Пройти Yandex Games login/cloud persistence и cross-device/offline conflict сценарии на отдельном тестовом аккаунте; только после этого закрыть Phase 8 целиком.
 
 - [x] Финальный автоматический пакет: production cloud конфликт-резолвер протестирован в Unity Editor на фиктивных метаданных; GUID-изолированный PlayerPrefs проверяет ACK ревизии при изменении данных во время загрузки, неподходящий облачный импорт и неизменность локального значения. CI ожидается. Реальное облако Yandex, настоящий restart и ручная приёмка ещё открыты.
 
@@ -142,7 +145,7 @@
 - [ ] Единый реестр save keys и разграничение device/cloud/QA.
 - [x] Добавлены изолированные модельные сценарии cloud conflict и legacy JSON fixture в `Tools/test_phase8_save_fixtures.py`, подключены в CI (`61d8d0b`). Это Python-модели правил, **не** фактические Unity JsonUtility/PlayerPrefs тесты и не интеграционная проверка Yandex.
 - [ ] Миграции legacy progress + тесты существующих сохранений.
-- [ ] Restart, cloud conflict, fresh-save и offline scenarios.
+- [x] Локальный restart/save в Play Mode — PASS по сообщению пользователя (2026-10-10); изолированные конфликтные сценарии прошли Unity Editor CI. Реальные cloud conflict, fresh device и offline-синхронизация Yandex остаются непроверенными.
 
 ## Phase 9 — City/runtime
 
