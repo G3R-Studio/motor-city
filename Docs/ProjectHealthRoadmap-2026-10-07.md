@@ -17,8 +17,8 @@
 | 6 — Bootstrap/lifecycle | ✅ Закрыта в проверенном scope | source/UI/Unity/WebGL CI PASS; обычный Play Mode и Domain Reload подтверждены; браузерная матрица — Phase 12 |
 | 7 — UI ownership | ✅ Закрыта в проверенном объёме | UI/source/Unity CI PASS, итоговый Play Mode PASS; WebGL browser matrix — Phase 12 |
 | 8 — Save/progression | 🟡 Локальный scope PASS, cloud pending | CI Unity/source PASS (#38069503126); Play Mode + restart PASS по пользователю; Yandex cloud/device QA ещё открыта |
-| 9 — City/runtime | 🟡 Начата | release diagnostic guard и Editor prefab audit; profiler впереди |
-| 10 — Vehicle physics | ⬜ Открыта | trace/steer/friction/mobile timing |
+| 9 — City/runtime | 🟡 Частично завершена; дальнейшая оптимизация запуска остановлена | read-only prefab audit, release diagnostic guard, Editor Profiler; WebGL/perf matrix не закрыта |
+| 10 — Vehicle physics | 🟡 Начата | исходная цепочка force/steer/friction/collision/input прослежена; реальный Play Mode smoke и измерения открыты |
 | 11 — Asset/packages | ⬜ Открыта | пакеты, дубликаты, источник города |
 | 12 — Release matrix | ⬜ Открыта | два WebGL Release Build Profiles + браузер/устройство |
 
@@ -177,9 +177,10 @@
 - [x] Не переносить устаревший plant repair в Editor: он уже удалён из runtime и текущий префаб целостный. Для новых дефектов сначала воспроизвести и доказать конкретное нарушение authoring в FCG Workbench; автоматические изменения prefab не разрешены.
 - [ ] Profiler-driven оптимизация города и проверка GC/CPU/памяти.
 
-## Phase 10 — Vehicle physics
+## Phase 10 — Vehicle physics 🟡
 
-- [ ] Trace `FixedUpdate` (force/steer/friction/wheels/collisions).
+- [x] **2026-10-11 source-level trace**: `Docs/Baselines/Phase10VehiclePhysicsTrace-2026-10-11.md` — прослежены `Update`/`FixedUpdate`, Prometeo bridge, power assist, handbrake/stability, mode friction, four WheelColliders, compound body BoxColliders, fallback и virtual touch input. `Tools/check_phase10_vehicle_physics.py` защищает ключевые контракты в GitHub Actions. **Только исходники:** C# и prefab-геометрия не менялись; это не сертификат дорожных столкновений или поведения при низком FPS. CI и Play Mode-подтверждение фиксируются раздельно.
+- [ ] Измерить взаимодействие `PrometeoCarController.Update` с `ArcadeCarController.FixedUpdate` и `HandbrakePhysicsAssist.FixedUpdate`: физический руль, сила тяги, ручник/отпускание, сочетание Comfort/Sport/Drift, в том числе при падении FPS.
 - [ ] Проверить drive modes, handbrake, WheelCollider friction, mobile input timing; затем настройка параметров по измерениям.
 - [ ] Play Mode road collision smoke всех релевантных машин.
 
