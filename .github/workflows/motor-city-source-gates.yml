@@ -250,6 +250,16 @@ jobs:
         timeout-minutes: 105
         run: ./Tools/run_unity_phase12_release.ps1 -Profile Desktop
 
+      - name: Upload Desktop Release for browser smoke
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motor-city-webgl-desktop-release
+          path: Builds/Phase12/WebGL-Desktop-Release/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
+
       - name: Build Mobile WebGL Release from authored Build Profile
         shell: pwsh
         timeout-minutes: 105
@@ -266,15 +276,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Upload Desktop Release for browser smoke
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: motor-city-webgl-desktop-release
-          path: Builds/Phase12/WebGL-Desktop-Release/
-          if-no-files-found: error
-          retention-days: 3
-
       - name: Upload Mobile Release for browser smoke
         if: success()
         uses: actions/upload-artifact@v4
@@ -282,4 +283,5 @@ jobs:
           name: motor-city-webgl-mobile-release
           path: Builds/Phase12/WebGL-Mobile-Release/
           if-no-files-found: error
+          compression-level: 0
           retention-days: 3
