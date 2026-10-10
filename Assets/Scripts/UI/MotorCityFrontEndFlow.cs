@@ -7,6 +7,7 @@ using MotorCity.Input;
 using MotorCity.Persistence;
 using MotorCity.Platform;
 using MotorCity.Vehicle;
+using MotorCity.World;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -1964,6 +1965,11 @@ namespace MotorCity.UI
 
             loadingRoot.SetActive(true);
 
+            // Start the costly authored city resource load while this screen
+            // is visible, before the gameplay bootstrap runs. Never instantiate
+            // or modify the city from the front end.
+            CityAssetRuntimeInstaller.BeginPrefabPreload();
+
             if (loadingProgressFill != null)
                 loadingProgressFill.fillAmount = 0f;
 
@@ -1992,8 +1998,12 @@ namespace MotorCity.UI
                 Time.unscaledDeltaTime;
 
             if (!loadRequestSent &&
-                loadingTimer >= 0.15f)
+                loadingTimer >= 0.15f &&
+                CityAssetRuntimeInstaller.IsPrefabPreloadReady)
             {
+                // If the asynchronous load has not completed, keep the
+                // loading animation running instead of calling the synchronous
+                // Resources.Load from the same frame.
                 loadRequestSent = true;
                 gameplayLoadRequested?.Invoke();
             }
