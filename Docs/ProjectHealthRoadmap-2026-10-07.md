@@ -149,6 +149,9 @@
 
 ## Phase 9 — City/runtime 🟡
 
+- [ ] **2026-10-11 Editor Profiler baseline (первый въезд в город, кадр 165):** `MotorCity.City.LoadPrefab` 1 370,27 мс / 2,6 МБ GC, `MotorCity.City.Instantiate` 703,52 мс / 2,6 МБ GC; `MotorCity.Minimap.Build` 145,09 мс / 16,9 МБ GC. Это измерения в Editor, не WebGL. Основная задержка загрузки — Unity `Resources.Load` / `Instantiate`; без доказательств не трогать prefab/сцену ради фиктивного ускорения.
+- [ ] **Minimap allocation experiment** (`ce99542`, `8d32d53`): кеширование классификации имён по Transform, точечный поиск `FCG.FCGWaypointsContainer` с legacy fallback и `Color32` для RGBA32 texture. Source-level проверки выполнены; ещё нужны Unity compile/Play Mode, визуальная сверка мини-карты (дороги и здания) и повтор `MotorCity.Minimap.Build` CPU/GC на том же маршруте. SRP Batcher оставить включённым по умолчанию до WebGL benchmark.
+
 - [x] Unity CI #38073086084 успешно прошёл с локально подготовленным checkout. CityVisual prefab audit: **26 123 renderers, 12 missing material slots, all 12 on Plant-01**. Runtime plant fallback сохраняем; Editor CI теперь падает при появлении новых пустых слотов вне Plant-01.
 - [ ] Объединить повторные обходы 26 123 renderers при runtime-загрузке (material rebinding, plant fix, WebGL conversion, bounds), затем замерить startup CPU/GC на целевых quality tiers. Рефакторинг ещё не применён.
 
