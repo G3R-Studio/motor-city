@@ -31,10 +31,9 @@ $runnerPathMarker = [IO.Path]::Combine('_work', 'motor-city', 'motor-city')
 if ($workspaceFull -notlike "*$runnerPathMarker*") {
     throw "Unexpected Unity CI workspace; refusing to touch its Git files: $workspaceFull"
 }
+# Reuse only the CI Git object database. Do not delete the user's source,
+# and do not remove the CI Library cache between validations.
 $target = Join-Path $workspaceFull '.git'
-if (Test-Path -LiteralPath $target) {
-    Remove-Item -LiteralPath $target -Recurse -Force
-}
 Write-Host "Initializing independent CI Git object database from read-only local seed."
 New-Item -ItemType Directory -Path $workspaceFull -Force | Out-Null
 & git -C $workspaceFull init --quiet
@@ -49,10 +48,21 @@ if ($actual -ine $Commit) { throw "CI checkout SHA mismatch ($actual)." }
 # Preserve Unity Library cache while deleting stale untracked files.
 & git -C $workspaceFull clean -ffdx -e Library/ -e Temp/
 if ($LASTEXITCODE -ne 0) { throw "Isolated CI workspace cleanup failed." }
-# Disallow unhydrated LFS assets in the Unity scene imports.
+# Locally populate Git LFS object cache as well (plain Git fetch does not
+# transfer LFS media). No network calls and no writes to the seed.
+$seedLfs = Join-Path $seedFull '.git/lfs/objects'
+$workspaceLfs = Join-Path $workspaceFull '.git/lfs/objects'
+if (Test-Path -LiteralPath $seedLfs) {
+    New-Item -ItemType Directory -Path $workspaceLfs -Force | Out-Null
+    & robocopy $seedLfs $workspaceLfs /E /XO /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -ge 8) { throw "Local Git LFS object cache transfer failed." }
+}
 & git -C $workspaceFull lfs checkout
-if ($LASTEXITCODE -ne 0) {
-    throw "LFS hydration failed; fetch missing objects into the local seed first."
+if ($LASTEXITCODE -ne 0) { throw "Local Git LFS hydration failed." }
+$unhydrated = & git -C $workspaceFull lfs ls-files |
+    Where-Object { $_ -match '^[0-9a-f]+\\s+-\\s' }
+if ($unhydrated) {
+    throw "Unhydrated LFS pointers remain in CI workspace. Seed must hydrate its LFS files first."
 }
 Write-Host "Prepared exact $Commit from read-only local Git seed."
 & git -C $workspaceFull count-objects -vH
