@@ -148,25 +148,29 @@ public Texture2D Texture { get; private set; }
             Bounds mapBounds =
                 default;
 
-            // Reuse the name normalization buffer across the thousands of
-            // renderer classifications. It is no longer allocated per item.
-            var hierarchyBuilder = new System.Text.StringBuilder(192);
+            // Keep the same normalized ancestor-name classification, but
+            // cache its three flags per Transform instead of allocating a
+            // full hierarchy-path string for every renderer.
+            var hierarchyFlags = new Dictionary<Transform, NameFlags>(
+                renderers.Length);
+            var nameFlags = new Dictionary<string, NameFlags>(
+                StringComparer.Ordinal);
+            var nameBuilder = new System.Text.StringBuilder(96);
             foreach (Renderer renderer in
                      renderers)
             {
                 if (renderer == null)
                     continue;
 
-                string hierarchyPath =
-                    HierarchyName(
+                NameFlags flags =
+                    GetHierarchyFlags(
                         renderer.transform,
-                        hierarchyBuilder);
+                        hierarchyFlags,
+                        nameFlags,
+                        nameBuilder);
 
-                if (ShouldIgnore(
-                        hierarchyPath))
-                {
+                if ((flags & NameFlags.Ignore) != NameFlags.None)
                     continue;
-                }
 
                 Bounds bounds =
                     renderer.bounds;
@@ -174,7 +178,7 @@ public Texture2D Texture { get; private set; }
                 ShapeType type =
                     Classify(
                         bounds,
-                        hierarchyPath);
+                        flags);
 
                 if (type ==
                     ShapeType.Ignore)
@@ -219,11 +223,18 @@ public Texture2D Texture { get; private set; }
                 }
             }
 
-            // Both minimap passes consume the same authored FCG waypoint
-            // components. Enumerate the city once rather than traversing the
-            // entire hierarchy again while drawing the roads.
-            MonoBehaviour[] authoredBehaviours =
-                cityRoot.GetComponentsInChildren<MonoBehaviour>(true);
+            // FCG waypoints are authored on FCGWaypointsContainer components.
+            // Select only those components instead of materializing every
+            // MonoBehaviour (including traffic cars and unrelated scripts).
+            // Keep the old scan as a compatibility fallback for custom FCG
+            // assemblies where the expected type cannot be resolved.
+            Type waypointType = Type.GetType(
+                "FCG.FCGWaypointsContainer, Assembly-CSharp",
+                false);
+            Component[] authoredBehaviours =
+                waypointType != null
+                    ? cityRoot.GetComponentsInChildren(waypointType, true)
+                    : cityRoot.GetComponentsInChildren<MonoBehaviour>(true);
 
             ExpandBoundsWithFcgTraffic(
                 authoredBehaviours,
@@ -373,16 +384,18 @@ public Texture2D Texture { get; private set; }
         }
 
         private void ExpandBoundsWithFcgTraffic(
-            MonoBehaviour[] behaviours,
+            Component[] behaviours,
             ref Bounds mapBounds,
             ref bool boundsInitialized)
         {
             if (behaviours == null)
                 return;
 
-            foreach (MonoBehaviour behaviour in
+            foreach (Component component in
                      behaviours)
             {
+                MonoBehaviour behaviour =
+                    component as MonoBehaviour;
                 if (behaviour == null)
                     continue;
 
@@ -480,14 +493,16 @@ public Texture2D Texture { get; private set; }
 
         private void DrawFcgTrafficRoads(
             Color[] pixels,
-            MonoBehaviour[] behaviours)
+            Component[] behaviours)
         {
             if (behaviours == null)
                 return;
 
-            foreach (MonoBehaviour behaviour in
+            foreach (Component component in
                      behaviours)
             {
+                MonoBehaviour behaviour =
+                    component as MonoBehaviour;
                 if (behaviour == null)
                     continue;
 
@@ -819,22 +834,16 @@ public Texture2D Texture { get; private set; }
 
         private static ShapeType Classify(
             Bounds bounds,
-            string path)
+            NameFlags flags)
         {
-            if (ContainsAny(
-                    path,
-                    RoadNameParts))
+            if ((flags & NameFlags.Road) != NameFlags.None)
             {
-                return
-                    ShapeType.Road;
+                return ShapeType.Road;
             }
 
-            if (ContainsAny(
-                    path,
-                    BuildingNameParts))
+            if ((flags & NameFlags.Building) != NameFlags.None)
             {
-                return
-                    ShapeType.Building;
+                return ShapeType.Building;
             }
 
             float horizontal =
@@ -869,42 +878,48 @@ public Texture2D Texture { get; private set; }
                 ShapeType.Ignore;
         }
 
-        private static bool ShouldIgnore(
-            string path)
-        {
-            return
-                ContainsAny(
-                    path,
-                    IgnoreNameParts);
-        }
-
-        private static string HierarchyName(
+        private static NameFlags GetHierarchyFlags(
             Transform item,
+            Dictionary<Transform, NameFlags> hierarchyCache,
+            Dictionary<string, NameFlags> nameCache,
             System.Text.StringBuilder builder)
         {
-            builder.Clear();
+            if (item == null)
+                return NameFlags.None;
 
-            Transform current =
-                item;
+            if (hierarchyCache.TryGetValue(item, out NameFlags cached))
+                return cached;
 
-            // Classification only searches for name fragments, so hierarchy
-            // order is irrelevant. Appending avoids repeated front-inserts
-            // that shift the whole builder for every parent.
-            while (current != null)
+            // Name matches are independent of hierarchy order. Merge the
+            // parent's cached flags with this node's normalized name. Each
+            // Transform is evaluated once for the duration of Build().
+            NameFlags flags = GetHierarchyFlags(
+                item.parent,
+                hierarchyCache,
+                nameCache,
+                builder);
+
+            string name = item.name;
+            if (!nameCache.TryGetValue(name, out NameFlags ownFlags))
             {
-                AppendNormalized(
-                    builder,
-                    current.name);
+                builder.Clear();
+                AppendNormalized(builder, name);
+                string normalized = builder.ToString();
 
-                builder.Append(
-                    '/');
+                ownFlags = NameFlags.None;
+                if (ContainsAny(normalized, RoadNameParts))
+                    ownFlags |= NameFlags.Road;
+                if (ContainsAny(normalized, BuildingNameParts))
+                    ownFlags |= NameFlags.Building;
+                if (ContainsAny(normalized, IgnoreNameParts))
+                    ownFlags |= NameFlags.Ignore;
 
-                current =
-                    current.parent;
+                nameCache.Add(name, ownFlags);
             }
 
-            return
-                builder.ToString();
+            flags |= ownFlags;
+            hierarchyCache.Add(item, flags);
+            return flags;
         }
 
         private static bool ContainsAny(
@@ -946,6 +961,15 @@ public Texture2D Texture { get; private set; }
                             character));
                 }
             }
+        }
+
+        [Flags]
+        private enum NameFlags
+        {
+            None = 0,
+            Road = 1,
+            Building = 2,
+            Ignore = 4
         }
 
         private enum ShapeType
