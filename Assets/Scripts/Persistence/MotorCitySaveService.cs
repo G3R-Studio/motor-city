@@ -14,6 +14,35 @@ namespace MotorCity.Persistence
 
         private const int CurrentVersion = 2;
 
+#if UNITY_EDITOR
+        private static string isolatedStorageKey;
+        private static string isolatedBackupKey;
+#endif
+
+        private static string ActiveStorageKey
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (!string.IsNullOrEmpty(isolatedStorageKey))
+                    return isolatedStorageKey;
+#endif
+                return StorageKey;
+            }
+        }
+
+        private static string ActiveBackupKey
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (!string.IsNullOrEmpty(isolatedBackupKey))
+                    return isolatedBackupKey;
+#endif
+                return CorruptBackupKey;
+            }
+        }
+
         private static SaveDocument document;
         private static bool initialized;
         private static bool dirty;
@@ -672,7 +701,7 @@ namespace MotorCity.Persistence
 
             string json =
                 PlayerPrefs.GetString(
-                    StorageKey,
+                    ActiveStorageKey,
                     string.Empty);
 
             if (!string.IsNullOrWhiteSpace(
@@ -693,11 +722,11 @@ namespace MotorCity.Persistence
                     // This prevents a malformed save from being parsed on every
                     // launch while still leaving recovery data available.
                     PlayerPrefs.SetString(
-                        CorruptBackupKey,
+                        ActiveBackupKey,
                         json);
 
                     PlayerPrefs.DeleteKey(
-                        StorageKey);
+                        ActiveStorageKey);
 
                     PlayerPrefs.Save();
 
@@ -727,6 +756,69 @@ namespace MotorCity.Persistence
                     "\"Version\"",
                     StringComparison.Ordinal) >= 0;
         }
+
+#if UNITY_EDITOR
+        // Runs only from the isolated Editor CI gate. Production slot names
+        // remain untouched; the temporary slots are removed in finally.
+        public static void VerifyIsolatedPlayerPrefsRecovery()
+        {
+            SaveDocument previousDocument = document;
+            bool previousInitialized = initialized;
+            bool previousDirty = dirty;
+            bool previousNeedsFlush = needsFlush;
+            string previousStorageKey = isolatedStorageKey;
+            string previousBackupKey = isolatedBackupKey;
+            string token = Guid.NewGuid().ToString("N");
+            string testStorage = "MotorCity.Phase8.Isolated." + token;
+            string testBackup = testStorage + ".Backup";
+            string legacyKey = testStorage + ".Legacy";
+            try
+            {
+                isolatedStorageKey = testStorage;
+                isolatedBackupKey = testBackup;
+                initialized = false;
+                document = null;
+                dirty = false;
+                needsFlush = false;
+
+                PlayerPrefs.SetString(testStorage, "{ broken JSON");
+                PlayerPrefs.Save();
+                EnsureLoaded();
+                if (PlayerPrefs.HasKey(testStorage) ||
+                    PlayerPrefs.GetString(testBackup, "") != "{ broken JSON")
+                    throw new InvalidOperationException("Corrupt local JSON backup failed.");
+
+                PlayerPrefs.SetInt(legacyKey, 731);
+                initialized = false;
+                document = null;
+                if (GetInt(legacyKey, -1) != 731)
+                    throw new InvalidOperationException("Legacy PlayerPrefs migration failed.");
+                Save();
+                FlushNow();
+
+                // Simulated restart: clear only in-memory service state.
+                initialized = false;
+                document = null;
+                if (GetInt(legacyKey, -1) != 731)
+                    throw new InvalidOperationException("Migrated value lost after reload.");
+                if (!ExportJson().Contains(legacyKey))
+                    throw new InvalidOperationException("Migrated key missing in JSON slot.");
+            }
+            finally
+            {
+                PlayerPrefs.DeleteKey(testStorage);
+                PlayerPrefs.DeleteKey(testBackup);
+                PlayerPrefs.DeleteKey(legacyKey);
+                PlayerPrefs.Save();
+                isolatedStorageKey = previousStorageKey;
+                isolatedBackupKey = previousBackupKey;
+                document = previousDocument;
+                initialized = previousInitialized;
+                dirty = previousDirty;
+                needsFlush = previousNeedsFlush;
+            }
+        }
+#endif
 
         private static SaveDocument Normalize(
             SaveDocument source)
@@ -1021,7 +1113,7 @@ namespace MotorCity.Persistence
                     document);
 
             PlayerPrefs.SetString(
-                StorageKey,
+                ActiveStorageKey,
                 json);
 
             dirty = false;
