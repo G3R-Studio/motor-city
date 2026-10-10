@@ -146,6 +146,15 @@ jobs:
           MOTORCITY_PHASE3_REBUILD: ${{ (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[phase3-full-check]')) && '1' || '0' }}
         run: ./Tools/run_unity_phase2.ps1
 
+      - name: Show Phase 9 authored city material audit
+        shell: pwsh
+        run: |
+          $report = 'Temp/MotorCityAudit/UnityPhase2/unity-phase9-city-materials.txt'
+          if (-not (Test-Path -LiteralPath $report)) {
+            throw "Unity city material report was not generated: $report"
+          }
+          Get-Content -LiteralPath $report
+
       - name: Upload Unity validation reports
         if: always()
         uses: actions/upload-artifact@v4
