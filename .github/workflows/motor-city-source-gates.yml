@@ -112,10 +112,23 @@ jobs:
     runs-on: [self-hosted, Windows, X64, unity6000]
     timeout-minutes: 60
     steps:
-      - name: Checkout project
+      - name: Checkout project with bounded Git network operations
         uses: actions/checkout@v4
+        timeout-minutes: 12
+        env:
+          GIT_HTTP_LOW_SPEED_LIMIT: '1024'
+          GIT_HTTP_LOW_SPEED_TIME: '90'
         with:
           fetch-depth: 1
+          clean: false
+          persist-credentials: false
+
+      - name: Report checkout duration and repository size
+        shell: pwsh
+        run: |
+          git rev-parse --short HEAD
+          git count-objects -vH
+          Write-Host "Unity workspace: $env:GITHUB_WORKSPACE"
 
       - name: Validate Unity project in batch mode
         shell: pwsh
