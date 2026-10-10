@@ -180,6 +180,7 @@
 ## Phase 10 — Vehicle physics 🟡
 
 - [x] **2026-10-11 source-level trace**: `Docs/Baselines/Phase10VehiclePhysicsTrace-2026-10-11.md` — прослежены `Update`/`FixedUpdate`, Prometeo bridge, power assist, handbrake/stability, mode friction, four WheelColliders, compound body BoxColliders, fallback и virtual touch input. `Tools/check_phase10_vehicle_physics.py` защищает ключевые контракты в GitHub Actions. **Только исходники:** C# и prefab-геометрия не менялись; это не сертификат дорожных столкновений или поведения при низком FPS. CI и Play Mode-подтверждение фиксируются раздельно.
+- [x] **2026-10-11 ручной Play Mode smoke (со слов пользователя, одна машина, модель не уточнена):** столкновение с твёрдым препятствием и отъезд назад работают; удержание и отпускание ручника с последующим разгоном работают; переключение/езда в режимах Comfort, Sport и Drift без замечаний. Это функциональная проверка, **не** 9-car collision matrix, не тест мобильного ввода/низкого FPS и не измерение сил, пробуксовки либо WheelFrictionCurve.
 - [ ] Измерить взаимодействие `PrometeoCarController.Update` с `ArcadeCarController.FixedUpdate` и `HandbrakePhysicsAssist.FixedUpdate`: физический руль, сила тяги, ручник/отпускание, сочетание Comfort/Sport/Drift, в том числе при падении FPS.
 - [ ] Проверить drive modes, handbrake, WheelCollider friction, mobile input timing; затем настройка параметров по измерениям.
 - [ ] Play Mode road collision smoke всех релевантных машин.
