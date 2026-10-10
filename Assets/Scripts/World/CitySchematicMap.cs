@@ -284,8 +284,8 @@ public Texture2D Texture { get; private set; }
                         TextureWrapMode.Clamp
                 };
 
-            Color[] pixels =
-                new Color[
+            Color32[] pixels =
+                new Color32[
                     TextureSize *
                     TextureSize];
 
@@ -319,7 +319,7 @@ public Texture2D Texture { get; private set; }
                 pixels,
                 authoredBehaviours);
 
-            Texture.SetPixels(
+            Texture.SetPixels32(
                 pixels);
 
             Texture.Apply(
@@ -492,7 +492,7 @@ public Texture2D Texture { get; private set; }
         }
 
         private void DrawFcgTrafficRoads(
-            Color[] pixels,
+            Color32[] pixels,
             Component[] behaviours)
         {
             if (behaviours == null)
@@ -586,7 +586,7 @@ public Texture2D Texture { get; private set; }
         }
 
         private void DrawRoadSegment(
-            Color[] pixels,
+            Color32[] pixels,
             Vector3 worldA,
             Vector3 worldB)
         {
@@ -730,7 +730,7 @@ public Texture2D Texture { get; private set; }
         }
 
         private void DrawShape(
-            Color[] pixels,
+            Color32[] pixels,
             MapShape shape)
         {
             Bounds bounds =
