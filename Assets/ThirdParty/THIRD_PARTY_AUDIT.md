@@ -23,6 +23,20 @@ It is an audit checklist, not a replacement for the original package/license ter
 - Runtime dependency: Byte/Pixie character visual and spring-bone components.
 - Release action: verify the original Asset Store / bundled licensing terms referenced by the source note.
 
+## License files present but not independently cleared
+
+- `Packages/com.unity.springbone/LICENSE` and `LICENSE.md` contain the
+  embedded SpringBone package's MIT licence text; the package manifest is
+  `Packages/com.unity.springbone/package.json`.
+- `Assets/Fantastic City Generator/Documentation/License.pdf` is retained
+  with the FCG source assets. Its mere presence and `.meta` entry do not
+  establish the terms applicable to Motor City's current source or distribution.
+- `Assets/Fantasy Skybox FREE/Readme.txt` identifies the free Asset Store
+  listing (18353), but does not by itself complete a licensing review.
+- The Git-based SpriteLess UI package is tracked in
+  `Packages/packages-lock.json`; its applicable upstream licence still needs
+  explicit confirmation before release.
+
 ## Source documentation still required before release
 
 The project currently uses or retains the following third-party roots, but no
@@ -49,11 +63,15 @@ under `Assets/ThirdParty` during the release audit.
 - Used by activity/world marker VFX.
 - Required action: record package/source identifier and applicable original terms.
 
-### Ubuntu fonts
+### Ubuntu fonts — license present; binary provenance still pending
 - Runtime fonts: `Assets/Resources/MotorCity/Fonts/Ubuntu-Regular.ttf` and
   `Assets/Resources/MotorCity/Fonts/Ubuntu-Bold.ttf`.
-- Required action: keep or add the authoritative font license/source notice used
-  for these exact files.
+- The repository **already includes** `ThirdParty/UbuntuFont-LICENSE.txt`
+  (Ubuntu Font Licence Version 1.0). Do not add a second potentially
+  conflicting copy merely because it lives outside `Assets/ThirdParty`.
+- Remaining action: verify that the tracked TTF binaries correspond to the
+  identified upstream font release and preserve the licence/notice when
+  distributing the font. This audit does not certify their exact provenance.
 
 ### Imported vehicle source assets
 - Source roots include `Assets/VehicleAssets` and generated player-vehicle prefabs
