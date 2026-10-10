@@ -119,6 +119,7 @@
 - [x] Выполнен первый baseline audit: `Docs/Baselines/Phase8SaveProgressionAudit-2026-10-10.md`, автоматический реестр literal save keys + source contracts локального слота, backup, схемы и cloud revision (`Tools/check_phase8_save_progression.py`). Добавлен gate в CI; runtime миграции и облако не проверялись.
 
 - [ ] Единый реестр save keys и разграничение device/cloud/QA.
+- [x] Добавлены изолированные модельные сценарии cloud conflict и legacy JSON fixture в `Tools/test_phase8_save_fixtures.py`, подключены в CI (`61d8d0b`). Это Python-модели правил, **не** фактические Unity JsonUtility/PlayerPrefs тесты и не интеграционная проверка Yandex.
 - [ ] Миграции legacy progress + тесты существующих сохранений.
 - [ ] Restart, cloud conflict, fresh-save и offline scenarios.
 
