@@ -162,18 +162,18 @@
 - [ ] Дополнительную консолидацию обходов **25 634** renderers делать только при новом Profiler-доказательстве и после WebGL regression; прежнего runtime plant fix/rebinding больше нет.
 
 
-- [x] CI checkout workaround для Windows self-hosted: отдельный Git cache `_work` заполняется из `D:\\GitHub\\motor-city` без изменений пользовательской репы; отсутствующие коммиты инкрементально загружаются в CI-копию без shallow fetch, LFS hydration из локального кэша, проверка точного SHA, сохранение Library/Temp. Маленький загрузочный скрипт берётся по immutable SHA через GitHub API. Это обход медленного checkout, новый CI ещё не прошёл.
+- [x] CI checkout workaround для Windows self-hosted: отдельный Git cache `_work` заполняется из `D:\\GitHub\\motor-city` без изменений пользовательской репы; отсутствующие коммиты инкрементально загружаются в CI-копию без shallow fetch, LFS hydration из локального кэша, проверка точного SHA, сохранение Library/Temp. Маленький загрузочный скрипт берётся по immutable SHA через GitHub API. Это обход медленного checkout: фактические Unity Editor batch-запуски [#221](https://github.com/G3R-Studio/motor-city/actions/runs/38090497826) и [#226](https://github.com/G3R-Studio/motor-city/actions/runs/38092018558) успешно прошли с точной проверкой commit SHA.
 
 
 - [x] После подтверждённого checkout stall (Git fetch, pack 0 MB, Assets отсутствует) CI #38070735540 отменён. Self-hosted Unity checkout ограничен 12 минутами, Git HTTP low-speed лимитами, `clean: false` для сохранения рабочего кэша и выводом `git count-objects -vH`; source/UI проверки остаются отдельными. Новый CI ожидается, корневая причина сетевого зависания пока не доказана.
 
 
-- [x] Детальный `MotorCityWebMaterialDiagnostics.Run` перенесён за `DEVELOPMENT_BUILD || MOTORCITY_CITY_MATERIAL_AUDIT` внутри WebGL runtime ветки, чтобы release не делал массовый диагностический обход рендереров. Сама совместимость WebGL материалов и runtime plant fallback сохранены.
+- [x] Детальный `MotorCityWebMaterialDiagnostics.Run` защищён runtime `Debug.isDebugBuild` либо явным `MOTORCITY_CITY_MATERIAL_AUDIT` внутри WebGL player-ветки. Обычный Release не запускает массовый диагностический обход рендереров. Совместимость WebGL материалов не менялась; прежний runtime plant repair отсутствует и не восстанавливается.
 - [x] Read-only Unity Editor аудит материалов исходного `CityVisual.prefab` сохраняет `unity-phase9-city-materials.txt`. Актуальный отчёт CI #222 просмотрен в логах; 0 пустых слотов. Изоляция диагностики сохранена; никаких исправлений материалов и изменений Workbench не выполнялось.
 - [x] После сверки CI #222 с исходниками решено не переносить plant repairs — соответствующего runtime метода уже нет, в текущем prefab проблемных слотов нет.
 
 
-- [ ] Убрать лишнюю startup diagnostics из release; не терять QA диагностику.
+- [x] **2026-10-11 Release diagnostics scope** (`a08a361`, `a7d777a`): предупреждение о количестве FCG StreetLight/ParkLamp ограничено `Application.isEditor || Debug.isDebugBuild`, при этом учёт/управление источниками света не менялись. WebGL full-city `MotorCityWebMaterialDiagnostics.Run` по-прежнему выполняется лишь в development (`Debug.isDebugBuild`) или при явном `MOTORCITY_CITY_MATERIAL_AUDIT`. Source gate теперь охраняет оба условия. [CI #226](https://github.com/G3R-Studio/motor-city/actions/runs/38092018558) **PASS**: source/UI/Unity 6 Editor; WebGL build **skipped**, поэтому браузерное подтверждение Release остаётся в Phase 12. Это закрывает изоляцию найденной диагностики, а не заявляет об оптимизации загрузки всего города.
 - [x] Не переносить устаревший plant repair в Editor: он уже удалён из runtime и текущий префаб целостный. Для новых дефектов сначала воспроизвести и доказать конкретное нарушение authoring в FCG Workbench; автоматические изменения prefab не разрешены.
 - [ ] Profiler-driven оптимизация города и проверка GC/CPU/памяти.
 
