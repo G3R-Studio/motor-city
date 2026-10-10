@@ -261,8 +261,8 @@ jobs:
         with:
           name: motor-city-phase12-release-reports
           path: |
-            Temp/MotorCityAudit/Phase12/*.txt
-            Temp/MotorCityAudit/Phase12/*.log
+            Builds/Phase12/*.txt
+            Builds/Phase12/*.log
           if-no-files-found: warn
           retention-days: 14
 
@@ -271,7 +271,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: motor-city-webgl-desktop-release
-          path: Temp/MotorCityAudit/Phase12/WebGL-Desktop-Release/
+          path: Builds/Phase12/WebGL-Desktop-Release/
           if-no-files-found: error
           retention-days: 3
 
@@ -280,6 +280,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: motor-city-webgl-mobile-release
-          path: Temp/MotorCityAudit/Phase12/WebGL-Mobile-Release/
+          path: Builds/Phase12/WebGL-Mobile-Release/
           if-no-files-found: error
           retention-days: 3
