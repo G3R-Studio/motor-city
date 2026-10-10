@@ -286,11 +286,17 @@ namespace MotorCity.World
             FcgRuntimeGlassMaterialFactory.BindAuthoredWindowEmission(activeCity);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-#if DEVELOPMENT_BUILD || MOTORCITY_CITY_MATERIAL_AUDIT
-            // Diagnostic only: never rewrite authored city materials on WebGL.
-            MotorCityWebMaterialDiagnostics.Run(
-                activeCity);
+            // Development build detection is runtime-only in Unity 6.
+            // Keep the explicit audit define available for release diagnostics.
+            bool runMaterialDiagnostics = Debug.isDebugBuild;
+#if MOTORCITY_CITY_MATERIAL_AUDIT
+            runMaterialDiagnostics = true;
 #endif
+            if (runMaterialDiagnostics)
+            {
+                // Diagnostic only: never rewrite authored city materials.
+                MotorCityWebMaterialDiagnostics.Run(activeCity);
+            }
 #endif
 
             // Runtime treats the authored city as read-only.
