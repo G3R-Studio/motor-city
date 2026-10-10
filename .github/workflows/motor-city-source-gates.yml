@@ -1,7 +1,10 @@
 name: Motor City Source Gates
 
-# City authoring phase: run checks only when explicitly requested.
+# Run checks automatically on pushes to main, while retaining manual dispatch.
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
