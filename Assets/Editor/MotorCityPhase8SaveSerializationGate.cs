@@ -50,10 +50,10 @@ namespace MotorCity.EditorTools
                 string.Empty, out _), "empty metadata unexpectedly accepted");
             Require(!MotorCitySaveService.TryReadCloudMetadata(
                 "{}", out _), "unrelated JSON object unexpectedly accepted");
+            Require(!MotorCitySaveService.TryReadCloudMetadata(
                 @"{""Version"":0}", out _), "nonpositive schema version accepted");
-                "{\"Version\\":0}", out _), "nonpositive schema version accepted");
+            Require(!MotorCitySaveService.TryReadCloudMetadata(
                 @"{""NotASave"":123}", out _), "foreign JSON envelope accepted");
-                "{\"NotASave\\":123}", out _), "foreign JSON envelope accepted");
 
             // Also verify serialization round trip with Unity's own JSON
             // serialization; no PlayerPrefs slots or player records involved.
