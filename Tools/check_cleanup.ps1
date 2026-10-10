@@ -15,9 +15,24 @@ try {
         }
     }
     Write-Output "All $($files.Count) C# sources passed syntax checks (Editor, native player, WebGL)."
-    Add-Type -Path Tools/Tests/ReflectionCaptureChecks.cs,Assets/Scripts/World/CityReflectionProbeCaptureRunner.cs
-    [ReflectionCaptureChecks]::Run()
-    Write-Output 'Reflection queue, caller snapshot, fog restoration and disable checks passed.'
+    # Phase 9 removed the costly realtime city reflection-probe grid and its
+    # capture runner. The old ReflectionCaptureChecks fixture exercised only
+    # that deleted class; instead guard against accidentally restoring it.
+    $retiredRunner = 'Assets/Scripts/World/CityReflectionProbeCaptureRunner.cs'
+    if (Test-Path -LiteralPath $retiredRunner) {
+        throw "Retired city reflection-probe capture runner was restored."
+    }
+    foreach ($runtimeFile in @(
+        'Assets/Scripts/World/CityAssetRuntimeInstaller.cs'
+        'Assets/Scripts/World/DayNightCycleController.cs'
+    )) {
+        $runtimeSource = [IO.File]::ReadAllText((Join-Path $projectRoot $runtimeFile))
+        if ($runtimeSource.Contains('InstallCityReflectionProbes') -or
+            $runtimeSource.Contains('CityReflectionProbeCaptureRunner')) {
+            throw "Retired realtime city reflection capture reference in $runtimeFile"
+        }
+    }
+    Write-Output 'Phase 9 retired city reflection-probe capture regression check passed.'
 
     Add-Type -Path Tools/Tests/CityFieldCacheChecks.cs,Assets/Scripts/World/AuthoredCityFieldCache.cs
     [CityFieldCacheChecks]::Run()
