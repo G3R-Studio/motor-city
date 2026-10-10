@@ -399,11 +399,11 @@ public Texture2D Texture { get; private set; }
             if (behaviours == null)
                 return;
 
-            foreach (Component component in
+            foreach (Component behaviourComponent in
                      behaviours)
             {
                 MonoBehaviour behaviour =
-                    component as MonoBehaviour;
+                    behaviourComponent as MonoBehaviour;
                 if (behaviour == null)
                     continue;
 
@@ -506,11 +506,11 @@ public Texture2D Texture { get; private set; }
             if (behaviours == null)
                 return;
 
-            foreach (Component component in
+            foreach (Component behaviourComponent in
                      behaviours)
             {
                 MonoBehaviour behaviour =
-                    component as MonoBehaviour;
+                    behaviourComponent as MonoBehaviour;
                 if (behaviour == null)
                     continue;
 
