@@ -63,7 +63,7 @@ if not wrapper.is_file():
     errors.append("Missing Phase 12 release runner")
 else:
     source = wrapper.read_text(encoding="utf-8-sig")
-    for fragment in ("-activeBuildProfile", "MOTORCITY_PHASE12_PROFILE",
+    for fragment in ("-activeBuildProfile", "MOTORCITY_PHASE12_PROFILE", "Builds/Phase12",
                      "MotorCity.EditorTools.MotorCityPhase12ReleaseBuild.Build"):
         if fragment not in source:
             errors.append(f"Phase 12 PowerShell runner missing: {fragment}")
