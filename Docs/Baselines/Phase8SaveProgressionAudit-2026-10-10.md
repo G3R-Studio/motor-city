@@ -67,3 +67,9 @@ covered by this static gate and remain in the Phase 8 integration QA.
 ## Phase 8 save envelope recovery guard
 
 `MotorCitySaveService` now validates the parsed document envelope (`Version` field present and positive) before reading cloud metadata, importing a remote snapshot, or accepting a local PlayerPrefs JSON. Invalid local envelopes enter the existing corrupt-backup path; invalid remote JSON cannot overwrite the active local document. Unity Editor fixtures cover `{}`, a foreign object, and version zero. The gate does not write PlayerPrefs; real backup-slot and restart behavior still require isolated integration tests. The check is deliberately narrow, not full semantic validation of arbitrary progress values.
+
+## Disposable Unity PlayerPrefs integration check
+
+The Unity Editor serialization gate now calls `MotorCitySaveService.VerifyIsolatedPlayerPrefsRecovery` (editor-only). It creates GUID-namespaced temporary PlayerPrefs storage and backup keys, validates malformed local JSON backup, migrates one legacy integer on read, saves it, clears the in-memory document to simulate reloading, and verifies the saved value. A `finally` block deletes temporary keys and restores all previous service state. The production `MotorCity.Save.Json.v1` and `MotorCity.Save.CorruptBackup.v1` keys are never used by this test.
+
+This is still not a full process restart test and does not exercise live Yandex cloud callbacks or actual user save files.
