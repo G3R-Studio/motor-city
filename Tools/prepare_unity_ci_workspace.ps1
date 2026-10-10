@@ -25,29 +25,31 @@ if ($LASTEXITCODE -ne 0 -or [IO.Path]::GetFullPath($inside).TrimEnd('\') -ine $s
 if ($LASTEXITCODE -ne 0) {
     throw "Commit $Commit is missing from the local seed. Fetch it into $seedFull yourself first (git fetch origin), then re-run CI. CI will not write to that repository."
 }
+# Git fetch was previously stuck in the isolated runner checkout. We may
+# replace only this CI workspace's partial .git data, never the seed repo.
+$runnerPathMarker = [IO.Path]::Combine('_work', 'motor-city', 'motor-city')
+if ($workspaceFull -notlike "*$runnerPathMarker*") {
+    throw "Unexpected Unity CI workspace; refusing to touch its Git files: $workspaceFull"
+}
 $target = Join-Path $workspaceFull '.git'
 if (Test-Path -LiteralPath $target) {
-    throw "CI Git directory already exists. Refusing to mix incomplete network checkout with local seed; clean only the isolated runner workspace manually."
+    Remove-Item -LiteralPath $target -Recurse -Force
 }
 Write-Host "Creating independent CI Git object database from read-only local seed."
-New-Item -ItemType Directory -Path $workspaceFull -Force | Out-Null
-# --no-hardlinks copies objects: no permanent alternates or hardlinks into
-# the developer repository; no user working files or index are modified.
+# --no-hardlinks ensures no permanent alternates or shared mutable objects.
 & git clone --local --no-hardlinks --no-checkout -- $seedFull $workspaceFull
 if ($LASTEXITCODE -ne 0) { throw "Local Git clone failed." }
 & git -C $workspaceFull checkout --detach --force $Commit
 if ($LASTEXITCODE -ne 0) { throw "Cannot check out requested immutable commit." }
 $actual = (& git -C $workspaceFull rev-parse HEAD).Trim()
 if ($actual -ine $Commit) { throw "CI checkout SHA mismatch ($actual)." }
-# Detect Git LFS pointers: never silently validate a Unity project with
-# placeholder binary assets.
-$lfs = & git -C $workspaceFull lfs ls-files 2>$null
-if ($LASTEXITCODE -eq 0 -and $lfs) {
-    Write-Host "Repository contains LFS-managed assets; verifying hydration."
-    & git -C $workspaceFull lfs checkout
-    if ($LASTEXITCODE -ne 0) { throw "Unable to hydrate LFS objects from local cache." }
-    $missing = & git -C $workspaceFull lfs ls-files 2>$null | Where-Object { $_ -match '^\s*[0-9a-f]+\s+-\s+' }
-    if ($missing) { throw "Some LFS objects are unavailable locally. Refusing incomplete Unity audit." }
+# Preserve Unity Library cache while deleting stale untracked files.
+& git -C $workspaceFull clean -ffdx -e Library/ -e Temp/
+if ($LASTEXITCODE -ne 0) { throw "Isolated CI workspace cleanup failed." }
+# Disallow unhydrated LFS assets in the Unity scene imports.
+& git -C $workspaceFull lfs checkout
+if ($LASTEXITCODE -ne 0) {
+    throw "LFS hydration failed; fetch missing objects into the local seed first."
 }
 Write-Host "Prepared exact $Commit from read-only local Git seed."
 & git -C $workspaceFull count-objects -vH
