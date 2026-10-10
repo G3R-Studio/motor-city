@@ -1,9 +1,7 @@
 name: Motor City Source Gates
 
+# City authoring phase: run checks only when explicitly requested.
 on:
-  push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
 
 permissions:
