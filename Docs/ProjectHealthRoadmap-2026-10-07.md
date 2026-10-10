@@ -19,7 +19,7 @@
 | 8 — Save/progression | 🟡 Локальный scope PASS, cloud pending | CI Unity/source PASS (#38069503126); Play Mode + restart PASS по пользователю; Yandex cloud/device QA ещё открыта |
 | 9 — City/runtime | 🟡 Частично завершена; дальнейшая оптимизация запуска остановлена | read-only prefab audit, release diagnostic guard, Editor Profiler; WebGL/perf matrix не закрыта |
 | 10 — Vehicle physics | 🟡 Начата | исходная цепочка force/steer/friction/collision/input прослежена; реальный Play Mode smoke и измерения открыты |
-| 11 — Asset/packages | ⬜ Открыта | пакеты, дубликаты, источник города |
+| 11 — Asset/packages | 🟡 Начата | read-only Git blob/package inventory, неавторизованные удаления запрещены; Unity dependency + license + LFS decision открыты |
 | 12 — Release matrix | ⬜ Открыта | два WebGL Release Build Profiles + браузер/устройство |
 
 ## Подтверждённые результаты
@@ -183,14 +183,16 @@
 - [x] **2026-10-11 ручной Play Mode smoke (первоначально одна машина, со слов пользователя):** столкновение с твёрдым препятствием и отъезд назад работают; удержание и отпускание ручника с последующим разгоном работают; переключение/езда в режимах Comfort, Sport и Drift без замечаний. Позднее пользователь подтвердил нормальную работу **всех машин** — см. итоговый smoke ниже. Это не тест мобильного WebGL/низкого FPS и не измерение сил, пробуксовки либо WheelFrictionCurve.
 - [x] **2026-10-11 ручной Play Mode smoke мобильного руля (по подтверждению пользователя):** при быстрых поворотах влево-вправо руль не дрожит, автомобиль реагирует плавно, после отпускания руль возвращается в центр. Проверка в Play Mode; реальные тачскрин/мобильный WebGL, стрелки, задержка при низком FPS и все модели ещё не подтверждены.
 - [x] **2026-10-11 ручной Play Mode smoke управления стрелками (по подтверждению пользователя):** при быстром чередовании левой и правой стрелок и отпускании обеих машина перестаёт поворачивать; газ, тормоз и ручник работают нормально. Не является проверкой реального сенсорного устройства, задержки ввода при низком FPS или браузерного WebGL.
+- [x] **2026-10-11 ручной Play Mode smoke паузы (по подтверждению пользователя):** после паузы и «Продолжить» машина не ускоряется сама, управление рулём и тормозами сохраняется. Низкий FPS и браузер/реальное мобильное устройство этим тестом не покрыты.
 - [ ] Измерить взаимодействие `PrometeoCarController.Update` с `ArcadeCarController.FixedUpdate` и `HandbrakePhysicsAssist.FixedUpdate`: физический руль, сила тяги, ручник/отпускание, сочетание Comfort/Sport/Drift, в том числе при падении FPS.
 - [ ] Проверить drive modes, handbrake, WheelCollider friction, mobile input timing; затем настройка параметров по измерениям.
 - [x] **2026-10-11 Bus Play Mode smoke (по подтверждению пользователя):** движение вперёд/назад, столкновение со стеной без прохождения сквозь неё, отъезд после контакта и расположение колёс, включая дополнительную заднюю визуальную ось, без замечаний. Численные collision/handling замеры не проводились.
 - [x] **2026-10-11 Play Mode road collision smoke — все 9 авторских машин, по сообщению пользователя:** после отдельного теста Bus и предложенной проверки Toyota AE86 пользователь подтвердил «со всеми машинами всё чётко». Покрытие по устному подтверждению: Beatall, Peugeot306, ToyotaAE86, Hybrid, Porsche996, AmgGT, Camaro, Delorean, Bus. Базовые сценарии: движение, контакт с препятствием, отъезд назад и видимое положение колёс. **Это пользовательский функциональный smoke, без отдельных логов/измерений по каждой модели**; физические метрики, низкий FPS и мобильный WebGL ещё открыты.
 
-## Phase 11 — Final asset/package cleanup
+## Phase 11 — Final asset/package cleanup 🟡
 
-- [ ] Третьесторонние пакеты, точные binary duplicates и texture dependencies.
+- [x] **2026-10-11 read-only Git/source inventory**: `Docs/Baselines/Phase11AssetPackageInventory-2026-10-11.md`, `Tools/check_phase11_asset_inventory.py` и CI step. В дереве до изменений Phase 11: 4 516 blobs, из них 1 784 файлов моделей/текстур/материалов/аудио/шрифтов/префабов; **3 группы точных Git blob дубликатов (7 файлов)**, 13 прямых/38 resolved package entries. Раздельные FCG_Workbench (97 978 478 bytes) и CityVisual (103 001 717 bytes) сохранены; не пытаться дедуплицировать GUID/Resources и не мигрировать в LFS без отдельного решения. **0 удалений и 0 подтверждённых deletion candidates**. CI проверка/Unity dependency граф отдельно.
+- [ ] Третьесторонние пакеты, точные binary duplicates и texture dependencies: Unity serialized/runtime GUID consumer graph, reimport и конкретные лицензии ещё требуют проверки; совпадение Git blob не доказательство безопасного удаления.
 - [ ] Разделение source/generated runtime city, размер репозитория и LFS (только после решения).
 - [ ] Удалять исключительно доказанные candidates отдельными revertable commits.
 
