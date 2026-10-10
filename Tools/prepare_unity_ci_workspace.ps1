@@ -19,12 +19,8 @@ $inside = & git -C $seedFull rev-parse --show-toplevel 2>$null
 if ($LASTEXITCODE -ne 0 -or [IO.Path]::GetFullPath($inside).TrimEnd('\') -ine $seedFull.TrimEnd('\')) {
     throw "Read-only Git seed is not a valid repository at $seedFull."
 }
-# cat-file reads the local object database only, and never fetches or updates
-# branches, the index, or working files in the developer's repository.
-& git -C $seedFull cat-file -e "$Commit^{commit}" 2>$null
-if ($LASTEXITCODE -ne 0) {
-    throw "Commit $Commit is missing from the local seed. Fetch it into $seedFull yourself first (git fetch origin), then re-run CI. CI will not write to that repository."
-}
+# The developer clone is read-only. New CI commits may not be present
+# locally; fetch only the missing delta into the runner-owned Git database.
 # Git fetch was previously stuck in the isolated runner checkout. We may
 # replace only this CI workspace's partial .git data, never the seed repo.
 $runnerPathMarker = [IO.Path]::Combine('_work', 'motor-city', 'motor-city')
@@ -39,9 +35,29 @@ New-Item -ItemType Directory -Path $workspaceFull -Force | Out-Null
 & git -C $workspaceFull init --quiet
 if ($LASTEXITCODE -ne 0) { throw "CI Git initialization failed." }
 # Local Git object transfer; no GitHub network requests and no writes to seed.
-& git -C $workspaceFull -c protocol.file.allow=always fetch --no-tags --no-write-fetch-head -- $seedFull $Commit
+& git -C $workspaceFull -c protocol.file.allow=always fetch --no-tags -- $seedFull HEAD
 if ($LASTEXITCODE -ne 0) { throw "Local object transfer from seed failed." }
-& git -C $workspaceFull checkout --detach --force $Commit
+& git -C $workspaceFull cat-file -e "$Commit^{commit}" 2>$null
+if ($LASTEXITCODE -ne 0) {
+    if (-not $Repository -or $Repository -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') {
+        throw "Missing valid GITHUB_REPOSITORY for remote incremental fetch."
+    }
+    Write-Host "Requested SHA absent locally; fetching incremental objects into isolated CI cache."
+    $remote = "https://github.com/$Repository.git"
+    $env:GIT_HTTP_LOW_SPEED_LIMIT = '1024'
+    $env:GIT_HTTP_LOW_SPEED_TIME = '60'
+    # A full-history local base avoids GitHub's expensive --depth=1 pack.
+    # The overall step has a separate 10-minute Actions timeout.
+    & git -C $workspaceFull -c protocol.version=2 fetch --no-tags -- $remote $Commit
+    if ($LASTEXITCODE -ne 0) { throw "Incremental remote fetch failed." }
+}
+$oldSmudge = $env:GIT_LFS_SKIP_SMUDGE
+$env:GIT_LFS_SKIP_SMUDGE = '1'
+try {
+    & git -C $workspaceFull checkout --detach --force $Commit
+} finally {
+    $env:GIT_LFS_SKIP_SMUDGE = $oldSmudge
+}
 if ($LASTEXITCODE -ne 0) { throw "Cannot check out requested immutable commit." }
 $actual = (& git -C $workspaceFull rev-parse HEAD).Trim()
 if ($actual -ine $Commit) { throw "CI checkout SHA mismatch ($actual)." }
