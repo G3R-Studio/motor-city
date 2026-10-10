@@ -112,23 +112,30 @@ jobs:
     runs-on: [self-hosted, Windows, X64, unity6000]
     timeout-minutes: 60
     steps:
-      - name: Checkout project with bounded Git network operations
-        uses: actions/checkout@v4
-        timeout-minutes: 12
-        env:
-          GIT_HTTP_LOW_SPEED_LIMIT: '1024'
-          GIT_HTTP_LOW_SPEED_TIME: '90'
-        with:
-          fetch-depth: 1
-          clean: false
-          persist-credentials: false
-
-      - name: Report checkout duration and repository size
+      - name: Prepare exact commit from local read-only Git seed
         shell: pwsh
+        timeout-minutes: 10
+        env:
+          MOTORCITY_READ_ONLY_SEED: 'D:\GitHub\motor-city'
         run: |
-          git rev-parse --short HEAD
-          git count-objects -vH
-          Write-Host "Unity workspace: $env:GITHUB_WORKSPACE"
+          $ErrorActionPreference = 'Stop'
+          $seed = $env:MOTORCITY_READ_ONLY_SEED
+          $sha = $env:GITHUB_SHA
+          if (-not (Test-Path -LiteralPath $seed)) {
+            throw "Local Git seed is missing: $seed"
+          }
+          git -C $seed cat-file -e "$sha`^{commit}"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Required SHA $sha is absent from the read-only seed. On the developer machine run: git -C D:\GitHub\motor-city fetch origin main"
+          }
+          # The script is loaded from the exact verified commit, not from the
+          # developer's working tree or an unauthenticated remote endpoint.
+          $script = Join-Path $env:RUNNER_TEMP 'motorcity-prepare-ci.ps1'
+          git -C $seed show "${sha}:Tools/prepare_unity_ci_workspace.ps1" |
+            Set-Content -LiteralPath $script -Encoding utf8
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot load seed checkout script.' }
+          & $script -Commit $sha -ReadOnlySeed $seed -Workspace $env:GITHUB_WORKSPACE
+          if ($LASTEXITCODE -ne 0) { throw 'CI checkout failed.' }
 
       - name: Validate Unity project in batch mode
         shell: pwsh
