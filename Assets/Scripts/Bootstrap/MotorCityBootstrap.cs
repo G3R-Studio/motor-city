@@ -924,15 +924,37 @@ namespace MotorCity.Bootstrap
             if (cityRoot == null)
                 return;
 
-            foreach (MonoBehaviour behaviour in
-                     cityRoot.GetComponentsInChildren<MonoBehaviour>(true))
+            // The runtime prefab keeps authored Traffic System beside
+            // City-Maker. Find it directly instead of inspecting every script
+            // across the entire 26k-renderer city hierarchy.
+            Transform trafficRoot =
+                cityRoot.transform.Find("Traffic System") ??
+                cityRoot.transform.Find("City-Maker/Traffic System");
+
+            if (trafficRoot != null &&
+                TryBindFcgTrafficPlayer(
+                    trafficRoot.GetComponentsInChildren<MonoBehaviour>(true),
+                    player))
+            {
+                return;
+            }
+
+            // Preserve compatibility with older authored FCG hierarchies.
+            TryBindFcgTrafficPlayer(
+                cityRoot.GetComponentsInChildren<MonoBehaviour>(true),
+                player);
+        }
+
+        private static bool TryBindFcgTrafficPlayer(
+            IEnumerable<MonoBehaviour> behaviours,
+            Transform player)
+        {
+            foreach (MonoBehaviour behaviour in behaviours)
             {
                 if (behaviour == null)
                     continue;
 
-                System.Type type =
-                    behaviour.GetType();
-
+                System.Type type = behaviour.GetType();
                 if (!string.Equals(
                         type.FullName,
                         "FCG.TrafficSystem",
@@ -942,8 +964,7 @@ namespace MotorCity.Bootstrap
                 }
 
                 System.Reflection.FieldInfo playerField =
-                    type.GetField(
-                        "player");
+                    type.GetField("player");
 
                 if (playerField == null ||
                     !typeof(Transform).IsAssignableFrom(
@@ -951,13 +972,10 @@ namespace MotorCity.Bootstrap
                 {
                     Debug.LogWarning(
                         "Motor City: FCG TrafficSystem was found, but its public player field is unavailable.");
-
-                    return;
+                    return true;
                 }
 
-                playerField.SetValue(
-                    behaviour,
-                    player);
+                playerField.SetValue(behaviour, player);
 
                 TrafficQualityAdapter qualityAdapter =
                     behaviour.GetComponent<TrafficQualityAdapter>();
@@ -965,15 +983,14 @@ namespace MotorCity.Bootstrap
                 if (qualityAdapter == null)
                 {
                     qualityAdapter =
-                        behaviour.gameObject.AddComponent<
-                            TrafficQualityAdapter>();
+                        behaviour.gameObject.AddComponent<TrafficQualityAdapter>();
                 }
 
-                qualityAdapter.Bind(
-                    behaviour);
-
-                return;
+                qualityAdapter.Bind(behaviour);
+                return true;
             }
+
+            return false;
         }
 
         private static void CreateDayNightCycle()
@@ -995,25 +1012,11 @@ namespace MotorCity.Bootstrap
                 return;
             }
 
+            // City geometry must be authored in FCG_Workbench and baked into
+            // CityVisual.prefab. Never synthesize temporary terrain at runtime.
             Debug.LogWarning(
-                "Motor City: Fantastic City Generator runtime city is missing. " +
-                "Generate City-Maker and bake it through the Motor City FCG tool.");
-
-            Material asphalt =
-                Material(
-                    new Color(0.045f, 0.048f, 0.055f),
-                    0.08f,
-                    0.23f);
-
-            GameObject ground =
-                Primitive(
-                    "Temporary City Test Surface",
-                    PrimitiveType.Cube,
-                    new Vector3(0f, -0.52f, 0f),
-                    new Vector3(500f, 1f, 500f),
-                    asphalt);
-
-            ground.isStatic = true;
+                "Motor City: CityVisual.prefab is missing. " +
+                "Open FCG_Workbench and use 5 - Build Runtime City.");
         }
 
         private static ArcadeCarController CreateCar()
@@ -1707,16 +1710,6 @@ namespace MotorCity.Bootstrap
                 achievements,
                 adventureDirector,
                 playOpeningPresentation);
-        }
-
-        private static GameObject Primitive(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
-        {
-            GameObject go = GameObject.CreatePrimitive(type);
-            go.name = name;
-            go.transform.position = position;
-            go.transform.localScale = scale;
-            go.GetComponent<Renderer>().sharedMaterial = material;
-            return go;
         }
 
         private static GameObject Primitive(string name, PrimitiveType type, Transform parent, Vector3 scale, Vector3 localPosition, Material material, bool keepCollider)
