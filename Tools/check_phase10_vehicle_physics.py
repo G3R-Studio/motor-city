@@ -15,11 +15,11 @@ def source(path):
 
 
 def compact(value):
-    return re.sub(r"\\s+", "", value)
+    return re.sub(r"\s+", "", value)
 
 
 def method(code, name, owner):
-    pattern = r"\\b(?:private|public|internal)\\s+(?:static\\s+)?(?:void|bool)\\s+" + re.escape(name) + r"\\s*\\("
+    pattern = r"\b(?:private|public|internal)\s+(?:static\s+)?(?:void|bool)\s+" + re.escape(name) + r"\s*\("
     found = re.search(pattern, code)
     if not found:
         errors.append(f"{owner}: missing method {name}")
