@@ -53,12 +53,6 @@ namespace MotorCity.World
         private readonly HashSet<Light> desiredLampLights =
             new();
 
-        private readonly HashSet<Light> shadowedLampLights =
-            new();
-
-        private readonly List<Light> shadowToggleBuffer =
-            new();
-
         private readonly List<LampCandidate> lampCandidates =
             new();
 
@@ -84,8 +78,6 @@ namespace MotorCity.World
         private int streetLightSourceCount;
         private int parkLampSourceCount;
         private Light garageLight;
-        private Texture2D streetLampCookie;
-        private Texture2D parkLampCookie;
         private Transform lampObserver;
         private bool lastNightState;
         private bool initialized;
@@ -250,10 +242,6 @@ namespace MotorCity.World
 
             MotorCityQualityRuntime.PresetChanged -=
                 HandleQualityPresetChanged;
-
-            DisableLampShadows();
-            if (streetLampCookie != null) Destroy(streetLampCookie);
-            if (parkLampCookie != null) Destroy(parkLampCookie);
 
             if (runtimeMorningSkybox != null)
                 Destroy(
@@ -1037,7 +1025,9 @@ namespace MotorCity.World
                     IsParkLamp(
                         sourceLight.transform);
 
-                ConfigureStreetLamp(sourceLight, isParkLamp);
+                // Keep the authored Spot Light world position, rotation,
+                // angle, range, color and intensity from FCG_Workbench.
+                // Only the day/night on-off state and brightness fade change.
                 sourceLight.enabled =
                     false;
 
@@ -1172,26 +1162,12 @@ namespace MotorCity.World
                         80
                 };
 
-            int shadowBudget =
-                MotorCityQualityRuntime.CurrentPreset switch
-                {
-                    MotorCityQualityPreset.Low =>
-                        0,
-
-                    MotorCityQualityPreset.High =>
-                        4,
-
-                    _ =>
-                        2
-                };
-
 #if UNITY_WEBGL && !UNITY_EDITOR
             // Avoid first-use additional-light shader stalls in browsers.
             // Web keeps emissive windows/materials and vehicle headlights,
             // but does not enable city realtime Light components.
             lampDistance = 0f;
             lightBudget = 0;
-            shadowBudget = 0;
 #endif
 
             float maximumDistanceSquared =
@@ -1304,9 +1280,6 @@ namespace MotorCity.World
                 }
             }
 
-            ApplyLampShadows(
-                shadowBudget);
-
             lampToggleBuffer.Clear();
 
             foreach (Light light in
@@ -1361,8 +1334,6 @@ namespace MotorCity.World
 
         private void DisableEnabledLampLights()
         {
-            DisableLampShadows();
-
             if (enabledLampLights.Count == 0)
                 return;
 
@@ -1406,111 +1377,6 @@ namespace MotorCity.World
 
             CityAssetRuntimeInstaller
                 .RefreshCityReflectionProbes();
-        }
-
-        private void ApplyLampShadows(
-            int shadowBudget)
-        {
-            shadowToggleBuffer.Clear();
-
-            foreach (Light light in
-                     shadowedLampLights)
-            {
-                shadowToggleBuffer.Add(
-                    light);
-            }
-
-            for (int i = 0;
-                 i < shadowToggleBuffer.Count;
-                 i++)
-            {
-                Light light =
-                    shadowToggleBuffer[i];
-
-                if (light != null &&
-                    light.shadows !=
-                        LightShadows.None)
-                {
-                    light.shadows =
-                        LightShadows.None;
-                }
-            }
-
-            shadowedLampLights.Clear();
-
-            if (shadowBudget <= 0)
-                return;
-
-            int count =
-                Mathf.Min(
-                    shadowBudget,
-                    lampCandidates.Count);
-
-            LightShadows shadowMode =
-                MotorCityQualityRuntime.CurrentPreset ==
-                MotorCityQualityPreset.High
-                    ? LightShadows.Soft
-                    : LightShadows.Hard;
-
-            for (int i = 0;
-                 i < count;
-                 i++)
-            {
-                Light light =
-                    lampSources[
-                        lampCandidates[i].SourceIndex]
-                    .Light;
-
-                if (light == null ||
-                    !desiredLampLights.Contains(
-                        light))
-                {
-                    continue;
-                }
-
-                light.shadows =
-                    shadowMode;
-
-                light.shadowStrength =
-                    MotorCityQualityRuntime.CurrentPreset ==
-                    MotorCityQualityPreset.High
-                        ? 0.58f
-                        : 0.42f;
-
-                shadowedLampLights.Add(
-                    light);
-            }
-        }
-
-        private void DisableLampShadows()
-        {
-            if (shadowedLampLights.Count == 0)
-                return;
-
-            shadowToggleBuffer.Clear();
-
-            foreach (Light light in
-                     shadowedLampLights)
-            {
-                shadowToggleBuffer.Add(
-                    light);
-            }
-
-            for (int i = 0;
-                 i < shadowToggleBuffer.Count;
-                 i++)
-            {
-                Light light =
-                    shadowToggleBuffer[i];
-
-                if (light != null)
-                {
-                    light.shadows =
-                        LightShadows.None;
-                }
-            }
-
-            shadowedLampLights.Clear();
         }
 
         private static Vector2Int LampCell(
@@ -1564,66 +1430,6 @@ namespace MotorCity.World
             }
         }
 
-        private void ConfigureStreetLamp(Light light, bool park)
-        {
-            Transform fixture = light.transform.parent;
-            for (Transform current = fixture; current != null; current = current.parent)
-            {
-                string name = NormalizeName(current.name);
-                if (name.StartsWith("streetlight", StringComparison.Ordinal) ||
-                    name.StartsWith("parklamp", StringComparison.Ordinal) ||
-                    name.StartsWith("parklight", StringComparison.Ordinal))
-                { fixture = current; break; }
-            }
-            float height = Mathf.Clamp(light.transform.position.y -
-                (fixture != null ? fixture.position.y : light.transform.position.y - 8f), 3f, 18f);
-            Vector3 heading = Vector3.ProjectOnPlane(light.transform.forward, Vector3.up);
-            if (heading.sqrMagnitude < .01f && fixture != null)
-                heading = Vector3.ProjectOnPlane(fixture.forward, Vector3.up);
-            if (heading.sqrMagnitude < .01f) heading = Vector3.forward;
-            heading.Normalize();
-            // Small tilt toward the roadway, with the long axis across the arm.
-            light.transform.rotation = Quaternion.LookRotation(
-                (Vector3.down + heading * (park ? .04f : .18f)).normalized, heading);
-            light.type = LightType.Spot;
-            light.renderMode = LightRenderMode.ForcePixel;
-            light.color = park ? new Color(1f, .84f, .66f) : new Color(1f, .91f, .79f);
-            light.range = Mathf.Clamp(height * (park ? 3.0f : 3.5f), park ? 12f : 24f, park ? 24f : 48f);
-            light.spotAngle = park ? 105f : 118f;
-            light.innerSpotAngle = park ? 62f : 78f;
-            light.intensity = (park ? 7f : 18f) * Mathf.Clamp(height * height / (park ? 25f : 81f), .65f, 2f);
-            light.cullingMask = ~0;
-            light.shadows = LightShadows.None;
-            light.shadowBias = .035f;
-            light.shadowNormalBias = .2f;
-            light.shadowNearPlane = .15f;
-            if (park && parkLampCookie == null) parkLampCookie = CreateLampCookie(true);
-            if (!park && streetLampCookie == null) streetLampCookie = CreateLampCookie(false);
-            light.cookie = park ? parkLampCookie : streetLampCookie;
-        }
-
-        private static Texture2D CreateLampCookie(bool park)
-        {
-            const int size = 128;
-            Texture2D texture = new(size, size, TextureFormat.RGBA32, false, true);
-            texture.name = park ? "MotorCity Park Light Distribution" : "MotorCity Street Light Distribution";
-            texture.wrapMode = TextureWrapMode.Clamp;
-            texture.filterMode = FilterMode.Bilinear;
-            texture.hideFlags = HideFlags.DontSave;
-            Color[] pixels = new Color[size * size];
-            for (int y = 0; y < size; y++)
-                for (int x = 0; x < size; x++)
-                {
-                    float u = (x + .5f) / size * 2f - 1f;
-                    float v = ((y + .5f) / size * 2f - 1f) / (park ? .95f : .66f);
-                    float radius = Mathf.Sqrt(u * u + v * v);
-                    float transmission = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.28f, .98f, radius));
-                    pixels[y * size + x] = new Color(transmission, transmission, transmission, 1f);
-                }
-            texture.SetPixels(pixels);
-            texture.Apply(false, true);
-            return texture;
-        }
         private static bool IsParkLamp(
             Transform transform)
         {
