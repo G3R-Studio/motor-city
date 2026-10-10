@@ -1,6 +1,6 @@
 # Motor City — Project Health / Cleanup Roadmap
 
-Обновлено: **2026-10-09**. Исходный аудит: 2026-10-07. История промежуточных попыток и ошибок удалена из этого трекера; она остаётся в Git-коммитах и GitHub Actions.
+Обновлено: **2026-10-11**. Исходный аудит: 2026-10-07. История промежуточных попыток и ошибок удалена из этого трекера; она остаётся в Git-коммитах и GitHub Actions.
 
 **Правило:** `[x]` означает завершённый и подтверждённый пункт в заявленном объёме; `[ ]` — открытый gate. Статический анализ и CI не заменяют Play Mode, браузерную проверку и профилирование. Нельзя удалять Unity assets по отсутствию прямых C# или GUID-ссылок: важны Resources.Load, importer/builder, сцены, сериализация, сохранения и события. Ручной визуал уже подтверждён пользователем — повторять без конкретной регрессии не требуется.
 
@@ -149,13 +149,17 @@
 
 ## Phase 9 — City/runtime 🟡
 
+- [x] **Unity CI #222** ([run 38091108464](https://github.com/G3R-Studio/motor-city/actions/runs/38091108464), `b9583f4`) прошёл: source/UI/Unity Editor batch. Точный read-only audit текущего `CityVisual.prefab`: **25 634 renderers; 0 missing material slots; 12 Plant-01 renderers; 0 Plant-01 missing slots; 0 unexpected non-plant missing slots**. Цифры получены из журнала Unity job; WebGL job был **skipped**. По сравнению с прежним снимком (26 123 renderers / 12 missing slots) количество рендереров изменилось на −489; причины изменения здесь не установлены, объекты не удалять автоматически. Отчёт CI теперь печатается в логах и сохраняется как артефакт.
+- [x] Проверено по текущему исходному коду: `RepairMissingPlantMaterials` **уже отсутствует** в `CityAssetRuntimeInstaller`; runtime не осуществляет принудительный plant material repair. `FantasticCityGeneratorRuntimeBuilder` сохраняет авторские ссылки материалов 1:1; `4 - Fix Materials` — отдельный ручной инструмент, который может изменить сгенерированные материалы. **Решение: не добавлять автоисправление слотов в Editor и не возвращать runtime repair**, поскольку текущий префаб без дыр. Ночное свечение окон через runtime-клоны материалов оставить как отдельную нужную функцию.
+
 - [ ] **2026-10-11 async city prefab preload experiment** (`ccae1e7`, `7a239b9`, source guard `6568739`): старт `Resources.LoadAsync<GameObject>` при появлении loading screen, вызов оригинального gameplay bootstrap после `isDone`, сохранены синхронный fallback и полный порядок создания города; Domain Reload reset очищает ссылку на запрос. Цель — убрать паузу `Resources.Load` из кадра создания города, а не обещать снижение полного времени загрузки. **Unity compile/Play Mode/WebGL smoke и замеры ожидаются**: сравнить `MotorCity.City.LoadPrefab`, `MotorCity.City.Instantiate`, максимальный frame time и реальную длительность loading screen; убедиться в появлении выбора управления и сохранении освещения/FCG traffic.
 
 - [ ] **2026-10-11 Editor Profiler baseline (первый въезд в город, кадр 165):** `MotorCity.City.LoadPrefab` 1 370,27 мс / 2,6 МБ GC, `MotorCity.City.Instantiate` 703,52 мс / 2,6 МБ GC; `MotorCity.Minimap.Build` 145,09 мс / 16,9 МБ GC. Это измерения в Editor, не WebGL. Основная задержка загрузки — Unity `Resources.Load` / `Instantiate`; без доказательств не трогать prefab/сцену ради фиктивного ускорения.
 - [ ] **Minimap allocation experiment** (`ce99542`, `8d32d53`): кеширование классификации имён по Transform, точечный поиск `FCG.FCGWaypointsContainer` с legacy fallback и `Color32` для RGBA32 texture. Source-level проверки выполнены; ещё нужны Unity compile/Play Mode, визуальная сверка мини-карты (дороги и здания) и повтор `MotorCity.Minimap.Build` CPU/GC на том же маршруте. SRP Batcher оставить включённым по умолчанию до WebGL benchmark.
 
-- [x] Unity CI #38073086084 успешно прошёл с локально подготовленным checkout. CityVisual prefab audit: **26 123 renderers, 12 missing material slots, all 12 on Plant-01**. Runtime plant fallback сохраняем; Editor CI теперь падает при появлении новых пустых слотов вне Plant-01.
-- [ ] Объединить повторные обходы 26 123 renderers при runtime-загрузке (material rebinding, plant fix, WebGL conversion, bounds), затем замерить startup CPU/GC на целевых quality tiers. Рефакторинг ещё не применён.
+- [x] Unity CI #38073086084 — исторический снимок CityVisual: **26 123 renderers, 12 missing slots (Plant-01)**. Актуальное состояние обновлено по CI #222 выше; старую цифру не использовать как новый baseline. Аудит сейчас информационный, без изменения prefab и без автоматического fail по missing slots.
+- [x] Загрузчик делит один snapshot renderers между runtime-клонированием night-window emission и расчётом bounds (`a8c38b9`), а диагностика WebGL release отдельно ограничена.
+- [ ] Дополнительную консолидацию обходов **25 634** renderers делать только при новом Profiler-доказательстве и после WebGL regression; прежнего runtime plant fix/rebinding больше нет.
 
 
 - [x] CI checkout workaround для Windows self-hosted: отдельный Git cache `_work` заполняется из `D:\\GitHub\\motor-city` без изменений пользовательской репы; отсутствующие коммиты инкрементально загружаются в CI-копию без shallow fetch, LFS hydration из локального кэша, проверка точного SHA, сохранение Library/Temp. Маленький загрузочный скрипт берётся по immutable SHA через GitHub API. Это обход медленного checkout, новый CI ещё не прошёл.
@@ -165,12 +169,12 @@
 
 
 - [x] Детальный `MotorCityWebMaterialDiagnostics.Run` перенесён за `DEVELOPMENT_BUILD || MOTORCITY_CITY_MATERIAL_AUDIT` внутри WebGL runtime ветки, чтобы release не делал массовый диагностический обход рендереров. Сама совместимость WebGL материалов и runtime plant fallback сохранены.
-- [x] Создан read-only Unity Editor аудит материалов исходного `CityVisual.prefab`: считает renderer/missing slots/Plant-01 и сохраняет отчёт `unity-phase9-city-materials.txt`; пока только отчёт, без удаления runtime fix и без утверждений о состоянии префаба. Source gate защищает от регрессии.
-- [ ] Проверить CI, изучить actual prefab material audit и лишь после этого решить о переносе plant repairs из runtime в Editor.
+- [x] Read-only Unity Editor аудит материалов исходного `CityVisual.prefab` сохраняет `unity-phase9-city-materials.txt`. Актуальный отчёт CI #222 просмотрен в логах; 0 пустых слотов. Изоляция диагностики сохранена; никаких исправлений материалов и изменений Workbench не выполнялось.
+- [x] После сверки CI #222 с исходниками решено не переносить plant repairs — соответствующего runtime метода уже нет, в текущем prefab проблемных слотов нет.
 
 
 - [ ] Убрать лишнюю startup diagnostics из release; не терять QA диагностику.
-- [ ] Перенести безопасные runtime material repairs в Editor build шаги.
+- [x] Не переносить устаревший plant repair в Editor: он уже удалён из runtime и текущий префаб целостный. Для новых дефектов сначала воспроизвести и доказать конкретное нарушение authoring в FCG Workbench; автоматические изменения prefab не разрешены.
 - [ ] Profiler-driven оптимизация города и проверка GC/CPU/памяти.
 
 ## Phase 10 — Vehicle physics
@@ -212,8 +216,8 @@
 | F7-01 | `HudVisualPolish` меняет размеры/позиции поверх `PrototypeHud`, `GarageReferenceLayout`, `NavigatorView`, `TouchControlsView`, ищет GO по строкам | Phase 7: единый владелец RectTransform; `GarageReferenceLayout` является активным builder, **не удалять** |
 | F8-01 | Прямые `PlayerPrefs` в `MotorCityInput` и `MotorCityQualityRuntime` при существующем SaveService | Phase 8: registry и классы device-local/cloud/entitlement/QA/legacy, не переносить device settings в cloud случайно |
 | F8-02 | QA `ResetProgressForTesting` и legacy/cloud revision metadata | QA entrypoint изолирован; Phase 8: тест сохранения/миграции/cloud resolver после QA reset и restart |
-| F9-01 | `CityAssetRuntimeInstaller.RepairMissingPlantMaterials`: hash-suffixed `Trees-01` paths, поиск `Plant-01` и массовый renderer scan | Phase 9: до удаления repair перенести коррекцию в Editor builder, validate `CityVisual.prefab` в Unity/WebGL |
-| F9-02 | `MotorCityWebMaterialDiagnostics.Run(activeCity)` выполняет обход большого города в production WebGL | Phase 9: проверить фактический release guard и перенести подробный scan в QA/Editor; не удалять диагностику, пока не сохранены полезные проверки |
+| F9-01 | Исторический `RepairMissingPlantMaterials` и 12 пустых Plant-01 material slots | **Нет в текущем runtime**; CI #222: 0 missing slots, перенос repair в Editor не требуется. WebGL smoke — отдельно в Phase 12 |
+| F9-02 | Ранее подробный `MotorCityWebMaterialDiagnostics.Run` обходил город в release WebGL | **Исправлено в коде**: подробный scan запускается только в WebGL debug или при `MOTORCITY_CITY_MATERIAL_AUDIT`; release WebGL smoke остаётся в Phase 12 |
 | F9-03 | Крупный runtime city (исходный аудит: 22 559 renderers, 788 lights) | Phase 9: Profiler CPU/GC/batches/physics/memory/loading Low/Medium/High; никаких оптимизаций вслепую |
 | F10-01 | `ArcadeRacingCarRuntimeInstaller` объединяет visual/collision/wheels/material/cache/legacy ARCADE | Phase 10: выделение `VehicleVisualLoader`, `VehicleWheelBinder`, `VehicleCollisionBuilder`, `VehicleMaterialPipeline`, `VehicleVisualCache` без изменения поведения |
 | F10-02 | `ArcadeCarController` объединяет steering, wheel rig, friction, force, drive modes, handbrake, locks и mobile input | Phase 10: `FixedUpdate` tracing `steerAngle`, sideways/forward friction, AddForce/AddTorque, cadence (~0.12s), input Update → FixedUpdate; не вводить новый yaw assist до трассировки |
