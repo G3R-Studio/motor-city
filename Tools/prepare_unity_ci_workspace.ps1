@@ -35,10 +35,13 @@ $target = Join-Path $workspaceFull '.git'
 if (Test-Path -LiteralPath $target) {
     Remove-Item -LiteralPath $target -Recurse -Force
 }
-Write-Host "Creating independent CI Git object database from read-only local seed."
-# --no-hardlinks ensures no permanent alternates or shared mutable objects.
-& git clone --local --no-hardlinks --no-checkout -- $seedFull $workspaceFull
-if ($LASTEXITCODE -ne 0) { throw "Local Git clone failed." }
+Write-Host "Initializing independent CI Git object database from read-only local seed."
+New-Item -ItemType Directory -Path $workspaceFull -Force | Out-Null
+& git -C $workspaceFull init --quiet
+if ($LASTEXITCODE -ne 0) { throw "CI Git initialization failed." }
+# Local Git object transfer; no GitHub network requests and no writes to seed.
+& git -C $workspaceFull -c protocol.file.allow=always fetch --no-tags --no-write-fetch-head -- $seedFull $Commit
+if ($LASTEXITCODE -ne 0) { throw "Local object transfer from seed failed." }
 & git -C $workspaceFull checkout --detach --force $Commit
 if ($LASTEXITCODE -ne 0) { throw "Cannot check out requested immutable commit." }
 $actual = (& git -C $workspaceFull rev-parse HEAD).Trim()
