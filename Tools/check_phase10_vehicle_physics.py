@@ -19,7 +19,7 @@ def compact(value):
 
 
 def method(code, name, owner):
-    pattern = r"\b(?:private|public|internal)\s+(?:static\s+)?(?:void|bool)\s+" + re.escape(name) + r"\s*\("
+    pattern = r"\b(?:private|public|internal)\s+(?:static\s+)?(?:void|bool|BoxCollider)\s+" + re.escape(name) + r"\s*\("
     found = re.search(pattern, code)
     if not found:
         errors.append(f"{owner}: missing method {name}")
