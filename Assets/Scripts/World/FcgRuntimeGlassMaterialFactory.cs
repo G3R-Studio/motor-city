@@ -47,6 +47,60 @@ namespace MotorCity.World
                     StringComparison.OrdinalIgnoreCase);
         }
 
+        // Night glow is the only intentional runtime city-material change.
+        // Clone each exact authored window material once, preserving textures,
+        // surface type, metallic, smoothness and all reflection settings.
+        // Non-window materials and windows without a real emission mask
+        // remain assigned directly from CityVisual.prefab.
+        public static void BindAuthoredWindowEmission(GameObject city)
+        {
+            if (city == null)
+                return;
+
+            var clones = new Dictionary<Material, Material>();
+            Renderer[] renderers = city.GetComponentsInChildren<Renderer>(true);
+
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null)
+                    continue;
+
+                Material[] materials = renderer.sharedMaterials;
+                if (materials == null || materials.Length == 0)
+                    continue;
+
+                bool changed = false;
+                for (int index = 0; index < materials.Length; index++)
+                {
+                    Material authored = materials[index];
+                    if (authored == null ||
+                        !IsArchitecturalGlassKey(authored.name) ||
+                        !authored.HasProperty("_EmissionMap") ||
+                        authored.GetTexture("_EmissionMap") == null ||
+                        !authored.HasProperty("_EmissionColor"))
+                    {
+                        continue;
+                    }
+
+                    if (!clones.TryGetValue(authored, out Material copy))
+                    {
+                        copy = CloneForRuntime(authored);
+                        copy.name = "MotorCity_NightEmission_" + authored.name;
+                        copy.SetColor("_EmissionColor", Color.black);
+                        copy.EnableKeyword("_EMISSION");
+                        windowMaterials.Add(copy);
+                        clones.Add(authored, copy);
+                    }
+
+                    materials[index] = copy;
+                    changed = true;
+                }
+
+                if (changed)
+                    renderer.sharedMaterials = materials;
+            }
+        }
+
         public static Material CloneForRuntime(
             Material source)
         {
