@@ -19,25 +19,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      actions: read
     outputs:
       unity: ${{ steps.filter.outputs.unity }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: dorny/paths-filter@v3
+      - name: Compare against last successful Unity validation
         id: filter
-        with:
-          filters: |
-            unity:
-              - 'Assets/**'
-              - 'Packages/**'
-              - 'ProjectSettings/**'
-              - 'UserSettings/**'
-              - 'Tools/run_unity_phase2.ps1'
-              - 'Tools/run_unity_phase2.py'
-              - '.github/workflows/motor-city-source-gates.yml'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 Tools/check_unity_ci_changes.py
 
   source-gates:
     name: Static, GUID and C# source gates
