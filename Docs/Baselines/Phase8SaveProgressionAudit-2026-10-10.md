@@ -63,3 +63,7 @@ acknowledge only the attempted revision and replay queued changes.
 The source contract checks for the delayed failure branch. Real platform
 callback/failure timing and cross-device conflict resolution are **not**
 covered by this static gate and remain in the Phase 8 integration QA.
+
+## Phase 8 save envelope recovery guard
+
+`MotorCitySaveService` now validates the parsed document envelope (`Version` field present and positive) before reading cloud metadata, importing a remote snapshot, or accepting a local PlayerPrefs JSON. Invalid local envelopes enter the existing corrupt-backup path; invalid remote JSON cannot overwrite the active local document. Unity Editor fixtures cover `{}`, a foreign object, and version zero. The gate does not write PlayerPrefs; real backup-slot and restart behavior still require isolated integration tests. The check is deliberately narrow, not full semantic validation of arbitrary progress values.
