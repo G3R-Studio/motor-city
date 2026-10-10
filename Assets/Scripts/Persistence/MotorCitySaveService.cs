@@ -514,7 +514,7 @@ namespace MotorCity.Persistence
                     JsonUtility.FromJson<SaveDocument>(
                         json);
 
-                if (parsed == null)
+                if (!IsValidParsedDocument(json, parsed))
                     return false;
 
                 metadata =
@@ -647,7 +647,7 @@ namespace MotorCity.Persistence
                 return false;
             }
 
-            if (imported == null)
+            if (!IsValidParsedDocument(json, imported))
                 return false;
 
             document =
@@ -683,6 +683,9 @@ namespace MotorCity.Persistence
                     document =
                         JsonUtility.FromJson<SaveDocument>(
                             json);
+
+                    if (!IsValidParsedDocument(json, document))
+                        throw new FormatException("Invalid save document envelope.");
                 }
                 catch (Exception exception)
                 {
@@ -708,6 +711,21 @@ namespace MotorCity.Persistence
             document =
                 Normalize(
                     document);
+        }
+
+        private static bool IsValidParsedDocument(
+            string json,
+            SaveDocument parsed)
+        {
+            // JsonUtility can produce a default-initialized object for '{}'.
+            // Never treat an arbitrary JSON object as a valid save or replace
+            // an existing local/cloud snapshot with it.
+            return
+                parsed != null &&
+                parsed.Version > 0 &&
+                json.IndexOf(
+                    "\"Version\"",
+                    StringComparison.Ordinal) >= 0;
         }
 
         private static SaveDocument Normalize(
