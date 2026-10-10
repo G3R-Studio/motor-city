@@ -209,8 +209,14 @@ public Texture2D Texture { get; private set; }
                 }
             }
 
+            // Both minimap passes consume the same authored FCG waypoint
+            // components. Enumerate the city once rather than traversing the
+            // entire hierarchy again while drawing the roads.
+            MonoBehaviour[] authoredBehaviours =
+                cityRoot.GetComponentsInChildren<MonoBehaviour>(true);
+
             ExpandBoundsWithFcgTraffic(
-                cityRoot,
+                authoredBehaviours,
                 ref mapBounds,
                 ref boundsInitialized);
 
@@ -290,7 +296,7 @@ public Texture2D Texture { get; private set; }
 
             DrawFcgTrafficRoads(
                 pixels,
-                cityRoot);
+                authoredBehaviours);
 
             Texture.SetPixels(
                 pixels);
@@ -357,16 +363,12 @@ public Texture2D Texture { get; private set; }
         }
 
         private void ExpandBoundsWithFcgTraffic(
-            GameObject cityRoot,
+            MonoBehaviour[] behaviours,
             ref Bounds mapBounds,
             ref bool boundsInitialized)
         {
-            if (cityRoot == null)
+            if (behaviours == null)
                 return;
-
-            MonoBehaviour[] behaviours =
-                cityRoot.GetComponentsInChildren<MonoBehaviour>(
-                    true);
 
             foreach (MonoBehaviour behaviour in
                      behaviours)
@@ -468,17 +470,10 @@ public Texture2D Texture { get; private set; }
 
         private void DrawFcgTrafficRoads(
             Color[] pixels,
-            GameObject cityRoot)
+            MonoBehaviour[] behaviours)
         {
-            if (cityRoot == null)
+            if (behaviours == null)
                 return;
-
-            // Traffic data lives under the authored FCG city. Restricting the
-            // lookup to that hierarchy avoids scanning every MonoBehaviour in
-            // the scene during HUD startup.
-            MonoBehaviour[] behaviours =
-                cityRoot.GetComponentsInChildren<MonoBehaviour>(
-                    true);
 
             foreach (MonoBehaviour behaviour in
                      behaviours)
