@@ -163,6 +163,15 @@ jobs:
           }
           Get-Content -LiteralPath $report
 
+      - name: Show Phase 11 Unity duplicate dependency audit
+        shell: pwsh
+        run: |
+          $report = 'Temp/MotorCityAudit/UnityPhase2/unity-phase11-asset-dependencies.txt'
+          if (-not (Test-Path -LiteralPath $report)) {
+            throw "Unity Phase 11 dependency report was not generated: $report"
+          }
+          Get-Content -LiteralPath $report
+
       - name: Upload Unity validation reports
         if: always()
         uses: actions/upload-artifact@v4
