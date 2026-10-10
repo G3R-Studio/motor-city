@@ -149,6 +149,9 @@
 
 ## Phase 9 — City/runtime 🟡
 
+- [x] CI checkout workaround для Windows self-hosted: отдельный Git cache `_work` заполняется из `D:\\GitHub\\motor-city` без изменений пользовательской репы; отсутствующие коммиты инкрементально загружаются в CI-копию без shallow fetch, LFS hydration из локального кэша, проверка точного SHA, сохранение Library/Temp. Маленький загрузочный скрипт берётся по immutable SHA через GitHub API. Это обход медленного checkout, новый CI ещё не прошёл.
+
+
 - [x] После подтверждённого checkout stall (Git fetch, pack 0 MB, Assets отсутствует) CI #38070735540 отменён. Self-hosted Unity checkout ограничен 12 минутами, Git HTTP low-speed лимитами, `clean: false` для сохранения рабочего кэша и выводом `git count-objects -vH`; source/UI проверки остаются отдельными. Новый CI ожидается, корневая причина сетевого зависания пока не доказана.
 
 
