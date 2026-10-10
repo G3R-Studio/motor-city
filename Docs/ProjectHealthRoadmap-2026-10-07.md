@@ -16,7 +16,7 @@
 | 5 — Dead cleanup | 🟡 Безопасная часть выполнена | удаление неподтверждённых assets запрещено; recovery tools сохраняются |
 | 6 — Bootstrap/lifecycle | ✅ Закрыта в проверенном scope | source/UI/Unity/WebGL CI PASS; обычный Play Mode и Domain Reload подтверждены; браузерная матрица — Phase 12 |
 | 7 — UI ownership | ✅ Закрыта в проверенном объёме | UI/source/Unity CI PASS, итоговый Play Mode PASS; WebGL browser matrix — Phase 12 |
-| 8 — Save/progression | ⬜ Открыта | ключи, миграции, cloud и restart |
+| 8 — Save/progression | 🟡 Начата | ключи/совместимость под CI; runtime миграции/cloud и restart впереди |
 | 9 — City/runtime | ⬜ Открыта | диагностика release, материалы, profiler |
 | 10 — Vehicle physics | ⬜ Открыта | trace/steer/friction/mobile timing |
 | 11 — Asset/packages | ⬜ Открыта | пакеты, дубликаты, источник города |
@@ -114,7 +114,9 @@
 - [x] Исправлена выявленная пользователем регрессия окна результата: при одновременном mastery/secondary progress/next event кнопки перекрывали строку события. Высота Activity Result увеличена до 520, размеры и позиция footer закреплены за ActivityResultView, CI проверяет минимальный зазор 12 единиц (коммиты `c319cef`, `b3eb257`). Runtime QA ещё требуется.
 - [x] Итоговый Play Mode после устранения наложения текста и кнопок результатов — PASS по подтверждению пользователя (2026-10-10); последний CI [run 38005440827](https://github.com/G3R-Studio/motor-city/actions/runs/38005440827): source/UI/Unity Editor PASS, WebGL skipped. Полная браузерная матрица и отдельные device/localization сценарии остаются в Phase 12.
 
-## Phase 8 — Save/progression
+## Phase 8 — Save/progression 🟡
+
+- [x] Выполнен первый baseline audit: `Docs/Baselines/Phase8SaveProgressionAudit-2026-10-10.md`, автоматический реестр literal save keys + source contracts локального слота, backup, схемы и cloud revision (`Tools/check_phase8_save_progression.py`). Добавлен gate в CI; runtime миграции и облако не проверялись.
 
 - [ ] Единый реестр save keys и разграничение device/cloud/QA.
 - [ ] Миграции legacy progress + тесты существующих сохранений.
