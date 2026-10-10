@@ -17,7 +17,7 @@
 | 6 — Bootstrap/lifecycle | ✅ Закрыта в проверенном scope | source/UI/Unity/WebGL CI PASS; обычный Play Mode и Domain Reload подтверждены; браузерная матрица — Phase 12 |
 | 7 — UI ownership | ✅ Закрыта в проверенном объёме | UI/source/Unity CI PASS, итоговый Play Mode PASS; WebGL browser matrix — Phase 12 |
 | 8 — Save/progression | 🟡 Локальный scope PASS, cloud pending | CI Unity/source PASS (#38069503126); Play Mode + restart PASS по пользователю; Yandex cloud/device QA ещё открыта |
-| 9 — City/runtime | ⬜ Открыта | диагностика release, материалы, profiler |
+| 9 — City/runtime | 🟡 Начата | release diagnostic guard и Editor prefab audit; profiler впереди |
 | 10 — Vehicle physics | ⬜ Открыта | trace/steer/friction/mobile timing |
 | 11 — Asset/packages | ⬜ Открыта | пакеты, дубликаты, источник города |
 | 12 — Release matrix | ⬜ Открыта | два WebGL Release Build Profiles + браузер/устройство |
@@ -147,7 +147,12 @@
 - [ ] Миграции legacy progress + тесты существующих сохранений.
 - [x] Локальный restart/save в Play Mode — PASS по сообщению пользователя (2026-10-10); изолированные конфликтные сценарии прошли Unity Editor CI. Реальные cloud conflict, fresh device и offline-синхронизация Yandex остаются непроверенными.
 
-## Phase 9 — City/runtime
+## Phase 9 — City/runtime 🟡
+
+- [x] Детальный `MotorCityWebMaterialDiagnostics.Run` перенесён за `DEVELOPMENT_BUILD || MOTORCITY_CITY_MATERIAL_AUDIT` внутри WebGL runtime ветки, чтобы release не делал массовый диагностический обход рендереров. Сама совместимость WebGL материалов и runtime plant fallback сохранены.
+- [x] Создан read-only Unity Editor аудит материалов исходного `CityVisual.prefab`: считает renderer/missing slots/Plant-01 и сохраняет отчёт `unity-phase9-city-materials.txt`; пока только отчёт, без удаления runtime fix и без утверждений о состоянии префаба. Source gate защищает от регрессии.
+- [ ] Проверить CI, изучить actual prefab material audit и лишь после этого решить о переносе plant repairs из runtime в Editor.
+
 
 - [ ] Убрать лишнюю startup diagnostics из release; не терять QA диагностику.
 - [ ] Перенести безопасные runtime material repairs в Editor build шаги.
