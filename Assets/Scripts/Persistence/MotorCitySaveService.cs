@@ -803,6 +803,26 @@ namespace MotorCity.Persistence
                     throw new InvalidOperationException("Migrated value lost after reload.");
                 if (!ExportJson().Contains(legacyKey))
                     throw new InvalidOperationException("Migrated key missing in JSON slot.");
+                
+                // A cloud upload must acknowledge only the snapshot revision:
+                // edits made while the request is in flight stay unsynced.
+                SetInt(testStorage + ".FirstEdit", 1);
+                string upload = ExportCloudJson(7, 100, out long attempted);
+                if (string.IsNullOrEmpty(upload))
+                    throw new InvalidOperationException("Cannot export cloud snapshot.");
+                SetInt(testStorage + ".SecondEdit", 2);
+                MarkCloudUploadSucceeded(attempted, 7, 100);
+                if (!GetCloudMetadata().HasUnsyncedChanges)
+                    throw new InvalidOperationException("In-flight edits were incorrectly marked synced.");
+                if (GetCloudMetadata().CloudRevision != 7)
+                    throw new InvalidOperationException("Cloud revision acknowledgment was lost.");
+
+                // Invalid imported cloud JSON must not replace the local data.
+                if (ImportJson("{}", true) ||
+                    ImportJson(@"{""Version"":0}", true) ||
+                    GetInt(legacyKey, -1) != 731)
+                    throw new InvalidOperationException("Invalid cloud JSON replaced local progress.");
+
             }
             finally
             {
