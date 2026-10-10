@@ -19,7 +19,7 @@
 | 8 — Save/progression | 🟡 Локальный scope PASS, cloud pending | CI Unity/source PASS (#38069503126); Play Mode + restart PASS по пользователю; Yandex cloud/device QA ещё открыта |
 | 9 — City/runtime | 🟡 Частично завершена; дальнейшая оптимизация запуска остановлена | read-only prefab audit, release diagnostic guard, Editor Profiler; WebGL/perf matrix не закрыта |
 | 10 — Vehicle physics | 🟡 Начата | исходная цепочка force/steer/friction/collision/input прослежена; реальный Play Mode smoke и измерения открыты |
-| 11 — Asset/packages | 🟡 Начата | read-only Git blob/package inventory, неавторизованные удаления запрещены; Unity dependency + license + LFS decision открыты |
+| 11 — Asset/packages | 🟡 Частичный аудит PASS | Git duplicates + Unity dependency audit #247, license evidence; 0 deletion candidates; provenance/reimport/LFS decision открыты |
 | 12 — Release matrix | ⬜ Открыта | два WebGL Release Build Profiles + браузер/устройство |
 
 ## Подтверждённые результаты
@@ -192,7 +192,9 @@
 ## Phase 11 — Final asset/package cleanup 🟡
 
 - [x] **2026-10-11 read-only Git/source inventory**: `Docs/Baselines/Phase11AssetPackageInventory-2026-10-11.md`, `Tools/check_phase11_asset_inventory.py` и CI step. В дереве до изменений Phase 11: 4 516 blobs, из них 1 784 файлов моделей/текстур/материалов/аудио/шрифтов/префабов; **3 группы точных Git blob дубликатов (7 файлов)**, 13 прямых/38 resolved package entries. Раздельные FCG_Workbench (97 978 478 bytes) и CityVisual (103 001 717 bytes) сохранены; не пытаться дедуплицировать GUID/Resources и не мигрировать в LFS без отдельного решения. **0 удалений и 0 подтверждённых deletion candidates**. CI проверка/Unity dependency граф отдельно.
-- [ ] Третьесторонние пакеты, точные binary duplicates и texture dependencies: Unity serialized/runtime GUID consumer graph, reimport и конкретные лицензии ещё требуют проверки; совпадение Git blob не доказательство безопасного удаления.
+- [x] **2026-10-11 Phase 11 Unity duplicate-source audit:** `Assets/Editor/MotorCityPhase11DependencyAudit.cs` выполняется в Editor batch и печатает `unity-phase11-asset-dependencies.txt`. [CI #247](https://github.com/G3R-Studio/motor-city/actions/runs/38093971566) **SUCCESS** (Unity Editor, source/UI; WebGL skipped). `Docs/Baselines/Phase11UnityDependencyAndLicenseEvidence-2026-10-11.md`: обе `circle2.PNG` имеют разные GUID и mipmap policy (оригинал VFX=true, Resources=false); VFX-оригинал reachable через VFX prefabs/materials, runtime-копия загружается через `Resources.Load`; все три `all.png` входят в зависимости девяти префабов игроков; две `.mtl` ссылаются из своих `.obj` через `mtllib`. Все **7 файлов сохранить**, 0 безопасных удалений.
+- [x] **2026-10-11 inventory локальных license evidence:** SpringBone MIT license и Ubuntu Font Licence 1.0 уже имеются в Git, FCG `Documentation/License.pdf` тоже сохранён; отсутствие документов не заявлять без проверки пути. `Assets/ThirdParty/THIRD_PARTY_AUDIT.md` уточнён. Наличие файла **не означает** подтверждения лицензии именно для использованной версии.
+- [ ] Завершить provenance/third-party лицензии (ARCADE, FCG, Eric VFX, Gudamore, отдельные source vehicles/фонты/пакеты) и, только при возникновении обоснованного конкретного кандидата, reimport/visual/runtime/WebGL regression перед удалением. Отсутствие AssetDatabase links не делает source OBJ/MTL ненужными.
 - [ ] Разделение source/generated runtime city, размер репозитория и LFS (только после решения).
 - [ ] Удалять исключительно доказанные candidates отдельными revertable commits.
 
