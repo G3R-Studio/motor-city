@@ -74,6 +74,9 @@ jobs:
       - name: Run Phase 8 isolated save conflict fixtures
         run: python3 Tools/test_phase8_save_fixtures.py
 
+      - name: Audit Phase 9 city runtime release diagnostics
+        run: python3 Tools/check_phase9_city_runtime.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
