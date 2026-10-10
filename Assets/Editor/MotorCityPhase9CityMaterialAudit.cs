@@ -51,6 +51,10 @@ namespace MotorCity.EditorTools
                 }
             }
 
+            int unexpectedMissingSlots = missingSlots - missingPlantSlots;
+            if (unexpectedMissingSlots < 0)
+                throw new InvalidOperationException("Invalid city material audit counters.");
+
             Directory.CreateDirectory(folder);
             File.WriteAllText(Path.Combine(folder, "unity-phase9-city-materials.txt"),
                 "Read-only CityVisual.prefab material audit\n" +
@@ -58,11 +62,17 @@ namespace MotorCity.EditorTools
                 "Missing material slots: " + missingSlots + "\n" +
                 "Plant-01 renderers: " + plantRenderers + "\n" +
                 "Plant-01 missing material slots: " + missingPlantSlots + "\n" +
+                "Unexpected non-plant missing material slots: " + unexpectedMissingSlots + "\n" +
                 "Runtime fallback remains until authored dependencies are verified.\n");
             Debug.Log("Motor City Phase 9 city prefab audit: renderers=" + renderers +
                 ", missingSlots=" + missingSlots +
                 ", plantRenderers=" + plantRenderers +
-                ", plantMissingSlots=" + missingPlantSlots);
+                ", plantMissingSlots=" + missingPlantSlots +
+                ", unexpectedMissingSlots=" + unexpectedMissingSlots);
+            if (unexpectedMissingSlots != 0)
+                throw new InvalidOperationException(
+                    "CityVisual.prefab has " + unexpectedMissingSlots +
+                    " missing material slots outside the known Plant-01 fallback.");
         }
     }
 }
