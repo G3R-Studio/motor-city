@@ -78,6 +78,9 @@ jobs:
       - name: Audit Phase 9 city runtime release diagnostics
         run: python3 Tools/check_phase9_city_runtime.py
 
+      - name: Audit Phase 10 vehicle physics and touch input contracts
+        run: python3 Tools/check_phase10_vehicle_physics.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
