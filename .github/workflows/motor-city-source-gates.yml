@@ -53,6 +53,9 @@ jobs:
       - name: Audit Phase 8 saves and progression keys
         run: python3 Tools/check_phase8_save_progression.py
 
+      - name: Run Phase 8 isolated save conflict fixtures
+        run: python3 Tools/test_phase8_save_fixtures.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
