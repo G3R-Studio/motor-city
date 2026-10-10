@@ -60,7 +60,7 @@ namespace MotorCity.EditorTools
                 "Plant-01 renderers: " + plantRenderers + "\n" +
                 "Plant-01 missing material slots: " + missingPlantSlots + "\n" +
                 "Unexpected non-plant missing material slots: " + unexpectedMissingSlots + "\n" +
-                "Runtime fallback remains until authored dependencies are verified.\n");
+                "Read-only audit: no material repair is performed.\n");
             Debug.Log("Motor City Phase 9 city prefab audit: renderers=" + renderers +
                 ", missingSlots=" + missingSlots +
                 ", plantRenderers=" + plantRenderers +
