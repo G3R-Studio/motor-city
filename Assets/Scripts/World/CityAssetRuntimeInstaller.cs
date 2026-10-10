@@ -1159,13 +1159,18 @@ namespace MotorCity.World
         }
 
         private static bool IsFcgCityRenderer(
-            Renderer renderer)
+            Renderer renderer,
+            List<Material> sharedMaterialBuffer)
         {
             if (renderer == null)
                 return false;
 
-            foreach (Material material in
-                     renderer.sharedMaterials)
+            // Renderer.sharedMaterials allocates an array on every call.
+            // Reuse one buffer across the authored city's renderers instead.
+            sharedMaterialBuffer.Clear();
+            renderer.GetSharedMaterials(sharedMaterialBuffer);
+
+            foreach (Material material in sharedMaterialBuffer)
             {
                 if (material == null)
                     continue;
@@ -1227,11 +1232,13 @@ namespace MotorCity.World
             Bounds bounds =
                 default;
 
+            var sharedMaterialBuffer = new List<Material>(8);
             foreach (Renderer renderer in
                      allRenderers)
             {
                 if (!IsFcgCityRenderer(
-                        renderer))
+                        renderer,
+                        sharedMaterialBuffer))
                 {
                     continue;
                 }
