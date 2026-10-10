@@ -139,6 +139,8 @@ namespace MotorCity.World
 
 
         // Visible in Unity Profiler Timeline; no logging or automatic gates.
+        private static readonly ProfilerMarker BeginCityPreloadMarker =
+            new("MotorCity.City.BeginPrefabPreload");
         private static readonly ProfilerMarker LoadCityMarker =
             new("MotorCity.City.LoadPrefab");
         private static readonly ProfilerMarker InstantiateCityMarker =
@@ -153,6 +155,25 @@ namespace MotorCity.World
             new("MotorCity.City.ResolveGameplayLayout");
 
         private static GameObject activeCity;
+        private static ResourceRequest cityPrefabPreload;
+
+        // Begin the Resources load while the front-end loading screen is
+        // visible. The authored prefab is instantiated later, in the same
+        // deterministic bootstrap order as before.
+        public static void BeginPrefabPreload()
+        {
+            if (activeCity != null || cityPrefabPreload != null)
+                return;
+
+            using (BeginCityPreloadMarker.Auto())
+            {
+                cityPrefabPreload =
+                    Resources.LoadAsync<GameObject>(ResourcePath);
+            }
+        }
+
+        public static bool IsPrefabPreloadReady =>
+            cityPrefabPreload == null || cityPrefabPreload.isDone;
 
         private static Bounds cityBounds;
         private static bool hasCityBounds;
@@ -162,6 +183,11 @@ namespace MotorCity.World
         private static void ResetStaticState()
         {
             activeCity =
+                null;
+
+            // Static state must not leak across Editor Play sessions with
+            // Domain Reload disabled.
+            cityPrefabPreload =
                 null;
 
             cityBounds =
@@ -280,8 +306,16 @@ namespace MotorCity.World
                 GameObject prefab;
                 using (LoadCityMarker.Auto())
                 {
-                    prefab = Resources.Load<GameObject>(ResourcePath);
+                    // Normally completed by the loading-screen prefetch.
+                    // Preserve synchronous loading for direct callers and
+                    // older initialization flows that skip the front end.
+                    prefab = cityPrefabPreload != null &&
+                             cityPrefabPreload.isDone
+                        ? cityPrefabPreload.asset as GameObject
+                        : Resources.Load<GameObject>(ResourcePath);
                 }
+
+                cityPrefabPreload = null;
 
                 if (prefab == null)
                     return false;
