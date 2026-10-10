@@ -116,6 +116,9 @@
 
 ## Phase 8 — Save/progression 🟡
 
+- [x] Обнаружен и исправлен немедленный повторный вызов cloud save после неудачного callback с queued-запросом. При ошибке отправка переносится на интервал (15 с), unsynced локальная ревизия сохраняется; добавлен source gate. Unity/runtime QA ещё ожидается.
+
+
 - [x] Оптимизация CI: для изменений только `Docs/` и Python-аудитов Editor job пропускается, но быстрые source/UI gates выполняются; Unity source/assets/settings и ручной `workflow_dispatch` запускают полный Editor gate. Во время импорта CI печатает последние строки Unity лога раз в минуту. Полный прогон после изменения workflow ожидается.
 
 
