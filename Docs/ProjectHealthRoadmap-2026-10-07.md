@@ -116,6 +116,9 @@
 
 ## Phase 8 — Save/progression 🟡
 
+- [x] Интеграционный Editor тест PlayerPrefs: временные GUID-слоты проверяют corrupt backup, migration-on-read legacy int, сохранение и имитацию reload; тестовый namespace удаляется в finally и production ключи не используются. CI ожидается; это не полноценный перезапуск процесса и не cloud runtime тест.
+
+
 - [x] Добавлена валидация JSON-конверта сохранения перед локальной загрузкой и облачным импортом; неподходящие JSON-объекты не должны заменять прогресс, локальный повреждённый конверт попадает в backup. Добавлены Unity Editor fixtures (`{}`, foreign, `Version=0`) и source gate; интеграционные PlayerPrefs/restart тесты и CI ещё ожидаются.
 
 
