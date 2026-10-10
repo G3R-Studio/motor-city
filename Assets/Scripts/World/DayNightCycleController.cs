@@ -996,21 +996,6 @@ namespace MotorCity.World
             if (cityRoot == null)
                 return;
 
-            // _LightV is the old FCG volumetric cone mesh. Keep it disabled:
-            // only the actual authored Light components should illuminate the city.
-            foreach (Renderer renderer in
-                     cityRoot.GetComponentsInChildren<Renderer>(true))
-            {
-                if (renderer != null &&
-                    NormalizeName(
-                        renderer.gameObject.name) ==
-                    "lightv")
-                {
-                    renderer.enabled =
-                        false;
-                }
-            }
-
             Light[] sourceLights =
                 cityRoot.GetComponentsInChildren<Light>(true);
 
@@ -1709,9 +1694,7 @@ namespace MotorCity.World
                         StringComparison.Ordinal) ||
                     parentName.StartsWith(
                         "parklight",
-                        StringComparison.Ordinal) ||
-                    parentName ==
-                        "lightv")
+                        StringComparison.Ordinal))
                 {
                     return true;
                 }
