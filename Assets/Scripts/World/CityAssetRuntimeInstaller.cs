@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Unity.Profiling;
 using UnityEngine.SceneManagement;
 
 namespace MotorCity.World
@@ -136,6 +137,21 @@ namespace MotorCity.World
         private static Vector3[] undergroundRoute =
             (Vector3[])UndergroundPreferred.Clone();
 
+
+        // Visible in Unity Profiler Timeline; no logging or automatic gates.
+        private static readonly ProfilerMarker LoadCityMarker =
+            new("MotorCity.City.LoadPrefab");
+        private static readonly ProfilerMarker InstantiateCityMarker =
+            new("MotorCity.City.Instantiate");
+        private static readonly ProfilerMarker SnapshotRenderersMarker =
+            new("MotorCity.City.SnapshotRenderers");
+        private static readonly ProfilerMarker BindNightWindowsMarker =
+            new("MotorCity.City.BindNightWindows");
+        private static readonly ProfilerMarker CalculateBoundsMarker =
+            new("MotorCity.City.CalculateBounds");
+        private static readonly ProfilerMarker ResolveGameplayMarker =
+            new("MotorCity.City.ResolveGameplayLayout");
+
         private static GameObject activeCity;
 
         private static Bounds cityBounds;
@@ -261,24 +277,35 @@ namespace MotorCity.World
 
             if (activeCity == null)
             {
-                GameObject prefab =
-                    Resources.Load<GameObject>(
-                        ResourcePath);
+                GameObject prefab;
+                using (LoadCityMarker.Auto())
+                {
+                    prefab = Resources.Load<GameObject>(ResourcePath);
+                }
 
                 if (prefab == null)
                     return false;
 
-                activeCity =
-                    UnityEngine.Object.Instantiate(
-                        prefab);
-
-                activeCity.name =
-                    RuntimeCityName;
+                using (InstantiateCityMarker.Auto())
+                {
+                    activeCity = UnityEngine.Object.Instantiate(prefab);
+                    activeCity.name = RuntimeCityName;
+                }
             }
 
-            // Preserve authored city materials. Only emission-capable windows
-            // receive a faithful per-material copy for night-time glow.
-            FcgRuntimeGlassMaterialFactory.BindAuthoredWindowEmission(activeCity);
+            // Both night emission and city bounds use the same authored
+            // renderer snapshot. City geometry and positions remain untouched.
+            Renderer[] cityRenderers;
+            using (SnapshotRenderersMarker.Auto())
+            {
+                cityRenderers = activeCity.GetComponentsInChildren<Renderer>(true);
+            }
+
+            using (BindNightWindowsMarker.Auto())
+            {
+                FcgRuntimeGlassMaterialFactory.BindAuthoredWindowEmission(
+                    cityRenderers);
+            }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             // Development build detection is runtime-only in Unity 6.
@@ -297,9 +324,10 @@ namespace MotorCity.World
             // Runtime treats the authored city as read-only.
             // Colliders, props, parked vehicles, traffic signals and all
             // other map objects must come exactly from CityVisual.prefab.
-            cityBounds =
-                CalculateCityBounds(
-                    activeCity);
+            using (CalculateBoundsMarker.Auto())
+            {
+                cityBounds = CalculateCityBounds(cityRenderers);
+            }
 
             hasCityBounds =
                 cityBounds.size.x > 10f &&
@@ -307,7 +335,10 @@ namespace MotorCity.World
 
             Physics.SyncTransforms();
 
-            ResolveGameplayLayout();
+            using (ResolveGameplayMarker.Auto())
+            {
+                ResolveGameplayLayout();
+            }
 
             return true;
         }
@@ -1185,12 +1216,8 @@ namespace MotorCity.World
         }
 
         private static Bounds CalculateCityBounds(
-            GameObject city)
+            Renderer[] allRenderers)
         {
-            Renderer[] allRenderers =
-                city.GetComponentsInChildren<Renderer>(
-                    true);
-
             bool hasFcgRenderer =
                 false;
 

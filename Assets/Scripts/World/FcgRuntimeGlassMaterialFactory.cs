@@ -54,11 +54,21 @@ namespace MotorCity.World
         // remain assigned directly from CityVisual.prefab.
         public static void BindAuthoredWindowEmission(GameObject city)
         {
-            if (city == null)
+            if (city != null)
+            {
+                BindAuthoredWindowEmission(
+                    city.GetComponentsInChildren<Renderer>(true));
+            }
+        }
+
+        // Allows the city loader to share a single renderer snapshot across
+        // material and bounds passes, without changing authored materials.
+        public static void BindAuthoredWindowEmission(Renderer[] renderers)
+        {
+            if (renderers == null)
                 return;
 
             var clones = new Dictionary<Material, Material>();
-            Renderer[] renderers = city.GetComponentsInChildren<Renderer>(true);
 
             foreach (Renderer renderer in renderers)
             {

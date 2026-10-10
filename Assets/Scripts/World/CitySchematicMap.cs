@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using Unity.Profiling;
 
 namespace MotorCity.World
 {
@@ -98,6 +99,9 @@ namespace MotorCity.World
             "water"
         };
 
+        private static readonly ProfilerMarker BuildMapMarker =
+            new("MotorCity.Minimap.Build");
+
         private readonly List<MapShape> shapes =
             new();
 
@@ -115,6 +119,8 @@ public Texture2D Texture { get; private set; }
 
         public bool Build()
         {
+            using var mapSample = BuildMapMarker.Auto();
+
             GameObject cityRoot =
                 GameObject.Find(
                     "MotorCity_FCGCity") ??
@@ -142,6 +148,9 @@ public Texture2D Texture { get; private set; }
             Bounds mapBounds =
                 default;
 
+            // Reuse the name normalization buffer across the thousands of
+            // renderer classifications. It is no longer allocated per item.
+            var hierarchyBuilder = new System.Text.StringBuilder(192);
             foreach (Renderer renderer in
                      renderers)
             {
@@ -150,7 +159,8 @@ public Texture2D Texture { get; private set; }
 
                 string hierarchyPath =
                     HierarchyName(
-                        renderer.transform);
+                        renderer.transform,
+                        hierarchyBuilder);
 
                 if (ShouldIgnore(
                         hierarchyPath))
@@ -869,10 +879,10 @@ public Texture2D Texture { get; private set; }
         }
 
         private static string HierarchyName(
-            Transform item)
+            Transform item,
+            System.Text.StringBuilder builder)
         {
-            System.Text.StringBuilder builder =
-                new();
+            builder.Clear();
 
             Transform current =
                 item;
