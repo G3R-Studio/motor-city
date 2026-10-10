@@ -182,6 +182,50 @@ namespace MotorCity.Persistence
                 local.LegacyModifiedUtcTicks;
         }
 
+#if UNITY_EDITOR
+        // Test the production conflict resolver, not a mirrored Python model.
+        public static void VerifyConflictResolutionForEditor()
+        {
+            MotorCitySaveService.CloudSaveMetadata Meta(
+                bool hasData, long revision, long synced, long cloud,
+                long server, long legacy)
+            {
+                return new MotorCitySaveService.CloudSaveMetadata(
+                    2, hasData, revision, synced, cloud, server, legacy);
+            }
+
+            void Check(
+                string caseName,
+                MotorCitySaveService.CloudSaveMetadata local,
+                MotorCitySaveService.CloudSaveMetadata remote,
+                bool expected)
+            {
+                if (ShouldUseRemote(local, remote) != expected)
+                    throw new InvalidOperationException(
+                        "Phase 8 conflict resolver failed: " + caseName);
+            }
+
+            Check("empty remote", Meta(true, 4, 4, 2, 0, 0),
+                Meta(false, 0, 0, 0, 0, 0), false);
+            Check("fresh device", Meta(false, 0, 0, 0, 0, 0),
+                Meta(true, 2, 2, 3, 0, 0), true);
+            Check("newer cloud", Meta(true, 6, 6, 3, 0, 0),
+                Meta(true, 8, 8, 4, 0, 0), true);
+            Check("older cloud", Meta(true, 8, 8, 5, 0, 0),
+                Meta(true, 9, 9, 4, 0, 0), false);
+            Check("unsynced local edit", Meta(true, 9, 8, 4, 100, 0),
+                Meta(true, 8, 8, 4, 110, 0), false);
+            Check("newer server time", Meta(true, 8, 8, 5, 100, 0),
+                Meta(true, 8, 8, 5, 110, 0), true);
+            Check("equal cloud newer revision", Meta(true, 8, 8, 5, 100, 0),
+                Meta(true, 9, 9, 5, 100, 0), true);
+            Check("legacy remote newer", Meta(true, 1, 0, 0, 0, 10),
+                Meta(true, 1, 0, 0, 0, 20), true);
+            Check("legacy local newer", Meta(true, 1, 0, 0, 0, 20),
+                Meta(true, 1, 0, 0, 0, 10), false);
+        }
+#endif
+
         private void Update()
         {
             if (!ready ||
