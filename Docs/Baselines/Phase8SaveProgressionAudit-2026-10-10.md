@@ -23,3 +23,17 @@
 4. Browser/device persistence smoke including restart, reload, and supported Yandex login lifecycle.
 
 Passing a static gate is **not** evidence that migrations, device cloud sync or runtime recovery have passed.
+
+## Isolated model fixtures
+
+`Tools/test_phase8_save_fixtures.py` checks deterministic cases for: empty remote,
+fresh device, newer/older cloud revision, offline unsynced edits, equal-revision
+server time and revision tie-breaks, and legacy timestamps. It also parses a
+sample v1 document and rejects deliberately malformed JSON using Python's JSON
+parser. The workflow runs these cases without accessing any real PlayerPrefs,
+login, player profile, or cloud save.
+
+**Important:** these are contract/model fixtures, not Unity serialization,
+cloud integration or runtime migration tests. Actual `JsonUtility` behavior,
+data-merging interactions, and recovery must be tested in an isolated Unity
+environment before final Phase 8 closure.
