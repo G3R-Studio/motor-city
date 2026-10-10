@@ -51,3 +51,15 @@ This **does not** import the fixtures into live `MotorCitySaveService` and
 **never writes PlayerPrefs**, invokes the QA reset, or accesses Yandex.
 Corrupt-backup persistence and real cloud conflict replay still need a
 separate disposable Unity environment before Phase 8 can close.
+
+## Cloud upload failure protection
+
+The Phase 8 cloud runtime now avoids an immediate queued re-upload after a
+failed platform save callback. It resets the regular `UploadIntervalSeconds`
+timer and leaves unsynchronized local revisions unchanged, so offline/failing
+sessions do not spin through back-to-back requests. Successful uploads still
+acknowledge only the attempted revision and replay queued changes.
+
+The source contract checks for the delayed failure branch. Real platform
+callback/failure timing and cross-device conflict resolution are **not**
+covered by this static gate and remain in the Phase 8 integration QA.
