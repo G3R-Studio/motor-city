@@ -20,7 +20,7 @@ if (!(Test-Path -LiteralPath $profileAbsolute)) {
     throw "Unity Release Build Profile not found: $profileAsset"
 }
 
-$report = Join-Path $root 'Temp/MotorCityAudit/Phase12'
+$report = Join-Path $root 'Builds/Phase12'
 New-Item -ItemType Directory -Path $report -Force | Out-Null
 $env:MOTORCITY_PHASE12_PROFILE = $Profile
 $env:MOTORCITY_PHASE12_REPORT_DIR = $report
