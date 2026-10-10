@@ -117,6 +117,7 @@ jobs:
         timeout-minutes: 10
         env:
           MOTORCITY_READ_ONLY_SEED: 'D:\GitHub\motor-city'
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
           $seed = $env:MOTORCITY_READ_ONLY_SEED
@@ -124,16 +125,17 @@ jobs:
           if (-not (Test-Path -LiteralPath $seed)) {
             throw "Local Git seed is missing: $seed"
           }
-          git -C $seed cat-file -e "$sha`^{commit}"
-          if ($LASTEXITCODE -ne 0) {
-            throw "Required SHA $sha is absent from the read-only seed. On the developer machine run: git -C D:\GitHub\motor-city fetch origin main"
+          # Download only this small script by immutable SHA through the GitHub
+          # contents API; the actual Unity project is sourced from local Git.
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = "application/vnd.github.raw+json"
+            'User-Agent' = 'motor-city-ci'
           }
-          # The script is loaded from the exact verified commit, not from the
-          # developer's working tree or an unauthenticated remote endpoint.
+          $uri = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/contents/Tools/prepare_unity_ci_workspace.ps1?ref=$sha"
           $script = Join-Path $env:RUNNER_TEMP 'motorcity-prepare-ci.ps1'
-          git -C $seed show "${sha}:Tools/prepare_unity_ci_workspace.ps1" |
-            Set-Content -LiteralPath $script -Encoding utf8
-          if ($LASTEXITCODE -ne 0) { throw 'Cannot load seed checkout script.' }
+          Invoke-WebRequest -Uri $uri -Headers $headers -OutFile $script -TimeoutSec 40
+          if (-not (Test-Path -LiteralPath $script)) { throw 'Cannot download immutable checkout script.' }
           & $script -Commit $sha -ReadOnlySeed $seed -Workspace $env:GITHUB_WORKSPACE
           if ($LASTEXITCODE -ne 0) { throw 'CI checkout failed.' }
 
