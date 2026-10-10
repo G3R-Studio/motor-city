@@ -20,7 +20,7 @@
 | 9 — City/runtime | 🟡 Частично завершена; дальнейшая оптимизация запуска остановлена | read-only prefab audit, release diagnostic guard, Editor Profiler; WebGL/perf matrix не закрыта |
 | 10 — Vehicle physics | 🟡 Начата | исходная цепочка force/steer/friction/collision/input прослежена; реальный Play Mode smoke и измерения открыты |
 | 11 — Asset/packages | 🟡 Частичный аудит PASS | Git duplicates + Unity dependency audit #247, license evidence; 0 deletion candidates; provenance/reimport/LFS decision открыты |
-| 12 — Release matrix | ⬜ Открыта | два WebGL Release Build Profiles + браузер/устройство |
+| 12 — Release matrix | 🟡 Начата | CI для exact Desktop/Mobile Build Profiles; компиляция, два WebGL player builds и браузер/device QA раздельно |
 
 ## Подтверждённые результаты
 
@@ -198,8 +198,9 @@
 - [ ] Разделение source/generated runtime city, размер репозитория и LFS (только после решения).
 - [ ] Удалять исключительно доказанные candidates отдельными revertable commits.
 
-## Phase 12 — Release matrix
+## Phase 12 — Release matrix 🟡
 
+- [x] **2026-10-11 Release build automation setup**: `Tools/check_phase12_release_profiles.py` охраняет оба существующих WebGL Release Build Profiles и отключение Development/Profiler/Debug; `Assets/Editor/MotorCityPhase12ReleaseBuild.cs` собирает через `BuildPlayerWithProfileOptions` выбранный `-activeBuildProfile`, а `Tools/run_unity_phase12_release.ps1` запускает Desktop/Mobile раздельно и пишет лог/отчёт с git SHA. Отдельный opt-in GitHub Actions job по `[phase12-release]` архивирует оба результата для браузерного smoke. Матрица: `Docs/Baselines/Phase12ReleaseMatrix-2026-10-11.md`. **Настройка CI и source preflight ≠ подтверждённые WebGL builds/браузер.**
 - [ ] WebGL Desktop Release и WebGL Mobile Release из соответствующих **Build Profiles**, версия/хеш каждой сборки, браузер/устройство и Console.
 - [ ] Editor / WebGL Development / WebGL Release: fresh/existing save, restart/cloud, intro, keyboard, touch arrows/wheel, все машины/визуал, paint/wheels/neon, lights, garage/menu/continue, activities, pause/resume.
 - [ ] Негативные проверки: QA/Admin/QA reset **отсутствуют** в Release; missing scripts/materials/shaders = 0.
