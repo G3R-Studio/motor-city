@@ -63,10 +63,14 @@ namespace MotorCity.EditorTools
                 decoded.Credits == 42 && decoded.Key == "fixture",
                 "Unity JSON roundtrip changed values");
 
+            // Real PlayerPrefs operations use GUID-namespaced disposable slots,
+            // not the live MotorCity.Save.Json.v1 player slot.
+            MotorCitySaveService.VerifyIsolatedPlayerPrefsRecovery();
+
             File.WriteAllText(Path.Combine(folder, "unity-phase8-save.txt"),
                 "PASS: Unity JsonUtility roundtrip, v1/v2 save metadata, " +
                 "revision tracking and malformed/empty metadata rejection.\n" +
-                "No PlayerPrefs or cloud service was accessed.\n");
+                "Only disposable isolated PlayerPrefs keys were accessed; no cloud service.\n");
             Debug.Log("Motor City Phase 8 isolated serialization checks passed.");
         }
 
