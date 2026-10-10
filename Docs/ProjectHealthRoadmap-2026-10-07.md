@@ -116,6 +116,9 @@
 
 ## Phase 8 — Save/progression 🟡
 
+- [x] Добавлен изолированный Unity Editor gate `MotorCityPhase8SaveSerializationGate`: реальные `JsonUtility` и `TryReadCloudMetadata` на фиктивных v1/v2 данных, malformed JSON, revision flags; не обращается к `PlayerPrefs` или облаку. Интегрирован в `MotorCityPhase2BatchGate` (CI ещё ожидается).
+
+
 - [x] Выполнен первый baseline audit: `Docs/Baselines/Phase8SaveProgressionAudit-2026-10-10.md`, автоматический реестр literal save keys + source contracts локального слота, backup, схемы и cloud revision (`Tools/check_phase8_save_progression.py`). Добавлен gate в CI; runtime миграции и облако не проверялись.
 
 - [ ] Единый реестр save keys и разграничение device/cloud/QA.
