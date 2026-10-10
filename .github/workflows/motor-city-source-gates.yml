@@ -84,6 +84,9 @@ jobs:
       - name: Audit Phase 11 tracked assets and package dependencies
         run: python3 Tools/check_phase11_asset_inventory.py
 
+      - name: Audit Phase 12 release Build Profiles and CI build wiring
+        run: python3 Tools/check_phase12_release_profiles.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
@@ -209,3 +212,74 @@ jobs:
             Temp/MotorCityAudit/UnityPhase2/unity-build.txt
           if-no-files-found: warn
           retention-days: 14
+
+  unity-phase12-releases:
+    name: Phase 12 WebGL Desktop + Mobile Release profiles
+    # Explicit on-push trigger only. Do not run two costly WebGL player builds
+    # on every source/docs commit or confuse these with the legacy WebGL build.
+    if: ${{ vars.UNITY_CI_ENABLED == 'true' && contains(github.event.head_commit.message, '[phase12-release]') }}
+    runs-on: [self-hosted, Windows, X64, unity6000]
+    timeout-minutes: 240
+    steps:
+      - name: Prepare exact commit from local read-only Git seed
+        shell: pwsh
+        timeout-minutes: 10
+        env:
+          MOTORCITY_READ_ONLY_SEED: 'D:\GitHub\motor-city'
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $seed = $env:MOTORCITY_READ_ONLY_SEED
+          $sha = $env:GITHUB_SHA
+          if (-not (Test-Path -LiteralPath $seed)) {
+            throw "Local Git seed is missing: $seed"
+          }
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = 'application/vnd.github.raw+json'
+            'User-Agent' = 'motor-city-ci'
+          }
+          $uri = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/contents/Tools/prepare_unity_ci_workspace.ps1?ref=$sha"
+          $script = Join-Path $env:RUNNER_TEMP 'motorcity-phase12-prepare.ps1'
+          Invoke-WebRequest -Uri $uri -Headers $headers -OutFile $script -TimeoutSec 40
+          & $script -Commit $sha -ReadOnlySeed $seed -Workspace $env:GITHUB_WORKSPACE
+          if ($LASTEXITCODE -ne 0) { throw 'Phase 12 CI checkout failed.' }
+
+      - name: Build Desktop WebGL Release from authored Build Profile
+        shell: pwsh
+        timeout-minutes: 105
+        run: ./Tools/run_unity_phase12_release.ps1 -Profile Desktop
+
+      - name: Build Mobile WebGL Release from authored Build Profile
+        shell: pwsh
+        timeout-minutes: 105
+        run: ./Tools/run_unity_phase12_release.ps1 -Profile Mobile
+
+      - name: Upload exact-profile build reports and Editor logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motor-city-phase12-release-reports
+          path: |
+            Temp/MotorCityAudit/Phase12/*.txt
+            Temp/MotorCityAudit/Phase12/*.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Desktop Release for browser smoke
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motor-city-webgl-desktop-release
+          path: Temp/MotorCityAudit/Phase12/WebGL-Desktop-Release/
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Upload Mobile Release for browser smoke
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motor-city-webgl-mobile-release
+          path: Temp/MotorCityAudit/Phase12/WebGL-Mobile-Release/
+          if-no-files-found: error
+          retention-days: 3
