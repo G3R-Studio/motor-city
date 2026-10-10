@@ -286,8 +286,10 @@ namespace MotorCity.World
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             ConvertUnsupportedCityMaterialsForWeb();
+#if DEVELOPMENT_BUILD || MOTORCITY_CITY_MATERIAL_AUDIT
             MotorCityWebMaterialDiagnostics.Run(
                 activeCity);
+#endif
 #endif
 
             // Runtime treats the authored city as read-only.
