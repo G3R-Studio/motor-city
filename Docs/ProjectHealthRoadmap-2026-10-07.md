@@ -149,6 +149,9 @@
 
 ## Phase 9 — City/runtime 🟡
 
+- [x] После подтверждённого checkout stall (Git fetch, pack 0 MB, Assets отсутствует) CI #38070735540 отменён. Self-hosted Unity checkout ограничен 12 минутами, Git HTTP low-speed лимитами, `clean: false` для сохранения рабочего кэша и выводом `git count-objects -vH`; source/UI проверки остаются отдельными. Новый CI ожидается, корневая причина сетевого зависания пока не доказана.
+
+
 - [x] Детальный `MotorCityWebMaterialDiagnostics.Run` перенесён за `DEVELOPMENT_BUILD || MOTORCITY_CITY_MATERIAL_AUDIT` внутри WebGL runtime ветки, чтобы release не делал массовый диагностический обход рендереров. Сама совместимость WebGL материалов и runtime plant fallback сохранены.
 - [x] Создан read-only Unity Editor аудит материалов исходного `CityVisual.prefab`: считает renderer/missing slots/Plant-01 и сохраняет отчёт `unity-phase9-city-materials.txt`; пока только отчёт, без удаления runtime fix и без утверждений о состоянии префаба. Source gate защищает от регрессии.
 - [ ] Проверить CI, изучить actual prefab material audit и лишь после этого решить о переносе plant repairs из runtime в Editor.
