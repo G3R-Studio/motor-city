@@ -31,8 +31,21 @@ $argsUnity = @(
     '-executeMethod', $method,
     '-logFile', ('"' + $log + '"')
 )
-$process = Start-Process -FilePath $UnityPath -ArgumentList $argsUnity -Wait -PassThru
+$process = Start-Process -FilePath $UnityPath -ArgumentList $argsUnity -PassThru
+$started = Get-Date
+# Make long asset imports visible in the Actions console instead of one silent
+# Start-Process -Wait step. The job's 60-minute timeout remains authoritative.
+while (-not $process.WaitForExit(60000)) {
+    $elapsed = [int]((Get-Date) - $started).TotalMinutes
+    Write-Host "Unity still running after ${elapsed}m (PID $($process.Id)). Recent Editor log:"
+    if (Test-Path -LiteralPath $log) {
+        Get-Content -LiteralPath $log -Tail 5 | ForEach-Object { Write-Host $_ }
+    } else {
+        Write-Host "Unity log has not been created yet."
+    }
+}
 $code = $process.ExitCode
+Write-Host "Unity Editor process finished after $([int]((Get-Date) - $started).TotalSeconds)s with exit code $code."
 if ($code -ne 0) {
     Write-Host "Unity exited with code $code. Last log lines:"
     if (Test-Path $log) { Get-Content $log -Tail 90 }
