@@ -37,3 +37,17 @@ login, player profile, or cloud save.
 cloud integration or runtime migration tests. Actual `JsonUtility` behavior,
 data-merging interactions, and recovery must be tested in an isolated Unity
 environment before final Phase 8 closure.
+
+## Unity Editor isolated serialization gate
+
+`MotorCityPhase8SaveSerializationGate.Validate` is invoked by the existing
+`MotorCityPhase2BatchGate.Validate` CI step. It exercises Unity
+`JsonUtility` on synthetic v1/v2 documents via
+`MotorCitySaveService.TryReadCloudMetadata`, verifies dirty/revision flags,
+rejects malformed/empty metadata and checks a JsonUtility roundtrip. A report
+is written to `Temp/MotorCityAudit/UnityPhase2/unity-phase8-save.txt`.
+
+This **does not** import the fixtures into live `MotorCitySaveService` and
+**never writes PlayerPrefs**, invokes the QA reset, or accesses Yandex.
+Corrupt-backup persistence and real cloud conflict replay still need a
+separate disposable Unity environment before Phase 8 can close.
