@@ -234,7 +234,15 @@ public Texture2D Texture { get; private set; }
             Component[] authoredBehaviours =
                 waypointType != null
                     ? cityRoot.GetComponentsInChildren(waypointType, true)
-                    : cityRoot.GetComponentsInChildren<MonoBehaviour>(true);
+                    : Array.Empty<Component>();
+
+            if (authoredBehaviours.Length == 0)
+            {
+                // A legacy or customized city may use a different component
+                // type. Retain the original broad scan in that case.
+                authoredBehaviours =
+                    cityRoot.GetComponentsInChildren<MonoBehaviour>(true);
+            }
 
             ExpandBoundsWithFcgTraffic(
                 authoredBehaviours,
