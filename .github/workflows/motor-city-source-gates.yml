@@ -81,6 +81,9 @@ jobs:
       - name: Audit Phase 10 vehicle physics and touch input contracts
         run: python3 Tools/check_phase10_vehicle_physics.py
 
+      - name: Audit Phase 11 tracked assets and package dependencies
+        run: python3 Tools/check_phase11_asset_inventory.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
@@ -90,7 +93,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: motor-city-static-audit
-          path: Temp/MotorCityAudit/static-audit.json
+          path: |
+            Temp/MotorCityAudit/static-audit.json
+            Temp/MotorCityAudit/phase11-asset-inventory.json
           if-no-files-found: warn
           retention-days: 14
 
