@@ -149,6 +149,10 @@
 
 ## Phase 9 — City/runtime 🟡
 
+- [x] Unity CI #38073086084 успешно прошёл с локально подготовленным checkout. CityVisual prefab audit: **26 123 renderers, 12 missing material slots, all 12 on Plant-01**. Runtime plant fallback сохраняем; Editor CI теперь падает при появлении новых пустых слотов вне Plant-01.
+- [ ] Объединить повторные обходы 26 123 renderers при runtime-загрузке (material rebinding, plant fix, WebGL conversion, bounds), затем замерить startup CPU/GC на целевых quality tiers. Рефакторинг ещё не применён.
+
+
 - [x] CI checkout workaround для Windows self-hosted: отдельный Git cache `_work` заполняется из `D:\\GitHub\\motor-city` без изменений пользовательской репы; отсутствующие коммиты инкрементально загружаются в CI-копию без shallow fetch, LFS hydration из локального кэша, проверка точного SHA, сохранение Library/Temp. Маленький загрузочный скрипт берётся по immutable SHA через GitHub API. Это обход медленного checkout, новый CI ещё не прошёл.
 
 
