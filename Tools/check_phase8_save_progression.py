@@ -32,6 +32,11 @@ def main() -> int:
             service.find("PlayerPrefs.DeleteKey(\n                        StorageKey)")
         ),
         "schema_version_2": "CurrentVersion = 2;" in service,
+        "save_envelope_validation": (
+            "IsValidParsedDocument(json, parsed)" in service
+            and "IsValidParsedDocument(json, imported)" in service
+            and "IsValidParsedDocument(json, document)" in service
+        ),
         "json_import_normalized": bool(re.search(r"document\s*=\s*Normalize\s*\(\s*imported\s*\)", service)),
         "cloud_revision_conflict": "ShouldUseRemote(" in cloud and "HasUnsyncedChanges" in cloud,
         "upload_revision_snapshot": "ExportCloudJson(" in cloud and "attemptedRevision" in cloud,
