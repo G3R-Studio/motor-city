@@ -149,6 +149,8 @@
 
 ## Phase 9 — City/runtime 🟡
 
+- [ ] **2026-10-11 async city prefab preload experiment** (\`ccae1e7\`, \`7a239b9\`, source guard \`6568739\`): старт \`Resources.LoadAsync<GameObject>\` при появлении loading screen, вызов оригинального gameplay bootstrap после \`isDone\`, сохранены синхронный fallback и полный порядок создания города; Domain Reload reset очищает ссылку на запрос. Цель — убрать паузу \`Resources.Load\` из кадра создания города, а не обещать снижение полного времени загрузки. **Unity compile/Play Mode/WebGL smoke и замеры ожидаются**: сравнить \`MotorCity.City.LoadPrefab\`, \`MotorCity.City.Instantiate\`, максимальный frame time и реальную длительность loading screen; убедиться в появлении выбора управления и сохранении освещения/FCG traffic.
+
 - [ ] **2026-10-11 Editor Profiler baseline (первый въезд в город, кадр 165):** `MotorCity.City.LoadPrefab` 1 370,27 мс / 2,6 МБ GC, `MotorCity.City.Instantiate` 703,52 мс / 2,6 МБ GC; `MotorCity.Minimap.Build` 145,09 мс / 16,9 МБ GC. Это измерения в Editor, не WebGL. Основная задержка загрузки — Unity `Resources.Load` / `Instantiate`; без доказательств не трогать prefab/сцену ради фиктивного ускорения.
 - [ ] **Minimap allocation experiment** (`ce99542`, `8d32d53`): кеширование классификации имён по Transform, точечный поиск `FCG.FCGWaypointsContainer` с legacy fallback и `Color32` для RGBA32 texture. Source-level проверки выполнены; ещё нужны Unity compile/Play Mode, визуальная сверка мини-карты (дороги и здания) и повтор `MotorCity.Minimap.Build` CPU/GC на том же маршруте. SRP Batcher оставить включённым по умолчанию до WebGL benchmark.
 
