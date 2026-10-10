@@ -1051,8 +1051,12 @@ namespace MotorCity.World
                 }
             }
 
-            if (streetLightSourceCount != 489 ||
-                parkLampSourceCount != 288)
+            // Authored light-count mismatch is a QA hint, not a gameplay
+            // failure. Keep it visible in Editor/development builds without
+            // producing non-actionable warnings in WebGL release players.
+            if ((Application.isEditor || Debug.isDebugBuild) &&
+                (streetLightSourceCount != 489 ||
+                 parkLampSourceCount != 288))
             {
                 Debug.LogWarning(
                     "[MotorCity][Lighting] Expected 489 StreetLight and 288 ParkLamp lights, found " +
