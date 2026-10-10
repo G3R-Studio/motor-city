@@ -27,6 +27,7 @@ namespace MotorCity.EditorTools
             MotorCityPhase5DependencyAudit.Validate();
             MotorCityPhase8SaveSerializationGate.Validate(folder);
             MotorCityPhase9CityMaterialAudit.Validate(folder);
+            MotorCityPhase11DependencyAudit.Validate(folder);
             if (Environment.GetEnvironmentVariable("MOTORCITY_PHASE3_REBUILD") == "1")
                 MotorCityImporterRebuildGate.Validate();
 
