@@ -49,6 +49,8 @@ if not editor.is_file() or not (editor.with_suffix(".cs.meta")).is_file():
     errors.append("Missing Phase 12 profile build entrypoint or Unity .meta")
 else:
     source = editor.read_text(encoding="utf-8-sig")
+    if 'folder = "Builds/Phase12";' not in source:
+        errors.append("Unity Phase 12 fallback output must be outside Temp")
     for fragment in (
         "BuildProfile.GetActiveBuildProfile()",
         "BuildPlayerWithProfileOptions",
@@ -63,6 +65,8 @@ if not wrapper.is_file():
     errors.append("Missing Phase 12 release runner")
 else:
     source = wrapper.read_text(encoding="utf-8-sig")
+    if "Join-Path $root 'Builds/Phase12'" not in source:
+        errors.append("Phase 12 outputs must be outside Unity's disposable Temp directory")
     for fragment in ("-activeBuildProfile", "MOTORCITY_PHASE12_PROFILE", "Builds/Phase12",
                      "MotorCity.EditorTools.MotorCityPhase12ReleaseBuild.Build"):
         if fragment not in source:
