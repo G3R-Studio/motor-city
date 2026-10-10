@@ -337,6 +337,17 @@ namespace MotorCity.Persistence
                     uploadQueued = false;
                     queuedForce = false;
 
+                    if (!success)
+                    {
+                        // Do not immediately retry a failed upload from a
+                        // queued focus/pause event. Retain the local dirty
+                        // revision and retry on the normal timer, avoiding
+                        // a tight callback loop when the platform is offline.
+                        uploadTimer =
+                            UploadIntervalSeconds;
+                        return;
+                    }
+
                     if (runQueued)
                     {
                         TryUpload(
