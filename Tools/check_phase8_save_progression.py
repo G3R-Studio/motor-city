@@ -41,6 +41,12 @@ def main() -> int:
             and '"MotorCity.Purchase.SupporterPack.RewardClaimed"' in cloud
         ),
         "local_flush_on_background": "OnApplicationPause(" in runtime and "OnApplicationFocus(" in runtime,
+        "failed_upload_delayed_retry": (
+            'if (!success)' in cloud
+            and 'uploadTimer =\n                            UploadIntervalSeconds;' in cloud
+            and cloud.find('if (!success)', cloud.find('bool runQueued =')) <
+                cloud.find('if (runQueued)', cloud.find('bool runQueued ='))
+        ),
     }
     for key, ok in contracts.items():
         if not ok:
