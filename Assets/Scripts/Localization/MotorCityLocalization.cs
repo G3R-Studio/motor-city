@@ -58,6 +58,7 @@ namespace MotorCity.Localization
                 { "ux.catalog.city", E("ГОРОД", "CITY") },
                 { "ux.catalog.special", E("ОСОБЫЕ", "SPECIAL") },
                 { "ux.catalog.start_marker", E("Начало - у маркера на карте; выбери направление в навигаторе.", "Start at the world marker; select a destination in the navigator.") },
+                { "ux.catalog.route_ready", E("Маршрут можно выбрать из списка ниже.", "Choose a route from the list below.") },
                 { "ux.catalog.busy", E("Сначала заверши текущую активность - её маршрут сохраняется.", "Finish the current activity first - its route is preserved.") },
                 { "ux.catalog.route_unavailable", E("Маршрут пока недоступен. Не создаём ложную точку назначения.", "Route unavailable. No fake destination is created.") },
                 { "ux.catalog.city_info", E("Радар, исследование и фотозадания - используй маркеры и текущие городские задания. Отдельный маршрут не обещается.", "Radar, exploration and photo goals - follow existing markers and city objectives. No separate route is promised.") },
