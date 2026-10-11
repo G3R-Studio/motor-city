@@ -330,7 +330,13 @@ namespace MotorCity.UI
                 ? null
                 : active.GetComponentInChildren<ScrollRect>();
             if (scroll != null)
+            {
+                // A touch swipe can still have inertia when its panel
+                // is hidden. Cancel it before resetting the next visit to
+                // the top, otherwise a reopened page starts drifting.
+                scroll.StopMovement();
                 scroll.verticalNormalizedPosition = 1f;
+            }
 
             // Keyboard/controller navigation starts on a page action, not on
             // an invisible button from the page that was just hidden.
