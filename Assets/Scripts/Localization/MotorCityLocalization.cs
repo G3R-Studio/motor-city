@@ -60,6 +60,8 @@ namespace MotorCity.Localization
                 { "ux.catalog.start_marker", E("Начало - у маркера на карте; выбери направление в навигаторе.", "Start at the world marker; select a destination in the navigator.") },
                 { "ux.catalog.job_names", E("Доступные точки работы: {0}.", "Available job starts: {0}.") },
                 { "ux.catalog.no_job_starts", E("Точки работы пока недоступны.", "No job starts available yet.") },
+                { "ux.catalog.profession_next", E("До следующего уровня профессий: {0} заданий.", "Jobs to next profession level: {0}.") },
+                { "ux.catalog.profession_max", E("Достигнут максимальный уровень профессий.", "Maximum profession level reached.") },
                 { "ux.catalog.profession_level", E("Текущий уровень профессий: {0}.", "Current profession level: {0}.") },
                 { "ux.catalog.tow_start", E("Эвакуатор: остановись у точки старта и нажми «Действие». Действующая работа должна быть завершена.", "Tow truck: stop at the start marker and press Interact. Finish the current job first.") },
                 { "ux.catalog.carwash_start", E("Автомойка: остановись у точки старта и нажми «Действие». Действующая работа должна быть завершена.", "Car wash: stop at the start marker and press Interact. Finish the current job first.") },
