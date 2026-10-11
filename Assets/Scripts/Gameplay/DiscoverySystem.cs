@@ -167,8 +167,8 @@ namespace MotorCity.Gameplay
 
             MotorCity.Persistence.MotorCitySaveService.Save();
 
-            const int credits = 90;
-            const int rep = 35;
+            const int credits = CatalogCreditsReward;
+            const int rep = CatalogReputationReward;
 
             wallet?.AddCredits(credits);
             reputation?.AddReputation(rep);
