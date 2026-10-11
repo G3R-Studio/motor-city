@@ -1168,9 +1168,10 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.city_info"),
                     MotorCityLocalization.Text("ux.catalog.special") + "\n" +
                     MotorCityLocalization.Text("ux.catalog.special_info"),
-                    activityManager.IsBusy
+                    PlayerExperienceRouteBusy
                         ? MotorCityLocalization.Text("ux.catalog.busy")
-                        : string.Empty);
+                        : MotorCityLocalization.Text(
+                            "ux.catalog.route_ready"));
             }
         }
 
