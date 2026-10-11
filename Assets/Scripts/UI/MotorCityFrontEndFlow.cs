@@ -258,6 +258,7 @@ namespace MotorCity.UI
             playerExperienceModalPanels.Clear();
             frontEndScrollCues.Clear();
             frontEndModalFrames.Clear();
+            playerExperienceLastOverviewSelection = null;
             controlChoiceModalPanel = null;
             playerExperienceSectionActions = null;
             playerExperienceProgressActions = null;
