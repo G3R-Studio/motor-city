@@ -1203,8 +1203,16 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.tow_start") + "\n" +
                     MotorCityLocalization.Text("ux.catalog.carwash_start") + "\n" +
                     MotorCityLocalization.Format(
-                        "ux.catalog.delivery_reward",
-                        delivery.RewardCredits) + "\n" +
+                        "ux.catalog.delivery_times",
+                        delivery.CatalogGoldTimeSeconds,
+                        delivery.CatalogSilverTimeSeconds,
+                        delivery.CatalogBronzeTimeSeconds) + "\n" +
+                    MotorCityLocalization.Format(
+                        "ux.catalog.delivery_payouts",
+                        delivery.RewardCredits,
+                        delivery.CatalogSilverRewardCredits,
+                        delivery.CatalogBronzeRewardCredits,
+                        delivery.CatalogCompletionRewardCredits) + "\n" +
                     MotorCityLocalization.Format(
                         delivery.EliteUnlocked
                             ? "ux.catalog.delivery_elite_unlocked"
@@ -1240,6 +1248,20 @@ namespace MotorCity.UI
                 records.Append(MotorCityLocalization.Format(
                     best > 0 ? "ux.catalog.drift_spot_record" : "ux.catalog.drift_spot_no_record",
                     name, best));
+                records.Append('\n');
+                records.Append(MotorCityLocalization.Format(
+                    "ux.catalog.drift_spot_targets",
+                    driftSpots.GetSpotBronzeTarget(i),
+                    driftSpots.GetSpotSilverTarget(i),
+                    driftSpots.GetSpotGoldTarget(i)));
+                records.Append('\n');
+                int medal = driftSpots.GetSpotHighestMedal(i);
+                string medalName = MotorCityLocalization.Text(
+                    medal >= 3 ? "medal.gold"
+                    : medal == 2 ? "medal.silver"
+                    : medal == 1 ? "medal.bronze" : "medal.none");
+                records.Append(MotorCityLocalization.Format(
+                    "ux.catalog.drift_spot_medal", medalName));
                 records.Append('\n');
             }
             return records.ToString();
