@@ -289,7 +289,9 @@
 
 **UX-2, 2026-10-12 - рекорды дрифт-зон:** [`4cf6dbf`](https://github.com/G3R-Studio/motor-city/commit/4cf6dbfd941c55dbdc073d969046581d3569579e) → [`863b065`](https://github.com/G3R-Studio/motor-city/commit/863b06593535a69dbdf0566737213bc2574c18a3). В каталоге отображаются названия существующих дрифт-зон и сохранённый лучший счёт каждой зоны через read-only getter, либо «рекорда пока нет». RU/EN, без новых сохранений и наград. **Пользователь подтвердил Unity Play Mode: «всё чётко» (2026-10-12).**
 
-**UX-2, 2026-10-12 - ближайший рубеж профессий:** [`b0a28f5`](https://github.com/G3R-Studio/motor-city/commit/b0a28f5d681c5c97150d5af576cb091b9a44d214) → [`0ea4e8f`](https://github.com/G3R-Studio/motor-city/commit/0ea4e8f1e3e140332354493fc0860bf307398a1f). Каталог теперь показывает точное число заданий до следующего уровня профессий из существующего прогресса (`TotalCompleted / 4`, cap 10), на максимальном уровне показывает MAX. RU/EN, read-only, без изменения наград. **Unity Play Mode этой поставки ожидается.**
+**UX-2, 2026-10-12 - ближайший рубеж профессий:** [`b0a28f5`](https://github.com/G3R-Studio/motor-city/commit/b0a28f5d681c5c97150d5af576cb091b9a44d214) → [`0ea4e8f`](https://github.com/G3R-Studio/motor-city/commit/0ea4e8f1e3e140332354493fc0860bf307398a1f). Каталог теперь показывает точное число заданий до следующего уровня профессий из существующего прогресса (`TotalCompleted / 4`, cap 10), на максимальном уровне показывает MAX. RU/EN, read-only, без изменения наград. **Пользователь подтвердил эту поставку в Unity: «всё чётко» (2026-10-12).**
+
+**UX-2, 2026-10-12 - лучший круг кольцевой гонки:** [`6d0ccee`](https://github.com/G3R-Studio/motor-city/commit/6d0cceee3e4f6045e549c69ada6e6529002b2eb0) → [`806d234`](https://github.com/G3R-Studio/motor-city/commit/806d234805a01f1e932b7679ce6cfe8826810eb7). К существующему лучшему времени кольцевой гонки добавлен отдельный сохранённый лучший круг `CircuitRaceActivity.BestLapSeconds`, с состоянием без рекорда и RU/EN. Только read-only UI, маршруты/награды/saves не изменялись. **Unity Play Mode этой поставки ожидается.**
 
 ## 7. Связанные документы
 
