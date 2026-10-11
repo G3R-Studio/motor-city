@@ -1432,6 +1432,38 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.next.photo"));
         }
 
+        private void AppendPlayerExperienceSpecialCards(System.Text.StringBuilder sb)
+        {
+            if (liveEvents != null)
+                AppendPlayerExperienceCard(sb,
+                    MotorCityLocalization.Text("ux.catalog.name.event"),
+                    MotorCityLocalization.Text("ux.catalog.about.event"),
+                    MotorCityLocalization.Text("ux.catalog.start.special"),
+                    MotorCityLocalization.Text("ux.catalog.access.passive"),
+                    liveEvents.HudLine, null,
+                    MotorCityLocalization.Text("ux.catalog.next.story"));
+            if (legends != null)
+                AppendPlayerExperienceCard(sb,
+                    MotorCityLocalization.Text("ux.catalog.name.legend"),
+                    MotorCityLocalization.Text("ux.catalog.about.legend"),
+                    MotorCityLocalization.Text("ux.catalog.start.special"),
+                    MotorCityLocalization.Text("ux.catalog.access.passive"),
+                    legends.HudLine, null,
+                    MotorCityLocalization.Text("ux.catalog.next.story"));
+            if (underground != null)
+                AppendPlayerExperienceCard(sb,
+                    MotorCityLocalization.Text("ux.catalog.name.night"),
+                    MotorCityLocalization.Text("ux.catalog.about.night"),
+                    MotorCityLocalization.Text("ux.catalog.start.special"),
+                    MotorCityLocalization.Text(
+                        underground.HasActiveInvitation
+                            ? "ux.catalog.night.open"
+                            : "ux.catalog.night.locked") + "\n" +
+                        MotorCityLocalization.Text("ux.catalog.night.requirement"),
+                    underground.HudLine, null,
+                    MotorCityLocalization.Text("ux.catalog.next.story"));
+        }
+
         private string PlayerExperienceActiveActivityLine()
         {
             string activityKey = null;
