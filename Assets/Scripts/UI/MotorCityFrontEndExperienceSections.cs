@@ -416,21 +416,12 @@ namespace MotorCity.UI
             if (selected == lastCareerFocus)
                 return;
             lastCareerFocus = selected;
-            if (selected == null)
+            if (selected == null ||
+                !selected.transform.IsChildOf(playerExperienceRoot.transform))
                 return;
 
-            GameObject page = playerExperienceHomePanel;
-            if (page == null || !page.activeSelf)
-            {
-                page = selected.transform.GetComponentInParent<ScrollRect>() != null
-                    ? selected.transform.GetComponentInParent<ScrollRect>().transform.parent.gameObject
-                    : null;
-            }
-            if (page == null || !page.activeInHierarchy ||
-                !selected.transform.IsChildOf(page.transform))
-                return;
-
-            ScrollRect scroll = page.GetComponentInChildren<ScrollRect>();
+            // Footer Back/X is outside the clipped content and needs no scroll.
+            ScrollRect scroll = selected.GetComponentInParent<ScrollRect>();
             if (scroll == null || scroll.content == null ||
                 scroll.viewport == null ||
                 !selected.transform.IsChildOf(scroll.content))
@@ -440,6 +431,7 @@ namespace MotorCity.UI
             float range = scroll.content.rect.height - scroll.viewport.rect.height;
             if (range <= 1f)
                 return;
+
             Bounds focus = RectTransformUtility.CalculateRelativeRectTransformBounds(
                 scroll.viewport, selected.transform);
             Rect view = scroll.viewport.rect;
