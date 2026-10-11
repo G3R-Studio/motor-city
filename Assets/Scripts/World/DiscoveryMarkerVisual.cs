@@ -9,6 +9,7 @@ namespace MotorCity.World
             "MotorCity/Markers/DiscoveryMarkerVfx";
 
         private DiscoverySystem discoveries;
+        private ActivityManager activityManager;
         private int discoveryIndex;
         private GameObject markerVfx;
         private CheckpointBeaconVisual fallbackBeacon;
@@ -17,10 +18,14 @@ namespace MotorCity.World
 
         public void Bind(
             DiscoverySystem system,
-            int index)
+            int index,
+            ActivityManager manager)
         {
             discoveries =
                 system;
+
+            activityManager =
+                manager;
 
             discoveryIndex =
                 index;
@@ -99,7 +104,9 @@ namespace MotorCity.World
             bool visible =
                 discoveries != null &&
                 !discoveries.IsFound(
-                    discoveryIndex);
+                    discoveryIndex) &&
+                (activityManager == null ||
+                 !activityManager.IsBusy);
 
             if (!force &&
                 visibilityInitialized &&
