@@ -498,6 +498,13 @@ namespace MotorCity.Gameplay
 
             activityManager.DismissResult(false);
 
+            // Result and countdown are independent driving blockers.
+            // Replaying a drift challenge must clear both, otherwise the
+            // car stays immobile even after the 3-2-1 handoff finishes.
+            car.SetDrivingBlocked(
+                "ActivityResult",
+                false);
+
             Quaternion rotation =
                 Quaternion.Euler(
                     0f,
