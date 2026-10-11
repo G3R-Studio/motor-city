@@ -257,6 +257,7 @@ namespace MotorCity.UI
             // page/scrollbar references in the replacement interface.
             playerExperienceModalPanels.Clear();
             frontEndScrollCues.Clear();
+            frontEndModalFrames.Clear();
             controlChoiceModalPanel = null;
             playerExperienceSectionActions = null;
             playerExperienceProgressActions = null;
