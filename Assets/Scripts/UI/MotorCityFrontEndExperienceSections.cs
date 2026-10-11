@@ -350,6 +350,11 @@ namespace MotorCity.UI
                     break;
                 }
             }
+
+            // Re-evaluate overflow after this page has become active and
+            // its body text has been refreshed. A scroll hint never appears
+            // on pages that fit without scrolling.
+            RefreshFrontEndScrollCues();
         }
 
         private void HandlePlayerExperienceBack()
