@@ -67,6 +67,24 @@ namespace MotorCity.Gameplay
             }
         }
 
+        // Automatically advanced contract; this is not a separately started mission.
+        public int CatalogIndex => contractIndex;
+        public int CatalogCycle => cycle;
+        public string CatalogClient => CurrentDefinition().Client;
+        public string CatalogTitle => CurrentDefinition().Name;
+        public string CatalogBrief => CurrentDefinition().Brief;
+        public string CatalogProgressLine => ProgressText(CurrentDefinition());
+        public int CatalogRewardCredits => RewardCredits(CurrentDefinition());
+        public int CatalogRewardReputation => RewardReputation(CurrentDefinition());
+        public int CatalogRacingProgress => racingProgress;
+        public int CatalogDriftProgress => driftProgress;
+        public int CatalogDeliveryProgress => deliveryProgress;
+        public int CatalogNightProgress => nightProgress;
+        public int CatalogRacingTarget => CurrentDefinition().RacingRequired;
+        public int CatalogDriftTarget => CurrentDefinition().DriftRequired;
+        public int CatalogDeliveryTarget => CurrentDefinition().DeliveryRequired;
+        public int CatalogNightTarget => CurrentDefinition().NightRequired;
+
         public string AdminLine =>
             $"КОНТРАКТ {contractIndex + 1}/{ContractCount} • УР.{cycle} • " +
             CurrentDefinition().Client + " • " +
