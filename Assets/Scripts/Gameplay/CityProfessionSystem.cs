@@ -566,6 +566,16 @@ namespace MotorCity.Gameplay
             return false;
         }
 
+        public string GetStartActivityId(
+            int index)
+        {
+            return definitions != null &&
+                   index >= 0 &&
+                   index < definitions.Length
+                ? ActivityId(definitions[index].Id)
+                : string.Empty;
+        }
+
         public string GetStartName(
             int index)
         {
