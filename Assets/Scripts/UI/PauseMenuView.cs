@@ -6,6 +6,7 @@ using MotorCity.Persistence;
 using MotorCity.Platform;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace MotorCity.UI
 {
@@ -224,6 +225,25 @@ namespace MotorCity.UI
             {
                 pauseOverlay?.SetActive(true);
                 RefreshPauseMenuText();
+
+                // When the shared Canvas closes, EventSystem can still
+                // point at a now-hidden Player Experience action. Restore
+                // the pause action that opened it for keyboard/gamepad.
+                if (EventSystem.current != null && pauseOverlay != null)
+                {
+                    foreach (Button button in
+                        pauseOverlay.GetComponentsInChildren<Button>())
+                    {
+                        if (button.gameObject.name !=
+                            "Pause Player Experience" ||
+                            !button.IsActive() || !button.interactable)
+                            continue;
+
+                        EventSystem.current.SetSelectedGameObject(
+                            button.gameObject);
+                        break;
+                    }
+                }
             }
         }
 
