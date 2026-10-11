@@ -18,6 +18,28 @@ checks = {
         "hoverPhase" not in SOURCE and
         "Mathf.Sin(" not in SOURCE
     ),
+    "central roof collider proxies": (
+        "BodyCollider_" in SOURCE and
+        "GetComponentsInChildren<BoxCollider>" in SOURCE and
+        "surfaceY > bestRoofY" in SOURCE and
+        "Physics.RaycastAll(" not in SOURCE
+    ),
+    "actual feet aligned to roof": (
+        "AlignPixieFeetToRoof();" in SOURCE and
+        "HumanBodyBones.LeftFoot" in SOURCE and
+        "HumanBodyBones.RightFoot" in SOURCE and
+        "SoleBelowAnkle" in SOURCE
+    ),
+    "Editor skin preview without granting purchase": (
+        'public void SetEditorRoofHeightOffset(float offsetMeters)' in SOURCE and
+        "editorRoofHeightOffset" in SOURCE and
+        "EditorRoofHeightOffset" in
+          (ROOT / "Assets/Scripts/Gameplay/AdminDebugPanel.cs").read_text(encoding="utf-8-sig") and
+        'pixie?.SetSupporterPackSkin(false);' in
+          (ROOT / "Assets/Scripts/Gameplay/AdminDebugPanel.cs").read_text(encoding="utf-8-sig") and
+        'pixie?.SetSupporterPackSkin(true);' in
+          (ROOT / "Assets/Scripts/Gameplay/AdminDebugPanel.cs").read_text(encoding="utf-8-sig")
+    ),
     "exact vehicle attachment": (
         "visualRoot.transform.position =\n                car.transform.TransformPoint(visualAnchorLocal);" in SOURCE and
         "visualRoot.transform.rotation =\n                car.transform.rotation;" in SOURCE and

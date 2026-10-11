@@ -1768,6 +1768,29 @@ namespace MotorCity.Gameplay
             }
 
             GUILayout.EndHorizontal();
+
+            if (pixie != null)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(
+                    "Высота на крыше: " +
+                    pixie.EditorRoofHeightOffset.ToString("+0.00;-0.00;0.00") +
+                    " м",
+                    GUILayout.Width(280f));
+
+                if (Button("НИЖЕ -5 СМ"))
+                    pixie.SetEditorRoofHeightOffset(
+                        pixie.EditorRoofHeightOffset - 0.05f);
+
+                if (Button("ВЫШЕ +5 СМ"))
+                    pixie.SetEditorRoofHeightOffset(
+                        pixie.EditorRoofHeightOffset + 0.05f);
+
+                if (Button("СБРОС ВЫСОТЫ"))
+                    pixie.SetEditorRoofHeightOffset(0f);
+
+                GUILayout.EndHorizontal();
+            }
 #endif
 
             Section(

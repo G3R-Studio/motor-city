@@ -44,6 +44,22 @@ namespace MotorCity.Gameplay
         private bool useSupporterPixieSkin;
         private Vector3 visualAnchorLocal;
         private Transform observedVehicleVisual;
+#if UNITY_EDITOR
+        // Preview-only car roof calibration, never written to saves.
+        private float editorRoofHeightOffset;
+
+        public float EditorRoofHeightOffset => editorRoofHeightOffset;
+
+        public void SetEditorRoofHeightOffset(float offsetMeters)
+        {
+            editorRoofHeightOffset =
+                Mathf.Clamp(offsetMeters, -0.60f, 0.60f);
+
+            if (car != null)
+                visualAnchorLocal = ResolveVisualAnchor();
+        }
+#endif
+
         private float animationReactionTimer;
         private float ambientPoseTimer;
         private float nextAmbientPoseSeconds;
@@ -862,60 +878,72 @@ namespace MotorCity.Gameplay
                 return new Vector3(0f, 1.65f, 0f);
 
             Bounds bounds = ResolveCarLocalBounds();
+            Vector3 roofCenter = new Vector3(
+                bounds.center.x,
+                bounds.max.y + 0.01f,
+                bounds.center.z);
 
-            Vector3 roofCenter =
-                new Vector3(
-                    bounds.center.x,
-                    bounds.max.y + 0.01f,
-                    bounds.center.z);
-
-            // Some cars (notably the DeLorean) have parts *above* the roof:
-            // rear towers, spoilers, antennas, etc. A global renderer max
-            // places Pixie above those parts rather than on the roof.
-            // Raycast against the body's authored collision proxies right
-            // at the horizontal roof centre; never raycast against wheels,
-            // the floating companion, or the surrounding scene.
+            // Rear towers/spoilers on cars such as the DeLorean are higher
+            // than the cabin roof. Use the central body collision proxy
+            // instead of the global maximum height of every renderer.
+            // This works immediately after prefab creation, before physics
+            // collider transforms have synchronized for raycasts.
             Transform vehicleVisual = car.transform.Find(
                 "MotorCityVehicleVisual_Runtime");
 
-            if (vehicleVisual == null)
-                return roofCenter;
-
-            Vector3 rayOrigin = car.transform.TransformPoint(
-                roofCenter + Vector3.up * 2f);
-
-            RaycastHit[] hits = Physics.RaycastAll(
-                rayOrigin,
-                -car.transform.up,
-                8f,
-                ~0,
-                QueryTriggerInteraction.Ignore);
-
-            float bestRoofY = float.NegativeInfinity;
-
-            foreach (RaycastHit hit in hits)
+            if (vehicleVisual != null)
             {
-                Collider collider = hit.collider;
+                float bestRoofY = float.NegativeInfinity;
+                Vector3 sampleWorld =
+                    car.transform.TransformPoint(roofCenter);
 
-                if (collider == null ||
-                    !collider.transform.IsChildOf(vehicleVisual) ||
-                    !collider.name.StartsWith(
-                        "BodyCollider_",
-                        StringComparison.Ordinal))
+                foreach (BoxCollider collider in
+                         vehicleVisual.GetComponentsInChildren<BoxCollider>(
+                             true))
                 {
-                    continue;
+                    if (collider == null ||
+                        !collider.enabled ||
+                        !collider.name.StartsWith(
+                            "BodyCollider_",
+                            StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    Vector3 localSample =
+                        collider.transform.InverseTransformPoint(sampleWorld);
+                    Vector3 offset = localSample - collider.center;
+
+                    if (Mathf.Abs(offset.x) >
+                            collider.size.x * 0.5f + 0.015f ||
+                        Mathf.Abs(offset.z) >
+                            collider.size.z * 0.5f + 0.015f)
+                    {
+                        continue;
+                    }
+
+                    Vector3 contactLocal = new Vector3(
+                        localSample.x,
+                        collider.center.y + collider.size.y * 0.5f,
+                        localSample.z);
+
+                    float surfaceY = car.transform.InverseTransformPoint(
+                        collider.transform.TransformPoint(contactLocal)).y;
+
+                    if (surfaceY > bestRoofY)
+                        bestRoofY = surfaceY;
                 }
 
-                float hitY = car.transform.InverseTransformPoint(
-                    hit.point).y;
-
-                if (hitY > bestRoofY)
-                    bestRoofY = hitY;
+                if (bestRoofY > float.NegativeInfinity)
+                {
+                    // Proxy boxes sit inside the visible shell.
+                    roofCenter.y = bestRoofY + 0.045f;
+                }
             }
 
-            if (bestRoofY > float.NegativeInfinity)
-                roofCenter.y = bestRoofY + 0.01f;
-
+#if UNITY_EDITOR
+            roofCenter.y += editorRoofHeightOffset;
+#endif
             return roofCenter;
         }
 
