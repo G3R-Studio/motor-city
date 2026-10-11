@@ -1181,6 +1181,7 @@ namespace MotorCity.UI
                         professions.StartCount,
                         professions.TotalCompleted) + "\n" +
                     MotorCityLocalization.Text("ux.catalog.job_start") + "\n" +
+                    PlayerExperienceProfessionNames() + "\n" +
                     MotorCityLocalization.Format(
                         "ux.catalog.profession_level",
                         professions.ProfessionLevel) + "\n" +
@@ -1211,6 +1212,27 @@ namespace MotorCity.UI
                         : MotorCityLocalization.Text(
                             "ux.catalog.route_ready"));
             }
+        }
+
+        private string PlayerExperienceProfessionNames()
+        {
+            if (professions == null || professions.StartCount <= 0)
+                return MotorCityLocalization.Text("ux.catalog.no_job_starts");
+
+            System.Text.StringBuilder names = new System.Text.StringBuilder(160);
+            for (int i = 0; i < professions.StartCount; i++)
+            {
+                string name = professions.GetStartName(i);
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                if (names.Length > 0)
+                    names.Append(", ");
+                names.Append(name);
+            }
+            return names.Length > 0
+                ? MotorCityLocalization.Format(
+                    "ux.catalog.job_names", names.ToString())
+                : MotorCityLocalization.Text("ux.catalog.no_job_starts");
         }
 
         private static string FormatPlayerExperienceBestTime(
