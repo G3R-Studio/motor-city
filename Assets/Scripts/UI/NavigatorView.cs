@@ -440,6 +440,17 @@ namespace MotorCity.UI
             (towTruck != null && towTruck.IsActive) ||
             (carWash != null && carWash.IsActive);
 
+        public int PlayerExperienceProfessionRouteCount =>
+            professions != null ? professions.StartCount : 0;
+
+        public string PlayerExperienceProfessionRouteName(int index)
+        {
+            return professions != null &&
+                index >= 0 && index < professions.StartCount
+                    ? professions.GetStartName(index)
+                    : string.Empty;
+        }
+
         public bool TrySetPlayerExperienceRoute(int destinationIndex)
         {
             if (PlayerExperienceRouteBusy ||
