@@ -6,6 +6,13 @@ namespace MotorCity.Gameplay
 {
     public sealed class ActivityManager : MonoBehaviour
     {
+        // The same priority resolver used after activities is read-only
+        // available to the career overview. It never starts an activity.
+        public ResultNextGoalResolver.Goal RecommendedGoal =>
+            resultNextGoalResolver == null
+                ? default
+                : resultNextGoalResolver.CurrentGoal;
+
         public string ActiveId { get; private set; }
         public string ActiveName { get; private set; }
         public bool IsBusy => !string.IsNullOrEmpty(ActiveId);
