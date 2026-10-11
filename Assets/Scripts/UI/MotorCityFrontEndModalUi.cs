@@ -455,7 +455,11 @@ namespace MotorCity.UI
                 rect.anchorMin = Vector2.zero;
                 rect.anchorMax = Vector2.one;
                 rect.pivot = new Vector2(0.5f, 0.5f);
-                rect.offsetMin = new Vector2(10f, 5f);
+                // Only scheme buttons have a left icon. Reserve a real
+                // left gutter within the current Grid cell; otherwise the
+                // auto-sized text would paint across the restored symbol.
+                bool hasIcon = button.transform.Find("Menu Action Icon") != null;
+                rect.offsetMin = new Vector2(hasIcon ? 66f : 10f, 5f);
                 rect.offsetMax = new Vector2(-10f, -5f);
                 label.resizeTextForBestFit = true;
                 label.resizeTextMinSize = 16;
