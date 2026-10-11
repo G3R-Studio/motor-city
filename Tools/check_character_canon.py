@@ -59,8 +59,9 @@ for key in (
     "MotorCity.Turbo.Daily.Progress", "MotorCity.Turbo.Daily.Claimed",
 ):
     require(f'"{key}"' in pixie, f"Existing Pixie save key changed: {key}")
-require('story.character.turbo' in STORY and '"story.character.turbo"' in LOC,
-        "Turbo the navigator must remain a distinct story character")
+require('story.character.turbo' in STORY and
+        '{ "story.character.turbo", E("ТУРБО", "TURBO") }' in LOC,
+        "Turbo the navigator must remain named TURBO (not PIXIE) in story and localization")
 require('"onboarding.meet_turbo"' in LOC and "Я Турбо." in LOC,
         "Turbo narrator/onboarding identity lost")
 require("CurrentPixieXpReward" in STORY and "CurrentPixieXpReward" in SEASON,
@@ -69,8 +70,9 @@ require("pixie?.AddXp(" in STORY and "pixie?.AddXp(" in SEASON,
         "Narrator mission XP should still be awarded to Pixie")
 require("ActivatePixieBoost(" in vehicle and "ActivatePixieBoost(" in pixie,
         "Pixie driving boost contract broke")
-require('"pixie.title"' in LOC and 'E("ПИКСИ", "PIXIE")' in LOC,
-        "Pixie title translation absent")
+require('{ "pixie.title", E("ПИКСИ", "PIXIE") }' in LOC and
+        '{ "ux.pixie.title", E("ПИКСИ", "PIXIE") }' in LOC,
+        "Pixie HUD and UX titles must explicitly show PIXIE in RU/EN")
 require('MotorCityLocalization.Text("ux.pixie.title")' in FRONT,
         "Player Experience must show Pixie, not Turbo")
 require('"ux.pixie.hint"' in LOC and "Пикси получает опыт" in LOC,
@@ -83,8 +85,9 @@ for path in SCRIPTS.rglob("*.cs"):
     for token in ("TurboPetSystem", "CurrentTurboXpReward", "TurboXpReward", "SystemIcon.TurboXp", '"ux.turbo.', '"turbo.title"'):
         if token in s:
             ERRORS.append(f"Old Pixie identity {token} in {path.relative_to(ROOT)}")
-require("XP ТУРБО" not in LOC and "TURBO XP" not in LOC,
-        "User-facing XP must belong to Pixie, not Turbo")
+require("XP ТУРБО" not in LOC and "TURBO XP" not in LOC and
+        'E("НАГРАДА +{0:N0} КРЕДИТОВ • +{1:N0} РЕПУТАЦИИ • +{2} XP ПИКСИ"' in LOC,
+        "User-facing season XP must belong to Pixie, not Turbo")
 
 if ERRORS:
     print("Character canon check FAILED:")
