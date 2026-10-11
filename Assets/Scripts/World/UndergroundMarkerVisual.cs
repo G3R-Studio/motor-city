@@ -9,6 +9,7 @@ namespace MotorCity.World
             "MotorCity/Markers/UndergroundMarkerVfx";
 
         private UndergroundSceneSystem underground;
+        private ActivityManager activityManager;
         private GameObject markerVfx;
         private CheckpointBeaconVisual fallbackBeacon;
         private DayNightCycleController dayNight;
@@ -17,10 +18,14 @@ namespace MotorCity.World
         private bool lastVisible;
 
         public void Bind(
-            UndergroundSceneSystem target)
+            UndergroundSceneSystem target,
+            ActivityManager manager)
         {
             underground =
                 target;
+
+            activityManager =
+                manager;
 
             dayNight =
                 Object.FindAnyObjectByType<
@@ -92,6 +97,9 @@ namespace MotorCity.World
             bool visible =
                 underground != null &&
                 underground.HasActiveInvitation &&
+                (activityManager == null ||
+                 !activityManager.IsBusy ||
+                 activityManager.IsActive("underground")) &&
                 (underground.IsNearMeeting ||
                  underground.IsActive ||
                  underground.IsCountingDown ||
