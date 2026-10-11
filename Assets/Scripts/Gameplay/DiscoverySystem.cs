@@ -19,6 +19,9 @@ namespace MotorCity.Gameplay
 
         public bool ShowMessage => messageTimer > 0f;
         public string StatusText { get; private set; }
+        public const int CatalogCreditsReward = 90;
+        public const int CatalogReputationReward = 35;
+
         public int DiscoveryCount => discoveries?.Length ?? 0;
 
         public float BonusDiscoveryRadius { get; set; }
