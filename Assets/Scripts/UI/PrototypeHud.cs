@@ -1343,8 +1343,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.start.profession"),
                     PlayerExperienceCatalogAccess(professions.GetStartActivityId(i)),
                     MotorCityLocalization.Format("ux.catalog.profession_line",
-                        professions.GetStartCompletedCount(i),
-                        professions.GetStartNextRewardCredits(i)),
+                        professions.GetStartCompletedCount(i)),
                     MotorCityLocalization.Format("ux.catalog.tow_reward",
                         professions.GetStartNextRewardCredits(i)),
                     nextProfession);
@@ -1429,7 +1428,7 @@ namespace MotorCity.UI
                         MotorCityLocalization.Format("ux.catalog.reward.total",
                             DiscoverySystem.CatalogCreditsReward,
                             DiscoverySystem.CatalogReputationReward),
-                        found ? MotorCityLocalization.Text("ux.catalog.next.completed")
+                        found ? MotorCityLocalization.Text("ux.catalog.completed")
                             : MotorCityLocalization.Text("ux.catalog.next.discovery"));
                 }
             }
