@@ -98,7 +98,7 @@ for path in SCRIPTS.rglob("*.cs"):
     # DrivingHudView (a partial of PrototypeHud), breaking Unity compilation.
     # Scan *all* script partials instead of relying on an incomplete file list.
     # A literal story.character.turbo or a narrative reference is permitted.
-    if re.search(r'(?<![.\\w"])turbo\\s*(?:\\?\\.|\\.|!=|==)', s):
+    if re.search(r'(?<![.\w"])turbo\s*(?:\?\.|\.|!=|==)', s):
         ERRORS.append(f"Stale Pixie variable 'turbo' in {path.relative_to(ROOT)}")
 require('"story.character_reward"' in LOC and
         "+{4} XP ПИКСИ" in LOC and "+{4} PIXIE XP" in LOC and
