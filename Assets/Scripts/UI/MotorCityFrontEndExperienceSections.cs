@@ -338,7 +338,7 @@ namespace MotorCity.UI
             if (selected == null)
                 RefreshPlayerExperience();
             else
-                RefreshPlayerExperienceSections();
+                RefreshPlayerExperienceSections(selected);
 
             // Every page starts at the beginning rather than retaining
             // the previous section's scrollbar position.
@@ -469,9 +469,10 @@ namespace MotorCity.UI
             ReturnFromPlayerExperience();
         }
 
-        private void RefreshPlayerExperienceSections()
+        private void RefreshPlayerExperienceSections(GameObject selected = null)
         {
-            if (playerExperienceActivitiesText != null)
+            if (playerExperienceActivitiesText != null &&
+                (selected == null || selected == playerExperienceActivitiesPanel))
             {
                 playerExperienceActivitiesText.text =
                     hud == null
@@ -479,7 +480,8 @@ namespace MotorCity.UI
                         : hud.PlayerExperienceActivitiesLine;
             }
 
-            if (playerExperienceJournalText != null)
+            if (playerExperienceJournalText != null &&
+                (selected == null || selected == playerExperienceJournalPanel))
             {
                 playerExperienceJournalText.text =
                     hud == null
@@ -487,7 +489,8 @@ namespace MotorCity.UI
                         : hud.PlayerExperienceJournalLine;
             }
 
-            if (playerExperienceClubText != null)
+            if (playerExperienceClubText != null &&
+                (selected == null || selected == playerExperienceClubPanel))
             {
                 playerExperienceClubText.text =
                     hud == null
@@ -495,7 +498,8 @@ namespace MotorCity.UI
                         : hud.PlayerExperienceClubLine;
             }
 
-            if (playerExperienceInspectorText != null)
+            if (playerExperienceInspectorText != null &&
+                (selected == null || selected == playerExperienceInspectorPanel))
             {
                 playerExperienceInspectorText.text =
                     hud == null
@@ -503,7 +507,8 @@ namespace MotorCity.UI
                         : hud.PlayerExperienceInspectorLine;
             }
 
-            if (playerExperiencePixieText != null)
+            if (playerExperiencePixieText != null &&
+                (selected == null || selected == playerExperiencePixiePanel))
             {
                 playerExperiencePixieText.text =
                     hud == null
@@ -511,17 +516,20 @@ namespace MotorCity.UI
                         : hud.PlayerExperiencePixieLine;
             }
 
-            if (playerExperienceGarageText != null)
+            if (playerExperienceGarageText != null &&
+                (selected == null || selected == playerExperienceGaragePanel))
                 playerExperienceGarageText.text = hud == null
                     ? MotorCityLocalization.Text("ux.sections.not_ready")
                     : hud.PlayerExperienceGarageLine;
 
-            if (playerExperienceAchievementsText != null)
+            if (playerExperienceAchievementsText != null &&
+                (selected == null || selected == playerExperienceAchievementsPanel))
                 playerExperienceAchievementsText.text = hud == null
                     ? MotorCityLocalization.Text("ux.sections.not_ready")
                     : hud.PlayerExperienceAchievementsLine;
 
-            if (playerExperienceNightClubText != null)
+            if (playerExperienceNightClubText != null &&
+                (selected == null || selected == playerExperienceNightClubPanel))
                 playerExperienceNightClubText.text = hud == null
                     ? MotorCityLocalization.Text("ux.sections.not_ready")
                     : hud.PlayerExperienceNightClubLine;
