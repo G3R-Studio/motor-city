@@ -59,6 +59,34 @@ namespace MotorCity.Gameplay
             }
         }
 
+        // The same three daily tasks used by ObjectiveLine/OnActivityCompleted.
+        // No independent journal counters or save keys.
+        public int CatalogTaskCount => tasks.Length;
+        public int CatalogTaskProgress(int index) =>
+            index >= 0 && index < tasks.Length && tasks[index] != null
+                ? tasks[index].Progress : 0;
+        public int CatalogTaskTarget(int index) =>
+            index >= 0 && index < tasks.Length && tasks[index] != null
+                ? tasks[index].Target : 0;
+        public bool CatalogTaskComplete(int index) =>
+            index >= 0 && index < tasks.Length &&
+            tasks[index] != null && tasks[index].Completed;
+        public string CatalogTaskDescription(int index)
+        {
+            if (index < 0 || index >= tasks.Length || tasks[index] == null)
+                return string.Empty;
+            DailyTask task = tasks[index];
+            return MotorCityLocalization.Format(TaskTextKey(task.Type),
+                Mathf.Min(task.Progress, task.Target), task.Target);
+        }
+        public int CatalogTaskReward(int index) =>
+            index >= 0 && index < tasks.Length ? 120 + index * 40 : 0;
+        public int CatalogDayReward => 350;
+        public int CatalogNextMilestoneReward => MilestoneReward(completedDays + 1);
+        public long CatalogSecondsUntilReset =>
+            86400L - MotorCityPlatform.ServerUnixTime % 86400L;
+        public long CatalogDayId => currentDay;
+
         public int CompletedDays =>
             completedDays;
 
