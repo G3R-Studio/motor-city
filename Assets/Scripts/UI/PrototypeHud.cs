@@ -1148,6 +1148,10 @@ namespace MotorCity.UI
                         "ux.activities.circuit",
                         FormatPlayerExperienceBestTime(
                             circuitRace.BestTimeSeconds)) + "\n" +
+                    MotorCityLocalization.Format(
+                        "ux.catalog.circuit_lap",
+                        FormatPlayerExperienceBestTime(
+                            circuitRace.BestLapSeconds)) + "\n" +
                     MotorCityLocalization.Text("ux.catalog.start_marker") + "\n" +
                     MotorCityLocalization.Format(
                         "ux.catalog.base_reward",
