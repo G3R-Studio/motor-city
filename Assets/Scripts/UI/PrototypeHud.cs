@@ -1139,7 +1139,7 @@ namespace MotorCity.UI
                 // by the current game. Never fabricate rewards or routes.
                 return string.Join(
                     "\n\n",
-                    ((streetSprint.IsActive || streetSprint.IsCountingDown) ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_sprint")) : (circuitRace.IsActive || circuitRace.IsCountingDown) ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_circuit")) : (driftChallenge.IsActive || driftChallenge.IsCountingDown) ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_drift")) : (delivery.IsActive || delivery.IsCountingDown) ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_delivery")) : professions.IsActive ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_profession")) : MotorCityLocalization.Text("ux.catalog.status_idle")),
+                    PlayerExperienceActiveActivityLine(),
                     MotorCityLocalization.Text("ux.catalog.races") + "\n" +
                     MotorCityLocalization.Format(
                         "ux.activities.sprint",
@@ -1232,6 +1232,28 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.special") + "\n" +
                     MotorCityLocalization.Text("ux.catalog.special_info"));
             }
+        }
+
+        private string PlayerExperienceActiveActivityLine()
+        {
+            string activityKey = null;
+            if (streetSprint.IsActive || streetSprint.IsCountingDown)
+                activityKey = "ux.catalog.active_sprint";
+            else if (circuitRace.IsActive || circuitRace.IsCountingDown)
+                activityKey = "ux.catalog.active_circuit";
+            else if (driftChallenge.IsActive || driftChallenge.IsCountingDown)
+                activityKey = "ux.catalog.active_drift";
+            else if (delivery.IsActive || delivery.IsCountingDown)
+                activityKey = "ux.catalog.active_delivery";
+            else if (professions.IsActive)
+                return MotorCityLocalization.Format(
+                    "ux.catalog.status_active", professions.CurrentLabel);
+
+            return activityKey == null
+                ? MotorCityLocalization.Text("ux.catalog.status_idle")
+                : MotorCityLocalization.Format(
+                    "ux.catalog.status_active",
+                    MotorCityLocalization.Text(activityKey));
         }
 
         private string PlayerExperienceDriftZoneRecords()
