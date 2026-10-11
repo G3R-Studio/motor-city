@@ -1157,6 +1157,9 @@ namespace MotorCity.UI
                     MotorCityLocalization.Format(
                         "ux.catalog.base_reward",
                         streetSprint.CatalogBaseRewardCredits) + "\n" +
+                    PlayerExperienceDisciplineLevelLine(
+                        MotorCity.Gameplay.DisciplineType.Racing,
+                        "ux.catalog.racing_level") + "\n" +
                     MotorCityLocalization.Format(
                         streetSprint.CatalogEliteUnlocked
                             ? "ux.catalog.sprint_elite_open"
@@ -1217,6 +1220,9 @@ namespace MotorCity.UI
                         delivery.CatalogSilverRewardCredits,
                         delivery.CatalogBronzeRewardCredits,
                         delivery.CatalogCompletionRewardCredits) + "\n" +
+                    PlayerExperienceDisciplineLevelLine(
+                        MotorCity.Gameplay.DisciplineType.Delivery,
+                        "ux.catalog.delivery_level") + "\n" +
                     MotorCityLocalization.Format(
                         delivery.EliteUnlocked
                             ? "ux.catalog.delivery_elite_unlocked"
@@ -1256,6 +1262,17 @@ namespace MotorCity.UI
                 : MotorCityLocalization.Format(
                     "ux.catalog.status_active",
                     MotorCityLocalization.Text(activityKey));
+        }
+
+        private string PlayerExperienceDisciplineLevelLine(
+            MotorCity.Gameplay.DisciplineType type, string key)
+        {
+            if (activityManager == null)
+                return MotorCityLocalization.Text("ux.catalog.level_unavailable");
+            int level = activityManager.CatalogDisciplineLevel(type);
+            return level > 0
+                ? MotorCityLocalization.Format(key, level)
+                : MotorCityLocalization.Text("ux.catalog.level_unavailable");
         }
 
         private string PlayerExperienceDriftZoneRecords()
