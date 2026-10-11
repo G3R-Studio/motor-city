@@ -15,8 +15,8 @@ checks = {
         "bounds.center.x,\n                bounds.max.y + 0.01f,\n                bounds.center.z" in SOURCE
     ),
     "skin-specific calibrated offsets in runtime": (
-        "StandardRoofHeightOffset =\n            0.10f;" in SOURCE and
-        "ExclusiveRoofHeightOffset =\n            0.15f;" in SOURCE and
+        "StandardRoofHeightOffset =\n            0.05f;" in SOURCE and
+        "ExclusiveRoofHeightOffset =\n            0.10f;" in SOURCE and
         "roofCenter.y += ActiveSkinRoofHeightOffset;" in SOURCE and
         "ActiveSkinRoofHeightOffset + editorRoofHeightAdjustment" in SOURCE
     ),
@@ -44,8 +44,8 @@ checks = {
         "SoleBelowAnkle" in SOURCE
     ),
     "Editor skin preview without granting purchase": (
-        'public void SetEditorRoofHeightOffset(float offsetMeters)' in SOURCE and
-        "editorRoofHeightOffset" in SOURCE and
+        'public void SetEditorRoofHeightOffset(float totalOffsetMeters)' in SOURCE and
+        "editorRoofHeightAdjustment" in SOURCE and
         "EditorRoofHeightOffset" in
           (ROOT / "Assets/Scripts/Gameplay/AdminDebugPanel.cs").read_text(encoding="utf-8-sig") and
         'pixie?.SetSupporterPackSkin(false);' in

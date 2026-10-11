@@ -26,13 +26,13 @@ namespace MotorCity.Gameplay
             "MotorCity.Turbo.Daily.Progress";
         private const string DailyClaimedKey =
             "MotorCity.Turbo.Daily.Claimed";
-        // Confirmed by the player in Unity Editor on 2026-10-11.
-        // These are per-skin ADDITIONAL roof offsets on top of the
+        // Per player request (2026-10-11), both tested skin offsets
+        // lowered by 5 cm. These are ADDITIONAL offsets on top of the
         // central body-collider contact height, not world-space heights.
         private const float StandardRoofHeightOffset =
-            0.10f;
+            0.05f;
         private const float ExclusiveRoofHeightOffset =
-            0.15f;
+            0.10f;
         private const float MessageSeconds =
             4f;
         private const float HintDelaySeconds =
