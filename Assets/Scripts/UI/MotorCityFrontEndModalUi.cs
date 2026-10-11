@@ -216,16 +216,18 @@ namespace MotorCity.UI
             // panels, leaving all touch actions reachable by scrolling.
             bool stacked = panelSize.x < 960f;
             ConfigurePlayerExperienceActionRow(
-                playerExperienceSectionActions, 2, 330f, stacked);
+                playerExperienceSectionActions, 2, 330f,
+                panelSize.x - 2f * FrontEndModalHorizontalPadding, stacked);
             ConfigurePlayerExperienceActionRow(
-                playerExperienceProgressActions, 3, 270f, stacked);
+                playerExperienceProgressActions, 3, 270f,
+                panelSize.x - 2f * FrontEndModalHorizontalPadding, stacked);
             Canvas.ForceUpdateCanvases();
             RefreshPlayerExperienceTextHeights();
         }
 
         private static void ConfigurePlayerExperienceActionRow(
             RectTransform row, int count, float normalButtonWidth,
-            bool stacked)
+            float availableWidth, bool stacked)
         {
             if (row == null)
                 return;
@@ -239,8 +241,7 @@ namespace MotorCity.UI
             grid.constraintCount = stacked ? 1 : count;
             grid.cellSize = new Vector2(
                 stacked
-                    ? Mathf.Max(1f, row.parent.GetComponent<RectTransform>()
-                        .rect.width - 4f)
+                    ? Mathf.Max(1f, availableWidth - 4f)
                     : normalButtonWidth,
                 64f);
 
