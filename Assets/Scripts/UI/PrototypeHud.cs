@@ -1191,6 +1191,11 @@ namespace MotorCity.UI
                     MotorCityLocalization.Format(
                         "ux.catalog.profession_level",
                         professions.ProfessionLevel) + "\n" +
+                    (professions.CompletionsUntilNextLevel > 0
+                        ? MotorCityLocalization.Format(
+                            "ux.catalog.profession_next",
+                            professions.CompletionsUntilNextLevel)
+                        : MotorCityLocalization.Text("ux.catalog.profession_max")) + "\n" +
                     MotorCityLocalization.Text("ux.catalog.tow_start") + "\n" +
                     MotorCityLocalization.Text("ux.catalog.carwash_start") + "\n" +
                     MotorCityLocalization.Format(
