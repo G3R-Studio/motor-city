@@ -299,8 +299,14 @@ namespace MotorCity.UI
             SwitchPlayerExperiencePage(playerExperienceNightClubPanel);
         }
 
-        private void SwitchPlayerExperiencePage(GameObject selected)
+        private void SwitchPlayerExperiencePage(
+            GameObject selected, bool resetOverviewScroll = false)
         {
+            bool returningToOverview =
+                selected == null &&
+                playerExperienceHomePanel != null &&
+                !playerExperienceHomePanel.activeSelf;
+
             // A controller/keyboard player should return to the section
             // they opened, not jump back to the first button each time.
             if (selected != null && playerExperienceHomePanel != null &&
@@ -348,11 +354,14 @@ namespace MotorCity.UI
                 : active.GetComponentInChildren<ScrollRect>();
             if (scroll != null)
             {
-                // A touch swipe can still have inertia when its panel
-                // is hidden. Cancel it before resetting the next visit to
-                // the top, otherwise a reopened page starts drifting.
+                // Preserve the overview scroll offset on Back, so returning
+                // from a lower section does not jump to the first row.
+                // Opening a fresh modal or entering any detail starts at top.
                 scroll.StopMovement();
-                scroll.verticalNormalizedPosition = 1f;
+                if (selected != null ||
+                    resetOverviewScroll ||
+                    !returningToOverview)
+                    scroll.verticalNormalizedPosition = 1f;
             }
 
             // Keep keyboard/controller selection visible, and restore the
