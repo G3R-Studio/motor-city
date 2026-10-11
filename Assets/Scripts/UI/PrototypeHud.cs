@@ -1165,7 +1165,9 @@ namespace MotorCity.UI
                     MotorCityLocalization.Format(
                         "ux.catalog.circuit_reward",
                         circuitRace.CatalogBaseRewardCredits),
-                    MotorCityLocalization.Text("ux.catalog.drift") + "\n" +
+                    MotorCityLocalization.Text("ux.catalog.drift") + "\n" +                    (drift == null ? string.Empty : MotorCityLocalization.Format(
+                        "ux.catalog.drift_best", drift.BestDrift) + "\n") +
+
                     MotorCityLocalization.Format(
                         "ux.activities.drift",
                         driftChallenge.TargetScore) + "\n" +
@@ -1227,8 +1229,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.city") + "\n" +
                     MotorCityLocalization.Text("ux.catalog.city_info") +
                     (photoHunt == null ? string.Empty
-                        : "\n" + MotorCityLocalization.Format(
-                            "ux.catalog.photos", photoHunt.TotalCaptured)),
+                        : "\n" + photoHunt.AlbumLine),
                     MotorCityLocalization.Text("ux.catalog.special") + "\n" +
                     MotorCityLocalization.Text("ux.catalog.special_info"));
             }
