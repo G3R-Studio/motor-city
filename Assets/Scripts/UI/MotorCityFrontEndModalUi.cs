@@ -9,19 +9,30 @@ namespace MotorCity.UI
         private const float FrontEndModalRowSpacing = 16f;
         private const float FrontEndModalButtonSpacing = 14f;
 
+        // All pages belong to one front-end Canvas. Reflow only on a
+        // screen/safe-area/scale change, never by polling gameplay systems.
+        private readonly System.Collections.Generic.List<RectTransform>
+            playerExperienceModalPanels = new();
+        private Vector2Int lastPlayerExperienceLayoutSize;
+        private Rect lastPlayerExperienceSafeArea;
+        private float lastPlayerExperienceCanvasScale;
+
         private readonly struct FrontEndModalWindow
         {
             public readonly RectTransform Panel;
             public readonly RectTransform Content;
+            public readonly RectTransform Footer;
             public readonly Text Title;
 
             public FrontEndModalWindow(
                 RectTransform panel,
                 RectTransform content,
+                RectTransform footer,
                 Text title)
             {
                 Panel = panel;
                 Content = content;
+                Footer = footer;
                 Title = title;
             }
         }
@@ -40,6 +51,8 @@ namespace MotorCity.UI
                     Vector2.zero,
                     size);
 
+            playerExperienceModalPanels.Add(panel);
+
             Text titleText =
                 CreateText(
                     panel,
@@ -51,92 +64,229 @@ namespace MotorCity.UI
                     Vector2.zero,
                     new Vector2(0.5f, 1f));
 
-            titleText.name =
-                objectName + " Title";
+            titleText.name = objectName + " Title";
+            titleText.color = new Color(0.90f, 0.95f, 1f, 1f);
+            RectTransform titleRect = titleText.rectTransform;
+            titleRect.anchorMin = new Vector2(0f, 1f);
+            titleRect.anchorMax = new Vector2(1f, 1f);
+            titleRect.pivot = new Vector2(0.5f, 1f);
+            titleRect.anchoredPosition = new Vector2(0f, -24f);
+            // Reserve the right corner for a permanent touch close target.
+            titleRect.sizeDelta = new Vector2(
+                -(FrontEndModalHorizontalPadding * 2f + 72f),
+                headerHeight - 34f);
 
-            titleText.color =
-                new Color(
-                    0.90f,
-                    0.95f,
-                    1f,
-                    1f);
+            CreateButton(
+                panel,
+                "X",
+                new Vector2(-24f, -22f),
+                new Vector2(64f, 60f),
+                ReturnFromPlayerExperience,
+                new Vector2(1f, 1f));
 
-            RectTransform titleRect =
-                titleText.rectTransform;
-
-            titleRect.anchorMin =
-                new Vector2(0f, 1f);
-
-            titleRect.anchorMax =
-                new Vector2(1f, 1f);
-
-            titleRect.pivot =
-                new Vector2(0.5f, 1f);
-
-            titleRect.anchoredPosition =
-                new Vector2(0f, -24f);
-
-            titleRect.sizeDelta =
-                new Vector2(
-                    -FrontEndModalHorizontalPadding * 2f,
-                    headerHeight - 34f);
+            // Header and footer stay visible when text grows or the viewport
+            // becomes short; only the read-only body can scroll.
+            RectTransform viewport =
+                new GameObject(
+                    objectName + " Viewport",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(RectMask2D),
+                    typeof(ScrollRect))
+                .GetComponent<RectTransform>();
+            viewport.SetParent(panel, false);
+            viewport.anchorMin = Vector2.zero;
+            viewport.anchorMax = Vector2.one;
+            viewport.offsetMin = new Vector2(
+                FrontEndModalHorizontalPadding, 116f);
+            viewport.offsetMax = new Vector2(
+                -FrontEndModalHorizontalPadding, -headerHeight - 6f);
+            Image viewportImage = viewport.GetComponent<Image>();
+            viewportImage.color = Color.clear;
+            viewportImage.raycastTarget = true;
 
             RectTransform content =
                 new GameObject(
                     objectName + " Content",
                     typeof(RectTransform))
-                    .GetComponent<RectTransform>();
-
-            content.transform.SetParent(
-                panel,
-                false);
-
-            content.anchorMin =
-                Vector2.zero;
-
-            content.anchorMax =
-                Vector2.one;
-
-            content.offsetMin =
-                new Vector2(
-                    FrontEndModalHorizontalPadding,
-                    38f);
-
-            content.offsetMax =
-                new Vector2(
-                    -FrontEndModalHorizontalPadding,
-                    -headerHeight);
+                .GetComponent<RectTransform>();
+            content.SetParent(viewport, false);
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(0.5f, 1f);
+            content.anchoredPosition = Vector2.zero;
+            content.sizeDelta = Vector2.zero;
 
             VerticalLayoutGroup layout =
-                content.gameObject.AddComponent<
-                    VerticalLayoutGroup>();
+                content.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(0, 0, 4, 4);
+            layout.spacing = FrontEndModalRowSpacing;
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
 
-            layout.padding =
-                new RectOffset();
+            ContentSizeFitter fitter =
+                content.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            layout.spacing =
-                FrontEndModalRowSpacing;
+            ScrollRect scroll = viewport.GetComponent<ScrollRect>();
+            scroll.viewport = viewport;
+            scroll.content = content;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 35f;
+            scroll.inertia = true;
 
-            layout.childAlignment =
-                TextAnchor.UpperCenter;
+            RectTransform footer =
+                new GameObject(
+                    objectName + " Footer",
+                    typeof(RectTransform))
+                .GetComponent<RectTransform>();
+            footer.SetParent(panel, false);
+            footer.anchorMin = new Vector2(0f, 0f);
+            footer.anchorMax = new Vector2(1f, 0f);
+            footer.pivot = new Vector2(0.5f, 0f);
+            footer.offsetMin = new Vector2(
+                FrontEndModalHorizontalPadding, 22f);
+            footer.offsetMax = new Vector2(
+                -FrontEndModalHorizontalPadding, 98f);
 
-            layout.childControlWidth =
-                true;
+            VerticalLayoutGroup footerLayout =
+                footer.gameObject.AddComponent<VerticalLayoutGroup>();
+            footerLayout.childAlignment = TextAnchor.MiddleCenter;
+            footerLayout.childControlWidth = true;
+            footerLayout.childControlHeight = true;
+            footerLayout.childForceExpandWidth = true;
+            footerLayout.childForceExpandHeight = false;
+            footerLayout.spacing = 0f;
 
-            layout.childControlHeight =
-                true;
+            return new FrontEndModalWindow(
+                panel, content, footer, titleText);
+        }
 
-            layout.childForceExpandWidth =
-                true;
+        private void ApplyPlayerExperienceModalLayout(bool force)
+        {
+            if (canvas == null ||
+                playerExperienceModalPanels.Count == 0 ||
+                Screen.width <= 0 ||
+                Screen.height <= 0)
+            {
+                return;
+            }
 
-            layout.childForceExpandHeight =
-                false;
+            Vector2Int size = new(Screen.width, Screen.height);
+            Rect safe = Screen.safeArea;
+            if (safe.width <= 0f || safe.height <= 0f)
+                safe = new Rect(0f, 0f, Screen.width, Screen.height);
 
-            return
-                new FrontEndModalWindow(
-                    panel,
-                    content,
-                    titleText);
+            float scale = Mathf.Max(0.01f, canvas.scaleFactor);
+            if (!force &&
+                size == lastPlayerExperienceLayoutSize &&
+                safe == lastPlayerExperienceSafeArea &&
+                Mathf.Approximately(scale, lastPlayerExperienceCanvasScale))
+            {
+                return;
+            }
+
+            lastPlayerExperienceLayoutSize = size;
+            lastPlayerExperienceSafeArea = safe;
+            lastPlayerExperienceCanvasScale = scale;
+
+            Vector2 position =
+                (safe.center - new Vector2(
+                    Screen.width * 0.5f, Screen.height * 0.5f)) / scale;
+            Vector2 panelSize = new(
+                Mathf.Min(1020f, Mathf.Max(1f, safe.width / scale - 48f)),
+                Mathf.Min(730f, Mathf.Max(1f, safe.height / scale - 48f)));
+
+            foreach (RectTransform panel in playerExperienceModalPanels)
+            {
+                if (panel == null)
+                    continue;
+                panel.anchoredPosition = position;
+                panel.sizeDelta = panelSize;
+            }
+
+            // A 3-button horizontal row must never spill out of the clipped
+            // viewport. Switch the two overview rows to vertical on narrow
+            // panels, leaving all touch actions reachable by scrolling.
+            bool stacked = panelSize.x < 960f;
+            ConfigurePlayerExperienceActionRow(
+                playerExperienceSectionActions, 2, 330f, stacked);
+            ConfigurePlayerExperienceActionRow(
+                playerExperienceProgressActions, 3, 270f, stacked);
+            Canvas.ForceUpdateCanvases();
+            RefreshPlayerExperienceTextHeights();
+        }
+
+        private static void ConfigurePlayerExperienceActionRow(
+            RectTransform row, int count, float normalButtonWidth,
+            bool stacked)
+        {
+            if (row == null)
+                return;
+
+            HorizontalLayoutGroup horizontal =
+                row.GetComponent<HorizontalLayoutGroup>();
+            VerticalLayoutGroup vertical =
+                row.GetComponent<VerticalLayoutGroup>();
+            if (vertical == null)
+            {
+                vertical = row.gameObject.AddComponent<VerticalLayoutGroup>();
+                vertical.childAlignment = TextAnchor.UpperCenter;
+                vertical.childControlWidth = true;
+                vertical.childControlHeight = true;
+                vertical.childForceExpandWidth = true;
+                vertical.childForceExpandHeight = false;
+                vertical.spacing = FrontEndModalButtonSpacing;
+                vertical.enabled = false;
+            }
+
+            horizontal.enabled = !stacked;
+            vertical.enabled = stacked;
+            LayoutElement rowSize = row.GetComponent<LayoutElement>();
+            rowSize.minHeight = stacked
+                ? count * 64f + (count - 1) * FrontEndModalButtonSpacing
+                : 64f;
+            rowSize.preferredHeight = rowSize.minHeight;
+            foreach (Button button in row.GetComponentsInChildren<Button>())
+            {
+                LayoutElement buttonSize =
+                    button.GetComponent<LayoutElement>();
+                if (buttonSize == null)
+                    continue;
+                buttonSize.minWidth = stacked ? 0f : normalButtonWidth;
+                buttonSize.preferredWidth =
+                    stacked ? -1f : normalButtonWidth;
+                buttonSize.flexibleWidth = stacked ? 1f : 0f;
+            }
+        }
+
+        private void RefreshPlayerExperienceTextHeights()
+        {
+            SetPlayerExperienceTextHeight(playerExperienceObjectiveText, 110f);
+            SetPlayerExperienceTextHeight(playerExperienceActivitiesText, 340f);
+            SetPlayerExperienceTextHeight(playerExperienceJournalText, 332f);
+            SetPlayerExperienceTextHeight(playerExperienceClubText, 264f);
+            SetPlayerExperienceTextHeight(playerExperienceInspectorText, 264f);
+            SetPlayerExperienceTextHeight(playerExperiencePixieText, 264f);
+        }
+
+        private static void SetPlayerExperienceTextHeight(
+            Text text, float minimumHeight)
+        {
+            if (text == null)
+                return;
+            LayoutElement element = text.GetComponent<LayoutElement>();
+            if (element != null)
+            {
+                element.preferredHeight =
+                    Mathf.Max(minimumHeight, text.preferredHeight + 12f);
+            }
         }
 
         private void CreateFrontEndFlexibleSpacer(
