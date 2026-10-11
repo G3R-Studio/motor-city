@@ -55,6 +55,7 @@ namespace MotorCity.Localization
                 { "ux.journal.season", E("СЕЗОН {0}/{1}\n{2}", "SEASON {0}/{1}\n{2}") },
                 { "ux.journal.daily", E("СЕГОДНЯ • ЗАДАЧ ВЫПОЛНЕНО: {0}\n{1}", "TODAY • TASKS COMPLETED: {0}\n{1}") },
                 { "ux.sections.not_ready", E("Начни игру, чтобы увидеть актуальный прогресс.", "Start the game to see your progress.") },
+                { "ux.home.mission_reward", E("НАГРАДА ЗА ЦЕЛЬ: {0:N0} КР • {1:N0} REP • {2:N0} XP ПИКСИ", "OBJECTIVE REWARD: {0:N0} CR • {1:N0} REP • {2:N0} PIXIE XP") },
                 { "ux.home.milestone", E("СЛЕДУЮЩИЕ РУБЕЖИ:\n{0}", "NEXT MILESTONES:\n{0}") },
                 { "ux.garage.title", E("МОЙ ГАРАЖ", "MY GARAGE") },
                 { "ux.garage.subtitle", E("МАШИНА, МАСТЕРСТВО И ПРОГРЕСС", "VEHICLE, MASTERY AND PROGRESS") },
