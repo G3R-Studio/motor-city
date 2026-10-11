@@ -200,7 +200,7 @@
 | 2026-10-11 | Планирование | Этот документ | Этапы, scope, DoD и QA-сценарии зафиксированы | UX-0 |
 | 2026-10-11 | UX-0: source audit | [`e5ef23a`](https://github.com/G3R-Studio/motor-city/commit/e5ef23a4398e24983a1d55dd16f4378f1c0f221f) | [Матрица данных и UI ownership](Baselines/PlayerExperienceSourceAudit-2026-10-11.md), источники, возможные getter, event-order, UX flow. **Source-only**, без Unity runtime | UX-1: первая страница, Unity Editor smoke |
 | 2026-10-11 | Режим проверки | [`e0b09e2`](https://github.com/G3R-Studio/motor-city/commit/e0b09e2989a7e169ef15cf7f1a1f7152db0b0ec1) | Отключены автоматические CI/WebGL/Pages триггеры | Включить релизную сборку только в UX-7 |
-| 2026-10-11 | UX-1: первый UI-инкремент | Коммит в Git-истории этого изменения | В главном меню добавлена read-only страница с КР, REP и текущей целью; следующие секции явно обозначены как будущие | **Ожидается Unity Editor Play Mode smoke**, затем вход из города и полноценные разделы |
+| 2026-10-11 | UX-1: первый UI-инкремент | [`e54bda6`](https://github.com/G3R-Studio/motor-city/commit/e54bda6804647ad233efaa4b46c6e4d0ed5edc8d) | В главном меню добавлена read-only страница с КР, REP и текущей целью; следующие секции явно обозначены как будущие | **Ожидается Unity Editor Play Mode smoke**, затем вход из города и полноценные разделы |
 
 Последний выполненный этап: **UX-0 (source-level)**.  
 Следующее действие: **UX-1 — вручную проверить новый пункт «Мой Motor City» в Unity Editor (главное меню, возврат, новые/старые сохранения, RU/EN); после подтверждения добавить доступ из города и следующие разделы**.
