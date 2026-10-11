@@ -1139,6 +1139,7 @@ namespace MotorCity.UI
                 // by the current game. Never fabricate rewards or routes.
                 return string.Join(
                     "\n\n",
+                    (streetSprint.IsActive ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_sprint")) : circuitRace.IsActive ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_circuit")) : driftChallenge.IsActive ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_drift")) : delivery.IsActive ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_delivery")) : professions.IsActive ? MotorCityLocalization.Format("ux.catalog.status_active", MotorCityLocalization.Text("ux.catalog.active_profession")) : MotorCityLocalization.Text("ux.catalog.status_idle")),
                     MotorCityLocalization.Text("ux.catalog.races") + "\n" +
                     MotorCityLocalization.Format(
                         "ux.activities.sprint",
