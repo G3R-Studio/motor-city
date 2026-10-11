@@ -458,7 +458,13 @@ namespace MotorCity.UI
             speedTraps = speedTrapSystem;
             driftSpots = driftSpotSystem;
             discoveries = discoverySystem;
+            if (activityManager != null)
+                activityManager.ActivityResultShown -= CaptureJournalBeforeActivityResult;
             activityManager = manager;
+            if (activityManager != null)
+                activityManager.ActivityResultShown += CaptureJournalBeforeActivityResult;
+            journalBeforeResult = null;
+            journalLastResultName = null;
 
             if (garage != null)
             {
