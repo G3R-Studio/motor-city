@@ -906,7 +906,8 @@ namespace MotorCity.UI
                         ? "КАКОЕ УПРАВЛЕНИЕ ВЫ ПРЕДПОЧИТАЕТЕ?"
                         : "WHICH CONTROL STYLE DO YOU PREFER?",
                     new Vector2(980f, 576f),
-                    120f);
+                    120f,
+                    showCloseButton: false);
 
             Text hint =
                 CreateFrontEndLayoutText(
