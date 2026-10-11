@@ -3476,20 +3476,51 @@ namespace MotorCity.UI
                     icon,
                     iconColor);
             }
-            foreach (Button button in controlChoiceRoot.GetComponentsInChildren<Button>(true))
-            {
-                Text label = button.GetComponentInChildren<Text>();
-                if (label == null || button.GetComponent<RectTransform>().sizeDelta.x < 400f) continue;
-                MotorCityButtonVisuals.TryForSemantic(
-                    label.text,
-                    out GarageReferenceGraphic.Symbol icon,
-                    out Color iconColor);
+            // The three scheme buttons must retain their icons on every
+            // screen width. The old >= 400 UI-unit filter dropped the wheel
+            // and arrows icons after GridLayoutGroup made their cells 340.
+            // Add to scheme buttons only - never to "Customize" or "Back".
+            MotorCityButtonVisuals.TryForSemantic(
+                "keyboard",
+                out GarageReferenceGraphic.Symbol keyboardIcon,
+                out Color keyboardIconColor);
+            AddControlSchemeIcon(
+                controlChoiceKeyboardActions, keyboardIcon, keyboardIconColor);
 
-                AddMenuButtonIcon(
-                    button.transform,
-                    icon,
-                    iconColor);
-            }
+            MotorCityButtonVisuals.TryForSemantic(
+                "wheel",
+                out GarageReferenceGraphic.Symbol wheelIcon,
+                out Color wheelIconColor);
+            AddControlSchemeIcon(
+                controlChoiceWheelActions, wheelIcon, wheelIconColor);
+
+            // Keep the original cyan star used by the arrow scheme.
+            MotorCityButtonVisuals.TryForSemantic(
+                "arrows",
+                out GarageReferenceGraphic.Symbol arrowsIcon,
+                out Color arrowsIconColor);
+            AddControlSchemeIcon(
+                controlChoiceArrowsActions, arrowsIcon, arrowsIconColor);
+        }
+
+        private static void AddControlSchemeIcon(
+            RectTransform actions,
+            GarageReferenceGraphic.Symbol icon,
+            Color color)
+        {
+            if (actions == null)
+                return;
+
+            Button[] buttons = actions.GetComponentsInChildren<Button>(true);
+            if (buttons.Length == 0 ||
+                buttons[0].transform.Find("Menu Action Icon") != null)
+                return;
+
+            AddMenuButtonIcon(buttons[0].transform, icon, color);
+            // Account for the real Grid cell width and leave room for the
+            // icon on the left; the label must not overlap it.
+            StretchFrontEndActionLabels(actions);
+        }
         }
 
         private static void AddMenuButtonIcon(
