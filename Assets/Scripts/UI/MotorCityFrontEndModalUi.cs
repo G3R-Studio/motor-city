@@ -306,6 +306,7 @@ namespace MotorCity.UI
                 ? count * 64f + (count - 1) * FrontEndModalButtonSpacing
                 : 64f;
             rowSize.preferredHeight = rowSize.minHeight;
+            StretchFrontEndActionLabels(row);
         }
 
         private FrontEndScrollCue CreateFrontEndScrollCue(
@@ -427,9 +428,17 @@ namespace MotorCity.UI
                 rowSize.preferredHeight = height;
             }
 
-            // Button label rects were initially sized from their original
-            // widths (430/170). Stretch them to their current Grid cells
-            // so on phones no text can hang outside its own button.
+            StretchFrontEndActionLabels(row);
+        }
+
+        // The original button labels are built at their designer width.
+        // Responsive GridLayoutGroup may use much smaller cells, so labels
+        // must follow the real button rect instead of overflowing sideways.
+        private static void StretchFrontEndActionLabels(RectTransform row)
+        {
+            if (row == null)
+                return;
+
             foreach (Button button in row.GetComponentsInChildren<Button>(true))
             {
                 Text label = button.GetComponentInChildren<Text>();
