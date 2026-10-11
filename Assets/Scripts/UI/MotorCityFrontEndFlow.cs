@@ -40,7 +40,6 @@ namespace MotorCity.UI
         private GameObject settingsRoot;
         private GameObject playerExperienceRoot;
         private Text playerExperienceCreditsText;
-        private Text playerExperienceRepText;
         private Text playerExperienceObjectiveText;
         private Text playerExperienceMilestoneText;
         private Text playerExperienceMissionRewardText;
@@ -607,20 +606,10 @@ namespace MotorCity.UI
                 CreateFrontEndLayoutText(
                     window.Content,
                     string.Empty,
-                    28,
+                    24,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    46f,
-                    Color.white);
-
-            playerExperienceRepText =
-                CreateFrontEndLayoutText(
-                    window.Content,
-                    string.Empty,
-                    28,
-                    FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    46f,
+                    52f,
                     Color.white);
 
             playerExperienceObjectiveText =
@@ -822,15 +811,8 @@ namespace MotorCity.UI
             {
                 playerExperienceCreditsText.text =
                     MotorCityLocalization.Format(
-                        "ux.home.credits",
-                        wallet == null ? 0 : wallet.Credits);
-            }
-
-            if (playerExperienceRepText != null)
-            {
-                playerExperienceRepText.text =
-                    MotorCityLocalization.Format(
-                        "ux.home.rep",
+                        "ux.home.balance",
+                        wallet == null ? 0 : wallet.Credits,
                         reputation == null ? 0 : reputation.Reputation);
             }
 
@@ -903,8 +885,10 @@ namespace MotorCity.UI
                     IsRussian()
                         ? "КАКОЕ УПРАВЛЕНИЕ ВЫ ПРЕДПОЧИТАЕТЕ?"
                         : "WHICH CONTROL STYLE DO YOU PREFER?",
-                    new Vector2(980f, 650f),
-                    132f);
+                    new Vector2(980f, 576f),
+                    120f);
+
+            ConfigureFrontEndTextFit(window.Title, 24);
 
             Text hint =
                 CreateFrontEndLayoutText(
@@ -992,13 +976,9 @@ namespace MotorCity.UI
                 170f,
                 72f);
 
-            CreateFrontEndFlexibleSpacer(
-                window.Content,
-                "Control Choice Spacer");
-
             RectTransform backRow =
                 CreateFrontEndActionRow(
-                    window.Content,
+                    window.Footer,
                     "Control Choice Back Actions",
                     54f);
 
