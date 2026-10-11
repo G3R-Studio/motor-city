@@ -285,7 +285,9 @@
 
 **UX-2, 2026-10-12 - пороги медалей дрифта:** исходники [`6d1fdcf`](https://github.com/G3R-Studio/motor-city/commit/6d1fdcfd2dc93f535844fe186154d83b54799900) → [`6e8984b`](https://github.com/G3R-Studio/motor-city/commit/6e8984b6f88ddfb48e94680901b26e47e8659205). Каталог показывает реальные bronze/silver/gold/legendary score thresholds из `DriftChallenge` рядом с существующими наградами, RU/EN. Read-only, начисления и saves не менялись. **Source review выполнен, Unity compile/Play Mode/Actions не подтверждены.** Композитные чекбоксы UX-2 про все карточки и блокировки остаются открытыми.
 
-**UX-2, 2026-10-12 - упрощение «Активностей»:** [`51cd30e`](https://github.com/G3R-Studio/motor-city/commit/51cd30e5874221ec90bd879314dcbcab91c98e21) → [`60152b0`](https://github.com/G3R-Studio/motor-city/commit/60152b05ceb4991a4108bb3ff509795560d74d14). Убраны все 6 статических кнопок маршрутов и динамические кнопки профессий, удалены два пояснения со скриншота и строка `route_ready/busy`. Навигатор игры не менялся. Проверка Unity Play Mode ожидается.
+**UX-2, 2026-10-12 - упрощение «Активностей»:** [`51cd30e`](https://github.com/G3R-Studio/motor-city/commit/51cd30e5874221ec90bd879314dcbcab91c98e21) → [`60152b0`](https://github.com/G3R-Studio/motor-city/commit/60152b05ceb4991a4108bb3ff509795560d74d14). Убраны все 6 статических кнопок маршрутов и динамические кнопки профессий, удалены два пояснения со скриншота и строка `route_ready/busy`. Навигатор игры не менялся. **Пользователь подтвердил Unity Play Mode: «всё чётко» (2026-10-12).**
+
+**UX-2, 2026-10-12 - рекорды дрифт-зон:** [`4cf6dbf`](https://github.com/G3R-Studio/motor-city/commit/4cf6dbfd941c55dbdc073d969046581d3569579e) → [`863b065`](https://github.com/G3R-Studio/motor-city/commit/863b06593535a69dbdf0566737213bc2574c18a3). В каталоге отображаются названия существующих дрифт-зон и сохранённый лучший счёт каждой зоны через read-only getter, либо «рекорда пока нет». RU/EN, без новых сохранений и наград. **Unity Play Mode ещё не проверен.**
 
 ## 7. Связанные документы
 
