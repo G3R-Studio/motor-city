@@ -11,6 +11,10 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
+        // Pause owns time/audio state while the shared front-end view is open.
+        private MotorCityFrontEndFlow pauseExperienceFrontEnd;
+        private bool pauseExperienceOpen;
+
         private void BuildPauseMenu(
             Transform canvas)
         {
@@ -59,7 +63,7 @@ namespace MotorCity.UI
                     "pause.title",
                     new Vector2(
                         560f,
-                        410f));
+                        488f));
 
             MotorCitySettingsRow qualityRow =
                 CreateSettingsRow(
@@ -156,6 +160,17 @@ namespace MotorCity.UI
                 ToggleMusicMute,
                 104f);
 
+            RectTransform experienceActions =
+                CreateButtonRow(
+                    window.Content,
+                    "Pause Player Experience Actions");
+
+            CreatePrimaryButton(
+                experienceActions,
+                "Pause Player Experience",
+                "ux.home.button",
+                OpenPausePlayerExperience);
+
             RectTransform actions =
                 CreateButtonRow(
                     window.Content,
@@ -174,6 +189,42 @@ namespace MotorCity.UI
                 ClosePauseMenu);
 
             RefreshPauseMenuText();
+        }
+
+        private void OpenPausePlayerExperience()
+        {
+            if (!pauseMenuOpen || pauseExperienceOpen)
+                return;
+
+            // Use the exact same read-only front-end screen as the main menu.
+            // Keep PauseMenu's Time.timeScale/audio/driving block unchanged.
+            MotorCityFrontEndFlow frontEnd =
+                Object.FindAnyObjectByType<MotorCityFrontEndFlow>();
+
+            if (frontEnd == null ||
+                !frontEnd.OpenPlayerExperienceFromPause(
+                    ReturnFromPausePlayerExperience))
+            {
+                return;
+            }
+
+            pauseExperienceFrontEnd = frontEnd;
+            pauseExperienceOpen = true;
+            pauseOverlay?.SetActive(false);
+            MotorCityInput.ClearVirtualState();
+        }
+
+        private void ReturnFromPausePlayerExperience()
+        {
+            pauseExperienceOpen = false;
+            pauseExperienceFrontEnd = null;
+            MotorCityInput.ClearVirtualState();
+
+            if (pauseMenuOpen)
+            {
+                pauseOverlay?.SetActive(true);
+                RefreshPauseMenuText();
+            }
         }
 
         private void OpenPauseMainMenu()
@@ -469,6 +520,12 @@ namespace MotorCity.UI
 
         private void ClosePauseMenu()
         {
+            if (pauseExperienceOpen &&
+                pauseExperienceFrontEnd != null)
+            {
+                pauseExperienceFrontEnd.ClosePlayerExperienceFromPause();
+            }
+
             pauseMenuOpen =
                 false;
 
@@ -502,6 +559,17 @@ namespace MotorCity.UI
 
         private void HandlePauseMenuInput()
         {
+            if (pauseExperienceOpen)
+            {
+                if (MotorCityInput.CancelPressed &&
+                    pauseExperienceFrontEnd != null)
+                {
+                    pauseExperienceFrontEnd.ClosePlayerExperienceFromPause();
+                }
+
+                return;
+            }
+
             if (MotorCityInput.CancelPressed)
             {
                 ClosePauseMenu();

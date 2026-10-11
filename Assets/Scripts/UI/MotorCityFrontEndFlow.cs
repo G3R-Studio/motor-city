@@ -42,6 +42,7 @@ namespace MotorCity.UI
         private Text playerExperienceCreditsText;
         private Text playerExperienceRepText;
         private Text playerExperienceObjectiveText;
+        private System.Action playerExperienceReturnToPause;
         private GameObject introRoot;
         private GameObject controlChoiceRoot;
         private Text primaryButtonText;
@@ -645,9 +646,53 @@ namespace MotorCity.UI
             CreateFrontEndLayoutButton(
                 backRow,
                 MotorCityLocalization.Text("ux.home.back"),
-                ShowMainMenu,
+                ReturnFromPlayerExperience,
                 320f,
                 58f);
+        }
+
+        public bool OpenPlayerExperienceFromPause(
+            System.Action onReturnToPause)
+        {
+            if (!gameplayReady ||
+                canvas == null ||
+                playerExperienceRoot == null ||
+                onReturnToPause == null ||
+                canvas.gameObject.activeSelf)
+            {
+                return false;
+            }
+
+            playerExperienceReturnToPause = onReturnToPause;
+            canvas.gameObject.SetActive(true);
+            ShowPlayerExperience();
+            return true;
+        }
+
+        public void ClosePlayerExperienceFromPause()
+        {
+            if (playerExperienceReturnToPause != null)
+            {
+                ReturnFromPlayerExperience();
+            }
+        }
+
+        private void ReturnFromPlayerExperience()
+        {
+            System.Action onReturnToPause =
+                playerExperienceReturnToPause;
+
+            playerExperienceReturnToPause = null;
+
+            if (onReturnToPause != null)
+            {
+                playerExperienceRoot?.SetActive(false);
+                canvas.gameObject.SetActive(false);
+                onReturnToPause();
+                return;
+            }
+
+            ShowMainMenu();
         }
 
         private void ShowPlayerExperience()
@@ -2359,6 +2404,7 @@ namespace MotorCity.UI
 
         private void EnterGameplay()
         {
+            playerExperienceReturnToPause = null;
             ReleaseIntroResources();
 
             MotorCityMusicRuntime.SetMenuActive(
@@ -2473,6 +2519,7 @@ namespace MotorCity.UI
 
         private void ShowMainMenu()
         {
+            playerExperienceReturnToPause = null;
             Time.timeScale = 0f;
             AudioListener.pause = true;
             MotorCityMusicRuntime.SetGameplayActive(
