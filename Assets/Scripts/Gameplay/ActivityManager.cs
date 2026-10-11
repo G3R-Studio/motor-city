@@ -227,6 +227,22 @@ namespace MotorCity.Gameplay
             return disciplineReputation == null ? 0 : disciplineReputation.GetLevel(type);
         }
 
+        // Catalog preview mirrors TryBegin without triggering a blocked prompt
+        // or mutating the active activity.
+        public int CatalogAccessState(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return 3;
+            if (IsBusy || HasResult ||
+                startFlow != null && startFlow.RequestInProgress)
+                return 1;
+            if (!CanBeginDuringOnboarding(id))
+                return 2;
+            if (!CanBeginDuringStory(id))
+                return 3;
+            return 0;
+        }
+
         public bool HasDisciplineLevel(
             DisciplineType type,
             int requiredLevel)
