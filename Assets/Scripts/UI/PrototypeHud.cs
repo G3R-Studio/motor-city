@@ -1118,6 +1118,90 @@ namespace MotorCity.UI
                     ? onboarding.ObjectiveLine
                     : string.Empty;
 
+        // The center is informational: all records and tasks are obtained
+        // from active gameplay systems, never from independent save keys.
+        public string PlayerExperienceActivitiesLine
+        {
+            get
+            {
+                if (activityManager == null ||
+                    streetSprint == null ||
+                    circuitRace == null ||
+                    delivery == null ||
+                    driftChallenge == null ||
+                    professions == null)
+                {
+                    return MotorCityLocalization.Text(
+                        "ux.sections.not_ready");
+                }
+
+                return string.Join(
+                    "\n\n",
+                    MotorCityLocalization.Format(
+                        "ux.activities.sprint",
+                        FormatPlayerExperienceBestTime(
+                            streetSprint.BestTimeSeconds)),
+                    MotorCityLocalization.Format(
+                        "ux.activities.circuit",
+                        FormatPlayerExperienceBestTime(
+                            circuitRace.BestTimeSeconds)),
+                    MotorCityLocalization.Format(
+                        "ux.activities.delivery",
+                        FormatPlayerExperienceBestTime(
+                            delivery.BestTimeSeconds)),
+                    MotorCityLocalization.Format(
+                        "ux.activities.drift",
+                        driftChallenge.TargetScore),
+                    MotorCityLocalization.Format(
+                        "ux.activities.professions",
+                        professions.StartCount,
+                        professions.TotalCompleted));
+            }
+        }
+
+        private static string FormatPlayerExperienceBestTime(
+            float bestSeconds)
+        {
+            return bestSeconds > 0f
+                ? MotorCityLocalization.Format(
+                    "ux.activities.best_time",
+                    bestSeconds)
+                : MotorCityLocalization.Text(
+                    "ux.activities.no_record");
+        }
+
+        public string PlayerExperienceJournalLine
+        {
+            get
+            {
+                if (story == null ||
+                    season == null ||
+                    dailyAdventures == null)
+                {
+                    return MotorCityLocalization.Text(
+                        "ux.sections.not_ready");
+                }
+
+                return string.Join(
+                    "\n\n",
+                    MotorCityLocalization.Format(
+                        "ux.journal.story",
+                        story.CurrentMissionNumber,
+                        story.MissionCount,
+                        story.CurrentMissionTitle,
+                        story.ObjectiveLine),
+                    MotorCityLocalization.Format(
+                        "ux.journal.season",
+                        season.CurrentMissionNumber,
+                        season.MissionCount,
+                        season.ObjectiveLine),
+                    MotorCityLocalization.Format(
+                        "ux.journal.daily",
+                        dailyAdventures.CompletedTasks,
+                        dailyAdventures.ObjectiveLine));
+            }
+        }
+
         private bool HasBlockingModalUi()
         {
             return

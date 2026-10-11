@@ -564,7 +564,7 @@ namespace MotorCity.UI
                 if (MotorCityInput.CancelPressed &&
                     pauseExperienceFrontEnd != null)
                 {
-                    pauseExperienceFrontEnd.ClosePlayerExperienceFromPause();
+                    pauseExperienceFrontEnd.OnPlayerExperienceBackPressed();
                 }
 
                 return;

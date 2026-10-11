@@ -303,6 +303,7 @@ namespace MotorCity.UI
             BuildAbout();
             BuildSettings();
             BuildPlayerExperienceScreen();
+            BuildPlayerExperienceSections();
             BuildIntro();
             BuildControlChoiceScreen();
             BuildLoadingScreen();
@@ -585,6 +586,8 @@ namespace MotorCity.UI
                     new Vector2(1020f, 730f),
                     112f);
 
+            playerExperienceHomePanel = window.Panel.gameObject;
+
             CreateFrontEndLayoutText(
                 window.Content,
                 MotorCityLocalization.Text("ux.home.subtitle"),
@@ -624,13 +627,33 @@ namespace MotorCity.UI
                     110f,
                     new Color(0.88f, 0.93f, 1f, 1f));
 
+            RectTransform sectionActions =
+                CreateFrontEndActionRow(
+                    window.Content,
+                    "Player Experience Section Actions",
+                    64f);
+
+            CreateFrontEndLayoutButton(
+                sectionActions,
+                MotorCityLocalization.Text("ux.activities.title"),
+                ShowPlayerExperienceActivities,
+                330f,
+                64f);
+
+            CreateFrontEndLayoutButton(
+                sectionActions,
+                MotorCityLocalization.Text("ux.journal.title"),
+                ShowPlayerExperienceJournal,
+                330f,
+                64f);
+
             CreateFrontEndLayoutText(
                 window.Content,
-                MotorCityLocalization.Text("ux.home.sections_soon"),
-                23,
+                MotorCityLocalization.Text("ux.home.more_sections"),
+                19,
                 FontStyle.Normal,
                 TextAnchor.MiddleCenter,
-                118f,
+                62f,
                 new Color(0.72f, 0.80f, 0.94f, 1f));
 
             CreateFrontEndFlexibleSpacer(
@@ -646,7 +669,7 @@ namespace MotorCity.UI
             CreateFrontEndLayoutButton(
                 backRow,
                 MotorCityLocalization.Text("ux.home.back"),
-                ReturnFromPlayerExperience,
+                HandlePlayerExperienceBack,
                 320f,
                 58f);
         }
@@ -669,11 +692,22 @@ namespace MotorCity.UI
             return true;
         }
 
+        // Forced close when the gameplay PauseMenu itself is being dismissed.
         public void ClosePlayerExperienceFromPause()
         {
             if (playerExperienceReturnToPause != null)
             {
                 ReturnFromPlayerExperience();
+            }
+        }
+
+        // UI Back and Cancel navigate section -> overview -> caller.
+        public void OnPlayerExperienceBackPressed()
+        {
+            if (playerExperienceRoot != null &&
+                playerExperienceRoot.activeSelf)
+            {
+                HandlePlayerExperienceBack();
             }
         }
 
@@ -704,6 +738,7 @@ namespace MotorCity.UI
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
             playerExperienceRoot.SetActive(true);
+            ShowPlayerExperienceHome();
             RefreshPlayerExperience();
         }
 
@@ -751,6 +786,8 @@ namespace MotorCity.UI
                         "ux.home.objective",
                         objective);
             }
+
+            RefreshPlayerExperienceSections();
         }
 
         private void BuildControlChoiceScreen()
@@ -1708,15 +1745,15 @@ namespace MotorCity.UI
             ApplyFrontEndResponsiveLayout(
                 false);
 
-            // Esc/Back returns to the main menu for this screen.
-            // When opened from gameplay pause, PauseMenuView owns Cancel
-            // so the same key cannot accidentally resume driving.
+            // From the main menu Cancel navigates details -> overview
+            // -> main menu. When opened from pause, PauseMenuView owns
+            // Cancel; it calls the same method without resuming gameplay.
             if (playerExperienceReturnToPause == null &&
                 playerExperienceRoot != null &&
                 playerExperienceRoot.activeSelf &&
                 MotorCityInput.CancelPressed)
             {
-                ReturnFromPlayerExperience();
+                HandlePlayerExperienceBack();
                 return;
             }
 
