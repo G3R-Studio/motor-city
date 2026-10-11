@@ -93,6 +93,10 @@ for path in SCRIPTS.rglob("*.cs"):
     for token in ("TurboPetSystem", "CurrentTurboXpReward", "TurboXpReward", "SystemIcon.TurboXp", '"ux.turbo.', '"turbo.title"'):
         if token in s:
             ERRORS.append(f"Old Pixie identity {token} in {path.relative_to(ROOT)}")
+require('"story.character_reward"' in LOC and
+        "+{4} XP ПИКСИ" in LOC and "+{4} PIXIE XP" in LOC and
+        STORY.count("mission.PixieXpReward);") >= 2,
+        "Story completion must show the real XP recipient Pixie")
 require("XP ТУРБО" not in LOC and "TURBO XP" not in LOC and
         'E("НАГРАДА +{0:N0} КРЕДИТОВ • +{1:N0} РЕПУТАЦИИ • +{2} XP ПИКСИ"' in LOC,
         "User-facing season XP must belong to Pixie, not Turbo")

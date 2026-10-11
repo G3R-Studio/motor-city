@@ -708,7 +708,7 @@ namespace MotorCity.Localization
                 { "story.progress", E("{0}: отлично! Прогресс {1}/{2}.", "{0}: great! Progress {1}/{2}.") },
                 { "story.character_intro", E("{0}: {1}", "{0}: {1}") },
                 { "story.character_progress", E("{0}: {1} ({2}/{3})", "{0}: {1} ({2}/{3})") },
-                { "story.character_reward", E("{0}: {1}   +{2:N0} КРЕДИТОВ   +{3:N0} РЕПУТАЦИИ", "{0}: {1}   +{2:N0} CREDITS   +{3:N0} REPUTATION") },
+                { "story.character_reward", E("{0}: {1}   +{2:N0} КРЕДИТОВ   +{3:N0} РЕПУТАЦИИ   +{4} XP ПИКСИ", "{0}: {1}   +{2:N0} CREDITS   +{3:N0} REPUTATION   +{4} PIXIE XP") },
                 { "story.new_mission", E("МИССИЯ {0} • {1} - «{2}»", "MISSION {0} • {1} - “{2}”") },
                 { "story.mission_complete", E("МИССИЯ {0} ГОТОВА • {1} • +{2:N0} КРЕДИТОВ • +{3:N0} РЕПУТАЦИИ", "MISSION {0} COMPLETE • {1} • +{2:N0} CREDITS • +{3:N0} REPUTATION") },
                 { "story.final_complete", E("ФЕСТИВАЛЬ MOTOR CITY ЗАВЕРШЁН! +{0:N0} КРЕДИТОВ • +{1:N0} РЕПУТАЦИИ", "MOTOR CITY FESTIVAL COMPLETE! +{0:N0} CREDITS • +{1:N0} REPUTATION") },

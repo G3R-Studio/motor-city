@@ -397,7 +397,8 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text(
                         mission.CompletionKey),
                     mission.CreditsReward,
-                    mission.ReputationReward);
+                    mission.ReputationReward,
+                    mission.PixieXpReward);
 
                 messageTimer = 6f;
                 return;
@@ -410,7 +411,8 @@ namespace MotorCity.Gameplay
                 MotorCityLocalization.Text(
                     mission.CompletionKey),
                 mission.CreditsReward,
-                mission.ReputationReward);
+                mission.ReputationReward,
+                mission.PixieXpReward);
 
             messageTimer = MessageSeconds + 1f;
             missionIndex++;
