@@ -163,6 +163,11 @@ namespace MotorCity.Gameplay
                     WeeklyGoal),
                 WeeklyGoal);
 
+        public bool CatalogWeeklyRewardClaimed =>
+            !HasClub || weeklyRewardClaimed || GlobalRewardClaimedThisWeek();
+        public long CatalogSecondsUntilWeeklyReset =>
+            604800L - MotorCityPlatform.ServerUnixTime % 604800L;
+
         public int WeeklyContribution =>
             weeklyContribution;
 
