@@ -1167,7 +1167,11 @@ namespace MotorCity.UI
                     MotorCityLocalization.Format(
                         "ux.catalog.delivery_reward",
                         delivery.RewardCredits) + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.delivery_elite") +
+                    MotorCityLocalization.Format(
+                        delivery.EliteUnlocked
+                            ? "ux.catalog.delivery_elite_unlocked"
+                            : "ux.catalog.delivery_elite",
+                        delivery.EliteRequiredDisciplineLevel) +
                     (vehicleSpecialization == null
                         ? string.Empty
                         : "\n" + MotorCityLocalization.Format(
