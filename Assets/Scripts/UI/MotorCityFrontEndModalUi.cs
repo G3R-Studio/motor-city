@@ -54,7 +54,8 @@ namespace MotorCity.UI
             string objectName,
             string title,
             Vector2 size,
-            float headerHeight = 108f)
+            float headerHeight = 108f,
+            bool showCloseButton = true)
         {
             RectTransform panel =
                 CreateFrontEndPanel(
@@ -81,8 +82,9 @@ namespace MotorCity.UI
 
             titleText.name = objectName + " Title";
             titleText.color = new Color(0.90f, 0.95f, 1f, 1f);
-            // Long RU/EN titles remain readable instead of running under X
-            // when a narrow phone safe area reduces the available width.
+            // Long RU/EN titles fit the free header width. The control
+            // selector has only a footer Back button, so its title can
+            // use the space other modals reserve for their close button.
             titleText.resizeTextForBestFit = true;
             titleText.resizeTextMinSize = 18;
             titleText.resizeTextMaxSize = 44;
@@ -92,18 +94,21 @@ namespace MotorCity.UI
             titleRect.anchorMax = new Vector2(1f, 1f);
             titleRect.pivot = new Vector2(0.5f, 1f);
             titleRect.anchoredPosition = new Vector2(0f, -24f);
-            // Reserve the right corner for a permanent touch close target.
             titleRect.sizeDelta = new Vector2(
-                -(FrontEndModalHorizontalPadding * 2f + 72f),
+                -(FrontEndModalHorizontalPadding * 2f +
+                    (showCloseButton ? 72f : 0f)),
                 headerHeight - 34f);
 
-            CreateButton(
-                panel,
-                "X",
-                new Vector2(-24f, -22f),
-                new Vector2(64f, 60f),
-                ReturnFromPlayerExperience,
-                new Vector2(1f, 1f));
+            if (showCloseButton)
+            {
+                CreateButton(
+                    panel,
+                    "X",
+                    new Vector2(-24f, -22f),
+                    new Vector2(64f, 60f),
+                    ReturnFromPlayerExperience,
+                    new Vector2(1f, 1f));
+            }
 
             // Header and footer stay visible when text grows or the viewport
             // becomes short; only the read-only body can scroll.
