@@ -11,6 +11,7 @@ using MotorCity.World;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace MotorCity.UI
 {
@@ -2736,6 +2737,20 @@ namespace MotorCity.UI
                 loadingRoot.SetActive(false);
 
             RefreshMainMenuText();
+
+            // Return focus from a closed UX modal (or control chooser) to
+            // Continue. Otherwise gamepad selection may remain invisible.
+            if (EventSystem.current != null && primaryButtonText != null)
+            {
+                Button continueButton =
+                    primaryButtonText.GetComponentInParent<Button>();
+                if (continueButton != null &&
+                    continueButton.IsActive() && continueButton.interactable)
+                {
+                    EventSystem.current.SetSelectedGameObject(
+                        continueButton.gameObject);
+                }
+            }
         }
 
         private void ShowAbout()
