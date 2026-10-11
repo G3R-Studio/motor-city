@@ -78,10 +78,8 @@ def main() -> int:
         ("Action", "Retry", "-99f,42f", "182f,50f"),
         ("Close", "ToggleNavigator", "99f,42f", "182f,50f"),
     ]:
-        prefix = f'"NavigatorTouchControls{name}"'
-        # The original name includes whitespace, which compact() removes
-        # only outside quoted literals. Strip it for this source-contract check.
-        literal = f'"Navigator Touch Controls {name}"'
+        # compact() also removes whitespace within quoted UI object names.
+        literal = f'"NavigatorTouchControls{name}"'
         ensure(literal in buttons, f"Missing modal control {name}")
         ensure(f"MotorCityInputAction.{action}" in buttons,
                f"Wrong action for Navigator {name}")
