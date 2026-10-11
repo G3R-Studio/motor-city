@@ -1883,6 +1883,7 @@ namespace MotorCity.UI
                 false);
             ApplyPlayerExperienceModalLayout(false);
             HandlePlayerExperienceScrollShortcuts();
+            KeepCareerSelectionVisible();
 
             // From the main menu Cancel navigates details -> overview
             // -> main menu. When opened from pause, PauseMenuView owns
