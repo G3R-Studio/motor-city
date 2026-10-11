@@ -65,6 +65,8 @@ namespace MotorCity.Localization
                 { "ux.catalog.carwash_start", E("Автомойка: остановись у точки старта и нажми «Действие». Действующая работа должна быть завершена.", "Car wash: stop at the start marker and press Interact. Finish the current job first.") },
                 { "ux.catalog.photos", E("Фотографии: {0:N0} сделано.", "Photos: {0:N0} captured.") },
                 { "ux.catalog.drift_thresholds", E("Пороги дрифта: бронза {0:N0}, серебро {1:N0}, золото {2:N0}, легенда {3:N0} очков.", "Drift targets: bronze {0:N0}, silver {1:N0}, gold {2:N0}, legendary {3:N0} points.") },
+                { "ux.catalog.drift_spot_record", E("Зона дрифта: {0} - рекорд {1:N0} очков.", "Drift zone: {0} - best {1:N0} points.") },
+                { "ux.catalog.drift_spot_no_record", E("Зона дрифта: {0} - рекорда пока нет.", "Drift zone: {0} - no record yet.") },
                 { "ux.catalog.drift_rewards", E("Награды за дрифт: бронза {0:N0} кр, серебро {1:N0} кр, золото {2:N0} кр, легенда {3:N0} кр.", "Drift rewards: bronze {0:N0} CR, silver {1:N0} CR, gold {2:N0} CR, legendary {3:N0} CR.") },
                 { "ux.catalog.base_reward", E("Спринт - базовая награда: {0:N0} кр (режим и результат могут изменить сумму).", "Sprint - base reward: {0:N0} CR (mode and result may change payout).") },
                 { "ux.catalog.circuit_reward", E("Кольцо - базовая награда: {0:N0} кр (итоговая сумма зависит от результата).", "Circuit - base reward: {0:N0} CR (final payout depends on result).") },
