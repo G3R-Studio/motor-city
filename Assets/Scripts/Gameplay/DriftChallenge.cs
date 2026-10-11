@@ -55,6 +55,9 @@ namespace MotorCity.Gameplay
 
         public int TargetScore => bronzeScore;
         public int RewardCredits => bronzeRewardCredits;
+        public int CatalogSilverRewardCredits => silverRewardCredits;
+        public int CatalogGoldRewardCredits => goldRewardCredits;
+        public int CatalogLegendaryRewardCredits => legendaryRewardCredits;
         public Vector3 ZoneCenter => zoneCenter;
 
         public string StatusText { get; private set; } =
