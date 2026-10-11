@@ -53,6 +53,10 @@ namespace MotorCity.Gameplay
                     0,
                     drift.TotalScore - scoreAtStart);
 
+        public int CatalogEliteRequiredLevel => EliteRequiredLevel;
+        public bool CatalogEliteUnlocked =>
+            activityManager != null &&
+            activityManager.HasDisciplineLevel(DisciplineType.Drift, EliteRequiredLevel);
         public int TargetScore => bronzeScore;
         public int CatalogSilverTargetScore => silverScore;
         public int CatalogGoldTargetScore => goldScore;
