@@ -114,6 +114,106 @@ namespace MotorCity.UI
                     duration.Minutes.ToString("00");
         }
 
+        private string PlayerExperienceJournalProgressSignature(int filter)
+        {
+            switch (filter)
+            {
+                case 0:
+                    return story == null ? "" :
+                        story.IsComplete ? "DONE" :
+                        story.CurrentMissionNumber + "/" + story.MissionCount +
+                        " " + story.CurrentMissionProgress + "/" + story.CurrentMissionTarget;
+                case 1:
+                    return season == null ? "" :
+                        season.CompletedMissionCount + "/" + season.MissionCount +
+                        " " + season.CurrentMissionProgress + "/" + season.CurrentMissionTarget +
+                        (season.IsComplete ? " DONE" : "");
+                case 2:
+                    if (dailyAdventures == null) return "";
+                    StringBuilder daily = new StringBuilder();
+                    daily.Append(dailyAdventures.CompletedTasks).Append("/3");
+                    for (int i = 0; i < dailyAdventures.CatalogTaskCount; i++)
+                        daily.Append(" ").Append(dailyAdventures.CatalogTaskProgress(i))
+                            .Append("/").Append(dailyAdventures.CatalogTaskTarget(i));
+                    if (club != null && club.HasClub)
+                        daily.Append(" W").Append(club.WeeklyContribution)
+                            .Append("/").Append(club.WeeklyTarget);
+                    return daily.ToString();
+                case 3:
+                    return contracts == null ? "" :
+                        contracts.CatalogCycle + ":" + contracts.CatalogIndex +
+                        " " + contracts.CatalogRacingProgress + "/" + contracts.CatalogRacingTarget +
+                        " " + contracts.CatalogDriftProgress + "/" + contracts.CatalogDriftTarget +
+                        " " + contracts.CatalogDeliveryProgress + "/" + contracts.CatalogDeliveryTarget +
+                        " " + contracts.CatalogNightProgress + "/" + contracts.CatalogNightTarget;
+                case 4:
+                    return career == null ? "" :
+                        career.Stage + "/" + career.CatalogStageCount +
+                        " " + career.CatalogDeliveryWins + "," + career.CatalogDriftWins +
+                        "," + career.CatalogSprintWins + "," + career.CatalogCircuitWins;
+                case 5:
+                    return legends == null ? "" :
+                        legends.CatalogCurrentNumber + "/" + legends.CatalogTotalCount +
+                        " " + legends.CatalogCurrentProgress +
+                        (legends.AllLegendsDefeated ? " DONE" : "");
+                case 6:
+                    return underground == null ? "" :
+                        underground.CatalogCurrentNumber + "/" + underground.CatalogTotalCount +
+                        " " + underground.StreetCred + "/" + underground.CatalogRequiredCred +
+                        " " + underground.CatalogCurrentProgress +
+                        (underground.CatalogSeriesComplete ? " DONE" : "");
+                default:
+                    return "";
+            }
+        }
+
+        private void AppendJournalStory(StringBuilder sb)
+        {
+            if (story == null) return;
+            bool done = story.IsComplete;
+            bool waiting = !done && onboarding != null && !onboarding.IsComplete;
+            JournalItem(sb,
+                done ? MotorCityLocalization.Text("ux.journal.complete") :
+                    story.CurrentCharacterName + " - " + story.CurrentMissionTitle,
+                done ? MotorCityLocalization.Text("ux.journal.complete") :
+                    story.CurrentCharacterLine,
+                done ? JournalFraction(story.MissionCount, story.MissionCount) :
+                    MotorCityLocalization.Format("ux.journal.progress_stage",
+                        story.CurrentMissionNumber, story.MissionCount,
+                        story.CurrentMissionProgress, story.CurrentMissionTarget),
+                done ? MotorCityLocalization.Text("ux.journal.no_reward") :
+                    JournalReward(story.CurrentCreditsReward,
+                        story.CurrentReputationReward, story.CurrentPixieXpReward),
+                done ? MotorCityLocalization.Text("ux.journal.complete") :
+                    MotorCityLocalization.Text(waiting
+                        ? "ux.journal.story_tutorial" : "ux.journal.story_follow"),
+                JournalStatus(done, waiting));
+        }
+
+        private void AppendJournalSeason(StringBuilder sb)
+        {
+            if (season == null) return;
+            bool done = season.IsComplete;
+            bool locked = !done && (!season.IsSeasonOneActive ||
+                onboarding != null && !onboarding.IsComplete ||
+                story != null && !story.IsComplete);
+            string time = MotorCityLocalization.Format(
+                "ux.journal.season_time", season.DaysRemaining);
+            JournalItem(sb,
+                done ? MotorCityLocalization.Text("ux.journal.complete") :
+                    season.CurrentCharacterName + " - " + season.CurrentMissionTitle,
+                done ? MotorCityLocalization.Text("ux.journal.complete") : season.ObjectiveLine,
+                MotorCityLocalization.Format("ux.journal.progress_stage",
+                    season.CurrentMissionNumber, season.MissionCount,
+                    season.CurrentMissionProgress, season.CurrentMissionTarget) + "\n" + time,
+                done ? MotorCityLocalization.Text("ux.journal.no_reward") :
+                    JournalReward(season.CurrentCreditsReward,
+                        season.CurrentReputationReward, season.CurrentPixieXpReward),
+                MotorCityLocalization.Text(done ? "ux.journal.complete" :
+                    locked ? "ux.journal.season_story" : "ux.journal.season_next"),
+                JournalStatus(done, locked));
+        }
+
         private void AppendPlayerExperienceJournalUpdates(StringBuilder sb)
         {
             if (journalBeforeResult == null || journalLastResultName == null)
