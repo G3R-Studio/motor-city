@@ -13,6 +13,16 @@ from urllib.parse import urlsplit
 
 
 class UnityWebGLHandler(SimpleHTTPRequestHandler):
+    def send_head(self):
+        # Unity build files may have been cached from a server that omitted
+        # Content-Encoding. A 304 would reuse those broken cached bytes.
+        # This local QA server always sends the file with fresh headers.
+        if "If-Modified-Since" in self.headers:
+            del self.headers["If-Modified-Since"]
+        if "If-None-Match" in self.headers:
+            del self.headers["If-None-Match"]
+        return super().send_head()
+
     def guess_type(self, path):
         # On a .br/.gz file, use the MIME type of the file before compression.
         plain = path.rsplit(".", 1)[0] if path.lower().endswith((".br", ".gz")) else path
@@ -30,7 +40,10 @@ class UnityWebGLHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Encoding", "br")
         elif path.endswith(".gz"):
             self.send_header("Content-Encoding", "gzip")
-        self.send_header("Cache-Control", "no-cache")
+        # A QA server should never persist compressed assets in browser cache
+        # between tests with different hosting headers.
+        self.send_header("Cache-Control", "no-store, max-age=0")
+        self.send_header("Pragma", "no-cache")
         super().end_headers()
 
 
