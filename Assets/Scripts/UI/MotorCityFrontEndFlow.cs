@@ -3513,6 +3513,17 @@ namespace MotorCity.UI
                 text.resizeTextMinSize = Mathf.Max(22, text.resizeTextMinSize);
                 text.resizeTextMaxSize = Mathf.Max(text.resizeTextMinSize, text.fontSize);
                 MotorCityTextLayout.Configure(text);
+
+                // The common typography pass runs after every page is
+                // created and used to overwrite the smaller best-fit minimum
+                // that modal titles need on portrait phones.
+                if (text.name.EndsWith(" Title"))
+                {
+                    text.resizeTextForBestFit = true;
+                    text.resizeTextMinSize = 16;
+                    text.resizeTextMaxSize =
+                        Mathf.Max(16, text.fontSize);
+                }
             }
             AddSharedBackground(controlChoiceRoot, .72f);
             MotorCityButtonVisuals.TryForSemantic(
