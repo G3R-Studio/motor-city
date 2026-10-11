@@ -411,35 +411,33 @@ namespace MotorCity.UI
             if (!down && !up && !home && !end)
                 return;
 
-            // Only one detail can be active. Avoid allocating a temporary
-            // array on each keyboard page-scroll input.
-            GameObject active =
-                playerExperienceActivitiesPanel != null &&
-                playerExperienceActivitiesPanel.activeSelf
-                    ? playerExperienceActivitiesPanel
-                    : playerExperienceJournalPanel != null &&
-                      playerExperienceJournalPanel.activeSelf
-                        ? playerExperienceJournalPanel
-                        : playerExperienceClubPanel != null &&
-                          playerExperienceClubPanel.activeSelf
-                            ? playerExperienceClubPanel
-                            : playerExperienceInspectorPanel != null &&
-                              playerExperienceInspectorPanel.activeSelf
-                                ? playerExperienceInspectorPanel
-                                : playerExperiencePixiePanel != null &&
-                                  playerExperiencePixiePanel.activeSelf
-                                    ? playerExperiencePixiePanel
-                                    : playerExperienceGaragePanel != null &&
-                                      playerExperienceGaragePanel.activeSelf
-                                        ? playerExperienceGaragePanel
-                                        : playerExperienceAchievementsPanel != null &&
-                                          playerExperienceAchievementsPanel.activeSelf
-                                            ? playerExperienceAchievementsPanel
-                                            : playerExperienceNightClubPanel != null &&
-                                              playerExperienceNightClubPanel.activeSelf
-                                                ? playerExperienceNightClubPanel
-                                                : playerExperienceHomePanel;
-
+            // No allocations on keyboard page navigation: only one of
+            // these nine screens can be active at a time.
+            GameObject active = playerExperienceHomePanel;
+            if (playerExperienceActivitiesPanel != null &&
+                playerExperienceActivitiesPanel.activeSelf)
+                active = playerExperienceActivitiesPanel;
+            else if (playerExperienceJournalPanel != null &&
+                     playerExperienceJournalPanel.activeSelf)
+                active = playerExperienceJournalPanel;
+            else if (playerExperienceClubPanel != null &&
+                     playerExperienceClubPanel.activeSelf)
+                active = playerExperienceClubPanel;
+            else if (playerExperienceInspectorPanel != null &&
+                     playerExperienceInspectorPanel.activeSelf)
+                active = playerExperienceInspectorPanel;
+            else if (playerExperiencePixiePanel != null &&
+                     playerExperiencePixiePanel.activeSelf)
+                active = playerExperiencePixiePanel;
+            else if (playerExperienceGaragePanel != null &&
+                     playerExperienceGaragePanel.activeSelf)
+                active = playerExperienceGaragePanel;
+            else if (playerExperienceAchievementsPanel != null &&
+                     playerExperienceAchievementsPanel.activeSelf)
+                active = playerExperienceAchievementsPanel;
+            else if (playerExperienceNightClubPanel != null &&
+                     playerExperienceNightClubPanel.activeSelf)
+                active = playerExperienceNightClubPanel;
             ScrollRect scroll = active == null
                 ? null
                 : active.GetComponentInChildren<ScrollRect>();
