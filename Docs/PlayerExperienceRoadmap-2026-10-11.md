@@ -303,6 +303,8 @@
 
 **UX-2 - очистка дублирующего порога дрифта (2026-10-12):** [`fa7e6d8`](https://github.com/G3R-Studio/motor-city/commit/fa7e6d8f511ab4375a6e4e904f0b3c5f87197907). Удалён повтор бронзового порога; пользователь подтвердил результат в Unity («всё чётко»). Остальные чекбоксы UX-2 не закрыты.
 
+**UX-2 - отсутствие рекорда отдельного дрифта (2026-10-12):** [`01d4a51`](https://github.com/G3R-Studio/motor-city/commit/01d4a5169faa004e5be78c847b8f0c08c6ff96c7) → [`ea9d9ce`](https://github.com/G3R-Studio/motor-city/commit/ea9d9ce49dca8656f61caaee43852d3dbc340ed5). Для `DriftTracker.BestDrift == 0` каталог показывает «рекорда пока нет» вместо вводящего в заблуждение значения 0; локализация RU/EN. Исходники сверены, Play Mode этой правки ещё не проверен.
+
 ## 7. Связанные документы
 
 - [DevelopmentPlan.md](DevelopmentPlan.md) — основное направление игры и инварианты разработки (этот UX-roadmap не заменяет его).
