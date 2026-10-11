@@ -441,7 +441,7 @@ namespace MotorCity.UI
 
             foreach (Button button in row.GetComponentsInChildren<Button>(true))
             {
-                Text label = button.GetComponentInChildren<Text>();
+                Text label = button.GetComponentInChildren<Text>(true);
                 if (label == null)
                     continue;
 
