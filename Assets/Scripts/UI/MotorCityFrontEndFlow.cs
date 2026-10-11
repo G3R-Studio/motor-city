@@ -42,6 +42,8 @@ namespace MotorCity.UI
         private Text playerExperienceCreditsText;
         private Text playerExperienceRepText;
         private Text playerExperienceObjectiveText;
+        private Text playerExperienceMilestoneText;
+        private RectTransform playerExperienceMoreActions;
         private RectTransform playerExperienceSectionActions;
         private RectTransform playerExperienceProgressActions;
         private System.Action playerExperienceReturnToPause;
@@ -630,6 +632,16 @@ namespace MotorCity.UI
                     110f,
                     new Color(0.88f, 0.93f, 1f, 1f));
 
+            playerExperienceMilestoneText =
+                CreateFrontEndLayoutText(
+                    window.Content,
+                    string.Empty,
+                    21,
+                    FontStyle.Normal,
+                    TextAnchor.MiddleCenter,
+                    110f,
+                    new Color(0.72f, 0.83f, 1f, 1f));
+
             playerExperienceSectionActions =
                 CreateFrontEndActionRow(
                     window.Content,
@@ -676,6 +688,36 @@ namespace MotorCity.UI
                 playerExperienceProgressActions,
                 MotorCityLocalization.Text("ux.pixie.title"),
                 ShowPlayerExperiencePixie,
+                270f,
+                64f);
+
+            // Third set of sections uses the same single modal owner.
+            // On short screens the overview itself scrolls while Back stays
+            // in its fixed footer.
+            playerExperienceMoreActions =
+                CreateFrontEndActionRow(
+                    window.Content,
+                    "Player Experience More Actions",
+                    64f);
+
+            CreateFrontEndLayoutButton(
+                playerExperienceMoreActions,
+                MotorCityLocalization.Text("ux.garage.title"),
+                ShowPlayerExperienceGarage,
+                270f,
+                64f);
+
+            CreateFrontEndLayoutButton(
+                playerExperienceMoreActions,
+                MotorCityLocalization.Text("ux.achievements.title"),
+                ShowPlayerExperienceAchievements,
+                270f,
+                64f);
+
+            CreateFrontEndLayoutButton(
+                playerExperienceMoreActions,
+                MotorCityLocalization.Text("ux.nightclub.title"),
+                ShowPlayerExperienceNightClub,
                 270f,
                 64f);
 
@@ -805,6 +847,16 @@ namespace MotorCity.UI
                     MotorCityLocalization.Format(
                         "ux.home.objective",
                         objective);
+            }
+
+            if (playerExperienceMilestoneText != null)
+            {
+                playerExperienceMilestoneText.text =
+                    MotorCityLocalization.Format(
+                        "ux.home.milestone",
+                        hud == null
+                            ? MotorCityLocalization.Text("ux.sections.not_ready")
+                            : hud.PlayerExperienceNextMilestoneLine);
             }
 
             RefreshPlayerExperienceSections();
