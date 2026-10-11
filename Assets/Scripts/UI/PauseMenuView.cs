@@ -163,15 +163,15 @@ namespace MotorCity.UI
 
             CreatePrimaryButton(
                 actions,
-                "Pause Resume",
-                "pause.resume",
-                ClosePauseMenu);
-
-            CreatePrimaryButton(
-                actions,
                 "Pause Main Menu",
                 "pause.main_menu",
                 OpenPauseMainMenu);
+
+            CreatePrimaryButton(
+                actions,
+                "Pause Resume",
+                "pause.resume",
+                ClosePauseMenu);
 
             RefreshPauseMenuText();
         }
