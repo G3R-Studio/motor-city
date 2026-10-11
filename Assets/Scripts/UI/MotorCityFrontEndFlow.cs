@@ -45,6 +45,9 @@ namespace MotorCity.UI
         private Text playerExperienceMissionRewardText;
         private RectTransform playerExperienceMoreActions;
         private RectTransform playerExperienceSectionActions;
+        private RectTransform controlChoiceKeyboardActions;
+        private RectTransform controlChoiceWheelActions;
+        private RectTransform controlChoiceArrowsActions;
         private RectTransform playerExperienceProgressActions;
         private System.Action playerExperienceReturnToPause;
         private GameObject introRoot;
@@ -248,6 +251,21 @@ namespace MotorCity.UI
 
         private void BuildUi()
         {
+            // Toggling RU/EN recreates the Canvas. Do not retain old
+            // page/scrollbar references in the replacement interface.
+            playerExperienceModalPanels.Clear();
+            frontEndScrollCues.Clear();
+            controlChoiceModalPanel = null;
+            playerExperienceSectionActions = null;
+            playerExperienceProgressActions = null;
+            playerExperienceMoreActions = null;
+            controlChoiceKeyboardActions = null;
+            controlChoiceWheelActions = null;
+            controlChoiceArrowsActions = null;
+            lastPlayerExperienceLayoutSize = Vector2Int.zero;
+            lastPlayerExperienceSafeArea = default;
+            lastPlayerExperienceCanvasScale = -1f;
+
             font = MotorCityTypography.Regular;
 
             boldFont = MotorCityTypography.Bold;
@@ -908,14 +926,14 @@ namespace MotorCity.UI
                 hint,
                 16);
 
-            RectTransform keyboardRow =
+            controlChoiceKeyboardActions =
                 CreateFrontEndActionRow(
                     window.Content,
                     "Keyboard Control Actions",
                     72f);
 
             CreateFrontEndLayoutButton(
-                keyboardRow,
+                controlChoiceKeyboardActions,
                 IsRussian()
                     ? "УПРАВЛЕНИЕ С КЛАВИАТУРЫ"
                     : "KEYBOARD CONTROLS",
@@ -924,14 +942,14 @@ namespace MotorCity.UI
                 620f,
                 72f);
 
-            RectTransform wheelRow =
+            controlChoiceWheelActions =
                 CreateFrontEndActionRow(
                     window.Content,
                     "Wheel Control Actions",
                     72f);
 
             CreateFrontEndLayoutButton(
-                wheelRow,
+                controlChoiceWheelActions,
                 IsRussian()
                     ? "УПРАВЛЕНИЕ РУЛЕВЫМ КОЛЕСОМ"
                     : "STEERING WHEEL",
@@ -941,7 +959,7 @@ namespace MotorCity.UI
                 72f);
 
             CreateFrontEndLayoutButton(
-                wheelRow,
+                controlChoiceWheelActions,
                 IsRussian()
                     ? "НАСТРОИТЬ"
                     : "CUSTOMIZE",
@@ -951,14 +969,14 @@ namespace MotorCity.UI
                 170f,
                 72f);
 
-            RectTransform arrowsRow =
+            controlChoiceArrowsActions =
                 CreateFrontEndActionRow(
                     window.Content,
                     "Arrows Control Actions",
                     72f);
 
             CreateFrontEndLayoutButton(
-                arrowsRow,
+                controlChoiceArrowsActions,
                 IsRussian()
                     ? "УПРАВЛЕНИЕ СТРЕЛКАМИ"
                     : "LEFT / RIGHT ARROWS",
@@ -968,7 +986,7 @@ namespace MotorCity.UI
                 72f);
 
             CreateFrontEndLayoutButton(
-                arrowsRow,
+                controlChoiceArrowsActions,
                 IsRussian()
                     ? "НАСТРОИТЬ"
                     : "CUSTOMIZE",
