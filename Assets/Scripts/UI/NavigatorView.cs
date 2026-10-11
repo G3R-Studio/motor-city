@@ -435,7 +435,10 @@ namespace MotorCity.UI
         // The UX-2 catalog uses the exact same destination resolver as
         // the existing navigator. It cannot override active gameplay goals.
         public bool PlayerExperienceRouteBusy =>
-            activityManager != null && activityManager.IsBusy;
+            (activityManager != null && activityManager.IsBusy) ||
+            (professions != null && professions.IsActive) ||
+            (towTruck != null && towTruck.IsActive) ||
+            (carWash != null && carWash.IsActive);
 
         public bool TrySetPlayerExperienceRoute(int destinationIndex)
         {
