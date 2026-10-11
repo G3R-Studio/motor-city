@@ -77,6 +77,8 @@ def main() -> int:
         '"MotorCity/Environment/TrafficVehicleCatalog"',
         "ResolveAuthoredTrafficPool()",
         "if (authored.Length > serialized.Length)",
+        "if (serialized.Length > 0 &&",
+        "!repairedPartialTrafficRoster)",
         "IaCars = authored;",
         "return authored;",
         "if (serialized.Length > 0)",

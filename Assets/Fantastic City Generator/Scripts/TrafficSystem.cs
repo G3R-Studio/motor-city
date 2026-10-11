@@ -488,7 +488,12 @@ namespace FCG
             // prefabs below is still the original FCG selection behavior.
             if (authored.Length > serialized.Length)
             {
-                if (!repairedPartialTrafficRoster)
+                // A newly instantiated runtime city can start without any
+                // serialized IaCars. Restoring the complete authored roster
+                // is expected, not a warning. A nonempty but partial roster
+                // is unexpected and still warrants a diagnostic.
+                if (serialized.Length > 0 &&
+                    !repairedPartialTrafficRoster)
                 {
                     repairedPartialTrafficRoster = true;
                     Debug.LogWarning(
