@@ -284,7 +284,7 @@ namespace MotorCity.UI
                     TextAnchor.LowerCenter,
                     new Vector2(
                         0f,
-                        22f),
+                        98f),
                     new Vector2(
                         360f,
                         28f),
