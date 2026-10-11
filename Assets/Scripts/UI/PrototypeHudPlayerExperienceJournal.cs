@@ -302,6 +302,56 @@ namespace MotorCity.UI
                 JournalStatus(complete));
         }
 
+        private void AppendJournalLegends(StringBuilder sb)
+        {
+            if (legends == null) return;
+            bool completed = legends.AllLegendsDefeated;
+            bool locked = !completed && !legends.CatalogCurrentUnlocked;
+            JournalItem(sb,
+                completed ? MotorCityLocalization.Text("ux.journal.complete")
+                    : legends.CatalogCurrentName,
+                completed ? MotorCityLocalization.Text("ux.journal.complete") :
+                    legends.CatalogCurrentRequirements,
+                completed ? JournalFraction(legends.CatalogTotalCount,
+                    legends.CatalogTotalCount) :
+                    legends.CatalogCurrentNumber + "/" + legends.CatalogTotalCount +
+                    "\n" + legends.CatalogCurrentProgress,
+                completed ? MotorCityLocalization.Text("ux.journal.no_reward") :
+                    JournalReward(legends.CatalogCurrentCreditsReward,
+                        legends.CatalogCurrentReputationReward),
+                MotorCityLocalization.Text(completed ? "ux.journal.complete" :
+                    locked ? "ux.journal.special_next" : "ux.journal.story_follow"),
+                JournalStatus(completed, locked));
+        }
+
+        private void AppendJournalNightClub(StringBuilder sb)
+        {
+            if (underground == null) return;
+            bool completed = underground.CatalogSeriesComplete;
+            bool invite = underground.HasActiveInvitation;
+            bool nighttime = underground.CatalogIsNight;
+            string access = completed ? MotorCityLocalization.Text("ux.journal.complete")
+                : !invite ? MotorCityLocalization.Text("ux.journal.night_locked")
+                : !nighttime ? MotorCityLocalization.Text("ux.journal.night_wait")
+                : MotorCityLocalization.Text("ux.journal.night_ready");
+            JournalItem(sb,
+                completed ? MotorCityLocalization.Text("ux.journal.complete")
+                    : underground.CatalogCurrentName,
+                access,
+                completed ? JournalFraction(underground.CatalogTotalCount,
+                    underground.CatalogTotalCount) :
+                    underground.CatalogCurrentNumber + "/" +
+                    underground.CatalogTotalCount + "\n" +
+                    underground.CatalogCurrentProgress + "\n" +
+                    underground.StreetCred + "/" + underground.CatalogRequiredCred,
+                completed ? MotorCityLocalization.Text("ux.journal.no_reward") :
+                    JournalReward(underground.CatalogCurrentCreditsReward,
+                        underground.CatalogCurrentReputationReward),
+                MotorCityLocalization.Text(completed
+                    ? "ux.journal.complete" : "ux.journal.special_next"),
+                JournalStatus(completed, !invite || !nighttime));
+        }
+
         private void AppendPlayerExperienceJournalUpdates(StringBuilder sb)
         {
             if (journalBeforeResult == null || journalLastResultName == null)
