@@ -1334,6 +1334,20 @@ namespace MotorCity.UI
                                 : MotorCityLocalization.Text("ux.achievements.locked"));
                         result.Append("  ");
                         result.Append(achievements.GetAchievementName(i));
+                        int current;
+                        int target;
+                        achievements.GetAchievementProgress(
+                            i, out current, out target);
+                        int credits;
+                        int rep;
+                        achievements.GetAchievementReward(
+                            i, out credits, out rep);
+                        result.Append('\n');
+                        result.Append("   ");
+                        result.Append(MotorCityLocalization.Format(
+                            "ux.achievements.progress_reward",
+                            current, target, credits, rep));
+                        result.Append('\n');
                     }
                 }
 
