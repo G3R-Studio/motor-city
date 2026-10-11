@@ -1164,7 +1164,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Format(
                         "ux.activities.drift",
                         driftChallenge.TargetScore) + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.start_marker") + "\n" +
+                    PlayerExperienceDriftZoneRecords() +
                     MotorCityLocalization.Format(
                         "ux.catalog.drift_thresholds",
                         driftChallenge.TargetScore,
@@ -1214,6 +1214,26 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.special") + "\n" +
                     MotorCityLocalization.Text("ux.catalog.special_info"));
             }
+        }
+
+        private string PlayerExperienceDriftZoneRecords()
+        {
+            if (driftSpots == null || driftSpots.SpotCount <= 0)
+                return string.Empty;
+
+            System.Text.StringBuilder records = new System.Text.StringBuilder(160);
+            for (int i = 0; i < driftSpots.SpotCount; i++)
+            {
+                string name = driftSpots.GetSpotName(i);
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                int best = driftSpots.GetSpotBestScore(i);
+                records.Append(MotorCityLocalization.Format(
+                    best > 0 ? "ux.catalog.drift_spot_record" : "ux.catalog.drift_spot_no_record",
+                    name, best));
+                records.Append('\n');
+            }
+            return records.ToString();
         }
 
         private string PlayerExperienceProfessionNames()
