@@ -325,6 +325,10 @@ namespace MotorCity.UI
 
             Canvas.ForceUpdateCanvases();
             RefreshPlayerExperienceTextHeights();
+            // Text preferred heights can change the content layout.
+            // Rebuild before evaluating scroll overflow on RU/EN and
+            // narrow safe-area viewports.
+            Canvas.ForceUpdateCanvases();
             RefreshFrontEndScrollCues();
         }
 
