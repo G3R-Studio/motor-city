@@ -1252,12 +1252,37 @@ namespace MotorCity.UI
                 if (pixie == null)
                     return MotorCityLocalization.Text("ux.sections.not_ready");
 
+                string xpLine = pixie.Level >= 10
+                    ? MotorCityLocalization.Format(
+                        "ux.pixie.progress_max",
+                        pixie.Level, pixie.Xp)
+                    : MotorCityLocalization.Format(
+                        "ux.pixie.progress_next",
+                        pixie.Level, pixie.Xp,
+                        pixie.XpForNextLevelTarget,
+                        pixie.XpRemainingToNextLevel);
+
+                string skinLine = MotorCityLocalization.Text(
+                    pixie.ExclusiveVisualActive
+                        ? "ux.pixie.skin_ex"
+                        : pixie.ExclusiveVisualFallback
+                            ? "ux.pixie.skin_missing_ex"
+                            : "ux.pixie.skin_standard");
+
+                string abilityLine = MotorCityLocalization.Text(
+                    pixie.Level >= 4
+                        ? "ux.pixie.ability_boost"
+                        : pixie.Level >= 3
+                            ? "ux.pixie.ability_discoveries"
+                            : pixie.Level >= 2
+                                ? "ux.pixie.ability_hints"
+                                : "ux.pixie.ability_soon");
+
                 return string.Join(
                     "\n\n",
-                    MotorCityLocalization.Format(
-                        "ux.pixie.progress",
-                        pixie.Level,
-                        pixie.Xp),
+                    xpLine,
+                    skinLine,
+                    abilityLine,
                     MotorCityLocalization.Format(
                         "ux.pixie.daily",
                         pixie.DailyObjectiveLine));
