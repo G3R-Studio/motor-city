@@ -341,7 +341,7 @@ namespace MotorCity.UI
                     ? Mathf.Clamp(height * 0.24f, 52f, frame.HeaderHeight)
                     : frame.HeaderHeight;
                 float footerTop = compact
-                    ? Mathf.Clamp(height * 0.24f, 58f, 86f)
+                    ? Mathf.Clamp(height * 0.24f, 72f, 86f)
                     : 98f;
 
                 frame.Viewport.offsetMin = new Vector2(
