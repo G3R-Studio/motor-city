@@ -134,6 +134,7 @@ namespace MotorCity.Localization
                 { "ux.catalog.night.now", E("Сейчас ночь, встреча доступна у точки старта.", "It is nighttime; meet at the start location.") },
                 { "ux.catalog.night.wait", E("Нужна ночь для начала встречи.", "Wait until nighttime to start the meeting.") },
                 { "ux.catalog.completed", E("Серия завершена.", "Series completed.") },
+                { "ux.catalog.one_time_tiers", E("Разово за новые медали: бронза {0:N0} КР/{1:N0} REP, серебро +{2:N0} КР/{3:N0} REP, золото +{4:N0} КР/{5:N0} REP.", "One-time for new medals: bronze {0:N0} CR/{1:N0} REP, silver +{2:N0} CR/{3:N0} REP, gold +{4:N0} CR/{5:N0} REP.") },
                 { "ux.catalog.races", E("ГОНКИ", "RACES") },
                 { "ux.catalog.drift", E("ДРИФТ", "DRIFT") },
                 { "ux.catalog.jobs", E("РАБОТЫ", "JOBS") },
