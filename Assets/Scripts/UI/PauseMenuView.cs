@@ -552,6 +552,16 @@ namespace MotorCity.UI
             pauseOverlay?.SetActive(
                 false);
 
+            // No hidden menu button should remain selected while driving.
+            if (EventSystem.current != null &&
+                EventSystem.current.currentSelectedGameObject != null &&
+                pauseOverlay != null &&
+                EventSystem.current.currentSelectedGameObject.transform
+                    .IsChildOf(pauseOverlay.transform))
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+            }
+
             Time.timeScale =
                 MotorCityPlatformRuntime.IsGameplayResumeReady
                     ? pauseStoredTimeScale
