@@ -778,14 +778,14 @@ namespace MotorCity.Bootstrap
                 CreateDriftChallengeMarker(driftChallenge, activityManager);
                 CreateStreetSprintMarker(streetSprint, activityManager);
                 CreateCircuitRaceMarker(circuitRace, activityManager);
-                CreateDiscoveryMarkers(discoveries);
+                CreateDiscoveryMarkers(discoveries, activityManager);
                 CreateGarageMarker(garage);
-                CreateUndergroundMarker(underground);
+                CreateUndergroundMarker(underground, activityManager);
                 CreateUndergroundCheckpointMarker(underground);
-                CreateProfessionMarkers(professions);
+                CreateProfessionMarkers(professions, activityManager);
                 CreateProfessionCheckpointMarker(professions);
-                CreateCarWashMarker(carWash);
-                CreateTowTruckMarker(towTruck);
+                CreateCarWashMarker(carWash, activityManager);
+                CreateTowTruckMarker(towTruck, activityManager);
                 CreateTowCheckpointMarker(towTruck);
 
                 CreateCamera(
@@ -1288,7 +1288,8 @@ namespace MotorCity.Bootstrap
         }
 
         private static void CreateCarWashMarker(
-            CarWashJobSystem carWash)
+            CarWashJobSystem carWash,
+            ActivityManager activityManager)
         {
             if (carWash == null)
                 return;
@@ -1310,11 +1311,14 @@ namespace MotorCity.Bootstrap
                     0.10f,
                     0.82f,
                     1f),
-                CheckpointBeaconStyle.Profession);
+                CheckpointBeaconStyle.Profession,
+                activityManager,
+                "profession_carwash");
         }
 
         private static void CreateTowTruckMarker(
-            TowTruckJobSystem towTruck)
+            TowTruckJobSystem towTruck,
+            ActivityManager activityManager)
         {
             if (towTruck == null)
                 return;
@@ -1336,11 +1340,14 @@ namespace MotorCity.Bootstrap
                     1f,
                     0.56f,
                     0.06f),
-                CheckpointBeaconStyle.Tow);
+                CheckpointBeaconStyle.Tow,
+                activityManager,
+                "profession_tow");
         }
 
         private static void CreateProfessionMarkers(
-            CityProfessionSystem professions)
+            CityProfessionSystem professions,
+            ActivityManager activityManager)
         {
             if (professions == null)
                 return;
@@ -1367,7 +1374,9 @@ namespace MotorCity.Bootstrap
                         1f,
                         0.68f,
                         0.10f),
-                    CheckpointBeaconStyle.Profession);
+                    CheckpointBeaconStyle.Profession,
+                    activityManager,
+                    professions.GetStartActivityId(i));
             }
         }
 
@@ -1423,7 +1432,8 @@ namespace MotorCity.Bootstrap
         }
 
         private static void CreateDiscoveryMarkers(
-            DiscoverySystem discoveries)
+            DiscoverySystem discoveries,
+            ActivityManager activityManager)
         {
             if (discoveries == null)
                 return;
@@ -1440,12 +1450,14 @@ namespace MotorCity.Bootstrap
 
                 visual.Bind(
                     discoveries,
-                    i);
+                    i,
+                    activityManager);
             }
         }
 
         private static void CreateUndergroundMarker(
-            UndergroundSceneSystem underground)
+            UndergroundSceneSystem underground,
+            ActivityManager activityManager)
         {
             if (underground == null)
                 return;
@@ -1462,7 +1474,8 @@ namespace MotorCity.Bootstrap
                     UndergroundMarkerVisual>();
 
             visual.Bind(
-                underground);
+                underground,
+                activityManager);
         }
 
         private static void CreateGarageMarker(
