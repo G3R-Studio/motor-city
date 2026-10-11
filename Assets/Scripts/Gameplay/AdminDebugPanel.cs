@@ -1771,6 +1771,10 @@ namespace MotorCity.Gameplay
 
             if (pixie != null)
             {
+                GUILayout.Label(
+                    "ПИКСИ • проигрывается клип: " +
+                    pixie.EditorCurrentAnimationClip);
+
                 GUILayout.BeginHorizontal();
                 GUILayout.Label(
                     "Высота на крыше: " +

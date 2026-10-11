@@ -50,6 +50,28 @@ namespace MotorCity.Gameplay
 
         public float EditorRoofHeightOffset => editorRoofHeightOffset;
 
+        // Actual Animator clip, useful if a third-party animation produces
+        // an unexpected bind/T-pose during Editor QA.
+        public string EditorCurrentAnimationClip
+        {
+            get
+            {
+                if (externalAnimator == null ||
+                    !externalAnimator.isActiveAndEnabled ||
+                    externalAnimator.runtimeAnimatorController == null)
+                {
+                    return "Animator отсутствует";
+                }
+
+                AnimatorClipInfo[] clips =
+                    externalAnimator.GetCurrentAnimatorClipInfo(0);
+
+                return clips.Length > 0 && clips[0].clip != null
+                    ? clips[0].clip.name
+                    : "нет активного клипа";
+            }
+        }
+
         public void SetEditorRoofHeightOffset(float offsetMeters)
         {
             editorRoofHeightOffset =
@@ -1098,13 +1120,20 @@ namespace MotorCity.Gameplay
             if (!usingHaonVisual || externalAnimator == null)
                 return;
 
-            // SapphiArt has authored idle-to-running transitions.
-            // Pixie never walks or runs on the roof, even during a
-            // victory/boost reaction or while the car is moving.
+            // The source SapphiArt controller supports walk, run and a
+            // "default" pose that can show the bind/T-pose on this rig.
+            // We only request known playable idle/winpose/jump clips.
+            // Leave its third-party controller asset unchanged.
             if (useSupporterPixieSkin)
             {
                 externalAnimator.SetBool(
                     "param_idletorunning",
+                    false);
+                externalAnimator.SetBool(
+                    "param_idletowalk",
+                    false);
+                externalAnimator.SetBool(
+                    "param_idletodefault",
                     false);
             }
 
@@ -1162,11 +1191,14 @@ namespace MotorCity.Gameplay
                 ambientPoseTimer = 0f;
                 nextAmbientPoseSeconds = UnityEngine.Random.Range(6f, 12f);
 
-                // Randomly pick one of the OTHER two poses, never the same.
-                // HAON: StandA / StandB / StandC.
-                // Kisora: idle / idle / default (plus rare winpose/jump).
-                ambientPoseIndex =
-                    (ambientPoseIndex + UnityEngine.Random.Range(1, 3)) % 3;
+                // HAON safely alternates StandA / StandB / StandC.
+                // SapphiArt's "default" clip may show a T-pose, so its
+                // passive state stays on the verified looping "idle".
+                // Variety for that skin comes from occasional winpose/jump
+                // reactions, NOT a bind-pose-like ambient state.
+                ambientPoseIndex = useSupporterPixieSkin
+                    ? 0
+                    : (ambientPoseIndex + UnityEngine.Random.Range(1, 3)) % 3;
             }
 
             string state = ambientPoseIndex switch
@@ -1299,10 +1331,10 @@ namespace MotorCity.Gameplay
         {
             return pixieState switch
             {
-                "Pixie Idle Alt" => "default",
                 "Pixie Victory" or "Pixie Clap" => "winpose",
                 "Pixie Boost" or "Pixie Playful Jump" => "jump",
-                "Pixie Roof Pose" or "Pixie Idle" => "idle",
+                "Pixie Roof Pose" or "Pixie Idle Alt" or
+                "Pixie Idle" => "idle",
                 _ => "idle"
             };
         }

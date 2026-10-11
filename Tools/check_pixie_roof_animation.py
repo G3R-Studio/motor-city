@@ -55,7 +55,19 @@ checks = {
         'mappedState == "running"' not in SOURCE and
         '"running"' not in SOURCE,
     "exclusive run disabled": '"param_idletorunning",\n                    false' in SOURCE,
-    "exclusive default pose": '"Pixie Idle Alt" => "default"' in SOURCE,
+    "exclusive avoids T-pose-like default state": (
+        '"Pixie Idle Alt" => "default"' not in SOURCE and
+        '"Pixie Roof Pose" or "Pixie Idle Alt" or' in SOURCE and
+        '"Pixie Idle" => "idle"' in SOURCE and
+        'ambientPoseIndex = useSupporterPixieSkin' in SOURCE and
+        '"param_idletodefault",\n                    false' in SOURCE and
+        '"param_idletowalk",\n                    false' in SOURCE
+    ),
+    "Editor names current clip for diagnosis": (
+        'GetCurrentAnimatorClipInfo(0)' in SOURCE and
+        "pixie.EditorCurrentAnimationClip" in
+        (ROOT / "Assets/Scripts/Gameplay/AdminDebugPanel.cs").read_text(encoding="utf-8-sig")
+    ),
     "random poses": (
         "Random.Range(6f, 12f)" in SOURCE and
         "ambientPoseIndex + UnityEngine.Random.Range(1, 3)" in SOURCE
