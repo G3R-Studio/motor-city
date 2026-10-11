@@ -40,6 +40,19 @@ namespace MotorCity.Gameplay
                 ? 0
                 : missions.Length;
 
+        // Read-only counts shared with the narrative mission HUD. These
+        // getters do not evaluate, complete or save a mission.
+        public int CurrentMissionProgress =>
+            IsComplete ? 0 : Mathf.Max(0, progress);
+
+        public int CurrentMissionTarget =>
+            IsComplete || CurrentMission() == null
+                ? 0 : CurrentMission().Target;
+
+        public int RemainingForCurrentMission =>
+            Mathf.Max(0, CurrentMissionTarget - CurrentMissionProgress);
+
+
         public string RequiredActivityId
         {
             get
