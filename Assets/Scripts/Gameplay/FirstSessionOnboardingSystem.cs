@@ -141,7 +141,7 @@ namespace MotorCity.Gameplay
 
                         _ =>
                             pixie != null
-                                ? turbo.DailyObjectiveLine
+                                ? pixie.DailyObjectiveLine
                                 : MotorCityLocalization.Text(
                                     "onboarding.daily")
                     };

@@ -70,6 +70,14 @@ require("pixie?.AddXp(" in STORY and "pixie?.AddXp(" in SEASON,
         "Narrator mission XP should still be awarded to Pixie")
 require("ActivatePixieBoost(" in vehicle and "ActivatePixieBoost(" in pixie,
         "Pixie driving boost contract broke")
+for script in (
+    SCRIPTS / "Bootstrap/MotorCityBootstrap.cs",
+    GAME / "FirstSessionOnboardingSystem.cs",
+    GAME / "AdventureDirector.cs",
+    SCRIPTS / "UI/PrototypeHud.cs",
+):
+    require(not re.search(r'(?<![."\\w])turbo\\s*(?:\\?\\.|\\.)', source(script)),
+            f"Old Turbo pet variable access remained: {script.relative_to(ROOT)}")
 require('{ "pixie.title", E("ПИКСИ", "PIXIE") }' in LOC and
         '{ "ux.pixie.title", E("ПИКСИ", "PIXIE") }' in LOC,
         "Pixie HUD and UX titles must explicitly show PIXIE in RU/EN")

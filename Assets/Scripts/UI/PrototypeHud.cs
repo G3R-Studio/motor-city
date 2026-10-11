@@ -1256,11 +1256,11 @@ namespace MotorCity.UI
                     "\n\n",
                     MotorCityLocalization.Format(
                         "ux.pixie.progress",
-                        turbo.Level,
-                        turbo.Xp),
+                        pixie.Level,
+                        pixie.Xp),
                     MotorCityLocalization.Format(
                         "ux.pixie.daily",
-                        turbo.DailyObjectiveLine));
+                        pixie.DailyObjectiveLine));
             }
         }
 

@@ -524,7 +524,7 @@ namespace MotorCity.Bootstrap
                 pixie =
                     systems.AddComponent<PixieCompanionSystem>();
 
-                turbo.Initialize(
+                pixie.Initialize(
                     car,
                     wallet,
                     activityManager,

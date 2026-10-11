@@ -457,7 +457,7 @@ namespace MotorCity.Gameplay
                 return null;
 
             string objective =
-                turbo.DailyObjectiveLine;
+                pixie.DailyObjectiveLine;
 
             if (string.IsNullOrWhiteSpace(
                     objective))
