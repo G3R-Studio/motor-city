@@ -126,7 +126,7 @@ namespace MotorCity.UI
                     "Navigator Destination Card",
                     new Vector2(
                         0f,
-                        -5f),
+                        28f),
                     new Vector2(
                         478f,
                         140f),
