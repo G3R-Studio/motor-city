@@ -1234,6 +1234,140 @@ namespace MotorCity.UI
                 MotorCityLocalization.Text("ux.catalog.next.record"));
         }
 
+        private void AppendPlayerExperienceDriftCards(System.Text.StringBuilder sb)
+        {
+            string score = drift != null && drift.BestDrift > 0
+                ? MotorCityLocalization.Format("ux.catalog.drift_best", drift.BestDrift)
+                : MotorCityLocalization.Text("ux.catalog.drift_best_empty");
+            string level = PlayerExperienceDisciplineLevelLine(
+                DisciplineType.Drift, "ux.catalog.drift_level");
+            string elite = MotorCityLocalization.Format(
+                driftChallenge.CatalogEliteUnlocked
+                    ? "ux.catalog.drift_elite_open"
+                    : "ux.catalog.drift_elite_locked",
+                driftChallenge.CatalogEliteRequiredLevel);
+            AppendPlayerExperienceCard(sb,
+                MotorCityLocalization.Text("ux.catalog.name.driftchallenge"),
+                MotorCityLocalization.Text("ux.catalog.about.drift"),
+                MotorCityLocalization.Text("ux.catalog.start.drift"),
+                PlayerExperienceCatalogAccess("drift") + "\n" + level + "\n" + elite,
+                score + "\n" + MotorCityLocalization.Format("ux.catalog.drift_thresholds",
+                    driftChallenge.TargetScore, driftChallenge.CatalogSilverTargetScore,
+                    driftChallenge.CatalogGoldTargetScore,
+                    driftChallenge.CatalogLegendaryTargetScore),
+                MotorCityLocalization.Format("ux.catalog.drift_rewards",
+                    driftChallenge.RewardCredits,
+                    driftChallenge.CatalogSilverRewardCredits,
+                    driftChallenge.CatalogGoldRewardCredits,
+                    driftChallenge.CatalogLegendaryRewardCredits),
+                driftChallenge.CatalogEliteUnlocked
+                    ? MotorCityLocalization.Text("ux.catalog.next.record")
+                    : MotorCityLocalization.Format("ux.catalog.next.elite",
+                        driftChallenge.CatalogEliteRequiredLevel));
+
+            if (driftSpots == null)
+                return;
+            for (int i = 0; i < driftSpots.SpotCount; i++)
+            {
+                string name = driftSpots.GetSpotName(i);
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                int medal = driftSpots.GetSpotHighestMedal(i);
+                int best = driftSpots.GetSpotBestScore(i);
+                string record = MotorCityLocalization.Format(
+                    best > 0 ? "ux.catalog.drift_spot_record"
+                        : "ux.catalog.drift_spot_no_record",
+                    name, best) + "\n" +
+                    MotorCityLocalization.Format("ux.catalog.drift_spot_targets",
+                        driftSpots.GetSpotBronzeTarget(i),
+                        driftSpots.GetSpotSilverTarget(i),
+                        driftSpots.GetSpotGoldTarget(i)) + "\n" +
+                    MotorCityLocalization.Format("ux.catalog.drift_spot_medal",
+                        PlayerExperienceCatalogMedal(medal));
+                AppendPlayerExperienceCard(sb, name,
+                    MotorCityLocalization.Text("ux.catalog.about.drift"),
+                    MotorCityLocalization.Text("ux.catalog.start.drift"),
+                    activityManager.IsBusy
+                        ? MotorCityLocalization.Text("ux.catalog.access.busy")
+                        : MotorCityLocalization.Text("ux.catalog.access.passive"),
+                    record, MotorCityLocalization.Text("ux.catalog.driftzone_reward"),
+                    PlayerExperienceNextMedal(medal));
+            }
+        }
+
+        private void AppendPlayerExperienceJobCards(System.Text.StringBuilder sb)
+        {
+            string deliveryLevel = PlayerExperienceDisciplineLevelLine(
+                DisciplineType.Delivery, "ux.catalog.delivery_level");
+            string elite = MotorCityLocalization.Format(
+                delivery.EliteUnlocked
+                    ? "ux.catalog.delivery_elite_unlocked"
+                    : "ux.catalog.delivery_elite",
+                delivery.EliteRequiredDisciplineLevel);
+            AppendPlayerExperienceCard(sb,
+                MotorCityLocalization.Text("ux.catalog.name.delivery"),
+                MotorCityLocalization.Text("ux.catalog.about.delivery"),
+                MotorCityLocalization.Text("ux.catalog.start.race"),
+                PlayerExperienceCatalogAccess("delivery") + "\n" + deliveryLevel + "\n" + elite,
+                FormatPlayerExperienceBestTime(delivery.BestTimeSeconds) + "\n" +
+                    MotorCityLocalization.Format("ux.catalog.delivery_times",
+                        delivery.CatalogGoldTimeSeconds,
+                        delivery.CatalogSilverTimeSeconds,
+                        delivery.CatalogBronzeTimeSeconds),
+                MotorCityLocalization.Format("ux.catalog.delivery_payouts",
+                    delivery.RewardCredits, delivery.CatalogSilverRewardCredits,
+                    delivery.CatalogBronzeRewardCredits,
+                    delivery.CatalogCompletionRewardCredits),
+                delivery.EliteUnlocked
+                    ? MotorCityLocalization.Text("ux.catalog.next.record")
+                    : MotorCityLocalization.Format("ux.catalog.next.elite",
+                        delivery.EliteRequiredDisciplineLevel));
+
+            string nextProfession = professions.CompletionsUntilNextLevel == 0
+                ? MotorCityLocalization.Text("ux.catalog.prof.max")
+                : MotorCityLocalization.Format("ux.catalog.next.prof",
+                    professions.CompletionsUntilNextLevel);
+            for (int i = 0; i < professions.StartCount; i++)
+            {
+                string name = professions.GetStartName(i);
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+                AppendPlayerExperienceCard(sb, name,
+                    MotorCityLocalization.Text("ux.catalog.about.profession"),
+                    MotorCityLocalization.Text("ux.catalog.start.profession"),
+                    PlayerExperienceCatalogAccess(professions.GetStartActivityId(i)),
+                    MotorCityLocalization.Format("ux.catalog.profession_line",
+                        professions.GetStartCompletedCount(i),
+                        professions.GetStartNextRewardCredits(i)),
+                    MotorCityLocalization.Format("ux.catalog.tow_reward",
+                        professions.GetStartNextRewardCredits(i)),
+                    nextProfession);
+            }
+            if (carWash != null)
+                AppendPlayerExperienceCard(sb,
+                    MotorCityLocalization.Text("carwash.title"),
+                    MotorCityLocalization.Text("ux.catalog.about.carwash"),
+                    MotorCityLocalization.Text("ux.catalog.start.carwash"),
+                    PlayerExperienceCatalogAccess("profession_carwash"),
+                    MotorCityLocalization.Format("ux.activities.professions",
+                        professions.StartCount, professions.TotalCompleted),
+                    MotorCityLocalization.Format("ux.catalog.tow_reward",
+                        carWash.CatalogNextRewardCredits), nextProfession);
+            if (towTruck != null)
+                AppendPlayerExperienceCard(sb,
+                    MotorCityLocalization.Text("tow.title"),
+                    MotorCityLocalization.Text("ux.catalog.about.tow"),
+                    MotorCityLocalization.Text("ux.catalog.start.tow"),
+                    PlayerExperienceCatalogAccess("profession_tow"),
+                    MotorCityLocalization.Format("ux.activities.professions",
+                        professions.StartCount, professions.TotalCompleted),
+                    MotorCityLocalization.Format("ux.catalog.tow_reward",
+                        towTruck.CatalogNextRewardCredits), nextProfession);
+            if (vehicleSpecialization != null)
+                sb.Append("\n\n").Append(MotorCityLocalization.Format(
+                    "ux.catalog.vehicle_tip", vehicleSpecialization.GarageCompactLine));
+        }
+
         private string PlayerExperienceActiveActivityLine()
         {
             string activityKey = null;
