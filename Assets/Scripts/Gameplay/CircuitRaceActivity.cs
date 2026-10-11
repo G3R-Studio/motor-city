@@ -41,7 +41,9 @@ namespace MotorCity.Gameplay
         private float lapStartElapsedSeconds;
         private float sessionBestLapSeconds;
 
-        public bool IsActive { get; private set; }
+        public bool IsActive { get; private set; } 
+        public int CatalogBaseRewardCredits => baseRewardCredits;
+
         public bool IsCountingDown => isCountingDown;
         public bool IsNearStart { get; private set; }
         public float ElapsedSeconds { get; private set; }
