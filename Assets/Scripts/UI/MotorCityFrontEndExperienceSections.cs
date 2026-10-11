@@ -61,13 +61,9 @@ namespace MotorCity.UI
                 64f,
                 new Color(0.72f, 0.80f, 0.94f, 1f));
 
-            CreateFrontEndFlexibleSpacer(
-                activities.Content,
-                "Player Experience Activities Spacer");
-
             RectTransform activitiesBack =
                 CreateFrontEndActionRow(
-                    activities.Content,
+                    activities.Footer,
                     "Player Experience Activities Back",
                     58f);
 
@@ -117,13 +113,9 @@ namespace MotorCity.UI
                 70f,
                 new Color(0.72f, 0.80f, 0.94f, 1f));
 
-            CreateFrontEndFlexibleSpacer(
-                journal.Content,
-                "Player Experience Journal Spacer");
-
             RectTransform journalBack =
                 CreateFrontEndActionRow(
-                    journal.Content,
+                    journal.Footer,
                     "Player Experience Journal Back",
                     58f);
 
@@ -208,13 +200,9 @@ namespace MotorCity.UI
                 90f,
                 new Color(0.72f, 0.80f, 0.94f, 1f));
 
-            CreateFrontEndFlexibleSpacer(
-                page.Content,
-                name + " Spacer");
-
             RectTransform backRow =
                 CreateFrontEndActionRow(
-                    page.Content,
+                    page.Footer,
                     name + " Back",
                     58f);
 
@@ -278,6 +266,15 @@ namespace MotorCity.UI
                 RefreshPlayerExperience();
             else
                 RefreshPlayerExperienceSections();
+
+            // Every page starts at the beginning rather than retaining
+            // the previous section's scrollbar position.
+            GameObject active = selected ?? playerExperienceHomePanel;
+            ScrollRect scroll = active == null
+                ? null
+                : active.GetComponentInChildren<ScrollRect>();
+            if (scroll != null)
+                scroll.verticalNormalizedPosition = 1f;
         }
 
         private void HandlePlayerExperienceBack()
@@ -333,6 +330,8 @@ namespace MotorCity.UI
                         ? MotorCityLocalization.Text("ux.sections.not_ready")
                         : hud.PlayerExperiencePixieLine;
             }
+
+            RefreshPlayerExperienceTextHeights();
         }
     }
 }
