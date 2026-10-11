@@ -1355,8 +1355,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.about.carwash"),
                     MotorCityLocalization.Text("ux.catalog.start.carwash"),
                     PlayerExperienceCatalogAccess("profession_carwash"),
-                    MotorCityLocalization.Format("ux.activities.professions",
-                        professions.StartCount, professions.TotalCompleted),
+                    MotorCityLocalization.Text("ux.catalog.no_records"),
                     MotorCityLocalization.Format("ux.catalog.tow_reward",
                         carWash.CatalogNextRewardCredits), nextProfession);
             if (towTruck != null)
@@ -1365,8 +1364,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.about.tow"),
                     MotorCityLocalization.Text("ux.catalog.start.tow"),
                     PlayerExperienceCatalogAccess("profession_tow"),
-                    MotorCityLocalization.Format("ux.activities.professions",
-                        professions.StartCount, professions.TotalCompleted),
+                    MotorCityLocalization.Text("ux.catalog.no_records"),
                     MotorCityLocalization.Format("ux.catalog.tow_reward",
                         towTruck.CatalogNextRewardCredits), nextProfession);
             if (vehicleSpecialization != null)
@@ -1479,7 +1477,9 @@ namespace MotorCity.UI
                     PlayerExperienceCatalogReward(
                         legends.CatalogCurrentCreditsReward,
                         legends.CatalogCurrentReputationReward),
-                    MotorCityLocalization.Text("ux.catalog.next.story"));
+                    legends.AllLegendsDefeated
+                        ? MotorCityLocalization.Text("ux.catalog.completed")
+                        : MotorCityLocalization.Text("ux.catalog.next.story"));
 
             if (underground != null)
             {
@@ -1500,7 +1500,9 @@ namespace MotorCity.UI
                     PlayerExperienceCatalogReward(
                         underground.CatalogCurrentCreditsReward,
                         underground.CatalogCurrentReputationReward),
-                    MotorCityLocalization.Text("ux.catalog.next.story"));
+                    underground.CatalogSeriesComplete
+                        ? MotorCityLocalization.Text("ux.catalog.completed")
+                        : MotorCityLocalization.Text("ux.catalog.next.story"));
             }
         }
 
