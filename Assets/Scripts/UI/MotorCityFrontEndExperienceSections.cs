@@ -396,9 +396,10 @@ namespace MotorCity.UI
                 }
             }
 
-            // Re-evaluate overflow after this page has become active and
-            // its body text has been refreshed. A scroll hint never appears
-            // on pages that fit without scrolling.
+            // Rebuild layout after the active page receives its live
+            // snapshot, then re-evaluate actual overflow and scroll cues.
+            // This also covers long translated goals and narrow phones.
+            Canvas.ForceUpdateCanvases();
             RefreshFrontEndScrollCues();
         }
 
