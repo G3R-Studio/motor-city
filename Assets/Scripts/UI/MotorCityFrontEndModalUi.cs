@@ -467,9 +467,9 @@ namespace MotorCity.UI
                 if (element == null)
                     continue;
 
-                float width = Mathf.Min(
-                    button.gameObject.name.Contains("Control") ? 220f : 320f,
-                    availableWidth);
+                float preferred = panel.name == "Control Choice Panel"
+                    ? 220f : 320f;
+                float width = Mathf.Min(preferred, availableWidth);
                 element.minWidth = width;
                 element.preferredWidth = width;
             }
