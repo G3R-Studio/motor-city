@@ -46,6 +46,11 @@ namespace MotorCity.Gameplay
         public int CheckpointIndex => checkpointIndex;
         public int CheckpointCount => route?.Length ?? 0;
         public int RewardCredits => goldRewardCredits;
+        public int EliteRequiredDisciplineLevel => EliteRequiredLevel;
+        public bool EliteUnlocked =>
+            activityManager != null &&
+            activityManager.HasDisciplineLevel(
+                DisciplineType.Delivery, EliteRequiredLevel);
 
         public Vector3 CurrentTarget =>
             route == null || route.Length == 0
