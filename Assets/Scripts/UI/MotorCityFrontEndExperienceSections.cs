@@ -2,6 +2,7 @@ using MotorCity.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace MotorCity.UI
 {
@@ -355,6 +356,70 @@ namespace MotorCity.UI
             // its body text has been refreshed. A scroll hint never appears
             // on pages that fit without scrolling.
             RefreshFrontEndScrollCues();
+        }
+
+        // Optional keyboard/controller-friendly document scrolling.
+        // No new gameplay shortcuts: these keys are read only while this
+        // front-end page is visible (also works while gameplay is paused).
+        private void HandlePlayerExperienceScrollShortcuts()
+        {
+            if (playerExperienceRoot == null ||
+                !playerExperienceRoot.activeInHierarchy ||
+                Keyboard.current == null)
+                return;
+
+            Keyboard keyboard = Keyboard.current;
+            bool down = keyboard.pageDownKey.wasPressedThisFrame;
+            bool up = keyboard.pageUpKey.wasPressedThisFrame;
+            bool home = keyboard.homeKey.wasPressedThisFrame;
+            bool end = keyboard.endKey.wasPressedThisFrame;
+            if (!down && !up && !home && !end)
+                return;
+
+            GameObject active = playerExperienceHomePanel;
+            GameObject[] details =
+            {
+                playerExperienceActivitiesPanel,
+                playerExperienceJournalPanel,
+                playerExperienceClubPanel,
+                playerExperienceInspectorPanel,
+                playerExperiencePixiePanel,
+                playerExperienceGaragePanel,
+                playerExperienceAchievementsPanel,
+                playerExperienceNightClubPanel
+            };
+            foreach (GameObject detail in details)
+            {
+                if (detail != null && detail.activeSelf)
+                {
+                    active = detail;
+                    break;
+                }
+            }
+
+            ScrollRect scroll = active == null
+                ? null
+                : active.GetComponentInChildren<ScrollRect>();
+            if (scroll == null || scroll.content == null ||
+                scroll.viewport == null)
+                return;
+
+            float contentHeight = scroll.content.rect.height;
+            float viewportHeight = scroll.viewport.rect.height;
+            if (contentHeight <= viewportHeight + 4f)
+                return;
+
+            if (home || end)
+            {
+                scroll.verticalNormalizedPosition = home ? 1f : 0f;
+                return;
+            }
+
+            float page = Mathf.Clamp(
+                viewportHeight / contentHeight * 0.85f,
+                0.08f, 1f);
+            scroll.verticalNormalizedPosition = Mathf.Clamp01(
+                scroll.verticalNormalizedPosition + (up ? page : -page));
         }
 
         private void HandlePlayerExperienceBack()
