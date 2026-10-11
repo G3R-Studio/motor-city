@@ -1167,8 +1167,11 @@ namespace MotorCity.UI
                         circuitRace.CatalogBaseRewardCredits),
                     MotorCityLocalization.Text("ux.catalog.drift") + "\n" +
                     (drift == null ? string.Empty
-                        : MotorCityLocalization.Format(
-                            "ux.catalog.drift_best", drift.BestDrift) + "\n") +
+                        : (drift.BestDrift > 0
+                            ? MotorCityLocalization.Format(
+                                "ux.catalog.drift_best", drift.BestDrift)
+                            : MotorCityLocalization.Text(
+                                "ux.catalog.drift_best_empty")) + "\n") +
                     PlayerExperienceDriftZoneRecords() +
                     MotorCityLocalization.Format(
                         "ux.catalog.drift_thresholds",
