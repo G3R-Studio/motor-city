@@ -1,0 +1,115 @@
+name: Motor City GitHub Pages Preview
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/motor-city-pages.yml
+      - Tools/prepare_pages_webgl.py
+  workflow_dispatch:
+    inputs:
+      release_run_id:
+        description: Successful Phase 12 CI run containing Desktop + Mobile WebGL Release artifacts
+        required: true
+        type: string
+        default: '38095910625'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: motor-city-pages
+  cancel-in-progress: true
+
+jobs:
+  stage:
+    name: Prepare existing Desktop and Mobile WebGL Release artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify completed release build and record immutable source SHA
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_RUN_ID: ${{ inputs.release_run_id || '38095910625' }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_RUN_ID" =~ ^[0-9]+$ ]] || { echo "Invalid release run ID"; exit 1; }
+          release="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RELEASE_RUN_ID")"
+          result="$(jq -r '.conclusion' <<< "$release")"
+          [[ "$result" == "success" ]] || { echo "Release CI run $RELEASE_RUN_ID did not succeed: $result"; exit 1; }
+          release_sha="$(jq -r '.head_sha' <<< "$release")"
+          [[ "$release_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "Invalid release commit SHA"; exit 1; }
+          echo "RELEASE_RUN_ID=$RELEASE_RUN_ID" >> "$GITHUB_ENV"
+          echo "RELEASE_SHA=$release_sha" >> "$GITHUB_ENV"
+          echo "Using WebGL Release artifacts from run $RELEASE_RUN_ID commit $release_sha"
+
+      - name: Download CI Desktop WebGL Release
+        uses: actions/download-artifact@v4
+        with:
+          name: motor-city-webgl-desktop-release
+          run-id: ${{ inputs.release_run_id || '38095910625' }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: downloads/desktop
+
+      - name: Download CI Mobile WebGL Release
+        uses: actions/download-artifact@v4
+        with:
+          name: motor-city-webgl-mobile-release
+          run-id: ${{ inputs.release_run_id || '38095910625' }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: downloads/mobile
+
+      - name: Install Brotli utility
+        run: python3 -m pip install --disable-pip-version-check brotli==1.1.0
+
+      - name: Convert Release binaries for static GitHub Pages (no Brotli headers needed)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 Tools/prepare_pages_webgl.py \
+            --desktop downloads/desktop \
+            --mobile downloads/mobile \
+            --output _site \
+            --release-sha "$RELEASE_SHA" \
+            --release-run "$RELEASE_RUN_ID"
+          test -f _site/index.html
+          test -f _site/desktop/index.html
+          test -f _site/mobile/index.html
+          test -f _site/desktop/Build/*.wasm
+          test -f _site/mobile/Build/*.wasm
+          if find _site -name '*.br' | grep -q .; then
+            echo "Refusing to deploy Brotli assets without Content-Encoding headers"
+            exit 1
+          fi
+
+      - name: Upload GitHub Pages website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    name: Publish GitHub Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: stage
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Configure GitHub Pages (requires repository Settings → Pages → Source → GitHub Actions)
+        uses: actions/configure-pages@v5
+
+      - name: Deploy WebGL preview
+        id: deployment
+        uses: actions/deploy-pages@v4
