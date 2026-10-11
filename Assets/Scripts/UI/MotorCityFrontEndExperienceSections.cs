@@ -28,6 +28,7 @@ namespace MotorCity.UI
         private Text playerExperienceAchievementsText;
         private Text playerExperienceNightClubText;
         private GameObject playerExperienceLastOverviewSelection;
+        private GameObject lastCareerFocus;
 
         private void BuildPlayerExperienceSections()
         {
