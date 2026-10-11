@@ -16,6 +16,18 @@ namespace MotorCity.UI
         private Vector2Int lastPlayerExperienceLayoutSize;
         private Rect lastPlayerExperienceSafeArea;
         private float lastPlayerExperienceCanvasScale;
+        private RectTransform controlChoiceModalPanel;
+
+        private sealed class FrontEndScrollCue
+        {
+            public ScrollRect Scroll;
+            public RectTransform Handle;
+            public GameObject Track;
+            public Text Hint;
+        }
+
+        private readonly System.Collections.Generic.List<FrontEndScrollCue>
+            frontEndScrollCues = new();
 
         private readonly struct FrontEndModalWindow
         {
@@ -51,7 +63,10 @@ namespace MotorCity.UI
                     Vector2.zero,
                     size);
 
-            playerExperienceModalPanels.Add(panel);
+            if (parent == playerExperienceRoot.transform)
+                playerExperienceModalPanels.Add(panel);
+            else if (parent == controlChoiceRoot.transform)
+                controlChoiceModalPanel = panel;
 
             Text titleText =
                 CreateText(
@@ -141,6 +156,14 @@ namespace MotorCity.UI
             scroll.scrollSensitivity = 35f;
             scroll.inertia = true;
 
+            // A left-side position marker and a down hint are visible
+            // only when the scroll content overflows the viewport.
+            FrontEndScrollCue cue = CreateFrontEndScrollCue(
+                panel, scroll, headerHeight);
+            frontEndScrollCues.Add(cue);
+            scroll.onValueChanged.AddListener(
+                _ => UpdateFrontEndScrollCue(cue));
+
             RectTransform footer =
                 new GameObject(
                     objectName + " Footer",
@@ -203,6 +226,18 @@ namespace MotorCity.UI
                 Mathf.Min(1020f, Mathf.Max(1f, safe.width / scale - 48f)),
                 Mathf.Min(730f, Mathf.Max(1f, safe.height / scale - 48f)));
 
+            // The control selection window must not inherit the much
+            // taller career overview dimensions.
+            if (controlChoiceModalPanel != null)
+            {
+                controlChoiceModalPanel.anchoredPosition = position;
+                controlChoiceModalPanel.sizeDelta = new Vector2(
+                    Mathf.Min(980f,
+                        Mathf.Max(1f, safe.width / scale - 32f)),
+                    Mathf.Min(576f,
+                        Mathf.Max(1f, safe.height / scale - 32f)));
+            }
+
             foreach (RectTransform panel in playerExperienceModalPanels)
             {
                 if (panel == null)
@@ -226,6 +261,7 @@ namespace MotorCity.UI
                 panelSize.x - 2f * FrontEndModalHorizontalPadding, stacked);
             Canvas.ForceUpdateCanvases();
             RefreshPlayerExperienceTextHeights();
+            RefreshFrontEndScrollCues();
         }
 
         private static void ConfigurePlayerExperienceActionRow(
