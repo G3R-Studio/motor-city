@@ -72,9 +72,27 @@ checks = {
         '"Pixie Idle Alt" => "default"' not in SOURCE and
         '"Pixie Roof Pose" or "Pixie Idle Alt" or' in SOURCE and
         '"Pixie Idle" => "idle"' in SOURCE and
-        'ambientPoseIndex = useSupporterPixieSkin' in SOURCE and
+        'ambientPoseIndex = usingKisoraVisual' in SOURCE and
         '"param_idletodefault",\n                    false' in SOURCE and
         '"param_idletowalk",\n                    false' in SOURCE
+    ),
+    "EX prefab fallback uses HAON rig and roof offset": (
+        'usingKisoraVisual = authoredPrefab != null;' in SOURCE and
+        'ActiveSkinRoofHeightOffset =>\\n            usingKisoraVisual' in SOURCE and
+        'string mappedState =\\n                usingKisoraVisual' in SOURCE and
+        'if (usingKisoraVisual)' in SOURCE and
+        'usingKisoraVisual =\\n                false;' in SOURCE
+    ),
+    "Editor identifies effective rig and missing EX": (
+        'public string EditorActiveVisual =>' in SOURCE and
+        'public bool EditorExclusiveSkinFallback =>' in SOURCE and
+        'pixie.EditorActiveVisual' in
+        (ROOT / "Assets/Scripts/Gameplay/AdminDebugPanel.cs").read_text(encoding="utf-8-sig") and
+        'pixie.EditorExclusiveSkinFallback' in
+        (ROOT / "Assets/Scripts/Gameplay/AdminDebugPanel.cs").read_text(encoding="utf-8-sig")
+    ),
+    "skin switch hides old rig before delayed destroy": (
+        'visualRoot.SetActive(false);\\n                Destroy(' in SOURCE
     ),
     "Editor names current clip for diagnosis": (
         'GetCurrentAnimatorClipInfo(0)' in SOURCE and
