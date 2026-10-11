@@ -29,6 +29,23 @@ namespace MotorCity.UI
         private readonly System.Collections.Generic.List<FrontEndScrollCue>
             frontEndScrollCues = new();
 
+        // Only small-height safe areas need compact header/footer geometry.
+        // Keep each window's original dimensions for a reversible resize.
+        private sealed class FrontEndModalFrame
+        {
+            public RectTransform Panel;
+            public RectTransform Viewport;
+            public RectTransform Footer;
+            public RectTransform Title;
+            public RectTransform Close;
+            public RectTransform ScrollTrack;
+            public RectTransform ScrollArrow;
+            public float HeaderHeight;
+        }
+
+        private readonly System.Collections.Generic.List<FrontEndModalFrame>
+            frontEndModalFrames = new();
+
         private readonly struct FrontEndModalWindow
         {
             public readonly RectTransform Panel;
@@ -198,6 +215,20 @@ namespace MotorCity.UI
             footerLayout.childForceExpandHeight = false;
             footerLayout.spacing = 0f;
 
+            frontEndModalFrames.Add(new FrontEndModalFrame
+            {
+                Panel = panel,
+                Viewport = viewport,
+                Footer = footer,
+                Title = titleRect,
+                Close = showCloseButton && panel.Find("X Button") != null
+                    ? panel.Find("X Button").GetComponent<RectTransform>()
+                    : null,
+                ScrollTrack = cue.Track.GetComponent<RectTransform>(),
+                ScrollArrow = cue.Hint.rectTransform,
+                HeaderHeight = headerHeight
+            });
+
             return new FrontEndModalWindow(
                 panel, content, footer, titleText);
         }
@@ -286,6 +317,8 @@ namespace MotorCity.UI
             ConfigureControlChoiceActionRow(
                 controlChoiceArrowsActions, choiceContentWidth, stackChoice);
 
+            ApplyCompactFrontEndModalFrames();
+
             foreach (RectTransform panel in playerExperienceModalPanels)
                 FitFrontEndModalFooter(panel);
             FitFrontEndModalFooter(controlChoiceModalPanel);
@@ -293,6 +326,61 @@ namespace MotorCity.UI
             Canvas.ForceUpdateCanvases();
             RefreshPlayerExperienceTextHeights();
             RefreshFrontEndScrollCues();
+        }
+
+        private void ApplyCompactFrontEndModalFrames()
+        {
+            foreach (FrontEndModalFrame frame in frontEndModalFrames)
+            {
+                if (frame.Panel == null || frame.Viewport == null)
+                    continue;
+
+                float height = frame.Panel.sizeDelta.y;
+                bool compact = height < 480f;
+                float header = compact
+                    ? Mathf.Clamp(height * 0.24f, 52f, frame.HeaderHeight)
+                    : frame.HeaderHeight;
+                float footerTop = compact
+                    ? Mathf.Clamp(height * 0.24f, 58f, 86f)
+                    : 98f;
+
+                frame.Viewport.offsetMin = new Vector2(
+                    FrontEndModalHorizontalPadding,
+                    compact ? footerTop + 8f : 116f);
+                frame.Viewport.offsetMax = new Vector2(
+                    -FrontEndModalHorizontalPadding,
+                    -header - 6f);
+
+                frame.Footer.offsetMin = new Vector2(
+                    FrontEndModalHorizontalPadding,
+                    compact ? 8f : 22f);
+                frame.Footer.offsetMax = new Vector2(
+                    -FrontEndModalHorizontalPadding, footerTop);
+
+                frame.Title.anchoredPosition = new Vector2(
+                    0f, compact ? -8f : -24f);
+                frame.Title.sizeDelta = new Vector2(
+                    frame.Title.sizeDelta.x,
+                    compact ? Mathf.Max(38f, header - 12f)
+                        : frame.HeaderHeight - 34f);
+
+                if (frame.Close != null)
+                {
+                    frame.Close.anchoredPosition = compact
+                        ? new Vector2(-12f, -8f)
+                        : new Vector2(-24f, -22f);
+                    frame.Close.sizeDelta = compact
+                        ? new Vector2(44f, 44f)
+                        : new Vector2(64f, 60f);
+                }
+
+                frame.ScrollTrack.offsetMin = new Vector2(
+                    20f, compact ? footerTop + 22f : 138f);
+                frame.ScrollTrack.offsetMax = new Vector2(
+                    26f, -header - 24f);
+                frame.ScrollArrow.anchoredPosition = new Vector2(
+                    23f, compact ? footerTop - 4f : 106f);
+            }
         }
 
         private static void ConfigurePlayerExperienceActionRow(
