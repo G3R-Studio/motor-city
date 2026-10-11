@@ -50,6 +50,18 @@ namespace MotorCity.Gameplay
         public int CatalogCurrentReputationReward =>
             AllLegendsDefeated ? 0 : CurrentDefinition().Reputation;
 
+        public int CatalogCurrentNumber => Mathf.Min(legendIndex + 1, LegendCount);
+        public int CatalogTotalCount => LegendCount;
+        public string CatalogCurrentName =>
+            AllLegendsDefeated ? string.Empty : CurrentDefinition().Name;
+        public string CatalogCurrentProgress =>
+            AllLegendsDefeated ? string.Empty : ProgressText(CurrentDefinition());
+        public string CatalogCurrentRequirements =>
+            AllLegendsDefeated ? string.Empty :
+                UnlockRequirements(CurrentDefinition());
+        public bool CatalogCurrentUnlocked =>
+            !AllLegendsDefeated && IsUnlocked(CurrentDefinition());
+
         public bool AllLegendsDefeated =>
             legendIndex >=
             LegendCount;
