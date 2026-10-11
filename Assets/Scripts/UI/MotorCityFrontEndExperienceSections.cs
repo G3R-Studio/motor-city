@@ -15,6 +15,8 @@ namespace MotorCity.UI
         private GameObject playerExperienceJournalPanel;
         private Text playerExperienceActivitiesText;
         private Text playerExperienceJournalText;
+        private int playerExperienceJournalFilter;
+        private Button[] playerExperienceJournalFilterButtons;
         private GameObject playerExperienceClubPanel;
         private GameObject playerExperienceInspectorPanel;
         private GameObject playerExperiencePixiePanel;
@@ -96,6 +98,24 @@ namespace MotorCity.UI
                 TextAnchor.MiddleCenter,
                 46f,
                 new Color(0.48f, 0.76f, 1f, 1f));
+
+            // Seven read-only filters, arranged in two rows and never
+            // starting or claiming tasks.
+            playerExperienceJournalFilterButtons = new Button[7];
+            RectTransform journalFiltersTop = CreateFrontEndActionRow(
+                journal.Content, "Journal Filters Top", 50f, 8f);
+            RectTransform journalFiltersBottom = CreateFrontEndActionRow(
+                journal.Content, "Journal Filters Bottom", 50f, 8f);
+            for (int i = 0; i < playerExperienceJournalFilterButtons.Length; i++)
+            {
+                int filter = i;
+                playerExperienceJournalFilterButtons[i] =
+                    CreateFrontEndLayoutButton(
+                        i < 4 ? journalFiltersTop : journalFiltersBottom,
+                        MotorCityLocalization.Text(JournalFilterKey(i)),
+                        () => SelectPlayerExperienceJournalFilter(filter),
+                        186f, 50f);
+            }
 
             playerExperienceJournalText =
                 CreateFrontEndLayoutText(
@@ -257,6 +277,48 @@ namespace MotorCity.UI
         private void ShowPlayerExperienceActivities()
         {
             SwitchPlayerExperiencePage(playerExperienceActivitiesPanel);
+        }
+
+        private static string JournalFilterKey(int filter)
+        {
+            return filter switch
+            {
+                0 => "ux.journal.filter.story",
+                1 => "ux.journal.filter.season",
+                2 => "ux.journal.filter.today",
+                3 => "ux.journal.filter.contracts",
+                4 => "ux.journal.filter.career",
+                5 => "ux.journal.filter.legends",
+                _ => "ux.journal.filter.night"
+            };
+        }
+
+        private void SelectPlayerExperienceJournalFilter(int filter)
+        {
+            playerExperienceJournalFilter = Mathf.Clamp(filter, 0, 6);
+            RefreshPlayerExperienceJournalFilters();
+            RefreshPlayerExperienceSections(playerExperienceJournalPanel);
+            ScrollRect scroll = playerExperienceJournalPanel == null
+                ? null : playerExperienceJournalPanel.GetComponentInChildren<ScrollRect>();
+            if (scroll != null)
+            {
+                scroll.StopMovement();
+                scroll.verticalNormalizedPosition = 1f;
+            }
+        }
+
+        private void RefreshPlayerExperienceJournalFilters()
+        {
+            if (playerExperienceJournalFilterButtons == null) return;
+            for (int i = 0; i < playerExperienceJournalFilterButtons.Length; i++)
+            {
+                Button button = playerExperienceJournalFilterButtons[i];
+                if (button == null) continue;
+                Text label = button.GetComponentInChildren<Text>();
+                if (label != null)
+                    label.text = (i == playerExperienceJournalFilter ? "• " : "") +
+                        MotorCityLocalization.Text(JournalFilterKey(i));
+            }
         }
 
         private void ShowPlayerExperienceJournal()
@@ -544,7 +606,8 @@ namespace MotorCity.UI
                 playerExperienceJournalText.text =
                     hud == null
                         ? MotorCityLocalization.Text("ux.sections.not_ready")
-                        : hud.PlayerExperienceJournalLine;
+                        : hud.PlayerExperienceJournalLineForFilter(playerExperienceJournalFilter);
+                RefreshPlayerExperienceJournalFilters();
             }
 
             if (playerExperienceClubText != null &&
