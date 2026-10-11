@@ -1,3 +1,4 @@
+using MotorCity.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -289,6 +290,92 @@ namespace MotorCity.UI
                 ? count * 64f + (count - 1) * FrontEndModalButtonSpacing
                 : 64f;
             rowSize.preferredHeight = rowSize.minHeight;
+        }
+
+        private FrontEndScrollCue CreateFrontEndScrollCue(
+            RectTransform panel, ScrollRect scroll, float headerHeight)
+        {
+            RectTransform track = new GameObject(
+                panel.name + " Scroll Track",
+                typeof(RectTransform), typeof(Image))
+                .GetComponent<RectTransform>();
+            track.SetParent(panel, false);
+            track.anchorMin = new Vector2(0f, 0f);
+            track.anchorMax = new Vector2(0f, 1f);
+            track.offsetMin = new Vector2(20f, 138f);
+            track.offsetMax = new Vector2(26f, -headerHeight - 24f);
+            Image background = track.GetComponent<Image>();
+            background.color = new Color(0.36f, 0.48f, 0.71f, 0.5f);
+            background.raycastTarget = false;
+
+            RectTransform handle = new GameObject(
+                "Scroll Position", typeof(RectTransform), typeof(Image))
+                .GetComponent<RectTransform>();
+            handle.SetParent(track, false);
+            handle.anchorMin = new Vector2(0f, 0.76f);
+            handle.anchorMax = new Vector2(1f, 1f);
+            handle.offsetMin = Vector2.zero;
+            handle.offsetMax = Vector2.zero;
+            Image marker = handle.GetComponent<Image>();
+            marker.color = new Color(0.40f, 0.86f, 1f, 1f);
+            marker.raycastTarget = false;
+
+            Text hint = CreateText(
+                panel, MotorCityLocalization.Text("ux.scroll.down"),
+                17, FontStyle.Bold, TextAnchor.MiddleCenter,
+                Vector2.zero, Vector2.zero, new Vector2(0.5f, 0f));
+            hint.name = "Scroll More Hint";
+            RectTransform hintRect = hint.rectTransform;
+            hintRect.anchorMin = new Vector2(0.5f, 0f);
+            hintRect.anchorMax = new Vector2(0.5f, 0f);
+            hintRect.pivot = new Vector2(0.5f, 0f);
+            hintRect.anchoredPosition = new Vector2(0f, 103f);
+            hintRect.sizeDelta = new Vector2(350f, 28f);
+            hint.color = new Color(0.52f, 0.84f, 1f, 0.95f);
+            hint.raycastTarget = false;
+
+            FrontEndScrollCue cue = new FrontEndScrollCue
+            {
+                Scroll = scroll,
+                Handle = handle,
+                Track = track.gameObject,
+                Hint = hint
+            };
+            cue.Track.SetActive(false);
+            cue.Hint.gameObject.SetActive(false);
+            return cue;
+        }
+
+        private void RefreshFrontEndScrollCues()
+        {
+            // Called on opening pages, refresh and resize, not in Update().
+            Canvas.ForceUpdateCanvases();
+            foreach (FrontEndScrollCue cue in frontEndScrollCues)
+                UpdateFrontEndScrollCue(cue);
+        }
+
+        private static void UpdateFrontEndScrollCue(FrontEndScrollCue cue)
+        {
+            if (cue == null || cue.Scroll == null ||
+                cue.Scroll.viewport == null || cue.Scroll.content == null)
+                return;
+
+            float viewHeight = cue.Scroll.viewport.rect.height;
+            float contentHeight = cue.Scroll.content.rect.height;
+            bool overflow = viewHeight > 0f &&
+                            contentHeight > viewHeight + 4f;
+            cue.Track.SetActive(overflow);
+
+            float position = Mathf.Clamp01(
+                cue.Scroll.verticalNormalizedPosition);
+            cue.Hint.gameObject.SetActive(overflow && position > 0.04f);
+            if (!overflow)
+                return;
+
+            float ratio = Mathf.Clamp(viewHeight / contentHeight, 0.16f, 1f);
+            float bottom = (1f - ratio) * position;
+            cue.Handle.anchorMin = new Vector2(0f, bottom);
+            cue.Handle.anchorMax = new Vector2(1f, bottom + ratio);
         }
 
         private void RefreshPlayerExperienceTextHeights()
