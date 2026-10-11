@@ -1195,7 +1195,10 @@ namespace MotorCity.UI
                             "ux.catalog.vehicle_tip",
                             vehicleSpecialization.GarageCompactLine)),
                     MotorCityLocalization.Text("ux.catalog.city") + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.city_info"),
+                    MotorCityLocalization.Text("ux.catalog.city_info") +
+                    (photoHunt == null ? string.Empty
+                        : "\n" + MotorCityLocalization.Format(
+                            "ux.catalog.photos", photoHunt.TotalCaptured)),
                     MotorCityLocalization.Text("ux.catalog.special") + "\n" +
                     MotorCityLocalization.Text("ux.catalog.special_info"),
                     PlayerExperienceRouteBusy
