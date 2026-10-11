@@ -1163,7 +1163,16 @@ namespace MotorCity.UI
                         "ux.activities.professions",
                         professions.StartCount,
                         professions.TotalCompleted) + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.job_start"),
+                    MotorCityLocalization.Text("ux.catalog.job_start") + "\n" +
+                    MotorCityLocalization.Format(
+                        "ux.catalog.delivery_reward",
+                        delivery.RewardCredits) + "\n" +
+                    MotorCityLocalization.Text("ux.catalog.delivery_elite") +
+                    (vehicleSpecialization == null
+                        ? string.Empty
+                        : "\n" + MotorCityLocalization.Format(
+                            "ux.catalog.vehicle_tip",
+                            vehicleSpecialization.GarageCompactLine)),
                     MotorCityLocalization.Text("ux.catalog.city") + "\n" +
                     MotorCityLocalization.Text("ux.catalog.city_info"),
                     MotorCityLocalization.Text("ux.catalog.special") + "\n" +
