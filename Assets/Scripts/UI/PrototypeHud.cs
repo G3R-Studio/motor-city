@@ -1368,6 +1368,70 @@ namespace MotorCity.UI
                     "ux.catalog.vehicle_tip", vehicleSpecialization.GarageCompactLine));
         }
 
+        private void AppendPlayerExperienceCityCards(System.Text.StringBuilder sb)
+        {
+            string passiveAccess = activityManager.IsBusy
+                ? MotorCityLocalization.Text("ux.catalog.access.busy")
+                : MotorCityLocalization.Text("ux.catalog.access.passive");
+            if (speedTraps != null)
+            {
+                for (int i = 0; i < speedTraps.TrapCount; i++)
+                {
+                    string name = speedTraps.GetTrapName(i);
+                    if (string.IsNullOrWhiteSpace(name))
+                        continue;
+                    float best = speedTraps.GetBestSpeed(i);
+                    int medal = speedTraps.GetHighestMedal(i);
+                    string progress = best > 0f
+                        ? MotorCityLocalization.Format("ux.catalog.radar_progress",
+                            best, PlayerExperienceCatalogMedal(medal),
+                            speedTraps.GetTrapGoalText(i))
+                        : MotorCityLocalization.Text("ux.catalog.radar.none") +
+                            "\n" + speedTraps.GetTrapGoalText(i);
+                    AppendPlayerExperienceCard(sb,
+                        MotorCityLocalization.Text("ux.catalog.name.radar") + ": " + name,
+                        MotorCityLocalization.Text("ux.catalog.about.radar"),
+                        MotorCityLocalization.Text("ux.catalog.start.radar"),
+                        passiveAccess, progress,
+                        MotorCityLocalization.Text("ux.catalog.radar_reward"),
+                        PlayerExperienceNextMedal(medal));
+                }
+            }
+            if (discoveries != null)
+            {
+                string count = MotorCityLocalization.Format(
+                    "ux.catalog.discovery_line", discoveries.FoundCount,
+                    discoveries.DiscoveryCount);
+                for (int i = 0; i < discoveries.DiscoveryCount; i++)
+                {
+                    string name = discoveries.GetDiscoveryName(i);
+                    if (string.IsNullOrWhiteSpace(name))
+                        continue;
+                    bool found = discoveries.IsFound(i);
+                    AppendPlayerExperienceCard(sb,
+                        MotorCityLocalization.Text("ux.catalog.name.discovery") + ": " + name,
+                        MotorCityLocalization.Text("ux.catalog.about.discovery"),
+                        MotorCityLocalization.Text("ux.catalog.start.discovery"),
+                        passiveAccess,
+                        MotorCityLocalization.Text(found
+                            ? "ux.catalog.discovery_done"
+                            : "ux.catalog.discovery_missing") + "\n" + count,
+                        MotorCityLocalization.Text("ux.catalog.reward.discovery"),
+                        found ? MotorCityLocalization.Text("ux.catalog.next.completed")
+                            : MotorCityLocalization.Text("ux.catalog.next.discovery"));
+                }
+            }
+            if (photoHunt != null)
+                AppendPlayerExperienceCard(sb,
+                    MotorCityLocalization.Text("ux.catalog.name.photos"),
+                    MotorCityLocalization.Text("ux.catalog.about.photo"),
+                    MotorCityLocalization.Text("ux.catalog.start.photo"),
+                    passiveAccess,
+                    photoHunt.AlbumLine,
+                    MotorCityLocalization.Text("ux.catalog.photo_reward"),
+                    MotorCityLocalization.Text("ux.catalog.next.photo"));
+        }
+
         private string PlayerExperienceActiveActivityLine()
         {
             string activityKey = null;
