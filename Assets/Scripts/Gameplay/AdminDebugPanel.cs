@@ -1772,7 +1772,17 @@ namespace MotorCity.Gameplay
             if (pixie != null)
             {
                 GUILayout.Label(
-                    "ПИКСИ • проигрывается клип: " +
+                    "ПИКСИ - активная модель: " +
+                    pixie.EditorActiveVisual);
+                if (pixie.EditorExclusiveSkinFallback)
+                {
+                    GUILayout.Label(
+                        "EX prefab не загружен: показан обычный HAON. " +
+                        "Установка EX модели проверяется отдельно.");
+                }
+
+                GUILayout.Label(
+                    "ПИКСИ - проигрывается клип: " +
                     pixie.EditorCurrentAnimationClip);
 
                 GUILayout.BeginHorizontal();
