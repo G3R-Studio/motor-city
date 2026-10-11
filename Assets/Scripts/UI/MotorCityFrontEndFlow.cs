@@ -1892,6 +1892,18 @@ namespace MotorCity.UI
                 return;
             }
 
+            // Settings and About already have a visible Back action.
+            // Route keyboard/gamepad Cancel through that same main-menu
+            // transition without affecting controls or the career modal.
+            if (!loadingActive &&
+                MotorCityInput.CancelPressed &&
+                ((settingsRoot != null && settingsRoot.activeSelf) ||
+                 (aboutRoot != null && aboutRoot.activeSelf)))
+            {
+                ShowMainMenu();
+                return;
+            }
+
             if (loadingActive)
             {
                 UpdateLoadingAnimation();
