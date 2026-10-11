@@ -432,6 +432,27 @@ namespace MotorCity.UI
             RefreshDrivingEnabledForUi();
         }
 
+        // The UX-2 catalog uses the exact same destination resolver as
+        // the existing navigator. It cannot override active gameplay goals.
+        public bool PlayerExperienceRouteBusy =>
+            activityManager != null && activityManager.IsBusy;
+
+        public bool TrySetPlayerExperienceRoute(int destinationIndex)
+        {
+            if (PlayerExperienceRouteBusy ||
+                destinationIndex < 1 ||
+                destinationIndex >= NavigatorDestinationCount() ||
+                !TryResolveNavigatorDestination(
+                    destinationIndex, out Vector3 target, out string label))
+                return false;
+
+            manualNavigationTarget = target;
+            manualNavigationLabel = label;
+            manualNavigationMarkerId = NavigatorMarkerId(destinationIndex);
+            manualNavigationActive = true;
+            return true;
+        }
+
         private int NavigatorDestinationCount()
         {
             return
