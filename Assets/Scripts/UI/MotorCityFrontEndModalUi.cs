@@ -1,4 +1,3 @@
-using MotorCity.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -157,8 +156,8 @@ namespace MotorCity.UI
             scroll.scrollSensitivity = 35f;
             scroll.inertia = true;
 
-            // A left-side position marker and a down hint are visible
-            // only when the scroll content overflows the viewport.
+            // The track and small arrow stay in the left gutter, outside
+            // the clipped text viewport. They appear only on overflow.
             FrontEndScrollCue cue = CreateFrontEndScrollCue(
                 panel, scroll, headerHeight);
             frontEndScrollCues.Add(cue);
@@ -320,17 +319,20 @@ namespace MotorCity.UI
             marker.color = new Color(0.40f, 0.86f, 1f, 1f);
             marker.raycastTarget = false;
 
+            // The full-width "scroll down" caption used to overlay
+            // bottom rows. Keep only a down arrow beneath the left track,
+            // entirely outside the viewport (which begins at x = 54).
             Text hint = CreateText(
-                panel, MotorCityLocalization.Text("ux.scroll.down"),
-                17, FontStyle.Bold, TextAnchor.MiddleCenter,
-                Vector2.zero, Vector2.zero, new Vector2(0.5f, 0f));
-            hint.name = "Scroll More Hint";
+                panel, "↓",
+                21, FontStyle.Bold, TextAnchor.MiddleCenter,
+                Vector2.zero, Vector2.zero, new Vector2(0f, 0f));
+            hint.name = "Scroll Down Arrow";
             RectTransform hintRect = hint.rectTransform;
-            hintRect.anchorMin = new Vector2(0.5f, 0f);
-            hintRect.anchorMax = new Vector2(0.5f, 0f);
+            hintRect.anchorMin = Vector2.zero;
+            hintRect.anchorMax = Vector2.zero;
             hintRect.pivot = new Vector2(0.5f, 0f);
-            hintRect.anchoredPosition = new Vector2(0f, 103f);
-            hintRect.sizeDelta = new Vector2(350f, 28f);
+            hintRect.anchoredPosition = new Vector2(23f, 106f);
+            hintRect.sizeDelta = new Vector2(30f, 26f);
             hint.color = new Color(0.52f, 0.84f, 1f, 0.95f);
             hint.raycastTarget = false;
 
