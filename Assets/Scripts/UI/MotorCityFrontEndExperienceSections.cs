@@ -38,7 +38,8 @@ namespace MotorCity.UI
                     "Player Experience Activities Panel",
                     MotorCityLocalization.Text("ux.activities.title"),
                     new Vector2(1020f, 730f),
-                    112f);
+                    112f,
+                    false);
 
             playerExperienceActivitiesPanel =
                 activities.Panel.gameObject;
@@ -81,7 +82,8 @@ namespace MotorCity.UI
                     "Player Experience Journal Panel",
                     MotorCityLocalization.Text("ux.journal.title"),
                     new Vector2(1020f, 730f),
-                    112f);
+                    112f,
+                    false);
 
             playerExperienceJournalPanel =
                 journal.Panel.gameObject;
@@ -198,7 +200,8 @@ namespace MotorCity.UI
                     name,
                     MotorCityLocalization.Text(titleKey),
                     new Vector2(1020f, 730f),
-                    112f);
+                    112f,
+                    false);
 
             CreateFrontEndLayoutText(
                 page.Content,
