@@ -45,6 +45,9 @@ namespace MotorCity.Gameplay
                 1,
                 10);
 
+        public int CompletionsUntilNextLevel =>
+            ProfessionLevel >= 10 ? 0 : 4 - TotalCompleted % 4;
+
         public Vector3 CurrentTarget
         {
             get
