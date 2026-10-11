@@ -1604,37 +1604,8 @@ namespace MotorCity.UI
                     "ux.activities.no_record");
         }
 
-        public string PlayerExperienceJournalLine
-        {
-            get
-            {
-                if (story == null ||
-                    season == null ||
-                    dailyAdventures == null)
-                {
-                    return MotorCityLocalization.Text(
-                        "ux.sections.not_ready");
-                }
-
-                return string.Join(
-                    "\n\n",
-                    MotorCityLocalization.Format(
-                        "ux.journal.story",
-                        story.CurrentMissionNumber,
-                        story.MissionCount,
-                        story.CurrentMissionTitle,
-                        story.ObjectiveLine),
-                    MotorCityLocalization.Format(
-                        "ux.journal.season",
-                        season.CurrentMissionNumber,
-                        season.MissionCount,
-                        season.ObjectiveLine),
-                    MotorCityLocalization.Format(
-                        "ux.journal.daily",
-                        dailyAdventures.CompletedTasks,
-                        dailyAdventures.ObjectiveLine));
-            }
-        }
+        public string PlayerExperienceJournalLine =>
+            PlayerExperienceJournalLineForFilter(-1);
 
         // UX-1 overview: only existing read-only gameplay state is displayed.
         // Club reward eligibility is NOT a "claim" button and must not be
