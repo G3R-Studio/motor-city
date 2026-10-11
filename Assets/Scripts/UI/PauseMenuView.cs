@@ -612,13 +612,21 @@ namespace MotorCity.UI
         {
             if (pauseExperienceOpen)
             {
-                if (MotorCityInput.CancelPressed &&
-                    pauseExperienceFrontEnd != null)
+                // A scene transition can destroy the shared front-end
+                // while PauseMenu is still alive. Never trap the player
+                // behind a hidden overlay with Cancel swallowed.
+                if (pauseExperienceFrontEnd == null)
                 {
-                    pauseExperienceFrontEnd.OnPlayerExperienceBackPressed();
+                    pauseExperienceOpen = false;
+                    pauseOverlay?.SetActive(true);
+                    RefreshPauseMenuText();
                 }
-
-                return;
+                else
+                {
+                    if (MotorCityInput.CancelPressed)
+                        pauseExperienceFrontEnd.OnPlayerExperienceBackPressed();
+                    return;
+                }
             }
 
             if (MotorCityInput.CancelPressed)
