@@ -1,6 +1,7 @@
 using MotorCity.Localization;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace MotorCity.UI
 {
@@ -275,6 +276,26 @@ namespace MotorCity.UI
                 : active.GetComponentInChildren<ScrollRect>();
             if (scroll != null)
                 scroll.verticalNormalizedPosition = 1f;
+
+            // Keyboard/controller navigation starts on a page action, not on
+            // an invisible button from the page that was just hidden.
+            if (active != null && EventSystem.current != null)
+            {
+                foreach (Button button in
+                    active.GetComponentsInChildren<Button>())
+                {
+                    if (!button.IsActive() ||
+                        !button.interactable ||
+                        button.gameObject.name == "X Button")
+                    {
+                        continue;
+                    }
+
+                    EventSystem.current.SetSelectedGameObject(
+                        button.gameObject);
+                    break;
+                }
+            }
         }
 
         private void HandlePlayerExperienceBack()
