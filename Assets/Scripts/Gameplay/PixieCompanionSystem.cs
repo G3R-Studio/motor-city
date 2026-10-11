@@ -75,7 +75,7 @@ namespace MotorCity.Gameplay
                     : "Primitive fallback";
 
         public bool EditorExclusiveSkinFallback =>
-            useSupporterPixieSkin && !usingKisoraVisual;
+            ExclusiveVisualFallback;
 
         // Actual Animator clip, useful if a third-party animation produces
         // an unexpected bind/T-pose during Editor QA.
@@ -138,6 +138,16 @@ namespace MotorCity.Gameplay
         private long currentDay;
         public int Level { get; private set; }
         public int Xp { get; private set; }
+
+        // Read-only UX progress from the very same threshold used by AddXp.
+        // No XP is consumed or awarded by opening the Player Experience page.
+        public int XpForNextLevelTarget =>
+            Level >= 10 ? 0 : XpForNextLevel(Level);
+        public int XpRemainingToNextLevel =>
+            Level >= 10 ? 0 : Mathf.Max(0, XpForNextLevel(Level) - Xp);
+        public bool ExclusiveVisualActive => usingKisoraVisual;
+        public bool ExclusiveVisualFallback =>
+            useSupporterPixieSkin && !usingKisoraVisual;
 
         public bool ShowMessage =>
             messageTimer > 0f;
