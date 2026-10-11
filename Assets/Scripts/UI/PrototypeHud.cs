@@ -1212,11 +1212,7 @@ namespace MotorCity.UI
                         : "\n" + MotorCityLocalization.Format(
                             "ux.catalog.photos", photoHunt.TotalCaptured)),
                     MotorCityLocalization.Text("ux.catalog.special") + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.special_info"),
-                    PlayerExperienceRouteBusy
-                        ? MotorCityLocalization.Text("ux.catalog.busy")
-                        : MotorCityLocalization.Text(
-                            "ux.catalog.route_ready"));
+                    MotorCityLocalization.Text("ux.catalog.special_info"));
             }
         }
 
