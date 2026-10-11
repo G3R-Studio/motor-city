@@ -828,9 +828,16 @@ namespace MotorCity.UI
             if (playerExperienceRoot == null)
                 return;
 
+            // A paused game can reopen this Canvas while the control
+            // chooser was the last active child before EnterGameplay.
+            // Keep precisely one modal owner visible, including in that
+            // re-entry path. Do not touch pause time, audio or driving.
             mainRoot.SetActive(false);
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
+            introRoot.SetActive(false);
+            controlChoiceRoot.SetActive(false);
+            loadingRoot.SetActive(false);
             playerExperienceRoot.SetActive(true);
             ShowPlayerExperienceHome();
             RefreshPlayerExperience();
@@ -2620,6 +2627,10 @@ namespace MotorCity.UI
                 "FrontEnd",
                 false);
 
+            // Leaving a hidden control chooser active in the disabled Canvas
+            // would resurrect it under Player Experience during pause.
+            controlChoiceRoot?.SetActive(false);
+            playerExperienceRoot?.SetActive(false);
             canvas.gameObject.SetActive(false);
 
             MotorCityPlatformRuntime.MarkGameplayStarted();
