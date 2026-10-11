@@ -83,7 +83,7 @@ def main() -> int:
     # polish still handles inner text/details but cannot resize the root.
     modal_owners = {
         "Activity Result": ("ActivityResultView.cs", "650f", "520f"),
-        "Navigator Menu": ("NavigatorView.cs", "580f", "320f"),
+        "Navigator Menu": ("NavigatorView.cs", "640f", "420f"),
         "Club Panel": ("ClubView.cs", "580f", "400f"),
     }
     for name, (owner, width, height) in modal_owners.items():
