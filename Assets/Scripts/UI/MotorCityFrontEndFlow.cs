@@ -937,7 +937,7 @@ namespace MotorCity.UI
                     : "KEYBOARD CONTROLS",
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Keyboard),
-                620f,
+                540f,
                 72f);
 
             controlChoiceWheelActions =
@@ -953,7 +953,7 @@ namespace MotorCity.UI
                     : "STEERING WHEEL",
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Wheel),
-                430f,
+                540f,
                 72f);
 
             CreateFrontEndLayoutButton(
@@ -980,7 +980,7 @@ namespace MotorCity.UI
                     : "LEFT / RIGHT ARROWS",
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Arrows),
-                430f,
+                540f,
                 72f);
 
             CreateFrontEndLayoutButton(
