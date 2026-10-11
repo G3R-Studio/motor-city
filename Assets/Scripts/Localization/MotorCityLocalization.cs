@@ -18,6 +18,8 @@ namespace MotorCity.Localization
                 { "ux.home.subtitle", E("ЦЕНТР КАРЬЕРЫ И ПРОГРЕССА", "CAREER AND PROGRESS CENTER") },
                 { "ux.home.credits", E("КРЕДИТЫ: {0:N0}", "CREDITS: {0:N0}") },
                 { "ux.home.rep", E("РЕПУТАЦИЯ: {0:N0}", "REPUTATION: {0:N0}") },
+                { "ux.home.balance", E("КРЕДИТЫ: {0:N0}  •  РЕПУТАЦИЯ: {1:N0}", "CREDITS: {0:N0}  •  REPUTATION: {1:N0}") },
+                { "ux.scroll.down", E("↓ ЛИСТАЙТЕ ВНИЗ", "↓ SCROLL DOWN") },
                 { "ux.home.objective", E("СЛЕДУЮЩАЯ ЦЕЛЬ:\n{0}", "NEXT OBJECTIVE:\n{0}") },
                 { "ux.home.no_objective", E("Начни игру, чтобы открыть новые задания.", "Start the game to discover your next objectives.") },
                 { "ux.home.sections_soon", E("СКОРО ЗДЕСЬ ПОЯВЯТСЯ:\nАКТИВНОСТИ • ЗАДАНИЯ • АВТОКЛУБ\nМАШИНЫ • ПИКСИ • ДОСТИЖЕНИЯ", "COMING NEXT:\nACTIVITIES • MISSIONS • CAR CLUB\nVEHICLES • PIXIE • ACHIEVEMENTS") },
