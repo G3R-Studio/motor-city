@@ -308,9 +308,11 @@ namespace MotorCity.UI
             BuildSettings();
             BuildPlayerExperienceScreen();
             BuildPlayerExperienceSections();
-            ApplyPlayerExperienceModalLayout(true);
             BuildIntro();
             BuildControlChoiceScreen();
+            // Both the career pages and the separate compact control choice
+            // must exist before their safe-area bounds are calculated.
+            ApplyPlayerExperienceModalLayout(true);
             BuildLoadingScreen();
             ApplyGarageStyleToFrontEnd();
             canvasObject.AddComponent<GarageCanvasRefresh>();
