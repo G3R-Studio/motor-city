@@ -35,7 +35,7 @@ namespace MotorCity.UI
         private CityLiveEventSystem liveEvents;
         private UndergroundSceneSystem underground;
         private CityRiskSystem cityRisk;
-        private TurboPetSystem turbo;
+        private PixieCompanionSystem pixie;
         private FirstSessionOnboardingSystem onboarding;
         private DailyAdventureSystem dailyAdventures;
         private StoryMissionSystem story;
@@ -431,7 +431,7 @@ namespace MotorCity.UI
             CityLiveEventSystem liveEventSystem,
             UndergroundSceneSystem undergroundSystem,
             CityRiskSystem riskSystem,
-            TurboPetSystem turboSystem,
+            PixieCompanionSystem pixieSystem,
             FirstSessionOnboardingSystem onboardingSystem,
             DailyAdventureSystem dailyAdventureSystem,
             StoryMissionSystem storySystem,
@@ -483,7 +483,7 @@ namespace MotorCity.UI
             liveEvents = liveEventSystem;
             underground = undergroundSystem;
             cityRisk = riskSystem;
-            turbo = turboSystem;
+            pixie = pixieSystem;
             onboarding = onboardingSystem;
             dailyAdventures = dailyAdventureSystem;
             story = storySystem;
@@ -1245,21 +1245,21 @@ namespace MotorCity.UI
             }
         }
 
-        public string PlayerExperienceTurboLine
+        public string PlayerExperiencePixieLine
         {
             get
             {
-                if (turbo == null)
+                if (pixie == null)
                     return MotorCityLocalization.Text("ux.sections.not_ready");
 
                 return string.Join(
                     "\n\n",
                     MotorCityLocalization.Format(
-                        "ux.turbo.progress",
+                        "ux.pixie.progress",
                         turbo.Level,
                         turbo.Xp),
                     MotorCityLocalization.Format(
-                        "ux.turbo.daily",
+                        "ux.pixie.daily",
                         turbo.DailyObjectiveLine));
             }
         }

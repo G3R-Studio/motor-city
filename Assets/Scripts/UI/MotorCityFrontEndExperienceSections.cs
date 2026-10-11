@@ -15,10 +15,10 @@ namespace MotorCity.UI
         private Text playerExperienceJournalText;
         private GameObject playerExperienceClubPanel;
         private GameObject playerExperienceInspectorPanel;
-        private GameObject playerExperienceTurboPanel;
+        private GameObject playerExperiencePixiePanel;
         private Text playerExperienceClubText;
         private Text playerExperienceInspectorText;
-        private Text playerExperienceTurboText;
+        private Text playerExperiencePixieText;
 
         private void BuildPlayerExperienceSections()
         {
@@ -150,19 +150,19 @@ namespace MotorCity.UI
                     "ux.inspector.hint",
                     out playerExperienceInspectorText);
 
-            playerExperienceTurboPanel =
+            playerExperiencePixiePanel =
                 BuildPlayerExperienceDetail(
-                    "Player Experience Turbo Panel",
-                    "ux.turbo.title",
-                    "ux.turbo.subtitle",
-                    "ux.turbo.hint",
-                    out playerExperienceTurboText);
+                    "Player Experience Pixie Panel",
+                    "ux.pixie.title",
+                    "ux.pixie.subtitle",
+                    "ux.pixie.hint",
+                    out playerExperiencePixieText);
 
             playerExperienceActivitiesPanel.SetActive(false);
             playerExperienceJournalPanel.SetActive(false);
             playerExperienceClubPanel.SetActive(false);
             playerExperienceInspectorPanel.SetActive(false);
-            playerExperienceTurboPanel.SetActive(false);
+            playerExperiencePixiePanel.SetActive(false);
         }
 
         private GameObject BuildPlayerExperienceDetail(
@@ -255,9 +255,9 @@ namespace MotorCity.UI
             SwitchPlayerExperiencePage(playerExperienceInspectorPanel);
         }
 
-        private void ShowPlayerExperienceTurbo()
+        private void ShowPlayerExperiencePixie()
         {
-            SwitchPlayerExperiencePage(playerExperienceTurboPanel);
+            SwitchPlayerExperiencePage(playerExperiencePixiePanel);
         }
 
         private void SwitchPlayerExperiencePage(GameObject selected)
@@ -271,8 +271,8 @@ namespace MotorCity.UI
                 selected == playerExperienceClubPanel);
             playerExperienceInspectorPanel?.SetActive(
                 selected == playerExperienceInspectorPanel);
-            playerExperienceTurboPanel?.SetActive(
-                selected == playerExperienceTurboPanel);
+            playerExperiencePixiePanel?.SetActive(
+                selected == playerExperiencePixiePanel);
 
             if (selected == null)
                 RefreshPlayerExperience();
@@ -326,12 +326,12 @@ namespace MotorCity.UI
                         : hud.PlayerExperienceInspectorLine;
             }
 
-            if (playerExperienceTurboText != null)
+            if (playerExperiencePixieText != null)
             {
-                playerExperienceTurboText.text =
+                playerExperiencePixieText.text =
                     hud == null
                         ? MotorCityLocalization.Text("ux.sections.not_ready")
-                        : hud.PlayerExperienceTurboLine;
+                        : hud.PlayerExperiencePixieLine;
             }
         }
     }

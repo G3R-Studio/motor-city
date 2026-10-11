@@ -7,7 +7,11 @@ using UnityEngine;
 
 namespace MotorCity.Gameplay
 {
-    public sealed class TurboPetSystem :
+    // Pixie is the floating vehicle companion: XP, levels, visuals, daily
+    // tasks and the temporary driving boost belong to Pixie, never to Turbo.
+    // Turbo is the separate story narrator/navigation assistant.
+    // Legacy MotorCity.Turbo.* save keys remain untouched for old saves.
+    public sealed class PixieCompanionSystem :
         MonoBehaviour
     {
         private const string LevelKey =
@@ -73,7 +77,7 @@ namespace MotorCity.Gameplay
                 {
                     return
                         MotorCityLocalization.Text(
-                            "turbo.daily_done");
+                            "pixie.daily_done");
                 }
 
                 return
@@ -92,7 +96,7 @@ namespace MotorCity.Gameplay
             {
                 return
                     MotorCityLocalization.Text(
-                        "turbo.mood_happy");
+                        "pixie.mood_happy");
             }
         }
 
@@ -354,7 +358,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 MotorCityLocalization.Format(
-                    "turbo.level_up",
+                    "pixie.level_up",
                     Level);
 
             messageTimer =
@@ -417,7 +421,7 @@ namespace MotorCity.Gameplay
             {
                 StatusText =
                     MotorCityLocalization.Format(
-                        "turbo.daily_progress",
+                        "pixie.daily_progress",
                         dailyProgress,
                         dailyTarget);
 
@@ -449,7 +453,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 MotorCityLocalization.Format(
-                    "turbo.daily_reward",
+                    "pixie.daily_reward",
                     credits);
 
             messageTimer =
@@ -484,7 +488,7 @@ namespace MotorCity.Gameplay
             {
                 StatusText =
                     MotorCityLocalization.Text(
-                        "turbo.hello");
+                        "pixie.hello");
 
                 messageTimer =
                     MessageSeconds + 1f;
@@ -496,7 +500,7 @@ namespace MotorCity.Gameplay
             {
                 StatusText =
                     MotorCityLocalization.Text(
-                        "turbo.reunion");
+                        "pixie.reunion");
 
                 messageTimer =
                     MessageSeconds + 1f;
@@ -562,7 +566,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 MotorCityLocalization.Text(
-                    "turbo.new_daily");
+                    "pixie.new_daily");
 
             messageTimer =
                 MessageSeconds;
@@ -587,7 +591,7 @@ namespace MotorCity.Gameplay
                     IsRaceActivity(
                         activeId))
                 {
-                    car?.ActivateTurboAssist(
+                    car?.ActivatePixieBoost(
                         1.30f,
                         3.2f);
 
@@ -597,7 +601,7 @@ namespace MotorCity.Gameplay
 
                     StatusText =
                         MotorCityLocalization.Text(
-                            "turbo.boost");
+                            "pixie.boost");
 
                     messageTimer =
                         2.8f;
@@ -628,7 +632,7 @@ namespace MotorCity.Gameplay
 
             StatusText =
                 MotorCityLocalization.Text(
-                    "turbo.hint");
+                    "pixie.hint");
 
             messageTimer =
                 MessageSeconds;
@@ -1695,11 +1699,11 @@ namespace MotorCity.Gameplay
                 dailyType switch
                 {
                     1 =>
-                        "turbo.daily_race",
+                        "pixie.daily_race",
                     2 =>
-                        "turbo.daily_drift",
+                        "pixie.daily_drift",
                     _ =>
-                        "turbo.daily_any"
+                        "pixie.daily_any"
                 };
         }
 

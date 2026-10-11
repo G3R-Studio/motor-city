@@ -122,7 +122,7 @@ namespace MotorCity.Gameplay
             ArcadeCarController targetCar,
             PlayerWallet targetWallet,
             ActivityManager activityManager,
-            TurboPetSystem turboSystem)
+            PixieCompanionSystem pixieSystem)
         {
             car =
                 targetCar;
@@ -131,7 +131,7 @@ namespace MotorCity.Gameplay
             activities =
                 activityManager;
             _ =
-                turboSystem;
+                pixieSystem;
 
             TotalCompleted =
                 Mathf.Max(

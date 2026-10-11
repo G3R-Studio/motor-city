@@ -81,6 +81,8 @@ jobs:
 
       - name: Audit Phase 8 saves and progression keys
         run: python3 Tools/check_phase8_save_progression.py
+      - name: Validate Turbo / Pixie character canon
+        run: python3 Tools/check_character_canon.py
 
       - name: Run Phase 8 isolated save conflict fixtures
         run: python3 Tools/test_phase8_save_fixtures.py

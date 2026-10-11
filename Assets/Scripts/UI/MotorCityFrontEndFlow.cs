@@ -671,8 +671,8 @@ namespace MotorCity.UI
 
             CreateFrontEndLayoutButton(
                 progressActions,
-                MotorCityLocalization.Text("ux.turbo.title"),
-                ShowPlayerExperienceTurbo,
+                MotorCityLocalization.Text("ux.pixie.title"),
+                ShowPlayerExperiencePixie,
                 270f,
                 64f);
 

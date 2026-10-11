@@ -491,8 +491,8 @@ namespace MotorCity.Gameplay
         {
             if (HasSupporterPack)
             {
-                TurboPetSystem pixie =
-                    UnityEngine.Object.FindAnyObjectByType<TurboPetSystem>();
+                PixieCompanionSystem pixie =
+                    UnityEngine.Object.FindAnyObjectByType<PixieCompanionSystem>();
 
                 pixie?.SetSupporterPackSkin(
                     true);

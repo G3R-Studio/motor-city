@@ -15,7 +15,7 @@ namespace MotorCity.Gameplay
         private ActivityManager activities;
         private PlayerWallet wallet;
         private PlayerReputation reputation;
-        private TurboPetSystem turbo;
+        private PixieCompanionSystem pixie;
         private FirstSessionOnboardingSystem onboarding;
         private StoryMission[] missions;
         private int missionIndex;
@@ -130,7 +130,7 @@ namespace MotorCity.Gameplay
             }
         }
 
-        public int CurrentTurboXpReward
+        public int CurrentPixieXpReward
         {
             get
             {
@@ -140,7 +140,7 @@ namespace MotorCity.Gameplay
                 return
                     mission == null
                         ? 0
-                        : mission.TurboXpReward;
+                        : mission.PixieXpReward;
             }
         }
 
@@ -195,7 +195,7 @@ namespace MotorCity.Gameplay
             ActivityManager activityManager,
             PlayerWallet targetWallet,
             PlayerReputation targetReputation,
-            TurboPetSystem turboSystem,
+            PixieCompanionSystem pixieSystem,
             FirstSessionOnboardingSystem onboardingSystem)
         {
             activities = activityManager;
@@ -205,7 +205,7 @@ namespace MotorCity.Gameplay
 
             wallet = targetWallet;
             reputation = targetReputation;
-            turbo = turboSystem;
+            pixie = pixieSystem;
             onboarding = onboardingSystem;
 
             BuildMissions();
@@ -373,8 +373,8 @@ namespace MotorCity.Gameplay
                 mission.ReputationReward,
                 false);
 
-            turbo?.AddXp(
-                mission.TurboXpReward,
+            pixie?.AddXp(
+                mission.PixieXpReward,
                 false);
 
             if (missionIndex >= missions.Length - 1)
@@ -605,7 +605,7 @@ namespace MotorCity.Gameplay
             public readonly int Target;
             public readonly int CreditsReward;
             public readonly int ReputationReward;
-            public readonly int TurboXpReward;
+            public readonly int PixieXpReward;
 
             public StoryMission(
                 string characterKey,
@@ -617,7 +617,7 @@ namespace MotorCity.Gameplay
                 int target,
                 int creditsReward,
                 int reputationReward,
-                int turboXpReward)
+                int pixieXpReward)
             {
                 CharacterKey = characterKey;
                 TitleKey = titleKey;
@@ -628,7 +628,7 @@ namespace MotorCity.Gameplay
                 Target = Mathf.Max(1, target);
                 CreditsReward = Mathf.Max(0, creditsReward);
                 ReputationReward = Mathf.Max(0, reputationReward);
-                TurboXpReward = Mathf.Max(0, turboXpReward);
+                PixieXpReward = Mathf.Max(0, pixieXpReward);
             }
         }
     }

@@ -33,7 +33,7 @@ namespace MotorCity.Gameplay
         private TowTruckJobSystem towTruck;
         private VehicleRosterSystem vehicleRoster;
         private VehicleMasterySystem vehicleMastery;
-        private TurboPetSystem turbo;
+        private PixieCompanionSystem pixie;
         private VehicleCustomizationSystem customization;
         private PlayerVehicleAudio vehicleAudio;
         private ChaseCamera chaseCamera;
@@ -135,7 +135,7 @@ namespace MotorCity.Gameplay
             CircuitRaceActivity circuit,
             VehicleRosterSystem roster,
             VehicleMasterySystem mastery,
-            TurboPetSystem turboSystem,
+            PixieCompanionSystem pixieSystem,
             VehicleCustomizationSystem customizationSystem)
         {
             if (wallet != null)
@@ -168,7 +168,7 @@ namespace MotorCity.Gameplay
             circuitRace = circuit;
             vehicleRoster = roster;
             vehicleMastery = mastery;
-            turbo = turboSystem;
+            pixie = pixieSystem;
             customization =
                 customizationSystem;
 

@@ -106,8 +106,8 @@ namespace MotorCity.Vehicle
         private float prometeoRetryTimer;
         private float resetHoldTimer;
         private float driveModeFrictionRefreshTimer;
-        private float turboAssistMultiplier = 1f;
-        private float turboAssistTimer;
+        private float pixieBoostMultiplier = 1f;
+        private float pixieBoostTimer;
 
         private int engineUpgradeLevel;
         private int gripUpgradeLevel;
@@ -424,17 +424,17 @@ namespace MotorCity.Vehicle
                 }
             }
 
-            if (turboAssistTimer > 0f)
+            if (pixieBoostTimer > 0f)
             {
-                turboAssistTimer =
+                pixieBoostTimer =
                     Mathf.Max(
                         0f,
-                        turboAssistTimer -
+                        pixieBoostTimer -
                         Time.deltaTime);
 
-                if (turboAssistTimer <= 0f)
+                if (pixieBoostTimer <= 0f)
                 {
-                    turboAssistMultiplier =
+                    pixieBoostMultiplier =
                         1f;
                 }
             }
@@ -480,19 +480,19 @@ namespace MotorCity.Vehicle
             }
         }
 
-        public void ActivateTurboAssist(
+        public void ActivatePixieBoost(
             float multiplier,
             float seconds)
         {
-            turboAssistMultiplier =
+            pixieBoostMultiplier =
                 Mathf.Clamp(
                     multiplier,
                     1f,
                     1.6f);
 
-            turboAssistTimer =
+            pixieBoostTimer =
                 Mathf.Max(
-                    turboAssistTimer,
+                    pixieBoostTimer,
                     Mathf.Clamp(
                         seconds,
                         0f,
@@ -1464,7 +1464,7 @@ namespace MotorCity.Vehicle
                     basePowerAssistAcceleration *
                     modeAcceleration *
                     vehiclePowerMultiplier *
-                    turboAssistMultiplier *
+                    pixieBoostMultiplier *
                     (1f +
                      GetEngineAssistBonus() +
                      GetMasteryPowerBonus());

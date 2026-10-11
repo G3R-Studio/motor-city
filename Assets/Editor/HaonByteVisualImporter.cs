@@ -182,7 +182,7 @@ public static class HaonByteVisualImporter
                     controller;
             }
 
-            // Pixie is positioned by TurboPetSystem. Root motion from HAON
+            // Pixie is positioned by PixieCompanionSystem. Root motion from HAON
             // clips must never move the companion hierarchy independently.
             animator.applyRootMotion =
                 false;

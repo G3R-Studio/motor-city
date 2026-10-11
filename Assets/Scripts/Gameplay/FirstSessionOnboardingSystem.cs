@@ -36,7 +36,7 @@ namespace MotorCity.Gameplay
         private PlayerReputation reputation;
         private ActivityManager activities;
         private GarageUpgradeSystem garage;
-        private TurboPetSystem turbo;
+        private PixieCompanionSystem pixie;
         private VehicleCustomizationSystem customization;
 
         private int step;
@@ -140,7 +140,7 @@ namespace MotorCity.Gameplay
                                 "onboarding.complete_next"),
 
                         _ =>
-                            turbo != null
+                            pixie != null
                                 ? turbo.DailyObjectiveLine
                                 : MotorCityLocalization.Text(
                                     "onboarding.daily")
@@ -154,7 +154,7 @@ namespace MotorCity.Gameplay
             PlayerReputation targetReputation,
             ActivityManager activityManager,
             GarageUpgradeSystem garageSystem,
-            TurboPetSystem turboSystem,
+            PixieCompanionSystem pixieSystem,
             VehicleCustomizationSystem customizationSystem)
         {
             car =
@@ -175,8 +175,8 @@ namespace MotorCity.Gameplay
             garage =
                 garageSystem;
 
-            turbo =
-                turboSystem;
+            pixie =
+                pixieSystem;
 
             customization =
                 customizationSystem;

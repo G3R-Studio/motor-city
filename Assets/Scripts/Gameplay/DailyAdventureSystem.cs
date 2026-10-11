@@ -20,7 +20,7 @@ namespace MotorCity.Gameplay
 
         private ActivityManager activities;
         private PlayerWallet wallet;
-        private TurboPetSystem turbo;
+        private PixieCompanionSystem pixie;
 
         private readonly DailyTask[] tasks =
             new DailyTask[3];
@@ -101,14 +101,14 @@ namespace MotorCity.Gameplay
         public void Initialize(
             ActivityManager activityManager,
             PlayerWallet targetWallet,
-            TurboPetSystem turboSystem)
+            PixieCompanionSystem pixieSystem)
         {
             activities =
                 activityManager;
             wallet =
                 targetWallet;
-            turbo =
-                turboSystem;
+            pixie =
+                pixieSystem;
 
             currentDay =
                 Math.Max(
@@ -237,7 +237,7 @@ namespace MotorCity.Gameplay
                     wallet?.AddCredits(
                         reward);
 
-                    turbo?.AddXp(
+                    pixie?.AddXp(
                         12);
 
                     StatusText =
@@ -325,7 +325,7 @@ namespace MotorCity.Gameplay
             wallet?.AddCredits(
                 completionReward);
 
-            turbo?.AddXp(
+            pixie?.AddXp(
                 30);
 
             MotorCity.Persistence.MotorCitySaveService.SetInt(

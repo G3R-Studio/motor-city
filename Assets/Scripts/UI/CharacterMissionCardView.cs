@@ -1309,7 +1309,7 @@ namespace MotorCity.UI
                     "season1.ui_reward",
                     season.CurrentCreditsReward,
                     season.CurrentReputationReward,
-                    season.CurrentTurboXpReward);
+                    season.CurrentPixieXpReward);
 
             seasonDaysText.text =
                 MotorCityLocalization.Format(

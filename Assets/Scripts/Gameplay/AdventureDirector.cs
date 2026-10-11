@@ -12,7 +12,7 @@ namespace MotorCity.Gameplay
         private CityLegendSystem legends;
         private UndergroundSceneSystem nightClub;
         private CityRiskSystem cityRisk;
-        private TurboPetSystem turbo;
+        private PixieCompanionSystem pixie;
         private FirstSessionOnboardingSystem onboarding;
         private DailyAdventureSystem dailyAdventures;
         private StoryMissionSystem story;
@@ -38,7 +38,7 @@ namespace MotorCity.Gameplay
             CityLegendSystem legendSystem,
             UndergroundSceneSystem nightClubSystem,
             CityRiskSystem riskSystem,
-            TurboPetSystem turboSystem,
+            PixieCompanionSystem pixieSystem,
             FirstSessionOnboardingSystem onboardingSystem,
             DailyAdventureSystem dailyAdventureSystem,
             StoryMissionSystem storySystem,
@@ -58,8 +58,8 @@ namespace MotorCity.Gameplay
                 nightClubSystem;
             cityRisk =
                 riskSystem;
-            turbo =
-                turboSystem;
+            pixie =
+                pixieSystem;
             onboarding =
                 onboardingSystem;
             dailyAdventures =
@@ -149,11 +149,11 @@ namespace MotorCity.Gameplay
             if (daily != null)
                 return daily;
 
-            MissionDefinition turboDaily =
-                BuildTurboDailyMission();
+            MissionDefinition pixieDaily =
+                BuildPixieDailyMission();
 
-            if (turboDaily != null)
-                return turboDaily;
+            if (pixieDaily != null)
+                return pixieDaily;
 
             MissionDefinition contract =
                 BuildContractMission();
@@ -451,9 +451,9 @@ namespace MotorCity.Gameplay
                         objective));
         }
 
-        private MissionDefinition BuildTurboDailyMission()
+        private MissionDefinition BuildPixieDailyMission()
         {
-            if (turbo == null)
+            if (pixie == null)
                 return null;
 
             string objective =
@@ -469,7 +469,7 @@ namespace MotorCity.Gameplay
                 new MissionDefinition(
                     "source.turbo_daily",
                     MotorCityLocalization.Text(
-                        "turbo.title"),
+                        "pixie.title"),
                     objective,
                     AdventureMissionSource.Daily,
                     650)

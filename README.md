@@ -30,6 +30,7 @@ The game currently includes:
 - dynamic day/night cycle, sky transitions, street lighting, headlights and rear-light emission;
 - runtime activity and garage markers;
 - Pixie companion visuals including Haon SD and supporter-only Amane Kisora variants;
+- Character canon: **Turbo** is the separate story/navigator assistant; **Pixie** is the flying companion owning XP, levels, skills and skins. See [Docs/CharacterCanon-Turbo-Pixie.md](Docs/CharacterCanon-Turbo-Pixie.md).
 - developer/admin tools that remain excluded from normal release gameplay where appropriate.
 
 ## Runtime architecture

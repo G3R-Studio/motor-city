@@ -300,7 +300,7 @@ namespace MotorCity.Bootstrap
             SpeedTrapSystem speedTraps;
             DriftSpotSystem driftSpots;
             DiscoverySystem discoveries;
-            TurboPetSystem turbo;
+            PixieCompanionSystem pixie;
             DailyAdventureSystem dailyAdventures;
             GarageUpgradeSystem garage;
             CityRiskSystem cityRisk;
@@ -521,8 +521,8 @@ namespace MotorCity.Bootstrap
                     reputation,
                     activityManager);
 
-                turbo =
-                    systems.AddComponent<TurboPetSystem>();
+                pixie =
+                    systems.AddComponent<PixieCompanionSystem>();
 
                 turbo.Initialize(
                     car,
@@ -536,7 +536,7 @@ namespace MotorCity.Bootstrap
                 dailyAdventures.Initialize(
                     activityManager,
                     wallet,
-                    turbo);
+                    pixie);
 
                 garage = systems.AddComponent<GarageUpgradeSystem>();
                 garage.Initialize(
@@ -549,7 +549,7 @@ namespace MotorCity.Bootstrap
                     circuitRace,
                     vehicleRoster,
                     vehicleMastery,
-                    turbo,
+                    pixie,
                     customization);
 
                 cityRisk =
@@ -571,7 +571,7 @@ namespace MotorCity.Bootstrap
                     reputation,
                     activityManager,
                     garage,
-                    turbo,
+                    pixie,
                     customization);
 
                 story =
@@ -581,7 +581,7 @@ namespace MotorCity.Bootstrap
                     activityManager,
                     wallet,
                     reputation,
-                    turbo,
+                    pixie,
                     onboarding);
 
                 season =
@@ -591,7 +591,7 @@ namespace MotorCity.Bootstrap
                     activityManager,
                     wallet,
                     reputation,
-                    turbo,
+                    pixie,
                     onboarding,
                     story);
 
@@ -629,7 +629,7 @@ namespace MotorCity.Bootstrap
                     car,
                     wallet,
                     activityManager,
-                    turbo);
+                    pixie);
 
                 carWash =
                     systems.AddComponent<CarWashJobSystem>();
@@ -723,7 +723,7 @@ namespace MotorCity.Bootstrap
                     legends,
                     underground,
                     cityRisk,
-                    turbo,
+                    pixie,
                     onboarding,
                     dailyAdventures,
                     story,
@@ -814,7 +814,7 @@ namespace MotorCity.Bootstrap
                     liveEvents,
                     underground,
                     cityRisk,
-                    turbo,
+                    pixie,
                     onboarding,
                     dailyAdventures,
                     story,
@@ -1666,7 +1666,7 @@ namespace MotorCity.Bootstrap
             CityLiveEventSystem liveEvents,
             UndergroundSceneSystem underground,
             CityRiskSystem cityRisk,
-            TurboPetSystem turbo,
+            PixieCompanionSystem pixie,
             FirstSessionOnboardingSystem onboarding,
             DailyAdventureSystem dailyAdventures,
             StoryMissionSystem story,
@@ -1707,7 +1707,7 @@ namespace MotorCity.Bootstrap
                 liveEvents,
                 underground,
                 cityRisk,
-                turbo,
+                pixie,
                 onboarding,
                 dailyAdventures,
                 story,

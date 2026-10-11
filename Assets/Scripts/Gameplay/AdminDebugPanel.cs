@@ -50,7 +50,7 @@ namespace MotorCity.Gameplay
 
         private SeasonSystem season;
         private ClubSystem club;
-        private TurboPetSystem turbo;
+        private PixieCompanionSystem pixie;
         private DailyAdventureSystem daily;
         private AchievementSystem achievements;
         private PhotoHuntSystem photoHunt;
@@ -130,7 +130,7 @@ namespace MotorCity.Gameplay
 
             season = GetComponent<SeasonSystem>();
             club = GetComponent<ClubSystem>();
-            turbo = GetComponent<TurboPetSystem>();
+            pixie = GetComponent<PixieCompanionSystem>();
             daily = GetComponent<DailyAdventureSystem>();
             achievements = GetComponent<AchievementSystem>();
             photoHunt = GetComponent<PhotoHuntSystem>();
