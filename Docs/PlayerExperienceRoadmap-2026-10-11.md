@@ -223,7 +223,7 @@
 
 
 | 2026-10-11 | UX-1: Пикси по центру крыши / анимации без бега | [`b0e18ea`](https://github.com/G3R-Studio/motor-city/commit/b0e18ea523e0388a27643b3364dc15d6f5dabc61) + [`e8c70b9`](https://github.com/G3R-Studio/motor-city/commit/e8c70b944e4ed742af1a86171ffd8411b76b87a7) | Стандартный StandB добавлен в runtime controller, supporter idle/default/winpose; центр крыши и лёгкое покачивание. [Матрица клипов и QA](Baselines/PixieRoofAnimationAudit-2026-10-11.md). **Source-level, не Editor-validated** | Unity Editor: положение на нескольких авто, оба скина, нет бега при езде, реакция на уровень/буст, сохранения |
-| 2026-10-11 | UX-1: Unity compile regression — HUD старое имя | Исправление в этом коммите | По сообщениям пользователя Unity: CS0103 в `DrivingHudView.cs` (3 строки с `turbo` после переименования в `pixie`); исправлено в исходниках и расширен `check_character_canon.py` на все `.cs` | **Unity Editor compilation повторно не проверена**; выполнить `git pull` и дождаться отсутствия ошибок Console |
+| 2026-10-11 | UX-1: Unity compile regression — HUD старое имя | [`f57a866`](https://github.com/G3R-Studio/motor-city/commit/f57a866b00462085bd4028892a4246807730ab49) + [`d5115f2`](https://github.com/G3R-Studio/motor-city/commit/d5115f2c3e80acf387fc9e389b99a940c25a184b) | По сообщениям пользователя Unity: CS0103 в `DrivingHudView.cs` (3 строки с `turbo` после переименования в `pixie`); исправлено в исходниках и расширен `check_character_canon.py` на все `.cs` | **Unity Editor compilation повторно не проверена**; выполнить `git pull` и дождаться отсутствия ошибок Console |
 
 
 Последний выполненный этап: **UX-0; UX-1 в работе, подтверждены три пользовательские проверки, 2/6 основных чекбоксов**.  
