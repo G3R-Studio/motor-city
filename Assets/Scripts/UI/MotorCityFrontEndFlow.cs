@@ -843,8 +843,9 @@ namespace MotorCity.UI
             controlChoiceRoot.SetActive(false);
             loadingRoot.SetActive(false);
             playerExperienceRoot.SetActive(true);
-            ShowPlayerExperienceHome();
-            RefreshPlayerExperience();
+            // A fresh entry starts at the top, while Back from a detail
+            // keeps the overview position for narrow/touch layouts.
+            SwitchPlayerExperiencePage(null, true);
             ApplyPlayerExperienceModalLayout(true);
         }
 
