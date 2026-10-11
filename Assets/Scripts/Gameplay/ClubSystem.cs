@@ -163,6 +163,8 @@ namespace MotorCity.Gameplay
                     WeeklyGoal),
                 WeeklyGoal);
 
+        public int CatalogWeeklyCreditsReward => WeeklyCreditsReward();
+        public int CatalogWeeklyReputationReward => WeeklyReputationReward();
         public bool CatalogWeeklyRewardClaimed =>
             !HasClub || weeklyRewardClaimed || GlobalRewardClaimedThisWeek();
         public long CatalogSecondsUntilWeeklyReset =>
