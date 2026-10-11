@@ -54,6 +54,9 @@ namespace MotorCity.Gameplay
                     drift.TotalScore - scoreAtStart);
 
         public int TargetScore => bronzeScore;
+        public int CatalogSilverTargetScore => silverScore;
+        public int CatalogGoldTargetScore => goldScore;
+        public int CatalogLegendaryTargetScore => legendaryScore;
         public int RewardCredits => bronzeRewardCredits;
         public int CatalogSilverRewardCredits => silverRewardCredits;
         public int CatalogGoldRewardCredits => goldRewardCredits;
