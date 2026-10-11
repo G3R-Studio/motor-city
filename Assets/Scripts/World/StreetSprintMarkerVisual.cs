@@ -13,6 +13,8 @@ namespace MotorCity.World
         private Renderer[] legacyRenderers;
         private GameObject sprintVfx;
         private CheckpointBeaconVisual fallbackBeacon;
+        private SpriteRenderer[] sprintChevrons;
+        private Camera directionCamera;
         private bool visibilityInitialized;
         private bool lastVisible;
 
@@ -72,6 +74,86 @@ namespace MotorCity.World
                 false);
         }
 
+        private void LateUpdate()
+        {
+            UpdateSprintChevronDirection();
+        }
+
+        // The SprintMarkerVfx fastForward sprite points right in its local
+        // XY plane. Its parent billboard faces the camera, so yawing the
+        // marker GameObject does NOT aim the chevrons down the race route.
+        // Rotate both sprite planes within the billboard using the outgoing
+        // checkpoint segment projected onto the camera's screen axes.
+        private void UpdateSprintChevronDirection()
+        {
+            if (sprint == null ||
+                sprintChevrons == null ||
+                sprintChevrons.Length == 0)
+                return;
+
+            Vector3 nextTarget;
+            bool hasNext =
+                sprint.TryGetNextTarget(out nextTarget);
+
+            Vector3 direction =
+                nextTarget - sprint.CurrentTarget;
+            direction.y = 0f;
+
+            if (directionCamera == null)
+                directionCamera = Camera.main;
+
+            bool hasDirection =
+                hasNext &&
+                directionCamera != null &&
+                direction.sqrMagnitude > 4f;
+
+            float angle = 0f;
+            if (hasDirection)
+            {
+                Transform cameraTransform =
+                    directionCamera.transform;
+
+                Vector2 projected =
+                    new Vector2(
+                        Vector3.Dot(
+                            direction,
+                            cameraTransform.right),
+                        Vector3.Dot(
+                            direction,
+                            cameraTransform.up));
+
+                hasDirection =
+                    projected.sqrMagnitude > 0.0001f;
+
+                if (hasDirection)
+                {
+                    angle = Mathf.Atan2(
+                        projected.y,
+                        projected.x) * Mathf.Rad2Deg;
+                }
+            }
+
+            for (int i = 0;
+                 i < sprintChevrons.Length;
+                 i++)
+            {
+                SpriteRenderer chevron =
+                    sprintChevrons[i];
+
+                if (chevron == null)
+                    continue;
+
+                // The final checkpoint has no outgoing direction. Keep the
+                // checkpoint ring but do not show a misleading right arrow.
+                chevron.enabled = hasDirection;
+                if (hasDirection)
+                {
+                    chevron.transform.localRotation =
+                        Quaternion.Euler(0f, 0f, angle);
+                }
+            }
+        }
+
         private void SnapToTarget()
         {
             transform.position =
@@ -119,6 +201,25 @@ namespace MotorCity.World
 
             sprintVfx.transform.localScale =
                 Vector3.one;
+
+            SpriteRenderer[] renderers =
+                sprintVfx.GetComponentsInChildren<
+                    SpriteRenderer>(true);
+
+            System.Collections.Generic.List<SpriteRenderer> chevrons =
+                new();
+
+            foreach (SpriteRenderer renderer in renderers)
+            {
+                if (renderer != null &&
+                    (renderer.name == "Sprint Icon Core" ||
+                     renderer.name == "Sprint Icon Glow"))
+                {
+                    chevrons.Add(renderer);
+                }
+            }
+
+            sprintChevrons = chevrons.ToArray();
 
             return
                 true;
