@@ -920,7 +920,8 @@ namespace MotorCity.UI
                             : hud.PlayerExperienceNextMilestoneLine);
             }
 
-            RefreshPlayerExperienceSections();
+            // Detail snapshots are read when a section is actually opened.
+            // Do not query all eight gameplay owners just to render home.
             RefreshPlayerExperienceTextHeights();
         }
 
