@@ -38,6 +38,14 @@ Do not mark WebGL browser results based on Desktop Editor, Device Simulator, bui
 4. Use **Yandex Games** staging for SDK-specific ads, cloud saves and platform functionality. A local HTTP server cannot certify these features.
 5. If a bug appears, record which profile/commit, device, console line and minimal reproduction. Only after all rows pass should Phase 12 be closed.
 
+## Field observation: weak-PC Unity splash/startup loading (unquantified)
+
+- A user reported **very long Unity loader/startup time on a weak PC** while checking the published GitHub Pages WebGL Release. The elapsed time, browser/network, whether loading eventually finishes, HTTP transfer sizes, WASM compilation time and browser console are **not yet measured**, so this is a reported symptom, not a confirmed WebGL deadlock.
+- GitHub Pages publishing converts all Brotli (`.br`) player assets to uncompressed `.data`, `.wasm`, and `.framework.js`, because GitHub Pages does not expose custom `Content-Encoding: br` configuration for these static file paths. The resulting **published per-profile directory sizes** were 151,454,765 bytes Desktop and 153,994,130 bytes Mobile (uncompressed file sizes, **not measured network transfer bytes**, which may differ due to HTTP compression).
+- `Web - Desktop - Release.asset` already has `webGLDataCaching: 1`; do not disable caching or add forced cache busting. The first load may include a cold download, WebAssembly compilation, engine initialization and resource allocation on the device; repeated loads in a normal browser session may be faster.
+- Before changing gameplay assets, get **one concrete cold/warm load time** and determine whether time is spent in Network downloads versus JS/WASM compile/init (Browser DevTools `Network` and `Performance`). If the transfer dominates, evaluate a static hosting/CDN option that supports **native Brotli `Content-Encoding`** for Unity's already-built compressed Release, or a separately tested Pages-specific optimization. Do **not** publish untested JS decompression shims or alter city prefab/vehicle physics based on this observation alone.
+- A Play Mode functional PASS or CI build PASS does not imply a first-load startup performance PASS on weak hardware.
+
 ## Unfinished/intentional work
 
 Phase 10 measured vehicle physics at low FPS and Phase 11 license provenance/LFS migration decision remain separate. No third-party license or binary was removed. Do not mix asset deletion or physics tuning into the Release validation commits.
