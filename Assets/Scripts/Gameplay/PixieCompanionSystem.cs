@@ -74,6 +74,9 @@ namespace MotorCity.Gameplay
                     ? "HAON / Standard"
                     : "Primitive fallback";
 
+        public bool EditorExclusiveSkinFallback =>
+            useSupporterPixieSkin && !usingKisoraVisual;
+
         // Actual Animator clip, useful if a third-party animation produces
         // an unexpected bind/T-pose during Editor QA.
         public string EditorCurrentAnimationClip
@@ -1401,6 +1404,10 @@ namespace MotorCity.Gameplay
         {
             if (visualRoot != null)
             {
+                // Destroy() is deferred until the end of the frame.
+                // Hide the previous skin immediately so QA/player never
+                // sees two Pixie models on the roof during a skin change.
+                visualRoot.SetActive(false);
                 Destroy(
                     visualRoot);
             }
