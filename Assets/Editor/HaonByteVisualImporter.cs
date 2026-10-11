@@ -430,9 +430,9 @@ public static class HaonByteVisualImporter
             LoadClip(
                 "Assets/Haons SD series Pack/Animation/Common/StandA_idleA.FBX");
 
-        AnimationClip follow =
+        AnimationClip roofPose =
             LoadClip(
-                "Assets/Haons SD series Pack/Animation/Common/WalkA_Front.FBX");
+                "Assets/Haons SD series Pack/Animation/Common/StandB.FBX");
 
         AnimationClip idleAlt =
             LoadClip(
@@ -494,8 +494,8 @@ public static class HaonByteVisualImporter
 
         AddState(
             machine,
-            "Pixie Follow",
-            follow ?? idle);
+            "Pixie Roof Pose",
+            roofPose ?? idle);
 
         AddState(
             machine,

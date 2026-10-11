@@ -50,7 +50,8 @@ namespace MotorCity.Gameplay
         private float hoverPhase;
         private float animationReactionTimer;
         private float idleVariantTimer;
-        private bool alternateIdle;
+        private int ambientCycleIndex;
+        private bool ambientCruising;
         private int currentAnimatorStateHash;
         private float messageTimer;
         private float activeSeconds;
@@ -256,7 +257,7 @@ namespace MotorCity.Gameplay
 
             hoverPhase +=
                 Time.unscaledDeltaTime *
-                2.25f;
+                1.65f;
 
             Vector3 targetWorld =
                 car.transform.TransformPoint(
@@ -266,7 +267,7 @@ namespace MotorCity.Gameplay
                 Vector3.up *
                 Mathf.Sin(
                     hoverPhase) *
-                0.16f;
+                0.055f;
 
             float distance =
                 Vector3.Distance(
@@ -931,49 +932,17 @@ namespace MotorCity.Gameplay
         private Vector3 ResolveVisualAnchor()
         {
             if (car == null)
-            {
-                return
-                    new Vector3(
-                        1.1f,
-                        1.35f,
-                        0.15f);
-            }
+                return new Vector3(0f, 1.65f, 0f);
 
-            Bounds bounds =
-                ResolveCarLocalBounds();
+            Bounds bounds = ResolveCarLocalBounds();
 
-            float halfWidth =
-                Mathf.Max(
-                    0.45f,
-                    bounds.extents.x);
-
-            float width =
-                halfWidth * 2f;
-
-            // Anchor Pixie from the vehicle's upper centre instead of using
-            // fixed offsets. She sits just outside the passenger/right side,
-            // with the gap scaling gently with vehicle width, and slightly
-            // below the highest point of the body.
-            float sideGap =
-                Mathf.Clamp(
-                    width * 0.10f,
-                    0.16f,
-                    0.34f);
-
-            float verticalDrop =
-                Mathf.Clamp(
-                    bounds.size.y * 0.16f,
-                    0.14f,
-                    0.32f);
-
-            return
-                new Vector3(
-                    bounds.center.x +
-                    halfWidth +
-                    sideGap,
-                    bounds.max.y -
-                    verticalDrop,
-                    bounds.center.z);
+            // The companion's feet/hover pivot belongs over the middle of
+            // the roof, not to the side of the car. The authored vehicle body
+            // bounds adapt to each model; small clearance avoids clipping.
+            return new Vector3(
+                bounds.center.x,
+                bounds.max.y + 0.12f,
+                bounds.center.z);
         }
 
         private Bounds ResolveCarLocalBounds()
@@ -1126,75 +1095,69 @@ namespace MotorCity.Gameplay
         {
             if (!usingHaonVisual ||
                 externalAnimator == null)
-            {
                 return;
-            }
 
             if (animationReactionTimer > 0f)
             {
                 animationReactionTimer =
                     Mathf.Max(
                         0f,
-                        animationReactionTimer -
-                        Time.unscaledDeltaTime);
+                        animationReactionTimer - Time.unscaledDeltaTime);
 
                 if (animationReactionTimer > 0f)
                     return;
             }
 
-            float speed =
-                car == null
-                    ? 0f
-                    : car.SpeedKph;
+            bool cruising =
+                car != null &&
+                car.SpeedKph > 7f;
 
-            if (useSupporterPixieSkin &&
-                externalAnimator != null)
+            // Kisora has a native "idle -> running" transition. Disable
+            // it even if the car is moving: Pixie poses on the roof instead.
+            if (useSupporterPixieSkin)
             {
                 externalAnimator.SetBool(
                     "param_idletorunning",
-                    speed > 7f);
+                    false);
             }
 
-            string state;
+            if (cruising != ambientCruising)
+            {
+                ambientCruising = cruising;
+                ambientCycleIndex = 0;
+                idleVariantTimer = 0f;
+            }
 
-            if (speed > 7f)
+            idleVariantTimer += Time.unscaledDeltaTime;
+
+            float poseSeconds =
+                cruising ? 6.3f : 7.4f;
+
+            if (idleVariantTimer >= poseSeconds)
             {
                 idleVariantTimer = 0f;
-                alternateIdle = false;
-                state = "Pixie Follow";
-            }
-            else
-            {
-                idleVariantTimer +=
-                    Time.unscaledDeltaTime;
+                ambientCycleIndex = (ambientCycleIndex + 1) % 4;
 
-                if (idleVariantTimer >= 5.5f)
+                // A brief cheer every few changes when travelling, rather
+                // than a looping walk/run on the vehicle. Gameplay reactions
+                // (victory, boost, activity completion) still take priority.
+                if (cruising && ambientCycleIndex == 3)
                 {
-                    idleVariantTimer = 0f;
-                    alternateIdle =
-                        !alternateIdle;
+                    PlayPixieReaction("Pixie Clap", 1.7f);
+                    return;
                 }
-
-                state =
-                    alternateIdle
-                        ? "Pixie Idle Alt"
-                        : "Pixie Idle";
             }
 
-            externalAnimator.speed =
-                speed > 7f
-                    ? Mathf.Lerp(
-                        0.95f,
-                        1.18f,
-                        Mathf.InverseLerp(
-                            7f,
-                            150f,
-                            speed))
-                    : 1f;
+            string state =
+                ambientCycleIndex switch
+                {
+                    1 => "Pixie Roof Pose",
+                    2 => "Pixie Idle Alt",
+                    _ => "Pixie Idle"
+                };
 
-            PlayAnimatorState(
-                state,
-                0.18f);
+            externalAnimator.speed = 1f;
+            PlayAnimatorState(state, 0.22f);
         }
 
         private void PlayPixieReaction(
@@ -1281,16 +1244,6 @@ namespace MotorCity.Gameplay
                         return;
                     }
 
-                    // Extra guard for imported copies where running is still
-                    // treated as a one-shot instead of a looping clip.
-                    if (mappedState == "running" &&
-                        currentState.normalizedTime >= 0.98f)
-                    {
-                        externalAnimator.Play(
-                            hash,
-                            0,
-                            0f);
-                    }
                 }
 
                 return;
@@ -1320,22 +1273,11 @@ namespace MotorCity.Gameplay
         {
             return pixieState switch
             {
-                "Pixie Follow" =>
-                    "running",
-
-                "Pixie Victory" or
-                "Pixie Clap" =>
-                    "winpose",
-
-                "Pixie Boost" =>
-                    "jump",
-
-                "Pixie Idle Alt" or
-                "Pixie Idle" =>
-                    "idle",
-
-                _ =>
-                    "idle"
+                "Pixie Idle Alt" => "default",
+                "Pixie Victory" or "Pixie Clap" => "winpose",
+                "Pixie Boost" => "jump",
+                "Pixie Roof Pose" or "Pixie Idle" => "idle",
+                _ => "idle"
             };
         }
 
@@ -1377,6 +1319,10 @@ namespace MotorCity.Gameplay
                 null;
             carPoseInitialized =
                 false;
+            ambientCycleIndex = 0;
+            ambientCruising = false;
+            idleVariantTimer = 0f;
+            animationReactionTimer = 0f;
 
             BuildVisual();
         }
