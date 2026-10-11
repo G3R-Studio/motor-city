@@ -1267,6 +1267,49 @@ namespace MotorCity.UI
         // UX-1: observational snapshots from the existing gameplay owners.
         // These are read only, and refreshed only when the front-end opens
         // or switches a page. They never select vehicles or grant rewards.
+        // Exact reward is shown only for the currently selected story or
+        // season mission. Other objective sources do not expose a reliable
+        // finalized reward here, so do not invent one.
+        public string PlayerExperienceObjectiveRewardLine
+        {
+            get
+            {
+                if (adventureDirector == null ||
+                    adventureDirector.CurrentMission == null)
+                    return string.Empty;
+
+                string id = adventureDirector.CurrentMission.Id;
+                int credits;
+                int rep;
+                int pixieXp;
+
+                if (id == "source.story" &&
+                    story != null && !story.IsComplete)
+                {
+                    credits = story.CurrentCreditsReward;
+                    rep = story.CurrentReputationReward;
+                    pixieXp = story.CurrentPixieXpReward;
+                }
+                else if (id == "source.season1" &&
+                         season != null &&
+                         !season.IsComplete &&
+                         season.IsSeasonOneActive)
+                {
+                    credits = season.CurrentCreditsReward;
+                    rep = season.CurrentReputationReward;
+                    pixieXp = season.CurrentPixieXpReward;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+
+                return MotorCityLocalization.Format(
+                    "ux.home.mission_reward",
+                    credits, rep, pixieXp);
+            }
+        }
+
         public string PlayerExperienceNextMilestoneLine
         {
             get
