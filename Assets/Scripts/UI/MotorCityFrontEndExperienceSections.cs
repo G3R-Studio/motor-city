@@ -411,26 +411,34 @@ namespace MotorCity.UI
             if (!down && !up && !home && !end)
                 return;
 
-            GameObject active = playerExperienceHomePanel;
-            GameObject[] details =
-            {
-                playerExperienceActivitiesPanel,
-                playerExperienceJournalPanel,
-                playerExperienceClubPanel,
-                playerExperienceInspectorPanel,
-                playerExperiencePixiePanel,
-                playerExperienceGaragePanel,
-                playerExperienceAchievementsPanel,
-                playerExperienceNightClubPanel
-            };
-            foreach (GameObject detail in details)
-            {
-                if (detail != null && detail.activeSelf)
-                {
-                    active = detail;
-                    break;
-                }
-            }
+            // Only one detail can be active. Avoid allocating a temporary
+            // array on each keyboard page-scroll input.
+            GameObject active =
+                playerExperienceActivitiesPanel != null &&
+                playerExperienceActivitiesPanel.activeSelf
+                    ? playerExperienceActivitiesPanel
+                    : playerExperienceJournalPanel != null &&
+                      playerExperienceJournalPanel.activeSelf
+                        ? playerExperienceJournalPanel
+                        : playerExperienceClubPanel != null &&
+                          playerExperienceClubPanel.activeSelf
+                            ? playerExperienceClubPanel
+                            : playerExperienceInspectorPanel != null &&
+                              playerExperienceInspectorPanel.activeSelf
+                                ? playerExperienceInspectorPanel
+                                : playerExperiencePixiePanel != null &&
+                                  playerExperiencePixiePanel.activeSelf
+                                    ? playerExperiencePixiePanel
+                                    : playerExperienceGaragePanel != null &&
+                                      playerExperienceGaragePanel.activeSelf
+                                        ? playerExperienceGaragePanel
+                                        : playerExperienceAchievementsPanel != null &&
+                                          playerExperienceAchievementsPanel.activeSelf
+                                            ? playerExperienceAchievementsPanel
+                                            : playerExperienceNightClubPanel != null &&
+                                              playerExperienceNightClubPanel.activeSelf
+                                                ? playerExperienceNightClubPanel
+                                                : playerExperienceHomePanel;
 
             ScrollRect scroll = active == null
                 ? null
@@ -444,6 +452,9 @@ namespace MotorCity.UI
             if (contentHeight <= viewportHeight + 4f)
                 return;
 
+            // A page-key jump must not fight momentum from a prior touch
+            // swipe or mouse-wheel scroll on this ScrollRect.
+            scroll.StopMovement();
             if (home || end)
             {
                 scroll.verticalNormalizedPosition = home ? 1f : 0f;
