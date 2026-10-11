@@ -576,6 +576,12 @@ namespace MotorCity.UI
             MotorCityMusicRuntime.SetPauseMenuPaused(
                 false);
 
+            // OpenPauseMenu marks gameplay UI as paused. Restore that
+            // platform flag on normal Resume as well as on Main Menu,
+            // including the route through Player Experience.
+            MotorCityPlatformRuntime.SetGameplayUiPaused(
+                false);
+
             MotorCityInput.ClearVirtualState();
 
             car?.SetDrivingBlocked(
