@@ -790,6 +790,19 @@ namespace MotorCity.UI
                     professions?.RestartFromResult();
                     break;
             }
+
+            // A successful retry dismisses the previous result. Always
+            // clear the result and modal UI blockers together at this
+            // handoff, regardless of the activity implementation.
+            // An unsuccessful retry keeps HasResult=true and the car locked.
+            if (!activityManager.HasResult)
+            {
+                car?.SetDrivingBlocked(
+                    "ActivityResult",
+                    false);
+
+                RefreshDrivingEnabledForUi();
+            }
         }
 
     }
