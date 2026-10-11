@@ -24,6 +24,27 @@ namespace MotorCity.Gameplay
 
         public bool ShowMessage => messageTimer > 0f;
         public string StatusText { get; private set; }
+        private const int BronzeCreditReward = 140;
+        private const int SilverCreditReward = 210;
+        private const int GoldCreditReward = 350;
+        private const int BronzeReputationReward = 20;
+        private const int SilverReputationReward = 35;
+        private const int GoldReputationReward = 55;
+
+        public int GetCatalogMedalCreditReward(int tier)
+        {
+            return tier == 1 ? BronzeCreditReward :
+                tier == 2 ? SilverCreditReward :
+                tier == 3 ? GoldCreditReward : 0;
+        }
+
+        public int GetCatalogMedalReputationReward(int tier)
+        {
+            return tier == 1 ? BronzeReputationReward :
+                tier == 2 ? SilverReputationReward :
+                tier == 3 ? GoldReputationReward : 0;
+        }
+
         public int SpotCount => spots?.Length ?? 0;
 
         public void Initialize(
@@ -228,16 +249,16 @@ namespace MotorCity.Gameplay
                     switch (tier)
                     {
                         case 1:
-                            credits += 140;
-                            rep += 20;
+                            credits += BronzeCreditReward;
+                            rep += BronzeReputationReward;
                             break;
                         case 2:
-                            credits += 210;
-                            rep += 35;
+                            credits += SilverCreditReward;
+                            rep += SilverReputationReward;
                             break;
                         case 3:
-                            credits += 350;
-                            rep += 55;
+                            credits += GoldCreditReward;
+                            rep += GoldReputationReward;
                             break;
                     }
                 }
