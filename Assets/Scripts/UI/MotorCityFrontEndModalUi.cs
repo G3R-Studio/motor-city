@@ -270,13 +270,16 @@ namespace MotorCity.UI
                 ? Vector2.zero : controlChoiceModalPanel.sizeDelta;
             float choiceContentWidth = Mathf.Max(1f,
                 choiceSize.x - 2f * FrontEndModalHorizontalPadding);
-            bool stackChoice = choiceSize.x < 700f;
+            // Keep three equal-width primary buttons in the same left column.
+            // The right column is an optional, narrower Configure action.
+            // For Keyboard it is intentionally empty rather than centered.
+            bool stackChoice = choiceContentWidth < 500f;
             ConfigureControlChoiceActionRow(
-                controlChoiceKeyboardActions, 1, choiceContentWidth, stackChoice);
+                controlChoiceKeyboardActions, choiceContentWidth, stackChoice);
             ConfigureControlChoiceActionRow(
-                controlChoiceWheelActions, 2, choiceContentWidth, stackChoice);
+                controlChoiceWheelActions, choiceContentWidth, stackChoice);
             ConfigureControlChoiceActionRow(
-                controlChoiceArrowsActions, 2, choiceContentWidth, stackChoice);
+                controlChoiceArrowsActions, choiceContentWidth, stackChoice);
 
             foreach (RectTransform panel in playerExperienceModalPanels)
                 FitFrontEndModalFooter(panel);
@@ -405,33 +408,74 @@ namespace MotorCity.UI
         }
 
         private static void ConfigureControlChoiceActionRow(
-            RectTransform row, int buttonCount, float width, bool stacked)
+            RectTransform row, float availableWidth, bool stacked)
         {
             if (row == null)
                 return;
 
-            GridLayoutGroup grid = row.GetComponent<GridLayoutGroup>();
-            if (grid == null)
+            // Both layouts have the same primary column width across
+            // Keyboard, Wheel and Arrows, regardless of the optional action.
+            // This row has no LayoutGroup: children are positioned directly
+            // so the Configure buttons can be smaller than primary buttons.
+            Button[] buttons = row.GetComponentsInChildren<Button>(true);
+            if (buttons.Length == 0)
                 return;
 
-            int columns = stacked ? 1 : buttonCount;
-            grid.constraintCount = columns;
-            float cellWidth = stacked
-                ? Mathf.Max(1f, width - 4f)
-                : buttonCount == 1
-                    ? Mathf.Min(620f, width)
-                    : Mathf.Min(340f, (width - FrontEndModalButtonSpacing) / 2f);
-            grid.cellSize = new Vector2(Mathf.Max(1f, cellWidth), 72f);
+            const float buttonHeight = 72f;
+            const float mainMaxWidth = 540f;
+            const float configureMaxWidth = 170f;
+            float width = Mathf.Max(1f, availableWidth);
+            float configureWidth = Mathf.Min(configureMaxWidth, width);
+            float mainWidth = stacked
+                ? Mathf.Min(mainMaxWidth, width)
+                : Mathf.Max(1f, Mathf.Min(mainMaxWidth,
+                    width - configureWidth - FrontEndModalButtonSpacing));
 
+            float rowHeight = stacked && buttons.Length > 1
+                ? buttonHeight * 2f + FrontEndModalButtonSpacing
+                : buttonHeight;
             LayoutElement rowSize = row.GetComponent<LayoutElement>();
             if (rowSize != null)
             {
-                float height = stacked && buttonCount > 1
-                    ? buttonCount * 72f +
-                        (buttonCount - 1) * FrontEndModalButtonSpacing
-                    : 72f;
-                rowSize.minHeight = height;
-                rowSize.preferredHeight = height;
+                rowSize.minHeight = rowHeight;
+                rowSize.preferredHeight = rowHeight;
+            }
+
+            float left = stacked
+                ? (width - mainWidth) * 0.5f
+                : (width - mainWidth - configureWidth -
+                    FrontEndModalButtonSpacing) * 0.5f;
+
+            // The keyboard row uses the very same left position and main
+            // button width, but deliberately has no configure button.
+            RectTransform main = buttons[0].GetComponent<RectTransform>();
+            main.anchorMin = new Vector2(0f, 0.5f);
+            main.anchorMax = new Vector2(0f, 0.5f);
+            main.pivot = new Vector2(0f, 0.5f);
+            main.anchoredPosition = new Vector2(
+                left,
+                stacked && buttons.Length > 1
+                    ? (buttonHeight + FrontEndModalButtonSpacing) * 0.5f
+                    : 0f);
+            main.sizeDelta = new Vector2(mainWidth, buttonHeight);
+
+            if (buttons.Length > 1)
+            {
+                // On a narrow phone the smaller action moves below and
+                // right-aligns with its primary button.
+                RectTransform configure = buttons[1]
+                    .GetComponent<RectTransform>();
+                configure.anchorMin = new Vector2(0f, 0.5f);
+                configure.anchorMax = new Vector2(0f, 0.5f);
+                configure.pivot = new Vector2(0f, 0.5f);
+                configure.anchoredPosition = stacked
+                    ? new Vector2(
+                        left + mainWidth - configureWidth,
+                        -(buttonHeight + FrontEndModalButtonSpacing) * 0.5f)
+                    : new Vector2(
+                        left + mainWidth + FrontEndModalButtonSpacing, 0f);
+                configure.sizeDelta = new Vector2(
+                    configureWidth, buttonHeight);
             }
 
             StretchFrontEndActionLabels(row);
@@ -582,13 +626,9 @@ namespace MotorCity.UI
                 objectName == "Wheel Control Actions" ||
                 objectName == "Arrows Control Actions")
             {
-                GridLayoutGroup grid =
-                    rowObject.AddComponent<GridLayoutGroup>();
-                grid.cellSize = new Vector2(300f, height);
-                grid.spacing = new Vector2(spacing, spacing);
-                grid.childAlignment = TextAnchor.MiddleCenter;
-                grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                grid.constraintCount = objectName == "Keyboard Control Actions" ? 1 : 2;
+                // A fixed unequal two-column grid, with no second
+                // button on the Keyboard row. The responsive positioning
+                // is applied after the Canvas is built.
                 return row;
             }
 
