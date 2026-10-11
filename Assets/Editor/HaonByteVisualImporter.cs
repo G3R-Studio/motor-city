@@ -510,7 +510,7 @@ public static class HaonByteVisualImporter
         AddState(
             machine,
             "Pixie Boost",
-            jump ?? follow ?? idle);
+            jump ?? roofPose ?? idle);
 
         machine.defaultState =
             idleState;

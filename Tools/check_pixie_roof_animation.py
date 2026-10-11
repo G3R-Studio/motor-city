@@ -29,7 +29,9 @@ checks = {
     "gameplay cheers kept": '"Pixie Victory"' in SOURCE and
         '"Pixie Boost"' in SOURCE,
     "normal StandB authoring": 'StandB.FBX' in IMPORTER and
-        '"Pixie Roof Pose"' in IMPORTER,
+        '"Pixie Roof Pose"' in IMPORTER and
+        'jump ?? roofPose ?? idle' in IMPORTER and
+        'jump ?? follow ?? idle' not in IMPORTER,
     "normal StandB deployed": 'm_Name: Pixie Roof Pose' in CONTROLLER and
         'guid: a34c9ff020908b44caff787e4b41bea7' in CONTROLLER,
     "normal walking absent": 'm_Name: Pixie Follow' not in CONTROLLER and
