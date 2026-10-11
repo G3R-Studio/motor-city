@@ -59,8 +59,8 @@ namespace MotorCity.UI
                     "Navigator Menu",
                     Vector2.zero,
                     new Vector2(
-                        580f,
-                        320f),
+                        640f,
+                        420f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -68,6 +68,8 @@ namespace MotorCity.UI
                         0.5f,
                         0.5f),
                     Color.clear);
+
+            navigatorMenuPanelRect = panel;
 
             ApplyModalPanelTexture(
                 panel);
@@ -124,7 +126,7 @@ namespace MotorCity.UI
                     "Navigator Destination Card",
                     new Vector2(
                         0f,
-                        -5f),
+                        28f),
                     new Vector2(
                         478f,
                         140f),
@@ -282,7 +284,7 @@ namespace MotorCity.UI
                     TextAnchor.LowerCenter,
                     new Vector2(
                         0f,
-                        22f),
+                        98f),
                     new Vector2(
                         360f,
                         28f),
@@ -2719,63 +2721,131 @@ namespace MotorCity.UI
         private GameObject BuildNavigatorTouchControls(
             Transform canvas)
         {
+            // The modal is created before touch controls. Parent the buttons
+            // directly to that modal so they stay aligned with its card on
+            // every aspect ratio instead of floating at the screen bottom.
+            Transform parent =
+                navigatorMenuPanelRect != null
+                    ? navigatorMenuPanelRect
+                    : canvas;
+
             GameObject rootObject =
                 new(
                     "Navigator Touch Controls",
                     typeof(RectTransform));
 
             rootObject.transform.SetParent(
-                canvas,
+                parent,
                 false);
 
             RectTransform root =
                 rootObject.GetComponent<RectTransform>();
 
             root.anchorMin =
-                new Vector2(0.5f, 0f);
+                new Vector2(0.5f, 0.5f);
             root.anchorMax =
-                new Vector2(0.5f, 0f);
+                new Vector2(0.5f, 0.5f);
             root.pivot =
-                new Vector2(0.5f, 0f);
+                new Vector2(0.5f, 0.5f);
             root.anchoredPosition =
-                new Vector2(0f, 18f);
+                Vector2.zero;
             root.sizeDelta =
-                new Vector2(470f, 118f);
+                new Vector2(640f, 420f);
 
+            // The card occupies the center (478 x 140 at y=+28).
+            // Place previous/next just beyond its left/right edges.
             CreateTouchPulseButton(
                 root,
                 "Navigator Touch Controls Prev",
-                "◀",
+                string.Empty,
                 MotorCityInputAction.PreviousVehicle,
-                new Vector2(-135f, 82f),
-                new Vector2(76f, 46f));
+                new Vector2(-282f, 238f),
+                new Vector2(54f, 62f));
 
+            AddNavigatorArrowGraphic(
+                root,
+                "Navigator Touch Controls Prev",
+                GarageReferenceGraphic.Symbol.Left);
+
+            CreateTouchPulseButton(
+                root,
+                "Navigator Touch Controls Next",
+                string.Empty,
+                MotorCityInputAction.NextVehicle,
+                new Vector2(282f, 238f),
+                new Vector2(54f, 62f));
+
+            AddNavigatorArrowGraphic(
+                root,
+                "Navigator Touch Controls Next",
+                GarageReferenceGraphic.Symbol.Right);
+
+            // Keep both actions beneath the destination card, inside the
+            // navigator panel, with clearance for the distance text.
             CreateLocalizedTouchPulseButton(
                 root,
                 "Navigator Touch Controls Action",
                 "touch.modal.select",
                 MotorCityInputAction.Retry,
-                new Vector2(0f, 82f),
-                new Vector2(178f, 46f));
-
-            CreateTouchPulseButton(
-                root,
-                "Navigator Touch Controls Next",
-                "▶",
-                MotorCityInputAction.NextVehicle,
-                new Vector2(135f, 82f),
-                new Vector2(76f, 46f));
+                new Vector2(-99f, 42f),
+                new Vector2(182f, 50f));
 
             CreateLocalizedTouchPulseButton(
                 root,
                 "Navigator Touch Controls Close",
                 "touch.modal.close",
                 MotorCityInputAction.ToggleNavigator,
-                new Vector2(0f, 24f),
-                new Vector2(178f, 40f));
+                new Vector2(99f, 42f),
+                new Vector2(182f, 50f));
 
-            return
-                rootObject;
+            return rootObject;
+        }
+
+        private static void AddNavigatorArrowGraphic(
+            Transform controlsRoot,
+            string buttonName,
+            GarageReferenceGraphic.Symbol symbol)
+        {
+            Transform button =
+                controlsRoot.Find(buttonName);
+
+            if (button == null)
+                return;
+
+            // Unity's default font does not always contain the triangle
+            // arrow glyphs in WebGL, leaving empty buttons. Use the
+            // existing vector icon renderer with no font dependency.
+            GameObject iconObject =
+                new(
+                    "Navigator Arrow Graphic",
+                    typeof(RectTransform),
+                    typeof(GarageReferenceGraphic));
+
+            iconObject.transform.SetParent(
+                button,
+                false);
+
+            RectTransform iconRect =
+                iconObject.GetComponent<RectTransform>();
+
+            iconRect.anchorMin =
+                new Vector2(0.5f, 0.5f);
+            iconRect.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            iconRect.pivot =
+                new Vector2(0.5f, 0.5f);
+            iconRect.anchoredPosition =
+                Vector2.zero;
+            iconRect.sizeDelta =
+                new Vector2(26f, 30f);
+
+            GarageReferenceGraphic icon =
+                iconObject.GetComponent<GarageReferenceGraphic>();
+
+            icon.symbol = symbol;
+            icon.color =
+                new Color(0.58f, 0.84f, 1f, 1f);
+            icon.raycastTarget = false;
         }
 
         private static Vector3 ClosestPointOnFlatSegment(

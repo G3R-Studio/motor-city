@@ -228,6 +228,7 @@ namespace MotorCity.UI
         private const float RouteRebuildOffPathDistance = 32f;
         private const float RouteAdvanceDistance = 18f;
         private GameObject navigatorMenuOverlay;
+        private RectTransform navigatorMenuPanelRect;
         private Text navigatorMenuText;
         private Text navigatorIndexText;
         private Text navigatorCategoryText;
