@@ -44,6 +44,13 @@ namespace MotorCity.Gameplay
         private bool rookieMode;
 
         public bool IsActive { get; private set; }
+        public int CatalogBaseRewardCredits => baseRewardCredits;
+        public int CatalogEliteRequiredLevel => EliteRequiredLevel;
+        public bool CatalogEliteUnlocked =>
+            activityManager != null &&
+            activityManager.HasDisciplineLevel(
+                DisciplineType.Racing, EliteRequiredLevel);
+
         public bool IsCountingDown => isCountingDown;
         public bool IsNearStart { get; private set; }
         public float ElapsedSeconds { get; private set; }
