@@ -1140,11 +1140,27 @@ namespace MotorCity.World
                 };
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            // Avoid first-use additional-light shader stalls in browsers.
-            // Web keeps emissive windows/materials and vehicle headlights,
-            // but does not enable city realtime Light components.
-            lampDistance = 0f;
-            lightBudget = 0;
+            // Keep some FCG-authored street / park Spot Lights alive in
+            // WebGL. A zero budget made every lamp permanently dark, even
+            // at full night. Browser/mobile budgets remain intentionally
+            // smaller than Editor budgets to limit extra-light shader cost.
+            // Only toggle enabled / intensity below; never move, rotate or
+            // change the authored Spot Light shape, range or shadow setup.
+            lampDistance =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low => 65f,
+                    MotorCityQualityPreset.High => 115f,
+                    _ => 90f
+                };
+
+            lightBudget =
+                MotorCityQualityRuntime.CurrentPreset switch
+                {
+                    MotorCityQualityPreset.Low => 8,
+                    MotorCityQualityPreset.High => 24,
+                    _ => 16
+                };
 #endif
 
             float maximumDistanceSquared =
