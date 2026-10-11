@@ -1289,6 +1289,49 @@ namespace MotorCity.UI
             }
         }
 
+        // The ActivityManager owns the same priority resolver shown after
+        // a completed activity. Reuse it rather than inventing a new list
+        // of supposedly available jobs in the front-end.
+        public string PlayerExperienceRecommendedTaskLine
+        {
+            get
+            {
+                if (activityManager == null)
+                    return string.Empty;
+
+                ResultNextGoalResolver.Goal goal =
+                    activityManager.RecommendedGoal;
+                if (!goal.IsValid)
+                    return string.Empty;
+
+                string progress = string.Empty;
+                if (goal.Type == ResultNextGoalResolver.GoalType.Story &&
+                    story != null && !story.IsComplete &&
+                    story.CurrentMissionTarget > 0)
+                {
+                    progress = MotorCityLocalization.Format(
+                        "ux.home.remaining_count",
+                        story.RemainingForCurrentMission,
+                        story.CurrentMissionTarget);
+                }
+                else if (goal.Type == ResultNextGoalResolver.GoalType.Season &&
+                         season != null && !season.IsComplete &&
+                         season.IsSeasonOneActive &&
+                         season.CurrentMissionTarget > 0)
+                {
+                    progress = MotorCityLocalization.Format(
+                        "ux.home.remaining_count",
+                        Mathf.Max(0, season.CurrentMissionTarget -
+                            season.CurrentMissionProgress),
+                        season.CurrentMissionTarget);
+                }
+
+                return string.IsNullOrEmpty(progress)
+                    ? goal.Text
+                    : goal.Text + "\n" + progress;
+            }
+        }
+
         // UX-1: observational snapshots from the existing gameplay owners.
         // These are read only, and refreshed only when the front-end opens
         // or switches a page. They never select vehicles or grant rewards.
@@ -1299,25 +1342,27 @@ namespace MotorCity.UI
         {
             get
             {
-                if (adventureDirector == null ||
-                    adventureDirector.CurrentMission == null)
+                if (activityManager == null)
                     return string.Empty;
 
-                string id = adventureDirector.CurrentMission.Id;
+                // The recommended goal may differ from the currently
+                // tracked navigator mission while an activity is active.
+                // Show a reward only when its real source owns that goal.
+                ResultNextGoalResolver.GoalType goalType =
+                    activityManager.RecommendedGoal.Type;
                 int credits;
                 int rep;
                 int pixieXp;
 
-                if (id == "source.story" &&
+                if (goalType == ResultNextGoalResolver.GoalType.Story &&
                     story != null && !story.IsComplete)
                 {
                     credits = story.CurrentCreditsReward;
                     rep = story.CurrentReputationReward;
                     pixieXp = story.CurrentPixieXpReward;
                 }
-                else if (id == "source.season1" &&
-                         season != null &&
-                         !season.IsComplete &&
+                else if (goalType == ResultNextGoalResolver.GoalType.Season &&
+                         season != null && !season.IsComplete &&
                          season.IsSeasonOneActive)
                 {
                     credits = season.CurrentCreditsReward;
