@@ -259,6 +259,23 @@ namespace MotorCity.UI
             ConfigurePlayerExperienceActionRow(
                 playerExperienceMoreActions, 3, 270f,
                 panelSize.x - 2f * FrontEndModalHorizontalPadding, stacked);
+
+            Vector2 choiceSize = controlChoiceModalPanel == null
+                ? Vector2.zero : controlChoiceModalPanel.sizeDelta;
+            float choiceContentWidth = Mathf.Max(1f,
+                choiceSize.x - 2f * FrontEndModalHorizontalPadding);
+            bool stackChoice = choiceSize.x < 700f;
+            ConfigureControlChoiceActionRow(
+                controlChoiceKeyboardActions, 1, choiceContentWidth, stackChoice);
+            ConfigureControlChoiceActionRow(
+                controlChoiceWheelActions, 2, choiceContentWidth, stackChoice);
+            ConfigureControlChoiceActionRow(
+                controlChoiceArrowsActions, 2, choiceContentWidth, stackChoice);
+
+            foreach (RectTransform panel in playerExperienceModalPanels)
+                FitFrontEndModalFooter(panel);
+            FitFrontEndModalFooter(controlChoiceModalPanel);
+
             Canvas.ForceUpdateCanvases();
             RefreshPlayerExperienceTextHeights();
             RefreshFrontEndScrollCues();
@@ -380,6 +397,84 @@ namespace MotorCity.UI
             cue.Handle.anchorMax = new Vector2(1f, bottom + ratio);
         }
 
+        private static void ConfigureControlChoiceActionRow(
+            RectTransform row, int buttonCount, float width, bool stacked)
+        {
+            if (row == null)
+                return;
+
+            GridLayoutGroup grid = row.GetComponent<GridLayoutGroup>();
+            if (grid == null)
+                return;
+
+            int columns = stacked ? 1 : buttonCount;
+            grid.constraintCount = columns;
+            float cellWidth = stacked
+                ? Mathf.Max(1f, width - 4f)
+                : buttonCount == 1
+                    ? Mathf.Min(620f, width)
+                    : Mathf.Min(340f, (width - FrontEndModalButtonSpacing) / 2f);
+            grid.cellSize = new Vector2(Mathf.Max(1f, cellWidth), 72f);
+
+            LayoutElement rowSize = row.GetComponent<LayoutElement>();
+            if (rowSize != null)
+            {
+                float height = stacked && buttonCount > 1
+                    ? buttonCount * 72f +
+                        (buttonCount - 1) * FrontEndModalButtonSpacing
+                    : 72f;
+                rowSize.minHeight = height;
+                rowSize.preferredHeight = height;
+            }
+
+            // Button label rects were initially sized from their original
+            // widths (430/170). Stretch them to their current Grid cells
+            // so on phones no text can hang outside its own button.
+            foreach (Button button in row.GetComponentsInChildren<Button>())
+            {
+                Text label = button.GetComponentInChildren<Text>();
+                if (label == null)
+                    continue;
+
+                RectTransform rect = label.rectTransform;
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.offsetMin = new Vector2(10f, 5f);
+                rect.offsetMax = new Vector2(-10f, -5f);
+                label.resizeTextForBestFit = true;
+                label.resizeTextMinSize = 16;
+                label.resizeTextMaxSize = 28;
+                label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                label.verticalOverflow = VerticalWrapMode.Truncate;
+            }
+        }
+
+        private static void FitFrontEndModalFooter(RectTransform panel)
+        {
+            if (panel == null)
+                return;
+
+            Transform footer = panel.Find(panel.name + " Footer");
+            if (footer == null)
+                return;
+
+            float availableWidth = Mathf.Max(
+                1f, panel.rect.width - 2f * FrontEndModalHorizontalPadding);
+            foreach (Button button in footer.GetComponentsInChildren<Button>())
+            {
+                LayoutElement element = button.GetComponent<LayoutElement>();
+                if (element == null)
+                    continue;
+
+                float width = Mathf.Min(
+                    button.gameObject.name.Contains("Control") ? 220f : 320f,
+                    availableWidth);
+                element.minWidth = width;
+                element.preferredWidth = width;
+            }
+        }
+
         private void RefreshPlayerExperienceTextHeights()
         {
             SetPlayerExperienceTextHeight(playerExperienceObjectiveText, 110f);
@@ -463,6 +558,20 @@ namespace MotorCity.UI
 
             element.preferredHeight =
                 height;
+
+            if (objectName == "Keyboard Control Actions" ||
+                objectName == "Wheel Control Actions" ||
+                objectName == "Arrows Control Actions")
+            {
+                GridLayoutGroup grid =
+                    rowObject.AddComponent<GridLayoutGroup>();
+                grid.cellSize = new Vector2(300f, height);
+                grid.spacing = new Vector2(spacing, spacing);
+                grid.childAlignment = TextAnchor.MiddleCenter;
+                grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                grid.constraintCount = objectName == "Keyboard Control Actions" ? 1 : 2;
+                return row;
+            }
 
             if (objectName == "Player Experience Section Actions" ||
                 objectName == "Player Experience Progress Actions" ||
