@@ -251,33 +251,43 @@ namespace MotorCity.UI
         {
             MotorCityInput.ClearVirtualState();
 
-            pauseMenuOpen =
-                false;
+            // Return from the shared career modal before changing menu
+            // ownership. Both pause and career callbacks are now cleared.
+            if (pauseExperienceOpen && pauseExperienceFrontEnd != null)
+                pauseExperienceFrontEnd.ClosePlayerExperienceFromPause();
 
-            pauseOverlay?.SetActive(
-                false);
-
-            MotorCityMusicRuntime.SetPauseMenuPaused(
-                false);
-
-            car?.SetDrivingBlocked(
-                "PauseMenu",
-                false);
-
-            MotorCityPlatformRuntime.SetGameplayUiPaused(
-                false);
+            pauseExperienceOpen = false;
+            pauseExperienceFrontEnd = null;
 
             MotorCityFrontEndFlow frontEnd =
                 Object.FindAnyObjectByType<
                     MotorCityFrontEndFlow>();
 
-            if (frontEnd != null)
+            // If the front-end has disappeared, use the normal resume
+            // path rather than leaving pause/audio flags half-cleared.
+            if (frontEnd == null)
             {
-                frontEnd.ShowMainMenuFromGarage();
+                ClosePauseMenu();
                 return;
             }
 
-            ClosePauseMenu();
+            pauseMenuOpen = false;
+            pauseOverlay?.SetActive(false);
+
+            if (EventSystem.current != null &&
+                EventSystem.current.currentSelectedGameObject != null &&
+                pauseOverlay != null &&
+                EventSystem.current.currentSelectedGameObject.transform
+                    .IsChildOf(pauseOverlay.transform))
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+            }
+
+            MotorCityMusicRuntime.SetPauseMenuPaused(false);
+            car?.SetDrivingBlocked("PauseMenu", false);
+            MotorCityPlatformRuntime.SetGameplayUiPaused(false);
+
+            frontEnd.ShowMainMenuFromGarage();
         }
 
         private void CreatePauseButton(
