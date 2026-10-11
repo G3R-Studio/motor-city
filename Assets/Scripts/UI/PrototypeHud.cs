@@ -1124,128 +1124,13 @@ namespace MotorCity.UI
         {
             get
             {
-                if (activityManager == null ||
-                    streetSprint == null ||
-                    circuitRace == null ||
-                    delivery == null ||
-                    driftChallenge == null ||
-                    professions == null)
-                {
-                    return MotorCityLocalization.Text(
-                        "ux.sections.not_ready");
-                }
+                if (activityManager == null || streetSprint == null ||
+                    circuitRace == null || delivery == null ||
+                    driftChallenge == null || professions == null)
+                    return MotorCityLocalization.Text("ux.sections.not_ready");
 
-                // Read-only catalog, grouped by activities actually owned
-                // by the current game. Never fabricate rewards or routes.
-                return string.Join(
-                    "\n\n",
-                    PlayerExperienceActiveActivityLine(),
-                    MotorCityLocalization.Text("ux.catalog.races") + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.activities.sprint",
-                        FormatPlayerExperienceBestTime(
-                            streetSprint.BestTimeSeconds)) + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.activities.circuit",
-                        FormatPlayerExperienceBestTime(
-                            circuitRace.BestTimeSeconds)) + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.catalog.circuit_lap",
-                        FormatPlayerExperienceBestTime(
-                            circuitRace.BestLapSeconds)) + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.start_marker") + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.catalog.base_reward",
-                        streetSprint.CatalogBaseRewardCredits) + "\n" +
-                    PlayerExperienceDisciplineLevelLine(
-                        MotorCity.Gameplay.DisciplineType.Racing,
-                        "ux.catalog.racing_level") + "\n" +
-                    MotorCityLocalization.Format(
-                        streetSprint.CatalogEliteUnlocked
-                            ? "ux.catalog.sprint_elite_open"
-                            : "ux.catalog.sprint_elite_locked",
-                        streetSprint.CatalogEliteRequiredLevel) + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.catalog.circuit_reward",
-                        circuitRace.CatalogBaseRewardCredits),
-                    MotorCityLocalization.Text("ux.catalog.drift") + "\n" +
-                    (drift == null ? string.Empty
-                        : (drift.BestDrift > 0
-                            ? MotorCityLocalization.Format(
-                                "ux.catalog.drift_best", drift.BestDrift)
-                            : MotorCityLocalization.Text(
-                                "ux.catalog.drift_best_empty")) + "\n") +
-                    PlayerExperienceDisciplineLevelLine(
-                        DisciplineType.Drift, "ux.catalog.drift_level") + "\n" +
-                    MotorCityLocalization.Format(
-                        driftChallenge.CatalogEliteUnlocked
-                            ? "ux.catalog.drift_elite_open"
-                            : "ux.catalog.drift_elite_locked",
-                        driftChallenge.CatalogEliteRequiredLevel) + "\n" +
-                    PlayerExperienceDriftZoneRecords() +
-                    MotorCityLocalization.Format(
-                        "ux.catalog.drift_thresholds",
-                        driftChallenge.TargetScore,
-                        driftChallenge.CatalogSilverTargetScore,
-                        driftChallenge.CatalogGoldTargetScore,
-                        driftChallenge.CatalogLegendaryTargetScore) + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.catalog.drift_rewards",
-                        driftChallenge.RewardCredits,
-                        driftChallenge.CatalogSilverRewardCredits,
-                        driftChallenge.CatalogGoldRewardCredits,
-                        driftChallenge.CatalogLegendaryRewardCredits),
-                    MotorCityLocalization.Text("ux.catalog.jobs") + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.activities.delivery",
-                        FormatPlayerExperienceBestTime(
-                            delivery.BestTimeSeconds)) + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.activities.professions",
-                        professions.StartCount,
-                        professions.TotalCompleted) + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.job_start") + "\n" +
-                    PlayerExperienceProfessionNames() + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.catalog.profession_level",
-                        professions.ProfessionLevel) + "\n" +
-                    (professions.CompletionsUntilNextLevel > 0
-                        ? MotorCityLocalization.Format(
-                            "ux.catalog.profession_next",
-                            professions.CompletionsUntilNextLevel)
-                        : MotorCityLocalization.Text("ux.catalog.profession_max")) + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.tow_start") + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.carwash_start") + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.catalog.delivery_times",
-                        delivery.CatalogGoldTimeSeconds,
-                        delivery.CatalogSilverTimeSeconds,
-                        delivery.CatalogBronzeTimeSeconds) + "\n" +
-                    MotorCityLocalization.Format(
-                        "ux.catalog.delivery_payouts",
-                        delivery.RewardCredits,
-                        delivery.CatalogSilverRewardCredits,
-                        delivery.CatalogBronzeRewardCredits,
-                        delivery.CatalogCompletionRewardCredits) + "\n" +
-                    PlayerExperienceDisciplineLevelLine(
-                        MotorCity.Gameplay.DisciplineType.Delivery,
-                        "ux.catalog.delivery_level") + "\n" +
-                    MotorCityLocalization.Format(
-                        delivery.EliteUnlocked
-                            ? "ux.catalog.delivery_elite_unlocked"
-                            : "ux.catalog.delivery_elite",
-                        delivery.EliteRequiredDisciplineLevel) +
-                    (vehicleSpecialization == null
-                        ? string.Empty
-                        : "\n" + MotorCityLocalization.Format(
-                            "ux.catalog.vehicle_tip",
-                            vehicleSpecialization.GarageCompactLine)),
-                    MotorCityLocalization.Text("ux.catalog.city") + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.city_info") +
-                    (photoHunt == null ? string.Empty
-                        : "\n" + photoHunt.AlbumLine),
-                    MotorCityLocalization.Text("ux.catalog.special") + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.special_info"));
+                // Read-only, built on page open; no save or payout side effects.
+                return BuildPlayerExperienceActivityCatalog();
             }
         }
 
