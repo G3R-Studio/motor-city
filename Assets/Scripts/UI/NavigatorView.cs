@@ -59,8 +59,8 @@ namespace MotorCity.UI
                     "Navigator Menu",
                     Vector2.zero,
                     new Vector2(
-                        580f,
-                        320f),
+                        640f,
+                        420f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -68,6 +68,8 @@ namespace MotorCity.UI
                         0.5f,
                         0.5f),
                     Color.clear);
+
+            navigatorMenuPanelRect = panel;
 
             ApplyModalPanelTexture(
                 panel);
