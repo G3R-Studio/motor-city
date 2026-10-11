@@ -63,6 +63,8 @@ namespace MotorCity.Localization
                 { "ux.achievements.title", E("ДОСТИЖЕНИЯ И КОЛЛЕКЦИИ", "ACHIEVEMENTS & COLLECTIONS") },
                 { "ux.achievements.subtitle", E("ПОЛУЧЕНО И СЛЕДУЮЩИЙ РУБЕЖ", "UNLOCKED AND NEXT MILESTONE") },
                 { "ux.achievements.count", E("ДОСТИЖЕНИЯ: {0}/{1}", "ACHIEVEMENTS: {0}/{1}") },
+                { "ux.achievements.progress_reward", E("ПРОГРЕСС {0}/{1} • НАГРАДА {2:N0} КР, {3:N0} REP", "PROGRESS {0}/{1} • REWARD {2:N0} CR, {3:N0} REP") },
+                { "ux.achievements.button", E("ДОСТИЖЕНИЯ", "ACHIEVEMENTS") },
                 { "ux.achievements.done", E("[ОТКРЫТО]", "[UNLOCKED]") },
                 { "ux.achievements.locked", E("[ЗАКРЫТО]", "[LOCKED]") },
                 { "ux.achievements.collection", E("КОЛЛЕКЦИЯ АВТОМОБИЛЕЙ", "VEHICLE COLLECTION") },
