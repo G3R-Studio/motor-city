@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MotorCity.Gameplay
 {
-    // Pixie is the floating vehicle companion: XP, levels, visuals, daily
+    // Pixie is the rooftop vehicle companion: XP, levels, visuals, daily
     // tasks and the temporary driving boost belong to Pixie, never to Turbo.
     // Turbo is the separate story narrator/navigation assistant.
     // Legacy MotorCity.Turbo.* save keys remain untouched for old saves.
