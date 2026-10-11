@@ -214,6 +214,94 @@ namespace MotorCity.UI
                 JournalStatus(done, locked));
         }
 
+        private void AppendJournalToday(StringBuilder sb)
+        {
+            if (dailyAdventures == null) return;
+            string reset = MotorCityLocalization.Format("ux.journal.today_time",
+                JournalDuration(dailyAdventures.CatalogSecondsUntilReset));
+            for (int i = 0; i < dailyAdventures.CatalogTaskCount; i++)
+            {
+                bool done = dailyAdventures.CatalogTaskComplete(i);
+                JournalItem(sb,
+                    MotorCityLocalization.Format("ux.journal.daily_item", i + 1),
+                    dailyAdventures.CatalogTaskDescription(i),
+                    JournalFraction(dailyAdventures.CatalogTaskProgress(i),
+                        dailyAdventures.CatalogTaskTarget(i)) + "\n" + reset,
+                    done ? MotorCityLocalization.Text("ux.journal.no_reward") :
+                        MotorCityLocalization.Format("ux.journal.daily_reward",
+                            dailyAdventures.CatalogTaskReward(i)),
+                    done ? reset : MotorCityLocalization.Text("ux.journal.daily_next"),
+                    JournalStatus(done));
+            }
+
+            JournalItem(sb, MotorCityLocalization.Text("ux.journal.today_bonus"),
+                MotorCityLocalization.Text("ux.journal.today_bonus"),
+                JournalFraction(dailyAdventures.CompletedTasks,
+                    dailyAdventures.CatalogTaskCount) + "\n" + reset,
+                dailyAdventures.DayCompleted
+                    ? MotorCityLocalization.Text("ux.journal.no_reward")
+                    : MotorCityLocalization.Format("ux.journal.reward_credits",
+                        dailyAdventures.CatalogDayReward +
+                        dailyAdventures.CatalogNextMilestoneReward),
+                reset, JournalStatus(dailyAdventures.DayCompleted));
+
+            if (club == null) return;
+            bool joined = club.HasClub;
+            bool doneWeek = joined && club.CatalogWeeklyRewardClaimed;
+            string weeklyReset = MotorCityLocalization.Format(
+                "ux.journal.week_time",
+                JournalDuration(club.CatalogSecondsUntilWeeklyReset));
+            JournalItem(sb,
+                joined ? MotorCityLocalization.Format("ux.journal.weekly",
+                    club.CurrentClubName) : MotorCityLocalization.Text("ux.journal.weekly_no_club"),
+                joined ? club.WeeklyLine :
+                    MotorCityLocalization.Text("ux.journal.weekly_no_club"),
+                joined ? JournalFraction(club.WeeklyContribution, club.WeeklyTarget) +
+                    "\n" + weeklyReset : weeklyReset,
+                !joined || doneWeek
+                    ? MotorCityLocalization.Text("ux.journal.no_reward")
+                    : MotorCityLocalization.Format("ux.journal.reward_credits_rep",
+                        club.CatalogWeeklyCreditsReward,
+                        club.CatalogWeeklyReputationReward),
+                joined ? weeklyReset : MotorCityLocalization.Text("ux.journal.weekly_no_club"),
+                JournalStatus(doneWeek, !joined));
+        }
+
+        private void AppendJournalContracts(StringBuilder sb)
+        {
+            if (contracts == null) return;
+            JournalItem(sb,
+                MotorCityLocalization.Format("ux.journal.contract_title",
+                    contracts.CatalogCycle, contracts.CatalogIndex + 1,
+                    6, contracts.CatalogTitle) + " - " + contracts.CatalogClient,
+                contracts.CatalogBrief + "\n" +
+                    MotorCityLocalization.Text("ux.journal.contract_passive"),
+                contracts.CatalogProgressLine,
+                JournalReward(contracts.CatalogRewardCredits,
+                    contracts.CatalogRewardReputation),
+                MotorCityLocalization.Text("ux.journal.contract_next"),
+                JournalStatus(false, false));
+        }
+
+        private void AppendJournalCareer(StringBuilder sb)
+        {
+            if (career == null) return;
+            bool complete = career.CatalogComplete;
+            string required = MotorCityLocalization.Text(
+                "ux.journal.career_condition");
+            string progress = career.HudLine;
+            JournalItem(sb, complete ? MotorCityLocalization.Text("ux.journal.complete") :
+                    MotorCityLocalization.Format("ux.journal.career_title",
+                        career.Stage + 1, career.CatalogStageCount),
+                required, progress,
+                complete ? MotorCityLocalization.Text("ux.journal.no_reward") :
+                    JournalReward(career.CatalogNextCredits,
+                        career.CatalogNextReputation),
+                MotorCityLocalization.Text(complete
+                    ? "ux.journal.complete" : "ux.journal.career_next"),
+                JournalStatus(complete));
+        }
+
         private void AppendPlayerExperienceJournalUpdates(StringBuilder sb)
         {
             if (journalBeforeResult == null || journalLastResultName == null)
