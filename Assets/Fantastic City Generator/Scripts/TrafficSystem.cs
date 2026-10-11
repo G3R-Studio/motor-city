@@ -36,6 +36,18 @@ namespace FCG
         private const string RuntimeTrafficResourcePath =
             "MotorCity/Environment/FCGTrafficCars";
 
+        // The runtime city can retain only a subset of its serialized IaCars
+        // after prefab/importer migrations. That silently promotes the old
+        // Resources fallback (3 buses among just 6 distinct vehicles) into
+        // the live traffic pool in WebGL. Keep a copy of the *authored* FCG
+        // Traffic System roster (12 distinct models, 1 bus), not a bus-ratio
+        // or weighting script, as the completeness reference.
+        private const string AuthoredTrafficCatalogPath =
+            "MotorCity/Environment/TrafficVehicleCatalog";
+        private GameObject[] authoredTrafficPool;
+        private bool authoredTrafficPoolResolved;
+        private bool repairedPartialTrafficRoster;
+
         [System.Serializable]
         public class WpData
         {
@@ -467,6 +479,28 @@ namespace FCG
                         .ToArray()
                     : new GameObject[0];
 
+            GameObject[] authored =
+                ResolveAuthoredTrafficPool();
+
+            // Do not replace a complete Workbench-authored city roster.
+            // But a partially restored one must not silently shrink to
+            // a few surviving cars/buses. Equal selection of distinct
+            // prefabs below is still the original FCG selection behavior.
+            if (authored.Length > serialized.Length)
+            {
+                if (!repairedPartialTrafficRoster)
+                {
+                    repairedPartialTrafficRoster = true;
+                    Debug.LogWarning(
+                        "Motor City FCG traffic: repaired incomplete runtime IaCars " +
+                        "(" + serialized.Length + " models) using authored " +
+                        "Traffic System roster (" + authored.Length + " models).");
+                }
+
+                IaCars = authored;
+                return authored;
+            }
+
             if (serialized.Length > 0)
             {
                 return serialized;
@@ -495,6 +529,38 @@ namespace FCG
                 runtime;
 
             return runtime;
+        }
+
+        private GameObject[] ResolveAuthoredTrafficPool()
+        {
+            if (authoredTrafficPoolResolved)
+            {
+                return authoredTrafficPool;
+            }
+
+            authoredTrafficPoolResolved = true;
+
+            GameObject catalog =
+                Resources.Load<GameObject>(
+                    AuthoredTrafficCatalogPath);
+
+            TrafficSystem reference =
+                catalog != null
+                    ? catalog.GetComponent<TrafficSystem>()
+                    : null;
+
+            authoredTrafficPool =
+                reference != null &&
+                reference.IaCars != null
+                    ? reference.IaCars
+                        .Where(car =>
+                            car != null &&
+                            car.GetComponent<TrafficCar>() != null)
+                        .Distinct()
+                        .ToArray()
+                    : new GameObject[0];
+
+            return authoredTrafficPool;
         }
 
         private static void NormalizeTrafficVehicleScale(
