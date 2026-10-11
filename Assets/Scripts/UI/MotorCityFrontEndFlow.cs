@@ -2634,6 +2634,14 @@ namespace MotorCity.UI
             playerExperienceRoot?.SetActive(false);
             canvas.gameObject.SetActive(false);
 
+            if (EventSystem.current != null &&
+                EventSystem.current.currentSelectedGameObject != null &&
+                EventSystem.current.currentSelectedGameObject.transform
+                    .IsChildOf(canvas.transform))
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+            }
+
             MotorCityPlatformRuntime.MarkGameplayStarted();
 
             if (MotorCityPlatformRuntime.IsGameplayResumeReady)
