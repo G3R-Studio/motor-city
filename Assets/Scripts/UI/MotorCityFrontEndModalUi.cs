@@ -230,40 +230,25 @@ namespace MotorCity.UI
             if (row == null)
                 return;
 
-            HorizontalLayoutGroup horizontal =
-                row.GetComponent<HorizontalLayoutGroup>();
-            VerticalLayoutGroup vertical =
-                row.GetComponent<VerticalLayoutGroup>();
-            if (vertical == null)
-            {
-                vertical = row.gameObject.AddComponent<VerticalLayoutGroup>();
-                vertical.childAlignment = TextAnchor.UpperCenter;
-                vertical.childControlWidth = true;
-                vertical.childControlHeight = true;
-                vertical.childForceExpandWidth = true;
-                vertical.childForceExpandHeight = false;
-                vertical.spacing = FrontEndModalButtonSpacing;
-                vertical.enabled = false;
-            }
+            // A GridLayoutGroup switches columns without swapping or
+            // stacking mutually exclusive LayoutGroup components at runtime.
+            GridLayoutGroup grid = row.GetComponent<GridLayoutGroup>();
+            if (grid == null)
+                return;
 
-            horizontal.enabled = !stacked;
-            vertical.enabled = stacked;
+            grid.constraintCount = stacked ? 1 : count;
+            grid.cellSize = new Vector2(
+                stacked
+                    ? Mathf.Max(1f, row.parent.GetComponent<RectTransform>()
+                        .rect.width - 4f)
+                    : normalButtonWidth,
+                64f);
+
             LayoutElement rowSize = row.GetComponent<LayoutElement>();
             rowSize.minHeight = stacked
                 ? count * 64f + (count - 1) * FrontEndModalButtonSpacing
                 : 64f;
             rowSize.preferredHeight = rowSize.minHeight;
-            foreach (Button button in row.GetComponentsInChildren<Button>())
-            {
-                LayoutElement buttonSize =
-                    button.GetComponent<LayoutElement>();
-                if (buttonSize == null)
-                    continue;
-                buttonSize.minWidth = stacked ? 0f : normalButtonWidth;
-                buttonSize.preferredWidth =
-                    stacked ? -1f : normalButtonWidth;
-                buttonSize.flexibleWidth = stacked ? 1f : 0f;
-            }
         }
 
         private void RefreshPlayerExperienceTextHeights()
@@ -344,6 +329,20 @@ namespace MotorCity.UI
 
             element.preferredHeight =
                 height;
+
+            if (objectName == "Player Experience Section Actions" ||
+                objectName == "Player Experience Progress Actions")
+            {
+                GridLayoutGroup grid =
+                    rowObject.AddComponent<GridLayoutGroup>();
+                grid.cellSize = new Vector2(270f, height);
+                grid.spacing = new Vector2(spacing, spacing);
+                grid.childAlignment = TextAnchor.MiddleCenter;
+                grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                grid.constraintCount = objectName ==
+                    "Player Experience Section Actions" ? 2 : 3;
+                return row;
+            }
 
             HorizontalLayoutGroup layout =
                 rowObject.AddComponent<
