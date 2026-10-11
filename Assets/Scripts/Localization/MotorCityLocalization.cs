@@ -129,6 +129,7 @@ namespace MotorCity.Localization
                 { "ux.catalog.name.night", E("НОЧНОЙ КЛУБ", "NIGHT CLUB") },
                 { "ux.catalog.name.discovery", E("ИССЛЕДОВАНИЕ", "EXPLORATION") },
                 { "ux.catalog.name.radar", E("РАДАР", "SPEED TRAP") },
+                { "ux.catalog.prof.max", E("Максимальный уровень профессий достигнут.", "Maximum profession level reached.") },
                 { "ux.catalog.races", E("ГОНКИ", "RACES") },
                 { "ux.catalog.drift", E("ДРИФТ", "DRIFT") },
                 { "ux.catalog.jobs", E("РАБОТЫ", "JOBS") },
