@@ -76,7 +76,7 @@ for script in (
     GAME / "AdventureDirector.cs",
     SCRIPTS / "UI/PrototypeHud.cs",
 ):
-    require(not re.search(r'(?<![."\\w])turbo\\s*(?:\\?\\.|\\.)', source(script)),
+    require(not re.search(r'(?<![.\w])turbo\s*(?:\?\.|\.)', source(script)),
             f"Old Turbo pet variable access remained: {script.relative_to(ROOT)}")
 require('{ "pixie.title", E("ПИКСИ", "PIXIE") }' in LOC and
         '{ "ux.pixie.title", E("ПИКСИ", "PIXIE") }' in LOC,
