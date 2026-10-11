@@ -1460,7 +1460,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.name.event"),
                     MotorCityLocalization.Text("ux.catalog.about.event"),
                     MotorCityLocalization.Text("ux.catalog.start.special"),
-                    MotorCityLocalization.Text("ux.catalog.access.passive"),
+                    MotorCityLocalization.Text("ux.catalog.access.progress"),
                     liveEvents.HudLine,
                     PlayerExperienceCatalogReward(
                         liveEvents.CatalogCurrentCreditsReward,
@@ -1474,7 +1474,7 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text("ux.catalog.start.special"),
                     legends.AllLegendsDefeated
                         ? MotorCityLocalization.Text("ux.catalog.completed")
-                        : MotorCityLocalization.Text("ux.catalog.access.passive"),
+                        : MotorCityLocalization.Text("ux.catalog.access.progress"),
                     legends.HudLine,
                     PlayerExperienceCatalogReward(
                         legends.CatalogCurrentCreditsReward,
