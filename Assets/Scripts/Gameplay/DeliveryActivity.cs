@@ -46,6 +46,12 @@ namespace MotorCity.Gameplay
         public int CheckpointIndex => checkpointIndex;
         public int CheckpointCount => route?.Length ?? 0;
         public int RewardCredits => goldRewardCredits;
+        public float CatalogGoldTimeSeconds => goldTimeSeconds;
+        public float CatalogSilverTimeSeconds => silverTimeSeconds;
+        public float CatalogBronzeTimeSeconds => bronzeTimeSeconds;
+        public int CatalogSilverRewardCredits => silverRewardCredits;
+        public int CatalogBronzeRewardCredits => bronzeRewardCredits;
+        public int CatalogCompletionRewardCredits => completionRewardCredits;
         public int EliteRequiredDisciplineLevel => EliteRequiredLevel;
         public bool EliteUnlocked =>
             activityManager != null &&
