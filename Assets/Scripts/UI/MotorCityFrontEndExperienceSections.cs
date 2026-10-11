@@ -404,6 +404,57 @@ namespace MotorCity.UI
             RefreshFrontEndScrollCues();
         }
 
+        private void KeepCareerSelectionVisible()
+        {
+            if (playerExperienceRoot == null ||
+                !playerExperienceRoot.activeInHierarchy ||
+                EventSystem.current == null)
+                return;
+
+            GameObject selected = EventSystem.current.currentSelectedGameObject;
+            if (selected == lastCareerFocus)
+                return;
+            lastCareerFocus = selected;
+            if (selected == null)
+                return;
+
+            GameObject page = playerExperienceHomePanel;
+            if (page == null || !page.activeSelf)
+            {
+                page = selected.transform.GetComponentInParent<ScrollRect>() != null
+                    ? selected.transform.GetComponentInParent<ScrollRect>().transform.parent.gameObject
+                    : null;
+            }
+            if (page == null || !page.activeInHierarchy ||
+                !selected.transform.IsChildOf(page.transform))
+                return;
+
+            ScrollRect scroll = page.GetComponentInChildren<ScrollRect>();
+            if (scroll == null || scroll.content == null ||
+                scroll.viewport == null ||
+                !selected.transform.IsChildOf(scroll.content))
+                return;
+
+            Canvas.ForceUpdateCanvases();
+            float range = scroll.content.rect.height - scroll.viewport.rect.height;
+            if (range <= 1f)
+                return;
+            Bounds focus = RectTransformUtility.CalculateRelativeRectTransformBounds(
+                scroll.viewport, selected.transform);
+            Rect view = scroll.viewport.rect;
+            float change = focus.min.y < view.yMin + 12f
+                ? focus.min.y - view.yMin - 12f
+                : focus.max.y > view.yMax - 12f
+                    ? focus.max.y - view.yMax + 12f
+                    : 0f;
+            if (Mathf.Abs(change) <= 0.5f)
+                return;
+
+            scroll.StopMovement();
+            scroll.verticalNormalizedPosition = Mathf.Clamp01(
+                scroll.verticalNormalizedPosition + change / range);
+        }
+
         // Optional keyboard/controller-friendly document scrolling.
         // No new gameplay shortcuts: these keys are read only while this
         // front-end page is visible (also works while gameplay is paused).
