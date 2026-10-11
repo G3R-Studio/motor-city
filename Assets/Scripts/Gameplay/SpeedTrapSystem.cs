@@ -22,6 +22,27 @@ namespace MotorCity.Gameplay
 
         public string StatusText { get; private set; }
 
+        private const int BronzeCreditReward = 120;
+        private const int SilverCreditReward = 180;
+        private const int GoldCreditReward = 300;
+        private const int BronzeReputationReward = 20;
+        private const int SilverReputationReward = 30;
+        private const int GoldReputationReward = 50;
+
+        public int GetCatalogMedalCreditReward(int tier)
+        {
+            return tier == 1 ? BronzeCreditReward :
+                tier == 2 ? SilverCreditReward :
+                tier == 3 ? GoldCreditReward : 0;
+        }
+
+        public int GetCatalogMedalReputationReward(int tier)
+        {
+            return tier == 1 ? BronzeReputationReward :
+                tier == 2 ? SilverReputationReward :
+                tier == 3 ? GoldReputationReward : 0;
+        }
+
         public int TrapCount =>
             traps?.Length ?? 0;
 
@@ -221,18 +242,18 @@ namespace MotorCity.Gameplay
                     switch (tier)
                     {
                         case 1:
-                            credits += 120;
-                            rep += 20;
+                            credits += BronzeCreditReward;
+                            rep += BronzeReputationReward;
                             break;
 
                         case 2:
-                            credits += 180;
-                            rep += 30;
+                            credits += SilverCreditReward;
+                            rep += SilverReputationReward;
                             break;
 
                         case 3:
-                            credits += 300;
-                            rep += 50;
+                            credits += GoldCreditReward;
+                            rep += GoldReputationReward;
                             break;
                     }
                 }
