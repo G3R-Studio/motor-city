@@ -76,10 +76,28 @@ for fragment in (
     "Tools/check_phase12_release_profiles.py",
     "run_unity_phase12_release.ps1 -Profile Desktop",
     "run_unity_phase12_release.ps1 -Profile Mobile",
+    "needs: [changes, source-gates, ui-layout, unity-editor]",
+    "needs.changes.outputs.unity == 'true'",
+    "needs.unity-editor.result == 'success'",
     "[phase12-release]",
 ):
     if fragment not in ci:
         errors.append(f"Phase 12 GitHub CI wiring missing: {fragment}")
+
+pages = ROOT / ".github/workflows/motor-city-pages.yml"
+if not pages.is_file():
+    errors.append("Missing automatic WebGL Pages deployment workflow")
+else:
+    page_ci = pages.read_text(encoding="utf-8-sig")
+    for fragment in (
+        "name: Verify successful WebGL Release artifacts",
+        "needs.release_ready.outputs.ready == 'true'",
+        "github.event.workflow_run.conclusion == 'success'",
+        'index("motor-city-webgl-desktop-release")',
+        'index("motor-city-webgl-mobile-release")',
+    ):
+        if fragment not in page_ci:
+            errors.append(f"WebGL Pages deployment gate missing: {fragment}")
 
 if errors:
     print("Phase 12 release profile preflight FAILED:")

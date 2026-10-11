@@ -24,14 +24,47 @@ permissions:
 
 concurrency:
   group: motor-city-pages
-  cancel-in-progress: true
+  # Do not cancel publishing valid builds on an unrelated documentation push.
+  cancel-in-progress: false
 
 jobs:
+  release_ready:
+    name: Verify successful WebGL Release artifacts
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.inspect.outputs.ready }}
+    steps:
+      - name: Require both Desktop and Mobile binaries from the same successful run
+        id: inspect
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_RUN_ID: ${{ github.event.workflow_run.id || inputs.release_run_id || '38095910625' }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_RUN_ID" =~ ^[0-9]+$ ]] || { echo "Invalid release run ID"; exit 1; }
+          release="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RELEASE_RUN_ID")"
+          [[ "$(jq -r '.conclusion' <<< "$release")" == "success" ]] || {
+            echo "Release CI run $RELEASE_RUN_ID is not successful"; exit 1;
+          }
+          [[ "$(jq -r '.head_branch' <<< "$release")" == "main" ]] || {
+            echo "Release CI run $RELEASE_RUN_ID is not from main"; exit 1;
+          }
+          artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RELEASE_RUN_ID/artifacts?per_page=100")"
+          if jq -e '([.artifacts[] | select(.expired == false) | .name] | index("motor-city-webgl-desktop-release") != null and index("motor-city-webgl-mobile-release") != null)' <<< "$artifacts" >/dev/null; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "Both WebGL Release artifacts are ready for deployment."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "No complete Desktop + Mobile Release pair; skipping Pages deployment."
+          fi
+
   stage:
     name: Prepare existing Desktop and Mobile WebGL Release artifacts
-    # Workflow-run triggers on every Source Gates completion. Only release-tagged,
-    # completely successful runs (including both WebGL builds) can deploy.
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && contains(github.event.workflow_run.head_commit.message, '[phase12-release]')) }}
+    needs: release_ready
+    # Skip docs-only and source-only runs without freshly built player artifacts.
+    if: ${{ needs.release_ready.outputs.ready == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:

@@ -12,7 +12,8 @@ permissions:
 
 concurrency:
   group: motor-city-gates-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Documentation-only pushes should never interrupt an in-progress WebGL build.
+  cancel-in-progress: false
 
 jobs:
   changes:
@@ -138,7 +139,7 @@ jobs:
     needs: changes
     # Full Editor CI is required for Unity assets/source/settings and for manual dispatch.
     # Docs-only and Python-audit-only pushes still execute the fast source gates.
-    if: ${{ vars.UNITY_CI_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || needs.changes.outputs.unity == 'true') }}
+    if: ${{ vars.UNITY_CI_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || needs.changes.outputs.unity == 'true' || contains(github.event.head_commit.message, '[phase12-release]')) }}
     runs-on: [self-hosted, Windows, X64, unity6000]
     timeout-minutes: 60
     steps:
@@ -233,9 +234,11 @@ jobs:
 
   unity-phase12-releases:
     name: Phase 12 WebGL Desktop + Mobile Release profiles
-    # Explicit on-push trigger only. Do not run two costly WebGL player builds
-    # on every source/docs commit or confuse these with the legacy WebGL build.
-    if: ${{ vars.UNITY_CI_ENABLED == 'true' && contains(github.event.head_commit.message, '[phase12-release]') }}
+    # Build on every Unity-relevant source/asset/settings change, but not on
+    # documentation-only pushes. Manual dispatch or [phase12-release] forces a build.
+    # Run expensive player builds only after source, UI and Unity Editor gates pass.
+    needs: [changes, source-gates, ui-layout, unity-editor]
+    if: ${{ vars.UNITY_CI_ENABLED == 'true' && needs.source-gates.result == 'success' && needs.ui-layout.result == 'success' && needs.unity-editor.result == 'success' && (github.event_name == 'workflow_dispatch' || needs.changes.outputs.unity == 'true' || contains(github.event.head_commit.message, '[phase12-release]')) }}
     runs-on: [self-hosted, Windows, X64, unity6000]
     timeout-minutes: 240
     steps:
