@@ -709,7 +709,7 @@ namespace MotorCity.UI
 
             CreateFrontEndLayoutButton(
                 playerExperienceMoreActions,
-                MotorCityLocalization.Text("ux.achievements.title"),
+                MotorCityLocalization.Text("ux.achievements.button"),
                 ShowPlayerExperienceAchievements,
                 270f,
                 64f);
