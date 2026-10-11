@@ -1134,6 +1134,106 @@ namespace MotorCity.UI
             }
         }
 
+        private string BuildPlayerExperienceActivityCatalog()
+        {
+            var sb = new System.Text.StringBuilder(12000);
+            sb.Append(PlayerExperienceActiveActivityLine());
+            sb.Append("\n\n").Append(MotorCityLocalization.Text("ux.catalog.races"));
+            AppendPlayerExperienceRaceCards(sb);
+            sb.Append("\n\n").Append(MotorCityLocalization.Text("ux.catalog.drift"));
+            AppendPlayerExperienceDriftCards(sb);
+            sb.Append("\n\n").Append(MotorCityLocalization.Text("ux.catalog.jobs"));
+            AppendPlayerExperienceJobCards(sb);
+            sb.Append("\n\n").Append(MotorCityLocalization.Text("ux.catalog.city"));
+            AppendPlayerExperienceCityCards(sb);
+            sb.Append("\n\n").Append(MotorCityLocalization.Text("ux.catalog.special"));
+            AppendPlayerExperienceSpecialCards(sb);
+            return sb.ToString();
+        }
+
+        private static void AppendPlayerExperienceCard(
+            System.Text.StringBuilder sb, string title,
+            string about, string start, string access,
+            string record, string reward, string next)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                return;
+            sb.Append("\n\n").Append(title);
+            AppendPlayerExperienceCardField(sb, "ux.catalog.field.about", about);
+            AppendPlayerExperienceCardField(sb, "ux.catalog.field.start", start);
+            AppendPlayerExperienceCardField(sb, "ux.catalog.field.access", access);
+            AppendPlayerExperienceCardField(sb, "ux.catalog.field.record", record);
+            AppendPlayerExperienceCardField(sb, "ux.catalog.field.reward", reward);
+            AppendPlayerExperienceCardField(sb, "ux.catalog.field.next", next);
+        }
+
+        private static void AppendPlayerExperienceCardField(
+            System.Text.StringBuilder sb, string key, string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+                sb.Append("\n").Append(MotorCityLocalization.Format(key, value));
+        }
+
+        private string PlayerExperienceCatalogAccess(string id)
+        {
+            int restriction = activityManager.CatalogAccessState(id);
+            string key = restriction == 1 ? "ux.catalog.access.busy"
+                : restriction == 2 ? "ux.catalog.access.tutorial"
+                : restriction == 3 ? "ux.catalog.access.story"
+                : "ux.catalog.access.ready";
+            return MotorCityLocalization.Text(key);
+        }
+
+        private static string PlayerExperienceCatalogMedal(int tier)
+        {
+            return MotorCityLocalization.Text(tier >= 3 ? "medal.gold"
+                : tier == 2 ? "medal.silver"
+                : tier == 1 ? "medal.bronze" : "medal.none");
+        }
+
+        private static string PlayerExperienceNextMedal(int tier)
+        {
+            return tier >= 3
+                ? MotorCityLocalization.Text("ux.catalog.next.completed")
+                : MotorCityLocalization.Format("ux.catalog.next.medal",
+                    PlayerExperienceCatalogMedal(tier + 1));
+        }
+
+        private void AppendPlayerExperienceRaceCards(System.Text.StringBuilder sb)
+        {
+            string racingLevel = PlayerExperienceDisciplineLevelLine(
+                DisciplineType.Racing, "ux.catalog.racing_level");
+            string elite = MotorCityLocalization.Format(
+                streetSprint.CatalogEliteUnlocked
+                    ? "ux.catalog.sprint_elite_open"
+                    : "ux.catalog.sprint_elite_locked",
+                streetSprint.CatalogEliteRequiredLevel);
+            AppendPlayerExperienceCard(sb,
+                MotorCityLocalization.Text("ux.catalog.name.sprint"),
+                MotorCityLocalization.Text("ux.catalog.about.sprint"),
+                MotorCityLocalization.Text("ux.catalog.start.race"),
+                PlayerExperienceCatalogAccess("sprint") + "\n" + racingLevel + "\n" + elite,
+                FormatPlayerExperienceBestTime(streetSprint.BestTimeSeconds),
+                MotorCityLocalization.Format("ux.catalog.base_reward",
+                    streetSprint.CatalogBaseRewardCredits),
+                streetSprint.CatalogEliteUnlocked
+                    ? MotorCityLocalization.Text("ux.catalog.next.record")
+                    : MotorCityLocalization.Format("ux.catalog.next.elite",
+                        streetSprint.CatalogEliteRequiredLevel));
+
+            AppendPlayerExperienceCard(sb,
+                MotorCityLocalization.Text("ux.catalog.name.circuit"),
+                MotorCityLocalization.Text("ux.catalog.about.circuit"),
+                MotorCityLocalization.Text("ux.catalog.start.race"),
+                PlayerExperienceCatalogAccess("circuit"),
+                FormatPlayerExperienceBestTime(circuitRace.BestTimeSeconds) +
+                    "\n" + MotorCityLocalization.Format("ux.catalog.circuit_lap",
+                        FormatPlayerExperienceBestTime(circuitRace.BestLapSeconds)),
+                MotorCityLocalization.Format("ux.catalog.circuit_reward",
+                    circuitRace.CatalogBaseRewardCredits),
+                MotorCityLocalization.Text("ux.catalog.next.record"));
+        }
+
         private string PlayerExperienceActiveActivityLine()
         {
             string activityKey = null;
