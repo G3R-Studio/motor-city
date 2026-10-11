@@ -20,6 +20,12 @@ namespace MotorCity.UI
         private Text playerExperienceClubText;
         private Text playerExperienceInspectorText;
         private Text playerExperiencePixieText;
+        private GameObject playerExperienceGaragePanel;
+        private GameObject playerExperienceAchievementsPanel;
+        private GameObject playerExperienceNightClubPanel;
+        private Text playerExperienceGarageText;
+        private Text playerExperienceAchievementsText;
+        private Text playerExperienceNightClubText;
 
         private void BuildPlayerExperienceSections()
         {
@@ -151,6 +157,33 @@ namespace MotorCity.UI
                     "ux.pixie.hint",
                     out playerExperiencePixieText);
 
+            playerExperienceGaragePanel =
+                BuildPlayerExperienceDetail(
+                    "Player Experience Garage Panel",
+                    "ux.garage.title",
+                    "ux.garage.subtitle",
+                    "ux.garage.hint",
+                    out playerExperienceGarageText);
+
+            playerExperienceAchievementsPanel =
+                BuildPlayerExperienceDetail(
+                    "Player Experience Achievements Panel",
+                    "ux.achievements.title",
+                    "ux.achievements.subtitle",
+                    "ux.achievements.hint",
+                    out playerExperienceAchievementsText);
+
+            playerExperienceNightClubPanel =
+                BuildPlayerExperienceDetail(
+                    "Player Experience Night Club Panel",
+                    "ux.nightclub.title",
+                    "ux.nightclub.subtitle",
+                    "ux.nightclub.hint",
+                    out playerExperienceNightClubText);
+
+            playerExperienceGaragePanel.SetActive(false);
+            playerExperienceAchievementsPanel.SetActive(false);
+            playerExperienceNightClubPanel.SetActive(false);
             playerExperienceActivitiesPanel.SetActive(false);
             playerExperienceJournalPanel.SetActive(false);
             playerExperienceClubPanel.SetActive(false);
@@ -249,6 +282,21 @@ namespace MotorCity.UI
             SwitchPlayerExperiencePage(playerExperiencePixiePanel);
         }
 
+        private void ShowPlayerExperienceGarage()
+        {
+            SwitchPlayerExperiencePage(playerExperienceGaragePanel);
+        }
+
+        private void ShowPlayerExperienceAchievements()
+        {
+            SwitchPlayerExperiencePage(playerExperienceAchievementsPanel);
+        }
+
+        private void ShowPlayerExperienceNightClub()
+        {
+            SwitchPlayerExperiencePage(playerExperienceNightClubPanel);
+        }
+
         private void SwitchPlayerExperiencePage(GameObject selected)
         {
             playerExperienceHomePanel?.SetActive(selected == null);
@@ -262,6 +310,12 @@ namespace MotorCity.UI
                 selected == playerExperienceInspectorPanel);
             playerExperiencePixiePanel?.SetActive(
                 selected == playerExperiencePixiePanel);
+            playerExperienceGaragePanel?.SetActive(
+                selected == playerExperienceGaragePanel);
+            playerExperienceAchievementsPanel?.SetActive(
+                selected == playerExperienceAchievementsPanel);
+            playerExperienceNightClubPanel?.SetActive(
+                selected == playerExperienceNightClubPanel);
 
             if (selected == null)
                 RefreshPlayerExperience();
@@ -351,6 +405,21 @@ namespace MotorCity.UI
                         ? MotorCityLocalization.Text("ux.sections.not_ready")
                         : hud.PlayerExperiencePixieLine;
             }
+
+            if (playerExperienceGarageText != null)
+                playerExperienceGarageText.text = hud == null
+                    ? MotorCityLocalization.Text("ux.sections.not_ready")
+                    : hud.PlayerExperienceGarageLine;
+
+            if (playerExperienceAchievementsText != null)
+                playerExperienceAchievementsText.text = hud == null
+                    ? MotorCityLocalization.Text("ux.sections.not_ready")
+                    : hud.PlayerExperienceAchievementsLine;
+
+            if (playerExperienceNightClubText != null)
+                playerExperienceNightClubText.text = hud == null
+                    ? MotorCityLocalization.Text("ux.sections.not_ready")
+                    : hud.PlayerExperienceNightClubLine;
 
             RefreshPlayerExperienceTextHeights();
         }
