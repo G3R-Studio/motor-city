@@ -221,6 +221,9 @@ namespace MotorCity.UI
             ConfigurePlayerExperienceActionRow(
                 playerExperienceProgressActions, 3, 270f,
                 panelSize.x - 2f * FrontEndModalHorizontalPadding, stacked);
+            ConfigurePlayerExperienceActionRow(
+                playerExperienceMoreActions, 3, 270f,
+                panelSize.x - 2f * FrontEndModalHorizontalPadding, stacked);
             Canvas.ForceUpdateCanvases();
             RefreshPlayerExperienceTextHeights();
         }
@@ -255,11 +258,15 @@ namespace MotorCity.UI
         private void RefreshPlayerExperienceTextHeights()
         {
             SetPlayerExperienceTextHeight(playerExperienceObjectiveText, 110f);
+            SetPlayerExperienceTextHeight(playerExperienceMilestoneText, 110f);
             SetPlayerExperienceTextHeight(playerExperienceActivitiesText, 340f);
             SetPlayerExperienceTextHeight(playerExperienceJournalText, 332f);
             SetPlayerExperienceTextHeight(playerExperienceClubText, 264f);
             SetPlayerExperienceTextHeight(playerExperienceInspectorText, 264f);
             SetPlayerExperienceTextHeight(playerExperiencePixieText, 264f);
+            SetPlayerExperienceTextHeight(playerExperienceGarageText, 264f);
+            SetPlayerExperienceTextHeight(playerExperienceAchievementsText, 264f);
+            SetPlayerExperienceTextHeight(playerExperienceNightClubText, 264f);
         }
 
         private static void SetPlayerExperienceTextHeight(
@@ -332,7 +339,8 @@ namespace MotorCity.UI
                 height;
 
             if (objectName == "Player Experience Section Actions" ||
-                objectName == "Player Experience Progress Actions")
+                objectName == "Player Experience Progress Actions" ||
+                objectName == "Player Experience More Actions")
             {
                 GridLayoutGroup grid =
                     rowObject.AddComponent<GridLayoutGroup>();
