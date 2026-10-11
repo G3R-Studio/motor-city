@@ -1175,6 +1175,13 @@ namespace MotorCity.UI
                                 "ux.catalog.drift_best", drift.BestDrift)
                             : MotorCityLocalization.Text(
                                 "ux.catalog.drift_best_empty")) + "\n") +
+                    PlayerExperienceDisciplineLevelLine(
+                        DisciplineType.Drift, "ux.catalog.drift_level") + "\n" +
+                    MotorCityLocalization.Format(
+                        driftChallenge.CatalogEliteUnlocked
+                            ? "ux.catalog.drift_elite_open"
+                            : "ux.catalog.drift_elite_locked",
+                        driftChallenge.CatalogEliteRequiredLevel) + "\n" +
                     PlayerExperienceDriftZoneRecords() +
                     MotorCityLocalization.Format(
                         "ux.catalog.drift_thresholds",
