@@ -1708,6 +1708,18 @@ namespace MotorCity.UI
             ApplyFrontEndResponsiveLayout(
                 false);
 
+            // Esc/Back returns to the main menu for this screen.
+            // When opened from gameplay pause, PauseMenuView owns Cancel
+            // so the same key cannot accidentally resume driving.
+            if (playerExperienceReturnToPause == null &&
+                playerExperienceRoot != null &&
+                playerExperienceRoot.activeSelf &&
+                MotorCityInput.CancelPressed)
+            {
+                ReturnFromPlayerExperience();
+                return;
+            }
+
             if (loadingActive)
             {
                 UpdateLoadingAnimation();
