@@ -421,6 +421,11 @@ namespace MotorCity.Gameplay
                     trap.GoldSpeed.ToString("0"));
         }
 
+        public int GetHighestMedal(int index)
+        {
+            return Valid(index) ? traps[index].HighestMedal : 0;
+        }
+
         public float GetBestSpeed(
             int index)
         {
