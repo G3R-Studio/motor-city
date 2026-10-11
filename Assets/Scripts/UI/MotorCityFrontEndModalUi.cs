@@ -499,7 +499,7 @@ namespace MotorCity.UI
             {
                 CreateFrontEndLayoutButton(
                     controls,
-                    "−",
+                    "-",
                     minusAction,
                     72f,
                     50f);

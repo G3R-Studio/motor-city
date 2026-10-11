@@ -116,7 +116,7 @@ def main() -> int:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Motor City — WebGL Release Test</title>
+<title>Motor City - WebGL Release Test</title>
 <style>
 body{margin:0;min-height:100vh;display:grid;place-items:center;background:#10151e;color:#f5f7fc;font:16px system-ui,Arial,sans-serif}
 main{max-width:560px;padding:34px;text-align:center}

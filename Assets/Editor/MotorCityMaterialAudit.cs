@@ -59,7 +59,7 @@ namespace MotorCity.EditorTools
             }
 
             Debug.Log(
-                "Motor City Material Audit — scene: " + scene.name +
+                "Motor City Material Audit - scene: " + scene.name +
                 "\nMissing material slots: " + missing.Count +
                 "\nUnsupported/null-shader materials: " + bad.Count);
 

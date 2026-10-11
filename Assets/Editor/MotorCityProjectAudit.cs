@@ -14,7 +14,7 @@ public static class MotorCityProjectAudit
     public static void WriteReport()
     {
         var report = new StringBuilder();
-        report.AppendLine("Motor City project audit — " + DateTime.UtcNow.ToString("u"));
+        report.AppendLine("Motor City project audit - " + DateTime.UtcNow.ToString("u"));
         report.AppendLine("Read-only report. No assets, scenes or objects were changed.");
         report.AppendLine();
         string[] paths = AssetDatabase.GetAllAssetPaths();

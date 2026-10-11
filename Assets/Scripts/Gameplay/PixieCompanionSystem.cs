@@ -1176,7 +1176,7 @@ namespace MotorCity.Gameplay
                     return;
             }
 
-            // Each companion chooses a new pose roughly every 6–12s,
+            // Each companion chooses a new pose roughly every 6-12s,
             // rather than switching exactly in lockstep with the car.
             if (nextAmbientPoseSeconds <= 0f)
                 nextAmbientPoseSeconds = UnityEngine.Random.Range(6f, 12f);

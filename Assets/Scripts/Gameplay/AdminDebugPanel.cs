@@ -1747,7 +1747,7 @@ namespace MotorCity.Gameplay
         {
 #if UNITY_EDITOR
             Section(
-                "ПИКСИ — ПРОСМОТР СКИНОВ (ТОЛЬКО PLAY MODE)");
+                "ПИКСИ - ПРОСМОТР СКИНОВ (ТОЛЬКО PLAY MODE)");
 
             GUILayout.Label(
                 "Тест скинов без покупки и изменения сохранения. " +
