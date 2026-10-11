@@ -110,6 +110,15 @@ namespace MotorCity.Gameplay
             return true;
         }
 
+        public int CatalogCurrentNumber => Mathf.Min(eventIndex + 1, EventCount);
+        public int CatalogTotalCount => EventCount;
+        public string CatalogCurrentName =>
+            eventIndex >= EventCount ? string.Empty : CurrentEvent().Name;
+        public string CatalogCurrentProgress =>
+            eventIndex >= EventCount ? string.Empty : ProgressText(CurrentEvent());
+        public int CatalogRequiredCred =>
+            eventIndex >= EventCount ? 0 : CurrentEvent().RequiredCred;
+
         public bool CatalogSeriesComplete => eventIndex >= EventCount;
         public bool CatalogIsNight => IsNight();
         public int CatalogCurrentCreditsReward =>
