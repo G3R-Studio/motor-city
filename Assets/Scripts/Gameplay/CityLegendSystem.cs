@@ -45,6 +45,11 @@ namespace MotorCity.Gameplay
         public string StatusText { get; private set; } =
             string.Empty;
 
+        public int CatalogCurrentCreditsReward =>
+            AllLegendsDefeated ? 0 : CurrentDefinition().Credits;
+        public int CatalogCurrentReputationReward =>
+            AllLegendsDefeated ? 0 : CurrentDefinition().Reputation;
+
         public bool AllLegendsDefeated =>
             legendIndex >=
             LegendCount;
