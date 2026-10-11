@@ -78,10 +78,10 @@ checks = {
     ),
     "EX prefab fallback uses HAON rig and roof offset": (
         'usingKisoraVisual = authoredPrefab != null;' in SOURCE and
-        'ActiveSkinRoofHeightOffset =>\\n            usingKisoraVisual' in SOURCE and
-        'string mappedState =\\n                usingKisoraVisual' in SOURCE and
+        'ActiveSkinRoofHeightOffset =>\n            usingKisoraVisual' in SOURCE and
+        'string mappedState =\n                usingKisoraVisual' in SOURCE and
         'if (usingKisoraVisual)' in SOURCE and
-        'usingKisoraVisual =\\n                false;' in SOURCE
+        'usingKisoraVisual =\n                false;' in SOURCE
     ),
     "Editor identifies effective rig and missing EX": (
         'public string EditorActiveVisual =>' in SOURCE and
@@ -92,7 +92,7 @@ checks = {
         (ROOT / "Assets/Scripts/Gameplay/AdminDebugPanel.cs").read_text(encoding="utf-8-sig")
     ),
     "skin switch hides old rig before delayed destroy": (
-        'visualRoot.SetActive(false);\\n                Destroy(' in SOURCE
+        'visualRoot.SetActive(false);\n                Destroy(' in SOURCE
     ),
     "Editor names current clip for diagnosis": (
         'GetCurrentAnimatorClipInfo(0)' in SOURCE and
