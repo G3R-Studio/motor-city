@@ -62,6 +62,7 @@ namespace MotorCity.Localization
                 { "ux.catalog.route_unavailable", E("Маршрут пока недоступен. Не создаём ложную точку назначения.", "Route unavailable. No fake destination is created.") },
                 { "ux.catalog.city_info", E("Радар, исследование и фотозадания - используй маркеры и текущие городские задания. Отдельный маршрут не обещается.", "Radar, exploration and photo goals - follow existing markers and city objectives. No separate route is promised.") },
                 { "ux.catalog.special_info", E("Особые занятия появляются по мере открытия игровых условий и сюжетных заданий.", "Special activities appear when their gameplay and story requirements are met.") },
+                { "ux.catalog.profession_route", E("ПОСТРОИТЬ МАРШРУТ: {0}", "BUILD ROUTE: {0}") },
                 { "ux.catalog.route.sprint", E("ПОСТРОИТЬ МАРШРУТ: СПРИНТ", "ROUTE: SPRINT") },
                 { "ux.catalog.route.circuit", E("ПОСТРОИТЬ МАРШРУТ: КОЛЬЦО", "ROUTE: CIRCUIT") },
                 { "ux.catalog.route.drift", E("ПОСТРОИТЬ МАРШРУТ: ДРИФТ", "ROUTE: DRIFT") },
