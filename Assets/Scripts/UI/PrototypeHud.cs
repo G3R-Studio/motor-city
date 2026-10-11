@@ -1182,6 +1182,11 @@ namespace MotorCity.UI
                         professions.TotalCompleted) + "\n" +
                     MotorCityLocalization.Text("ux.catalog.job_start") + "\n" +
                     MotorCityLocalization.Format(
+                        "ux.catalog.profession_level",
+                        professions.ProfessionLevel) + "\n" +
+                    MotorCityLocalization.Text("ux.catalog.tow_start") + "\n" +
+                    MotorCityLocalization.Text("ux.catalog.carwash_start") + "\n" +
+                    MotorCityLocalization.Format(
                         "ux.catalog.delivery_reward",
                         delivery.RewardCredits) + "\n" +
                     MotorCityLocalization.Format(
