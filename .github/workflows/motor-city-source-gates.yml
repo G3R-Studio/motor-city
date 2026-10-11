@@ -102,6 +102,9 @@ jobs:
       - name: Audit exclusive active-activity world and minimap markers
         run: python3 Tools/check_phase12_activity_marker_visibility.py
 
+      - name: Audit navigator modal buttons and WebGL vector arrows
+        run: python3 Tools/check_phase12_navigator_modal_controls.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
