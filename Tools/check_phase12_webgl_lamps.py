@@ -37,8 +37,12 @@ def main() -> int:
     lamps = section(
         cycle, "private void ApplyStreetLights()", "private void DisableEnabledLampLights()"
     )
+    budget_start = lamps.find("int lightBudget =")
+    expect(budget_start >= 0, "Lamp light-budget selection missing")
     webgl = section(
-        lamps, "#if UNITY_WEBGL && !UNITY_EDITOR", "#endif"
+        lamps[budget_start:] if budget_start >= 0 else "",
+        "#if UNITY_WEBGL && !UNITY_EDITOR",
+        "#endif",
     )
     expect(bool(webgl), "WebGL lamp budget must be explicit")
     expect("lampDistance = 0f;" not in webgl, "WebGL must not zero lamp range")
