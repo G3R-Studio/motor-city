@@ -303,6 +303,7 @@ namespace MotorCity.UI
         private void SwitchPlayerExperiencePage(
             GameObject selected, bool resetOverviewScroll = false)
         {
+            lastCareerFocus = null;
             bool returningToOverview =
                 selected == null &&
                 playerExperienceHomePanel != null &&
