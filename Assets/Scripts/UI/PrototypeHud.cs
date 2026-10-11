@@ -1135,27 +1135,42 @@ namespace MotorCity.UI
                         "ux.sections.not_ready");
                 }
 
+                // Read-only catalog, grouped by activities actually owned
+                // by the current game. Never fabricate rewards or routes.
                 return string.Join(
                     "\n\n",
+                    MotorCityLocalization.Text("ux.catalog.races") + "\n" +
                     MotorCityLocalization.Format(
                         "ux.activities.sprint",
                         FormatPlayerExperienceBestTime(
-                            streetSprint.BestTimeSeconds)),
+                            streetSprint.BestTimeSeconds)) + "\n" +
                     MotorCityLocalization.Format(
                         "ux.activities.circuit",
                         FormatPlayerExperienceBestTime(
-                            circuitRace.BestTimeSeconds)),
+                            circuitRace.BestTimeSeconds)) + "\n" +
+                    MotorCityLocalization.Text("ux.catalog.start_marker"),
+                    MotorCityLocalization.Text("ux.catalog.drift") + "\n" +
+                    MotorCityLocalization.Format(
+                        "ux.activities.drift",
+                        driftChallenge.TargetScore) + "\n" +
+                    MotorCityLocalization.Text("ux.catalog.start_marker"),
+                    MotorCityLocalization.Text("ux.catalog.jobs") + "\n" +
                     MotorCityLocalization.Format(
                         "ux.activities.delivery",
                         FormatPlayerExperienceBestTime(
-                            delivery.BestTimeSeconds)),
-                    MotorCityLocalization.Format(
-                        "ux.activities.drift",
-                        driftChallenge.TargetScore),
+                            delivery.BestTimeSeconds)) + "\n" +
                     MotorCityLocalization.Format(
                         "ux.activities.professions",
                         professions.StartCount,
-                        professions.TotalCompleted));
+                        professions.TotalCompleted) + "\n" +
+                    MotorCityLocalization.Text("ux.catalog.job_start"),
+                    MotorCityLocalization.Text("ux.catalog.city") + "\n" +
+                    MotorCityLocalization.Text("ux.catalog.city_info"),
+                    MotorCityLocalization.Text("ux.catalog.special") + "\n" +
+                    MotorCityLocalization.Text("ux.catalog.special_info"),
+                    activityManager.IsBusy
+                        ? MotorCityLocalization.Text("ux.catalog.busy")
+                        : string.Empty);
             }
         }
 
