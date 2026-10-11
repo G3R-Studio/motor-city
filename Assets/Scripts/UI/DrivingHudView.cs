@@ -624,11 +624,11 @@ namespace MotorCity.UI
                     dailyAdventures.StatusText;
             }
 
-            if (turbo != null &&
-                turbo.ShowMessage)
+            if (pixie != null &&
+                pixie.ShowMessage)
             {
                 return
-                    turbo.StatusText;
+                    pixie.StatusText;
             }
 
             if (cityRisk != null &&
