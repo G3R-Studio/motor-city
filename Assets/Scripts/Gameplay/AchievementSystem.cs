@@ -36,6 +36,37 @@ namespace MotorCity.Gameplay
         public int UnlockedCount =>
             unlockedCount;
 
+        // Read-only UX inspection. Never call TryUnlock or re-evaluate
+        // achievements when opening a progress panel.
+        private static readonly string[] AchievementNameKeys =
+        {
+            "achievement.first_drive",
+            "achievement.racer",
+            "achievement.drifter",
+            "achievement.worker",
+            "achievement.explorer",
+            "achievement.photographer",
+            "achievement.collector",
+            "achievement.story",
+            "achievement.season"
+        };
+
+        public int TotalCount => unlocked.Length;
+
+        public bool IsAchievementUnlocked(int index)
+        {
+            return index >= 0 &&
+                   index < unlocked.Length &&
+                   unlocked[index];
+        }
+
+        public string GetAchievementName(int index)
+        {
+            return index >= 0 && index < AchievementNameKeys.Length
+                ? MotorCityLocalization.Text(AchievementNameKeys[index])
+                : string.Empty;
+        }
+
         public void Initialize(
             PlayerWallet targetWallet,
             PlayerReputation targetReputation,
