@@ -14,10 +14,6 @@ namespace MotorCity.UI
         private GameObject playerExperienceActivitiesPanel;
         private GameObject playerExperienceJournalPanel;
         private Text playerExperienceActivitiesText;
-        private Text playerExperienceRouteStatusText;
-        private RectTransform playerExperienceProfessionRouteContent;
-        private int playerExperienceProfessionRouteCount = -1;
-        private bool playerExperienceProfessionRouteRussian;
         private Text playerExperienceJournalText;
         private GameObject playerExperienceClubPanel;
         private GameObject playerExperienceInspectorPanel;
@@ -65,43 +61,6 @@ namespace MotorCity.UI
                     TextAnchor.UpperLeft,
                     340f,
                     new Color(0.90f, 0.95f, 1f, 1f));
-
-            CreateFrontEndLayoutText(
-                activities.Content,
-                MotorCityLocalization.Text("ux.activities.hint"),
-                19,
-                FontStyle.Normal,
-                TextAnchor.MiddleCenter,
-                64f,
-                new Color(0.72f, 0.80f, 0.94f, 1f));
-
-            string[] routeKeys =
-            {
-                "ux.catalog.route.sprint",
-                "ux.catalog.route.circuit",
-                "ux.catalog.route.drift",
-                "ux.catalog.route.delivery",
-                "ux.catalog.route.tow",
-                "ux.catalog.route.carwash"
-            };
-            int[] routeIds = { 3, 4, 2, 1, 5, 6 };
-            for (int i = 0; i < routeIds.Length; i++)
-            {
-                int destination = routeIds[i];
-                RectTransform routeRow = CreateFrontEndActionRow(
-                    activities.Content, "Catalog Route " + destination, 58f);
-                CreateFrontEndLayoutButton(
-                    routeRow, MotorCityLocalization.Text(routeKeys[i]),
-                    () => SelectPlayerExperienceRoute(destination), 320f, 58f);
-            }
-
-            playerExperienceProfessionRouteContent = activities.Content;
-
-            playerExperienceRouteStatusText = CreateFrontEndLayoutText(
-                activities.Content, string.Empty, 20, FontStyle.Normal,
-                TextAnchor.MiddleCenter, 64f,
-                new Color(0.94f, 0.78f, 0.53f, 1f));
-            playerExperienceRouteStatusText.gameObject.SetActive(false);
 
             RectTransform activitiesBack =
                 CreateFrontEndActionRow(
@@ -292,81 +251,9 @@ namespace MotorCity.UI
             SwitchPlayerExperiencePage(null);
         }
 
-        private void SelectPlayerExperienceRoute(int destination)
-        {
-            if (!gameplayReady || hud == null ||
-                !hud.TrySetPlayerExperienceRoute(destination))
-            {
-                if (playerExperienceRouteStatusText != null)
-                {
-                    playerExperienceRouteStatusText.text =
-                        hud != null && hud.PlayerExperienceRouteBusy
-                            ? MotorCityLocalization.Text("ux.catalog.busy")
-                            : MotorCityLocalization.Text(
-                                "ux.catalog.route_unavailable");
-                    playerExperienceRouteStatusText.gameObject.SetActive(true);
-                    RefreshPlayerExperienceTextHeights();
-                    RefreshFrontEndScrollCues();
-                }
-                return;
-            }
-
-            // Returning to pause keeps pause ownership intact; the route
-            // becomes available when the player resumes driving.
-            ReturnFromPlayerExperience();
-        }
-
         private void ShowPlayerExperienceActivities()
         {
-            RefreshPlayerExperienceProfessionRoutes();
             SwitchPlayerExperiencePage(playerExperienceActivitiesPanel);
-        }
-
-        private void RefreshPlayerExperienceProfessionRoutes()
-        {
-            if (playerExperienceProfessionRouteContent == null)
-                return;
-
-            int count = gameplayReady && hud != null
-                ? hud.PlayerExperienceProfessionRouteCount : 0;
-            bool russian = IsRussian();
-            if (count == playerExperienceProfessionRouteCount &&
-                russian == playerExperienceProfessionRouteRussian)
-                return;
-            playerExperienceProfessionRouteRussian = russian;
-
-            // Generated actions are removed before rebuilding so save
-            // transitions do not leave stale destinations in the UI.
-            for (int i = playerExperienceProfessionRouteContent.childCount - 1;
-                 i >= 0; i--)
-            {
-                Transform child = playerExperienceProfessionRouteContent.GetChild(i);
-                if (child.name.StartsWith("Catalog Profession Route "))
-                {
-                    child.gameObject.SetActive(false);
-                    Object.Destroy(child.gameObject);
-                }
-            }
-
-            playerExperienceProfessionRouteCount = count;
-            for (int i = 0; i < count; i++)
-            {
-                int destination = i + 7;
-                string label = hud.PlayerExperienceProfessionRouteName(i);
-                RectTransform routeRow = CreateFrontEndActionRow(
-                    playerExperienceProfessionRouteContent,
-                    "Catalog Profession Route " + i, 58f);
-                CreateFrontEndLayoutButton(
-                    routeRow,
-                    MotorCityLocalization.Format("ux.catalog.profession_route",
-                        label),
-                    () => SelectPlayerExperienceRoute(destination),
-                    320f, 58f);
-                // Keep all routes before the status and footer in reading order.
-                if (playerExperienceRouteStatusText != null)
-                    routeRow.SetSiblingIndex(
-                        playerExperienceRouteStatusText.transform.GetSiblingIndex());
-            }
         }
 
         private void ShowPlayerExperienceJournal()
@@ -446,12 +333,6 @@ namespace MotorCity.UI
                 selected == playerExperienceAchievementsPanel);
             playerExperienceNightClubPanel?.SetActive(
                 selected == playerExperienceNightClubPanel);
-
-            if (playerExperienceRouteStatusText != null)
-            {
-                playerExperienceRouteStatusText.gameObject.SetActive(false);
-                playerExperienceRouteStatusText.text = string.Empty;
-            }
 
             if (selected == null)
                 RefreshPlayerExperience();
