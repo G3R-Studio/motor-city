@@ -43,6 +43,7 @@ namespace MotorCity.UI
         private Text playerExperienceRepText;
         private Text playerExperienceObjectiveText;
         private Text playerExperienceMilestoneText;
+        private Text playerExperienceMissionRewardText;
         private RectTransform playerExperienceMoreActions;
         private RectTransform playerExperienceSectionActions;
         private RectTransform playerExperienceProgressActions;
@@ -632,6 +633,17 @@ namespace MotorCity.UI
                     110f,
                     new Color(0.88f, 0.93f, 1f, 1f));
 
+            playerExperienceMissionRewardText =
+                CreateFrontEndLayoutText(
+                    window.Content,
+                    string.Empty,
+                    20,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    62f,
+                    new Color(0.48f, 0.84f, 1f, 1f));
+            playerExperienceMissionRewardText.gameObject.SetActive(false);
+
             playerExperienceMilestoneText =
                 CreateFrontEndLayoutText(
                     window.Content,
@@ -847,6 +859,16 @@ namespace MotorCity.UI
                     MotorCityLocalization.Format(
                         "ux.home.objective",
                         objective);
+            }
+
+            if (playerExperienceMissionRewardText != null)
+            {
+                string missionReward = hud == null
+                    ? string.Empty
+                    : hud.PlayerExperienceObjectiveRewardLine;
+                playerExperienceMissionRewardText.text = missionReward;
+                playerExperienceMissionRewardText.gameObject.SetActive(
+                    !string.IsNullOrWhiteSpace(missionReward));
             }
 
             if (playerExperienceMilestoneText != null)
