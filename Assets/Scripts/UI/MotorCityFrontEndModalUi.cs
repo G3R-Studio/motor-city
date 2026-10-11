@@ -626,9 +626,9 @@ namespace MotorCity.UI
                 objectName == "Wheel Control Actions" ||
                 objectName == "Arrows Control Actions")
             {
-                // A fixed unequal two-column grid, with no second
-                // button on the Keyboard row. The responsive positioning
-                // is applied after the Canvas is built.
+                // The three primary buttons share a left column.
+                // The smaller optional right action is missing on Keyboard;
+                // the space stays empty. Position children after layout.
                 return row;
             }
 
