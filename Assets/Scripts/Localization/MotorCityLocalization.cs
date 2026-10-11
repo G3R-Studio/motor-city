@@ -72,6 +72,7 @@ namespace MotorCity.Localization
                 { "ux.catalog.profession_level", E("Текущий уровень профессий: {0}.", "Current profession level: {0}.") },
                 { "ux.catalog.tow_start", E("Эвакуатор: остановись у точки старта и нажми «Действие». Действующая работа должна быть завершена.", "Tow truck: stop at the start marker and press Interact. Finish the current job first.") },
                 { "ux.catalog.carwash_start", E("Автомойка: остановись у точки старта и нажми «Действие». Действующая работа должна быть завершена.", "Car wash: stop at the start marker and press Interact. Finish the current job first.") },
+                { "ux.catalog.drift_best_empty", E("Лучший отдельный дрифт: рекорда пока нет.", "Best single drift: no record yet.") },
                 { "ux.catalog.drift_best", E("Лучший отдельный дрифт: {0:N0} очков.", "Best single drift: {0:N0} points.") },
                 { "ux.catalog.photos", E("Фотографии: {0:N0} сделано.", "Photos: {0:N0} captured.") },
                 { "ux.catalog.drift_thresholds", E("Пороги дрифта: бронза {0:N0}, серебро {1:N0}, золото {2:N0}, легенда {3:N0} очков.", "Drift targets: bronze {0:N0}, silver {1:N0}, gold {2:N0}, legendary {3:N0} points.") },
