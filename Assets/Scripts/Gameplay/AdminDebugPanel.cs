@@ -1745,6 +1745,31 @@ namespace MotorCity.Gameplay
 
         private void DrawSystems()
         {
+#if UNITY_EDITOR
+            Section(
+                "ПИКСИ — ПРОСМОТР СКИНОВ (ТОЛЬКО PLAY MODE)");
+
+            GUILayout.Label(
+                "Тест скинов без покупки и изменения сохранения. " +
+                "После выхода из Play Mode вернётся приобретённый скин.");
+
+            GUILayout.BeginHorizontal();
+
+            if (Button("ПИКСИ: ОБЫЧНЫЙ HAON"))
+            {
+                pixie?.SetSupporterPackSkin(false);
+                lastAction = "Пикси: обычный HAON (только предпросмотр)";
+            }
+
+            if (Button("ПИКСИ: ЭКСКЛЮЗИВНЫЙ"))
+            {
+                pixie?.SetSupporterPackSkin(true);
+                lastAction = "Пикси: эксклюзивный (только предпросмотр)";
+            }
+
+            GUILayout.EndHorizontal();
+#endif
+
             Section(
                 "СОСТОЯНИЕ СИСТЕМ");
 

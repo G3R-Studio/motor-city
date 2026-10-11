@@ -654,6 +654,7 @@ namespace MotorCity.Gameplay
                         0f);
                 }
 
+                AlignPixieFeetToRoof();
                 RefreshVisualSkin();
                 return;
             }
@@ -743,6 +744,48 @@ namespace MotorCity.Gameplay
             RefreshVisualSkin();
         }
 
+        private void AlignPixieFeetToRoof()
+        {
+            if (externalVisual == null ||
+                externalAnimator == null ||
+                externalAnimator.avatar == null ||
+                !externalAnimator.isHuman)
+            {
+                return;
+            }
+
+            // A prefab root is not necessarily at the character's feet.
+            // Use animated humanoid foot bones to place the shoes on the
+            // vehicle roof rather than placing the prefab's pivot there.
+            Transform left = externalAnimator.GetBoneTransform(
+                HumanBodyBones.LeftFoot);
+            Transform right = externalAnimator.GetBoneTransform(
+                HumanBodyBones.RightFoot);
+
+            if (left == null && right == null)
+                return;
+
+            float lowestAnkleY = float.PositiveInfinity;
+
+            if (left != null)
+                lowestAnkleY = Mathf.Min(
+                    lowestAnkleY,
+                    visualRoot.transform.InverseTransformPoint(
+                        left.position).y);
+
+            if (right != null)
+                lowestAnkleY = Mathf.Min(
+                    lowestAnkleY,
+                    visualRoot.transform.InverseTransformPoint(
+                        right.position).y);
+
+            // Foot bones usually sit at the ankle, not the shoe sole.
+            // The modest margin avoids planting the shoes inside the roof.
+            const float SoleBelowAnkle = 0.055f;
+            externalVisual.transform.localPosition -=
+                Vector3.up * (lowestAnkleY - SoleBelowAnkle);
+        }
+
         private void CreateEye(
             float x)
         {
@@ -820,13 +863,60 @@ namespace MotorCity.Gameplay
 
             Bounds bounds = ResolveCarLocalBounds();
 
-            // Roof contact: foot pivot directly over the middle of
-            // the authored body, with only a 1 cm safety clearance.
-            // No visual lift, hover sine wave or camera-dependent offset.
-            return new Vector3(
-                bounds.center.x,
-                bounds.max.y + 0.01f,
-                bounds.center.z);
+            Vector3 roofCenter =
+                new Vector3(
+                    bounds.center.x,
+                    bounds.max.y + 0.01f,
+                    bounds.center.z);
+
+            // Some cars (notably the DeLorean) have parts *above* the roof:
+            // rear towers, spoilers, antennas, etc. A global renderer max
+            // places Pixie above those parts rather than on the roof.
+            // Raycast against the body's authored collision proxies right
+            // at the horizontal roof centre; never raycast against wheels,
+            // the floating companion, or the surrounding scene.
+            Transform vehicleVisual = car.transform.Find(
+                "MotorCityVehicleVisual_Runtime");
+
+            if (vehicleVisual == null)
+                return roofCenter;
+
+            Vector3 rayOrigin = car.transform.TransformPoint(
+                roofCenter + Vector3.up * 2f);
+
+            RaycastHit[] hits = Physics.RaycastAll(
+                rayOrigin,
+                -car.transform.up,
+                8f,
+                ~0,
+                QueryTriggerInteraction.Ignore);
+
+            float bestRoofY = float.NegativeInfinity;
+
+            foreach (RaycastHit hit in hits)
+            {
+                Collider collider = hit.collider;
+
+                if (collider == null ||
+                    !collider.transform.IsChildOf(vehicleVisual) ||
+                    !collider.name.StartsWith(
+                        "BodyCollider_",
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                float hitY = car.transform.InverseTransformPoint(
+                    hit.point).y;
+
+                if (hitY > bestRoofY)
+                    bestRoofY = hitY;
+            }
+
+            if (bestRoofY > float.NegativeInfinity)
+                roofCenter.y = bestRoofY + 0.01f;
+
+            return roofCenter;
         }
 
         private Bounds ResolveCarLocalBounds()
