@@ -71,6 +71,7 @@ namespace MotorCity.Localization
                 { "ux.catalog.drift_spot_no_record", E("Зона дрифта: {0} - рекорда пока нет.", "Drift zone: {0} - no record yet.") },
                 { "ux.catalog.drift_rewards", E("Награды за дрифт: бронза {0:N0} кр, серебро {1:N0} кр, золото {2:N0} кр, легенда {3:N0} кр.", "Drift rewards: bronze {0:N0} CR, silver {1:N0} CR, gold {2:N0} CR, legendary {3:N0} CR.") },
                 { "ux.catalog.base_reward", E("Спринт - базовая награда: {0:N0} кр (режим и результат могут изменить сумму).", "Sprint - base reward: {0:N0} CR (mode and result may change payout).") },
+                { "ux.catalog.circuit_lap", E("Лучший круг: {0}", "Best lap: {0}") },
                 { "ux.catalog.circuit_reward", E("Кольцо - базовая награда: {0:N0} кр (итоговая сумма зависит от результата).", "Circuit - base reward: {0:N0} CR (final payout depends on result).") },
                 { "ux.catalog.sprint_elite_locked", E("Элитный спринт закрыт: требуется уровень гонок {0}.", "Elite sprint locked: Racing level {0} required.") },
                 { "ux.catalog.sprint_elite_open", E("Элитный спринт открыт (уровень гонок {0}).", "Elite sprint unlocked (Racing level {0}).") },
