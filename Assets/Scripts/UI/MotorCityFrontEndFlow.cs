@@ -2775,6 +2775,7 @@ namespace MotorCity.UI
             settingsRoot.SetActive(false);
             playerExperienceRoot?.SetActive(false);
             introRoot.SetActive(false);
+            loadingRoot?.SetActive(false);
             if (controlChoiceRoot != null)
                 controlChoiceRoot.SetActive(false);
             aboutRoot.SetActive(true);
@@ -2789,6 +2790,7 @@ namespace MotorCity.UI
             aboutRoot.SetActive(false);
             playerExperienceRoot?.SetActive(false);
             introRoot.SetActive(false);
+            loadingRoot?.SetActive(false);
             if (controlChoiceRoot != null)
                 controlChoiceRoot.SetActive(false);
             settingsRoot.SetActive(true);
