@@ -1,3 +1,4 @@
+using MotorCity.Gameplay;
 using UnityEngine;
 
 namespace MotorCity.World
@@ -6,12 +7,20 @@ namespace MotorCity.World
     {
         private GameObject markerVfx;
         private CheckpointBeaconVisual fallbackBeacon;
+        private ActivityManager activityManager;
+        private string markerActivityId;
+        private bool? lastVisibility;
 
         public void Bind(
             string resourcePath,
             Color fallbackColor,
-            CheckpointBeaconStyle fallbackStyle)
+            CheckpointBeaconStyle fallbackStyle,
+            ActivityManager manager,
+            string activityId)
         {
+            activityManager = manager;
+            markerActivityId = activityId;
+
             GameObject prefab =
                 Resources.Load<GameObject>(
                     resourcePath);
@@ -35,6 +44,7 @@ namespace MotorCity.World
                 markerVfx.transform.localScale =
                     Vector3.one;
 
+                RefreshVisibility();
                 return;
             }
 
@@ -46,11 +56,36 @@ namespace MotorCity.World
                 fallbackColor,
                 false,
                 fallbackStyle);
+
+            RefreshVisibility();
+        }
+
+        private void Update()
+        {
+            RefreshVisibility();
+        }
+
+        private void RefreshVisibility()
+        {
+            // The active activity owns the world presentation. All other
+            // job start markers return when ActivityManager.End() clears it.
+            bool visible =
+                activityManager == null ||
+                !activityManager.IsBusy ||
+                activityManager.IsActive(markerActivityId);
+
+            if (!lastVisibility.HasValue ||
+                lastVisibility.Value != visible)
+            {
+                SetVisible(visible);
+            }
         }
 
         public void SetVisible(
             bool visible)
         {
+            lastVisibility = visible;
+
             if (markerVfx != null)
             {
                 markerVfx.SetActive(
