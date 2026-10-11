@@ -13,6 +13,15 @@ namespace MotorCity.Localization
         private static readonly Dictionary<string, LocalizedEntry> Entries =
             new()
             {
+                { "ux.home.button", E("МОЙ MOTOR CITY", "MY MOTOR CITY") },
+                { "ux.home.title", E("МОЙ MOTOR CITY", "MY MOTOR CITY") },
+                { "ux.home.subtitle", E("ЦЕНТР КАРЬЕРЫ И ПРОГРЕССА", "CAREER AND PROGRESS CENTER") },
+                { "ux.home.credits", E("КРЕДИТЫ: {0:N0}", "CREDITS: {0:N0}") },
+                { "ux.home.rep", E("РЕПУТАЦИЯ: {0:N0}", "REPUTATION: {0:N0}") },
+                { "ux.home.objective", E("СЛЕДУЮЩАЯ ЦЕЛЬ:\n{0}", "NEXT OBJECTIVE:\n{0}") },
+                { "ux.home.no_objective", E("Начни игру, чтобы открыть новые задания.", "Start the game to discover your next objectives.") },
+                { "ux.home.sections_soon", E("СКОРО ЗДЕСЬ ПОЯВЯТСЯ:\nАКТИВНОСТИ • ЗАДАНИЯ • АВТОКЛУБ\nМАШИНЫ • ТУРБО • ДОСТИЖЕНИЯ", "COMING NEXT:\nACTIVITIES • MISSIONS • CAR CLUB\nVEHICLES • TURBO • ACHIEVEMENTS") },
+                { "ux.home.back", E("НАЗАД", "BACK") },
                 { "common.credits", E("КРЕДИТЫ {0:N0}", "CREDITS {0:N0}") },
                 { "garage.credits_label", E("КРЕДИТЫ", "CREDITS") },
                 { "garage.reputation_label", E("РЕПУТАЦИЯ", "REPUTATION") },

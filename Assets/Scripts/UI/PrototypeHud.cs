@@ -1108,6 +1108,16 @@ namespace MotorCity.UI
                 open);
         }
 
+        // Read-only front-end bridge: informational UI never grants progress.
+        public string PlayerExperienceObjectiveLine =>
+            adventureDirector != null &&
+            adventureDirector.HasMission
+                ? adventureDirector.ObjectiveLine
+                : onboarding != null &&
+                  !onboarding.IsComplete
+                    ? onboarding.ObjectiveLine
+                    : string.Empty;
+
         private bool HasBlockingModalUi()
         {
             return

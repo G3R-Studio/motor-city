@@ -38,6 +38,10 @@ namespace MotorCity.UI
         private RawImage mainBackgroundImage;
         private GameObject aboutRoot;
         private GameObject settingsRoot;
+        private GameObject playerExperienceRoot;
+        private Text playerExperienceCreditsText;
+        private Text playerExperienceRepText;
+        private Text playerExperienceObjectiveText;
         private GameObject introRoot;
         private GameObject controlChoiceRoot;
         private Text primaryButtonText;
@@ -284,6 +288,7 @@ namespace MotorCity.UI
             mainRoot = CreateScreen("Main Menu", new Color(0.01f, 0.015f, 0.025f, 0.94f));
             aboutRoot = CreateScreen("About Screen", new Color(0.01f, 0.015f, 0.025f, 0.97f));
             settingsRoot = CreateScreen("Settings Screen", new Color(0.01f, 0.015f, 0.025f, 0.97f));
+            playerExperienceRoot = CreateScreen("Player Experience Screen", new Color(0.01f, 0.015f, 0.025f, 0.97f));
             introRoot = CreateScreen("Intro Screen", Color.black);
             controlChoiceRoot = CreateScreen(
                 "Control Choice Screen",
@@ -293,8 +298,10 @@ namespace MotorCity.UI
             BuildMainMenu();
             AddSharedBackground(aboutRoot, 0.78f);
             AddSharedBackground(settingsRoot, 0.78f);
+            AddSharedBackground(playerExperienceRoot, 0.78f);
             BuildAbout();
             BuildSettings();
+            BuildPlayerExperienceScreen();
             BuildIntro();
             BuildControlChoiceScreen();
             BuildLoadingScreen();
@@ -303,6 +310,7 @@ namespace MotorCity.UI
 
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
+            playerExperienceRoot.SetActive(false);
             introRoot.SetActive(false);
             controlChoiceRoot.SetActive(false);
             loadingRoot.SetActive(false);
@@ -554,7 +562,150 @@ namespace MotorCity.UI
                 new Vector2(400f, 60f),
                 ShowSettings);
 
+            CreateButton(
+                mainRoot.transform,
+                MotorCityLocalization.Text("ux.home.button"),
+                new Vector2(124f, -250f),
+                new Vector2(400f, 60f),
+                ShowPlayerExperience);
+
             RefreshMainMenuText();
+        }
+
+
+        // UX-1: first read-only career overview. More pages follow the UX roadmap.
+        private void BuildPlayerExperienceScreen()
+        {
+            FrontEndModalWindow window =
+                CreateFrontEndModalWindow(
+                    playerExperienceRoot.transform,
+                    "Player Experience Panel",
+                    MotorCityLocalization.Text("ux.home.title"),
+                    new Vector2(1020f, 730f),
+                    112f);
+
+            CreateFrontEndLayoutText(
+                window.Content,
+                MotorCityLocalization.Text("ux.home.subtitle"),
+                24,
+                FontStyle.Bold,
+                TextAnchor.MiddleCenter,
+                46f,
+                new Color(0.48f, 0.76f, 1f, 1f));
+
+            playerExperienceCreditsText =
+                CreateFrontEndLayoutText(
+                    window.Content,
+                    string.Empty,
+                    28,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    46f,
+                    Color.white);
+
+            playerExperienceRepText =
+                CreateFrontEndLayoutText(
+                    window.Content,
+                    string.Empty,
+                    28,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    46f,
+                    Color.white);
+
+            playerExperienceObjectiveText =
+                CreateFrontEndLayoutText(
+                    window.Content,
+                    string.Empty,
+                    24,
+                    FontStyle.Normal,
+                    TextAnchor.MiddleCenter,
+                    110f,
+                    new Color(0.88f, 0.93f, 1f, 1f));
+
+            CreateFrontEndLayoutText(
+                window.Content,
+                MotorCityLocalization.Text("ux.home.sections_soon"),
+                23,
+                FontStyle.Normal,
+                TextAnchor.MiddleCenter,
+                118f,
+                new Color(0.72f, 0.80f, 0.94f, 1f));
+
+            CreateFrontEndFlexibleSpacer(
+                window.Content,
+                "Player Experience Spacer");
+
+            RectTransform backRow =
+                CreateFrontEndActionRow(
+                    window.Content,
+                    "Player Experience Back",
+                    58f);
+
+            CreateFrontEndLayoutButton(
+                backRow,
+                MotorCityLocalization.Text("ux.home.back"),
+                ShowMainMenu,
+                320f,
+                58f);
+        }
+
+        private void ShowPlayerExperience()
+        {
+            if (playerExperienceRoot == null)
+                return;
+
+            mainRoot.SetActive(false);
+            aboutRoot.SetActive(false);
+            settingsRoot.SetActive(false);
+            playerExperienceRoot.SetActive(true);
+            RefreshPlayerExperience();
+        }
+
+        private void RefreshPlayerExperience()
+        {
+            if (playerExperienceCreditsText != null)
+            {
+                playerExperienceCreditsText.text =
+                    MotorCityLocalization.Format(
+                        "ux.home.credits",
+                        wallet == null ? 0 : wallet.Credits);
+            }
+
+            if (playerExperienceRepText != null)
+            {
+                playerExperienceRepText.text =
+                    MotorCityLocalization.Format(
+                        "ux.home.rep",
+                        reputation == null ? 0 : reputation.Reputation);
+            }
+
+            if (playerExperienceObjectiveText != null)
+            {
+                string objective =
+                    hud == null
+                        ? string.Empty
+                        : hud.PlayerExperienceObjectiveLine;
+
+                if (string.IsNullOrWhiteSpace(objective) &&
+                    onboarding != null &&
+                    !onboarding.IsComplete)
+                {
+                    objective = onboarding.ObjectiveLine;
+                }
+
+                if (string.IsNullOrWhiteSpace(objective))
+                {
+                    objective =
+                        MotorCityLocalization.Text(
+                            "ux.home.no_objective");
+                }
+
+                playerExperienceObjectiveText.text =
+                    MotorCityLocalization.Format(
+                        "ux.home.objective",
+                        objective);
+            }
         }
 
         private void BuildControlChoiceScreen()
@@ -2337,6 +2488,7 @@ namespace MotorCity.UI
             mainRoot.SetActive(true);
             aboutRoot.SetActive(false);
             settingsRoot.SetActive(false);
+            playerExperienceRoot?.SetActive(false);
             introRoot.SetActive(false);
             if (controlChoiceRoot != null)
                 controlChoiceRoot.SetActive(false);
