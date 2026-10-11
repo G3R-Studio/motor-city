@@ -13,6 +13,12 @@ namespace MotorCity.UI
         private GameObject playerExperienceJournalPanel;
         private Text playerExperienceActivitiesText;
         private Text playerExperienceJournalText;
+        private GameObject playerExperienceClubPanel;
+        private GameObject playerExperienceInspectorPanel;
+        private GameObject playerExperienceTurboPanel;
+        private Text playerExperienceClubText;
+        private Text playerExperienceInspectorText;
+        private Text playerExperienceTurboText;
 
         private void BuildPlayerExperienceSections()
         {
@@ -128,40 +134,156 @@ namespace MotorCity.UI
                 320f,
                 58f);
 
+            playerExperienceClubPanel =
+                BuildPlayerExperienceDetail(
+                    "Player Experience Club Panel",
+                    "ux.club.title",
+                    "ux.club.subtitle",
+                    "ux.club.hint",
+                    out playerExperienceClubText);
+
+            playerExperienceInspectorPanel =
+                BuildPlayerExperienceDetail(
+                    "Player Experience Inspector Panel",
+                    "ux.inspector.title",
+                    "ux.inspector.subtitle",
+                    "ux.inspector.hint",
+                    out playerExperienceInspectorText);
+
+            playerExperienceTurboPanel =
+                BuildPlayerExperienceDetail(
+                    "Player Experience Turbo Panel",
+                    "ux.turbo.title",
+                    "ux.turbo.subtitle",
+                    "ux.turbo.hint",
+                    out playerExperienceTurboText);
+
             playerExperienceActivitiesPanel.SetActive(false);
             playerExperienceJournalPanel.SetActive(false);
+            playerExperienceClubPanel.SetActive(false);
+            playerExperienceInspectorPanel.SetActive(false);
+            playerExperienceTurboPanel.SetActive(false);
         }
 
+        private GameObject BuildPlayerExperienceDetail(
+            string name,
+            string titleKey,
+            string subtitleKey,
+            string hintKey,
+            out Text body)
+        {
+            FrontEndModalWindow page =
+                CreateFrontEndModalWindow(
+                    playerExperienceRoot.transform,
+                    name,
+                    MotorCityLocalization.Text(titleKey),
+                    new Vector2(1020f, 730f),
+                    112f);
+
+            CreateFrontEndLayoutText(
+                page.Content,
+                MotorCityLocalization.Text(subtitleKey),
+                24,
+                FontStyle.Bold,
+                TextAnchor.MiddleCenter,
+                54f,
+                new Color(0.48f, 0.76f, 1f, 1f));
+
+            body =
+                CreateFrontEndLayoutText(
+                    page.Content,
+                    string.Empty,
+                    25,
+                    FontStyle.Normal,
+                    TextAnchor.UpperLeft,
+                    264f,
+                    new Color(0.90f, 0.95f, 1f, 1f));
+
+            CreateFrontEndLayoutText(
+                page.Content,
+                MotorCityLocalization.Text(hintKey),
+                20,
+                FontStyle.Normal,
+                TextAnchor.MiddleCenter,
+                90f,
+                new Color(0.72f, 0.80f, 0.94f, 1f));
+
+            CreateFrontEndFlexibleSpacer(
+                page.Content,
+                name + " Spacer");
+
+            RectTransform backRow =
+                CreateFrontEndActionRow(
+                    page.Content,
+                    name + " Back",
+                    58f);
+
+            CreateFrontEndLayoutButton(
+                backRow,
+                MotorCityLocalization.Text("ux.home.back"),
+                ShowPlayerExperienceHome,
+                320f,
+                58f);
+
+            return page.Panel.gameObject;
+        }
+
+        // A single selected panel is active, including on mobile: no
+        // overlays stacked and no additional gameplay pause owner.
         private void ShowPlayerExperienceHome()
         {
-            playerExperienceHomePanel?.SetActive(true);
-            playerExperienceActivitiesPanel?.SetActive(false);
-            playerExperienceJournalPanel?.SetActive(false);
-            RefreshPlayerExperience();
+            SwitchPlayerExperiencePage(null);
         }
 
         private void ShowPlayerExperienceActivities()
         {
-            playerExperienceHomePanel?.SetActive(false);
-            playerExperienceJournalPanel?.SetActive(false);
-            playerExperienceActivitiesPanel?.SetActive(true);
-            RefreshPlayerExperienceSections();
+            SwitchPlayerExperiencePage(playerExperienceActivitiesPanel);
         }
 
         private void ShowPlayerExperienceJournal()
         {
-            playerExperienceHomePanel?.SetActive(false);
-            playerExperienceActivitiesPanel?.SetActive(false);
-            playerExperienceJournalPanel?.SetActive(true);
-            RefreshPlayerExperienceSections();
+            SwitchPlayerExperiencePage(playerExperienceJournalPanel);
+        }
+
+        private void ShowPlayerExperienceClub()
+        {
+            SwitchPlayerExperiencePage(playerExperienceClubPanel);
+        }
+
+        private void ShowPlayerExperienceInspector()
+        {
+            SwitchPlayerExperiencePage(playerExperienceInspectorPanel);
+        }
+
+        private void ShowPlayerExperienceTurbo()
+        {
+            SwitchPlayerExperiencePage(playerExperienceTurboPanel);
+        }
+
+        private void SwitchPlayerExperiencePage(GameObject selected)
+        {
+            playerExperienceHomePanel?.SetActive(selected == null);
+            playerExperienceActivitiesPanel?.SetActive(
+                selected == playerExperienceActivitiesPanel);
+            playerExperienceJournalPanel?.SetActive(
+                selected == playerExperienceJournalPanel);
+            playerExperienceClubPanel?.SetActive(
+                selected == playerExperienceClubPanel);
+            playerExperienceInspectorPanel?.SetActive(
+                selected == playerExperienceInspectorPanel);
+            playerExperienceTurboPanel?.SetActive(
+                selected == playerExperienceTurboPanel);
+
+            if (selected == null)
+                RefreshPlayerExperience();
+            else
+                RefreshPlayerExperienceSections();
         }
 
         private void HandlePlayerExperienceBack()
         {
-            if (playerExperienceActivitiesPanel != null &&
-                playerExperienceActivitiesPanel.activeSelf ||
-                playerExperienceJournalPanel != null &&
-                playerExperienceJournalPanel.activeSelf)
+            if (playerExperienceHomePanel != null &&
+                !playerExperienceHomePanel.activeSelf)
             {
                 ShowPlayerExperienceHome();
                 return;
@@ -186,6 +308,30 @@ namespace MotorCity.UI
                     hud == null
                         ? MotorCityLocalization.Text("ux.sections.not_ready")
                         : hud.PlayerExperienceJournalLine;
+            }
+
+            if (playerExperienceClubText != null)
+            {
+                playerExperienceClubText.text =
+                    hud == null
+                        ? MotorCityLocalization.Text("ux.sections.not_ready")
+                        : hud.PlayerExperienceClubLine;
+            }
+
+            if (playerExperienceInspectorText != null)
+            {
+                playerExperienceInspectorText.text =
+                    hud == null
+                        ? MotorCityLocalization.Text("ux.sections.not_ready")
+                        : hud.PlayerExperienceInspectorLine;
+            }
+
+            if (playerExperienceTurboText != null)
+            {
+                playerExperienceTurboText.text =
+                    hud == null
+                        ? MotorCityLocalization.Text("ux.sections.not_ready")
+                        : hud.PlayerExperienceTurboLine;
             }
         }
     }

@@ -1202,6 +1202,68 @@ namespace MotorCity.UI
             }
         }
 
+        // UX-1 overview: only existing read-only gameplay state is displayed.
+        // Club reward eligibility is NOT a "claim" button and must not be
+        // confused with the goal being completed.
+        public string PlayerExperienceClubLine
+        {
+            get
+            {
+                if (club == null)
+                    return MotorCityLocalization.Text("ux.sections.not_ready");
+
+                if (!club.HasClub)
+                    return MotorCityLocalization.Text("ux.club.not_joined");
+
+                return string.Join(
+                    "\n\n",
+                    MotorCityLocalization.Format(
+                        "ux.club.current",
+                        club.CurrentClubName),
+                    club.WeeklyLine,
+                    club.BrowseClubRewardLine);
+            }
+        }
+
+        public string PlayerExperienceInspectorLine
+        {
+            get
+            {
+                if (cityRisk == null)
+                    return MotorCityLocalization.Text("ux.sections.not_ready");
+
+                return string.Join(
+                    "\n\n",
+                    MotorCityLocalization.Format(
+                        "ux.inspector.attention",
+                        Mathf.RoundToInt(cityRisk.Attention),
+                        cityRisk.RiskLevel),
+                    MotorCityLocalization.Text(
+                        cityRisk.PursuitActive
+                            ? "ux.inspector.watching"
+                            : "ux.inspector.calm"));
+            }
+        }
+
+        public string PlayerExperienceTurboLine
+        {
+            get
+            {
+                if (turbo == null)
+                    return MotorCityLocalization.Text("ux.sections.not_ready");
+
+                return string.Join(
+                    "\n\n",
+                    MotorCityLocalization.Format(
+                        "ux.turbo.progress",
+                        turbo.Level,
+                        turbo.Xp),
+                    MotorCityLocalization.Format(
+                        "ux.turbo.daily",
+                        turbo.DailyObjectiveLine));
+            }
+        }
+
         private bool HasBlockingModalUi()
         {
             return

@@ -647,14 +647,34 @@ namespace MotorCity.UI
                 330f,
                 64f);
 
-            CreateFrontEndLayoutText(
-                window.Content,
-                MotorCityLocalization.Text("ux.home.more_sections"),
-                19,
-                FontStyle.Normal,
-                TextAnchor.MiddleCenter,
-                62f,
-                new Color(0.72f, 0.80f, 0.94f, 1f));
+            // Keep the overview height stable: a second row replaces the
+            // earlier "coming soon" text instead of overflowing the panel.
+            RectTransform progressActions =
+                CreateFrontEndActionRow(
+                    window.Content,
+                    "Player Experience Progress Actions",
+                    64f);
+
+            CreateFrontEndLayoutButton(
+                progressActions,
+                MotorCityLocalization.Text("ux.club.title"),
+                ShowPlayerExperienceClub,
+                270f,
+                64f);
+
+            CreateFrontEndLayoutButton(
+                progressActions,
+                MotorCityLocalization.Text("ux.inspector.title"),
+                ShowPlayerExperienceInspector,
+                270f,
+                64f);
+
+            CreateFrontEndLayoutButton(
+                progressActions,
+                MotorCityLocalization.Text("ux.turbo.title"),
+                ShowPlayerExperienceTurbo,
+                270f,
+                64f);
 
             CreateFrontEndFlexibleSpacer(
                 window.Content,
