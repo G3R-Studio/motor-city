@@ -1148,7 +1148,18 @@ namespace MotorCity.UI
                         "ux.activities.circuit",
                         FormatPlayerExperienceBestTime(
                             circuitRace.BestTimeSeconds)) + "\n" +
-                    MotorCityLocalization.Text("ux.catalog.start_marker"),
+                    MotorCityLocalization.Text("ux.catalog.start_marker") + "\n" +
+                    MotorCityLocalization.Format(
+                        "ux.catalog.base_reward",
+                        streetSprint.CatalogBaseRewardCredits) + "\n" +
+                    MotorCityLocalization.Format(
+                        streetSprint.CatalogEliteUnlocked
+                            ? "ux.catalog.sprint_elite_open"
+                            : "ux.catalog.sprint_elite_locked",
+                        streetSprint.CatalogEliteRequiredLevel) + "\n" +
+                    MotorCityLocalization.Format(
+                        "ux.catalog.circuit_reward",
+                        circuitRace.CatalogBaseRewardCredits),
                     MotorCityLocalization.Text("ux.catalog.drift") + "\n" +
                     MotorCityLocalization.Format(
                         "ux.activities.drift",
