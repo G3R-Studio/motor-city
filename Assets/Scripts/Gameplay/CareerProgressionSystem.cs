@@ -36,6 +36,18 @@ namespace MotorCity.Gameplay
 
         public int Stage { get; private set; }
 
+        public bool CatalogComplete => Stage >= StageCount;
+        public int CatalogStageCount => StageCount;
+        public int CatalogRequiredWins => CatalogComplete ? 0 : RequiredWins(Stage);
+        public int CatalogDeliveryWins => deliveryWins;
+        public int CatalogDriftWins => driftWins;
+        public int CatalogSprintWins => sprintWins;
+        public int CatalogCircuitWins => circuitWins;
+        public int CatalogNextCredits =>
+            CatalogComplete ? 0 : Stage == 0 ? 1200 : Stage == 1 ? 2500 : 5000;
+        public int CatalogNextReputation =>
+            CatalogComplete ? 0 : Stage == 0 ? 200 : Stage == 1 ? 400 : 750;
+
         public bool ShowMessage =>
             messageTimer > 0f;
 
