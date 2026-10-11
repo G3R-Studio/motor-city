@@ -34,6 +34,11 @@ namespace MotorCity.Gameplay
         private float messageTimer;
         private bool coolingDown;
 
+        public int CatalogCurrentCreditsReward =>
+            coolingDown ? 0 : CurrentDefinition().Credits;
+        public int CatalogCurrentReputationReward =>
+            coolingDown ? 0 : CurrentDefinition().Reputation;
+
         public bool ShowMessage =>
             messageTimer > 0f;
 
