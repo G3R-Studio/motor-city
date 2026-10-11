@@ -1428,7 +1428,9 @@ namespace MotorCity.UI
                         MotorCityLocalization.Text(found
                             ? "ux.catalog.discovery_done"
                             : "ux.catalog.discovery_missing") + "\n" + count,
-                        MotorCityLocalization.Text("ux.catalog.reward.discovery"),
+                        MotorCityLocalization.Format("ux.catalog.reward.total",
+                            DiscoverySystem.CatalogCreditsReward,
+                            DiscoverySystem.CatalogReputationReward),
                         found ? MotorCityLocalization.Text("ux.catalog.next.completed")
                             : MotorCityLocalization.Text("ux.catalog.next.discovery"));
                 }
