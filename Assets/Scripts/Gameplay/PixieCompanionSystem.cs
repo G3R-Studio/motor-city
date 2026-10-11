@@ -48,9 +48,12 @@ namespace MotorCity.Gameplay
         private GameObject externalVisual;
         private Animator externalAnimator;
         private bool usingHaonVisual;
+        // The requested supporter skin can fall back to HAON if its
+        // prefab is unavailable. Use the actual rig for animation/height.
+        private bool usingKisoraVisual;
         private bool useSupporterPixieSkin;
         private float ActiveSkinRoofHeightOffset =>
-            useSupporterPixieSkin
+            usingKisoraVisual
                 ? ExclusiveRoofHeightOffset
                 : StandardRoofHeightOffset;
         private Vector3 visualAnchorLocal;
@@ -63,6 +66,13 @@ namespace MotorCity.Gameplay
 
         public float EditorRoofHeightOffset =>
             ActiveSkinRoofHeightOffset + editorRoofHeightAdjustment;
+
+        public string EditorActiveVisual =>
+            usingKisoraVisual
+                ? "EX / SapphiArt"
+                : externalVisual != null
+                    ? "HAON / Standard"
+                    : "Primitive fallback";
 
         // Actual Animator clip, useful if a third-party animation produces
         // an unexpected bind/T-pose during Editor QA.
@@ -611,6 +621,18 @@ namespace MotorCity.Gameplay
             if (car == null)
                 return;
 
+            // Determine which prefab actually loaded before computing the
+            // roof anchor. EX missing -> HAON animation and HAON +0.05m
+            // offset rather than EX-only states on a standard controller.
+            GameObject authoredPrefab = useSupporterPixieSkin
+                ? Resources.Load<GameObject>(
+                    "MotorCity/Pixie/AmaneKisoraVisual")
+                : null;
+            usingKisoraVisual = authoredPrefab != null;
+            if (authoredPrefab == null)
+                authoredPrefab = Resources.Load<GameObject>(
+                    "MotorCity/Byte/HaonByteVisual");
+
             visualRoot =
                 new GameObject(
                     "Pixie Companion");
@@ -633,21 +655,6 @@ namespace MotorCity.Gameplay
                 car.transform.Find(
                     "MotorCityVehicleVisual_Runtime");
 
-            GameObject authoredPrefab =
-                useSupporterPixieSkin
-                    ? Resources.Load<GameObject>(
-                        "MotorCity/Pixie/AmaneKisoraVisual")
-                    : Resources.Load<GameObject>(
-                        "MotorCity/Byte/HaonByteVisual");
-
-            if (authoredPrefab == null &&
-                useSupporterPixieSkin)
-            {
-                authoredPrefab =
-                    Resources.Load<GameObject>(
-                        "MotorCity/Byte/HaonByteVisual");
-            }
-
             if (authoredPrefab != null)
             {
                 externalVisual =
@@ -657,7 +664,7 @@ namespace MotorCity.Gameplay
                         false);
 
                 externalVisual.name =
-                    useSupporterPixieSkin
+                    usingKisoraVisual
                         ? "Pixie EX Amane Kisora Visual"
                         : "Pixie Haon SD Visual";
 
@@ -672,7 +679,7 @@ namespace MotorCity.Gameplay
 
                 externalVisual.transform.localScale =
                     Vector3.one *
-                    (useSupporterPixieSkin
+                    (usingKisoraVisual
                         ? 0.58f
                         : 0.66f);
 
@@ -1153,7 +1160,7 @@ namespace MotorCity.Gameplay
             // "default" pose that can show the bind/T-pose on this rig.
             // We only request known playable idle/winpose/jump clips.
             // Leave its third-party controller asset unchanged.
-            if (useSupporterPixieSkin)
+            if (usingKisoraVisual)
             {
                 externalAnimator.SetBool(
                     "param_idletorunning",
@@ -1195,14 +1202,14 @@ namespace MotorCity.Gameplay
                 nextAmbientReactionSeconds =
                     UnityEngine.Random.Range(15f, 25f);
 
-                if (useSupporterPixieSkin &&
+                if (usingKisoraVisual &&
                     UnityEngine.Random.value < 0.12f)
                 {
                     // Very rare supporter-only playful jump animation.
                     // Does NOT invoke the driving boost ability.
                     PlayPixieReaction("Pixie Playful Jump", 1.25f);
                 }
-                else if (useSupporterPixieSkin ||
+                else if (usingKisoraVisual ||
                          UnityEngine.Random.value < 0.75f)
                 {
                     PlayPixieReaction("Pixie Clap", 1.8f);
@@ -1225,7 +1232,7 @@ namespace MotorCity.Gameplay
                 // passive state stays on the verified looping "idle".
                 // Variety for that skin comes from occasional winpose/jump
                 // reactions, NOT a bind-pose-like ambient state.
-                ambientPoseIndex = useSupporterPixieSkin
+                ambientPoseIndex = usingKisoraVisual
                     ? 0
                     : (ambientPoseIndex + UnityEngine.Random.Range(1, 3)) % 3;
             }
@@ -1282,13 +1289,13 @@ namespace MotorCity.Gameplay
             }
 
             string mappedState =
-                useSupporterPixieSkin
+                usingKisoraVisual
                     ? MapKisoraState(
                         state)
                     : state;
 
             string fullStateName =
-                (useSupporterPixieSkin
+                (usingKisoraVisual
                     ? "Body Animation Layer."
                     : "Base Layer.") +
                 mappedState;
@@ -1307,7 +1314,7 @@ namespace MotorCity.Gameplay
             if (hash ==
                 currentAnimatorStateHash)
             {
-                if (useSupporterPixieSkin)
+                if (usingKisoraVisual)
                 {
                     AnimatorStateInfo currentState =
                         externalAnimator.GetCurrentAnimatorStateInfo(
@@ -1405,6 +1412,8 @@ namespace MotorCity.Gameplay
             externalAnimator =
                 null;
             usingHaonVisual =
+                false;
+            usingKisoraVisual =
                 false;
             currentAnimatorStateHash =
                 0;
