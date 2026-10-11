@@ -49,6 +49,16 @@ namespace MotorCity.Gameplay
 
         public bool IsNearStart { get; private set; }
 
+        public int CatalogNextRewardCredits
+        {
+            get
+            {
+                int nextLevel = professions == null ? 1 :
+                    Mathf.Clamp(1 + (professions.TotalCompleted + 1) / 4, 1, 10);
+                return Mathf.RoundToInt(680f * (1f + (nextLevel - 1) * 0.04f));
+            }
+        }
+
         public Vector3 StartPoint { get; private set; }
         public Vector3 BreakdownPoint { get; private set; }
         public Vector3 ServicePoint { get; private set; }
