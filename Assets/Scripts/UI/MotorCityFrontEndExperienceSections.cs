@@ -15,6 +15,8 @@ namespace MotorCity.UI
         private GameObject playerExperienceJournalPanel;
         private Text playerExperienceActivitiesText;
         private Text playerExperienceRouteStatusText;
+        private RectTransform playerExperienceProfessionRouteContent;
+        private int playerExperienceProfessionRouteCount = -1;
         private Text playerExperienceJournalText;
         private GameObject playerExperienceClubPanel;
         private GameObject playerExperienceInspectorPanel;
@@ -91,6 +93,8 @@ namespace MotorCity.UI
                     routeRow, MotorCityLocalization.Text(routeKeys[i]),
                     () => SelectPlayerExperienceRoute(destination), 320f, 58f);
             }
+
+            playerExperienceProfessionRouteContent = activities.Content;
 
             playerExperienceRouteStatusText = CreateFrontEndLayoutText(
                 activities.Content, string.Empty, 20, FontStyle.Normal,
@@ -313,7 +317,52 @@ namespace MotorCity.UI
 
         private void ShowPlayerExperienceActivities()
         {
+            RefreshPlayerExperienceProfessionRoutes();
             SwitchPlayerExperiencePage(playerExperienceActivitiesPanel);
+        }
+
+        private void RefreshPlayerExperienceProfessionRoutes()
+        {
+            if (playerExperienceProfessionRouteContent == null)
+                return;
+
+            int count = gameplayReady && hud != null
+                ? hud.PlayerExperienceProfessionRouteCount : 0;
+            if (count == playerExperienceProfessionRouteCount)
+                return;
+
+            // Generated actions are removed before rebuilding so save
+            // transitions do not leave stale destinations in the UI.
+            for (int i = playerExperienceProfessionRouteContent.childCount - 1;
+                 i >= 0; i--)
+            {
+                Transform child = playerExperienceProfessionRouteContent.GetChild(i);
+                if (child.name.StartsWith("Catalog Profession Route "))
+                {
+                    child.gameObject.SetActive(false);
+                    Object.Destroy(child.gameObject);
+                }
+            }
+
+            playerExperienceProfessionRouteCount = count;
+            for (int i = 0; i < count; i++)
+            {
+                int destination = i + 7;
+                string label = hud.PlayerExperienceProfessionRouteName(i);
+                RectTransform routeRow = CreateFrontEndActionRow(
+                    playerExperienceProfessionRouteContent,
+                    "Catalog Profession Route " + i, 58f);
+                CreateFrontEndLayoutButton(
+                    routeRow,
+                    MotorCityLocalization.Format("ux.catalog.profession_route",
+                        label),
+                    () => SelectPlayerExperienceRoute(destination),
+                    320f, 58f);
+                // Keep all routes before the status and footer in reading order.
+                if (playerExperienceRouteStatusText != null)
+                    routeRow.SetSiblingIndex(
+                        playerExperienceRouteStatusText.transform.GetSiblingIndex());
+            }
         }
 
         private void ShowPlayerExperienceJournal()
