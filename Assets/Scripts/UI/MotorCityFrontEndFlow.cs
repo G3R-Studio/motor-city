@@ -3521,7 +3521,6 @@ namespace MotorCity.UI
             // icon on the left; the label must not overlap it.
             StretchFrontEndActionLabels(actions);
         }
-        }
 
         private static void AddMenuButtonIcon(
             Transform button,
