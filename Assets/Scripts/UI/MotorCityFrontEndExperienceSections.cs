@@ -14,6 +14,7 @@ namespace MotorCity.UI
         private GameObject playerExperienceActivitiesPanel;
         private GameObject playerExperienceJournalPanel;
         private Text playerExperienceActivitiesText;
+        private Text playerExperienceRouteStatusText;
         private Text playerExperienceJournalText;
         private GameObject playerExperienceClubPanel;
         private GameObject playerExperienceInspectorPanel;
@@ -70,6 +71,32 @@ namespace MotorCity.UI
                 TextAnchor.MiddleCenter,
                 64f,
                 new Color(0.72f, 0.80f, 0.94f, 1f));
+
+            string[] routeKeys =
+            {
+                "ux.catalog.route.sprint",
+                "ux.catalog.route.circuit",
+                "ux.catalog.route.drift",
+                "ux.catalog.route.delivery",
+                "ux.catalog.route.tow",
+                "ux.catalog.route.carwash"
+            };
+            int[] routeIds = { 3, 4, 2, 1, 5, 6 };
+            for (int i = 0; i < routeIds.Length; i++)
+            {
+                int destination = routeIds[i];
+                RectTransform routeRow = CreateFrontEndActionRow(
+                    activities.Content, "Catalog Route " + destination, 58f);
+                CreateFrontEndLayoutButton(
+                    routeRow, MotorCityLocalization.Text(routeKeys[i]),
+                    () => SelectPlayerExperienceRoute(destination), 320f, 58f);
+            }
+
+            playerExperienceRouteStatusText = CreateFrontEndLayoutText(
+                activities.Content, string.Empty, 20, FontStyle.Normal,
+                TextAnchor.MiddleCenter, 64f,
+                new Color(0.94f, 0.78f, 0.53f, 1f));
+            playerExperienceRouteStatusText.gameObject.SetActive(false);
 
             RectTransform activitiesBack =
                 CreateFrontEndActionRow(
@@ -260,6 +287,30 @@ namespace MotorCity.UI
             SwitchPlayerExperiencePage(null);
         }
 
+        private void SelectPlayerExperienceRoute(int destination)
+        {
+            if (!gameplayReady || hud == null ||
+                !hud.TrySetPlayerExperienceRoute(destination))
+            {
+                if (playerExperienceRouteStatusText != null)
+                {
+                    playerExperienceRouteStatusText.text =
+                        hud != null && hud.PlayerExperienceRouteBusy
+                            ? MotorCityLocalization.Text("ux.catalog.busy")
+                            : MotorCityLocalization.Text(
+                                "ux.catalog.route_unavailable");
+                    playerExperienceRouteStatusText.gameObject.SetActive(true);
+                    RefreshPlayerExperienceTextHeights();
+                    RefreshFrontEndScrollCues();
+                }
+                return;
+            }
+
+            // Returning to pause keeps pause ownership intact; the route
+            // becomes available when the player resumes driving.
+            ReturnFromPlayerExperience();
+        }
+
         private void ShowPlayerExperienceActivities()
         {
             SwitchPlayerExperiencePage(playerExperienceActivitiesPanel);
@@ -342,6 +393,12 @@ namespace MotorCity.UI
                 selected == playerExperienceAchievementsPanel);
             playerExperienceNightClubPanel?.SetActive(
                 selected == playerExperienceNightClubPanel);
+
+            if (playerExperienceRouteStatusText != null)
+            {
+                playerExperienceRouteStatusText.gameObject.SetActive(false);
+                playerExperienceRouteStatusText.text = string.Empty;
+            }
 
             if (selected == null)
                 RefreshPlayerExperience();
