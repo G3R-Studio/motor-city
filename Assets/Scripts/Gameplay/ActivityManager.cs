@@ -222,6 +222,11 @@ namespace MotorCity.Gameplay
                 system;
         }
 
+        public int CatalogDisciplineLevel(DisciplineType type)
+        {
+            return disciplineReputation == null ? 0 : disciplineReputation.GetLevel(type);
+        }
+
         public bool HasDisciplineLevel(
             DisciplineType type,
             int requiredLevel)
