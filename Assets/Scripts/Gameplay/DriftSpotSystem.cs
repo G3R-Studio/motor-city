@@ -373,6 +373,11 @@ namespace MotorCity.Gameplay
                 : Vector3.zero;
         }
 
+        public int GetSpotBestScore(int index)
+        {
+            return Valid(index) ? spots[index].BestScore : 0;
+        }
+
         public string GetSpotName(int index)
         {
             return Valid(index)
