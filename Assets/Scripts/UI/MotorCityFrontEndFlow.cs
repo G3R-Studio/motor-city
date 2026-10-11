@@ -1840,6 +1840,7 @@ namespace MotorCity.UI
             ApplyFrontEndResponsiveLayout(
                 false);
             ApplyPlayerExperienceModalLayout(false);
+            HandlePlayerExperienceScrollShortcuts();
 
             // From the main menu Cancel navigates details -> overview
             // -> main menu. When opened from pause, PauseMenuView owns
@@ -2888,6 +2889,9 @@ namespace MotorCity.UI
             MotorCitySaveService.SetString(LanguageKey, next);
             MotorCitySaveService.Save();
 
+            // Disable the old UI immediately: Destroy is delayed until
+            // end-of-frame and must not leave two raycasters active.
+            canvas.gameObject.SetActive(false);
             Object.Destroy(canvas.gameObject);
             BuildUi();
             ShowSettings();
