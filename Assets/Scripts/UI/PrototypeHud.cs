@@ -1166,6 +1166,12 @@ namespace MotorCity.UI
                         driftChallenge.TargetScore) + "\n" +
                     MotorCityLocalization.Text("ux.catalog.start_marker") + "\n" +
                     MotorCityLocalization.Format(
+                        "ux.catalog.drift_thresholds",
+                        driftChallenge.TargetScore,
+                        driftChallenge.CatalogSilverTargetScore,
+                        driftChallenge.CatalogGoldTargetScore,
+                        driftChallenge.CatalogLegendaryTargetScore) + "\n" +
+                    MotorCityLocalization.Format(
                         "ux.catalog.drift_rewards",
                         driftChallenge.RewardCredits,
                         driftChallenge.CatalogSilverRewardCredits,
