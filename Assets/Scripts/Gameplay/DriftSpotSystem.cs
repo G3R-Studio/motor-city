@@ -373,6 +373,26 @@ namespace MotorCity.Gameplay
                 : Vector3.zero;
         }
 
+        public int GetSpotHighestMedal(int index)
+        {
+            return Valid(index) ? spots[index].HighestMedal : 0;
+        }
+
+        public int GetSpotBronzeTarget(int index)
+        {
+            return Valid(index) ? spots[index].BronzeScore : 0;
+        }
+
+        public int GetSpotSilverTarget(int index)
+        {
+            return Valid(index) ? spots[index].SilverScore : 0;
+        }
+
+        public int GetSpotGoldTarget(int index)
+        {
+            return Valid(index) ? spots[index].GoldScore : 0;
+        }
+
         public int GetSpotBestScore(int index)
         {
             return Valid(index) ? spots[index].BestScore : 0;
