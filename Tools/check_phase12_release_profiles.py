@@ -77,9 +77,9 @@ for fragment in (
     "run_unity_phase12_release.ps1 -Profile Desktop",
     "run_unity_phase12_release.ps1 -Profile Mobile",
     "needs: [changes, source-gates, ui-layout, unity-editor]",
-    "needs.changes.outputs.unity == 'true'",
+    "inputs.build_webgl_release == true",
     "needs.unity-editor.result == 'success'",
-    "[phase12-release]",
+    "workflow_dispatch:",
 ):
     if fragment not in ci:
         errors.append(f"Phase 12 GitHub CI wiring missing: {fragment}")
@@ -91,13 +91,21 @@ else:
     page_ci = pages.read_text(encoding="utf-8-sig")
     for fragment in (
         "name: Verify successful WebGL Release artifacts",
+        "release_run_id:",
         "needs.release_ready.outputs.ready == 'true'",
-        "github.event.workflow_run.conclusion == 'success'",
+        "github.event_name == 'workflow_dispatch'",
         'index("motor-city-webgl-desktop-release")',
         'index("motor-city-webgl-mobile-release")',
     ):
         if fragment not in page_ci:
             errors.append(f"WebGL Pages deployment gate missing: {fragment}")
+
+if "  push:" in ci[:ci.find("jobs:")]:
+    errors.append("Source Gates must not auto-trigger on push during UX Editor-only phase")
+if "  workflow_run:" in page_ci[:page_ci.find("jobs:")]:
+    errors.append("Pages must not auto-trigger on completed workflows during UX Editor-only phase")
+if "default: '38095910625'" in page_ci:
+    errors.append("Manual Pages dispatch must require an explicit release run, not stale default")
 
 if errors:
     print("Phase 12 release profile preflight FAILED:")

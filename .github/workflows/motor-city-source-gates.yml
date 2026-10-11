@@ -1,18 +1,27 @@
 name: Motor City Source Gates
 
-# Run checks automatically on pushes to main, while retaining manual dispatch.
+# UX development: no automatic GitHub Actions on source pushes.
+# Unity testing is local unless manually requested.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      build_webgl_release:
+        description: 'Build both Desktop and Mobile WebGL Release profiles (manual, expensive)'
+        required: false
+        type: boolean
+        default: false
+      build_legacy_webgl:
+        description: 'Run legacy WebGL test build (manual only)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 concurrency:
   group: motor-city-gates-${{ github.workflow }}-${{ github.ref }}
-  # Documentation-only pushes should never interrupt an in-progress WebGL build.
+  # Do not interrupt a manually started build.
   cancel-in-progress: false
 
 jobs:
@@ -137,9 +146,8 @@ jobs:
     # activated for CI use under a valid license. No credentials go in Git.
     # The job is skipped until repository variable UNITY_CI_ENABLED is 'true'.
     needs: changes
-    # Full Editor CI is required for Unity assets/source/settings and for manual dispatch.
-    # Docs-only and Python-audit-only pushes still execute the fast source gates.
-    if: ${{ vars.UNITY_CI_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || needs.changes.outputs.unity == 'true' || contains(github.event.head_commit.message, '[phase12-release]')) }}
+    # Editor CI runs only when this workflow is explicitly dispatched.
+    if: ${{ vars.UNITY_CI_ENABLED == 'true' && github.event_name == 'workflow_dispatch' }}
     runs-on: [self-hosted, Windows, X64, unity6000]
     timeout-minutes: 60
     steps:
@@ -205,8 +213,8 @@ jobs:
 
   unity-webgl:
     name: Unity 6 WebGL build and report
-    # Run only via Actions -> Run workflow with UNITY_WEBGL_CI_ENABLED=true.
-    if: ${{ (github.event_name == 'workflow_dispatch' || (contains(github.event.head_commit.message, '[phase3-full-check]') || contains(github.event.head_commit.message, '[phase4-full-check]'))) && vars.UNITY_WEBGL_CI_ENABLED == 'true' && vars.UNITY_CI_ENABLED == 'true' }}
+    # Legacy build is strictly manual and disabled by default during UX work.
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_legacy_webgl == true && vars.UNITY_WEBGL_CI_ENABLED == 'true' && vars.UNITY_CI_ENABLED == 'true' }}
     runs-on: [self-hosted, Windows, X64, unity6000]
     timeout-minutes: 120
     steps:
@@ -234,11 +242,9 @@ jobs:
 
   unity-phase12-releases:
     name: Phase 12 WebGL Desktop + Mobile Release profiles
-    # Build on every Unity-relevant source/asset/settings change, but not on
-    # documentation-only pushes. Manual dispatch or [phase12-release] forces a build.
-    # Run expensive player builds only after source, UI and Unity Editor gates pass.
+    # Release strictly opt-in: normal manual validation DOES NOT build WebGL.
     needs: [changes, source-gates, ui-layout, unity-editor]
-    if: ${{ vars.UNITY_CI_ENABLED == 'true' && needs.source-gates.result == 'success' && needs.ui-layout.result == 'success' && needs.unity-editor.result == 'success' && (github.event_name == 'workflow_dispatch' || needs.changes.outputs.unity == 'true' || contains(github.event.head_commit.message, '[phase12-release]')) }}
+    if: ${{ vars.UNITY_CI_ENABLED == 'true' && github.event_name == 'workflow_dispatch' && inputs.build_webgl_release == true && needs.source-gates.result == 'success' && needs.ui-layout.result == 'success' && needs.unity-editor.result == 'success' }}
     runs-on: [self-hosted, Windows, X64, unity6000]
     timeout-minutes: 240
     steps:

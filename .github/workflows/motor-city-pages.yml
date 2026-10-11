@@ -1,22 +1,14 @@
 name: Motor City GitHub Pages Preview
 
+# No automatic deployment during UX development.
+# Publish manually after final Desktop + Mobile Release validation.
 on:
-  # Publish only after a successful exact-profile WebGL Release CI run.
-  # Do not republish old binaries on unrelated source/docs pushes.
-  workflow_run:
-    workflows:
-      - Motor City Source Gates
-    types:
-      - completed
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       release_run_id:
-        description: Successful Phase 12 CI run containing Desktop + Mobile WebGL Release artifacts
+        description: 'Successful final Phase 12 run ID with Desktop + Mobile WebGL Release artifacts'
         required: true
         type: string
-        default: '38095910625'
 
 permissions:
   contents: read
@@ -24,13 +16,13 @@ permissions:
 
 concurrency:
   group: motor-city-pages
-  # Do not cancel publishing valid builds on an unrelated documentation push.
+  # Do not interrupt manual deployment.
   cancel-in-progress: false
 
 jobs:
   release_ready:
     name: Verify successful WebGL Release artifacts
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     outputs:
       ready: ${{ steps.inspect.outputs.ready }}
@@ -40,7 +32,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_RUN_ID: ${{ github.event.workflow_run.id || inputs.release_run_id || '38095910625' }}
+          RELEASE_RUN_ID: ${{ inputs.release_run_id }}
         run: |
           set -euo pipefail
           [[ "$RELEASE_RUN_ID" =~ ^[0-9]+$ ]] || { echo "Invalid release run ID"; exit 1; }
@@ -74,7 +66,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_RUN_ID: ${{ github.event.workflow_run.id || inputs.release_run_id || '38095910625' }}
+          RELEASE_RUN_ID: ${{ inputs.release_run_id }}
         run: |
           set -euo pipefail
           [[ "$RELEASE_RUN_ID" =~ ^[0-9]+$ ]] || { echo "Invalid release run ID"; exit 1; }
@@ -91,7 +83,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: motor-city-webgl-desktop-release
-          run-id: ${{ github.event.workflow_run.id || inputs.release_run_id || '38095910625' }}
+          run-id: ${{ inputs.release_run_id }}
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           path: downloads/desktop
@@ -100,7 +92,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: motor-city-webgl-mobile-release
-          run-id: ${{ github.event.workflow_run.id || inputs.release_run_id || '38095910625' }}
+          run-id: ${{ inputs.release_run_id }}
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           path: downloads/mobile
