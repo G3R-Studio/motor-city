@@ -1290,7 +1290,13 @@ namespace MotorCity.UI
                     activityManager.IsBusy
                         ? MotorCityLocalization.Text("ux.catalog.access.busy")
                         : MotorCityLocalization.Text("ux.catalog.access.passive"),
-                    record, MotorCityLocalization.Text("ux.catalog.driftzone_reward"),
+                    record, MotorCityLocalization.Format("ux.catalog.one_time_tiers",
+                        driftSpots.GetCatalogMedalCreditReward(1),
+                        driftSpots.GetCatalogMedalReputationReward(1),
+                        driftSpots.GetCatalogMedalCreditReward(2),
+                        driftSpots.GetCatalogMedalReputationReward(2),
+                        driftSpots.GetCatalogMedalCreditReward(3),
+                        driftSpots.GetCatalogMedalReputationReward(3)),
                     PlayerExperienceNextMedal(medal));
             }
         }
@@ -1393,7 +1399,13 @@ namespace MotorCity.UI
                         MotorCityLocalization.Text("ux.catalog.about.radar"),
                         MotorCityLocalization.Text("ux.catalog.start.radar"),
                         passiveAccess, progress,
-                        MotorCityLocalization.Text("ux.catalog.radar_reward"),
+                        MotorCityLocalization.Format("ux.catalog.one_time_tiers",
+                            speedTraps.GetCatalogMedalCreditReward(1),
+                            speedTraps.GetCatalogMedalReputationReward(1),
+                            speedTraps.GetCatalogMedalCreditReward(2),
+                            speedTraps.GetCatalogMedalReputationReward(2),
+                            speedTraps.GetCatalogMedalCreditReward(3),
+                            speedTraps.GetCatalogMedalReputationReward(3)),
                         PlayerExperienceNextMedal(medal));
                 }
             }
