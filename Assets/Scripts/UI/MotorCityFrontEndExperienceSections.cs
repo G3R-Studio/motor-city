@@ -27,6 +27,7 @@ namespace MotorCity.UI
         private Text playerExperienceGarageText;
         private Text playerExperienceAchievementsText;
         private Text playerExperienceNightClubText;
+        private GameObject playerExperienceLastOverviewSelection;
 
         private void BuildPlayerExperienceSections()
         {
@@ -300,6 +301,22 @@ namespace MotorCity.UI
 
         private void SwitchPlayerExperiencePage(GameObject selected)
         {
+            // A controller/keyboard player should return to the section
+            // they opened, not jump back to the first button each time.
+            if (selected != null && playerExperienceHomePanel != null &&
+                playerExperienceHomePanel.activeSelf &&
+                EventSystem.current != null)
+            {
+                GameObject focused =
+                    EventSystem.current.currentSelectedGameObject;
+                if (focused != null &&
+                    focused.transform.IsChildOf(
+                        playerExperienceHomePanel.transform))
+                {
+                    playerExperienceLastOverviewSelection = focused;
+                }
+            }
+
             playerExperienceHomePanel?.SetActive(selected == null);
             playerExperienceActivitiesPanel?.SetActive(
                 selected == playerExperienceActivitiesPanel);
@@ -338,23 +355,35 @@ namespace MotorCity.UI
                 scroll.verticalNormalizedPosition = 1f;
             }
 
-            // Keyboard/controller navigation starts on a page action, not on
-            // an invisible button from the page that was just hidden.
+            // Keep keyboard/controller selection visible, and restore the
+            // exact overview action on Back if it is still interactable.
             if (active != null && EventSystem.current != null)
             {
-                foreach (Button button in
-                    active.GetComponentsInChildren<Button>())
+                Button previous = selected == null &&
+                    playerExperienceLastOverviewSelection != null
+                        ? playerExperienceLastOverviewSelection
+                            .GetComponent<Button>()
+                        : null;
+                if (previous != null && previous.IsActive() &&
+                    previous.interactable)
                 {
-                    if (!button.IsActive() ||
-                        !button.interactable ||
-                        button.gameObject.name == "X Button")
-                    {
-                        continue;
-                    }
-
                     EventSystem.current.SetSelectedGameObject(
-                        button.gameObject);
-                    break;
+                        previous.gameObject);
+                }
+                else
+                {
+                    foreach (Button button in
+                        active.GetComponentsInChildren<Button>())
+                    {
+                        if (!button.IsActive() ||
+                            !button.interactable ||
+                            button.gameObject.name == "X Button")
+                            continue;
+
+                        EventSystem.current.SetSelectedGameObject(
+                            button.gameObject);
+                        break;
+                    }
                 }
             }
 
