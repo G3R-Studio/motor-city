@@ -26,6 +26,13 @@ namespace MotorCity.Gameplay
             "MotorCity.Turbo.Daily.Progress";
         private const string DailyClaimedKey =
             "MotorCity.Turbo.Daily.Claimed";
+        // Confirmed by the player in Unity Editor on 2026-10-11.
+        // These are per-skin ADDITIONAL roof offsets on top of the
+        // central body-collider contact height, not world-space heights.
+        private const float StandardRoofHeightOffset =
+            0.10f;
+        private const float ExclusiveRoofHeightOffset =
+            0.15f;
         private const float MessageSeconds =
             4f;
         private const float HintDelaySeconds =
@@ -42,13 +49,20 @@ namespace MotorCity.Gameplay
         private Animator externalAnimator;
         private bool usingHaonVisual;
         private bool useSupporterPixieSkin;
+        private float ActiveSkinRoofHeightOffset =>
+            useSupporterPixieSkin
+                ? ExclusiveRoofHeightOffset
+                : StandardRoofHeightOffset;
         private Vector3 visualAnchorLocal;
         private Transform observedVehicleVisual;
 #if UNITY_EDITOR
-        // Preview-only car roof calibration, never written to saves.
-        private float editorRoofHeightOffset;
+        // Preview-only fine adjustment; never written to saves.
+        // QA shows the *total* height so the value agrees with the
+        // original +0.15m / +0.10m values the player calibrated.
+        private float editorRoofHeightAdjustment;
 
-        public float EditorRoofHeightOffset => editorRoofHeightOffset;
+        public float EditorRoofHeightOffset =>
+            ActiveSkinRoofHeightOffset + editorRoofHeightAdjustment;
 
         // Actual Animator clip, useful if a third-party animation produces
         // an unexpected bind/T-pose during Editor QA.
@@ -72,10 +86,21 @@ namespace MotorCity.Gameplay
             }
         }
 
-        public void SetEditorRoofHeightOffset(float offsetMeters)
+        public void SetEditorRoofHeightOffset(float totalOffsetMeters)
         {
-            editorRoofHeightOffset =
-                Mathf.Clamp(offsetMeters, -0.60f, 0.60f);
+            editorRoofHeightAdjustment =
+                Mathf.Clamp(
+                    totalOffsetMeters - ActiveSkinRoofHeightOffset,
+                    -0.60f,
+                    0.60f);
+
+            if (car != null)
+                visualAnchorLocal = ResolveVisualAnchor();
+        }
+
+        public void ResetEditorRoofHeightOffset()
+        {
+            editorRoofHeightAdjustment = 0f;
 
             if (car != null)
                 visualAnchorLocal = ResolveVisualAnchor();
@@ -963,8 +988,12 @@ namespace MotorCity.Gameplay
                 }
             }
 
+            // Applies in Editor and builds alike. Do not put these values
+            // behind UNITY_EDITOR: otherwise released skins sit too low.
+            roofCenter.y += ActiveSkinRoofHeightOffset;
+
 #if UNITY_EDITOR
-            roofCenter.y += editorRoofHeightOffset;
+            roofCenter.y += editorRoofHeightAdjustment;
 #endif
             return roofCenter;
         }
@@ -1350,6 +1379,12 @@ namespace MotorCity.Gameplay
 
             useSupporterPixieSkin =
                 enabled;
+
+#if UNITY_EDITOR
+            // A temporary fine-adjustment for one skin must not carry
+            // over when QA switches to the other skin.
+            editorRoofHeightAdjustment = 0f;
+#endif
 
             if (car != null)
                 RebuildVisual();

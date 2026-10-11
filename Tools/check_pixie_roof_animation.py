@@ -14,6 +14,19 @@ checks = {
     "center roof X/Z": (
         "bounds.center.x,\n                bounds.max.y + 0.01f,\n                bounds.center.z" in SOURCE
     ),
+    "skin-specific calibrated offsets in runtime": (
+        "StandardRoofHeightOffset =\n            0.10f;" in SOURCE and
+        "ExclusiveRoofHeightOffset =\n            0.15f;" in SOURCE and
+        "roofCenter.y += ActiveSkinRoofHeightOffset;" in SOURCE and
+        "ActiveSkinRoofHeightOffset + editorRoofHeightAdjustment" in SOURCE
+    ),
+    "Editor reset returns to each skin baseline": (
+        "public void ResetEditorRoofHeightOffset()" in SOURCE and
+        "totalOffsetMeters - ActiveSkinRoofHeightOffset" in SOURCE and
+        "pixie.ResetEditorRoofHeightOffset();" in
+        (ROOT / "Assets/Scripts/Gameplay/AdminDebugPanel.cs").read_text(encoding="utf-8-sig") and
+        "editorRoofHeightAdjustment = 0f;\n#endif\n\n            if (car != null)" in SOURCE
+    ),
     "no hover or bobbing": (
         "hoverPhase" not in SOURCE and
         "Mathf.Sin(" not in SOURCE

@@ -1791,7 +1791,7 @@ namespace MotorCity.Gameplay
                         pixie.EditorRoofHeightOffset + 0.05f);
 
                 if (Button("СБРОС ВЫСОТЫ"))
-                    pixie.SetEditorRoofHeightOffset(0f);
+                    pixie.ResetEditorRoofHeightOffset();
 
                 GUILayout.EndHorizontal();
             }
