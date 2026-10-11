@@ -92,7 +92,7 @@ namespace MotorCity.Localization
                 { "ux.catalog.about.night", E("Ночные встречи и испытания.", "Night meetings and challenges.") },
                 { "ux.catalog.next.record", E("Побей свой лучший результат.", "Beat your best result.") },
                 { "ux.catalog.next.story", E("Продолжай текущую цель.", "Follow your current objective.") },
-                { "ux.catalog.profession_line", E("Выполнено: {0}; следующая выплата: {1:N0} КР.", "Completed: {0}; next payout: {1:N0} CR.") },
+                { "ux.catalog.profession_line", E("Выполнено: {0}.", "Completed: {0}.") },
                 { "ux.catalog.discovery_line", E("Открыто {0}/{1} мест.", "Discovered {0}/{1} locations.") },
                 { "ux.catalog.discovery_done", E("Найдено", "Found") },
                 { "ux.catalog.discovery_missing", E("Не найдено", "Not found") },
