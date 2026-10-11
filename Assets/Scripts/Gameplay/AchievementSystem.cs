@@ -51,7 +51,55 @@ namespace MotorCity.Gameplay
             "achievement.season"
         };
 
+        // Single source of truth for the one-time rewards displayed in
+        // Player Experience and granted by EvaluateAll/TryUnlock.
+        private static readonly int[] AchievementCreditRewards =
+        {
+            250, 500, 500, 650, 700, 700, 900, 1200, 1600
+        };
+
+        private static readonly int[] AchievementRepRewards =
+        {
+            25, 50, 50, 60, 70, 70, 90, 120, 150
+        };
+
         public int TotalCount => unlocked.Length;
+
+        public void GetAchievementReward(
+            int index, out int credits, out int rep)
+        {
+            credits = index >= 0 && index < AchievementCreditRewards.Length
+                ? AchievementCreditRewards[index] : 0;
+            rep = index >= 0 && index < AchievementRepRewards.Length
+                ? AchievementRepRewards[index] : 0;
+        }
+
+        public void GetAchievementProgress(
+            int index, out int current, out int target)
+        {
+            target = index == 0 || index >= 7 ? 1 :
+                index == 6 ? 3 : 5;
+            current = index switch
+            {
+                0 => activityWins,
+                1 => raceWins,
+                2 => driftWins,
+                3 => Mathf.Max(professionWins,
+                    professions == null ? 0 : professions.TotalCompleted),
+                4 => discoveries == null ? 0 : discoveries.FoundCount,
+                5 => photoHunt == null ? 0 : photoHunt.TotalCaptured,
+                6 => roster == null ? 0 : roster.GetOwnedVehicleCount(),
+                7 => story != null && story.IsComplete ? 1 : 0,
+                8 => season != null && season.IsComplete ? 1 : 0,
+                _ => 0
+            };
+
+            // A completed achievement remains complete even when its
+            // underlying daily/seasonal counter changes in the future.
+            if (IsAchievementUnlocked(index))
+                current = Mathf.Max(current, target);
+            current = Mathf.Clamp(current, 0, target);
+        }
 
         public bool IsAchievementUnlocked(int index)
         {
@@ -310,22 +358,22 @@ namespace MotorCity.Gameplay
                 0,
                 activityWins >= 1,
                 "achievement.first_drive",
-                250,
-                25);
+                AchievementCreditRewards[0],
+                AchievementRepRewards[0]);
 
             TryUnlock(
                 1,
                 raceWins >= 5,
                 "achievement.racer",
-                500,
-                50);
+                AchievementCreditRewards[1],
+                AchievementRepRewards[1]);
 
             TryUnlock(
                 2,
                 driftWins >= 5,
                 "achievement.drifter",
-                500,
-                50);
+                AchievementCreditRewards[2],
+                AchievementRepRewards[2]);
 
             TryUnlock(
                 3,
@@ -333,48 +381,48 @@ namespace MotorCity.Gameplay
                 (professions != null &&
                  professions.TotalCompleted >= 5),
                 "achievement.worker",
-                650,
-                60);
+                AchievementCreditRewards[3],
+                AchievementRepRewards[3]);
 
             TryUnlock(
                 4,
                 discoveries != null &&
                 discoveries.FoundCount >= 5,
                 "achievement.explorer",
-                700,
-                70);
+                AchievementCreditRewards[4],
+                AchievementRepRewards[4]);
 
             TryUnlock(
                 5,
                 photoHunt != null &&
                 photoHunt.TotalCaptured >= 5,
                 "achievement.photographer",
-                700,
-                70);
+                AchievementCreditRewards[5],
+                AchievementRepRewards[5]);
 
             TryUnlock(
                 6,
                 roster != null &&
                 roster.GetOwnedVehicleCount() >= 3,
                 "achievement.collector",
-                900,
-                90);
+                AchievementCreditRewards[6],
+                AchievementRepRewards[6]);
 
             TryUnlock(
                 7,
                 story != null &&
                 story.IsComplete,
                 "achievement.story",
-                1200,
-                120);
+                AchievementCreditRewards[7],
+                AchievementRepRewards[7]);
 
             TryUnlock(
                 8,
                 season != null &&
                 season.IsComplete,
                 "achievement.season",
-                1600,
-                150);
+                AchievementCreditRewards[8],
+                AchievementRepRewards[8]);
         }
 
         private void TryUnlock(
