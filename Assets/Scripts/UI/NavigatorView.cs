@@ -761,7 +761,9 @@ namespace MotorCity.UI
             const float matchDistance =
                 12f;
 
-            if (manualNavigationActive &&
+            if ((activityManager == null ||
+                 !activityManager.IsBusy) &&
+                manualNavigationActive &&
                 FlatDistance(
                     target,
                     manualNavigationTarget) <=
@@ -792,6 +794,9 @@ namespace MotorCity.UI
             }
 
             if (underground != null &&
+                (activityManager == null ||
+                 !activityManager.IsBusy ||
+                 activityManager.IsActive("underground")) &&
                 (underground.HasActiveInvitation ||
                  underground.IsActive ||
                  underground.IsCountingDown))
@@ -2573,7 +2578,13 @@ namespace MotorCity.UI
                 }
             }
 
+            // A waiting underground invitation is not the current
+            // activity. Never let it replace another mission's minimap
+            // target or route during its run/countdown.
             if (underground != null &&
+                (activityManager == null ||
+                 !activityManager.IsBusy ||
+                 activityManager.IsActive("underground")) &&
                 (underground.HasActiveInvitation ||
                  underground.IsActive ||
                  underground.IsCountingDown))
@@ -2680,6 +2691,19 @@ namespace MotorCity.UI
                     MotorCityLocalization.Text(
                         "activity.drift");
                 showRoadRoute = true;
+                return;
+            }
+
+            // During an activity the minimap belongs exclusively to
+            // its checkpoint. If an unknown activity has no route target,
+            // show no unrelated free-roam activity instead.
+            if (activityManager != null &&
+                activityManager.IsBusy)
+            {
+                target = car.transform.position;
+                label = string.Empty;
+                hasTarget = false;
+                showRoadRoute = false;
                 return;
             }
 
