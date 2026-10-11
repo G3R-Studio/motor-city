@@ -579,6 +579,25 @@ namespace MotorCity.Gameplay
                 : string.Empty;
         }
 
+        // Read-only values from the same definitions and saved counters
+        // used when a profession is started and completed.
+        public int GetStartCompletedCount(int index)
+        {
+            if (definitions == null || index < 0 || index >= definitions.Length)
+                return 0;
+            return Mathf.Max(0, MotorCity.Persistence.MotorCitySaveService.GetInt(
+                "MotorCity.Profession." + definitions[index].Id + ".Completed", 0));
+        }
+
+        public int GetStartNextRewardCredits(int index)
+        {
+            if (definitions == null || index < 0 || index >= definitions.Length)
+                return 0;
+            int bonusPercent = (ProfessionLevel - 1) * 4;
+            return Mathf.RoundToInt(definitions[index].BaseReward *
+                (1f + bonusPercent / 100f));
+        }
+
         public string GetStartName(
             int index)
         {
