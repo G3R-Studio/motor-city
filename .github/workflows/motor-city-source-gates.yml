@@ -90,6 +90,9 @@ jobs:
       - name: Audit Phase 12 activity replay and driving unlock contracts
         run: python3 Tools/check_phase12_activity_replay.py
 
+      - name: Audit Sprint checkpoint arrows in world and minimap
+        run: python3 Tools/check_phase12_sprint_direction.py
+
       - name: Run Roslyn syntax and regression checks
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
