@@ -110,6 +110,12 @@ namespace MotorCity.Gameplay
             return true;
         }
 
+        public bool CatalogIsNight => IsNight();
+        public int CatalogCurrentCreditsReward =>
+            eventIndex >= EventCount ? 0 : CurrentEvent().Credits;
+        public int CatalogCurrentReputationReward =>
+            eventIndex >= EventCount ? 0 : CurrentEvent().Reputation;
+
         public int StreetCred =>
             streetCred;
 
