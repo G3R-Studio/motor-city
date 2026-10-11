@@ -1,12 +1,15 @@
 name: Motor City GitHub Pages Preview
 
 on:
-  push:
+  # Publish only after a successful exact-profile WebGL Release CI run.
+  # Do not republish old binaries on unrelated source/docs pushes.
+  workflow_run:
+    workflows:
+      - Motor City Source Gates
+    types:
+      - completed
     branches:
       - main
-    paths:
-      - .github/workflows/motor-city-pages.yml
-      - Tools/prepare_pages_webgl.py
   workflow_dispatch:
     inputs:
       release_run_id:
@@ -26,6 +29,9 @@ concurrency:
 jobs:
   stage:
     name: Prepare existing Desktop and Mobile WebGL Release artifacts
+    # Workflow-run triggers on every Source Gates completion. Only release-tagged,
+    # completely successful runs (including both WebGL builds) can deploy.
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && contains(github.event.workflow_run.head_commit.message, '[phase12-release]')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -35,7 +41,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_RUN_ID: ${{ inputs.release_run_id || '38095910625' }}
+          RELEASE_RUN_ID: ${{ github.event.workflow_run.id || inputs.release_run_id || '38095910625' }}
         run: |
           set -euo pipefail
           [[ "$RELEASE_RUN_ID" =~ ^[0-9]+$ ]] || { echo "Invalid release run ID"; exit 1; }
@@ -52,7 +58,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: motor-city-webgl-desktop-release
-          run-id: ${{ inputs.release_run_id || '38095910625' }}
+          run-id: ${{ github.event.workflow_run.id || inputs.release_run_id || '38095910625' }}
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           path: downloads/desktop
@@ -61,7 +67,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: motor-city-webgl-mobile-release
-          run-id: ${{ inputs.release_run_id || '38095910625' }}
+          run-id: ${{ github.event.workflow_run.id || inputs.release_run_id || '38095910625' }}
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           path: downloads/mobile
