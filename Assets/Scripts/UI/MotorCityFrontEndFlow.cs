@@ -2490,6 +2490,15 @@ namespace MotorCity.UI
 
             controlChoiceRoot.SetActive(
                 true);
+
+            // Opening this compact dialog should always start at the top,
+            // including after returning from the main menu on mobile.
+            ScrollRect controlScroll = controlChoiceModalPanel == null
+                ? null
+                : controlChoiceModalPanel.GetComponentInChildren<ScrollRect>();
+            if (controlScroll != null)
+                controlScroll.verticalNormalizedPosition = 1f;
+            RefreshFrontEndScrollCues();
         }
 
         public void AttachGameplay(
