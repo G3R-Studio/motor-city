@@ -42,6 +42,8 @@ namespace MotorCity.UI
         private Text playerExperienceCreditsText;
         private Text playerExperienceRepText;
         private Text playerExperienceObjectiveText;
+        private RectTransform playerExperienceSectionActions;
+        private RectTransform playerExperienceProgressActions;
         private System.Action playerExperienceReturnToPause;
         private GameObject introRoot;
         private GameObject controlChoiceRoot;
@@ -304,6 +306,7 @@ namespace MotorCity.UI
             BuildSettings();
             BuildPlayerExperienceScreen();
             BuildPlayerExperienceSections();
+            ApplyPlayerExperienceModalLayout(true);
             BuildIntro();
             BuildControlChoiceScreen();
             BuildLoadingScreen();
@@ -627,21 +630,21 @@ namespace MotorCity.UI
                     110f,
                     new Color(0.88f, 0.93f, 1f, 1f));
 
-            RectTransform sectionActions =
+            playerExperienceSectionActions =
                 CreateFrontEndActionRow(
                     window.Content,
                     "Player Experience Section Actions",
                     64f);
 
             CreateFrontEndLayoutButton(
-                sectionActions,
+                playerExperienceSectionActions,
                 MotorCityLocalization.Text("ux.activities.title"),
                 ShowPlayerExperienceActivities,
                 330f,
                 64f);
 
             CreateFrontEndLayoutButton(
-                sectionActions,
+                playerExperienceSectionActions,
                 MotorCityLocalization.Text("ux.journal.title"),
                 ShowPlayerExperienceJournal,
                 330f,
@@ -649,40 +652,36 @@ namespace MotorCity.UI
 
             // Keep the overview height stable: a second row replaces the
             // earlier "coming soon" text instead of overflowing the panel.
-            RectTransform progressActions =
+            playerExperienceProgressActions =
                 CreateFrontEndActionRow(
                     window.Content,
                     "Player Experience Progress Actions",
                     64f);
 
             CreateFrontEndLayoutButton(
-                progressActions,
+                playerExperienceProgressActions,
                 MotorCityLocalization.Text("ux.club.title"),
                 ShowPlayerExperienceClub,
                 270f,
                 64f);
 
             CreateFrontEndLayoutButton(
-                progressActions,
+                playerExperienceProgressActions,
                 MotorCityLocalization.Text("ux.inspector.title"),
                 ShowPlayerExperienceInspector,
                 270f,
                 64f);
 
             CreateFrontEndLayoutButton(
-                progressActions,
+                playerExperienceProgressActions,
                 MotorCityLocalization.Text("ux.pixie.title"),
                 ShowPlayerExperiencePixie,
                 270f,
                 64f);
 
-            CreateFrontEndFlexibleSpacer(
-                window.Content,
-                "Player Experience Spacer");
-
             RectTransform backRow =
                 CreateFrontEndActionRow(
-                    window.Content,
+                    window.Footer,
                     "Player Experience Back",
                     58f);
 
@@ -760,6 +759,7 @@ namespace MotorCity.UI
             playerExperienceRoot.SetActive(true);
             ShowPlayerExperienceHome();
             RefreshPlayerExperience();
+            ApplyPlayerExperienceModalLayout(true);
         }
 
         private void RefreshPlayerExperience()
@@ -808,6 +808,7 @@ namespace MotorCity.UI
             }
 
             RefreshPlayerExperienceSections();
+            RefreshPlayerExperienceTextHeights();
         }
 
         private void BuildControlChoiceScreen()
@@ -1764,6 +1765,7 @@ namespace MotorCity.UI
 
             ApplyFrontEndResponsiveLayout(
                 false);
+            ApplyPlayerExperienceModalLayout(false);
 
             // From the main menu Cancel navigates details -> overview
             // -> main menu. When opened from pause, PauseMenuView owns
