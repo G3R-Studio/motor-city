@@ -2206,7 +2206,8 @@ namespace MotorCity.UI
                             streetSprint.CurrentTarget) <=
                             12f;
 
-                    Vector3 nextCheckpoint;
+                    Vector3 nextCheckpoint =
+                        Vector3.zero;
                     bool hasNext =
                         sprintCheckpoint &&
                         streetSprint.TryGetNextTarget(
