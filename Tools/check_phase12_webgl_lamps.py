@@ -73,9 +73,11 @@ def main() -> int:
            "Nearest authored lamps must be selected first")
     expect("light.intensity = source.BaseIntensity * duskFade * distanceFade;" in lamps,
            "Lamp fade must preserve authored base intensity")
-    expect("desiredLampLights.Add(light);" in lamps and "light.enabled = true;" in lamps,
+    expect("desiredLampLights.Add(light);" in lamps and
+           bool(re.search(r"light\.enabled\s*=\s*true\s*;", lamps)),
            "Runtime must re-enable selected FCG lamps")
-    expect("light.enabled = false;" in lamps, "Runtime must turn lamps off again")
+    expect(bool(re.search(r"light\.enabled\s*=\s*false\s*;", lamps)),
+           "Runtime must turn lamps off again")
 
     register = section(
         cycle, "private void RefreshStreetLights()", "private void ApplyStreetLights()"
