@@ -58,6 +58,7 @@ namespace MotorCity.Localization
                 { "ux.catalog.city", E("ГОРОД", "CITY") },
                 { "ux.catalog.special", E("ОСОБЫЕ", "SPECIAL") },
                 { "ux.catalog.start_marker", E("Начало - у маркера на карте; выбери направление в навигаторе.", "Start at the world marker; select a destination in the navigator.") },
+                { "ux.catalog.photos", E("Фотографии: {0:N0} сделано.", "Photos: {0:N0} captured.") },
                 { "ux.catalog.drift_rewards", E("Награды за дрифт: бронза {0:N0} кр, серебро {1:N0} кр, золото {2:N0} кр, легенда {3:N0} кр.", "Drift rewards: bronze {0:N0} CR, silver {1:N0} CR, gold {2:N0} CR, legendary {3:N0} CR.") },
                 { "ux.catalog.base_reward", E("Спринт - базовая награда: {0:N0} кр (режим и результат могут изменить сумму).", "Sprint - base reward: {0:N0} CR (mode and result may change payout).") },
                 { "ux.catalog.circuit_reward", E("Кольцо - базовая награда: {0:N0} кр (итоговая сумма зависит от результата).", "Circuit - base reward: {0:N0} CR (final payout depends on result).") },
