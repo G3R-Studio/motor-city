@@ -17,6 +17,7 @@ namespace MotorCity.UI
         private Text playerExperienceRouteStatusText;
         private RectTransform playerExperienceProfessionRouteContent;
         private int playerExperienceProfessionRouteCount = -1;
+        private bool playerExperienceProfessionRouteRussian;
         private Text playerExperienceJournalText;
         private GameObject playerExperienceClubPanel;
         private GameObject playerExperienceInspectorPanel;
@@ -328,8 +329,11 @@ namespace MotorCity.UI
 
             int count = gameplayReady && hud != null
                 ? hud.PlayerExperienceProfessionRouteCount : 0;
-            if (count == playerExperienceProfessionRouteCount)
+            bool russian = IsRussian();
+            if (count == playerExperienceProfessionRouteCount &&
+                russian == playerExperienceProfessionRouteRussian)
                 return;
+            playerExperienceProfessionRouteRussian = russian;
 
             // Generated actions are removed before rebuilding so save
             // transitions do not leave stale destinations in the UI.
