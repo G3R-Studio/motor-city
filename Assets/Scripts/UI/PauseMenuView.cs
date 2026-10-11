@@ -546,6 +546,11 @@ namespace MotorCity.UI
                 pauseExperienceFrontEnd.ClosePlayerExperienceFromPause();
             }
 
+            // The front-end can already have been destroyed on a scene
+            // transition. Never carry a stale modal owner into next pause.
+            pauseExperienceOpen = false;
+            pauseExperienceFrontEnd = null;
+
             pauseMenuOpen =
                 false;
 
