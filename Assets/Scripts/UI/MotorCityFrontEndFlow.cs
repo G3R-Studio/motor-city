@@ -908,8 +908,6 @@ namespace MotorCity.UI
                     new Vector2(980f, 576f),
                     120f);
 
-            ConfigureFrontEndTextFit(window.Title, 24);
-
             Text hint =
                 CreateFrontEndLayoutText(
                     window.Content,
