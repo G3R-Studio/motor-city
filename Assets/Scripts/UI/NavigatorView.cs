@@ -2192,6 +2192,72 @@ namespace MotorCity.UI
                     minimapTargetIcon.color =
                         MotorCityIconLibrary.WorldMarkerColor(
                             markerId);
+
+                    // The sprint "fastForward" image points right by
+                    // default. Rotate it from the same checkpoint-to-next
+                    // segment used by StreetSprintMarkerVisual, converted
+                    // into the car-up minimap's local XY coordinate space.
+                    // World-space +Z ahead becomes minimap +Y (straight).
+                    bool sprintCheckpoint =
+                        markerId == "sprint" &&
+                        streetSprint != null &&
+                        FlatDistance(
+                            target,
+                            streetSprint.CurrentTarget) <=
+                            12f;
+
+                    Vector3 nextCheckpoint;
+                    bool hasNext =
+                        sprintCheckpoint &&
+                        streetSprint.TryGetNextTarget(
+                            out nextCheckpoint);
+
+                    if (hasNext)
+                    {
+                        Vector3 outgoing =
+                            nextCheckpoint -
+                            streetSprint.CurrentTarget;
+
+                        outgoing.y = 0f;
+
+                        Vector3 localOutgoing =
+                            Quaternion.Euler(
+                                0f,
+                                -yaw,
+                                0f) * outgoing;
+
+                        if (localOutgoing.sqrMagnitude > 4f)
+                        {
+                            float angle =
+                                Mathf.Atan2(
+                                    localOutgoing.z,
+                                    localOutgoing.x) *
+                                Mathf.Rad2Deg;
+
+                            minimapTargetIcon.rectTransform.localRotation =
+                                Quaternion.Euler(0f, 0f, angle);
+                        }
+                        else
+                        {
+                            hasNext = false;
+                        }
+                    }
+
+                    if (!hasNext)
+                    {
+                        minimapTargetIcon.rectTransform.localRotation =
+                            Quaternion.identity;
+                    }
+
+                    // At the finish there is no next checkpoint, so show
+                    // a neutral dot instead of an incorrect "turn right".
+                    if (sprintCheckpoint && !hasNext &&
+                        streetSprint.IsActive &&
+                        minimapMaskSprite != null)
+                    {
+                        minimapTargetIcon.sprite =
+                            minimapMaskSprite;
+                    }
                 }
             }
 
