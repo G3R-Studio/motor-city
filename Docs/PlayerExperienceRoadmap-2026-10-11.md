@@ -305,6 +305,8 @@
 
 **UX-2 - отсутствие рекорда отдельного дрифта (2026-10-12):** [`01d4a51`](https://github.com/G3R-Studio/motor-city/commit/01d4a5169faa004e5be78c847b8f0c08c6ff96c7) → [`ea9d9ce`](https://github.com/G3R-Studio/motor-city/commit/ea9d9ce49dca8656f61caaee43852d3dbc340ed5). Для `DriftTracker.BestDrift == 0` каталог показывает «рекорда пока нет» вместо вводящего в заблуждение значения 0; локализация RU/EN. Пользователь подтвердил Play Mode: «всё чётко» (2026-10-12).
 
+**UX-2: текущие уровни гонок и доставки.** Коммиты 8096894 - ffc6950. В каталог добавлены актуальные уровни дисциплин рядом с условиями Elite. RU/EN, read-only. Unity QA открыта.
+
 ## 7. Связанные документы
 
 - [DevelopmentPlan.md](DevelopmentPlan.md) — основное направление игры и инварианты разработки (этот UX-roadmap не заменяет его).
