@@ -612,7 +612,8 @@ namespace MotorCity.UI
                     "Player Experience Panel",
                     MotorCityLocalization.Text("ux.home.title"),
                     new Vector2(1020f, 730f),
-                    112f);
+                    112f,
+                    showCloseButton: false);
 
             playerExperienceHomePanel = window.Panel.gameObject;
 
@@ -1156,7 +1157,8 @@ namespace MotorCity.UI
                     IsRussian()
                         ? "НАСТРОЙКИ"
                         : "SETTINGS",
-                    new Vector2(1180f, 760f));
+                    new Vector2(1180f, 760f),
+                    showCloseButton: false);
 
             CreateFrontEndSettingsLayoutRow(
                 window.Content,
