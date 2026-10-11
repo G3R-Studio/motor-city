@@ -30,6 +30,10 @@ failures: list[str] = []
 for path in sorted(set(paths)):
     if not path.is_file():
         continue
+    # Vehicle/city prefabs can be enormous serialized meshes (100+ MB)
+    # without containing player-visible UI. Never load those for typography.
+    if path.suffix.lower() in {".prefab", ".asset", ".unity"} and path.stat().st_size > 2_000_000:
+        continue
     content = path.read_text(encoding="utf-8-sig", errors="replace")
     for index, line in enumerate(content.splitlines(), 1):
         if any(symbol in line for symbol in banned):
