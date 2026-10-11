@@ -430,7 +430,7 @@ namespace MotorCity.UI
             // Button label rects were initially sized from their original
             // widths (430/170). Stretch them to their current Grid cells
             // so on phones no text can hang outside its own button.
-            foreach (Button button in row.GetComponentsInChildren<Button>())
+            foreach (Button button in row.GetComponentsInChildren<Button>(true))
             {
                 Text label = button.GetComponentInChildren<Text>();
                 if (label == null)
@@ -461,7 +461,7 @@ namespace MotorCity.UI
 
             float availableWidth = Mathf.Max(
                 1f, panel.rect.width - 2f * FrontEndModalHorizontalPadding);
-            foreach (Button button in footer.GetComponentsInChildren<Button>())
+            foreach (Button button in footer.GetComponentsInChildren<Button>(true))
             {
                 LayoutElement element = button.GetComponent<LayoutElement>();
                 if (element == null)
