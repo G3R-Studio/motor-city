@@ -843,6 +843,9 @@ namespace MotorCity.UI
             controlChoiceRoot.SetActive(false);
             loadingRoot.SetActive(false);
             playerExperienceRoot.SetActive(true);
+            // A new visit must not restore a button from an earlier visit
+            // that could now be off-screen or no longer interactable.
+            playerExperienceLastOverviewSelection = null;
             // A fresh entry starts at the top, while Back from a detail
             // keeps the overview position for narrow/touch layouts.
             SwitchPlayerExperiencePage(null, true);
