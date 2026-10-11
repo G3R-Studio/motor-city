@@ -287,7 +287,9 @@
 
 **UX-2, 2026-10-12 - упрощение «Активностей»:** [`51cd30e`](https://github.com/G3R-Studio/motor-city/commit/51cd30e5874221ec90bd879314dcbcab91c98e21) → [`60152b0`](https://github.com/G3R-Studio/motor-city/commit/60152b05ceb4991a4108bb3ff509795560d74d14). Убраны все 6 статических кнопок маршрутов и динамические кнопки профессий, удалены два пояснения со скриншота и строка `route_ready/busy`. Навигатор игры не менялся. **Пользователь подтвердил Unity Play Mode: «всё чётко» (2026-10-12).**
 
-**UX-2, 2026-10-12 - рекорды дрифт-зон:** [`4cf6dbf`](https://github.com/G3R-Studio/motor-city/commit/4cf6dbfd941c55dbdc073d969046581d3569579e) → [`863b065`](https://github.com/G3R-Studio/motor-city/commit/863b06593535a69dbdf0566737213bc2574c18a3). В каталоге отображаются названия существующих дрифт-зон и сохранённый лучший счёт каждой зоны через read-only getter, либо «рекорда пока нет». RU/EN, без новых сохранений и наград. **Unity Play Mode ещё не проверен.**
+**UX-2, 2026-10-12 - рекорды дрифт-зон:** [`4cf6dbf`](https://github.com/G3R-Studio/motor-city/commit/4cf6dbfd941c55dbdc073d969046581d3569579e) → [`863b065`](https://github.com/G3R-Studio/motor-city/commit/863b06593535a69dbdf0566737213bc2574c18a3). В каталоге отображаются названия существующих дрифт-зон и сохранённый лучший счёт каждой зоны через read-only getter, либо «рекорда пока нет». RU/EN, без новых сохранений и наград. **Пользователь подтвердил Unity Play Mode: «всё чётко» (2026-10-12).**
+
+**UX-2, 2026-10-12 - ближайший рубеж профессий:** [`b0a28f5`](https://github.com/G3R-Studio/motor-city/commit/b0a28f5d681c5c97150d5af576cb091b9a44d214) → [`0ea4e8f`](https://github.com/G3R-Studio/motor-city/commit/0ea4e8f1e3e140332354493fc0860bf307398a1f). Каталог теперь показывает точное число заданий до следующего уровня профессий из существующего прогресса (`TotalCompleted / 4`, cap 10), на максимальном уровне показывает MAX. RU/EN, read-only, без изменения наград. **Unity Play Mode этой поставки ожидается.**
 
 ## 7. Связанные документы
 
