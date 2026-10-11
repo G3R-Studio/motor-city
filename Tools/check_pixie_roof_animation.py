@@ -12,9 +12,18 @@ EXCLUSIVE = (ROOT / "Assets/SapphiArt/SapphiArtchan/Animation/SapphiArtchanAnimC
 
 checks = {
     "center roof X/Z": (
-        "bounds.center.x,\n                bounds.max.y + 0.12f,\n                bounds.center.z" in SOURCE
+        "bounds.center.x,\n                bounds.max.y + 0.01f,\n                bounds.center.z" in SOURCE
     ),
-    "small stationary hover": "0.055f;" in SOURCE and "1.65f;" in SOURCE,
+    "no hover or bobbing": (
+        "hoverPhase" not in SOURCE and
+        "Mathf.Sin(" not in SOURCE
+    ),
+    "exact vehicle attachment": (
+        "visualRoot.transform.position =\n                car.transform.TransformPoint(visualAnchorLocal);" in SOURCE and
+        "visualRoot.transform.rotation =\n                car.transform.rotation;" in SOURCE and
+        "followBlend" not in SOURCE and
+        "rotationBlend" not in SOURCE
+    ),
     "body bound exclusion": "ResolveCarLocalBounds()" in SOURCE and
         'car.transform.Find(\n                    "MotorCityVehicleVisual_Runtime")' in SOURCE,
     "normal three poses": all('"' + state + '"' in SOURCE for state in (
@@ -25,7 +34,23 @@ checks = {
         '"running"' not in SOURCE,
     "exclusive run disabled": '"param_idletorunning",\n                    false' in SOURCE,
     "exclusive default pose": '"Pixie Idle Alt" => "default"' in SOURCE,
-    "cheer while cruising": 'PlayPixieReaction("Pixie Clap", 1.7f);' in SOURCE,
+    "random poses": (
+        "Random.Range(6f, 12f)" in SOURCE and
+        "ambientPoseIndex + UnityEngine.Random.Range(1, 3)" in SOURCE
+    ),
+    "rare separate reactions": (
+        "Random.Range(15f, 25f)" in SOURCE and
+        'PlayPixieReaction("Pixie Clap", 1.8f)' in SOURCE and
+        'PlayPixieReaction("Pixie Victory", 2.0f)' in SOURCE
+    ),
+    "rare supporter playful jump without boost": (
+        'PlayPixieReaction("Pixie Playful Jump", 1.25f)' in SOURCE and
+        '"Pixie Boost" or "Pixie Playful Jump" => "jump"' in SOURCE
+    ),
+    "reactions take priority": (
+        "if (animationReactionTimer > 0f)" in SOURCE and
+        "animationReactionTimer - Time.unscaledDeltaTime" in SOURCE
+    ),
     "gameplay cheers kept": '"Pixie Victory"' in SOURCE and
         '"Pixie Boost"' in SOURCE,
     "normal StandB authoring": 'StandB.FBX' in IMPORTER and

@@ -44,14 +44,12 @@ namespace MotorCity.Gameplay
         private bool useSupporterPixieSkin;
         private Vector3 visualAnchorLocal;
         private Transform observedVehicleVisual;
-        private Vector3 previousCarPosition;
-        private Quaternion previousCarRotation;
-        private bool carPoseInitialized;
-        private float hoverPhase;
         private float animationReactionTimer;
-        private float idleVariantTimer;
-        private int ambientCycleIndex;
-        private bool ambientCruising;
+        private float ambientPoseTimer;
+        private float nextAmbientPoseSeconds;
+        private float ambientReactionTimer;
+        private float nextAmbientReactionSeconds;
+        private int ambientPoseIndex;
         private int currentAnimatorStateHash;
         private float messageTimer;
         private float activeSeconds;
@@ -179,10 +177,8 @@ namespace MotorCity.Gameplay
 
         private void LateUpdate()
         {
-            if (Time.timeScale <= 0f)
-                return;
-
-            if (visualRoot == null ||
+            if (Time.timeScale <= 0f ||
+                visualRoot == null ||
                 car == null)
             {
                 return;
@@ -192,122 +188,19 @@ namespace MotorCity.Gameplay
                 car.transform.Find(
                     "MotorCityVehicleVisual_Runtime");
 
-            if (vehicleVisual !=
-                observedVehicleVisual)
+            if (vehicleVisual != observedVehicleVisual)
             {
-                observedVehicleVisual =
-                    vehicleVisual;
-
-                visualAnchorLocal =
-                    ResolveVisualAnchor();
+                observedVehicleVisual = vehicleVisual;
+                visualAnchorLocal = ResolveVisualAnchor();
             }
 
-            Vector3 carPosition =
-                car.transform.position;
-
-            Quaternion carRotation =
-                car.transform.rotation;
-
-            if (!carPoseInitialized)
-            {
-                previousCarPosition =
-                    carPosition;
-
-                previousCarRotation =
-                    carRotation;
-
-                carPoseInitialized =
-                    true;
-            }
-            else
-            {
-                Vector3 carDelta =
-                    carPosition -
-                    previousCarPosition;
-
-                float carDeltaDistance =
-                    carDelta.magnitude;
-
-                if (carDeltaDistance < 25f)
-                {
-                    // Move Pixie by the car's exact frame-to-frame transform
-                    // first. Smoothing only the remaining relative offset means
-                    // there is no built-in delay behind a fast moving car.
-                    Quaternion rotationDelta =
-                        carRotation *
-                        Quaternion.Inverse(
-                            previousCarRotation);
-
-                    Vector3 relative =
-                        visualRoot.transform.position -
-                        previousCarPosition;
-
-                    visualRoot.transform.position =
-                        carPosition +
-                        rotationDelta *
-                        relative;
-                }
-
-                previousCarPosition =
-                    carPosition;
-
-                previousCarRotation =
-                    carRotation;
-            }
-
-            hoverPhase +=
-                Time.unscaledDeltaTime *
-                1.65f;
-
-            Vector3 targetWorld =
-                car.transform.TransformPoint(
-                    visualAnchorLocal);
-
-            targetWorld +=
-                Vector3.up *
-                Mathf.Sin(
-                    hoverPhase) *
-                0.055f;
-
-            float distance =
-                Vector3.Distance(
-                    visualRoot.transform.position,
-                    targetWorld);
-
-            if (distance > 25f)
-            {
-                // This path is now reserved for a real player teleport/reset.
-                visualRoot.transform.position =
-                    targetWorld;
-            }
-            else
-            {
-                // Exponential correction is frame-rate independent and does
-                // not accumulate the velocity lag that SmoothDamp introduced.
-                float followBlend =
-                    1f -
-                    Mathf.Exp(
-                        -18f *
-                        Time.unscaledDeltaTime);
-
-                visualRoot.transform.position =
-                    Vector3.Lerp(
-                        visualRoot.transform.position,
-                        targetWorld,
-                        followBlend);
-            }
-
-            float rotationBlend =
-                1f -
-                Mathf.Exp(
-                    -9f *
-                    Time.unscaledDeltaTime);
-
+            // Pixie now STANDS on the roof instead of hovering.
+            // Follow the exact vehicle transform every frame: no bobbing,
+            // sway or interpolated positional lag on acceleration/turns.
+            visualRoot.transform.position =
+                car.transform.TransformPoint(visualAnchorLocal);
             visualRoot.transform.rotation =
-                Quaternion.Slerp(
-                    visualRoot.transform.rotation,
-                    carRotation,
-                    rotationBlend);
+                car.transform.rotation;
         }
 
         private void OnDestroy()
@@ -677,15 +570,6 @@ namespace MotorCity.Gameplay
                 car.transform.Find(
                     "MotorCityVehicleVisual_Runtime");
 
-            previousCarPosition =
-                car.transform.position;
-
-            previousCarRotation =
-                car.transform.rotation;
-
-            carPoseInitialized =
-                true;
-
             GameObject authoredPrefab =
                 useSupporterPixieSkin
                     ? Resources.Load<GameObject>(
@@ -936,12 +820,12 @@ namespace MotorCity.Gameplay
 
             Bounds bounds = ResolveCarLocalBounds();
 
-            // The companion's feet/hover pivot belongs over the middle of
-            // the roof, not to the side of the car. The authored vehicle body
-            // bounds adapt to each model; small clearance avoids clipping.
+            // Roof contact: foot pivot directly over the middle of
+            // the authored body, with only a 1 cm safety clearance.
+            // No visual lift, hover sine wave or camera-dependent offset.
             return new Vector3(
                 bounds.center.x,
-                bounds.max.y + 0.12f,
+                bounds.max.y + 0.01f,
                 bounds.center.z);
         }
 
@@ -1093,27 +977,12 @@ namespace MotorCity.Gameplay
 
         private void UpdatePixieAnimation()
         {
-            if (!usingHaonVisual ||
-                externalAnimator == null)
+            if (!usingHaonVisual || externalAnimator == null)
                 return;
 
-            if (animationReactionTimer > 0f)
-            {
-                animationReactionTimer =
-                    Mathf.Max(
-                        0f,
-                        animationReactionTimer - Time.unscaledDeltaTime);
-
-                if (animationReactionTimer > 0f)
-                    return;
-            }
-
-            bool cruising =
-                car != null &&
-                car.SpeedKph > 7f;
-
-            // Kisora has a native "idle -> running" transition. Disable
-            // it even if the car is moving: Pixie poses on the roof instead.
+            // SapphiArt has authored idle-to-running transitions.
+            // Pixie never walks or runs on the roof, even during a
+            // victory/boost reaction or while the car is moving.
             if (useSupporterPixieSkin)
             {
                 externalAnimator.SetBool(
@@ -1121,40 +990,73 @@ namespace MotorCity.Gameplay
                     false);
             }
 
-            if (cruising != ambientCruising)
+            if (animationReactionTimer > 0f)
             {
-                ambientCruising = cruising;
-                ambientCycleIndex = 0;
-                idleVariantTimer = 0f;
-            }
+                animationReactionTimer = Mathf.Max(
+                    0f,
+                    animationReactionTimer - Time.unscaledDeltaTime);
 
-            idleVariantTimer += Time.unscaledDeltaTime;
-
-            float poseSeconds =
-                cruising ? 6.3f : 7.4f;
-
-            if (idleVariantTimer >= poseSeconds)
-            {
-                idleVariantTimer = 0f;
-                ambientCycleIndex = (ambientCycleIndex + 1) % 4;
-
-                // A brief cheer every few changes when travelling, rather
-                // than a looping walk/run on the vehicle. Gameplay reactions
-                // (victory, boost, activity completion) still take priority.
-                if (cruising && ambientCycleIndex == 3)
-                {
-                    PlayPixieReaction("Pixie Clap", 1.7f);
+                if (animationReactionTimer > 0f)
                     return;
-                }
             }
 
-            string state =
-                ambientCycleIndex switch
+            // Each companion chooses a new pose roughly every 6–12s,
+            // rather than switching exactly in lockstep with the car.
+            if (nextAmbientPoseSeconds <= 0f)
+                nextAmbientPoseSeconds = UnityEngine.Random.Range(6f, 12f);
+
+            if (nextAmbientReactionSeconds <= 0f)
+                nextAmbientReactionSeconds = UnityEngine.Random.Range(15f, 25f);
+
+            ambientPoseTimer += Time.unscaledDeltaTime;
+            ambientReactionTimer += Time.unscaledDeltaTime;
+
+            // Rare lively animations while standing; ordinary gameplay
+            // reactions still interrupt these and take precedence.
+            if (ambientReactionTimer >= nextAmbientReactionSeconds)
+            {
+                ambientReactionTimer = 0f;
+                nextAmbientReactionSeconds =
+                    UnityEngine.Random.Range(15f, 25f);
+
+                if (useSupporterPixieSkin &&
+                    UnityEngine.Random.value < 0.12f)
                 {
-                    1 => "Pixie Roof Pose",
-                    2 => "Pixie Idle Alt",
-                    _ => "Pixie Idle"
-                };
+                    // Very rare supporter-only playful jump animation.
+                    // Does NOT invoke the driving boost ability.
+                    PlayPixieReaction("Pixie Playful Jump", 1.25f);
+                }
+                else if (useSupporterPixieSkin ||
+                         UnityEngine.Random.value < 0.75f)
+                {
+                    PlayPixieReaction("Pixie Clap", 1.8f);
+                }
+                else
+                {
+                    PlayPixieReaction("Pixie Victory", 2.0f);
+                }
+
+                return;
+            }
+
+            if (ambientPoseTimer >= nextAmbientPoseSeconds)
+            {
+                ambientPoseTimer = 0f;
+                nextAmbientPoseSeconds = UnityEngine.Random.Range(6f, 12f);
+
+                // Randomly pick one of the OTHER two poses, never the same.
+                // HAON: StandA / StandB / StandC.
+                // Kisora: idle / idle / default (plus rare winpose/jump).
+                ambientPoseIndex =
+                    (ambientPoseIndex + UnityEngine.Random.Range(1, 3)) % 3;
+            }
+
+            string state = ambientPoseIndex switch
+            {
+                1 => "Pixie Roof Pose",
+                2 => "Pixie Idle Alt",
+                _ => "Pixie Idle"
+            };
 
             externalAnimator.speed = 1f;
             PlayAnimatorState(state, 0.22f);
@@ -1171,6 +1073,12 @@ namespace MotorCity.Gameplay
             }
 
             externalAnimator.speed = 1f;
+
+            // Space out decorative reactions after any actual reward
+            // or ability so they never fire immediately back-to-back.
+            ambientReactionTimer = 0f;
+            nextAmbientReactionSeconds =
+                UnityEngine.Random.Range(15f, 25f);
 
             animationReactionTimer =
                 Mathf.Max(
@@ -1275,7 +1183,7 @@ namespace MotorCity.Gameplay
             {
                 "Pixie Idle Alt" => "default",
                 "Pixie Victory" or "Pixie Clap" => "winpose",
-                "Pixie Boost" => "jump",
+                "Pixie Boost" or "Pixie Playful Jump" => "jump",
                 "Pixie Roof Pose" or "Pixie Idle" => "idle",
                 _ => "idle"
             };
@@ -1317,11 +1225,11 @@ namespace MotorCity.Gameplay
                 0;
             observedVehicleVisual =
                 null;
-            carPoseInitialized =
-                false;
-            ambientCycleIndex = 0;
-            ambientCruising = false;
-            idleVariantTimer = 0f;
+            ambientPoseIndex = 0;
+            ambientPoseTimer = 0f;
+            nextAmbientPoseSeconds = 0f;
+            ambientReactionTimer = 0f;
+            nextAmbientReactionSeconds = 0f;
             animationReactionTimer = 0f;
 
             BuildVisual();
