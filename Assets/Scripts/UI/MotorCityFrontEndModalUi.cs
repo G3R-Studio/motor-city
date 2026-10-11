@@ -81,6 +81,12 @@ namespace MotorCity.UI
 
             titleText.name = objectName + " Title";
             titleText.color = new Color(0.90f, 0.95f, 1f, 1f);
+            // Long RU/EN titles remain readable instead of running under X
+            // when a narrow phone safe area reduces the available width.
+            titleText.resizeTextForBestFit = true;
+            titleText.resizeTextMinSize = 18;
+            titleText.resizeTextMaxSize = 44;
+            titleText.verticalOverflow = VerticalWrapMode.Truncate;
             RectTransform titleRect = titleText.rectTransform;
             titleRect.anchorMin = new Vector2(0f, 1f);
             titleRect.anchorMax = new Vector2(1f, 1f);
