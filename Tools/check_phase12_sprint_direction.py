@@ -57,6 +57,9 @@ def main() -> int:
         errors,
     )
 
+    compact_world = re.sub(r"\s+", "", world)
+    compact_nav = re.sub(r"\s+", "", nav)
+
     for token in (
         "sprint.TryGetNextTarget(out nextTarget)",
         "nextTarget - sprint.CurrentTarget",
@@ -70,7 +73,7 @@ def main() -> int:
         'renderer.name == "Sprint Icon Glow"',
         "chevron.enabled = hasDirection",
     ):
-        check(token in world, f"World Sprint chevron contract missing: {token}", errors)
+        check(re.sub(r"\s+", "", token) in compact_world, f"World Sprint chevron contract missing: {token}", errors)
 
     for token in (
         'markerId == "sprint"',
@@ -85,7 +88,7 @@ def main() -> int:
         "minimapTargetIcon.rectTransform.localRotation",
         "minimapTargetIcon.sprite =\n                            minimapMaskSprite",
     ):
-        check(token in nav, f"Minimap Sprint chevron contract missing: {token}", errors)
+        check(re.sub(r"\s+", "", token) in compact_nav, f"Minimap Sprint chevron contract missing: {token}", errors)
 
     # Sanity checks for rotation of a +X arrow to the expected player-relative
     # up/left/right direction. These examples include a 90-degree car turn
