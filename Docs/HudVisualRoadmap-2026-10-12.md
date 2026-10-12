@@ -125,7 +125,7 @@
 - [x] **HV-L.3 — IN SOURCE.** Из `MotorCityUiThemeAssets` и его сериализованного asset удалены слоты `modalButton`/`modalPanel`, удалены три неиспользуемые картинки RacingUI с .meta. Удалена устаревшая нормализация текстурных кнопок в `HudVisualPolish`; обновлён source-guard.
 - [x] **HV-L.4 — NEEDS UNITY.** Ручной Play Mode smoke: главное меню, настройки, выбор управления, пауза (включая все +/-), навигатор, магазин, клуб, результаты активностей, touch utility; проверить оттенки, click/focus, закрытие, повторное открытие, отсутствие старых прямоугольных текстур.
 - [x] **HV-L.5 — IN SOURCE / NEEDS UNITY (возврат по запросу пользователя).** Четырём элементам мобильного управления — руль, газ, тормоз, ручник — восстановлены оригинальные `wheel.png`, `throttle.png`, `break.png`, `handbreak.png`, старые пропорции, прозрачность, сенсорные зоны и обработчики. Только для них используется отдельный `MotorCityTouchArtAssets`; указатель миникарты и все окна **остаются векторными**. После `git pull` нужна ручная проверка в Unity.
-- [ ] **HV-L.6 — IN SOURCE / NEEDS UNITY.** Начал убирать двойное оформление `HudVisualPolish`: больше не перекрашивает touch/modals кнопки глобальным белым цветом и не меняет прозрачность принятых руля и педалей. Текстовые, responsive и вспомогательные функции пока сохранены. Полное удаление второго прохода допускается только после проверки всех владельцев.
+- [x] **HV-L.6 — IN SOURCE / NEEDS UNITY.** Начал убирать двойное оформление `HudVisualPolish`: больше не перекрашивает touch/modals кнопки глобальным белым цветом и не меняет прозрачность принятых руля и педалей. Текстовые, responsive и вспомогательные функции пока сохранены. Полное удаление второго прохода допускается только после проверки всех владельцев.
 
 **Исключение:** завершённый гараж не подвергать редизайну или удалению. На текущем этапе **не запускать CI, WebGL и итоговые сборки**. Source checks не заменяют Play Mode.
 
@@ -485,3 +485,10 @@ Previous work already supplies on-demand read-only UI hierarchy checks, safe are
 - User confirmed the latest pre-WebGL QA checks work in Unity. HV-L.4, HV-2.7, HV-4.3, HV-4.7, HV-5.5, HV-7.1, HV-7.4, HV-7.6, HV-8.1, HV-9.2, HV-9.3, HV-9.4, HV-9.7 are checked off on the strength of this **user report**, not a new assistant-run test. This records practical acceptance, not attached screen captures or measured profiling data.
 - Still unchecked because separate artifacts/actions are required: missing screenshot references (HV-0.4/0.5/9.1/9.6), final migration of active HudVisualPolish functions (HV-L.6), full real-money platform entitlement evidence (HV-6.7), identified assets to delete (HV-8.6), and Unity Profiler capture (HV-9.5).
 - HV-10 remains blocked until explicit separate build authorization; no CI/WebGL launched.
+
+
+### HV-L.6 builder ownership migration — 2026-10-12
+
+- HudUiFactory now assigns panel chrome suppression and previously late-applied text shadow alpha at creation. Touch group label shadows use builder-owned values. Retired the entire persistent HudVisualPolish runtime component, avoiding its polling, FindRecursive/cache traversal and second styling pass. Original wheel/throttle/brake/handbrake textures and input hit rectangles were not edited. Required: Unity Play Mode visual and touch regression after migration.
+- Profiling requirement HV-9.5 is still open: GitHub repository source tools cannot execute Unity Editor or capture actual Timeline, UI batches, alloc/frame, CPU or GPU profiling data. Earlier Canvas/Graphic/Button count snapshots are not full profiling. No FPS or allocation figures invented; run Unity Profiler in editor and on representative device before marking PASS.
+- HV-10 release builds and CI remain explicitly gated.
