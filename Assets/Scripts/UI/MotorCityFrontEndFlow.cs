@@ -559,30 +559,56 @@ namespace MotorCity.UI
                 }
             }
 
-            CreateButton(
+            // Secondary actions form one quieter, evenly spaced group.
+            // Their original callbacks, button sizes and hit areas stay intact.
+            Button aboutButton = CreateButton(
                 mainRoot.transform,
                 IsRussian() ? "ОБ ИГРЕ" : "ABOUT",
-                new Vector2(124f, -104f),
+                new Vector2(124f, -110f),
                 new Vector2(400f, 60f),
                 ShowAbout);
 
-            CreateButton(
+            Button settingsButton = CreateButton(
                 mainRoot.transform,
                 IsRussian() ? "НАСТРОЙКИ" : "SETTINGS",
-                new Vector2(124f, -177f),
+                new Vector2(124f, -188f),
                 new Vector2(400f, 60f),
                 ShowSettings);
 
-            CreateButton(
+            Button experienceButton = CreateButton(
                 mainRoot.transform,
                 MotorCityLocalization.Text("ux.home.button"),
-                new Vector2(124f, -250f),
+                new Vector2(124f, -266f),
                 new Vector2(400f, 60f),
                 ShowPlayerExperience);
+
+            StyleMainMenuSecondary(aboutButton);
+            StyleMainMenuSecondary(settingsButton);
+            StyleMainMenuSecondary(experienceButton);
 
             RefreshMainMenuText();
         }
 
+
+        private static void StyleMainMenuSecondary(Button button)
+        {
+            if (button == null)
+                return;
+
+            // Main-menu-only treatment. Do not change the shared button
+            // factory used by Settings, About or in-game modals.
+            GarageReferenceGraphic face =
+                button.targetGraphic as GarageReferenceGraphic;
+            if (face != null)
+                face.color = new Color(0.16f, 0.14f, 0.27f, 0.92f);
+
+            Text label = button.GetComponentInChildren<Text>();
+            if (label != null)
+            {
+                label.fontSize = 24;
+                label.color = MotorCityUiSkin.TextSecondary;
+            }
+        }
 
         // UX-1: first read-only career overview. More pages follow the UX roadmap.
         private void BuildPlayerExperienceScreen()
