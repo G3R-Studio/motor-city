@@ -48,7 +48,7 @@ namespace MotorCity.UI
                     0.005f,
                     0.008f,
                     0.012f,
-                    0.72f);
+                    0.68f);
             backdrop.raycastTarget =
                 false;
 
@@ -214,7 +214,7 @@ namespace MotorCity.UI
                 CreateText(
                     card,
                     "Navigator Selection",
-                    24,
+                    22,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(
@@ -232,7 +232,7 @@ namespace MotorCity.UI
                     TextColor);
 
             navigatorMenuText.resizeTextForBestFit =
-                false;
+                true;
             navigatorMenuText.resizeTextMinSize =
                 16;
             navigatorMenuText.resizeTextMaxSize =
@@ -240,7 +240,7 @@ namespace MotorCity.UI
             navigatorMenuText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             navigatorMenuText.verticalOverflow =
-                VerticalWrapMode.Overflow;
+                VerticalWrapMode.Truncate;
 
             navigatorDescriptionText =
                 CreateText(
@@ -264,7 +264,7 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             navigatorDescriptionText.resizeTextForBestFit =
-                false;
+                true;
             navigatorDescriptionText.resizeTextMinSize =
                 10;
             navigatorDescriptionText.resizeTextMaxSize =
@@ -272,7 +272,7 @@ namespace MotorCity.UI
             navigatorDescriptionText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             navigatorDescriptionText.verticalOverflow =
-                VerticalWrapMode.Overflow;
+                VerticalWrapMode.Truncate;
 
             navigatorDistanceText =
                 CreateText(
