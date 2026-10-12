@@ -1523,7 +1523,7 @@ namespace MotorCity.UI
                 new Vector2(0f, -10f);
 
             rimRect.sizeDelta =
-                new Vector2(178f, 178f);
+                new Vector2(174f, 174f);
 
             Image rimImage =
                 rimObject.GetComponent<Image>();
@@ -1533,10 +1533,10 @@ namespace MotorCity.UI
 
             rimImage.color =
                 new Color(
-                    0.09f,
-                    0.08f,
-                    0.14f,
-                    0.98f);
+                    0.11f,
+                    0.10f,
+                    0.20f,
+                    0.82f);
 
             rimImage.raycastTarget =
                 false;
