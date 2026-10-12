@@ -356,3 +356,10 @@
 ### HV-5 source pass — 2026-10-12
 
 Коммиты: `92ba788` (pause actions), `014c325` / `0fedc00` (result hierarchy and correct skin signature), `4398667` (navigator text). Все gameplay callbacks, Time.timeScale, ResultSequence, rewards и route target handling сохранены. Unity Play Mode, Source Gates и release builds не запускались. Нужны скриншоты длинных RU/EN подписей и проверка закрытия/переоткрытия всех трёх окон. Статус HV-5: IN SOURCE / NEEDS UNITY, не ACCEPTED.
+
+### HV-6 / QA continuation — 2026-10-12
+
+- UI QA expanded: seven journal filters can be selected directly through the original FrontEnd navigation; the admin tab no longer exits early when HUD is missing. Source commits `f501bf7`, `a95f99f`. Still no general safe preview for intro/loading and special HUD overlays; do not claim full coverage.
+- HV-6.5 — IN SOURCE / NEEDS UNITY: club names, descriptions, focus and weekly fields now use local best-fit within existing areas; club selection/actions and weekly progress sources unchanged. Commit `84da479`.
+- HV-6.6 — IN SOURCE / NEEDS UNITY: store product name, description and season path use local best-fit; ownership and purchase sources remain unchanged. Commit `15cf42f`.
+- HV-6.7 — NEEDS UNITY: real purchase/entitlement conditions were not changed; test unavailable, owned and buy states. Check RU/EN and narrow landscape in Unity; no CI or build has been run.
