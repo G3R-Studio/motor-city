@@ -7,10 +7,8 @@ namespace MotorCity.UI
         menuName = "Motor City/UI Theme Assets")]
     public sealed class MotorCityUiThemeAssets : ScriptableObject
     {
-        [Header("Shared UI textures")]
+        [Header("Minimap marker")]
         public Texture2D minimapPlayerPointer;
-        public Texture2D modalPanel;
-        public Texture2D modalButton;
 
         [Header("Touch driving controls")]
         public Texture2D touchThrottle;
