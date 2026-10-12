@@ -1201,7 +1201,7 @@ namespace MotorCity.UI
             float oldScale = TouchControlLayoutStore.LoadScale(scheme, key);
             float newScale = Mathf.Clamp(
                 Mathf.Round((oldScale + direction * 0.1f) * 10f) / 10f,
-                0.7f, 1.5f);
+                0.7f, TouchControlLayoutStore.MaxScaleFor(key));
             if (Mathf.Approximately(newScale, oldScale))
                 return;
             target.localScale = Vector3.one * newScale;
@@ -1421,19 +1421,27 @@ namespace MotorCity.UI
             root.offsetMax =
                 Vector2.zero;
 
+            RectTransform hintPanel = CreatePanel(
+                root,
+                "Layout Hint Panel",
+                new Vector2(0f, -28f),
+                new Vector2(760f, 44f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f),
+                Color.clear);
+            ApplyReferenceHudSurface(hintPanel, 0.94f);
+
             Text hint =
                 CreateText(
-                    root,
+                    hintPanel,
                     "Layout Hint",
                     18,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
+                    Vector2.zero,
                     new Vector2(
-                        0f,
-                        -28f),
-                    new Vector2(
-                        760f,
-                        44f),
+                        736f,
+                        38f),
                     new Vector2(
                         0.5f,
                         1f),
@@ -1449,7 +1457,7 @@ namespace MotorCity.UI
             hint.resizeTextMinSize = 12;
             hint.resizeTextMaxSize = 18;
             hint.horizontalOverflow = HorizontalWrapMode.Wrap;
-            hint.verticalOverflow = VerticalWrapMode.Truncate;
+            hint.verticalOverflow = VerticalWrapMode.Overflow;
 
             CreateTouchLayoutEditorButton(
                 root,
@@ -1482,10 +1490,15 @@ namespace MotorCity.UI
             CreateTouchLayoutEditorButton(root, "Layout Larger", "+",
                 new Vector2(86f, -146f),
                 () => AdjustSelectedTouchLayoutScale(1), 64f);
-            touchLayoutScaleText = CreateText(root, "Layout Scale",
-                16, FontStyle.Bold, TextAnchor.MiddleCenter,
+            RectTransform scalePanel = CreatePanel(
+                root, "Layout Scale Panel",
                 new Vector2(198f, -146f), new Vector2(165f, 48f),
-                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), TextColor);
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Color.clear);
+            ApplyReferenceHudSurface(scalePanel, 0.94f);
+            touchLayoutScaleText = CreateText(scalePanel, "Layout Scale",
+                16, FontStyle.Bold, TextAnchor.MiddleCenter,
+                Vector2.zero, new Vector2(155f, 42f),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), TextColor);
             RefreshTouchLayoutResizeLabels();
         }
 
@@ -1529,18 +1542,16 @@ namespace MotorCity.UI
                     buttonWidth,
                     48f);
 
-            Image image =
-                buttonObject.GetComponent<Image>();
-
-            image.color =
-                new Color(
-                    0.07f,
-                    0.05f,
-                    0.16f,
-                    0.94f);
-
             Button button =
                 buttonObject.GetComponent<Button>();
+
+            // Reuse the HUD's vector surface, border and hover/press tint
+            // instead of a flat editor-only Image.
+            MotorCityUiSkin.ApplyVectorButton(
+                button,
+                name == "Layout Done"
+                    ? MotorCityButtonRole.Primary
+                    : MotorCityButtonRole.Utility);
 
             button.onClick.AddListener(
                 action);

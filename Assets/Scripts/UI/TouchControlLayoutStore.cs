@@ -49,12 +49,21 @@ namespace MotorCity.UI
             MotorCitySaveService.Save();
         }
 
+        // Steering wheel and both independent arrow buttons can grow to
+        // 200%; the other driving controls retain their existing 150% cap.
+        public static float MaxScaleFor(string controlKey)
+        {
+            return controlKey == "Steering" ||
+                   controlKey == "SteerLeft" ||
+                   controlKey == "SteerRight" ? 2f : 1.5f;
+        }
+
         public static float LoadScale(
             MotorCityControlScheme scheme, string controlKey)
         {
             string key = BaseKey(scheme, controlKey);
             return Mathf.Clamp(MotorCitySaveService.GetFloat(
-                key + ".scale", 1f), 0.7f, 1.5f);
+                key + ".scale", 1f), 0.7f, MaxScaleFor(controlKey));
         }
 
         public static void SaveScale(
@@ -62,7 +71,7 @@ namespace MotorCity.UI
         {
             string key = BaseKey(scheme, controlKey);
             MotorCitySaveService.SetFloat(key + ".scale",
-                Mathf.Clamp(scale, 0.7f, 1.5f));
+                Mathf.Clamp(scale, 0.7f, MaxScaleFor(controlKey)));
             MotorCitySaveService.Save();
         }
 
