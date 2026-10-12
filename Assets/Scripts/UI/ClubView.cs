@@ -194,6 +194,19 @@ namespace MotorCity.UI
                         1f,
                         1f));
 
+            clubNameText.resizeTextForBestFit = true;
+            clubNameText.resizeTextMinSize = 15;
+            clubNameText.resizeTextMaxSize = 22;
+            clubDescriptionText.resizeTextForBestFit = true;
+            clubDescriptionText.resizeTextMinSize = 11;
+            clubDescriptionText.resizeTextMaxSize = 14;
+            clubFocusText.resizeTextForBestFit = true;
+            clubFocusText.resizeTextMinSize = 10;
+            clubFocusText.resizeTextMaxSize = 13;
+            clubWeeklyText.resizeTextForBestFit = true;
+            clubWeeklyText.resizeTextMinSize = 11;
+            clubWeeklyText.resizeTextMaxSize = 15;
+
             clubRewardText =
                 CreateText(
                     panel,
