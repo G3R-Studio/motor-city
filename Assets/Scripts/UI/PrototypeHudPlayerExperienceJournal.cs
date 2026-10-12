@@ -7,12 +7,6 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
-        private void OnDestroy()
-        {
-            if (activityManager != null)
-                activityManager.ActivityResultShown -= CaptureJournalBeforeActivityResult;
-        }
-
         private string[] journalBeforeResult;
         private string journalLastResultName;
 

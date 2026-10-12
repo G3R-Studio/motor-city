@@ -10,10 +10,25 @@ def source(path):
 
 journal = source("Assets/Scripts/UI/PrototypeHudPlayerExperienceJournal.cs")
 hud = source("Assets/Scripts/UI/PrototypeHud.cs")
+navigator = source("Assets/Scripts/UI/NavigatorView.cs")
+# All partial declarations compile into the same type: never introduce a
+# second Unity lifecycle method in a different PrototypeHud source file.
+prototype_partials = [
+    path.read_text(encoding="utf-8")
+    for path in (ROOT / "Assets/Scripts/UI").glob("*.cs")
+    if re.search(r"\bpartial\s+class\s+PrototypeHud\b",
+                 path.read_text(encoding="utf-8"))
+]
+destroy_callbacks = sum(len(re.findall(
+    r"\b(?:private|protected|public)\s+void\s+OnDestroy\s*\(",
+    content)) for content in prototype_partials)
 ui = source("Assets/Scripts/UI/MotorCityFrontEndExperienceSections.cs")
 loc = source("Assets/Scripts/Localization/MotorCityLocalization.cs")
 
 checks = {
+    "single shared PrototypeHud OnDestroy callback": destroy_callbacks == 1
+        and "ActivityResultShown -= CaptureJournalBeforeActivityResult" in navigator
+        and "private void OnDestroy()" not in journal,
     "seven UI filters": "new Button[7]" in ui
         and "SelectPlayerExperienceJournalFilter(filter)" in ui,
     "seven read-only sources": all(

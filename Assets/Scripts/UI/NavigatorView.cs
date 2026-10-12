@@ -3290,6 +3290,10 @@ namespace MotorCity.UI
 
         private void OnDestroy()
         {
+            // All PrototypeHud partial files share this one Unity callback.
+            if (activityManager != null)
+                activityManager.ActivityResultShown -= CaptureJournalBeforeActivityResult;
+
             if (garage != null)
             {
                 garage.Changed -=
