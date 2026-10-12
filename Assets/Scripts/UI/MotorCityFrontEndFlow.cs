@@ -1118,9 +1118,11 @@ namespace MotorCity.UI
                 intro,
                 16);
 
-            float top = -196f;
+            // Two aligned columns, a consistent gutter and a quieter
+            // single-width controls section below the feature cards.
+            float top = -190f;
             float columnWidth = 590f;
-            float rowHeight = 150f;
+            float rowHeight = 148f;
 
             CreateAboutSection(
                 panel,
@@ -1165,7 +1167,7 @@ namespace MotorCity.UI
                     ? "Основные действия доступны кнопками HUD. На телефоне используются экранные элементы управления."
                     : "Core actions are available through HUD buttons. Mobile uses on-screen driving controls.",
                 new Vector2(58f, top - 328f),
-                new Vector2(1202f, 128f));
+                new Vector2(1202f, 112f));
 
             CreateButton(
                 panel,
@@ -1173,7 +1175,8 @@ namespace MotorCity.UI
                 new Vector2(56f, 46f),
                 new Vector2(260f, 58f),
                 ShowMainMenu,
-                new Vector2(0f, 0f));
+                new Vector2(0f, 0f),
+                MotorCityButtonRole.Back);
         }
 
         private void BuildSettings()
@@ -3276,32 +3279,23 @@ namespace MotorCity.UI
 
             background.color =
                 new Color(
-                    0.025f,
-                    0.04f,
-                    0.085f,
-                    0.82f);
+                    0.07f,
+                    0.065f,
+                    0.14f,
+                    0.88f);
 
-            AddSoftGlow(
-                rect,
-                new Color(
-                    0.32f,
-                    0.62f,
-                    1f,
-                    1f),
-                8f,
-                4f,
-                0.045f,
-                0.095f);
+            // About is informational: avoid stacked neon glows around
+            // five cards. Hierarchy comes from title, text and spacing.
 
             Outline outline =
                 section.AddComponent<Outline>();
 
             outline.effectColor =
                 new Color(
-                    0.34f,
-                    0.66f,
-                    1f,
-                    0.22f);
+                    0.45f,
+                    0.42f,
+                    0.78f,
+                    0.24f);
             outline.effectDistance =
                 new Vector2(1f, -1f);
             outline.useGraphicAlpha =
@@ -3329,7 +3323,7 @@ namespace MotorCity.UI
             accentRect.anchoredPosition =
                 Vector2.zero;
             accentRect.sizeDelta =
-                new Vector2(0f, 4f);
+                new Vector2(0f, 2f);
 
             Image accentImage =
                 accent.GetComponent<Image>();
@@ -3350,16 +3344,12 @@ namespace MotorCity.UI
                     20,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(18f, -16f),
-                    new Vector2(size.x - 36f, 30f),
+                    new Vector2(24f, -18f),
+                    new Vector2(size.x - 48f, 28f),
                     new Vector2(0f, 1f));
 
             sectionTitle.color =
-                new Color(
-                    0.36f,
-                    0.84f,
-                    1f,
-                    1f);
+                MotorCityUiSkin.AccentCyan;
 
             Shadow titleShadow =
                 sectionTitle.gameObject
@@ -3380,19 +3370,15 @@ namespace MotorCity.UI
                     body,
                     18,
                     FontStyle.Normal,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(18f, -50f),
+                    TextAnchor.MiddleLeft,
+                    new Vector2(24f, -54f),
                     new Vector2(
-                        size.x - 36f,
-                        size.y - 62f),
+                        size.x - 48f,
+                        size.y - 70f),
                     new Vector2(0f, 1f));
 
             sectionBody.color =
-                new Color(
-                    0.90f,
-                    0.92f,
-                    0.97f,
-                    1f);
+                MotorCityUiSkin.TextPrimary;
 
             ConfigureFrontEndTextFit(
                 sectionBody,
