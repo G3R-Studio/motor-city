@@ -48,8 +48,16 @@ if ($LASTEXITCODE -ne 0) {
     $env:GIT_HTTP_LOW_SPEED_TIME = '60'
     # A full-history local base avoids GitHub's expensive --depth=1 pack.
     # The overall step has a separate 10-minute Actions timeout.
-    & git -C $workspaceFull -c protocol.version=2 fetch --no-tags -- $remote $Commit
-    if ($LASTEXITCODE -ne 0) { throw "Incremental remote fetch failed." }
+    # Network transfers can be interrupted (curl 18 / early EOF). Retry
+    # only inside the runner-owned checkout, never modify the read-only seed.
+    $fetched = $false
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        & git -C $workspaceFull -c protocol.version=2 fetch --no-tags -- $remote $Commit
+        if ($LASTEXITCODE -eq 0) { $fetched = $true; break }
+        Write-Warning "Incremental fetch attempt $attempt of 3 failed."
+        if ($attempt -lt 3) { Start-Sleep -Seconds (5 * $attempt) }
+    }
+    if (-not $fetched) { throw "Incremental remote fetch failed after 3 attempts." }
 }
 $oldSmudge = $env:GIT_LFS_SKIP_SMUDGE
 $env:GIT_LFS_SKIP_SMUDGE = '1'

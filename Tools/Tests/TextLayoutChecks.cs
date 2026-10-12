@@ -5,6 +5,7 @@ namespace UnityEngine
     {
         public static int Min(int a, int b) => Math.Min(a, b);
         public static int Max(int a, int b) => Math.Max(a, b);
+        public static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
         public static int FloorToInt(float value) => (int)Math.Floor(value);
         public static int RoundToInt(float value) => (int)Math.Round(value, MidpointRounding.ToEven);
     }

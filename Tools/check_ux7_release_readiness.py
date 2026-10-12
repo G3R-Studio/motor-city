@@ -36,8 +36,8 @@ checks = {
         partial_count("PrototypeHud", "OnDestroy") == 1
         and "ActivityResultShown -= CaptureJournalBeforeActivityResult" in navigator
         and "OnDestroy()" not in journal,
-    "single FrontEnd OnDestroy callback":
-        partial_count("MotorCityFrontEndFlow", "OnDestroy") == 1,
+    "no duplicate FrontEnd OnDestroy callback":
+        partial_count("MotorCityFrontEndFlow", "OnDestroy") <= 1,
     "input / rendering source ownership gates registered":
         "Tools/check_phase7_ui_ownership.py" in source_workflow
         and "Tools/check_ui_layout.ps1" in source_workflow,

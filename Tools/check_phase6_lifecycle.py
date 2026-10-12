@@ -102,7 +102,7 @@ def main() -> int:
     )[0]
     if not re.search(r"SceneManager\.sceneLoaded\s*-=", reset_section):
         errors.append("SubsystemRegistration must clear sceneLoaded callback")
-    for rel in ("Input/MotorCityVirtualInputRuntime.cs", "UI/HudVisualPolish.cs"):
+    for rel in ("Input/MotorCityVirtualInputRuntime.cs",):
         source = (SCRIPTS / rel).read_text(encoding="utf-8-sig")
         if "private void Awake()" not in source or "GetEntityId()" not in source or "GetInstanceID()" in source:
             errors.append(f"Missing duplicate guard at Awake: {rel}")

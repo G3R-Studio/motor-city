@@ -1618,7 +1618,7 @@ namespace MotorCity.Gameplay
 
         private void DrawUiQa()
         {
-            Section("ОКНА И РАЗДЕЛЫ — БЕЗ ПРОХОЖДЕНИЯ");
+            Section("ОКНА И РАЗДЕЛЫ - БЕЗ ПРОХОЖДЕНИЯ");
             GUILayout.Label("Войти в Play Mode. QA-окна используют настоящие UI владельцы. Закрой админ-панель клавишей O для осмотра.");
 
             PrototypeHud hud = Object.FindAnyObjectByType<PrototypeHud>();
@@ -1676,7 +1676,7 @@ namespace MotorCity.Gameplay
             }
             GUILayout.EndHorizontal();
 
-            Section("МОЙ MOTOR CITY — ПРЯМОЙ ПЕРЕХОД");
+            Section("МОЙ MOTOR CITY - ПРЯМОЙ ПЕРЕХОД");
             GUILayout.Label("Сначала открыть Мой Motor City. Эти кнопки не изменяют прогресс.");
             string[] pages = {
                 "ГЛАВНАЯ", "АКТИВНОСТИ", "ЖУРНАЛ", "АВТОКЛУБ",
@@ -1701,7 +1701,7 @@ namespace MotorCity.Gameplay
                 GUILayout.EndHorizontal();
             }
 
-            Section("ЖУРНАЛ — ВСЕ СЕМЬ ФИЛЬТРОВ");
+            Section("ЖУРНАЛ - ВСЕ СЕМЬ ФИЛЬТРОВ");
             GUILayout.Label("Открой Мой Motor City, затем выбери фильтр. Прогресс не изменяется.");
             string[] filters = {
                 "СЮЖЕТ", "СЕЗОН", "СЕГОДНЯ", "КОНТРАКТЫ",
@@ -1724,7 +1724,7 @@ namespace MotorCity.Gameplay
                 GUILayout.EndHorizontal();
             }
 
-            Section("HV-9 — ДИАГНОСТИКА ВИДИМЫХ ОКОН");
+            Section("HV-9 - ДИАГНОСТИКА ВИДИМЫХ ОКОН");
             // QA-only read-only hierarchy inspection. Count actual roots,
             // including inactive ones; never infer duplicates from graphics.
             if (hud != null)
@@ -1735,7 +1735,7 @@ namespace MotorCity.Gameplay
             if (frontEnd != null)
                 DrawUiQaRootGroup(frontEnd.transform, QaFrontEndRoots, true);
 
-            Section("HV-9 — РАЗРЕШЕНИЕ / SAFE AREA / ПАУЗА");
+            Section("HV-9 - РАЗРЕШЕНИЕ / SAFE AREA / ПАУЗА");
             Rect safe = Screen.safeArea;
             GUILayout.Label("Экран: " + Screen.width + " x " + Screen.height +
                 "  |  aspect " + (Screen.height > 0
@@ -1743,7 +1743,7 @@ namespace MotorCity.Gameplay
                     : "-"));
             GUILayout.Label("Safe area: " +
                 Mathf.RoundToInt(safe.xMin) + "," + Mathf.RoundToInt(safe.yMin) +
-                " — " + Mathf.RoundToInt(safe.width) + " x " +
+                " - " + Mathf.RoundToInt(safe.width) + " x " +
                 Mathf.RoundToInt(safe.height));
             bool inset = safe.xMin > 0.5f || safe.yMin > 0.5f ||
                 safe.xMax < Screen.width - 0.5f ||
@@ -1755,7 +1755,7 @@ namespace MotorCity.Gameplay
             GUILayout.Label("Совет: сделай два снимка после поворота экрана " +
                 "и после закрытия Pause / Result.");
 
-            Section("HV-9 — СОХРАНЕНИЯ / НАГРАДЫ");
+            Section("HV-9 - СОХРАНЕНИЯ / НАГРАДЫ");
             GUILayout.Label("Работай только с тестовым сохранением.");
             GUILayout.Label("1. Снимок баланса/репутации -> перезапуск -> сравни.");
             GUILayout.Label("2. После результата снимок награды -> закрыть -> " +
@@ -1765,7 +1765,7 @@ namespace MotorCity.Gameplay
             GUILayout.Label("4. Магазин: повторная покупка не списывает дважды.");
             GUILayout.Label("ВНИМАНИЕ: Result QA запускает настоящие listeners.");
 
-            Section("HV-9 — UI SNAPSHOT (READ-ONLY)");
+            Section("HV-9 - UI SNAPSHOT (READ-ONLY)");
             if (GUILayout.Button("Снять снимок UI / памяти", GUILayout.Height(32f)))
             {
                 // Expensive hierarchy traversal only on explicit QA click.
@@ -1805,7 +1805,7 @@ namespace MotorCity.Gameplay
             }
             GUILayout.Label("Это снимок, не FPS/allocations profiler и не PASS.");
 
-            Section("HV-9 — РУЧНАЯ ПРОВЕРКА ОКОН");
+            Section("HV-9 - РУЧНАЯ ПРОВЕРКА ОКОН");
             GUILayout.Label(
                 "1. Сними скрин обычного и длинного текста в RU/EN.");
             GUILayout.Label(
@@ -1821,7 +1821,7 @@ namespace MotorCity.Gameplay
             GUILayout.Label(
                 "7. Запиши ошибки Console и номер коммита перед QA.");
 
-            Section("РЕЗУЛЬТАТЫ — СЦЕНАРИИ");
+            Section("РЕЗУЛЬТАТЫ - СЦЕНАРИИ");
             GUILayout.Label("Внимание: текущие ShowResult вызывают настоящие progression listeners. Для проверки оформления используй тестовый профиль.");
             string[] ids = { "delivery", "sprint", "circuit", "drift" };
             string[] titles = { "ДОСТАВКА", "СПРИНТ", "КОЛЬЦО", "ДРИФТ-ЗАЕЗД" };
