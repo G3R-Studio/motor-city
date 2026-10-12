@@ -292,7 +292,7 @@ namespace MotorCity.UI
             speedUnit.resizeTextForBestFit = false;
 
             RectTransform mode = CreatePanel(panel, "Drive Mode Indicator",
-                new Vector2(-92f, 4f), new Vector2(172f, 34f),
+                new Vector2(-92f, 4f), new Vector2(172f, 48f),
                 new Vector2(.5f, 0f), new Vector2(.5f, 0f), Color.clear);
             ApplyReferenceHudSurface(mode);
             driveModeText = CreateText(mode, "Drive Mode", 15, FontStyle.Bold,
