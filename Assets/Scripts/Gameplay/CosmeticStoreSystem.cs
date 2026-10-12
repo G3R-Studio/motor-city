@@ -524,6 +524,52 @@ namespace MotorCity.Gameplay
                 5f;
         }
 
+        private void ConsumeCreditsAfterSync(string token)
+        {
+            var cloud = UnityEngine.Object.FindAnyObjectByType<
+                MotorCity.Persistence.MotorCityCloudSaveRuntime>();
+
+            if (cloud == null || !MotorCityPlatform.SupportsCloudSave ||
+                !MotorCity.Persistence.MotorCitySaveService
+                    .GetCloudMetadata().HasUnsyncedChanges)
+            {
+                ConsumeToken(token);
+                return;
+            }
+
+            Action<bool> uploaded = null;
+            uploaded = successful =>
+            {
+                if (!successful)
+                {
+                    cloud.UploadCompleted -= uploaded;
+                    return; // keep the token pending for the next launch
+                }
+
+                if (MotorCity.Persistence.MotorCitySaveService
+                    .GetCloudMetadata().HasUnsyncedChanges)
+                {
+                    cloud.ForceUpload();
+                    return;
+                }
+
+                cloud.UploadCompleted -= uploaded;
+                ConsumeToken(token);
+            };
+            cloud.UploadCompleted += uploaded;
+            cloud.ForceUpload();
+        }
+
+        private void ConsumeToken(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                return;
+            if (purchaseRuntime != null)
+                purchaseRuntime.ConsumeAfterGrant(token);
+            else
+                MotorCityPlatform.ConsumePurchase(token);
+        }
+
         private bool GrantEntitlement(
             string productId)
         {
