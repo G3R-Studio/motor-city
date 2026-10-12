@@ -175,7 +175,7 @@ namespace MotorCity.Gameplay
                     }
 
                     int reward = RewardCredits();
-                    wallet?.AddCredits(reward);
+                    wallet?.AddCredits(reward, true, false);
                     watchedToday++;
 
                     MotorCity.Persistence.MotorCitySaveService.SetInt(
