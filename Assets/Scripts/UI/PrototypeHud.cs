@@ -195,6 +195,7 @@ namespace MotorCity.UI
         private Image minimapTargetIcon;
         private RectTransform minimapPlayerArrow;
         private Text minimapTargetText;
+        private Text minimapTargetDistanceText;
         private readonly RectTransform[] minimapRouteDots =
             new RectTransform[128];
         private readonly Image[] minimapRouteImages = new Image[128];

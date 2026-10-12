@@ -1443,24 +1443,37 @@ namespace MotorCity.UI
         private void CreateMinimapPlayerChevron(
             Transform parent)
         {
-            // Draw the heading indicator from the project's own vector
-            // primitives. No longer depends on RacingUI POINTER.png.
+            // Original player marker artwork, restored independently of
+            // the retired RacingUI theme and all other old HUD graphics.
+            Texture2D pointer = Resources.Load<Texture2D>(
+                "MotorCity/UI/Minimap/PlayerPointer");
             GameObject marker = new(
                 "Minimap Player Pointer",
                 typeof(RectTransform),
-                typeof(GarageReferenceGraphic));
+                typeof(RawImage));
             marker.transform.SetParent(parent, false);
             RectTransform rect = marker.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = rect.pivot =
                 new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = Vector2.zero;
             rect.sizeDelta = new Vector2(24f, 24f);
+            rect.localRotation = Quaternion.Euler(0f, 0f, -45f);
 
-            GarageReferenceGraphic icon =
-                marker.GetComponent<GarageReferenceGraphic>();
-            icon.symbol = GarageReferenceGraphic.Symbol.Up;
-            icon.color = new Color(0.12f, 0.78f, 1f, 1f);
-            icon.raycastTarget = false;
+            RawImage image = marker.GetComponent<RawImage>();
+            image.texture = pointer;
+            image.color = new Color(0.12f, 0.78f, 1f, 1f);
+            image.raycastTarget = false;
+            if (pointer == null)
+            {
+                // Keep the indicator visible in the unlikely event of
+                // an incomplete installation.
+                image.color = Color.clear;
+                GarageReferenceGraphic fallback =
+                    marker.AddComponent<GarageReferenceGraphic>();
+                fallback.symbol = GarageReferenceGraphic.Symbol.Up;
+                fallback.color = new Color(0.12f, 0.78f, 1f, 1f);
+                fallback.raycastTarget = false;
+            }
         }
 
         private void BuildNavigator(Transform canvas)
@@ -1773,10 +1786,10 @@ namespace MotorCity.UI
                     11,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(-23f, 0f),
+                    new Vector2(-23f, 11f),
                     new Vector2(
                         140f,
-                        50f),
+                        28f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -1786,16 +1799,32 @@ namespace MotorCity.UI
                     TextColor);
 
             minimapTargetText.resizeTextForBestFit =
-                false;
-            minimapTargetText.fontSize = 18;
+                true;
+            minimapTargetText.fontSize = 14;
             minimapTargetText.resizeTextMinSize =
-                16;
+                11;
             minimapTargetText.resizeTextMaxSize =
-                18;
+                14;
             minimapTargetText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             minimapTargetText.verticalOverflow =
                 VerticalWrapMode.Overflow;
+
+            // Separate the destination name from the distance. Previously
+            // the full formatted string could create three lines in a
+            // 50-unit cell and clip the top line.
+            minimapTargetDistanceText =
+                CreateText(
+                    targetStrip,
+                    "Minimap Target Distance",
+                    12,
+                    FontStyle.Bold,
+                    TextAnchor.MiddleCenter,
+                    new Vector2(-23f, -14f),
+                    new Vector2(140f, 18f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    TextColor);
 
             GameObject navigatorButtonObject =
                 new(
@@ -1976,12 +2005,11 @@ namespace MotorCity.UI
                 }
 
                 if (minimapTargetText != null &&
-                    !string.IsNullOrEmpty(
-                        minimapTargetText.text))
-                {
-                    minimapTargetText.text =
-                        string.Empty;
-                }
+                    !string.IsNullOrEmpty(minimapTargetText.text))
+                    minimapTargetText.text = string.Empty;
+                if (minimapTargetDistanceText != null &&
+                    !string.IsNullOrEmpty(minimapTargetDistanceText.text))
+                    minimapTargetDistanceText.text = string.Empty;
 
                 lastMinimapDistance =
                     int.MinValue;
@@ -2168,11 +2196,12 @@ namespace MotorCity.UI
                         lastMinimapDistanceLabel =
                             label ?? string.Empty;
 
-                        minimapTargetText.text =
-                            MotorCityLocalization.Format(
-                                "hud.distance",
-                                label,
-                                roundedDistance).Replace("   ", "\n");
+                        minimapTargetText.text = label ?? string.Empty;
+                        if (minimapTargetDistanceText != null)
+                            minimapTargetDistanceText.text =
+                                roundedDistance.ToString() +
+                                (MotorCityLocalization.CurrentLanguage ==
+                                    MotorCityLanguage.Russian ? " м" : " m");
                     }
                 }
             }
