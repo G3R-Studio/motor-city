@@ -193,8 +193,6 @@ namespace MotorCity.UI
 
         private void PolishTouchButtons()
         {
-            NormalizeTexturedButtonColors();
-
             if (!MotorCityInput.PreferTouchPrompts)
                 return;
 
@@ -212,56 +210,6 @@ namespace MotorCity.UI
 
             PolishTouchGroup(
                 "Club Touch Controls");
-        }
-
-        private void NormalizeTexturedButtonColors()
-        {
-            Button[] buttons =
-                GetComponentsInChildren<Button>(
-                    true);
-
-            foreach (Button button in
-                     buttons)
-            {
-                if (button == null)
-                    continue;
-
-                Transform current =
-                    button.transform;
-
-                bool drivingControl =
-                    false;
-
-                while (current != null)
-                {
-                    if (current.name ==
-                        "Touch Driving Controls")
-                    {
-                        drivingControl =
-                            true;
-
-                        break;
-                    }
-
-                    current =
-                        current.parent;
-                }
-
-                if (drivingControl)
-                    continue;
-
-                Image image =
-                    button.targetGraphic as Image;
-
-                if (image == null ||
-                    image.sprite == null)
-                {
-                    continue;
-                }
-
-                image.color =
-                    Color.white;
-            }
         }
 
         private void PolishTouchGroup(
