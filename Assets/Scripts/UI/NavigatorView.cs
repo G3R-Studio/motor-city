@@ -2200,8 +2200,7 @@ namespace MotorCity.UI
                         if (minimapTargetDistanceText != null)
                             minimapTargetDistanceText.text =
                                 roundedDistance.ToString() +
-                                (MotorCityLocalization.CurrentLanguage ==
-                                    MotorCityLanguage.Russian ? " м" : " m");
+                                (MotorCityLocalization.LanguageCode == "ru" ? " м" : " m");
                     }
                 }
             }
