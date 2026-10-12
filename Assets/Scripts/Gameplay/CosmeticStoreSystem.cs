@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using MotorCity.Localization;
 using MotorCity.Platform;
 using UnityEngine;
@@ -15,6 +16,38 @@ namespace MotorCity.Gameplay
 
         private const string SupporterPackKey =
             "MotorCity.Purchase.SupporterPack";
+        public const string SmallCreditsId = "motor_city_credits_25000";
+        public const string MediumCreditsId = "motor_city_credits_100000";
+        public const string LargeCreditsId = "motor_city_credits_500000";
+        public const string NoAdsId = "motor_city_no_ads";
+        public const string DoubleIncomeId = "motor_city_double_income";
+        private const string NoAdsKey = "MotorCity.Purchase.NoAds";
+        private const string DoubleIncomeKey = "MotorCity.Purchase.DoubleIncome";
+        private const string ReceiptPrefix = "MotorCity.Purchase.Receipt.";
+        private static readonly string[] Products = {
+            SupporterPackProductId, SmallCreditsId, MediumCreditsId,
+            LargeCreditsId, NoAdsId, DoubleIncomeId
+        };
+        private int selectedProductIndex;
+        public static bool NoAdsOwned =>
+            MotorCity.Persistence.MotorCitySaveService.GetInt(NoAdsKey, 0) != 0;
+        public static bool DoubleIncomeOwned =>
+            MotorCity.Persistence.MotorCitySaveService.GetInt(DoubleIncomeKey, 0) != 0;
+        public string SelectedProductId => Products[selectedProductIndex];
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        private static extern void MotorCityYandexSetStickyEnabled(int enabled);
+#endif
+
+        public void NextProduct()
+        {
+            if (purchaseRunning)
+                return;
+            selectedProductIndex = (selectedProductIndex + 1) % Products.Length;
+            LoadSupporterProductInfo();
+        }
+
 
         private MotorCityPurchaseRuntime purchaseRuntime;
 
@@ -48,12 +81,10 @@ namespace MotorCity.Gameplay
         public string StatusText { get; private set; }
 
         public string SelectedName =>
-            MotorCityLocalization.Text(
-                "store.supporter.name");
+            MotorCityLocalization.Text(ProductLocalizationKey(SelectedProductId, "name"));
 
         public string SelectedDescription =>
-            MotorCityLocalization.Text(
-                "store.supporter.desc");
+            MotorCityLocalization.Text(ProductLocalizationKey(SelectedProductId, "desc"));
 
         public string SelectedOwnershipLine
         {
@@ -92,8 +123,21 @@ namespace MotorCity.Gameplay
         }
 
         public string ProductDetailsLine =>
-            MotorCityLocalization.Text(
-                "store.supporter.details");
+            MotorCityLocalization.Text(ProductLocalizationKey(SelectedProductId, "details"));
+
+        private static string ProductLocalizationKey(string productId, string part)
+        {
+            string prefix = productId switch
+            {
+                SmallCreditsId => "store.credits.small.",
+                MediumCreditsId => "store.credits.medium.",
+                LargeCreditsId => "store.credits.large.",
+                NoAdsId => "store.noads.",
+                DoubleIncomeId => "store.doubleincome.",
+                _ => "store.supporter."
+            };
+            return prefix + part;
+        }
 
         public void Initialize()
         {
@@ -148,7 +192,7 @@ namespace MotorCity.Gameplay
             }
 
             string productId =
-                SupporterPackProductId;
+                SelectedProductId;
 
 #if !UNITY_EDITOR
             if (!productCatalogResolved ||
@@ -176,7 +220,7 @@ namespace MotorCity.Gameplay
             {
                 GrantAndConsume(
                     productId,
-                    string.Empty);
+                    "editor-" + Guid.NewGuid().ToString("N"));
 
                 return;
             }
@@ -231,6 +275,10 @@ namespace MotorCity.Gameplay
 
         private void LoadSupporterProductInfo()
         {
+            string requestedId = SelectedProductId;
+            productCatalogResolved = false;
+            supporterProductAvailable = false;
+            supporterPrice = string.Empty;
             if (!MotorCityPlatform.SupportsPurchases)
             {
 #if !UNITY_EDITOR
@@ -244,9 +292,11 @@ namespace MotorCity.Gameplay
             }
 
             MotorCityPlatform.LoadProductInfo(
-                SupporterPackProductId,
+                requestedId,
                 (success, payload) =>
                 {
+                    if (requestedId != SelectedProductId)
+                        return;
                     productCatalogResolved =
                         true;
 
@@ -418,19 +468,47 @@ namespace MotorCity.Gameplay
             string token,
             bool announce = true)
         {
-            bool known =
-                GrantEntitlement(
-                    productId);
-
+            bool known;
+            int credits = productId switch
+            {
+                SmallCreditsId => 25000,
+                MediumCreditsId => 100000,
+                LargeCreditsId => 500000,
+                _ => 0
+            };
+            if (credits > 0)
+            {
+                // Wallet and receipt are written in one save document before
+                // consuming the token. Replayed pending purchases cannot
+                // grant the same credit pack twice.
+                if (string.IsNullOrWhiteSpace(token))
+                    return;
+                string receiptKey = ReceiptPrefix + Uri.EscapeDataString(token);
+                if (MotorCity.Persistence.MotorCitySaveService.GetInt(receiptKey, 0) == 0)
+                {
+                    PlayerWallet wallet =
+                        UnityEngine.Object.FindAnyObjectByType<PlayerWallet>();
+                    if (wallet == null)
+                        return;
+                    wallet.AddCredits(credits, false, false);
+                    MotorCity.Persistence.MotorCitySaveService.SetInt(receiptKey, 1);
+                    MotorCity.Persistence.MotorCitySaveService.Save();
+                }
+                known = true;
+            }
+            else
+            {
+                known = GrantEntitlement(productId);
+                if (known)
+                    ApplyEntitlements();
+            }
             if (!known)
                 return;
 
             // Entitlement is persisted before consuming the purchase token.
             // If the game closes here, the pending transaction is safe to
             // process again because GrantEntitlement is idempotent.
-            ApplyEntitlements();
-
-            // Supporter Pack is a permanent, non-consumable purchase.
+            // Supporter Pack and permanent perks remain in getPurchases().
             // Keep it in Yandex getPurchases() so ownership can be restored
             // independently of local/cloud save state. Consumable products
             // should be routed through ConsumeAfterGrant when/if we add them.
@@ -484,11 +562,27 @@ namespace MotorCity.Gameplay
                 return true;
             }
 
+            if (productId == NoAdsId)
+            {
+                MotorCity.Persistence.MotorCitySaveService.SetInt(NoAdsKey, 1);
+                MotorCity.Persistence.MotorCitySaveService.Save();
+                return true;
+            }
+            if (productId == DoubleIncomeId)
+            {
+                MotorCity.Persistence.MotorCitySaveService.SetInt(DoubleIncomeKey, 1);
+                MotorCity.Persistence.MotorCitySaveService.Save();
+                return true;
+            }
             return false;
         }
 
         private void ApplyEntitlements()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            if (MotorCityPlatform.SupportsPurchases && NoAdsOwned)
+                MotorCityYandexSetStickyEnabled(0);
+#endif
             if (HasSupporterPack)
             {
                 PixieCompanionSystem pixie =
@@ -531,32 +625,33 @@ namespace MotorCity.Gameplay
 
         private bool IsSelectedOwned()
         {
-            return
-                HasSupporterPack;
+            return SelectedProductId switch
+            {
+                SupporterPackProductId => HasSupporterPack,
+                NoAdsId => NoAdsOwned,
+                DoubleIncomeId => DoubleIncomeOwned,
+                _ => false
+            };
         }
 
         private static bool IsKnownProduct(
             string productId)
         {
-            return
-                productId ==
-                    SupporterPackProductId;
+            return Array.IndexOf(Products, productId) >= 0;
         }
 
         private static bool IsPermanentProduct(
             string productId)
         {
-            return
-                productId ==
-                    SupporterPackProductId;
+            return productId == SupporterPackProductId ||
+                productId == NoAdsId || productId == DoubleIncomeId;
         }
 
         private static string ProductDisplayName(
             string productId)
         {
-            return
-                MotorCityLocalization.Text(
-                    "store.supporter.name");
+            return MotorCityLocalization.Text(
+                ProductLocalizationKey(productId, "name"));
         }
     }
 }
