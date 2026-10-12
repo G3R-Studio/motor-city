@@ -465,3 +465,10 @@ Previous work already supplies on-demand read-only UI hierarchy checks, safe are
 ### HV-L controlled cleanup — 2026-10-12
 
 - User confirmed HV-3.10 5-second career state refresh works correctly in Unity; acceptance recorded. Commit `0b3236c` removes the unused legacy `SetRect` geometry mutator from HudVisualPolish and removes a no-op modal-composition parameter. Its active runtime visual duties (backdrops, text shadows, touch text, arrow/input reconciliation) deliberately remain until ownership is proven in each builder. No hit areas, four restored steering/pedal images, or garage changed. HV-L.6 remains open; Unity smoke needed before larger removal. CI/WebGL not run.
+
+
+### Consolidated pre-WebGL source pass — 2026-10-12
+
+- Result Reward alignment is already set by ActivityResultView (TextAnchor.MiddleCenter). Removed its redundant second-owner ApplyModalComposition from HudVisualPolish. Other legacy pass functions (backdrops, shadows, touch) remain live; deleting them without builder migration could change accepted UI.
+- Still requires manual evidence: per-screen RU/EN/long-text screenshots, device safe-area and touch tests, real entitlement purchases, fresh/legacy saves, profiler inspection and reference comparisons. No unfounded PASS marks added.
+- HV-10.1–HV-10.5 remain blocked until separate build authorization. This source pass did not run CI, WebGL or release workflows.

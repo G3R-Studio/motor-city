@@ -136,7 +136,6 @@ namespace MotorCity.UI
             PolishCoreText("Club Description", 0.55f);
             PolishCoreText("Club Weekly", 0.75f);
 
-            ApplyModalComposition();
             PolishTouchButtons();
             RestoreDrivingControlAppearance();
 
@@ -150,29 +149,6 @@ namespace MotorCity.UI
             // overwrite these controls from the persistent visual polish.
             // Builders own their own typography and clipping.
             // Do not reconfigure every Text when the screen size changes.
-        }
-
-        private void ApplyModalComposition()
-        {
-            // ActivityResultView, NavigatorView and ClubView own the modal
-            // panel geometry. Their builders use the previously polished
-            // desktop sizes, so the pass only styles modal contents.
-
-            RectTransform resultReward =
-                FindRect("Result Reward");
-
-            if (resultReward != null)
-            {
-                Text rewardLabel =
-                    resultReward.GetComponent<Text>();
-
-                if (rewardLabel != null)
-                {
-                    rewardLabel.alignment =
-                        TextAnchor.MiddleCenter;
-                }
-            }
-
         }
 
         private void PolishTouchButtons()
