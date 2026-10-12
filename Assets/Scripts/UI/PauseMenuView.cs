@@ -52,7 +52,7 @@ namespace MotorCity.UI
                     0.005f,
                     0.008f,
                     0.012f,
-                    0.82f);
+                    0.76f);
 
             backdrop.raycastTarget =
                 true;
@@ -170,7 +170,8 @@ namespace MotorCity.UI
                 experienceActions,
                 "Pause Player Experience",
                 "ux.home.button",
-                OpenPausePlayerExperience);
+                OpenPausePlayerExperience,
+                role: MotorCityButtonRole.Secondary);
 
             RectTransform actions =
                 CreateButtonRow(
@@ -181,7 +182,8 @@ namespace MotorCity.UI
                 actions,
                 "Pause Main Menu",
                 "pause.main_menu",
-                OpenPauseMainMenu);
+                OpenPauseMainMenu,
+                role: MotorCityButtonRole.Secondary);
 
             CreatePrimaryButton(
                 actions,
