@@ -1593,20 +1593,19 @@ namespace MotorCity.Gameplay
             MotorCityFrontEndFlow frontEnd =
                 Object.FindAnyObjectByType<MotorCityFrontEndFlow>();
             if (hud == null)
-            {
-                GUILayout.Label("HUD ещё не создан.");
-                return;
-            }
+                GUILayout.Label("HUD ещё не создан: игровые окна пока недоступны.");
+            if (frontEnd == null)
+                GUILayout.Label("FrontEnd ещё не создан: страницы меню пока недоступны.");
 
             GUILayout.BeginHorizontal();
             if (Button("ПАУЗА"))
             {
-                hud.DebugOpenPauseForUiQa();
+                if (hud != null) hud.DebugOpenPauseForUiQa();
                 lastAction = "Открыта пауза";
             }
             if (Button("МОЙ MOTOR CITY"))
             {
-                hud.DebugOpenExperienceForUiQa();
+                if (hud != null) hud.DebugOpenExperienceForUiQa();
                 lastAction = "Открыта главная Мой Motor City";
             }
             if (Button("НАВИГАТОР"))
@@ -1665,6 +1664,29 @@ namespace MotorCity.Gameplay
                             lastAction = "UI QA: " + pages[j];
                         else
                             lastAction = "Сначала открой Мой Motor City";
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+
+            Section("ЖУРНАЛ — ВСЕ СЕМЬ ФИЛЬТРОВ");
+            GUILayout.Label("Открой Мой Motor City, затем выбери фильтр. Прогресс не изменяется.");
+            string[] filters = {
+                "СЮЖЕТ", "СЕЗОН", "СЕГОДНЯ", "КОНТРАКТЫ",
+                "КАРЬЕРА", "ЛЕГЕНДЫ", "НОЧНОЙ КЛУБ"
+            };
+            for (int i = 0; i < filters.Length; i += 4)
+            {
+                GUILayout.BeginHorizontal();
+                for (int j = i; j < Mathf.Min(i + 4, filters.Length); j++)
+                {
+                    int filter = j;
+                    if (Button(filters[j]))
+                    {
+                        lastAction = frontEnd != null &&
+                            frontEnd.DebugShowJournalFilter(filter)
+                                ? "Журнал: " + filters[j]
+                                : "Открой Мой Motor City";
                     }
                 }
                 GUILayout.EndHorizontal();
