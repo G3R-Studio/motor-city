@@ -116,6 +116,19 @@
 
 **Gate:** уникальные владельцы всех UI-поверхностей, без придуманного баннера и без копирования сцены в HUD.
 
+### HV-L — Удаление старого оформления HUD (2026-10-12)
+
+**Цель:** актуальный HUD строится сразу в окончательном стиле, не обращается к старым текстурам панелей и кнопок и не зависит от поздней «починки» другим визуальным проходом.
+
+- [x] **HV-L.1 — IN SOURCE.** Меню паузы, навигатор, touch utility и общие модальные кнопки создают векторную поверхность через `MotorCityUiSkin.ApplyVectorButton`. Исходные обработчики действий, размеры hit-rect и мягкий звук не заменены.
+- [x] **HV-L.2 — IN SOURCE.** Удалены `GetModalButtonSprite`, спрайтовые кэши и загрузка `frontEndPanelSprite`/`frontEndButtonSprite`; FrontEnd сразу создаёт собственную поверхность. Глобальный стиль не перезаписывает button.targetGraphic типа `GarageReferenceGraphic`.
+- [x] **HV-L.3 — IN SOURCE.** Из `MotorCityUiThemeAssets` и его сериализованного asset удалены слоты `modalButton`/`modalPanel`, удалены три неиспользуемые картинки RacingUI с .meta. Удалена устаревшая нормализация текстурных кнопок в `HudVisualPolish`; обновлён source-guard.
+- [ ] **HV-L.4 — NEEDS UNITY.** Ручной Play Mode smoke: главное меню, настройки, выбор управления, пауза (включая все +/-), навигатор, магазин, клуб, результаты активностей, touch utility; проверить оттенки, click/focus, закрытие, повторное открытие, отсутствие старых прямоугольных текстур.
+- [ ] **HV-L.5 — PLANNED.** В проекте **пока реально используются** `minimapPlayerPointer` из прежнего RacingUI и четыре изображения `touchThrottle`/`touchBrake`/`touchHandbrake`/`touchWheel` из RacingHUD. Замена потребует отдельно протестированных векторных аналогов указателя и органов управления, **не удалять ассеты до готовности замены**. Это остаток зависимости от старого артпакета; полное удаление пока не подтверждено.
+- [ ] **HV-L.6 — PLANNED.** Проверить, можно ли убрать оставшийся вторичный визуальный проход `HudVisualPolish`, только после переноса нужной обработки текста, safe-area и мобильных кнопок в их текущие builders. `PrototypeHud` сохраняется: это основной контроллер активного интерфейса, не устаревший HUD.
+
+**Исключение:** завершённый гараж не подвергать редизайну или удалению. На текущем этапе **не запускать CI, WebGL и итоговые сборки**. Source checks не заменяют Play Mode.
+
 ### HV-1 — Общие токены и UI-примитивы
 
 - [x] **HV-1.1 — IN SOURCE** Общие токены палитры, текста, базовых отступов и состояний кнопок добавлены в MotorCityUiSkin (MotorCityButtonVisuals.cs) и применены в двух UI-фабриках. Полная унификация рамок/окон относится к HV-1.3; **Unity smoke этого этапа ожидается**.
@@ -276,6 +289,7 @@
 | Этап | Source | User Unity acceptance | Примечания |
 | --- | --- | --- | --- |
 | HV-0 Аудит | **PARTIAL** | — | Инвентарь и план есть; не хватает снимков непоказанных окон |
+| HV-L Удаление старого HUD-оформления | **IN SOURCE (HV-L.1–HV-L.3)** | NEEDS UNITY | Векторные модалки готовы в C#; старые touch/указатель ещё требуют замены |
 | HV-1 Токены/примитивы | **IN SOURCE (HV-1.1–HV-1.3)** | NEEDS UNITY | Общие кнопки/окна; HV-1.4–HV-1.6 ещё открыты |
 | HV-2 FrontEnd | PLANNED | — | Не начато |
 | HV-3 Мой Motor City | PLANNED | — | Не начато |
@@ -291,6 +305,7 @@
 
 | Дата | ID | Коммит(ы) | Что реально готово | Исходниковая проверка | Ручной smoke / статус |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-12 | HV-L.1–HV-L.3 | [`6eb5fc5`](https://github.com/G3R-Studio/motor-city/commit/6eb5fc54a2694bbe40ecfa3f6f12ad60669899f3) + предшествующие source-коммиты | Старые modal sprite paths и 3 неиспользуемых картинки удалены, кнопки используют прямой vector-builder | Source checks для текущих файлов, gate дополнен; Unity не запускался | **NEEDS UNITY:** окна, пауза, навигатор, touch utility; оставшиеся pointer/pedals — HV-L.5 |
 | 2026-10-12 | HV-1.3 regression fix | [`196a8e5`](https://github.com/G3R-Studio/motor-city/commit/196a8e5a7a72d72590d2da6ec916cad7197dab2e) | Создание `Reference HUD Surface` внутри runtime modal button factory вместо старого `modalButton` спрайта; Button.targetGraphic и цветовая роль указывают на векторную поверхность, прежняя геометрия и onclick сохранены | Источник + защита в `check_phase7_ui_ownership.py` (без Unity) | **NEEDS UNITY:** пауза 3 ряда настроек, Мой Motor City, главное меню, Продолжить, повторное открытие |
 | 2026-10-12 | HV-1.3 | [`646ed76`](https://github.com/G3R-Studio/motor-city/commit/646ed762f9713b02f523a29c251b0f569a1fb235) + [`5d950ef`](https://github.com/G3R-Studio/motor-city/commit/5d950ef5856ecfe6c92b327be2bb329f78dce835) | Единые modal surfaces, тонкий разделитель, один фон; Settings Back в footer; Pause Resume сохраняет Primary, HUD utility-кнопки не задеты | **19/19 source checks PASS**; Unity/CI/сборки не запускались | **FAILED Unity smoke 2026-10-12:** пауза показала старые текстуры кнопок; Settings/Control Choice выглядят нормально. Причина: модальные кнопки пропускали global vector pass, но сами создавали textured Image. См. исправление ниже; снова NEEDS UNITY для Pause. |
 | 2026-10-12 | HV-1.1 / HV-1.2 | [`1a637b5`](https://github.com/G3R-Studio/motor-city/commit/1a637b50cf1df9c763b56036092a1becdb12026e) | Токены MotorCityUiSkin, 4 роли кнопок (+ Disabled), FrontEnd и runtime modal factories, первичное Continue и Pause Resume | **17/17 точечных source checks PASS**; Unity Editor/Play Mode не запускали | **NEEDS UNITY:** main/пауза/настройки/выбор управления, единый клик, без изменения готового интерфейса |
