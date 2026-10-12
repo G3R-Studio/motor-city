@@ -66,6 +66,7 @@ namespace MotorCity.Gameplay
 
         public bool SelectedProductAvailable =>
             supporterProductAvailable;
+        public bool SelectedOwned => IsSelectedOwned();
 
         public Texture2D CurrencyIconTexture =>
             currencyIconTexture;
@@ -281,12 +282,11 @@ namespace MotorCity.Gameplay
             supporterPrice = string.Empty;
             if (!MotorCityPlatform.SupportsPurchases)
             {
-#if !UNITY_EDITOR
-                productCatalogResolved =
-                    true;
-
-                supporterProductAvailable =
-                    false;
+                productCatalogResolved = true;
+#if UNITY_EDITOR
+                supporterProductAvailable = true;
+#else
+                supporterProductAvailable = false;
 #endif
                 return;
             }
@@ -619,7 +619,7 @@ namespace MotorCity.Gameplay
 
             if (wallet == null)
                 return false;
-            wallet.AddCredits(credits);
+            wallet.AddCredits(credits, true, false);
             return true;
         }
 
