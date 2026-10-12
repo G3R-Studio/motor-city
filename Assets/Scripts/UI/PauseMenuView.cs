@@ -187,7 +187,8 @@ namespace MotorCity.UI
                 actions,
                 "Pause Resume",
                 "pause.resume",
-                ClosePauseMenu);
+                ClosePauseMenu,
+                role: MotorCityButtonRole.Primary);
 
             RefreshPauseMenuText();
         }

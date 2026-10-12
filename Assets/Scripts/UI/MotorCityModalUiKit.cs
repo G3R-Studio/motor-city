@@ -380,7 +380,8 @@ namespace MotorCity.UI
             UnityEngine.Events.UnityAction action,
             float preferredWidth = -1f,
             bool compact = false,
-            MotorCityInputAction? semanticAction = null)
+            MotorCityInputAction? semanticAction = null,
+            MotorCityButtonRole role = MotorCityButtonRole.Secondary)
         {
             GameObject buttonObject =
                 new(
@@ -434,34 +435,10 @@ namespace MotorCity.UI
             Button button =
                 buttonObject.GetComponent<Button>();
 
-            button.targetGraphic =
-                image;
-
-            ColorBlock colors =
-                button.colors;
-
-            colors.normalColor =
-                Color.white;
-
-            colors.highlightedColor =
-                new Color(
-                    0.96f,
-                    0.96f,
-                    1f,
-                    1f);
-
-            colors.pressedColor =
-                new Color(
-                    0.82f,
-                    0.80f,
-                    0.92f,
-                    1f);
-
-            colors.selectedColor =
-                colors.highlightedColor;
-
-            button.colors =
-                colors;
+            MotorCityUiSkin.ApplyButton(
+                button,
+                image,
+                compact ? MotorCityButtonRole.Utility : role);
 
             buttonObject.AddComponent<
                 UiButtonFeedback>();
@@ -558,7 +535,7 @@ namespace MotorCity.UI
                     Vector2.zero,
                     Vector2.zero,
                     Vector2.zero,
-                    TextColor);
+                    MotorCityUiSkin.TextPrimary);
 
             RectTransform labelRect =
                 label.rectTransform;

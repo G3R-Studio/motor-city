@@ -1,9 +1,72 @@
 using System;
 using MotorCity.Input;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MotorCity.UI
 {
+    // Visual-only tokens for game menus and modal action buttons.
+    // This does not restyle the completed vehicle customization interface.
+    internal enum MotorCityButtonRole
+    {
+        Primary,
+        Secondary,
+        Utility,
+        Back
+    }
+
+    internal static class MotorCityUiSkin
+    {
+        internal static readonly Color Panel = new(0.14f, 0.10f, 0.26f, 0.94f);
+        internal static readonly Color Raised = new(0.19f, 0.14f, 0.31f, 0.96f);
+        internal static readonly Color TextPrimary = new(0.95f, 0.97f, 1f, 1f);
+        internal static readonly Color TextSecondary = new(0.72f, 0.77f, 0.87f, 1f);
+        internal static readonly Color AccentCyan = new(0.33f, 0.78f, 1f, 1f);
+        internal static readonly Color AccentLilac = new(0.65f, 0.55f, 1f, 1f);
+
+        internal const float SpaceSmall = 8f;
+        internal const float SpaceMedium = 16f;
+        internal const float SpaceLarge = 24f;
+        internal const int TitleFontSize = 28;
+        internal const int BodyFontSize = 15;
+
+        internal static void ApplyButton(
+            Button button,
+            Graphic surface,
+            MotorCityButtonRole role)
+        {
+            if (button == null || surface == null)
+                return;
+
+            // Tint the EXISTING target graphic instead of adding overlays
+            // or changing RectTransform hit areas and their input handlers.
+            surface.color = role switch
+            {
+                MotorCityButtonRole.Primary =>
+                    new Color(0.18f, 0.39f, 0.57f, 0.98f),
+                MotorCityButtonRole.Utility =>
+                    new Color(0.14f, 0.13f, 0.24f, 0.96f),
+                MotorCityButtonRole.Back =>
+                    new Color(0.20f, 0.14f, 0.28f, 0.96f),
+                _ =>
+                    new Color(0.20f, 0.16f, 0.34f, 0.96f)
+            };
+            surface.raycastTarget = true;
+
+            button.targetGraphic = surface;
+            button.transition = Selectable.Transition.ColorTint;
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1.08f, 1.10f, 1.16f, 1f);
+            colors.pressedColor = new Color(0.77f, 0.84f, 0.94f, 1f);
+            colors.selectedColor = new Color(1.10f, 1.10f, 1.18f, 1f);
+            colors.disabledColor = new Color(0.48f, 0.50f, 0.56f, 0.75f);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.09f;
+            button.colors = colors;
+        }
+    }
+
     internal static class MotorCityButtonVisuals
     {
         public static bool TryForAction(

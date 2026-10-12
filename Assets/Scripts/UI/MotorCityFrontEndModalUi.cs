@@ -779,7 +779,8 @@ namespace MotorCity.UI
             string label,
             UnityEngine.Events.UnityAction action,
             float preferredWidth = -1f,
-            float height = 58f)
+            float height = 58f,
+            MotorCityButtonRole role = MotorCityButtonRole.Secondary)
         {
             Button button =
                 CreateButton(
@@ -792,7 +793,8 @@ namespace MotorCity.UI
                             : 320f,
                         height),
                     action,
-                    new Vector2(0.5f, 0.5f));
+                    new Vector2(0.5f, 0.5f),
+                    role);
 
             LayoutElement element =
                 button.gameObject.AddComponent<

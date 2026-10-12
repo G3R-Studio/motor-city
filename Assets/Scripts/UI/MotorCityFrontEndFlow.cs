@@ -559,7 +559,8 @@ namespace MotorCity.UI
                     "",
                     new Vector2(124f, -22f),
                     new Vector2(400f, 68f),
-                    BeginPrimaryAction);
+                    BeginPrimaryAction,
+                    role: MotorCityButtonRole.Primary);
 
             primaryButtonText =
                 primary.GetComponentInChildren<Text>();
@@ -3495,7 +3496,8 @@ namespace MotorCity.UI
 
         private Button CreateButton(
             Transform parent, string label, Vector2 position, Vector2 dimensions,
-            UnityEngine.Events.UnityAction action, Vector2? anchorOverride = null)
+            UnityEngine.Events.UnityAction action, Vector2? anchorOverride = null,
+            MotorCityButtonRole role = MotorCityButtonRole.Secondary)
         {
             Vector2 anchor = anchorOverride ?? new Vector2(0f, .5f);
             GameObject go = new(string.IsNullOrWhiteSpace(label) ? "Primary Button" : label + " Button",
@@ -3507,23 +3509,14 @@ namespace MotorCity.UI
             rect.sizeDelta = dimensions;
             GarageReferenceGraphic surface = go.GetComponent<GarageReferenceGraphic>();
             surface.symbol = GarageReferenceGraphic.Symbol.Surface;
-            surface.color = new Color(.16f, .12f, .32f, .96f);
-            surface.raycastTarget = true;
             Button button = go.GetComponent<Button>();
-            button.targetGraphic = surface;
-            ColorBlock colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1.15f, 1.15f, 1.2f, 1f);
-            colors.pressedColor = new Color(.8f, .8f, .95f, 1f);
-            colors.selectedColor = colors.highlightedColor;
-            colors.fadeDuration = .1f;
-            button.colors = colors;
+            MotorCityUiSkin.ApplyButton(button, surface, role);
             button.onClick.AddListener(() => { MotorCitySfxRuntime.PlayUiClick(); action?.Invoke(); });
             Text text = CreateText(rect, label, dimensions.y <= 54f ? 24 : 28,
                 FontStyle.Bold, TextAnchor.MiddleCenter, Vector2.zero,
                 dimensions - new Vector2(32f, 8f), new Vector2(.5f, .5f));
             text.name = "Label";
-            text.color = Color.white;
+            text.color = MotorCityUiSkin.TextPrimary;
             return button;
         }
 
