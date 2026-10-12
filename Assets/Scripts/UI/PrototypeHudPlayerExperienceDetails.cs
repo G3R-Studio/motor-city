@@ -9,6 +9,13 @@ namespace MotorCity.UI
     {
         // UX-4 details remain informational. Their owners decide unlocks,
         // payouts and saved progress; merely opening a page changes nothing.
+        // Read-only source stamps for the front-end; no save or gameplay writes.
+        public int PlayerExperienceSelectedVehicleIndex =>
+            garage == null ? -1 : garage.CatalogSelectedVehicleIndex;
+
+        public int PlayerExperienceResultSequence =>
+            activityManager == null ? -1 : activityManager.ResultSequence;
+
         private string BuildPlayerExperienceClubDetail()
         {
             if (club == null)
@@ -24,6 +31,11 @@ namespace MotorCity.UI
             sb.Append("\n").Append(club.CatalogCountedActivities);
             sb.Append("\n\n").Append(MotorCityLocalization.Format(
                 "ux4.club.progress", club.WeeklyContribution, club.WeeklyTarget));
+            int remaining = Mathf.Max(0,
+                club.WeeklyTarget - club.WeeklyContribution);
+            if (remaining > 0 && !club.CatalogWeeklyRewardClaimed)
+                sb.Append("\n").Append(MotorCityLocalization.Format(
+                    "ux6.club.remaining", remaining));
             sb.Append("\n").Append(MotorCityLocalization.Format(
                 "ux4.club.reward",
                 club.CatalogWeeklyCreditsReward,
@@ -130,6 +142,9 @@ namespace MotorCity.UI
                     "ux4.garage.vehicle", garage.CatalogVehicleName(i),
                     access, garage.CatalogVehicleMasteryLevel(i)));
             }
+            string repHint = BuildPlayerExperienceNextVehicleRepHint();
+            if (!string.IsNullOrWhiteSpace(repHint))
+                sb.Append("\n\n").Append(repHint);
             sb.Append("\n\n").Append(garage.NextVehicleLine);
             sb.Append("\n\n").Append(garage.VehicleMasteryLine);
             if (vehicleSpecialization != null)
@@ -144,6 +159,33 @@ namespace MotorCity.UI
                     .Append("\n").Append(vehicleHistory.GarageLine);
             sb.Append("\n\n").Append(MotorCityLocalization.Text("ux4.garage.note"));
             return sb.ToString();
+        }
+
+        // Show only the nearest reachable REP requirement, not an unlock
+        // promise for supporter entitlement or vehicles without visuals.
+        private string BuildPlayerExperienceNextVehicleRepHint()
+        {
+            if (garage == null || activityManager == null)
+                return string.Empty;
+            int currentRep = activityManager.TotalReputation;
+            int nearest = int.MaxValue;
+            string name = string.Empty;
+            for (int i = 0; i < garage.CatalogVehicleCount; i++)
+            {
+                if (!garage.CatalogVehicleAvailable(i) ||
+                    garage.CatalogVehicleSupporterExclusive(i) ||
+                    garage.CatalogVehicleUnlocked(i))
+                    continue;
+                int remaining = garage.CatalogVehicleRequiredRep(i) - currentRep;
+                if (remaining <= 0 || remaining >= nearest)
+                    continue;
+                nearest = remaining;
+                name = garage.CatalogVehicleName(i);
+            }
+            return nearest == int.MaxValue
+                ? string.Empty
+                : MotorCityLocalization.Format("ux6.garage.rep_hint",
+                    nearest, name);
         }
 
         private string BuildPlayerExperienceAchievementsDetail()
