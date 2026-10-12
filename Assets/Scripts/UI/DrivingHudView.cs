@@ -389,8 +389,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Drift HUD",
-                    new Vector2(0f, -74f),
-                    new Vector2(444f, 72f),
+                    new Vector2(0f, -65f),
+                    new Vector2(340f, 58f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     Color.clear);
@@ -409,7 +409,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, 0f),
-                    new Vector2(420f, 64f),
+                    new Vector2(316f, 50f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);

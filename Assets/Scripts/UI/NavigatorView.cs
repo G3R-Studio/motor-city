@@ -1804,11 +1804,11 @@ namespace MotorCity.UI
 
             minimapTargetText.resizeTextForBestFit =
                 true;
-            minimapTargetText.fontSize = 13;
+            minimapTargetText.fontSize = 15;
             minimapTargetText.resizeTextMinSize =
-                11;
-            minimapTargetText.resizeTextMaxSize =
                 13;
+            minimapTargetText.resizeTextMaxSize =
+                15;
             minimapTargetText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             minimapTargetText.verticalOverflow =

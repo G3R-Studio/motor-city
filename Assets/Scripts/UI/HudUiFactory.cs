@@ -413,6 +413,28 @@ namespace MotorCity.UI
             text.resizeTextMaxSize =
                 fontSize;
 
+            // The small enlarged minimap/action groups need glyphs rasterized
+            // at the larger size, not just a stretched parent transform.
+            // Counter-scale the text rect only; background art and button
+            // hit targets keep their existing 1.15x layout.
+            const float hudGroupScale = 1.15f;
+            for (Transform owner = parent; owner != null; owner = owner.parent)
+            {
+                if ((owner.name == "Minimap" ||
+                     owner.name == "HUD Utility Rail" ||
+                     owner.name == "HUD Secondary Actions") &&
+                    Mathf.Abs(owner.localScale.x - hudGroupScale) < 0.001f)
+                {
+                    rect.localScale = Vector3.one / hudGroupScale;
+                    rect.sizeDelta *= hudGroupScale;
+                    text.fontSize = Mathf.RoundToInt(text.fontSize * hudGroupScale);
+                    text.resizeTextMinSize = Mathf.RoundToInt(
+                        text.resizeTextMinSize * hudGroupScale);
+                    text.resizeTextMaxSize = text.fontSize;
+                    break;
+                }
+            }
+
             Shadow shadow =
                 go.AddComponent<Shadow>();
 
