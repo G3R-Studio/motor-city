@@ -358,7 +358,7 @@ namespace MotorCity.UI
                 "touch.utility.mode",
                 MotorCityInputAction.CycleDriveMode,
                 new Vector2(92f, 39f),
-                new Vector2(172f, 38f));
+                new Vector2(172f, 36f));
 
             CreateLocalizedTouchPulseButton(
                 root,
@@ -366,7 +366,7 @@ namespace MotorCity.UI
                 "touch.utility.elite",
                 MotorCityInputAction.EliteModifier,
                 new Vector2(92f, 84f),
-                new Vector2(172f, 38f));
+                new Vector2(172f, 36f));
 
             GameObject railObject =
                 new(
