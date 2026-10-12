@@ -127,8 +127,6 @@ namespace MotorCity.UI
         private Font font;
         private Font boldFont;
         private MotorCityUiThemeAssets uiThemeAssets;
-        private static Sprite modalButtonSprite;
-        private static Texture2D modalButtonSpriteSource;
 
         private Text moneyText;
         private Text reputationText;
@@ -149,24 +147,6 @@ namespace MotorCity.UI
             }
 
             return sprite;
-        }
-
-        [RuntimeInitializeOnLoadMethod(
-            RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetRuntimeUiCache()
-        {
-            if (modalButtonSprite != null)
-            {
-                Object.Destroy(
-                    modalButtonSprite);
-            }
-
-            modalButtonSprite =
-                null;
-
-            modalButtonSpriteSource =
-                null;
-
         }
 
         private bool lastResultOpen;
