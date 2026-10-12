@@ -8,6 +8,7 @@ namespace MotorCity.Audio
 
         private AudioSource source;
         private AudioClip uiClick;
+        private float lastUiClickTime = -1f;
         private AudioClip success;
         private AudioClip failure;
         private AudioClip collision;
@@ -18,7 +19,11 @@ namespace MotorCity.Audio
         public static void PlayUiClick()
         {
             EnsureExists();
-            instance.Play(instance.uiClick, 0.12f, 1f);
+            // Avoid double sound from pointer-down and onClick handlers.
+            if (Time.unscaledTime - instance.lastUiClickTime < 0.06f)
+                return;
+            instance.lastUiClickTime = Time.unscaledTime;
+            instance.Play(instance.uiClick, 0.26f, 1f);
         }
 
         public static void PlayActivityResult(
@@ -157,13 +162,7 @@ namespace MotorCity.Audio
             source.priority =
                 48;
 
-            uiClick =
-                BuildTone(
-                    "Motor City UI Click",
-                    920f,
-                    0.038f,
-                    0.42f,
-                    0.10f);
+            uiClick = BuildUiClick();
 
             success =
                 BuildTwoTone(
@@ -263,6 +262,35 @@ namespace MotorCity.Audio
                 clip,
                 Mathf.Clamp01(
                     volume));
+        }
+
+        private static AudioClip BuildUiClick()
+        {
+            // A short, low and warm mechanical tap, with a subtle transient
+            // instead of the old thin 920 Hz single-frequency beep.
+            const int sampleRate = 22050;
+            const float duration = 0.085f;
+            int sampleCount = Mathf.RoundToInt(sampleRate * duration);
+            float[] samples = new float[sampleCount];
+            for (int i = 0; i < sampleCount; i++)
+            {
+                float t = i / (float)sampleRate;
+                float normalized = t / duration;
+                float bodyEnvelope = Mathf.Exp(-40f * t);
+                float transientEnvelope = Mathf.Exp(-120f * t);
+                float body = Mathf.Sin(2f * Mathf.PI * 280f * t) * 0.44f
+                    + Mathf.Sin(2f * Mathf.PI * 420f * t) * 0.17f;
+                float transient = Mathf.Sin(2f * Mathf.PI * 880f * t) * 0.10f;
+                float softenedNoise = Mathf.Sin(2f * Mathf.PI * 1373f * t)
+                    * Mathf.Sin(2f * Mathf.PI * 691f * t) * 0.10f;
+                samples[i] = (body * bodyEnvelope +
+                    (transient + softenedNoise) * transientEnvelope)
+                    * Mathf.Clamp01(1f - normalized);
+            }
+            AudioClip clip = AudioClip.Create(
+                "Motor City UI Soft Click", sampleCount, 1, sampleRate, false);
+            clip.SetData(samples, 0);
+            return clip;
         }
 
         private static AudioClip BuildTone(

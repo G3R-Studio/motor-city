@@ -22,6 +22,13 @@ namespace MotorCity.UI
             (MotorCityControlScheme)(-1);
         private bool touchLayoutEditing;
         private GameObject touchLayoutEditorRoot;
+        private int touchLayoutSelectedIndex;
+        private Text touchLayoutSelectionText;
+        private Text touchLayoutScaleText;
+        private static readonly string[] WheelResizeKeys =
+            { "Steering", "Throttle", "Brake", "Handbrake", "Action" };
+        private static readonly string[] ArrowResizeKeys =
+            { "SteerLeft", "SteerRight", "Throttle", "Brake", "Handbrake", "Action" };
         private void RefreshTouchLocalizedLabels()
         {
             foreach (TouchLocalizedLabel binding in
@@ -1072,6 +1079,7 @@ namespace MotorCity.UI
 
             touchLayoutEditing =
                 true;
+            touchLayoutSelectedIndex = 0;
 
             car?.SetDrivingBlocked(
                 "TouchLayoutEditor",
@@ -1094,6 +1102,7 @@ namespace MotorCity.UI
 
             ConfigureTouchLayoutHandles(
                 true);
+            RefreshTouchLayoutResizeLabels();
         }
 
         private void EndTouchLayoutEdit()
@@ -1128,7 +1137,9 @@ namespace MotorCity.UI
                          "Throttle",
                          "Brake",
                          "Handbrake",
-                         "Action"
+                         "Action",
+                         "SteerLeft",
+                         "SteerRight"
                      })
             {
                 TouchControlLayoutStore.Reset(
@@ -1219,6 +1230,116 @@ namespace MotorCity.UI
                     scheme,
                     "Steering",
                     steeringDefault);
+
+            ApplyStoredTouchScale(touchThrottleRect, scheme, "Throttle");
+            ApplyStoredTouchScale(touchBrakeRect, scheme, "Brake");
+            ApplyStoredTouchScale(touchHandbrakeRect, scheme, "Handbrake");
+            ApplyStoredTouchScale(touchActionRect, scheme, "Action");
+            if (scheme == MotorCityControlScheme.Wheel)
+            {
+                ApplyStoredTouchScale(steeringRect, scheme, "Steering");
+            }
+            else
+            {
+                RectTransform left = TouchArrowRect("Steer Left");
+                RectTransform right = TouchArrowRect("Steer Right");
+                ApplyStoredTouchScale(left, scheme, "SteerLeft");
+                ApplyStoredTouchScale(right, scheme, "SteerRight");
+            }
+        }
+
+        private static void ApplyStoredTouchScale(
+            RectTransform target, MotorCityControlScheme scheme, string key)
+        {
+            if (target != null)
+                target.localScale = Vector3.one * TouchControlLayoutStore.LoadScale(scheme, key);
+        }
+
+        private RectTransform TouchArrowRect(string name)
+        {
+            Transform child = touchArrowSteeringRoot == null
+                ? null : touchArrowSteeringRoot.transform.Find(name);
+            return child as RectTransform;
+        }
+
+        private string[] CurrentTouchResizeKeys =>
+            MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Wheel
+                ? WheelResizeKeys : ArrowResizeKeys;
+
+        private string CurrentTouchResizeKey =>
+            CurrentTouchResizeKeys[Mathf.Clamp(touchLayoutSelectedIndex,
+                0, CurrentTouchResizeKeys.Length - 1)];
+
+        private RectTransform TouchResizeRect(string key)
+        {
+            switch (key)
+            {
+                case "Steering": return touchWheelSteeringRoot == null
+                    ? null : touchWheelSteeringRoot.GetComponent<RectTransform>();
+                case "SteerLeft": return TouchArrowRect("Steer Left");
+                case "SteerRight": return TouchArrowRect("Steer Right");
+                case "Throttle": return touchThrottleRect;
+                case "Brake": return touchBrakeRect;
+                case "Handbrake": return touchHandbrakeRect;
+                case "Action": return touchActionRect;
+                default: return null;
+            }
+        }
+
+        private void SelectNextTouchLayoutControl()
+        {
+            touchLayoutSelectedIndex =
+                (touchLayoutSelectedIndex + 1) % CurrentTouchResizeKeys.Length;
+            RefreshTouchLayoutResizeLabels();
+        }
+
+        private void AdjustSelectedTouchLayoutScale(int direction)
+        {
+            string key = CurrentTouchResizeKey;
+            MotorCityControlScheme scheme = MotorCityInput.CurrentControlScheme;
+            RectTransform target = TouchResizeRect(key);
+            if (target == null)
+                return;
+            float oldScale = TouchControlLayoutStore.LoadScale(scheme, key);
+            float newScale = Mathf.Clamp(
+                Mathf.Round((oldScale + direction * 0.1f) * 10f) / 10f,
+                0.7f, 1.5f);
+            if (Mathf.Approximately(newScale, oldScale))
+                return;
+            target.localScale = Vector3.one * newScale;
+            // Layout handles own collision bounds. Keep scaled controls inside
+            // the playable screen without affecting their touch components.
+            TouchControlLayoutDragHandle handle =
+                target.GetComponent<TouchControlLayoutDragHandle>();
+            if (handle == null)
+                handle = target.GetComponentInChildren<TouchControlLayoutDragHandle>(true);
+            if (handle != null)
+                handle.ClampToBounds();
+            TouchControlLayoutStore.SaveScale(scheme, key, newScale);
+            RefreshTouchLayoutResizeLabels();
+        }
+
+        private void RefreshTouchLayoutResizeLabels()
+        {
+            string key = CurrentTouchResizeKey;
+            string localizationKey = key switch
+            {
+                "Steering" => "touch.layout.steering",
+                "SteerLeft" => "touch.layout.left",
+                "SteerRight" => "touch.layout.right",
+                "Throttle" => "touch.layout.throttle",
+                "Brake" => "touch.layout.brake",
+                "Handbrake" => "touch.layout.handbrake",
+                _ => "touch.layout.action"
+            };
+            if (touchLayoutSelectionText != null)
+                touchLayoutSelectionText.text = MotorCityLocalization.Format(
+                    "touch.layout.select", MotorCityLocalization.Text(localizationKey));
+            if (touchLayoutScaleText != null)
+                touchLayoutScaleText.text = MotorCityLocalization.Format(
+                    "touch.layout.size", Mathf.RoundToInt(
+                        TouchControlLayoutStore.LoadScale(
+                            MotorCityInput.CurrentControlScheme, key) * 100f));
         }
 
         private void ConfigureTouchLayoutHandles(
@@ -1439,14 +1560,32 @@ namespace MotorCity.UI
                     115f,
                     -82f),
                 EndTouchLayoutEdit);
+
+            RectTransform select = CreateTouchLayoutEditorButton(
+                root, "Layout Select", string.Empty,
+                new Vector2(-220f, -146f),
+                SelectNextTouchLayoutControl, 270f);
+            touchLayoutSelectionText = select.GetComponentInChildren<Text>();
+            CreateTouchLayoutEditorButton(root, "Layout Smaller", "-",
+                new Vector2(8f, -146f),
+                () => AdjustSelectedTouchLayoutScale(-1), 64f);
+            CreateTouchLayoutEditorButton(root, "Layout Larger", "+",
+                new Vector2(86f, -146f),
+                () => AdjustSelectedTouchLayoutScale(1), 64f);
+            touchLayoutScaleText = CreateText(root, "Layout Scale",
+                16, FontStyle.Bold, TextAnchor.MiddleCenter,
+                new Vector2(198f, -146f), new Vector2(165f, 48f),
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), TextColor);
+            RefreshTouchLayoutResizeLabels();
         }
 
-        private void CreateTouchLayoutEditorButton(
+        private RectTransform CreateTouchLayoutEditorButton(
             Transform parent,
             string name,
             string label,
             Vector2 anchoredPosition,
-            UnityEngine.Events.UnityAction action)
+            UnityEngine.Events.UnityAction action,
+            float buttonWidth = 200f)
         {
             GameObject buttonObject =
                 new(
@@ -1477,7 +1616,7 @@ namespace MotorCity.UI
                 anchoredPosition;
             rect.sizeDelta =
                 new Vector2(
-                    200f,
+                    buttonWidth,
                     48f);
 
             Image image =
@@ -1517,6 +1656,7 @@ namespace MotorCity.UI
 
             text.text =
                 label;
+            return rect;
         }
 
         private static Vector2 FitTouchArtSize(

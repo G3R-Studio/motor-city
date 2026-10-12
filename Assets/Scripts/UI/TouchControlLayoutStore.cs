@@ -49,6 +49,23 @@ namespace MotorCity.UI
             MotorCitySaveService.Save();
         }
 
+        public static float LoadScale(
+            MotorCityControlScheme scheme, string controlKey)
+        {
+            string key = BaseKey(scheme, controlKey);
+            return Mathf.Clamp(MotorCitySaveService.GetFloat(
+                key + ".scale", 1f), 0.7f, 1.5f);
+        }
+
+        public static void SaveScale(
+            MotorCityControlScheme scheme, string controlKey, float scale)
+        {
+            string key = BaseKey(scheme, controlKey);
+            MotorCitySaveService.SetFloat(key + ".scale",
+                Mathf.Clamp(scale, 0.7f, 1.5f));
+            MotorCitySaveService.Save();
+        }
+
         public static void Reset(
             MotorCityControlScheme scheme,
             string controlKey)
@@ -63,6 +80,7 @@ namespace MotorCity.UI
 
             MotorCitySaveService.DeleteKey(
                 key + ".y");
+            MotorCitySaveService.DeleteKey(key + ".scale");
 
             MotorCitySaveService.Save();
         }

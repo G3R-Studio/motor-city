@@ -64,7 +64,7 @@ namespace MotorCity.UI
                 eventData.delta /
                 scale;
 
-            ClampInsideRoot();
+            ClampToBounds();
         }
 
         public void OnEndDrag(
@@ -83,7 +83,7 @@ namespace MotorCity.UI
                 target.anchoredPosition);
         }
 
-        private void ClampInsideRoot()
+        public void ClampToBounds()
         {
             Bounds bounds =
                 RectTransformUtility.CalculateRelativeRectTransformBounds(
