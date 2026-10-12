@@ -337,10 +337,10 @@ namespace MotorCity.UI
                 CreateFrontEndLayoutText(
                     page.Content,
                     string.Empty,
-                    25,
+                    21,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    264f,
+                    0f,
                     new Color(0.90f, 0.95f, 1f, 1f));
 
             CreateFrontEndLayoutText(
@@ -419,8 +419,13 @@ namespace MotorCity.UI
                 if (button == null) continue;
                 Text label = button.GetComponentInChildren<Text>();
                 if (label != null)
+                {
                     label.text = (i == playerExperienceJournalFilter ? "• " : "") +
                         MotorCityLocalization.Text(JournalFilterKey(i));
+                    label.color = i == playerExperienceJournalFilter
+                        ? new Color(0.33f, 0.79f, 1f, 1f)
+                        : new Color(0.94f, 0.96f, 1f, 1f);
+                }
             }
         }
 
