@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -26,9 +25,6 @@ public static class BeatallVehicleImporter
     private const string OutputPrefab =
         OutputDirectory + "/Beatall.prefab";
 
-    private const string BuildSessionKey =
-        "MotorCity.BeatallVehicleBuilt.V4";
-
     private const string SourceHashKey =
         "MotorCity.BeatallVehicleSourceHash.V3";
 
@@ -41,7 +37,14 @@ public static class BeatallVehicleImporter
     [MenuItem("Motor City/Vehicles/Rebuild Beatall")]
     private static void RebuildFromMenu()
     {
-        Build(true);
+        // Explicit maintenance operation: update the source fingerprint too,
+        // otherwise the next editor reload could rebuild the prefab again.
+        if (Build(true))
+        {
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey,
+                ResolveSourceDependencyHash());
+        }
     }
 
     private static void TryAutoBuild()
@@ -50,47 +53,43 @@ public static class BeatallVehicleImporter
             return;
 
         if (AssetDatabase.LoadAssetAtPath<GameObject>(
-                SourceModel) == null)
+                SourceModel) == null ||
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                WheelSource) == null)
         {
             return;
         }
 
-        string sourceHash =
-            ResolveSourceDependencyHash();
-
+        string sourceHash = ResolveSourceDependencyHash();
         bool prefabMissing =
             AssetDatabase.LoadAssetAtPath<GameObject>(
                 OutputPrefab) == null;
 
-        bool sourceChanged =
-            !string.Equals(
-                EditorPrefs.GetString(
-                    SourceHashKey,
-                    string.Empty),
-                sourceHash,
-                StringComparison.Ordinal);
-
-        bool builtThisSession =
-            SessionState.GetBool(
-                BuildSessionKey,
-                false);
-
         if (!prefabMissing &&
-            !sourceChanged &&
-            builtThisSession)
+            string.IsNullOrEmpty(EditorPrefs.GetString(
+                SourceHashKey, string.Empty)))
+        {
+            // The generated prefab is already version-controlled. The first
+            // Editor launch on a fresh checkout is not a source change: take
+            // its current dependency hash as the baseline WITHOUT rewriting
+            // Beatall.prefab and creating a false git working-tree diff.
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey, sourceHash);
+            return;
+        }
+
+        // A new editor session or Play Mode domain reload alone must not
+        // regenerate tracked assets when model dependencies have not changed.
+        if (!StandardVehicleImportUtility.ShouldRebuild(
+                OutputPrefab, SourceHashKey, sourceHash))
         {
             return;
         }
 
-        SessionState.SetBool(
-            BuildSessionKey,
-            true);
-
         if (Build(false))
         {
-            EditorPrefs.SetString(
-                SourceHashKey,
-                sourceHash);
+            StandardVehicleImportUtility.MarkRebuilt(
+                SourceHashKey, sourceHash);
         }
     }
 

@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EDITORS = ROOT / "Assets" / "Editor"
 REPORT = ROOT / "Temp" / "MotorCityAudit" / "phase5-cleanup.json"
 
-IMPORTERS = ("Peugeot306", "ToyotaAE86", "Hybrid", "Porsche996",
+IMPORTERS = ("Beatall", "Peugeot306", "ToyotaAE86", "Hybrid", "Porsche996",
              "AmgGT", "Camaro", "Delorean", "Bus")
 MIGRATORS = ("FantasticCityGeneratorLegacyImporterFixer.cs",
              "FantasticCityGeneratorUrpFixer.cs")
