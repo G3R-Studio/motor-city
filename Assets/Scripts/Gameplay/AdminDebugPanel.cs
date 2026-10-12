@@ -1700,6 +1700,41 @@ namespace MotorCity.Gameplay
                 GUILayout.EndHorizontal();
             }
 
+            Section("HV-9 — ДИАГНОСТИКА ВИДИМЫХ ОКОН");
+            // Read-only scene hierarchy check. Restrict it to the QA tab so
+            // the production HUD pays no per-frame inspection cost.
+            if (hud != null)
+            {
+                string[] modalNames = {
+                    "Pause Overlay", "Navigator Menu Overlay",
+                    "Activity Result Overlay", "Store Overlay", "Club Overlay"
+                };
+                UnityEngine.UI.Graphic[] graphics =
+                    hud.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
+                int activeModalCount = 0;
+                foreach (string modalName in modalNames)
+                {
+                    int copies = 0;
+                    int visibleCopies = 0;
+                    foreach (UnityEngine.UI.Graphic graphic in graphics)
+                    {
+                        if (graphic == null || graphic.gameObject.name != modalName)
+                            continue;
+                        copies++;
+                        if (graphic.gameObject.activeInHierarchy)
+                            visibleCopies++;
+                    }
+                    activeModalCount += visibleCopies;
+                    GUILayout.Label((visibleCopies > 0 ? "[OPEN] " : "[CLOSED] ") +
+                        modalName + "  (объектов: " + copies + ")");
+                    if (copies > 1)
+                        GUILayout.Label("[WARNING] Дублированный корень: " + modalName);
+                }
+                if (activeModalCount > 1)
+                    GUILayout.Label("[WARNING] Одновременно открыто несколько модальных окон: " +
+                        activeModalCount);
+            }
+
             Section("HV-9 — РУЧНАЯ ПРОВЕРКА ОКОН");
             GUILayout.Label(
                 "1. Сними скрин обычного и длинного текста в RU/EN.");
