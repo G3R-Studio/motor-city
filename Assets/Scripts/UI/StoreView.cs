@@ -233,9 +233,14 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0f),
                     SecondaryTextColor);
 
-            selectionHint.text =
-                MotorCityLocalization.Text(
-                    "store.selection_hint");
+            selectionHint.text = string.Empty;
+            CreateTouchLayoutEditorButton(
+                heroCard,
+                "Store Next Product",
+                MotorCityLocalization.Text("store.next_product"),
+                new Vector2(0f, -194f),
+                () => cosmeticStore?.NextProduct(),
+                205f);
             selectionHint.resizeTextForBestFit =
                 false;
             selectionHint.resizeTextMinSize =
@@ -429,7 +434,7 @@ namespace MotorCity.UI
             if (storeBuyButton != null)
             {
                 bool showBuy =
-                    !cosmeticStore.HasSupporterPack &&
+                    !cosmeticStore.SelectedOwned &&
                     cosmeticStore.ProductCatalogResolved &&
                     cosmeticStore.SelectedProductAvailable;
 
