@@ -127,7 +127,8 @@ namespace MotorCity.UI
             ApplyModalPanelTexture(
                 panel);
 
-            // Header: icon/title on the left, account summary on the right.
+            // Header: icon/title first; wallet in a separate lower row.
+            // A single shared row made large credit totals overlap the title.
             CreateHudIcon(
                 panel,
                 "Store Header Icon",
@@ -145,7 +146,7 @@ namespace MotorCity.UI
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(-102f, -27f),
-                    new Vector2(360f, 40f),
+                    new Vector2(440f, 44f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
@@ -161,8 +162,8 @@ namespace MotorCity.UI
                     13,
                     FontStyle.Bold,
                     TextAnchor.UpperRight,
-                    new Vector2(170f, -35f),
-                    new Vector2(320f, 34f),
+                    new Vector2(0f, -72f),
+                    new Vector2(668f, 26f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
@@ -225,9 +226,9 @@ namespace MotorCity.UI
                     "Store Selection Hint",
                     12,
                     FontStyle.Bold,
-                    TextAnchor.LowerCenter,
-                    new Vector2(0f, 22f),
-                    new Vector2(190f, 28f),
+                    TextAnchor.MiddleCenter,
+                    new Vector2(0f, 42f),
+                    new Vector2(210f, 66f),
                     new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f),
                     SecondaryTextColor);
@@ -242,6 +243,9 @@ namespace MotorCity.UI
             selectionHint.resizeTextMaxSize =
                 12;
 
+            // Store typography contract: title and wallet occupy separate
+            // header rows. The product name, description and perks occupy
+            // non-overlapping vertical bands in the details card.
             // Right side is a clean information stack.
             RectTransform detailCard =
                 CreatePanel(
@@ -261,11 +265,11 @@ namespace MotorCity.UI
                 CreateText(
                     detailCard,
                     "Store Product Name",
-                    23,
+                    20,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
-                    new Vector2(24f, -24f),
-                    new Vector2(382f, 42f),
+                    new Vector2(24f, -20f),
+                    new Vector2(382f, 54f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     TextColor);
@@ -277,8 +281,8 @@ namespace MotorCity.UI
                     14,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    new Vector2(24f, -78f),
-                    new Vector2(382f, 76f),
+                    new Vector2(24f, -86f),
+                    new Vector2(382f, 72f),
                     new Vector2(0f, 1f),
                     new Vector2(0f, 1f),
                     SecondaryTextColor);
@@ -289,11 +293,11 @@ namespace MotorCity.UI
                     "Store Season Path",
                     14,
                     FontStyle.Bold,
-                    TextAnchor.MiddleLeft,
-                    new Vector2(24f, -4f),
-                    new Vector2(382f, 40f),
-                    new Vector2(0f, 0.5f),
-                    new Vector2(0f, 0.5f),
+                    TextAnchor.UpperLeft,
+                    new Vector2(24f, -170f),
+                    new Vector2(382f, 50f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, 1f),
                     new Color(0.24f, 0.88f, 1f, 1f));
 
             storeOwnershipText =
@@ -357,11 +361,12 @@ namespace MotorCity.UI
                     continue;
 
                 localizedText.resizeTextForBestFit =
-                    false;
+                    localizedText == storeNameText ||
+                    localizedText == storeWalletText;
                 localizedText.resizeTextMinSize =
-                    localizedText == storeDescriptionText
-                        ? 10
-                        : 11;
+                    localizedText == storeWalletText ? 11 :
+                    localizedText == storeNameText ? 16 :
+                    localizedText == storeDescriptionText ? 10 : 11;
                 localizedText.resizeTextMaxSize =
                     localizedText.fontSize;
                 localizedText.horizontalOverflow =
