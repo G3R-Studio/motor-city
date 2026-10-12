@@ -86,10 +86,6 @@ namespace MotorCity.UI
 
         private Font font;
         private Font boldFont;
-        private MotorCityUiThemeAssets frontEndTheme;
-        private Sprite frontEndButtonSprite;
-        private Sprite frontEndPanelSprite;
-
         private int introIndex;
         private float introAutoTimer;
         private float introVisualTimer;
@@ -273,23 +269,6 @@ namespace MotorCity.UI
             font = MotorCityTypography.Regular;
 
             boldFont = MotorCityTypography.Bold;
-            frontEndTheme =
-                Resources.Load<MotorCityUiThemeAssets>(
-                    "MotorCity/UI/MotorCityUiThemeAssets");
-
-            if (frontEndTheme != null)
-            {
-                frontEndButtonSprite =
-                    CreateRuntimeUiSprite(
-                        frontEndTheme.modalButton,
-                        false);
-
-                frontEndPanelSprite =
-                    CreateRuntimeUiSprite(
-                        frontEndTheme.modalPanel,
-                        true);
-            }
-
             GameObject canvasObject =
                 new("Motor City Front End", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
 
@@ -3148,62 +3127,6 @@ namespace MotorCity.UI
                 VerticalWrapMode.Overflow;
         }
 
-        private void OnDestroy()
-        {
-            if (frontEndButtonSprite != null)
-            {
-                Destroy(
-                    frontEndButtonSprite);
-
-                frontEndButtonSprite =
-                    null;
-            }
-
-            if (frontEndPanelSprite != null)
-            {
-                Destroy(
-                    frontEndPanelSprite);
-
-                frontEndPanelSprite =
-                    null;
-            }
-        }
-
-        private static Sprite CreateRuntimeUiSprite(
-            Texture2D texture,
-            bool sliced)
-        {
-            if (texture == null)
-                return null;
-
-            float border =
-                sliced
-                    ? Mathf.Clamp(
-                        Mathf.Min(
-                            texture.width,
-                            texture.height) * 0.16f,
-                        10f,
-                        48f)
-                    : 0f;
-
-            return Sprite.Create(
-                texture,
-                new Rect(
-                    0f,
-                    0f,
-                    texture.width,
-                    texture.height),
-                new Vector2(0.5f, 0.5f),
-                100f,
-                0u,
-                SpriteMeshType.FullRect,
-                new Vector4(
-                    border,
-                    border,
-                    border,
-                    border));
-        }
-
         private static RectTransform CreateDecorativeRect(
             Transform parent,
             string name,
@@ -3279,53 +3202,9 @@ namespace MotorCity.UI
             rect.sizeDelta =
                 size;
 
-            Image image =
-                go.GetComponent<Image>();
-
-            if (frontEndPanelSprite != null)
-            {
-                image.sprite =
-                    frontEndPanelSprite;
-                image.type =
-                    Image.Type.Sliced;
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(
-                        0.035f,
-                        0.03f,
-                        0.07f,
-                        0.96f);
-            }
-
-            AddSoftGlow(
-                rect,
-                new Color(
-                    0.58f,
-                    0.68f,
-                    1f,
-                    1f),
-                16f,
-                8f,
-                0.075f,
-                0.15f);
-
-            Outline outline =
-                go.AddComponent<Outline>();
-
-            outline.effectColor =
-                new Color(
-                    0.62f,
-                    0.72f,
-                    1f,
-                    0.38f);
-            outline.effectDistance =
-                new Vector2(2f, -2f);
-            outline.useGraphicAlpha =
-                true;
+            // FrontEnd panel surfaces are vector-built immediately.
+            // There is no obsolete Window 3 texture or double Outline.
+            FrontEndSurface(rect);
 
             return rect;
         }
