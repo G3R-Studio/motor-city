@@ -910,8 +910,8 @@ namespace MotorCity.UI
                         22f,
                         -22f),
                     new Vector2(
-                        238f,
-                        38f),
+                        262f,
+                        42f),
                     new Vector2(
                         0f,
                         1f),
@@ -926,7 +926,6 @@ namespace MotorCity.UI
 
             // Scale from the fixed top-left corner to keep the season
             // summary aligned with the expanded card on all canvases.
-            compact.localScale = Vector3.one * 1.1f;
 
             seasonCompactButton =
                 compact.gameObject;
@@ -1058,8 +1057,8 @@ namespace MotorCity.UI
                         22f,
                         -68f),
                     new Vector2(
-                        418f,
-                        172f),
+                        460f,
+                        189f),
                     new Vector2(
                         0f,
                         1f),
@@ -1072,7 +1071,6 @@ namespace MotorCity.UI
                         0.044f,
                         0.94f));
 
-            panel.localScale = Vector3.one * 1.1f;
 
             seasonPanel =
                 panel.gameObject;
