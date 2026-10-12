@@ -418,3 +418,39 @@ Button ColorTint: softer hover/selection and 0.13 s fade (`0380764`). New record
 - User accepted safe-area/aspect/pause diagnostics in Unity. New QA-only button `Снять снимок UI / памяти` (`e38e1d4`) samples Canvas, Graphic, Button counts (including inactive) and managed memory on demand. Compare before/after repeated window opening, manually review differences. This is not frame allocation profiling, memory leak proof, or automated correctness check.
 - Added manual test-save instructions for restart/reload, result reward double-credit, duplicate store purchases and older/empty saves. No save, wallet, purchase or activity state is changed by snapshot. Existing result simulations still call real progression listeners, thus testing requires disposable profile.
 - HV-9.3, HV-9.5 and other regression items remain pending Unity observation and screenshots; no CI/WebGL runs.
+
+### Full outstanding-item audit — 2026-10-12
+
+Scope: all 29 unchecked entries from the source roadmap reviewed. A checkbox means its stated evidence exists, not that a feature looked fine in one unrelated smoke test. The user's Unity confirmations cover specific updated UI groups, and the two UI inventory snapshots (5 Canvas / 557 Graphics / 50 Buttons, managed memory 71.7 -> 71.2 MiB) establish **stable counts only**, not a complete leak/profiling pass.
+
+| ID | Remaining evidence or engineering work | State after audit |
+|---|---|---|
+| HV-0.4 | Captures for all previously unseen UI surfaces; source document cannot generate gameplay screenshots | NEEDS SCREENSHOTS |
+| HV-0.5 | Per-screen RU/EN + touch/desktop baseline and known issue matrix for still-uncaptured screens | NEEDS SCREENSHOTS |
+| HV-L.4 | Exhaustive legacy-art visual smoke incl. all +/- interactions | PARTIAL USER UNITY SMOKE |
+| HV-L.6 | Remove final second-owner visual pass only after verifying all builders own appearance (currently HudVisualPolish still handles backdrop/shadows/modal composition) | ENGINEERING + UNITY QA |
+| HV-2.7 | Every FE-01…06 language, width and canvas life cycle | NEEDS UNITY MATRIX |
+| HV-3.10 | Detect Pixie/club/achievements changes independent of cash/date, without gameplay side effects | ENGINEERING + UNITY QA |
+| HV-4.3 | Route markers immediately visible, semantics and active goal while playing | NEEDS UNITY SCENARIOS |
+| HV-4.7 | Driving actions inhibited whenever overlay active | NEEDS INPUT TEST |
+| HV-5.5 | Pause/navigation/result backward and retry interactions | PARTIAL USER UNITY SMOKE |
+| HV-6.7 | Real platform purchase-entitlement complete cycle, not equivalent to simulated store UI | NEEDS PLATFORM QA |
+| HV-7.1 | Real touch hold/pressed feedback for wheel/gas/brake/handbrake/action with preserved touch rectangles | NEEDS DEVICE QA |
+| HV-7.4 | 16:9, 16:10, 21:9, narrow landscape, portrait, notches | NEEDS DEVICE MATRIX |
+| HV-7.6 | Contextual visibility of nav/result action rows and touch arrows under mode switches | NEEDS DEVICE MATRIX |
+| HV-8.1 | Optical sizing/stroke consistency across all action icons on screenshot matrix | NEEDS ART REVIEW |
+| HV-8.6 | Delete only actually identified duplicates; recent QA inventory shows stable counts, but that does not prove none exist | PENDING IDENTIFICATION |
+| HV-9.1 | FE through DEV captures, long/empty/locked/success/fail | NEEDS SCREENSHOTS |
+| HV-9.2 | Full Console, repeat opens, keyboard/mouse/touch; user accepted partial smoke and root inventory | PARTIAL USER UNITY SMOKE |
+| HV-9.3 | User reported save, reward, purchase checks good; new/old save, RU/EN, active mission still need explicit matrix evidence | PARTIAL USER UNITY SMOKE |
+| HV-9.4 | HUD day/night, scene/background and aspect captures | NEEDS SCREENSHOTS |
+| HV-9.5 | Deep profiling of per-frame layout, allocations and events; snapshot count stability alone not profiling | NEEDS PROFILER |
+| HV-9.6 | Screenshot comparison vs initial nine with annotated missing baselines | NEEDS SCREENSHOTS |
+| HV-9.7 | Per-screen final sign-off after above captures; individual UI groups already approved | PARTIAL USER APPROVAL |
+| HV-10.1 | User explicitly states all changes are complete AND authorizes builds | BLOCKED BY RELEASE GATE |
+| HV-10.2 | Source Gates + Unity batch on one immutable SHA | BLOCKED BY HV-10.1 |
+| HV-10.3 | Desktop/Mobile WebGL release artifacts | BLOCKED BY HV-10.1 |
+| HV-10.4 | Browser/Pages screenshots and Yandex SDK platform QA | BLOCKED BY HV-10.1 |
+| HV-10.5 | Actual CI run IDs, SHA, evidence log; cannot invent | BLOCKED BY HV-10.1 |
+
+Previous work already supplies on-demand read-only UI hierarchy checks, safe area metrics, and inventory snapshots; don't replace them with fake automatic PASS labels. Source-level tests/Unity scenes and screenshots must be executed on the user's local Unity or an explicitly authorized tool-equipped environment. This audit does not authorize or run CI/WebGL.
