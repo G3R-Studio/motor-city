@@ -387,8 +387,13 @@ namespace MotorCity.UI
 
             if (image != null)
             {
-                image.color =
-                    color;
+                // The Image is a transparent touch-hit target when the
+                // builder owns a vector pedal or wheel graphic. Never
+                // repaint it as a white rectangle over the controls.
+                bool vectorArt =
+                    target.Find("Touch Pedal Surface") != null ||
+                    target.Find("Touch Wheel Icon") != null;
+                image.color = vectorArt ? Color.clear : color;
             }
 
             RemoveOutline(
