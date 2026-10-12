@@ -298,6 +298,8 @@ namespace MotorCity.UI
             playerExperienceJournalFilter = Mathf.Clamp(filter, 0, 6);
             RefreshPlayerExperienceJournalFilters();
             RefreshPlayerExperienceSections(playerExperienceJournalPanel);
+            Canvas.ForceUpdateCanvases();
+            RefreshFrontEndScrollCues();
             ScrollRect scroll = playerExperienceJournalPanel == null
                 ? null : playerExperienceJournalPanel.GetComponentInChildren<ScrollRect>();
             if (scroll != null)
