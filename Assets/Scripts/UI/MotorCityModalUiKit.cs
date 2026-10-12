@@ -406,26 +406,11 @@ namespace MotorCity.UI
                 buttonObject.GetComponent<
                     RectTransform>();
 
-            // Runtime modal buttons must own their final vector visuals.
-            // The HV-1.3 regression occurred when the global HUD polish
-            // stopped replacing the old textured image with its reference
-            // surface: the Pause screen reverted to early RacingUI art.
-            // Build that surface HERE, before the full HUD visual pass,
-            // so the modal factory's color role survives independently.
-            // Keep the original Image only as a non-raycast background;
-            // the new graphic is the Button target and receives clicks.
-            ApplyReferenceHudSurface(rect);
-
-            GarageReferenceGraphic modalSurface =
-                rect.Find("Reference HUD Surface")
-                    .GetComponent<GarageReferenceGraphic>();
-
             Button button =
                 buttonObject.GetComponent<Button>();
 
-            MotorCityUiSkin.ApplyButton(
+            MotorCityUiSkin.ApplyVectorButton(
                 button,
-                modalSurface,
                 compact ? MotorCityButtonRole.Utility : role);
 
             buttonObject.AddComponent<
