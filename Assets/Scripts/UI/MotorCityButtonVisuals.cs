@@ -81,6 +81,53 @@ namespace MotorCity.UI
             image.raycastTarget = false;
         }
 
+        // The only runtime button surface owner. The base Image is
+        // intentionally invisible; the vector child owns input and tint.
+        internal static GarageReferenceGraphic ApplyVectorButton(
+            Button button,
+            MotorCityButtonRole role)
+        {
+            if (button == null)
+                return null;
+
+            RectTransform root = button.GetComponent<RectTransform>();
+            if (root == null)
+                return null;
+
+            Image unusedImage = button.GetComponent<Image>();
+            if (unusedImage != null)
+            {
+                unusedImage.sprite = null;
+                unusedImage.color = Color.clear;
+                unusedImage.raycastTarget = false;
+            }
+
+            Transform node = root.Find("Reference HUD Surface");
+            if (node == null)
+            {
+                GameObject graphicObject = new(
+                    "Reference HUD Surface",
+                    typeof(RectTransform),
+                    typeof(GarageReferenceGraphic));
+                graphicObject.transform.SetParent(root, false);
+                graphicObject.transform.SetAsFirstSibling();
+                RectTransform rect = graphicObject.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
+                node = graphicObject.transform;
+            }
+
+            GarageReferenceGraphic vector = node.GetComponent<GarageReferenceGraphic>();
+            if (vector != null)
+            {
+                vector.symbol = GarageReferenceGraphic.Symbol.Surface;
+                ApplyButton(button, vector, role);
+            }
+            return vector;
+        }
+
         internal static void ApplyButton(
             Button button,
             Graphic surface,
