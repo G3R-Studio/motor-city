@@ -1213,8 +1213,8 @@ namespace MotorCity.Localization
 
                 { "store.title", E("МАГАЗИН MOTOR CITY", "MOTOR CITY STORE") },
                 { "store.supporter.name", E("НАБОР ПОДДЕРЖКИ MOTOR CITY", "MOTOR CITY SUPPORTER PACK") },
-                { "store.supporter.desc", E("Постоянный набор: 5 000 кредитов, ДЕЛОРЕАН и эксклюзивный EX-скин Пикси.", "Permanent pack: 5,000 credits, DELOREAN and the exclusive Pixie EX skin.") },
-                { "store.supporter.details", E("5 000 КРЕДИТОВ • ДЕЛОРЕАН • EX-СКИН ПИКСИ • НАВСЕГДА", "5,000 CREDITS • DELOREAN • PIXIE EX SKIN • PERMANENT") },
+                { "store.supporter.desc", E("Постоянный набор: 100 000 кредитов, ДЕЛОРЕАН и эксклюзивный EX-скин Пикси.", "Permanent pack: 100,000 credits, DELOREAN and the exclusive Pixie EX skin.") },
+                { "store.supporter.details", E("100 000 КРЕДИТОВ • ДЕЛОРЕАН • EX-СКИН ПИКСИ • НАВСЕГДА", "100,000 CREDITS • DELOREAN • PIXIE EX SKIN • PERMANENT") },
                 { "store.owned", E("УЖЕ КУПЛЕНО", "OWNED") },
                 { "store.buy", E("КУПИТЬ", "BUY") },
                 { "store.buy_price", E("КУПИТЬ • {0}", "BUY • {0}") },
