@@ -509,7 +509,7 @@ namespace MotorCity.Gameplay
 
                     MotorCity.Persistence.MotorCitySaveService.SetInt(
                         "MotorCity.Purchase.SupporterPack.RewardClaimed",
-                        1);
+                        2);
 
                     MotorCity.Persistence.MotorCitySaveService.Save();
                 }
