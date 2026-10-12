@@ -79,6 +79,12 @@ jobs:
       - name: Audit Phase 7 UI layout ownership
         run: python3 Tools/check_phase7_ui_ownership.py
 
+      - name: Check WebGL release excludes test-only entrypoints
+        run: python3 Tools/check_release_qa.py
+
+      - name: Validate UX-7 release wiring and partial-class callbacks
+        run: python3 Tools/check_ux7_release_readiness.py
+
       - name: Audit Phase 8 saves and progression keys
         run: python3 Tools/check_phase8_save_progression.py
       - name: Validate Turbo / Pixie character canon

@@ -43,6 +43,15 @@ jobs:
           [[ "$(jq -r '.head_branch' <<< "$release")" == "main" ]] || {
             echo "Release CI run $RELEASE_RUN_ID is not from main"; exit 1;
           }
+          [[ "$(jq -r '.name' <<< "$release")" == "Motor City Source Gates" ]] || {
+            echo "Release run is not the approved Source Gates workflow"; exit 1;
+          }
+          [[ "$(jq -r '.event' <<< "$release")" == "workflow_dispatch" ]] || {
+            echo "Release run must be manually dispatched"; exit 1;
+          }
+          [[ "$(jq -r '.head_sha' <<< "$release")" == "$GITHUB_SHA" ]] || {
+            echo "Release SHA differs from the Pages dispatch commit: refusing stale binaries"; exit 1;
+          }
           artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RELEASE_RUN_ID/artifacts?per_page=100")"
           if jq -e '([.artifacts[] | select(.expired == false) | .name] | index("motor-city-webgl-desktop-release") != null and index("motor-city-webgl-mobile-release") != null)' <<< "$artifacts" >/dev/null; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -75,6 +84,13 @@ jobs:
           [[ "$result" == "success" ]] || { echo "Release CI run $RELEASE_RUN_ID did not succeed: $result"; exit 1; }
           release_sha="$(jq -r '.head_sha' <<< "$release")"
           [[ "$release_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "Invalid release commit SHA"; exit 1; }
+          [[ "$release_sha" == "$GITHUB_SHA" ]] || {
+            echo "Pages checkout SHA does not match the exact Release SHA"; exit 1;
+          }
+          current_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" | jq -r '.object.sha')"
+          [[ "$current_main" == "$release_sha" ]] || {
+            echo "main moved beyond Release SHA: rebuild both profiles before publishing"; exit 1;
+          }
           echo "RELEASE_RUN_ID=$RELEASE_RUN_ID" >> "$GITHUB_ENV"
           echo "RELEASE_SHA=$release_sha" >> "$GITHUB_ENV"
           echo "Using WebGL Release artifacts from run $RELEASE_RUN_ID commit $release_sha"

@@ -175,11 +175,13 @@
 - [x] Короткие объяснения «как начать» без обязательного длинного обучения; при первом открытии — не более одной небольшой подсказки.
 - [x] Проверить отсутствие лишнего UI-overdraw, тяжёлых аллокаций каждый кадр и лишних обращений к gameplay объектам.
 
-**Статус реализации:** 6/6 пунктов реализованы по исходникам (source-only структурная сверка 16/16 PASS); **итоговая Unity QA ещё открыта**. [Единая проверка UX-6](Baselines/PlayerExperienceUX6Acceptance-2026-10-12.md). WebGL/Pages остаются исключительно в UX-7.
+**Статус реализации:** 6/6 пунктов реализованы по исходникам (source-only структурная сверка 16/16 PASS); **пользователь подтвердил итоговую проверку в Unity: «всё чётко» (2026-10-12)**. Отдельный WebGL/release QA остаётся в UX-7. [Единая проверка UX-6](Baselines/PlayerExperienceUX6Acceptance-2026-10-12.md). WebGL/Pages остаются исключительно в UX-7.
 
 **Готово, когда:** интерфейс не мешает езде и поддерживает реальные игровые сценарии на слабом ПК и телефоне.
 
 ### UX-7 — Финальные проверки и выпуск
+
+**Статус gate (2026-10-12):** подготовка source/release verification, ручной Unity Editor CI и WebGL Desktop/Mobile Release на текущем SHA **ещё не запускались / не подтверждены**. Чекбоксы ниже означают только реальные выполненные проверки, не наличие тестовой документации. [Единая UX-7 QA и запуск релиза](Baselines/PlayerExperienceUX7ReleaseQA-2026-10-12.md).
 
 - [ ] Source/GUI ownership и C# проверки: `Tools/check_ui_layout.ps1`, `Tools/check_phase7_ui_ownership.py`, доступные действующие regression scripts.
 - [ ] Unity Editor CI — **success** на точном коммите; Console без новых ошибок. Отметить отдельный run URL.
@@ -346,3 +348,7 @@
 **UX-5, 2026-10-12 - пользовательская итоговая проверка:** после общей QA окна результатов пользователь подтвердил Unity Play Mode («всё чётко»). 6/6 пунктов UX-5 приняты в Unity; WebGL/CI-release gate не проходил.
 
 **UX-6, 2026-10-12 - пакет исходников:** контекстные REP-пороги обычных машин и остаток до недельной цели клуба, одно короткое пояснение только при первом просмотре без сохранения. Открытое окно раз в 0,75 с сравнивает только скалярные source stamps (КР, REP, выбранная машина, событие результата, календарный день/неделя) и перечитывает активную страницу только при изменении. Существующие RU/EN, safe area, scroll, touch и empty/locked/done состояния сохранены; скрытый в езде Canvas больше не проверяет геометрию модалок каждый кадр. Добавлен ручной Python source gate, по актуальному коду 16/16 структурных условий PASS (логическая сверка, не запуск самого Python/Unity). **Unity Editor/Play Mode, CI и WebGL не запускались**. [QA-матрица](Baselines/PlayerExperienceUX6Acceptance-2026-10-12.md).
+
+**UX-6, 2026-10-12 - пользовательская Unity приёмка:** после общего пакета UX-6 пользователь подтвердил «всё чётко». Исходники UX-6: 6/6; локальный Unity Play Mode smoke принят пользователем. WebGL/Pages и автоматический Editor CI этим подтверждением не покрыты.
+
+**UX-7, 2026-10-12 - подготовка release gate:** зарегистрирован существующий `Tools/check_release_qa.py` (защита WebGL Release от debug/test-only методов) и новый `Tools/check_ux7_release_readiness.py` (duplicate Unity callbacks в partial UI, GitHub Actions и Pages exact-SHA/pair checks). Pages допускает **только** ручной release с Desktop/Mobile artifacts из одного успешного workflow_dispatch на текущем коммите main; старый или посторонний run отклоняется. Режим Source Gates / Unity CI / WebGL / Pages остаётся **ручным**, никакого auto-WebGL push. Два реальных Unity WebGL builds и браузерная QA ещё не подтверждены: при успешных run ID, release SHA и screenshots заполнять [итоговую матрицу](Baselines/PlayerExperienceUX7ReleaseQA-2026-10-12.md), и только затем закрывать UX-7 чекбоксы.
