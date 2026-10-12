@@ -178,11 +178,11 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Result Reward",
-                    28,
+                    21,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(20f, -206f),
-                    new Vector2(400f, 46f),
+                    new Vector2(0f, -206f),
+                    new Vector2(560f, 34f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     TextColor);
@@ -388,6 +388,12 @@ namespace MotorCity.UI
                         activityManager.ResultReputationReward)
                     : MotorCityLocalization.Text(
                         "hud.no_rewards");
+
+            resultRewardText.resizeTextForBestFit = true;
+            resultRewardText.resizeTextMinSize = 15;
+            resultRewardText.resizeTextMaxSize = 21;
+            resultRewardText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            resultRewardText.verticalOverflow = VerticalWrapMode.Truncate;
 
             AlignResultIconToText(
                 resultRewardIcon,
