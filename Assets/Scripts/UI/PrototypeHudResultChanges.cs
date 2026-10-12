@@ -81,6 +81,7 @@ namespace MotorCity.UI
             label.anchoredPosition = new Vector2(0f, -6f);
             label.sizeDelta = new Vector2(-24f, 104f);
             resultSecondaryProgressText.alignment = TextAnchor.UpperLeft;
+            resultSecondaryProgressText.resizeTextForBestFit = false;
             resultSecondaryProgressText.horizontalOverflow = HorizontalWrapMode.Wrap;
             resultSecondaryProgressText.verticalOverflow = VerticalWrapMode.Overflow;
             resultSecondaryProgressText.raycastTarget = false;
