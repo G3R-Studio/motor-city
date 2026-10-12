@@ -125,6 +125,17 @@ namespace MotorCity.Gameplay
                     : string.Empty;
         }
 
+        public string CatalogVehicleName(int index) =>
+            Valid(index) ? profiles[index].DisplayName : string.Empty;
+        public int CatalogRequiredReputation(int index) =>
+            Valid(index) ? profiles[index].RequiredRep : 0;
+        public bool CatalogVehicleHasVisual(int index) =>
+            Valid(index) && HasVisual(index);
+        public bool CatalogVehicleIsSupporterExclusive(int index) =>
+            Valid(index) && profiles[index].Id == VehicleIds.Delorean;
+        public bool CatalogVehicleUnlocked(int index) =>
+            Valid(index) && HasVisual(index) && IsUnlocked(index);
+
         public void Initialize(
             ArcadeCarController targetCar,
             PlayerReputation playerReputation)
