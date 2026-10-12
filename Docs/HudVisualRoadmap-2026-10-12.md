@@ -218,7 +218,7 @@
 ### HV-7 — Mobile, редактор тач-кнопок и адаптивность ВСЕХ экранов
 
 - [ ] **HV-7.1 TC-01** Руль, газ, тормоз, ручник и Action: визуальное состояние hold/press понятно; реальные сенсорные прямоугольники не сокращены.
-- [x] **HV-7.2 TC-02 — IN SOURCE / NEEDS UNITY (visual pass).** Символы стрелок увеличены 52×74→56×76, цвет более контрастный; прозрачные 128×104 touch hit areas и layout/position не менялись. Проверить landscape и узкий экран.
+- [x] **HV-7.2 TC-02 — ACCEPTED USER (2026-10-12).** Символы стрелок увеличены 52×74→56×76, цвет более контрастный; прозрачные 128×104 touch hit areas и layout/position не менялись. Проверить landscape и узкий экран.
 - [x] **HV-7.3 TC-03 — ACCEPTED USER (text/resize controls).** Пользователь проверил подписи и работу редактора в Unity («всё чётко»). Сохранение scale/position и оригинальные touch images оставлены нетронутыми.
 - [ ] **HV-7.4** Safe area и 16:9 / 16:10 / 21:9 / узкий landscape / portrait, телефонные вырезы и перенесённые системные панели.
 - [x] **HV-7.5 — ACCEPTED USER (touch editor) / OTHER SCREENS NEEDS UNITY.** Улучшения надписей редактора приняты пользователем; полная матрица RU/EN и keyboard/controller focus всех окон ещё открыта.
@@ -233,8 +233,8 @@
 - [ ] **HV-8.1 FX-01** Привести символы действий к одной оптической толщине/размеру, приоритет существующей Kenney/Vector библиотеки.
 - [ ] **HV-8.2 FX-01** Отточить hover / focus / pressed / disabled; короткие 0.1–0.16 c эффекты, **без задержки нажатия**, доступность при снижении motion.
 - [ ] **HV-8.3 FX-01** Подсветка новых рекордов, достижений, сообщений персонажей без spam popups или сильного glow/overdraw.
-- [ ] **HV-8.4 FX-02** Цвета world markers соответствуют тем же типам активностей, что и минимap/icons; отдельный owner продолжает определять «активную» метку.
-- [ ] **HV-8.5 DEV-01** Причесать QA панель в Unity Editor лишь после продуктового UI, не переводя её в общий runtime Canvas, не включая в релиз.
+- [x] **HV-8.4 FX-02 — IN SOURCE / NEEDS UNITY (aliases).** Маркеры profession_carwash / profession_tow используют те же иконки и цвета, что и carwash/tow; выбор активной цели не менялся. Commit d04f076.
+- [x] **HV-8.5 DEV-01 — IN SOURCE / NEEDS UNITY.** QA панель разделена на два ряда по четыре вкладки, остаётся за UNITY_EDITOR || DEBUG. Commit 2a238f8.
 - [ ] **HV-8.6** Удалить только подтверждённые визуальные дубли/лишние объекты; не удалять лицензии, ресурсы или UI политику из Packages.
 
 Файлы: **MotorCityIconLibrary.cs, MotorCityButtonVisuals.cs, UiButtonFeedback.cs, HudVisualPolish.cs, Gameplay/RouteMarkerVisual.cs, World/*MarkerVisual.cs, Gameplay/AdminDebugPanel.cs**.
@@ -374,3 +374,10 @@
 ### HV-7 ongoing — 2026-10-12
 
 После пользовательской приёмки редактора отмечены HV-7.3 и touch-editor часть HV-7.5. Внесена только безопасная косметика Chevron стрелок: `805c4bb`. Проверено по исходникам, что `ApplySafeArea` на `CreateSafeAreaRoot` уже существует и контекстные touch modal roots переключаются через `UpdateTouchControlsVisibility`; HV-7.1, HV-7.4 и HV-7.6 не отмечать принятыми без Device Simulator/Play Mode. Значки руля, газа, тормоза и ручника не менялись. Unity/CI/WebGL не запускались.
+
+
+### HV-8 source progress — 2026-10-12
+
+- User confirmed HV-7.2 mobile arrow visuals in Unity. HV-7.4 device aspect/safe-area and HV-7.6 context overlays still need separate smoke tests.
+- HV-8.4 marker ID aliases for car wash and tow use consistent icons and colors (`d04f076`); navigation target and gameplay owners unchanged.
+- HV-8.5 QA tabs are arranged into two rows for Editor readability (`2a238f8`). HV-8.1/8.2/8.3/8.6 remain open; Unity/CI/WebGL not run.
