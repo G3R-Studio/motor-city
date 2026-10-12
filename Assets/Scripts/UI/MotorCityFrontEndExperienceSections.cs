@@ -380,6 +380,31 @@ namespace MotorCity.UI
             SwitchPlayerExperiencePage(playerExperienceActivitiesPanel);
         }
 
+#if UNITY_EDITOR || DEBUG
+        // QA-only navigation: reuse the real sections, never create a
+        // second modal Canvas or change progression state.
+        public bool DebugShowExperienceSection(int section)
+        {
+            if (playerExperienceRoot == null ||
+                !playerExperienceRoot.activeInHierarchy)
+                return false;
+            GameObject target = section switch
+            {
+                1 => playerExperienceActivitiesPanel,
+                2 => playerExperienceJournalPanel,
+                3 => playerExperienceClubPanel,
+                4 => playerExperienceInspectorPanel,
+                5 => playerExperiencePixiePanel,
+                6 => playerExperienceGaragePanel,
+                7 => playerExperienceAchievementsPanel,
+                8 => playerExperienceNightClubPanel,
+                _ => null
+            };
+            SwitchPlayerExperiencePage(target);
+            return true;
+        }
+#endif
+
         private static string JournalFilterKey(int filter)
         {
             return filter switch
