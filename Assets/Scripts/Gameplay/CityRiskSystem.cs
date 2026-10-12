@@ -38,6 +38,10 @@ namespace MotorCity.Gameplay
                 0,
                 5);
 
+        public float CatalogAttentionMax => 100f;
+        public float CatalogObservationStart => PursuitStart;
+        public float CatalogObservationEnd => PursuitEnd;
+
         public float Attention =>
             attention;
 
