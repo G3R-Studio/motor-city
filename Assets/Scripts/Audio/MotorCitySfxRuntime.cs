@@ -255,6 +255,11 @@ namespace MotorCity.Audio
                 return;
             }
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // WebAudio clip metadata is not safe to query before decoding.
+            if (clip.loadState != AudioDataLoadState.Loaded)
+                return;
+#endif
             source.pitch =
                 pitch;
 
