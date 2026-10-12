@@ -352,7 +352,11 @@ namespace MotorCity.UI
             {
                 modeIndicator.SetParent(root, false);
                 RectTransform modeRect = (RectTransform)modeIndicator;
-                modeRect.anchoredPosition = new Vector2(-92f, 20f);
+                // Match the utility buttons' centre anchors and lower row.
+                modeRect.anchorMin = new Vector2(0.5f, 0.5f);
+                modeRect.anchorMax = new Vector2(0.5f, 0.5f);
+                modeRect.pivot = new Vector2(0.5f, 0.5f);
+                modeRect.anchoredPosition = new Vector2(-92f, 39f);
             }
             // Driving mode is the only always-visible gameplay utility.
             // Keep it next to the speedometer so the top-centre remains free
@@ -370,7 +374,7 @@ namespace MotorCity.UI
                 "HUD Elite",
                 "touch.utility.elite",
                 MotorCityInputAction.EliteModifier,
-                new Vector2(92f, 84f),
+                new Vector2(92f, 91f),
                 new Vector2(172f, 48f));
 
             GameObject railObject =
