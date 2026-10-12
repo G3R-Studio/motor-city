@@ -291,7 +291,7 @@
 
 | Дата | ID | Коммит(ы) | Что реально готово | Исходниковая проверка | Ручной smoke / статус |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-12 | HV-1.3 | текущая поставка (заменить SHA после push) | Общие modal surfaces: тонкий разделитель, один фон; Settings Back в footer; защита роли Resume от global HUD pass | Точечная статическая проверка (ни сборки, ни Play Mode) | NEEDS UNITY: Settings/пауза/выбор управления, длинный RU/EN, короткий landscape |
+| 2026-10-12 | HV-1.3 | [`646ed76`](https://github.com/G3R-Studio/motor-city/commit/646ed762f9713b02f523a29c251b0f569a1fb235) + [`5d950ef`](https://github.com/G3R-Studio/motor-city/commit/5d950ef5856ecfe6c92b327be2bb329f78dce835) | Единые modal surfaces, тонкий разделитель, один фон; Settings Back в footer; Pause Resume сохраняет Primary, HUD utility-кнопки не задеты | **19/19 source checks PASS**; Unity/CI/сборки не запускались | **NEEDS UNITY:** Settings/пауза/выбор управления, RU/EN и узкий landscape |
 | 2026-10-12 | HV-1.1 / HV-1.2 | [`1a637b5`](https://github.com/G3R-Studio/motor-city/commit/1a637b50cf1df9c763b56036092a1becdb12026e) | Токены MotorCityUiSkin, 4 роли кнопок (+ Disabled), FrontEnd и runtime modal factories, первичное Continue и Pause Resume | **17/17 точечных source checks PASS**; Unity Editor/Play Mode не запускали | **NEEDS UNITY:** main/пауза/настройки/выбор управления, единый клик, без изменения готового интерфейса |
 | 2026-10-12 | HV-0.1…HV-0.3 | [f85be113](https://github.com/G3R-Studio/motor-city/commit/f85be1134dbf464376fe418ca25a99934639ebb2) | Аудит и проектный roadmap | Сверка tree + владельцев | Visual редизайн не начат |
 
