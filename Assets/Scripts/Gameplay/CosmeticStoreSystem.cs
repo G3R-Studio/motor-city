@@ -42,7 +42,7 @@ namespace MotorCity.Gameplay
 
         public void NextProduct()
         {
-            if (purchaseRunning)
+            if (purchaseRunning || !productCatalogResolved)
                 return;
             selectedProductIndex = (selectedProductIndex + 1) % Products.Length;
             LoadSupporterProductInfo();
