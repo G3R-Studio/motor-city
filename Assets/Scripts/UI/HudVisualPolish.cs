@@ -115,20 +115,6 @@ namespace MotorCity.UI
             PolishCoreText("Character Mission Title", 0.60f);
             PolishCoreText("Character Line", 0.70f);
 
-            RectTransform characterLine =
-                FindRect("Character Line");
-
-            if (characterLine != null)
-            {
-                Text characterBody =
-                    characterLine.GetComponent<Text>();
-
-                if (characterBody != null)
-                {
-                    characterBody.resizeTextMinSize =
-                        12;
-                }
-            }
             PolishCoreText("Character Reward", 0.70f);
             PolishCoreText("Status Text", 0.88f);
             PolishCoreText("Speed", 0.90f);
@@ -162,9 +148,8 @@ namespace MotorCity.UI
             // TouchControlsView owns utility rail and secondary action positions.
             // Their builder already applies the same coordinates; do not
             // overwrite these controls from the persistent visual polish.
-            // Apply bounds after responsive composition has sized the cells.
-            foreach (Text label in hudRoot.GetComponentsInChildren<Text>(true))
-                MotorCityTextLayout.Configure(label);
+            // Builders own their own typography and clipping.
+            // Do not reconfigure every Text when the screen size changes.
         }
 
         private void ApplyModalComposition(
@@ -456,32 +441,8 @@ namespace MotorCity.UI
             if (text == null)
                 return;
 
-            text.resizeTextForBestFit = false;
-            text.resizeTextMinSize =
-                text.fontSize <= 11
-                    ? Mathf.Max(
-                        9,
-                        text.fontSize - 2)
-                    : Mathf.Max(
-                        11,
-                        Mathf.RoundToInt(
-                            text.fontSize * 0.78f));
-            // Preserve small context labels: forcing a 15pt minimum here
-            // truncated narrow navigator, result and status text cells.
-            text.resizeTextMinSize =
-                Mathf.Min(text.fontSize, text.resizeTextMinSize);
-            text.resizeTextMaxSize =
-                text.fontSize;
-            text.horizontalOverflow =
-                HorizontalWrapMode.Wrap;
-            text.verticalOverflow =
-                VerticalWrapMode.Overflow;
-            text.alignByGeometry = false;
-            text.lineSpacing =
-                1f;
-
-            rect.localScale =
-                Vector3.one;
+            // No font-size, wrapping, layout, scale or input mutations:
+            // the builder (and MotorCityTextLayout) owns these properties.
 
             Shadow shadow =
                 FindPlainShadow(
