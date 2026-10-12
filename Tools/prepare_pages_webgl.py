@@ -130,7 +130,7 @@ def copy_and_uncompress(src: Path, dst: Path, kind: str) -> tuple[int, int]:
     # explicit JS_FileSystem_Sync path. Inject into the actual Unity startup
     # expression so the WebGL build profiles and game save format stay intact.
     startup = re.search(
-        r"\\b(createUnityInstance|motorCityLaunchInLandscape)\\s*\\(\\s*[^,]+,\\s*([A-Za-z_$][\\w$]*)\\s*,",
+        r"\b(createUnityInstance|motorCityLaunchInLandscape)\s*\(\s*[^,]+,\s*([A-Za-z_$][\w$]*)\s*,",
         updated,
     )
     if startup:
