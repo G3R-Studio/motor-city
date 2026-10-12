@@ -1765,10 +1765,10 @@ namespace MotorCity.UI
                     "Navigation Target Strip",
                     new Vector2(
                         8f,
-                        6f),
+                        -8f),
                     new Vector2(
                         198f,
-                        58f),
+                        82f),
                     new Vector2(
                         0f,
                         0f),
@@ -1786,10 +1786,10 @@ namespace MotorCity.UI
                     11,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(-23f, 11f),
+                    new Vector2(-23f, 17f),
                     new Vector2(
                         140f,
-                        28f),
+                        36f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -1820,8 +1820,8 @@ namespace MotorCity.UI
                     12,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(-23f, -14f),
-                    new Vector2(140f, 18f),
+                    new Vector2(-23f, -19f),
+                    new Vector2(140f, 22f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
