@@ -89,6 +89,8 @@ jobs:
         run: python3 Tools/check_ui_short_dashes.py
       - name: Validate UX-2 informational activity catalog
         run: python3 Tools/check_player_experience_catalog.py
+      - name: Validate UX-3 filtered progression journal
+        run: python3 Tools/check_player_experience_journal.py
 
       - name: Run Phase 8 isolated save conflict fixtures
         run: python3 Tools/test_phase8_save_fixtures.py
