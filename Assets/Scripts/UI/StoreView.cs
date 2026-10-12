@@ -7,6 +7,8 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
+        private Text storeNextProductText;
+
         private void HandleStoreInput()
         {
             if (cosmeticStore == null)
@@ -234,13 +236,14 @@ namespace MotorCity.UI
                     SecondaryTextColor);
 
             selectionHint.text = string.Empty;
-            CreateTouchLayoutEditorButton(
+            RectTransform nextProductButton = CreateTouchLayoutEditorButton(
                 heroCard,
                 "Store Next Product",
                 MotorCityLocalization.Text("store.next_product"),
                 new Vector2(0f, -194f),
                 () => cosmeticStore?.NextProduct(),
                 205f);
+            storeNextProductText = nextProductButton.GetComponentInChildren<Text>();
             selectionHint.resizeTextForBestFit =
                 false;
             selectionHint.resizeTextMinSize =
@@ -418,6 +421,10 @@ namespace MotorCity.UI
             {
                 return;
             }
+
+            if (storeNextProductText != null)
+                storeNextProductText.text =
+                    MotorCityLocalization.Text("store.next_product");
 
             storeNameText.text =
                 cosmeticStore.SelectedName;
