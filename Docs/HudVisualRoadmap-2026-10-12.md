@@ -231,8 +231,8 @@
 ### HV-8 — Иконки, отклик интерфейса, метки мира и dev UI
 
 - [ ] **HV-8.1 FX-01** Привести символы действий к одной оптической толщине/размеру, приоритет существующей Kenney/Vector библиотеки.
-- [ ] **HV-8.2 FX-01** Отточить hover / focus / pressed / disabled; короткие 0.1–0.16 c эффекты, **без задержки нажатия**, доступность при снижении motion.
-- [ ] **HV-8.3 FX-01** Подсветка новых рекордов, достижений, сообщений персонажей без spam popups или сильного glow/overdraw.
+- [x] **HV-8.2 FX-01 — IN SOURCE / NEEDS UNITY (first pass).** Мягкие состояния hover/selected и 0.13с переход. События кнопок не изменены. Проверить keyboard focus и reduced motion. Commit 0380764.
+- [x] **HV-8.3 FX-01 — IN SOURCE / NEEDS UNITY (result only).** Пульс рекорда 8%→4.5%, glow alpha 0.28→0.16. Достижения/диалоги не менялись. Commit 8b968c3.
 - [x] **HV-8.4 FX-02 — IN SOURCE / NEEDS UNITY (aliases).** Маркеры profession_carwash / profession_tow используют те же иконки и цвета, что и carwash/tow; выбор активной цели не менялся. Commit d04f076.
 - [x] **HV-8.5 DEV-01 — IN SOURCE / NEEDS UNITY.** QA панель разделена на два ряда по четыре вкладки, остаётся за UNITY_EDITOR || DEBUG. Commit 2a238f8.
 - [ ] **HV-8.6** Удалить только подтверждённые визуальные дубли/лишние объекты; не удалять лицензии, ресурсы или UI политику из Packages.
@@ -381,3 +381,8 @@
 - User confirmed HV-7.2 mobile arrow visuals in Unity. HV-7.4 device aspect/safe-area and HV-7.6 context overlays still need separate smoke tests.
 - HV-8.4 marker ID aliases for car wash and tow use consistent icons and colors (`d04f076`); navigation target and gameplay owners unchanged.
 - HV-8.5 QA tabs are arranged into two rows for Editor readability (`2a238f8`). HV-8.1/8.2/8.3/8.6 remain open; Unity/CI/WebGL not run.
+
+
+### HV-8 visual primitives — 2026-10-12
+
+Button ColorTint: softer hover/selection and 0.13 s fade (`0380764`). New record pulse and glow reduced (`8b968c3`). Icon inventory confirmed existing preserveAspect in CreateHudIcon; HV-8.1 remains open pending optical review. HV-8.6 remains open: no safely confirmed duplicate removal. Unity smoke / CI not run.
