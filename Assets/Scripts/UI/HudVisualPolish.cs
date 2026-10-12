@@ -265,29 +265,8 @@ namespace MotorCity.UI
             if (root == null)
                 return;
 
-            SetDrivingControlImage(
-                root,
-                "Throttle",
-                new Color32(255, 255, 255, 0x64));
-
-            SetDrivingControlImage(
-                root,
-                "Reverse",
-                new Color32(255, 255, 255, 0x64));
-
-            SetDrivingControlImage(
-                root,
-                "Handbrake",
-                new Color32(255, 255, 255, 165));
-
-            SetDrivingControlImage(
-                root,
-                "Steering Wheel",
-                new Color32(
-                    255,
-                    255,
-                    255,
-                    0x96));
+            // Original driving art is styled by TouchControlsView, not here.
+            // Do not change the user-accepted pedal or steering-wheel alpha.
 
             SetDrivingControlImage(
                 root,
