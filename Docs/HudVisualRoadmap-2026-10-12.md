@@ -472,3 +472,9 @@ Previous work already supplies on-demand read-only UI hierarchy checks, safe are
 - Result Reward alignment is already set by ActivityResultView (TextAnchor.MiddleCenter). Removed its redundant second-owner ApplyModalComposition from HudVisualPolish. Other legacy pass functions (backdrops, shadows, touch) remain live; deleting them without builder migration could change accepted UI.
 - Still requires manual evidence: per-screen RU/EN/long-text screenshots, device safe-area and touch tests, real entitlement purchases, fresh/legacy saves, profiler inspection and reference comparisons. No unfounded PASS marks added.
 - HV-10.1–HV-10.5 remain blocked until separate build authorization. This source pass did not run CI, WebGL or release workflows.
+
+
+### Final source QA pass — 2026-10-12
+
+- UI QA hierarchy root name lists moved from per-OnGUI inline allocations to shared readonly arrays, keeping diagnostics output and behavior unchanged. This reduces recurring temporary string-array allocations while the development QA window is visible. The hierarchy scan itself still runs only on the QA tab; Unity Profiler verification of layout, per-frame allocations and listeners is pending.
+- Mobile safe-area, touch context, RU/EN screen captures and platform entitlement tests still require their stated device/platform evidence. No CI/WebGL build was authorized or run; no claims of release-ready or complete HV-9.

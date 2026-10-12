@@ -69,6 +69,23 @@ namespace MotorCity.Gameplay
         private int selectedTab;
         private Vector2 scroll;
         private string lastAction = "Готово";
+        private static readonly string[] QaModalRoots =
+        {
+            "Pause Overlay", "Navigator Menu Overlay", "Activity Result Overlay",
+            "Store Overlay", "Club Overlay"
+        };
+        private static readonly string[] QaTouchRoots =
+        {
+            "Touch Driving Controls", "Touch Layout Editor", "Character Card",
+            "Main HUD Quick Actions", "HUD Secondary Actions"
+        };
+        private static readonly string[] QaFrontEndRoots =
+        {
+            "Main Menu", "About Screen", "Settings Screen",
+            "Player Experience Screen", "Intro Screen",
+            "Control Choice Screen", "Loading Screen"
+        };
+
         private int uiQaCanvasCount = -1;
         private int uiQaGraphicCount;
         private int uiQaButtonCount;
@@ -1712,20 +1729,11 @@ namespace MotorCity.Gameplay
             // including inactive ones; never infer duplicates from graphics.
             if (hud != null)
             {
-                DrawUiQaRootGroup(hud.transform,
-                    new[] { "Pause Overlay", "Navigator Menu Overlay",
-                        "Activity Result Overlay", "Store Overlay", "Club Overlay" },
-                    true);
-                DrawUiQaRootGroup(hud.transform,
-                    new[] { "Touch Driving Controls", "Touch Layout Editor",
-                        "Character Card", "Main HUD Quick Actions",
-                        "HUD Secondary Actions" }, false);
+                DrawUiQaRootGroup(hud.transform, QaModalRoots, true);
+                DrawUiQaRootGroup(hud.transform, QaTouchRoots, false);
             }
             if (frontEnd != null)
-                DrawUiQaRootGroup(frontEnd.transform,
-                    new[] { "Main Menu", "About Screen", "Settings Screen",
-                        "Player Experience Screen", "Intro Screen",
-                        "Control Choice Screen", "Loading Screen" }, true);
+                DrawUiQaRootGroup(frontEnd.transform, QaFrontEndRoots, true);
 
             Section("HV-9 — РАЗРЕШЕНИЕ / SAFE AREA / ПАУЗА");
             Rect safe = Screen.safeArea;
