@@ -637,6 +637,7 @@ namespace MotorCity.UI
 
         private void RefreshPlayerExperienceTextHeights()
         {
+            SetPlayerExperienceTextHeight(playerExperienceVisitHintText, 48f);
             SetPlayerExperienceTextHeight(playerExperienceObjectiveText, 110f);
             SetPlayerExperienceTextHeight(playerExperienceRecommendedText, 98f);
             SetPlayerExperienceTextHeight(playerExperienceMilestoneText, 110f);
