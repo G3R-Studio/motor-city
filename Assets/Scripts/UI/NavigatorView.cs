@@ -1443,91 +1443,24 @@ namespace MotorCity.UI
         private void CreateMinimapPlayerChevron(
             Transform parent)
         {
-            Texture2D pointerTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.minimapPlayerPointer;
+            // Draw the heading indicator from the project's own vector
+            // primitives. No longer depends on RacingUI POINTER.png.
+            GameObject marker = new(
+                "Minimap Player Pointer",
+                typeof(RectTransform),
+                typeof(GarageReferenceGraphic));
+            marker.transform.SetParent(parent, false);
+            RectTransform rect = marker.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = rect.pivot =
+                new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(24f, 24f);
 
-            if (pointerTexture != null)
-            {
-                GameObject pointerObject =
-                    new(
-                        "Minimap Player Pointer",
-                        typeof(RectTransform),
-                        typeof(RawImage));
-
-                pointerObject.transform.SetParent(
-                    parent,
-                    false);
-
-                RectTransform rect =
-                    pointerObject.GetComponent<RectTransform>();
-
-                rect.anchorMin =
-                    new Vector2(
-                        0.5f,
-                        0.5f);
-                rect.anchorMax =
-                    new Vector2(
-                        0.5f,
-                        0.5f);
-                rect.pivot =
-                    new Vector2(
-                        0.5f,
-                        0.5f);
-                rect.anchoredPosition =
-                    Vector2.zero;
-                rect.sizeDelta =
-                    new Vector2(
-                        24f,
-                        24f);
-                rect.localRotation =
-                    Quaternion.Euler(
-                        0f,
-                        0f,
-                        -45f);
-
-                RawImage image =
-                    pointerObject.GetComponent<RawImage>();
-
-                image.texture =
-                    pointerTexture;
-                image.color =
-                    new Color(
-                        0.12f,
-                        0.78f,
-                        1f,
-                        1f);
-                image.raycastTarget =
-                    false;
-
-                return;
-            }
-
-            Image fallback =
-                CreateHudIcon(
-                    parent,
-                    "Minimap Player Icon",
-                    MotorCityIconLibrary.Get(
-                        "car"),
-                    Vector2.zero,
-                    new Vector2(
-                        24f,
-                        24f),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    new Color(
-                        0.12f,
-                        0.78f,
-                        1f,
-                        1f));
-
-            if (fallback != null)
-            {
-                fallback.raycastTarget =
-                    false;
-            }
+            GarageReferenceGraphic icon =
+                marker.GetComponent<GarageReferenceGraphic>();
+            icon.symbol = GarageReferenceGraphic.Symbol.Up;
+            icon.color = new Color(0.12f, 0.78f, 1f, 1f);
+            icon.raycastTarget = false;
         }
 
         private void BuildNavigator(Transform canvas)
