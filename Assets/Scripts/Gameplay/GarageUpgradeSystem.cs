@@ -54,6 +54,26 @@ namespace MotorCity.Gameplay
 
         public event Action Changed;
 
+        public int CatalogVehicleCount =>
+            vehicleRoster == null ? 0 : vehicleRoster.VehicleCount;
+        public int CatalogOwnedVehicleCount =>
+            vehicleRoster == null ? 0 : vehicleRoster.GetOwnedVehicleCount();
+        public int CatalogSelectedVehicleIndex =>
+            vehicleRoster == null ? -1 : vehicleRoster.SelectedIndex;
+        public string CatalogVehicleName(int index) =>
+            vehicleRoster == null ? string.Empty : vehicleRoster.CatalogVehicleName(index);
+        public int CatalogVehicleRequiredRep(int index) =>
+            vehicleRoster == null ? 0 : vehicleRoster.CatalogRequiredReputation(index);
+        public bool CatalogVehicleAvailable(int index) =>
+            vehicleRoster != null && vehicleRoster.CatalogVehicleHasVisual(index);
+        public bool CatalogVehicleUnlocked(int index) =>
+            vehicleRoster != null && vehicleRoster.CatalogVehicleUnlocked(index);
+        public bool CatalogVehicleSupporterExclusive(int index) =>
+            vehicleRoster != null && vehicleRoster.CatalogVehicleIsSupporterExclusive(index);
+        public int CatalogVehicleMasteryLevel(int index) =>
+            vehicleRoster == null || vehicleMastery == null ? 1 :
+                vehicleMastery.GetLevelForVehicle(vehicleRoster.GetVehicleId(index));
+
         public string VehicleName =>
             vehicleRoster == null
                 ? MotorCityLocalization.Text(
