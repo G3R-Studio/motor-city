@@ -9,7 +9,6 @@ namespace MotorCity.UI
 {
     public sealed partial class PrototypeHud
     {
-        private float minimapRouteOpacity;
         private void CloseNavigatorMenuVisualOnly()
         {
             SetNavigatorMenuOpen(
@@ -1105,15 +1104,9 @@ namespace MotorCity.UI
 
                     dot.anchoredPosition = offset;
                     Image routeImage = minimapRouteImages[placed++];
-                    float screenDistance = offset.magnitude;
-                    float nearFade = Mathf.SmoothStep(
-                        0f, 1f, screenDistance / 9f);
-                    float edgeFade = Mathf.SmoothStep(
-                        0f, 1f, (markerRadius - screenDistance) / 9f);
+                    // Display the entire route instantly: no transparency animation.
                     Color routeColor = routeImage.color;
-                    routeColor.a = Mathf.MoveTowards(routeColor.a,
-                        nearFade * edgeFade * minimapRouteOpacity * 0.96f,
-                        Time.unscaledDeltaTime * 4f);
+                    routeColor.a = 0.96f;
                     routeImage.color = routeColor;
                 }
 
@@ -1134,11 +1127,7 @@ namespace MotorCity.UI
                 if (dot != null &&
                     dot.gameObject.activeSelf)
                 {
-                    Image routeImage = minimapRouteImages[i];
-                    Color routeColor = routeImage.color;
-                    routeColor.a = Mathf.MoveTowards(routeColor.a, 0f, Time.unscaledDeltaTime * 4f);
-                    routeImage.color = routeColor;
-                    if (routeColor.a <= 0f) dot.gameObject.SetActive(false);
+                    dot.gameObject.SetActive(false);
                 }
             }
 
@@ -1163,19 +1152,10 @@ namespace MotorCity.UI
                     carPosition) >
                 RouteRebuildOffPathDistance;
 
-            if (!targetChanged &&
-                !offRoute)
-            {
-                minimapRouteOpacity = Mathf.MoveTowards(minimapRouteOpacity, 1f, Time.unscaledDeltaTime * 4f);
+            if (!targetChanged && !offRoute)
                 return;
-            }
 
-            // Fade the old route before replacing its geometry on a detour.
-            if (fixedRoadRouteValid && minimapRouteOpacity > 0f)
-            {
-                minimapRouteOpacity = Mathf.MoveTowards(minimapRouteOpacity, 0f, Time.unscaledDeltaTime * 4f);
-                return;
-            }
+            // Recalculate immediately on target changes and detours.
 
             List<Vector3> route =
                 CityRoadNavigator.BuildRoute(
@@ -1344,7 +1324,6 @@ namespace MotorCity.UI
         private void HideRouteDots()
         {
             int count = minimapRouteDots.Length;
-            minimapRouteOpacity = 0f;
 
             for (int i = 0;
                  i < count;
@@ -1356,11 +1335,7 @@ namespace MotorCity.UI
                 if (dot != null &&
                     dot.gameObject.activeSelf)
                 {
-                    Image routeImage = minimapRouteImages[i];
-                    Color routeColor = routeImage.color;
-                    routeColor.a = Mathf.MoveTowards(routeColor.a, 0f, Time.unscaledDeltaTime * 4f);
-                    routeImage.color = routeColor;
-                    if (routeColor.a <= 0f) dot.gameObject.SetActive(false);
+                    dot.gameObject.SetActive(false);
                 }
             }
 

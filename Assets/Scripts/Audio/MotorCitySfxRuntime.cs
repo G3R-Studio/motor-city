@@ -23,7 +23,7 @@ namespace MotorCity.Audio
             if (Time.unscaledTime - instance.lastUiClickTime < 0.06f)
                 return;
             instance.lastUiClickTime = Time.unscaledTime;
-            instance.Play(instance.uiClick, 0.26f, 1f);
+            instance.Play(instance.uiClick, 0.12f, 1f);
         }
 
         public static void PlayActivityResult(
@@ -266,29 +266,28 @@ namespace MotorCity.Audio
 
         private static AudioClip BuildUiClick()
         {
-            // A short, low and warm mechanical tap, with a subtle transient
-            // instead of the old thin 920 Hz single-frequency beep.
+            // A quiet rounded tap: low tones with a smooth attack and decay.
+            // No bright transient or high-frequency noise.
             const int sampleRate = 22050;
-            const float duration = 0.085f;
+            const float duration = 0.07f;
             int sampleCount = Mathf.RoundToInt(sampleRate * duration);
             float[] samples = new float[sampleCount];
+
             for (int i = 0; i < sampleCount; i++)
             {
                 float t = i / (float)sampleRate;
-                float normalized = t / duration;
-                float bodyEnvelope = Mathf.Exp(-40f * t);
-                float transientEnvelope = Mathf.Exp(-120f * t);
-                float body = Mathf.Sin(2f * Mathf.PI * 280f * t) * 0.44f
-                    + Mathf.Sin(2f * Mathf.PI * 420f * t) * 0.17f;
-                float transient = Mathf.Sin(2f * Mathf.PI * 880f * t) * 0.10f;
-                float softenedNoise = Mathf.Sin(2f * Mathf.PI * 1373f * t)
-                    * Mathf.Sin(2f * Mathf.PI * 691f * t) * 0.10f;
-                samples[i] = (body * bodyEnvelope +
-                    (transient + softenedNoise) * transientEnvelope)
-                    * Mathf.Clamp01(1f - normalized);
+                float progress = Mathf.Clamp01(t / duration);
+                float attack = Mathf.SmoothStep(
+                    0f, 1f, Mathf.Clamp01(t / 0.006f));
+                float release = (1f - progress) * (1f - progress);
+                float lowTone = Mathf.Sin(2f * Mathf.PI * 210f * t);
+                float softAccent = Mathf.Sin(2f * Mathf.PI * 315f * t);
+                samples[i] = (lowTone * 0.32f + softAccent * 0.10f)
+                    * attack * release;
             }
+
             AudioClip clip = AudioClip.Create(
-                "Motor City UI Soft Click", sampleCount, 1, sampleRate, false);
+                "Motor City UI Gentle Tap", sampleCount, 1, sampleRate, false);
             clip.SetData(samples, 0);
             return clip;
         }
