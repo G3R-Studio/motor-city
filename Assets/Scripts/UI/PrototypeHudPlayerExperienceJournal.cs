@@ -23,6 +23,7 @@ namespace MotorCity.UI
         {
             journalBeforeResult = null;
             journalLastResultName = null;
+            CaptureResultChangesBefore(success);
             if (!success)
                 return;
             journalBeforeResult = new string[7];
