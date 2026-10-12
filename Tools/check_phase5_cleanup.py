@@ -22,6 +22,19 @@ def main():
             errors.append(f"{name}: obsolete unused BuildSessionKey reappeared")
         if "SourceHashKey" not in source or "ShouldRebuild(" not in source:
             errors.append(f"{name}: incremental importer dependency guard missing")
+    # Beatall was the only importer forcing a tracked prefab rewrite each
+    # editor session. Keep it aligned with incremental vehicle importers.
+    beatall = (EDITORS / "BeatallVehicleImporter.cs").read_text(encoding="utf-8-sig")
+    compact_beatall = re.sub(r"\s+", "", beatall)
+    if "BuildSessionKey" in beatall or "SessionState" in beatall:
+        errors.append("Beatall: per-session prefab regeneration is forbidden")
+    if "StandardVehicleImportUtility.ShouldRebuild(" not in beatall:
+        errors.append("Beatall: dependency-based regeneration gate missing")
+    if "string.IsNullOrEmpty(EditorPrefs.GetString(" not in compact_beatall:
+        errors.append("Beatall: non-destructive first-open baseline missing")
+    if 'MenuItem("MotorCity/Vehicles/RebuildBeatall")' not in compact_beatall:
+        errors.append("Beatall: manual rebuild command missing")
+
     migrators = {}
     for name in MIGRATORS:
         file = EDITORS / name
