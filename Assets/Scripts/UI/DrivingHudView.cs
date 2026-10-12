@@ -389,8 +389,8 @@ namespace MotorCity.UI
                 CreatePanel(
                     canvas,
                     "Drift HUD",
-                    new Vector2(0f, -58f),
-                    new Vector2(304f, 48f),
+                    new Vector2(0f, -74f),
+                    new Vector2(444f, 72f),
                     new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f),
                     Color.clear);
@@ -405,14 +405,20 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Drift Score",
-                    20,
+                    17,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    new Vector2(0f, 1f),
-                    new Vector2(268f, 32f),
+                    new Vector2(0f, 0f),
+                    new Vector2(420f, 64f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
                     TextColor);
+            // A finished drift notification may wrap to two lines in RU or EN.
+            // Give both lines a real rect and allow fitting without clipping.
+            driftText.resizeTextForBestFit = true;
+            driftText.resizeTextMinSize = 12;
+            driftText.resizeTextMaxSize = driftText.fontSize;
+            driftText.verticalOverflow = VerticalWrapMode.Overflow;
         }
 
         private string ResolveContextualStatus()
