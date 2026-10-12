@@ -383,6 +383,26 @@ namespace MotorCity.UI
 #if UNITY_EDITOR || DEBUG
         // QA-only navigation: reuse the real sections, never create a
         // second modal Canvas or change progression state.
+        public bool DebugShowFrontEndPage(int page)
+        {
+            // Main-menu pages are only safe while the menu owns the canvas.
+            // Do not hijack an active game or the in-pause experience screen.
+            if (canvas == null || !canvas.gameObject.activeInHierarchy ||
+                playerExperienceReturnToPause != null ||
+                (mainRoot != null && !mainRoot.activeSelf &&
+                 (aboutRoot == null || !aboutRoot.activeSelf) &&
+                 (settingsRoot == null || !settingsRoot.activeSelf)))
+                return false;
+            switch (page)
+            {
+                case 0: ShowMainMenu(); break;
+                case 1: ShowAbout(); break;
+                case 2: ShowSettings(); break;
+                default: return false;
+            }
+            return true;
+        }
+
         public bool DebugShowExperienceSection(int section)
         {
             if (playerExperienceRoot == null ||
