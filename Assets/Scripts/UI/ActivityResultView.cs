@@ -228,6 +228,7 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 1f),
                     BlueAccent);
 
+            resultNextGoalText.alignment = TextAnchor.MiddleCenter;
             resultNextGoalText.resizeTextForBestFit = true;
             resultNextGoalText.resizeTextMinSize = 11;
             resultNextGoalText.resizeTextMaxSize = 16;
@@ -468,14 +469,13 @@ namespace MotorCity.UI
                     RectTransform nextGoalRect =
                         resultNextGoalText.rectTransform;
 
-                    // The old fixed -390 Y assumed mastery and secondary
-                    // progress were both visible. On sparse results (notably
-                    // the first race) that left the next-goal line directly
-                    // above the bottom action row and caused text/button
-                    // overlap after UI scaling. Compact the footer upward when
-                    // those optional rows are absent.
+                    // Reserve two whole lines above the action row.
+                    // With changes visible the scroll viewport ends at -381;
+                    // the actions start at -446. This 44px band (-384..-428)
+                    // leaves a gap above the buttons even for wrapped text.
+                    nextGoalRect.sizeDelta = new Vector2(560f, 44f);
                     float nextGoalY =
-                        hasSecondaryProgress ? -414f : -320f;
+                        hasSecondaryProgress ? -384f : -320f;
 
                     nextGoalRect.anchoredPosition =
                         new Vector2(
