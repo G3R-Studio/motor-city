@@ -108,6 +108,24 @@ namespace MotorCity.Gameplay
                    unlocked[index];
         }
 
+        public string GetAchievementCondition(int index)
+        {
+            string key = index switch
+            {
+                0 => "ux4.achievement.condition.first",
+                1 => "ux4.achievement.condition.racer",
+                2 => "ux4.achievement.condition.drifter",
+                3 => "ux4.achievement.condition.worker",
+                4 => "ux4.achievement.condition.explorer",
+                5 => "ux4.achievement.condition.photo",
+                6 => "ux4.achievement.condition.collector",
+                7 => "ux4.achievement.condition.story",
+                8 => "ux4.achievement.condition.season",
+                _ => null
+            };
+            return key == null ? string.Empty : MotorCityLocalization.Text(key);
+        }
+
         public string GetAchievementName(int index)
         {
             return index >= 0 && index < AchievementNameKeys.Length
