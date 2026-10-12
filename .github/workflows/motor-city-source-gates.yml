@@ -201,6 +201,11 @@ jobs:
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
 
+      - name: Guard GP-1 - GP-3 drift, traffic, minimap and mobile controls
+        id: source_gate_31
+        continue-on-error: true
+        run: python3 Tools/check_gameplay_polish_regression.py
+
       # Keep collecting regressions, then fail on raw outcomes.
       - name: Aggregate all source-gate outcomes
         if: always()
@@ -220,13 +225,13 @@ jobs:
               print(f"{key}: {outcome}")
               if outcome != "success":
                   failures.append((key, outcome))
-          if len(gates) != 30:
-              print(f"Expected 30 source gates, found {len(gates)}")
+          if len(gates) != 31:
+              print(f"Expected 31 source gates, found {len(gates)}")
               sys.exit(1)
           if failures:
               print("Source gates FAILED:", ", ".join(f"{k}={v}" for k, v in failures))
               sys.exit(1)
-          print("All 30 source checks passed.")
+          print("All 31 source checks passed.")
           PY
 
       - name: Upload dependency audit report

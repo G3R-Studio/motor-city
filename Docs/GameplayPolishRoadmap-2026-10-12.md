@@ -2,7 +2,7 @@
 
 ## Статус
 
-**Исходники всех семи пунктов изменены. Unity Editor / Play Mode / WebGL ещё не проверены.**
+**Исходники всех семи пунктов изменены.** Пользователь подтвердил именно мгновенное отображение точек маршрута и смягчённый звук кнопок («всё чётко», 2026-10-12). Остальные сценарии Unity, Editor CI и WebGL пока не подтверждены.
 
 | № | Задача | Source implementation | Unity acceptance |
 | --- | --- | --- | --- |
@@ -11,7 +11,7 @@
 | 3 | Исправить тип меток контрольных точек активной миссии | [x] | [ ] |
 | 4 | Уменьшить поворот колёс в комфорте и спорте через общую физику | [x] | [ ] |
 | 5 | Настроить трафик на 60 км/ч и торможение на поворотах | [x] | [ ] |
-| 6 | Заменить лёгкий UI-клик на более плотный | [x] | [ ] |
+| 6 | Заменить неприятный звук кнопок на мягкий | [x] | [x] |
 | 7 | Добавить изменение и сохранение размера мобильных кнопок | [x] | [ ] |
 
 ## Коммиты
@@ -20,10 +20,19 @@
 - GP-2: [f5e4653](https://github.com/G3R-Studio/motor-city/commit/f5e46530999153fe726abba3d7b30fd758c05206) - steering / traffic.
 - GP-3: [9e91dcb](https://github.com/G3R-Studio/motor-city/commit/9e91dcbdd9b5fd05cc0b704f1144697da9cdf3ec) - UI click / button scale.
 - Follow-up: [c1e82c5](https://github.com/G3R-Studio/motor-city/commit/c1e82c5e3aa80d2caae7a3985650b506c7c45a78) - resized button bounds persistence and editor labels.
+- Follow-up: [2e72f3a](https://github.com/G3R-Studio/motor-city/commit/2e72f3a4504b71befa558687944e57e8c76204b1) - earlier braking and spaced minimap route dots.
+- Follow-up: [4e463ec](https://github.com/G3R-Studio/motor-city/commit/4e463ec59a1acfe33f6ba86c2c67c54998b01802) - immediate dot rendering and a quieter UI tap (user accepted).
 
 ## Исходниковые проверки
 
-18/18 целевых статических инвариантов проверены чтением C# из ветки `main`. Это **не** Unity compilation, gameplay simulation или WebGL QA. Workflow Source Gates запускается **только вручную** (`workflow_dispatch`), автоматическая сборка после этого коммита не выполнялась.
+Ранее были проведены 18/18 исходниковых проверок GP-1 - GP-3, затем 9/9 проверок торможения трафика/точек и 9/9 проверок мгновенного отображения/звука. Добавлен отдельный `Tools/check_gameplay_polish_regression.py` (новый gate 31) для последующих запусков CI. Эти проверки **не** заменяют Unity compilation, Play Mode или WebGL QA. Workflow Source Gates по-прежнему запускается **вручную** (`workflow_dispatch`); успешного CI прогона на этом SHA ещё нет.
+
+## Последний принятый UI smoke
+
+- [x] Голубые точки маршрута появляются мгновенно, без плавного проявления; расстояние между ними сохраняется.
+- [x] Звук нажатия кнопок после корректировки стал приемлемым.
+- [ ] Новое торможение трафика на 60 км/ч ещё не получило отдельного подтверждения после правок.
+- [ ] Свободный дрифт, все виды активностей, все режимы физики и изменение размеров мобильного управления требуют отдельной проверки.
 
 ## Ручная приёмка
 
