@@ -305,7 +305,7 @@
 | HV-6 Автоклуб/Магазин | ACCEPTED USER (UI) | 84da479, 15cf42f | Пользователь подтвердил «всё чётко»; purchase end-to-end остаётся отдельной проверкой |
 | HV-7 Mobile/responsive | IN SOURCE / NEEDS UNITY | f8612fc | Начат проход по редактору мобильных кнопок, локализация и узкие экраны |
 | HV-8 Иконки/эффекты/markers/dev | IN SOURCE / PARTIAL USER ACCEPTED | d04f076, 2a238f8, 0380764, 8b968c3 | Markers и QA приняты; icon optical QA и deletion of proven duplicates остаются открыты |
-| HV-9 Общая ручная QA | IN SOURCE / NEEDS UNITY | 9c5fb85, c68d4b4 | QA checklist + read-only diagnostics of five modal roots and duplicate detection; матрица экранов ещё не проверена |
+| HV-9 Общая ручная QA | IN SOURCE / NEEDS UNITY | 9c5fb85, c68d4b4, 2814eae | QA checklist and expanded read-only root diagnostics; full Unity matrix pending |
 | HV-10 Сборка/релиз | **ON HOLD** | — | Отложено до явного согласия |
 
 **Журнал коммитов (дополнять, не перезаписывать):**
@@ -399,3 +399,9 @@ Button ColorTint: softer hover/selection and 0.13 s fade (`0380764`). New record
 
 - Коммит `c68d4b4`: на QA вкладку добавлена read-only проверка пяти root objects (Pause, Navigator, Activity Result, Store, Club). Показывается OPEN/CLOSED, число экземпляров и warning при нескольких одновременно видимых модалках или дубликатах одного имени. Проверка доступна только в developer AdminDebugPanel, не выполняется в пользовательском HUD. Вызовы прогрессии/покупок не добавлялись.
 - Ограничение: охватываются только пять известных HUD-модалок, не все окна FrontEnd и гаража. Эта диагностика не заменяет ручную проверку in-game и Console; статус HV-9 — NEEDS UNITY, CI/WebGL не запускались.
+
+
+### HV-9 hierarchy diagnostics expansion — 2026-10-12
+
+- User confirmed five-modal diagnostics in Unity (`ACCEPTED USER`). Commit `2814eae` extends the Editor-only UI QA inventory to FrontEnd main/about/settings/experience/intro/control/loading and touch driving/layout editor/character card/quick actions. Counts root RectTransforms including inactive, warns about duplicates, checks concurrently visible screens only within modal and FrontEnd groups.
+- Diagnostics are read-only and do not open/close screens or modify game state. This is NOT proof of complete coverage, screenshot matrix, UI Console cleanliness, mobile safe-area, or load-time behavior. HV-9.1…9.7 remain `NEEDS UNITY` for full manual matrix; build/CI/WebGL not run.
