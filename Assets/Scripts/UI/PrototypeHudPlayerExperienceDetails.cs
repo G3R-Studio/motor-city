@@ -163,6 +163,7 @@ namespace MotorCity.UI
                     sb.Append("\n\n").Append(MotorCityLocalization.Text(
                         unlocked ? "ux.achievements.done" : "ux.achievements.locked"));
                     sb.Append(" ").Append(achievements.GetAchievementName(i));
+                    sb.Append("\n").Append(achievements.GetAchievementCondition(i));
                     sb.Append("\n").Append(MotorCityLocalization.Format(
                         "ux.achievements.progress_reward", current, target, credits, rep));
                     sb.Append("\n").Append(unlocked
