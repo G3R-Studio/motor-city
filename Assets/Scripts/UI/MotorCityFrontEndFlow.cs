@@ -627,11 +627,11 @@ namespace MotorCity.UI
             CreateFrontEndLayoutText(
                 window.Content,
                 MotorCityLocalization.Text("ux.home.subtitle"),
-                24,
+                21,
                 FontStyle.Bold,
                 TextAnchor.MiddleCenter,
-                46f,
-                new Color(0.48f, 0.76f, 1f, 1f));
+                40f,
+                MotorCityUiSkin.AccentCyan);
 
             playerExperienceVisitHintText =
                 CreateFrontEndLayoutText(
@@ -648,53 +648,58 @@ namespace MotorCity.UI
                 CreateFrontEndLayoutText(
                     window.Content,
                     string.Empty,
-                    24,
+                    22,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
-                    52f,
-                    Color.white);
+                    46f,
+                    MotorCityUiSkin.TextPrimary);
 
             playerExperienceObjectiveText =
                 CreateFrontEndLayoutText(
                     window.Content,
                     string.Empty,
-                    24,
+                    22,
                     FontStyle.Normal,
-                    TextAnchor.MiddleCenter,
+                    TextAnchor.UpperLeft,
                     110f,
-                    new Color(0.88f, 0.93f, 1f, 1f));
+                    MotorCityUiSkin.TextPrimary);
 
             playerExperienceRecommendedText =
                 CreateFrontEndLayoutText(
                     window.Content,
                     string.Empty,
-                    21,
+                    20,
                     FontStyle.Normal,
-                    TextAnchor.MiddleCenter,
+                    TextAnchor.UpperLeft,
                     98f,
-                    new Color(0.82f, 0.90f, 1f, 1f));
+                    MotorCityUiSkin.TextSecondary);
             playerExperienceRecommendedText.gameObject.SetActive(false);
 
             playerExperienceMissionRewardText =
                 CreateFrontEndLayoutText(
                     window.Content,
                     string.Empty,
-                    20,
+                    19,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
+                    TextAnchor.MiddleLeft,
                     62f,
-                    new Color(0.48f, 0.84f, 1f, 1f));
+                    MotorCityUiSkin.AccentCyan);
             playerExperienceMissionRewardText.gameObject.SetActive(false);
 
             playerExperienceMilestoneText =
                 CreateFrontEndLayoutText(
                     window.Content,
                     string.Empty,
-                    21,
+                    20,
                     FontStyle.Normal,
-                    TextAnchor.MiddleCenter,
+                    TextAnchor.UpperLeft,
                     110f,
-                    new Color(0.72f, 0.83f, 1f, 1f));
+                    MotorCityUiSkin.TextSecondary);
+
+            // Keep read-only progress strings legible at narrower widths.
+            ConfigureFrontEndTextFit(playerExperienceCreditsText, 17);
+            ConfigureFrontEndTextFit(playerExperienceObjectiveText, 16);
+            ConfigureFrontEndTextFit(playerExperienceMilestoneText, 15);
 
             playerExperienceSectionActions =
                 CreateFrontEndActionRow(
