@@ -68,6 +68,7 @@ namespace MotorCity.Gameplay
         }
 
         // Automatically advanced contract; this is not a separately started mission.
+        public int CatalogCount => ContractCount;
         public int CatalogIndex => contractIndex;
         public int CatalogCycle => cycle;
         public string CatalogClient => CurrentDefinition().Client;
