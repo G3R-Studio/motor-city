@@ -1720,6 +1720,26 @@ namespace MotorCity.Gameplay
                         "Player Experience Screen", "Intro Screen",
                         "Control Choice Screen", "Loading Screen" }, true);
 
+            Section("HV-9 — РАЗРЕШЕНИЕ / SAFE AREA / ПАУЗА");
+            Rect safe = Screen.safeArea;
+            GUILayout.Label("Экран: " + Screen.width + " x " + Screen.height +
+                "  |  aspect " + (Screen.height > 0
+                    ? ((float)Screen.width / Screen.height).ToString("0.00")
+                    : "-"));
+            GUILayout.Label("Safe area: " +
+                Mathf.RoundToInt(safe.xMin) + "," + Mathf.RoundToInt(safe.yMin) +
+                " — " + Mathf.RoundToInt(safe.width) + " x " +
+                Mathf.RoundToInt(safe.height));
+            bool inset = safe.xMin > 0.5f || safe.yMin > 0.5f ||
+                safe.xMax < Screen.width - 0.5f ||
+                safe.yMax < Screen.height - 0.5f;
+            GUILayout.Label(inset ? "[INFO] Есть системные отступы" :
+                "[INFO] Safe area совпадает с экраном");
+            GUILayout.Label("Time.timeScale: " + Time.timeScale.ToString("0.00") +
+                " | AudioListener.pause: " + AudioListener.pause);
+            GUILayout.Label("Совет: сделай два снимка после поворота экрана " +
+                "и после закрытия Pause / Result.");
+
             Section("HV-9 — РУЧНАЯ ПРОВЕРКА ОКОН");
             GUILayout.Label(
                 "1. Сними скрин обычного и длинного текста в RU/EN.");
