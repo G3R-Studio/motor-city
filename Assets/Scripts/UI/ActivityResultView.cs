@@ -659,7 +659,7 @@ namespace MotorCity.UI
                         1f,
                         t / 0.65f) *
                     Mathf.PI) *
-                0.08f;
+                0.045f;
 
             if (resultHeadlineText != null)
             {
@@ -682,7 +682,7 @@ namespace MotorCity.UI
 
                 glow.a =
                     Mathf.Clamp01(
-                        0.28f *
+                        0.16f *
                         (1f -
                          Mathf.Max(
                              0f,
