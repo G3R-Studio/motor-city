@@ -1055,107 +1055,73 @@ namespace MotorCity.UI
                     0,
                     fixedRoadRoute.Count - 2);
 
+            // Space markers in screen pixels, not per-road-segment steps:
+            // neighbouring road nodes must not double-draw the same dot.
+            // At the default 500 m map radius this is roughly 50 m per dot.
+            const float DotSpacingPixels = 13f;
+            float dotSpacingWorld = DotSpacingPixels /
+                Mathf.Max(0.01f, mapScale);
+            float distanceToNextDot = dotSpacingWorld * 0.6f;
+
             for (int segment = firstSegment;
                  segment < fixedRoadRoute.Count - 1 &&
-                 placed < minimapRouteDots.Length &&
-                 !reachedEdge;
+                 placed < minimapRouteDots.Length && !reachedEdge;
                  segment++)
             {
-                Vector3 a =
-                    fixedRoadRoute[segment];
-
-                Vector3 b =
-                    fixedRoadRoute[segment + 1];
+                Vector3 a = fixedRoadRoute[segment];
+                Vector3 b = fixedRoadRoute[segment + 1];
 
                 if (segment == firstSegment)
-                {
-                    a =
-                        ClosestPointOnFlatSegment(
-                            carPosition,
-                            a,
-                            b);
-                }
+                    a = ClosestPointOnFlatSegment(carPosition, a, b);
 
-                float length =
-                    FlatDistance(
-                        a,
-                        b);
+                float length = FlatDistance(a, b);
+                if (length <= 0.01f)
+                    continue;
 
-                int steps =
-                    Mathf.Max(
-                        1,
-                        Mathf.CeilToInt(
-                            length /
-                            Mathf.Max(3f, worldRadius / 90f)));
-
-                for (int step = 0;
-                     step <= steps &&
+                // Carry the remaining spacing across segment boundaries.
+                // Inserting a marker at every waypoint caused the former
+                // continuous solid line, especially through turns.
+                for (float distance = distanceToNextDot;
+                     distance <= length &&
                      placed < minimapRouteDots.Length;
-                     step++)
+                     distance += dotSpacingWorld)
                 {
-                    Vector3 point =
-                        Vector3.Lerp(
-                            a,
-                            b,
-                            step /
-                            (float)steps);
+                    Vector3 point = Vector3.Lerp(a, b, distance / length);
+                    Vector3 delta = point - carPosition;
+                    delta.y = 0f;
+                    Vector3 local = Quaternion.Euler(0f, -yaw, 0f) * delta;
+                    Vector2 offset = new Vector2(
+                        local.x * mapScale, local.z * mapScale);
 
-                    Vector3 delta =
-                        point -
-                        carPosition;
-
-                    delta.y =
-                        0f;
-
-                    Vector3 local =
-                        Quaternion.Euler(
-                            0f,
-                            -yaw,
-                            0f) *
-                        delta;
-
-                    Vector2 offset =
-                        new(
-                            local.x *
-                            mapScale,
-                            local.z *
-                            mapScale);
-
-                    if (offset.sqrMagnitude >
-                        markerRadius *
-                        markerRadius)
+                    if (offset.sqrMagnitude > markerRadius * markerRadius)
                     {
-                        offset =
-                            offset.normalized *
-                            markerRadius;
-
-                        reachedEdge =
-                            true;
+                        reachedEdge = true;
+                        break;
                     }
 
-                    RectTransform dot =
-                        minimapRouteDots[
-                            placed];
-
+                    RectTransform dot = minimapRouteDots[placed];
                     if (!dot.gameObject.activeSelf)
-                    {
-                        dot.gameObject.SetActive(
-                            true);
-                    }
+                        dot.gameObject.SetActive(true);
 
                     dot.anchoredPosition = offset;
                     Image routeImage = minimapRouteImages[placed++];
-                    float distance = offset.magnitude;
-                    float nearFade = Mathf.SmoothStep(0f, 1f, distance / 9f);
-                    float edgeFade = Mathf.SmoothStep(0f, 1f, (markerRadius - distance) / 9f);
+                    float screenDistance = offset.magnitude;
+                    float nearFade = Mathf.SmoothStep(
+                        0f, 1f, screenDistance / 9f);
+                    float edgeFade = Mathf.SmoothStep(
+                        0f, 1f, (markerRadius - screenDistance) / 9f);
                     Color routeColor = routeImage.color;
-                    routeColor.a = Mathf.MoveTowards(routeColor.a, nearFade * edgeFade * minimapRouteOpacity * 0.96f,
+                    routeColor.a = Mathf.MoveTowards(routeColor.a,
+                        nearFade * edgeFade * minimapRouteOpacity * 0.96f,
                         Time.unscaledDeltaTime * 4f);
                     routeImage.color = routeColor;
-
-                    if (reachedEdge)
-                        break;
                 }
+
+                // Next dot offset relative to the next segment start,
+                // retaining distance travelled from the prior segment.
+                distanceToNextDot -= length;
+                while (distanceToNextDot <= 0f)
+                    distanceToNextDot += dotSpacingWorld;
             }
 
             for (int i = placed;

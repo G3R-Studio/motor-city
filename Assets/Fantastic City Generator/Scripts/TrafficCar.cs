@@ -103,6 +103,8 @@ namespace FCG
         private bool toSignalLeft = false;
         private bool toSignalRight = false;
         private Transform behind = null;
+        // Reused sensor buffer: avoid allocating raycast arrays per traffic car.
+        private readonly RaycastHit[] forwardProbeHits = new RaycastHit[24];
 
         //[HideInInspector]
         public Transform player;
@@ -685,7 +687,12 @@ namespace FCG
 
                 if (k < 2)
                 {
-                    motorTorque = Mathf.Lerp(carSetting.carPower * 30, 0, speed / Mathf.Max(1f, targetSpeed));
+                    // Braking must never be cancelled by the drive torque
+                    // assigned later in this loop.
+                    motorTorque = brake > 0f
+                        ? 0f
+                        : Mathf.Lerp(carSetting.carPower * 30f, 0f,
+                            speed / Mathf.Max(1f, targetSpeed));
                     wCollider[k].motorTorque = motorTorque;
                     wCollider[k].steerAngle = steer;
                 }
@@ -828,62 +835,108 @@ namespace FCG
 
         float FixedRaycasts()
         {
+            if (mRayC1 == null || mRayC2 == null)
+                return 0f;
 
-            RaycastHit hit;
-            float wdist = 6;
-            float wdist2 = (speed < 3) ? (wdist / 1.5f) : wdist;
+            // Six metres of warning is insufficient at 60 km/h (~16.7 m/s).
+            // Include reaction distance and stopping distance in the probe.
+            float speedMetresPerSecond = speed / 3.6f;
+            float probeDistance = Mathf.Clamp(
+                8f + speedMetresPerSecond * 1.5f
+                + speedMetresPerSecond * speedMetresPerSecond / (2f * 6f),
+                10f, 60f);
+            if (speed < 3f)
+                probeDistance = 9f;
 
-            float rStop;
-
-            mRayC1.localRotation = Quaternion.Euler(0, steer, 0);
+            mRayC1.localRotation = Quaternion.Euler(0f, steer, 0f);
             mRayC2.localRotation = mRayC1.localRotation;
 
-            Debug.DrawRay((mRayC1.position + mRayC2.position) * 0.5f, mRayC1.forward * wdist2, Color.yellow);
-            Debug.DrawRay(mRayC1.position, mRayC1.forward * wdist2, Color.yellow);
-            Debug.DrawRay(mRayC2.position, mRayC2.forward * wdist2, Color.yellow);
+            RaycastHit closestHit = default;
+            float closestDistance = float.PositiveInfinity;
+            Vector3 centre = (mRayC1.position + mRayC2.position) * 0.5f;
+            CheckForwardObstacle(centre, mRayC1.forward,
+                probeDistance, ref closestHit, ref closestDistance);
+            CheckForwardObstacle(mRayC1.position, mRayC1.forward,
+                probeDistance, ref closestHit, ref closestDistance);
+            CheckForwardObstacle(mRayC2.position, mRayC2.forward,
+                probeDistance, ref closestHit, ref closestDistance);
 
-            if (Physics.Raycast((mRayC1.position + mRayC2.position) * 0.5f, mRayC1.forward, out hit, wdist2))
+            if (float.IsPositiveInfinity(closestDistance))
             {
-                Debug.DrawRay((mRayC1.position + mRayC2.position) * 0.5f, mRayC1.forward * wdist2, Color.red);
-                rStop = hit.distance;
+                behind = null;
+                return 0f;
             }
-            else if (Physics.Raycast(mRayC1.position, mRayC1.forward, out hit, wdist2))
-            {
-                Debug.DrawRay(mRayC1.position, mRayC1.forward * wdist2, Color.red);
-                rStop = hit.distance;
-            }
-            else if (Physics.Raycast(mRayC2.position, mRayC2.forward, out hit, wdist2))
-            {
-                Debug.DrawRay(mRayC2.position, mRayC2.forward * wdist2, Color.red);
-                rStop = hit.distance;
-            }
-            else
-                rStop = 0;
 
-            behind = (rStop == 0) ? null : hit.transform;
+            TrafficCar leadingCar = closestHit.collider == null
+                ? null : closestHit.collider.GetComponentInParent<TrafficCar>();
+            behind = leadingCar != null
+                ? leadingCar.transform : closestHit.transform;
+            Debug.DrawRay(centre, mRayC1.forward * closestDistance, Color.red);
 
-            if (rStop > 0 && speed < 2)
+            if (speed < 2f)
             {
-
-                if (status == StatusCar.stoppedAtTrafficLights || status == StatusCar.waitingForAnotherVehicleToPass || status == StatusCar.Undefined)
-                { }
-                else if (hit.transform.name == "Stop")
+                if (closestHit.transform != null &&
+                    closestHit.transform.name == "Stop")
                     status = StatusCar.stoppedAtTrafficLights;
-                else if (hit.transform.GetComponent<TrafficCar>())
+                else if (leadingCar != null)
                 {
-                    StatusCar st = hit.transform.GetComponent<TrafficCar>().status;
-                    status = (st == StatusCar.stoppedAtTrafficLights || st == StatusCar.waitingForAnotherVehicleToPass) ? st : StatusCar.Undefined;
+                    StatusCar leadingStatus = leadingCar.status;
+                    status = leadingStatus == StatusCar.stoppedAtTrafficLights ||
+                             leadingStatus == StatusCar.waitingForAnotherVehicleToPass
+                        ? leadingStatus : StatusCar.Undefined;
                 }
-
             }
 
-            if (rStop == 0)
-                return 0;
-            else
-                return (rStop < 1 || speed < 0.5f) ? 20000 : (speed * 6) * ((wdist / rStop) * 6);
+            // Approach a stopped or slower vehicle using a speed-dependent
+            // following gap. The allowable closing speed falls as gap shrinks.
+            const float comfortableDeceleration = 5.5f; // metres / second²
+            float followingGap = 4f + speedMetresPerSecond * 1.15f;
+            float clearance = Mathf.Max(0f, closestDistance - followingGap);
+            float leadingSpeed = leadingCar != null
+                ? Mathf.Max(0f, leadingCar.GetSpeed()) / 3.6f : 0f;
+            float safeSpeedKph = (leadingSpeed +
+                Mathf.Sqrt(2f * comfortableDeceleration * clearance)) * 3.6f;
 
+            if (closestDistance < 2f)
+                return 20000f;
 
+            // This is a brake request, not a new top-speed cap.
+            return Mathf.Clamp((speed - safeSpeedKph) * 115f,
+                0f, 12000f);
+        }
 
+        private void CheckForwardObstacle(
+            Vector3 origin,
+            Vector3 direction,
+            float probeDistance,
+            ref RaycastHit closestHit,
+            ref float closestDistance)
+        {
+            int hitCount = Physics.RaycastNonAlloc(
+                origin, direction, forwardProbeHits, probeDistance);
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                RaycastHit candidate = forwardProbeHits[i];
+                Transform detected = candidate.transform;
+                if (detected == null || detected.IsChildOf(transform) ||
+                    candidate.distance >= closestDistance)
+                    continue;
+
+                TrafficCar other = candidate.collider == null
+                    ? null : candidate.collider.GetComponentInParent<TrafficCar>();
+
+                // Only traffic, red-light stopping surfaces and very close
+                // solid obstacles are considered from the longer probe.
+                // Distant buildings to the side of a curved ray should not
+                // bring the whole street to a halt.
+                if (other == null && detected.name != "Stop" &&
+                    candidate.distance > 12f)
+                    continue;
+
+                closestHit = candidate;
+                closestDistance = candidate.distance;
+            }
         }
 
 
