@@ -132,7 +132,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Result Headline",
-                    32,
+                    38,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, -86f),
@@ -145,7 +145,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Result Details",
-                    18,
+                    17,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(0f, -150f),
@@ -178,7 +178,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Result Reward",
-                    25,
+                    28,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
                     new Vector2(20f, -206f),
@@ -294,6 +294,11 @@ namespace MotorCity.UI
 
             resultContinueButton =
                 continueButton.gameObject;
+
+            // Continue is the visual primary action; no retry or
+            // dismiss callbacks are changed by this styling pass.
+            MotorCityUiSkin.ApplyButton(continueButton, MotorCityButtonRole.Primary);
+            MotorCityUiSkin.ApplyButton(retryButton, MotorCityButtonRole.Secondary);
         }
 
         private void BuildResultTouchControls(
