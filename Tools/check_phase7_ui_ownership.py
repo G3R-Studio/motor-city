@@ -122,6 +122,10 @@ def main() -> int:
         errors.append("Legacy modal texture reference remains serialized")
     if "button.targetGraphic is GarageReferenceGraphic" not in sources["HudUiFactory.cs"]:
         errors.append("HUD visual sweep can overwrite vector button owners")
+    legacy_art = ROOT / "Assets/Art/MotorCity/UI/VilleSeppanen/RacingUI/Source"
+    for obsolete in ("Skew Button 2.png", "Window 3.png", "Слой 0.png"):
+        if (legacy_art / obsolete).exists() or (legacy_art / (obsolete + ".meta")).exists():
+            errors.append(f"Retired RacingUI texture returned: {obsolete}")
 
     # Builder coordinates match the final desktop layout; visual polish
     # should not re-assign these exact RectTransforms on every resize.
