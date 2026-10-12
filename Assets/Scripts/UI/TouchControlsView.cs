@@ -312,8 +312,19 @@ namespace MotorCity.UI
                     1920f,
                     1080f);
 
-            canvasScaler.matchWidthOrHeight =
-                0.5f;
+            // Match the FrontEnd aspect policy while retaining 1920x1080
+            // as the sole authored design space. On wider phone viewports
+            // scale by height to avoid oversized controls and overlaps.
+            float aspect = Screen.height > 0
+                ? Screen.width / (float)Screen.height
+                : 16f / 9f;
+            float match = aspect < 1.55f ? 0f :
+                aspect > 2.10f ? 1f : 0.5f;
+            if (force || !Mathf.Approximately(
+                    canvasScaler.matchWidthOrHeight, match))
+            {
+                canvasScaler.matchWidthOrHeight = match;
+            }
         }
 
         private void BuildTouchUtilityControls(

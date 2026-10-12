@@ -507,3 +507,11 @@ Previous work already supplies on-demand read-only UI hierarchy checks, safe are
 2. Unity Profiler (Editor + representative target): capture at least 30 seconds steady gameplay, modal open/close stress and the Player Experience page after a 5-second fallback refresh. Review CPU Timeline/Hierarchy, GC Alloc/frame, UI layout rebuild events, memory trend and rendering batches. Attach profiler data and explain pass/fail with observed measurements; **no numerical performance claim exists yet**.
 3. Platform purchasing sandbox on the actual integration: verify transaction acknowledgement, persistence and re-entry; distinguish it from the accepted simulated UI path.
 4. Only after an explicit HV-10 build authorization: execute source gates and Unity Editor batch on one immutable SHA, then Desktop/Mobile WebGL, hosted/browser QA and SDK-specific smoke. Record actual job run IDs and results in this roadmap.
+
+
+### HV-responsive reference matrix — 2026-10-12
+
+- Single HUD + FrontEnd design reference: **1920x1080** (16:9). CanvasScaler owns viewport scaling; Safe Area root follows window/device bounds, and touch controls retain their existing artwork, hit targets, callbacks, and saved positioning.
+- Required QA viewports (no tablet profile): **1920x1080 desktop**, **1280x720 compact desktop**, **800x360 phone landscape**, **896x414 phone landscape**. Browser viewport dimensions, not physical display pixel dimensions.
+- One shared aspect policy across HUD and FrontEnd: narrow aspect <1.55 fits width, ordinary 16:9 matches width/height evenly, wide aspect >2.10 fits height. No per-device UI clones.
+- Manual Unity/browser QA still needed at each size: minimap + quick rail + expanded actions, speedometer/modes, seasonal card, touch editor up to 200%, RU/EN long strings, portrait exclusion, safe-area cutouts and UI sharpness. Source change does not establish visual PASS.
