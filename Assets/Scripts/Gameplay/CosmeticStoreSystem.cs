@@ -505,7 +505,8 @@ namespace MotorCity.Gameplay
 
                 if (claimed < 2)
                 {
-                    walletReward(claimed == 1 ? 95000 : 100000);
+                    if (!walletReward(claimed == 1 ? 95000 : 100000))
+                        return;
 
                     MotorCity.Persistence.MotorCitySaveService.SetInt(
                         "MotorCity.Purchase.SupporterPack.RewardClaimed",
@@ -517,13 +518,15 @@ namespace MotorCity.Gameplay
 
         }
 
-        private void walletReward(int credits)
+        private bool walletReward(int credits)
         {
             PlayerWallet wallet =
                 UnityEngine.Object.FindAnyObjectByType<PlayerWallet>();
 
-            wallet?.AddCredits(
-                credits);
+            if (wallet == null)
+                return false;
+            wallet.AddCredits(credits);
+            return true;
         }
 
         private bool IsSelectedOwned()
