@@ -353,8 +353,8 @@ namespace MotorCity.UI
                 modeIndicator.SetParent(root, false);
                 RectTransform modeRect = (RectTransform)modeIndicator;
                 // Match the utility buttons' centre anchors and lower row.
-                modeRect.anchorMin = new Vector2(0.5f, 0.5f);
-                modeRect.anchorMax = new Vector2(0.5f, 0.5f);
+                modeRect.anchorMin = new Vector2(0.5f, 0f);
+                modeRect.anchorMax = new Vector2(0.5f, 0f);
                 modeRect.pivot = new Vector2(0.5f, 0.5f);
                 modeRect.anchoredPosition = new Vector2(-92f, 39f);
             }
