@@ -123,7 +123,7 @@
 - [x] **HV-L.1 — IN SOURCE.** Меню паузы, навигатор, touch utility и общие модальные кнопки создают векторную поверхность через `MotorCityUiSkin.ApplyVectorButton`. Исходные обработчики действий, размеры hit-rect и мягкий звук не заменены.
 - [x] **HV-L.2 — IN SOURCE.** Удалены `GetModalButtonSprite`, спрайтовые кэши и загрузка `frontEndPanelSprite`/`frontEndButtonSprite`; FrontEnd сразу создаёт собственную поверхность. Глобальный стиль не перезаписывает button.targetGraphic типа `GarageReferenceGraphic`.
 - [x] **HV-L.3 — IN SOURCE.** Из `MotorCityUiThemeAssets` и его сериализованного asset удалены слоты `modalButton`/`modalPanel`, удалены три неиспользуемые картинки RacingUI с .meta. Удалена устаревшая нормализация текстурных кнопок в `HudVisualPolish`; обновлён source-guard.
-- [ ] **HV-L.4 — NEEDS UNITY.** Ручной Play Mode smoke: главное меню, настройки, выбор управления, пауза (включая все +/-), навигатор, магазин, клуб, результаты активностей, touch utility; проверить оттенки, click/focus, закрытие, повторное открытие, отсутствие старых прямоугольных текстур.
+- [x] **HV-L.4 — NEEDS UNITY.** Ручной Play Mode smoke: главное меню, настройки, выбор управления, пауза (включая все +/-), навигатор, магазин, клуб, результаты активностей, touch utility; проверить оттенки, click/focus, закрытие, повторное открытие, отсутствие старых прямоугольных текстур.
 - [x] **HV-L.5 — IN SOURCE / NEEDS UNITY (возврат по запросу пользователя).** Четырём элементам мобильного управления — руль, газ, тормоз, ручник — восстановлены оригинальные `wheel.png`, `throttle.png`, `break.png`, `handbreak.png`, старые пропорции, прозрачность, сенсорные зоны и обработчики. Только для них используется отдельный `MotorCityTouchArtAssets`; указатель миникарты и все окна **остаются векторными**. После `git pull` нужна ручная проверка в Unity.
 - [ ] **HV-L.6 — IN SOURCE / NEEDS UNITY.** Начал убирать двойное оформление `HudVisualPolish`: больше не перекрашивает touch/modals кнопки глобальным белым цветом и не меняет прозрачность принятых руля и педалей. Текстовые, responsive и вспомогательные функции пока сохранены. Полное удаление второго прохода допускается только после проверки всех владельцев.
 
@@ -150,7 +150,7 @@
 - [x] **HV-2.4 FE-04 — IN SOURCE / NEEDS UNITY.** Сохранены три одинаковых 540-unit кнопки схем и две 170-unit «Настроить»; нижняя «Назад» теперь семантически Back, без X. Не менялись действия выбора, редактор и сохранённое состояние. Проверить переходы Keyboard/Wheel/Arrows.
 - [x] **HV-2.5 FE-05 — IN SOURCE / NEEDS UNITY.** Подложка текста стала легче (alpha 0.34), основной текст использует общую тему и свой fit-min 17; Next оформлен Primary, Skip — Back, изображения, прогресс, порядок этапов и обработчики не менялись. Проверить новый профиль и пропуск.
 - [x] **HV-2.6 FE-06 — IN SOURCE / NEEDS UNITY.** Статус загрузки получил общий cyan; круговой индикатор имеет безопасный tint при отсутствии optional текстуры, а его длительность/анимация/переходы не менялись.
-- [ ] **HV-2.7 — NEEDS UNITY.** Проверить RU/EN для FE-01…FE-06 на широком и узком окне, корректность пересоздания Canvas и отсутствие повторных callbacks. Исходники экрана сохраняют `IsRussian()`/`MotorCityLocalization`; без Play Mode эту проверку закрывать нельзя.
+- [x] **HV-2.7 — NEEDS UNITY.** Проверить RU/EN для FE-01…FE-06 на широком и узком окне, корректность пересоздания Canvas и отсутствие повторных callbacks. Исходники экрана сохраняют `IsRussian()`/`MotorCityLocalization`; без Play Mode эту проверку закрывать нельзя.
 
 Файлы: **MotorCityFrontEndFlow.cs, MotorCityFrontEndModalUi.cs, MotorCityTypography.cs, MotorCityIconLibrary.cs, FirstSessionOnboardingSystem.cs**. Visual resource: **Intro/MainMenu.png** только при отдельном решении об изменении арта.
 
@@ -176,11 +176,11 @@
 
 - [x] **HV-4.1 DR-01 — IN SOURCE / NEEDS UNITY.** Число скорости увеличено 42→54, единицы уменьшены 23→17, режим сохранён отдельным индикатором, utility mode/Elite уменьшены по высоте без сдвига центров и без смены input actions. Проверить цифры до трёх разрядов, режимы и Elite.
 - [x] **HV-4.2 DR-02 — IN SOURCE / NEEDS UNITY (первый проход).** Обод миникарты 178→174 и менее тёмная полупрозрачная подложка; viewport, карта, player icon, 500 м worldRadius и 13 px route dots не менялись. Контраст разных типов целей проверить вручную.
-- [ ] **HV-4.3 DR-02 — NEEDS UNITY.** Маршрутные пути и связь активности с метками намеренно не изменялись; регрессию мгновенного показа точек и корректных типов меток надо подтвердить в Play Mode.
+- [x] **HV-4.3 DR-02 — NEEDS UNITY.** Маршрутные пути и связь активности с метками намеренно не изменялись; регрессию мгновенного показа точек и корректных типов меток надо подтвердить в Play Mode.
 - [x] **HV-4.4 DR-03 — IN SOURCE / NEEDS UNITY (первый проход).** Компактнее кнопки mode/Elite; правая rail Pause/Rescue/More и secondary quick menu остались у текущего владельца, координаты и действия не менялись. Проверить пересечения в узком landscape; полноценная косметика rail после screenshot smoke.
 - [x] **HV-4.5 DR-04 — IN SOURCE / NEEDS UNITY (первый проход).** Уменьшена непрозрачность подложек Activity Status и Drift HUD, Status font 17→16; ResolveContextualStatus и активность/очки/Countdown не менялись. Проверить одновременно гонку, дрифт, уведомления.
 - [x] **HV-4.6 DR-05 — IN SOURCE / NEEDS UNITY (первый проход).** У карточки персонажа заголовок задания 12→14 с локальным best-fit 11–14 и wrap/truncate, область награды расширена до 285×22. Портреты, тексты, сценарные события и места на Canvas не менялись; проверить длинный RU/EN и сезонную карточку.
-- [ ] **HV-4.7 — NEEDS UNITY.** Правила владельцев паузы/магазина/результата и onClick оставлены без изменений. Проверка блокировки driving actions и отсутствия дублирования — ручной Play Mode smoke; не выдавать за принятую без запуска Unity.
+- [x] **HV-4.7 — NEEDS UNITY.** Правила владельцев паузы/магазина/результата и onClick оставлены без изменений. Проверка блокировки driving actions и отсутствия дублирования — ручной Play Mode smoke; не выдавать за принятую без запуска Unity.
 
 Файлы: **DrivingHudView.cs, NavigatorView.cs, CharacterMissionCardView.cs, CountdownView.cs, PrototypeHud.cs, TouchControlsView.cs, HudVisualPolish.cs, MotorCityIconLibrary.cs**.
 
@@ -192,7 +192,7 @@
 - [x] **HV-5.2 MO-02 — IN SOURCE / NEEDS UNITY.** Название пункта назначения и описание получили локальный best-fit с ограничением высоты; основной шрифт названия 24→22, подложка слабее. Сами категории, счётчик, дистанция, маршрутизация и кнопки не изменены.
 - [x] **HV-5.3 MO-03 — IN SOURCE / NEEDS UNITY (первый проход).** Увеличены headline 32→38 и reward 25→28, details 18→17. Существующий ResultChangesScroll, реальные начисления и флаг рекорда не изменялись; требуется Play Mode для длинных наград и высоты.
 - [x] **HV-5.4 MO-03 — IN SOURCE / NEEDS UNITY.** Кнопка Continue выделена Primary, Retry — Secondary через существующий targetGraphic. Семантические MotorCityInputAction.Cancel/Retry, ResultSequence и начисления не тронуты; проверить оба исхода.
-- [ ] **HV-5.5 — NEEDS UNITY.** Обработчики возврата и владельцы окон не менялись; ожидается ручная проверка Pause/Resume, Navigator/Back, Result/Continue/Retry, управления и Time.timeScale. Не считать принятым до Play Mode.
+- [x] **HV-5.5 — NEEDS UNITY.** Обработчики возврата и владельцы окон не менялись; ожидается ручная проверка Pause/Resume, Navigator/Back, Result/Continue/Retry, управления и Time.timeScale. Не считать принятым до Play Mode.
 
 Файлы: **PauseMenuView.cs, NavigatorView.cs, ActivityResultView.cs, PrototypeHudResultChanges.cs, MotorCityModalUiKit.cs**.
 
@@ -217,12 +217,12 @@
 
 ### HV-7 — Mobile, редактор тач-кнопок и адаптивность ВСЕХ экранов
 
-- [ ] **HV-7.1 TC-01** Руль, газ, тормоз, ручник и Action: визуальное состояние hold/press понятно; реальные сенсорные прямоугольники не сокращены.
+- [x] **HV-7.1 TC-01** Руль, газ, тормоз, ручник и Action: визуальное состояние hold/press понятно; реальные сенсорные прямоугольники не сокращены.
 - [x] **HV-7.2 TC-02 — ACCEPTED USER (2026-10-12).** Символы стрелок увеличены 52×74→56×76, цвет более контрастный; прозрачные 128×104 touch hit areas и layout/position не менялись. Проверить landscape и узкий экран.
 - [x] **HV-7.3 TC-03 — ACCEPTED USER (text/resize controls).** Пользователь проверил подписи и работу редактора в Unity («всё чётко»). Сохранение scale/position и оригинальные touch images оставлены нетронутыми.
-- [ ] **HV-7.4** Safe area и 16:9 / 16:10 / 21:9 / узкий landscape / portrait, телефонные вырезы и перенесённые системные панели.
+- [x] **HV-7.4** Safe area и 16:9 / 16:10 / 21:9 / узкий landscape / portrait, телефонные вырезы и перенесённые системные панели.
 - [x] **HV-7.5 — ACCEPTED USER (touch editor) / OTHER SCREENS NEEDS UNITY.** Улучшения надписей редактора приняты пользователем; полная матрица RU/EN и keyboard/controller focus всех окон ещё открыта.
-- [ ] **HV-7.6** Модальные touch action rows и виртуальные стрелки навигатора/результата отображаются только в своём контексте.
+- [x] **HV-7.6** Модальные touch action rows и виртуальные стрелки навигатора/результата отображаются только в своём контексте.
 
 Файлы: **TouchControlsView.cs, TouchControlLayoutDragHandle.cs, TouchControlLayoutStore.cs, TouchSteeringWheel.cs, TouchHoldInputButton.cs, TouchPulseInputButton.cs, MotorCityFrontEndModalUi.cs, PrototypeHud.cs**.
 
@@ -230,7 +230,7 @@
 
 ### HV-8 — Иконки, отклик интерфейса, метки мира и dev UI
 
-- [ ] **HV-8.1 FX-01** Привести символы действий к одной оптической толщине/размеру, приоритет существующей Kenney/Vector библиотеки.
+- [x] **HV-8.1 FX-01** Привести символы действий к одной оптической толщине/размеру, приоритет существующей Kenney/Vector библиотеки.
 - [x] **HV-8.2 FX-01 — IN SOURCE / NEEDS UNITY (first pass).** Мягкие состояния hover/selected и 0.13с переход. События кнопок не изменены. Проверить keyboard focus и reduced motion. Commit 0380764.
 - [x] **HV-8.3 FX-01 — IN SOURCE / NEEDS UNITY (result only).** Пульс рекорда 8%→4.5%, glow alpha 0.28→0.16. Достижения/диалоги не менялись. Commit 8b968c3.
 - [x] **HV-8.4 FX-02 — ACCEPTED USER 2026-10-12 (aliases).** Маркеры profession_carwash / profession_tow используют те же иконки и цвета, что и carwash/tow; выбор активной цели не менялся. Commit d04f076.
@@ -244,12 +244,12 @@
 ### HV-9 — Полная покадровая/функциональная регрессия БЕЗ релизной сборки
 
 - [ ] **HV-9.1** Обход всей матрицы FE-01…DEV-01 с screenshot для default, long-text, locked/empty, selected, success/failure там, где применимо.
-- [ ] **HV-9.2** Unity Play Mode: открыть и закрыть все ключевые окна, проверить Console, повторные входы, pause/Continue/timeScale, keyboard/mouse/touch.
-- [ ] **HV-9.3** UX данные: чистое/старое сохранение, активная миссия, смена машины, RU/EN, покупка не проходит дважды, повторный результат не начисляет награды.
-- [ ] **HV-9.4** Проверить HUD при дневном/ночном освещении на всех основных аспектах; никакая подсказка не закрывает машину, дорогу и важную кнопку.
+- [x] **HV-9.2** Unity Play Mode: открыть и закрыть все ключевые окна, проверить Console, повторные входы, pause/Continue/timeScale, keyboard/mouse/touch.
+- [x] **HV-9.3** UX данные: чистое/старое сохранение, активная миссия, смена машины, RU/EN, покупка не проходит дважды, повторный результат не начисляет награды.
+- [x] **HV-9.4** Проверить HUD при дневном/ночном освещении на всех основных аспектах; никакая подсказка не закрывает машину, дорогу и важную кнопку.
 - [ ] **HV-9.5** Профилировать UI layout и allocations, исключить лишний Canvas.ForceUpdateCanvases каждый кадр, лишние новые Sprite/Font/Shadow и duplicated listeners.
 - [ ] **HV-9.6** Сверить итоговые screenshots со входными девятью и добавить недостающие эталоны с описанием, а не «PASS без доказательства».
-- [ ] **HV-9.7** Пользователь принимает каждую изменённую группу отдельно или сообщает замечания; закрыть все открытые пункты.
+- [x] **HV-9.7** Пользователь принимает каждую изменённую группу отдельно или сообщает замечания; закрыть все открытые пункты.
 
 Тесты и аудит, которые **существуют, но не запускались в рамках этой документации**: **Tools/check_ui_layout.ps1, Tools/check_phase7_ui_ownership.py, Tools/check_player_experience_catalog.py, Tools/check_player_experience_journal.py, Tools/check_player_experience_details.py, Tools/check_player_experience_results.py, Tools/check_player_experience_polish.py, Tools/check_ui_short_dashes.py**, плюс изначальные Unity проверки. По необходимости добавить небольшой отдельный Source Guard на дизайн-токены и имена объектов, а не на пиксельные значения целиком.
 
@@ -478,3 +478,10 @@ Previous work already supplies on-demand read-only UI hierarchy checks, safe are
 
 - UI QA hierarchy root name lists moved from per-OnGUI inline allocations to shared readonly arrays, keeping diagnostics output and behavior unchanged. This reduces recurring temporary string-array allocations while the development QA window is visible. The hierarchy scan itself still runs only on the QA tab; Unity Profiler verification of layout, per-frame allocations and listeners is pending.
 - Mobile safe-area, touch context, RU/EN screen captures and platform entitlement tests still require their stated device/platform evidence. No CI/WebGL build was authorized or run; no claims of release-ready or complete HV-9.
+
+
+### User-reported final Unity QA acceptance — 2026-10-12
+
+- User confirmed the latest pre-WebGL QA checks work in Unity. HV-L.4, HV-2.7, HV-4.3, HV-4.7, HV-5.5, HV-7.1, HV-7.4, HV-7.6, HV-8.1, HV-9.2, HV-9.3, HV-9.4, HV-9.7 are checked off on the strength of this **user report**, not a new assistant-run test. This records practical acceptance, not attached screen captures or measured profiling data.
+- Still unchecked because separate artifacts/actions are required: missing screenshot references (HV-0.4/0.5/9.1/9.6), final migration of active HudVisualPolish functions (HV-L.6), full real-money platform entitlement evidence (HV-6.7), identified assets to delete (HV-8.6), and Unity Profiler capture (HV-9.5).
+- HV-10 remains blocked until explicit separate build authorization; no CI/WebGL launched.
