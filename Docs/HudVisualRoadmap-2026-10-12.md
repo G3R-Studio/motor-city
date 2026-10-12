@@ -207,9 +207,9 @@
 
 ### HV-6 — Автоклуб и магазин
 
-- [ ] **HV-6.5 MO-04** Автоклуб: эмблема/имя, фокус и weekly прогресс; нижнюю группу Назад/Выбрать/Дальше/Закрыть упорядочить, **не удалять нужные действия молча**.
-- [ ] **HV-6.6 MO-05** Магазин: supporter card с изображением/превью из существующих разрешённых ассетов, реальным статусом «Уже куплено», короткий список преимуществ.
-- [ ] **HV-6.7** Платформенные покупки, валюта, право на EX и недоступные функции должны работать **как сейчас**; не подделывать purchase success.
+- [x] **HV-6.5 MO-04 — ACCEPTED USER (2026-10-12).** Адаптация текста автоклуба, названия, weekly progress и сохранённые действия проверены пользователем в Unity («всё чётко»).
+- [x] **HV-6.6 MO-05 — ACCEPTED USER (2026-10-12) / visual follow-ups possible.** Текстовые зоны магазина, карточка и существующее состояние товара приняты пользователем; новая иллюстрация товара не добавлялась.
+- [ ] **HV-6.7 — NEEDS SPECIAL TEST.** Пользователь принял UI магазина, но платформенный полный цикл реальных покупок/entitlement не тестировался отдельно. Текущая purchase-логика не менялась.
 
 Файлы: **ClubView.cs, StoreView.cs, MotorCityIconLibrary.cs**.
 
@@ -302,8 +302,8 @@
 | HV-3 Мой Motor City | **IN SOURCE (HV-3.1 partial)** | NEEDS UNITY | Типографика главной; остальные разделы пока открыты |
 | HV-4 Driving HUD | PLANNED | — | Не начато |
 | HV-5 Пауза/Навигатор/Результаты | PLANNED | — | Не начато |
-| HV-6 Автоклуб/Магазин | PLANNED | — | Не начато |
-| HV-7 Mobile/responsive | PLANNED | — | Не начато |
+| HV-6 Автоклуб/Магазин | ACCEPTED USER (UI) | 84da479, 15cf42f | Пользователь подтвердил «всё чётко»; purchase end-to-end остаётся отдельной проверкой |
+| HV-7 Mobile/responsive | IN SOURCE / NEEDS UNITY | f8612fc | Начат проход по редактору мобильных кнопок, локализация и узкие экраны |
 | HV-8 Иконки/эффекты/markers/dev | PLANNED | — | Не начато |
 | HV-9 Общая ручная QA | PLANNED | — | Не начато |
 | HV-10 Сборка/релиз | **ON HOLD** | — | Отложено до явного согласия |
@@ -363,3 +363,9 @@
 - HV-6.5 — IN SOURCE / NEEDS UNITY: club names, descriptions, focus and weekly fields now use local best-fit within existing areas; club selection/actions and weekly progress sources unchanged. Commit `84da479`.
 - HV-6.6 — IN SOURCE / NEEDS UNITY: store product name, description and season path use local best-fit; ownership and purchase sources remain unchanged. Commit `15cf42f`.
 - HV-6.7 — NEEDS UNITY: real purchase/entitlement conditions were not changed; test unavailable, owned and buy states. Check RU/EN and narrow landscape in Unity; no CI or build has been run.
+
+
+### HV-7 continuation — 2026-10-12
+
+- **HV-7.3/7.5 — IN SOURCE / NEEDS UNITY:** в редакторе мобильной раскладки добавлена локальная подгонка текста подсказки и кнопок (best-fit и ограничение переноса), без изменения hit areas, drag handles, размеров управления, сохранения или оригинальных картинок руля/педалей. Коммит `f8612fc`.
+- HV-7.1/7.2/7.4/7.6 остаются открыты для проверки устройства / Device Simulator; размеры safe-area и модальные владельцы не изменялись. Итоговые Unity CI/WebGL сборки не запускались.
