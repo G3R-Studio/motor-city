@@ -153,6 +153,36 @@ namespace MotorCity.Gameplay
             }
         }
 
+        public string CatalogCurrentFocusLine
+        {
+            get
+            {
+                ClubDefinition definition = CurrentClubDefinition();
+                return definition == null ? string.Empty :
+                    MotorCityLocalization.Format("club.focus_line",
+                        MotorCityLocalization.Text(definition.FocusKey));
+            }
+        }
+
+        public string CatalogCountedActivities
+        {
+            get
+            {
+                ClubDefinition definition = CurrentClubDefinition();
+                if (definition == null) return string.Empty;
+                string key = definition.Focus switch
+                {
+                    ClubFocus.Neon => "ux4.club.count.neon",
+                    ClubFocus.Turbo => "ux4.club.count.turbo",
+                    ClubFocus.Sun => "ux4.club.count.sun",
+                    ClubFocus.Rainbow => "ux4.club.count.rainbow",
+                    ClubFocus.City => "ux4.club.count.city",
+                    _ => "ux4.club.count.spark"
+                };
+                return MotorCityLocalization.Text(key);
+            }
+        }
+
         public string WeeklyLine =>
             MotorCityLocalization.Format(
                 weeklyRewardClaimed
