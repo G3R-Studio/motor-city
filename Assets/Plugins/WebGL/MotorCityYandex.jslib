@@ -47,6 +47,17 @@ mergeInto(LibraryManager.library, {
     }
   },
 
+  MotorCityYandexSetStickyEnabled: function(enabled) {
+    var ysdk = window.MotorCityYandexSdk;
+    if (!ysdk || !ysdk.adv) return;
+    var method = enabled ? 'showBannerAdv' : 'hideBannerAdv';
+    if (typeof ysdk.adv[method] === 'function') {
+      Promise.resolve(ysdk.adv[method]()).catch(function(error) {
+        console.warn('Motor City: sticky banner state change failed', error);
+      });
+    }
+  },
+
   MotorCityYandexInitialize: function(gameObjectNamePtr) {
     var gameObjectName = UTF8ToString(gameObjectNamePtr);
 
