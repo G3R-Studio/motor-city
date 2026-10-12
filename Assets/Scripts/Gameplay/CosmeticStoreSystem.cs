@@ -580,8 +580,8 @@ namespace MotorCity.Gameplay
         private void ApplyEntitlements()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            if (MotorCityPlatform.SupportsPurchases && NoAdsOwned)
-                MotorCityYandexSetStickyEnabled(0);
+            if (MotorCityPlatform.SupportsPurchases)
+                MotorCityYandexSetStickyEnabled(NoAdsOwned ? 0 : 1);
 #endif
             if (HasSupporterPack)
             {
