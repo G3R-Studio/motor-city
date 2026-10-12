@@ -652,12 +652,12 @@ namespace MotorCity.UI
             SetPlayerExperienceTextHeight(playerExperienceMissionRewardText, 62f);
             SetPlayerExperienceTextHeight(playerExperienceActivitiesText, 0f);
             SetPlayerExperienceTextHeight(playerExperienceJournalText, 0f);
-            SetPlayerExperienceTextHeight(playerExperienceClubText, 264f);
-            SetPlayerExperienceTextHeight(playerExperienceInspectorText, 264f);
-            SetPlayerExperienceTextHeight(playerExperiencePixieText, 264f);
+            SetPlayerExperienceTextHeight(playerExperienceClubText, 0f);
+            SetPlayerExperienceTextHeight(playerExperienceInspectorText, 0f);
+            SetPlayerExperienceTextHeight(playerExperiencePixieText, 0f);
             SetPlayerExperienceTextHeight(playerExperienceGarageText, 264f);
-            SetPlayerExperienceTextHeight(playerExperienceAchievementsText, 264f);
-            SetPlayerExperienceTextHeight(playerExperienceNightClubText, 264f);
+            SetPlayerExperienceTextHeight(playerExperienceAchievementsText, 0f);
+            SetPlayerExperienceTextHeight(playerExperienceNightClubText, 0f);
         }
 
         private static void SetPlayerExperienceTextHeight(
