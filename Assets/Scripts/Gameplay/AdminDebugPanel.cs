@@ -269,12 +269,20 @@ namespace MotorCity.Gameplay
         private void DrawWindow(
             int id)
         {
-            selectedTab =
-                GUILayout.Toolbar(
-                    selectedTab,
-                    Tabs,
-                    GUILayout.Height(
-                        38f));
+            // Two rows keep the eight QA categories readable on
+            // narrower Editor game windows without renaming any tab.
+            int firstRow = Mathf.Clamp(selectedTab, 0, 3);
+            int secondRow = selectedTab >= 4 ? selectedTab - 4 : -1;
+            int firstChoice = GUILayout.Toolbar(firstRow,
+                new[] { Tabs[0], Tabs[1], Tabs[2], Tabs[3] },
+                GUILayout.Height(34f));
+            int secondChoice = GUILayout.Toolbar(secondRow,
+                new[] { Tabs[4], Tabs[5], Tabs[6], Tabs[7] },
+                GUILayout.Height(34f));
+            if (firstChoice != firstRow)
+                selectedTab = firstChoice;
+            else if (secondChoice != secondRow)
+                selectedTab = secondChoice + 4;
 
             GUILayout.Space(
                 4f);
