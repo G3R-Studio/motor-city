@@ -145,6 +145,12 @@ namespace MotorCity.Gameplay
             Level >= 10 ? 0 : XpForNextLevel(Level);
         public int XpRemainingToNextLevel =>
             Level >= 10 ? 0 : Mathf.Max(0, XpForNextLevel(Level) - Xp);
+        public int CatalogDailyProgress => dailyProgress;
+        public int CatalogDailyTarget => dailyTarget;
+        public bool CatalogDailyClaimed => dailyClaimed;
+        public int CatalogDailyCreditsReward => dailyClaimed ? 0 : 300 + Level * 35;
+        public int CatalogDailyXpReward => dailyClaimed ? 0 : 45;
+
         public bool ExclusiveVisualActive => usingKisoraVisual;
         public bool ExclusiveVisualFallback =>
             useSupporterPixieSkin && !usingKisoraVisual;
