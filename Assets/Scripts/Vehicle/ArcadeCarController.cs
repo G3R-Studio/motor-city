@@ -1088,11 +1088,11 @@ namespace MotorCity.Vehicle
                 currentDriveMode switch
                 {
                     DriveMode.Sport =>
-                        36,
+                        27,
                     DriveMode.Drift =>
                         62,
                     _ =>
-                        42
+                        34
                 };
 
             int tunedSteeringAngle =

@@ -148,7 +148,7 @@ namespace FCG
             [Range(5, 10)]
             public float brakePower = 8f;
 
-            [Range(20, 30)]
+            [Range(20, 90)]
             public float limitSpeed = 30.0f;
 
             [Range(30, 72)]
@@ -582,7 +582,12 @@ namespace FCG
                 relativeVector = transform.InverseTransformPoint(atualWayScript.Node(sideAtual, currentNode, (currentNode == 0 && nodeSteerCarefully) ? 3 : 0));
             }
 
-            steer = ((relativeVector.x / relativeVector.magnitude) * carSetting.maxSteerAngle);
+            float turnRatio = Mathf.Abs(relativeVector.x) / Mathf.Max(1f, relativeVector.magnitude);
+            steer = ((relativeVector.x / Mathf.Max(0.01f, relativeVector.magnitude)) * carSetting.maxSteerAngle);
+            // Slow down before tight waypoint turns even with a higher cruise limit.
+            float cornerFactor = Mathf.Clamp01((turnRatio - 0.20f) * 1.7f);
+            float targetSpeed = Mathf.Lerp(carSetting.limitSpeed,
+                Mathf.Min(carSetting.limitSpeed, 25f), cornerFactor);
 
             bool b1 = true;
             bool b2;
@@ -661,8 +666,8 @@ namespace FCG
 
             float bk = 0;
 
-            if (speed > carSetting.limitSpeed)  // Keep the speed at the set limit
-                bk = Mathf.Lerp(100, 1000, (speed - carSetting.limitSpeed) / 10);
+            if (speed > targetSpeed)
+                bk = Mathf.Lerp(100, 1000, (speed - targetSpeed) / 10);
 
             if (bk > brake) brake = bk;
 
@@ -680,7 +685,7 @@ namespace FCG
 
                 if (k < 2)
                 {
-                    motorTorque = Mathf.Lerp(carSetting.carPower * 30, 0, speed / carSetting.limitSpeed);
+                    motorTorque = Mathf.Lerp(carSetting.carPower * 30, 0, speed / Mathf.Max(1f, targetSpeed));
                     wCollider[k].motorTorque = motorTorque;
                     wCollider[k].steerAngle = steer;
                 }

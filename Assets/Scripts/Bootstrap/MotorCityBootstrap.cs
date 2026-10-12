@@ -987,6 +987,12 @@ namespace MotorCity.Bootstrap
                 }
 
                 qualityAdapter.Bind(behaviour);
+
+                TrafficSpeedAdapter speedAdapter =
+                    behaviour.GetComponent<TrafficSpeedAdapter>();
+                if (speedAdapter == null)
+                    speedAdapter = behaviour.gameObject.AddComponent<TrafficSpeedAdapter>();
+                speedAdapter.Bind();
                 return true;
             }
 
