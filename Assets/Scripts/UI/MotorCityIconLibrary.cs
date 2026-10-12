@@ -345,11 +345,13 @@ namespace MotorCity.UI
                     "profession" =>
                         "ProfessionMarkerVfx",
 
-                    "carwash" =>
+                    "carwash" or
+                    "profession_carwash" =>
                         "CarWashMarkerVfx",
 
                     "tow" or
-                    "towtruck" =>
+                    "towtruck" or
+                    "profession_tow" =>
                         "TowMarkerVfx",
 
                     _ =>
@@ -451,11 +453,13 @@ namespace MotorCity.UI
                 "profession" =>
                     new Color(1f, 0.68f, 0.10f, 1f),
 
-                "carwash" =>
+                "carwash" or
+                "profession_carwash" =>
                     new Color(0.10f, 0.82f, 1f, 1f),
 
                 "tow" or
-                "towtruck" =>
+                "towtruck" or
+                "profession_tow" =>
                     new Color(1f, 0.56f, 0.06f, 1f),
 
                 "garage" =>
