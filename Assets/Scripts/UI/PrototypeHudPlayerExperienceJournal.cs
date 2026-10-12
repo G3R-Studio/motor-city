@@ -284,7 +284,7 @@ namespace MotorCity.UI
             JournalItem(sb,
                 MotorCityLocalization.Format("ux.journal.contract_title",
                     contracts.CatalogCycle, contracts.CatalogIndex + 1,
-                    6, contracts.CatalogTitle) + " - " + contracts.CatalogClient,
+                    contracts.CatalogCount, contracts.CatalogTitle) + " - " + contracts.CatalogClient,
                 contracts.CatalogBrief + "\n" +
                     MotorCityLocalization.Text("ux.journal.contract_passive"),
                 contracts.CatalogProgressLine,
