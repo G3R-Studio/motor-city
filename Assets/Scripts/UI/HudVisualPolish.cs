@@ -221,24 +221,8 @@ namespace MotorCity.UI
             if (root == null)
                 return;
 
-            Image[] images =
-                root.GetComponentsInChildren<Image>(
-                    true);
-
-            foreach (Image image in images)
-            {
-                if (image == null ||
-                    !image.raycastTarget)
-                {
-                    continue;
-                }
-
-                image.color =
-                    Color.white;
-
-                RemoveOutline(
-                    image.gameObject);
-            }
+            // Let the button builder own its final tint and vector sprite.
+            // This pass only adds text legibility; it never recolors buttons.
 
             Text[] labels =
                 root.GetComponentsInChildren<Text>(
