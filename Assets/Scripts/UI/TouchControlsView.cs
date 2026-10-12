@@ -111,6 +111,11 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f),
                     TextColor);
 
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 11;
+            text.resizeTextMaxSize = 15;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
             text.text =
                 label;
 
@@ -1438,6 +1443,11 @@ namespace MotorCity.UI
             hint.text =
                 MotorCityLocalization.Text(
                     "touch.layout.hint");
+            hint.resizeTextForBestFit = true;
+            hint.resizeTextMinSize = 12;
+            hint.resizeTextMaxSize = 18;
+            hint.horizontalOverflow = HorizontalWrapMode.Wrap;
+            hint.verticalOverflow = VerticalWrapMode.Truncate;
 
             CreateTouchLayoutEditorButton(
                 root,
