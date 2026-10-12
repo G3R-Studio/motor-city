@@ -24,9 +24,9 @@ navigator = sources["NavigatorView.cs"]
 def partial_count(class_name, method):
     # Only consider files belonging to the requested partial UI type.
     # Do not count a different UI component's OnDestroy.
-    owner = re.compile(r"\\bpartial\\s+class\\s+" + re.escape(class_name) + r"\\b")
-    declaration = re.compile(r"\\b(?:private|public|protected|internal)\\s+void\\s+"
-                             + re.escape(method) + r"\\s*\\(")
+    owner = re.compile(r"\bpartial\s+class\s+" + re.escape(class_name) + r"\b")
+    declaration = re.compile(r"\b(?:private|public|protected|internal)\s+void\s+"
+                             + re.escape(method) + r"\s*\(")
     return sum(len(declaration.findall(content))
                for content in sources.values() if owner.search(content))
 
