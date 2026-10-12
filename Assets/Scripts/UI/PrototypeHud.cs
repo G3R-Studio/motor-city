@@ -1616,89 +1616,11 @@ namespace MotorCity.UI
         // UX-1 overview: only existing read-only gameplay state is displayed.
         // Club reward eligibility is NOT a "claim" button and must not be
         // confused with the goal being completed.
-        public string PlayerExperienceClubLine
-        {
-            get
-            {
-                if (club == null)
-                    return MotorCityLocalization.Text("ux.sections.not_ready");
+        public string PlayerExperienceClubLine => BuildPlayerExperienceClubDetail();
 
-                if (!club.HasClub)
-                    return MotorCityLocalization.Text("ux.club.not_joined");
+        public string PlayerExperienceInspectorLine => BuildPlayerExperienceInspectorDetail();
 
-                return string.Join(
-                    "\n\n",
-                    MotorCityLocalization.Format(
-                        "ux.club.current",
-                        club.CurrentClubName),
-                    club.WeeklyLine,
-                    club.BrowseClubRewardLine);
-            }
-        }
-
-        public string PlayerExperienceInspectorLine
-        {
-            get
-            {
-                if (cityRisk == null)
-                    return MotorCityLocalization.Text("ux.sections.not_ready");
-
-                return string.Join(
-                    "\n\n",
-                    MotorCityLocalization.Format(
-                        "ux.inspector.attention",
-                        Mathf.RoundToInt(cityRisk.Attention),
-                        cityRisk.RiskLevel),
-                    MotorCityLocalization.Text(
-                        cityRisk.PursuitActive
-                            ? "ux.inspector.watching"
-                            : "ux.inspector.calm"));
-            }
-        }
-
-        public string PlayerExperiencePixieLine
-        {
-            get
-            {
-                if (pixie == null)
-                    return MotorCityLocalization.Text("ux.sections.not_ready");
-
-                string xpLine = pixie.Level >= 10
-                    ? MotorCityLocalization.Format(
-                        "ux.pixie.progress_max",
-                        pixie.Level, pixie.Xp)
-                    : MotorCityLocalization.Format(
-                        "ux.pixie.progress_next",
-                        pixie.Level, pixie.Xp,
-                        pixie.XpForNextLevelTarget,
-                        pixie.XpRemainingToNextLevel);
-
-                string skinLine = MotorCityLocalization.Text(
-                    pixie.ExclusiveVisualActive
-                        ? "ux.pixie.skin_ex"
-                        : pixie.ExclusiveVisualFallback
-                            ? "ux.pixie.skin_missing_ex"
-                            : "ux.pixie.skin_standard");
-
-                string abilityLine = MotorCityLocalization.Text(
-                    pixie.Level >= 4
-                        ? "ux.pixie.ability_boost"
-                        : pixie.Level >= 3
-                            ? "ux.pixie.ability_discoveries"
-                            : pixie.Level >= 2
-                                ? "ux.pixie.ability_hints"
-                                : "ux.pixie.ability_soon");
-
-                return string.Join(
-                    "\n\n",
-                    xpLine,
-                    skinLine,
-                    abilityLine,
-                    MotorCityLocalization.Format(
-                        "ux.pixie.daily",
-                        pixie.DailyObjectiveLine));
-            }
-        }
+        public string PlayerExperiencePixieLine => BuildPlayerExperiencePixieDetail();
 
         // The ActivityManager owns the same priority resolver shown after
         // a completed activity. Reuse it rather than inventing a new list
@@ -1810,112 +1732,11 @@ namespace MotorCity.UI
             }
         }
 
-        public string PlayerExperienceGarageLine
-        {
-            get
-            {
-                if (garage == null)
-                    return MotorCityLocalization.Text("ux.sections.not_ready");
+        public string PlayerExperienceGarageLine => BuildPlayerExperienceGarageDetail();
 
-                return string.Join(
-                    "\n\n",
-                    MotorCityLocalization.Format(
-                        "ux.garage.selected", garage.VehicleName),
-                    garage.VehicleLine,
-                    garage.NextVehicleLine,
-                    garage.VehicleMasteryLine,
-                    vehicleSpecialization == null
-                        ? string.Empty
-                        : vehicleSpecialization.GarageLine,
-                    vehicleHistory == null
-                        ? string.Empty
-                        : vehicleHistory.GarageLine);
-            }
-        }
+        public string PlayerExperienceAchievementsLine => BuildPlayerExperienceAchievementsDetail();
 
-        public string PlayerExperienceAchievementsLine
-        {
-            get
-            {
-                if (achievements == null && collection == null)
-                    return MotorCityLocalization.Text("ux.sections.not_ready");
-
-                System.Text.StringBuilder result =
-                    new System.Text.StringBuilder(400);
-                if (achievements != null)
-                {
-                    result.Append(MotorCityLocalization.Format(
-                        "ux.achievements.count",
-                        achievements.UnlockedCount,
-                        achievements.TotalCount));
-
-                    for (int i = 0; i < achievements.TotalCount; i++)
-                    {
-                        result.Append('\n');
-                        result.Append(
-                            achievements.IsAchievementUnlocked(i)
-                                ? MotorCityLocalization.Text("ux.achievements.done")
-                                : MotorCityLocalization.Text("ux.achievements.locked"));
-                        result.Append("  ");
-                        result.Append(achievements.GetAchievementName(i));
-                        int current;
-                        int target;
-                        achievements.GetAchievementProgress(
-                            i, out current, out target);
-                        int credits;
-                        int rep;
-                        achievements.GetAchievementReward(
-                            i, out credits, out rep);
-                        result.Append('\n');
-                        result.Append("   ");
-                        result.Append(MotorCityLocalization.Format(
-                            "ux.achievements.progress_reward",
-                            current, target, credits, rep));
-                        result.Append('\n');
-                    }
-                }
-
-                if (collection != null)
-                {
-                    if (result.Length > 0)
-                        result.Append("\n\n");
-
-                    result.Append(MotorCityLocalization.Text(
-                        "ux.achievements.collection"));
-                    result.Append('\n');
-                    result.Append(collection.GarageLine);
-                    result.Append('\n');
-                    result.Append(collection.HudLine);
-                }
-
-                return result.ToString();
-            }
-        }
-
-        public string PlayerExperienceNightClubLine
-        {
-            get
-            {
-                if (underground == null && legends == null)
-                    return MotorCityLocalization.Text("ux.sections.not_ready");
-
-                string clubLine = underground == null
-                    ? MotorCityLocalization.Text("ux.sections.not_ready")
-                    : underground.HudLine;
-
-                string status = underground != null && underground.IsActive
-                    ? MotorCityLocalization.Text("ux.nightclub.active")
-                    : string.Empty;
-
-                string legendsLine = legends == null
-                    ? string.Empty
-                    : MotorCityLocalization.Format(
-                        "ux.nightclub.legends",
-                        legends.HudLine);
-
-                return string.Join("\n\n", clubLine, status, legendsLine);
-            }
-        }
+        public string PlayerExperienceNightClubLine => BuildPlayerExperienceNightClubDetail();
 
         private bool HasBlockingModalUi()
         {
