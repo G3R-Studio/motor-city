@@ -218,10 +218,10 @@
 ### HV-7 — Mobile, редактор тач-кнопок и адаптивность ВСЕХ экранов
 
 - [ ] **HV-7.1 TC-01** Руль, газ, тормоз, ручник и Action: визуальное состояние hold/press понятно; реальные сенсорные прямоугольники не сокращены.
-- [ ] **HV-7.2 TC-02** Стрелки: ровные зоны, контраст, нет наложения на steer / газ / другие кнопки в landscape.
-- [ ] **HV-7.3 TC-03** Редактор положений **и размеров**: активный элемент выделен, управление размером видно, Reset/Back/Save понятны; загрузка настроек без скачка scale.
+- [x] **HV-7.2 TC-02 — IN SOURCE / NEEDS UNITY (visual pass).** Символы стрелок увеличены 52×74→56×76, цвет более контрастный; прозрачные 128×104 touch hit areas и layout/position не менялись. Проверить landscape и узкий экран.
+- [x] **HV-7.3 TC-03 — ACCEPTED USER (text/resize controls).** Пользователь проверил подписи и работу редактора в Unity («всё чётко»). Сохранение scale/position и оригинальные touch images оставлены нетронутыми.
 - [ ] **HV-7.4** Safe area и 16:9 / 16:10 / 21:9 / узкий landscape / portrait, телефонные вырезы и перенесённые системные панели.
-- [ ] **HV-7.5** RU/EN, больший/меньший текст, читаемые описания, ограничения размеров без обрезания, заметный keyboard/controller focus.
+- [x] **HV-7.5 — ACCEPTED USER (touch editor) / OTHER SCREENS NEEDS UNITY.** Улучшения надписей редактора приняты пользователем; полная матрица RU/EN и keyboard/controller focus всех окон ещё открыта.
 - [ ] **HV-7.6** Модальные touch action rows и виртуальные стрелки навигатора/результата отображаются только в своём контексте.
 
 Файлы: **TouchControlsView.cs, TouchControlLayoutDragHandle.cs, TouchControlLayoutStore.cs, TouchSteeringWheel.cs, TouchHoldInputButton.cs, TouchPulseInputButton.cs, MotorCityFrontEndModalUi.cs, PrototypeHud.cs**.
@@ -369,3 +369,8 @@
 
 - **HV-7.3/7.5 — IN SOURCE / NEEDS UNITY:** в редакторе мобильной раскладки добавлена локальная подгонка текста подсказки и кнопок (best-fit и ограничение переноса), без изменения hit areas, drag handles, размеров управления, сохранения или оригинальных картинок руля/педалей. Коммит `f8612fc`.
 - HV-7.1/7.2/7.4/7.6 остаются открыты для проверки устройства / Device Simulator; размеры safe-area и модальные владельцы не изменялись. Итоговые Unity CI/WebGL сборки не запускались.
+
+
+### HV-7 ongoing — 2026-10-12
+
+После пользовательской приёмки редактора отмечены HV-7.3 и touch-editor часть HV-7.5. Внесена только безопасная косметика Chevron стрелок: `805c4bb`. Проверено по исходникам, что `ApplySafeArea` на `CreateSafeAreaRoot` уже существует и контекстные touch modal roots переключаются через `UpdateTouchControlsVisibility`; HV-7.1, HV-7.4 и HV-7.6 не отмечать принятыми без Device Simulator/Play Mode. Значки руля, газа, тормоза и ручника не менялись. Unity/CI/WebGL не запускались.
