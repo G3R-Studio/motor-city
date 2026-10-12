@@ -395,7 +395,7 @@ namespace MotorCity.UI
                 new Vector2(-365f, -70f);
             rail.sizeDelta =
                 new Vector2(108f, 154f);
-            rail.localScale = Vector3.one * 1.5f;
+            rail.localScale = Vector3.one * 1.15f;
 
             CreatePauseButton(
                 rail,
@@ -456,7 +456,7 @@ namespace MotorCity.UI
                 new Vector2(-539f, -70f);
             menu.sizeDelta =
                 new Vector2(120f, 198f);
-            menu.localScale = Vector3.one * 1.5f;
+            menu.localScale = Vector3.one * 1.15f;
 
             CreateLocalizedTouchPulseButton(
                 menu,
