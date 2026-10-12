@@ -21,7 +21,8 @@ namespace MotorCity.Gameplay
             "МАШИНЫ",
             "МИР",
             "RESULT / ADS",
-            "СИСТЕМЫ"
+            "СИСТЕМЫ",
+            "UI QA"
         };
 
         private PlayerWallet wallet;
@@ -306,8 +307,11 @@ namespace MotorCity.Gameplay
                 case 5:
                     DrawResultAndAds();
                     break;
-                default:
+                case 6:
                     DrawSystems();
+                    break;
+                default:
+                    DrawUiQa();
                     break;
             }
 
@@ -1578,6 +1582,80 @@ namespace MotorCity.Gameplay
             }
 
             GUILayout.EndHorizontal();
+        }
+
+        private void DrawUiQa()
+        {
+            Section("ОКНА И РАЗДЕЛЫ — БЕЗ ПРОХОЖДЕНИЯ");
+            GUILayout.Label("Войти в Play Mode. QA-окна используют настоящие UI владельцы. Закрой админ-панель клавишей O для осмотра.");
+
+            PrototypeHud hud = Object.FindAnyObjectByType<PrototypeHud>();
+            MotorCityFrontEndFlow frontEnd =
+                Object.FindAnyObjectByType<MotorCityFrontEndFlow>();
+            if (hud == null)
+            {
+                GUILayout.Label("HUD ещё не создан.");
+                return;
+            }
+
+            GUILayout.BeginHorizontal();
+            if (Button("ПАУЗА"))
+            {
+                hud.DebugOpenPauseForUiQa();
+                lastAction = "Открыта пауза";
+            }
+            if (Button("МОЙ MOTOR CITY"))
+            {
+                hud.DebugOpenExperienceForUiQa();
+                lastAction = "Открыта главная Мой Motor City";
+            }
+            if (Button("НАВИГАТОР"))
+            {
+                MotorCityInput.PulseVirtual(MotorCityInputAction.ToggleNavigator);
+                lastAction = "Переключён навигатор";
+            }
+            GUILayout.EndHorizontal();
+
+            Section("МОЙ MOTOR CITY — ПРЯМОЙ ПЕРЕХОД");
+            GUILayout.Label("Сначала открыть Мой Motor City. Эти кнопки не изменяют прогресс.");
+            string[] pages = {
+                "ГЛАВНАЯ", "АКТИВНОСТИ", "ЖУРНАЛ", "АВТОКЛУБ",
+                "ИНСПЕКТОР", "ПИКСИ", "ГАРАЖ", "ДОСТИЖЕНИЯ",
+                "НОЧНОЙ КЛУБ"
+            };
+            for (int i = 0; i < pages.Length; i += 3)
+            {
+                GUILayout.BeginHorizontal();
+                for (int j = i; j < Mathf.Min(i + 3, pages.Length); j++)
+                {
+                    int index = j;
+                    if (Button(pages[j]))
+                    {
+                        if (frontEnd != null &&
+                            frontEnd.DebugShowExperienceSection(index))
+                            lastAction = "UI QA: " + pages[j];
+                        else
+                            lastAction = "Сначала открой Мой Motor City";
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+
+            Section("РЕЗУЛЬТАТЫ — СЦЕНАРИИ");
+            GUILayout.Label("Внимание: текущие ShowResult вызывают настоящие progression listeners. Для проверки оформления используй тестовый профиль.");
+            string[] ids = { "delivery", "sprint", "circuit", "drift" };
+            string[] titles = { "ДОСТАВКА", "СПРИНТ", "КОЛЬЦО", "ДРИФТ-ЗАЕЗД" };
+            for (int i = 0; i < ids.Length; i++)
+            {
+                int index = i;
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(titles[i], GUILayout.Width(150f));
+                if (Button("SUCCESS")) SimulateResult(ids[index], titles[index], true, false, 850);
+                if (Button("RECORD")) SimulateResult(ids[index], titles[index], true, true, 1200);
+                if (Button("FAIL")) SimulateResult(ids[index], titles[index], false, false, 0);
+                GUILayout.EndHorizontal();
+            }
+            if (Button("ЗАКРЫТЬ RESULT")) CloseResult();
         }
 
         private void DrawResultAndAds()
