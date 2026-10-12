@@ -176,10 +176,19 @@ namespace MotorCity.UI
                 return resultChangesRenderedText;
             resultChangesRenderedSequence = sequence;
 
-            if (!activityManager.ResultSuccess ||
-                resultChangesBefore == null ||
-                resultChangesBefore.Sequence != sequence)
+            if (!activityManager.ResultSuccess)
                 return resultChangesRenderedText = string.Empty;
+
+            if (resultChangesBefore == null ||
+                resultChangesBefore.Sequence != sequence)
+            {
+                StringBuilder fallback = new StringBuilder();
+                if (activityManager.ResultMasteryXp > 0)
+                    AppendResultChange(fallback, MotorCityLocalization.Format(
+                        "hud.result_mastery", activityManager.ResultMasteryXp));
+                AppendResultChange(fallback, activityManager.ResultSecondaryProgress);
+                return resultChangesRenderedText = fallback.ToString();
+            }
 
             ResultChangesSnapshot before = resultChangesBefore;
             ResultChangesSnapshot after = ReadResultChangesSnapshot();
