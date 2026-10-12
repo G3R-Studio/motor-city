@@ -668,6 +668,9 @@ namespace MotorCity.UI
             LayoutElement element = text.GetComponent<LayoutElement>();
             if (element != null)
             {
+                // A previous fixed minHeight must not prevent a short
+                // read-only page from shrinking to its actual content.
+                element.minHeight = minimumHeight;
                 element.preferredHeight =
                     Mathf.Max(minimumHeight, text.preferredHeight + 12f);
             }
