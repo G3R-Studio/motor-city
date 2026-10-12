@@ -1701,39 +1701,24 @@ namespace MotorCity.Gameplay
             }
 
             Section("HV-9 — ДИАГНОСТИКА ВИДИМЫХ ОКОН");
-            // Read-only scene hierarchy check. Restrict it to the QA tab so
-            // the production HUD pays no per-frame inspection cost.
+            // QA-only read-only hierarchy inspection. Count actual roots,
+            // including inactive ones; never infer duplicates from graphics.
             if (hud != null)
             {
-                string[] modalNames = {
-                    "Pause Overlay", "Navigator Menu Overlay",
-                    "Activity Result Overlay", "Store Overlay", "Club Overlay"
-                };
-                UnityEngine.UI.Graphic[] graphics =
-                    hud.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
-                int activeModalCount = 0;
-                foreach (string modalName in modalNames)
-                {
-                    int copies = 0;
-                    int visibleCopies = 0;
-                    foreach (UnityEngine.UI.Graphic graphic in graphics)
-                    {
-                        if (graphic == null || graphic.gameObject.name != modalName)
-                            continue;
-                        copies++;
-                        if (graphic.gameObject.activeInHierarchy)
-                            visibleCopies++;
-                    }
-                    activeModalCount += visibleCopies;
-                    GUILayout.Label((visibleCopies > 0 ? "[OPEN] " : "[CLOSED] ") +
-                        modalName + "  (объектов: " + copies + ")");
-                    if (copies > 1)
-                        GUILayout.Label("[WARNING] Дублированный корень: " + modalName);
-                }
-                if (activeModalCount > 1)
-                    GUILayout.Label("[WARNING] Одновременно открыто несколько модальных окон: " +
-                        activeModalCount);
+                DrawUiQaRootGroup(hud.transform,
+                    new[] { "Pause Overlay", "Navigator Menu Overlay",
+                        "Activity Result Overlay", "Store Overlay", "Club Overlay" },
+                    true);
+                DrawUiQaRootGroup(hud.transform,
+                    new[] { "Touch Driving Controls", "Touch Layout Editor",
+                        "Character Card", "Main HUD Quick Actions",
+                        "HUD Secondary Actions" }, false);
             }
+            if (frontEnd != null)
+                DrawUiQaRootGroup(frontEnd.transform,
+                    new[] { "Main Menu", "About Screen", "Settings Screen",
+                        "Player Experience Screen", "Intro Screen",
+                        "Control Choice Screen", "Loading Screen" }, true);
 
             Section("HV-9 — РУЧНАЯ ПРОВЕРКА ОКОН");
             GUILayout.Label(
@@ -1766,6 +1751,37 @@ namespace MotorCity.Gameplay
                 GUILayout.EndHorizontal();
             }
             if (Button("ЗАКРЫТЬ RESULT")) CloseResult();
+        }
+
+        private void DrawUiQaRootGroup(
+            Transform owner, string[] names, bool warnOnMultipleOpen)
+        {
+            if (owner == null)
+                return;
+            RectTransform[] rects =
+                owner.GetComponentsInChildren<RectTransform>(true);
+            int visibleRoots = 0;
+            foreach (string name in names)
+            {
+                int copies = 0;
+                int visible = 0;
+                foreach (RectTransform rect in rects)
+                {
+                    if (rect == null || rect.gameObject.name != name)
+                        continue;
+                    copies++;
+                    if (rect.gameObject.activeInHierarchy)
+                        visible++;
+                }
+                visibleRoots += visible;
+                GUILayout.Label((visible > 0 ? "[OPEN] " : "[CLOSED] ") +
+                    name + "  (объектов: " + copies + ")");
+                if (copies > 1)
+                    GUILayout.Label("[WARNING] Дубликат: " + name);
+            }
+            if (warnOnMultipleOpen && visibleRoots > 1)
+                GUILayout.Label("[WARNING] Одновременно открыто " +
+                    visibleRoots + " экранов у одного владельца");
         }
 
         private void DrawResultAndAds()
