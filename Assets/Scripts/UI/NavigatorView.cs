@@ -1893,67 +1893,12 @@ namespace MotorCity.UI
             bool touchUi =
                 ShouldUseTouchUi();
 
-            Image navigatorButtonImage =
-                navigatorButtonObject.GetComponent<Image>();
-
-            Texture2D navigatorButtonTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.modalButton;
-
-            Sprite navigatorButtonSprite =
-                GetModalButtonSprite(
-                    navigatorButtonTexture);
-
-            if (navigatorButtonSprite != null)
-            {
-                navigatorButtonImage.sprite =
-                    navigatorButtonSprite;
-                navigatorButtonImage.type =
-                    Image.Type.Simple;
-                navigatorButtonImage.preserveAspect =
-                    false;
-                navigatorButtonImage.color =
-                    Color.white;
-            }
-            else
-            {
-                navigatorButtonImage.color =
-                    new Color(
-                        PanelColor.r,
-                        PanelColor.g,
-                        PanelColor.b,
-                        0.94f);
-            }
-
             Button navigatorButton =
                 navigatorButtonObject.GetComponent<Button>();
 
-            navigatorButton.targetGraphic =
-                navigatorButtonImage;
-
-            ColorBlock navigatorColors =
-                navigatorButton.colors;
-
-            navigatorColors.normalColor =
-                Color.white;
-            navigatorColors.highlightedColor =
-                new Color(
-                    0.88f,
-                    0.94f,
-                    1f,
-                    1f);
-            navigatorColors.pressedColor =
-                new Color(
-                    0.68f,
-                    0.78f,
-                    0.96f,
-                    1f);
-            navigatorColors.selectedColor =
-                navigatorColors.highlightedColor;
-
-            navigatorButton.colors =
-                navigatorColors;
+            MotorCityUiSkin.ApplyVectorButton(
+                navigatorButton,
+                MotorCityButtonRole.Utility);
 
             navigatorButton.onClick.AddListener(
                 ToggleNavigatorMenu);
