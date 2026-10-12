@@ -85,67 +85,12 @@ namespace MotorCity.UI
                         1f);
             }
 
-            Image image =
-                buttonObject.GetComponent<Image>();
-
-            Texture2D buttonTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.modalButton;
-
-            Sprite buttonSprite =
-                GetModalButtonSprite(
-                    buttonTexture);
-
-            if (buttonSprite != null)
-            {
-                image.sprite =
-                    buttonSprite;
-                image.type =
-                    Image.Type.Simple;
-                image.preserveAspect =
-                    false;
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(
-                        0.075f,
-                        0.07f,
-                        0.12f,
-                        0.94f);
-            }
-
             Button button =
                 buttonObject.GetComponent<Button>();
 
-            button.targetGraphic =
-                image;
-
-            ColorBlock colors =
-                button.colors;
-
-            colors.normalColor =
-                Color.white;
-            colors.highlightedColor =
-                new Color(
-                    0.96f,
-                    0.96f,
-                    1f,
-                    1f);
-            colors.pressedColor =
-                new Color(
-                    0.82f,
-                    0.80f,
-                    0.92f,
-                    1f);
-            colors.selectedColor =
-                colors.highlightedColor;
-
-            button.colors =
-                colors;
+            MotorCityUiSkin.ApplyVectorButton(
+                button,
+                MotorCityButtonRole.Utility);
 
             button.onClick.AddListener(
                 () =>
@@ -206,67 +151,12 @@ namespace MotorCity.UI
             rect.sizeDelta =
                 size;
 
-            Image image =
-                buttonObject.GetComponent<Image>();
-
-            Texture2D buttonTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.modalButton;
-
-            Sprite buttonSprite =
-                GetModalButtonSprite(
-                    buttonTexture);
-
-            if (buttonSprite != null)
-            {
-                image.sprite =
-                    buttonSprite;
-                image.type =
-                    Image.Type.Simple;
-                image.preserveAspect =
-                    false;
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(
-                        0.075f,
-                        0.07f,
-                        0.12f,
-                        0.94f);
-            }
-
             Button button =
                 buttonObject.GetComponent<Button>();
 
-            button.targetGraphic =
-                image;
-
-            ColorBlock colors =
-                button.colors;
-
-            colors.normalColor =
-                Color.white;
-            colors.highlightedColor =
-                new Color(
-                    0.96f,
-                    0.96f,
-                    1f,
-                    1f);
-            colors.pressedColor =
-                new Color(
-                    0.82f,
-                    0.80f,
-                    0.92f,
-                    1f);
-            colors.selectedColor =
-                colors.highlightedColor;
-
-            button.colors =
-                colors;
+            MotorCityUiSkin.ApplyVectorButton(
+                button,
+                MotorCityButtonRole.Utility);
 
             button.onClick.AddListener(
                 () =>
