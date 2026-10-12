@@ -305,7 +305,7 @@
 | HV-6 Автоклуб/Магазин | ACCEPTED USER (UI) | 84da479, 15cf42f | Пользователь подтвердил «всё чётко»; purchase end-to-end остаётся отдельной проверкой |
 | HV-7 Mobile/responsive | IN SOURCE / NEEDS UNITY | f8612fc | Начат проход по редактору мобильных кнопок, локализация и узкие экраны |
 | HV-8 Иконки/эффекты/markers/dev | IN SOURCE / PARTIAL USER ACCEPTED | d04f076, 2a238f8, 0380764, 8b968c3 | Markers и QA приняты; icon optical QA и deletion of proven duplicates остаются открыты |
-| HV-9 Общая ручная QA | IN SOURCE / NEEDS UNITY | 9c5fb85, c68d4b4, 2814eae, 9a16640 | QA checklist, root checks, live safe-area/aspect/pause diagnostics; full Unity matrix pending |
+| HV-9 Общая ручная QA | IN SOURCE / NEEDS UNITY | 9c5fb85, c68d4b4, 2814eae, 9a16640, e38e1d4 | QA snapshots for object-count leak triage, save/reward checklist; regression evidence pending |
 | HV-10 Сборка/релиз | **ON HOLD** | — | Отложено до явного согласия |
 
 **Журнал коммитов (дополнять, не перезаписывать):**
@@ -411,3 +411,10 @@ Button ColorTint: softer hover/selection and 0.13 s fade (`0380764`). New record
 
 - Earlier expanded hierarchy diagnostics (`2814eae`) accepted by user in Unity. Added developer-only read-only diagnostics of actual screen resolution, aspect ratio, Screen.safeArea, Time.timeScale and AudioListener.pause in UI QA (`9a16640`). This enables repeatable screenshots across 16:9, narrow landscape and notched devices and manual confirmation of pause restoration; does not simulate a platform safe area or assert success automatically.
 - HV-9.1–9.7 overall remain NEEDS UNITY for screenshot/state matrix, save migration, purchase idempotence and profiling. HV-10 build/CI/WebGL still requires explicit user authorization.
+
+
+### HV-9 save/reward and UI snapshot handoff — 2026-10-12
+
+- User accepted safe-area/aspect/pause diagnostics in Unity. New QA-only button `Снять снимок UI / памяти` (`e38e1d4`) samples Canvas, Graphic, Button counts (including inactive) and managed memory on demand. Compare before/after repeated window opening, manually review differences. This is not frame allocation profiling, memory leak proof, or automated correctness check.
+- Added manual test-save instructions for restart/reload, result reward double-credit, duplicate store purchases and older/empty saves. No save, wallet, purchase or activity state is changed by snapshot. Existing result simulations still call real progression listeners, thus testing requires disposable profile.
+- HV-9.3, HV-9.5 and other regression items remain pending Unity observation and screenshots; no CI/WebGL runs.
