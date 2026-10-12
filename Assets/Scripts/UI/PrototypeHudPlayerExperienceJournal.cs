@@ -52,7 +52,8 @@ namespace MotorCity.UI
 
         private void AppendPlayerExperienceJournalSection(StringBuilder sb, int filter)
         {
-            sb.Append("\n\n").Append(MotorCityLocalization.Text(JournalFilterKeys[filter]));
+            if (sb.Length > 0) sb.Append("\n\n");
+            sb.Append(MotorCityLocalization.Text(JournalFilterKeys[filter]));
             switch (filter)
             {
                 case 0: AppendJournalStory(sb); break;
