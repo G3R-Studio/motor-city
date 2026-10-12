@@ -1616,6 +1616,21 @@ namespace MotorCity.Gameplay
             }
             GUILayout.EndHorizontal();
 
+            GUILayout.BeginHorizontal();
+            if (Button("МАГАЗИН"))
+            {
+                MotorCityInput.PulseVirtual(MotorCityInputAction.ToggleStore);
+                lastAction = "Переключён магазин";
+            }
+            if (Button("КЛУБ"))
+            {
+                MotorCityInput.PulseVirtual(MotorCityInputAction.ToggleClub);
+                lastAction = "Переключён клуб";
+            }
+            if (Button("ЗАКРЫТЬ RESULT"))
+                CloseResult();
+            GUILayout.EndHorizontal();
+
             Section("МОЙ MOTOR CITY — ПРЯМОЙ ПЕРЕХОД");
             GUILayout.Label("Сначала открыть Мой Motor City. Эти кнопки не изменяют прогресс.");
             string[] pages = {
