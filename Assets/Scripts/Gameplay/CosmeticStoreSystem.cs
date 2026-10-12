@@ -349,13 +349,15 @@ namespace MotorCity.Gameplay
                     {
                         StartCoroutine(
                             LoadCurrencyIcon(
-                                iconUrl));
+                                iconUrl,
+                                requestedId));
                     }
                 });
         }
 
         private IEnumerator LoadCurrencyIcon(
-            string url)
+            string url,
+            string requestedId)
         {
             if (string.IsNullOrWhiteSpace(
                     url))
@@ -405,8 +407,14 @@ namespace MotorCity.Gameplay
                 yield break;
             }
 
-            currencyIconTexture =
-                texture;
+            if (requestedId != SelectedProductId)
+            {
+                UnityEngine.Object.Destroy(texture);
+                yield break;
+            }
+            if (currencyIconTexture != null)
+                UnityEngine.Object.Destroy(currencyIconTexture);
+            currencyIconTexture = texture;
         }
 
         private static string DecodeCatalogValue(
