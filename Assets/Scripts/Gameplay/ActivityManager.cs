@@ -361,6 +361,11 @@ namespace MotorCity.Gameplay
             bool success,
             bool newRecord = false)
         {
+            // A result is a single transaction: repeated input/re-entry must
+            // not raise ActivityCompleted or grant REP a second time.
+            if (HasResult)
+                return;
+
             int masteryBefore =
                 resultMastery == null
                     ? 0
@@ -546,6 +551,9 @@ namespace MotorCity.Gameplay
         public void DismissResult(
             bool notifyDismissed = true)
         {
+            if (!HasResult)
+                return;
+
             string dismissedActivityId =
                 ResultActivityId;
 
