@@ -328,73 +328,16 @@ namespace MotorCity.UI
             rect.sizeDelta =
                 size;
 
-            Image image =
-                buttonObject.GetComponent<Image>();
-
             bool hudUtilityButton =
                 objectName == "HUD Pause" ||
                 objectName == "HUD More";
 
-            Texture2D buttonTexture =
-                uiThemeAssets == null
-                    ? null
-                    : uiThemeAssets.modalButton;
-
-            Sprite buttonSprite =
-                GetModalButtonSprite(
-                    buttonTexture);
-
-            if (buttonSprite != null)
-            {
-                image.sprite =
-                    buttonSprite;
-                image.type =
-                    Image.Type.Simple;
-                image.preserveAspect =
-                    false;
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(
-                        0.075f,
-                        0.07f,
-                        0.12f,
-                        hudUtilityButton
-                            ? 0.94f
-                            : 0.96f);
-            }
-
             Button button =
                 buttonObject.GetComponent<Button>();
 
-            button.targetGraphic =
-                image;
-
-            ColorBlock buttonColors =
-                button.colors;
-
-            buttonColors.normalColor =
-                Color.white;
-            buttonColors.highlightedColor =
-                new Color(
-                    0.96f,
-                    0.96f,
-                    1f,
-                    1f);
-            buttonColors.pressedColor =
-                new Color(
-                    0.82f,
-                    0.80f,
-                    0.92f,
-                    1f);
-            buttonColors.selectedColor =
-                buttonColors.highlightedColor;
-
-            button.colors =
-                buttonColors;
+            MotorCityUiSkin.ApplyVectorButton(
+                button,
+                MotorCityButtonRole.Utility);
 
             if (buttonObject.GetComponent<UiButtonFeedback>() == null)
             {
