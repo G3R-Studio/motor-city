@@ -228,6 +228,8 @@ namespace MotorCity.UI
             for (int i = 0; i < dailyAdventures.CatalogTaskCount; i++)
             {
                 bool done = dailyAdventures.CatalogTaskComplete(i);
+                bool locked = !done && activityManager != null &&
+                    !activityManager.SecondaryProgressionAllowed;
                 JournalItem(sb,
                     MotorCityLocalization.Format("ux.journal.daily_item", i + 1),
                     dailyAdventures.CatalogTaskDescription(i),
@@ -236,8 +238,9 @@ namespace MotorCity.UI
                     done ? MotorCityLocalization.Text("ux.journal.no_reward") :
                         MotorCityLocalization.Format("ux.journal.daily_reward",
                             dailyAdventures.CatalogTaskReward(i)),
-                    done ? reset : MotorCityLocalization.Text("ux.journal.daily_next"),
-                    JournalStatus(done));
+                    done ? reset : MotorCityLocalization.Text(locked
+                        ? "ux.journal.story_tutorial" : "ux.journal.daily_next"),
+                    JournalStatus(done, locked));
             }
 
             JournalItem(sb, MotorCityLocalization.Text("ux.journal.today_bonus"),
@@ -249,7 +252,8 @@ namespace MotorCity.UI
                     : MotorCityLocalization.Format("ux.journal.reward_credits",
                         dailyAdventures.CatalogDayReward +
                         dailyAdventures.CatalogNextMilestoneReward),
-                reset, JournalStatus(dailyAdventures.DayCompleted));
+                reset, JournalStatus(dailyAdventures.DayCompleted,
+                    activityManager != null && !activityManager.SecondaryProgressionAllowed));
 
             if (club == null) return;
             bool joined = club.HasClub;
@@ -270,7 +274,8 @@ namespace MotorCity.UI
                         club.CatalogWeeklyCreditsReward,
                         club.CatalogWeeklyReputationReward),
                 joined ? weeklyReset : MotorCityLocalization.Text("ux.journal.weekly_no_club"),
-                JournalStatus(doneWeek, !joined));
+                JournalStatus(doneWeek, !joined || activityManager != null &&
+                    !activityManager.SecondaryProgressionAllowed));
         }
 
         private void AppendJournalContracts(StringBuilder sb)
@@ -285,8 +290,11 @@ namespace MotorCity.UI
                 contracts.CatalogProgressLine,
                 JournalReward(contracts.CatalogRewardCredits,
                     contracts.CatalogRewardReputation),
-                MotorCityLocalization.Text("ux.journal.contract_next"),
-                JournalStatus(false, false));
+                MotorCityLocalization.Text(activityManager != null &&
+                    !activityManager.SecondaryProgressionAllowed
+                        ? "ux.journal.story_tutorial" : "ux.journal.contract_next"),
+                JournalStatus(false, activityManager != null &&
+                    !activityManager.SecondaryProgressionAllowed));
         }
 
         private void AppendJournalCareer(StringBuilder sb)
@@ -305,7 +313,8 @@ namespace MotorCity.UI
                         career.CatalogNextReputation),
                 MotorCityLocalization.Text(complete
                     ? "ux.journal.complete" : "ux.journal.career_next"),
-                JournalStatus(complete));
+                JournalStatus(complete, !complete && activityManager != null &&
+                    !activityManager.SecondaryProgressionAllowed));
         }
 
         private void AppendJournalLegends(StringBuilder sb)
