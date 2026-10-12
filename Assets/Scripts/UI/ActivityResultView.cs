@@ -213,6 +213,8 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 1f),
                     SecondaryTextColor);
 
+            BuildResultChangesScroll(panel);
+
             resultNextGoalText =
                 CreateText(
                     panel,
@@ -387,38 +389,7 @@ namespace MotorCity.UI
                 resultRewardText,
                 18f);
 
-            bool hasMastery =
-                activityManager.ResultMasteryXp > 0;
-
-            if (resultMasteryText != null)
-            {
-                resultMasteryText.text =
-                    hasMastery
-                        ? MotorCityLocalization.Format(
-                            "hud.result_mastery",
-                            activityManager.ResultMasteryXp)
-                        : string.Empty;
-
-                resultMasteryText.gameObject.SetActive(
-                    hasMastery);
-            }
-
-            string secondaryProgress =
-                activityManager.ResultSecondaryProgress ??
-                string.Empty;
-
-            bool hasSecondaryProgress =
-                !string.IsNullOrWhiteSpace(
-                    secondaryProgress);
-
-            if (resultSecondaryProgressText != null)
-            {
-                resultSecondaryProgressText.text =
-                    secondaryProgress;
-
-                resultSecondaryProgressText.gameObject.SetActive(
-                    hasSecondaryProgress);
-            }
+            bool hasSecondaryProgress = UpdateResultChangesScroll();
 
             Color accent =
                 activityManager.ResultSuccess
@@ -488,11 +459,7 @@ namespace MotorCity.UI
                     // overlap after UI scaling. Compact the footer upward when
                     // those optional rows are absent.
                     float nextGoalY =
-                        hasSecondaryProgress
-                            ? -390f
-                            : hasMastery
-                                ? -350f
-                                : -320f;
+                        hasSecondaryProgress ? -414f : -320f;
 
                     nextGoalRect.anchoredPosition =
                         new Vector2(
