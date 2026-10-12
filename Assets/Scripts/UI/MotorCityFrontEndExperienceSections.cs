@@ -193,12 +193,29 @@ namespace MotorCity.UI
             for (int i = 0; i < playerExperienceJournalFilterButtons.Length; i++)
             {
                 int filter = i;
-                playerExperienceJournalFilterButtons[i] =
-                    CreateFrontEndLayoutButton(
-                        i < 4 ? journalFiltersTop : journalFiltersBottom,
-                        MotorCityLocalization.Text(JournalFilterKey(i)),
-                        () => SelectPlayerExperienceJournalFilter(filter),
-                        186f, 50f);
+                Button filterButton = CreateFrontEndLayoutButton(
+                    i < 4 ? journalFiltersTop : journalFiltersBottom,
+                    MotorCityLocalization.Text(JournalFilterKey(i)),
+                    () => SelectPlayerExperienceJournalFilter(filter),
+                    186f, 50f);
+                playerExperienceJournalFilterButtons[i] = filterButton;
+                // Journal filter names must remain on one line, including
+                // the selected bullet and longer Russian translations.
+                Text filterLabel = filterButton.GetComponentInChildren<Text>();
+                if (filterLabel != null)
+                {
+                    filterLabel.fontSize = 18;
+                    filterLabel.resizeTextForBestFit = true;
+                    filterLabel.resizeTextMinSize = 14;
+                    filterLabel.resizeTextMaxSize = 18;
+                    filterLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+                    filterLabel.verticalOverflow = VerticalWrapMode.Truncate;
+                    RectTransform labelRect = filterLabel.rectTransform;
+                    labelRect.anchorMin = Vector2.zero;
+                    labelRect.anchorMax = Vector2.one;
+                    labelRect.offsetMin = new Vector2(5f, 3f);
+                    labelRect.offsetMax = new Vector2(-5f, -3f);
+                }
             }
 
             playerExperienceJournalText =
