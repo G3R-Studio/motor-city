@@ -228,7 +228,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Character Mission Title",
-                    12,
+                    14,
                     FontStyle.Bold,
                     TextAnchor.UpperLeft,
                     new Vector2(
@@ -277,8 +277,8 @@ namespace MotorCity.UI
                         -20f,
                         4f),
                     new Vector2(
-                        250f,
-                        18f),
+                        285f,
+                        22f),
                     new Vector2(
                         1f,
                         0f),
@@ -286,6 +286,16 @@ namespace MotorCity.UI
                         1f,
                         0f),
                     SecondaryTextColor);
+
+            // Keep long localized mission labels within the character card.
+            characterMissionTitleText.resizeTextForBestFit = true;
+            characterMissionTitleText.resizeTextMinSize = 11;
+            characterMissionTitleText.resizeTextMaxSize = 14;
+            characterMissionTitleText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            characterMissionTitleText.verticalOverflow = VerticalWrapMode.Truncate;
+            characterRewardText.resizeTextForBestFit = true;
+            characterRewardText.resizeTextMinSize = 11;
+            characterRewardText.resizeTextMaxSize = UiRewardFontSize;
 
             characterPanel.SetActive(
                 false);
