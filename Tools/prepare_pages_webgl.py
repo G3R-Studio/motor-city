@@ -21,6 +21,63 @@ BR_SUFFIXES = (".framework.js.br", ".wasm.br", ".data.br", ".symbols.json.br")
 TARGETS = ("desktop", "mobile")
 
 
+def gate_mobile_portrait(html: str) -> str:
+    """Wait for landscape before starting Unity in the mobile Pages build."""
+    invocation = re.compile(r"\\bcreateUnityInstance\\s*\\(")
+    matches = list(invocation.finditer(html))
+    if len(matches) != 1 or "</head>" not in html:
+        raise ValueError("mobile: expected one Unity startup call and HTML head")
+    html = invocation.sub("motorCityLaunchInLandscape(", html, count=1)
+    guard = r"""
+<style>
+#motor-city-rotate{position:fixed;inset:0;z-index:2147483647;background:#000;color:#fff;
+ display:none;align-items:center;justify-content:center;text-align:center;padding:24px;
+ box-sizing:border-box;font:600 clamp(18px,5vw,30px)/1.4 system-ui,Arial,sans-serif}
+#motor-city-rotate span{max-width:420px}
+</style>
+<script>
+(function(){
+  var phone = function(){
+    return /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent) ||
+      (navigator.maxTouchPoints > 1 && matchMedia('(pointer:coarse)').matches);
+  };
+  var portrait = function(){ return phone() && window.innerHeight > window.innerWidth; };
+  var overlay = null;
+  function refresh(){
+    if(!overlay && document.body){
+      overlay = document.createElement('div');
+      overlay.id = 'motor-city-rotate';
+      overlay.innerHTML = '<span>Поверните телефон горизонтально, чтобы играть в Motor City</span>';
+      document.body.appendChild(overlay);
+    }
+    if(overlay) overlay.style.display = portrait() ? 'flex' : 'none';
+  }
+  window.addEventListener('resize',refresh);
+  window.addEventListener('orientationchange',refresh);
+  document.addEventListener('DOMContentLoaded',refresh);
+  window.motorCityLaunchInLandscape = function(){
+    var args = arguments;
+    var start = function(){ return createUnityInstance.apply(null,args); };
+    refresh();
+    if(!portrait()) return start();
+    return new Promise(function(resolve,reject){
+      function onRotate(){
+        refresh();
+        if(portrait()) return;
+        window.removeEventListener('resize',onRotate);
+        window.removeEventListener('orientationchange',onRotate);
+        try { resolve(start()); } catch(error) { reject(error); }
+      }
+      window.addEventListener('resize',onRotate);
+      window.addEventListener('orientationchange',onRotate);
+    });
+  };
+})();
+</script>
+"""
+    return html.replace("</head>", guard + "\n</head>", 1)
+
+
 def copy_and_uncompress(src: Path, dst: Path, kind: str) -> tuple[int, int]:
     if not (src / "index.html").is_file():
         raise ValueError(f"{kind}: artifact has no index.html: {src}")
@@ -67,6 +124,8 @@ def copy_and_uncompress(src: Path, dst: Path, kind: str) -> tuple[int, int]:
     for extension in (".data", ".wasm", ".framework.js"):
         if extension not in updated:
             raise ValueError(f"{kind}: index.html missing expected {extension} URL after rewrite")
+    if kind == "mobile":
+        updated = gate_mobile_portrait(updated)
     index.write_text(updated, encoding="utf-8")
 
     # No .br references should survive; we have no control over Pages' headers.
