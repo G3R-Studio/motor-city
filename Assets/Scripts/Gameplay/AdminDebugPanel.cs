@@ -1700,6 +1700,22 @@ namespace MotorCity.Gameplay
                 GUILayout.EndHorizontal();
             }
 
+            Section("HV-9 — РУЧНАЯ ПРОВЕРКА ОКОН");
+            GUILayout.Label(
+                "1. Сними скрин обычного и длинного текста в RU/EN.");
+            GUILayout.Label(
+                "2. Проверь пустое, закрытое и открытое состояние.");
+            GUILayout.Label(
+                "3. Открой окно повторно: нет дублей или лишних кнопок.");
+            GUILayout.Label(
+                "4. Пауза/Назад/Продолжить: управление возвращается.");
+            GUILayout.Label(
+                "5. Проверь 16:9, узкий landscape, touch и клавиатуру.");
+            GUILayout.Label(
+                "6. Для результатов тестируй и одну, и две строки цели.");
+            GUILayout.Label(
+                "7. Запиши ошибки Console и номер коммита перед QA.");
+
             Section("РЕЗУЛЬТАТЫ — СЦЕНАРИИ");
             GUILayout.Label("Внимание: текущие ShowResult вызывают настоящие progression listeners. Для проверки оформления используй тестовый профиль.");
             string[] ids = { "delivery", "sprint", "circuit", "drift" };
