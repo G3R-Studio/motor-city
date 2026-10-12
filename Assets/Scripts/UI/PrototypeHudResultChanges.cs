@@ -2,6 +2,7 @@ using System.Text;
 using MotorCity.Gameplay;
 using MotorCity.Localization;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MotorCity.UI
 {
