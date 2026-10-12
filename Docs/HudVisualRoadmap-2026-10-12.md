@@ -135,7 +135,7 @@
 - [x] **HV-1.2 — IN SOURCE** Общий Button Visual с Primary / Secondary / Utility / Back / Disabled: обе фабрики вызывают единый ApplyButton, главный Continue и Pause Resume — Primary, компактные кнопки — Utility, Back доступен явно. Delеgates, локализация, hit areas и старые владельцы UI-клика не изменены. **Unity Play Mode ещё не подтверждён**.
 - [x] **HV-1.3 — IN SOURCE** Общие modal surfaces с тонким разделителем шапки и без дублирующего Outline, для FrontEnd и runtime окон; экран Settings стал компактнее, Back перенесён в footer (контент остаётся прокручиваемым). Глобальный HUD-стилизатор больше не перетирает роли модальных кнопок, поэтому Pause Resume остаётся Primary. **Ожидает Unity smoke**.
 - [x] **HV-1.4 — IN SOURCE / NEEDS UNITY.** Общий TextLayout больше не усечёт целую строку до `MotorCityTextClip`, не изменяет заданный размер шрифта по высоте ячейки и сохраняет локальные best-fit ограничения. Убраны принудительные глобальные минимумы 15pt в HUD-polish и 22pt во FrontEnd; RU/EN и узкий landscape проверить вручную. Геометрия окон и готовый гараж не изменены.
-- [ ] **HV-1.5** Сверить текстурные asset slots MotorCityUiThemeAssets.asset, fallback при отсутствии ресурсов, Sprite caching и Canvas rebuild.
+- [x] **HV-1.5 — IN SOURCE / NEEDS UNITY.** Сверены реальные ресурсы: 16 Kenney PNG и RobotoCondensed Regular/Bold присутствуют; устаревшая общая тема больше не загружается. Принятые четыре touch-текстуры остаются прежними, а при отсутствующем Sprite показывается векторный fallback без нового raycast и смены размеров. Кэш и ручное управление спрайтами не изменялись. **Unity проверка отсутствующего ресурса ещё не выполнена**.
 - [ ] **HV-1.6** Проверить, что HudVisualPolish не меняет builder-owned позиции, обработчики кнопок и выбранные touch scales.
 
 Файлы: **HudUiFactory.cs, MotorCityModalUiKit.cs, MotorCityButtonVisuals.cs, MotorCityUiThemeAssets.cs/.asset, MotorCityTypography.cs, MotorCityTextLayout.cs, HudVisualPolish.cs, UiButtonFeedback.cs**.
@@ -290,7 +290,7 @@
 | --- | --- | --- | --- |
 | HV-0 Аудит | **PARTIAL** | — | Инвентарь и план есть; не хватает снимков непоказанных окон |
 | HV-L Удаление старого HUD-оформления | **IN SOURCE (HV-L.1–HV-L.3, HV-L.5)** | NEEDS UNITY | Старое оформление окон удалено, но 4 оригинальных изображения управления намеренно восстановлены; нужна приёмка в Unity, HV-L.6 открыт |
-| HV-1 Токены/примитивы | **IN SOURCE (HV-1.1–HV-1.4)** | NEEDS UNITY | Текстовые переносы и ограничения в коде; HV-1.5–HV-1.6 открыты |
+| HV-1 Токены/примитивы | **IN SOURCE (HV-1.1–HV-1.5)** | NEEDS UNITY | Резервная графика для mobile внесена, HV-1.6 ещё открыт |
 | HV-2 FrontEnd | PLANNED | — | Не начато |
 | HV-3 Мой Motor City | PLANNED | — | Не начато |
 | HV-4 Driving HUD | PLANNED | — | Не начато |
@@ -305,6 +305,7 @@
 
 | Дата | ID | Коммит(ы) | Что реально готово | Исходниковая проверка | Ручной smoke / статус |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-12 | HV-1.5 | [`afaeabf`](https://github.com/G3R-Studio/motor-city/commit/afaeabf9af932af132b9ed433a56caa16a42ee65) | Проверена доступность иконок/шрифтов по Git и новый fallback для четырёх touch-картинок, если Sprite не загрузился; нормальные PNG не менялись | Source inventory + C# brace check, Unity/CI не запускались | NEEDS UNITY: руль/газ/тормоз/ручник, отдельно временно отсутствующий ресурс в Editor |
 | 2026-10-12 | HV-1.4 / MO-05 магазин | [`97f27ce`](https://github.com/G3R-Studio/motor-city/commit/97f27cecd704c907a854c13b602db57cc632f0a6) | Баланс перенесён ниже заголовка; подсказка товара получила 66 ед. высоты; название, описание и преимущества разведены по непересекающимся зонам и уточнён best-fit | Статический контроль геометрии и C# braces; Unity не запускалась | **NEEDS UNITY:** магазин на RU/EN, длинные кредиты/репутация, куплено/не куплено, подпись слева и закрытие |
 | 2026-10-12 | HV-1.4 | [`8d2659b`](https://github.com/G3R-Studio/motor-city/commit/8d2659bacfc9158be8bcb4828ea9b01e4c459ff0) | Убран вертикальный truncate и изменение размера шрифта после создания, локальные минимумы text best-fit сохранены; не меняется геометрия | Source checks; Unity не запускалась | **NEEDS UNITY**: RU/EN FrontEnd + pause/nav/results, длинные подписи и narrow landscape |
 | 2026-10-12 | HV-L.6 partial | [`edf7647`](https://github.com/G3R-Studio/motor-city/commit/edf764768776b37fb0783388c419312d38476471) + [`aa0959e`](https://github.com/G3R-Studio/motor-city/commit/aa0959e8ccef3320f87fb1c927579370d64df660) | Убрана повторная перекраска touch/modal кнопок и четырёх оригинальных органов управления; текстовый и responsive pass сохранён | Проверка исходников; Unity не запускал | **NEEDS UNITY:** пауза, миникарта, mobile wheel/arrow и utility-кнопки |
