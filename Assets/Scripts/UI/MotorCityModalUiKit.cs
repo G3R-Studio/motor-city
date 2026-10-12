@@ -406,45 +406,26 @@ namespace MotorCity.UI
                 buttonObject.GetComponent<
                     RectTransform>();
 
-            Image image =
-                buttonObject.GetComponent<Image>();
+            // Runtime modal buttons must own their final vector visuals.
+            // The HV-1.3 regression occurred when the global HUD polish
+            // stopped replacing the old textured image with its reference
+            // surface: the Pause screen reverted to early RacingUI art.
+            // Build that surface HERE, before the full HUD visual pass,
+            // so the modal factory's color role survives independently.
+            // Keep the original Image only as a non-raycast background;
+            // the new graphic is the Button target and receives clicks.
+            ApplyReferenceHudSurface(rect);
 
-            Sprite buttonSprite =
-                GetModalButtonSprite(
-                    uiThemeAssets == null
-                        ? null
-                        : uiThemeAssets.modalButton);
-
-            if (buttonSprite != null)
-            {
-                image.sprite =
-                    buttonSprite;
-
-                image.type =
-                    Image.Type.Simple;
-
-                image.preserveAspect =
-                    false;
-
-                image.color =
-                    Color.white;
-            }
-            else
-            {
-                image.color =
-                    new Color(
-                        0.075f,
-                        0.07f,
-                        0.12f,
-                        0.96f);
-            }
+            GarageReferenceGraphic modalSurface =
+                rect.Find("Reference HUD Surface")
+                    .GetComponent<GarageReferenceGraphic>();
 
             Button button =
                 buttonObject.GetComponent<Button>();
 
             MotorCityUiSkin.ApplyButton(
                 button,
-                image,
+                modalSurface,
                 compact ? MotorCityButtonRole.Utility : role);
 
             buttonObject.AddComponent<
