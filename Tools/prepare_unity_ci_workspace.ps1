@@ -46,13 +46,13 @@ if ($LASTEXITCODE -ne 0) {
     $remote = "https://github.com/$Repository.git"
     $env:GIT_HTTP_LOW_SPEED_LIMIT = '1024'
     $env:GIT_HTTP_LOW_SPEED_TIME = '60'
-    # A full-history local base avoids GitHub's expensive --depth=1 pack.
-    # The overall step has a separate 10-minute Actions timeout.
+    # Fetch the immutable commit shallowly without an expensive full-history pack.
+    # Missing blobs are hydrated by Git on checkout; never write to the seed.
     # Network transfers can be interrupted (curl 18 / early EOF). Retry
     # only inside the runner-owned checkout, never modify the read-only seed.
     $fetched = $false
     for ($attempt = 1; $attempt -le 3; $attempt++) {
-        & git -C $workspaceFull -c protocol.version=2 fetch --no-tags -- $remote $Commit
+        & git -C $workspaceFull -c protocol.version=2 -c http.lowSpeedLimit=1024 -c http.lowSpeedTime=30 fetch --no-tags --depth=1 --filter=blob:none -- $remote $Commit
         if ($LASTEXITCODE -eq 0) { $fetched = $true; break }
         Write-Warning "Incremental fetch attempt $attempt of 3 failed."
         if ($attempt -lt 3) { Start-Sleep -Seconds (5 * $attempt) }

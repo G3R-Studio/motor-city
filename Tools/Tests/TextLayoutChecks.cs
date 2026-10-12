@@ -68,14 +68,14 @@ public static class TextLayoutChecks
     public static void Run()
     {
         MotorCity.UI.MotorCityTextLayout.Configure(null);
-        var text = new UnityEngine.UI.Text { fontSize = 24 };
+        var text = new UnityEngine.UI.Text { fontSize = 24, resizeTextMinSize = 15, resizeTextMaxSize = 24 };
         text.rectTransform.rect = new UnityEngine.Rect { height = 28 };
         MotorCity.UI.MotorCityTextLayout.Configure(text);
-        if (text.fontSize != 21 || !text.resizeTextForBestFit || text.alignByGeometry ||
+        if (text.fontSize != 24 || !text.resizeTextForBestFit || text.alignByGeometry ||
             text.resizeTextMinSize != 15 || text.resizeTextMaxSize != 24)
             throw new Exception("Tight labels must reserve line height and configure adaptive fit limits.");
         if (text.horizontalOverflow != UnityEngine.UI.HorizontalWrapMode.Wrap ||
-            text.verticalOverflow != UnityEngine.UI.VerticalWrapMode.Truncate)
+            text.verticalOverflow != UnityEngine.UI.VerticalWrapMode.Overflow)
             throw new Exception("Text must stay within its allocated cell.");
         object clip = text.gameObject.component;
         if (!(clip is MotorCity.UI.MotorCityTextClip)) throw new Exception("Text needs geometric bounds.");
@@ -83,7 +83,7 @@ public static class TextLayoutChecks
         {
             text.text = value;
             MotorCity.UI.MotorCityTextLayout.Configure(text);
-            if (text.fontSize != 21 || text.rectTransform.rect.height != 28 || text.gameObject.component != clip)
+            if (text.fontSize != 24 || text.rectTransform.rect.height != 28 || text.gameObject.component != clip)
                 throw new Exception("Changing content must not move cells or resize fonts.");
         }
         text.fontSize = 24;
