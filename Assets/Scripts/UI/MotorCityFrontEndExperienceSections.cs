@@ -31,6 +31,89 @@ namespace MotorCity.UI
         private Text playerExperienceNightClubText;
         private GameObject playerExperienceLastOverviewSelection;
         private GameObject lastCareerFocus;
+        private Text playerExperienceVisitHintText;
+        private bool playerExperienceHintWasShown;
+        private float playerExperienceSourcePollTimer;
+        private int observedCredits;
+        private int observedReputation;
+        private int observedVehicleIndex;
+        private int observedResultSequence;
+        private long observedDay;
+        private long observedWeek;
+
+        // Only scalar stamps are checked while the career window is open.
+        // Expensive catalogs and journal strings are built on navigation or
+        // a changed source, not during each driving/HUD frame.
+        private void CapturePlayerExperienceSourceStamp()
+        {
+            observedCredits = wallet == null ? 0 : wallet.Credits;
+            observedReputation = reputation == null ? 0 : reputation.Reputation;
+            observedVehicleIndex = hud == null ? -1 :
+                hud.PlayerExperienceSelectedVehicleIndex;
+            observedResultSequence = hud == null ? -1 :
+                hud.PlayerExperienceResultSequence;
+            long now = MotorCityPlatform.ServerUnixTime;
+            observedDay = now / 86400L;
+            observedWeek = now / 604800L;
+            playerExperienceSourcePollTimer = 0f;
+        }
+
+        private void RefreshVisiblePlayerExperienceIfChanged()
+        {
+            if (playerExperienceRoot == null ||
+                !playerExperienceRoot.activeInHierarchy)
+                return;
+            playerExperienceSourcePollTimer += Time.unscaledDeltaTime;
+            if (playerExperienceSourcePollTimer < 0.75f)
+                return;
+            playerExperienceSourcePollTimer = 0f;
+            long now = MotorCityPlatform.ServerUnixTime;
+            int credits = wallet == null ? 0 : wallet.Credits;
+            int rep = reputation == null ? 0 : reputation.Reputation;
+            int vehicle = hud == null ? -1 :
+                hud.PlayerExperienceSelectedVehicleIndex;
+            int result = hud == null ? -1 :
+                hud.PlayerExperienceResultSequence;
+            if (credits == observedCredits && rep == observedReputation &&
+                vehicle == observedVehicleIndex &&
+                result == observedResultSequence &&
+                now / 86400L == observedDay &&
+                now / 604800L == observedWeek)
+                return;
+
+            CapturePlayerExperienceSourceStamp();
+            if (playerExperienceHomePanel != null &&
+                playerExperienceHomePanel.activeSelf)
+                RefreshPlayerExperience();
+            else
+            {
+                GameObject active = playerExperienceActivitiesPanel;
+                if (playerExperienceJournalPanel != null &&
+                    playerExperienceJournalPanel.activeSelf)
+                    active = playerExperienceJournalPanel;
+                else if (playerExperienceClubPanel != null &&
+                    playerExperienceClubPanel.activeSelf)
+                    active = playerExperienceClubPanel;
+                else if (playerExperienceInspectorPanel != null &&
+                    playerExperienceInspectorPanel.activeSelf)
+                    active = playerExperienceInspectorPanel;
+                else if (playerExperiencePixiePanel != null &&
+                    playerExperiencePixiePanel.activeSelf)
+                    active = playerExperiencePixiePanel;
+                else if (playerExperienceGaragePanel != null &&
+                    playerExperienceGaragePanel.activeSelf)
+                    active = playerExperienceGaragePanel;
+                else if (playerExperienceAchievementsPanel != null &&
+                    playerExperienceAchievementsPanel.activeSelf)
+                    active = playerExperienceAchievementsPanel;
+                else if (playerExperienceNightClubPanel != null &&
+                    playerExperienceNightClubPanel.activeSelf)
+                    active = playerExperienceNightClubPanel;
+                RefreshPlayerExperienceSections(active);
+            }
+            Canvas.ForceUpdateCanvases();
+            RefreshFrontEndScrollCues();
+        }
 
         private void BuildPlayerExperienceSections()
         {
