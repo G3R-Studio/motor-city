@@ -98,7 +98,7 @@ def main() -> int:
         "MotorCityButtonVisuals.cs", "MotorCityModalUiKit.cs",
         "TouchControlsView.cs", "NavigatorView.cs", "PauseMenuView.cs",
         "HudUiFactory.cs", "MotorCityFrontEndFlow.cs",
-        "PrototypeHud.cs", "MotorCityUiThemeAssets.cs",
+        "PrototypeHud.cs", "HudVisualPolish.cs",
     )
     sources = {
         name: (UI / name).read_text(encoding="utf-8-sig")
@@ -116,16 +116,32 @@ def main() -> int:
             "frontEndPanelSprite", "frontEndButtonSprite",
             "uiThemeAssets.modalButton", "modalPanel;")):
             errors.append(f"Legacy modal sprite dependency: {name}")
-    asset_path = ROOT / "Assets/Resources/MotorCity/UI/MotorCityUiThemeAssets.asset"
-    theme_yaml = asset_path.read_text(encoding="utf-8-sig")
-    if "modalButton:" in theme_yaml or "modalPanel:" in theme_yaml:
-        errors.append("Legacy modal texture reference remains serialized")
+    for retired in (
+        ROOT / "Assets/Scripts/UI/MotorCityUiThemeAssets.cs",
+        ROOT / "Assets/Resources/MotorCity/UI/MotorCityUiThemeAssets.asset",
+    ):
+        if retired.exists() or (retired.parent / (retired.name + ".meta")).exists():
+            errors.append(f"Old UI theme returned: {retired.name}")
     if "button.targetGraphic is GarageReferenceGraphic" not in sources["HudUiFactory.cs"]:
         errors.append("HUD visual sweep can overwrite vector button owners")
     legacy_art = ROOT / "Assets/Art/MotorCity/UI/VilleSeppanen/RacingUI/Source"
-    for obsolete in ("Skew Button 2.png", "Window 3.png", "Слой 0.png"):
+    for obsolete in ("Skew Button 2.png", "Window 3.png",
+                     "Слой 0.png", "POINTER.png"):
         if (legacy_art / obsolete).exists() or (legacy_art / (obsolete + ".meta")).exists():
             errors.append(f"Retired RacingUI texture returned: {obsolete}")
+
+    controls_dir = ROOT / "Assets/Art/MotorCity/UI/VilleSeppanen/RacingHUD/Sprites"
+    for old_image in ("break.png", "handbreak.png", "throttle.png", "wheel.png"):
+        if (controls_dir / old_image).exists() or (controls_dir / (old_image + ".meta")).exists():
+            errors.append(f"Retired pedal sprite returned: {old_image}")
+    if "uiThemeAssets" in sources["TouchControlsView.cs"] or "uiThemeAssets" in sources["NavigatorView.cs"] or "uiThemeAssets" in sources["PrototypeHud.cs"]:
+        errors.append("Current HUD still loads removed UI theme")
+    if "Touch Pedal Surface" not in sources["TouchControlsView.cs"] or "Touch Wheel Icon" not in sources["TouchControlsView.cs"]:
+        errors.append("Touch vector graphics are missing")
+    if "GarageReferenceGraphic.Symbol.Up" not in sources["NavigatorView.cs"]:
+        errors.append("Minimap must keep its vector heading icon")
+    if "vectorArt ? Color.clear : color" not in sources["HudVisualPolish.cs"]:
+        errors.append("Touch raycast targets must remain transparent")
 
     # Builder coordinates match the final desktop layout; visual polish
     # should not re-assign these exact RectTransforms on every resize.
