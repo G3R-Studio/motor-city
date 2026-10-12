@@ -11,8 +11,8 @@ namespace MotorCity.Platform
             new()
             {
                 { "rewarded_credits", "250" },
-                { "rewarded_daily_limit", "5" },
-                { "rewarded_cooldown_seconds", "180" },
+                { "rewarded_daily_limit", "20" },
+                { "rewarded_cooldown_seconds", "60" },
                 { "club_weekly_goal", "12" },
                 { "club_weekly_credits", "900" },
                 { "club_weekly_rep", "90" },
