@@ -4,9 +4,9 @@
 
 ## Текущее состояние
 
-UX-0 - UX-6 реализованы; пользователь подтвердил ручной Unity smoke для UX-5 и UX-6 («всё чётко»). Это **не** равно успешной Unity Editor CI, двум WebGL Release binaries, опубликованным GitHub Pages или браузерному smoke.
+**UX-7 WebGL выпуск и основная Desktop/Mobile браузерная проверка приняты 2026-10-12.** [Source Gates #38191671963](https://github.com/G3R-Studio/motor-city/actions/runs/38191671963) **success**: 30/30 source gates, UI layout, Unity Editor CI, обе WebGL Release сборки на `d91747095d061c049822e0f70a1741fae085f085`. [Pages #38193415387](https://github.com/G3R-Studio/motor-city/actions/runs/38193415387) **success**: обе версии опубликованы из одного release run на этом же SHA. После предложенного браузерного smoke Desktop/Mobile пользователь ответил «всё чётко».
 
-**UX-7 НЕ закрывать до реальной проверки.** Source/UI preflight, Editor CI, две WebGL Release сборки, Pages и Desktop/Mobile browsers имеют разные gate и требуют доказательств на одном SHA. Нельзя подменять эти результаты source-only проверкой или старыми артефактами.
+**Границы приёмки:** browser smoke подтверждён пользователем, без приложенных скриншотов, браузерных логов или названия устройства. Yandex SDK, редкие/пограничные сценарии и финальная визуальная отчётность ещё не подтверждены; не помечать их как PASS. QA-only docs commit не меняет опубликованные WebGL binaries.
 
 ## 1. Фиксация исходного SHA и локальный preflight
 
@@ -78,12 +78,12 @@ GitHub Pages **не подтверждает** Yandex SDK. Проверить р
 
 | Gate | Итог | Доказательство |
 | --- | --- | --- |
-| Local UI/owner/C# source gates | CI: FAIL на Phase 3, исправлена отсутствующая зависимость; полный повтор ожидается | [run #38190619538](https://github.com/G3R-Studio/motor-city/actions/runs/38190619538), `FileNotFoundError` wheel-baseline; восстановлен исходный JSON в `72399da` |
-| Unity Editor CI on exact release SHA | Старый SHA `a6b52e1`: SUCCESS; новый release SHA: требуется повтор | [run #38190619538](https://github.com/G3R-Studio/motor-city/actions/runs/38190619538) - Unity compilation/scene import PASS, `motor-city-unity-validation` |
-| Desktop & Mobile Build Profiles | НЕ ПРОВЕРЕНО | один release run URL, 2 artifacts, 2 build reports |
-| GitHub Pages exact release SHA | НЕ ПРОВЕРЕНО | deploy run URL + `release.txt` |
-| Desktop browser clean/old save | НЕ ПРОВЕРЕНО | URL, screenshot + notes |
-| Mobile browser touch & safe area | НЕ ПРОВЕРЕНО | URL, device, screenshots + notes |
+| Source / UI ownership / C# gates | **PASS**, 30/30 + UI layout | [Source Gates #38191671963](https://github.com/G3R-Studio/motor-city/actions/runs/38191671963) |
+| Unity Editor CI on release SHA | **PASS** | [Source Gates #38191671963](https://github.com/G3R-Studio/motor-city/actions/runs/38191671963), validation artifact |
+| Desktop & Mobile Build Profiles | **PASS**, both WebGL non-development Release | [Source Gates #38191671963](https://github.com/G3R-Studio/motor-city/actions/runs/38191671963), Desktop + Mobile artifacts/reports |
+| GitHub Pages exact release SHA | **PASS** по CI deployment, SHA `d91747095d061c049822e0f70a1741fae085f085` | [Pages #38193415387](https://github.com/G3R-Studio/motor-city/actions/runs/38193415387), подготовлен `release.txt`; прямое чтение опубликованного файла недоступно в среде ассистента |
+| Desktop browser smoke | **Принято пользователем**, «всё чётко» | https://g3r-studio.github.io/motor-city/desktop/ ; скриншоты/Console не предоставлены |
+| Mobile browser smoke | **Принято пользователем**, «всё чётко» | https://g3r-studio.github.io/motor-city/mobile/ ; модель устройства/скриншоты не предоставлены |
 | Yandex SDK QA | НЕ ПРОВЕРЕНО | отдельные platform QA logs |
 
 **Не создавать фальшивые скриншоты/ссылки/указания PASS.** Публиковать screenshots и отметить checklist UX-7 только после исполнения сценариев на текущем SHA. На непрошедшем gate остановить выпуск, исправить и перезапустить сборки на новом SHA.
@@ -112,3 +112,17 @@ JSON с 36 эталонными локальными позами колёс д�
 [Run #38191383883](https://github.com/G3R-Studio/motor-city/actions/runs/38191383883) (`bbe1e6f`): `ui-layout` success; `unity-editor` success; Phase 3 wheel JSON (перенесён в `Tools/Tests/Fixtures`) success. `source-gates` failure на `Tools/check_ux7_release_readiness.py`, 13/14 source checks, из-за ложного ожидания `".head_sha`. В Pages реально есть `jq -r '.head_sha'`, поэтому проверка SHA не менялась, исправлен только тест исходников.
 
 Workflow регистрирует все 30 Python/Roslyn source checks с `continue-on-error: true`, затем `Aggregate all source-gate outcomes` собирает `steps.*.outcome` и возвращает ошибку, если хоть один source check не success. В одном CI запуске будут видны все потенциальные проблемы без обхода защитных gate релиза. Только полный `source-gates=success` разблокирует WebGL. Требуется новый запуск на обновлённом SHA с `build_webgl_release=true`.
+
+## 11. Подтверждённый релиз и пользовательский browser smoke - 2026-10-12
+
+**Immutable release SHA:** `d91747095d061c049822e0f70a1741fae085f085`.
+
+**Релизный CI:** [#38191671963](https://github.com/G3R-Studio/motor-city/actions/runs/38191671963), `workflow_dispatch`, общий результат **success**. Все 30/30 source regressions, UI source layout и Unity Editor batch jobs **success**. Desktop WebGL Release: `Build result: Succeeded`, `Development: False`, artifact `motor-city-webgl-desktop-release` (ID 11722326165). Mobile WebGL Release: `Build result: Succeeded`, `Development: False`, artifact `motor-city-webgl-mobile-release` (ID 11722546619). Два артефакта и отчёты собраны из одного CI run.
+
+**GitHub Pages:** [#38193415387](https://github.com/G3R-Studio/motor-city/actions/runs/38193415387), все три jobs **success** (Verify, Prepare, Publish). Staging лог: 34 Unity WebGL files, файлы `.wasm/.data/.framework.js` декомпрессированы, нет `.br` без Content-Encoding, `release.txt` с SHA и ID build run добавлен в artifact. Deploy log подтверждает `Created deployment for d91747095d061c049822e0f70a1741fae085f085`, `Reported success!`, URL `https://g3r-studio.github.io/motor-city/`. Прямое сетевое открытие `release.txt` из среды ассистента недоступно, поэтому публичный HTTP-check самостоятельно не подтверждён.
+
+**Browser smoke (пользователь):** после просьбы открыть `https://g3r-studio.github.io/motor-city/desktop/` и `https://g3r-studio.github.io/motor-city/mobile/` и проверить меню «Мой Motor City», вкладки, навигацию назад, журнал, гараж, результаты активности, сохранения/reload, RU/EN, руль/стрелки, газ/тормоз/ручник, настройку touch-кнопок и скролл, пользователь ответил «всё чётко». Это принятое подтверждение ручной проверки, **не** собственная автоматизированная browser QA или отдельный report по каждому шагу.
+
+**Открытые gates:** Yandex Games SDK QA (реклама, покупки, auth, облачные сохранения), отдельные сценарии активной миссии/полного прохождения/неуспеха активности/возврата наград, и скриншоты/журнал браузерных ошибок/данные устройства. Без их явной проверки чекбоксы #6-8 остаются `[ ]`.
+
+**Привязка версий:** документация фиксируется отдельным commit после успешного релиза. Этот commit не изменяет игровой WebGL release SHA `d91747095d061c049822e0f70a1741fae085f085` и не пересобирает игру. Повторная публикация по текущему `main` потребует нового Source Gates + Desktop/Mobile WebGL Release на новом SHA: Pages workflow сознательно отклоняет устаревший run.
