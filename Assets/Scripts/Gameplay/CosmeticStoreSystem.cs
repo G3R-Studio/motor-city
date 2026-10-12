@@ -505,28 +505,11 @@ namespace MotorCity.Gameplay
             if (!known)
                 return;
 
-            // Entitlement is persisted before consuming the purchase token.
-            // If the game closes here, the pending transaction is safe to
-            // process again because GrantEntitlement is idempotent.
-            // Supporter Pack and permanent perks remain in getPurchases().
-            // Keep it in Yandex getPurchases() so ownership can be restored
-            // independently of local/cloud save state. Consumable products
-            // should be routed through ConsumeAfterGrant when/if we add them.
-            if (!IsPermanentProduct(
-                    productId))
-            {
-                if (purchaseRuntime != null)
-                {
-                    purchaseRuntime.ConsumeAfterGrant(
-                        token);
-                }
-                else if (!string.IsNullOrWhiteSpace(
-                             token))
-                {
-                    MotorCityPlatform.ConsumePurchase(
-                        token);
-                }
-            }
+            // Permanent entitlements remain visible in getPurchases().
+            // Consumable tokens are acknowledged only after the granted
+            // wallet/receipt revision has reached the cloud (if available).
+            if (!IsPermanentProduct(productId))
+                ConsumeCreditsAfterSync(token);
 
             if (!announce)
                 return;
