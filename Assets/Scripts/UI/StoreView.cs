@@ -300,6 +300,16 @@ namespace MotorCity.UI
                     new Vector2(0f, 1f),
                     new Color(0.24f, 0.88f, 1f, 1f));
 
+            storeNameText.resizeTextForBestFit = true;
+            storeNameText.resizeTextMinSize = 15;
+            storeNameText.resizeTextMaxSize = 20;
+            storeDescriptionText.resizeTextForBestFit = true;
+            storeDescriptionText.resizeTextMinSize = 11;
+            storeDescriptionText.resizeTextMaxSize = 14;
+            storePathText.resizeTextForBestFit = true;
+            storePathText.resizeTextMinSize = 11;
+            storePathText.resizeTextMaxSize = 14;
+
             storeOwnershipText =
                 CreateText(
                     detailCard,
