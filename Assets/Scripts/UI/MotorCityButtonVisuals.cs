@@ -155,12 +155,12 @@ namespace MotorCity.UI
             button.transition = Selectable.Transition.ColorTint;
             ColorBlock colors = button.colors;
             colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1.08f, 1.10f, 1.16f, 1f);
+            colors.highlightedColor = new Color(1.06f, 1.08f, 1.12f, 1f);
             colors.pressedColor = new Color(0.77f, 0.84f, 0.94f, 1f);
-            colors.selectedColor = new Color(1.10f, 1.10f, 1.18f, 1f);
+            colors.selectedColor = new Color(1.08f, 1.10f, 1.15f, 1f);
             colors.disabledColor = new Color(0.48f, 0.50f, 0.56f, 0.75f);
             colors.colorMultiplier = 1f;
-            colors.fadeDuration = 0.09f;
+            colors.fadeDuration = 0.13f;
             button.colors = colors;
         }
     }
