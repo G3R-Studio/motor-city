@@ -228,6 +228,11 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 1f),
                     BlueAccent);
 
+            resultNextGoalText.resizeTextForBestFit = true;
+            resultNextGoalText.resizeTextMinSize = 11;
+            resultNextGoalText.resizeTextMaxSize = 16;
+            resultNextGoalText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            resultNextGoalText.verticalOverflow = VerticalWrapMode.Truncate;
             resultNextGoalText.text =
                 string.Empty;
 
