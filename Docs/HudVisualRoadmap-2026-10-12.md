@@ -188,11 +188,11 @@
 
 ### HV-5 — Модальные окна процесса игры: Пауза, Навигатор, Результат
 
-- [ ] **HV-5.1 MO-01** Пауза: компактные quality/audio/music settings rows; Продолжить — primary; Главное меню — secondary, Мой Motor City отдельным action-row.
-- [ ] **HV-5.2 MO-02** Навигатор: заголовок, категория, расстояние, активная точка, кнопки переключения и закрытия; не путать GPS/внутригородскую активность.
-- [ ] **HV-5.3 MO-03** Результат: крупный исход/КР/REP, явная награда/новый рекорд, нижний прокручиваемый блок только фактически изменившихся систем.
-- [ ] **HV-5.4 MO-03** Продолжить / Retry при успехе, провале, без новой медали; визуал **не меняет** DismissResult/ResultSequence и платёжную транзакцию.
-- [ ] **HV-5.5** Проверить возврат: Escape/Back и X/Назад/Continue, таймскейл, управление, ScrollRect и отсутствие двух модалок на экране.
+- [x] **HV-5.1 MO-01 — IN SOURCE / NEEDS UNITY.** В паузе Resume сохранён Primary, Главное меню и Мой Motor City сделаны Secondary, подложка чуть мягче. Действующие quality/audio/music rows, callbacks и Time.timeScale не менялись; компактность рядов проверяется в Play Mode.
+- [x] **HV-5.2 MO-02 — IN SOURCE / NEEDS UNITY.** Название пункта назначения и описание получили локальный best-fit с ограничением высоты; основной шрифт названия 24→22, подложка слабее. Сами категории, счётчик, дистанция, маршрутизация и кнопки не изменены.
+- [x] **HV-5.3 MO-03 — IN SOURCE / NEEDS UNITY (первый проход).** Увеличены headline 32→38 и reward 25→28, details 18→17. Существующий ResultChangesScroll, реальные начисления и флаг рекорда не изменялись; требуется Play Mode для длинных наград и высоты.
+- [x] **HV-5.4 MO-03 — IN SOURCE / NEEDS UNITY.** Кнопка Continue выделена Primary, Retry — Secondary через существующий targetGraphic. Семантические MotorCityInputAction.Cancel/Retry, ResultSequence и начисления не тронуты; проверить оба исхода.
+- [ ] **HV-5.5 — NEEDS UNITY.** Обработчики возврата и владельцы окон не менялись; ожидается ручная проверка Pause/Resume, Navigator/Back, Result/Continue/Retry, управления и Time.timeScale. Не считать принятым до Play Mode.
 
 Файлы: **PauseMenuView.cs, NavigatorView.cs, ActivityResultView.cs, PrototypeHudResultChanges.cs, MotorCityModalUiKit.cs**.
 
@@ -344,3 +344,8 @@
 ### HV-4 source pass — 2026-10-12
 
 Изменены builders `DrivingHudView.cs`, `NavigatorView.cs`, `TouchControlsView.cs`, `CharacterMissionCardView.cs`. Коммиты `6464fed`, `f26cdc6`, `0d5b573`, `4ac1084`. Никакого Unity CI/WebGL/Source Gates не запускалось. HV-4 не считать ACCEPTED до проверки 3-значной скорости, всех режимов, маршрута/иконки игрока, гонки/дрифта/CountDown, длинных RU/EN подписей и последовательности Pause→Resume, Store→Close, Result→Continue на desktop и touch.
+
+
+### HV-5 source pass — 2026-10-12
+
+Коммиты: `92ba788` (pause actions), `014c325` / `0fedc00` (result hierarchy and correct skin signature), `4398667` (navigator text). Все gameplay callbacks, Time.timeScale, ResultSequence, rewards и route target handling сохранены. Unity Play Mode, Source Gates и release builds не запускались. Нужны скриншоты длинных RU/EN подписей и проверка закрытия/переоткрытия всех трёх окон. Статус HV-5: IN SOURCE / NEEDS UNITY, не ACCEPTED.
