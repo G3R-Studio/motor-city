@@ -147,7 +147,6 @@ def main() -> int:
     # repeated scene-load tests remain independent requirements.
     singleton_guards = {
         "Input/MotorCityVirtualInputRuntime.cs": "GetEntityId()",
-        "UI/HudVisualPolish.cs": "GetEntityId()",
         "Audio/MotorCitySfxRuntime.cs": "instance != this",
         "Audio/MotorCityMusicRuntime.cs": "instance != this",
     }

@@ -41,7 +41,7 @@ def main() -> int:
         })
     # All HUD geometry is now owned by builders; no persistent polish pass.
     polish = ""
-    names = []
+    polish_targets = []
     if (UI / "HudVisualPolish.cs").exists():
         errors.append("Retired HUD polish runtime was reintroduced")
     touch_source = (UI / "TouchControlsView.cs").read_text(encoding="utf-8-sig")
@@ -197,7 +197,7 @@ def main() -> int:
         "phase": 7,
         "kind": "source inventory (does not prove overlapping RectTransform instances)",
         "owners": rows,
-        "hud_polish_named_targets": names,
+        "hud_polish_named_targets": polish_targets,
         "touch_geometry_owned_by": "TouchControlsView / player customization",
         "risk": "Polish may write sizes/positions after HUD, navigator and touch builders.",
         "rule": "Do not delete builders or move layout writes until per-object runtime ownership is mapped.",
@@ -205,7 +205,7 @@ def main() -> int:
     }
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Phase 7 UI ownership inventory: {len(rows)} owners, {len(names)} named polish targets.")
+    print(f"Phase 7 UI ownership inventory: {len(rows)} owners, {len(polish_targets)} named polish targets.")
     for error in errors:
         print("ERROR:", error)
     return bool(errors)
