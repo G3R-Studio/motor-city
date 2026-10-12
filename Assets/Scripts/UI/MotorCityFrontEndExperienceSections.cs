@@ -403,6 +403,17 @@ namespace MotorCity.UI
             return true;
         }
 
+        public bool DebugShowJournalFilter(int filter)
+        {
+            if (playerExperienceRoot == null ||
+                !playerExperienceRoot.activeInHierarchy ||
+                playerExperienceJournalPanel == null)
+                return false;
+            SwitchPlayerExperiencePage(playerExperienceJournalPanel);
+            SelectPlayerExperienceJournalFilter(filter);
+            return true;
+        }
+
         public bool DebugShowExperienceSection(int section)
         {
             if (playerExperienceRoot == null ||
