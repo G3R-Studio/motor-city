@@ -172,6 +172,21 @@ namespace MotorCity.UI
                             credits, rep));
                 }
             }
+            sb.Append("\n\n").Append(MotorCityLocalization.Text("ux4.achievement.records"));
+            if (streetSprint != null)
+                sb.Append("\n").Append(MotorCityLocalization.Format(
+                    "ux4.achievement.record_sprint",
+                    FormatPlayerExperienceBestTime(streetSprint.BestTimeSeconds)));
+            if (circuitRace != null)
+                sb.Append("\n").Append(MotorCityLocalization.Format(
+                    "ux4.achievement.record_circuit",
+                    FormatPlayerExperienceBestTime(circuitRace.BestTimeSeconds)));
+            if (drift != null)
+                sb.Append("\n").Append(drift.BestDrift > 0
+                    ? MotorCityLocalization.Format("ux4.achievement.record_drift",
+                        drift.BestDrift)
+                    : MotorCityLocalization.Text("ux4.achievement.record_drift_none"));
+
             if (collection != null)
             {
                 sb.Append("\n\n").Append(MotorCityLocalization.Text(
