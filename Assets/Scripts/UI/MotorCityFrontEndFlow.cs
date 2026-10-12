@@ -627,6 +627,17 @@ namespace MotorCity.UI
                 46f,
                 new Color(0.48f, 0.76f, 1f, 1f));
 
+            playerExperienceVisitHintText =
+                CreateFrontEndLayoutText(
+                    window.Content,
+                    MotorCityLocalization.Text("ux6.home.first_hint"),
+                    20,
+                    FontStyle.Normal,
+                    TextAnchor.MiddleCenter,
+                    48f,
+                    new Color(0.76f, 0.86f, 1f, 1f));
+            playerExperienceVisitHintText.gameObject.SetActive(false);
+
             playerExperienceCreditsText =
                 CreateFrontEndLayoutText(
                     window.Content,
@@ -848,8 +859,13 @@ namespace MotorCity.UI
             playerExperienceLastOverviewSelection = null;
             // A fresh entry starts at the top, while Back from a detail
             // keeps the overview position for narrow/touch layouts.
+            if (playerExperienceVisitHintText != null)
+                playerExperienceVisitHintText.gameObject.SetActive(
+                    !playerExperienceHintWasShown);
+            playerExperienceHintWasShown = true;
             SwitchPlayerExperiencePage(null, true);
             ApplyPlayerExperienceModalLayout(true);
+            CapturePlayerExperienceSourceStamp();
         }
 
         private void RefreshPlayerExperience()
@@ -1881,7 +1897,15 @@ namespace MotorCity.UI
 
             ApplyFrontEndResponsiveLayout(
                 false);
-            ApplyPlayerExperienceModalLayout(false);
+            // Skip modal geometry checks while their entire Canvas is hidden
+            // during gameplay; opening a modal forces its initial layout.
+            if (canvas != null && canvas.gameObject.activeInHierarchy &&
+                ((playerExperienceRoot != null &&
+                  playerExperienceRoot.activeInHierarchy) ||
+                 (controlChoiceRoot != null &&
+                  controlChoiceRoot.activeInHierarchy)))
+                ApplyPlayerExperienceModalLayout(false);
+            RefreshVisiblePlayerExperienceIfChanged();
             HandlePlayerExperienceScrollShortcuts();
             KeepCareerSelectionVisible();
 
