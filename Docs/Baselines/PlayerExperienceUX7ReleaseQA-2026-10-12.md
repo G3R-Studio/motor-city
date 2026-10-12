@@ -98,3 +98,11 @@ GitHub Pages **не подтверждает** Yandex SDK. Проверить р
 - `Phase 12 WebGL Desktop + Mobile Release profiles`: skipped из-за source gate.
 
 Оригинальный `VehicleWheelTransforms-2026-10-09.json` взят **из истории Git** (коммит `2ead32c`, blob `1579453c49a1de2aa264ad4c51e781e9add75f26`), восстановлен без регенерации в `72399da`. Source-only сверка с текущими девятью player prefabs: все 36 позиций и quaternion wheel pivots совпали. Требуется **запустить НОВЫЙ workflow на текущем main**, а не rerun старого SHA. Пока новый Source Gates и оба WebGL Release не success, выпуск не публиковать.
+
+## 9. Разделение Unity player build и проверок CI
+
+Проверено 2026-10-12 по `ProjectSettings/EditorBuildSettings.asset`, двум `Assets/Settings/Build Profiles/Web - {Desktop,Mobile} - Release.asset` и `Assets/Editor/MotorCityPhase12ReleaseBuild.cs`: **в WebGL входит единственная включённая сцена `Assets/Scenes/Prototype.unity` с её игровыми зависимостями**. Python/PowerShell в корневых `Tools/`, документы в `Docs/`, и прочие файлы вне `Assets/` и `Packages/` не становятся Unity runtime assets. Папка `Assets/Editor/` содержит инструменты редактора, но они не включаются в player runtime.
+
+`motor-city-source-gates.yml` специально выполняет Python/PowerShell source regressions в **отдельном** job `source-gates`. Его failure прерывает релиз **до** WebGL build, но не означает, что скрипты или документы попадают в сборку. Сама сборка Unity запускается в `unity-phase12-releases` только после успешных проверок исходников, layout и Unity Editor.
+
+JSON с 36 эталонными локальными позами колёс девяти prefab - **fixture для `Tools/check_vehicle_contract.py`**, а не игровой конфиг. Чтобы не держать зависимость теста в `Docs/`, исходный неизменённый blob `1579453c49a1de2aa264ad4c51e781e9add75f26` перенесён в `Tools/Tests/Fixtures/VehicleWheelTransforms-2026-10-09.json`. В `Assets/` не добавлялся; runtime код, модели/префабы, `.meta`, сцены и настройки Build Profiles не менялись. Source checker по-прежнему проверяет именно неизменённый эталон и при отсутствии fixture выдаёт явную ошибку.

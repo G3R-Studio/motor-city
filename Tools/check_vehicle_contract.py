@@ -15,7 +15,9 @@ NAME = re.compile(r"^  m_Name: (.+)$", re.MULTILINE)
 TRANSFORM = re.compile(r"^--- !u!4 &", re.MULTILINE)
 BLOCK = re.compile(r"^--- !u!(1|4) &(\d+)\n([\s\S]*?)(?=^--- !u!|\Z)", re.MULTILINE)
 POSE = re.compile(r"m_Local(Position|Rotation): \{([^}]+)\}")
-SNAPSHOT = ROOT / "Docs/Baselines/VehicleWheelTransforms-2026-10-09.json"
+# CI-only reference data. Never place this JSON under Assets/ or Resources/.
+# Release binaries use Unity Build Profiles; this is read by Python source gates.
+SNAPSHOT = ROOT / "Tools/Tests/Fixtures/VehicleWheelTransforms-2026-10-09.json"
 
 def poses(content):
     blocks = list(BLOCK.finditer(content))
@@ -42,7 +44,16 @@ def poses(content):
 def run():
     errors = []
     ids = ID_FILE.read_text(encoding="utf-8-sig")
-    snapshots = json.loads(SNAPSHOT.read_text(encoding="utf-8"))["vehicles"]
+    if not SNAPSHOT.is_file():
+        print("Vehicle source-check fixture is missing: "
+              + SNAPSHOT.relative_to(ROOT).as_posix())
+        print("The fixture belongs to Tools/Tests/Fixtures and is not a Unity build asset.")
+        return 1
+    try:
+        snapshots = json.loads(SNAPSHOT.read_text(encoding="utf-8"))["vehicles"]
+    except (OSError, ValueError, KeyError) as exc:
+        print("Invalid vehicle source-check fixture: " + str(exc))
+        return 1
     for prefab in PREFABS:
         path = FOLDER / (prefab + ".prefab")
         if not path.is_file():
