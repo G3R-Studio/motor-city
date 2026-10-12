@@ -69,6 +69,13 @@ namespace MotorCity.Gameplay
         private int selectedTab;
         private Vector2 scroll;
         private string lastAction = "Готово";
+        private int uiQaCanvasCount = -1;
+        private int uiQaGraphicCount;
+        private int uiQaButtonCount;
+        private long uiQaMemoryBytes;
+        private float uiQaCaptureRealtime;
+
+
 
         private Rect windowRect =
             new Rect(
@@ -1739,6 +1746,56 @@ namespace MotorCity.Gameplay
                 " | AudioListener.pause: " + AudioListener.pause);
             GUILayout.Label("Совет: сделай два снимка после поворота экрана " +
                 "и после закрытия Pause / Result.");
+
+            Section("HV-9 — СОХРАНЕНИЯ / НАГРАДЫ");
+            GUILayout.Label("Работай только с тестовым сохранением.");
+            GUILayout.Label("1. Снимок баланса/репутации -> перезапуск -> сравни.");
+            GUILayout.Label("2. После результата снимок награды -> закрыть -> " +
+                "повторно открыть: второй выплаты быть не должно.");
+            GUILayout.Label("3. Сверь пустое и старое сохранение, " +
+                "смену машины и активную миссию.");
+            GUILayout.Label("4. Магазин: повторная покупка не списывает дважды.");
+            GUILayout.Label("ВНИМАНИЕ: Result QA запускает настоящие listeners.");
+
+            Section("HV-9 — UI SNAPSHOT (READ-ONLY)");
+            if (GUILayout.Button("Снять снимок UI / памяти", GUILayout.Height(32f)))
+            {
+                // Expensive hierarchy traversal only on explicit QA click.
+                Canvas[] canvases = FindObjectsByType<Canvas>(
+                    FindObjectsInactive.Include, FindObjectsSortMode.None);
+                uiQaCanvasCount = canvases.Length;
+                uiQaGraphicCount = 0;
+                uiQaButtonCount = 0;
+                foreach (Canvas canvas in canvases)
+                {
+                    // Canvas hierarchies may nest; count unique graphics below
+                    // only their own nearest Canvas to avoid double counting.
+                    UnityEngine.UI.Graphic[] graphics =
+                        canvas.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
+                    foreach (UnityEngine.UI.Graphic graphic in graphics)
+                        if (graphic.canvas == canvas)
+                            uiQaGraphicCount++;
+                    UnityEngine.UI.Button[] buttons =
+                        canvas.GetComponentsInChildren<UnityEngine.UI.Button>(true);
+                    foreach (UnityEngine.UI.Button button in buttons)
+                        if (button.GetComponentInParent<Canvas>() == canvas)
+                            uiQaButtonCount++;
+                }
+                uiQaMemoryBytes = UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
+                uiQaCaptureRealtime = Time.realtimeSinceStartup;
+            }
+            if (uiQaCanvasCount >= 0)
+            {
+                GUILayout.Label("Canvas: " + uiQaCanvasCount +
+                    " | Graphics: " + uiQaGraphicCount +
+                    " | Buttons: " + uiQaButtonCount);
+                GUILayout.Label("Managed memory: " +
+                    (uiQaMemoryBytes / (1024f * 1024f)).ToString("0.0") +
+                    " MiB | t=" + uiQaCaptureRealtime.ToString("0.0") + "s");
+                GUILayout.Label("Сними второй snapshot после 3-5 повторных открытий. " +
+                    "Рост числа UI-объектов требует проверки.");
+            }
+            GUILayout.Label("Это снимок, не FPS/allocations profiler и не PASS.");
 
             Section("HV-9 — РУЧНАЯ ПРОВЕРКА ОКОН");
             GUILayout.Label(
