@@ -297,8 +297,8 @@ namespace MotorCity.UI
 
             // Continue is the visual primary action; no retry or
             // dismiss callbacks are changed by this styling pass.
-            MotorCityUiSkin.ApplyButton(continueButton, MotorCityButtonRole.Primary);
-            MotorCityUiSkin.ApplyButton(retryButton, MotorCityButtonRole.Secondary);
+            MotorCityUiSkin.ApplyButton(continueButton, continueButton.targetGraphic, MotorCityButtonRole.Primary);
+            MotorCityUiSkin.ApplyButton(retryButton, retryButton.targetGraphic, MotorCityButtonRole.Secondary);
         }
 
         private void BuildResultTouchControls(
