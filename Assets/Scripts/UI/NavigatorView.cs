@@ -1488,6 +1488,10 @@ namespace MotorCity.UI
                     new Vector2(1f, 1f),
                     Color.clear);
 
+            // Scale the minimap and its target card as one anchored HUD group.
+            // The top-right pivot keeps both aligned to the screen safe area.
+            panel.localScale = Vector3.one * 1.5f;
+
             navigatorPanel =
                 panel.gameObject;
 

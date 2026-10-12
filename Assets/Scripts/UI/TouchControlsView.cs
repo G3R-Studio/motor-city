@@ -392,9 +392,10 @@ namespace MotorCity.UI
             rail.pivot =
                 new Vector2(1f, 1f);
             rail.anchoredPosition =
-                new Vector2(-254f, -112f);
+                new Vector2(-365f, -70f);
             rail.sizeDelta =
                 new Vector2(108f, 154f);
+            rail.localScale = Vector3.one * 1.5f;
 
             CreatePauseButton(
                 rail,
@@ -452,9 +453,10 @@ namespace MotorCity.UI
             menu.pivot =
                 new Vector2(1f, 1f);
             menu.anchoredPosition =
-                new Vector2(-370f, -112f);
+                new Vector2(-539f, -70f);
             menu.sizeDelta =
                 new Vector2(120f, 198f);
+            menu.localScale = Vector3.one * 1.5f;
 
             CreateLocalizedTouchPulseButton(
                 menu,
