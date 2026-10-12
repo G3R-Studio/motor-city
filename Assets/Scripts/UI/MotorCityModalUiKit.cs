@@ -78,6 +78,13 @@ namespace MotorCity.UI
 
             ApplyModalPanelTexture(
                 panel);
+            MotorCityUiSkin.ApplyModalSurface(
+                panel,
+                "Reference HUD Surface");
+            MotorCityUiSkin.AddModalHeaderDivider(
+                panel,
+                ModalHeaderHeight,
+                ModalHorizontalPadding);
 
             Text title =
                 CreateText(

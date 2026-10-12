@@ -269,7 +269,12 @@ namespace MotorCity.UI
                     if (current.name == "Garage Overlay" ||
                         (current.name == "Touch Driving Controls" && button.name != "Interact"))
                         { excluded = true; break; }
-                if (excluded) continue;
+                // Modal buttons already own their unified tint, target
+                // image and pointer feedback. Replacing them with a generic
+                // reference surface would erase Primary/Utility/Back styles
+                // (notably Pause -> Resume) during the global HUD polish pass.
+                if (excluded || button.GetComponent<UiButtonFeedback>() != null)
+                    continue;
                 Image image = button.GetComponent<Image>();
                 if (image == null) continue;
                 image.color = Color.clear;

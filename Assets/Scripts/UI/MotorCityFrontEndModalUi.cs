@@ -81,6 +81,14 @@ namespace MotorCity.UI
                     Vector2.zero,
                     size);
 
+            MotorCityUiSkin.ApplyModalSurface(
+                panel,
+                "Reference Menu Surface");
+            MotorCityUiSkin.AddModalHeaderDivider(
+                panel,
+                headerHeight,
+                FrontEndModalHorizontalPadding);
+
             if (parent == playerExperienceRoot.transform)
                 playerExperienceModalPanels.Add(panel);
             else if (parent == controlChoiceRoot.transform)

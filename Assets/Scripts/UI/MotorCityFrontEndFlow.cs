@@ -1180,7 +1180,7 @@ namespace MotorCity.UI
                     IsRussian()
                         ? "НАСТРОЙКИ"
                         : "SETTINGS",
-                    new Vector2(1180f, 760f),
+                    new Vector2(1180f, 660f),
                     showCloseButton: false);
 
             CreateFrontEndSettingsLayoutRow(
@@ -1223,13 +1223,12 @@ namespace MotorCity.UI
                 null,
                 ToggleLanguage);
 
-            CreateFrontEndFlexibleSpacer(
-                window.Content,
-                "Settings Spacer");
-
+            // Keep the primary page exit in the persistent footer.
+            // The four setting rows remain in the scrollable body at narrow
+            // heights, instead of leaving empty space under Back on desktop.
             RectTransform actions =
                 CreateFrontEndActionRow(
-                    window.Content,
+                    window.Footer,
                     "Settings Actions",
                     58f);
 
@@ -1240,7 +1239,8 @@ namespace MotorCity.UI
                     : "BACK",
                 ShowMainMenu,
                 260f,
-                58f);
+                58f,
+                MotorCityButtonRole.Back);
 
             RefreshSettingsText();
         }

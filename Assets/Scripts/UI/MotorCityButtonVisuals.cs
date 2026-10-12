@@ -30,6 +30,57 @@ namespace MotorCity.UI
         internal const int TitleFontSize = 28;
         internal const int BodyFontSize = 15;
 
+        // Only apply to a modal's owned surface: never restyle the separate
+        // completed vehicle customization UI or replace layout-owned geometry.
+        internal static void ApplyModalSurface(
+            RectTransform panel,
+            string surfaceName)
+        {
+            if (panel == null)
+                return;
+
+            Transform surfaceNode = panel.Find(surfaceName);
+            if (surfaceNode == null)
+                return;
+
+            GarageReferenceGraphic surface =
+                surfaceNode.GetComponent<GarageReferenceGraphic>();
+            if (surface != null)
+            {
+                surface.color = Panel;
+                surface.raycastTarget = false;
+            }
+
+            foreach (Outline outline in panel.GetComponents<Outline>())
+                outline.enabled = false;
+        }
+
+        internal static void AddModalHeaderDivider(
+            RectTransform panel,
+            float headerHeight,
+            float horizontalInset)
+        {
+            if (panel == null || panel.Find("Modal Header Divider") != null)
+                return;
+
+            GameObject divider = new(
+                "Modal Header Divider",
+                typeof(RectTransform),
+                typeof(Image));
+            divider.transform.SetParent(panel, false);
+            RectTransform rect = divider.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.anchoredPosition = new Vector2(0f, -headerHeight);
+            rect.sizeDelta = new Vector2(-horizontalInset * 2f, 1.5f);
+
+            Image image = divider.GetComponent<Image>();
+            image.color = new Color(
+                AccentLilac.r, AccentLilac.g, AccentLilac.b, 0.28f);
+            image.raycastTarget = false;
+        }
+
         internal static void ApplyButton(
             Button button,
             Graphic surface,
