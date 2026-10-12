@@ -198,6 +198,13 @@
 
 **Gate:** пауза и выход/возврат, навигатор, результат success/fail/retry, при повторном открытии награда не начисляется дважды.
 
+### HV-5 follow-up: Result layout и QA Admin (2026-10-12)
+
+- **MO-03 — IN SOURCE / NEEDS UNITY:** Исправлены перекрытия по присланным скриншотам: награда 28→21, ширина 560, локальный best-fit; heading и viewport изменений смещены ниже, высота viewport 104; next goal ограничен best-fit. Реальные reward callbacks и Retry/Continue сохранены. SHA: 53c9459, f4f57b7, 1891d46.
+- **DEV-01 — IN SOURCE / NEEDS UNITY:** Добавлена вкладка UI QA в AdminDebugPanel: Pause, My Motor City и девять разделов, Navigator, Store, Club, результаты delivery/sprint/circuit/drift success/record/fail. Меню Главная/Об игре/Настройки доступны лишь когда FrontEnd уже владеет Canvas. Без отдельного Canvas и без релизной админки. SHA: 690be1d, f480b11, 2265e4b, 5a17e41, adfa14b, bd02a24.
+- **Ограничения:** пока не все UI-состояния вызываются в QA по одному клику: loading, onboarding, HUD карточка персонажа, отдельные driving overlays и touch layout editor требуют дополнительных безопасных entry points. Существующий Admin SimulateResult вызывает ActivityManager.ShowResult и progression listeners — использовать тестовое сохранение, read-only не обещать.
+- **Smoke:** проверить длинные изменения и next goal, все 9 страниц, паузу и возврат, магазин/клуб, все 12 результатов. Unity Play Mode/CI не запускались; не выставлять ACCEPTED без подтверждения.
+
 ### HV-6 — Автоклуб и магазин
 
 - [ ] **HV-6.5 MO-04** Автоклуб: эмблема/имя, фокус и weekly прогресс; нижнюю группу Назад/Выбрать/Дальше/Закрыть упорядочить, **не удалять нужные действия молча**.
