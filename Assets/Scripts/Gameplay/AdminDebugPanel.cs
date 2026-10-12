@@ -1631,6 +1631,20 @@ namespace MotorCity.Gameplay
                 CloseResult();
             GUILayout.EndHorizontal();
 
+            Section("ГЛАВНОЕ МЕНЮ (ТОЛЬКО КОГДА ОНО АКТИВНО)");
+            GUILayout.BeginHorizontal();
+            string[] menuPages = { "ГЛАВНАЯ", "ОБ ИГРЕ", "НАСТРОЙКИ" };
+            for (int i = 0; i < menuPages.Length; i++)
+            {
+                int page = i;
+                if (Button(menuPages[i]))
+                    lastAction = frontEnd != null &&
+                        frontEnd.DebugShowFrontEndPage(page)
+                        ? "Меню: " + menuPages[i]
+                        : "Меню недоступно во время игры";
+            }
+            GUILayout.EndHorizontal();
+
             Section("МОЙ MOTOR CITY — ПРЯМОЙ ПЕРЕХОД");
             GUILayout.Label("Сначала открыть Мой Motor City. Эти кнопки не изменяют прогресс.");
             string[] pages = {
