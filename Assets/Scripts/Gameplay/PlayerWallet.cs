@@ -19,10 +19,16 @@ namespace MotorCity.Gameplay
 
         public void AddCredits(
             int amount,
-            bool saveImmediately = true)
+            bool saveImmediately = true,
+            bool applyIncomeBoost = true)
         {
             if (amount <= 0)
                 return;
+
+            if (applyIncomeBoost && CosmeticStoreSystem.DoubleIncomeOwned)
+                amount = Mathf.Min(amount, (int.MaxValue - Credits) / 2) * 2;
+            else
+                amount = Mathf.Min(amount, int.MaxValue - Credits);
 
             Credits +=
                 amount;
