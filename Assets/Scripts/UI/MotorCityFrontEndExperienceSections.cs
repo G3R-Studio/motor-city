@@ -143,10 +143,10 @@ namespace MotorCity.UI
                 CreateFrontEndLayoutText(
                     activities.Content,
                     string.Empty,
-                    23,
+                    20,
                     FontStyle.Normal,
                     TextAnchor.UpperLeft,
-                    340f,
+                    0f,
                     new Color(0.90f, 0.95f, 1f, 1f));
 
             RectTransform activitiesBack =
