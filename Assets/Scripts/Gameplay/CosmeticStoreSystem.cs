@@ -280,6 +280,11 @@ namespace MotorCity.Gameplay
             productCatalogResolved = false;
             supporterProductAvailable = false;
             supporterPrice = string.Empty;
+            if (currencyIconTexture != null)
+            {
+                UnityEngine.Object.Destroy(currencyIconTexture);
+                currencyIconTexture = null;
+            }
             if (!MotorCityPlatform.SupportsPurchases)
             {
                 productCatalogResolved = true;
