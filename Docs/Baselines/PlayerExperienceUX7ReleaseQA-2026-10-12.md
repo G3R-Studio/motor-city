@@ -78,8 +78,8 @@ GitHub Pages **не подтверждает** Yandex SDK. Проверить р
 
 | Gate | Итог | Доказательство |
 | --- | --- | --- |
-| Local UI/owner/C# source gates | НЕ ПРОВЕРЕНО запуском | команды + logs |
-| Unity Editor CI on exact release SHA | НЕ ПРОВЕРЕНО | Actions run URL + console logs |
+| Local UI/owner/C# source gates | CI: FAIL на Phase 3, исправлена отсутствующая зависимость; полный повтор ожидается | [run #38190619538](https://github.com/G3R-Studio/motor-city/actions/runs/38190619538), `FileNotFoundError` wheel-baseline; восстановлен исходный JSON в `72399da` |
+| Unity Editor CI on exact release SHA | Старый SHA `a6b52e1`: SUCCESS; новый release SHA: требуется повтор | [run #38190619538](https://github.com/G3R-Studio/motor-city/actions/runs/38190619538) - Unity compilation/scene import PASS, `motor-city-unity-validation` |
 | Desktop & Mobile Build Profiles | НЕ ПРОВЕРЕНО | один release run URL, 2 artifacts, 2 build reports |
 | GitHub Pages exact release SHA | НЕ ПРОВЕРЕНО | deploy run URL + `release.txt` |
 | Desktop browser clean/old save | НЕ ПРОВЕРЕНО | URL, screenshot + notes |
@@ -87,3 +87,14 @@ GitHub Pages **не подтверждает** Yandex SDK. Проверить р
 | Yandex SDK QA | НЕ ПРОВЕРЕНО | отдельные platform QA logs |
 
 **Не создавать фальшивые скриншоты/ссылки/указания PASS.** Публиковать screenshots и отметить checklist UX-7 только после исполнения сценариев на текущем SHA. На непрошедшем gate остановить выпуск, исправить и перезапустить сборки на новом SHA.
+
+## 8. Первый CI run 2026-10-12 и исправление
+
+[Motor City Source Gates #38190619538](https://github.com/G3R-Studio/motor-city/actions/runs/38190619538) на SHA `a6b52e122033cffd583635a0a2130c6c755afcc4` завершился `failure`. Джобы:
+- `Detect Unity-relevant changes`: success;
+- `UI source layout gate`: success;
+- `Unity 6 Editor batch validation`: success, “Unity Editor compilation and scene import completed”, “Unity Phase 2 gate PASSED”; есть артефакт `motor-city-unity-validation`;
+- `Static, GUID and C# source gates`: failure на `Tools/check_vehicle_contract.py`, потому что отсутствовал `Docs/Baselines/VehicleWheelTransforms-2026-10-09.json`;
+- `Phase 12 WebGL Desktop + Mobile Release profiles`: skipped из-за source gate.
+
+Оригинальный `VehicleWheelTransforms-2026-10-09.json` взят **из истории Git** (коммит `2ead32c`, blob `1579453c49a1de2aa264ad4c51e781e9add75f26`), восстановлен без регенерации в `72399da`. Source-only сверка с текущими девятью player prefabs: все 36 позиций и quaternion wheel pivots совпали. Требуется **запустить НОВЫЙ workflow на текущем main**, а не rerun старого SHA. Пока новый Source Gates и оба WebGL Release не success, выпуск не публиковать.
