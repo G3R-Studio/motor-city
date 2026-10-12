@@ -274,25 +274,25 @@ namespace MotorCity.UI
                 new Vector2(0f, 88f), new Vector2(238f, 104f),
                 new Vector2(.5f, 0f), new Vector2(.5f, 0f), Color.clear);
             ClearPanelChrome(dial);
-            speedText = CreateText(dial, "Speed", 42, FontStyle.Bold,
+            speedText = CreateText(dial, "Speed", 54, FontStyle.Bold,
                 TextAnchor.MiddleCenter, Vector2.zero, new Vector2(216f, 74f),
                 new Vector2(.5f, .5f), new Vector2(.5f, .5f), Color.white);
             speedText.resizeTextForBestFit = false;
             MotorCityTextLayout.Configure(speedText);
             speedText.alignment = TextAnchor.MiddleRight;
             speedText.alignByGeometry = false;
-            speedText.rectTransform.anchoredPosition = new Vector2(-54f, 0f);
-            speedText.rectTransform.sizeDelta = new Vector2(130f, 74f);
+            speedText.rectTransform.anchoredPosition = new Vector2(-55f, 0f);
+            speedText.rectTransform.sizeDelta = new Vector2(146f, 82f);
             speedText.text = "0";
-            Text speedUnit = CreateText(dial, "Speed Unit", 23, FontStyle.Bold,
-                TextAnchor.MiddleLeft, new Vector2(64f, 0f), new Vector2(95f, 42f),
+            Text speedUnit = CreateText(dial, "Speed Unit", 17, FontStyle.Normal,
+                TextAnchor.MiddleLeft, new Vector2(68f, -5f), new Vector2(87f, 38f),
                 new Vector2(.5f, .5f), new Vector2(.5f, .5f), GarageReferenceLilac);
             speedUnit.text = MotorCityLocalization.Text("common.kmh");
             speedUnit.alignByGeometry = false;
             speedUnit.resizeTextForBestFit = false;
 
             RectTransform mode = CreatePanel(panel, "Drive Mode Indicator",
-                new Vector2(-92f, 4f), new Vector2(172f, 38f),
+                new Vector2(-92f, 4f), new Vector2(172f, 34f),
                 new Vector2(.5f, 0f), new Vector2(.5f, 0f), Color.clear);
             ApplyReferenceHudSurface(mode);
             driveModeText = CreateText(mode, "Drive Mode", 15, FontStyle.Bold,
@@ -317,7 +317,7 @@ namespace MotorCity.UI
 
             ApplyVillePanelTexture(
                 panel,
-                0.90f);
+                0.82f);
 
 
             statusActivityIcon =
@@ -340,7 +340,7 @@ namespace MotorCity.UI
                 CreateText(
                     panel,
                     "Status Text",
-                    17,
+                    16,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
                     new Vector2(58f, 0f),
@@ -399,7 +399,7 @@ namespace MotorCity.UI
 
             ApplyVillePanelTexture(
                 panel,
-                0.96f);
+                0.85f);
 
             driftText =
                 CreateText(
