@@ -10,6 +10,8 @@ namespace MotorCity.Persistence
         private const float UploadIntervalSeconds =
             15f;
 
+        public event Action<bool> UploadCompleted;
+
         private bool ready;
         private bool saving;
         private bool uploadQueued;
