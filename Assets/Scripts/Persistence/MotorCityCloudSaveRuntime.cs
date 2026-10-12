@@ -391,6 +391,7 @@ namespace MotorCity.Persistence
                         // a tight callback loop when the platform is offline.
                         uploadTimer =
                             UploadIntervalSeconds;
+                        UploadCompleted?.Invoke(false);
                         return;
                     }
 
