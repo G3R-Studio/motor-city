@@ -93,26 +93,35 @@ def main() -> int:
         if re.search(r'FindRect\s*\(\s*"' + re.escape(name) + r'"', polish):
             errors.append(f"Modal root has duplicate geometry owner in polish: {name}")
 
-    # HV-1.3 regression: runtime modal buttons must not expose the old
-    # textured RacingUI art when the HUD polish skips modal-owned graphics.
-    modal_factory = (UI / "MotorCityModalUiKit.cs").read_text(encoding="utf-8-sig")
-    global_style = (UI / "HudUiFactory.cs").read_text(encoding="utf-8-sig")
-    skin = (UI / "MotorCityButtonVisuals.cs").read_text(encoding="utf-8-sig")
-    pause = (UI / "PauseMenuView.cs").read_text(encoding="utf-8-sig")
-    if "ApplyReferenceHudSurface(rect);" not in modal_factory:
-        errors.append("Modal button factory must create its vector background directly")
-    if 'rect.Find("Reference HUD Surface")' not in modal_factory:
-        errors.append("Modal button factory must target its reference vector graphic")
-    if "MotorCityUiSkin.ApplyButton(" not in modal_factory or "modalSurface," not in modal_factory:
-        errors.append("Modal semantic role must style its vector target, not a textured Image")
-    if "GetModalButtonSprite(" in modal_factory:
-        errors.append("Legacy modalButton texture has leaked back into button factory")
-    if "bool modalFactoryButton =" not in global_style or "if (excluded || modalFactoryButton)" not in global_style:
-        errors.append("HUD global visual pass must preserve modal-owned graphics")
-    if "ClosePauseMenu," not in pause or "role: MotorCityButtonRole.Primary" not in pause:
-        errors.append("Pause Resume must remain the sole primary footer action")
-    if "internal static void ApplyButton(" not in skin:
-        errors.append("Semantic modal button color states must remain centralized")
+    # Legacy RacingUI modal sprites cannot return via a fallback builder.
+    names = (
+        "MotorCityButtonVisuals.cs", "MotorCityModalUiKit.cs",
+        "TouchControlsView.cs", "NavigatorView.cs", "PauseMenuView.cs",
+        "HudUiFactory.cs", "MotorCityFrontEndFlow.cs",
+        "PrototypeHud.cs", "MotorCityUiThemeAssets.cs",
+    )
+    sources = {
+        name: (UI / name).read_text(encoding="utf-8-sig")
+        for name in names
+    }
+    for name in ("MotorCityModalUiKit.cs", "TouchControlsView.cs",
+                 "NavigatorView.cs", "PauseMenuView.cs"):
+        if "MotorCityUiSkin.ApplyVectorButton(" not in sources[name]:
+            errors.append(f"Button builder missing canonical vector owner: {name}")
+    if "internal static GarageReferenceGraphic ApplyVectorButton(" not in sources["MotorCityButtonVisuals.cs"]:
+        errors.append("Missing shared vector button factory")
+    for name, code in sources.items():
+        if any(token in code for token in (
+            "GetModalButtonSprite", "modalButtonSprite",
+            "frontEndPanelSprite", "frontEndButtonSprite",
+            "uiThemeAssets.modalButton", "modalPanel;")):
+            errors.append(f"Legacy modal sprite dependency: {name}")
+    asset_path = ROOT / "Assets/Resources/MotorCity/UI/MotorCityUiThemeAssets.asset"
+    theme_yaml = asset_path.read_text(encoding="utf-8-sig")
+    if "modalButton:" in theme_yaml or "modalPanel:" in theme_yaml:
+        errors.append("Legacy modal texture reference remains serialized")
+    if "button.targetGraphic is GarageReferenceGraphic" not in sources["HudUiFactory.cs"]:
+        errors.append("HUD visual sweep can overwrite vector button owners")
 
     # Builder coordinates match the final desktop layout; visual polish
     # should not re-assign these exact RectTransforms on every resize.
