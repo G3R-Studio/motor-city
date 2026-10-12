@@ -68,8 +68,8 @@ checks = {
     "Pages requires source workflow, dispatch, and exact SHA":
         all(item in pages_workflow for item in (
             "release_run_id:", "Motor City Source Gates",
-            "workflow_dispatch", '".head_sha', '"$GITHUB_SHA"',
-            '"$current_main"', '"$release_sha"')),
+            "workflow_dispatch", "jq -r '.head_sha'",
+            '"$GITHUB_SHA"', '"$current_main"', '"$release_sha"')),
     "Pages requires both same-run release artifacts":
         all(item in pages_workflow for item in (
             'index("motor-city-webgl-desktop-release")',

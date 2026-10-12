@@ -59,87 +59,175 @@ jobs:
           python-version: '3.11'
 
       - name: Run Phase 0/1 static gates
+        id: source_gate_01
+        continue-on-error: true
         run: python3 Tools/check_phase_0_1.py
 
       - name: Check Phase 3 vehicle prefab and wheel contract
+        id: source_gate_02
+        continue-on-error: true
         run: python3 Tools/check_vehicle_contract.py
 
       - name: Audit Phase 3 vehicle importers and Hybrid body
+        id: source_gate_03
+        continue-on-error: true
         run: python3 Tools/check_vehicle_importers.py
 
       - name: Validate Phase 4 authored material role manifest
+        id: source_gate_04
+        continue-on-error: true
         run: python3 Tools/check_phase4_material_roles.py
 
       - name: Audit Phase 5 safe cleanup and protected materials
+        id: source_gate_05
+        continue-on-error: true
         run: python3 Tools/check_phase5_cleanup.py
 
       - name: Audit Phase 6 bootstrap and runtime lifecycle
+        id: source_gate_06
+        continue-on-error: true
         run: python3 Tools/check_phase6_lifecycle.py
 
       - name: Audit Phase 7 UI layout ownership
+        id: source_gate_07
+        continue-on-error: true
         run: python3 Tools/check_phase7_ui_ownership.py
 
       - name: Check WebGL release excludes test-only entrypoints
+        id: source_gate_08
+        continue-on-error: true
         run: python3 Tools/check_release_qa.py
 
       - name: Validate UX-7 release wiring and partial-class callbacks
+        id: source_gate_09
+        continue-on-error: true
         run: python3 Tools/check_ux7_release_readiness.py
 
       - name: Audit Phase 8 saves and progression keys
+        id: source_gate_10
+        continue-on-error: true
         run: python3 Tools/check_phase8_save_progression.py
       - name: Validate Turbo / Pixie character canon
+        id: source_gate_11
+        continue-on-error: true
         run: python3 Tools/check_character_canon.py
       - name: Validate Pixie roof placement and animation contract
+        id: source_gate_12
+        continue-on-error: true
         run: python3 Tools/check_pixie_roof_animation.py
       - name: Audit short UI hyphens and inspector copy
+        id: source_gate_13
+        continue-on-error: true
         run: python3 Tools/check_ui_short_dashes.py
       - name: Validate UX-2 informational activity catalog
+        id: source_gate_14
+        continue-on-error: true
         run: python3 Tools/check_player_experience_catalog.py
       - name: Validate UX-3 filtered progression journal
+        id: source_gate_15
+        continue-on-error: true
         run: python3 Tools/check_player_experience_journal.py
       - name: Validate UX-4 secondary-system detail pages
+        id: source_gate_16
+        continue-on-error: true
         run: python3 Tools/check_player_experience_details.py
       - name: Validate UX-5 activity result details
+        id: source_gate_17
+        continue-on-error: true
         run: python3 Tools/check_player_experience_results.py
       - name: Validate UX-6 career and result UI polish
+        id: source_gate_18
+        continue-on-error: true
         run: python3 Tools/check_player_experience_polish.py
 
       - name: Run Phase 8 isolated save conflict fixtures
+        id: source_gate_19
+        continue-on-error: true
         run: python3 Tools/test_phase8_save_fixtures.py
 
       - name: Audit Phase 9 city runtime release diagnostics
+        id: source_gate_20
+        continue-on-error: true
         run: python3 Tools/check_phase9_city_runtime.py
 
       - name: Audit Phase 10 vehicle physics and touch input contracts
+        id: source_gate_21
+        continue-on-error: true
         run: python3 Tools/check_phase10_vehicle_physics.py
 
       - name: Audit Phase 11 tracked assets and package dependencies
+        id: source_gate_22
+        continue-on-error: true
         run: python3 Tools/check_phase11_asset_inventory.py
 
       - name: Audit Phase 12 release Build Profiles and CI build wiring
+        id: source_gate_23
+        continue-on-error: true
         run: python3 Tools/check_phase12_release_profiles.py
 
       - name: Audit Phase 12 activity replay and driving unlock contracts
+        id: source_gate_24
+        continue-on-error: true
         run: python3 Tools/check_phase12_activity_replay.py
 
       - name: Audit Sprint checkpoint arrows in world and minimap
+        id: source_gate_25
+        continue-on-error: true
         run: python3 Tools/check_phase12_sprint_direction.py
 
       - name: Audit WebGL nighttime streetlights and FCG authored transforms
+        id: source_gate_26
+        continue-on-error: true
         run: python3 Tools/check_phase12_webgl_lamps.py
 
       - name: Audit authored FCG traffic diversity and WebGL roster recovery
+        id: source_gate_27
+        continue-on-error: true
         run: python3 Tools/check_phase12_traffic_roster.py
 
       - name: Audit exclusive active-activity world and minimap markers
+        id: source_gate_28
+        continue-on-error: true
         run: python3 Tools/check_phase12_activity_marker_visibility.py
 
       - name: Audit navigator modal buttons and WebGL vector arrows
+        id: source_gate_29
+        continue-on-error: true
         run: python3 Tools/check_phase12_navigator_modal_controls.py
 
       - name: Run Roslyn syntax and regression checks
+        id: source_gate_30
+        continue-on-error: true
         shell: pwsh
         run: ./Tools/check_cleanup.ps1
+
+      # Keep collecting regressions, then fail on raw outcomes.
+      - name: Aggregate all source-gate outcomes
+        if: always()
+        env:
+          SOURCE_GATE_STEPS: ${{ toJSON(steps) }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          data = json.loads(os.environ.get("SOURCE_GATE_STEPS", "{}"))
+          gates = sorted(key for key in data if key.startswith("source_gate_"))
+          failures = []
+          for key in gates:
+              outcome = data[key].get("outcome", "unknown")
+              print(f"{key}: {outcome}")
+              if outcome != "success":
+                  failures.append((key, outcome))
+          if len(gates) != 30:
+              print(f"Expected 30 source gates, found {len(gates)}")
+              sys.exit(1)
+          if failures:
+              print("Source gates FAILED:", ", ".join(f"{k}={v}" for k, v in failures))
+              sys.exit(1)
+          print("All 30 source checks passed.")
+          PY
 
       - name: Upload dependency audit report
         if: always()

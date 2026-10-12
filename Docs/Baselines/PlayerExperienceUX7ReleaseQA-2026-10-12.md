@@ -106,3 +106,9 @@ GitHub Pages **не подтверждает** Yandex SDK. Проверить р
 `motor-city-source-gates.yml` специально выполняет Python/PowerShell source regressions в **отдельном** job `source-gates`. Его failure прерывает релиз **до** WebGL build, но не означает, что скрипты или документы попадают в сборку. Сама сборка Unity запускается в `unity-phase12-releases` только после успешных проверок исходников, layout и Unity Editor.
 
 JSON с 36 эталонными локальными позами колёс девяти prefab - **fixture для `Tools/check_vehicle_contract.py`**, а не игровой конфиг. Чтобы не держать зависимость теста в `Docs/`, исходный неизменённый blob `1579453c49a1de2aa264ad4c51e781e9add75f26` перенесён в `Tools/Tests/Fixtures/VehicleWheelTransforms-2026-10-09.json`. В `Assets/` не добавлялся; runtime код, модели/префабы, `.meta`, сцены и настройки Build Profiles не менялись. Source checker по-прежнему проверяет именно неизменённый эталон и при отсутствии fixture выдаёт явную ошибку.
+
+## 10. Run #38191383883 и сбор нескольких source-ошибок
+
+[Run #38191383883](https://github.com/G3R-Studio/motor-city/actions/runs/38191383883) (`bbe1e6f`): `ui-layout` success; `unity-editor` success; Phase 3 wheel JSON (перенесён в `Tools/Tests/Fixtures`) success. `source-gates` failure на `Tools/check_ux7_release_readiness.py`, 13/14 source checks, из-за ложного ожидания `".head_sha`. В Pages реально есть `jq -r '.head_sha'`, поэтому проверка SHA не менялась, исправлен только тест исходников.
+
+Workflow регистрирует все 30 Python/Roslyn source checks с `continue-on-error: true`, затем `Aggregate all source-gate outcomes` собирает `steps.*.outcome` и возвращает ошибку, если хоть один source check не success. В одном CI запуске будут видны все потенциальные проблемы без обхода защитных gate релиза. Только полный `source-gates=success` разблокирует WebGL. Требуется новый запуск на обновлённом SHA с `build_webgl_release=true`.
