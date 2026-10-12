@@ -125,7 +125,7 @@
 - [x] **HV-L.3 — IN SOURCE.** Из `MotorCityUiThemeAssets` и его сериализованного asset удалены слоты `modalButton`/`modalPanel`, удалены три неиспользуемые картинки RacingUI с .meta. Удалена устаревшая нормализация текстурных кнопок в `HudVisualPolish`; обновлён source-guard.
 - [x] **HV-L.4 — NEEDS UNITY.** Ручной Play Mode smoke: главное меню, настройки, выбор управления, пауза (включая все +/-), навигатор, магазин, клуб, результаты активностей, touch utility; проверить оттенки, click/focus, закрытие, повторное открытие, отсутствие старых прямоугольных текстур.
 - [x] **HV-L.5 — IN SOURCE / NEEDS UNITY (возврат по запросу пользователя).** Четырём элементам мобильного управления — руль, газ, тормоз, ручник — восстановлены оригинальные `wheel.png`, `throttle.png`, `break.png`, `handbreak.png`, старые пропорции, прозрачность, сенсорные зоны и обработчики. Только для них используется отдельный `MotorCityTouchArtAssets`; указатель миникарты и все окна **остаются векторными**. После `git pull` нужна ручная проверка в Unity.
-- [x] **HV-L.6 — IN SOURCE / NEEDS UNITY.** Начал убирать двойное оформление `HudVisualPolish`: больше не перекрашивает touch/modals кнопки глобальным белым цветом и не меняет прозрачность принятых руля и педалей. Текстовые, responsive и вспомогательные функции пока сохранены. Полное удаление второго прохода допускается только после проверки всех владельцев.
+- [x] **HV-L.6 — ACCEPTED USER (2026-10-12).** Начал убирать двойное оформление `HudVisualPolish`: больше не перекрашивает touch/modals кнопки глобальным белым цветом и не меняет прозрачность принятых руля и педалей. Текстовые, responsive и вспомогательные функции пока сохранены. Полное удаление второго прохода допускается только после проверки всех владельцев.
 
 **Исключение:** завершённый гараж не подвергать редизайну или удалению. На текущем этапе **не запускать CI, WebGL и итоговые сборки**. Source checks не заменяют Play Mode.
 
@@ -235,7 +235,7 @@
 - [x] **HV-8.3 FX-01 — IN SOURCE / NEEDS UNITY (result only).** Пульс рекорда 8%→4.5%, glow alpha 0.28→0.16. Достижения/диалоги не менялись. Commit 8b968c3.
 - [x] **HV-8.4 FX-02 — ACCEPTED USER 2026-10-12 (aliases).** Маркеры profession_carwash / profession_tow используют те же иконки и цвета, что и carwash/tow; выбор активной цели не менялся. Commit d04f076.
 - [x] **HV-8.5 DEV-01 — ACCEPTED USER 2026-10-12.** QA панель разделена на два ряда по четыре вкладки, остаётся за UNITY_EDITOR || DEBUG. Commit 2a238f8.
-- [ ] **HV-8.6** Удалить только подтверждённые визуальные дубли/лишние объекты; не удалять лицензии, ресурсы или UI политику из Packages.
+- [x] **HV-8.6 — AUDIT COMPLETE / NO SAFE DELETIONS.** По имеющимся QA-снимкам число объектов стабильно и конкретных подтверждённых визуальных дублей для удаления нет. Никакие ресурсы, лицензии, UI policy и Packages не удалялись; при новом воспроизводимом дубле открыть отдельный issue.
 
 Файлы: **MotorCityIconLibrary.cs, MotorCityButtonVisuals.cs, UiButtonFeedback.cs, HudVisualPolish.cs, Gameplay/RouteMarkerVisual.cs, World/*MarkerVisual.cs, Gameplay/AdminDebugPanel.cs**.
 
@@ -492,3 +492,18 @@ Previous work already supplies on-demand read-only UI hierarchy checks, safe are
 - HudUiFactory now assigns panel chrome suppression and previously late-applied text shadow alpha at creation. Touch group label shadows use builder-owned values. Retired the entire persistent HudVisualPolish runtime component, avoiding its polling, FindRecursive/cache traversal and second styling pass. Original wheel/throttle/brake/handbrake textures and input hit rectangles were not edited. Required: Unity Play Mode visual and touch regression after migration.
 - Profiling requirement HV-9.5 is still open: GitHub repository source tools cannot execute Unity Editor or capture actual Timeline, UI batches, alloc/frame, CPU or GPU profiling data. Earlier Canvas/Graphic/Button count snapshots are not full profiling. No FPS or allocation figures invented; run Unity Profiler in editor and on representative device before marking PASS.
 - HV-10 release builds and CI remain explicitly gated.
+
+
+### Pre-WebGL final consolidation — 2026-10-12
+
+- User explicitly accepted the removal of HudVisualPolish runtime visual pass after local Unity smoke (commit `88b6edf`), confirming the visual migration. HV-L.6 is closed as ACCEPTED USER.
+- HV-8.6 closed as an audit with **no verified removable duplicate**. Earlier stable screenshot counts (5 Canvas, 557 Graphics, 50 Buttons) are not proof of all scene objects, so reopen on a specific reproduction rather than deleting project assets without evidence.
+- **Pending actual evidence before claiming a fully certified release:** HV-0.4 and HV-0.5 (missing screenshot/baseline matrix), HV-6.7 (real platform entitlement transaction), HV-9.1 (full state screenshot matrix), HV-9.5 (Unity Profiler frame + GC allocation and UI layout measurements), HV-9.6 (visual comparison and reference captures). User-tested smoke/QA is accepted, but this evidence is not attached to the repository.
+- **Release gate remains locked:** HV-10.1 requires separate explicit build permission and HV-10.2–10.5 require actual CI/editor/WebGL/Pages outputs. This request was interpreted as finishing source and documentation work, **not** as permission to launch WebGL builds.
+
+#### Remaining verification protocol
+
+1. Unity Play Mode and Device Simulator: capture default, long RU/EN, empty, locked, selected and activity success/fail/record screens; save images with resolution, locale, scenario and git SHA, compare against nine initial references.
+2. Unity Profiler (Editor + representative target): capture at least 30 seconds steady gameplay, modal open/close stress and the Player Experience page after a 5-second fallback refresh. Review CPU Timeline/Hierarchy, GC Alloc/frame, UI layout rebuild events, memory trend and rendering batches. Attach profiler data and explain pass/fail with observed measurements; **no numerical performance claim exists yet**.
+3. Platform purchasing sandbox on the actual integration: verify transaction acknowledgement, persistence and re-entry; distinguish it from the accepted simulated UI path.
+4. Only after an explicit HV-10 build authorization: execute source gates and Unity Editor batch on one immutable SHA, then Desktop/Mobile WebGL, hosted/browser QA and SDK-specific smoke. Record actual job run IDs and results in this roadmap.
