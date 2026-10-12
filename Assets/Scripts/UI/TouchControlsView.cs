@@ -1152,6 +1152,7 @@ namespace MotorCity.UI
 
             ApplyTouchControlLayout(
                 true);
+            RefreshTouchLayoutResizeLabels();
         }
 
         private void ApplyTouchControlLayout(
@@ -1315,6 +1316,13 @@ namespace MotorCity.UI
                 handle = target.GetComponentInChildren<TouchControlLayoutDragHandle>(true);
             if (handle != null)
                 handle.ClampToBounds();
+            // Persist position corrections caused by the larger hit area.
+            RectTransform positionRoot =
+                key == "SteerLeft" || key == "SteerRight"
+                    ? touchArrowSteeringRoot.GetComponent<RectTransform>() : target;
+            TouchControlLayoutStore.Save(scheme,
+                key == "SteerLeft" || key == "SteerRight" ? "Steering" : key,
+                positionRoot.anchoredPosition);
             TouchControlLayoutStore.SaveScale(scheme, key, newScale);
             RefreshTouchLayoutResizeLabels();
         }
@@ -1644,7 +1652,7 @@ namespace MotorCity.UI
                     TextAnchor.MiddleCenter,
                     Vector2.zero,
                     new Vector2(
-                        184f,
+                        Mathf.Max(48f, buttonWidth - 16f),
                         40f),
                     new Vector2(
                         0.5f,
