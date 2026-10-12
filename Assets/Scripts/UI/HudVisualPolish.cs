@@ -136,7 +136,7 @@ namespace MotorCity.UI
             PolishCoreText("Club Description", 0.55f);
             PolishCoreText("Club Weekly", 0.75f);
 
-            ApplyModalComposition(lastTouchLayout);
+            ApplyModalComposition();
             PolishTouchButtons();
             RestoreDrivingControlAppearance();
 
@@ -152,8 +152,7 @@ namespace MotorCity.UI
             // Do not reconfigure every Text when the screen size changes.
         }
 
-        private void ApplyModalComposition(
-            bool touchLayout)
+        private void ApplyModalComposition()
         {
             // ActivityResultView, NavigatorView and ClubView own the modal
             // panel geometry. Their builders use the previously polished
@@ -368,24 +367,6 @@ namespace MotorCity.UI
                 Object.Destroy(
                     outline);
             }
-        }
-
-        private static void SetRect(
-            RectTransform rect,
-            Vector2 position,
-            Vector2 size,
-            float scale)
-        {
-            if (rect == null)
-                return;
-
-            rect.anchoredPosition = position;
-            rect.sizeDelta = size;
-
-            // Keep UI text on an unscaled transform. Fractional scaling of
-            // parent RectTransforms makes legacy Unity Text rasterize softer
-            // after resolution/aspect changes, especially on small labels.
-            rect.localScale = Vector3.one;
         }
 
         private void ClearPanelBackdrop(
