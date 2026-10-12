@@ -1819,10 +1819,10 @@ namespace MotorCity.UI
         {
             RectTransform rect = GarageObject(parent, "Arrow Stroke");
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
-            rect.sizeDelta = new Vector2(52f, 74f);
+            rect.sizeDelta = new Vector2(56f, 76f);
             GarageReferenceGraphic arrow = rect.gameObject.AddComponent<GarageReferenceGraphic>();
             arrow.symbol = pointsRight ? GarageReferenceGraphic.Symbol.Right : GarageReferenceGraphic.Symbol.Left;
-            arrow.color = Color.white;
+            arrow.color = new Color(0.78f, 0.94f, 1f, 0.98f);
             arrow.raycastTarget = false;
         }
         private Sprite CreateTouchControlSprite(
