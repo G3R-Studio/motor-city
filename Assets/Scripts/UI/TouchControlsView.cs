@@ -1628,6 +1628,19 @@ namespace MotorCity.UI
             image.color =
                 color;
 
+            // Normal assets keep the exact accepted art. The fallback only
+            // appears when the optional texture resource is missing.
+            if (image.sprite == null)
+            {
+                GarageReferenceGraphic.Symbol glyph =
+                    action == MotorCityInputAction.Throttle
+                        ? GarageReferenceGraphic.Symbol.Speed
+                        : action == MotorCityInputAction.Reverse
+                            ? GarageReferenceGraphic.Symbol.Brake
+                            : GarageReferenceGraphic.Symbol.Wrench;
+                AddMissingTouchArtFallback(rect, glyph);
+            }
+
             TouchHoldInputButton input =
                 buttonObject.GetComponent<TouchHoldInputButton>();
 
@@ -1706,6 +1719,11 @@ namespace MotorCity.UI
                     255,
                     255,
                     0x96);
+
+            if (image.sprite == null)
+                AddMissingTouchArtFallback(
+                    wheelRect,
+                    GarageReferenceGraphic.Symbol.Steering);
 
             return group;
         }
@@ -1828,6 +1846,24 @@ namespace MotorCity.UI
             return
                 TrackRuntimeSprite(
                     sprite);
+        }
+
+        private static void AddMissingTouchArtFallback(
+            RectTransform parent,
+            GarageReferenceGraphic.Symbol symbol)
+        {
+            // Do not alter the hit target or add another raycast surface.
+            RectTransform fallback =
+                GarageObject(parent, "Missing Touch Art Fallback");
+            fallback.anchorMin = Vector2.zero;
+            fallback.anchorMax = Vector2.one;
+            fallback.offsetMin = Vector2.zero;
+            fallback.offsetMax = Vector2.zero;
+            GarageReferenceGraphic graphic =
+                fallback.gameObject.AddComponent<GarageReferenceGraphic>();
+            graphic.symbol = symbol;
+            graphic.color = new Color(0.54f, 0.82f, 1f, 0.78f);
+            graphic.raycastTarget = false;
         }
 
         private RectTransform CreateTouchHoldButton(
