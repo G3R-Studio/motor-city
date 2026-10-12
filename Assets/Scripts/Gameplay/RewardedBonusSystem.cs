@@ -305,9 +305,9 @@ namespace MotorCity.Gameplay
             return Mathf.Clamp(
                 MotorCityRemoteConfigRuntime.GetInt(
                     "rewarded_daily_limit",
-                    5),
+                    20),
                 1,
-                10);
+                50);
         }
 
         private static float CooldownSeconds()
