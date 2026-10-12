@@ -30,11 +30,106 @@ namespace MotorCity.UI
             public int VehicleVictories;
         }
 
+        private Text resultChangesHeadingText;
+        private int resultChangesLayoutSequence = -1;
         private ResultChangesSnapshot resultChangesBefore;
         private int resultChangesRenderedSequence = -1;
         private string resultChangesRenderedText = string.Empty;
         private ScrollRect resultChangesScroll;
         private RectTransform resultChangesContent;
+
+        private void BuildResultChangesScroll(RectTransform panel)
+        {
+            resultChangesHeadingText = CreateText(panel,
+                MotorCityLocalization.Text("ux5.changes.heading"),
+                14, FontStyle.Bold, TextAnchor.MiddleCenter,
+                new Vector2(0f, -248f), new Vector2(555f, 22f),
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                BlueAccent);
+
+            GameObject viewportObject = new GameObject(
+                "Result Changes Viewport",
+                typeof(RectTransform), typeof(Image),
+                typeof(RectMask2D), typeof(ScrollRect));
+            viewportObject.transform.SetParent(panel, false);
+            RectTransform viewport = viewportObject.GetComponent<RectTransform>();
+            viewport.anchorMin = new Vector2(0.5f, 1f);
+            viewport.anchorMax = new Vector2(0.5f, 1f);
+            viewport.pivot = new Vector2(0.5f, 1f);
+            viewport.anchoredPosition = new Vector2(0f, -269f);
+            viewport.sizeDelta = new Vector2(550f, 114f);
+            Image background = viewportObject.GetComponent<Image>();
+            background.color = new Color(0.08f, 0.12f, 0.24f, 0.28f);
+            background.raycastTarget = true;
+
+            GameObject content = new GameObject(
+                "Result Changes Content", typeof(RectTransform));
+            content.transform.SetParent(viewport, false);
+            resultChangesContent = content.GetComponent<RectTransform>();
+            resultChangesContent.anchorMin = new Vector2(0f, 1f);
+            resultChangesContent.anchorMax = new Vector2(1f, 1f);
+            resultChangesContent.pivot = new Vector2(0.5f, 1f);
+            resultChangesContent.anchoredPosition = Vector2.zero;
+            resultChangesContent.sizeDelta = new Vector2(0f, 114f);
+
+            resultSecondaryProgressText.transform.SetParent(
+                resultChangesContent, false);
+            RectTransform label = resultSecondaryProgressText.rectTransform;
+            label.anchorMin = new Vector2(0f, 1f);
+            label.anchorMax = new Vector2(1f, 1f);
+            label.pivot = new Vector2(0.5f, 1f);
+            label.anchoredPosition = new Vector2(0f, -6f);
+            label.sizeDelta = new Vector2(-24f, 104f);
+            resultSecondaryProgressText.alignment = TextAnchor.UpperLeft;
+            resultSecondaryProgressText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            resultSecondaryProgressText.verticalOverflow = VerticalWrapMode.Overflow;
+            resultSecondaryProgressText.raycastTarget = false;
+
+            resultChangesScroll = viewportObject.GetComponent<ScrollRect>();
+            resultChangesScroll.content = resultChangesContent;
+            resultChangesScroll.viewport = viewport;
+            resultChangesScroll.horizontal = false;
+            resultChangesScroll.vertical = true;
+            resultChangesScroll.movementType = ScrollRect.MovementType.Clamped;
+            resultChangesScroll.inertia = false;
+            resultChangesScroll.scrollSensitivity = 25f;
+            viewportObject.SetActive(false);
+            resultChangesHeadingText.gameObject.SetActive(false);
+        }
+
+        private bool UpdateResultChangesScroll()
+        {
+            string changes = ResultChangedSystemsLine();
+            bool visible = !string.IsNullOrWhiteSpace(changes);
+            if (resultMasteryText != null)
+                resultMasteryText.gameObject.SetActive(false);
+            if (resultSecondaryProgressText == null ||
+                resultChangesScroll == null || resultChangesContent == null)
+                return false;
+            if (resultChangesHeadingText != null)
+                resultChangesHeadingText.gameObject.SetActive(visible);
+            resultChangesScroll.gameObject.SetActive(visible);
+            if (!visible)
+            {
+                resultChangesLayoutSequence = -1;
+                return false;
+            }
+
+            bool changed = resultChangesLayoutSequence != activityManager.ResultSequence ||
+                resultSecondaryProgressText.text != changes;
+            if (!changed)
+                return true;
+            resultChangesLayoutSequence = activityManager.ResultSequence;
+            resultSecondaryProgressText.text = changes;
+            float contentHeight = Mathf.Max(114f,
+                resultSecondaryProgressText.preferredHeight + 14f);
+            resultChangesContent.sizeDelta = new Vector2(0f, contentHeight);
+            resultSecondaryProgressText.rectTransform.sizeDelta =
+                new Vector2(-24f, contentHeight - 10f);
+            Canvas.ForceUpdateCanvases();
+            resultChangesScroll.verticalNormalizedPosition = 1f;
+            return true;
+        }
 
         private void CaptureResultChangesBefore(bool success)
         {
