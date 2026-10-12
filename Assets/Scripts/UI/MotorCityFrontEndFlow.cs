@@ -1072,7 +1072,8 @@ namespace MotorCity.UI
                     : "BACK",
                 ShowMainMenu,
                 220f,
-                54f);
+                54f,
+                MotorCityButtonRole.Back);
         }
 
         private void BuildAbout()
@@ -1358,7 +1359,7 @@ namespace MotorCity.UI
                 new Vector2(0f, 0f),
                 new Vector2(76f, 72f),
                 new Vector2(790f, 230f),
-                new Color(0.015f, 0.025f, 0.055f, 0.42f));
+                new Color(0.015f, 0.025f, 0.055f, 0.34f));
 
             GameObject textGroupObject =
                 new(
@@ -1422,7 +1423,8 @@ namespace MotorCity.UI
                     new Vector2(0f, 0f));
 
             introBodyText.color =
-                new Color(0.94f, 0.96f, 1f, 1f);
+                MotorCityUiSkin.TextPrimary;
+            ConfigureFrontEndTextFit(introBodyText, 17);
 
             introCounterText =
                 CreateText(
@@ -1486,7 +1488,8 @@ namespace MotorCity.UI
                 new Vector2(-90f, 70f),
                 new Vector2(220f, 56f),
                 CompleteIntro,
-                new Vector2(1f, 0f));
+                new Vector2(1f, 0f),
+                MotorCityButtonRole.Back);
 
             CreateButton(
                 introRoot.transform,
@@ -1494,7 +1497,8 @@ namespace MotorCity.UI
                 new Vector2(-330f, 70f),
                 new Vector2(220f, 56f),
                 NextIntro,
-                new Vector2(1f, 0f));
+                new Vector2(1f, 0f),
+                MotorCityButtonRole.Primary);
         }
 
         private void BuildLoadingScreen()
@@ -1523,7 +1527,7 @@ namespace MotorCity.UI
                 new Vector2(0.5f, 0.5f));
 
             loadingStatusText.color =
-                new Color(0.48f, 0.72f, 1f, 1f);
+                MotorCityUiSkin.AccentCyan;
 
             ConfigureFrontEndTextFit(
                 loadingStatusText,
@@ -1561,7 +1565,9 @@ namespace MotorCity.UI
                     "MotorCity/UI/Loading/circle2");
 
             wheelImage.color =
-                Color.white;
+                wheelImage.texture != null
+                    ? Color.white
+                    : new Color(0.33f, 0.78f, 1f, 0.65f);
 
             wheelImage.raycastTarget =
                 false;

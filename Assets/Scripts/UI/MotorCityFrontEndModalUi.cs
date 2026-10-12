@@ -997,7 +997,7 @@ namespace MotorCity.UI
                 new Vector2(0.28f, 0f);
 
             valueRect.anchorMax =
-                new Vector2(0.50f, 1f);
+                new Vector2(0.54f, 1f);
 
             valueRect.offsetMin =
                 new Vector2(4f, 10f);
@@ -1020,7 +1020,7 @@ namespace MotorCity.UI
                 false);
 
             controls.anchorMin =
-                new Vector2(0.50f, 0f);
+                new Vector2(0.54f, 0f);
 
             controls.anchorMax =
                 new Vector2(1f, 1f);
@@ -1062,8 +1062,9 @@ namespace MotorCity.UI
                     controls,
                     "-",
                     minusAction,
-                    72f,
-                    50f);
+                    56f,
+                    50f,
+                    MotorCityButtonRole.Utility);
             }
 
             if (plusAction != null)
@@ -1072,8 +1073,9 @@ namespace MotorCity.UI
                     controls,
                     "+",
                     plusAction,
-                    72f,
-                    50f);
+                    56f,
+                    50f,
+                    MotorCityButtonRole.Utility);
             }
 
             if (wideAction != null)
@@ -1094,8 +1096,9 @@ namespace MotorCity.UI
                     controls,
                     actionLabel,
                     wideAction,
-                    210f,
-                    50f);
+                    192f,
+                    50f,
+                    MotorCityButtonRole.Utility);
             }
         }
     }
