@@ -176,43 +176,6 @@ namespace MotorCity.UI
             }
         }
 
-        private static Sprite GetModalButtonSprite(
-            Texture2D texture)
-        {
-            if (texture == null)
-                return null;
-
-            if (modalButtonSprite != null &&
-                modalButtonSpriteSource == texture)
-            {
-                return modalButtonSprite;
-            }
-
-            modalButtonSprite =
-                Sprite.Create(
-                    texture,
-                    new Rect(
-                        0f,
-                        0f,
-                        texture.width,
-                        texture.height),
-                    new Vector2(
-                        0.5f,
-                        0.5f),
-                    100f,
-                    0,
-                    SpriteMeshType.FullRect);
-
-            modalButtonSprite.name =
-                "Motor City Ville Modal Button";
-            modalButtonSprite.hideFlags =
-                HideFlags.DontSave;
-            modalButtonSpriteSource =
-                texture;
-
-            return modalButtonSprite;
-        }
-
         private static void ApplyReferenceHudSurface(RectTransform panel, float alpha = 0.94f)
         {
             if (panel == null) return;
@@ -269,13 +232,9 @@ namespace MotorCity.UI
                     if (current.name == "Garage Overlay" ||
                         (current.name == "Touch Driving Controls" && button.name != "Interact"))
                         { excluded = true; break; }
-                // Only modal factory buttons have BOTH LayoutElement
-                // and UiButtonFeedback. HUD Pause/More utility buttons also
-                // have feedback but must keep their dedicated driving visuals.
-                bool modalFactoryButton =
-                    button.GetComponent<LayoutElement>() != null &&
-                    button.GetComponent<UiButtonFeedback>() != null;
-                if (excluded || modalFactoryButton)
+                // Vector targets are created by the button builder.
+                if (excluded ||
+                    button.targetGraphic is GarageReferenceGraphic)
                     continue;
                 Image image = button.GetComponent<Image>();
                 if (image == null) continue;
@@ -288,7 +247,7 @@ namespace MotorCity.UI
                 GarageReferenceGraphic surface = button.transform
                     .Find("Reference HUD Surface").GetComponent<GarageReferenceGraphic>();
                 surface.symbol = GarageReferenceGraphic.Symbol.Surface;
-                surface.color = new Color(.16f, .12f, .32f, .94f);
+                surface.color = MotorCityUiSkin.Raised;
                 surface.raycastTarget = true;
                 button.targetGraphic = surface;
                 if (button.name == "Interact")
