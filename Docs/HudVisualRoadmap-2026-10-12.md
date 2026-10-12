@@ -233,8 +233,8 @@
 - [ ] **HV-8.1 FX-01** Привести символы действий к одной оптической толщине/размеру, приоритет существующей Kenney/Vector библиотеки.
 - [x] **HV-8.2 FX-01 — IN SOURCE / NEEDS UNITY (first pass).** Мягкие состояния hover/selected и 0.13с переход. События кнопок не изменены. Проверить keyboard focus и reduced motion. Commit 0380764.
 - [x] **HV-8.3 FX-01 — IN SOURCE / NEEDS UNITY (result only).** Пульс рекорда 8%→4.5%, glow alpha 0.28→0.16. Достижения/диалоги не менялись. Commit 8b968c3.
-- [x] **HV-8.4 FX-02 — IN SOURCE / NEEDS UNITY (aliases).** Маркеры profession_carwash / profession_tow используют те же иконки и цвета, что и carwash/tow; выбор активной цели не менялся. Commit d04f076.
-- [x] **HV-8.5 DEV-01 — IN SOURCE / NEEDS UNITY.** QA панель разделена на два ряда по четыре вкладки, остаётся за UNITY_EDITOR || DEBUG. Commit 2a238f8.
+- [x] **HV-8.4 FX-02 — ACCEPTED USER 2026-10-12 (aliases).** Маркеры profession_carwash / profession_tow используют те же иконки и цвета, что и carwash/tow; выбор активной цели не менялся. Commit d04f076.
+- [x] **HV-8.5 DEV-01 — ACCEPTED USER 2026-10-12.** QA панель разделена на два ряда по четыре вкладки, остаётся за UNITY_EDITOR || DEBUG. Commit 2a238f8.
 - [ ] **HV-8.6** Удалить только подтверждённые визуальные дубли/лишние объекты; не удалять лицензии, ресурсы или UI политику из Packages.
 
 Файлы: **MotorCityIconLibrary.cs, MotorCityButtonVisuals.cs, UiButtonFeedback.cs, HudVisualPolish.cs, Gameplay/RouteMarkerVisual.cs, World/*MarkerVisual.cs, Gameplay/AdminDebugPanel.cs**.
@@ -304,8 +304,8 @@
 | HV-5 Пауза/Навигатор/Результаты | PLANNED | — | Не начато |
 | HV-6 Автоклуб/Магазин | ACCEPTED USER (UI) | 84da479, 15cf42f | Пользователь подтвердил «всё чётко»; purchase end-to-end остаётся отдельной проверкой |
 | HV-7 Mobile/responsive | IN SOURCE / NEEDS UNITY | f8612fc | Начат проход по редактору мобильных кнопок, локализация и узкие экраны |
-| HV-8 Иконки/эффекты/markers/dev | PLANNED | — | Не начато |
-| HV-9 Общая ручная QA | PLANNED | — | Не начато |
+| HV-8 Иконки/эффекты/markers/dev | IN SOURCE / PARTIAL USER ACCEPTED | d04f076, 2a238f8, 0380764, 8b968c3 | Markers и QA приняты; icon optical QA и deletion of proven duplicates остаются открыты |
+| HV-9 Общая ручная QA | IN SOURCE / NEEDS UNITY | 9c5fb85 | QA вкладка содержит пошаговый smoke checklist; полноценная матрица экранов ещё не проверена |
 | HV-10 Сборка/релиз | **ON HOLD** | — | Отложено до явного согласия |
 
 **Журнал коммитов (дополнять, не перезаписывать):**
@@ -386,3 +386,10 @@
 ### HV-8 visual primitives — 2026-10-12
 
 Button ColorTint: softer hover/selection and 0.13 s fade (`0380764`). New record pulse and glow reduced (`8b968c3`). Icon inventory confirmed existing preserveAspect in CreateHudIcon; HV-8.1 remains open pending optical review. HV-8.6 remains open: no safely confirmed duplicate removal. Unity smoke / CI not run.
+
+
+### HV-9 QA handoff — 2026-10-12
+
+- Пользователь подтвердил исправление двухстрочной следующей цели в Result, commit `1cba911` (`ACCEPTED USER`), а также маркеры и QA-вкладки HV-8.4/8.5.
+- В `AdminDebugPanel` вкладка UI QA теперь показывает короткую воспроизводимую матрицу проверки: RU/EN, long-text, пустое/locked, повторное открытие, Pause/Back/Continue, 16:9/узкий landscape, touch/keyboard и Console (`9c5fb85`). Это инструкция для ручной проверки, а не автоматический PASS.
+- HV-8.1/HV-8.6 оставлены открытыми: никаких доказанных визуальных дубликатов для удаления нет, и оптическая унификация иконок требует скриншотной проверки. HV-9.1…9.7 пока NEEDS UNITY. Платёжные/прогрессионные системы, garage и оригинальные touch sprites не изменялись. CI/WebGL не запускались.
