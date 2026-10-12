@@ -124,6 +124,11 @@ namespace MotorCity.UI
             resultSecondaryProgressText.text = changes;
             float contentHeight = Mathf.Max(114f,
                 resultSecondaryProgressText.preferredHeight + 14f);
+            if (resultChangesHeadingText != null)
+                resultChangesHeadingText.text = MotorCityLocalization.Text(
+                    "ux5.changes.heading") +
+                    (contentHeight > 114f ? " · " + MotorCityLocalization.Text(
+                        "ux5.changes.scroll_hint") : string.Empty);
             resultChangesContent.sizeDelta = new Vector2(0f, contentHeight);
             resultSecondaryProgressText.rectTransform.sizeDelta =
                 new Vector2(-24f, contentHeight - 10f);
