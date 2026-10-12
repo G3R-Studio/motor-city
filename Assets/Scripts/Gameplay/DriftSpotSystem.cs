@@ -8,7 +8,7 @@ namespace MotorCity.Gameplay
     public sealed class DriftSpotSystem : MonoBehaviour
     {
         private const float EnterRadius = 44f;
-        private const float ExitRadius = 52f;
+        private const float RearmRadius = 52f;
         private const float MessageSeconds = 3.2f;
 
         private ArcadeCarController car;
@@ -19,6 +19,7 @@ namespace MotorCity.Gameplay
         private Spot[] spots;
         private Spot activeSpot;
         private int scoreAtEntry;
+        private bool spotHasDrifted;
         private int lastLiveScore = int.MinValue;
         private float messageTimer;
 
@@ -145,74 +146,67 @@ namespace MotorCity.Gameplay
                 return;
             }
 
-            Vector3 carPosition = Flat(
-                car.transform.position);
+            Vector3 carPosition = Flat(car.transform.position);
+            // Re-arm only after leaving the original start trigger.
+            foreach (Spot spot in spots)
+            {
+                if (!spot.Armed &&
+                    (carPosition - Flat(spot.Position)).sqrMagnitude >
+                    RearmRadius * RearmRadius)
+                    spot.Armed = true;
+            }
 
             if (activeSpot != null)
             {
-                Vector3 activeDelta =
-                    carPosition -
-                    Flat(activeSpot.Position);
+                int liveScore = Mathf.Max(0, drift.TotalScore - scoreAtEntry);
+                if (drift.IsDrifting && liveScore > 0)
+                    spotHasDrifted = true;
 
-                int liveScore = Mathf.Max(
-                    0,
-                    drift.TotalScore - scoreAtEntry);
-
-                if (activeDelta.sqrMagnitude <=
-                    ExitRadius * ExitRadius)
+                if (spotHasDrifted && !drift.ComboInProgress)
                 {
-                    if (liveScore !=
-                        lastLiveScore)
-                    {
-                        lastLiveScore =
-                            liveScore;
-
-                        StatusText =
-                            MotorCityLocalization.Format(
-                                "driftspot.live",
-                                activeSpot.DisplayName,
-                                liveScore,
-                                activeSpot.BronzeScore,
-                                activeSpot.SilverScore,
-                                activeSpot.GoldScore);
-                    }
-
+                    // Bank the result at the end of the drift combination,
+                    // regardless of distance from the original zone.
+                    FinishSpot(activeSpot, liveScore);
+                    activeSpot = null;
+                    lastLiveScore = int.MinValue;
+                    spotHasDrifted = false;
                     return;
                 }
 
-                FinishSpot(
-                    activeSpot,
-                    liveScore);
+                if (!spotHasDrifted &&
+                    (carPosition - Flat(activeSpot.Position)).sqrMagnitude >
+                    RearmRadius * RearmRadius)
+                {
+                    activeSpot = null;
+                    return;
+                }
 
-                activeSpot = null;
-                lastLiveScore = int.MinValue;
+                if (liveScore != lastLiveScore)
+                {
+                    lastLiveScore = liveScore;
+                    StatusText = MotorCityLocalization.Format(
+                        "driftspot.live", activeSpot.DisplayName, liveScore,
+                        activeSpot.BronzeScore, activeSpot.SilverScore,
+                        activeSpot.GoldScore);
+                }
                 return;
             }
 
-            for (int i = 0; i < spots.Length; i++)
+            foreach (Spot spot in spots)
             {
-                Spot spot = spots[i];
-
-                Vector3 spotDelta =
-                    carPosition -
-                    Flat(spot.Position);
-
-                if (spotDelta.sqrMagnitude >
+                if (!spot.Armed ||
+                    (carPosition - Flat(spot.Position)).sqrMagnitude >
                     EnterRadius * EnterRadius)
-                {
                     continue;
-                }
 
+                spot.Armed = false;
                 activeSpot = spot;
                 scoreAtEntry = drift.TotalScore;
+                spotHasDrifted = false;
                 lastLiveScore = int.MinValue;
-                StatusText =
-                    MotorCityLocalization.Format(
-                        "driftspot.prompt",
-                        spot.DisplayName,
-                        spot.BronzeScore,
-                        spot.SilverScore,
-                        spot.GoldScore);
+                StatusText = MotorCityLocalization.Format(
+                    "driftspot.prompt", spot.DisplayName,
+                    spot.BronzeScore, spot.SilverScore, spot.GoldScore);
                 return;
             }
         }
@@ -442,6 +436,7 @@ namespace MotorCity.Gameplay
         private sealed class Spot
         {
             public string Id;
+            public bool Armed = true;
             public string DisplayName;
             public Vector3 Position;
             public int BronzeScore;

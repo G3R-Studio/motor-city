@@ -795,6 +795,20 @@ namespace MotorCity.UI
         private string ResolveMinimapMarkerId(
             Vector3 target)
         {
+            // An active mission determines the icon, never a nearby marker.
+            if (streetSprint != null &&
+                (streetSprint.IsActive || streetSprint.IsCountingDown))
+                return "sprint";
+            if (circuitRace != null &&
+                (circuitRace.IsActive || circuitRace.IsCountingDown))
+                return "circuit";
+            if (delivery != null &&
+                (delivery.IsActive || delivery.IsCountingDown))
+                return "delivery";
+            if (driftChallenge != null &&
+                (driftChallenge.IsActive || driftChallenge.IsCountingDown))
+                return "drift";
+
             const float matchDistance =
                 12f;
 
@@ -1072,7 +1086,7 @@ namespace MotorCity.UI
                         1,
                         Mathf.CeilToInt(
                             length /
-                            3f));
+                            Mathf.Max(3f, worldRadius / 90f)));
 
                 for (int step = 0;
                      step <= steps &&
@@ -2067,7 +2081,7 @@ namespace MotorCity.UI
                 car.transform.position;
 
             const float worldRadius =
-                260f;
+                500f;
 
             if (schematicMap != null &&
                 schematicMap.IsValid &&
@@ -2193,7 +2207,7 @@ namespace MotorCity.UI
                     markerRadius;
             }
 
-            minimapRouteUpdateTimer = 0f;
+            minimapRouteUpdateTimer -= Time.unscaledDeltaTime;
 
             if (minimapRouteUpdateTimer <= 0f)
             {
@@ -2722,12 +2736,11 @@ namespace MotorCity.UI
                 (driftChallenge.IsActive ||
                  driftChallenge.IsCountingDown))
             {
-                target =
-                    driftChallenge.ZoneCenter;
-                label =
-                    MotorCityLocalization.Text(
-                        "activity.drift");
-                showRoadRoute = true;
+                // Never guide the player back to the free-roam drift start.
+                target = driftChallenge.ZoneCenter;
+                label = MotorCityLocalization.Text("activity.drift");
+                hasTarget = driftChallenge.IsCountingDown;
+                showRoadRoute = false;
                 return;
             }
 

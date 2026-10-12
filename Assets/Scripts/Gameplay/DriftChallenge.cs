@@ -12,8 +12,6 @@ namespace MotorCity.Gameplay
 
         private Vector3 zoneCenter;
         [SerializeField] private float startRadius = 15f;
-        [SerializeField] private float activityHalfExtent = 52f;
-        [SerializeField] private float outsideGraceSeconds = 3.5f;
         [SerializeField] private float durationSeconds = 42f;
 
         [Header("Пороги очков")]
@@ -38,7 +36,6 @@ namespace MotorCity.Gameplay
         private int scoreAtStart;
         private bool armed = true;
         private bool isCountingDown;
-        private float outsideTimer;
         private bool eliteMode;
 
         public bool IsActive { get; private set; }
@@ -234,7 +231,6 @@ namespace MotorCity.Gameplay
                     ? 48f
                     : durationSeconds;
 
-            outsideTimer = 0f;
 
             car.SetDrivingBlocked("ActivityCountdown", true);
         }
@@ -271,7 +267,6 @@ namespace MotorCity.Gameplay
                     : durationSeconds;
 
             scoreAtStart = drift.TotalScore;
-            outsideTimer = 0f;
 
             car.SetDrivingBlocked("ActivityCountdown", false);
 
@@ -280,61 +275,13 @@ namespace MotorCity.Gameplay
 
         private void UpdateActiveChallenge()
         {
-            Vector3 flatPosition =
-                Flat(car.transform.position);
-
-            TimeRemaining =
-                Mathf.Max(
-                    0f,
-                    TimeRemaining -
-                    Time.deltaTime);
-
-            Vector3 local =
-                flatPosition -
-                Flat(zoneCenter);
-
-            bool insideChallengeArea =
-                Mathf.Abs(local.x) <=
-                    activityHalfExtent &&
-                Mathf.Abs(local.z) <=
-                    activityHalfExtent;
-
-            if (!insideChallengeArea)
-            {
-                outsideTimer +=
-                    Time.deltaTime;
-
-                float remainingGrace =
-                    Mathf.Max(
-                        0f,
-                        outsideGraceSeconds -
-                        outsideTimer);
-
-                if (outsideTimer >=
-                    outsideGraceSeconds)
-                {
-                    FailChallenge(
-                        MotorCityLocalization.Text("activity.drift_too_far"));
-                    return;
-                }
-
-                StatusText =
-                    MotorCityLocalization.Format(
-                        "activity.drift_return",
-                        CurrentScore,
-                        TimeRemaining,
-                        remainingGrace);
-                return;
-            }
-
-            outsideTimer = 0f;
-
+            // The start zone is only a trigger; drift score counts citywide.
+            TimeRemaining = Mathf.Max(0f, TimeRemaining - Time.deltaTime);
             if (TimeRemaining <= 0f)
             {
                 FinishByScore();
                 return;
             }
-
             UpdateActiveStatus();
         }
 
@@ -443,7 +390,6 @@ namespace MotorCity.Gameplay
             IsActive = false;
             isCountingDown = false;
             TimeRemaining = 0f;
-            outsideTimer = 0f;
 
             car.SetDrivingBlocked(
                 "ActivityResult",
@@ -479,7 +425,6 @@ namespace MotorCity.Gameplay
             IsActive = false;
             isCountingDown = false;
             TimeRemaining = 0f;
-            outsideTimer = 0f;
 
             car.SetDrivingBlocked(
                 "ActivityResult",
@@ -547,7 +492,6 @@ namespace MotorCity.Gameplay
             isCountingDown = false;
             armed = false;
             TimeRemaining = 0f;
-            outsideTimer = 0f;
 
             car?.SetDrivingBlocked(
                 "ActivityCountdown",

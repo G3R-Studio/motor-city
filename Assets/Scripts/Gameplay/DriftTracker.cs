@@ -47,6 +47,7 @@ namespace MotorCity.Gameplay
         public int TotalScore => Mathf.RoundToInt(totalScore);
         public float Combo => combo;
         public bool IsDrifting { get; private set; }
+        public bool ComboInProgress => comboInProgress;
         public int BestDrift { get; private set; }
         public int LastBankedCredits { get; private set; }
         public bool ShowRewardMessage => rewardMessageTimer > 0f;

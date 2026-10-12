@@ -337,58 +337,18 @@ public Texture2D Texture { get; private set; }
             return true;
         }
 
-        public Rect UvWindow(
-            Vector3 worldPosition,
-            float worldRadius)
+        public Rect UvWindow(Vector3 worldPosition, float worldRadius)
         {
             if (!IsValid)
-            {
-                return
-                    new Rect(
-                        0f,
-                        0f,
-                        1f,
-                        1f);
-            }
+                return new Rect(0f, 0f, 1f, 1f);
 
-            Vector2 center =
-                WorldToUv(
-                    worldPosition);
-
-            float width =
-                Mathf.Clamp01(
-                    worldRadius * 2f /
-                    WorldBounds.size.x);
-
-            float height =
-                Mathf.Clamp01(
-                    worldRadius * 2f /
-                    WorldBounds.size.z);
-
-            float x =
-                Mathf.Clamp(
-                    center.x -
-                    width * 0.5f,
-                    0f,
-                    Mathf.Max(
-                        0f,
-                        1f - width));
-
-            float y =
-                Mathf.Clamp(
-                    center.y -
-                    height * 0.5f,
-                    0f,
-                    Mathf.Max(
-                        0f,
-                        1f - height));
-
-            return
-                new Rect(
-                    x,
-                    y,
-                    width,
-                    height);
+            Vector2 center = WorldToUv(worldPosition);
+            // Do not shift the road image relative to the player or markers
+            // near the edges of the city map.
+            float width = worldRadius * 2f / WorldBounds.size.x;
+            float height = worldRadius * 2f / WorldBounds.size.z;
+            return new Rect(center.x - width * 0.5f,
+                center.y - height * 0.5f, width, height);
         }
 
         private void ExpandBoundsWithFcgTraffic(
