@@ -166,7 +166,7 @@
 - [x] **HV-3.7 PE-08 — IN SOURCE / NEEDS UNITY (длинный список).** Истинные achievement progress/claimed и коллекции не изменялись; вместо фиксированной высоты body используется preferredHeight текста, существующий тонкий scroll cue и закреплённый footer. Проверить все достижения и скролл до конца на узком экране.
 - [x] **HV-3.8 PE-09 — IN SOURCE / NEEDS UNITY (читабельность).** Данные приглашения, времени суток, доверия и серий остаются в underground; динамическая высота + меньший шрифт предотвращают пустой фиксированный блок. Визуальные locked/ready/complete состояния ещё необходимо принять в Unity.
 - [x] **HV-3.9 — IN SOURCE / NEEDS UNITY.** Общая фабрика `BuildPlayerExperienceDetail` оставляет один footer Back без X, ScrollRect для body и восстановление выбора на overview. В рамках прохода не менялись обработчики навигации; проверить клавиатуру/контроллер и touch.
-- [ ] **HV-3.10 — SOURCE FALLBACK ADDED / NEEDS UNITY.** Сохранились существующие source stamps, обновление активной страницы и локализация RU/EN; дополнительного refresh-поллинга или начислений не добавлено. Текущий stamp не покрывает каждую мутацию Pixie/club/achievements без смены валюты или дат: требуется отдельное решение и ручная проверка.
+- [x] **HV-3.10 — ACCEPTED USER (2026-10-12).** Сохранились существующие source stamps, обновление активной страницы и локализация RU/EN; дополнительного refresh-поллинга или начислений не добавлено. Текущий stamp не покрывает каждую мутацию Pixie/club/achievements без смены валюты или дат: требуется отдельное решение и ручная проверка.
 
 Файлы: **MotorCityFrontEndExperienceSections.cs, MotorCityFrontEndModalUi.cs, MotorCityFrontEndFlow.cs, PrototypeHud.cs, PrototypeHudPlayerExperienceDetails.cs, PrototypeHudPlayerExperienceJournal.cs**.
 
@@ -460,3 +460,8 @@ Previous work already supplies on-demand read-only UI hierarchy checks, safe are
 
 - Added a bounded 5-second fallback refresh only while Player Experience is visible (`f559948`): Pixie, club, achievements and other changeable sections update even when wallet/reputation/day/result stamps are unchanged. The existing 0.75-second lightweight stamp check remains; invisible pages are not updated. This may rebuild a visible page once every five seconds and trigger Canvas.ForceUpdateCanvases, so HV-3.10 remains unchecked until Unity behavior and profiler validate it. No progression values or rewards mutated.
 - The full 29-item audit above is a classification, **not 29 completed tasks**. Remaining real-device, screenshot, QA and release gates require their actual evidence; no CI/WebGL run was initiated.
+
+
+### HV-L controlled cleanup — 2026-10-12
+
+- User confirmed HV-3.10 5-second career state refresh works correctly in Unity; acceptance recorded. Commit `0b3236c` removes the unused legacy `SetRect` geometry mutator from HudVisualPolish and removes a no-op modal-composition parameter. Its active runtime visual duties (backdrops, text shadows, touch text, arrow/input reconciliation) deliberately remain until ownership is proven in each builder. No hit areas, four restored steering/pedal images, or garage changed. HV-L.6 remains open; Unity smoke needed before larger removal. CI/WebGL not run.
