@@ -400,6 +400,7 @@ namespace MotorCity.Persistence
                         TryUpload(
                             forceQueued);
                     }
+                    UploadCompleted?.Invoke(true);
                 });
         }
     }
