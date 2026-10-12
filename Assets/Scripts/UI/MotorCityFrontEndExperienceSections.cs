@@ -35,6 +35,7 @@ namespace MotorCity.UI
         private Text playerExperienceVisitHintText;
         private bool playerExperienceHintWasShown;
         private float playerExperienceSourcePollTimer;
+        private float playerExperienceFallbackRefreshTimer;
         private int observedCredits;
         private int observedReputation;
         private int observedVehicleIndex;
@@ -57,6 +58,7 @@ namespace MotorCity.UI
             observedDay = now / 86400L;
             observedWeek = now / 604800L;
             playerExperienceSourcePollTimer = 0f;
+            playerExperienceFallbackRefreshTimer = 0f;
         }
 
         private void RefreshVisiblePlayerExperienceIfChanged()
@@ -65,6 +67,7 @@ namespace MotorCity.UI
                 !playerExperienceRoot.activeInHierarchy)
                 return;
             playerExperienceSourcePollTimer += Time.unscaledDeltaTime;
+            playerExperienceFallbackRefreshTimer += Time.unscaledDeltaTime;
             if (playerExperienceSourcePollTimer < 0.75f)
                 return;
             playerExperienceSourcePollTimer = 0f;
@@ -79,7 +82,8 @@ namespace MotorCity.UI
                 vehicle == observedVehicleIndex &&
                 result == observedResultSequence &&
                 now / 86400L == observedDay &&
-                now / 604800L == observedWeek)
+                now / 604800L == observedWeek &&
+                playerExperienceFallbackRefreshTimer < 5f)
                 return;
 
             CapturePlayerExperienceSourceStamp();
