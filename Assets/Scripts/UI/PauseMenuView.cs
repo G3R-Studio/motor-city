@@ -195,6 +195,21 @@ namespace MotorCity.UI
             RefreshPauseMenuText();
         }
 
+#if UNITY_EDITOR || DEBUG
+        // Uses the same pause owner, Time.timeScale and modal flow as players.
+        public void DebugOpenPauseForUiQa()
+        {
+            if (!pauseMenuOpen)
+                OpenPauseMenu();
+        }
+
+        public void DebugOpenExperienceForUiQa()
+        {
+            DebugOpenPauseForUiQa();
+            OpenPausePlayerExperience();
+        }
+#endif
+
         private void OpenPausePlayerExperience()
         {
             if (!pauseMenuOpen || pauseExperienceOpen)
