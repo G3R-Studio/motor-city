@@ -134,7 +134,7 @@
 - [x] **HV-1.1 — IN SOURCE** Общие токены палитры, текста, базовых отступов и состояний кнопок добавлены в MotorCityUiSkin (MotorCityButtonVisuals.cs) и применены в двух UI-фабриках. Полная унификация рамок/окон относится к HV-1.3; **Unity smoke этого этапа ожидается**.
 - [x] **HV-1.2 — IN SOURCE** Общий Button Visual с Primary / Secondary / Utility / Back / Disabled: обе фабрики вызывают единый ApplyButton, главный Continue и Pause Resume — Primary, компактные кнопки — Utility, Back доступен явно. Delеgates, локализация, hit areas и старые владельцы UI-клика не изменены. **Unity Play Mode ещё не подтверждён**.
 - [x] **HV-1.3 — IN SOURCE** Общие modal surfaces с тонким разделителем шапки и без дублирующего Outline, для FrontEnd и runtime окон; экран Settings стал компактнее, Back перенесён в footer (контент остаётся прокручиваемым). Глобальный HUD-стилизатор больше не перетирает роли модальных кнопок, поэтому Pause Resume остаётся Primary. **Ожидает Unity smoke**.
-- [ ] **HV-1.4** Настроить типографику/авто-перенос и высоту текста: MotorCityTypography, MotorCityTextLayout, MotorCityTextClip; запретить обрезание длинного EN/RU.
+- [x] **HV-1.4 — IN SOURCE / NEEDS UNITY.** Общий TextLayout больше не усечёт целую строку до `MotorCityTextClip`, не изменяет заданный размер шрифта по высоте ячейки и сохраняет локальные best-fit ограничения. Убраны принудительные глобальные минимумы 15pt в HUD-polish и 22pt во FrontEnd; RU/EN и узкий landscape проверить вручную. Геометрия окон и готовый гараж не изменены.
 - [ ] **HV-1.5** Сверить текстурные asset slots MotorCityUiThemeAssets.asset, fallback при отсутствии ресурсов, Sprite caching и Canvas rebuild.
 - [ ] **HV-1.6** Проверить, что HudVisualPolish не меняет builder-owned позиции, обработчики кнопок и выбранные touch scales.
 
@@ -290,7 +290,7 @@
 | --- | --- | --- | --- |
 | HV-0 Аудит | **PARTIAL** | — | Инвентарь и план есть; не хватает снимков непоказанных окон |
 | HV-L Удаление старого HUD-оформления | **IN SOURCE (HV-L.1–HV-L.3, HV-L.5)** | NEEDS UNITY | Старое оформление окон удалено, но 4 оригинальных изображения управления намеренно восстановлены; нужна приёмка в Unity, HV-L.6 открыт |
-| HV-1 Токены/примитивы | **IN SOURCE (HV-1.1–HV-1.3)** | NEEDS UNITY | Общие кнопки/окна; HV-1.4–HV-1.6 ещё открыты |
+| HV-1 Токены/примитивы | **IN SOURCE (HV-1.1–HV-1.4)** | NEEDS UNITY | Текстовые переносы и ограничения в коде; HV-1.5–HV-1.6 открыты |
 | HV-2 FrontEnd | PLANNED | — | Не начато |
 | HV-3 Мой Motor City | PLANNED | — | Не начато |
 | HV-4 Driving HUD | PLANNED | — | Не начато |
@@ -305,6 +305,7 @@
 
 | Дата | ID | Коммит(ы) | Что реально готово | Исходниковая проверка | Ручной smoke / статус |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-12 | HV-1.4 | коммит текущего этапа (добавить SHA) | Убран вертикальный truncate и изменение размера шрифта после создания, локальные минимумы text best-fit сохранены; не меняется геометрия | Source checks; Unity не запускалась | **NEEDS UNITY**: RU/EN FrontEnd + pause/nav/results, длинные подписи и narrow landscape |
 | 2026-10-12 | HV-L.6 partial | [`edf7647`](https://github.com/G3R-Studio/motor-city/commit/edf764768776b37fb0783388c419312d38476471) + [`aa0959e`](https://github.com/G3R-Studio/motor-city/commit/aa0959e8ccef3320f87fb1c927579370d64df660) | Убрана повторная перекраска touch/modal кнопок и четырёх оригинальных органов управления; текстовый и responsive pass сохранён | Проверка исходников; Unity не запускал | **NEEDS UNITY:** пауза, миникарта, mobile wheel/arrow и utility-кнопки |
 | 2026-10-12 | HV-L.5 original-art restore | [`ada30e5`](https://github.com/G3R-Studio/motor-city/commit/ada30e58fd0bf767635e0860f02355f789e959f5) | Восстановлены только 4 оригинальные текстуры мобильного управления, их GUID и атрибуция; прочий HUD и векторная миникарта не изменены | **18/18 source checks PASS**: старые методы и пропорции совпадают с исходными, PNG/.meta/GUID и новый ресурс на месте; Unity не запускался | **ACCEPTED USER**: оригинальное управление подтверждено «всё чётко», 2026-10-12 | 
 | 2026-10-12 | HV-L.5 и удаление UI-артпакета | [`1314c55`](https://github.com/G3R-Studio/motor-city/commit/1314c554c1073a26194720f3c95b82ba1db0791f), [`f700241`](https://github.com/G3R-Studio/motor-city/commit/f70024107ec3877c20d20949f74c80e2fc8163ea), [`4b3787a`](https://github.com/G3R-Studio/motor-city/commit/4b3787a0fb311d582a8224a6f77e64db0dbe4cea), [`0cb09de`](https://github.com/G3R-Studio/motor-city/commit/0cb09dec428aceb5465f7036cd8197529453bc3a) | Векторный указатель и временно векторное мобильное управление, удалена общая старая UI-тема и ненужные картинки | Git tree подтверждает отсутствие пакета, исходники проверены; Unity не запускался | **NEEDS UNITY:** проверить весь HUD, особенно мобильное удержание/руль, указатель маршрута, рукопожатие UI |
@@ -314,7 +315,7 @@
 | 2026-10-12 | HV-1.1 / HV-1.2 | [`1a637b5`](https://github.com/G3R-Studio/motor-city/commit/1a637b50cf1df9c763b56036092a1becdb12026e) | Токены MotorCityUiSkin, 4 роли кнопок (+ Disabled), FrontEnd и runtime modal factories, первичное Continue и Pause Resume | **17/17 точечных source checks PASS**; Unity Editor/Play Mode не запускали | **NEEDS UNITY:** main/пауза/настройки/выбор управления, единый клик, без изменения готового интерфейса |
 | 2026-10-12 | HV-0.1…HV-0.3 | [f85be113](https://github.com/G3R-Studio/motor-city/commit/f85be1134dbf464376fe418ca25a99934639ebb2) | Аудит и проектный roadmap | Сверка tree + владельцев | Visual редизайн не начат |
 
-**Следующая работа при команде «дальше»:** сначала получить Unity smoke очистки HV-L (особенно Pause, Navigator и mobile Wheel/Arrow), проверить и исправить его возможные регрессии, затем выполнить HV-L.6 и перейти к **HV-1.4 (типографика и перенос)**. Если поставка вызвала ошибку, сначала исправить её. Каждый коммит и результаты приёмки дописывать в журнал ниже. Не начинать UX-7/сборку и не спрашивать снова «какую задачу выбрать», пока в этом документе остаются запланированные пункты.
+**Следующая работа при команде «дальше»:** сначала получить Unity smoke очистки HV-L (особенно Pause, Navigator и mobile Wheel/Arrow), проверить и исправить его возможные регрессии, затем проверить **HV-1.4 в Unity**, после чего продолжить HV-1.5 (тема и fallback). Если поставка вызвала ошибку, сначала исправить её. Каждый коммит и результаты приёмки дописывать в журнал ниже. Не начинать UX-7/сборку и не спрашивать снова «какую задачу выбрать», пока в этом документе остаются запланированные пункты.
 
 ## 8. Связанные источники
 

@@ -3,34 +3,37 @@ using UnityEngine.UI;
 
 namespace MotorCity.UI
 {
-    /// <summary>Fixed typography in canvas units, independent of the current value or screen scale.</summary>
+    /// <summary>
+    /// Common legacy-Text wrapping and bounds clipping. The layout owner,
+    /// not this helper, chooses the nominal font size and rectangle.
+    /// </summary>
     internal static class MotorCityTextLayout
     {
         public static void Configure(Text text)
         {
-            if (text == null) return;
-            int requestedFontSize =
-                Mathf.Max(
-                    1,
-                    text.fontSize);
+            if (text == null)
+                return;
 
-            text.resizeTextForBestFit = true;
-            text.resizeTextMinSize =
-                Mathf.Max(
-                    10,
-                    Mathf.RoundToInt(
-                        requestedFontSize * 0.62f));
-            text.resizeTextMaxSize =
-                requestedFontSize;
+            int requestedFontSize = Mathf.Max(1, text.fontSize);
+            // Keep caller-owned best-fit settings and explicit minimums.
+            // A later general pass must not silently enlarge those minima.
+            if (text.resizeTextForBestFit)
+            {
+                text.resizeTextMinSize = Mathf.Clamp(
+                    text.resizeTextMinSize, 1, requestedFontSize);
+                text.resizeTextMaxSize = Mathf.Max(
+                    requestedFontSize, text.resizeTextMaxSize);
+            }
+
             text.alignByGeometry = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
+
+            // Truncate discards entire wrapped lines before TextClip has a
+            // chance to clip them precisely, especially at fractional scale.
+            // Generate the full text and let the mesh clip own the bounds.
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             if (text.GetComponent<MotorCityTextClip>() == null)
                 text.gameObject.AddComponent<MotorCityTextClip>();
-            // Reserve line-height headroom instead of enlarging the cell into its neighbours.
-            float height = text.rectTransform.rect.height;
-            if (height > 0f)
-                text.fontSize = Mathf.Min(text.fontSize, Mathf.Max(1, Mathf.FloorToInt(height / 1.3f)));
         }
     }
 }

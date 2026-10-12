@@ -3431,8 +3431,9 @@ namespace MotorCity.UI
             foreach (Text text in canvas.GetComponentsInChildren<Text>(true))
             {
                 text.alignByGeometry = false;
-                text.resizeTextMinSize = Mathf.Max(22, text.resizeTextMinSize);
-                text.resizeTextMaxSize = Mathf.Max(text.resizeTextMinSize, text.fontSize);
+                // Keep each page's own minimum for narrow RU/EN strings.
+                // The old global 22pt floor could override button/title
+                // best-fit constraints and clip wrapped content.
                 MotorCityTextLayout.Configure(text);
 
                 // The common typography pass runs after every page is

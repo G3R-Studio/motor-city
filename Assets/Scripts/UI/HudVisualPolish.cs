@@ -466,7 +466,10 @@ namespace MotorCity.UI
                         11,
                         Mathf.RoundToInt(
                             text.fontSize * 0.78f));
-            text.resizeTextMinSize = Mathf.Max(15, text.resizeTextMinSize);
+            // Preserve small context labels: forcing a 15pt minimum here
+            // truncated narrow navigator, result and status text cells.
+            text.resizeTextMinSize =
+                Mathf.Min(text.fontSize, text.resizeTextMinSize);
             text.resizeTextMaxSize =
                 text.fontSize;
             text.horizontalOverflow =
