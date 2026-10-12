@@ -383,7 +383,8 @@ namespace MotorCity.Platform
                 !MotorCityRemoteConfigRuntime.GetBool(
                     "interstitial_before_activity",
                     true) ||
-                !MotorCityPlatform.SupportsAds)
+                !MotorCityPlatform.SupportsAds ||
+                CosmeticStoreSystem.NoAdsOwned)
             {
                 return false;
             }
