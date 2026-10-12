@@ -79,6 +79,13 @@ namespace MotorCity.Gameplay
             }
         }
 
+        public int CatalogClaimedTiers => claimedTier;
+        public int CatalogTierCount => Thresholds.Length;
+        public bool CatalogAllClaimed => claimedTier >= Thresholds.Length;
+        public int CatalogNextScoreTarget => CatalogAllClaimed ? 0 : Thresholds[claimedTier];
+        public int CatalogNextCreditsReward => CatalogAllClaimed ? 0 : CreditRewards[claimedTier];
+        public int CatalogNextReputationReward => CatalogAllClaimed ? 0 : ReputationRewards[claimedTier];
+
         public string GarageLine =>
             MotorCityLocalization.Format(
                 "collection.garage",
