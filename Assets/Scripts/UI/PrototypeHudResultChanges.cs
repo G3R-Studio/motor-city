@@ -43,7 +43,7 @@ namespace MotorCity.UI
             resultChangesHeadingText = CreateText(panel,
                 MotorCityLocalization.Text("ux5.changes.heading"),
                 14, FontStyle.Bold, TextAnchor.MiddleCenter,
-                new Vector2(0f, -248f), new Vector2(555f, 22f),
+                new Vector2(0f, -252f), new Vector2(555f, 22f),
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 BlueAccent);
 
@@ -56,8 +56,8 @@ namespace MotorCity.UI
             viewport.anchorMin = new Vector2(0.5f, 1f);
             viewport.anchorMax = new Vector2(0.5f, 1f);
             viewport.pivot = new Vector2(0.5f, 1f);
-            viewport.anchoredPosition = new Vector2(0f, -269f);
-            viewport.sizeDelta = new Vector2(550f, 114f);
+            viewport.anchoredPosition = new Vector2(0f, -277f);
+            viewport.sizeDelta = new Vector2(550f, 104f);
             Image background = viewportObject.GetComponent<Image>();
             background.color = new Color(0.08f, 0.12f, 0.24f, 0.28f);
             background.raycastTarget = true;
@@ -70,7 +70,7 @@ namespace MotorCity.UI
             resultChangesContent.anchorMax = new Vector2(1f, 1f);
             resultChangesContent.pivot = new Vector2(0.5f, 1f);
             resultChangesContent.anchoredPosition = Vector2.zero;
-            resultChangesContent.sizeDelta = new Vector2(0f, 114f);
+            resultChangesContent.sizeDelta = new Vector2(0f, 104f);
 
             resultSecondaryProgressText.transform.SetParent(
                 resultChangesContent, false);
@@ -79,7 +79,7 @@ namespace MotorCity.UI
             label.anchorMax = new Vector2(1f, 1f);
             label.pivot = new Vector2(0.5f, 1f);
             label.anchoredPosition = new Vector2(0f, -6f);
-            label.sizeDelta = new Vector2(-24f, 104f);
+            label.sizeDelta = new Vector2(-24f, 94f);
             resultSecondaryProgressText.alignment = TextAnchor.UpperLeft;
             resultSecondaryProgressText.resizeTextForBestFit = false;
             resultSecondaryProgressText.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -122,12 +122,12 @@ namespace MotorCity.UI
                 return true;
             resultChangesLayoutSequence = activityManager.ResultSequence;
             resultSecondaryProgressText.text = changes;
-            float contentHeight = Mathf.Max(114f,
+            float contentHeight = Mathf.Max(104f,
                 resultSecondaryProgressText.preferredHeight + 14f);
             if (resultChangesHeadingText != null)
                 resultChangesHeadingText.text = MotorCityLocalization.Text(
                     "ux5.changes.heading") +
-                    (contentHeight > 114f ? " · " + MotorCityLocalization.Text(
+                    (contentHeight > 104f ? " · " + MotorCityLocalization.Text(
                         "ux5.changes.scroll_hint") : string.Empty);
             resultChangesContent.sizeDelta = new Vector2(0f, contentHeight);
             resultSecondaryProgressText.rectTransform.sizeDelta =
