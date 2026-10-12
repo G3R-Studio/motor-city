@@ -23,7 +23,7 @@ TARGETS = ("desktop", "mobile")
 
 def gate_mobile_portrait(html: str) -> str:
     """Wait for landscape before starting Unity in the mobile Pages build."""
-    invocation = re.compile(r"\\bcreateUnityInstance\\s*\\(")
+    invocation = re.compile(r"\bcreateUnityInstance\s*\(")
     matches = list(invocation.finditer(html))
     if len(matches) != 1 or "</head>" not in html:
         raise ValueError("mobile: expected one Unity startup call and HTML head")
