@@ -831,7 +831,9 @@ namespace MotorCity.UI
                 root,
                 "Throttle",
                 MotorCityInputAction.Throttle,
-                GarageReferenceGraphic.Symbol.Speed,
+                touchArtAssets == null
+                    ? null
+                    : touchArtAssets.touchThrottle,
                 new Vector2(-42f, 30f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
@@ -843,23 +845,32 @@ namespace MotorCity.UI
                 root,
                 "Reverse",
                 MotorCityInputAction.Reverse,
-                GarageReferenceGraphic.Symbol.Brake,
+                touchArtAssets == null
+                    ? null
+                    : touchArtAssets.touchBrake,
                 new Vector2(-158f, 34f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
                 new Vector2(96f, 118f),
                 new Color32(255, 255, 255, 0x64));
 
+            Texture2D handbrakeTexture =
+                touchArtAssets == null
+                    ? null
+                    : touchArtAssets.touchHandbrake;
+
             touchHandbrakeRect =
                 CreateTouchArtHoldButton(
                 root,
                 "Handbrake",
                 MotorCityInputAction.Handbrake,
-                GarageReferenceGraphic.Symbol.Wrench,
+                handbrakeTexture,
                 new Vector2(-36f, 208f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(210f, 185f),
+                FitTouchArtSize(
+                    handbrakeTexture,
+                    new Vector2(210f, 185f)),
                 new Color32(255, 255, 255, 165));
 
             GameObject interactButton =
@@ -1546,61 +1557,83 @@ namespace MotorCity.UI
             return rect;
         }
 
-        // Only vector artwork is drawn; the invisible Image keeps the full
-        // original input rectangle for steering/hold and saved touch layout.
+        private static Vector2 FitTouchArtSize(
+            Texture2D texture,
+            Vector2 maxSize)
+        {
+            if (texture == null ||
+                texture.width <= 0 ||
+                texture.height <= 0)
+            {
+                return maxSize;
+            }
+
+            float scale =
+                Mathf.Min(
+                    maxSize.x / texture.width,
+                    maxSize.y / texture.height);
+
+            return new Vector2(
+                Mathf.Max(
+                    1f,
+                    texture.width * scale),
+                Mathf.Max(
+                    1f,
+                    texture.height * scale));
+        }
+
         private RectTransform CreateTouchArtHoldButton(
             Transform parent,
             string name,
             MotorCityInputAction action,
-            GarageReferenceGraphic.Symbol symbol,
+            Texture2D texture,
             Vector2 anchoredPosition,
             Vector2 anchor,
             Vector2 pivot,
             Vector2 size,
             Color color)
         {
-            GameObject buttonObject = new(
-                name, typeof(RectTransform), typeof(Image),
-                typeof(TouchHoldInputButton));
-            buttonObject.transform.SetParent(parent, false);
-            RectTransform rect = buttonObject.GetComponent<RectTransform>();
+            GameObject buttonObject =
+                new(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(TouchHoldInputButton));
+
+            buttonObject.transform.SetParent(
+                parent,
+                false);
+
+            RectTransform rect =
+                buttonObject.GetComponent<RectTransform>();
+
             rect.anchorMin = anchor;
             rect.anchorMax = anchor;
             rect.pivot = pivot;
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = size;
+            rect.anchoredPosition =
+                anchoredPosition;
+            rect.sizeDelta =
+                size;
 
-            Image hitTarget = buttonObject.GetComponent<Image>();
-            hitTarget.sprite = null;
-            hitTarget.color = Color.clear;
-            hitTarget.raycastTarget = true;
+            Image image =
+                buttonObject.GetComponent<Image>();
 
-            RectTransform face = GarageObject(rect, "Touch Pedal Surface");
-            face.anchorMin = Vector2.zero;
-            face.anchorMax = Vector2.one;
-            face.offsetMin = Vector2.zero;
-            face.offsetMax = Vector2.zero;
-            GarageReferenceGraphic surface =
-                face.gameObject.AddComponent<GarageReferenceGraphic>();
-            surface.symbol = GarageReferenceGraphic.Symbol.Surface;
-            surface.color = new Color(0.17f, 0.13f, 0.31f, 0.64f);
-            surface.raycastTarget = false;
+            image.sprite =
+                CreateTouchControlSprite(
+                    texture);
+            image.preserveAspect =
+                true;
+            image.raycastTarget =
+                true;
+            image.color =
+                color;
 
-            RectTransform glyph = GarageObject(rect, "Touch Pedal Icon");
-            glyph.anchorMin = glyph.anchorMax = glyph.pivot =
-                new Vector2(0.5f, 0.5f);
-            glyph.anchoredPosition = Vector2.zero;
-            glyph.sizeDelta = new Vector2(
-                Mathf.Min(70f, size.x * 0.7f),
-                Mathf.Min(70f, size.y * 0.55f));
-            GarageReferenceGraphic icon =
-                glyph.gameObject.AddComponent<GarageReferenceGraphic>();
-            icon.symbol = symbol;
-            icon.color = new Color(0.49f, 0.81f, 1f,
-                Mathf.Max(0.7f, color.a));
-            icon.raycastTarget = false;
+            TouchHoldInputButton input =
+                buttonObject.GetComponent<TouchHoldInputButton>();
 
-            buttonObject.GetComponent<TouchHoldInputButton>().Bind(action);
+            input.Bind(
+                action);
+
             return rect;
         }
 
@@ -1655,21 +1688,25 @@ namespace MotorCity.UI
             wheelRect.sizeDelta =
                 new Vector2(194f, 194f);
 
-            Image hitTarget = wheelObject.GetComponent<Image>();
-            hitTarget.sprite = null;
-            hitTarget.color = Color.clear;
-            hitTarget.raycastTarget = true;
+            Image image =
+                wheelObject.GetComponent<Image>();
 
-            RectTransform glyph = GarageObject(wheelRect, "Touch Wheel Icon");
-            glyph.anchorMin = Vector2.zero;
-            glyph.anchorMax = Vector2.one;
-            glyph.offsetMin = Vector2.zero;
-            glyph.offsetMax = Vector2.zero;
-            GarageReferenceGraphic icon =
-                glyph.gameObject.AddComponent<GarageReferenceGraphic>();
-            icon.symbol = GarageReferenceGraphic.Symbol.Steering;
-            icon.color = new Color(0.55f, 0.82f, 1f, 0.78f);
-            icon.raycastTarget = false;
+            image.sprite =
+                CreateTouchControlSprite(
+                    touchArtAssets == null
+                        ? null
+                        : touchArtAssets.touchWheel);
+            image.preserveAspect =
+                true;
+            image.raycastTarget =
+                true;
+            image.color =
+                new Color32(
+                    255,
+                    255,
+                    255,
+                    0x96);
+
             return group;
         }
 
@@ -1760,6 +1797,39 @@ namespace MotorCity.UI
             arrow.color = Color.white;
             arrow.raycastTarget = false;
         }
+        private Sprite CreateTouchControlSprite(
+            Texture2D texture)
+        {
+            if (texture == null)
+                return null;
+
+            texture.filterMode = FilterMode.Bilinear;
+            Sprite sprite =
+                Sprite.Create(
+                    texture,
+                    new Rect(
+                        0f,
+                        0f,
+                        texture.width,
+                        texture.height),
+                    new Vector2(
+                        0.5f,
+                        0.5f),
+                    100f,
+                    0,
+                    SpriteMeshType.FullRect);
+
+            sprite.name =
+                texture.name +
+                " Touch Control";
+            sprite.hideFlags =
+                HideFlags.DontSave;
+
+            return
+                TrackRuntimeSprite(
+                    sprite);
+        }
+
         private RectTransform CreateTouchHoldButton(
             Transform parent,
             string name,

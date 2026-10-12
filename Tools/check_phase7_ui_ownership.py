@@ -131,13 +131,30 @@ def main() -> int:
             errors.append(f"Retired RacingUI texture returned: {obsolete}")
 
     controls_dir = ROOT / "Assets/Art/MotorCity/UI/VilleSeppanen/RacingHUD/Sprites"
+    # Only these four original sprites are intentionally restored.
     for old_image in ("break.png", "handbreak.png", "throttle.png", "wheel.png"):
-        if (controls_dir / old_image).exists() or (controls_dir / (old_image + ".meta")).exists():
-            errors.append(f"Retired pedal sprite returned: {old_image}")
+        if not (controls_dir / old_image).is_file() or not (controls_dir / (old_image + ".meta")).is_file():
+            errors.append(f"Original driving control artwork missing: {old_image}")
     if "uiThemeAssets" in sources["TouchControlsView.cs"] or "uiThemeAssets" in sources["NavigatorView.cs"] or "uiThemeAssets" in sources["PrototypeHud.cs"]:
         errors.append("Current HUD still loads removed UI theme")
-    if "Touch Pedal Surface" not in sources["TouchControlsView.cs"] or "Touch Wheel Icon" not in sources["TouchControlsView.cs"]:
-        errors.append("Touch vector graphics are missing")
+    touch_text = sources["TouchControlsView.cs"]
+    if "Touch Pedal Surface" in touch_text or "Touch Wheel Icon" in touch_text:
+        errors.append("User-restored pedals/steering must use original sprite artwork")
+    for marker in ("touchArtAssets.touchThrottle", "touchArtAssets.touchBrake",
+                   "touchArtAssets.touchHandbrake", "touchArtAssets.touchWheel",
+                   "FitTouchArtSize(", "CreateTouchControlSprite("):
+        if marker not in touch_text:
+            errors.append(f"Original four driving control art path missing: {marker}")
+    if 'Resources.Load<MotorCityTouchArtAssets>(' not in sources["PrototypeHud.cs"]:
+        errors.append("Dedicated mobile driving art resource is not loaded")
+    mobile_art = ROOT / "Assets/Resources/MotorCity/UI/MotorCityTouchArtAssets.asset"
+    if not mobile_art.is_file():
+        errors.append("Driving art reference asset is missing")
+    else:
+        mobile_yaml = mobile_art.read_text(encoding="utf-8-sig")
+        for field in ("touchThrottle:", "touchBrake:", "touchHandbrake:", "touchWheel:"):
+            if field not in mobile_yaml:
+                errors.append(f"Original art reference missing: {field}")
     if "GarageReferenceGraphic.Symbol.Up" not in sources["NavigatorView.cs"]:
         errors.append("Minimap must keep its vector heading icon")
     if "vectorArt ? Color.clear : color" not in sources["HudVisualPolish.cs"]:

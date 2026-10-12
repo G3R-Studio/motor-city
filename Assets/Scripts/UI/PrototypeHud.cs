@@ -126,6 +126,7 @@ namespace MotorCity.UI
 
         private Font font;
         private Font boldFont;
+        private MotorCityTouchArtAssets touchArtAssets;
 
         private Text moneyText;
         private Text reputationText;
@@ -1928,6 +1929,10 @@ namespace MotorCity.UI
             font = MotorCityTypography.Regular;
 
             boldFont = MotorCityTypography.Bold;
+
+            touchArtAssets =
+                Resources.Load<MotorCityTouchArtAssets>(
+                    "MotorCity/UI/MotorCityTouchArtAssets");
 
             GameObject canvasObject =
                 new("Motor City HUD");
