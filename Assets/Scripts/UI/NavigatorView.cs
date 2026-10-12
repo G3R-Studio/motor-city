@@ -1765,10 +1765,10 @@ namespace MotorCity.UI
                     "Navigation Target Strip",
                     new Vector2(
                         8f,
-                        -8f),
+                        6f),
                     new Vector2(
                         198f,
-                        82f),
+                        66f),
                     new Vector2(
                         0f,
                         0f),
@@ -1785,11 +1785,11 @@ namespace MotorCity.UI
                     "Minimap Target Label",
                     11,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
-                    new Vector2(-23f, 17f),
+                    TextAnchor.MiddleLeft,
+                    new Vector2(-23f, 9f),
                     new Vector2(
                         140f,
-                        36f),
+                        30f),
                     new Vector2(
                         0.5f,
                         0.5f),
@@ -1800,11 +1800,11 @@ namespace MotorCity.UI
 
             minimapTargetText.resizeTextForBestFit =
                 true;
-            minimapTargetText.fontSize = 14;
+            minimapTargetText.fontSize = 13;
             minimapTargetText.resizeTextMinSize =
                 11;
             minimapTargetText.resizeTextMaxSize =
-                14;
+                13;
             minimapTargetText.horizontalOverflow =
                 HorizontalWrapMode.Wrap;
             minimapTargetText.verticalOverflow =
@@ -1819,12 +1819,12 @@ namespace MotorCity.UI
                     "Minimap Target Distance",
                     12,
                     FontStyle.Bold,
-                    TextAnchor.MiddleCenter,
+                    TextAnchor.MiddleLeft,
                     new Vector2(-23f, -19f),
-                    new Vector2(140f, 22f),
+                    new Vector2(140f, 18f),
                     new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f),
-                    TextColor);
+                    MotorCityUiSkin.AccentCyan);
 
             GameObject navigatorButtonObject =
                 new(
