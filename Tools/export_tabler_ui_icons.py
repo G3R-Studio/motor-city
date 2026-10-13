@@ -21,7 +21,7 @@ truck-delivery car-crane car pizza mail spray briefcase moon-stars medal
 history certificate sparkles clipboard-list sun users-group calendar-event
 building car-suv tool manual-gearbox automatic-gearbox gauge brand-speedtest
 map compass home arrows-left-right arrow-left arrow-right keyboard engine-off
-car-lifter gas-station target route speedboat
+car-lifter gas-station target route speedboat arrow-up x
 """.split())
 
 # Only icon silhouettes actually rendered small in the HUD get an enlarged
