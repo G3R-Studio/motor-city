@@ -57,11 +57,7 @@ namespace MotorCity.UI
     /// </summary>
     public static class MotorCityIconLibrary
     {
-        private const string Root =
-            "MotorCity/UI/Icons/Kenney/";
-
-        private const string FallbackIconName =
-            "star";
+        private const string FallbackIconName = "star";
 
         private static readonly Dictionary<string, Sprite> Cache =
             new(StringComparer.OrdinalIgnoreCase);
@@ -69,49 +65,12 @@ namespace MotorCity.UI
         private static readonly HashSet<string> MissingWarnings =
             new(StringComparer.OrdinalIgnoreCase);
 
-        public static Sprite Get(
-            string iconName)
-        {
-            if (string.IsNullOrWhiteSpace(
-                    iconName))
-            {
-                return GetFallback();
-            }
-
-            if (Cache.TryGetValue(
-                    iconName,
-                    out Sprite cached))
-            {
-                return cached;
-            }
-
-            Sprite sprite =
-                Resources.Load<Sprite>(
-                    Root + iconName);
-
-            if (sprite == null &&
-                !string.Equals(
-                    iconName,
-                    FallbackIconName,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                WarnMissingOnce(
-                    iconName);
-
-                sprite =
-                    GetFallback();
-            }
-
-            Cache[iconName] =
-                sprite;
-
-            return sprite;
-        }
+        public static Sprite Get(string iconName) => TablerIcon(iconName);
 
         private const string TablerRoot = "MotorCity/UI/Icons/Tabler/";
 
-        // Tabler PNGs are generated from the committed MIT-licensed SVG pack.
-        // Existing Kenney icons remain a safe fallback until export is run.
+        // The checked-in, MIT-licensed Tabler sprites are the sole source
+        // for all game pictograms. No procedural or other asset fallback.
         public static Sprite TryGetTabler(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -124,9 +83,6 @@ namespace MotorCity.UI
             Sprite sprite = Resources.Load<Sprite>(TablerRoot + name);
             if (sprite == null)
             {
-                // Some Unity import profiles expose sprites as sub-assets
-                // (e.g. engine_0). A direct Load<Sprite> then returns null
-                // even though the PNG is correctly imported as a Sprite.
                 Sprite[] candidates = Resources.LoadAll<Sprite>(
                     TablerRoot + name);
                 if (candidates != null && candidates.Length > 0)
@@ -138,9 +94,17 @@ namespace MotorCity.UI
             return sprite;
         }
 
-        private static Sprite TablerOrKenney(string tabler, string kenney)
+        private static Sprite TablerIcon(string name)
         {
-            return TryGetTabler(tabler) ?? Get(kenney);
+            if (string.IsNullOrWhiteSpace(name))
+                return GetFallback();
+
+            Sprite sprite = TryGetTabler(name);
+            if (sprite != null)
+                return sprite;
+
+            WarnMissingOnce(name);
+            return GetFallback();
         }
 
         public static Sprite ForActivity(
@@ -148,21 +112,21 @@ namespace MotorCity.UI
         {
             return icon switch
             {
-                ActivityIcon.Delivery => TablerOrKenney("truck-delivery", "car"),
-                ActivityIcon.Drift => TablerOrKenney("car-turbine", "car"),
-                ActivityIcon.Sprint => TablerOrKenney("flag-3", "flag"),
-                ActivityIcon.Circuit => TablerOrKenney("trophy", "trophy"),
-                ActivityIcon.SpeedTrap => TablerOrKenney("gauge", "target"),
-                ActivityIcon.DriftSpot => TablerOrKenney("target", "target"),
-                ActivityIcon.Discovery => TablerOrKenney("map-pin", "star"),
-                ActivityIcon.PhotoHunt => TablerOrKenney("camera", "target"),
-                ActivityIcon.Taxi => TablerOrKenney("car", "car"),
-                ActivityIcon.PizzaDelivery => TablerOrKenney("pizza", "car"),
-                ActivityIcon.Mail => TablerOrKenney("mail", "car"),
-                ActivityIcon.CarWash => TablerOrKenney("spray", "car"),
-                ActivityIcon.TowTruck => TablerOrKenney("car-crane", "key"),
-                ActivityIcon.CityProfession => TablerOrKenney("briefcase", "gear"),
-                ActivityIcon.Underground => TablerOrKenney("moon-stars", "flag"),
+                ActivityIcon.Delivery => TablerIcon("truck-delivery"),
+                ActivityIcon.Drift => TablerIcon("car-turbine"),
+                ActivityIcon.Sprint => TablerIcon("flag-3"),
+                ActivityIcon.Circuit => TablerIcon("trophy"),
+                ActivityIcon.SpeedTrap => TablerIcon("gauge"),
+                ActivityIcon.DriftSpot => TablerIcon("target"),
+                ActivityIcon.Discovery => TablerIcon("map-pin"),
+                ActivityIcon.PhotoHunt => TablerIcon("camera"),
+                ActivityIcon.Taxi => TablerIcon("car"),
+                ActivityIcon.PizzaDelivery => TablerIcon("pizza"),
+                ActivityIcon.Mail => TablerIcon("mail"),
+                ActivityIcon.CarWash => TablerIcon("spray"),
+                ActivityIcon.TowTruck => TablerIcon("car-crane"),
+                ActivityIcon.CityProfession => TablerIcon("briefcase"),
+                ActivityIcon.Underground => TablerIcon("moon-stars"),
                 _ => GetFallback()
             };
         }
@@ -172,7 +136,7 @@ namespace MotorCity.UI
             bool success = true)
         {
             if (!success)
-                return TablerOrKenney("target", "target");
+                return TablerIcon("target");
 
             if (string.IsNullOrWhiteSpace(
                     activityId))
@@ -256,29 +220,29 @@ namespace MotorCity.UI
         {
             return icon switch
             {
-                SystemIcon.Garage => TablerOrKenney("car-garage", "gear"),
-                SystemIcon.Upgrades => TablerOrKenney("tools", "plus"),
-                SystemIcon.Shop => TablerOrKenney("shopping-cart", "shopping_cart"),
-                SystemIcon.Achievements => TablerOrKenney("trophy", "trophy"),
-                SystemIcon.Club => TablerOrKenney("users-group", "home"),
-                SystemIcon.Season => TablerOrKenney("calendar-event", "trophy"),
-                SystemIcon.DailyAdventure => TablerOrKenney("sun", "star"),
-                SystemIcon.Underground => TablerOrKenney("moon-stars", "flag"),
-                SystemIcon.Contracts => TablerOrKenney("clipboard-list", "check"),
-                SystemIcon.CityEvents => TablerOrKenney("calendar-event", "star"),
-                SystemIcon.Collection => TablerOrKenney("star", "star"),
-                SystemIcon.CityLegend => TablerOrKenney("crown", "trophy"),
-                SystemIcon.VehicleHistory => TablerOrKenney("history", "car"),
-                SystemIcon.Specialization => TablerOrKenney("certificate", "gear"),
-                SystemIcon.Credits => TablerOrKenney("coins", "coin"),
-                SystemIcon.Reputation => TablerOrKenney("star", "star"),
-                SystemIcon.Level => TablerOrKenney("medal", "trophy"),
-                SystemIcon.PixieXp => TablerOrKenney("sparkles", "star"),
-                SystemIcon.Reward => TablerOrKenney("gift", "coin"),
-                SystemIcon.Locked => TablerOrKenney("lock", "locked"),
-                SystemIcon.Unlocked => TablerOrKenney("lock-open", "unlocked"),
-                SystemIcon.Confirm => TablerOrKenney("check", "check"),
-                SystemIcon.Add => TablerOrKenney("plus", "plus"),
+                SystemIcon.Garage => TablerIcon("car-garage"),
+                SystemIcon.Upgrades => TablerIcon("tools"),
+                SystemIcon.Shop => TablerIcon("shopping-cart"),
+                SystemIcon.Achievements => TablerIcon("trophy"),
+                SystemIcon.Club => TablerIcon("users-group"),
+                SystemIcon.Season => TablerIcon("calendar-event"),
+                SystemIcon.DailyAdventure => TablerIcon("sun"),
+                SystemIcon.Underground => TablerIcon("moon-stars"),
+                SystemIcon.Contracts => TablerIcon("clipboard-list"),
+                SystemIcon.CityEvents => TablerIcon("calendar-event"),
+                SystemIcon.Collection => TablerIcon("star"),
+                SystemIcon.CityLegend => TablerIcon("crown"),
+                SystemIcon.VehicleHistory => TablerIcon("history"),
+                SystemIcon.Specialization => TablerIcon("certificate"),
+                SystemIcon.Credits => TablerIcon("coins"),
+                SystemIcon.Reputation => TablerIcon("star"),
+                SystemIcon.Level => TablerIcon("medal"),
+                SystemIcon.PixieXp => TablerIcon("sparkles"),
+                SystemIcon.Reward => TablerIcon("gift"),
+                SystemIcon.Locked => TablerIcon("lock"),
+                SystemIcon.Unlocked => TablerIcon("lock-open"),
+                SystemIcon.Confirm => TablerIcon("check"),
+                SystemIcon.Add => TablerIcon("plus"),
                 _ => GetFallback()
             };
         }
@@ -332,10 +296,10 @@ namespace MotorCity.UI
             ForSystem(SystemIcon.Add);
 
         public static Sprite Pause =>
-            TablerOrKenney("player-pause", "pause");
+            TablerIcon("player-pause");
 
         public static Sprite More =>
-            TablerOrKenney("layout-grid", "menu_grid");
+            TablerIcon("layout-grid");
 
         public static Sprite ForWorldMarker(
             string markerId)
@@ -349,10 +313,7 @@ namespace MotorCity.UI
             string normalized =
                 markerId.Trim().ToLowerInvariant();
 
-            // All in-game markers, the navigator and the minimap now share
-            // the Tabler collection. For the sprint checkpoint, use a
-            // directional Tabler arrow: the rotation is gameplay-relevant.
-            // Keep the old prefab sprite lookup below as a migration fallback.
+            // Same sprite mapping for navigator, HUD and world markers.
             string tablerName = normalized switch
             {
                 "garage" => "car-garage",
@@ -375,117 +336,9 @@ namespace MotorCity.UI
                 _ => null
             };
 
-            if (tablerName != null)
-            {
-                Sprite tablerSprite = TryGetTabler(tablerName);
-                if (tablerSprite != null)
-                    return tablerSprite;
-            }
-
-            if (normalized == "garage")
-            {
-                return Garage;
-            }
-
-            string resourceName =
-                normalized switch
-                {
-                    "drift" =>
-                        "DriftMarkerVfx",
-
-                    "delivery" =>
-                        "DeliveryMarkerVfx",
-
-                    "sprint" =>
-                        "SprintMarkerVfx",
-
-                    "circuit" =>
-                        "CircuitMarkerVfx",
-
-                    "discovery" or
-                    "speedtrap" or
-                    "driftspot" =>
-                        "DiscoveryMarkerVfx",
-
-                    "underground" =>
-                        "UndergroundMarkerVfx",
-
-                    "profession" =>
-                        "ProfessionMarkerVfx",
-
-                    "carwash" or
-                    "profession_carwash" =>
-                        "CarWashMarkerVfx",
-
-                    "tow" or
-                    "towtruck" or
-                    "profession_tow" =>
-                        "TowMarkerVfx",
-
-                    _ =>
-                        string.Empty
-                };
-
-            if (string.IsNullOrEmpty(
-                    resourceName))
-            {
-                return GetFallback();
-            }
-
-            string cacheKey =
-                "world:" +
-                resourceName;
-
-            if (Cache.TryGetValue(
-                    cacheKey,
-                    out Sprite cached))
-            {
-                return cached;
-            }
-
-            GameObject prefab =
-                Resources.Load<GameObject>(
-                    "MotorCity/Markers/" +
-                    resourceName);
-
-            Sprite sprite =
-                null;
-
-            if (prefab != null)
-            {
-                SpriteRenderer[] renderers =
-                    prefab.GetComponentsInChildren<SpriteRenderer>(
-                        true);
-
-                foreach (SpriteRenderer renderer in renderers)
-                {
-                    if (renderer == null ||
-                        renderer.sprite == null)
-                    {
-                        continue;
-                    }
-
-                    if (renderer.name.IndexOf(
-                            "Icon Core",
-                            StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
-                        sprite =
-                            renderer.sprite;
-                        break;
-                    }
-
-                    sprite ??=
-                        renderer.sprite;
-                }
-            }
-
-            sprite ??=
-                GetFallback();
-
-            Cache[cacheKey] =
-                sprite;
-
-            return sprite;
+            return tablerName == null
+                ? GetFallback()
+                : TablerIcon(tablerName);
         }
 
         public static Color WorldMarkerColor(
@@ -540,44 +393,19 @@ namespace MotorCity.UI
 
         private static Sprite GetFallback()
         {
-            if (Cache.TryGetValue(
-                    FallbackIconName,
-                    out Sprite cached))
-            {
-                return cached;
-            }
-
-            Sprite fallback =
-                TryGetTabler(FallbackIconName) ??
-                Resources.Load<Sprite>(
-                    Root + FallbackIconName);
-
-            Cache[FallbackIconName] =
-                fallback;
-
+            Sprite fallback = TryGetTabler(FallbackIconName);
             if (fallback == null)
-            {
-                WarnMissingOnce(
-                    FallbackIconName);
-            }
-
+                WarnMissingOnce(FallbackIconName);
             return fallback;
         }
 
-        private static void WarnMissingOnce(
-            string iconName)
+        private static void WarnMissingOnce(string iconName)
         {
-            if (!MissingWarnings.Add(
-                    iconName))
-            {
+            if (!MissingWarnings.Add(iconName))
                 return;
-            }
-
 #if UNITY_EDITOR || DEBUG
-            Debug.LogWarning(
-                "[MotorCity][Icons] Missing icon: " +
-                Root +
-                iconName);
+            Debug.LogWarning("[MotorCity][Icons] Missing Tabler sprite: " +
+                TablerRoot + iconName);
 #endif
         }
     }
