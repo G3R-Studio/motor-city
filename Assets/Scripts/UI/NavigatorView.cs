@@ -1738,8 +1738,8 @@ namespace MotorCity.UI
                             : string.Empty),
                     Vector2.zero,
                     new Vector2(
-                        26f,
-                        26f),
+                        30f,
+                        30f),
                     new Vector2(
                         0.5f,
                         0.5f),
