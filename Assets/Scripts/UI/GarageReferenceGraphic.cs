@@ -64,10 +64,20 @@ namespace MotorCity.UI
         private void PopulateTablerMesh(VertexHelper vh, Sprite sprite)
         {
             Rect rect = rectTransform.rect;
-            // Keep an optical inset so strokes do not touch button edges.
-            // Keep optical padding consistent for small and large icons.
-            float width = Mathf.Min(rect.width, rect.height) * 0.86f;
-            float height = width;
+            // Fit the sprite's ORIGINAL width/height in physical screen
+            // space. RectTransform parents may stretch X and Y separately;
+            // a local square is not necessarily a square on screen.
+            const float inset = 0.86f;
+            float maxWidth = Mathf.Abs(rect.width) * inset;
+            float maxHeight = Mathf.Abs(rect.height) * inset;
+            float worldX = rectTransform.TransformVector(Vector3.right).magnitude;
+            float worldY = rectTransform.TransformVector(Vector3.up).magnitude;
+            float nativeAspect = sprite.rect.width /
+                Mathf.Max(1f, sprite.rect.height);
+            float localAspect = nativeAspect *
+                (worldY / Mathf.Max(0.0001f, worldX));
+            float width = Mathf.Min(maxWidth, maxHeight * localAspect);
+            float height = width / Mathf.Max(0.0001f, localAspect);
             Rect draw = new Rect(rect.center.x - width * 0.5f,
                 rect.center.y - height * 0.5f, width, height);
 
