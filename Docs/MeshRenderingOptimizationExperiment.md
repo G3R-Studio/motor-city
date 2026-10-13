@@ -109,3 +109,72 @@ Directional browser stalls can be caused by 3D scene complexity, CPU draw submis
 **Editor Play Mode:** enable browser visibility preview (menu 4), then use menus 7 / 8 to toggle distant detail and 9 to report hidden renderers and referenced triangles. Let scanning complete before comparing identical viewpoints. The editor's default is OFF.
 
 **WebGL browser after a new release:** compare https://g3r-studio.github.io/motor-city/desktop/ (ON by default) against https://g3r-studio.github.io/motor-city/desktop/?motorcity_detail_cull=off (OFF). Test at the same save position and quality preset, after a few seconds of settling. A/B URLs work only on a *newly built* release, not the old published binaries. If this experiment is inadequate, prioritize validated offline building HLOD and captured browser profile data rather than hiding major city silhouettes.
+
+
+## Offline city HLOD prototype (Editor A/B, no WebGL build required)
+
+An opt-in HLOD baker and a renderer-only runtime swap have been added:
+
+- `Assets/Editor/MotorCityHlodBaker.cs`: inspect and bake the imported
+  `Assets/Resources/MotorCity/Environment/CityVisual.prefab` **in Edit Mode**.
+- `Assets/Scripts/World/CityHlodData.cs`: stores proxy meshes/materials,
+  source renderer indices/names/centers and triangle totals.
+- `Assets/Scripts/World/CityHlodRuntime.cs`: initializes baked proxy meshes
+  at world origin; swaps renderers only beyond 360m/450m/560m
+  (Low/Medium/High), with +/-45m hysteresis and <=12 cell checks/frame.
+- `MotorCityVisibilityRuntime.cs`: WebGL automatically uses HLOD only when
+  a successfully baked data asset is included; no asset means no HLOD.
+  To opt out in a future release, append `?motorcity_hlod=off` to the
+  `/desktop/` browser URL. The tiny-detail culler remains separate.
+
+### Editor test sequence
+
+1. In Unity Editor, exit Play Mode. Pull the latest source commit and let
+   Unity compile without red Console errors.
+2. Run `Motor City > Optimization > HLOD > 1 - Audit Candidates (Edit Mode)`.
+   Check counts in Console. Candidate selection is conservative and may
+   return few objects depending on the authored FCG prefab hierarchy.
+3. Run `Motor City > Optimization > HLOD > 2 - Bake Proxies (Edit Mode)`.
+   The operation may take a few minutes and creates
+   `Assets/Resources/MotorCity/Environment/HLOD/CityHlodData.asset`
+   containing subasset meshes. **This step must run inside your Unity Editor**.
+   Only the new HLOD asset is written; the city source prefab and colliders
+   are not edited. Generated data remains *local* until committed separately.
+4. Enter Play Mode, start city gameplay, enable browser visibility preview
+   (main Optimization menu **4**) and use HLOD menu **3 - Enable A-B**.
+   Keep tiny-detail culling A/B the same for both HLOD measurements.
+5. In the same camera location/direction, compare Game View Stats, CPU/GPU
+   frame time, Tris, Batches/Draw Calls. Use HLOD menu **5 - Report**,
+   **4 - Disable A-B**, and **3 - Enable A-B** to compare.
+   Wait for all cell switches to settle, and drive across a cell boundary
+   to check popping, nighttime window illumination, road silhouettes.
+6. If a proxy group looks wrong, turn HLOD menu **4** OFF. Original meshes
+   are restored; no prefab or physics state is changed.
+7. Do not schedule a WebGL build until Editor quality/performance improves,
+   the game reopens cleanly, the baker-created `.asset` and all required
+   Unity `.meta` files have been committed, and source gates pass.
+
+### Safety limits and honest scope
+
+The baker uses 120m spatial material clusters of **opaque** MeshRenderers,
+skipping roads, terrain, vehicles, foliage, night glass, attached scripts,
+property blocks, LODGroups, lightmapped sources, and unusually large meshes.
+Candidate MeshRenderers are combined by their **original shared material**
+and **original world matrices**. A very conservative vertex-cluster pass
+may collapse small triangles when positional, normal AND UV neighborhoods
+match; otherwise the exact combined geometry is retained. This is a
+draw-call-oriented first HLOD, not guaranteed aggressive triangle decimation.
+No third-party mesh decimator, compute/mesh shader or Unity runtime mesh
+combination is used.
+
+Each bake is capped at 320 proxy cells and ~1 million proxy triangle
+references to prevent uncontrolled WebGL memory growth. The runtime validates
+renderer count, indices, names and bounds centers before touching visibility;
+a mismatched city revision fails closed. Original collider and gameplay
+components continue to run even when render meshes use far proxies.
+Distances are conservative to keep close-up appearance unchanged.
+
+**Do not claim browser FPS improvement from Editor numbers.** If the proxy
+replacement is barely faster, do not ship unnecessary mesh duplication.
+A high-quality authored silhouette decimator or per-building reduced meshes
+may be needed for meaningful GPU triangle reduction.
