@@ -20,8 +20,9 @@ namespace MotorCity.UI
         // preserving the existing procedural mesh for backgrounds and fallbacks.
         // Rendering in this same MaskableGraphic preserves button hit targets,
         // canvas masks, sorting and layout without child-image overlays.
-        private Sprite TablerSprite => MotorCityIconLibrary.TryGetTabler(
-            symbol switch
+        // Expose the real icon source to the Editor audit. A fallback mesh
+        // is not proof that a Tabler sprite loaded successfully.
+        public string TablerIconName => symbol switch
             {
                 Symbol.Credits => "coins",
                 Symbol.Crown => "crown",
@@ -56,7 +57,10 @@ namespace MotorCity.UI
                 // Surfaces, arrows-with-surfaces and unrepresented symbols
                 // keep their existing mesh rendering.
                 _ => null
-            });
+            };
+
+        private Sprite TablerSprite =>
+            MotorCityIconLibrary.TryGetTabler(TablerIconName);
 
         public override Texture mainTexture =>
             TablerSprite != null ? TablerSprite.texture : base.mainTexture;
