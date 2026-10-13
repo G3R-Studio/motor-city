@@ -1,3 +1,5 @@
+using System;
+using MotorCity.UI;
 using UnityEngine;
 
 namespace MotorCity.World
@@ -33,10 +35,60 @@ namespace MotorCity.World
                         "Mission Icon");
             }
 
+            // Existing marker prefabs still serialize Kenney sprites until
+            // the artist rebuilds them in the Unity Editor. Switch both
+            // in-world icon planes to Tabler immediately at runtime.
+            ApplyTablerIcon(ResolveMarkerId(gameObject.name));
+
             ResolveCamera(
                 true);
 
             CaptureBasePose();
+        }
+
+        // Used by the garage, whose marker is based on the generic
+        // Profession VFX prefab but needs a dedicated garage pictogram.
+        public void ApplyTablerIcon(string markerId)
+        {
+            if (iconRoot == null || string.IsNullOrEmpty(markerId))
+                return;
+
+            Sprite sprite = MotorCityIconLibrary.ForWorldMarker(markerId);
+            if (sprite == null)
+                return;
+
+            foreach (SpriteRenderer renderer in
+                     iconRoot.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                if (renderer == null)
+                    continue;
+
+                if (renderer.name.IndexOf("Icon Core",
+                        StringComparison.OrdinalIgnoreCase) < 0 &&
+                    renderer.name.IndexOf("Icon Glow",
+                        StringComparison.OrdinalIgnoreCase) < 0)
+                    continue;
+
+                renderer.sprite = sprite;
+            }
+        }
+
+        private static string ResolveMarkerId(string markerName)
+        {
+            if (string.IsNullOrEmpty(markerName))
+                return null;
+
+            string name = markerName.ToLowerInvariant();
+            if (name.Contains("carwash")) return "carwash";
+            if (name.Contains("delivery")) return "delivery";
+            if (name.Contains("drift")) return "drift";
+            if (name.Contains("sprint")) return "sprint";
+            if (name.Contains("circuit")) return "circuit";
+            if (name.Contains("discovery")) return "discovery";
+            if (name.Contains("underground")) return "underground";
+            if (name.Contains("profession")) return "profession";
+            if (name.Contains("tow")) return "tow";
+            return null;
         }
 
         private void Update()
