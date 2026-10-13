@@ -161,7 +161,7 @@ namespace MotorCity.UI
             bool success = true)
         {
             if (!success)
-                return Get("target");
+                return TablerOrKenney("target", "target");
 
             if (string.IsNullOrWhiteSpace(
                     activityId))
@@ -337,6 +337,38 @@ namespace MotorCity.UI
 
             string normalized =
                 markerId.Trim().ToLowerInvariant();
+
+            // All in-game markers, the navigator and the minimap now share
+            // the Tabler collection. For the sprint checkpoint, use a
+            // directional Tabler arrow: the rotation is gameplay-relevant.
+            // Keep the old prefab sprite lookup below as a migration fallback.
+            string tablerName = normalized switch
+            {
+                "garage" => "car-garage",
+                "delivery" => "truck-delivery",
+                "drift" => "car-turbine",
+                "sprint" => "arrow-right",
+                "circuit" => "trophy",
+                "discovery" => "map-pin",
+                "speedtrap" or "speed_trap" => "gauge",
+                "driftspot" or "drift_spot" => "target",
+                "photo_hunt" or "photohunt" => "camera",
+                "underground" => "moon-stars",
+                "profession" or "city_profession" => "briefcase",
+                "taxi" or "profession_taxi" => "car",
+                "pizza" or "pizza_delivery" or "profession_pizza" => "pizza",
+                "mail" or "profession_mail" => "mail",
+                "carwash" or "car_wash" or "profession_carwash" => "spray",
+                "tow" or "towtruck" or "tow_truck" or "profession_tow" => "car-crane",
+                _ => null
+            };
+
+            if (tablerName != null)
+            {
+                Sprite tablerSprite = TryGetTabler(tablerName);
+                if (tablerSprite != null)
+                    return tablerSprite;
+            }
 
             if (normalized == "garage")
             {
