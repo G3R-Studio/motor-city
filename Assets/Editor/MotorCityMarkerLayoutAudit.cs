@@ -210,9 +210,16 @@ public static class MotorCityMarkerLayoutAudit
 
                 if (distance > 20f && roadDistance > distance * 3.2f + 60f)
                 {
+                    bool straightRoad =
+                        CityAssetRuntimeInstaller.IsContinuousStraightRoad(from, to);
                     findings.AppendLine(name + " leg " + i +
                         " detours " + roadDistance.ToString("F1") + " m for " +
-                        distance.ToString("F1") + " m direct");
+                        distance.ToString("F1") + " m direct; " +
+                        "from " + from.ToString("F1") +
+                        " to " + to.ToString("F1") +
+                        (straightRoad
+                            ? "; continuous asphalt exists, check FCG projections"
+                            : "; no continuous straight drivable asphalt"));
                     warnings++;
                 }
             }
