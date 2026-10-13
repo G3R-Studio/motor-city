@@ -215,9 +215,9 @@ namespace MotorCity.World
 
             DriftChallengePoint =
                 new Vector3(
-                    160f,
+                    150f,
                     0.2f,
-                    360f);
+                    150f);
         }
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
@@ -268,7 +268,7 @@ namespace MotorCity.World
 
         // North-central drift arena, clear of the garage and activity starts.
         public static Vector3 DriftChallengePoint { get; private set; } =
-            new(160f, 0.2f, 360f);
+            new(150f, 0.2f, 150f);
 
         public static Vector3[] DeliveryRoute =>
             (Vector3[])deliveryRoute.Clone();
@@ -605,9 +605,9 @@ namespace MotorCity.World
             DriftChallengePoint =
                 FindRoadPointNear(
                     new Vector3(
-                        160f,
+                        150f,
                         0f,
-                        360f),
+                        150f),
                     75f,
                     true);
 
