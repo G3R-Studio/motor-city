@@ -1461,6 +1461,7 @@ namespace MotorCity.UI
 
             RawImage image = marker.GetComponent<RawImage>();
             image.texture = pointer;
+            marker.AddComponent<MotorCityIconAspectGuard>();
             image.color = new Color(0.12f, 0.78f, 1f, 1f);
             image.raycastTarget = false;
             if (pointer == null)
