@@ -35,6 +35,14 @@ namespace MotorCity.World
                 markerVfx.name =
                     "Activity Marker VFX Runtime";
 
+                // Multiple city jobs share the same generic profession VFX.
+                // Use their actual activity ID so taxi, pizza and mail get
+                // distinct Tabler symbols without duplicating prefabs.
+                ActivityMarkerVfxAnimator animator =
+                    markerVfx.GetComponent<ActivityMarkerVfxAnimator>();
+                if (animator != null)
+                    animator.ApplyTablerIcon(markerActivityId);
+
                 markerVfx.transform.localPosition =
                     Vector3.zero;
 
