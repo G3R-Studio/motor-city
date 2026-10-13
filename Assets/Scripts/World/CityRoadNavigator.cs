@@ -111,6 +111,31 @@ private static Type fcgWayContainerType;
                 result,
                 endProjection.Position);
 
+            // FCG waypoint containers sometimes have an unlinked junction
+            // even though the asphalt is continuous. Avoid telling the
+            // player to drive around a whole block for a 100m straight.
+            // This correction is strictly conditional on validated road mesh
+            // underneath the *entire* direct segment.
+            float direct = FlatDistance(
+                startProjection.Position, endProjection.Position);
+            if (direct >= 24f && direct <= 260f)
+            {
+                float viaGraph = 0f;
+                for (int i = 1; i < result.Count; i++)
+                    viaGraph += FlatDistance(result[i - 1], result[i]);
+
+                if (viaGraph > direct * 3.2f + 60f &&
+                    CityAssetRuntimeInstaller.IsContinuousStraightRoad(
+                        startProjection.Position, endProjection.Position))
+                {
+                    return new List<Vector3>
+                    {
+                        startProjection.Position,
+                        endProjection.Position
+                    };
+                }
+            }
+
             return result;
         }
 
