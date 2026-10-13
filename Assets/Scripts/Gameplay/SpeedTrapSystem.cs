@@ -64,9 +64,9 @@ namespace MotorCity.Gameplay
                         "main_avenue",
                         MotorCityLocalization.Text("world.central_avenue"),
                         new Vector3(
-                            220f,
+                            150f,
                             0f,
-                            -100f),
+                            15f),
                         115f,
                         150f,
                         185f),
@@ -77,7 +77,7 @@ namespace MotorCity.Gameplay
                         new Vector3(
                             450f,
                             0f,
-                            300f),
+                            350f),
                         150f,
                         190f,
                         225f),
@@ -86,9 +86,9 @@ namespace MotorCity.Gameplay
                         "remote_district",
                         MotorCityLocalization.Text("world.main_west"),
                         new Vector3(
-                            -435f,
+                            -450f,
                             0f,
-                            -65f),
+                            -15f),
                         125f,
                         165f,
                         200f)
