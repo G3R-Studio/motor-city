@@ -196,11 +196,17 @@ public static class MotorCityMarkerLayoutAudit
             // Check actual authored FCG way graph connectivity as well as
             // Euclidean distance. A plausible straight line can cross a block.
             List<Vector3> roadPath = CityRoadNavigator.BuildRoute(from, to);
+            bool hasPhysicalRoad =
+                CityAssetRuntimeInstaller.HasDrivableAsphaltBetween(from, to);
             if (roadPath.Count == 0)
             {
-                findings.AppendLine(name + " leg " + i +
-                    " has no path in the authored road network");
-                warnings++;
+                if (!hasPhysicalRoad)
+                {
+                    findings.AppendLine(name + " leg " + i +
+                        " has no path through the authored road network " +
+                        "or continuous drivable asphalt");
+                    warnings++;
+                }
             }
             else
             {
@@ -208,7 +214,9 @@ public static class MotorCityMarkerLayoutAudit
                 for (int p = 1; p < roadPath.Count; p++)
                     roadDistance += FlatDistance(roadPath[p - 1], roadPath[p]);
 
-                if (distance > 20f && roadDistance > distance * 3.2f + 60f)
+                if (distance > 20f &&
+                    roadDistance > distance * 3.2f + 60f &&
+                    !hasPhysicalRoad)
                 {
                     bool straightRoad =
                         CityAssetRuntimeInstaller.IsContinuousStraightRoad(from, to);
