@@ -616,6 +616,7 @@ MonoBehaviour:
     - line: '|   webProgressiveAssetLoading: 0'
     - line: '|   scriptingDefineSymbols:'
     - line: '|     Standalone: UNITY_PIPELINE_URP'
+    - line: '|     WebGL: UNITY_PIPELINE_URP'
     - line: '|   additionalCompilerArguments: {}'
     - line: '|   platformArchitecture: {}'
     - line: '|   scriptingBackend: {}'
