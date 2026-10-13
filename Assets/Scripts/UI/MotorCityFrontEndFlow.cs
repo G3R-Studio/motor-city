@@ -87,6 +87,7 @@ namespace MotorCity.UI
         private bool loadRequestSent;
         private bool gameplayReady;
         private float gameplayReadyAt;
+        private int gameplayReadyFrame;
         private float loadingProgressWhenReady;
 
         private Font font;
@@ -2512,6 +2513,16 @@ namespace MotorCity.UI
                         0f);
             }
 
+            // The bootstrap callback fires only after core world, vehicle,
+            // gameplay systems and HUD initialization have returned. Allow
+            // several fully rendered frames afterwards, in addition to the
+            // existing two-second settle period, before removing the overlay.
+            bool worldSettled = gameplayReady &&
+                CityAssetRuntimeInstaller.IsPrefabPreloadReady &&
+                Time.frameCount - gameplayReadyFrame >= 3 &&
+                loadingTimer - gameplayReadyAt >= GameplayReadySettleSeconds;
+            if (!worldSettled)
+                progress = Mathf.Min(progress, 0.98f);
             SetLoadingVisualProgress(progress);
 
             if (loadingStatusText != null)
@@ -2556,7 +2567,7 @@ namespace MotorCity.UI
                 }
             }
 
-            if (!gameplayReady ||
+            if (!worldSettled ||
                 progress < 0.999f ||
                 loadingTimer <
                     LoadingDurationSeconds ||
@@ -2647,6 +2658,7 @@ namespace MotorCity.UI
 
             gameplayReady = true;
             gameplayReadyAt = loadingTimer;
+            gameplayReadyFrame = Time.frameCount;
             loadingProgressWhenReady = Mathf.Min(0.90f,
                 loadingTimer / LoadingDurationSeconds * 0.90f);
         }
