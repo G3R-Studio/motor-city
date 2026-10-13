@@ -78,6 +78,58 @@ def gate_mobile_portrait(html: str) -> str:
     return html.replace("</head>", guard + "\n</head>", 1)
 
 
+
+def fit_mobile_landscape(html: str) -> str:
+    """Letterbox the mobile Unity canvas to 16:9 so fixed UI isn't cut on ultrawide phones."""
+    # Remove the Unity build postprocessor's fullscreen resize loop; otherwise it
+    # continually forces the canvas to the whole phone viewport.
+    postprocess = re.compile(r"<script>\s*\(function \(\) \{\s*function fitUnityCanvas\(\).*?</script>", re.S)
+    html, count = postprocess.subn("", html, count=1)
+    if count != 1:
+        raise ValueError("mobile: could not find the existing fullscreen resize script")
+    css = r"""
+<style id="motor-city-pages-landscape-fit">
+html,body{width:100%!important;height:100%!important;margin:0!important;overflow:hidden!important;background:#000!important}
+#unity-container,#unity-container.unity-mobile,#unity-container.unity-desktop{
+position:fixed!important;inset:0!important;width:100%!important;height:100%!important;
+display:flex!important;align-items:center!important;justify-content:center!important;background:#000!important}
+#unity-canvas,#unity-canvas.unity-mobile,#unity-canvas.unity-desktop{
+position:relative!important;display:block!important;flex:none!important;max-width:none!important;max-height:none!important}
+</style>
+<script>
+(function(){
+  function fit(){
+    var canvas=document.getElementById('unity-canvas');
+    if(!canvas)return;
+    var w=window.innerWidth,h=window.innerHeight;
+    if(window.visualViewport){w=window.visualViewport.width;h=window.visualViewport.height;}
+    if(!w||!h)return;
+    var targetRatio=16/9;
+    var width=Math.min(w,h*targetRatio),height=width/targetRatio;
+    var cw=Math.max(1,Math.floor(width)),ch=Math.max(1,Math.floor(height));
+    canvas.style.setProperty('width',cw+'px','important');
+    canvas.style.setProperty('height',ch+'px','important');
+    if(canvas.width!==cw)canvas.width=cw;
+    if(canvas.height!==ch)canvas.height=ch;
+  }
+  document.addEventListener('DOMContentLoaded',fit);
+  window.addEventListener('resize',fit);
+  window.addEventListener('orientationchange',function(){setTimeout(fit,120);});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',fit);
+  window.addEventListener('load',fit);
+  // Unity's loader can resize the canvas after initialization.
+  document.addEventListener('DOMContentLoaded',function(){
+    var canvas=document.getElementById('unity-canvas');
+    if(canvas&&window.MutationObserver){
+      new MutationObserver(fit).observe(canvas,{attributes:true,attributeFilter:['style','width','height']});
+    }
+  });
+})();
+</script>
+"""
+    return html.replace("</head>", css+"\n</head>", 1)
+
+
 def copy_and_uncompress(src: Path, dst: Path, kind: str) -> tuple[int, int]:
     if not (src / "index.html").is_file():
         raise ValueError(f"{kind}: artifact has no index.html: {src}")
@@ -125,6 +177,7 @@ def copy_and_uncompress(src: Path, dst: Path, kind: str) -> tuple[int, int]:
         if extension not in updated:
             raise ValueError(f"{kind}: index.html missing expected {extension} URL after rewrite")
     if kind == "mobile":
+        updated = fit_mobile_landscape(updated)
         updated = gate_mobile_portrait(updated)
     # Preserve createUnityInstance(canvas, config, onProgress) exactly.
     # Changing the startup argument list breaks Unity initialization.
