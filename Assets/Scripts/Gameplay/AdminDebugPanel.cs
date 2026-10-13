@@ -22,7 +22,8 @@ namespace MotorCity.Gameplay
             "МИР",
             "RESULT / ADS",
             "СИСТЕМЫ",
-            "UI QA"
+            "UI QA",
+            "ВСЕ МЕТКИ"
         };
 
         private PlayerWallet wallet;
@@ -68,6 +69,8 @@ namespace MotorCity.Gameplay
         private bool visible;
         private int selectedTab;
         private Vector2 scroll;
+        private string markerFilter = string.Empty;
+        private int markerShownCount;
         private string lastAction = "Готово";
         private static readonly string[] QaModalRoots =
         {
@@ -308,6 +311,11 @@ namespace MotorCity.Gameplay
             else if (secondChoice != secondRow)
                 selectedTab = secondChoice + 4;
 
+            // Keep existing eight tabs stable: the dedicated marker inspector
+            // is an additional opt-in page, not a replacement of WORLD / UI QA.
+            if (GUILayout.Button(Tabs[8], GUILayout.Height(30f)))
+                selectedTab = 8;
+
             GUILayout.Space(
                 4f);
 
@@ -342,8 +350,11 @@ namespace MotorCity.Gameplay
                 case 6:
                     DrawSystems();
                     break;
-                default:
+                case 7:
                     DrawUiQa();
+                    break;
+                case 8:
+                    DrawAllMarkerPositions();
                     break;
             }
 
@@ -567,6 +578,138 @@ namespace MotorCity.Gameplay
             GUILayout.EndHorizontal();
 
             DrawCoreProgressSummary();
+        }
+
+        private void DrawAllMarkerPositions()
+        {
+            Section("ВСЕ МЕТКИ ГОРОДА — ТЕЛЕПОРТ / КООРДИНАТЫ");
+            GUILayout.Label(
+                "Доступ ко всем точкам без запуска гонок или выполнения заданий. " +
+                "Телепорт отменяет текущую активность, но не засчитывает её.");
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Поиск:", GUILayout.Width(65f));
+            markerFilter = GUILayout.TextField(markerFilter ?? string.Empty);
+            if (GUILayout.Button("СБРОС", GUILayout.Width(90f)))
+                markerFilter = string.Empty;
+            GUILayout.EndHorizontal();
+
+            markerShownCount = 0;
+
+            MarkerSection("ГАРАЖ И ОСНОВНЫЕ АКТИВНОСТИ");
+            MarkerRow("Гараж (НЕ ПЕРЕМЕЩЁН)",
+                CityAssetRuntimeInstaller.GaragePoint);
+            MarkerRow("Дрифт-испытание",
+                CityAssetRuntimeInstaller.DriftChallengePoint);
+            DrawMarkerRoute("Доставка", CityAssetRuntimeInstaller.DeliveryRoute);
+            DrawMarkerRoute("Спринт", CityAssetRuntimeInstaller.SprintRoute);
+            DrawMarkerRoute("Кольцевая гонка", CityAssetRuntimeInstaller.CircuitRoute);
+            DrawMarkerRoute("Подпольные события", CityAssetRuntimeInstaller.UndergroundRoute);
+
+            MarkerSection("ПРОФЕССИИ — СТАРТЫ И ВСЕ ЧЕКПОИНТЫ");
+            if (professions != null)
+            {
+                for (int i = 0; i < professions.StartCount; i++)
+                {
+                    string name = professions.GetStartName(i);
+                    MarkerRow(name + " — СТАРТ", professions.GetStartPoint(i));
+                    Vector3[] plan = professions.GetPlannedRoute(i);
+                    for (int j = 0; j < plan.Length; j++)
+                        MarkerRow(name + " — ТОЧКА " + (j + 1), plan[j]);
+                }
+            }
+
+            MarkerSection("ГОРОДСКИЕ СЛУЖБЫ");
+            if (carWash != null)
+                MarkerRow("Автомойка — СТАРТ", carWash.StartPoint);
+            if (towTruck != null)
+            {
+                MarkerRow("Эвакуатор — СТАРТ", towTruck.StartPoint);
+                MarkerRow("Эвакуатор — СЛОМАННАЯ МАШИНА",
+                    towTruck.BreakdownPoint);
+                MarkerRow("Эвакуатор — СЕРВИС", towTruck.ServicePoint);
+            }
+
+            MarkerSection("ПОСТОЯННЫЕ МЕТКИ / ЗАДАНИЯ ФОТООХОТЫ");
+            if (discoveries != null)
+            {
+                for (int i = 0; i < discoveries.DiscoveryCount; i++)
+                    MarkerRow("Исследование / Фотоохота " + (i + 1),
+                        discoveries.GetDiscoveryPosition(i));
+            }
+            if (speedTraps != null)
+            {
+                for (int i = 0; i < speedTraps.TrapCount; i++)
+                    MarkerRow("Скоростная ловушка " + (i + 1),
+                        speedTraps.GetTrapPosition(i));
+            }
+            if (driftSpots != null)
+            {
+                for (int i = 0; i < driftSpots.SpotCount; i++)
+                    MarkerRow("Дрифт-зона " + (i + 1),
+                        driftSpots.GetSpotPosition(i));
+            }
+
+            GUILayout.Label(
+                "Доступно по фильтру: " + markerShownCount +
+                ". Координаты показываются после привязки к дорогам.");
+        }
+
+        private void MarkerSection(string title)
+        {
+            if (string.IsNullOrWhiteSpace(markerFilter))
+                Section(title);
+        }
+
+        private void DrawMarkerRoute(string title, Vector3[] checkpoints)
+        {
+            if (checkpoints == null)
+                return;
+
+            for (int i = 0; i < checkpoints.Length; i++)
+            {
+                string label = title + (i == 0
+                    ? " — СТАРТ"
+                    : " — ЧЕКПОИНТ " + (i + 1) + "/" + checkpoints.Length);
+                Vector3 forward = i + 1 < checkpoints.Length
+                    ? checkpoints[i + 1] - checkpoints[i]
+                    : i > 0 ? checkpoints[i] - checkpoints[i - 1]
+                            : Vector3.forward;
+                MarkerRow(label, checkpoints[i], forward);
+            }
+        }
+
+        private void MarkerRow(string name, Vector3 position)
+        {
+            MarkerRow(name, position, Vector3.forward);
+        }
+
+        private void MarkerRow(string name, Vector3 position, Vector3 direction)
+        {
+            if (!string.IsNullOrWhiteSpace(markerFilter) &&
+                name.IndexOf(markerFilter,
+                    System.StringComparison.OrdinalIgnoreCase) < 0)
+                return;
+
+            markerShownCount++;
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(name, GUILayout.MinWidth(230f));
+            GUILayout.Label("X " + position.x.ToString("0.0") +
+                "  Z " + position.z.ToString("0.0"),
+                GUILayout.Width(185f));
+            if (GUILayout.Button("К МЕТКЕ", GUILayout.Width(110f),
+                GUILayout.Height(27f)))
+            {
+                direction.y = 0f;
+                Quaternion heading = direction.sqrMagnitude > 0.01f
+                    ? Quaternion.LookRotation(direction.normalized, Vector3.up)
+                    : Quaternion.identity;
+                Teleport(position, heading);
+                lastAction = "Метка: " + name + " (" +
+                    position.x.ToString("0.0") + ", " +
+                    position.z.ToString("0.0") + ")";
+            }
+            GUILayout.EndHorizontal();
         }
 
         private void DrawActivities()
