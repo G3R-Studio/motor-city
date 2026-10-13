@@ -643,6 +643,45 @@ namespace MotorCity.World
                 TryGetRoadHit(position.x, position.z, out _);
         }
 
+        // An FCG way graph can omit a link between adjacent pieces of road.
+        // Only permit the navigator to bridge that missing link when the whole
+        // straight segment is verified as drivable asphalt in the city mesh.
+        // Do not infer this from proximity or from the authored grid alone.
+        public static bool IsContinuousStraightRoad(Vector3 from, Vector3 to)
+        {
+            if (activeCity == null)
+                return false;
+
+            Vector2 delta = new Vector2(to.x - from.x, to.z - from.z);
+            float distance = delta.magnitude;
+            if (distance < 24f || distance > 260f)
+                return false;
+
+            // Check narrow road corridors, not diagonal shortcuts through
+            // the middle of blocks.
+            if (Mathf.Min(Mathf.Abs(delta.x), Mathf.Abs(delta.y)) >
+                Mathf.Max(8f, distance * 0.08f))
+                return false;
+
+            int segments = Mathf.CeilToInt(distance / 4f);
+            for (int i = 0; i <= segments; i++)
+            {
+                float t = i / (float)segments;
+                float x = Mathf.Lerp(from.x, to.x, t);
+                float z = Mathf.Lerp(from.z, to.z, t);
+                if (!TryGetRoadHit(x, z, out Vector3 asphalt))
+                    return false;
+
+                // Reject stacked streets, bridges at different elevations,
+                // or segments that dip below the intended driving surface.
+                float expectedY = Mathf.Lerp(from.y, to.y, t);
+                if (Mathf.Abs(asphalt.y - expectedY) > 3f)
+                    return false;
+            }
+
+            return true;
+        }
+
         private static Vector3[] ResolveRoadRoute(
             Vector3[] preferred)
         {
