@@ -60,7 +60,7 @@ namespace MotorCity.Gameplay
                 CreateDiscovery(
                     "main_north",
                     MotorCityLocalization.Text("world.main_north"),
-                    new Vector3(450f, 0f, 450f)),
+                    new Vector3(150f, 0f, 450f)),
 
                 CreateDiscovery(
                     "main_west",
