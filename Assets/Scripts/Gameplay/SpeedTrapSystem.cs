@@ -75,9 +75,9 @@ namespace MotorCity.Gameplay
                         "highway",
                         MotorCityLocalization.Text("world.main_north"),
                         new Vector3(
-                            450f,
+                            175f,
                             0f,
-                            350f),
+                            450f),
                         150f,
                         190f,
                         225f),
