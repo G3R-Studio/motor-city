@@ -293,7 +293,7 @@ namespace MotorCity.EditorTools
 
                 int x = Mathf.FloorToInt(bounds.center.x / CellSize);
                 int z = Mathf.FloorToInt(bounds.center.z / CellSize);
-                string key = x + ":" + z + ":" + materials[0].GetInstanceID();
+                string key = x + ":" + z + ":" + materials[0].GetEntityId();
                 if (!batches.TryGetValue(key, out Batch batch))
                 {
                     batch = new Batch { Material = materials[0] };
