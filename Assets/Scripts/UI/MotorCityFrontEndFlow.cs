@@ -78,6 +78,9 @@ namespace MotorCity.UI
         private readonly RectTransform[] loadingRoadDashes =
             new RectTransform[8];
         private Text loadingStatusText;
+        private Text loadingPercentText;
+        private Text loadingTipText;
+        private int loadingTipIndex;
 
         private System.Action gameplayLoadRequested;
         private bool loadRequestSent;
@@ -300,7 +303,7 @@ namespace MotorCity.UI
             controlChoiceRoot = CreateScreen(
                 "Control Choice Screen",
                 new Color(0.008f, 0.014f, 0.024f, 0.98f));
-            loadingRoot = CreateScreen("Loading Screen", new Color(0.008f, 0.014f, 0.024f, 1f));
+            loadingRoot = CreateScreen("Loading Screen", Color.black);
 
             BuildMainMenu();
             AddSharedBackground(aboutRoot, 0.78f);
@@ -1521,184 +1524,123 @@ namespace MotorCity.UI
 
         private void BuildLoadingScreen()
         {
-            Text title = CreateText(
-                loadingRoot.transform,
-                "MOTOR CITY",
-                54,
-                FontStyle.Bold,
-                TextAnchor.MiddleCenter,
-                new Vector2(0f, 118f),
-                new Vector2(760f, 90f),
-                new Vector2(0.5f, 0.5f));
+            // A single, noninteractive, black-backed visual for both the city
+            // preload and short runtime transitions. Do not touch their timing.
+            Transform root = loadingRoot.transform;
+            Vector2 center = new Vector2(0.5f, 0.5f);
+            Color cyan = new Color(0.06f, 0.85f, 1f, 1f);
+            Color violet = new Color(0.62f, 0.40f, 1f, 1f);
+            Color muted = new Color(0.72f, 0.76f, 0.86f, 1f);
 
-            title.color =
-                new Color(0.90f, 0.95f, 1f, 1f);
+            Text logo = CreateText(root, "MOTOR CITY", 78, FontStyle.Bold,
+                TextAnchor.MiddleCenter, new Vector2(0f, 185f),
+                new Vector2(1040f, 110f), center);
+            logo.color = Color.white;
 
-            loadingStatusText = CreateText(
-                loadingRoot.transform,
+            CreateDecorativeRect(root, "Neon Horizon Left", center, center,
+                new Vector2(-350f, 116f), new Vector2(270f, 3f), cyan);
+            CreateDecorativeRect(root, "Neon Horizon Right", center, center,
+                new Vector2(350f, 116f), new Vector2(270f, 3f), violet);
+
+            Text kicker = CreateText(root, IsRussian() ? "З А Г Р У З К А" : "L O A D I N G",
+                27, FontStyle.Bold, TextAnchor.MiddleCenter,
+                new Vector2(0f, 116f), new Vector2(390f, 54f), center);
+            kicker.color = new Color(0.84f, 0.78f, 1f, 1f);
+
+            loadingStatusText = CreateText(root,
                 IsRussian() ? "ГОТОВИМ ГОРОД..." : "PREPARING THE CITY...",
-                22,
-                FontStyle.Bold,
-                TextAnchor.MiddleCenter,
-                new Vector2(0f, 48f),
-                new Vector2(900f, 64f),
-                new Vector2(0.5f, 0.5f));
+                26, FontStyle.Bold, TextAnchor.MiddleCenter,
+                new Vector2(0f, 28f), new Vector2(950f, 58f), center);
+            loadingStatusText.color = cyan;
+            ConfigureFrontEndTextFit(loadingStatusText, 16);
 
-            loadingStatusText.color =
-                MotorCityUiSkin.AccentCyan;
+            CreateDecorativeRect(root, "Progress Track", center, center,
+                new Vector2(-34f, -57f), new Vector2(800f, 22f),
+                new Color(0.09f, 0.12f, 0.20f, 1f));
+            RectTransform fill = CreateDecorativeRect(root, "Progress Neon Fill",
+                center, new Vector2(0f, 0.5f),
+                new Vector2(-434f, -57f), new Vector2(800f, 18f), cyan);
+            // Filled image must use a fixed RectTransform so fillAmount does
+            // not move pointer hit regions or stretch the parent canvas.
+            loadingProgressFill = fill.GetComponent<Image>();
+            loadingProgressFill.type = Image.Type.Filled;
+            loadingProgressFill.fillMethod = Image.FillMethod.Horizontal;
+            loadingProgressFill.fillOrigin = 0;
+            loadingProgressFill.fillAmount = 0f;
+            loadingProgressFill.raycastTarget = false;
 
-            ConfigureFrontEndTextFit(
-                loadingStatusText,
-                16);
-
-            GameObject wheelObject =
-                new(
-                    "Loading Wheel",
-                    typeof(RectTransform),
-                    typeof(RawImage));
-
-            wheelObject.transform.SetParent(
-                loadingRoot.transform,
-                false);
-
-            loadingWheel =
-                wheelObject.GetComponent<RectTransform>();
-
-            loadingWheel.anchorMin =
-                new Vector2(0.5f, 0.5f);
-            loadingWheel.anchorMax =
-                new Vector2(0.5f, 0.5f);
-            loadingWheel.pivot =
-                new Vector2(0.5f, 0.5f);
-            loadingWheel.anchoredPosition =
-                new Vector2(0f, -42f);
-            loadingWheel.sizeDelta =
-                new Vector2(112f, 112f);
-
-            RawImage wheelImage =
-                wheelObject.GetComponent<RawImage>();
-
-            wheelImage.texture =
-                Resources.Load<Texture2D>(
-                    "MotorCity/UI/Loading/circle2");
-
-            wheelImage.color =
-                wheelImage.texture != null
-                    ? Color.white
-                    : new Color(0.33f, 0.78f, 1f, 0.65f);
-
-            wheelImage.raycastTarget =
-                false;
-
-            GameObject roadObject =
-                new("Loading Road", typeof(RectTransform));
-
-            roadObject.transform.SetParent(
-                loadingRoot.transform,
-                false);
-
-            loadingRoad =
-                roadObject.GetComponent<RectTransform>();
-
-            loadingRoad.anchorMin =
-                new Vector2(0.5f, 0.5f);
-            loadingRoad.anchorMax =
-                new Vector2(0.5f, 0.5f);
-            loadingRoad.pivot =
-                new Vector2(0.5f, 0.5f);
-            loadingRoad.anchoredPosition =
-                new Vector2(0f, -132f);
-            loadingRoad.sizeDelta =
-                new Vector2(620f, 24f);
-
-            for (int i = 0; i < 8; i++)
+            for (int i = 1; i < 12; i++)
             {
-                GameObject dash =
-                    new("Road Dash", typeof(RectTransform), typeof(Image));
-
-                dash.transform.SetParent(
-                    loadingRoad,
-                    false);
-
-                RectTransform dashRect =
-                    dash.GetComponent<RectTransform>();
-
-                dashRect.anchorMin =
-                    new Vector2(0.5f, 0.5f);
-                dashRect.anchorMax =
-                    new Vector2(0.5f, 0.5f);
-                dashRect.pivot =
-                    new Vector2(0.5f, 0.5f);
-                dashRect.anchoredPosition =
-                    new Vector2(
-                        -280f + i * 80f,
-                        0f);
-                dashRect.sizeDelta =
-                    new Vector2(44f, 5f);
-
-                loadingRoadDashes[i] =
-                    dashRect;
-
-                dash.GetComponent<Image>().color =
-                    new Color(0.68f, 0.82f, 1f, 0.78f);
+                CreateDecorativeRect(root, "Track Segment " + i, center, center,
+                    new Vector2(-434f + i * (800f / 12f), -57f),
+                    new Vector2(5f, 23f), Color.black);
             }
 
-            GameObject progressBack =
-                new("Loading Progress Back", typeof(RectTransform), typeof(Image));
+            loadingPercentText = CreateText(root, "0%", 31, FontStyle.Bold,
+                TextAnchor.MiddleLeft, new Vector2(393f, -57f),
+                new Vector2(115f, 50f), center);
+            loadingPercentText.color = violet;
 
-            progressBack.transform.SetParent(
-                loadingRoot.transform,
-                false);
+            string[] labels = IsRussian()
+                ? new[] { "ГОНКИ", "УЛУЧШЕНИЯ В ГАРАЖЕ", "ИССЛЕДУЙ ГОРОД" }
+                : new[] { "RACES", "GARAGE UPGRADES", "EXPLORE THE CITY" };
+            string[] icons = { "◆", "✦", "◇" };
+            for (int i = 0; i < 3; i++)
+            {
+                float x = -310f + 310f * i;
+                Text icon = CreateText(root, icons[i], 38, FontStyle.Bold,
+                    TextAnchor.MiddleCenter, new Vector2(x, -147f),
+                    new Vector2(76f, 62f), center);
+                icon.color = i == 1 ? violet : cyan;
+                Text label = CreateText(root, labels[i], 21, FontStyle.Bold,
+                    TextAnchor.MiddleCenter, new Vector2(x, -202f),
+                    new Vector2(315f, 65f), center);
+                label.color = muted;
+                ConfigureFrontEndTextFit(label, 15);
+            }
 
-            RectTransform progressBackRect =
-                progressBack.GetComponent<RectTransform>();
+            CreateDecorativeRect(root, "Tip Panel", center, center,
+                new Vector2(0f, -319f), new Vector2(920f, 118f),
+                new Color(0.055f, 0.055f, 0.105f, 1f));
+            CreateDecorativeRect(root, "Tip Accent", center, center,
+                new Vector2(-454f, -319f), new Vector2(4f, 94f), violet);
+            loadingTipText = CreateText(root, "", 24, FontStyle.Normal,
+                TextAnchor.MiddleLeft, new Vector2(0f, -319f),
+                new Vector2(830f, 92f), center);
+            loadingTipText.color = new Color(0.88f, 0.88f, 0.96f, 1f);
+            ConfigureFrontEndTextFit(loadingTipText, 17);
+            ResetLoadingVisuals();
+        }
 
-            progressBackRect.anchorMin =
-                new Vector2(0.5f, 0.5f);
-            progressBackRect.anchorMax =
-                new Vector2(0.5f, 0.5f);
-            progressBackRect.pivot =
-                new Vector2(0.5f, 0.5f);
-            progressBackRect.anchoredPosition =
-                new Vector2(0f, -188f);
-            progressBackRect.sizeDelta =
-                new Vector2(620f, 10f);
+        private void RefreshLoadingTip()
+        {
+            if (loadingTipText == null)
+                return;
+            string[] tips = IsRussian()
+                ? new[]
+                {
+                    "Подсказка: улучшайте машину в гараже перед сложными заездами.",
+                    "Подсказка: исследуйте город, чтобы находить новые занятия.",
+                    "Подсказка: выбирайте подходящее управление в настройках.",
+                    "Подсказка: следите за прогрессом карьеры и новыми событиями."
+                }
+                : new[]
+                {
+                    "TIP: Upgrade your car in the garage before difficult races.",
+                    "TIP: Explore the city to discover new activities.",
+                    "TIP: Choose your preferred controls in Settings.",
+                    "TIP: Track your career progress and upcoming events."
+                };
+            loadingTipText.text = tips[loadingTipIndex++ % tips.Length];
+        }
 
-            progressBack.GetComponent<Image>().color =
-                new Color(0.08f, 0.14f, 0.22f, 1f);
-
-            GameObject progressFill =
-                new("Loading Progress Fill", typeof(RectTransform), typeof(Image));
-
-            progressFill.transform.SetParent(
-                progressBack.transform,
-                false);
-
-            RectTransform progressFillRect =
-                progressFill.GetComponent<RectTransform>();
-
-            progressFillRect.anchorMin =
-                new Vector2(0f, 0f);
-            progressFillRect.anchorMax =
-                new Vector2(1f, 1f);
-            progressFillRect.offsetMin =
-                Vector2.zero;
-            progressFillRect.offsetMax =
-                Vector2.zero;
-
-            loadingProgressFill =
-                progressFill.GetComponent<Image>();
-
-            loadingProgressFill.color =
-                new Color(0.24f, 0.62f, 1f, 1f);
-            loadingProgressFill.type =
-                Image.Type.Filled;
-            loadingProgressFill.fillMethod =
-                Image.FillMethod.Horizontal;
-            loadingProgressFill.fillOrigin =
-                0;
-            loadingProgressFill.fillAmount =
-                0f;
+        private void SetLoadingVisualProgress(float progress)
+        {
+            float amount = Mathf.Clamp01(progress);
+            if (loadingProgressFill != null)
+                loadingProgressFill.fillAmount = amount;
+            if (loadingPercentText != null)
+                loadingPercentText.text = Mathf.RoundToInt(amount * 100f) + "%";
         }
 
 #if UNITY_EDITOR || DEBUG
@@ -2280,6 +2222,7 @@ namespace MotorCity.UI
             }
 
             ResetLoadingVisuals();
+            RefreshLoadingTip();
 
             const float midpointTime =
                 0.28f;
@@ -2341,6 +2284,7 @@ namespace MotorCity.UI
 
         private void ResetLoadingVisuals()
         {
+            SetLoadingVisualProgress(0f);
             if (loadingProgressFill != null)
             {
                 loadingProgressFill.fillAmount =
@@ -2416,15 +2360,7 @@ namespace MotorCity.UI
                         0f);
             }
 
-            if (loadingProgressFill != null)
-            {
-                loadingProgressFill.fillAmount =
-                    Mathf.SmoothStep(
-                        0f,
-                        1f,
-                        Mathf.Clamp01(
-                            progress));
-            }
+            SetLoadingVisualProgress(Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(progress)));
         }
 
         private void StartLoadingTransition()
@@ -2441,6 +2377,8 @@ namespace MotorCity.UI
             AudioListener.pause = true;
 
             loadingRoot.SetActive(true);
+            ResetLoadingVisuals();
+            RefreshLoadingTip();
 
             // Start the costly authored city resource load while this screen
             // is visible, before the gameplay bootstrap runs. Never instantiate
@@ -2547,11 +2485,7 @@ namespace MotorCity.UI
                         0f);
             }
 
-            if (loadingProgressFill != null)
-            {
-                loadingProgressFill.fillAmount =
-                    progress;
-            }
+            SetLoadingVisualProgress(progress);
 
             if (loadingStatusText != null)
             {
