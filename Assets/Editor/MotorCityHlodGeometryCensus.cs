@@ -75,7 +75,7 @@ namespace MotorCity.EditorTools
                 long tris = 0;
                 for (int i = 0; i < mesh.subMeshCount; i++)
                     tris += (long)mesh.GetIndexCount(i) / 3;
-                Bounds bounds = TransformBounds(mesh.bounds,
+                Bounds worldBounds = TransformBounds(mesh.bounds,
                     renderer.transform.localToWorldMatrix);
                 string name = renderer.name;
                 int split = name.IndexOfAny(new[] { '-', '_', ' ', '(' });
@@ -92,7 +92,7 @@ namespace MotorCity.EditorTools
                     Triangles = tris,
                     Vertices = mesh.vertexCount,
                     Submeshes = mesh.subMeshCount,
-                    Radius = bounds.extents.magnitude,
+                    Radius = worldBounds.extents.magnitude,
                     Opaque = opaque,
                     Readable = mesh.isReadable
                 });
