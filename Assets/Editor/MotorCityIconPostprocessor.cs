@@ -38,11 +38,28 @@ namespace MotorCity.EditorTools
             importer.alphaIsTransparency =
                 true;
 
+            // Kenney's post-import whitening pass needs readable pixels.
+            // Tabler UI textures do not: avoid duplicating them in CPU RAM.
             importer.isReadable =
-                true;
+                IsKenneyIcon;
+
+            importer.spriteMeshType =
+                SpriteMeshType.FullRect;
+
+            importer.npotScale =
+                TextureImporterNPOTScale.None;
+
+            importer.wrapMode =
+                TextureWrapMode.Clamp;
+
+            importer.maxTextureSize =
+                IsKenneyIcon ? importer.maxTextureSize : 512;
 
             importer.textureCompression =
                 TextureImporterCompression.Uncompressed;
+
+            importer.crunchedCompression =
+                false;
 
             importer.filterMode =
                 FilterMode.Bilinear;
