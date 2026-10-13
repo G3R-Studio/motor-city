@@ -184,9 +184,14 @@ namespace MotorCity.Gameplay
         {
             if (MotorCityInput.AdminTogglePressed)
             {
-                visible =
-                    !visible;
+                visible = !visible;
+                if (!visible)
+                    ClearMarkerPreview();
             }
+
+            // QA-only marker previews must never persist in ordinary gameplay.
+            if (markerPreview != null && (!visible || selectedTab != 8))
+                ClearMarkerPreview();
         }
 
         private void OnGUI()
@@ -312,6 +317,9 @@ namespace MotorCity.Gameplay
                 selectedTab = firstChoice;
             else if (secondChoice != secondRow)
                 selectedTab = secondChoice + 4;
+
+            if (markerPreview != null && selectedTab != 8)
+                ClearMarkerPreview();
 
             // Keep existing eight tabs stable: the dedicated marker inspector
             // is an additional opt-in page, not a replacement of WORLD / UI QA.
@@ -584,10 +592,12 @@ namespace MotorCity.Gameplay
 
         private void DrawAllMarkerPositions()
         {
-            Section("ВСЕ МЕТКИ ГОРОДА — ТЕЛЕПОРТ / КООРДИНАТЫ");
+            Section("ВСЕ МЕТКИ ГОРОДА — QA КАТАЛОГ");
             GUILayout.Label(
-                "Телепорт не засчитывает задания. К МЕТКЕ также покажет " +
-                "тестовый VFX, даже если активность ещё не началась.");
+                "Это список всех координат только для проверки: игра НЕ " +
+                "должна показывать все чекпоинты одновременно. " +
+                "К МЕТКЕ показывает ровно один временный VFX. " +
+                "Он исчезает при закрытии панели или переходе на другую вкладку.");
             if (GUILayout.Button("УБРАТЬ ПРЕДПРОСМОТР", GUILayout.Height(28f)))
                 ClearMarkerPreview();
             GUILayout.BeginHorizontal();
