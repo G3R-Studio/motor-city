@@ -2377,6 +2377,8 @@ namespace MotorCity.UI
             AudioListener.pause = true;
 
             loadingRoot.SetActive(true);
+            if (loadingStatusText != null)
+                loadingStatusText.text = IsRussian() ? "ГОТОВИМ ГОРОД..." : "PREPARING THE CITY...";
             ResetLoadingVisuals();
             RefreshLoadingTip();
 
