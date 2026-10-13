@@ -59,94 +59,40 @@ jobs:
             }
             core.setFailed('No unexpired Desktop WebGL artifact found. Run Motor City Source Gates with build_webgl_release enabled.');
 
+      - name: Checkout release preparation script
+        uses: actions/checkout@v4
+
       - name: Download Desktop WebGL release
         uses: actions/download-artifact@v4
         with:
           name: motor-city-webgl-desktop-release
           run-id: ${{ steps.find-run.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: _site
+          path: downloads/desktop
 
-      - name: Prepare Unity WebGL files for GitHub Pages
+      - name: Download Mobile WebGL release
+        uses: actions/download-artifact@v4
+        with:
+          name: motor-city-webgl-mobile-release
+          run-id: ${{ steps.find-run.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: downloads/mobile
+
+      - name: Install Brotli for streaming WebGL decompression
+        run: python3 -m pip install --disable-pip-version-check brotli==1.1.0
+
+      - name: Prepare responsive Desktop and Mobile Pages site
         shell: bash
         run: |
-          node <<'JS'
-          const fs = require('node:fs');
-          const path = require('node:path');
-          const zlib = require('node:zlib');
-          const root = '_site';
-          let unpacked = 0;
-          function visit(dir) {
-            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-              const file = path.join(dir, entry.name);
-              if (entry.isDirectory()) { visit(file); continue; }
-              const kind = file.endsWith('.br') ? 'br' : file.endsWith('.gz') ? 'gz' : null;
-              if (!kind) continue;
-              const target = file.slice(0, -kind.length - 1);
-              const input = fs.readFileSync(file);
-              const output = kind === 'br' ? zlib.brotliDecompressSync(input) : zlib.gunzipSync(input);
-              fs.writeFileSync(target, output);
-              fs.unlinkSync(file);
-              console.log(`Unpacked ${file} -> ${target} (${output.length} bytes)`);
-              unpacked++;
-            }
-          }
-          visit(root);
-          const index = path.join(root, 'index.html');
-          if (!fs.existsSync(index)) throw new Error('index.html missing');
-          if (!unpacked) console.log('No compressed .br/.gz files found.');
-          let html = fs.readFileSync(index, 'utf8');
-          // Unity stores URLs in index.html; remove compression suffixes everywhere.
-          // Pages has no way to attach Content-Encoding: br to uploaded assets.
-          html = html.replace(/\.(br|gz)(?=[\"'\\`?&#]|$)/g, '');
-          if (/\.br|\.gz/.test(html)) {
-            throw new Error('index.html still mentions compressed asset URLs');
-          }
-          // Bust the old loader cache (GitHub Pages caches static assets).
-          html = html.replace(/(\.loader\.js)([\"'])/g, '$1?pages-uncompressed=2$2');
-          fs.writeFileSync(index, html);
-          console.log('HTML references to compressed Unity assets were rewritten.');
-          // Verify names from the published build exist, before deploying.
-          const buildFolder = path.join(root, 'Build');
-          for (const name of fs.readdirSync(buildFolder)) {
-            if (/\.(br|gz)$/.test(name)) throw new Error('Compressed file remained: ' + name);
-          }
-          for (const match of html.matchAll(/[\"']([^\"']+\.(?:data|framework\.js|wasm))[\"']/g)) {
-            const ref = match[1];
-            const filename = path.join(root, ref.replace(/^\/+/, ''));
-            if (!fs.existsSync(filename) && ref.startsWith('Build/')) {
-              throw new Error('Missing asset referenced from HTML: ' + ref);
-            }
-          }
-          JS
-
-      - name: Publish under fresh versioned URL to bypass cached Unity loader
-        shell: bash
-        run: |
-          mkdir -p _site/play-v3
-          shopt -s dotglob
-          for item in _site/*; do
-            if [ "$item" != "_site/play-v3" ]; then
-              mv "$item" _site/play-v3/
-            fi
-          done
-          cat > _site/index.html <<'HTML'
-          <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-          <meta http-equiv="refresh" content="0; url=play-v3/"><title>Motor City</title></head>
-          <body><a href="play-v3/">Open Motor City</a><script>location.replace("play-v3/");</script></body></html>
-          HTML
-          test -f _site/play-v3/index.html
-          if grep -Eq '\\.(br|gz)' _site/play-v3/index.html; then
-            echo 'ERROR: compressed paths remain in actual game HTML'
-            exit 1
-          fi
-          echo 'Fresh URL: /motor-city/play-v3/'
-
-      - name: Validate site entry point
-        shell: bash
-        run: |
-          test -f _site/index.html || { echo 'Missing _site/index.html'; find _site -maxdepth 3 -type f | head -50; exit 1; }
-          touch _site/.nojekyll
+          set -euo pipefail
+          python3 Tools/prepare_pages_webgl.py \\
+            --desktop downloads/desktop \\
+            --mobile downloads/mobile \\
+            --output _site \\
+            --release-sha "${{ github.sha }}" \\
+            --release-run "${{ steps.find-run.outputs.run_id }}"
+          test -f _site/desktop/index.html
+          test -f _site/mobile/index.html
 
       - name: Upload GitHub Pages content
         uses: actions/upload-pages-artifact@v3
