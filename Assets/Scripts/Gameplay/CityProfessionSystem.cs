@@ -636,26 +636,26 @@ namespace MotorCity.Gameplay
                             Road(-10f, -100f),
                             Road(150f, -100f),
                             Road(150f, 150f),
-                            Road(300f, 150f)
+                            Road(150f, 300f)
                         },
                         420),
 
                     new ProfessionDefinition(
                         "taxi",
                         "profession.taxi",
-                        Road(160f, 150f),
+                        Road(250f, 150f),
                         new[]
                         {
-                            Road(310f, 150f),
+                            Road(350f, 150f),
                             Road(450f, 150f),
-                            Road(450f, 300f)
+                            Road(450f, 280f)
                         },
                         460),
 
                     new ProfessionDefinition(
                         "mail",
                         "profession.mail",
-                        Road(-140f, 450f),
+                        Road(-150f, 375f),
                         new[]
                         {
                             Road(-300f, 450f),
