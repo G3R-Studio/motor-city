@@ -40,6 +40,26 @@ public static class MotorCityIconAspectAudit
                 continue;
 
             count++;
+            // Previously the test only counted custom graphics, and missed
+            // icons silently falling back to hand-drawn procedural meshes.
+            // Ensure each Garage upgrade has a genuine imported Tabler PNG.
+            if (image.name == "Upgrade Icon")
+            {
+                if (!fromTabler)
+                {
+                    warnings++;
+                    report.AppendLine("Garage upgrade is not a Tabler sprite: " +
+                        ImagePath(image.transform) + " (" + assetPath + ")");
+                }
+                if (image.sprite.rect.width <= 0f ||
+                    image.sprite.rect.height <= 0f)
+                {
+                    warnings++;
+                    report.AppendLine("Invalid sprite rectangle: " +
+                        ImagePath(image.transform));
+                }
+            }
+
             if (!image.preserveAspect)
             {
                 warnings++;
@@ -103,9 +123,19 @@ public static class MotorCityIconAspectAudit
                 graphic.symbol == GarageReferenceGraphic.Symbol.NavigationRight)
                 continue;
 
-            // GarageReferenceGraphic's mesh is fitted in world units
-            // directly, even when its RectTransform is non-uniform.
             vectorCount++;
+            string tablerName = graphic.TablerIconName;
+            if (!string.IsNullOrEmpty(tablerName))
+            {
+                Sprite source = MotorCityIconLibrary.TryGetTabler(tablerName);
+                if (source == null)
+                {
+                    warnings++;
+                    report.AppendLine("Procedural icon fallback instead of " +
+                        "Tabler '" + tablerName + "': " +
+                        ImagePath(graphic.transform));
+                }
+            }
         }
 
         int worldCount = 0;
@@ -143,10 +173,28 @@ public static class MotorCityIconAspectAudit
             }
         }
 
+        int upgradeImages = 0;
+        foreach (Image image in UnityEngine.Object.FindObjectsByType<Image>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (image != null && image.gameObject.scene.IsValid() &&
+                image.name == "Upgrade Icon" && image.sprite != null)
+                upgradeImages++;
+        }
+
         string message = "[MotorCity][Icons] Checked " + count +
             " sprite/texture UI icons, " + vectorCount +
-            " custom UI vector icons, " + worldCount +
-            " 3D marker sprites; aspect warnings: " + warnings;
+            " custom graphics, " + worldCount + " world sprites; " +
+            "garage upgrade Tabler Image slots: " + upgradeImages +
+            "/3; aspect/source warnings: " + warnings;
+        if (upgradeImages != 3)
+        {
+            warnings++;
+            report.AppendLine("Expected three directly rendered garage " +
+                "upgrade Tabler Images; found " + upgradeImages +
+                ". Open the Garage screen before auditing.");
+            message += " (upgrade count mismatch)";
+        }
         if (warnings > 0)
             Debug.LogWarning(message + "\n" + report);
         else
