@@ -1582,14 +1582,11 @@ namespace MotorCity.UI
             string[] labels = IsRussian()
                 ? new[] { "ГОНКИ", "УЛУЧШЕНИЯ В ГАРАЖЕ", "ИССЛЕДУЙ ГОРОД" }
                 : new[] { "RACES", "GARAGE UPGRADES", "EXPLORE THE CITY" };
-            string[] icons = { "◆", "✦", "◇" };
             for (int i = 0; i < 3; i++)
             {
                 float x = -310f + 310f * i;
-                Text icon = CreateText(root, icons[i], 38, FontStyle.Bold,
-                    TextAnchor.MiddleCenter, new Vector2(x, -147f),
-                    new Vector2(76f, 62f), center);
-                icon.color = i == 1 ? violet : cyan;
+                CreateLoadingIcon(root, i, new Vector2(x, -147f),
+                    new Vector2(58f, 58f), i == 1 ? violet : cyan);
                 Text label = CreateText(root, labels[i], 21, FontStyle.Bold,
                     TextAnchor.MiddleCenter, new Vector2(x, -202f),
                     new Vector2(315f, 65f), center);
@@ -1602,12 +1599,32 @@ namespace MotorCity.UI
                 new Color(0.055f, 0.055f, 0.105f, 1f));
             CreateDecorativeRect(root, "Tip Accent", center, center,
                 new Vector2(-454f, -319f), new Vector2(4f, 94f), violet);
+            CreateLoadingIcon(root, 3, new Vector2(-389f, -319f),
+                new Vector2(54f, 54f), violet);
             loadingTipText = CreateText(root, "", 24, FontStyle.Normal,
                 TextAnchor.MiddleLeft, new Vector2(0f, -319f),
-                new Vector2(830f, 92f), center);
+                new Vector2(745f, 92f), center);
             loadingTipText.color = new Color(0.88f, 0.88f, 0.96f, 1f);
             ConfigureFrontEndTextFit(loadingTipText, 17);
             ResetLoadingVisuals();
+        }
+
+        private void CreateLoadingIcon(Transform parent, int kind,
+            Vector2 position, Vector2 size, Color color)
+        {
+            GameObject iconObject = new GameObject("Loading Icon " + kind,
+                typeof(RectTransform), typeof(Image));
+            iconObject.transform.SetParent(parent, false);
+            RectTransform rect = iconObject.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = rect.pivot =
+                new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            Image image = iconObject.GetComponent<Image>();
+            image.sprite = MotorCityLoadingIcons.Get(kind);
+            image.color = color;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
         }
 
         private void RefreshLoadingTip()
