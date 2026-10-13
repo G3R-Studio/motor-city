@@ -122,6 +122,17 @@ namespace MotorCity.UI
                 return cached;
 
             Sprite sprite = Resources.Load<Sprite>(TablerRoot + name);
+            if (sprite == null)
+            {
+                // Some Unity import profiles expose sprites as sub-assets
+                // (e.g. engine_0). A direct Load<Sprite> then returns null
+                // even though the PNG is correctly imported as a Sprite.
+                Sprite[] candidates = Resources.LoadAll<Sprite>(
+                    TablerRoot + name);
+                if (candidates != null && candidates.Length > 0)
+                    sprite = candidates[0];
+            }
+
             if (sprite != null)
                 Cache[cacheKey] = sprite;
             return sprite;
