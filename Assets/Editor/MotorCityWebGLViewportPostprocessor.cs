@@ -77,8 +77,12 @@ html, body {
     if (!canvas) return;
     var width = Math.max(1, document.documentElement.clientWidth);
     var height = Math.max(1, document.documentElement.clientHeight);
-    canvas.style.setProperty('width', width + 'px', 'important');
-    canvas.style.setProperty('height', height + 'px', 'important');
+    if (canvas.style.width !== width + 'px' ||
+        canvas.style.getPropertyPriority('width') !== 'important')
+      canvas.style.setProperty('width', width + 'px', 'important');
+    if (canvas.style.height !== height + 'px' ||
+        canvas.style.getPropertyPriority('height') !== 'important')
+      canvas.style.setProperty('height', height + 'px', 'important');
     if (canvas.width !== width) canvas.width = width;
     if (canvas.height !== height) canvas.height = height;
   }
@@ -88,6 +92,14 @@ html, body {
     var canvas = document.getElementById('unity-canvas');
     if (canvas && window.ResizeObserver)
       new ResizeObserver(fitUnityCanvas).observe(document.documentElement);
+    if (canvas && window.MutationObserver)
+      new MutationObserver(fitUnityCanvas).observe(canvas, {
+        attributes: true,
+        attributeFilter: ['style', 'width', 'height']
+      });
+    // Unity's startup loader may assign fixed dimensions after DOMContentLoaded.
+    // Recheck when the engine is first initialized.
+    window.addEventListener('load', fitUnityCanvas);
   });
 })();
 </script>";
