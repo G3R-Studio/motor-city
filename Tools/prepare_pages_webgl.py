@@ -126,20 +126,8 @@ def copy_and_uncompress(src: Path, dst: Path, kind: str) -> tuple[int, int]:
             raise ValueError(f"{kind}: index.html missing expected {extension} URL after rewrite")
     if kind == "mobile":
         updated = gate_mobile_portrait(updated)
-    # Prefer Unity 6's automatic persistent-data sync over the deprecated
-    # explicit JS_FileSystem_Sync path. Inject into the actual Unity startup
-    # expression so the WebGL build profiles and game save format stay intact.
-    startup = re.search(
-        r"\b(createUnityInstance|motorCityLaunchInLandscape)\s*\(\s*[^,]+,\s*([A-Za-z_$][\w$]*)\s*,",
-        updated,
-    )
-    if startup:
-        fn, config = startup.groups()
-        updated = updated[:startup.start()] + (
-            f"({config}.autoSyncPersistentDataPath = true, {fn})("
-        ) + updated[startup.end():]
-    else:
-        print(f"{kind}: automatic persistence sync config not found; leaving startup unchanged")
+    # Preserve createUnityInstance(canvas, config, onProgress) exactly.
+    # Changing the startup argument list breaks Unity initialization.
     index.write_text(updated, encoding="utf-8")
 
     # No .br references should survive; we have no control over Pages' headers.
