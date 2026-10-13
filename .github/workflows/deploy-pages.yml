@@ -67,6 +67,42 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: _site
 
+      - name: Prepare Unity WebGL files for GitHub Pages
+        shell: bash
+        run: |
+          node <<'JS'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const zlib = require('node:zlib');
+          const root = '_site';
+          let unpacked = 0;
+          function visit(dir) {
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+              const file = path.join(dir, entry.name);
+              if (entry.isDirectory()) { visit(file); continue; }
+              const kind = file.endsWith('.br') ? 'br' : file.endsWith('.gz') ? 'gz' : null;
+              if (!kind) continue;
+              const target = file.slice(0, -kind.length - 1);
+              const input = fs.readFileSync(file);
+              const output = kind === 'br' ? zlib.brotliDecompressSync(input) : zlib.gunzipSync(input);
+              fs.writeFileSync(target, output);
+              fs.unlinkSync(file);
+              console.log(`Unpacked ${file} -> ${target} (${output.length} bytes)`);
+              unpacked++;
+            }
+          }
+          visit(root);
+          const index = path.join(root, 'index.html');
+          if (!fs.existsSync(index)) throw new Error('index.html missing');
+          if (!unpacked) console.log('No compressed .br/.gz files found.');
+          let html = fs.readFileSync(index, 'utf8');
+          html = html.replace(/(\.data|\.framework\.js|\.wasm|\.symbols\.json|\.js)(\.br|\.gz)(?=["'\\`?#])/g, '$1');
+          fs.writeFileSync(index, html);
+          if (/\.framework\.js\.(br|gz)|\.data\.(br|gz)|\.wasm\.(br|gz)/.test(html)) {
+            throw new Error('index.html still references compressed Unity assets');
+          }
+          JS
+
       - name: Validate site entry point
         shell: bash
         run: |
