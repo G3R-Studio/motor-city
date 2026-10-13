@@ -297,35 +297,38 @@ namespace MotorCity.UI
         private const int GlowSteps = 8;
         private const int GlowVertexCount = 4 * (GlowSteps + 1);
 
-        // Dark glass uses the SAME left/right hue as the neon outline,
-        // but at much lower brightness so white labels stay legible.
-        // This is vertex coloring in the existing UGUI mesh, not a new
-        // texture, material, shader or overlaid raycast target.
+        // Unified glass fill palette. Unlike the legacy panel tint,
+        // neither endpoint is a saturated purple. This remains a blue-to-
+        // indigo transition, visually related to the brighter neon outline.
         private static readonly Color GlassCyan =
-            new(0.023f, 0.075f, 0.120f, 1f);
+            new(0.018f, 0.100f, 0.155f, 1f);
         private static readonly Color GlassViolet =
-            new(0.105f, 0.038f, 0.157f, 1f);
+            new(0.077f, 0.069f, 0.148f, 1f);
 
         private Color SurfaceFillAt(Vector2 position, Rect bounds)
         {
             float t = Mathf.Clamp01((position.x - bounds.xMin) /
                 Mathf.Max(0.001f, bounds.width));
-
             Color fill = Color.Lerp(GlassCyan, GlassViolet, t);
-            // Retain a hint of the button role (primary / back / utility)
-            // without turning the background into a bright gradient.
-            fill.r += color.r * 0.12f;
-            fill.g += color.g * 0.08f;
-            fill.b += color.b * 0.09f;
 
-            // Soft glass highlight at the top, keeping the horizontal hue
-            // shift perceptually dominant on cards of every aspect ratio.
+            // Graphic.color is also controlled by button Highlighted/Pressed
+            // ColorTint transitions. Use its LUMINANCE, not its RGB channels:
+            // the old separate lilac/blue tints reintroduced purple into an
+            // otherwise cohesive gradient and muted the cyan left edge.
+            float roleLuma = color.r * 0.2126f +
+                color.g * 0.7152f + color.b * 0.0722f;
+            float roleLift = Mathf.Clamp((roleLuma - 0.17f) * 0.15f,
+                -0.025f, 0.045f);
+
             float top = Mathf.Clamp01((position.y - bounds.yMin) /
                 Mathf.Max(0.001f, bounds.height));
-            float brightness = Mathf.Lerp(0.90f, 1.08f, top);
+            float brightness = Mathf.Lerp(0.94f, 1.055f, top) + roleLift;
             fill.r *= brightness;
             fill.g *= brightness;
             fill.b *= brightness;
+
+            // Alpha still follows the owning surface, including disabled
+            // transitions, so button input and fade states remain intact.
             fill.a = color.a;
             return fill;
         }
