@@ -40,6 +40,8 @@ namespace MotorCity.UI
                 Symbol.Steering => "steering-wheel",
                 Symbol.Drift => "car-turbine",
                 Symbol.Mass => "car-suv",
+                Symbol.Up => "arrow-up",
+                Symbol.Close => "x",
                 Symbol.Left => "arrow-left",
                 Symbol.Right => "arrow-right",
                 Symbol.Padlock => "lock",
