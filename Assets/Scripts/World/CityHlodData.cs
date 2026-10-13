@@ -8,7 +8,7 @@ namespace MotorCity.World
     {
         public Vector3 Center;
         public Mesh ProxyMesh;
-        public Material ProxyMaterial;
+        public Material[] ProxyMaterials;
         public int[] SourceRendererIndices;
         public string[] SourceRendererNames;
         public Vector3[] SourceRendererCenters;

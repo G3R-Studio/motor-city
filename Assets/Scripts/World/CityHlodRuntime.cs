@@ -57,7 +57,9 @@ namespace MotorCity.World
             foreach (CityHlodCell cell in data.Cells)
             {
                 if (cell == null || cell.ProxyMesh == null ||
-                    cell.ProxyMaterial == null ||
+                    cell.ProxyMaterials == null ||
+                    cell.ProxyMaterials.Length != cell.ProxyMesh.subMeshCount ||
+                    Array.Exists(cell.ProxyMaterials, material => material == null) ||
                     cell.SourceRendererIndices == null ||
                     cell.SourceRendererNames == null ||
                     cell.SourceRendererCenters == null ||
@@ -98,7 +100,7 @@ namespace MotorCity.World
                 go.transform.SetParent(root.transform, false);
                 go.GetComponent<MeshFilter>().sharedMesh = cell.ProxyMesh;
                 MeshRenderer proxy = go.GetComponent<MeshRenderer>();
-                proxy.sharedMaterial = cell.ProxyMaterial;
+                proxy.sharedMaterials = cell.ProxyMaterials;
                 proxy.shadowCastingMode =
                     UnityEngine.Rendering.ShadowCastingMode.Off;
                 proxy.receiveShadows = false;

@@ -21,9 +21,11 @@ namespace MotorCity.EditorTools
         private const string Output =
             "Assets/Resources/MotorCity/Environment/HLOD/CityHlodData.asset";
         private const int CellSize = 120;
-        private const int MinimumRenderers = 5;
+        private const int MinimumRenderers = 3;
         private const int MaximumVerticesPerCell = 45000;
         private const int MaximumSourceVertices = 18000;
+        private const int MaximumSubmeshesPerRenderer = 8;
+        private const int MaximumMaterialsPerProxy = 8;
         // Cap additional geometry so an unreviewed bake cannot double
         // WebGL memory usage across the entire authored city.
         private const int MaximumProxyCells = 320;
@@ -43,7 +45,6 @@ namespace MotorCity.EditorTools
 
         private sealed class Batch
         {
-            public Material Material;
             public readonly List<Source> Sources = new List<Source>();
         }
 
@@ -80,16 +81,29 @@ namespace MotorCity.EditorTools
             string diagnostic;
             var groups = Collect(out all, out diagnostic);
             int eligible = groups.Values.Sum(g => g.Sources.Count);
-            int bakeGroups = groups.Values.Count(g => g.Sources.Count >= MinimumRenderers);
+            int bakeGroups = groups.Values.Sum(g => Partition(g.Sources).Count());
+            int maxGroup = groups.Count == 0 ? 0 : groups.Values.Max(g => g.Sources.Count);
+            List<List<Source>> planned = groups.Values
+                .SelectMany(g => Partition(g.Sources)).ToList();
+            int sourceSlots = planned.Sum(chunk =>
+                chunk.Sum(item => item.Mesh.subMeshCount));
+            int proxySlots = planned.Sum(chunk =>
+                chunk.SelectMany(item => item.Renderer.sharedMaterials)
+                    .Distinct().Count());
+            string samples = string.Join(", ", groups.Values
+                .SelectMany(g => g.Sources)
+                .Take(6).Select(item => item.Renderer.name));
             int triangles = groups.Values.Sum(g => g.Sources.Sum(s => s.Triangles));
             Debug.Log("[MotorCity][HLOD] Candidate audit: " + eligible +
                 "/" + all.Length + " eligible architecture MeshRenderers, " +
-                bakeGroups + " material/120m cell groups with >=" +
-                MinimumRenderers + " renderers, " + triangles +
+                bakeGroups + " bakeable 120m proxy chunks with >=" +
+                MinimumRenderers + " renderers (largest sector=" + maxGroup +
+                "), " + triangles +
                 " eligible triangle references (not GPU-visible triangles). " +
-                "No assets changed. If eligible count is too low, inspect " +
-                "city renderer names before relaxing protections.\n" +
-                diagnostic);
+                "Potential material draw slots: " + sourceSlots +
+                " original -> " + proxySlots +
+                " proxy (not actual GPU draw calls). Examples: [" +
+                samples + "]. No assets changed.\n" + diagnostic);
         }
 
         [MenuItem("Motor City/Optimization/HLOD/2 - Bake Proxies (Edit Mode)")]
@@ -126,45 +140,31 @@ namespace MotorCity.EditorTools
                     if (sources.Count < MinimumRenderers)
                         continue;
 
-                    int offset = 0;
-                    while (offset < sources.Count &&
-                           cells.Count < MaximumProxyCells &&
-                           proxyTris < MaximumProxyTriangles)
+                    foreach (List<Source> chunk in Partition(sources))
                     {
-                        var chunk = new List<Source>();
-                        int vertices = 0;
-                        while (offset < sources.Count &&
-                            (vertices + sources[offset].Mesh.vertexCount <=
-                             MaximumVerticesPerCell || chunk.Count == 0))
-                        {
-                            Source s = sources[offset++];
-                            chunk.Add(s);
-                            vertices += s.Mesh.vertexCount;
-                        }
-                        if (chunk.Count < MinimumRenderers)
-                            continue;
+                        if (cells.Count >= MaximumProxyCells ||
+                            proxyTris >= MaximumProxyTriangles)
+                            break;
 
                         try
                         {
-                            CombineInstance[] instances = chunk.Select(s =>
-                                new CombineInstance
-                                {
-                                    mesh = s.Mesh,
-                                    subMeshIndex = 0,
-                                    transform = s.Renderer.localToWorldMatrix
-                                }).ToArray();
-                            Mesh combined = new Mesh
-                            {
-                                name = "HLOD_" + cells.Count,
-                                indexFormat = IndexFormat.UInt32
-                            };
-                            combined.CombineMeshes(instances, true, true, false);
-                            Mesh simplified = SimplifyConservatively(combined);
+                            Material[] proxyMaterials;
+                            Mesh combined = CombineChunk(
+                                chunk, cells.Count, out proxyMaterials);
+
+                            // Preserve every material/UV seam when multiple
+                            // materials share one proxy mesh. For a single
+                            // material the old conservative simplifier applies.
+                            Mesh simplified = proxyMaterials.Length == 1
+                                ? SimplifyConservatively(combined)
+                                : combined;
                             if (simplified != combined)
                                 UnityEngine.Object.DestroyImmediate(combined);
 
                             int sourceCount = chunk.Sum(s => s.Triangles);
-                            int proxyCount = simplified.triangles.Length / 3;
+                            int proxyCount = 0;
+                            for (int sub = 0; sub < simplified.subMeshCount; sub++)
+                                proxyCount += (int)(simplified.GetIndexCount(sub) / 3);
                             if (proxyCount == 0)
                             {
                                 UnityEngine.Object.DestroyImmediate(simplified);
@@ -176,7 +176,7 @@ namespace MotorCity.EditorTools
                             {
                                 Center = bounds.center,
                                 ProxyMesh = simplified,
-                                ProxyMaterial = entry.Value.Material,
+                                ProxyMaterials = proxyMaterials,
                                 SourceRendererIndices =
                                     chunk.Select(s => s.Index).ToArray(),
                                 SourceRendererNames =
@@ -348,29 +348,45 @@ namespace MotorCity.EditorTools
                     continue;
                 }
 
-                if (mesh.subMeshCount != 1)
+                if (mesh.subMeshCount < 1 ||
+                    mesh.subMeshCount > MaximumSubmeshesPerRenderer)
                 {
-                    Reject("Source uses multiple submeshes", renderer);
+                    Reject("Unsupported source submesh count", renderer);
                     continue;
                 }
 
                 Material[] materials = renderer.sharedMaterials;
-                if (materials == null || materials.Length != 1 ||
-                    materials[0] == null)
+                if (materials == null ||
+                    materials.Length != mesh.subMeshCount)
                 {
-                    Reject("No single authored material", renderer);
+                    Reject("Submesh/material slot count mismatch", renderer);
                     continue;
                 }
 
-                if (materials[0].renderQueue >= 2450)
+                bool missingMaterial = false;
+                bool forbiddenMaterial = false;
+                foreach (Material material in materials)
                 {
-                    Reject("Cutout or transparent material", renderer);
+                    if (material == null)
+                    {
+                        missingMaterial = true;
+                        break;
+                    }
+                    if (material.renderQueue >= 2450 ||
+                        IsExcluded(material.name, ExcludedMaterials))
+                    {
+                        forbiddenMaterial = true;
+                        break;
+                    }
+                }
+                if (missingMaterial)
+                {
+                    Reject("Missing source submesh material", renderer);
                     continue;
                 }
-
-                if (IsExcluded(materials[0].name, ExcludedMaterials))
+                if (forbiddenMaterial)
                 {
-                    Reject("Protected material name", renderer);
+                    Reject("Transparent or protected submesh", renderer);
                     continue;
                 }
 
@@ -405,14 +421,16 @@ namespace MotorCity.EditorTools
 
                 int x = Mathf.FloorToInt(bounds.center.x / CellSize);
                 int z = Mathf.FloorToInt(bounds.center.z / CellSize);
-                string key = x + ":" + z + ":" + materials[0].GetEntityId();
+                string key = x + ":" + z;
                 if (!batches.TryGetValue(key, out Batch batch))
                 {
-                    batch = new Batch { Material = materials[0] };
+                    batch = new Batch();
                     batches.Add(key, batch);
                 }
 
-                int triangles = (int)(mesh.GetIndexCount(0) / 3);
+                int triangles = 0;
+                for (int sub = 0; sub < mesh.subMeshCount; sub++)
+                    triangles += (int)(mesh.GetIndexCount(sub) / 3);
                 batch.Sources.Add(new Source(renderer, mesh, i, triangles));
             }
 
@@ -432,6 +450,135 @@ namespace MotorCity.EditorTools
             }
             diagnostic = report.ToString();
             return batches;
+        }
+
+        /// <summary>
+        /// Use identical batching limits for Audit and Bake so a positive
+        /// audit never promises groups that Bake silently discards.
+        /// </summary>
+        private static List<List<Source>> Partition(List<Source> sources)
+        {
+            var result = new List<List<Source>>();
+            int offset = 0;
+            while (offset < sources.Count)
+            {
+                var chunk = new List<Source>();
+                var materials = new HashSet<Material>();
+                int vertices = 0;
+                while (offset < sources.Count)
+                {
+                    Source next = sources[offset];
+                    Material[] nextMaterials = next.Renderer.sharedMaterials;
+                    var incoming = new HashSet<Material>();
+                    for (int sub = 0; sub < next.Mesh.subMeshCount; sub++)
+                        if (!materials.Contains(nextMaterials[sub]))
+                            incoming.Add(nextMaterials[sub]);
+
+                    if (chunk.Count > 0 &&
+                        (vertices + next.Mesh.vertexCount >
+                             MaximumVerticesPerCell ||
+                         materials.Count + incoming.Count >
+                             MaximumMaterialsPerProxy))
+                        break;
+
+                    chunk.Add(next);
+                    offset++;
+                    vertices += next.Mesh.vertexCount;
+                    for (int sub = 0; sub < next.Mesh.subMeshCount; sub++)
+                        materials.Add(nextMaterials[sub]);
+                }
+                if (chunk.Count >= MinimumRenderers)
+                    result.Add(chunk);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Bake a single material/cell mesh with a single material slot for
+        /// each distinct source material. Each original source renderer is
+        /// replaced in its ENTIRETY, including all opaque submeshes.
+        /// </summary>
+        private static Mesh CombineChunk(
+            List<Source> chunk, int cellIndex, out Material[] materials)
+        {
+            var order = new List<Material>();
+            var byMaterial = new Dictionary<Material, List<CombineInstance>>();
+            foreach (Source source in chunk)
+            {
+                Material[] original = source.Renderer.sharedMaterials;
+                for (int sub = 0; sub < source.Mesh.subMeshCount; sub++)
+                {
+                    Material material = original[sub];
+                    if (!byMaterial.TryGetValue(
+                        material, out List<CombineInstance> entries))
+                    {
+                        entries = new List<CombineInstance>();
+                        byMaterial.Add(material, entries);
+                        order.Add(material);
+                    }
+                    entries.Add(new CombineInstance
+                    {
+                        mesh = source.Mesh,
+                        subMeshIndex = sub,
+                        transform = source.Renderer.localToWorldMatrix
+                    });
+                }
+            }
+
+            materials = order.ToArray();
+            var temporary = new List<Mesh>();
+            try
+            {
+                foreach (Material material in order)
+                {
+                    Mesh part = new Mesh
+                    {
+                        name = "HLOD_" + cellIndex + "_material",
+                        indexFormat = IndexFormat.UInt32
+                    };
+                    temporary.Add(part);
+                    part.CombineMeshes(byMaterial[material].ToArray(),
+                        true, true, false);
+                }
+
+                if (temporary.Count == 1)
+                {
+                    Mesh result = temporary[0];
+                    temporary.Clear();
+                    result.name = "HLOD_" + cellIndex;
+                    return result;
+                }
+
+                Mesh combined = new Mesh
+                {
+                    name = "HLOD_" + cellIndex,
+                    indexFormat = IndexFormat.UInt32
+                };
+                try
+                {
+                    var submeshes = new CombineInstance[temporary.Count];
+                    for (int i = 0; i < submeshes.Length; i++)
+                        submeshes[i] = new CombineInstance
+                        {
+                            mesh = temporary[i],
+                            subMeshIndex = 0,
+                            transform = Matrix4x4.identity
+                        };
+                    combined.CombineMeshes(submeshes, false, false, false);
+                    return combined;
+                }
+                catch
+                {
+                    UnityEngine.Object.DestroyImmediate(combined);
+                    throw;
+                }
+            }
+            finally
+            {
+                foreach (Mesh mesh in temporary)
+                    if (mesh != null)
+                        UnityEngine.Object.DestroyImmediate(mesh);
+            }
         }
 
         private static bool ActiveInAuthoredPrefab(

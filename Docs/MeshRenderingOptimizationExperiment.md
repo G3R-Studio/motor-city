@@ -156,11 +156,17 @@ An opt-in HLOD baker and a renderer-only runtime swap have been added:
 
 ### Safety limits and honest scope
 
-The baker uses 120m spatial material clusters of **opaque** MeshRenderers,
+The baker uses 120m spatial sectors of **opaque** MeshRenderers,
 skipping roads, terrain, vehicles, foliage, night glass, attached scripts,
 property blocks, LODGroups, lightmapped sources, and unusually large meshes.
-Candidate MeshRenderers are combined by their **original shared material**
-and **original world matrices**. A very conservative vertex-cluster pass
+Candidate MeshRenderers may have up to 8 source submeshes, provided every
+material is safely opaque and not protected. Up to 8 distinct materials are
+preserved per proxy: submeshes are combined by **original shared material**
+and **original world matrices** inside each sector. A single proxy may have
+multiple submesh/material slots, so the renderer is never switched off while
+omitting a transparent material. Grouping by sector rather than individual
+material allows buildings that have more than one opaque material to share
+one far-distance proxy renderer. A very conservative vertex-cluster pass
 may collapse small triangles when positional, normal AND UV neighborhoods
 match; otherwise the exact combined geometry is retained. This is a
 draw-call-oriented first HLOD, not guaranteed aggressive triangle decimation.
@@ -178,3 +184,24 @@ Distances are conservative to keep close-up appearance unchanged.
 replacement is barely faster, do not ship unnecessary mesh duplication.
 A high-quality authored silhouette decimator or per-building reduced meshes
 may be needed for meaningful GPU triangle reduction.
+
+### HLOD candidate audit: imported FCG multi-material mesh support
+
+The first candidate audit on the current CityVisual asset found only 33 of
+25,634 MeshRenderers eligible, and zero proxy groups. Among the rejection
+reasons were 10,022 disabled-in-prefab renderers, 5,890 protected names,
+4,977 objects outside the architecture size limits, 2,749 alpha/cutout
+materials and 1,880 multi-submesh renderers. The disabled objects are
+intentionally preserved; do not activate hidden prefab hierarchies to raise
+candidate count. Opaque multi-submesh renderer support and 120m sector
+clustering were added to address a major source of false rejection, while
+retaining protected glass, gameplay and environment exclusions. It does NOT
+imply the previously rejected 1,880 renderers are all safe to bake.
+
+**Rerun Audit Candidates after pulling the new code, BEFORE baking.** The
+updated report shows eligibility, sector count and largest sector. Only
+bake if enough sectors qualify and their likely draw-call savings justify
+the extra proxy meshes; there is no requirement to keep HLOD if profiling
+shows little benefit. The existing distance-detail culler targets tiny
+renderers (bounds radius <=7m), while HLOD continues to require a radius
+above 7.1m to avoid overlapping renderer-visibility ownership.
