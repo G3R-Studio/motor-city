@@ -644,12 +644,14 @@ namespace MotorCity.Gameplay
                         "taxi",
                         "profession.taxi",
                         Road(250f, 150f),
-                        new[]
-                        {
-                            Road(350f, 150f),
-                            Road(450f, 150f),
-                            Road(450f, 280f)
-                        },
+                        RouteWithRoadDetour(
+                            Road(250f, 150f),
+                            new[]
+                            {
+                                Road(350f, 150f),
+                                Road(450f, 150f),
+                                Road(450f, 280f)
+                            }, 1),
                         460),
 
                     new ProfessionDefinition(
@@ -669,15 +671,33 @@ namespace MotorCity.Gameplay
                         "icecream",
                         "profession.icecream",
                         Road(300f, 450f),
-                        new[]
-                        {
-                            Road(450f, 400f),
-                            Road(450f, 250f),
-                            Road(450f, 75f),
-                            Road(450f, -100f)
-                        },
+                        RouteWithRoadDetour(
+                            Road(300f, 450f),
+                            new[]
+                            {
+                                Road(450f, 400f),
+                                Road(450f, 250f),
+                                Road(450f, 75f),
+                                Road(450f, -100f)
+                            }, 2),
                         480)
                 };
+        }
+
+        private static Vector3[] RouteWithRoadDetour(
+            Vector3 start, Vector3[] stops, int blockedLeg)
+        {
+            // Include the activity start when calculating the relevant leg,
+            // then return only the remaining mission checkpoints.
+            Vector3[] anchors = new Vector3[stops.Length + 1];
+            anchors[0] = start;
+            System.Array.Copy(stops, 0, anchors, 1, stops.Length);
+            Vector3[] expanded =
+                CityAssetRuntimeInstaller.InsertRoadGraphWaypoints(
+                    anchors, blockedLeg);
+            Vector3[] result = new Vector3[expanded.Length - 1];
+            System.Array.Copy(expanded, 1, result, 0, result.Length);
+            return result;
         }
 
         private static Vector3 Road(float x, float z)
