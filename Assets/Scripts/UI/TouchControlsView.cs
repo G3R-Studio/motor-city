@@ -1620,6 +1620,28 @@ namespace MotorCity.UI
                     texture.height * scale));
         }
 
+        private static void CreateTouchArtVisual(
+            RectTransform hitArea, Sprite sprite, Color tint)
+        {
+            if (sprite == null)
+                return;
+
+            GameObject artObject = new GameObject(
+                "Touch Icon Visual", typeof(RectTransform), typeof(Image));
+            artObject.transform.SetParent(hitArea, false);
+            RectTransform artRect = artObject.GetComponent<RectTransform>();
+            artRect.anchorMin = Vector2.zero;
+            artRect.anchorMax = Vector2.one;
+            artRect.offsetMin = Vector2.zero;
+            artRect.offsetMax = Vector2.zero;
+            Image icon = artObject.GetComponent<Image>();
+            icon.sprite = sprite;
+            icon.color = tint;
+            icon.preserveAspect = true;
+            icon.raycastTarget = false;
+            artObject.AddComponent<MotorCityIconAspectGuard>();
+        }
+
         private RectTransform CreateTouchArtHoldButton(
             Transform parent,
             string name,
@@ -1653,24 +1675,20 @@ namespace MotorCity.UI
             rect.sizeDelta =
                 size;
 
+            // Keep the ROOT hit area unchanged. Only the separate visual
+            // child gets inverse X/Y scale correction.
             Image image =
                 buttonObject.GetComponent<Image>();
+            image.sprite = null;
+            image.color = Color.clear;
+            image.raycastTarget = true;
 
-            image.sprite =
-                CreateTouchControlSprite(
-                    texture);
-            image.preserveAspect =
-                true;
-            // The touch artwork is an icon; never deform its source aspect.
-            image.gameObject.AddComponent<MotorCityIconAspectGuard>();
-            image.raycastTarget =
-                true;
-            image.color =
-                color;
+            Sprite art = CreateTouchControlSprite(texture);
+            CreateTouchArtVisual(rect, art, color);
 
             // Normal assets keep the exact accepted art. The fallback only
             // appears when the optional texture resource is missing.
-            if (image.sprite == null)
+            if (art == null)
             {
                 GarageReferenceGraphic.Symbol glyph =
                     action == MotorCityInputAction.Throttle
@@ -1743,26 +1761,16 @@ namespace MotorCity.UI
 
             Image image =
                 wheelObject.GetComponent<Image>();
+            image.sprite = null;
+            image.color = Color.clear;
+            image.raycastTarget = true;
 
-            image.sprite =
-                CreateTouchControlSprite(
-                    touchArtAssets == null
-                        ? null
-                        : touchArtAssets.touchWheel);
-            image.preserveAspect =
-                true;
-            // The touch artwork is an icon; never deform its source aspect.
-            image.gameObject.AddComponent<MotorCityIconAspectGuard>();
-            image.raycastTarget =
-                true;
-            image.color =
-                new Color32(
-                    255,
-                    255,
-                    255,
-                    0x96);
+            Sprite wheelArt = CreateTouchControlSprite(
+                touchArtAssets == null ? null : touchArtAssets.touchWheel);
+            CreateTouchArtVisual(
+                wheelRect, wheelArt, new Color32(255, 255, 255, 0x96));
 
-            if (image.sprite == null)
+            if (wheelArt == null)
                 AddMissingTouchArtFallback(
                     wheelRect,
                     GarageReferenceGraphic.Symbol.Steering);
