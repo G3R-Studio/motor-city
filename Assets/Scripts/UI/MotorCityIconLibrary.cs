@@ -122,7 +122,8 @@ namespace MotorCity.UI
                 return cached;
 
             Sprite sprite = Resources.Load<Sprite>(TablerRoot + name);
-            Cache[cacheKey] = sprite;
+            if (sprite != null)
+                Cache[cacheKey] = sprite;
             return sprite;
         }
 
