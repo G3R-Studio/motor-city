@@ -73,7 +73,15 @@ namespace MotorCity.UI
             {
                 RectTransform upgrade = GarageSurface(panel, "Upgrade " + (i + 1), 26 + i * 229, 694, i == 2 ? 231 : 218, 207);
                 GarageBind(upgrade, i == 0 ? MotorCityInputAction.Upgrade1 : i == 1 ? MotorCityInputAction.Upgrade2 : MotorCityInputAction.Upgrade3);
-                GarageIcon(upgrade, "Upgrade Icon", i == 0 ? GarageReferenceGraphic.Symbol.Engine : i == 1 ? GarageReferenceGraphic.Symbol.Brake : GarageReferenceGraphic.Symbol.Shock, GarageReferenceLilac, 18, 21, 48, 48);
+                // Show the actual imported Tabler PNG through Unity Image.
+                // The former GarageReferenceGraphic fallback can look stretched,
+                // while a Simple Image with preserveAspect uses sprite bounds.
+                GarageUpgradeIcon(upgrade, "Upgrade Icon",
+                    i == 0 ? "engine" : i == 1 ? "wheel" : "car-suspension",
+                    i == 0 ? GarageReferenceGraphic.Symbol.Engine :
+                        i == 1 ? GarageReferenceGraphic.Symbol.Brake :
+                        GarageReferenceGraphic.Symbol.Shock,
+                    GarageReferenceLilac, 18f, 21f, 48f, 48f);
                 garageTitleTexts[i] = ReferenceLabel(upgrade, "Upgrade Title", "", 87, 18, i == 2 ? 140 : 123, 29, 22, Color.white);
                 garageLevelTexts[i] = ReferenceLabel(upgrade, "Upgrade Level", "", 87, 50, 115, 25, 19);
                 garageTitleTexts[i].alignment = garageLevelTexts[i].alignment = TextAnchor.MiddleCenter;
@@ -163,6 +171,35 @@ namespace MotorCity.UI
             graphic.raycastTarget = false; graphic.SetAllDirty();
             return rect;
         }
+        private static void GarageUpgradeIcon(
+            Transform parent, string name, string tablerName,
+            GarageReferenceGraphic.Symbol fallback, Color tint,
+            float x, float y, float width, float height)
+        {
+            Sprite sprite = MotorCityIconLibrary.TryGetTabler(tablerName);
+            if (sprite == null)
+            {
+                // Do not silently claim that the old procedural artwork
+                // has the proportions of the imported Tabler original.
+                Debug.LogError("[MotorCity][Icons] Missing garage Tabler Sprite: " +
+                    tablerName + ". Expected Resources/MotorCity/UI/Icons/Tabler/" +
+                    tablerName + ".png. Reimport the PNG, then reopen the garage.");
+                GarageIcon(parent, name, fallback, tint,
+                    x, y, width, height);
+                return;
+            }
+
+            RectTransform holder = GarageRect(
+                parent, name, x, y, width, height);
+            Image icon = holder.gameObject.AddComponent<Image>();
+            icon.sprite = sprite;
+            icon.type = Image.Type.Simple;
+            icon.preserveAspect = true;
+            icon.color = tint;
+            icon.raycastTarget = false;
+            holder.gameObject.AddComponent<MotorCityIconAspectGuard>();
+        }
+
         private static GarageReferenceGraphic GarageIcon(Transform parent, string name, GarageReferenceGraphic.Symbol symbol, Color color, float x, float y, float w, float h)
         {
             var graphic = GarageRect(parent, name, x, y, w, h).gameObject.AddComponent<GarageReferenceGraphic>();
