@@ -1165,7 +1165,7 @@ namespace MotorCity.Bootstrap
                 false);
 
             Sprite flagSprite =
-                Resources.Load<Sprite>("MotorCity/Markers/flag");
+                MotorCityIconLibrary.ForActivity(ActivityIcon.Sprint);
 
             if (flagSprite != null)
             {
@@ -1238,8 +1238,7 @@ namespace MotorCity.Bootstrap
                 false);
 
             Sprite flagSprite =
-                Resources.Load<Sprite>(
-                    "MotorCity/Markers/flag");
+                MotorCityIconLibrary.ForActivity(ActivityIcon.Circuit);
 
             Color circuitColor =
                 new(0.08f, 0.9f, 1f);
