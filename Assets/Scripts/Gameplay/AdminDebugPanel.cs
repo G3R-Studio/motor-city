@@ -71,6 +71,7 @@ namespace MotorCity.Gameplay
         private Vector2 scroll;
         private string markerFilter = string.Empty;
         private int markerShownCount;
+        private GameObject markerPreview;
         private string lastAction = "Готово";
         private static readonly string[] QaModalRoots =
         {
@@ -585,8 +586,10 @@ namespace MotorCity.Gameplay
         {
             Section("ВСЕ МЕТКИ ГОРОДА — ТЕЛЕПОРТ / КООРДИНАТЫ");
             GUILayout.Label(
-                "Доступ ко всем точкам без запуска гонок или выполнения заданий. " +
-                "Телепорт отменяет текущую активность, но не засчитывает её.");
+                "Телепорт не засчитывает задания. К МЕТКЕ также покажет " +
+                "тестовый VFX, даже если активность ещё не началась.");
+            if (GUILayout.Button("УБРАТЬ ПРЕДПРОСМОТР", GUILayout.Height(28f)))
+                ClearMarkerPreview();
             GUILayout.BeginHorizontal();
             GUILayout.Label("Поиск:", GUILayout.Width(65f));
             markerFilter = GUILayout.TextField(markerFilter ?? string.Empty);
@@ -598,13 +601,17 @@ namespace MotorCity.Gameplay
 
             MarkerSection("ГАРАЖ И ОСНОВНЫЕ АКТИВНОСТИ");
             MarkerRow("Гараж (НЕ ПЕРЕМЕЩЁН)",
-                CityAssetRuntimeInstaller.GaragePoint);
+                CityAssetRuntimeInstaller.GaragePoint, "garage");
             MarkerRow("Дрифт-испытание",
-                CityAssetRuntimeInstaller.DriftChallengePoint);
-            DrawMarkerRoute("Доставка", CityAssetRuntimeInstaller.DeliveryRoute);
-            DrawMarkerRoute("Спринт", CityAssetRuntimeInstaller.SprintRoute);
-            DrawMarkerRoute("Кольцевая гонка", CityAssetRuntimeInstaller.CircuitRoute);
-            DrawMarkerRoute("Подпольные события", CityAssetRuntimeInstaller.UndergroundRoute);
+                CityAssetRuntimeInstaller.DriftChallengePoint, "drift");
+            DrawMarkerRoute("Доставка", CityAssetRuntimeInstaller.DeliveryRoute,
+                "delivery");
+            DrawMarkerRoute("Спринт", CityAssetRuntimeInstaller.SprintRoute,
+                "sprint");
+            DrawMarkerRoute("Кольцевая гонка", CityAssetRuntimeInstaller.CircuitRoute,
+                "circuit");
+            DrawMarkerRoute("Подпольные события",
+                CityAssetRuntimeInstaller.UndergroundRoute, "underground");
 
             MarkerSection("ПРОФЕССИИ — СТАРТЫ И ВСЕ ЧЕКПОИНТЫ");
             if (professions != null)
@@ -612,22 +619,24 @@ namespace MotorCity.Gameplay
                 for (int i = 0; i < professions.StartCount; i++)
                 {
                     string name = professions.GetStartName(i);
-                    MarkerRow(name + " — СТАРТ", professions.GetStartPoint(i));
+                    string markerId = professions.GetStartActivityId(i);
+                    MarkerRow(name + " — СТАРТ",
+                        professions.GetStartPoint(i), markerId);
                     Vector3[] plan = professions.GetPlannedRoute(i);
                     for (int j = 0; j < plan.Length; j++)
-                        MarkerRow(name + " — ТОЧКА " + (j + 1), plan[j]);
+                        MarkerRow(name + " — ТОЧКА " + (j + 1), plan[j], markerId);
                 }
             }
 
             MarkerSection("ГОРОДСКИЕ СЛУЖБЫ");
             if (carWash != null)
-                MarkerRow("Автомойка — СТАРТ", carWash.StartPoint);
+                MarkerRow("Автомойка — СТАРТ", carWash.StartPoint, "carwash");
             if (towTruck != null)
             {
-                MarkerRow("Эвакуатор — СТАРТ", towTruck.StartPoint);
+                MarkerRow("Эвакуатор — СТАРТ", towTruck.StartPoint, "tow");
                 MarkerRow("Эвакуатор — СЛОМАННАЯ МАШИНА",
-                    towTruck.BreakdownPoint);
-                MarkerRow("Эвакуатор — СЕРВИС", towTruck.ServicePoint);
+                    towTruck.BreakdownPoint, "tow");
+                MarkerRow("Эвакуатор — СЕРВИС", towTruck.ServicePoint, "tow");
             }
 
             MarkerSection("ПОСТОЯННЫЕ МЕТКИ / ЗАДАНИЯ ФОТООХОТЫ");
@@ -635,19 +644,19 @@ namespace MotorCity.Gameplay
             {
                 for (int i = 0; i < discoveries.DiscoveryCount; i++)
                     MarkerRow("Исследование / Фотоохота " + (i + 1),
-                        discoveries.GetDiscoveryPosition(i));
+                        discoveries.GetDiscoveryPosition(i), "discovery");
             }
             if (speedTraps != null)
             {
                 for (int i = 0; i < speedTraps.TrapCount; i++)
                     MarkerRow("Скоростная ловушка " + (i + 1),
-                        speedTraps.GetTrapPosition(i));
+                        speedTraps.GetTrapPosition(i), "speedtrap");
             }
             if (driftSpots != null)
             {
                 for (int i = 0; i < driftSpots.SpotCount; i++)
                     MarkerRow("Дрифт-зона " + (i + 1),
-                        driftSpots.GetSpotPosition(i));
+                        driftSpots.GetSpotPosition(i), "driftspot");
             }
 
             GUILayout.Label(
@@ -661,7 +670,8 @@ namespace MotorCity.Gameplay
                 Section(title);
         }
 
-        private void DrawMarkerRoute(string title, Vector3[] checkpoints)
+        private void DrawMarkerRoute(
+            string title, Vector3[] checkpoints, string markerId)
         {
             if (checkpoints == null)
                 return;
@@ -675,16 +685,18 @@ namespace MotorCity.Gameplay
                     ? checkpoints[i + 1] - checkpoints[i]
                     : i > 0 ? checkpoints[i] - checkpoints[i - 1]
                             : Vector3.forward;
-                MarkerRow(label, checkpoints[i], forward);
+                MarkerRow(label, checkpoints[i], forward, markerId);
             }
         }
 
-        private void MarkerRow(string name, Vector3 position)
+        private void MarkerRow(
+            string name, Vector3 position, string markerId)
         {
-            MarkerRow(name, position, Vector3.forward);
+            MarkerRow(name, position, Vector3.forward, markerId);
         }
 
-        private void MarkerRow(string name, Vector3 position, Vector3 direction)
+        private void MarkerRow(
+            string name, Vector3 position, Vector3 direction, string markerId)
         {
             if (!string.IsNullOrWhiteSpace(markerFilter) &&
                 name.IndexOf(markerFilter,
@@ -706,11 +718,61 @@ namespace MotorCity.Gameplay
                     ? Quaternion.LookRotation(direction.normalized, Vector3.up)
                     : Quaternion.identity;
                 Teleport(position, heading);
+                ShowMarkerPreview(position, markerId);
                 lastAction = "Метка: " + name + " (" +
                     position.x.ToString("0.0") + ", " +
                     position.z.ToString("0.0") + ")";
             }
             GUILayout.EndHorizontal();
+        }
+
+        private void ShowMarkerPreview(Vector3 position, string markerId)
+        {
+            ClearMarkerPreview();
+
+            string prefabName = markerId switch
+            {
+                "garage" => "Profession",
+                "drift" or "driftspot" => "Drift",
+                "delivery" => "Delivery",
+                "sprint" => "Sprint",
+                "circuit" or "speedtrap" => "Circuit",
+                "underground" => "Underground",
+                "carwash" => "CarWash",
+                "tow" => "Tow",
+                "discovery" => "Discovery",
+                _ => "Profession"
+            };
+
+            GameObject prefab = Resources.Load<GameObject>(
+                "MotorCity/Markers/" + prefabName + "MarkerVfx");
+            if (prefab == null)
+            {
+                lastAction = "Отсутствует префаб: " + prefabName;
+                return;
+            }
+
+            markerPreview = Instantiate(prefab);
+            markerPreview.name = "MotorCity_QA_Marker_Preview";
+            markerPreview.transform.position = position;
+
+            ActivityMarkerVfxAnimator icon =
+                markerPreview.GetComponent<ActivityMarkerVfxAnimator>();
+            if (icon != null)
+                icon.ApplyTablerIcon(markerId);
+        }
+
+        private void ClearMarkerPreview()
+        {
+            if (markerPreview == null)
+                return;
+            Destroy(markerPreview);
+            markerPreview = null;
+        }
+
+        private void OnDestroy()
+        {
+            ClearMarkerPreview();
         }
 
         private void DrawActivities()
