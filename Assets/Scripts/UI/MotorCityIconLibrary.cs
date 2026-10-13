@@ -354,7 +354,8 @@ namespace MotorCity.UI
                 "driftspot" or "drift_spot" => "target",
                 "photo_hunt" or "photohunt" => "camera",
                 "underground" => "moon-stars",
-                "profession" or "city_profession" => "briefcase",
+                "profession" or "city_profession" or
+                "profession_icecream" => "briefcase",
                 "taxi" or "profession_taxi" => "car",
                 "pizza" or "pizza_delivery" or "profession_pizza" => "pizza",
                 "mail" or "profession_mail" => "mail",
@@ -536,6 +537,7 @@ namespace MotorCity.UI
             }
 
             Sprite fallback =
+                TryGetTabler(FallbackIconName) ??
                 Resources.Load<Sprite>(
                     Root + FallbackIconName);
 
