@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MotorCity.Localization;
 using MotorCity.Vehicle;
 using MotorCity.World;
@@ -82,6 +83,46 @@ namespace MotorCity.Gameplay
                     MotorCityLocalization.Text("world.west_turn"),
                     new Vector3(-150f, 0f, 290f))
             };
+
+            SeparateFromOtherMarkers();
+        }
+
+        private void SeparateFromOtherMarkers()
+        {
+            List<Vector3> occupied = new List<Vector3>
+            {
+                CityAssetRuntimeInstaller.GaragePoint,
+                CityAssetRuntimeInstaller.DriftChallengePoint
+            };
+            Vector3[] delivery = CityAssetRuntimeInstaller.DeliveryRoute;
+            Vector3[] sprint = CityAssetRuntimeInstaller.SprintRoute;
+            Vector3[] circuit = CityAssetRuntimeInstaller.CircuitRoute;
+            Vector3[] underground = CityAssetRuntimeInstaller.UndergroundRoute;
+            if (delivery.Length > 0) occupied.Add(delivery[0]);
+            if (sprint.Length > 0) occupied.Add(sprint[0]);
+            if (circuit.Length > 0) occupied.Add(circuit[0]);
+            if (underground.Length > 0) occupied.Add(underground[0]);
+
+            // Speed traps and drift spots were initialized before discoveries
+            // in MotorCityBootstrap, so compare their *resolved* positions.
+            SpeedTrapSystem traps = GetComponent<SpeedTrapSystem>();
+            if (traps != null)
+                for (int i = 0; i < traps.TrapCount; i++)
+                    occupied.Add(traps.GetTrapPosition(i));
+
+            DriftSpotSystem spots = GetComponent<DriftSpotSystem>();
+            if (spots != null)
+                for (int i = 0; i < spots.SpotCount; i++)
+                    occupied.Add(spots.GetSpotPosition(i));
+
+            for (int i = 0; i < discoveries.Length; i++)
+            {
+                Discovery discovery = discoveries[i];
+                discovery.Position =
+                    CityAssetRuntimeInstaller.ResolveSeparatedMarkerPoint(
+                        discovery.Position, occupied, 95f);
+                occupied.Add(discovery.Position);
+            }
         }
 
         private Discovery CreateDiscovery(
