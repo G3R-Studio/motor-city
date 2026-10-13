@@ -771,6 +771,10 @@ namespace MotorCity.World
         // the flagged direct leg by intermediate checkpoints sampled along
         // the *actual connected FCG route*, not by crossing the block.
         // This is computed once per city installation, not every frame.
+        // FCG can connect waypoint nodes through empty lots. Never convert
+        // those graph edges directly into mission checkpoint coordinates.
+        // The route planner checks *every* sampled metre against the asphalt
+        // collider, and its output is validated again before insertion.
         public static Vector3[] InsertRoadGraphWaypoints(
             Vector3[] anchors, int legIndex)
         {
@@ -780,102 +784,52 @@ namespace MotorCity.World
 
             Vector3 start = anchors[legIndex];
             Vector3 finish = anchors[legIndex + 1];
-            List<Vector3> path = CityRoadNavigator.BuildRoute(start, finish);
-            if (path.Count < 2)
-                return RepairUnpavedDetour(anchors, legIndex,
-                    "FCG graph has no route");
 
-            float distance = 0f;
-            for (int i = 1; i < path.Count; i++)
-                distance += FlatDistanceXZ(path[i - 1], path[i]);
-
-            float direct = FlatDistanceXZ(start, finish);
-            // Keep a road segment unchanged when the current FCG graph has
-            // no significant detour; this handles future city revisions.
-            if (distance <= direct * 3.2f + 60f)
+            if (HasDrivableAsphaltBetween(start, finish))
                 return anchors;
 
-            // About one checkpoint every 100m of *road travel* ensures that
-            // successive targets are approachable without driving 550m
-            // toward an apparently adjacent marker on another street.
-            int intervals = Mathf.Max(2, Mathf.CeilToInt(distance / 105f));
-            List<Vector3> inserted = new List<Vector3>(intervals - 1);
-            int segment = 1;
-            float covered = 0f;
-            for (int sample = 1; sample < intervals; sample++)
+            if (!DrivableRoadDetourPlanner.TryFindWaypoints(
+                    start, finish, out List<Vector3> stops) ||
+                stops == null || stops.Count == 0)
             {
-                float targetDistance = distance * sample / intervals;
-                while (segment < path.Count - 1 &&
-                       covered + FlatDistanceXZ(path[segment - 1],
-                           path[segment]) < targetDistance)
+                Debug.LogWarning("[MotorCity][Layout] No validated asphalt " +
+                    "detour for checkpoint leg " + legIndex + " (" +
+                    start.ToString("F1") + " -> " + finish.ToString("F1") +
+                    "). Keeping original targets visible to the layout audit.");
+                return anchors;
+            }
+
+            // Reject overshort, duplicated and off-asphalt intermediate
+            // checkpoint positions. A failure should remain observable by QA.
+            Vector3 previous = start;
+            for (int i = 0; i <= stops.Count; i++)
+            {
+                Vector3 next = i == stops.Count ? finish : stops[i];
+                float leg = FlatDistanceXZ(previous, next);
+                if (leg < 24f || leg > 160f ||
+                    !HasDrivableAsphaltBetween(previous, next))
                 {
-                    covered += FlatDistanceXZ(path[segment - 1], path[segment]);
-                    segment++;
+                    Debug.LogWarning("[MotorCity][Layout] Asphalt detour " +
+                        "failed segment validation at point " + i +
+                        " for leg " + legIndex + "; original leg preserved.");
+                    return anchors;
                 }
-
-                Vector3 a = path[segment - 1];
-                Vector3 b = path[segment];
-                float legDistance = FlatDistanceXZ(a, b);
-                float t = legDistance > 0.001f
-                    ? Mathf.Clamp01((targetDistance - covered) / legDistance)
-                    : 0f;
-                Vector3 samplePosition = Vector3.Lerp(a, b, t);
-
-                if (!TryGetRoadHit(samplePosition.x, samplePosition.z,
-                        out Vector3 roadPosition))
-                {
-                    // Refuse to put mission markers on a non-road graph link.
-                    // The audit keeps the original warning in this case.
-                    return RepairUnpavedDetour(anchors, legIndex,
-                        "FCG graph passes through non-drivable ground");
-                }
-
-                roadPosition.y += MarkerLift;
-                inserted.Add(roadPosition);
+                previous = next;
             }
 
             List<Vector3> result = new List<Vector3>(
-                anchors.Length + inserted.Count);
+                anchors.Length + stops.Count);
             for (int i = 0; i < anchors.Length; i++)
             {
                 result.Add(anchors[i]);
                 if (i == legIndex)
-                    result.AddRange(inserted);
+                    result.AddRange(stops);
             }
 
-            Debug.Log("[MotorCity][Layout] Expanded disconnected straight leg " +
-                legIndex + " into " + intervals + " road-aligned legs.");
+            Debug.Log("[MotorCity][Layout] Checkpoint leg " + legIndex +
+                " now follows " + (stops.Count + 1) +
+                " physically validated asphalt segments.");
             return result.ToArray();
-        }
-
-        private static Vector3[] RepairUnpavedDetour(Vector3[] anchors,
-            int legIndex, string reason)
-        {
-            Vector3 start = anchors[legIndex];
-            Vector3 finish = anchors[legIndex + 1];
-            if (!DrivableRoadDetourPlanner.TryFindWaypoints(start, finish,
-                    out List<Vector3> stops))
-            {
-                Debug.LogWarning("[MotorCity][Layout] Leg " + legIndex +
-                    " still needs a road-safe detour: " + reason +
-                    ". The asphalt planner found no connected path; " +
-                    "leaving the original leg visible to the audit.");
-                return anchors;
-            }
-
-            List<Vector3> route = new List<Vector3>(
-                anchors.Length + stops.Count);
-            for (int i = 0; i < anchors.Length; i++)
-            {
-                route.Add(anchors[i]);
-                if (i == legIndex)
-                    route.AddRange(stops);
-            }
-
-            Debug.Log("[MotorCity][Layout] Replaced broken FCG leg " +
-                legIndex + " with " + (stops.Count + 1) +
-                " asphalt-verified legs.");
-            return route.ToArray();
         }
 
         private static float FlatDistanceXZ(Vector3 a, Vector3 b)
