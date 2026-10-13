@@ -11,7 +11,6 @@ namespace MotorCity.World
     internal static class DrivableRoadDetourPlanner
     {
         private const float GridStep = 10f;
-        private const float SegmentCheckStep = 3.5f;
         private const float MaximumLeg = 82f;
         private const int MaximumVisitedCells = 2600;
         private const float SearchMargin = 375f;
@@ -90,8 +89,17 @@ namespace MotorCity.World
                     path.Reverse();
                     if (path.Count > 0)
                         path[0] = start;
-                    waypoints = Simplify(path);
-                    return waypoints.Count >= 1;
+                    if (TrySimplify(path, out List<Vector3> simplified))
+                    {
+                        waypoints = simplified;
+                        return true;
+                    }
+
+                    // The A* corridor is drivable, but an unavoidable
+                    // sub-24m checkpoint may remain at a tight corner.
+                    // Try another corridor instead of emitting an invalid
+                    // series of markers that fails the gameplay audit.
+                    continue;
                 }
 
                 foreach (Vector2Int direction in Directions)
@@ -116,61 +124,82 @@ namespace MotorCity.World
             return false;
         }
 
-        // Only a physical road hit can authorize an A* edge. Check intermediate
-        // samples as well so an edge cannot jump across a missing road patch.
+        // One road validation contract for search, simplification, insertion
+        // and Unity's marker audit. A* already uses validated endpoints; its
+        // former interior-only test disagreed with the final endpoint test.
         private static bool IsPassable(Vector3 a, Vector3 b)
         {
-            float length = FlatDistance(a, b);
-            if (length > 100f)
-                return false;
-            int count = Mathf.Max(1,
-                Mathf.CeilToInt(length / SegmentCheckStep));
-            for (int i = 1; i < count; i++)
-            {
-                float t = i / (float)count;
-                float x = Mathf.Lerp(a.x, b.x, t);
-                float z = Mathf.Lerp(a.z, b.z, t);
-                if (!CityAssetRuntimeInstaller.TryGetRoadPoint(
-                    x, z, out Vector3 hit) ||
-                    Mathf.Abs(hit.y - Mathf.Lerp(a.y, b.y, t)) > 3f)
-                    return false;
-            }
-            return true;
+            return CityAssetRuntimeInstaller.HasDrivableAsphaltBetween(a, b);
         }
 
-        private static List<Vector3> Simplify(List<Vector3> raw)
+        // Dynamic programming selects a chain of checkpoint anchors from the
+        // fully validated A* polyline. It never rounds a corner across an
+        // off-road shortcut and rejects <24m "micro-checkpoints" before
+        // passing anything back to the city loader.
+        private static bool TrySimplify(List<Vector3> raw,
+            out List<Vector3> result)
         {
-            List<Vector3> result = new List<Vector3>();
-            if (raw.Count <= 2)
-                return result;
+            result = null;
+            if (raw == null || raw.Count < 2)
+                return false;
 
-            // Keep a checkpoint at each bend and at most 82 metres apart.
-            // The simplifier must never cut a corner across an empty block.
-            int anchor = 0;
-            for (int i = 1; i < raw.Count; i++)
-            {
-                bool tooFar = FlatDistance(raw[anchor], raw[i]) > MaximumLeg;
-                bool obstructed = !tooFar && !IsPassable(raw[anchor], raw[i]);
-                if (!tooFar && !obstructed)
-                    continue;
+            const float MinimumLeg = 24f;
+            const float PreferredLeg = 65f;
+            const int LookAhead = 18;
+            int count = raw.Count;
+            float[] cost = new float[count];
+            int[] parent = new int[count];
 
-                int keep = i - 1;
-                if (keep <= anchor)
-                    keep = i;
-                if (keep < raw.Count - 1)
-                    result.Add(raw[keep]);
-                anchor = keep;
-            }
-            Vector3 last = raw[raw.Count - 1];
-            if (result.Count > 0 &&
-                FlatDistance(result[result.Count - 1], last) < 22f)
+            for (int i = 0; i < count; i++)
             {
-                Vector3 before = result.Count > 1
-                    ? result[result.Count - 2] : raw[0];
-                if (IsPassable(before, last))
-                    result.RemoveAt(result.Count - 1);
+                cost[i] = float.PositiveInfinity;
+                parent[i] = -1;
             }
-            return result;
+            cost[0] = 0f;
+
+            for (int end = 1; end < count; end++)
+            {
+                int begin = Mathf.Max(0, end - LookAhead);
+                for (int start = begin; start < end; start++)
+                {
+                    if (float.IsInfinity(cost[start]))
+                        continue;
+
+                    float length = FlatDistance(raw[start], raw[end]);
+                    if (length < MinimumLeg || length > MaximumLeg)
+                        continue;
+
+                    if (!IsPassable(raw[start], raw[end]))
+                        continue;
+
+                    // Prefer fewer markers and normal 50-80m spacing.
+                    // Each edge is tested against the real asphalt collider.
+                    float nextCost = cost[start] + 1f +
+                        Mathf.Abs(length - PreferredLeg) * 0.001f;
+                    if (nextCost < cost[end])
+                    {
+                        cost[end] = nextCost;
+                        parent[end] = start;
+                    }
+                }
+            }
+
+            if (parent[count - 1] < 0)
+                return false;
+
+            List<Vector3> reversed = new List<Vector3>();
+            int current = count - 1;
+            while (parent[current] > 0)
+            {
+                current = parent[current];
+                reversed.Add(raw[current]);
+            }
+            reversed.Reverse();
+
+            // Only intermediate points are returned; city installation adds
+            // the existing start and finish exactly once.
+            result = reversed;
+            return true;
         }
 
         private static void Push(
