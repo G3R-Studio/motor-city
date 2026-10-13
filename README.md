@@ -168,7 +168,7 @@ The project still depends on imported content or code from:
 - **Amane Kisora-chan (FREE ver)** - supporter-exclusive Pixie EX source;
 - **Fantastic City Generator** - city authoring source/toolchain;
 - **Gudamore / Free Sports Car content** - retained vehicle source content where referenced;
-- **Kenney CC0 artwork** - UI/icon source content where referenced.
+- **Tabler Icons (MIT)** — game UI and activity marker pictograms. Source SVGs: `ThirdParty/TablerIcons/outline/`; curated Unity PNGs: `Assets/Resources/MotorCity/UI/Icons/Tabler/`; license: `Assets/ThirdParty/LICENSE`.
 
 Generated Motor City prefabs can still reference source prefabs, meshes, materials or animations inside these imported packages. Do not delete an entire third-party package solely because a Motor City copy exists under `Resources`; verify prefab/GUID dependencies first.
 
