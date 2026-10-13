@@ -1,0 +1,91 @@
+name: Publish Motor City to GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_run_id:
+        description: 'Optional Actions run ID containing a successful Desktop WebGL artifact (empty = newest)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: motor-city-pages
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare existing Desktop WebGL build
+    runs-on: ubuntu-latest
+    outputs:
+      release_run_id: ${{ steps.find-run.outputs.run_id }}
+    steps:
+      - name: Select successful release build
+        id: find-run
+        uses: actions/github-script@v7
+        env:
+          REQUESTED_RUN_ID: ${{ inputs.release_run_id }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const artifactName = 'motor-city-webgl-desktop-release';
+            const requested = process.env.REQUESTED_RUN_ID.trim();
+            const ids = [];
+            if (requested) {
+              if (!/^\d+$/.test(requested)) core.setFailed('release_run_id must be numeric');
+              ids.push(Number(requested));
+            } else {
+              const result = await github.rest.actions.listWorkflowRuns({
+                owner, repo, workflow_id: 'motor-city-source-gates.yml',
+                status: 'success', per_page: 20
+              });
+              ids.push(...result.data.workflow_runs.map(run => run.id));
+            }
+            for (const run_id of ids) {
+              const result = await github.rest.actions.listWorkflowRunArtifacts({
+                owner, repo, run_id, per_page: 100
+              });
+              if (result.data.artifacts.some(a => a.name === artifactName && !a.expired)) {
+                core.setOutput('run_id', String(run_id));
+                core.info(`Using Desktop release artifact from run ${run_id}`);
+                return;
+              }
+            }
+            core.setFailed('No unexpired Desktop WebGL artifact found. Run Motor City Source Gates with build_webgl_release enabled.');
+
+      - name: Download Desktop WebGL release
+        uses: actions/download-artifact@v4
+        with:
+          name: motor-city-webgl-desktop-release
+          run-id: ${{ steps.find-run.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: _site
+
+      - name: Validate site entry point
+        shell: bash
+        run: |
+          test -f _site/index.html || { echo 'Missing _site/index.html'; find _site -maxdepth 3 -type f | head -50; exit 1; }
+          touch _site/.nojekyll
+
+      - name: Upload GitHub Pages content
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy GitHub Pages
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
