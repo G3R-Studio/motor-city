@@ -8,9 +8,14 @@ namespace MotorCity.EditorTools
         private const string IconRoot =
             "Assets/Resources/MotorCity/UI/Icons/Kenney/";
 
-        private bool IsMotorCityIcon =>
-            assetPath.StartsWith(
-                IconRoot,
+        private const string TablerRoot =
+            "Assets/Resources/MotorCity/UI/Icons/Tabler/";
+
+        private bool IsKenneyIcon => assetPath.StartsWith(
+            IconRoot, System.StringComparison.OrdinalIgnoreCase);
+
+        private bool IsMotorCityIcon => IsKenneyIcon ||
+            assetPath.StartsWith(TablerRoot,
                 System.StringComparison.OrdinalIgnoreCase);
 
         private void OnPreprocessTexture()
@@ -46,7 +51,7 @@ namespace MotorCity.EditorTools
         private void OnPostprocessTexture(
             Texture2D texture)
         {
-            if (!IsMotorCityIcon ||
+            if (!IsKenneyIcon ||
                 texture == null)
             {
                 return;
