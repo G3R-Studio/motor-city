@@ -1661,6 +1661,8 @@ namespace MotorCity.UI
                     texture);
             image.preserveAspect =
                 true;
+            // The touch artwork is an icon; never deform its source aspect.
+            image.gameObject.AddComponent<MotorCityIconAspectGuard>();
             image.raycastTarget =
                 true;
             image.color =
@@ -1749,6 +1751,8 @@ namespace MotorCity.UI
                         : touchArtAssets.touchWheel);
             image.preserveAspect =
                 true;
+            // The touch artwork is an icon; never deform its source aspect.
+            image.gameObject.AddComponent<MotorCityIconAspectGuard>();
             image.raycastTarget =
                 true;
             image.color =
