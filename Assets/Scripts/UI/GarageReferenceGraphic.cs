@@ -149,7 +149,18 @@ namespace MotorCity.UI
         private void Polygon(Color tint, params Vector2[] points)
         {
             int start = mesh.currentVertCount;
-            foreach(Vector2 point in points) mesh.AddVert(Point(point),tint,Vector2.zero);
+            // Navigation surfaces are also glass panels. Shade the
+            // underlying polygon by X before adding its neon rim.
+            bool glassPolygon = symbol == Symbol.CitySurface ||
+                symbol == Symbol.NavigationLeft ||
+                symbol == Symbol.NavigationRight;
+            Rect bounds = rectTransform.rect;
+            foreach (Vector2 point in points)
+            {
+                Vector2 local = Point(point);
+                mesh.AddVert(local, glassPolygon
+                    ? SurfaceFillAt(local, bounds) : tint, Vector2.zero);
+            }
             var remaining = new List<int>();
             float area = 0;
             for(int i=0;i<points.Length;i++)
@@ -286,6 +297,39 @@ namespace MotorCity.UI
         private const int GlowSteps = 8;
         private const int GlowVertexCount = 4 * (GlowSteps + 1);
 
+        // Dark glass uses the SAME left/right hue as the neon outline,
+        // but at much lower brightness so white labels stay legible.
+        // This is vertex coloring in the existing UGUI mesh, not a new
+        // texture, material, shader or overlaid raycast target.
+        private static readonly Color GlassCyan =
+            new(0.023f, 0.075f, 0.120f, 1f);
+        private static readonly Color GlassViolet =
+            new(0.105f, 0.038f, 0.157f, 1f);
+
+        private Color SurfaceFillAt(Vector2 position, Rect bounds)
+        {
+            float t = Mathf.Clamp01((position.x - bounds.xMin) /
+                Mathf.Max(0.001f, bounds.width));
+
+            Color fill = Color.Lerp(GlassCyan, GlassViolet, t);
+            // Retain a hint of the button role (primary / back / utility)
+            // without turning the background into a bright gradient.
+            fill.r += color.r * 0.12f;
+            fill.g += color.g * 0.08f;
+            fill.b += color.b * 0.09f;
+
+            // Soft glass highlight at the top, keeping the horizontal hue
+            // shift perceptually dominant on cards of every aspect ratio.
+            float top = Mathf.Clamp01((position.y - bounds.yMin) /
+                Mathf.Max(0.001f, bounds.height));
+            float brightness = Mathf.Lerp(0.90f, 1.08f, top);
+            fill.r *= brightness;
+            fill.g *= brightness;
+            fill.b *= brightness;
+            fill.a = color.a;
+            return fill;
+        }
+
         private Color NeonAt(float x, Rect bounds, float opacity)
         {
             float t = Mathf.Clamp01((x - bounds.xMin) /
@@ -352,9 +396,12 @@ namespace MotorCity.UI
 
         private void Surface()
         {
-            Rect r=rectTransform.rect;
-            int center=mesh.currentVertCount;
-            mesh.AddVert(r.center,new Color(color.r*.45f,color.g*.45f,color.b*.55f,color.a),Vector2.zero);
+            Rect r = rectTransform.rect;
+            if (r.width <= 0f || r.height <= 0f)
+                return;
+
+            int center = mesh.currentVertCount;
+            mesh.AddVert(r.center, SurfaceFillAt(r.center, r), Vector2.zero);
             float radius=Mathf.Min(12,Mathf.Min(r.width,r.height)*.2f);
             for(int corner=0;corner<4;corner++)
             {
@@ -367,9 +414,7 @@ namespace MotorCity.UI
                 {
                     float angle=(corner*90+step*90f/8)*Mathf.Deg2Rad;
                     Vector2 p=origin+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*radius;
-                    float t=Mathf.InverseLerp(r.yMin,r.yMax,p.y);
-                    Color c=Color.Lerp(new Color(.035f,.035f,.09f,color.a),color,t);
-                    mesh.AddVert(p,c,Vector2.zero);
+                    mesh.AddVert(p, SurfaceFillAt(p, r), Vector2.zero);
                 }
             }
             int count=mesh.currentVertCount-center-1;
