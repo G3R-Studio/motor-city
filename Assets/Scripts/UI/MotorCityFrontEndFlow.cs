@@ -1640,6 +1640,7 @@ namespace MotorCity.UI
             image.color = color;
             image.preserveAspect = true;
             image.raycastTarget = false;
+            iconObject.AddComponent<MotorCityIconAspectGuard>();
         }
 
         private void RefreshLoadingTip()
