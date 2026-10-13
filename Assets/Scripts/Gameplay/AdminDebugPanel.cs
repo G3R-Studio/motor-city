@@ -298,8 +298,9 @@ namespace MotorCity.Gameplay
         {
             // Two rows keep the eight QA categories readable on
             // narrower Editor game windows without renaming any tab.
-            int firstRow = Mathf.Clamp(selectedTab, 0, 3);
-            int secondRow = selectedTab >= 4 ? selectedTab - 4 : -1;
+            int firstRow = selectedTab < 4 ? selectedTab : -1;
+            int secondRow = selectedTab >= 4 && selectedTab < 8
+                ? selectedTab - 4 : -1;
             int firstChoice = GUILayout.Toolbar(firstRow,
                 new[] { Tabs[0], Tabs[1], Tabs[2], Tabs[3] },
                 GUILayout.Height(34f));
