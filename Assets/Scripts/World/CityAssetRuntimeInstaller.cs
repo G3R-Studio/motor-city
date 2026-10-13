@@ -612,20 +612,20 @@ namespace MotorCity.World
                     true);
 
             deliveryRoute =
-                ResolveRoadRoute(
-                    DeliveryPreferred);
+                InsertRoadGraphWaypoints(
+                    ResolveRoadRoute(DeliveryPreferred), 6);
 
             sprintRoute =
-                ResolveRoadRoute(
-                    SprintPreferred);
+                InsertRoadGraphWaypoints(
+                    ResolveRoadRoute(SprintPreferred), 8);
 
             circuitRoute =
                 ResolveRoadRoute(
                     CircuitPreferred);
 
             undergroundRoute =
-                ResolveRoadRoute(
-                    UndergroundPreferred);
+                InsertRoadGraphWaypoints(
+                    ResolveRoadRoute(UndergroundPreferred), 5);
         }
 
         // Activity start points and secondary markers use exactly the same
@@ -680,6 +680,100 @@ namespace MotorCity.World
             }
 
             return true;
+        }
+
+        // An authored road can bend around a non-drivable city block even
+        // when two targets are only 125m apart in a straight line. Replace
+        // the flagged direct leg by intermediate checkpoints sampled along
+        // the *actual connected FCG route*, not by crossing the block.
+        // This is computed once per city installation, not every frame.
+        public static Vector3[] InsertRoadGraphWaypoints(
+            Vector3[] anchors, int legIndex)
+        {
+            if (anchors == null || legIndex < 0 ||
+                legIndex + 1 >= anchors.Length)
+                return anchors;
+
+            Vector3 start = anchors[legIndex];
+            Vector3 finish = anchors[legIndex + 1];
+            List<Vector3> path = CityRoadNavigator.BuildRoute(start, finish);
+            if (path.Count < 2)
+            {
+                Debug.LogWarning("[MotorCity][Layout] Cannot connect road detour " +
+                    legIndex + "; keeping original route for audit.");
+                return anchors;
+            }
+
+            float distance = 0f;
+            for (int i = 1; i < path.Count; i++)
+                distance += FlatDistanceXZ(path[i - 1], path[i]);
+
+            float direct = FlatDistanceXZ(start, finish);
+            // Keep a road segment unchanged when the current FCG graph has
+            // no significant detour; this handles future city revisions.
+            if (distance <= direct * 3.2f + 60f)
+                return anchors;
+
+            // About one checkpoint every 100m of *road travel* ensures that
+            // successive targets are approachable without driving 550m
+            // toward an apparently adjacent marker on another street.
+            int intervals = Mathf.Max(2, Mathf.CeilToInt(distance / 105f));
+            List<Vector3> inserted = new List<Vector3>(intervals - 1);
+            int segment = 1;
+            float covered = 0f;
+            for (int sample = 1; sample < intervals; sample++)
+            {
+                float targetDistance = distance * sample / intervals;
+                while (segment < path.Count - 1 &&
+                       covered + FlatDistanceXZ(path[segment - 1],
+                           path[segment]) < targetDistance)
+                {
+                    covered += FlatDistanceXZ(path[segment - 1], path[segment]);
+                    segment++;
+                }
+
+                Vector3 a = path[segment - 1];
+                Vector3 b = path[segment];
+                float legDistance = FlatDistanceXZ(a, b);
+                float t = legDistance > 0.001f
+                    ? Mathf.Clamp01((targetDistance - covered) / legDistance)
+                    : 0f;
+                Vector3 samplePosition = Vector3.Lerp(a, b, t);
+
+                if (!TryGetRoadHit(samplePosition.x, samplePosition.z,
+                        out Vector3 roadPosition))
+                {
+                    // Refuse to put mission markers on a non-road graph link.
+                    // The audit keeps the original warning in this case.
+                    Debug.LogWarning("[MotorCity][Layout] Road detour sample " +
+                        sample + " for leg " + legIndex +
+                        " has no drivable asphalt; inspect FCG links.");
+                    return anchors;
+                }
+
+                roadPosition.y += MarkerLift;
+                inserted.Add(roadPosition);
+            }
+
+            List<Vector3> result = new List<Vector3>(
+                anchors.Length + inserted.Count);
+            for (int i = 0; i < anchors.Length; i++)
+            {
+                result.Add(anchors[i]);
+                if (i == legIndex)
+                    result.AddRange(inserted);
+            }
+
+            Debug.Log("[MotorCity][Layout] Expanded disconnected straight leg " +
+                legIndex + " into " + intervals + " road-aligned legs.");
+            return result.ToArray();
+        }
+
+        private static float FlatDistanceXZ(Vector3 a, Vector3 b)
+        {
+            float dx = b.x - a.x;
+            float dz = b.z - a.z;
+            return Mathf.Sqrt(dx * dx + dz * dz);
         }
 
         private static Vector3[] ResolveRoadRoute(
