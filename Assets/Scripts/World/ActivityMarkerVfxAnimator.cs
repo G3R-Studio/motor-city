@@ -69,6 +69,20 @@ namespace MotorCity.World
                         StringComparison.OrdinalIgnoreCase) < 0)
                     continue;
 
+                // Keep the authored world-space footprint when replacing
+                // 64/128px Kenney art with 192/384px Tabler textures.
+                // Otherwise large source textures inflate the 3D marker.
+                Sprite oldSprite = renderer.sprite;
+                if (oldSprite != null && oldSprite != sprite)
+                {
+                    float oldUnits = Mathf.Max(oldSprite.bounds.size.x,
+                        oldSprite.bounds.size.y);
+                    float newUnits = Mathf.Max(sprite.bounds.size.x,
+                        sprite.bounds.size.y);
+                    if (oldUnits > 0.001f && newUnits > 0.001f)
+                        renderer.transform.localScale *= oldUnits / newUnits;
+                }
+
                 renderer.sprite = sprite;
             }
         }
