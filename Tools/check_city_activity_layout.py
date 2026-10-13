@@ -151,6 +151,16 @@ def main():
                 "Marker starts collide", name, next_name, round(gap, 1)
             )
 
+    # Transient route checkpoint markers should never sit exactly on an
+    # unrelated permanent activity marker, even if permanent starts are apart.
+    for route_name, route_points in routes.items():
+        for index, checkpoint in enumerate(route_points[1:], start=1):
+            for marker_name, marker_position in positions.items():
+                assert distance(checkpoint, marker_position) >= 12.0, (
+                    "Active checkpoint overlaps another marker",
+                    route_name, index, marker_name
+                )
+
     for name, pts in routes.items():
         closed = name == "CircuitPreferred"
         legs = len(pts) if closed else len(pts) - 1
