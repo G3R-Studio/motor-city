@@ -10,7 +10,7 @@ public static class MotorCityActivityMarkerBuilder
         "Assets/Eric VFX Studio/Game VFX - Magic Circle(Free)/Prefabs/FX_MagicCircle_Icearrow01.prefab";
 
     private const string IconRoot =
-        "Assets/Art/MotorCity/Markers/KenneyGameIcons/2x/";
+        "Assets/Resources/MotorCity/UI/Icons/Tabler/";
 
     private const string OutputRoot =
         "Assets/Resources/MotorCity/Markers";
@@ -28,7 +28,7 @@ public static class MotorCityActivityMarkerBuilder
 
         BuildMarker(
             "Drift",
-            "return.png",
+            "car-turbine.png",
             new Color(1f, 0.30f, 0.035f, 1f),
             0.62f,
             2.85f,
@@ -41,7 +41,7 @@ public static class MotorCityActivityMarkerBuilder
     {
         BuildMarker(
             "Delivery",
-            "export.png",
+            "truck-delivery.png",
             new Color(0.06f, 0.48f, 1f, 1f),
             0.58f,
             3.05f,
@@ -54,7 +54,7 @@ public static class MotorCityActivityMarkerBuilder
     {
         BuildMarker(
             "Sprint",
-            "fastForward.png",
+            "arrow-right.png",
             new Color(0.08f, 1f, 0.28f, 1f),
             0.60f,
             2.95f,
@@ -80,7 +80,7 @@ public static class MotorCityActivityMarkerBuilder
     {
         BuildMarker(
             "Discovery",
-            "target.png",
+            "map-pin.png",
             new Color(0.72f, 0.28f, 1f, 1f),
             0.52f,
             2.65f,
@@ -93,7 +93,7 @@ public static class MotorCityActivityMarkerBuilder
     {
         BuildMarker(
             "Underground",
-            "warning.png",
+            "moon-stars.png",
             new Color(0.78f, 0.18f, 1f, 1f),
             0.64f,
             2.95f,
@@ -106,7 +106,7 @@ public static class MotorCityActivityMarkerBuilder
     {
         BuildMarker(
             "Profession",
-            "gear.png",
+            "briefcase.png",
             new Color(1f, 0.68f, 0.10f, 1f),
             0.56f,
             2.80f,
@@ -119,7 +119,7 @@ public static class MotorCityActivityMarkerBuilder
     {
         BuildMarker(
             "CarWash",
-            "star.png",
+            "spray.png",
             new Color(0.10f, 0.82f, 1f, 1f),
             0.58f,
             2.85f,
@@ -132,7 +132,7 @@ public static class MotorCityActivityMarkerBuilder
     {
         BuildMarker(
             "Tow",
-            "wrench.png",
+            "car-crane.png",
             new Color(1f, 0.56f, 0.06f, 1f),
             0.58f,
             2.85f,
@@ -290,54 +290,18 @@ public static class MotorCityActivityMarkerBuilder
         }
     }
 
-    private static bool PrepareIcon(
-        string iconPath)
+    private static bool PrepareIcon(string iconPath)
     {
-        TextureImporter importer =
-            AssetImporter.GetAtPath(
-                iconPath) as
-                TextureImporter;
+        // The shared MotorCityIconPostprocessor already owns Sprite import
+        // settings. Overriding them here would re-import the HD HUD icons
+        // with lower resolution and incompatible mip settings.
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(iconPath);
+        if (sprite != null)
+            return true;
 
-        if (importer == null)
-            return false;
-
-        bool changed =
-            importer.textureType !=
-                TextureImporterType.Sprite ||
-            importer.spriteImportMode !=
-                SpriteImportMode.Single ||
-            importer.mipmapEnabled ||
-            !importer.alphaIsTransparency ||
-            importer.maxTextureSize !=
-                256;
-
-        if (changed)
-        {
-            importer.textureType =
-                TextureImporterType.Sprite;
-
-            importer.spriteImportMode =
-                SpriteImportMode.Single;
-
-            importer.mipmapEnabled =
-                false;
-
-            importer.alphaIsTransparency =
-                true;
-
-            importer.wrapMode =
-                TextureWrapMode.Clamp;
-
-            importer.filterMode =
-                FilterMode.Bilinear;
-
-            importer.maxTextureSize =
-                256;
-
-            importer.SaveAndReimport();
-        }
-
-        return true;
+        Debug.LogError("[MotorCity][Markers] Missing Tabler Sprite: " +
+            iconPath + ". Check the SVG export workflow.");
+        return false;
     }
 
     private static void ConfigureGroundVfx(
