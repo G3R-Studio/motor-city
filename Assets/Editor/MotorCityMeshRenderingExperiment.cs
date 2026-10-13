@@ -181,6 +181,63 @@ namespace MotorCity.EditorTools
                 ". Compare the same street in Game view Stats / Profiler.");
         }
 
+        [MenuItem("Motor City/Optimization/7 - Enable Distant Detail A-B (Play Mode)")]
+        private static void EnableDetail()
+        {
+            GameObject city = GetCity();
+            if (city == null || Camera.main == null)
+                return;
+
+            CityDistanceDetailCuller culler =
+                Object.FindFirstObjectByType<CityDistanceDetailCuller>(
+                    FindObjectsInactive.Include);
+            if (culler == null)
+            {
+                GameObject host = new GameObject("MotorCity - Distant Detail A-B");
+                culler = host.AddComponent<CityDistanceDetailCuller>();
+                culler.Initialize(city, Camera.main);
+            }
+
+            culler.enabled = true;
+            culler.RequestRefresh();
+            Debug.Log("[MotorCity][Optimization] Distant detail ON. " +
+                "Wait for scan completion; use menu 9 for diagnostics.");
+        }
+
+        [MenuItem("Motor City/Optimization/8 - Disable Distant Detail A-B (Play Mode)")]
+        private static void DisableDetail()
+        {
+            if (GetCity() == null)
+                return;
+            CityDistanceDetailCuller culler =
+                Object.FindFirstObjectByType<CityDistanceDetailCuller>(
+                    FindObjectsInactive.Include);
+            if (culler == null)
+                return;
+            int hidden = culler.HiddenCount;
+            culler.enabled = false;
+            Debug.Log("[MotorCity][Optimization] Distant detail OFF; restored " +
+                hidden + " renderers.");
+        }
+
+        [MenuItem("Motor City/Optimization/9 - Report Distant Detail (Play Mode)")]
+        private static void ReportDetail()
+        {
+            if (GetCity() == null)
+                return;
+            CityDistanceDetailCuller culler =
+                Object.FindFirstObjectByType<CityDistanceDetailCuller>(
+                    FindObjectsInactive.Include);
+            Debug.Log(culler == null
+                ? "[MotorCity][Optimization] Distant detail not initialized."
+                : "[MotorCity][Optimization] Distant detail " +
+                  (culler.enabled ? "ON" : "OFF") + ": " +
+                  culler.HiddenCount + "/" + culler.CandidateCount +
+                  " hidden, " + culler.HiddenTriangleReferences +
+                  " triangle references excluded (not measured GPU triangles). " +
+                  "Scan finished=" + culler.ScanReady);
+        }
+
         private static GameObject GetCity()
         {
             if (!Application.isPlaying)

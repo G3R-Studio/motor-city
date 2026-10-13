@@ -1,3 +1,4 @@
+using System;
 using MotorCity.Platform;
 using UnityEngine;
 
@@ -18,7 +19,10 @@ namespace MotorCity.World
 
         private Camera targetCamera;
         private CityFoliageCullingExperiment browserFoliage;
+        private CityDistanceDetailCuller browserDetails;
         private float nextCityCheck;
+        private float nextDetailCheck;
+        private bool detailUrlChecked;
         private MotorCityQualityPreset appliedPreset;
         private bool appliedBrowserMode;
 
@@ -113,6 +117,8 @@ namespace MotorCity.World
             MotorCityQualityRuntime.PresetChanged -= ApplyDistances;
             if (browserFoliage != null)
                 browserFoliage.enabled = false;
+            if (browserDetails != null)
+                browserDetails.enabled = false;
         }
 
         private void ApplyDistances()
@@ -125,6 +131,8 @@ namespace MotorCity.World
 
             appliedPreset = MotorCityQualityRuntime.CurrentPreset;
             appliedBrowserMode = BrowserProfileActive;
+            if (browserDetails != null)
+                browserDetails.RequestRefresh();
 
             if (BrowserProfileActive)
             {
@@ -147,6 +155,32 @@ namespace MotorCity.World
                 ApplyDistances();
 
 #if UNITY_WEBGL && !UNITY_EDITOR
+            // Compare the same browser viewpoint with and without this
+            // experimental distant detail culler using a URL query.
+            if (!detailUrlChecked)
+            {
+                detailUrlChecked = true;
+                string url = Application.absoluteURL;
+                if (!string.IsNullOrEmpty(url) &&
+                    url.IndexOf("motorcity_detail_cull=off",
+                        StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    nextDetailCheck = float.PositiveInfinity;
+                    Debug.Log("[MotorCity][Optimization] Distant detail OFF via URL.");
+                }
+            }
+
+            if (browserDetails == null && Time.unscaledTime >= nextDetailCheck)
+            {
+                nextDetailCheck = Time.unscaledTime + 1f;
+                GameObject detailCity = GameObject.Find("MotorCity_FCGCity");
+                if (detailCity != null)
+                {
+                    browserDetails = gameObject.AddComponent<CityDistanceDetailCuller>();
+                    browserDetails.Initialize(detailCity, targetCamera);
+                }
+            }
+
             // Only decorative vegetation, and only on WebGL Low/Medium.
             // The Editor's existing foliage A/B menu remains independent.
             // Important buildings, roads, traffic and colliders stay intact.

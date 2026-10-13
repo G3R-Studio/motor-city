@@ -101,3 +101,11 @@ visuals and draw-call performance before integrating them. Only enable
 GPU instancing on materials and shaders where it improves measured WebGL
 performance versus SRP Batcher. No speculative HLOD/instancing baking was
 shipped by this change.
+
+## Distant tiny-mesh WebGL A/B experiment
+
+Directional browser stalls can be caused by 3D scene complexity, CPU draw submission, overdraw or shadows, not necessarily only triangle count. On WebGL (including High), a reversible detail culler now hides only very small projected opaque MeshRenderers beyond a substantial camera distance. It excludes LODGroups, static batches, large objects, attached colliders/scripts, transparencies and architectural/gameplay names; it preserves the full building silhouettes, roads, traffic and physics. Work is spread over multiple frames and only revisited after the camera moves. It uses Renderer.forceRenderingOff and restores only its own flags. It is an A/B experiment, **not** a proven FPS boost or proper HLOD. Any visible pop-in is reason to disable it.
+
+**Editor Play Mode:** enable browser visibility preview (menu 4), then use menus 7 / 8 to toggle distant detail and 9 to report hidden renderers and referenced triangles. Let scanning complete before comparing identical viewpoints. The editor's default is OFF.
+
+**WebGL browser after a new release:** compare https://g3r-studio.github.io/motor-city/desktop/ (ON by default) against https://g3r-studio.github.io/motor-city/desktop/?motorcity_detail_cull=off (OFF). Test at the same save position and quality preset, after a few seconds of settling. A/B URLs work only on a *newly built* release, not the old published binaries. If this experiment is inadequate, prioritize validated offline building HLOD and captured browser profile data rather than hiding major city silhouettes.
