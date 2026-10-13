@@ -77,7 +77,8 @@ namespace MotorCity.EditorTools
             }
 
             MeshRenderer[] all;
-            var groups = Collect(out all);
+            string diagnostic;
+            var groups = Collect(out all, out diagnostic);
             int eligible = groups.Values.Sum(g => g.Sources.Count);
             int bakeGroups = groups.Values.Count(g => g.Sources.Count >= MinimumRenderers);
             int triangles = groups.Values.Sum(g => g.Sources.Sum(s => s.Triangles));
@@ -87,7 +88,8 @@ namespace MotorCity.EditorTools
                 MinimumRenderers + " renderers, " + triangles +
                 " eligible triangle references (not GPU-visible triangles). " +
                 "No assets changed. If eligible count is too low, inspect " +
-                "city renderer names before relaxing protections.");
+                "city renderer names before relaxing protections.\n" +
+                diagnostic);
         }
 
         [MenuItem("Motor City/Optimization/HLOD/2 - Bake Proxies (Edit Mode)")]
@@ -100,7 +102,14 @@ namespace MotorCity.EditorTools
             }
 
             MeshRenderer[] all;
-            var groups = Collect(out all);
+            string diagnostic;
+            var groups = Collect(out all, out diagnostic);
+            if (groups.Count == 0)
+            {
+                Debug.LogWarning("[MotorCity][HLOD] Nothing can be baked. " +
+                    "Check the rejection breakdown below:\n" + diagnostic);
+                return;
+            }
             var cells = new List<CityHlodCell>();
             var meshes = new List<Mesh>();
             int sourceTris = 0, proxyTris = 0;
@@ -234,47 +243,147 @@ namespace MotorCity.EditorTools
             }
         }
 
-        private static Dictionary<string, Batch> Collect(out MeshRenderer[] all)
+        private static Dictionary<string, Batch> Collect(
+            out MeshRenderer[] all, out string diagnostic)
         {
             GameObject city = AssetDatabase.LoadAssetAtPath<GameObject>(CityPath);
             if (city == null)
                 throw new InvalidOperationException("Missing city prefab: " + CityPath);
 
+            // An imported prefab asset is NOT a scene instance. Its children
+            // often return activeInHierarchy=false even though their local
+            // activeSelf flags are all true. The old check rejected the
+            // whole prefab (0/25634), before looking at any actual meshes.
             all = city.GetComponentsInChildren<MeshRenderer>(true);
             var batches = new Dictionary<string, Batch>();
+            var rejected = new Dictionary<string, int>();
+            var examples = new Dictionary<string, string>();
+
+            void Reject(string reason, MeshRenderer renderer)
+            {
+                rejected.TryGetValue(reason, out int count);
+                rejected[reason] = count + 1;
+                if (!examples.ContainsKey(reason))
+                {
+                    string material = renderer.sharedMaterial != null
+                        ? renderer.sharedMaterial.name : "(no material)";
+                    examples.Add(reason, renderer.name + " [" + material + "]");
+                }
+            }
+
             for (int i = 0; i < all.Length; i++)
             {
                 MeshRenderer renderer = all[i];
-                if (renderer == null || !renderer.enabled ||
-                    !renderer.gameObject.activeInHierarchy ||
-                    renderer.GetComponentInParent<LODGroup>() != null ||
-                    renderer.isPartOfStaticBatch ||
-                    renderer.HasPropertyBlock() ||
-                    renderer.GetComponent<MonoBehaviour>() != null ||
-                    renderer.lightmapIndex >= 0 ||
-                    IsExcluded(renderer.gameObject.name, ExcludedNames))
+                if (renderer == null)
                     continue;
+
+                if (!renderer.enabled)
+                {
+                    Reject("Renderer disabled", renderer);
+                    continue;
+                }
+
+                if (!ActiveInAuthoredPrefab(renderer.transform, city.transform))
+                {
+                    Reject("Disabled in prefab hierarchy", renderer);
+                    continue;
+                }
+
+                if (renderer.GetComponentInParent<LODGroup>() != null)
+                {
+                    Reject("Has existing LODGroup", renderer);
+                    continue;
+                }
+
+                if (renderer.isPartOfStaticBatch)
+                {
+                    Reject("Already static batched", renderer);
+                    continue;
+                }
+
+                if (renderer.HasPropertyBlock())
+                {
+                    Reject("Custom renderer property block", renderer);
+                    continue;
+                }
+
+                if (renderer.GetComponent<MonoBehaviour>() != null)
+                {
+                    Reject("Gameplay MonoBehaviour attached", renderer);
+                    continue;
+                }
+
+                // Imported prefabs can use 65534/65535 for unmapped lightmaps.
+                // Do not treat those sentinel values as baked lightmapping.
+                if (renderer.lightmapIndex >= 0 &&
+                    renderer.lightmapIndex < 65534)
+                {
+                    Reject("Has baked lightmap", renderer);
+                    continue;
+                }
+
+                if (IsExcluded(renderer.gameObject.name, ExcludedNames))
+                {
+                    Reject("Protected object name", renderer);
+                    continue;
+                }
 
                 MeshFilter filter = renderer.GetComponent<MeshFilter>();
                 Mesh mesh = filter == null ? null : filter.sharedMesh;
-                Material[] materials = renderer.sharedMaterials;
-                if (mesh == null || !mesh.isReadable ||
-                    mesh.vertexCount > MaximumSourceVertices ||
-                    mesh.subMeshCount != 1 || materials.Length != 1 ||
-                    materials[0] == null || materials[0].renderQueue >= 2450 ||
-                    IsExcluded(materials[0].name, ExcludedMaterials))
+                if (mesh == null)
+                {
+                    Reject("Missing MeshFilter or mesh", renderer);
                     continue;
+                }
+
+                if (!mesh.isReadable)
+                {
+                    Reject("Source mesh is not Read/Write enabled", renderer);
+                    continue;
+                }
+
+                if (mesh.vertexCount > MaximumSourceVertices)
+                {
+                    Reject("Source mesh exceeds vertex limit", renderer);
+                    continue;
+                }
+
+                if (mesh.subMeshCount != 1)
+                {
+                    Reject("Source uses multiple submeshes", renderer);
+                    continue;
+                }
+
+                Material[] materials = renderer.sharedMaterials;
+                if (materials == null || materials.Length != 1 ||
+                    materials[0] == null)
+                {
+                    Reject("No single authored material", renderer);
+                    continue;
+                }
+
+                if (materials[0].renderQueue >= 2450)
+                {
+                    Reject("Cutout or transparent material", renderer);
+                    continue;
+                }
+
+                if (IsExcluded(materials[0].name, ExcludedMaterials))
+                {
+                    Reject("Protected material name", renderer);
+                    continue;
+                }
 
                 Bounds bounds = renderer.bounds;
                 float radius = bounds.extents.magnitude;
                 if (radius < 7.1f || radius > 65f ||
                     bounds.size.y < 3.5f || bounds.size.x > 120f ||
                     bounds.size.z > 120f)
+                {
+                    Reject("Outside architecture size limits", renderer);
                     continue;
+                }
 
-                // Upper parents can host city infrastructure; reject clearly
-                // non-architectural hierarchies without requiring a name list
-                // that may vary among FCG generations.
                 Transform parent = renderer.transform.parent;
                 int depth = 0;
                 bool protectedAncestor = false;
@@ -289,7 +398,10 @@ namespace MotorCity.EditorTools
                     parent = parent.parent;
                 }
                 if (protectedAncestor)
+                {
+                    Reject("Protected parent name", renderer);
                     continue;
+                }
 
                 int x = Mathf.FloorToInt(bounds.center.x / CellSize);
                 int z = Mathf.FloorToInt(bounds.center.z / CellSize);
@@ -303,7 +415,39 @@ namespace MotorCity.EditorTools
                 int triangles = (int)(mesh.GetIndexCount(0) / 3);
                 batch.Sources.Add(new Source(renderer, mesh, i, triangles));
             }
+
+            // Each object gets exactly one dominant rejection reason, so
+            // the reason counts plus eligible count equal all renderers.
+            int eligible = batches.Values.Sum(group => group.Sources.Count);
+            var report = new System.Text.StringBuilder();
+            report.Append("HLOD filter diagnostic: ");
+            report.Append(eligible).Append(" eligible / ")
+                .Append(all.Length).Append(" inspected");
+            foreach (var pair in rejected.OrderByDescending(p => p.Value))
+            {
+                report.Append("\n  ")
+                    .Append(pair.Value).Append(" - ")
+                    .Append(pair.Key).Append("; e.g. ")
+                    .Append(examples[pair.Key]);
+            }
+            diagnostic = report.ToString();
             return batches;
+        }
+
+        private static bool ActiveInAuthoredPrefab(
+            Transform target, Transform root)
+        {
+            // Unlike activeInHierarchy, activeSelf is reliable for prefab
+            // assets not instantiated into a loaded Unity scene.
+            while (target != null)
+            {
+                if (!target.gameObject.activeSelf)
+                    return false;
+                if (target == root)
+                    return true;
+                target = target.parent;
+            }
+            return false;
         }
 
         private static bool IsExcluded(string name, string[] tokens)
