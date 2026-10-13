@@ -30,6 +30,7 @@ namespace MotorCity.UI
 
         private Canvas canvas;
         private CanvasScaler frontEndScaler;
+        private RectTransform mainMenuContent;
         private Vector2Int lastFrontEndScreenSize;
         private Camera frontEndCamera;
         private bool pregameDebugVisible;
@@ -470,10 +471,21 @@ namespace MotorCity.UI
                 bgObject.transform.SetAsFirstSibling();
             }
 
+            // Keep all interactive main-menu elements in a single 1920x1080
+            // design-space group. Scale the group, not the WebGL canvas.
+            GameObject content = new("Responsive Main Menu", typeof(RectTransform));
+            content.transform.SetParent(mainRoot.transform, false);
+            mainMenuContent = content.GetComponent<RectTransform>();
+            mainMenuContent.anchorMin = mainMenuContent.anchorMax =
+                new Vector2(0.5f, 0.5f);
+            mainMenuContent.pivot = new Vector2(0.5f, 0.5f);
+            mainMenuContent.anchoredPosition = Vector2.zero;
+            mainMenuContent.sizeDelta = new Vector2(1920f, 1080f);
+
             // Very soft left-side readability shade. It should disappear into
             // the artwork rather than look like a separate panel.
             CreateDecorativeRect(
-                mainRoot.transform,
+                mainMenuContent,
                 "Main Soft Shade",
                 new Vector2(0f, 0.5f),
                 new Vector2(0f, 0.5f),
@@ -487,7 +499,7 @@ namespace MotorCity.UI
 
             Text title =
                 CreateText(
-                    mainRoot.transform,
+                    mainMenuContent,
                     "MOTOR CITY",
                     78,
                     FontStyle.Bold,
@@ -509,7 +521,7 @@ namespace MotorCity.UI
 
             Text subtitle =
                 CreateText(
-                    mainRoot.transform,
+                    mainMenuContent,
                     IsRussian()
                         ? "ТВОЙ ГОРОД. ТВОЯ МАШИНА. ТВОЙ ПУТЬ."
                         : "YOUR CITY. YOUR CAR. YOUR ROAD.",
@@ -524,7 +536,7 @@ namespace MotorCity.UI
                 new Color(0.48f, 0.74f, 1f, 1f);
 
             CreateDecorativeRect(
-                mainRoot.transform,
+                mainMenuContent,
                 "Main Title Accent",
                 new Vector2(0f, 0.5f),
                 new Vector2(0f, 0.5f),
@@ -534,7 +546,7 @@ namespace MotorCity.UI
 
             Button primary =
                 CreateButton(
-                    mainRoot.transform,
+                    mainMenuContent,
                     "",
                     new Vector2(124f, -22f),
                     new Vector2(400f, 68f),
@@ -562,21 +574,21 @@ namespace MotorCity.UI
             // Secondary actions form one quieter, evenly spaced group.
             // Their original callbacks, button sizes and hit areas stay intact.
             Button aboutButton = CreateButton(
-                mainRoot.transform,
+                mainMenuContent,
                 IsRussian() ? "ОБ ИГРЕ" : "ABOUT",
                 new Vector2(124f, -110f),
                 new Vector2(400f, 60f),
                 ShowAbout);
 
             Button settingsButton = CreateButton(
-                mainRoot.transform,
+                mainMenuContent,
                 IsRussian() ? "НАСТРОЙКИ" : "SETTINGS",
                 new Vector2(124f, -188f),
                 new Vector2(400f, 60f),
                 ShowSettings);
 
             Button experienceButton = CreateButton(
-                mainRoot.transform,
+                mainMenuContent,
                 MotorCityLocalization.Text("ux.home.button"),
                 new Vector2(124f, -266f),
                 new Vector2(400f, 60f),
@@ -586,6 +598,7 @@ namespace MotorCity.UI
             StyleMainMenuSecondary(settingsButton);
             StyleMainMenuSecondary(experienceButton);
 
+            FitMainMenuContent();
             RefreshMainMenuText();
         }
 
@@ -2017,6 +2030,27 @@ namespace MotorCity.UI
                 NextIntro();
         }
 
+        private void FitMainMenuContent()
+        {
+            if (mainMenuContent == null || mainRoot == null)
+                return;
+
+            RectTransform viewport = mainRoot.GetComponent<RectTransform>();
+            if (viewport == null)
+                return;
+
+            Vector2 bounds = viewport.rect.size;
+            if (bounds.x <= 0f || bounds.y <= 0f)
+                return;
+
+            // Canvas units (not device pixels) keep pointer coordinates and
+            // visible buttons in the same reference space on mobile WebGL.
+            float scale = Mathf.Min(
+                1f,
+                Mathf.Min(bounds.x / 1920f, bounds.y / 1080f));
+            mainMenuContent.localScale = new Vector3(scale, scale, 1f);
+        }
+
         private void ApplyFrontEndResponsiveLayout(
             bool force)
         {
@@ -2041,6 +2075,8 @@ namespace MotorCity.UI
 
             lastFrontEndScreenSize =
                 screenSize;
+
+            FitMainMenuContent();
 
             float aspect =
                 Screen.width /
