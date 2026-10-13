@@ -239,7 +239,12 @@ public static class MotorCityMarkerLayoutAudit
             if (inDir.sqrMagnitude > 16f && outDir.sqrMagnitude > 16f &&
                 Vector2.Dot(inDir.normalized, outDir.normalized) < -0.35f)
             {
-                findings.AppendLine(name + " reverses direction at checkpoint " + i);
+                findings.AppendLine(name +
+                    " reverses direction at checkpoint " + i +
+                    " (turn " + Vector2.Angle(inDir, outDir).ToString("F0") +
+                    " degrees); previous " + previous.ToString("F1") +
+                    ", current " + from.ToString("F1") +
+                    ", next " + to.ToString("F1"));
                 warnings++;
             }
         }
