@@ -54,7 +54,7 @@ public static class MotorCityActivityMarkerBuilder
     {
         BuildMarker(
             "Sprint",
-            "arrow-right.png",
+            "flag-3.png",
             new Color(0.08f, 1f, 0.28f, 1f),
             0.60f,
             2.95f,

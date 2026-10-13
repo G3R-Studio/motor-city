@@ -329,8 +329,8 @@ namespace MotorCity.UI
                         18f,
                         0f),
                     new Vector2(
-                        28f,
-                        28f),
+                        24f,
+                        24f),
                     new Vector2(
                         0f,
                         0.5f),

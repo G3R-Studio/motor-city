@@ -1,144 +1,61 @@
 #!/usr/bin/env python3
-"""Regression contract for Sprint waypoint chevrons in world and minimap.
+"""Regression contract for static Tabler sprint markers in world and minimap.
 
-The SprintMarkerVfx/Tabler arrow-right sprite points toward local +X. Both
-presentations must rotate that sprite using the SAME outgoing segment from
-StreetSprintActivity.TryGetNextTarget(), not a fixed right-facing sprite.
-
-Source contract + geometric examples, not a substitute for Unity visual smoke.
+The historic filename is retained because existing source checks may invoke it.
+Sprint gameplay can still progress between waypoints; its icon never points to
+the next one. This source contract does not replace a Unity Editor smoke test.
 """
-from __future__ import annotations
-
-import math
 from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
 WORLD = ROOT / "Assets/Scripts/World/StreetSprintMarkerVisual.cs"
 MAP = ROOT / "Assets/Scripts/UI/NavigatorView.cs"
-ACTIVITY = ROOT / "Assets/Scripts/Gameplay/StreetSprintActivity.cs"
+ICONS = ROOT / "Assets/Scripts/UI/MotorCityIconLibrary.cs"
 BUILDER = ROOT / "Assets/Editor/MotorCityActivityMarkerBuilder.cs"
 
 
-def check(condition: bool, message: str, errors: list[str]) -> None:
-    if not condition:
-        errors.append(message)
-
-
-def angle_minimap(dx: float, dz: float, yaw_degrees: float) -> float:
-    # A car heading +Z at yaw=0 has a minimap whose +Y means straight.
-    yaw = math.radians(yaw_degrees)
-    local_x = math.cos(yaw) * dx - math.sin(yaw) * dz
-    local_z = math.sin(yaw) * dx + math.cos(yaw) * dz
-    return math.degrees(math.atan2(local_z, local_x))
-
-
-def angle_world(dx: float, dz: float, camera_right: tuple[float, float], camera_up: tuple[float, float]) -> float:
-    projected_x = dx * camera_right[0] + dz * camera_right[1]
-    projected_y = dx * camera_up[0] + dz * camera_up[1]
-    return math.degrees(math.atan2(projected_y, projected_x))
-
-
-def angular_error(actual: float, expected: float) -> float:
-    return abs((actual - expected + 180) % 360 - 180)
+def compact(source: str) -> str:
+    return re.sub(r"\s+", "", source)
 
 
 def main() -> int:
-    errors: list[str] = []
     world = WORLD.read_text(encoding="utf-8-sig")
     nav = MAP.read_text(encoding="utf-8-sig")
-    activity = ACTIVITY.read_text(encoding="utf-8-sig")
+    icons = ICONS.read_text(encoding="utf-8-sig")
     builder = BUILDER.read_text(encoding="utf-8-sig")
-    check('"arrow-right.png"' in builder, "Sprint marker must use the right-facing Tabler waypoint arrow", errors)
-    check(
-        "public bool TryGetNextTarget(" in activity
-        and "checkpointIndex + 1" in activity,
-        "Sprint outgoing waypoint contract missing",
-        errors,
-    )
+    errors = []
 
-    compact_world = re.sub(r"\s+", "", world)
-    compact_nav = re.sub(r"\s+", "", nav)
-
-    for token in (
-        "sprint.TryGetNextTarget(out nextTarget)",
-        "nextTarget - sprint.CurrentTarget",
-        "Camera.main",
-        "cameraTransform.right",
-        "cameraTransform.up",
-        "Mathf.Atan2(",
-        "Mathf.Rad2Deg",
-        "Quaternion.Euler(0f, 0f, angle)",
-        'renderer.name == "Sprint Icon Core"',
-        'renderer.name == "Sprint Icon Glow"',
-        "chevron.enabled = hasDirection",
-    ):
-        check(re.sub(r"\s+", "", token) in compact_world, f"World Sprint chevron contract missing: {token}", errors)
-
-    for token in (
-        'markerId == "sprint"',
-        "streetSprint.TryGetNextTarget(",
-        "nextCheckpoint -",
-        "streetSprint.CurrentTarget",
-        "0f,\n                                -yaw,",
-        "Mathf.Atan2(",
-        "localOutgoing.z,",
-        "localOutgoing.x)",
-        "Quaternion.Euler(0f, 0f, angle)",
-        "minimapTargetIcon.rectTransform.localRotation",
-        "minimapTargetIcon.sprite =\n                            minimapMaskSprite",
-    ):
-        check(re.sub(r"\s+", "", token) in compact_nav, f"Minimap Sprint chevron contract missing: {token}", errors)
-
-    # Sanity checks for rotation of a +X arrow to the expected player-relative
-    # up/left/right direction. These examples include a 90-degree car turn
-    # to detect sign inversions between world yaw and minimap yaw.
-    scenarios = (
-        (0, 10, 0, 90, "north ahead / straight"),
-        (10, 0, 90, 90, "east ahead / straight after turn"),
-        (10, 0, 0, 0, "east / right"),
-        (-10, 0, 0, 180, "west / left"),
-        (0, 10, 90, 180, "north / left when facing east"),
-        (0, -10, 90, 0, "south / right when facing east"),
-        (-10, 0, 270, 90, "west ahead / straight when facing west"),
+    checks = (
+        ('"flag-3.png"' in builder, "World Sprint prefab must use Tabler flag"),
+        ('"sprint" => "flag-3"' in icons, "Minimap must use Tabler sprint flag"),
+        ("UpdateSprintChevronDirection" not in world, "World icon still rotates"),
+        ("sprintChevrons" not in world, "World icon still has arrow tracking"),
+        ("TryGetNextTarget" not in world, "World marker still samples route direction"),
+        ("SetDirection" not in world, "Fallback beacon still receives directions"),
+        ("CheckpointBeaconStyle.Sprint" in world, "Sprint fallback style missing"),
+        ("false,CheckpointBeaconStyle.Sprint" in compact(world),
+         "Sprint fallback must not create a direction arrow"),
+        ('sprintCheckpoint' not in nav, "Minimap still calculates sprint direction"),
+        ("streetSprint.TryGetNextTarget" not in nav,
+         "Minimap still samples the next checkpoint"),
+        ("nextCheckpoint -" not in nav, "Minimap still uses a route vector"),
+        ("minimapTargetIcon.rectTransform.localRotation=Quaternion.identity;"
+         in compact(nav), "Minimap activity icon must keep fixed rotation"),
+        ("minimapTargetIcon.sprite=minimapMaskSprite;" not in compact(nav),
+         "Minimap must not substitute a dot at the last sprint checkpoint"),
     )
-    for dx, dz, yaw, expected, label in scenarios:
-        angle = angle_minimap(dx, dz, yaw)
-        check(
-            angular_error(angle, expected) < 0.0001,
-            f"Minimap angle mismatch ({label}): expected {expected}, got {angle}",
-            errors,
-        )
-
-    # The same route vector projected to camera basis: world +Z should show
-    # upward for a camera looking north, east should show right.
-    check(
-        angular_error(angle_world(0, 10, (1, 0), (0, 1)), 90) < 0.0001,
-        "World +Z arrow must point up with north-up camera",
-        errors,
-    )
-    check(
-        angular_error(angle_world(10, 0, (1, 0), (0, 1)), 0) < 0.0001,
-        "World +X arrow must point right with north-up camera",
-        errors,
-    )
-    check(
-        angular_error(angle_world(-10, 0, (1, 0), (0, 1)), 180) < 0.0001,
-        "World -X arrow must point left with north-up camera",
-        errors,
-    )
+    for passed, reason in checks:
+        if not passed:
+            errors.append(reason)
 
     if errors:
-        print("Sprint waypoint direction regression FAILED:")
-        for error in errors:
-            print(" -", error)
+        print("Static Sprint icon regression FAILED:")
+        for message in errors:
+            print(" -", message)
         return 1
-    print(
-        "Sprint waypoint direction source/math contract PASS: "
-        "world billboards + minimap use outgoing checkpoint route, "
-        "7 car headings / 3 world projections checked."
-    )
-    print("Unity Editor visual and browser WebGL smoke still required.")
+
+    print("Static Sprint Tabler marker contract PASS (world, minimap, fallback).")
     return 0
 
 

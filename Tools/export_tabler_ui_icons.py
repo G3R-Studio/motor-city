@@ -75,10 +75,9 @@ def main():
         # tinting controls cyan / violet / disabled state at runtime.
         svg = svg.replace("currentColor", "#ffffff")
         small_hud = name in SMALL_HUD_ICONS
-        # Slightly thicker icon strokes survive 18-28 canvas-unit usage better;
-        # don't thicken the larger menu/garage icons.
-        if small_hud:
-            svg = svg.replace('stroke-width="2"', 'stroke-width="2.45"', 1)
+        # Use the same restrained stroke for every Tabler icon. The larger
+        # source export is only for smoother downsizing, not heavier lines.
+        svg = svg.replace('stroke-width="2"', 'stroke-width="1.7"', 1)
         size = args.hud_size if small_hud else args.size
         cairosvg.svg2png(bytestring=svg.encode("utf-8"),
                         write_to=str(target_dir / (name + ".png")),

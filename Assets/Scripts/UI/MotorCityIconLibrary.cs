@@ -347,7 +347,7 @@ namespace MotorCity.UI
                 "garage" => "car-garage",
                 "delivery" => "truck-delivery",
                 "drift" => "car-turbine",
-                "sprint" => "arrow-right",
+                "sprint" => "flag-3",
                 "circuit" => "trophy",
                 "discovery" => "map-pin",
                 "speedtrap" or "speed_trap" => "gauge",

@@ -65,10 +65,8 @@ namespace MotorCity.UI
         {
             Rect rect = rectTransform.rect;
             // Keep an optical inset so strokes do not touch button edges.
-            // Small HUD glyphs need more usable pixels for the thin Tabler
-            // stroke. Leave normal-size menu/garage artwork unchanged.
-            float edge = Mathf.Min(rect.width, rect.height);
-            float width = edge * (edge <= 32f ? 0.94f : 0.86f);
+            // Keep optical padding consistent for small and large icons.
+            float width = Mathf.Min(rect.width, rect.height) * 0.86f;
             float height = width;
             Rect draw = new Rect(rect.center.x - width * 0.5f,
                 rect.center.y - height * 0.5f, width, height);
