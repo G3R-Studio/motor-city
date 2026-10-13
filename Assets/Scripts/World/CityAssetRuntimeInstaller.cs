@@ -654,6 +654,53 @@ namespace MotorCity.World
             return true;
         }
 
+        // A preferred grid position may snap onto exactly the same road
+        // triangle as another type of marker. Resolve separation AFTER road
+        // projection; do not rely on authored X/Z distance.
+        public static Vector3 ResolveSeparatedMarkerPoint(Vector3 current,
+            IReadOnlyList<Vector3> occupied, float minimumDistance = 95f)
+        {
+            if (occupied == null || occupied.Count == 0)
+                return current;
+
+            bool HasClearance(Vector3 point)
+            {
+                for (int i = 0; i < occupied.Count; i++)
+                {
+                    if (FlatDistanceXZ(point, occupied[i]) < minimumDistance)
+                        return false;
+                }
+                return true;
+            }
+
+            if (HasClearance(current))
+                return current;
+
+            // Search closest offsets first. Each accepted point is a real
+            // FCG road hit, not a raw nearby nav-waypoint or sidewalk.
+            float[] radii = { 100f, 145f, 195f, 260f, 340f, 430f };
+            const int directions = 16;
+            foreach (float radius in radii)
+            {
+                for (int index = 0; index < directions; index++)
+                {
+                    float angle = 2f * Mathf.PI * index / directions;
+                    float x = current.x + Mathf.Cos(angle) * radius;
+                    float z = current.z + Mathf.Sin(angle) * radius;
+                    if (!TryGetRoadHit(x, z, out Vector3 road))
+                        continue;
+
+                    road.y += MarkerLift;
+                    if (HasClearance(road))
+                        return road;
+                }
+            }
+
+            Debug.LogWarning("[MotorCity][Layout] Cannot safely relocate a " +
+                "marker away from its neighbours: " + current.ToString("F1"));
+            return current;
+        }
+
         // An FCG way graph can omit a link between adjacent pieces of road.
         // Only permit the navigator to bridge that missing link when the whole
         // straight segment is verified as drivable asphalt in the city mesh.
