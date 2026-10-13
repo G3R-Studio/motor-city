@@ -592,7 +592,7 @@ namespace MotorCity.Gameplay
 
         private void DrawAllMarkerPositions()
         {
-            Section("ВСЕ МЕТКИ ГОРОДА — QA КАТАЛОГ");
+            Section("ВСЕ МЕТКИ ГОРОДА - QA КАТАЛОГ");
             GUILayout.Label(
                 "Это список всех координат только для проверки: игра НЕ " +
                 "должна показывать все чекпоинты одновременно. " +
@@ -623,30 +623,30 @@ namespace MotorCity.Gameplay
             DrawMarkerRoute("Подпольные события",
                 CityAssetRuntimeInstaller.UndergroundRoute, "underground");
 
-            MarkerSection("ПРОФЕССИИ — СТАРТЫ И ВСЕ ЧЕКПОИНТЫ");
+            MarkerSection("ПРОФЕССИИ - СТАРТЫ И ВСЕ ЧЕКПОИНТЫ");
             if (professions != null)
             {
                 for (int i = 0; i < professions.StartCount; i++)
                 {
                     string name = professions.GetStartName(i);
                     string markerId = professions.GetStartActivityId(i);
-                    MarkerRow(name + " — СТАРТ",
+                    MarkerRow(name + " - СТАРТ",
                         professions.GetStartPoint(i), markerId);
                     Vector3[] plan = professions.GetPlannedRoute(i);
                     for (int j = 0; j < plan.Length; j++)
-                        MarkerRow(name + " — ТОЧКА " + (j + 1), plan[j], markerId);
+                        MarkerRow(name + " - ТОЧКА " + (j + 1), plan[j], markerId);
                 }
             }
 
             MarkerSection("ГОРОДСКИЕ СЛУЖБЫ");
             if (carWash != null)
-                MarkerRow("Автомойка — СТАРТ", carWash.StartPoint, "carwash");
+                MarkerRow("Автомойка - СТАРТ", carWash.StartPoint, "carwash");
             if (towTruck != null)
             {
-                MarkerRow("Эвакуатор — СТАРТ", towTruck.StartPoint, "tow");
-                MarkerRow("Эвакуатор — СЛОМАННАЯ МАШИНА",
+                MarkerRow("Эвакуатор - СТАРТ", towTruck.StartPoint, "tow");
+                MarkerRow("Эвакуатор - СЛОМАННАЯ МАШИНА",
                     towTruck.BreakdownPoint, "tow");
-                MarkerRow("Эвакуатор — СЕРВИС", towTruck.ServicePoint, "tow");
+                MarkerRow("Эвакуатор - СЕРВИС", towTruck.ServicePoint, "tow");
             }
 
             MarkerSection("ПОСТОЯННЫЕ МЕТКИ / ЗАДАНИЯ ФОТООХОТЫ");
@@ -689,8 +689,8 @@ namespace MotorCity.Gameplay
             for (int i = 0; i < checkpoints.Length; i++)
             {
                 string label = title + (i == 0
-                    ? " — СТАРТ"
-                    : " — ЧЕКПОИНТ " + (i + 1) + "/" + checkpoints.Length);
+                    ? " - СТАРТ"
+                    : " - ЧЕКПОИНТ " + (i + 1) + "/" + checkpoints.Length);
                 Vector3 forward = i + 1 < checkpoints.Length
                     ? checkpoints[i + 1] - checkpoints[i]
                     : i > 0 ? checkpoints[i] - checkpoints[i - 1]

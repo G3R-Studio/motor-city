@@ -82,14 +82,31 @@ namespace MotorCity.EditorTools
                 throw new InvalidOperationException(
                     "Phase 11 circle2 authored mipmap contracts changed");
 
+            // Loading UI was migrated from circle2 to checked-in
+            // MIT Tabler sprites. Keep auditing Resources.Load paths, but
+            // validate the new ownership instead of rejecting the migration.
             string frontendPath =
                 "Assets/Scripts/UI/MotorCityFrontEndFlow.cs";
             string frontend = File.ReadAllText(frontendPath);
-            if (!frontend.Contains("\"MotorCity/UI/Loading/circle2\""))
+            string iconsPath =
+                "Assets/Scripts/UI/MotorCityIconLibrary.cs";
+            string icons = File.ReadAllText(iconsPath);
+            if (!frontend.Contains("MotorCityIconLibrary.Get(name)") ||
+                !icons.Contains("MotorCity/UI/Icons/Tabler/") ||
+                !icons.Contains("Resources.Load<Sprite>(TablerRoot + name)"))
                 throw new InvalidOperationException(
-                    "Phase 11 runtime loading wheel resource path changed");
-            lines.Add("DYNAMIC_RESOURCE | MotorCityFrontEndFlow loads " +
-                "MotorCity/UI/Loading/circle2 (not a serialized reference)");
+                    "Phase 11 current loading icon resource path changed");
+            foreach (string iconName in new[] { "flag-3", "tools", "map-pin", "bulb" })
+            {
+                string expected = "Assets/Resources/MotorCity/UI/Icons/Tabler/" +
+                    iconName + ".png";
+                if (AssetDatabase.LoadAssetAtPath<Sprite>(expected) == null)
+                    throw new InvalidOperationException(
+                        "Phase 11 loading Tabler sprite missing: " + expected);
+                lines.Add("DYNAMIC_RESOURCE | Tabler loading icon | " + expected);
+            }
+            lines.Add("LEGACY_RESOURCE | circle2 remains audited for importer " +
+                "compatibility, but is no longer referenced by the front end");
 
             // A single dependency query per category avoids enumerating all
             // 4,000 assets and repeatedly opening the large city prefab.

@@ -115,9 +115,20 @@ def main() -> int:
            'button.Find("Label")' not in arrow and
            "icon.raycastTarget=false" in arrow,
            "Vector arrow icons must render without blocking click/touch")
-    ensure("caseSymbol.Left:" in compact(graphic) and
-           "caseSymbol.Right:" in compact(graphic),
-           "Existing vector renderer must support left/right arrows")
+    # The graphic now renders curated Tabler sprites rather than
+    # procedural switch-case triangles. Assert both mappings AND the
+    # sprite mesh path so neither arrow silently disappears in WebGL.
+    visual = compact(graphic)
+    ensure('Symbol.Left=>"arrow-left"' in visual and
+           'Symbol.Right=>"arrow-right"' in visual and
+           "MotorCityIconLibrary.Get(TablerIconName)" in visual and
+           "PopulateTablerMesh(vh,icon)" in visual,
+           "Navigator left/right arrows must use rendered Tabler sprites")
+    icon_dir = ROOT / "Assets/Resources/MotorCity/UI/Icons/Tabler"
+    for name in ("arrow-left", "arrow-right"):
+        ensure((icon_dir / (name + ".png")).is_file() and
+               (icon_dir / (name + ".png.meta")).is_file(),
+               f"Missing imported WebGL navigator Tabler sprite: {name}")
 
     for token in (
         "MotorCityInput.PreviousVehiclePressed",
