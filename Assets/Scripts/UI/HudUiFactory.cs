@@ -56,6 +56,8 @@ namespace MotorCity.UI
             image.enabled =
                 sprite != null;
 
+            // Protect even against non-uniform Canvas/parent resizing.
+            iconObject.AddComponent<MotorCityIconAspectGuard>();
             return image;
         }
 
