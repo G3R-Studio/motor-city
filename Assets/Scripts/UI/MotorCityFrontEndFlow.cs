@@ -3447,7 +3447,7 @@ namespace MotorCity.UI
             rect.offsetMin = rect.offsetMax = Vector2.zero;
             GarageReferenceGraphic graphic = background.GetComponent<GarageReferenceGraphic>();
             graphic.symbol = GarageReferenceGraphic.Symbol.Surface;
-            graphic.color = new Color(.16f, .12f, .32f, .96f);
+            graphic.color = MotorCityUiSkin.Panel;
             graphic.raycastTarget = false;
             return graphic;
         }
