@@ -222,7 +222,29 @@ namespace MotorCity.UI
         private Vector2 Point(Vector2 p)
         {
             Rect rect = rectTransform.rect;
-            return rect.center + Vector2.Scale(p-new Vector2(50,50),new Vector2(rect.width/100f,rect.height/100f));
+            Vector2 offset = p - new Vector2(50f, 50f);
+
+            // Panels and navigation surfaces intentionally fill their
+            // rectangles. Everything else is an ICON and must preserve its
+            // original square 100x100 drawing coordinate system, including
+            // procedural fallbacks and the round minimap rim.
+            if (symbol == Symbol.Surface || symbol == Symbol.CitySurface ||
+                symbol == Symbol.NavigationLeft || symbol == Symbol.NavigationRight)
+            {
+                return rect.center + Vector2.Scale(offset,
+                    new Vector2(rect.width / 100f, rect.height / 100f));
+            }
+
+            float axisX = Mathf.Max(0.0001f,
+                rectTransform.TransformVector(Vector3.right).magnitude);
+            float axisY = Mathf.Max(0.0001f,
+                rectTransform.TransformVector(Vector3.up).magnitude);
+            float pixelSize = Mathf.Min(
+                Mathf.Abs(rect.width) * axisX,
+                Mathf.Abs(rect.height) * axisY);
+            return rect.center + Vector2.Scale(offset,
+                new Vector2(pixelSize / (100f * axisX),
+                            pixelSize / (100f * axisY)));
         }
         private void Polygon(params Vector2[] points) => Polygon(color, points);
         private void Polygon(Color tint, params Vector2[] points)
