@@ -623,8 +623,12 @@ namespace MotorCity.World
                 ResolveRoadRoute(
                     CircuitPreferred);
 
+            // The east arterial has a break between the north and south
+            // sections. Returning to the old mid-point after a detour made
+            // racers turn around before continuing south. Aim the detour at
+            // the next real southern checkpoint instead.
             undergroundRoute =
-                InsertRoadGraphWaypoints(
+                RoutePastDisconnectedCheckpoint(
                     ResolveRoadRoute(UndergroundPreferred), 5);
         }
 
@@ -775,6 +779,73 @@ namespace MotorCity.World
         // those graph edges directly into mission checkpoint coordinates.
         // The route planner checks *every* sampled metre against the asphalt
         // collider, and its output is validated again before insertion.
+        // Skip a blocked mid-point only when an independently validated
+        // asphalt route reaches the following checkpoint without a hairpin.
+        // Used for the east arterial: stopping at its northern endpoint after
+        // approaching from the south previously forced an immediate U-turn.
+        // The original route remains the safe fallback if we cannot prove
+        // the alternative in the current FCG city geometry.
+        public static Vector3[] RoutePastDisconnectedCheckpoint(
+            Vector3[] anchors, int blockedLeg)
+        {
+            if (anchors == null || blockedLeg < 0 ||
+                blockedLeg + 2 >= anchors.Length)
+                return anchors;
+
+            Vector3 skipped = anchors[blockedLeg + 1];
+            Vector3 after = anchors[blockedLeg + 2];
+            List<Vector3> shortened =
+                new List<Vector3>(anchors.Length - 1);
+            for (int i = 0; i < anchors.Length; i++)
+            {
+                if (i != blockedLeg + 1)
+                    shortened.Add(anchors[i]);
+            }
+
+            Vector3[] directRoute = shortened.ToArray();
+            Vector3[] alternative =
+                InsertRoadGraphWaypoints(directRoute, blockedLeg);
+
+            bool connected = alternative.Length > directRoute.Length ||
+                HasDrivableAsphaltBetween(
+                    directRoute[blockedLeg], after);
+            if (connected && !HasSharpCheckpointReversal(alternative))
+            {
+                Debug.Log("[MotorCity][Layout] Bypassed unreachable " +
+                    "return checkpoint " + skipped.ToString("F1") +
+                    " with " + (alternative.Length - directRoute.Length) +
+                    " verified asphalt detour waypoints.");
+                return alternative;
+            }
+
+            Debug.LogWarning("[MotorCity][Layout] Cannot bypass blocked " +
+                "return checkpoint " + skipped.ToString("F1") +
+                " without a sharp U-turn; retaining original route for QA.");
+            return InsertRoadGraphWaypoints(anchors, blockedLeg);
+        }
+
+        // Match the editor's real turning-angle rule, never its warning text.
+        // A candidate detour is accepted only if its whole route maintains
+        // forward progress through each checkpoint.
+        private static bool HasSharpCheckpointReversal(Vector3[] points)
+        {
+            for (int i = 1; i + 1 < points.Length; i++)
+            {
+                Vector3 a = points[i] - points[i - 1];
+                Vector3 b = points[i + 1] - points[i];
+                Vector2 incoming = new Vector2(a.x, a.z);
+                Vector2 outgoing = new Vector2(b.x, b.z);
+                if (incoming.sqrMagnitude <= 16f ||
+                    outgoing.sqrMagnitude <= 16f)
+                    continue;
+
+                if (Vector2.Dot(incoming.normalized, outgoing.normalized)
+                    < -0.35f)
+                    return true;
+            }
+            return false;
+        }
+
         public static Vector3[] InsertRoadGraphWaypoints(
             Vector3[] anchors, int legIndex)
         {
