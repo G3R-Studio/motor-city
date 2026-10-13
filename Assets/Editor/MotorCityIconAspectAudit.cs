@@ -150,7 +150,8 @@ public static class MotorCityIconAspectAudit
         if (warnings > 0)
             Debug.LogWarning(message + "\n" + report);
         else
-            Debug.Log(message + ". Proportions preserved.");
+            Debug.Log(message + ". No detected aspect errors. " +
+                "Review the visible art in Game view to confirm styling.");
     }
 
     private static string ImagePath(Transform node)
