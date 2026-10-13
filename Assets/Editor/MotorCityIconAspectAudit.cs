@@ -91,11 +91,62 @@ public static class MotorCityIconAspectAudit
             }
         }
 
-        // Tabler pictograms in garages and vector buttons are drawn by
-        // GarageReferenceGraphic, which compensates X/Y scaling itself.
-        // World markers use SpriteRenderer and uniform authored plane scale.
+        int vectorCount = 0;
+        foreach (GarageReferenceGraphic graphic in
+                 UnityEngine.Object.FindObjectsByType<GarageReferenceGraphic>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (graphic == null || !graphic.gameObject.scene.IsValid() ||
+                graphic.symbol == GarageReferenceGraphic.Symbol.Surface ||
+                graphic.symbol == GarageReferenceGraphic.Symbol.CitySurface ||
+                graphic.symbol == GarageReferenceGraphic.Symbol.NavigationLeft ||
+                graphic.symbol == GarageReferenceGraphic.Symbol.NavigationRight)
+                continue;
+
+            // GarageReferenceGraphic's mesh is fitted in world units
+            // directly, even when its RectTransform is non-uniform.
+            vectorCount++;
+        }
+
+        int worldCount = 0;
+        foreach (SpriteRenderer renderer in
+                 UnityEngine.Object.FindObjectsByType<SpriteRenderer>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (renderer == null || !renderer.gameObject.scene.IsValid() ||
+                renderer.sprite == null)
+                continue;
+
+            bool markerIcon =
+                renderer.name.IndexOf("Icon Core",
+                    StringComparison.OrdinalIgnoreCase) >= 0 ||
+                renderer.name.IndexOf("Icon Glow",
+                    StringComparison.OrdinalIgnoreCase) >= 0 ||
+                renderer.name.IndexOf("Sprint Flag",
+                    StringComparison.OrdinalIgnoreCase) >= 0 ||
+                renderer.name.IndexOf("Circuit Flag",
+                    StringComparison.OrdinalIgnoreCase) >= 0;
+            if (!markerIcon)
+                continue;
+
+            worldCount++;
+            float scaleX =
+                renderer.transform.TransformVector(Vector3.right).magnitude;
+            float scaleY =
+                renderer.transform.TransformVector(Vector3.up).magnitude;
+            if (scaleY > 0.0001f &&
+                Mathf.Abs(scaleX / scaleY - 1f) > 0.03f)
+            {
+                warnings++;
+                report.AppendLine("World marker uses non-uniform icon scale: " +
+                    ImagePath(renderer.transform));
+            }
+        }
+
         string message = "[MotorCity][Icons] Checked " + count +
-            " sprite/texture UI icons; aspect warnings: " + warnings;
+            " sprite/texture UI icons, " + vectorCount +
+            " custom UI vector icons, " + worldCount +
+            " 3D marker sprites; aspect warnings: " + warnings;
         if (warnings > 0)
             Debug.LogWarning(message + "\n" + report);
         else
