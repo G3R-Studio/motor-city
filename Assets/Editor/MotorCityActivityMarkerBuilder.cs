@@ -416,9 +416,12 @@ public static class MotorCityActivityMarkerBuilder
             parent,
             false);
 
+        // Explicit world footprint independent of PNG pixel resolution.
+        // Tabler HUD icons may be exported at 192 or 384px.
+        float spriteUnits = sprite == null ? 1f : Mathf.Max(
+            sprite.bounds.size.x, sprite.bounds.size.y);
         plane.transform.localScale =
-            Vector3.one *
-            scale;
+            Vector3.one * (scale / Mathf.Max(0.001f, spriteUnits));
 
         SpriteRenderer renderer =
             plane.AddComponent<SpriteRenderer>();
