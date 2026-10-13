@@ -12,6 +12,26 @@ mergeInto(LibraryManager.library, {
 
       canvas.dataset.motorCityBrowserConfigured = '1';
 
+      // Yandex Games may reserve a separate column for a sticky banner.
+      // Size Unity to its own iframe viewport, never the outer browser
+      // screen or a fixed 1920x1080 canvas from the default WebGL template.
+      var unityContainer = canvas.closest('#unity-container');
+      if (unityContainer) {
+        unityContainer.style.position = 'fixed';
+        unityContainer.style.inset = '0';
+        unityContainer.style.width = '100%';
+        unityContainer.style.height = '100%';
+        unityContainer.style.maxWidth = 'none';
+        unityContainer.style.maxHeight = 'none';
+        unityContainer.style.transform = 'none';
+        unityContainer.style.overflow = 'hidden';
+      }
+      canvas.style.display = 'block';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.maxWidth = 'none';
+      canvas.style.maxHeight = 'none';
+
       // Keep all gestures inside the Unity surface. Yandex Games checks that
       // mobile gameplay does not trigger browser scrolling, pull-to-refresh,
       // text selection or long-press browser UI.
