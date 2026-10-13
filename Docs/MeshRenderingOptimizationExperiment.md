@@ -205,3 +205,57 @@ the extra proxy meshes; there is no requirement to keep HLOD if profiling
 shows little benefit. The existing distance-detail culler targets tiny
 renderers (bounds radius <=7m), while HLOD continues to require a radius
 above 7.1m to avoid overlapping renderer-visibility ownership.
+
+
+## CityVisual geometry census: optimize parked vehicles before architecture HLOD
+
+The 2026-10-13 local CityVisual census found 25,634 mesh renderers,
+15,612 active/enabled, and 4,168,191 triangle references (the sum for the
+entire active prefab, NOT a camera frame). Of these, meshes with bounding
+radius <7m contained about 3.01 million referenced triangles. Material
+combinations FCG_Traffic-Car-Atlas (1,142,054), FCG_Tires (373,520),
+FCG_Tires+FCG_Traffic-Car-Atlas (222,252), and Trees-01 (601,160)
+together account for around 56% of referenced triangles.
+
+Architecture HLOD Candidate Audit still returned only 34 eligible renderers,
+1 bakeable chunk, and 3 potential draw slots -> 1. Do NOT bake or ship
+architecture HLOD yet: its likely benefit is too small, and the source
+windows are night-animated/protected. These are global prefab counts; actual
+rendering costs need per-frame measurements.
+
+An opt-in parked-vehicle rendering A/B test is now available via
+`CityParkedVehicleCullingExperiment`. It only recognizes decorative
+vehicle assemblies under `Park-*` within `MotorCity_FCGCity`,
+using a `Car` or `Car ON` body mesh with the authored
+`FCG_Traffic-Car-Atlas` material. It then hides the whole static vehicle
+assembly at long camera distances, retaining original colliders and all
+GameObjects. Ancestors `CarContainer`, scripted vehicle roots,
+Rigidbody-owned vehicles, and existing LOD groups are excluded. No baked
+asset is created and no gameplay scripts or materials are modified.
+
+This experiment is OFF by default, even on WebGL. It is not yet validated
+as a production feature and must not overlap with other culling A/B tests.
+
+To test without a 20-minute WebGL build:
+
+1. In Unity Editor Play Mode, load the full city and match the original
+   high-density camera position. Use `Optimization > 4` to preview the
+   browser view distance. Keep the existing distant detail and HLOD A/B
+   experiments OFF for this comparison.
+2. `Motor City > Optimization > 10 - Enable Parked Vehicles A-B`.
+   Wait until scan-complete is True; note number of static parked vehicle
+   groups discovered and reject counters (body meshes, under Park-*,
+   scripted/dynamic excluded).
+3. `Motor City > Optimization > 12 - Report Parked Vehicles`.
+   Record hidden/eligible vehicle groups and estimated triangle references;
+   these are not actual rendered triangles.
+4. Compare Frame Debugger, Game view Stats (Tris, Batches/Draw Calls),
+   Profiler CPU/GPU time and FPS while facing the same dense area.
+5. `Motor City > Optimization > 11 - Disable Parked Vehicles A-B`.
+   Record baseline at same viewpoint and verify all parked vehicles return.
+   Drive toward parking lots and verify there is no pop-in nearby.
+6. If the experiment meaningfully reduces frame time and looks correct,
+   consider enabling it selectively in production in a later commit,
+   separately from the existing small-detail culling. Otherwise keep it off.
+
+No Unity compilation or browser FPS improvement has been asserted.
