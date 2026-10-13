@@ -3319,22 +3319,9 @@ namespace MotorCity.UI
                     0.14f,
                     0.88f);
 
-            // About is informational: avoid stacked neon glows around
-            // five cards. Hierarchy comes from title, text and spacing.
-
-            Outline outline =
-                section.AddComponent<Outline>();
-
-            outline.effectColor =
-                new Color(
-                    0.45f,
-                    0.42f,
-                    0.78f,
-                    0.24f);
-            outline.effectDistance =
-                new Vector2(1f, -1f);
-            outline.useGraphicAlpha =
-                true;
+            // The shared surface uses the same subdued gradient halo as
+            // buttons and cards, with no stacked Unity Outline effects.
+            FrontEndSurface(rect);
 
             GameObject accent =
                 new(
