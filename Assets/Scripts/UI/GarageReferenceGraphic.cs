@@ -261,10 +261,81 @@ namespace MotorCity.UI
             AntialiasContour(outer,color);
             AntialiasContour(inner,color);
         }
+        // Unified Motor City neon light: left cyan, right violet.
+        // The gradient is drawn in the same CanvasRenderer mesh, so every
+        // panel and button shares one visual style without extra UI objects.
+        private static readonly Color NeonCyan = new(0.06f, 0.85f, 1f, 1f);
+        private static readonly Color NeonViolet = new(0.62f, 0.40f, 1f, 1f);
+        private const int GlowSteps = 8;
+        private const int GlowVertexCount = 4 * (GlowSteps + 1);
+
+        private Color NeonAt(float x, Rect bounds, float opacity)
+        {
+            float t = Mathf.Clamp01((x - bounds.xMin) /
+                Mathf.Max(0.001f, bounds.width));
+            Color result = Color.Lerp(NeonCyan, NeonViolet, t);
+            result.a = Mathf.Clamp01(opacity * color.a);
+            return result;
+        }
+
+        private static Vector2 NeonCorner(Rect r, float radius,
+            float expand, int corner, int step)
+        {
+            Vector2 origin = new(
+                corner == 0 || corner == 3 ? r.xMax - radius : r.xMin + radius,
+                corner == 0 || corner == 1 ? r.yMax - radius : r.yMin + radius);
+            float angle = (corner * 90f +
+                step * 90f / GlowSteps) * Mathf.Deg2Rad;
+            return origin + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) *
+                Mathf.Max(0f, radius + expand);
+        }
+
+        private void NeonBand(Rect r, float radius, float outer,
+            float inner, float outerAlpha, float innerAlpha)
+        {
+            int first = mesh.currentVertCount;
+            for (int corner = 0; corner < 4; corner++)
+                for (int step = 0; step <= GlowSteps; step++)
+                {
+                    Vector2 a = NeonCorner(r, radius, outer, corner, step);
+                    Vector2 b = NeonCorner(r, radius, inner, corner, step);
+                    mesh.AddVert(a, NeonAt(a.x, r, outerAlpha), Vector2.zero);
+                    mesh.AddVert(b, NeonAt(b.x, r, innerAlpha), Vector2.zero);
+                }
+
+            for (int i = 0; i < GlowVertexCount; i++)
+            {
+                int a = first + i * 2;
+                int b = first + ((i + 1) % GlowVertexCount) * 2;
+                mesh.AddTriangle(a, b + 1, b);
+                mesh.AddTriangle(a, a + 1, b + 1);
+            }
+        }
+
+        private void NeonEdge(Vector2 from, Vector2 to, Rect r,
+            float thickness, float opacity)
+        {
+            Vector2 a = Point(from), b = Point(to);
+            Vector2 d = b - a;
+            if (d.sqrMagnitude <= 0.0001f)
+                return;
+
+            Vector2 normal = new Vector2(-d.y, d.x).normalized *
+                (thickness * 0.5f);
+            int first = mesh.currentVertCount;
+            Color aColor = NeonAt(a.x, r, opacity);
+            Color bColor = NeonAt(b.x, r, opacity);
+            mesh.AddVert(a - normal, aColor, Vector2.zero);
+            mesh.AddVert(b - normal, bColor, Vector2.zero);
+            mesh.AddVert(b + normal, bColor, Vector2.zero);
+            mesh.AddVert(a + normal, aColor, Vector2.zero);
+            mesh.AddTriangle(first, first + 1, first + 2);
+            mesh.AddTriangle(first, first + 2, first + 3);
+        }
+
         private void Surface()
         {
             Rect r=rectTransform.rect;
-            var outline = new List<Vector2>();
             int center=mesh.currentVertCount;
             mesh.AddVert(r.center,new Color(color.r*.45f,color.g*.45f,color.b*.55f,color.a),Vector2.zero);
             float radius=Mathf.Min(12,Mathf.Min(r.width,r.height)*.2f);
@@ -282,40 +353,24 @@ namespace MotorCity.UI
                     float t=Mathf.InverseLerp(r.yMin,r.yMax,p.y);
                     Color c=Color.Lerp(new Color(.035f,.035f,.09f,color.a),color,t);
                     mesh.AddVert(p,c,Vector2.zero);
-                    outline.Add(p);
                 }
             }
             int count=mesh.currentVertCount-center-1;
             for(int i=0;i<count;i++)mesh.AddTriangle(center,center+1+(i+1)%count,center+1+i);
-            // The border shares the fill contour; no extra glow objects.
-            int border = mesh.currentVertCount;
-            var innerBorder = new List<Vector2>();
-            for (int corner = 0; corner < 4; corner++)
+            // Soft layered glow, not the old 1.5px flat purple outline.
+            // Faded outer bands give the neon a halo even without URP bloom.
+            float spread = Mathf.Min(8f,
+                Mathf.Min(r.width, r.height) * 0.13f);
+            if (spread >= 1f)
             {
-                Vector2 origin = corner switch {
-                    0 => new Vector2(r.xMax-radius,r.yMax-radius),
-                    1 => new Vector2(r.xMin+radius,r.yMax-radius),
-                    2 => new Vector2(r.xMin+radius,r.yMin+radius),
-                    _ => new Vector2(r.xMax-radius,r.yMin+radius) };
-                for (int step = 0; step <= 8; step++)
-                {
-                    float angle = (corner*90+step*90f/8)*Mathf.Deg2Rad;
-                    Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
-                    Color stroke = new(.65f,.58f,1f,.9f);
-                    mesh.AddVert(origin + direction * radius, stroke, Vector2.zero);
-                    mesh.AddVert(origin + direction * Mathf.Max(0, radius - 1.5f), stroke, Vector2.zero);
-                    innerBorder.Add(origin + direction * Mathf.Max(0, radius - 1.5f));
-                }
+                NeonBand(r, radius, spread, spread * 0.62f, 0f, 0.075f);
+                NeonBand(r, radius, spread * 0.62f,
+                    spread * 0.26f, 0.075f, 0.19f);
             }
-            for (int i = 0; i < count; i++)
-            {
-                int a = border + i*2, b = border + ((i+1)%count)*2;
-                mesh.AddTriangle(a, b+1, b);
-                mesh.AddTriangle(a, a+1, b+1);
-            }
-            AntialiasContour(outline.ToArray(), new Color(.65f,.58f,1f,.9f));
-            innerBorder.Reverse();
-            AntialiasContour(innerBorder.ToArray(), new Color(.65f,.58f,1f,.9f));
+            NeonBand(r, radius, Mathf.Max(0.35f, spread * 0.26f),
+                0.2f, 0.19f, 0.68f);
+            NeonBand(r, radius, 0.2f, -1.1f, 0.68f, 0.23f);
+            NeonBand(r, radius, -1.1f, -2.6f, 0.23f, 0f);
         }
 
         private void NavigationSurface()
@@ -330,7 +385,10 @@ namespace MotorCity.UI
             {
                 Vector2 a=points[i],b=points[(i+1)%points.Length];
 
-                Line(a.x,a.y,b.x,b.y,1.5f,new Color(.65f,.58f,1f,.9f));
+                Rect bounds = rectTransform.rect;
+                NeonEdge(a, b, bounds, 7f, 0.05f);
+                NeonEdge(a, b, bounds, 3.5f, 0.16f);
+                NeonEdge(a, b, bounds, 1.45f, 0.82f);
             }
         }
     }
