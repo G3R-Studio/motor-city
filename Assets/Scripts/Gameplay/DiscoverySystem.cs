@@ -103,6 +103,25 @@ namespace MotorCity.Gameplay
             if (circuit.Length > 0) occupied.Add(circuit[0]);
             if (underground.Length > 0) occupied.Add(underground[0]);
 
+            // City professions initialize after discoveries in Bootstrap.
+            // Reserve their *road-snapped* future start sites now so discovery
+            // markers cannot settle on top of a future taxi / ice-cream icon.
+            Vector3[] professionStartAnchors =
+            {
+                new Vector3(-160f, 0f, -100f),
+                new Vector3(250f, 0f, 150f),
+                new Vector3(-150f, 0f, 375f),
+                new Vector3(300f, 0f, 450f)
+            };
+            foreach (Vector3 anchor in professionStartAnchors)
+                occupied.Add(CityAssetRuntimeInstaller.ResolveActivityRoadPoint(anchor));
+
+            // Reserve the service activity start markers as well.
+            occupied.Add(CityAssetRuntimeInstaller.ResolveActivityRoadPoint(
+                new Vector3(-150f, 0f, 150f)));
+            occupied.Add(CityAssetRuntimeInstaller.ResolveActivityRoadPoint(
+                new Vector3(450f, 0f, 190f)));
+
             // Speed traps and drift spots were initialized before discoveries
             // in MotorCityBootstrap, so compare their *resolved* positions.
             SpeedTrapSystem traps = GetComponent<SpeedTrapSystem>();
