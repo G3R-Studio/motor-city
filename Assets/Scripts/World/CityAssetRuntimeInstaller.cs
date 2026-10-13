@@ -635,6 +635,14 @@ namespace MotorCity.World
             return FindRoadPointNear(preferred, 80f, false);
         }
 
+        // Editor layout audit verifies the actual FCG road collider surface,
+        // not merely a rough city-grid coordinate.
+        public static bool IsRoadSurface(Vector3 position)
+        {
+            return activeCity != null &&
+                TryGetRoadHit(position.x, position.z, out _);
+        }
+
         private static Vector3[] ResolveRoadRoute(
             Vector3[] preferred)
         {
