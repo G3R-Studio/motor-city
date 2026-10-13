@@ -15,6 +15,20 @@ NAV = (ROOT / "NavigatorView.cs").read_text(encoding="utf-8")
 
 checks = {
     "cyan matches loading": "new(0.06f, 0.85f, 1f, 1f)" in GRAPHIC,
+    "dark cyan glass": "new(0.023f, 0.075f, 0.120f, 1f)" in GRAPHIC,
+    "dark violet glass": "new(0.105f, 0.038f, 0.157f, 1f)" in GRAPHIC,
+    "dark surface horizontal gradient":
+        "Color.Lerp(GlassCyan, GlassViolet, t)" in GRAPHIC,
+    "glass respects action button roles":
+        "fill.r += color.r * 0.12f;" in GRAPHIC,
+    "glass alpha follows existing panel":
+        "fill.a = color.a;" in GRAPHIC,
+    "surface fills its mesh with gradient":
+        "mesh.AddVert(r.center, SurfaceFillAt(r.center, r)" in GRAPHIC
+        and "mesh.AddVert(p, SurfaceFillAt(p, r)" in GRAPHIC,
+    "navigation panels use same dark gradient":
+        "glassPolygon" in GRAPHIC and
+        "SurfaceFillAt(local, bounds)" in GRAPHIC,
     "violet matches loading": "new(0.62f, 0.40f, 1f, 1f)" in GRAPHIC,
     "gradient depends on horizontal position":
         "(x - bounds.xMin)" in GRAPHIC and "bounds.width" in GRAPHIC,
@@ -44,5 +58,6 @@ if failures:
         print(" - " + name)
     raise SystemExit(1)
 
-print("PASS: unified gradient neon UI surface, buttons, garage, "
-      "HUD, front end, navigator, minimap; no extra click targets.")
+print("PASS: unified cyan-to-violet glow and matching dark glass "
+      "backgrounds for shared UI panels/buttons, garage, HUD and navigator; "
+      "no extra click targets.")
