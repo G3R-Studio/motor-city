@@ -96,7 +96,7 @@ namespace MotorCity.World
             new(260f, 0f, 450f),
             new(80f, 0f, 450f),
             new(-150f, 0f, 450f),
-            new(-360f, 0f, 450f),
+            new(-450f, 0f, 420f),
             new(-450f, 0f, 145f),
             new(-450f, 0f, -95f),
             new(-230f, 0f, -100f)
