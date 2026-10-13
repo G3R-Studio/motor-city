@@ -86,9 +86,9 @@ namespace MotorCity.Gameplay
                         "remote_district",
                         MotorCityLocalization.Text("world.main_west"),
                         new Vector3(
-                            -450f,
+                            -435f,
                             0f,
-                            -100f),
+                            -65f),
                         125f,
                         165f,
                         200f)

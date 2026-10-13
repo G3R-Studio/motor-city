@@ -74,7 +74,7 @@ namespace MotorCity.Gameplay
                 CreateSpot(
                     "north_grid",
                     MotorCityLocalization.Text("world.north_quarter"),
-                    new Vector3(150f, 0f, 450f),
+                    new Vector3(70f, 0f, 450f),
                     800,
                     1500,
                     2400),
@@ -82,7 +82,7 @@ namespace MotorCity.Gameplay
                 CreateSpot(
                     "remote_corner",
                     MotorCityLocalization.Text("world.central_avenue"),
-                    new Vector3(450f, 0f, -100f),
+                    new Vector3(350f, 0f, -100f),
                     900,
                     1700,
                     2700)
