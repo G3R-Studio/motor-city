@@ -108,26 +108,49 @@ namespace MotorCity.UI
             return sprite;
         }
 
+        private const string TablerRoot = "MotorCity/UI/Icons/Tabler/";
+
+        // Tabler PNGs are generated from the committed MIT-licensed SVG pack.
+        // Existing Kenney icons remain a safe fallback until export is run.
+        public static Sprite TryGetTabler(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
+            string cacheKey = "tabler:" + name;
+            if (Cache.TryGetValue(cacheKey, out Sprite cached))
+                return cached;
+
+            Sprite sprite = Resources.Load<Sprite>(TablerRoot + name);
+            Cache[cacheKey] = sprite;
+            return sprite;
+        }
+
+        private static Sprite TablerOrKenney(string tabler, string kenney)
+        {
+            return TryGetTabler(tabler) ?? Get(kenney);
+        }
+
         public static Sprite ForActivity(
             ActivityIcon icon)
         {
             return icon switch
             {
-                ActivityIcon.Delivery => Get("car"),
-                ActivityIcon.Drift => Get("car"),
-                ActivityIcon.Sprint => Get("flag"),
-                ActivityIcon.Circuit => Get("trophy"),
-                ActivityIcon.SpeedTrap => Get("target"),
-                ActivityIcon.DriftSpot => Get("target"),
-                ActivityIcon.Discovery => Get("star"),
-                ActivityIcon.PhotoHunt => Get("target"),
-                ActivityIcon.Taxi => Get("car"),
-                ActivityIcon.PizzaDelivery => Get("car"),
-                ActivityIcon.Mail => Get("car"),
-                ActivityIcon.CarWash => Get("car"),
-                ActivityIcon.TowTruck => Get("key"),
-                ActivityIcon.CityProfession => Get("gear"),
-                ActivityIcon.Underground => Get("flag"),
+                ActivityIcon.Delivery => TablerOrKenney("truck-delivery", "car"),
+                ActivityIcon.Drift => TablerOrKenney("car-turbine", "car"),
+                ActivityIcon.Sprint => TablerOrKenney("flag-3", "flag"),
+                ActivityIcon.Circuit => TablerOrKenney("trophy", "trophy"),
+                ActivityIcon.SpeedTrap => TablerOrKenney("gauge", "target"),
+                ActivityIcon.DriftSpot => TablerOrKenney("target", "target"),
+                ActivityIcon.Discovery => TablerOrKenney("map-pin", "star"),
+                ActivityIcon.PhotoHunt => TablerOrKenney("camera", "target"),
+                ActivityIcon.Taxi => TablerOrKenney("car", "car"),
+                ActivityIcon.PizzaDelivery => TablerOrKenney("pizza", "car"),
+                ActivityIcon.Mail => TablerOrKenney("mail", "car"),
+                ActivityIcon.CarWash => TablerOrKenney("spray", "car"),
+                ActivityIcon.TowTruck => TablerOrKenney("car-crane", "key"),
+                ActivityIcon.CityProfession => TablerOrKenney("briefcase", "gear"),
+                ActivityIcon.Underground => TablerOrKenney("moon-stars", "flag"),
                 _ => GetFallback()
             };
         }
@@ -221,29 +244,29 @@ namespace MotorCity.UI
         {
             return icon switch
             {
-                SystemIcon.Garage => Get("gear"),
-                SystemIcon.Upgrades => Get("plus"),
-                SystemIcon.Shop => Get("shopping_cart"),
-                SystemIcon.Achievements => Get("trophy"),
-                SystemIcon.Club => Get("home"),
-                SystemIcon.Season => Get("trophy"),
-                SystemIcon.DailyAdventure => Get("star"),
-                SystemIcon.Underground => Get("flag"),
-                SystemIcon.Contracts => Get("check"),
-                SystemIcon.CityEvents => Get("star"),
-                SystemIcon.Collection => Get("star"),
-                SystemIcon.CityLegend => Get("trophy"),
-                SystemIcon.VehicleHistory => Get("car"),
-                SystemIcon.Specialization => Get("gear"),
-                SystemIcon.Credits => Get("coin"),
-                SystemIcon.Reputation => Get("star"),
-                SystemIcon.Level => Get("trophy"),
-                SystemIcon.PixieXp => Get("star"),
-                SystemIcon.Reward => Get("coin"),
-                SystemIcon.Locked => Get("locked"),
-                SystemIcon.Unlocked => Get("unlocked"),
-                SystemIcon.Confirm => Get("check"),
-                SystemIcon.Add => Get("plus"),
+                SystemIcon.Garage => TablerOrKenney("car-garage", "gear"),
+                SystemIcon.Upgrades => TablerOrKenney("tools", "plus"),
+                SystemIcon.Shop => TablerOrKenney("shopping-cart", "shopping_cart"),
+                SystemIcon.Achievements => TablerOrKenney("trophy", "trophy"),
+                SystemIcon.Club => TablerOrKenney("users-group", "home"),
+                SystemIcon.Season => TablerOrKenney("calendar-event", "trophy"),
+                SystemIcon.DailyAdventure => TablerOrKenney("sun", "star"),
+                SystemIcon.Underground => TablerOrKenney("moon-stars", "flag"),
+                SystemIcon.Contracts => TablerOrKenney("clipboard-list", "check"),
+                SystemIcon.CityEvents => TablerOrKenney("calendar-event", "star"),
+                SystemIcon.Collection => TablerOrKenney("star", "star"),
+                SystemIcon.CityLegend => TablerOrKenney("crown", "trophy"),
+                SystemIcon.VehicleHistory => TablerOrKenney("history", "car"),
+                SystemIcon.Specialization => TablerOrKenney("certificate", "gear"),
+                SystemIcon.Credits => TablerOrKenney("coins", "coin"),
+                SystemIcon.Reputation => TablerOrKenney("star", "star"),
+                SystemIcon.Level => TablerOrKenney("medal", "trophy"),
+                SystemIcon.PixieXp => TablerOrKenney("sparkles", "star"),
+                SystemIcon.Reward => TablerOrKenney("gift", "coin"),
+                SystemIcon.Locked => TablerOrKenney("lock", "locked"),
+                SystemIcon.Unlocked => TablerOrKenney("lock-open", "unlocked"),
+                SystemIcon.Confirm => TablerOrKenney("check", "check"),
+                SystemIcon.Add => TablerOrKenney("plus", "plus"),
                 _ => GetFallback()
             };
         }
@@ -297,10 +320,10 @@ namespace MotorCity.UI
             ForSystem(SystemIcon.Add);
 
         public static Sprite Pause =>
-            Get("pause");
+            TablerOrKenney("player-pause", "pause");
 
         public static Sprite More =>
-            Get("menu_grid");
+            TablerOrKenney("layout-grid", "menu_grid");
 
         public static Sprite ForWorldMarker(
             string markerId)
