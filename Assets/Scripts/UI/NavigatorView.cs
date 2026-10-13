@@ -298,34 +298,17 @@ namespace MotorCity.UI
             UpdateNavigatorMenuText();
         }
 
-        private void StyleNavigatorDestinationCard(
-            RectTransform card)
+        private void StyleNavigatorDestinationCard(RectTransform card)
         {
             if (card == null)
                 return;
 
-            Outline outline =
-                card.GetComponent<Outline>();
-
-            if (outline == null)
-            {
-                outline =
-                    card.gameObject
-                        .AddComponent<Outline>();
-            }
-
-            outline.effectColor =
-                new Color(
-                    0.40f,
-                    0.66f,
-                    1f,
-                    0.25f);
-            outline.effectDistance =
-                new Vector2(1f, -1f);
-            outline.useGraphicAlpha =
-                true;
-
-
+            // Match the common neon panels instead of adding a flat blue
+            // Unity Outline that looks like an ordinary 1px box.
+            Outline legacy = card.GetComponent<Outline>();
+            if (legacy != null)
+                legacy.enabled = false;
+            ApplyReferenceHudSurface(card);
         }
 
         private void HandleNavigatorMenu()
