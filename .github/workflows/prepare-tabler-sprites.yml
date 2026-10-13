@@ -2,6 +2,12 @@ name: Prepare Motor City Tabler Sprites
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Tools/export_tabler_ui_icons.py'
+      - '.github/workflows/prepare-tabler-sprites.yml'
 
 permissions:
   contents: write
@@ -23,8 +29,10 @@ jobs:
       - name: Install SVG renderer
         run: python3 -m pip install --disable-pip-version-check cairosvg==2.7.1
 
-      - name: Verify checked-in SVG filenames and license
-        run: python3 Tools/export_tabler_ui_icons.py --check
+      - name: Check exporter syntax and icon filenames
+        run: |
+          python3 -m py_compile Tools/export_tabler_ui_icons.py
+          python3 Tools/export_tabler_ui_icons.py --check
 
       - name: Export white transparent Tabler sprites
         run: python3 Tools/export_tabler_ui_icons.py
