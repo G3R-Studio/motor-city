@@ -163,7 +163,7 @@ namespace MotorCity.UI
         {
             RectTransform rect = GarageRect(parent, name, x, y, w, h);
             var graphic = rect.gameObject.AddComponent<GarageReferenceGraphic>();
-            graphic.symbol = symbol; graphic.color = new Color(.16f,.12f,.32f,.94f);
+            graphic.symbol = symbol; graphic.color = MotorCityUiSkin.Panel;
             graphic.raycastTarget = false; graphic.SetAllDirty();
             return rect;
         }
