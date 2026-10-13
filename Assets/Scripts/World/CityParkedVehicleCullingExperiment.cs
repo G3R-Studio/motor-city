@@ -36,6 +36,9 @@ namespace MotorCity.World
         private bool refresh = true;
         private bool scanAnnounced;
         private Vector3 anchor;
+        private int bodyMatches;
+        private int parkedMatches;
+        private int skippedScripted;
 
         public int VehicleCount => vehicles.Count;
         public int HiddenVehicles { get; private set; }
@@ -58,6 +61,9 @@ namespace MotorCity.World
             scanAnnounced = false;
             refresh = true;
             EligibleTriangleReferences = 0;
+            bodyMatches = 0;
+            parkedMatches = 0;
+            skippedScripted = 0;
         }
 
         public void RequestRefresh()
@@ -113,6 +119,9 @@ namespace MotorCity.World
                 Debug.Log("[MotorCity][ParkedVehicles] Scan complete: " +
                     VehicleCount + " static parked vehicle groups, " +
                     EligibleTriangleReferences + " triangle references. " +
+                    "Body meshes=" + bodyMatches +
+                    ", under Park-*=" + parkedMatches +
+                    ", scripted/dynamic excluded=" + skippedScripted + ". " +
                     "These are whole-city references, not camera-visible tris. " +
                     "CarContainer/TrafficCar and colliders remain untouched.");
             }
@@ -189,19 +198,25 @@ namespace MotorCity.World
             if (!carBody)
                 return;
 
+            bodyMatches++;
             Transform vehicleRoot = renderer.transform.parent;
             if (vehicleRoot == null || vehicleRoot == cityRoot.transform ||
-                !registeredRoots.Add(vehicleRoot) ||
                 vehicleRoot.name.StartsWith("Park-", StringComparison.OrdinalIgnoreCase) ||
-                !HasParkedAncestor(vehicleRoot, cityRoot.transform))
+                !HasParkedAncestor(vehicleRoot, cityRoot.transform) ||
+                !registeredRoots.Add(vehicleRoot))
                 return;
+
+            parkedMatches++;
 
             // Explicitly exclude all controlled/moving vehicles and prefab
             // decorations containing authored MonoBehaviour state.
             if (vehicleRoot.GetComponent<Rigidbody>() != null ||
                 vehicleRoot.GetComponentInChildren<MonoBehaviour>(true) != null ||
                 vehicleRoot.GetComponentInParent<Rigidbody>() != null)
+            {
+                skippedScripted++;
                 return;
+            }
 
             MeshRenderer[] all = vehicleRoot.GetComponentsInChildren<MeshRenderer>(true);
             if (all.Length < 2 || all.Length > 24)
@@ -253,7 +268,8 @@ namespace MotorCity.World
         {
             Transform parent = vehicleRoot.parent;
             int depth = 0;
-            while (parent != null && parent != city && depth++ < 16)
+            bool parked = false;
+            while (parent != null && depth++ < 16)
             {
                 if (string.Equals(parent.name, "CarContainer",
                     StringComparison.OrdinalIgnoreCase))
@@ -261,7 +277,10 @@ namespace MotorCity.World
 
                 if (parent.name.StartsWith("Park-",
                     StringComparison.OrdinalIgnoreCase))
-                    return true;
+                    parked = true;
+
+                if (parent == city)
+                    return parked;
 
                 parent = parent.parent;
             }
