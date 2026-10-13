@@ -237,30 +237,47 @@ namespace MotorCity.UI
             Polygon(tint, a - normal, b - normal, b + normal, a + normal);
         }
 
-        private void Ring(float x,float y,float radius,float width)
+        // The minimap rim is another UI border, so it uses the same
+        // cyan-to-violet glow rather than a solid lilac stroke.
+        private void Ring(float x, float y, float radius, float width)
+        {
+            NeonCircleBand(x, y, radius + width * 0.5f + 5f,
+                radius + width * 0.5f + 2f, 0f, 0.09f);
+            NeonCircleBand(x, y, radius + width * 0.5f + 2f,
+                radius + width * 0.5f, 0.09f, 0.54f);
+            NeonCircleBand(x, y, radius + width * 0.5f,
+                radius - width * 0.5f, 0.54f, 0.60f);
+            NeonCircleBand(x, y, radius - width * 0.5f,
+                radius - width * 0.5f - 2f, 0.60f, 0f);
+        }
+
+        private void NeonCircleBand(float x, float y,
+            float outerRadius, float innerRadius,
+            float outerAlpha, float innerAlpha)
         {
             const int segments = 96;
             int start = mesh.currentVertCount;
-            var outer = new Vector2[segments];
-            var inner = new Vector2[segments];
+            Rect bounds = rectTransform.rect;
             for (int i = 0; i < segments; i++)
             {
-                float angle = i * Mathf.PI * 2 / segments;
-                Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
-                outer[i] = Point(new Vector2(x,y) + direction * (radius + width * .5f));
-                Vector2 inside = Point(new Vector2(x,y) + direction * (radius - width * .5f));
-                inner[segments-1-i] = inside;
-                mesh.AddVert(outer[i], color, Vector2.zero);
-                mesh.AddVert(inside, color, Vector2.zero);
+                float angle = i * Mathf.PI * 2f / segments;
+                Vector2 dir = new(Mathf.Cos(angle), Mathf.Sin(angle));
+                Vector2 outer = Point(new Vector2(x, y) + dir * outerRadius);
+                Vector2 inner = Point(new Vector2(x, y) + dir * innerRadius);
+                mesh.AddVert(outer,
+                    NeonAt(outer.x, bounds, outerAlpha), Vector2.zero);
+                mesh.AddVert(inner,
+                    NeonAt(inner.x, bounds, innerAlpha), Vector2.zero);
             }
             for (int i = 0; i < segments; i++)
             {
-                int a = start+i*2, b = start+((i+1)%segments)*2;
-                mesh.AddTriangle(a,b+1,b); mesh.AddTriangle(a,a+1,b+1);
+                int a = start + i * 2;
+                int b = start + (i + 1) % segments * 2;
+                mesh.AddTriangle(a, b + 1, b);
+                mesh.AddTriangle(a, a + 1, b + 1);
             }
-            AntialiasContour(outer,color);
-            AntialiasContour(inner,color);
         }
+
         // Unified Motor City neon light: left cyan, right violet.
         // The gradient is drawn in the same CanvasRenderer mesh, so every
         // panel and button shares one visual style without extra UI objects.
