@@ -35,9 +35,9 @@ namespace MotorCity.World
                         "Mission Icon");
             }
 
-            // Existing marker prefabs still serialize Kenney sprites until
-            // the artist rebuilds them in the Unity Editor. Switch both
-            // in-world icon planes to Tabler immediately at runtime.
+            // Keep the marker's core and glow aligned with its current
+            // Tabler icon. Generic profession prefabs can change icon IDs
+            // at runtime depending on the selected job.
             ApplyTablerIcon(ResolveMarkerId(gameObject.name));
 
             ResolveCamera(
@@ -69,9 +69,8 @@ namespace MotorCity.World
                         StringComparison.OrdinalIgnoreCase) < 0)
                     continue;
 
-                // Keep the authored world-space footprint when replacing
-                // 64/128px Kenney art with 192/384px Tabler textures.
-                // Otherwise large source textures inflate the 3D marker.
+                // Keep the authored world-space footprint if a generic
+                // Tabler marker switches to another Tabler pictogram.
                 Sprite oldSprite = renderer.sprite;
                 if (oldSprite != null && oldSprite != sprite)
                 {
