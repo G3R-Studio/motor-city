@@ -172,6 +172,7 @@ namespace MotorCity.UI
 
             characterPortraitImage.preserveAspect =
                 true;
+            portraitObject.AddComponent<MotorCityIconAspectGuard>();
 
             characterPortraitImage.type =
                 Image.Type.Simple;
