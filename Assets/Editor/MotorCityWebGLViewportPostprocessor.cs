@@ -83,8 +83,8 @@ html, body {
     if (canvas.style.height !== height + 'px' ||
         canvas.style.getPropertyPriority('height') !== 'important')
       canvas.style.setProperty('height', height + 'px', 'important');
-    if (canvas.width !== width) canvas.width = width;
-    if (canvas.height !== height) canvas.height = height;
+    // Do not override the canvas backing-store size here: Unity manages it
+    // according to device pixel ratio and needs it for accurate touch mapping.
   }
   document.addEventListener('DOMContentLoaded', function () {
     fitUnityCanvas();
