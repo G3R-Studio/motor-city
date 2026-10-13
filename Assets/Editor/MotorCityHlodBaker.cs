@@ -24,6 +24,10 @@ namespace MotorCity.EditorTools
         private const int MinimumRenderers = 5;
         private const int MaximumVerticesPerCell = 45000;
         private const int MaximumSourceVertices = 18000;
+        // Cap additional geometry so an unreviewed bake cannot double
+        // WebGL memory usage across the entire authored city.
+        private const int MaximumProxyCells = 320;
+        private const int MaximumProxyTriangles = 1000000;
 
         private readonly struct Source
         {
@@ -105,12 +109,18 @@ namespace MotorCity.EditorTools
             {
                 foreach (var entry in groups.OrderBy(p => p.Key))
                 {
+                    if (cells.Count >= MaximumProxyCells ||
+                        proxyTris >= MaximumProxyTriangles)
+                        break;
+
                     List<Source> sources = entry.Value.Sources;
                     if (sources.Count < MinimumRenderers)
                         continue;
 
                     int offset = 0;
-                    while (offset < sources.Count)
+                    while (offset < sources.Count &&
+                           cells.Count < MaximumProxyCells &&
+                           proxyTris < MaximumProxyTriangles)
                     {
                         var chunk = new List<Source>();
                         int vertices = 0;
@@ -162,6 +172,8 @@ namespace MotorCity.EditorTools
                                     chunk.Select(s => s.Index).ToArray(),
                                 SourceRendererNames =
                                     chunk.Select(s => s.Renderer.name).ToArray(),
+                                SourceRendererCenters =
+                                    chunk.Select(s => s.Renderer.bounds.center).ToArray(),
                                 SourceTriangles = sourceCount,
                                 ProxyTriangles = proxyCount
                             });
@@ -237,6 +249,7 @@ namespace MotorCity.EditorTools
                     !renderer.gameObject.activeInHierarchy ||
                     renderer.GetComponentInParent<LODGroup>() != null ||
                     renderer.isPartOfStaticBatch ||
+                    renderer.HasPropertyBlock() ||
                     renderer.GetComponent<MonoBehaviour>() != null ||
                     renderer.lightmapIndex >= 0 ||
                     IsExcluded(renderer.gameObject.name, ExcludedNames))

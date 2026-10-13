@@ -60,8 +60,11 @@ namespace MotorCity.World
                     cell.ProxyMaterial == null ||
                     cell.SourceRendererIndices == null ||
                     cell.SourceRendererNames == null ||
+                    cell.SourceRendererCenters == null ||
                     cell.SourceRendererIndices.Length !=
-                    cell.SourceRendererNames.Length)
+                    cell.SourceRendererNames.Length ||
+                    cell.SourceRendererIndices.Length !=
+                    cell.SourceRendererCenters.Length)
                     return false;
 
                 for (int j = 0; j < cell.SourceRendererIndices.Length; j++)
@@ -69,7 +72,9 @@ namespace MotorCity.World
                     int index = cell.SourceRendererIndices[j];
                     if (index < 0 || index >= renderers.Length ||
                         !seen.Add(index) || renderers[index] == null ||
-                        renderers[index].name != cell.SourceRendererNames[j])
+                        renderers[index].name != cell.SourceRendererNames[j] ||
+                        (renderers[index].bounds.center -
+                         cell.SourceRendererCenters[j]).sqrMagnitude > 1f)
                     {
                         Debug.LogWarning("[MotorCity][HLOD] Outdated or " +
                             "overlapping source mapping. Rebake required.");

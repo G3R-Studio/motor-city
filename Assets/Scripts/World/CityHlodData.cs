@@ -11,6 +11,7 @@ namespace MotorCity.World
         public Material ProxyMaterial;
         public int[] SourceRendererIndices;
         public string[] SourceRendererNames;
+        public Vector3[] SourceRendererCenters;
         public int SourceTriangles;
         public int ProxyTriangles;
     }
