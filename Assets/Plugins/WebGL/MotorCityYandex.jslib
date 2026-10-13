@@ -12,41 +12,9 @@ mergeInto(LibraryManager.library, {
 
       canvas.dataset.motorCityBrowserConfigured = '1';
 
-      // Yandex Games may reserve a separate column for a sticky banner.
-      // Size Unity to its own iframe viewport, never the outer browser
-      // screen or a fixed 1920x1080 canvas from the default WebGL template.
-      var unityContainer = canvas.closest('#unity-container');
-      if (unityContainer) {
-        // Do not use position:fixed here: it attaches Unity to the
-        // browser viewport rather than its embedded Yandex game slot.
-        unityContainer.style.position = 'absolute';
-        unityContainer.style.left = '0';
-        unityContainer.style.top = '0';
-        unityContainer.style.right = '0';
-        unityContainer.style.bottom = '0';
-        unityContainer.style.width = '100%';
-        unityContainer.style.height = '100%';
-        unityContainer.style.maxWidth = 'none';
-        unityContainer.style.maxHeight = 'none';
-        unityContainer.style.transform = 'none';
-        unityContainer.style.overflow = 'hidden';
-      }
-      // Relative dimensions follow the containing game slot as its size
-      // changes (fullscreen, browser resize or sticky advertisement).
-      if (document.documentElement) {
-        document.documentElement.style.width = '100%';
-        document.documentElement.style.height = '100%';
-      }
-      if (document.body) {
-        document.body.style.position = 'relative';
-        document.body.style.width = '100%';
-        document.body.style.height = '100%';
-      }
-      canvas.style.display = 'block';
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
-      canvas.style.maxWidth = 'none';
-      canvas.style.maxHeight = 'none';
+      // Layout is set in the generated index.html by the WebGL build
+      // postprocessor, before createUnityInstance is called. Do not change
+      // container/canvas sizing here after Unity has initialized.
 
       // Keep all gestures inside the Unity surface. Yandex Games checks that
       // mobile gameplay does not trigger browser scrolling, pull-to-refresh,
