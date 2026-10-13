@@ -47,6 +47,7 @@ namespace MotorCity.World
 
             bool GetRoad(Vector2Int cell, out Vector3 position)
             {
+                position = default;
                 if (road.TryGetValue(cell, out position))
                     return true;
                 if (invalid.Contains(cell))
