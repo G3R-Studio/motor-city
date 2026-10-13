@@ -49,62 +49,57 @@ namespace MotorCity.World
         // These targets follow the actual generated FCG grid from the
         // 2026-09-18 city report. Every road target is validated against
         // the exact MeshCollider triangle/submesh using the FCG_Roads material.
+        // West-to-east delivery run, then north to the upper district; no backtrack.
+        // All anchors snap to actual FCG road triangles on city installation.
         private static readonly Vector3[] DeliveryPreferred =
         {
-            // Large-district delivery loop from the 2026-09-18 17:09 FCG
-            // workbench generation. Targets intentionally follow the visible
-            // city grid from the report/screenshot; each is then snapped to
-            // the exact FCG_Roads triangle.
-            new(-450f, 0f, -100f),
-            new(-150f, 0f, -100f),
-            new(150f, 0f, -100f),
-            new(450f, 0f, -100f),
-            new(450f, 0f, 150f),
-            new(450f, 0f, 360f),
-            new(150f, 0f, 450f),
-            new(-150f, 0f, 450f),
-            new(-450f, 0f, 360f),
-            new(-450f, 0f, 150f),
-            new(-150f, 0f, 150f),
-            new(150f, 0f, 150f)
+            new(-330f, 0f, -100f),
+            new(-180f, 0f, -100f),
+            new(0f, 0f, -100f),
+            new(180f, 0f, -100f),
+            new(360f, 0f, -100f),
+            new(450f, 0f, -95f),
+            new(450f, 0f, 80f),
+            new(450f, 0f, 255f),
+            new(440f, 0f, 415f),
+            new(235f, 0f, 450f),
+            new(20f, 0f, 450f),
+            new(-190f, 0f, 450f)
         };
 
+        // Southbound from the western district, east along the avenue, then north.
+        // All anchors snap to actual FCG road triangles on city installation.
         private static readonly Vector3[] SprintPreferred =
         {
-            // Street sprint stays entirely inside the verified main district.
-            // The previous route continued onto an old remote highway section
-            // that is outside the current playable city.
-            new(450f, 0f, 150f),
-            new(450f, 0f, -100f),
-            new(150f, 0f, -100f),
-            new(-150f, 0f, -100f),
+            new(-450f, 0f, 180f),
+            new(-450f, 0f, 40f),
             new(-450f, 0f, -100f),
-            new(-450f, 0f, 150f),
-            new(-450f, 0f, 360f),
-            new(-150f, 0f, 450f),
-            new(150f, 0f, 450f),
-            new(450f, 0f, 430f),
-            new(450f, 0f, 150f),
-            new(150f, 0f, 150f),
-            new(-150f, 0f, 150f),
-            new(-450f, 0f, 150f),
-            new(-150f, 0f, -100f)
+            new(-260f, 0f, -100f),
+            new(-70f, 0f, -100f),
+            new(120f, 0f, -100f),
+            new(310f, 0f, -100f),
+            new(450f, 0f, -95f),
+            new(450f, 0f, 80f),
+            new(450f, 0f, 255f),
+            new(445f, 0f, 420f)
         };
 
+        // Clockwise perimeter loop. End connects to start on the southern avenue.
+        // All anchors snap to actual FCG road triangles on city installation.
         private static readonly Vector3[] CircuitPreferred =
         {
-            // Two-lap loop around the large district. As with the other
-            // activities, every target is snapped to an exact FCG road triangle.
-            new(150f, 0f, -100f),
-            new(450f, 0f, -100f),
+            new(80f, 0f, -100f),
+            new(260f, 0f, -100f),
+            new(440f, 0f, -100f),
             new(450f, 0f, 150f),
-            new(450f, 0f, 430f),
-            new(150f, 0f, 450f),
+            new(445f, 0f, 390f),
+            new(260f, 0f, 450f),
+            new(80f, 0f, 450f),
             new(-150f, 0f, 450f),
-            new(-450f, 0f, 360f),
-            new(-450f, 0f, 150f),
-            new(-450f, 0f, -100f),
-            new(-150f, 0f, -100f)
+            new(-420f, 0f, 365f),
+            new(-450f, 0f, 145f),
+            new(-450f, 0f, -95f),
+            new(-230f, 0f, -100f)
         };
 
         private static Vector3[] deliveryRoute =
@@ -116,22 +111,20 @@ namespace MotorCity.World
         private static Vector3[] circuitRoute =
             (Vector3[])CircuitPreferred.Clone();
 
+        // Eastbound across the north, south along the eastern road, then west.
+        // All anchors snap to actual FCG road triangles on city installation.
         private static readonly Vector3[] UndergroundPreferred =
         {
-            // Underground must stay inside the verified large-district road
-            // network. These points are shared with the working delivery /
-            // circuit area and are therefore guaranteed to be on-map for the
-            // current authored city.
-            new(-450f, 0f, 360f),
-            new(-450f, 0f, 150f),
-            new(-450f, 0f, -100f),
-            new(-150f, 0f, -100f),
-            new(150f, 0f, -100f),
-            new(450f, 0f, -100f),
-            new(450f, 0f, 150f),
-            new(450f, 0f, 360f),
-            new(150f, 0f, 450f),
-            new(-150f, 0f, 450f)
+            new(-300f, 0f, 450f),
+            new(-120f, 0f, 450f),
+            new(80f, 0f, 450f),
+            new(260f, 0f, 450f),
+            new(435f, 0f, 405f),
+            new(450f, 0f, 230f),
+            new(450f, 0f, 55f),
+            new(445f, 0f, -95f),
+            new(230f, 0f, -100f),
+            new(25f, 0f, -100f)
         };
 
         private static Vector3[] undergroundRoute =
@@ -222,9 +215,9 @@ namespace MotorCity.World
 
             DriftChallengePoint =
                 new Vector3(
-                    -450f,
+                    160f,
                     0.2f,
-                    150f);
+                    360f);
         }
 
         public static Vector3 PlayerSpawnPoint { get; private set; } =
@@ -273,10 +266,9 @@ namespace MotorCity.World
                 224.75f,
                 0f);
 
-        // Western broad junction in the large district, kept separate from
-        // the street sprint start on the eastern side.
+        // North-central drift arena, clear of the garage and activity starts.
         public static Vector3 DriftChallengePoint { get; private set; } =
-            new(-450f, 0.2f, 150f);
+            new(160f, 0.2f, 360f);
 
         public static Vector3[] DeliveryRoute =>
             (Vector3[])deliveryRoute.Clone();
@@ -613,9 +605,9 @@ namespace MotorCity.World
             DriftChallengePoint =
                 FindRoadPointNear(
                     new Vector3(
-                        -450f,
+                        160f,
                         0f,
-                        150f),
+                        360f),
                     75f,
                     true);
 
@@ -634,6 +626,13 @@ namespace MotorCity.World
             undergroundRoute =
                 ResolveRoadRoute(
                     UndergroundPreferred);
+        }
+
+        // Activity start points and secondary markers use exactly the same
+        // road-triangle validation as race checkpoints. Garage remains authored.
+        public static Vector3 ResolveActivityRoadPoint(Vector3 preferred)
+        {
+            return FindRoadPointNear(preferred, 80f, false);
         }
 
         private static Vector3[] ResolveRoadRoute(

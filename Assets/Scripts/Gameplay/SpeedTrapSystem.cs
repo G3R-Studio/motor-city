@@ -64,7 +64,7 @@ namespace MotorCity.Gameplay
                         "main_avenue",
                         MotorCityLocalization.Text("world.central_avenue"),
                         new Vector3(
-                            150f,
+                            220f,
                             0f,
                             -100f),
                         115f,
@@ -77,7 +77,7 @@ namespace MotorCity.Gameplay
                         new Vector3(
                             450f,
                             0f,
-                            360f),
+                            300f),
                         150f,
                         190f,
                         225f),

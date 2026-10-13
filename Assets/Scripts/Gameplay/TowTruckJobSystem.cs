@@ -122,26 +122,17 @@ namespace MotorCity.Gameplay
             professions =
                 professionSystem;
 
-            Vector3[] delivery =
-                CityAssetRuntimeInstaller.DeliveryRoute;
+            // Eastern service bay -> breakdown on the same arterial ->
+            // south avenue return to the depot. These are independent of
+            // unrelated delivery and racing checkpoints.
+            StartPoint = CityAssetRuntimeInstaller.ResolveActivityRoadPoint(
+                new Vector3(450f, 0f, 190f));
 
-            StartPoint =
-                Point(
-                    delivery,
-                    5,
-                    CityAssetRuntimeInstaller.GaragePoint);
+            BreakdownPoint = CityAssetRuntimeInstaller.ResolveActivityRoadPoint(
+                new Vector3(450f, 0f, -50f));
 
-            BreakdownPoint =
-                Point(
-                    delivery,
-                    2,
-                    CityAssetRuntimeInstaller.PlayerSpawnPoint);
-
-            ServicePoint =
-                Point(
-                    delivery,
-                    9,
-                    CityAssetRuntimeInstaller.GaragePoint);
+            ServicePoint = CityAssetRuntimeInstaller.ResolveActivityRoadPoint(
+                new Vector3(150f, 0f, -100f));
 
             BuildMaterials();
         }

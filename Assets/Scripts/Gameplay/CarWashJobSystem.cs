@@ -68,14 +68,9 @@ namespace MotorCity.Gameplay
             professions =
                 professionSystem;
 
-            Vector3[] delivery =
-                CityAssetRuntimeInstaller.DeliveryRoute;
-
-            StartPoint =
-                delivery != null &&
-                delivery.Length > 11
-                    ? delivery[11]
-                    : CityAssetRuntimeInstaller.GaragePoint;
+            // Dedicated washing bay start; no longer overlaps delivery CP11.
+            StartPoint = CityAssetRuntimeInstaller.ResolveActivityRoadPoint(
+                new Vector3(-150f, 0f, 150f));
         }
 
         private void Update()

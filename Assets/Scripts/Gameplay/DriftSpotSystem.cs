@@ -66,7 +66,7 @@ namespace MotorCity.Gameplay
                 CreateSpot(
                     "west_roundabout",
                     MotorCityLocalization.Text("world.west_turn"),
-                    new Vector3(-450f, 0f, 150f),
+                    new Vector3(-450f, 0f, 40f),
                     650,
                     1200,
                     2000),

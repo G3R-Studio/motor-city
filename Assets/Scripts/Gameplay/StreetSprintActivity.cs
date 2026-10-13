@@ -713,34 +713,14 @@ namespace MotorCity.Gameplay
                 return source;
             }
 
-            // The regular sprint loops around most of the district. The
-            // tutorial uses the already validated west/north section from
-            // indices 5..10, which begins reasonably close to the garage and
-            // remains long enough to teach checkpoint following.
-            int start =
-                source.Length >= 11
-                    ? 5
-                    : 0;
+            // The tutorial follows the first six checkpoints of the same
+            // monotonic sprint route. No shortcut, crossing or U-turn.
+            int count = Mathf.Min(6, source.Length);
+            Vector3[] result = new Vector3[count];
 
-            int count =
-                Mathf.Min(
-                    6,
-                    source.Length - start);
-
-            if (count < 2)
+            for (int i = 0; i < count; i++)
             {
-                return source;
-            }
-
-            Vector3[] result =
-                new Vector3[count];
-
-            for (int i = 0;
-                 i < count;
-                 i++)
-            {
-                result[i] =
-                    source[start + i];
+                result[i] = source[i];
             }
 
             return result;

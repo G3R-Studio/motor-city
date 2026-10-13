@@ -610,114 +610,70 @@ namespace MotorCity.Gameplay
                     : string.Empty;
         }
 
+        // Every profession has its own start point, not a checkpoint taken
+        // from a separate race. Targets run along consecutive road corridors.
         private void BuildDefinitions()
         {
-            Vector3[] delivery =
-                CityAssetRuntimeInstaller.DeliveryRoute;
-
-            Vector3[] sprint =
-                CityAssetRuntimeInstaller.SprintRoute;
-
-            Vector3[] circuit =
-                CityAssetRuntimeInstaller.CircuitRoute;
-
             definitions =
                 new[]
                 {
                     new ProfessionDefinition(
                         "pizza",
                         "profession.pizza",
-                        Point(delivery, 1),
-                        Route(
-                            delivery,
-                            3,
-                            5,
-                            7),
+                        Road(-160f, -100f),
+                        new[]
+                        {
+                            Road(-10f, -100f),
+                            Road(150f, -100f),
+                            Road(150f, 150f),
+                            Road(300f, 150f)
+                        },
                         420),
 
                     new ProfessionDefinition(
                         "taxi",
                         "profession.taxi",
-                        Point(delivery, 8),
-                        Route(
-                            delivery,
-                            10,
-                            2),
+                        Road(160f, 150f),
+                        new[]
+                        {
+                            Road(310f, 150f),
+                            Road(450f, 150f),
+                            Road(450f, 300f)
+                        },
                         460),
 
                     new ProfessionDefinition(
                         "mail",
                         "profession.mail",
-                        Point(sprint, 7),
-                        Route(
-                            sprint,
-                            9,
-                            11,
-                            13,
-                            14),
+                        Road(-140f, 450f),
+                        new[]
+                        {
+                            Road(-300f, 450f),
+                            Road(-450f, 360f),
+                            Road(-450f, 150f),
+                            Road(-450f, -100f)
+                        },
                         540),
 
                     new ProfessionDefinition(
                         "icecream",
                         "profession.icecream",
-                        Point(circuit, 4),
-                        Route(
-                            circuit,
-                            5,
-                            7,
-                            9),
+                        Road(300f, 450f),
+                        new[]
+                        {
+                            Road(450f, 430f),
+                            Road(450f, 250f),
+                            Road(450f, 75f),
+                            Road(450f, -100f)
+                        },
                         480)
                 };
         }
 
-        private static Vector3 Point(
-            Vector3[] source,
-            int index)
+        private static Vector3 Road(float x, float z)
         {
-            if (source == null ||
-                source.Length == 0)
-            {
-                return
-                    CityAssetRuntimeInstaller.PlayerSpawnPoint;
-            }
-
-            return
-                source[
-                    Mathf.Clamp(
-                        index,
-                        0,
-                        source.Length - 1)];
-        }
-
-        private static Vector3[] Route(
-            Vector3[] source,
-            params int[] indices)
-        {
-            if (source == null ||
-                source.Length == 0)
-            {
-                return
-                    new[]
-                    {
-                        CityAssetRuntimeInstaller.PlayerSpawnPoint
-                    };
-            }
-
-            Vector3[] result =
-                new Vector3[
-                    indices.Length];
-
-            for (int i = 0;
-                 i < indices.Length;
-                 i++)
-            {
-                result[i] =
-                    Point(
-                        source,
-                        indices[i]);
-            }
-
-            return result;
+            return CityAssetRuntimeInstaller.ResolveActivityRoadPoint(
+                new Vector3(x, 0f, z));
         }
 
         private static string ActivityId(
