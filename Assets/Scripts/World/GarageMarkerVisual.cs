@@ -83,6 +83,13 @@ namespace MotorCity.World
                 markerVfx.GetComponentsInChildren<SpriteRenderer>(
                     true);
 
+            // Garage deliberately reuses the profession marker VFX,
+            // but its icon must represent the garage, not a briefcase.
+            ActivityMarkerVfxAnimator iconAnimator =
+                markerVfx.GetComponent<ActivityMarkerVfxAnimator>();
+            if (iconAnimator != null)
+                iconAnimator.ApplyTablerIcon("garage");
+
             markerParticles =
                 markerVfx.GetComponentsInChildren<ParticleSystem>(
                     true);
