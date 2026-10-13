@@ -17,14 +17,30 @@ mergeInto(LibraryManager.library, {
       // screen or a fixed 1920x1080 canvas from the default WebGL template.
       var unityContainer = canvas.closest('#unity-container');
       if (unityContainer) {
-        unityContainer.style.position = 'fixed';
-        unityContainer.style.inset = '0';
+        // Do not use position:fixed here: it attaches Unity to the
+        // browser viewport rather than its embedded Yandex game slot.
+        unityContainer.style.position = 'absolute';
+        unityContainer.style.left = '0';
+        unityContainer.style.top = '0';
+        unityContainer.style.right = '0';
+        unityContainer.style.bottom = '0';
         unityContainer.style.width = '100%';
         unityContainer.style.height = '100%';
         unityContainer.style.maxWidth = 'none';
         unityContainer.style.maxHeight = 'none';
         unityContainer.style.transform = 'none';
         unityContainer.style.overflow = 'hidden';
+      }
+      // Relative dimensions follow the containing game slot as its size
+      // changes (fullscreen, browser resize or sticky advertisement).
+      if (document.documentElement) {
+        document.documentElement.style.width = '100%';
+        document.documentElement.style.height = '100%';
+      }
+      if (document.body) {
+        document.body.style.position = 'relative';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
       }
       canvas.style.display = 'block';
       canvas.style.width = '100%';
