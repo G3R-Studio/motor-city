@@ -47,9 +47,6 @@ namespace MotorCity.EditorTools
             importer.isReadable =
                 IsKenneyIcon;
 
-            importer.spriteMeshType =
-                SpriteMeshType.FullRect;
-
             importer.npotScale =
                 TextureImporterNPOTScale.None;
 
