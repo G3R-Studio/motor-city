@@ -31,7 +31,7 @@ are snapped to the actual FCG road triangles during city initialization.
 | Discovery: remote east | 280 | 320 |
 | Discovery: remote south | -150 | 290 |
 | Speed trap: main avenue | 150 | 15 |
-| Speed trap: highway | 450 | 350 |
+| Speed trap: highway | 175 | 450 |
 | Speed trap: remote district | -450 | -15 |
 | Drift zone: west roundabout | -450 | 105 |
 | Drift zone: north grid | 150 | 270 |
@@ -73,3 +73,31 @@ The final pass also avoids exact overlaps between active racing checkpoints and
 permanent drift zones, profession starts, and speed traps. Individual active
 route checkpoints may still appear near static markers during missions; only
 Play Mode can confirm visibility and road snap for every combination.
+
+## Follow-up to the first Play Mode layout audit
+
+The first Unity audit reported seven issues: one discovery/speed-trap marker
+overlap, five anomalous road-graph detours in the eastern city, and one
+too-long north-west circuit checkpoint leg.
+
+Changes:
+- The northern speed trap now starts near (175, 450), away from the discovery
+  marker at (450, 450). The garage position is unchanged.
+- Circuit checkpoint 8 is now anchored to the west road at (-450, 420),
+  removing the oversized diagonal to the next checkpoint.
+- `CityRoadNavigator.BuildRoute` can override a disconnected FCG waypoint
+  graph edge **only if** the direct segment is no longer than 260m, is roughly
+  axis-aligned, and road-collider sampling every 4m confirms continuous
+  drivable asphalt at a consistent elevation.
+- If asphalt does not span the gap, the navigator preserves the graph route
+  and the Play Mode audit continues to warn. Do not suppress those warnings
+  by raising detour thresholds.
+- The audit now prints actual snapped positions and whether continuous asphalt
+  could be verified, to direct any further waypoint repairs.
+
+These changes do not alter race progress counters, profession rewards,
+garage interior, vehicle spawn or the authored FCG map geometry.
+
+Re-run **Motor City → Markers → Audit Active City Layout (Play Mode)** after
+pulling. A zero-warning result must be confirmed in Unity Editor; the source-only
+regression cannot inspect the live city's road colliders.
