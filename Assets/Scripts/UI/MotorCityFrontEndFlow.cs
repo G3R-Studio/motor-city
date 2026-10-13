@@ -1568,9 +1568,15 @@ namespace MotorCity.UI
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                     Vector2.zero, new Vector2(57f, 19f), cyan);
                 Image image = segment.GetComponent<Image>();
-                image.type = Image.Type.Filled;
-                image.fillMethod = Image.FillMethod.Horizontal;
-                image.fillAmount = 0f;
+                // No sprite is assigned to procedural Image components.
+                // Unity may render them as full quads even with fillAmount=0.
+                // Animate the actual RectTransform width instead.
+                image.type = Image.Type.Simple;
+                segment.anchorMin = new Vector2(0f, 0f);
+                segment.anchorMax = new Vector2(0f, 1f);
+                segment.pivot = new Vector2(0f, 0.5f);
+                segment.anchoredPosition = Vector2.zero;
+                segment.sizeDelta = new Vector2(0f, 0f);
                 image.raycastTarget = false;
                 loadingSegments[i] = image;
             }
@@ -1661,7 +1667,9 @@ namespace MotorCity.UI
                 Image segment = loadingSegments[i];
                 if (segment == null)
                     continue;
-                segment.fillAmount = Mathf.Clamp01(scaled - i);
+                float visibleFraction = Mathf.Clamp01(scaled - i);
+                RectTransform rect = segment.rectTransform;
+                rect.sizeDelta = new Vector2(57f * visibleFraction, 0f);
                 segment.color = Color.Lerp(cyan, violet,
                     i / (float)(loadingSegments.Length - 1));
             }
