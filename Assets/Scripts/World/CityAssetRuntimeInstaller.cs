@@ -71,7 +71,7 @@ namespace MotorCity.World
         // All anchors snap to actual FCG road triangles on city installation.
         private static readonly Vector3[] SprintPreferred =
         {
-            new(-450f, 0f, 180f),
+            new(-450f, 0f, 200f),
             new(-450f, 0f, 40f),
             new(-450f, 0f, -100f),
             new(-260f, 0f, -100f),
@@ -96,7 +96,7 @@ namespace MotorCity.World
             new(260f, 0f, 450f),
             new(80f, 0f, 450f),
             new(-150f, 0f, 450f),
-            new(-420f, 0f, 365f),
+            new(-360f, 0f, 450f),
             new(-450f, 0f, 145f),
             new(-450f, 0f, -95f),
             new(-230f, 0f, -100f)
