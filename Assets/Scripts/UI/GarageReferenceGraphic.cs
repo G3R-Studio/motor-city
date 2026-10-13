@@ -16,9 +16,86 @@ namespace MotorCity.UI
         public Symbol symbol;
         private VertexHelper mesh;
 
+        // Use the game's checked-in Tabler sprite catalog for semantic icons,
+        // preserving the existing procedural mesh for backgrounds and fallbacks.
+        // Rendering in this same MaskableGraphic preserves button hit targets,
+        // canvas masks, sorting and layout without child-image overlays.
+        private Sprite TablerSprite => MotorCityIconLibrary.TryGetTabler(
+            symbol switch
+            {
+                Symbol.Credits => "coins",
+                Symbol.Crown => "crown",
+                Symbol.Star => "star",
+                Symbol.Wrench => "tools",
+                Symbol.Engine => "engine",
+                Symbol.Brake => "wheel",
+                Symbol.Shock => "car-suspension",
+                Symbol.Paint => "palette",
+                Symbol.Rim => "wheel",
+                Symbol.Neon => "sparkles",
+                Symbol.Speed => "gauge",
+                Symbol.Acceleration => "brand-speedtest",
+                Symbol.Gear => "manual-gearbox",
+                Symbol.Stability => "car-4wd",
+                Symbol.Steering => "steering-wheel",
+                Symbol.Drift => "car-turbine",
+                Symbol.Mass => "car-suv",
+                Symbol.Left => "arrow-left",
+                Symbol.Right => "arrow-right",
+                Symbol.Padlock => "lock",
+                Symbol.OpenPadlock => "lock-open",
+                Symbol.Keyboard => "keyboard",
+                Symbol.Check => "check",
+                Symbol.Camera => "camera",
+                Symbol.Gift => "gift",
+                Symbol.Shop => "shopping-cart",
+                Symbol.MenuGrid => "layout-grid",
+                Symbol.Pause => "player-pause",
+                // Surfaces, arrows-with-surfaces and unrepresented symbols
+                // keep their existing mesh rendering.
+                _ => null
+            });
+
+        public override Texture mainTexture =>
+            TablerSprite != null ? TablerSprite.texture : base.mainTexture;
+
+        private void PopulateTablerMesh(VertexHelper vh, Sprite sprite)
+        {
+            Rect rect = rectTransform.rect;
+            // Keep an optical inset so strokes do not touch button edges.
+            float width = Mathf.Min(rect.width, rect.height) * 0.86f;
+            float height = width;
+            Rect draw = new Rect(rect.center.x - width * 0.5f,
+                rect.center.y - height * 0.5f, width, height);
+
+            Vector4 uv = UnityEngine.Sprites.DataUtility.GetOuterUV(sprite);
+            UIVertex vertex = UIVertex.simpleVert;
+            vertex.color = color;
+            vertex.position = new Vector3(draw.xMin, draw.yMin);
+            vertex.uv0 = new Vector2(uv.x, uv.y);
+            vh.AddVert(vertex);
+            vertex.position = new Vector3(draw.xMin, draw.yMax);
+            vertex.uv0 = new Vector2(uv.x, uv.w);
+            vh.AddVert(vertex);
+            vertex.position = new Vector3(draw.xMax, draw.yMax);
+            vertex.uv0 = new Vector2(uv.z, uv.w);
+            vh.AddVert(vertex);
+            vertex.position = new Vector3(draw.xMax, draw.yMin);
+            vertex.uv0 = new Vector2(uv.z, uv.y);
+            vh.AddVert(vertex);
+            vh.AddTriangle(0, 1, 2);
+            vh.AddTriangle(2, 3, 0);
+        }
+
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear(); mesh = vh;
+            Sprite icon = TablerSprite;
+            if (icon != null)
+            {
+                PopulateTablerMesh(vh, icon);
+                return;
+            }
             if (symbol == Symbol.Surface) { Surface(); return; }
             if (symbol == Symbol.MinimapRim) { Ring(50,50,48,3); return; }
             if (symbol == Symbol.NavigationLeft || symbol == Symbol.NavigationRight || symbol == Symbol.CitySurface)
