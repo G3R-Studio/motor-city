@@ -1628,7 +1628,15 @@ namespace MotorCity.UI
             rect.anchoredPosition = position;
             rect.sizeDelta = size;
             Image image = iconObject.GetComponent<Image>();
-            image.sprite = MotorCityLoadingIcons.Get(kind);
+            string name = kind switch
+            {
+                0 => "flag-3",
+                1 => "tools",
+                2 => "map-pin",
+                _ => "bulb"
+            };
+            image.sprite = MotorCityIconLibrary.TryGetTabler(name) ??
+                MotorCityLoadingIcons.Get(kind);
             image.color = color;
             image.preserveAspect = true;
             image.raycastTarget = false;
