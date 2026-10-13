@@ -806,12 +806,18 @@ namespace MotorCity.World
             {
                 Vector3 next = i == stops.Count ? finish : stops[i];
                 float leg = FlatDistanceXZ(previous, next);
-                if (leg < 24f || leg > 160f ||
-                    !HasDrivableAsphaltBetween(previous, next))
+                bool hasAsphalt = HasDrivableAsphaltBetween(previous, next);
+                if (leg < 24f || leg > 160f || !hasAsphalt)
                 {
+                    string reason = leg < 24f ? "checkpoint spacing below 24m" :
+                        leg > 160f ? "checkpoint spacing above 160m" :
+                        "non-drivable asphalt between endpoints";
                     Debug.LogWarning("[MotorCity][Layout] Asphalt detour " +
                         "failed segment validation at point " + i +
-                        " for leg " + legIndex + "; original leg preserved.");
+                        " for leg " + legIndex + ": " + reason +
+                        ", distance=" + leg.ToString("F1") + "m, from " +
+                        previous.ToString("F1") + " to " +
+                        next.ToString("F1") + ". Original leg preserved.");
                     return anchors;
                 }
                 previous = next;
