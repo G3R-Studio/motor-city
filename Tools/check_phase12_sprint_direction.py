@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regression contract for Sprint waypoint chevrons in world and minimap.
 
-The SprintMarkerVfx/Kenney fastForward sprite points toward local +X. Both
+The SprintMarkerVfx/Tabler arrow-right sprite points toward local +X. Both
 presentations must rotate that sprite using the SAME outgoing segment from
 StreetSprintActivity.TryGetNextTarget(), not a fixed right-facing sprite.
 
@@ -49,7 +49,7 @@ def main() -> int:
     nav = MAP.read_text(encoding="utf-8-sig")
     activity = ACTIVITY.read_text(encoding="utf-8-sig")
     builder = BUILDER.read_text(encoding="utf-8-sig")
-    check('"fastForward.png"' in builder, "Sprint icon source changed; verify +X orientation", errors)
+    check('"arrow-right.png"' in builder, "Sprint marker must use the right-facing Tabler waypoint arrow", errors)
     check(
         "public bool TryGetNextTarget(" in activity
         and "checkpointIndex + 1" in activity,
