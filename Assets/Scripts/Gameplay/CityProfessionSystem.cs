@@ -658,7 +658,7 @@ namespace MotorCity.Gameplay
                         Road(-150f, 375f),
                         new[]
                         {
-                            Road(-300f, 450f),
+                            Road(-360f, 430f),
                             Road(-450f, 360f),
                             Road(-450f, 150f),
                             Road(-450f, -100f)
@@ -671,7 +671,7 @@ namespace MotorCity.Gameplay
                         Road(300f, 450f),
                         new[]
                         {
-                            Road(450f, 430f),
+                            Road(450f, 400f),
                             Road(450f, 250f),
                             Road(450f, 75f),
                             Road(450f, -100f)
