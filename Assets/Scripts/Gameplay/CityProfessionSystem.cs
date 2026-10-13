@@ -679,21 +679,24 @@ namespace MotorCity.Gameplay
                                 Road(450f, 250f),
                                 Road(450f, 75f),
                                 Road(450f, -100f)
-                            }, 2),
+                            }, 2, true),
                         480)
                 };
         }
 
         private static Vector3[] RouteWithRoadDetour(
-            Vector3 start, Vector3[] stops, int blockedLeg)
+            Vector3 start, Vector3[] stops, int blockedLeg,
+            bool skipDisconnectedReturn = false)
         {
             // Include the activity start when calculating the relevant leg,
             // then return only the remaining mission checkpoints.
             Vector3[] anchors = new Vector3[stops.Length + 1];
             anchors[0] = start;
             System.Array.Copy(stops, 0, anchors, 1, stops.Length);
-            Vector3[] expanded =
-                CityAssetRuntimeInstaller.InsertRoadGraphWaypoints(
+            Vector3[] expanded = skipDisconnectedReturn
+                ? CityAssetRuntimeInstaller.RoutePastDisconnectedCheckpoint(
+                    anchors, blockedLeg)
+                : CityAssetRuntimeInstaller.InsertRoadGraphWaypoints(
                     anchors, blockedLeg);
             Vector3[] result = new Vector3[expanded.Length - 1];
             System.Array.Copy(expanded, 1, result, 0, result.Length);
