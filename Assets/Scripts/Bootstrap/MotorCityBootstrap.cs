@@ -1172,7 +1172,10 @@ namespace MotorCity.Bootstrap
                 GameObject flag = new("Sprint Flag");
                 flag.transform.SetParent(root.transform, false);
                 flag.transform.localPosition = new Vector3(0.68f, 2.25f, 0f);
-                flag.transform.localScale = Vector3.one * 1.35f;
+                flag.transform.localScale = Vector3.one *
+                    (1.35f / Mathf.Max(0.001f,
+                        Mathf.Max(flagSprite.bounds.size.x,
+                            flagSprite.bounds.size.y)));
 
                 SpriteRenderer renderer =
                     flag.AddComponent<SpriteRenderer>();
@@ -1259,8 +1262,9 @@ namespace MotorCity.Bootstrap
                         0f);
 
                 flag.transform.localScale =
-                    Vector3.one *
-                    1.35f;
+                    Vector3.one * (1.35f / Mathf.Max(0.001f,
+                        Mathf.Max(flagSprite.bounds.size.x,
+                            flagSprite.bounds.size.y)));
 
                 SpriteRenderer renderer =
                     flag.AddComponent<SpriteRenderer>();
