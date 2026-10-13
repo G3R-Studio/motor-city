@@ -358,6 +358,8 @@ namespace MotorCity.UI
             storeCurrencyIcon =
                 currencyIconObject.GetComponent<RawImage>();
 
+            currencyIconObject.AddComponent<MotorCityIconAspectGuard>();
+
             storeCurrencyIcon.raycastTarget =
                 false;
             storeCurrencyIcon.color =
