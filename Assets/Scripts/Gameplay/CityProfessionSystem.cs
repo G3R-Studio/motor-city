@@ -517,6 +517,16 @@ namespace MotorCity.Gameplay
                 ProfessionLevel;
         }
 
+        // Read-only snapshot for the Play Mode road-network layout audit.
+        public Vector3[] GetPlannedRoute(int index)
+        {
+            if (definitions == null || index < 0 || index >= definitions.Length ||
+                definitions[index].Route == null)
+                return System.Array.Empty<Vector3>();
+
+            return (Vector3[])definitions[index].Route.Clone();
+        }
+
         public Vector3 GetStartPoint(
             int index)
         {

@@ -120,6 +120,27 @@ public static class MotorCityMarkerLayoutAudit
         warnings += CheckRoute("underground", CityAssetRuntimeInstaller.UndergroundRoute,
             false, findings);
 
+        if (professions != null)
+        {
+            string[] names = { "pizza", "taxi", "mail", "icecream" };
+            for (int i = 0; i < names.Length; i++)
+            {
+                Vector3[] plan = professions.GetPlannedRoute(i);
+                Vector3[] path = new Vector3[plan.Length + 1];
+                path[0] = professions.GetStartPoint(i);
+                System.Array.Copy(plan, 0, path, 1, plan.Length);
+                warnings += CheckRoute("profession " + names[i], path,
+                    false, findings);
+            }
+        }
+
+        if (tow != null)
+        {
+            warnings += CheckRoute("tow service",
+                new[] { tow.StartPoint, tow.BreakdownPoint, tow.ServicePoint },
+                false, findings);
+        }
+
         string summary = "[MotorCity][Layout] " + markers.Count +
             " marker starts checked; " + warnings + " warnings. " +
             (warnings == 0 ? "All starts have road surfaces and safe spacing." :
@@ -170,6 +191,30 @@ public static class MotorCityMarkerLayoutAudit
             {
                 findings.AppendLine(name + " checkpoint " + i + " is off-road");
                 warnings++;
+            }
+
+            // Check actual authored FCG way graph connectivity as well as
+            // Euclidean distance. A plausible straight line can cross a block.
+            List<Vector3> roadPath = CityRoadNavigator.BuildRoute(from, to);
+            if (roadPath.Count == 0)
+            {
+                findings.AppendLine(name + " leg " + i +
+                    " has no path in the authored road network");
+                warnings++;
+            }
+            else
+            {
+                float roadDistance = 0f;
+                for (int p = 1; p < roadPath.Count; p++)
+                    roadDistance += FlatDistance(roadPath[p - 1], roadPath[p]);
+
+                if (distance > 20f && roadDistance > distance * 3.2f + 60f)
+                {
+                    findings.AppendLine(name + " leg " + i +
+                        " detours " + roadDistance.ToString("F1") + " m for " +
+                        distance.ToString("F1") + " m direct");
+                    warnings++;
+                }
             }
 
             if (i == 0 && !loop) continue;
