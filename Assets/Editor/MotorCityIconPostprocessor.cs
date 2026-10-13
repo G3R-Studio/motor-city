@@ -32,8 +32,12 @@ namespace MotorCity.EditorTools
             importer.spriteImportMode =
                 SpriteImportMode.Single;
 
+            // Tabler outlines are often displayed at 18-30 canvas units
+            // from a 192/384 px source. Mips provide proper minification
+            // rather than aliasing from a single 2x2 bilinear sample.
+            // Leave Kenney's existing icon-font textures unchanged.
             importer.mipmapEnabled =
-                false;
+                !IsKenneyIcon;
 
             importer.alphaIsTransparency =
                 true;
