@@ -31,7 +31,7 @@ SMALL_HUD_ICONS = frozenset("""
 coins star gift flag-3 trophy target gauge map-pin camera tools
 truck-delivery car car-turbine car-crane pizza mail spray briefcase
 moon-stars wheel steering-wheel check arrow-left arrow-right
-player-pause layout-grid
+player-pause layout-grid arrow-up x
 """.split())
 
 def main():
