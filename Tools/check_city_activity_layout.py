@@ -185,6 +185,28 @@ def main():
         "Rookie sprint must follow the same contiguous first route section"
     )
 
+    # The east arterial is disconnected at the old mid-point. Rejoin at
+    # the *following* southern checkpoint rather than driving back to it.
+    # These are source contracts; road geometry is verified in Play Mode.
+    assert "RoutePastDisconnectedCheckpoint" in city, (
+        "Disconnected east-road anchor skipping was removed"
+    )
+    assert "HasSharpCheckpointReversal(alternative)" in city, (
+        "Bypassed routes must reject U-turns before replacing gameplay routes"
+    )
+    assert re.search(
+        r"undergroundRoute\s*=\s*RoutePastDisconnectedCheckpoint\("
+        r"\s*ResolveRoadRoute\(UndergroundPreferred\),\s*5\)",
+        city
+    ), "Underground detour must bypass the unreachable north-east return marker"
+    assert re.search(
+        r"Road\(450f, -100f\)\s*\},\s*2,\s*true\)",
+        professions
+    ), "Ice-cream detour must bypass the unreachable eastern mid-point"
+    assert "skipDisconnectedReturn" in professions, (
+        "Profession planner must support the physically verified bypass"
+    )
+
     # Prevent hiding navigation faults by loosening audit thresholds.
     navigator = (ROOT / "Assets/Scripts/World/CityRoadNavigator.cs").read_text(
         encoding="utf-8-sig"
