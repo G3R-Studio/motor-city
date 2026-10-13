@@ -101,3 +101,37 @@ garage interior, vehicle spawn or the authored FCG map geometry.
 Re-run **Motor City → Markers → Audit Active City Layout (Play Mode)** after
 pulling. A zero-warning result must be confirmed in Unity Editor; the source-only
 regression cannot inspect the live city's road colliders.
+
+## FCG detour corrections (Unity audit feedback)
+
+The Unity Play Mode audit reported long real-road detours for delivery leg 6,
+sprint leg 8, underground leg 5, profession taxi leg 1 and profession ice-cream
+leg 2. These are blocked or unlinked straight corridors: moving a straight
+marker into the middle of the city block would be unsafe.
+
+`CityAssetRuntimeInstaller.InsertRoadGraphWaypoints` now requests the actual
+connected FCG road route between each of those pairs, samples additional
+asphalt-validated checkpoints along the path at approximately 100 m intervals
+and inserts them into the live route before gameplay initializes. If road
+sampling fails, the original pair is preserved with a warning rather than
+inventing a traversable shortcut. The road connectivity audit remains enabled.
+
+The north discovery and drift-challenge placements were also relocated away
+from the speed trap. **Garage location, interior and player spawn remain
+unchanged.**
+
+## In-game QA of all marker locations
+
+Open the QA admin panel (`O`), choose **ВСЕ МЕТКИ** and use the search bar.
+It lists all mission starts, every currently initialized racing and
+profession checkpoint, underground route points, tow breakdown/service,
+car wash, discovery/photo hunt spots, speed traps, drift zones and garage.
+Click **К МЕТКЕ** to teleport and show a one-at-a-time VFX preview even
+when the associated mission is not active. Use **УБРАТЬ ПРЕДПРОСМОТР**
+to clear the preview. Teleportation cancels the current activity, so this
+is for editor QA, not for normal progression.
+
+For geometrical and routing QA, run **Motor City → Markers → Audit Active
+City Layout (Play Mode)** after the city has loaded. Road-snapped positions,
+graph connectivity and route quality cannot be fully verified from source
+coordinates alone. No Unity build is needed.
