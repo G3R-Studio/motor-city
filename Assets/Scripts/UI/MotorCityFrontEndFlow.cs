@@ -1635,8 +1635,8 @@ namespace MotorCity.UI
                 2 => "map-pin",
                 _ => "bulb"
             };
-            image.sprite = MotorCityIconLibrary.TryGetTabler(name) ??
-                MotorCityLoadingIcons.Get(kind);
+            image.sprite = MotorCityIconLibrary.Get(name);
+            image.enabled = image.sprite != null;
             image.color = color;
             image.preserveAspect = true;
             image.raycastTarget = false;
