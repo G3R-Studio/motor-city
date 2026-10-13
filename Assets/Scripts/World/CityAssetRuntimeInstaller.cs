@@ -643,6 +643,17 @@ namespace MotorCity.World
                 TryGetRoadHit(position.x, position.z, out _);
         }
 
+        // Give the detour planner the same material-validated road surface
+        // as the rest of the city, not a raw Physics hit on buildings.
+        public static bool TryGetRoadPoint(float x, float z, out Vector3 point)
+        {
+            point = default;
+            if (activeCity == null || !TryGetRoadHit(x, z, out point))
+                return false;
+            point.y += MarkerLift;
+            return true;
+        }
+
         // An FCG way graph can omit a link between adjacent pieces of road.
         // Only permit the navigator to bridge that missing link when the whole
         // straight segment is verified as drivable asphalt in the city mesh.
@@ -698,11 +709,8 @@ namespace MotorCity.World
             Vector3 finish = anchors[legIndex + 1];
             List<Vector3> path = CityRoadNavigator.BuildRoute(start, finish);
             if (path.Count < 2)
-            {
-                Debug.LogWarning("[MotorCity][Layout] Cannot connect road detour " +
-                    legIndex + "; keeping original route for audit.");
-                return anchors;
-            }
+                return RepairUnpavedDetour(anchors, legIndex,
+                    "FCG graph has no route");
 
             float distance = 0f;
             for (int i = 1; i < path.Count; i++)
@@ -745,10 +753,8 @@ namespace MotorCity.World
                 {
                     // Refuse to put mission markers on a non-road graph link.
                     // The audit keeps the original warning in this case.
-                    Debug.LogWarning("[MotorCity][Layout] Road detour sample " +
-                        sample + " for leg " + legIndex +
-                        " has no drivable asphalt; inspect FCG links.");
-                    return anchors;
+                    return RepairUnpavedDetour(anchors, legIndex,
+                        "FCG graph passes through non-drivable ground");
                 }
 
                 roadPosition.y += MarkerLift;
@@ -767,6 +773,36 @@ namespace MotorCity.World
             Debug.Log("[MotorCity][Layout] Expanded disconnected straight leg " +
                 legIndex + " into " + intervals + " road-aligned legs.");
             return result.ToArray();
+        }
+
+        private static Vector3[] RepairUnpavedDetour(Vector3[] anchors,
+            int legIndex, string reason)
+        {
+            Vector3 start = anchors[legIndex];
+            Vector3 finish = anchors[legIndex + 1];
+            if (!DrivableRoadDetourPlanner.TryFindWaypoints(start, finish,
+                    out List<Vector3> stops))
+            {
+                Debug.LogWarning("[MotorCity][Layout] Leg " + legIndex +
+                    " still needs a road-safe detour: " + reason +
+                    ". The asphalt planner found no connected path; " +
+                    "leaving the original leg visible to the audit.");
+                return anchors;
+            }
+
+            List<Vector3> route = new List<Vector3>(
+                anchors.Length + stops.Count);
+            for (int i = 0; i < anchors.Length; i++)
+            {
+                route.Add(anchors[i]);
+                if (i == legIndex)
+                    route.AddRange(stops);
+            }
+
+            Debug.Log("[MotorCity][Layout] Replaced broken FCG leg " +
+                legIndex + " with " + (stops.Count + 1) +
+                " asphalt-verified legs.");
+            return route.ToArray();
         }
 
         private static float FlatDistanceXZ(Vector3 a, Vector3 b)
