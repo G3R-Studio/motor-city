@@ -3,7 +3,7 @@
 
 Usage: python Tools/export_tabler_ui_icons.py
 Requires: pip install cairosvg
-Source: Assets/ThirdParty/outline/*.svg (MIT, notice in Assets/ThirdParty/LICENSE)
+Source: ThirdParty/TablerIcons/outline/*.svg (MIT, notice in Assets/ThirdParty/LICENSE)
 Output: Assets/Resources/MotorCity/UI/Icons/Tabler/*.png
 """
 from pathlib import Path
@@ -45,7 +45,7 @@ def main():
     args = parser.parse_args()
 
     project = Path(__file__).resolve().parents[1]
-    source_dir = project / "Assets/ThirdParty/outline"
+    source_dir = project / "ThirdParty/TablerIcons/outline"
     target_dir = project / "Assets/Resources/MotorCity/UI/Icons/Tabler"
     notice = project / "Assets/ThirdParty/LICENSE"
     missing = [name for name in ICON_NAMES
