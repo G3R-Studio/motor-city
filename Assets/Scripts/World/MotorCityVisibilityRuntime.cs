@@ -20,6 +20,10 @@ namespace MotorCity.World
         private Camera targetCamera;
         private CityFoliageCullingExperiment browserFoliage;
         private CityDistanceDetailCuller browserDetails;
+        private CityHlodRuntime browserHlod;
+        private bool hlodChecked;
+        private bool hlodAvailable;
+        private float nextHlodCheck;
         private float nextCityCheck;
         private float nextDetailCheck;
         private bool detailUrlChecked;
@@ -119,6 +123,8 @@ namespace MotorCity.World
                 browserFoliage.enabled = false;
             if (browserDetails != null)
                 browserDetails.enabled = false;
+            if (browserHlod != null)
+                browserHlod.enabled = false;
         }
 
         private void ApplyDistances()
@@ -133,6 +139,8 @@ namespace MotorCity.World
             appliedBrowserMode = BrowserProfileActive;
             if (browserDetails != null)
                 browserDetails.RequestRefresh();
+            if (browserHlod != null)
+                browserHlod.RequestRefresh();
 
             if (BrowserProfileActive)
             {
@@ -155,6 +163,38 @@ namespace MotorCity.World
                 ApplyDistances();
 
 #if UNITY_WEBGL && !UNITY_EDITOR
+            // HLOD is entirely optional: no data asset means no runtime
+            // change. An explicit URL opt-out supports future WebGL A/B.
+            if (!hlodChecked)
+            {
+                hlodChecked = true;
+                string url = Application.absoluteURL;
+                bool hlodDisabled = !string.IsNullOrEmpty(url) &&
+                    url.IndexOf("motorcity_hlod=off",
+                        StringComparison.OrdinalIgnoreCase) >= 0;
+                hlodAvailable = !hlodDisabled && CityHlodRuntime.LoadData() != null;
+                if (hlodDisabled)
+                    Debug.Log("[MotorCity][HLOD] Disabled via URL A/B switch.");
+            }
+            if (hlodAvailable && browserHlod == null &&
+                Time.unscaledTime >= nextHlodCheck)
+            {
+                nextHlodCheck = Time.unscaledTime + 1f;
+                GameObject hlodCity = GameObject.Find("MotorCity_FCGCity");
+                if (hlodCity != null)
+                {
+                    CityHlodRuntime culler = gameObject.AddComponent<CityHlodRuntime>();
+                    if (culler.Initialize(hlodCity, targetCamera,
+                        CityHlodRuntime.LoadData()))
+                        browserHlod = culler;
+                    else
+                    {
+                        Destroy(culler);
+                        hlodAvailable = false;
+                    }
+                }
+            }
+
             // Compare the same browser viewpoint with and without this
             // experimental distant detail culler using a URL query.
             if (!detailUrlChecked)

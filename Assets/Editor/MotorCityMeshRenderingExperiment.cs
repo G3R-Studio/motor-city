@@ -238,6 +238,73 @@ namespace MotorCity.EditorTools
                   "Scan finished=" + culler.ScanReady);
         }
 
+        [MenuItem("Motor City/Optimization/HLOD/3 - Enable HLOD A-B (Play Mode)")]
+        private static void EnableHlod()
+        {
+            GameObject city = GetCity();
+            Camera camera = Camera.main;
+            if (city == null || camera == null)
+                return;
+
+            CityHlodData data = CityHlodRuntime.LoadData();
+            if (data == null)
+            {
+                Debug.LogWarning("[MotorCity][HLOD] No baked HLOD asset. " +
+                    "Exit Play Mode and choose HLOD/2 - Bake Proxies.");
+                return;
+            }
+
+            CityHlodRuntime hlod =
+                Object.FindFirstObjectByType<CityHlodRuntime>(
+                    FindObjectsInactive.Include);
+            if (hlod == null)
+            {
+                GameObject host = new GameObject("MotorCity - HLOD A-B");
+                hlod = host.AddComponent<CityHlodRuntime>();
+                if (!hlod.Initialize(city, camera, data))
+                {
+                    Object.Destroy(host);
+                    return;
+                }
+            }
+            hlod.enabled = true;
+            hlod.RequestRefresh();
+            Debug.Log("[MotorCity][HLOD] A/B ON. Use menu HLOD/5 " +
+                "to report proxy counts. Only renderer visibility changes.");
+        }
+
+        [MenuItem("Motor City/Optimization/HLOD/4 - Disable HLOD A-B (Play Mode)")]
+        private static void DisableHlod()
+        {
+            if (GetCity() == null)
+                return;
+            CityHlodRuntime hlod =
+                Object.FindFirstObjectByType<CityHlodRuntime>(
+                    FindObjectsInactive.Include);
+            if (hlod != null)
+            {
+                hlod.enabled = false;
+                Debug.Log("[MotorCity][HLOD] A/B OFF: all swapped " +
+                    "original renderers restored.");
+            }
+        }
+
+        [MenuItem("Motor City/Optimization/HLOD/5 - Report HLOD (Play Mode)")]
+        private static void ReportHlod()
+        {
+            if (GetCity() == null)
+                return;
+            CityHlodRuntime hlod =
+                Object.FindFirstObjectByType<CityHlodRuntime>(
+                    FindObjectsInactive.Include);
+            Debug.Log(hlod == null || !hlod.Initialized
+                ? "[MotorCity][HLOD] Not active / no valid baked data."
+                : "[MotorCity][HLOD] " + (hlod.enabled ? "ON" : "OFF") +
+                  ": active proxies " + hlod.ActiveProxyCount +
+                  "/" + hlod.CellCount +
+                  ". Compare identical viewpoints using Game Stats and Profiler.");
+        }
+
         private static GameObject GetCity()
         {
             if (!Application.isPlaying)

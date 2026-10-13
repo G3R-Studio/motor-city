@@ -24,6 +24,7 @@ namespace MotorCity.World
         private Instance[] cells = Array.Empty<Instance>();
         private MeshRenderer[] sources;
         private Camera observer;
+        private GameObject proxyRoot;
         private int cursor;
         private bool refresh = true;
         private bool initialized;
@@ -79,8 +80,10 @@ namespace MotorCity.World
 
             sources = renderers;
             observer = camera;
-            GameObject root = new GameObject("MotorCity_HLOD_Proxies");
-            root.transform.SetParent(transform, false);
+            // Combined vertices were baked in WORLD coordinates. Do NOT
+            // parent proxies to the moving camera: keep world origin fixed.
+            proxyRoot = new GameObject("MotorCity_HLOD_Proxies");
+            GameObject root = proxyRoot;
             cells = new Instance[data.Cells.Length];
             for (int i = 0; i < cells.Length; i++)
             {
@@ -115,7 +118,12 @@ namespace MotorCity.World
 
         private void OnEnable() => RequestRefresh();
         private void OnDisable() => RestoreAll();
-        private void OnDestroy() => RestoreAll();
+        private void OnDestroy()
+        {
+            RestoreAll();
+            if (proxyRoot != null)
+                Destroy(proxyRoot);
+        }
 
         public void RestoreAll()
         {
