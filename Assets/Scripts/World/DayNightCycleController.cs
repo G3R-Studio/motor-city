@@ -712,8 +712,12 @@ namespace MotorCity.World
             // cannot leave the scene with stale fog settings.
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogStartDistance = 120f;
-            RenderSettings.fogEndDistance = 520f;
+            // Keep haze and camera clipping consistent in WebGL. Otherwise
+            // the original 520m fog wall hides even the extended city view.
+            RenderSettings.fogStartDistance =
+                MotorCityVisibilityRuntime.FogStartDistance;
+            RenderSettings.fogEndDistance =
+                MotorCityVisibilityRuntime.FogEndDistance;
 
             Color fogDay =
                 new Color(0.56f, 0.61f, 0.66f);

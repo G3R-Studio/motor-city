@@ -136,6 +136,51 @@ namespace MotorCity.EditorTools
                 previouslyHidden + " decorative renderers; city unchanged.");
         }
 
+        [MenuItem("Motor City/Optimization/4 - Preview Browser View Distance ON (Play Mode)")]
+        private static void PreviewBrowser()
+        {
+            if (GetCity() == null)
+                return;
+
+            MotorCityVisibilityRuntime.SetEditorPreview(true);
+            Debug.Log("[MotorCity][Optimization] WebGL visibility preview ON: " +
+                "camera=" + MotorCityVisibilityRuntime.FarClipDistance + "m, " +
+                "fog=" + MotorCityVisibilityRuntime.FogStartDistance + "-" +
+                MotorCityVisibilityRuntime.FogEndDistance + "m, preset=" +
+                MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset +
+                ". Editor-only preview; foliage A/B is a separate switch.");
+        }
+
+        [MenuItem("Motor City/Optimization/5 - Restore Editor View Distance (Play Mode)")]
+        private static void RestoreEditor()
+        {
+            if (GetCity() == null)
+                return;
+
+            MotorCityVisibilityRuntime.SetEditorPreview(false);
+            Debug.Log("[MotorCity][Optimization] Editor visibility restored: " +
+                "camera 2200m, fog 120-520m. No scene assets modified.");
+        }
+
+        [MenuItem("Motor City/Optimization/6 - Report Visibility (Play Mode)")]
+        private static void ReportVisibility()
+        {
+            if (GetCity() == null)
+                return;
+
+            Camera camera = Camera.main;
+            if (camera == null)
+                return;
+
+            Debug.Log("[MotorCity][Optimization] Visibility: " +
+                "camera far=" + camera.farClipPlane + "m, " +
+                "fog=" + RenderSettings.fogStartDistance + "-" +
+                RenderSettings.fogEndDistance + "m, " +
+                "browser preview=" + MotorCityVisibilityRuntime.BrowserProfileActive +
+                ", preset=" + MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset +
+                ". Compare the same street in Game view Stats / Profiler.");
+        }
+
         private static GameObject GetCity()
         {
             if (!Application.isPlaying)

@@ -1622,20 +1622,11 @@ namespace MotorCity.Bootstrap
             camera.fieldOfView = 62f;
             camera.nearClipPlane = 0.12f;
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-            // The authored city spans far beyond what the player needs to see
-            // at driving speed. A 2200 m far plane makes WebGL submit an
-            // enormous number of city renderers every frame.
-            camera.farClipPlane =
-                MotorCityQualityRuntime.CurrentPreset switch
-                {
-                    MotorCityQualityPreset.Low => 280f,
-                    MotorCityQualityPreset.High => 450f,
-                    _ => 350f
-                };
-#else
-            camera.farClipPlane = 2200f;
-#endif
+            // Match browser view distance to its quality preset, while keeping
+            // the existing Editor baseline until WebGL preview is requested.
+            // This component also tracks quality changes after camera creation.
+            camera.farClipPlane = MotorCityVisibilityRuntime.FarClipDistance;
+            cameraObject.AddComponent<MotorCityVisibilityRuntime>();
             cameraObject.transform.position = target.position + new Vector3(0f, 2.8f, -6.8f);
             ChaseCamera chase = cameraObject.AddComponent<ChaseCamera>();
             chase.SetTarget(target);

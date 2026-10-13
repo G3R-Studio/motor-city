@@ -12,8 +12,8 @@ namespace MotorCity.World
     /// </summary>
     public sealed class CityFoliageCullingExperiment : MonoBehaviour
     {
-        private const float HideDistance = 145f;
-        private const float RestoreDistance = 165f;
+        // The restore threshold must be CLOSER than the hide threshold.
+        // Previously 145/165 caused renderer on/off oscillation at 145-165m.
         private const int ChecksPerFrame = 256;
 
         private struct Candidate
@@ -98,6 +98,8 @@ namespace MotorCity.World
                 return;
 
             Vector3 cameraPosition = targetCamera.transform.position;
+            float hideDistance = MotorCityVisibilityRuntime.FoliageHideDistance;
+            float restoreDistance = hideDistance - 30f;
             int count = Mathf.Min(ChecksPerFrame, candidates.Length);
 
             for (int iteration = 0; iteration < count; iteration++)
@@ -111,7 +113,7 @@ namespace MotorCity.World
                     float distance = Vector3.Distance(
                         cameraPosition, item.Center) - item.Radius;
 
-                    if (!item.HiddenByExperiment && distance > HideDistance &&
+                    if (!item.HiddenByExperiment && distance > hideDistance &&
                         item.Renderer.enabled)
                     {
                         item.Renderer.enabled = false;
@@ -119,7 +121,7 @@ namespace MotorCity.World
                         hiddenCount++;
                     }
                     else if (item.HiddenByExperiment &&
-                             distance < RestoreDistance)
+                             distance < restoreDistance)
                     {
                         item.Renderer.enabled = true;
                         item.HiddenByExperiment = false;

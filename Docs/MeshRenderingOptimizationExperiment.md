@@ -1,57 +1,103 @@
-# Motor City — Mesh rendering optimization experiment
+# Motor City - WebGL visibility and mesh optimization
 
-Motor City uses Unity 6.6 / URP 17.6 and targets browser builds, including
-Yandex Games. Hardware **mesh shaders** are not supported by WebGL 2 and
-cannot be a production optimization for this game. Mesh shaders are *not*
-the same thing as ordinary Unity MeshRenderers, HLSL vertex/fragment
-shaders, GPU instancing or the SRP Batcher.
+Motor City uses Unity 6000.6 / URP 17.6. It targets WebGL 2. Hardware mesh shaders,
+GPU Resident Drawer and compute-shader-only approaches are **not** suitable
+WebGL 2 deployment optimizations. The existing URP asset keeps SRP Batcher ON.
 
-## Current rendering baseline
+## Why the browser skyline was empty
 
-- The `Assets/Settings/MotorCityURP.asset` pipeline already enables
-  SRP Batcher (`m_UseSRPBatcher: 1`).
-- GPU Resident Drawer is disabled; it requires a compute-capable graphics
-  API and is not a WebGL 2 replacement.
-- URP render scale is 0.92, MSAA 2, and 75m shadow draw distance.
-- The authored FCG city contains roughly 26,000 renderers. Exact loaded
-  counts are printed by the audit below.
+The runtime camera used a 2200m far plane in Editor but only 280/350/450m
+for WebGL Low/Medium/High. Additionally DayNightCycleController set linear
+fog to fully opaque at 520m. Increasing the far plane alone cannot restore
+a visible skyline if fog still hides it.
 
-Do not enable every batching mechanism blindly: some overlap, can increase
-memory, or have little effect when SRP Batcher already handles materials.
+The WebGL visibility policy now uses:
 
-## Zero-risk Editor A/B test
+| Quality | Camera far clip | Fog start | Fog end | Foliage hide/restore |
+| --- | ---: | ---: | ---: | ---: |
+| Low | 900m | 160m | 820m | 245/215m |
+| Medium | 1250m | 230m | 1140m | 345/315m |
+| High | 1700m | 310m | 1560m | 460/430m (auto culling OFF) |
+| Default Editor | 2200m | 120m | 520m | 145/115m (manual A/B only) |
 
-In Unity Editor:
+Visibility and fog respond to quality changes **after camera creation**.
+Distant buildings are NOT disabled via layer culling. Long-range haze softens
+the far-plane boundary. Colliders, authored meshes/materials, shadows,
+prefabs, roads, traffic and UI are not rewritten by this change.
 
-1. Pull Git changes and open Play Mode; wait for the city to finish loading.
-2. Choose `Motor City > Optimization > 1 - Report City Mesh Stats (Play Mode)`.
-   This reports mesh reuse, materials, approximate triangles, static batches,
-   LOD groups and missing mesh assignments (read-only).
-3. In Game view, turn on `Stats`; note **Batches**, **SetPass**, **Tris** and
-   FPS while looking at a street with lots of foliage. Use the Unity Profiler
-   (Rendering, CPU and GPU) for reliable frame-time comparisons.
-4. Select `Motor City > Optimization > 2 - Enable Foliage A-B (Play Mode)`.
-   Drive the same camera route and repeat measurements.
-5. Select `Motor City > Optimization > 3 - Disable Foliage A-B (Play Mode)`.
-   Any hidden decorative renderers are restored, without changing colliders.
-6. If it helps, capture *same-place/same-camera* profiler timings over
-   several seconds in both states. Only enable any optimization by default
-   after benchmarking.
+## Browser-oriented, conservative detail optimization
 
-The experiment affects **only renderers** named `Plant-*`, `Plants-*`,
-`Fern-*`, `Vegetation-*`, or `Flower-*`, and skips missing meshes,
-inactive renderers, active LODGroups and unusually large bounding boxes.
-It hides those farther than 145m from the camera, restores within 165m,
-and processes at most 256 candidates per frame. There is no modification
-of `CityVisual.prefab`, roads, the garage, jobs, markers, collisions, input,
-materials or runtime loading. Default state is OFF in all builds.
+On WebGL **Low and Medium**, the existing foliage culler is enabled
+automatically, but ONLY for MeshRenderers whose names match
+`Plant-*`, `Plants-*`, `Fern-*`, `Vegetation-*`, `Flower-*`.
+Renderers with an active LODGroup, missing mesh or material, inactive
+objects, or unusually large bounds are excluded. Hiding affects rendering
+only; colliders are untouched. A bounded 256-candidate-per-frame update
+limits CPU spikes, and every hidden mesh is restored on disable.
 
-If FPS/CPU/GPU time does not improve or the city looks noticeably emptier,
-leave it OFF. Do not confuse reduced triangle reference counts with real
-on-screen GPU work: Unity's native frustum culling and SRP Batcher already
-handle many objects.
+The previous 145m hide / 165m restore thresholds were inverted: renderers
+in the 145–165m band could oscillate ON/OFF every update. The restore
+threshold is now 30m **closer** than the hide threshold to prevent this.
+WebGL High leaves vegetation intact.
 
-See Unity docs: GPU optimization
-https://unity.com/how-to/gpu-optimization
-and GPU Resident Drawer limitations
-https://docs.unity.com/en-us/engine/6000.0/manual/analysis/graphics-performance-profiling/in-urp/reduce-draw-calls-urp/reduce-rendering-work-on-cpu/gpu-resident-drawer
+This is intentionally not a city-wide LOD/HLOD or instancing conversion.
+The prefab is authored and interactive, and no validated simplified
+building meshes / cluster impostors exist in the repository. Blind mesh
+combination would risk lighting, material appearance, collider behavior,
+streaming memory and build size. Do not enable static batching,
+GPU instancing or aggressive city-wide culling without a representative
+browser benchmark.
+
+## Verify in Unity Editor (before making any build)
+
+1. Pull the latest `main` changes. Open the `Prototype` scene,
+   press Play and start driving after the city has loaded.
+2. At a repeatable high-visibility street position, open Game view
+   **Stats** and Window > Analysis > Profiler. Record FPS, frame time,
+   Batches/Draw Calls, SetPass, Tris and CPU/GPU times. Leave foliage
+   experiment OFF at first.
+3. Use `Motor City > Optimization > 6 - Report Visibility (Play Mode)`.
+   Baseline Editor should report camera 2200m and fog 120–520m.
+4. Use `Motor City > Optimization > 4 - Preview Browser View Distance ON
+   (Play Mode)`. Camera/fog should change together. It uses the current
+   runtime quality preset. Check near and far buildings at day and night,
+   and drive quickly toward the skyline.
+5. Repeat Stats/Profiler measurements from the same position. Browser
+   visibility can cost **more** Draw Calls than the short original WebGL
+   view. This is expected until measured on the target browser.
+6. Use `Motor City > Optimization > 1 - Report City Mesh Stats (Play Mode)`,
+   then `2 - Enable Foliage A-B (Play Mode)` and compare; use
+   `3 - Disable Foliage A-B (Play Mode)` to restore. The Editor toggle
+   is separate from browser visibility preview.
+7. Use `5 - Restore Editor View Distance (Play Mode)`; check that the
+   Editor baseline returns. Quit Play Mode to reset non-persistent preview.
+8. Switch Low/Medium/High in the game's Graphics/Quality settings
+   **while playing** and repeat menu step 6 to confirm camera and fog
+   update in the preview without restarting gameplay. High can look best,
+   but may cost more.
+
+The new Editor menu changes **only runtime state**; nothing is serialized.
+If the menu is grey/unavailable, load the game and wait for the city.
+Do not use an Editor FPS delta as proof of WebGL performance: the target
+browser may differ substantially. Later, benchmark GitHub Pages WebGL
+Desktop/Mobile builds at matching scene positions with browser profiling.
+
+## Existing rendering baseline
+
+Read-only audit before this change: about 21,778 city MeshRenderers
+(9,926 enabled), 578 distinct meshes, 59 distinct materials and just
+3 LODGroups. The prior foliage A/B reduced Draw Calls from 14,248 to
+13,770 in Editor while frame time remained approximately 7.2–7.4ms.
+Thus it is a limited draw-call saving, NOT a proven FPS improvement.
+The number of visible triangles in Game view cannot be inferred from
+the read-only total referenced-triangles audit.
+
+## Next phase after browser benchmark
+
+Use Frame Debugger + Profiler to identify actual large material/mesh
+repetitions. Bake **validated** static, non-interactive per-chunk HLOD
+meshes in the Editor (never at WebGL startup), then compare memory,
+visuals and draw-call performance before integrating them. Only enable
+GPU instancing on materials and shaders where it improves measured WebGL
+performance versus SRP Batcher. No speculative HLOD/instancing baking was
+shipped by this change.
