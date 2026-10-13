@@ -17,8 +17,8 @@ namespace MotorCity.UI
 
     internal static class MotorCityUiSkin
     {
-        internal static readonly Color Panel = new(0.14f, 0.10f, 0.26f, 0.94f);
-        internal static readonly Color Raised = new(0.19f, 0.14f, 0.31f, 0.96f);
+        internal static readonly Color Panel = new(0.11f, 0.16f, 0.22f, 0.99f);
+        internal static readonly Color Raised = new(0.14f, 0.19f, 0.25f, 0.99f);
         internal static readonly Color TextPrimary = new(0.95f, 0.97f, 1f, 1f);
         internal static readonly Color TextSecondary = new(0.72f, 0.77f, 0.87f, 1f);
         internal static readonly Color AccentCyan = new(0.33f, 0.78f, 1f, 1f);
@@ -141,13 +141,13 @@ namespace MotorCity.UI
             surface.color = role switch
             {
                 MotorCityButtonRole.Primary =>
-                    new Color(0.18f, 0.39f, 0.57f, 0.98f),
+                    new Color(0.18f, 0.29f, 0.38f, 0.99f),
                 MotorCityButtonRole.Utility =>
-                    new Color(0.14f, 0.13f, 0.24f, 0.96f),
+                    new Color(0.13f, 0.17f, 0.22f, 0.99f),
                 MotorCityButtonRole.Back =>
-                    new Color(0.20f, 0.14f, 0.28f, 0.96f),
+                    new Color(0.15f, 0.17f, 0.23f, 0.99f),
                 _ =>
-                    new Color(0.20f, 0.16f, 0.34f, 0.96f)
+                    new Color(0.15f, 0.19f, 0.25f, 0.99f)
             };
             surface.raycastTarget = true;
 
