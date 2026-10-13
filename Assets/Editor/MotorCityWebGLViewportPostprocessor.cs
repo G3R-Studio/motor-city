@@ -67,12 +67,36 @@ html, body {
   padding: 0 !important;
 }
 </style>";
+            // Unity's default WebGL template assigns inline 1920x1080
+            // dimensions to the canvas. Its own JavaScript also preserves
+            // that resolution unless explicitly told to follow CSS size.
+            const string resizeScript = @"<script>
+(function () {
+  function fitUnityCanvas() {
+    var canvas = document.getElementById('unity-canvas');
+    if (!canvas) return;
+    var width = Math.max(1, document.documentElement.clientWidth);
+    var height = Math.max(1, document.documentElement.clientHeight);
+    canvas.style.setProperty('width', width + 'px', 'important');
+    canvas.style.setProperty('height', height + 'px', 'important');
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    fitUnityCanvas();
+    window.addEventListener('resize', fitUnityCanvas);
+    var canvas = document.getElementById('unity-canvas');
+    if (canvas && window.ResizeObserver)
+      new ResizeObserver(fitUnityCanvas).observe(document.documentElement);
+  });
+})();
+</script>";
             int closingHead = html.IndexOf(
                 "</head>", StringComparison.OrdinalIgnoreCase);
             if (closingHead < 0)
                 throw new BuildFailedException(
                     "WebGL index.html has no </head>; cannot install iframe layout");
-            html = html.Insert(closingHead, css + Environment.NewLine);
+            html = html.Insert(closingHead, css + Environment.NewLine + resizeScript + Environment.NewLine);
             File.WriteAllText(path, html);
             Debug.Log("Motor City WebGL: canvas fitted to iframe viewport at build time.");
         }
