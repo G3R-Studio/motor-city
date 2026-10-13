@@ -90,7 +90,7 @@ namespace MotorCity.World
             editorPreview = enabled;
 
             MotorCityVisibilityRuntime runtime =
-                Object.FindFirstObjectByType<MotorCityVisibilityRuntime>();
+                UnityEngine.Object.FindFirstObjectByType<MotorCityVisibilityRuntime>();
             if (runtime != null)
                 runtime.ApplyDistances();
 
