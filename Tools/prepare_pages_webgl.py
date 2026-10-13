@@ -57,6 +57,9 @@ def gate_mobile_portrait(html: str) -> str:
   document.addEventListener('DOMContentLoaded',refresh);
   window.motorCityLaunchInLandscape = function(){
     var args = arguments;
+    // Match Unity's framebuffer resolution to our CSS-sized 16:9 canvas.
+    // On high-DPI phones the default DPR otherwise enlarges the game UI.
+    if(args[1]) args[1].devicePixelRatio = 1;
     var start = function(){ return createUnityInstance.apply(null,args); };
     refresh();
     if(!portrait()) return start();
