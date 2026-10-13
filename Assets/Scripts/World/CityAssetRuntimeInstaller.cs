@@ -740,6 +740,32 @@ namespace MotorCity.World
             return true;
         }
 
+        // Unlike the FCG graph, this answers whether the straight segment
+        // itself is physically drivable, including short diagonal stretches.
+        // This is used by the layout audit to avoid false detour warnings
+        // where asphalt is continuous but FCG Way links are incomplete.
+        public static bool HasDrivableAsphaltBetween(Vector3 from, Vector3 to)
+        {
+            if (activeCity == null)
+                return false;
+
+            float length = FlatDistanceXZ(from, to);
+            if (length > 160f)
+                return false;
+
+            int samples = Mathf.Max(1, Mathf.CeilToInt(length / 3.5f));
+            for (int i = 0; i <= samples; i++)
+            {
+                float t = i / (float)samples;
+                float x = Mathf.Lerp(from.x, to.x, t);
+                float z = Mathf.Lerp(from.z, to.z, t);
+                if (!TryGetRoadHit(x, z, out Vector3 road) ||
+                    Mathf.Abs(road.y - Mathf.Lerp(from.y, to.y, t)) > 3f)
+                    return false;
+            }
+            return true;
+        }
+
         // An authored road can bend around a non-drivable city block even
         // when two targets are only 125m apart in a straight line. Replace
         // the flagged direct leg by intermediate checkpoints sampled along
