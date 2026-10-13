@@ -120,6 +120,28 @@ jobs:
           }
           JS
 
+      - name: Publish under fresh versioned URL to bypass cached Unity loader
+        shell: bash
+        run: |
+          mkdir -p _site/play-v3
+          shopt -s dotglob
+          for item in _site/*; do
+            if [ "$item" != "_site/play-v3" ]; then
+              mv "$item" _site/play-v3/
+            fi
+          done
+          cat > _site/index.html <<'HTML'
+          <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <meta http-equiv="refresh" content="0; url=play-v3/"><title>Motor City</title></head>
+          <body><a href="play-v3/">Open Motor City</a><script>location.replace("play-v3/");</script></body></html>
+          HTML
+          test -f _site/play-v3/index.html
+          if grep -Eq '\\.(br|gz)' _site/play-v3/index.html; then
+            echo 'ERROR: compressed paths remain in actual game HTML'
+            exit 1
+          fi
+          echo 'Fresh URL: /motor-city/play-v3/'
+
       - name: Validate site entry point
         shell: bash
         run: |
