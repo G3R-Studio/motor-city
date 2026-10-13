@@ -184,6 +184,24 @@ def main():
     assert "result[i] = source[i];" in sprint_source, (
         "Rookie sprint must follow the same contiguous first route section"
     )
+
+    # Prevent hiding navigation faults by loosening audit thresholds.
+    navigator = (ROOT / "Assets/Scripts/World/CityRoadNavigator.cs").read_text(
+        encoding="utf-8-sig"
+    )
+    assert "CityAssetRuntimeInstaller.IsContinuousStraightRoad(" in navigator, (
+        "Disconnected FCG road links must be validated against actual asphalt"
+    )
+    assert "int segments = Mathf.CeilToInt(distance / 4f);" in city, (
+        "Straight-road fallback must sample actual road mesh at regular intervals"
+    )
+    assert (175.0, 450.0) in [positions["speed trap highway"]], (
+        "North speed trap must stay separate from main-north discovery"
+    )
+    assert (-450.0, 420.0) in routes["CircuitPreferred"], (
+        "Circuit must keep the repaired northwest road checkpoint"
+    )
+
     print(
         "PASS: 23 marker starts, minimum gap %.1fm; 4 main routes, "
         "4 profession routes and tow route have no sharp reversals. "
