@@ -78,6 +78,7 @@ namespace MotorCity.UI
         private readonly RectTransform[] loadingRoadDashes =
             new RectTransform[8];
         private Text loadingStatusText;
+        private readonly Image[] loadingSegments = new Image[12];
         private Text loadingPercentText;
         private Text loadingTipText;
         private int loadingTipIndex;
@@ -1554,30 +1555,27 @@ namespace MotorCity.UI
             loadingStatusText.color = cyan;
             ConfigureFrontEndTextFit(loadingStatusText, 16);
 
-            CreateDecorativeRect(root, "Progress Track", center, center,
-                new Vector2(-34f, -57f), new Vector2(800f, 22f),
-                new Color(0.09f, 0.12f, 0.20f, 1f));
-            RectTransform fill = CreateDecorativeRect(root, "Progress Neon Fill",
-                center, new Vector2(0f, 0.5f),
-                new Vector2(-434f, -57f), new Vector2(800f, 18f), cyan);
-            // Filled image must use a fixed RectTransform so fillAmount does
-            // not move pointer hit regions or stretch the parent canvas.
-            loadingProgressFill = fill.GetComponent<Image>();
-            loadingProgressFill.type = Image.Type.Filled;
-            loadingProgressFill.fillMethod = Image.FillMethod.Horizontal;
-            loadingProgressFill.fillOrigin = 0;
-            loadingProgressFill.fillAmount = 0f;
-            loadingProgressFill.raycastTarget = false;
-
-            for (int i = 1; i < 12; i++)
+            for (int i = 0; i < loadingSegments.Length; i++)
             {
-                CreateDecorativeRect(root, "Track Segment " + i, center, center,
-                    new Vector2(-434f + i * (800f / 12f), -57f),
-                    new Vector2(5f, 23f), Color.black);
+                float x = -398f + i * 65f;
+                RectTransform back = CreateDecorativeRect(root,
+                    "Loading Segment Back " + i, center, center,
+                    new Vector2(x, -57f), new Vector2(57f, 19f),
+                    new Color(0.09f, 0.12f, 0.20f, 1f));
+                RectTransform segment = CreateDecorativeRect(back,
+                    "Loading Segment Fill " + i,
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                    Vector2.zero, new Vector2(57f, 19f), cyan);
+                Image image = segment.GetComponent<Image>();
+                image.type = Image.Type.Filled;
+                image.fillMethod = Image.FillMethod.Horizontal;
+                image.fillAmount = 0f;
+                image.raycastTarget = false;
+                loadingSegments[i] = image;
             }
 
             loadingPercentText = CreateText(root, "0%", 31, FontStyle.Bold,
-                TextAnchor.MiddleLeft, new Vector2(393f, -57f),
+                TextAnchor.MiddleLeft, new Vector2(430f, -57f),
                 new Vector2(115f, 50f), center);
             loadingPercentText.color = violet;
 
@@ -1637,11 +1635,22 @@ namespace MotorCity.UI
         private void SetLoadingVisualProgress(float progress)
         {
             float amount = Mathf.Clamp01(progress);
-            if (loadingProgressFill != null)
-                loadingProgressFill.fillAmount = amount;
+            float scaled = amount * loadingSegments.Length;
+            Color cyan = new Color(0.06f, 0.85f, 1f, 1f);
+            Color violet = new Color(0.62f, 0.40f, 1f, 1f);
+            for (int i = 0; i < loadingSegments.Length; i++)
+            {
+                Image segment = loadingSegments[i];
+                if (segment == null)
+                    continue;
+                segment.fillAmount = Mathf.Clamp01(scaled - i);
+                segment.color = Color.Lerp(cyan, violet,
+                    i / (float)(loadingSegments.Length - 1));
+            }
             if (loadingPercentText != null)
                 loadingPercentText.text = Mathf.RoundToInt(amount * 100f) + "%";
         }
+
 
 #if UNITY_EDITOR || DEBUG
         public void ResetForTesting()
@@ -2387,8 +2396,7 @@ namespace MotorCity.UI
             // or modify the city from the front end.
             CityAssetRuntimeInstaller.BeginPrefabPreload();
 
-            if (loadingProgressFill != null)
-                loadingProgressFill.fillAmount = 0f;
+            SetLoadingVisualProgress(0f);
 
             if (loadingWheel != null)
                 loadingWheel.localRotation = Quaternion.identity;
@@ -2622,10 +2630,8 @@ namespace MotorCity.UI
 
             gameplayReady = true;
             gameplayReadyAt = loadingTimer;
-            loadingProgressWhenReady =
-                loadingProgressFill == null
-                    ? 0.90f
-                    : loadingProgressFill.fillAmount;
+            loadingProgressWhenReady = Mathf.Min(0.90f,
+                loadingTimer / LoadingDurationSeconds * 0.90f);
         }
 
         private void EnterGameplay()
