@@ -85,11 +85,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 Tools/prepare_pages_webgl.py \\
-            --desktop downloads/desktop \\
-            --mobile downloads/mobile \\
-            --output _site \\
-            --release-sha "${{ github.sha }}" \\
+          python3 Tools/prepare_pages_webgl.py \
+            --desktop downloads/desktop \
+            --mobile downloads/mobile \
+            --output _site \
+            --release-sha "${{ github.sha }}" \
             --release-run "${{ steps.find-run.outputs.run_id }}"
           test -f _site/desktop/index.html
           test -f _site/mobile/index.html
