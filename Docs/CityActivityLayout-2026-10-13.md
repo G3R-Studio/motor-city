@@ -10,15 +10,15 @@ are snapped to the actual FCG road triangles during city initialization.
 |---|---:|---:|
 | Garage — protected | -421.69 | 330.92 |
 | Delivery | -330 | -100 |
-| Sprint | -450 | 180 |
+| Sprint | -450 | 200 |
 | Circuit race | 80 | -100 |
 | Underground | -300 | 450 |
 | Drift challenge | 160 | 360 |
 | Car wash | -150 | 150 |
 | Tow truck | 450 | 190 |
 | Pizza delivery | -160 | -100 |
-| Taxi | 160 | 150 |
-| Mail | -140 | 450 |
+| Taxi | 250 | 150 |
+| Mail | -150 | 375 |
 | Ice cream | 300 | 450 |
 
 ## Discoveries, drift zones, speed traps
@@ -30,12 +30,12 @@ are snapped to the actual FCG road triangles during city initialization.
 | Discovery: highway mid | -30 | -100 |
 | Discovery: remote east | 280 | 320 |
 | Discovery: remote south | -150 | 290 |
-| Speed trap: main avenue | 220 | -100 |
-| Speed trap: highway | 450 | 300 |
-| Speed trap: remote district | -435 | -65 |
-| Drift zone: west roundabout | -450 | 40 |
-| Drift zone: north grid | 70 | 450 |
-| Drift zone: remote corner | 350 | -100 |
+| Speed trap: main avenue | 150 | 15 |
+| Speed trap: highway | 450 | 350 |
+| Speed trap: remote district | -450 | -15 |
+| Drift zone: west roundabout | -450 | 105 |
+| Drift zone: north grid | 150 | 270 |
+| Drift zone: remote corner | 450 | 5 |
 
 ## Route design
 
@@ -62,9 +62,14 @@ spacing and authored FCG road-graph connectivity. It prints violations in the
 Unity Console.
 
 The static source plan has 23 marker starts with minimum pairwise separation
-approximately 106 m. Actual snapped positions may differ from preferred
+85 m. Actual snapped positions may differ from preferred
 coordinates; only the Unity Play Mode audit and visual drive-through can
 confirm that each marker is reachable and well situated in the rendered city.
 
 There is no need to rebuild world marker icon prefabs solely because the
 gameplay coordinates moved: these positions are supplied at runtime.
+
+The final pass also avoids exact overlaps between active racing checkpoints and
+permanent drift zones, profession starts, and speed traps. Individual active
+route checkpoints may still appear near static markers during missions; only
+Play Mode can confirm visibility and road snap for every combination.
