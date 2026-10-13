@@ -73,7 +73,7 @@ namespace MotorCity.UI
             {
                 RectTransform upgrade = GarageSurface(panel, "Upgrade " + (i + 1), 26 + i * 229, 694, i == 2 ? 231 : 218, 207);
                 GarageBind(upgrade, i == 0 ? MotorCityInputAction.Upgrade1 : i == 1 ? MotorCityInputAction.Upgrade2 : MotorCityInputAction.Upgrade3);
-                GarageIcon(upgrade, "Upgrade Icon", i == 0 ? GarageReferenceGraphic.Symbol.Engine : i == 1 ? GarageReferenceGraphic.Symbol.Brake : GarageReferenceGraphic.Symbol.Shock, GarageReferenceLilac, 18, 22, 52, 47);
+                GarageIcon(upgrade, "Upgrade Icon", i == 0 ? GarageReferenceGraphic.Symbol.Engine : i == 1 ? GarageReferenceGraphic.Symbol.Brake : GarageReferenceGraphic.Symbol.Shock, GarageReferenceLilac, 18, 21, 48, 48);
                 garageTitleTexts[i] = ReferenceLabel(upgrade, "Upgrade Title", "", 87, 18, i == 2 ? 140 : 123, 29, 22, Color.white);
                 garageLevelTexts[i] = ReferenceLabel(upgrade, "Upgrade Level", "", 87, 50, 115, 25, 19);
                 garageTitleTexts[i].alignment = garageLevelTexts[i].alignment = TextAnchor.MiddleCenter;
