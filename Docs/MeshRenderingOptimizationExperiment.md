@@ -387,3 +387,41 @@ unchanged; the separate tree experiment is NOT wired into WebGL startup.
 Even if the Editor benchmark improves, verify the road-level visual
 quality and skyline before shipping. Exact WebGL behavior can only be
 determined with a final browser build after Editor experiments conclude.
+
+
+## Automated tree geometry diagnosis (READ ONLY, Play Mode)
+
+The first Trees-01 benchmark at High returned only **4 eligible tree
+renderers**, **1 hidden** and **138 triangle references hidden**. It did
+not improve frame time: 5.49ms with small details+parked vehicles vs
+5.57ms with the additional experimental tree culler. Do not ship the
+tree experiment yet or keep blindly changing its distance thresholds.
+
+To inspect the actual reasons for candidate rejection, choose
+`Motor City > Optimization > 16 - Diagnose Tree Geometry (Play Mode)`.
+Run in the loaded MotorCity game scene with a camera; it is not an
+FPS benchmark and does not change enabled renderers, scene objects,
+prefabs, meshes, materials, or build settings.
+
+The command writes `Temp/MotorCity_TreeGeometryAudit.txt` in the Unity
+project. The report contains:
+
+- Total live MeshRenderers, and the union of renderers with a Tree/Palm
+  name or at least one Trees-01 material.
+- Exact first-failing filter stage of the current tree experiment for
+  every inspected renderer, with sample full hierarchy paths, material
+  names, dimensions, estimated distance and pixel size, and triangle
+  reference counts.
+- Independent totals for candidate name/material matches, active state,
+  static batching, LODGroup and eligibility *hypothetically* without
+  the restrictive Tree/Palm object-name filter.
+- Material-family and object-name distributions and the most expensive
+  tree-bearing meshes.
+- Number of actual candidates and potential hidden meshes in the
+  current camera position using the conservative High >500m and <12px
+  projected-diameter thresholds.
+
+No filter will be relaxed until the TXT reveals which classes of
+renderers dominate cost; name-relaxation counts are only diagnostics
+and do not imply those objects are safe to hide. This avoids risking
+vegetation integrated into buildings, gameplay assets and skyline.
