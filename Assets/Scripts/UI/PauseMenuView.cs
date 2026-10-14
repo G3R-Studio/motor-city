@@ -4,6 +4,7 @@ using MotorCity.Input;
 using MotorCity.Localization;
 using MotorCity.Persistence;
 using MotorCity.Platform;
+using MotorCity.World;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
