@@ -146,9 +146,15 @@ namespace MotorCity.World
             // The separate parked-vehicle culler owns all wheels/body parts
             // of decorative vehicles under Park-*. Never have two systems
             // toggle forceRenderingOff on the same renderer.
-            if (IsParkedCarPart(renderer) ||
-                CityDistantTreeCullingExperiment.IsTreeRenderer(renderer))
+            if (IsParkedCarPart(renderer))
                 return;
+#if UNITY_EDITOR
+            // Only reserve Trees-01 for the separate tree A/B experiment
+            // inside the Editor. Production WebGL keeps its prior behavior
+            // until the tree experiment has been measured and approved.
+            if (CityDistantTreeCullingExperiment.IsTreeRenderer(renderer))
+                return;
+#endif
 
             Bounds bounds = renderer.bounds;
             float radius = bounds.extents.magnitude;
