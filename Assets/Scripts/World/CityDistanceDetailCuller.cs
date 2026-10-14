@@ -143,6 +143,12 @@ namespace MotorCity.World
             if (mesh == null || material == null || material.renderQueue >= 3000)
                 return;
 
+            // The separate parked-vehicle culler owns all wheels/body parts
+            // of decorative vehicles under Park-*. Never have two systems
+            // toggle forceRenderingOff on the same renderer.
+            if (IsParkedCarPart(renderer))
+                return;
+
             Bounds bounds = renderer.bounds;
             float radius = bounds.extents.magnitude;
             if (radius <= 0.01f || radius > MaximumRadius)
@@ -160,6 +166,43 @@ namespace MotorCity.World
                 Triangles = triangleReferences
             });
             Evaluate(candidates.Count - 1, cameraPosition);
+        }
+
+        private static bool IsParkedCarPart(MeshRenderer renderer)
+        {
+            string name = renderer.name;
+            bool wheelName =
+                string.Equals(name, "BL", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(name, "BR", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(name, "FL", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(name, "FR", StringComparison.OrdinalIgnoreCase);
+            bool vehicleMaterial = false;
+            foreach (Material material in renderer.sharedMaterials)
+            {
+                if (material == null)
+                    continue;
+                if (material.name.StartsWith("FCG_Tires",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    material.name.StartsWith("FCG_Traffic-Car-Atlas",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    vehicleMaterial = true;
+                    break;
+                }
+            }
+            if (!wheelName && !vehicleMaterial)
+                return false;
+
+            Transform current = renderer.transform.parent;
+            int remaining = 24;
+            while (current != null && remaining-- > 0)
+            {
+                if (current.name.StartsWith("Park-",
+                        StringComparison.OrdinalIgnoreCase))
+                    return true;
+                current = current.parent;
+            }
+            return false;
         }
 
         private static bool IsProtected(string name)
