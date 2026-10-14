@@ -259,3 +259,35 @@ To test without a 20-minute WebGL build:
    separately from the existing small-detail culling. Otherwise keep it off.
 
 No Unity compilation or browser FPS improvement has been asserted.
+
+### Automated 4-phase parked-vehicle frame-time comparison
+
+After the initial parked-vehicle A/B report of **305/455 hidden vehicle
+groups** and **404,800/603,956 hidden triangle references**, use
+`Motor City > Optimization > 13 - Benchmark Parked Vehicles A-B (Play Mode)`.
+This is Editor-only and never runs in a WebGL build.
+
+- Select the problem camera viewpoint in Play Mode and the intended graphics
+  preset with browser view-distance preview enabled (menu 4).
+- Disable foliage (menu 3), distant tiny-detail culling (menu 8) and
+  HLOD (HLOD menu 4). The launcher checks for any that remain enabled.
+- Activate menu 13 and keep the Game view focused with the camera stationary.
+  The test waits for a culler scan, then automatically compares
+  OFF / ON / ON / OFF. Each phase has a 2.5s warmup and 12s sampling,
+  about 58 seconds overall. No input/movement during the test.
+- If the camera moves more than 2m or rotates by more than 4 degrees
+  from its start, the test aborts rather than claiming comparable results.
+- Read the `[MotorCity][ParkedBenchmark] FINAL` Console entry. It combines
+  two OFF periods and two ON periods; reports frame sample counts, mean
+  frame interval, FPS derived from frame times, median/p95/p99 frame time,
+  and frames above 25/50 ms. Positive improvement means the ON frame
+  interval was shorter than OFF.
+- The runner restores the A/B culler's original enabled state on completion
+  (or abort) and deletes any temporary culler that it created itself.
+  It never rewrites prefabs, materials, meshes or colliders.
+
+These are **Unity Editor frame intervals**, not a measured browser
+framerate or GPU-only cost. Graphics Editor panels, profiler recording,
+vsync, dynamic simulation and app focus can affect the data. Require
+consistent improvement in mean *and* p95/p99 and no visible parked-car
+pop-in before considering enabling this experiment on WebGL.
