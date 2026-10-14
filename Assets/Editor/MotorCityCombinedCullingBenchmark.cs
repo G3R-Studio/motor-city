@@ -59,7 +59,6 @@ namespace MotorCity.EditorTools
 
             var host = new GameObject(
                 "MotorCity - Combined A-B Benchmark (temporary)");
-            host.hideFlags = HideFlags.DontSave;
             var runner =
                 host.AddComponent<MotorCityCombinedCullingBenchmarkRunner>();
             runner.Begin(city, camera);
@@ -153,7 +152,6 @@ namespace MotorCity.EditorTools
             {
                 ownsDetails = true;
                 var host = new GameObject("MotorCity - Benchmark Details");
-                host.hideFlags = HideFlags.DontSave;
                 details = host.AddComponent<CityDistanceDetailCuller>();
                 details.enabled = false;
             }
@@ -161,7 +159,6 @@ namespace MotorCity.EditorTools
             {
                 ownsParked = true;
                 var host = new GameObject("MotorCity - Benchmark Parked Cars");
-                host.hideFlags = HideFlags.DontSave;
                 parked = host.AddComponent<CityParkedVehicleCullingExperiment>();
                 parked.enabled = false;
             }
