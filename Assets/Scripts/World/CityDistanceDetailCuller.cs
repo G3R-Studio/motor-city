@@ -44,6 +44,8 @@ namespace MotorCity.World
 
         public int CandidateCount => candidates.Count;
         public int HiddenCount { get; private set; }
+        public long VisibilityHides { get; private set; }
+        public long VisibilityRestores { get; private set; }
         public long HiddenTriangleReferences { get; private set; }
         public bool ScanReady => scanAnnounced;
 
@@ -57,6 +59,8 @@ namespace MotorCity.World
             cursor = 0;
             refresh = true;
             scanAnnounced = false;
+            VisibilityHides = 0;
+            VisibilityRestores = 0;
         }
 
         public void RequestRefresh()
@@ -256,6 +260,7 @@ namespace MotorCity.World
                     item.Renderer.forceRenderingOff = false;
                     item.Hidden = false;
                     HiddenCount--;
+                    VisibilityRestores++;
                     HiddenTriangleReferences -= item.Triangles;
                 }
             }
@@ -265,6 +270,7 @@ namespace MotorCity.World
                 item.Renderer.forceRenderingOff = true;
                 item.Hidden = true;
                 HiddenCount++;
+                VisibilityHides++;
                 HiddenTriangleReferences += item.Triangles;
             }
 

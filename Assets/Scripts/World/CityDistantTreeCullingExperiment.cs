@@ -49,6 +49,8 @@ namespace MotorCity.World
 
         public int CandidateCount => candidates.Count;
         public int HiddenCount { get; private set; }
+        public long VisibilityHides { get; private set; }
+        public long VisibilityRestores { get; private set; }
         public long EligibleTriangleReferences { get; private set; }
         public long HiddenTriangleReferences { get; private set; }
         public bool ScanReady => announced;
@@ -67,6 +69,8 @@ namespace MotorCity.World
             EligibleTriangleReferences = 0;
             WoodyCandidateCount = 0;
             GroundCoverCandidateCount = 0;
+            VisibilityHides = 0;
+            VisibilityRestores = 0;
             refresh = true;
         }
 
@@ -236,6 +240,7 @@ namespace MotorCity.World
                         item.Renderer.forceRenderingOff = false;
                         item.HiddenByUs = false;
                         HiddenCount--;
+                        VisibilityRestores++;
                         HiddenTriangleReferences -= item.Triangles;
                         if (item.IsGroundCover)
                         {
@@ -256,6 +261,7 @@ namespace MotorCity.World
                     item.Renderer.forceRenderingOff = true;
                     item.HiddenByUs = true;
                     HiddenCount++;
+                    VisibilityHides++;
                     HiddenTriangleReferences += item.Triangles;
                     if (item.IsGroundCover)
                     {

@@ -42,6 +42,8 @@ namespace MotorCity.World
 
         public int VehicleCount => vehicles.Count;
         public int HiddenVehicles { get; private set; }
+        public long VisibilityHides { get; private set; }
+        public long VisibilityRestores { get; private set; }
         public long EligibleTriangleReferences { get; private set; }
         public long HiddenTriangleReferences { get; private set; }
         public bool ScanReady => scanAnnounced;
@@ -64,6 +66,8 @@ namespace MotorCity.World
             bodyMatches = 0;
             parkedMatches = 0;
             skippedScripted = 0;
+            VisibilityHides = 0;
+            VisibilityRestores = 0;
         }
 
         public void RequestRefresh()
@@ -158,6 +162,7 @@ namespace MotorCity.World
                     SetVisible(item.Renderers, true);
                     item.HiddenByUs = false;
                     HiddenVehicles--;
+                    VisibilityRestores++;
                     HiddenTriangleReferences -= item.TriangleReferences;
                 }
                 else if (!item.HiddenByUs && distance > hideDistance &&
@@ -166,6 +171,7 @@ namespace MotorCity.World
                     SetVisible(item.Renderers, false);
                     item.HiddenByUs = true;
                     HiddenVehicles++;
+                    VisibilityHides++;
                     HiddenTriangleReferences += item.TriangleReferences;
                 }
 
