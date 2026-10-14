@@ -201,35 +201,40 @@ namespace MotorCity.EditorTools
                 { direction, right, -direction, -right };
 
             float bestScore = float.PositiveInfinity;
+            float[] targetLengths = { 185f, 140f, 240f };
             foreach (Vector3 axis in directions)
             {
-                Vector3 destination = camera.transform.position + axis * 185f;
-                List<Vector3> candidate =
-                    CityRoadNavigator.BuildRoute(
-                        camera.transform.position, destination);
-
-                if (candidate == null || candidate.Count < 2)
-                    continue;
-
-                float length = 0f;
-                for (int i = 1; i < candidate.Count; i++)
-                    length += FlatDistance(candidate[i - 1], candidate[i]);
-
-                float startGap = FlatDistance(
-                    camera.transform.position, candidate[0]);
-                float endGap = FlatDistance(
-                    destination, candidate[candidate.Count - 1]);
-                if (startGap > 35f || endGap > 65f ||
-                    length < 115f || length > 370f)
-                    continue;
-
-                float score = Mathf.Abs(length - 185f) +
-                    startGap * .4f + endGap * .3f;
-                if (score < bestScore)
+                foreach (float targetLength in targetLengths)
                 {
-                    bestScore = score;
-                    route = candidate;
-                    distance = length;
+                    Vector3 destination =
+                        camera.transform.position + axis * targetLength;
+                    List<Vector3> candidate =
+                        CityRoadNavigator.BuildRoute(
+                            camera.transform.position, destination);
+
+                    if (candidate == null || candidate.Count < 2)
+                        continue;
+
+                    float length = 0f;
+                    for (int i = 1; i < candidate.Count; i++)
+                        length += FlatDistance(candidate[i - 1], candidate[i]);
+
+                    float startGap = FlatDistance(
+                        camera.transform.position, candidate[0]);
+                    float endGap = FlatDistance(
+                        destination, candidate[candidate.Count - 1]);
+                    if (startGap > 35f || endGap > 65f ||
+                        length < 115f || length > 370f)
+                        continue;
+
+                    float score = Mathf.Abs(length - 185f) +
+                        startGap * .4f + endGap * .3f;
+                    if (score < bestScore)
+                    {
+                        bestScore = score;
+                        route = candidate;
+                        distance = length;
+                    }
                 }
             }
 
