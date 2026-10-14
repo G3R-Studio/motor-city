@@ -266,8 +266,8 @@ namespace MotorCity.World
 
         private void BuildCityPostProcessing()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            // Keep the browser path fill-rate friendly. The scene still uses
+#if UNITY_WEBGL || UNITY_EDITOR
+            // Match the browser visuals in Editor Play Mode: no additional post FX. The scene still uses
             // its authored sky, fog and lighting without full-screen post FX.
 #else
             GameObject volumeObject = new("Motor City Global Post FX");
