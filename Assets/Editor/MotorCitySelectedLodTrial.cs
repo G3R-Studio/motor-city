@@ -224,7 +224,7 @@ namespace MotorCity.EditorTools
             return null;
         }
 
-        private static Mesh Reduce(Mesh source)
+        internal static Mesh Reduce(Mesh source)
         {
             Vector3[] vertices = source.vertices;
             Vector3[] normals = source.normals;
