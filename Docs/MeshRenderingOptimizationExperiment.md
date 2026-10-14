@@ -601,3 +601,94 @@ inward-connected path or the views are still too sparse. Park at
 an intersection on the city boundary that can drive toward downtown,
 with the original camera already pointed at the dense skyline, then
 rerun menu 19. No WebGL build is involved.
+
+
+## WebGL integration after Editor stationary and moving A/B (October 2026)
+
+The candidate combination was tested with the camera stationary and
+replayed along the 375m road-graph route *toward* the city skyline
+(High preset, 1700m far, 1560m fog end).
+
+- In the latest moving-camera A/B, BASE (distant details + parked cars)
+  averaged **5.24ms / 190.8 derived FPS** and ALL (BASE plus trees +
+  ground-cover foliage) averaged **5.05ms / 197.9 derived FPS**;
+  time per frame decreased **3.6%**, p99 12.46ms -> 7.03ms.
+- Editor observations found no noticeable vegetation pop-in along the
+  tested route. These results are local Editor render workloads,
+  not WebGL GPU/CPU performance or guaranteed browser FPS.
+- On that moving route vegetation was hidden/restored 24/136 times
+  per pass; renderer visibility changed without changing physics.
+
+### What now starts in WebGL
+
+`MotorCityVisibilityRuntime` creates **three independent reversible
+render cullers** on WebGL **High** when the runtime city exists:
+
+1. `CityDistanceDetailCuller` - previously existing automatic WebGL
+   culling for small distant details (High min 320m, <9px at the 1080p
+   reference; Low/Medium keep their own tested distances).
+2. `CityParkedVehicleCullingExperiment` - new WebGL High startup:
+   hide decorative parked car groups beyond **390m**, restore below
+   **335m**. Never touches live traffic, vehicle physics, or colliders.
+3. `CityDistantTreeCullingExperiment` - new WebGL High startup:
+   enable BOTH `IncludeWoody=true` and `IncludeGroundCover=true`;
+   hide pure Trees-01 trees/palms/ferns/plants beyond **500m** only
+   when their projected 1080p diameter is **under 12px**; restore
+   inside 450m or when >16.2px. Excludes LODGroup, static-batched,
+   scripted, Rigidbody-owned and mixed-material renderer meshes.
+
+Both new cullers are explicitly **High-only** for now, since the
+automated comparisons and visual checks were on High. On WebGL
+Low/Medium the existing detailed-object optimizer and existing
+`CityFoliageCullingExperiment` remain, preserving their former
+low/medium culling behavior; do not run legacy foliage alongside
+the new High Trees-01 system. All culling flags are reversible.
+
+The distant-detail candidate classifier reserves the Trees-01
+Tree/Palm/Fern/Vegetation/Plant material/name classes for the foliage
+owner on all platforms. This prevents the tiny-detail culler and
+the foliage culler from setting `forceRenderingOff` on one renderer.
+The parked-vehicle classifier likewise excludes its parked car parts.
+
+### WebGL URL switches (no rebuild for A/B after release)
+
+Append these query parameters to the **actual Unity WebGL page URL**,
+not the GitHub repository source page:
+
+- `?motorcity_detail_cull=off` disables the existing tiny-detail culler.
+- `?motorcity_parked_cull=off` disables the new High parked-car culler.
+- `?motorcity_vegetation_cull=off` disables the new High Trees-01
+  foliage culler and the legacy Low/Medium foliage culler.
+
+For an unoptimized rendering baseline after release, combine them:
+`?motorcity_detail_cull=off&motorcity_parked_cull=off&motorcity_vegetation_cull=off`.
+Individual switches can be combined using `&`; omitted switches
+default to ON when the relevant quality level uses that optimizer.
+The two *new* flags require exact query parameter `key=off` so
+similarly named URL paths/values cannot disable them accidentally.
+
+### Editor preflight before ANY WebGL build
+
+Pull `main`, let Unity compile, enter Play Mode with High selected
+and the dense city loaded. Run:
+`Motor City > Optimization > 20 - Verify WebGL High Culling Setup (Play Mode)`.
+
+This performs a reversible Editor integration check without WebGL:
+- Exercises URL-flag parsing using explicit positive and negative cases.
+- Starts the same three rendering culler components together,
+  waits for their scans, reports candidate/hidden object counts.
+- Disables parked, vegetation and details separately, verifying
+  their hidden-state counters return to zero without changing the
+  other active systems' visibility counters.
+- Restores the camera preview and all earlier enabled states.
+- Saves `Temp/MotorCity_WebGLHighCullingPreflight.txt`.
+  Please inspect that report and correct any `FAIL:` entries
+  **before** starting the expensive manually-dispatched browser build.
+
+This preflight checks Editor lifecycle and code correctness only;
+it does **not** compile WebGL-specific code paths and cannot prove
+WebGL rendering performance. The GitHub Actions WebGL release job
+and Pages deploy are manual-only and have not been started as part
+of this change. After a passing Editor preflight, run one deliberate
+final browser build and compare the same URL opt-out variants,
+especially skyline visibility and pop-in on actual devices.
