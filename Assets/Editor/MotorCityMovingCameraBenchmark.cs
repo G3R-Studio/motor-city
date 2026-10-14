@@ -72,12 +72,13 @@ namespace MotorCity.EditorTools
             // Use the actual authored road graph. Never invent straight
             // world-space moves through buildings if no valid road route.
             if (!MotorCityMovingCameraBenchmarkRunner.TryPlanRoadRoute(
-                    camera, out List<Vector3> waypoints,
-                    out float totalDistance, out string explanation))
+                    city, camera, out List<Vector3> waypoints,
+                    out float totalDistance, out Vector3 cityFocus,
+                    out string explanation))
             {
                 Debug.LogWarning("[MotorCity][MovingBenchmark] No safe " +
                     "road-following route near camera: " + explanation +
-                    ". Drive to a road near the dense city and retry.");
+                    ". Choose a road near the city edge that leads inward and retry.");
                 return;
             }
 
@@ -85,7 +86,7 @@ namespace MotorCity.EditorTools
                 "MotorCity - Moving Camera Benchmark (temporary)");
             var runner =
                 host.AddComponent<MotorCityMovingCameraBenchmarkRunner>();
-            runner.Begin(city, camera, waypoints, totalDistance);
+            runner.Begin(city, camera, waypoints, totalDistance, cityFocus);
         }
     }
 
@@ -142,6 +143,7 @@ namespace MotorCity.EditorTools
 
         private List<float>[][] bins;
         private List<Vector3> roadPoints;
+        private Vector3 roadCityFocus;
         private float[] roadDistances;
         private float routeLength;
         private float distanceOnRoad;
@@ -180,85 +182,352 @@ namespace MotorCity.EditorTools
         private bool wasHlodOn;
         private string failure;
 
-        public static bool TryPlanRoadRoute(Camera camera,
+        private struct GeometrySample
+        {
+            public Bounds Bounds;
+            public long TriangleReferences;
+        }
+
+        private static Vector3 denseCityFocus;
+
+        private static Vector3 Flatten(Vector3 p)
+        {
+            p.y = 0f;
+            return p;
+        }
+
+        private static GeometrySample[] GatherGeometry(GameObject city,
+            out Vector3 center, out int architectureCount)
+        {
+            MeshRenderer[] renderers =
+                city.GetComponentsInChildren<MeshRenderer>(true);
+            var geometry = new List<GeometrySample>(renderers.Length);
+            Vector3 architectureWeightedCenter = Vector3.zero;
+            double totalArchitectureWeight = 0d;
+            Vector3 allWeightedCenter = Vector3.zero;
+            double totalWeight = 0d;
+            architectureCount = 0;
+
+            foreach (MeshRenderer renderer in renderers)
+            {
+                if (renderer == null || !renderer.enabled ||
+                    !renderer.gameObject.activeInHierarchy ||
+                    renderer.GetComponent<MeshFilter>() == null)
+                    continue;
+
+                Mesh mesh = renderer.GetComponent<MeshFilter>().sharedMesh;
+                if (mesh == null)
+                    continue;
+                long triangles = 0;
+                for (int i = 0; i < mesh.subMeshCount; i++)
+                    triangles += (long)mesh.GetIndexCount(i) / 3L;
+                if (triangles == 0)
+                    continue;
+                Bounds bounds = renderer.bounds;
+                float radius = bounds.extents.magnitude;
+                if (radius < .02f || radius > 130f)
+                    continue;
+
+                geometry.Add(new GeometrySample
+                {
+                    Bounds = bounds,
+                    TriangleReferences = triangles
+                });
+
+                // Ignore a single giant mesh dominating the estimated
+                // geographic city center; use log-like capped weights.
+                double weight = Math.Sqrt(Math.Min(triangles, 25000L));
+                allWeightedCenter += Flatten(bounds.center) * (float)weight;
+                totalWeight += weight;
+
+                // City-Maker places authored building facades under a
+                // 'Buildings' transform. This is a more useful skyline
+                // density proxy than cars, trees or street furniture.
+                bool architecture = false;
+                Transform parent = renderer.transform;
+                int depth = 0;
+                while (parent != null && depth++ < 10)
+                {
+                    if (string.Equals(parent.name, "Buildings",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        architecture = true;
+                        break;
+                    }
+                    parent = parent.parent;
+                }
+                if (architecture)
+                {
+                    architectureCount++;
+                    architectureWeightedCenter +=
+                        Flatten(bounds.center) * (float)weight;
+                    totalArchitectureWeight += weight;
+                }
+            }
+
+            center = totalArchitectureWeight > 0d ?
+                architectureWeightedCenter / (float)totalArchitectureWeight :
+                totalWeight > 0d ?
+                    allWeightedCenter / (float)totalWeight : Vector3.zero;
+            return geometry.ToArray();
+        }
+
+        private static long EstimateFrustumTriangles(GeometrySample[] geometry,
+            Vector3 cameraPosition, Quaternion rotation, Camera camera)
+        {
+            Vector3 forward = rotation * Vector3.forward;
+            Vector3 right = rotation * Vector3.right;
+            Vector3 up = rotation * Vector3.up;
+            float verticalTan = Mathf.Tan(
+                camera.fieldOfView * Mathf.Deg2Rad * .5f);
+            float horizontalTan = verticalTan * camera.aspect;
+            float far = camera.farClipPlane;
+            long sum = 0L;
+
+            foreach (GeometrySample item in geometry)
+            {
+                Vector3 offset = item.Bounds.center - cameraPosition;
+                float radius = item.Bounds.extents.magnitude;
+                float depth = Vector3.Dot(offset, forward);
+                if (depth + radius < camera.nearClipPlane ||
+                    depth - radius > far)
+                    continue;
+                float lateral = Mathf.Abs(Vector3.Dot(offset, right));
+                float vertical = Mathf.Abs(Vector3.Dot(offset, up));
+                float coneDepth = Mathf.Max(0f, depth);
+                if (lateral > coneDepth * horizontalTan + radius ||
+                    vertical > coneDepth * verticalTan + radius)
+                    continue;
+                sum += item.TriangleReferences;
+            }
+            return sum;
+        }
+
+        private static void RoadPose(List<Vector3> route,
+            float[] distances, float fraction, Vector3 focus,
+            out Vector3 position, out Quaternion rotation)
+        {
+            float travel = Mathf.Clamp01(fraction) *
+                distances[distances.Length - 1];
+            int index = 0;
+            while (index + 2 < distances.Length &&
+                   travel > distances[index + 1])
+                index++;
+            float span = distances[index + 1] - distances[index];
+            float portion = span > .001f ?
+                Mathf.Clamp01((travel - distances[index]) / span) : 0f;
+
+            position = Vector3.Lerp(route[index],
+                route[index + 1], portion) +
+                Vector3.up * CameraHeightAboveRoad;
+
+            // The route moves toward downtown; the camera continues to
+            // face the center of mass of its buildings, instead of being
+            // tangent to a boundary street and looking out of the city.
+            Vector3 towardCenter = Flatten(focus - position);
+            Vector3 roadForward =
+                Flatten(route[index + 1] - route[index]);
+            if (roadForward.sqrMagnitude < .01f)
+                roadForward = Vector3.forward;
+            Vector3 aim = towardCenter.sqrMagnitude > .01f ?
+                towardCenter.normalized : roadForward.normalized;
+            rotation = Quaternion.LookRotation(aim, Vector3.up) *
+                Quaternion.Euler(CameraPitchDown, 0f, 0f);
+        }
+
+        private static float[] RouteDistances(List<Vector3> route)
+        {
+            float[] lengths = new float[route.Count];
+            for (int i = 1; i < route.Count; i++)
+                lengths[i] = lengths[i - 1] +
+                    FlatDistance(route[i - 1], route[i]);
+            return lengths;
+        }
+
+        public static bool TryPlanRoadRoute(GameObject city, Camera camera,
             out List<Vector3> route, out float distance,
-            out string explanation)
+            out Vector3 focus, out string explanation)
         {
             route = null;
             distance = 0f;
-            explanation = "no candidate route";
-            if (camera == null)
+            focus = Vector3.zero;
+            explanation = "no route";
+            if (city == null || camera == null)
                 return false;
 
-            // Try road endpoints in several directions; graph projections
-            // must remain near both the current camera and chosen endpoint.
-            Vector3 direction = camera.transform.forward;
-            direction.y = 0f;
-            direction = direction.sqrMagnitude > .01f ?
-                direction.normalized : Vector3.forward;
-            Vector3 right = new Vector3(direction.z, 0f, -direction.x);
-            Vector3[] directions =
-                { direction, right, -direction, -right };
+            GeometrySample[] geometry = GatherGeometry(city,
+                out Vector3 cityCore, out int buildingSamples);
+            Vector3 start = Flatten(camera.transform.position);
+            Vector3 heading = Flatten(camera.transform.forward).normalized;
+            if (heading.sqrMagnitude < .01f)
+                heading = Vector3.forward;
 
-            float bestScore = float.PositiveInfinity;
-            float[] targetLengths = { 185f, 140f, 240f };
-            foreach (Vector3 axis in directions)
+            // The stationary viewpoint is the user's already-verified
+            // high-poly city view. If the global renderer centroid is
+            // elsewhere, use the original high-density viewing direction
+            // as the target instead of selecting an empty edge street.
+            Vector3 coreDirection = Flatten(cityCore - start).normalized;
+            if (coreDirection.sqrMagnitude < .01f ||
+                Vector3.Dot(coreDirection, heading) < .65f)
             {
-                foreach (float targetLength in targetLengths)
+                focus = start + heading * 720f;
+            }
+            else
+                focus = cityCore;
+
+            denseCityFocus = focus;
+            Vector3 inward = Flatten(focus - start).normalized;
+            Vector3 lateral = new Vector3(-inward.z, 0f, inward.x);
+            Quaternion originalRotation = camera.transform.rotation;
+            long referenceTriangles = EstimateFrustumTriangles(
+                geometry, camera.transform.position, originalRotation,
+                camera);
+            if (referenceTriangles < 100000)
+            {
+                explanation = "original stationary view has only " +
+                    referenceTriangles + " approximated triangle refs; " +
+                    "aim the camera toward the dense city first";
+                return false;
+            }
+
+            // Start at/near the same edge street, but also sample
+            // parallel edge-road positions to find an intersection that
+            // has a connected route pointing into the city.
+            Vector3[] startingOffsets =
+            {
+                Vector3.zero, lateral * 65f, -lateral * 65f,
+                lateral * 115f, -lateral * 115f
+            };
+            Vector3[] directions =
+            {
+                inward,
+                Quaternion.AngleAxis(25f, Vector3.up) * inward,
+                Quaternion.AngleAxis(-25f, Vector3.up) * inward
+            };
+            float[] targetLengths = { 220f, 320f, 440f };
+
+            double bestScore = double.NegativeInfinity;
+            float strongestInward = 0f;
+            long bestVisible = 0L;
+            int validRoadCandidates = 0;
+            int denseCandidates = 0;
+            float chosenOffset = 0f;
+
+            foreach (Vector3 offset in startingOffsets)
+            {
+                Vector3 proposedStart = camera.transform.position + offset;
+                // Larger offsets matter only if no nearby inward-facing
+                // and sufficiently dense road has been found yet.
+                if (route != null && offset.sqrMagnitude > 70f * 70f)
+                    break;
+
+                foreach (Vector3 axis in directions)
                 {
-                    Vector3 destination =
-                        camera.transform.position + axis * targetLength;
-                    List<Vector3> candidate =
-                        CityRoadNavigator.BuildRoute(
-                            camera.transform.position, destination);
-
-                    if (candidate == null || candidate.Count < 2)
-                        continue;
-
-                    float length = 0f;
-                    for (int i = 1; i < candidate.Count; i++)
-                        length += FlatDistance(candidate[i - 1], candidate[i]);
-
-                    float startGap = FlatDistance(
-                        camera.transform.position, candidate[0]);
-                    float endGap = FlatDistance(
-                        destination, candidate[candidate.Count - 1]);
-                    if (startGap > 35f || endGap > 65f ||
-                        length < 115f || length > 370f)
-                        continue;
-
-                    float score = Mathf.Abs(length - 185f) +
-                        startGap * .4f + endGap * .3f;
-                    if (score < bestScore)
+                    foreach (float targetLength in targetLengths)
                     {
-                        bestScore = score;
-                        route = candidate;
-                        distance = length;
-                    }
+                        Vector3 destination = proposedStart + axis *
+                            targetLength;
+                        List<Vector3> candidate =
+                            CityRoadNavigator.BuildRoute(proposedStart,
+                                destination);
+                        if (candidate == null || candidate.Count < 2)
+                            continue;
 
-                    // Avoid expensive repeated graph searches when a
-                    // nearly ideal local road route has already been found.
-                    if (bestScore < 20f)
-                        break;
+                        float[] lengths = RouteDistances(candidate);
+                        float length = lengths[lengths.Length - 1];
+                        if (length < 145f || length > 690f)
+                            continue;
+                        float originGap = FlatDistance(proposedStart,
+                            candidate[0]);
+                        float endGap = FlatDistance(destination,
+                            candidate[candidate.Count - 1]);
+                        if (originGap > 38f || endGap > 105f)
+                            continue;
+
+                        Vector3 beginning = Flatten(candidate[0]);
+                        Vector3 final = Flatten(
+                            candidate[candidate.Count - 1]);
+                        float progressToCore =
+                            FlatDistance(beginning, focus) -
+                            FlatDistance(final, focus);
+                        strongestInward = Mathf.Max(
+                            strongestInward, progressToCore);
+                        if (progressToCore < Mathf.Max(70f,
+                            length * .27f))
+                            continue;
+                        validRoadCandidates++;
+
+                        long minimum = long.MaxValue;
+                        long total = 0L;
+                        for (int sample = 0; sample < 5; sample++)
+                        {
+                            RoadPose(candidate, lengths, sample / 4f,
+                                focus, out Vector3 pos,
+                                out Quaternion orient);
+                            long visible = EstimateFrustumTriangles(
+                                geometry, pos, orient, camera);
+                            minimum = Math.Min(minimum, visible);
+                            total += visible;
+                        }
+                        long average = total / 5L;
+                        bestVisible = Math.Max(bestVisible, average);
+                        // The screen triangle count is an approximate
+                        // no-occlusion frustum statistic, not Unity Stats.
+                        // Compare the SAME metric and camera/preset.
+                        if (minimum < referenceTriangles * .55d ||
+                            average < referenceTriangles * .75d)
+                            continue;
+                        denseCandidates++;
+
+                        double score =
+                            (average / (double)referenceTriangles) * 5d +
+                            progressToCore / 400d -
+                            originGap / 500d -
+                            offset.magnitude / 500d -
+                            Math.Abs(length - 320f) / 900d;
+                        if (score > bestScore)
+                        {
+                            bestScore = score;
+                            route = candidate;
+                            distance = length;
+                            chosenOffset = offset.magnitude;
+                        }
+                    }
                 }
-                if (bestScore < 20f)
+                // Keep road-graph search practical. A strong route from
+                // the starting neighborhood is preferred to the next block.
+                if (route != null && chosenOffset < 1f &&
+                    bestScore > 5.5d)
                     break;
             }
 
             if (route == null)
             {
-                explanation = "no road graph path 115-370m with projected " +
-                    "start/end within 35m/65m of camera/target";
+                explanation = "REJECTED sparse / non-inward routes. " +
+                    "Original stationary view ~" + referenceTriangles +
+                    " frustum triangle refs; best candidate average ~" +
+                    bestVisible + " refs; inward road candidates=" +
+                    validRoadCandidates + ", dense candidates=" +
+                    denseCandidates + ", maximum inward progress=" +
+                    strongestInward.ToString("F0") + "m. " +
+                    "Try parking beside an edge intersection leading " +
+                    "toward the dense center while looking at the city.";
                 return false;
             }
 
-            explanation = "found " + route.Count + " road points over " +
-                distance.ToString("F0") + "m";
+            explanation = "Selected a road INTO the dense city: " +
+                distance.ToString("F0") + "m, " + route.Count +
+                " road points; " + buildingSamples +
+                " architectural meshes informed center; static " +
+                "frustum references=" + referenceTriangles +
+                ", best route average=" + bestVisible +
+                ", nearby road offset=" + chosenOffset.ToString("F0") +
+                "m; camera faces downtown.";
             return true;
         }
 
         public void Begin(GameObject city, Camera camera,
-            List<Vector3> waypoints, float length)
+            List<Vector3> waypoints, float length, Vector3 cityFocus)
         {
             cameraToMove = camera;
             originalPosition = camera.transform.position;
@@ -268,6 +537,7 @@ namespace MotorCity.EditorTools
                 MotorCityVisibilityRuntime.BrowserProfileActive;
 
             roadPoints = waypoints;
+            roadCityFocus = cityFocus;
             routeLength = length;
             roadDistances = new float[waypoints.Count];
             for (int i = 1; i < waypoints.Count; i++)
@@ -358,10 +628,38 @@ namespace MotorCity.EditorTools
                 ", rotation " + originalRotation.eulerAngles.ToString("F1"));
             report.AppendLine("Virtual camera only; player's car and " +
                 "Rigidbody physics are NOT moved or disabled.");
-            report.AppendLine("Road path: " + roadPoints.Count +
-                " points, " + routeLength.ToString("F1") +
+            report.AppendLine("Road path INTO DENSE CITY: " +
+                roadPoints.Count + " points, " +
+                routeLength.ToString("F1") +
                 "m, camera height +" + CameraHeightAboveRoad +
                 "m, pitched " + CameraPitchDown + " degrees down.");
+            report.AppendLine("Dense city focus (X,Z): " +
+                roadCityFocus.ToString("F2") +
+                ". Camera aims toward this point at ALL route positions.");
+            report.AppendLine("Geometry selection criterion: minimum " +
+                "55%, average 75% of original view's approximate " +
+                "frustum-intersecting mesh triangle references. " +
+                "Not Unity Game view Stats, not GPU triangles.");
+            // A compact per-checkpoint geometry overview helps catch a
+            // route that only looks at empty outskirts.
+            MeshRenderer[] visualMeshes =
+                city.GetComponentsInChildren<MeshRenderer>(true);
+            long totalRawReferences = 0L;
+            foreach (MeshRenderer visual in visualMeshes)
+            {
+                if (visual == null || !visual.enabled ||
+                    !visual.gameObject.activeInHierarchy)
+                    continue;
+                MeshFilter filter = visual.GetComponent<MeshFilter>();
+                Mesh mesh = filter == null ? null : filter.sharedMesh;
+                if (mesh == null)
+                    continue;
+                for (int sub = 0; sub < mesh.subMeshCount; sub++)
+                    totalRawReferences +=
+                        (long)mesh.GetIndexCount(sub) / 3L;
+            }
+            report.AppendLine("Active city mesh references (all directions): " +
+                totalRawReferences + " triangle references.");
             for (int i = 0; i < roadPoints.Count; i++)
                 report.AppendLine("  waypoint " + i + ": " +
                     roadPoints[i].ToString("F2"));
@@ -654,19 +952,11 @@ namespace MotorCity.EditorTools
             float alpha = b - a > .001f ?
                 Mathf.Clamp01((travel - a) / (b - a)) : 0f;
 
-            Vector3 position = Vector3.Lerp(
-                roadPoints[index], roadPoints[index + 1], alpha);
-            Vector3 flatForward = roadPoints[index + 1] - roadPoints[index];
-            flatForward.y = 0f;
-            if (flatForward.sqrMagnitude < .01f)
-                flatForward = Vector3.forward;
-
-            Quaternion rotation = Quaternion.LookRotation(
-                flatForward.normalized, Vector3.up) *
-                Quaternion.Euler(CameraPitchDown, 0f, 0f);
-
+            RoadPose(roadPoints, roadDistances, progress,
+                roadCityFocus, out Vector3 position,
+                out Quaternion rotation);
             cameraToMove.transform.SetPositionAndRotation(
-                position + Vector3.up * CameraHeightAboveRoad, rotation);
+                position, rotation);
         }
 
         private bool CheckState()
