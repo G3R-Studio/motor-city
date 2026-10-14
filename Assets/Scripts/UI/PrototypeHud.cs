@@ -52,6 +52,7 @@ namespace MotorCity.UI
         private bool clubOpen;
         private GameObject pauseOverlay;
         private Text pauseQualityText;
+        private Text pauseDrawDistanceText;
         private Text pauseAudioText;
         private Text pauseMusicText;
         private bool pauseMenuOpen;
