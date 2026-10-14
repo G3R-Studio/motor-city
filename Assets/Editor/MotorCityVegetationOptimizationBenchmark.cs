@@ -27,6 +27,9 @@ namespace MotorCity.EditorTools
                     MotorCityVegetationOptimizationBenchmarkRunner>(
                     FindObjectsInactive.Include) != null ||
                 UnityEngine.Object.FindFirstObjectByType<
+                    MotorCityVegetationFourWayBenchmarkRunner>(
+                    FindObjectsInactive.Include) != null ||
+                UnityEngine.Object.FindFirstObjectByType<
                     MotorCityTreeCullingBenchmarkRunner>(
                     FindObjectsInactive.Include) != null ||
                 UnityEngine.Object.FindFirstObjectByType<
@@ -112,6 +115,7 @@ namespace MotorCity.EditorTools
         private bool initialParkedEnabled;
         private bool initialVegetationEnabled;
         private bool initialIncludeGroundCover;
+        private bool initialIncludeWoody;
         private bool initialFoliageEnabled;
         private bool initialHlodEnabled;
         private bool initialBrowserPreview;
@@ -146,6 +150,8 @@ namespace MotorCity.EditorTools
                 vegetation != null && vegetation.enabled;
             initialIncludeGroundCover =
                 vegetation != null && vegetation.IncludeGroundCover;
+            initialIncludeWoody =
+                vegetation != null && vegetation.IncludeWoody;
             initialFoliageEnabled = foliage != null && foliage.enabled;
             initialHlodEnabled = hlod != null && hlod.enabled;
 
@@ -239,6 +245,7 @@ namespace MotorCity.EditorTools
 
                 if (error == null)
                 {
+                    vegetation.IncludeWoody = true;
                     vegetation.IncludeGroundCover = false;
                     vegetation.enabled = true;
                     yield return WaitReady(
@@ -408,6 +415,7 @@ namespace MotorCity.EditorTools
 
             // A single component owns both categories. Always change
             // IncludeGroundCover while disabled (and all meshes restored).
+            vegetation.IncludeWoody = true;
             vegetation.IncludeGroundCover = mode == 2;
             details.enabled = true;
             details.RequestRefresh();
@@ -490,6 +498,7 @@ namespace MotorCity.EditorTools
             else if (vegetation != null)
             {
                 vegetation.IncludeGroundCover = initialIncludeGroundCover;
+                vegetation.IncludeWoody = initialIncludeWoody;
                 vegetation.enabled = initialVegetationEnabled;
                 if (initialVegetationEnabled)
                     vegetation.RequestRefresh();

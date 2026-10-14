@@ -27,6 +27,9 @@ namespace MotorCity.EditorTools
                     MotorCityTreeCullingBenchmarkRunner>(
                     FindObjectsInactive.Include) != null ||
                 UnityEngine.Object.FindFirstObjectByType<
+                    MotorCityVegetationFourWayBenchmarkRunner>(
+                    FindObjectsInactive.Include) != null ||
+                UnityEngine.Object.FindFirstObjectByType<
                     MotorCityCombinedCullingBenchmarkRunner>(
                     FindObjectsInactive.Include) != null ||
                 UnityEngine.Object.FindFirstObjectByType<
@@ -100,6 +103,7 @@ namespace MotorCity.EditorTools
         private bool detailsOriginallyEnabled;
         private bool parkedOriginallyEnabled;
         private bool treesOriginallyEnabled;
+        private bool woodyOriginallyEnabled;
         private bool foliageOriginallyEnabled;
         private bool hlodOriginallyEnabled;
         private bool previewOriginallyEnabled;
@@ -134,6 +138,7 @@ namespace MotorCity.EditorTools
             detailsOriginallyEnabled = hadDetails && details.enabled;
             parkedOriginallyEnabled = hadParked && parked.enabled;
             treesOriginallyEnabled = hadTrees && trees.enabled;
+            woodyOriginallyEnabled = hadTrees && trees.IncludeWoody;
             foliageOriginallyEnabled = foliage != null && foliage.enabled;
             hlodOriginallyEnabled = hlod != null && hlod.enabled;
 
@@ -171,6 +176,7 @@ namespace MotorCity.EditorTools
             details.Initialize(city, camera);
             parked.Initialize(city, camera);
             trees.Initialize(city, camera);
+            trees.IncludeWoody = true;
 
             report.AppendLine("MotorCity distant Trees-01 incremental benchmark");
             report.AppendLine("Unity Editor only: no WebGL measurements.");
@@ -445,6 +451,7 @@ namespace MotorCity.EditorTools
                 Destroy(trees.gameObject);
             else if (trees != null)
             {
+                trees.IncludeWoody = woodyOriginallyEnabled;
                 trees.enabled = treesOriginallyEnabled;
                 if (treesOriginallyEnabled)
                     trees.RequestRefresh();
