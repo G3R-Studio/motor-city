@@ -31,8 +31,10 @@ namespace MotorCity.World
         private float nextExtraCullCheck;
         private bool detailUrlChecked;
         private bool extraCullUrlChecked;
+#if UNITY_WEBGL && !UNITY_EDITOR
         private bool allowParkedCull = true;
         private bool allowVegetationCull = true;
+#endif
         private MotorCityQualityPreset appliedPreset;
         private bool appliedBrowserMode;
 
