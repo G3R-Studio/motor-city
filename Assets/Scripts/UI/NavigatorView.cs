@@ -1765,6 +1765,7 @@ namespace MotorCity.UI
                         0f),
                     Color.clear);
 
+            navigatorTargetStrip = targetStrip.gameObject;
             ApplyReferenceHudSurface(targetStrip, .96f);
 
             minimapTargetText =
@@ -1912,6 +1913,11 @@ namespace MotorCity.UI
             SetActiveIfChanged(
                 navigatorPanel,
                 true);
+
+            // Hide the entire nearest-destination card during any activity.
+            // Keep the minimap and its active mission route visible.
+            SetActiveIfChanged(navigatorTargetStrip,
+                activityManager == null || !activityManager.IsBusy);
 
             Vector3 carPosition =
                 car.transform.position;
