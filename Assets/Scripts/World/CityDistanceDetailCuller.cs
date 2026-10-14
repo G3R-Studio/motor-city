@@ -152,7 +152,7 @@ namespace MotorCity.World
             // Only reserve Trees-01 for the separate tree A/B experiment
             // inside the Editor. Production WebGL keeps its prior behavior
             // until the tree experiment has been measured and approved.
-            if (CityDistantTreeCullingExperiment.IsTreeRenderer(renderer))
+            if (CityDistantTreeCullingExperiment.IsExperimentalVegetationRenderer(renderer))
                 return;
 #endif
 
