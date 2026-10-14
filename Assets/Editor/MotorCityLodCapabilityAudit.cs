@@ -120,8 +120,8 @@ namespace MotorCity.EditorTools
                 // Group by actual mesh AND material signature to avoid merging
                 // visually incompatible instances that share a mesh asset.
                 string matKey = string.Join("|", materials.Select(m =>
-                    m == null ? "<null>" : m.GetInstanceID().ToString()));
-                string key = mesh.GetInstanceID() + ":" + matKey;
+                    m == null ? "<null>" : m.GetEntityId().ToString()));
+                string key = mesh.GetEntityId() + ":" + matKey;
                 if (!groups.TryGetValue(key, out Row row))
                 {
                     row = new Row { Mesh = mesh, Name = mesh.name,
