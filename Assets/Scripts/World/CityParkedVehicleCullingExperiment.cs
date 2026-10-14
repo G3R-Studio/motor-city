@@ -9,7 +9,8 @@ namespace MotorCity.World
     /// Play-Mode A/B experiment: hides faraway static decorative vehicles
     /// inside the authored city. Never touches traffic under CarContainer,
     /// the player's car, colliders, GameObjects, materials, or authored meshes.
-    /// Disabled by default; not wired into WebGL production.
+    /// Enabled by MotorCityVisibilityRuntime on WebGL High only.
+    /// Manual Editor A/B still creates this component temporarily.
     /// </summary>
     public sealed class CityParkedVehicleCullingExperiment : MonoBehaviour
     {

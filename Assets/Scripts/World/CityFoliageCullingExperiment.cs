@@ -8,7 +8,9 @@ namespace MotorCity.World
     /// Optional, reversible WebGL-compatible rendering experiment.
     /// Only far-away, non-interactive FCG foliage MeshRenderers are hidden.
     /// Never changes the city prefab, mesh data, materials or colliders.
-    /// The player opts in via Editor menu: this is OFF in production.
+    /// Editor manual opt-in, and existing production WebGL Low/Medium
+    /// fallback. High uses the separate Trees-01 foliage culler.
+    /// Never active at the same time as the WebGL High culler.
     /// </summary>
     public sealed class CityFoliageCullingExperiment : MonoBehaviour
     {

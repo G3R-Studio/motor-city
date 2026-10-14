@@ -6,8 +6,9 @@ using UnityEngine;
 namespace MotorCity.World
 {
     /// <summary>
-    /// Experimental, reversible distant-tree rendering culler.
-    /// This component is Editor A/B only until specifically validated for WebGL.
+    /// Reversible, conservative Trees-01 foliage renderer culler.
+    /// Enabled by MotorCityVisibilityRuntime only on WebGL High;
+    /// all Editor A/B workflows remain temporary.
     /// It never changes GameObject activation, colliders, mesh assets or physics.
     /// </summary>
     public sealed class CityDistantTreeCullingExperiment : MonoBehaviour

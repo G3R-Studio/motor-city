@@ -266,6 +266,10 @@ namespace MotorCity.EditorTools
                     report.AppendLine();
                 }
             }
+            catch (Exception unexpected)
+            {
+                Fail("Unhandled preflight exception: " + unexpected);
+            }
             finally
             {
                 report.AppendLine(errors == 0 ?
