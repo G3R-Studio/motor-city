@@ -95,8 +95,8 @@ namespace MotorCity.World
             !BrowserProfileActive ? EditorFarClip :
             MotorCityDrawDistanceSettings.Current switch
             {
-                MotorCityDrawDistance.Near => 500f,
-                MotorCityDrawDistance.Medium => 850f,
+                MotorCityDrawDistance.Near => 300f,
+                MotorCityDrawDistance.Medium => 600f,
                 MotorCityDrawDistance.Far => 1250f,
                 _ => PresetFarClip
             };
