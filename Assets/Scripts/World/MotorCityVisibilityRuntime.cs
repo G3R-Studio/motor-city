@@ -171,6 +171,9 @@ namespace MotorCity.World
             MotorCityQualityRuntime.PresetChanged += ApplyDistances;
             MotorCityDrawDistanceSettings.Changed += ApplyDistances;
             ApplyDistances();
+            // Keep Editor browser preview and WebGL visually consistent.
+            if (BrowserProfileActive && GetComponent<MotorCityDistanceFogShell>() == null)
+                gameObject.AddComponent<MotorCityDistanceFogShell>();
 #if UNITY_WEBGL && !UNITY_EDITOR
             // Components may survive a temporary camera/runtime disable.
             // Restore only our own WebGL cullers, respecting URL opt-outs.
