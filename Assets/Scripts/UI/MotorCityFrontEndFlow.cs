@@ -1609,8 +1609,8 @@ namespace MotorCity.UI
             CreateLoadingIcon(root, 3, new Vector2(-389f, -319f),
                 new Vector2(54f, 54f), violet);
             loadingTipText = CreateText(root, "", 24, FontStyle.Normal,
-                TextAnchor.MiddleLeft, new Vector2(0f, -319f),
-                new Vector2(745f, 92f), center);
+                TextAnchor.MiddleLeft, new Vector2(48f, -319f),
+                new Vector2(680f, 92f), center);
             loadingTipText.color = new Color(0.88f, 0.88f, 0.96f, 1f);
             ConfigureFrontEndTextFit(loadingTipText, 17);
             ResetLoadingVisuals();
