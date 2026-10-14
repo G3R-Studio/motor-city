@@ -23,6 +23,7 @@ namespace MotorCity.World
             public Vector3 Center;
             public float Radius;
             public long Triangles;
+            public bool IsGroundCover;
             public bool HiddenByUs;
         }
 
@@ -34,6 +35,16 @@ namespace MotorCity.World
         private bool announced;
         private bool refresh = true;
         private Vector3 sweepPosition;
+
+        // Toggle only while the component is disabled. OnDisable
+        // restores all renderers before changing categories.
+        public bool IncludeGroundCover { get; set; }
+        public int WoodyCandidateCount { get; private set; }
+        public int GroundCoverCandidateCount { get; private set; }
+        public int HiddenWoodyCount { get; private set; }
+        public int HiddenGroundCoverCount { get; private set; }
+        public long HiddenWoodyTriangles { get; private set; }
+        public long HiddenGroundCoverTriangles { get; private set; }
 
         public int CandidateCount => candidates.Count;
         public int HiddenCount { get; private set; }
@@ -53,6 +64,8 @@ namespace MotorCity.World
             cursor = 0;
             announced = false;
             EligibleTriangleReferences = 0;
+            WoodyCandidateCount = 0;
+            GroundCoverCandidateCount = 0;
             refresh = true;
         }
 
@@ -79,6 +92,10 @@ namespace MotorCity.World
 
             HiddenCount = 0;
             HiddenTriangleReferences = 0;
+            HiddenWoodyCount = 0;
+            HiddenGroundCoverCount = 0;
+            HiddenWoodyTriangles = 0;
+            HiddenGroundCoverTriangles = 0;
             RequestRefresh();
         }
 
@@ -92,17 +109,36 @@ namespace MotorCity.World
         {
             if (renderer == null)
                 return false;
-
             string name = renderer.name;
-            if (string.IsNullOrEmpty(name) ||
-                !(name.StartsWith("Tree", StringComparison.OrdinalIgnoreCase) ||
-                  name.StartsWith("Palm", StringComparison.OrdinalIgnoreCase)))
-                return false;
+            return name != null &&
+                (name.StartsWith("Tree", StringComparison.OrdinalIgnoreCase) ||
+                 name.StartsWith("Palm", StringComparison.OrdinalIgnoreCase)) &&
+                HasOnlyTreeMaterials(renderer);
+        }
 
+        public static bool IsGroundCoverRenderer(MeshRenderer renderer)
+        {
+            if (renderer == null)
+                return false;
+            string name = renderer.name;
+            return name != null &&
+                (name.StartsWith("Fern", StringComparison.OrdinalIgnoreCase) ||
+                 name.StartsWith("Vegetation", StringComparison.OrdinalIgnoreCase) ||
+                 name.StartsWith("Plant", StringComparison.OrdinalIgnoreCase)) &&
+                HasOnlyTreeMaterials(renderer);
+        }
+
+        public static bool IsExperimentalVegetationRenderer(
+            MeshRenderer renderer)
+        {
+            return IsTreeRenderer(renderer) || IsGroundCoverRenderer(renderer);
+        }
+
+        private static bool HasOnlyTreeMaterials(MeshRenderer renderer)
+        {
             Material[] materials = renderer.sharedMaterials;
             if (materials == null || materials.Length == 0)
                 return false;
-
             foreach (Material material in materials)
             {
                 if (material == null ||
@@ -110,7 +146,6 @@ namespace MotorCity.World
                         "Trees-01", StringComparison.OrdinalIgnoreCase))
                     return false;
             }
-
             return true;
         }
 
@@ -134,7 +169,9 @@ namespace MotorCity.World
 
                 announced = true;
                 Debug.Log("[MotorCity][Trees] Scan ready: " +
-                    candidates.Count + " pure Trees-01 renderers, " +
+                    candidates.Count + " pure Trees-01 renderers (" +
+                    WoodyCandidateCount + " trees/palms, " +
+                    GroundCoverCandidateCount + " ground plants), " +
                     EligibleTriangleReferences + " triangle references. " +
                     "Tree source geometry is unchanged.");
                 discovery = Array.Empty<MeshRenderer>();
@@ -179,7 +216,8 @@ namespace MotorCity.World
             for (int i = cursor; i < endIndex; i++)
             {
                 Candidate item = candidates[i];
-                if (item.Renderer == null)
+                if (item.Renderer == null ||
+                    (item.IsGroundCover && !IncludeGroundCover))
                     continue;
 
                 float distance = Mathf.Max(0.1f,
@@ -197,6 +235,16 @@ namespace MotorCity.World
                         item.HiddenByUs = false;
                         HiddenCount--;
                         HiddenTriangleReferences -= item.Triangles;
+                        if (item.IsGroundCover)
+                        {
+                            HiddenGroundCoverCount--;
+                            HiddenGroundCoverTriangles -= item.Triangles;
+                        }
+                        else
+                        {
+                            HiddenWoodyCount--;
+                            HiddenWoodyTriangles -= item.Triangles;
+                        }
                     }
                 }
                 else if (distance > minimumDistance &&
@@ -207,6 +255,16 @@ namespace MotorCity.World
                     item.HiddenByUs = true;
                     HiddenCount++;
                     HiddenTriangleReferences += item.Triangles;
+                    if (item.IsGroundCover)
+                    {
+                        HiddenGroundCoverCount++;
+                        HiddenGroundCoverTriangles += item.Triangles;
+                    }
+                    else
+                    {
+                        HiddenWoodyCount++;
+                        HiddenWoodyTriangles += item.Triangles;
+                    }
                 }
 
                 candidates[i] = item;
@@ -221,9 +279,9 @@ namespace MotorCity.World
                 renderer.forceRenderingOff ||
                 renderer.isPartOfStaticBatch ||
                 renderer.GetComponentInParent<LODGroup>() != null ||
-                renderer.GetComponent<Collider>() != null ||
                 renderer.GetComponent<MonoBehaviour>() != null ||
-                !IsTreeRenderer(renderer))
+                renderer.GetComponentInParent<Rigidbody>() != null ||
+                !IsExperimentalVegetationRenderer(renderer))
                 return;
 
             MeshFilter filter = renderer.GetComponent<MeshFilter>();
@@ -247,8 +305,13 @@ namespace MotorCity.World
                 Renderer = renderer,
                 Center = bounds.center,
                 Radius = radius,
-                Triangles = triangles
+                Triangles = triangles,
+                IsGroundCover = IsGroundCoverRenderer(renderer)
             });
+            if (IsGroundCoverRenderer(renderer))
+                GroundCoverCandidateCount++;
+            else
+                WoodyCandidateCount++;
             EligibleTriangleReferences += triangles;
         }
     }
