@@ -38,6 +38,7 @@ namespace MotorCity.World
 
         // Toggle only while the component is disabled. OnDisable
         // restores all renderers before changing categories.
+        public bool IncludeWoody { get; set; } = true;
         public bool IncludeGroundCover { get; set; }
         public int WoodyCandidateCount { get; private set; }
         public int GroundCoverCandidateCount { get; private set; }
@@ -217,7 +218,8 @@ namespace MotorCity.World
             {
                 Candidate item = candidates[i];
                 if (item.Renderer == null ||
-                    (item.IsGroundCover && !IncludeGroundCover))
+                    (item.IsGroundCover && !IncludeGroundCover) ||
+                    (!item.IsGroundCover && !IncludeWoody))
                     continue;
 
                 float distance = Mathf.Max(0.1f,
