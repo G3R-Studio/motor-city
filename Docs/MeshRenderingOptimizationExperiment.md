@@ -334,3 +334,56 @@ frames over 25/50ms, plus the number of hidden renderers/cars and
 triangle references. Only comparing stable, same-camera frame-time
 distributions can support Editor improvements. Even a successful Editor
 test does not guarantee the same WebGL result.
+
+
+## Distant Trees-01 A/B experiment (Editor, not production)
+
+The CityVisual geometry census counted about 601,160 triangle references in
+the `Trees-01` material group. Those are whole-city counts, not GPU triangle
+counts or proof that every tree causes browser stalls.
+
+`CityDistantTreeCullingExperiment` scans only active, unscripted,
+non-static-batched `MeshRenderer` objects whose names begin with
+`Tree` or `Palm` **and all renderer materials begin with `Trees-01`**.
+Mixed-material trees are excluded rather than hiding half a tree. Also
+excluded: colliders attached to the renderer, authored LODGroups, meshes
+whose world-bounds radius exceeds 12m and renderers already hidden by
+another system. Gameplay, meshes, road props, cars, source prefab, and
+physics are unchanged. Uses only reversible `forceRenderingOff` flags.
+
+The High preset allows hiding only beyond **500m** and when the
+projected 1080p mesh diameter is below **12 pixels**; 50m distance and
+35% projected-diameter hysteresis prevents rapid toggling. Medium and
+Low have their own more aggressive experiment thresholds, but the
+one-click A/B benchmark intentionally tests **High only**.
+
+To avoid two cullers owning one `forceRenderingOff` flag, the tiny-detail
+culler reserves these exact Trees-01 renderers for the tree experiment
+**only in the Unity Editor**. WebGL's existing tiny-detail rules remain
+unchanged; the separate tree experiment is NOT wired into WebGL startup.
+
+### Automatic benchmark
+
+1. Run `git pull origin main` and let Unity compile. Do not build WebGL.
+2. Enter Play Mode, load the city, set graphics to **High**, stand at the
+   reproducible dense-city location. Do not move the camera during test.
+3. Choose `Motor City > Optimization > 15 - Benchmark Trees + Existing
+   Optimizations (Play Mode)`.
+4. The script turns on the browser-visibility Editor preview automatically,
+   disables any previous HLOD or foliage A/B, and scans parked cars, small
+   details and trees *sequentially* before starting.
+5. It benchmarks four phases: **details+parked**, **details+parked+trees**,
+   **details+parked+trees**, **details+parked**. Each phase has 3 seconds
+   warmup plus 12 seconds of frame samples; runtime ~60s plus scanning.
+6. Read `Temp/MotorCity_TreeCullingBenchmark.txt`. The report includes
+   eligible/hidden trees, skipped triangle references, each phase's metrics,
+   and aggregate mean frame time, p95, p99, derived FPS, >16.67ms,
+   >25ms and >50ms counts. Send the TXT report for interpretation.
+7. The benchmark aborts if camera moves over 2m or rotates over 4deg,
+   or High quality/preview is changed, and restores all previous culler
+   enabled states and the Editor preview after completion or abort.
+   No Unity assets or build files are modified.
+
+Even if the Editor benchmark improves, verify the road-level visual
+quality and skyline before shipping. Exact WebGL behavior can only be
+determined with a final browser build after Editor experiments conclude.
