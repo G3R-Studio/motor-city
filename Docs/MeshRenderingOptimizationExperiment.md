@@ -345,10 +345,12 @@ counts or proof that every tree causes browser stalls.
 `CityDistantTreeCullingExperiment` scans only active, unscripted,
 non-static-batched `MeshRenderer` objects whose names begin with
 `Tree` or `Palm` **and all renderer materials begin with `Trees-01`**.
-Mixed-material trees are excluded rather than hiding half a tree. Also
-excluded: colliders attached to the renderer, authored LODGroups, meshes
-whose world-bounds radius exceeds 12m and renderers already hidden by
-another system. Gameplay, meshes, road props, cars, source prefab, and
+Mixed-material trees are excluded rather than hiding half a tree.
+An initial audit revealed most trees had colliders attached to their
+MeshRenderers. The revised Editor experiment now retains those colliders,
+and only hides visuals via forceRenderingOff. Excluded: existing
+LODGroups, parent Rigidbody components, meshes whose world-bounds
+radius exceeds 12m and renderers already hidden by another system. Gameplay, meshes, road props, cars, source prefab, and
 physics are unchanged. Uses only reversible `forceRenderingOff` flags.
 
 The High preset allows hiding only beyond **500m** and when the
@@ -425,3 +427,50 @@ No filter will be relaxed until the TXT reveals which classes of
 renderers dominate cost; name-relaxation counts are only diagnostics
 and do not imply those objects are safe to hide. This avoids risking
 vegetation integrated into buildings, gameplay assets and skyline.
+
+## Post-audit fix: collider-safe woody and ground-cover variants
+
+The live read-only tree audit found 1,916 candidate tree/vegetation
+renderers referencing about 710,816 tree-material triangles. The
+over-conservative experiment allowed only 4 tree renderers/707
+triangles, hiding only 1/138 triangles at the test camera position.
+Rejections primarily resulted from 1,126 attached Colliders
+(445,805 triangles) and 784 material-bearing objects whose names did
+not start with Tree/Palm (331,312 triangles). Collider components
+are **not** a reason to keep the visual MeshRenderer on; turning
+forceRenderingOff on a renderer does not disable the Collider.
+
+A new, reversible Editor-only culler candidate definition is:
+- **WOODY:** Tree*/Palm* renderers, with every material Trees-01,
+  no original LODGroup, no attached MonoBehaviour or parent Rigidbody,
+  and no authored static-batch renderer. Attached Colliders are
+  preserved and do not disqualify these renderers.
+- **GROUND COVER:** additionally Fern*/Vegetation*/Plant* (including
+  Plants*) with *all* materials Trees-01. Merged Park*/Garden* meshes
+  using Atlas and Trees-01 submeshes remain excluded, because hiding
+  the complete renderer could remove walkways/park structures.
+- World radius is still <=12m; on High the culling condition remains
+  >500m with projected size <12px (1080p reference). This intentionally
+  prioritizes visual safety over the maximum number of hidden trees.
+- Small-detail culling in Editor skips both candidate categories so
+  independent experiments do not toggle a shared renderer. Existing
+  production WebGL logic is unchanged. The new tree/vegetation culler
+  is not wired into WebGL startup.
+
+**Automatic three-way benchmark:** Enter Play Mode with High graphics
+at the problematic city viewpoint. Run
+`Motor City > Optimization > 17 - Benchmark Vegetation Variants (Play Mode)`.
+No need to manually enable cullers or visibility preview.
+
+The script measures six phases in mirrored order:
+**BASE > WOODY > ALL > ALL > WOODY > BASE**. BASE = previously
+successful tiny details + parked cars; WOODY adds distant trees and palms;
+ALL also adds eligible pure Trees-01 ferns/plants/vegetation. Every
+phase has a 3-second warmup plus 10-second collection period.
+The camera must remain still; roughly 78 seconds plus scans.
+The runner restores previous enabled states after the test and saves
+`Temp/MotorCity_VegetationVariantsBenchmark.txt`.
+
+Send that TXT to choose the best quality/performance tradeoff.
+Do not ship new vegetation culling or run a WebGL build until results
+and in-game visual appearance are reviewed.

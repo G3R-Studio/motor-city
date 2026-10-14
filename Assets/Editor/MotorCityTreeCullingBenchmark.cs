@@ -31,6 +31,9 @@ namespace MotorCity.EditorTools
                     FindObjectsInactive.Include) != null ||
                 UnityEngine.Object.FindFirstObjectByType<
                     MotorCity.Diagnostics.MotorCityParkedVehicleBenchmark>(
+                    FindObjectsInactive.Include) != null ||
+                UnityEngine.Object.FindFirstObjectByType<
+                    MotorCityVegetationOptimizationBenchmarkRunner>(
                     FindObjectsInactive.Include) != null)
             {
                 Debug.LogWarning("[MotorCity][TreeBenchmark] Another benchmark " +

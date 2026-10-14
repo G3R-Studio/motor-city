@@ -85,6 +85,9 @@ namespace MotorCity.EditorTools
                     FindObjectsInactive.Include) != null ||
                 Object.FindFirstObjectByType<
                     MotorCityCombinedCullingBenchmarkRunner>(
+                    FindObjectsInactive.Include) != null ||
+                Object.FindFirstObjectByType<
+                    MotorCityVegetationOptimizationBenchmarkRunner>(
                     FindObjectsInactive.Include) != null)
             {
                 Debug.LogWarning("[MotorCity][ParkedBenchmark] A benchmark " +
