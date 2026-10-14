@@ -327,9 +327,18 @@ namespace MotorCity.World
 
             // At most one full city discovery array is allocated per
             // interval; per-frame candidate discovery remains budgeted.
-            if (highPreset && Time.unscaledTime >= nextExtraCullCheck &&
+            // Preserve low startup memory pressure and scan performance:
+            // wait for the existing detail scan, then parked scan, before
+            // allocating/discovering the next 21k-renderer candidate array.
+            bool detailsReady = nextDetailCheck == float.PositiveInfinity ||
+                (browserDetails != null && browserDetails.ScanReady);
+            bool parkedReady = !shouldParked ||
+                (browserParked != null && browserParked.ScanReady);
+            if (highPreset && detailsReady &&
+                Time.unscaledTime >= nextExtraCullCheck &&
                 ((shouldParked && browserParked == null) ||
-                 (shouldVegetation && browserVegetation == null)))
+                 (shouldVegetation && parkedReady &&
+                  browserVegetation == null)))
             {
                 nextExtraCullCheck = Time.unscaledTime + 0.5f;
                 GameObject city = GameObject.Find("MotorCity_FCGCity");
@@ -343,7 +352,8 @@ namespace MotorCity.World
                         Debug.Log("[MotorCity][Optimization] WebGL High " +
                             "parked vehicles ON (390m hide / 335m restore).");
                     }
-                    else if (shouldVegetation && browserVegetation == null)
+                    else if (shouldVegetation && parkedReady &&
+                             browserVegetation == null)
                     {
                         browserVegetation = gameObject.AddComponent<
                             CityDistantTreeCullingExperiment>();
