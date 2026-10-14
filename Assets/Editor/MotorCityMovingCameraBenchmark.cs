@@ -235,7 +235,14 @@ namespace MotorCity.EditorTools
                         route = candidate;
                         distance = length;
                     }
+
+                    // Avoid expensive repeated graph searches when a
+                    // nearly ideal local road route has already been found.
+                    if (bestScore < 20f)
+                        break;
                 }
+                if (bestScore < 20f)
+                    break;
             }
 
             if (route == null)
