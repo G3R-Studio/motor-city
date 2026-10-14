@@ -1822,6 +1822,7 @@ namespace MotorCity.UI
                     typeof(Image),
                     typeof(Button));
 
+            navigatorShortcutButton = navigatorButtonObject;
             navigatorButtonObject.transform.SetParent(
                 panel,
                 false);
@@ -1916,8 +1917,10 @@ namespace MotorCity.UI
 
             // Hide the entire nearest-destination card during any activity.
             // Keep the minimap and its active mission route visible.
-            SetActiveIfChanged(navigatorTargetStrip,
-                activityManager == null || !activityManager.IsBusy);
+            bool showNavigatorShortcut =
+                activityManager == null || !activityManager.IsBusy;
+            SetActiveIfChanged(navigatorTargetStrip, showNavigatorShortcut);
+            SetActiveIfChanged(navigatorShortcutButton, showNavigatorShortcut);
 
             Vector3 carPosition =
                 car.transform.position;
