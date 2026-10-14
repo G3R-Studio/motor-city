@@ -474,3 +474,48 @@ The runner restores previous enabled states after the test and saves
 Send that TXT to choose the best quality/performance tradeoff.
 Do not ship new vegetation culling or run a WebGL build until results
 and in-game visual appearance are reviewed.
+
+
+## Four-mode automatic vegetation A/B benchmark (Editor only)
+
+The previous three-mode test at the same High/city-camera viewpoint found:
+- BASE (tiny details + parked vehicles): 5.66ms mean, 176.5 FPS derived.
+- WOODY: 5.62ms mean, 177.9 FPS derived.
+- ALL (WOODY + ground cover): 5.40ms mean, 185.1 FPS derived.
+This is one Editor run, and does not isolate ground-cover-only gains.
+The goal of this experiment is to measure that missing case before
+deciding on WebGL integration.
+
+Run `git pull origin main`, let Unity compile, enter Play Mode with
+the playable city loaded, select High graphics and point the camera
+at the problem area. Choose:
+`Motor City > Optimization > 18 - Benchmark Four Vegetation Modes (Play Mode)`.
+
+The script automatically:
+1. Disables the other A/B cullers temporarily, prepares Editor browser
+   visibility preview and finishes candidate scans separately.
+2. Measures **BASE, GROUND, WOODY, ALL, ALL, WOODY, GROUND, BASE**.
+   Each of eight phases has 3s warmup and 10s recorded samples,
+   approximately 104 seconds plus initial scans. Do not move/rotate
+   the camera, change quality, or switch out of Game view.
+3. BASE is the currently successful detail+parked combination.
+   GROUND adds only pure Trees-01 Fern*/Vegetation*/Plant* renderers.
+   WOODY adds only pure Trees-01 Tree*/Palm* renderers.
+   ALL adds both categories. Never hides merged
+   `Garden`/`Park` multi-material renderer meshes as an experiment.
+4. Writes `Temp/MotorCity_VegetationFourWayBenchmark.txt`.
+   The output includes every phase, hidden counts per category,
+   referenced triangle counts, aggregate FPS/mean/p95/p99 frame time,
+   long frame counts and percentages against BASE.
+5. Restores the original culler enabled states, separate woody/ground
+   selection flags and Editor visibility state after completion
+   or abort; all meshes, materials, physics and prefabs remain unchanged.
+
+A new `IncludeWoody` flag on the Editor-only experimental vegetation
+culler makes GROUND-only measurements possible without including
+trees/palms. It defaults to true so older benchmark menu 15/17 retains
+the prior meaning. Concurrent benchmarks are prevented.
+
+Use the text report to compare the same viewpoint. Confirm visual
+pop-in while driving before ever enabling a winning variant in WebGL;
+these benchmarks do not compile or build WebGL.
