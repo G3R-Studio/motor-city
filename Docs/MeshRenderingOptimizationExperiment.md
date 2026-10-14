@@ -291,3 +291,46 @@ framerate or GPU-only cost. Graphics Editor panels, profiler recording,
 vsync, dynamic simulation and app focus can affect the data. Require
 consistent improvement in mean *and* p95/p99 and no visible parked-car
 pop-in before considering enabling this experiment on WebGL.
+
+
+### Automated combined-culling benchmark: no screenshots required
+
+Run all relevant renderer A/B comparisons using one editor script:
+
+1. Pull the latest `main`, wait for Unity Editor compilation, enter Play
+   Mode, load the city and stop at the reproducible problematic viewpoint.
+   Select **High** quality before starting; changing it mid-test could
+   also change traffic budgets.
+2. Choose `Motor City > Optimization > 14 - Run All Culling A-B Tests
+   (Play Mode)`. You do NOT have to manually toggle menus 7/8/10/11,
+   nor manually enable browser visibility preview.
+3. Wait ~80-95 seconds. Do not move/rotate the camera or switch focus
+   away from the Game view. The script tests eight phases:
+   **baseline > tiny details only > parked cars only > both >
+   both > parked cars only > tiny details only > baseline**.
+   Every phase has 2s warmup followed by 8s frame-time measurement.
+4. At completion, open the automatically generated Unity project file
+   `Temp/MotorCity_CombinedCullingBenchmark.txt` and send the TXT
+   file or paste the `[MotorCity][CombinedBenchmark] FINAL` log.
+   No screenshots, manual FPS transcription, or WebGL build are needed.
+5. The runner aborts if the camera moves >2m, rotates >4 degrees,
+   High is changed or preview is turned off. It also ensures no
+   simultaneous parked/detail discovery and automatically disables and
+   restores preexisting foliage/HLOD during measurements.
+6. Both A/B components and previous preview states are restored
+   afterward; temporary helpers are destroyed, source geometry,
+   colliders, materials, authored prefab and saved quality are unchanged.
+
+The combined test also prevents culler-ownership conflicts: the tiny
+detail culler explicitly skips parked vehicle wheels/body meshes inside
+`Park-*` groups so only the parked-car culler can control those
+renderers. Since its candidate list changes, previously reported
+single-optimization results should not be directly subtracted from
+the new script results.
+
+**Interpretation:** Each mode reports two aggregate sample periods,
+derived FPS (1000 / mean frame milliseconds), median, p95, p99 and
+frames over 25/50ms, plus the number of hidden renderers/cars and
+triangle references. Only comparing stable, same-camera frame-time
+distributions can support Editor improvements. Even a successful Editor
+test does not guarantee the same WebGL result.
