@@ -336,7 +336,7 @@ distributions can support Editor improvements. Even a successful Editor
 test does not guarantee the same WebGL result.
 
 
-## Distant Trees-01 A/B experiment (Editor, not production)
+## Historical Distant Trees-01 A/B experiment (initial Editor-only phase)
 
 The CityVisual geometry census counted about 601,160 triangle references in
 the `Trees-01` material group. Those are whole-city counts, not GPU triangle
@@ -362,7 +362,8 @@ one-click A/B benchmark intentionally tests **High only**.
 To avoid two cullers owning one `forceRenderingOff` flag, the tiny-detail
 culler reserves these exact Trees-01 renderers for the tree experiment
 **only in the Unity Editor**. WebGL's existing tiny-detail rules remain
-unchanged; the separate tree experiment is NOT wired into WebGL startup.
+unchanged; at that historical stage the separate tree experiment was not wired into
+WebGL startup; the later 'WebGL integration' section supersedes this.
 
 ### Automatic benchmark
 
@@ -454,8 +455,8 @@ A new, reversible Editor-only culler candidate definition is:
   prioritizes visual safety over the maximum number of hidden trees.
 - Small-detail culling in Editor skips both candidate categories so
   independent experiments do not toggle a shared renderer. Existing
-  production WebGL logic is unchanged. The new tree/vegetation culler
-  is not wired into WebGL startup.
+  production WebGL logic is unchanged. At the time of this experiment the new tree/vegetation culler
+  was not wired into WebGL startup. See the later WebGL integration.
 
 **Automatic three-way benchmark:** Enter Play Mode with High graphics
 at the problematic city viewpoint. Run
@@ -636,6 +637,13 @@ render cullers** on WebGL **High** when the runtime city exists:
    when their projected 1080p diameter is **under 12px**; restore
    inside 450m or when >16.2px. Excludes LODGroup, static-batched,
    scripted, Rigidbody-owned and mixed-material renderer meshes.
+
+
+WebGL High allocates its scan arrays **sequentially**: first the existing
+distant-detail scan finishes, then the parked-car scan completes,
+then the vegetation scan begins (each with budgeted per-frame discovery).
+This avoids competing 21k-renderer discovery passes during startup.
+When the detail URL opt-out is present, the sequence starts with parked.
 
 Both new cullers are explicitly **High-only** for now, since the
 automated comparisons and visual checks were on High. On WebGL
