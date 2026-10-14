@@ -532,14 +532,25 @@ road graph, NOT guessed straight lines through buildings.
    Park the player's car near a road in the problem area, then choose
    `Motor City > Optimization > 19 - Benchmark Moving Camera BASE vs ALL
    (Play Mode)`. No manual screenshots, camera piloting or WebGL build.
-2. The script tries several travel directions starting near the current
-   camera, projects them onto road graph and accepts only a plausible
-   connected route 115-370m long whose start/end projections stay near
-   their intended locations. If none is available, it warns and does
-   not move anything; try another road location.
+2. The first moving benchmark showed an **invalid comparison scene**:
+   the camera travelled almost entirely along the empty map boundary,
+   X about -650, Z 280 to 98; only about 500k actually rendered
+   triangles in Game view versus about 4 million at the user's validated
+   stationary viewpoint. That route produced 406.7 BASE vs 400.9 ALL
+   derived Editor FPS and is not evidence about the dense center.
+   The revised planner treats that outcome as a route-selection failure:
+   it estimates the geographic center of the authored architecture,
+   checks the original camera's direction into the visually dense city,
+   and searches connected road paths that make at least substantial
+   progress toward that center rather than following a tangential edge
+   street. It samples road starts near the present street and two
+   nearby offsets, requires 145-690m of connected roads, and refuses
+   routes whose approximate visible geometry is sparse relative to
+   the original dense viewpoint. A failure is explicit rather than
+   quietly producing another misleading 400 FPS report.
 3. The script temporarily disables the `ChaseCamera` component and
-   replays the identical road-derived **virtual camera** route twice
-   per mode, in **BASE / ALL / ALL / BASE** order. It does *not*
+   replays the identical inward-facing, road-derived **virtual camera**
+   route twice per mode, in **BASE / ALL / ALL / BASE** order. It does *not*
    drive/teleport the player's car or change its Rigidbody, nor does it
    try to compare driving/traffic physics. Camera follows the asphalt
    center about 3.2m above waypoint height and looks ahead 8deg down.
@@ -565,3 +576,28 @@ This is a visibility-optimization stress test while the view moves,
 not a real drive-input replay. A stable Editor result will not prove
 that WebGL uses the same CPU/GPU paths, and visual pop-in should still
 be checked in a manual drive before enabling new cullers in production.
+
+
+### Updated dense-city route selection (menu 19)
+
+When run from the previously benchmarked location, the test now favors
+a route that begins on a real nearby boundary road, follows connected
+road edges inward and faces toward the dense buildings. Route scoring
+uses all active city MeshRenderers' bounds and triangle references to
+estimate camera-frustum workload. This is deliberately **not the same**
+as Unity Game View's rendered triangle count: occlusion, batching,
+submeshes, render pipeline and culling affect real Stats.
+
+The script compares five evenly spaced proposed views to the same
+approximate metric at the user's original dense stationary camera.
+It rejects any route with a sampled minimum below 55% or average
+below 75% of that reference. The final TXT reports original viewpoint
+geometry estimate and seven waypoints' estimated visible references,
+world positions and camera yaw, as well as the frame timings and
+renderer visibility switches.
+
+On rejection, Unity Console explains whether the road network lacks an
+inward-connected path or the views are still too sparse. Park at
+an intersection on the city boundary that can drive toward downtown,
+with the original camera already pointed at the dense skyline, then
+rerun menu 19. No WebGL build is involved.
