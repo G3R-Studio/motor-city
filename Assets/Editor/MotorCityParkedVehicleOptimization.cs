@@ -1,3 +1,4 @@
+using MotorCity.Diagnostics;
 using MotorCity.World;
 using UnityEditor;
 using UnityEngine;
@@ -63,6 +64,74 @@ namespace MotorCity.EditorTools
             Debug.Log("[MotorCity][ParkedVehicles] A/B OFF: restored all " +
                 count + " decorative parked vehicle groups. " +
                 "Collider and city prefab state unchanged.");
+        }
+
+        [MenuItem("Motor City/Optimization/13 - Benchmark Parked Vehicles A-B (Play Mode)")]
+        private static void Benchmark()
+        {
+            if (!Application.isPlaying || EditorApplication.isPaused)
+            {
+                Debug.LogWarning("[MotorCity][ParkedBenchmark] Start Play Mode " +
+                    "and unpause the game first.");
+                return;
+            }
+
+            MotorCityParkedVehicleBenchmark running =
+                Object.FindFirstObjectByType<MotorCityParkedVehicleBenchmark>(
+                    FindObjectsInactive.Include);
+            if (running != null)
+            {
+                Debug.LogWarning("[MotorCity][ParkedBenchmark] A benchmark " +
+                    "is already running. Wait for FINAL in the Console.");
+                return;
+            }
+
+            CityDistanceDetailCuller details =
+                Object.FindFirstObjectByType<CityDistanceDetailCuller>(
+                    FindObjectsInactive.Include);
+            CityFoliageCullingExperiment foliage =
+                Object.FindFirstObjectByType<CityFoliageCullingExperiment>(
+                    FindObjectsInactive.Include);
+            CityHlodRuntime hlod =
+                Object.FindFirstObjectByType<CityHlodRuntime>(
+                    FindObjectsInactive.Include);
+
+            if ((details != null && details.enabled) ||
+                (foliage != null && foliage.enabled) ||
+                (hlod != null && hlod.enabled))
+            {
+                Debug.LogWarning("[MotorCity][ParkedBenchmark] Disable other " +
+                    "visibility A/B experiments first (detail menu 8, " +
+                    "foliage menu 3, HLOD menu 4) for an isolated comparison.");
+                return;
+            }
+
+            GameObject city = GameObject.Find("MotorCity_FCGCity");
+            Camera camera = Camera.main;
+            if (city == null || camera == null)
+            {
+                Debug.LogWarning("[MotorCity][ParkedBenchmark] Wait for the " +
+                    "playable city and main camera before benchmarking.");
+                return;
+            }
+
+            CityParkedVehicleCullingExperiment culler =
+                Object.FindFirstObjectByType<CityParkedVehicleCullingExperiment>(
+                    FindObjectsInactive.Include);
+            bool created = culler == null;
+            if (created)
+            {
+                GameObject helper = new GameObject(
+                    "MotorCity - Parked Vehicles Benchmark Culler");
+                culler = helper.AddComponent<CityParkedVehicleCullingExperiment>();
+                culler.Initialize(city, camera);
+            }
+
+            GameObject host = new GameObject(
+                "MotorCity - Parked Vehicles Benchmark Runner");
+            MotorCityParkedVehicleBenchmark benchmark =
+                host.AddComponent<MotorCityParkedVehicleBenchmark>();
+            benchmark.Begin(camera, culler, created);
         }
 
         [MenuItem("Motor City/Optimization/12 - Report Parked Vehicles (Play Mode)")]
