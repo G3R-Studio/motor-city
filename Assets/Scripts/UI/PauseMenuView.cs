@@ -64,7 +64,7 @@ namespace MotorCity.UI
                     "pause.title",
                     new Vector2(
                         560f,
-                        488f));
+                        548f));
 
             MotorCitySettingsRow qualityRow =
                 CreateSettingsRow(
@@ -92,6 +92,17 @@ namespace MotorCity.UI
                     CycleQuality(1),
                 46f,
                 true);
+
+            MotorCitySettingsRow distanceRow =
+                CreateSettingsRow(window.Content,
+                    "Pause Draw Distance", "pause.draw_distance_label");
+            pauseDrawDistanceText = distanceRow.Value;
+            CreatePrimaryButton(distanceRow.Controls,
+                "Pause Draw Distance Previous", "pause.minus",
+                () => CycleDrawDistance(-1), 46f, true);
+            CreatePrimaryButton(distanceRow.Controls,
+                "Pause Draw Distance Next", "pause.plus",
+                () => CycleDrawDistance(1), 46f, true);
 
             MotorCitySettingsRow audioRow =
                 CreateSettingsRow(
@@ -693,6 +704,13 @@ namespace MotorCity.UI
             RefreshPauseMenuText();
         }
 
+        private void CycleDrawDistance(int direction)
+        {
+            int next = ((int)MotorCityDrawDistanceSettings.Current + direction + 4) % 4;
+            MotorCityDrawDistanceSettings.Set((MotorCityDrawDistance)next);
+            RefreshPauseMenuText();
+        }
+
         private void RefreshPauseMenuText()
         {
             if (pauseQualityText != null)
@@ -715,6 +733,18 @@ namespace MotorCity.UI
 
                 pauseQualityText.text =
                     quality;
+            }
+
+            if (pauseDrawDistanceText != null)
+            {
+                string key = MotorCityDrawDistanceSettings.Current switch
+                {
+                    MotorCityDrawDistance.Near => "pause.draw_near",
+                    MotorCityDrawDistance.Medium => "pause.draw_medium",
+                    MotorCityDrawDistance.Far => "pause.draw_far",
+                    _ => "pause.draw_auto"
+                };
+                pauseDrawDistanceText.text = MotorCityLocalization.Text(key);
             }
 
             if (pauseAudioText != null)
