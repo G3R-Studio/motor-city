@@ -188,8 +188,6 @@ namespace MotorCity.EditorTools
             public long TriangleReferences;
         }
 
-        private static Vector3 denseCityFocus;
-
         private static Vector3 Flatten(Vector3 p)
         {
             p.y = 0f;
@@ -375,7 +373,6 @@ namespace MotorCity.EditorTools
             else
                 focus = cityCore;
 
-            denseCityFocus = focus;
             Vector3 inward = Flatten(focus - start).normalized;
             Vector3 lateral = new Vector3(-inward.z, 0f, inward.x);
             Quaternion originalRotation = camera.transform.rotation;
@@ -409,6 +406,7 @@ namespace MotorCity.EditorTools
             double bestScore = double.NegativeInfinity;
             float strongestInward = 0f;
             long bestVisible = 0L;
+            long selectedVisible = 0L;
             int validRoadCandidates = 0;
             int denseCandidates = 0;
             float chosenOffset = 0f;
@@ -490,6 +488,7 @@ namespace MotorCity.EditorTools
                             bestScore = score;
                             route = candidate;
                             distance = length;
+                            selectedVisible = average;
                             chosenOffset = offset.magnitude;
                         }
                     }
@@ -520,7 +519,7 @@ namespace MotorCity.EditorTools
                 " road points; " + buildingSamples +
                 " architectural meshes informed center; static " +
                 "frustum references=" + referenceTriangles +
-                ", best route average=" + bestVisible +
+                ", selected route average=" + selectedVisible +
                 ", nearby road offset=" + chosenOffset.ToString("F0") +
                 "m; camera faces downtown.";
             return true;
@@ -640,26 +639,42 @@ namespace MotorCity.EditorTools
                 "55%, average 75% of original view's approximate " +
                 "frustum-intersecting mesh triangle references. " +
                 "Not Unity Game view Stats, not GPU triangles.");
-            // A compact per-checkpoint geometry overview helps catch a
-            // route that only looks at empty outskirts.
-            MeshRenderer[] visualMeshes =
-                city.GetComponentsInChildren<MeshRenderer>(true);
-            long totalRawReferences = 0L;
-            foreach (MeshRenderer visual in visualMeshes)
+            // Report the SAME approximate visibility metric used by
+            // candidate selection, including the original user viewpoint.
+            // Frustum tests include occluded/hidden geometry and are NOT
+            // a replacement for Unity's rendered Game view Stats.
+            GeometrySample[] geometry = GatherGeometry(city,
+                out Vector3 sampledCore, out int buildingCount);
+            long originalFrustumTriangles = EstimateFrustumTriangles(
+                geometry, originalPosition, originalRotation, camera);
+            report.AppendLine("Original heavy static viewpoint: ~" +
+                originalFrustumTriangles +
+                " mesh triangle references in approximate frustum.");
+            long routeTriangleSum = 0L;
+            long routeTriangleMin = long.MaxValue;
+            for (int sample = 0; sample < 7; sample++)
             {
-                if (visual == null || !visual.enabled ||
-                    !visual.gameObject.activeInHierarchy)
-                    continue;
-                MeshFilter filter = visual.GetComponent<MeshFilter>();
-                Mesh mesh = filter == null ? null : filter.sharedMesh;
-                if (mesh == null)
-                    continue;
-                for (int sub = 0; sub < mesh.subMeshCount; sub++)
-                    totalRawReferences +=
-                        (long)mesh.GetIndexCount(sub) / 3L;
+                float fraction = sample / 6f;
+                RoadPose(roadPoints, roadDistances, fraction,
+                    roadCityFocus, out Vector3 posePosition,
+                    out Quaternion poseRotation);
+                long estimated = EstimateFrustumTriangles(geometry,
+                    posePosition, poseRotation, camera);
+                routeTriangleMin = Math.Min(routeTriangleMin, estimated);
+                routeTriangleSum += estimated;
+                report.AppendLine("  visibility sample " + sample +
+                    "/6 at " + (fraction * routeLength).ToString("F0") +
+                    "m: ~" + estimated + " triangle refs, camera=" +
+                    posePosition.ToString("F2") + ", yaw=" +
+                    poseRotation.eulerAngles.y.ToString("F1"));
             }
-            report.AppendLine("Active city mesh references (all directions): " +
-                totalRawReferences + " triangle references.");
+            report.AppendLine("Route visibility approximation: average ~" +
+                routeTriangleSum / 7L + ", minimum ~" +
+                routeTriangleMin + " triangle refs; " +
+                buildingCount + " architectural mesh samples.");
+            report.AppendLine("These are estimated frustum intersections " +
+                "without occlusion; Unity Game view Stats are authoritative " +
+                "for actual rendered triangles.");
             for (int i = 0; i < roadPoints.Count; i++)
                 report.AppendLine("  waypoint " + i + ": " +
                     roadPoints[i].ToString("F2"));
@@ -940,18 +955,7 @@ namespace MotorCity.EditorTools
         {
             if (cameraToMove == null || roadPoints == null)
                 return;
-            float travel = Mathf.Clamp01(progress) * routeLength;
-            distanceOnRoad = travel;
-
-            int index = 0;
-            while (index + 2 < roadDistances.Length &&
-                travel > roadDistances[index + 1])
-                index++;
-            float a = roadDistances[index];
-            float b = roadDistances[index + 1];
-            float alpha = b - a > .001f ?
-                Mathf.Clamp01((travel - a) / (b - a)) : 0f;
-
+            distanceOnRoad = Mathf.Clamp01(progress) * routeLength;
             RoadPose(roadPoints, roadDistances, progress,
                 roadCityFocus, out Vector3 position,
                 out Quaternion rotation);
