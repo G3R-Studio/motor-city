@@ -185,6 +185,7 @@ namespace MotorCity.EditorTools
 
         private IEnumerator Verify()
         {
+            bool completed = false;
             try
             {
                 CheckUrlParser();
@@ -265,13 +266,12 @@ namespace MotorCity.EditorTools
                         "All three cullers individually disabled and restored.");
                     report.AppendLine();
                 }
-            }
-            catch (Exception unexpected)
-            {
-                Fail("Unhandled preflight exception: " + unexpected);
+                completed = true;
             }
             finally
             {
+                if (!completed)
+                    Fail("Preflight was interrupted before completing checks.");
                 report.AppendLine(errors == 0 ?
                     "RESULT: PASS (Editor lifecycle + URL parser)." :
                     "RESULT: FAIL (" + errors + " checks).");
