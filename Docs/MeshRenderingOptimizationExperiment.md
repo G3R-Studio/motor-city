@@ -519,3 +519,49 @@ the prior meaning. Concurrent benchmarks are prevented.
 Use the text report to compare the same viewpoint. Confirm visual
 pop-in while driving before ever enabling a winning variant in WebGL;
 these benchmarks do not compile or build WebGL.
+
+
+## Reproducible road-moving camera A/B test (Editor only)
+
+The stationary four-mode vegetation benchmark is not enough to test
+renderer hide/show work during camera movement. A new script-controlled
+moving-camera test uses the authored `CityRoadNavigator.BuildRoute`
+road graph, NOT guessed straight lines through buildings.
+
+1. From Play Mode with the city loaded, set the High graphics preset.
+   Park the player's car near a road in the problem area, then choose
+   `Motor City > Optimization > 19 - Benchmark Moving Camera BASE vs ALL
+   (Play Mode)`. No manual screenshots, camera piloting or WebGL build.
+2. The script tries several travel directions starting near the current
+   camera, projects them onto road graph and accepts only a plausible
+   connected route 115-370m long whose start/end projections stay near
+   their intended locations. If none is available, it warns and does
+   not move anything; try another road location.
+3. The script temporarily disables the `ChaseCamera` component and
+   replays the identical road-derived **virtual camera** route twice
+   per mode, in **BASE / ALL / ALL / BASE** order. It does *not*
+   drive/teleport the player's car or change its Rigidbody, nor does it
+   try to compare driving/traffic physics. Camera follows the asphalt
+   center about 3.2m above waypoint height and looks ahead 8deg down.
+4. Every phase has 2.5s stationary warmup at the route start plus 12s
+   of scripted motion (about 58s after initial incremental scans).
+   Keep Game view focused, do not pause or change High graphics.
+5. BASE = tiny-detail + parked-vehicle rendering culling.
+   ALL = BASE + both pure Trees-01 categories (Tree/Palm and
+   Fern/Plants/Vegetation). Other A/B experiments are temporarily off.
+6. The script logs mean/median/p95/p99 frame-time and derived FPS,
+   long-frame counts, exact hide/restore transition counts by culler,
+   mean frame time over every 30-meter road segment, and the slowest
+   camera positions with their frame times. It writes
+   `Temp/MotorCity_MovingCameraBenchmark.txt` in the Unity project.
+   Send that TXT report rather than screenshots.
+7. At completion or abort, the camera transform, FOV,
+   `ChaseCamera.enabled`, previous culler states, flags and
+   visibility-preview state are restored. Temporary test objects
+   are destroyed. No mesh, prefab, collider, road, player-vehicle
+   or physics component is modified persistently.
+
+This is a visibility-optimization stress test while the view moves,
+not a real drive-input replay. A stable Editor result will not prove
+that WebGL uses the same CPU/GPU paths, and visual pop-in should still
+be checked in a manual drive before enabling new cullers in production.
