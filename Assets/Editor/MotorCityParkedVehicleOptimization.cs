@@ -79,7 +79,13 @@ namespace MotorCity.EditorTools
             MotorCityParkedVehicleBenchmark running =
                 Object.FindFirstObjectByType<MotorCityParkedVehicleBenchmark>(
                     FindObjectsInactive.Include);
-            if (running != null)
+            if (running != null ||
+                Object.FindFirstObjectByType<
+                    MotorCityTreeCullingBenchmarkRunner>(
+                    FindObjectsInactive.Include) != null ||
+                Object.FindFirstObjectByType<
+                    MotorCityCombinedCullingBenchmarkRunner>(
+                    FindObjectsInactive.Include) != null)
             {
                 Debug.LogWarning("[MotorCity][ParkedBenchmark] A benchmark " +
                     "is already running. Wait for FINAL in the Console.");
