@@ -241,6 +241,7 @@ namespace MotorCity.UI
         private const float MinimapRouteUpdateInterval = 0.10f;
 
         private GameObject navigatorPanel;
+        private GameObject navigatorTargetStrip;
         private GameObject statusPanel;
         private GameObject driftPanel;
         private GameObject garageOverlay;
