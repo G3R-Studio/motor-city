@@ -710,7 +710,9 @@ namespace MotorCity.World
             // CityAtmosphereRuntime was removed. Keep the lightweight
             // distance haze owned here so the active day/night controller
             // cannot leave the scene with stale fog settings.
-            RenderSettings.fog = true;
+            // Geometry-based distance haze is used when available. Avoid
+            // doubling fog in Editor, where URP's native fog can still render.
+            RenderSettings.fog = !MotorCityDistanceFogShell.Active;
             RenderSettings.fogMode = FogMode.Linear;
             // Keep haze and camera clipping consistent in WebGL. Otherwise
             // the original 520m fog wall hides even the extended city view.
