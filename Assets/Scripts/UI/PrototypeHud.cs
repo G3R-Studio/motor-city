@@ -242,6 +242,7 @@ namespace MotorCity.UI
 
         private GameObject navigatorPanel;
         private GameObject navigatorTargetStrip;
+        private GameObject navigatorShortcutButton;
         private GameObject statusPanel;
         private GameObject driftPanel;
         private GameObject garageOverlay;
