@@ -9,6 +9,40 @@ namespace MotorCity.World
     /// meshes, colliders, materials, layers, asset import settings or prefabs.
     /// Editor preview is opt-in; the standard Editor camera stays at 2200m.
     /// </summary>
+    public enum MotorCityDrawDistance { Auto = 0, Near = 1, Medium = 2, Far = 3 }
+
+    public static class MotorCityDrawDistanceSettings
+    {
+        private const string SaveKey = "MotorCity.Settings.DrawDistance";
+        private static bool loaded;
+        private static MotorCityDrawDistance current;
+        public static event Action Changed;
+
+        public static MotorCityDrawDistance Current
+        {
+            get
+            {
+                if (!loaded)
+                {
+                    loaded = true;
+                    current = (MotorCityDrawDistance)Mathf.Clamp(
+                        PlayerPrefs.GetInt(SaveKey, 0), 0, 3);
+                }
+                return current;
+            }
+        }
+
+        public static void Set(MotorCityDrawDistance value)
+        {
+            if ((int)value < 0 || (int)value > 3 || Current == value)
+                return;
+            current = value;
+            PlayerPrefs.SetInt(SaveKey, (int)value);
+            PlayerPrefs.Save();
+            Changed?.Invoke();
+        }
+    }
+
     [RequireComponent(typeof(Camera))]
     public sealed class MotorCityVisibilityRuntime : MonoBehaviour
     {
@@ -50,32 +84,44 @@ namespace MotorCity.World
             }
         }
 
+        private static float PresetFarClip => MotorCityQualityRuntime.CurrentPreset switch
+        {
+            MotorCityQualityPreset.Low => 900f,
+            MotorCityQualityPreset.High => 1700f,
+            _ => 1250f
+        };
+
         public static float FarClipDistance =>
             !BrowserProfileActive ? EditorFarClip :
-            MotorCityQualityRuntime.CurrentPreset switch
+            MotorCityDrawDistanceSettings.Current switch
             {
-                MotorCityQualityPreset.Low => 900f,
-                MotorCityQualityPreset.High => 1700f,
-                _ => 1250f
+                MotorCityDrawDistance.Near => 500f,
+                MotorCityDrawDistance.Medium => 850f,
+                MotorCityDrawDistance.Far => 1250f,
+                _ => PresetFarClip
             };
 
-        public static float FogStartDistance =>
-            !BrowserProfileActive ? EditorFogStart :
-            MotorCityQualityRuntime.CurrentPreset switch
-            {
-                MotorCityQualityPreset.Low => 160f,
-                MotorCityQualityPreset.High => 310f,
-                _ => 230f
-            };
+        private static float PresetFogStart => MotorCityQualityRuntime.CurrentPreset switch
+        {
+            MotorCityQualityPreset.Low => 160f,
+            MotorCityQualityPreset.High => 310f,
+            _ => 230f
+        };
+
+        private static float PresetFogEnd => MotorCityQualityRuntime.CurrentPreset switch
+        {
+            MotorCityQualityPreset.Low => 820f,
+            MotorCityQualityPreset.High => 1560f,
+            _ => 1140f
+        };
 
         public static float FogEndDistance =>
             !BrowserProfileActive ? EditorFogEnd :
-            MotorCityQualityRuntime.CurrentPreset switch
-            {
-                MotorCityQualityPreset.Low => 820f,
-                MotorCityQualityPreset.High => 1560f,
-                _ => 1140f
-            };
+            Mathf.Min(PresetFogEnd, FarClipDistance * .92f);
+
+        public static float FogStartDistance =>
+            !BrowserProfileActive ? EditorFogStart :
+            Mathf.Min(PresetFogStart, FogEndDistance * .42f);
 
         public static float FoliageHideDistance =>
             !BrowserProfileActive ? 145f :
@@ -121,6 +167,7 @@ namespace MotorCity.World
         private void OnEnable()
         {
             MotorCityQualityRuntime.PresetChanged += ApplyDistances;
+            MotorCityDrawDistanceSettings.Changed += ApplyDistances;
             ApplyDistances();
 #if UNITY_WEBGL && !UNITY_EDITOR
             // Components may survive a temporary camera/runtime disable.
@@ -140,6 +187,7 @@ namespace MotorCity.World
         private void OnDisable()
         {
             MotorCityQualityRuntime.PresetChanged -= ApplyDistances;
+            MotorCityDrawDistanceSettings.Changed -= ApplyDistances;
             if (browserFoliage != null)
                 browserFoliage.enabled = false;
             if (browserDetails != null)
