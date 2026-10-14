@@ -152,13 +152,14 @@ namespace MotorCity.World
             // toggle forceRenderingOff on the same renderer.
             if (IsParkedCarPart(renderer))
                 return;
-#if UNITY_EDITOR
-            // Only reserve Trees-01 for the separate tree A/B experiment
-            // inside the Editor. Production WebGL keeps its prior behavior
-            // until the tree experiment has been measured and approved.
-            if (CityDistantTreeCullingExperiment.IsExperimentalVegetationRenderer(renderer))
+            // The separate Trees-01 culler owns these renderers in High
+            // WebGL, just as it did in the Editor A/B test. Reserving
+            // the entire category also prevents Low/Medium legacy foliage
+            // and detail culling from fighting over renderer visibility.
+            // URL opt-outs never leave two systems owning the same flag.
+            if (CityDistantTreeCullingExperiment
+                    .IsExperimentalVegetationRenderer(renderer))
                 return;
-#endif
 
             Bounds bounds = renderer.bounds;
             float radius = bounds.extents.magnitude;

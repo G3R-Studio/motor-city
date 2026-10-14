@@ -20,13 +20,19 @@ namespace MotorCity.World
         private Camera targetCamera;
         private CityFoliageCullingExperiment browserFoliage;
         private CityDistanceDetailCuller browserDetails;
+        private CityParkedVehicleCullingExperiment browserParked;
+        private CityDistantTreeCullingExperiment browserVegetation;
         private CityHlodRuntime browserHlod;
         private bool hlodChecked;
         private bool hlodAvailable;
         private float nextHlodCheck;
         private float nextCityCheck;
         private float nextDetailCheck;
+        private float nextExtraCullCheck;
         private bool detailUrlChecked;
+        private bool extraCullUrlChecked;
+        private bool allowParkedCull = true;
+        private bool allowVegetationCull = true;
         private MotorCityQualityPreset appliedPreset;
         private bool appliedBrowserMode;
 
@@ -114,6 +120,19 @@ namespace MotorCity.World
         {
             MotorCityQualityRuntime.PresetChanged += ApplyDistances;
             ApplyDistances();
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Components may survive a temporary camera/runtime disable.
+            // Restore only our own WebGL cullers, respecting URL opt-outs.
+            if (browserDetails != null)
+                browserDetails.enabled =
+                    nextDetailCheck != float.PositiveInfinity;
+            bool high = MotorCityQualityRuntime.CurrentPreset ==
+                MotorCityQualityPreset.High;
+            if (browserParked != null)
+                browserParked.enabled = high && allowParkedCull;
+            if (browserVegetation != null)
+                browserVegetation.enabled = high && allowVegetationCull;
+#endif
         }
 
         private void OnDisable()
@@ -123,6 +142,10 @@ namespace MotorCity.World
                 browserFoliage.enabled = false;
             if (browserDetails != null)
                 browserDetails.enabled = false;
+            if (browserParked != null)
+                browserParked.enabled = false;
+            if (browserVegetation != null)
+                browserVegetation.enabled = false;
             if (browserHlod != null)
                 browserHlod.enabled = false;
         }
@@ -139,6 +162,10 @@ namespace MotorCity.World
             appliedBrowserMode = BrowserProfileActive;
             if (browserDetails != null)
                 browserDetails.RequestRefresh();
+            if (browserParked != null)
+                browserParked.RequestRefresh();
+            if (browserVegetation != null)
+                browserVegetation.RequestRefresh();
             if (browserHlod != null)
                 browserHlod.RequestRefresh();
 
@@ -154,6 +181,34 @@ namespace MotorCity.World
                 RenderSettings.fogEndDistance = EditorFogEnd;
             }
 #endif
+        }
+
+        private static bool UrlOptedOut(string url, string key)
+        {
+            if (string.IsNullOrEmpty(url))
+                return false;
+
+            // Recognize only a query parameter, not a coincidental
+            // substring in the path, a different value or another key.
+            int query = url.IndexOf('?');
+            if (query < 0)
+                return false;
+            int fragment = url.IndexOf('#', query + 1);
+            string wanted = key + "=off";
+            int searchFrom = query + 1;
+            while (searchFrom < url.Length &&
+                   (fragment < 0 || searchFrom < fragment))
+            {
+                int next = url.IndexOf('&', searchFrom);
+                if (next < 0 || (fragment >= 0 && next > fragment))
+                    next = fragment >= 0 ? fragment : url.Length;
+                if (next - searchFrom == wanted.Length &&
+                    string.Compare(url, searchFrom, wanted, 0,
+                        wanted.Length, StringComparison.OrdinalIgnoreCase) == 0)
+                    return true;
+                searchFrom = next + 1;
+            }
+            return false;
         }
 
         private void Update()
@@ -221,13 +276,96 @@ namespace MotorCity.World
                 }
             }
 
-            // Only decorative vegetation, and only on WebGL Low/Medium.
-            // The Editor's existing foliage A/B menu remains independent.
-            // Important buildings, roads, traffic and colliders stay intact.
-            bool shouldCull =
-                MotorCityQualityRuntime.CurrentPreset != MotorCityQualityPreset.High;
+            // Production URL opt-outs are read once per browser run:
+            // ?motorcity_detail_cull=off
+            // ?motorcity_parked_cull=off
+            // ?motorcity_vegetation_cull=off
+            // Multiple switches may be combined using '&'.
+            if (!extraCullUrlChecked)
+            {
+                extraCullUrlChecked = true;
+                string url = Application.absoluteURL;
+                allowParkedCull = !UrlOptedOut(url,
+                    "motorcity_parked_cull");
+                allowVegetationCull = !UrlOptedOut(url,
+                    "motorcity_vegetation_cull");
+                Debug.Log("[MotorCity][Optimization] WebGL culling " +
+                    "switches: details=" +
+                    (nextDetailCheck != float.PositiveInfinity) +
+                    ", parked=" + allowParkedCull +
+                    ", vegetation=" + allowVegetationCull +
+                    ". High uses the Editor-validated thresholds.");
+            }
 
-            if (!shouldCull)
+            // Only High has been visually and automatically benchmarked
+            // with parked cars and BOTH Trees-01 vegetation categories.
+            // Do not silently apply untested thresholds on Low/Medium.
+            bool highPreset = MotorCityQualityRuntime.CurrentPreset ==
+                MotorCityQualityPreset.High;
+            bool shouldParked = highPreset && allowParkedCull;
+            bool shouldVegetation = highPreset && allowVegetationCull;
+
+            if (browserParked != null)
+            {
+                if (browserParked.enabled != shouldParked)
+                {
+                    browserParked.enabled = shouldParked;
+                    if (shouldParked)
+                        browserParked.RequestRefresh();
+                }
+            }
+
+            if (browserVegetation != null)
+            {
+                if (browserVegetation.enabled != shouldVegetation)
+                {
+                    browserVegetation.enabled = shouldVegetation;
+                    if (shouldVegetation)
+                        browserVegetation.RequestRefresh();
+                }
+            }
+
+            // At most one full city discovery array is allocated per
+            // interval; per-frame candidate discovery remains budgeted.
+            if (highPreset && Time.unscaledTime >= nextExtraCullCheck &&
+                ((shouldParked && browserParked == null) ||
+                 (shouldVegetation && browserVegetation == null)))
+            {
+                nextExtraCullCheck = Time.unscaledTime + 0.5f;
+                GameObject city = GameObject.Find("MotorCity_FCGCity");
+                if (city != null)
+                {
+                    if (shouldParked && browserParked == null)
+                    {
+                        browserParked = gameObject.AddComponent<
+                            CityParkedVehicleCullingExperiment>();
+                        browserParked.Initialize(city, targetCamera);
+                        Debug.Log("[MotorCity][Optimization] WebGL High " +
+                            "parked vehicles ON (390m hide / 335m restore).");
+                    }
+                    else if (shouldVegetation && browserVegetation == null)
+                    {
+                        browserVegetation = gameObject.AddComponent<
+                            CityDistantTreeCullingExperiment>();
+                        browserVegetation.IncludeWoody = true;
+                        browserVegetation.IncludeGroundCover = true;
+                        browserVegetation.Initialize(city, targetCamera);
+                        Debug.Log("[MotorCity][Optimization] WebGL High " +
+                            "vegetation ON (500m, under 12px / 1080p).");
+                    }
+                }
+            }
+
+            // Preserve the existing, separate Low/Medium decorative
+            // foliage experiment. NEVER run it alongside the new High
+            // Trees-01 renderer culler: the former changes enabled,
+            // while the new component uses forceRenderingOff.
+            // The vegetation URL opt-out disables BOTH categories at
+            // High and legacy foliage at Low/Medium.
+            bool shouldCullLegacyFoliage =
+                !highPreset && allowVegetationCull;
+
+            if (!shouldCullLegacyFoliage)
             {
                 if (browserFoliage != null && browserFoliage.enabled)
                     browserFoliage.enabled = false;
