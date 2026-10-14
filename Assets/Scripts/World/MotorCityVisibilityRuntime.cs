@@ -135,7 +135,9 @@ namespace MotorCity.World
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetEditorPreview()
         {
-            editorPreview = false;
+            // Use the browser camera and fog policy in ordinary Editor Play Mode.
+            // Existing benchmark tools can still explicitly override this.
+            editorPreview = true;
         }
 
         /// <summary>Editor Play Mode A/B test; not serialized to the project.</summary>
