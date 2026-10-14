@@ -87,6 +87,9 @@ namespace MotorCity.EditorTools
                     MotorCityCombinedCullingBenchmarkRunner>(
                     FindObjectsInactive.Include) != null ||
                 Object.FindFirstObjectByType<
+                    MotorCityMovingCameraBenchmarkRunner>(
+                    FindObjectsInactive.Include) != null ||
+                Object.FindFirstObjectByType<
                     MotorCityVegetationFourWayBenchmarkRunner>(
                     FindObjectsInactive.Include) != null ||
                 Object.FindFirstObjectByType<

@@ -37,6 +37,9 @@ namespace MotorCity.EditorTools
                     MotorCityTreeCullingBenchmarkRunner>(
                     FindObjectsInactive.Include) != null ||
                 UnityEngine.Object.FindFirstObjectByType<
+                    MotorCityMovingCameraBenchmarkRunner>(
+                    FindObjectsInactive.Include) != null ||
+                UnityEngine.Object.FindFirstObjectByType<
                     MotorCityVegetationFourWayBenchmarkRunner>(
                     FindObjectsInactive.Include) != null ||
                 UnityEngine.Object.FindFirstObjectByType<
