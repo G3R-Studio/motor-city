@@ -49,13 +49,11 @@ namespace MotorCity.UI
             MotorCitySaveService.Save();
         }
 
-        // Steering wheel and both independent arrow buttons can grow to
-        // 200%; the other driving controls retain their existing 150% cap.
+        // All driving touch controls can be resized up to 200%.
+        // Independent saved scales still apply to each control and scheme.
         public static float MaxScaleFor(string controlKey)
         {
-            return controlKey == "Steering" ||
-                   controlKey == "SteerLeft" ||
-                   controlKey == "SteerRight" ? 2f : 1.5f;
+            return 2f;
         }
 
         public static float LoadScale(
