@@ -39,12 +39,17 @@ def main() -> int:
     )
     budget_start = lamps.find("int lightBudget =")
     expect(budget_start >= 0, "Lamp light-budget selection missing")
-    webgl = section(
-        lamps[budget_start:] if budget_start >= 0 else "",
-        "#if UNITY_WEBGL && !UNITY_EDITOR",
-        "#endif",
+    # The lightweight WebGL lamp limits are now shared by Editor, Android
+    # and WebGL. Accept either the original platform gate or the shared gate,
+    # while still validating the same bounded per-quality lighting policy.
+    budget_code = lamps[budget_start:] if budget_start >= 0 else ""
+    marker = (
+        "#if UNITY_WEBGL && !UNITY_EDITOR"
+        if "#if UNITY_WEBGL && !UNITY_EDITOR" in budget_code
+        else "#if true"
     )
-    expect(bool(webgl), "WebGL lamp budget must be explicit")
+    webgl = section(budget_code, marker, "#endif")
+    expect(bool(webgl), "Shared lightweight lamp budget must be explicit")
     expect("lampDistance = 0f;" not in webgl, "WebGL must not zero lamp range")
     expect("lightBudget = 0;" not in webgl, "WebGL must not turn off every lamp")
 
