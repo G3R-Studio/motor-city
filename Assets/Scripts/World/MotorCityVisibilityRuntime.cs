@@ -65,24 +65,12 @@ namespace MotorCity.World
         private float nextExtraCullCheck;
         private bool detailUrlChecked;
         private bool extraCullUrlChecked;
-#if UNITY_WEBGL && !UNITY_EDITOR
         private bool allowParkedCull = true;
         private bool allowVegetationCull = true;
-#endif
         private MotorCityQualityPreset appliedPreset;
         private bool appliedBrowserMode;
 
-        public static bool BrowserProfileActive
-        {
-            get
-            {
-#if UNITY_WEBGL && !UNITY_EDITOR
-                return true;
-#else
-                return editorPreview;
-#endif
-            }
-        }
+        public static bool BrowserProfileActive => true;
 
         private static float PresetFarClip => MotorCityQualityRuntime.CurrentPreset switch
         {
@@ -174,7 +162,6 @@ namespace MotorCity.World
             // Keep Editor browser preview and WebGL visually consistent.
             if (BrowserProfileActive && GetComponent<MotorCityDistanceFogShell>() == null)
                 gameObject.AddComponent<MotorCityDistanceFogShell>();
-#if UNITY_WEBGL && !UNITY_EDITOR
             // Components may survive a temporary camera/runtime disable.
             // Restore only our own WebGL cullers, respecting URL opt-outs.
             if (browserDetails != null)
@@ -186,7 +173,6 @@ namespace MotorCity.World
                 browserParked.enabled = high && allowParkedCull;
             if (browserVegetation != null)
                 browserVegetation.enabled = high && allowVegetationCull;
-#endif
         }
 
         private void OnDisable()
@@ -272,7 +258,6 @@ namespace MotorCity.World
                 appliedBrowserMode != BrowserProfileActive)
                 ApplyDistances();
 
-#if UNITY_WEBGL && !UNITY_EDITOR
             // HLOD is entirely optional: no data asset means no runtime
             // change. An explicit URL opt-out supports future WebGL A/B.
             if (!hlodChecked)
@@ -461,7 +446,6 @@ namespace MotorCity.World
 
             browserFoliage = gameObject.AddComponent<CityFoliageCullingExperiment>();
             browserFoliage.Initialize(cityRoot);
-#endif
         }
     }
 }
