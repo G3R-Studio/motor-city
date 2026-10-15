@@ -31,21 +31,21 @@ namespace MotorCity.Platform
                     CurrentPreset switch
                     {
                         MotorCityQualityPreset.Low =>
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
                             10,
 #else
                             16,
 #endif
 
                         MotorCityQualityPreset.High =>
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
                             24,
 #else
                             32,
 #endif
 
                         _ =>
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
                             18
 #else
                             28
@@ -62,21 +62,21 @@ namespace MotorCity.Platform
                     CurrentPreset switch
                     {
                         MotorCityQualityPreset.Low =>
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
                             105f,
 #else
                             120f,
 #endif
 
                         MotorCityQualityPreset.High =>
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
                             140f,
 #else
                             165f,
 #endif
 
                         _ =>
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
                             125f
 #else
                             150f
@@ -205,7 +205,7 @@ namespace MotorCity.Platform
                 UnityEngine.ShadowQuality.Disable;
             QualitySettings.shadowDistance = 0f;
             QualitySettings.pixelLightCount = 0;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
             QualitySettings.lodBias = 0.50f;
             QualitySettings.maximumLODLevel = 1;
 #else
@@ -217,7 +217,7 @@ namespace MotorCity.Platform
             QualitySettings.anisotropicFiltering =
                 AnisotropicFiltering.Disable;
 
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
             ApplyUrpQuality(
                 0.60f,
                 1,
@@ -236,7 +236,7 @@ namespace MotorCity.Platform
 
         private static void ApplyMedium()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
             QualitySettings.shadows =
                 UnityEngine.ShadowQuality.Disable;
             QualitySettings.shadowDistance = 0f;
@@ -277,7 +277,7 @@ namespace MotorCity.Platform
 
         private static void ApplyHigh()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
             QualitySettings.shadows =
                 UnityEngine.ShadowQuality.HardOnly;
             QualitySettings.shadowDistance = 40f;
