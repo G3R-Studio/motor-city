@@ -266,7 +266,7 @@ namespace MotorCity.World
 
         private void BuildCityPostProcessing()
         {
-#if UNITY_WEBGL || UNITY_EDITOR
+#if true
             // Match the browser visuals in Editor Play Mode: no additional post FX. The scene still uses
             // its authored sky, fog and lighting without full-screen post FX.
 #else
@@ -1081,7 +1081,7 @@ namespace MotorCity.World
             bool night =
                 NightAmount >= 0.12f;
 
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
             if (garageLight != null &&
                 garageLight.enabled)
             {
@@ -1145,7 +1145,7 @@ namespace MotorCity.World
                         80
                 };
 
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
             // Keep some FCG-authored street / park Spot Lights alive in
             // WebGL. A zero budget made every lamp permanently dark, even
             // at full night. Browser/mobile budgets remain intentionally
