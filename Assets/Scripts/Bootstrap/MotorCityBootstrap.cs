@@ -1600,7 +1600,7 @@ namespace MotorCity.Bootstrap
             cameraObject.tag = "MainCamera";
             Camera camera = cameraObject.AddComponent<Camera>();
 
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
             camera.allowHDR = false;
 #else
             camera.allowHDR = true;
@@ -1611,7 +1611,7 @@ namespace MotorCity.Bootstrap
             UniversalAdditionalCameraData cameraData =
                 cameraObject.AddComponent<UniversalAdditionalCameraData>();
 
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if true
             cameraData.renderPostProcessing =
                 false;
 #else
