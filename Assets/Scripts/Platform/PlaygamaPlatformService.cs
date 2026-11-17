@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using MotorCity.Audio;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -81,7 +82,7 @@ namespace MotorCity.Platform
 
         [Preserve]
         public void OnBridgeAudio(string value) =>
-            AudioListener.volume = value == "1" ? 1f : 0f;
+            MotorCityAudioGate.SetPlatformAudioEnabled(value == "1");
 
         public void GameReady()
         {

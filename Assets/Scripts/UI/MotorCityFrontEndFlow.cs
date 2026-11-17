@@ -3014,10 +3014,7 @@ namespace MotorCity.UI
 
         private void ApplyFrontEndAudioVolume()
         {
-            AudioListener.volume =
-                frontEndAudioMuted
-                    ? 0f
-                    : frontEndAudioVolume;
+            MotorCityAudioGate.SetUserVolume(frontEndAudioMuted ? 0f : frontEndAudioVolume);
         }
 
         private void AdjustMusic(

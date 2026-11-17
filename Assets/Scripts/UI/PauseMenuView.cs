@@ -682,10 +682,7 @@ namespace MotorCity.UI
 
         private void ApplyAudioVolume()
         {
-            AudioListener.volume =
-                audioMuted
-                    ? 0f
-                    : audioVolume;
+            MotorCityAudioGate.SetUserVolume(audioMuted ? 0f : audioVolume);
         }
 
         private void CycleQuality(

@@ -778,13 +778,21 @@ namespace MotorCity.Audio
             }
         }
 
+        // Music intentionally bypasses the user's effects-volume listener.
+        // Respect platform-wide audio disable independently of that preference.
+        internal static void RefreshPlatformAudio()
+        {
+            if (instance != null)
+                instance.ApplyVolume();
+        }
+
         private void ApplyVolume()
         {
             if (source == null)
                 return;
 
             source.volume =
-                musicMuted
+                musicMuted || !MotorCityAudioGate.PlatformAudioEnabled
                     ? 0f
                     : musicVolume * 0.06f;
         }
