@@ -254,14 +254,7 @@ namespace MotorCity.Platform
             State =
                 InterstitialState.Eligible;
 
-            float now =
-                Time.realtimeSinceStartup;
-
-            // Reserve cooldown on request, not on successful rendering.
-            // This prevents repeated SDK calls when Yandex has no ad available.
-            nextAllowedRealtime =
-                now +
-                CooldownSeconds();
+            nextAllowedRealtime = Time.realtimeSinceStartup;
 
             State =
                 InterstitialState.Requesting;
@@ -276,9 +269,8 @@ namespace MotorCity.Platform
             requestCompleted =
                 completed;
 
-            requestDeadlineRealtime =
-                Time.realtimeSinceStartup +
-                RequestWatchdogSeconds;
+            // Bridge state callbacks provide completion; do not time out an open ad.
+            requestDeadlineRealtime = 0f;
 
             MotorCityPlatform.ShowInterstitial(
                 "before_activity",
@@ -371,81 +363,12 @@ namespace MotorCity.Platform
         private bool ShouldRequestInterstitial(
             string activityId)
         {
-            if (requestRunning ||
-                activities == null ||
-                string.IsNullOrWhiteSpace(
-                    activityId) ||
-                !IsExplicitAdActivity(
-                    activityId) ||
-                !MotorCityRemoteConfigRuntime.GetBool(
-                    "interstitial_enabled",
-                    true) ||
-                !MotorCityRemoteConfigRuntime.GetBool(
-                    "interstitial_before_activity",
-                    true) ||
-                !MotorCityPlatform.SupportsAds ||
-                CosmeticStoreSystem.NoAdsOwned)
-            {
-                return false;
-            }
-
-            if (MotorCityRemoteConfigRuntime.GetBool(
-                    "interstitial_skip_rookie_path",
-                    true) &&
-                activities.IsOnboardingActive)
-            {
-                return false;
-            }
-
-            if (MotorCityRemoteConfigRuntime.GetBool(
-                    "interstitial_skip_first_activity",
-                    true) &&
-                activityStartRequests <= 1)
-            {
-                return false;
-            }
-
-            float now =
-                Time.realtimeSinceStartup;
-
-            if (now -
-                    sessionStartedRealtime <
-                MinimumSessionSeconds())
-            {
-                return false;
-            }
-
-            if (completedActivities <
-                MinimumCompletedActivities())
-            {
-                return false;
-            }
-
-            if (now <
-                nextAllowedRealtime)
-            {
-                State =
-                    InterstitialState.Cooldown;
-
-                return false;
-            }
-
-            float chance =
-                Mathf.Clamp01(
-                    MotorCityRemoteConfigRuntime.GetFloat(
-                        "interstitial_chance",
-                        0.40f));
-
-            if (UnityEngine.Random.value >
-                chance)
-            {
-                State =
-                    InterstitialState.Idle;
-
-                return false;
-            }
-
-            return true;
+            // Bridge owns frequency, initial delay, and availability.
+            return !requestRunning && activities != null &&
+                !string.IsNullOrWhiteSpace(activityId) &&
+                IsExplicitAdActivity(activityId) &&
+                MotorCityPlatform.SupportsInterstitial &&
+                !CosmeticStoreSystem.NoAdsOwned;
         }
 
         private static bool IsExplicitAdActivity(

@@ -11,6 +11,9 @@ namespace MotorCity.UI
 
         private void HandleStoreInput()
         {
+#if !UNITY_EDITOR
+            if (!MotorCity.Platform.MotorCityPlatform.SupportsPurchases) return;
+#endif
             if (cosmeticStore == null)
                 return;
 

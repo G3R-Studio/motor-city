@@ -8,7 +8,7 @@ using UnityEngine;
 namespace MotorCity.EditorTools
 {
     // Unity's default desktop WebGL template hardcodes a 960x600 canvas.
-    // In Yandex Games the actual iframe viewport may shrink for sticky ads
+    // On web portals the actual iframe viewport may shrink for sticky ads
     // or the platform header. Override the template before first render.
     public sealed class MotorCityWebGLViewportPostprocessor :
         IPostprocessBuildWithReport

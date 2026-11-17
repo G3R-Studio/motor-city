@@ -35,10 +35,6 @@ namespace MotorCity.Gameplay
             MotorCity.Persistence.MotorCitySaveService.GetInt(DoubleIncomeKey, 0) != 0;
         public string SelectedProductId => Products[selectedProductIndex];
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-        [DllImport("__Internal")]
-        private static extern void MotorCityYandexSetStickyEnabled(int enabled);
-#endif
 
         public void NextProduct()
         {
@@ -621,10 +617,6 @@ namespace MotorCity.Gameplay
 
         private void ApplyEntitlements()
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            if (MotorCityPlatform.SupportsPurchases)
-                MotorCityYandexSetStickyEnabled(NoAdsOwned ? 0 : 1);
-#endif
             if (HasSupporterPack)
             {
                 PixieCompanionSystem pixie =

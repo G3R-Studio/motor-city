@@ -98,6 +98,18 @@ namespace MotorCity.Platform
         public static bool SupportsAds =>
             Service.SupportsAds;
 
+        public static bool SupportsInterstitial
+        {
+            get
+            {
+#if UNITY_WEBGL && !UNITY_EDITOR
+                return Service is PlaygamaPlatformService playgama && playgama.SupportsInterstitial;
+#else
+                return Service.SupportsAds;
+#endif
+            }
+        }
+
         public static bool SupportsPurchases =>
             Service.SupportsPurchases;
 

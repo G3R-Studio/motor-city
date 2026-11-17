@@ -37,7 +37,7 @@ namespace MotorCity.Platform
             MotorCityInput.RefreshTouchPromptPreference();
 
             MotorCityLocalization.SetLanguage(
-                "ru");
+                "en");
         }
 
         private void OnDestroy()
@@ -149,22 +149,7 @@ namespace MotorCity.Platform
                 return;
             }
 
-            // Yandex game_api_pause/game_api_resume already updates the
-            // GameplayAPI marker internally. Only mirror the local pause
-            // state here so we do not echo duplicate start/stop events.
-            instance.SetPauseReason(
-                PauseReason.PlatformEvent,
-                paused,
-                false);
-
-            // The SDK changes its own GameplayAPI marker together with
-            // game_api_pause/game_api_resume. Mirror that resulting state
-            // locally without sending the same marker event a second time.
-            instance.platformGameplayActive =
-                instance.gameplayRunning &&
-                !instance.uiGameplayPaused &&
-                instance.pauseReasons ==
-                    PauseReason.None;
+            instance.SetPauseReason(PauseReason.PlatformEvent, paused);
         }
 
         public static bool IsGameplayResumeReady =>

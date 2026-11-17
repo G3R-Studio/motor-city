@@ -1,3 +1,4 @@
+using MotorCity.Platform;
 using MotorCity.Input;
 using MotorCity.Localization;
 using UnityEngine;
@@ -481,6 +482,9 @@ namespace MotorCity.UI
                 new Vector2(0f, 22f),
                 new Vector2(112f, 44f));
 
+#if !UNITY_EDITOR
+            if (MotorCityPlatform.SupportsPurchases)
+#endif
             CreateLocalizedTouchPulseButton(
                 menu,
                 "HUD Store",
@@ -497,6 +501,9 @@ namespace MotorCity.UI
                 new Vector2(0f, 122f),
                 new Vector2(112f, 44f));
 
+#if !UNITY_EDITOR
+            if (MotorCityPlatform.SupportsAds)
+#endif
             CreateLocalizedTouchPulseButton(
                 menu,
                 "HUD Bonus",

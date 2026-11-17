@@ -1,3 +1,6 @@
+#if UNITY_WEBGL && !UNITY_EDITOR
+using PlayerPrefs = MotorCity.Platform.MotorCityBridgePrefs;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;

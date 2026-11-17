@@ -16,7 +16,7 @@ PERSISTENT = {
     "Input/MotorCityVirtualInputRuntime.cs": "virtual input",
     "Audio/MotorCitySfxRuntime.cs": "sound effects",
     "Audio/MotorCityMusicRuntime.cs": "music",
-    "Platform/YandexPlatformService.cs": "platform",
+    "Platform/PlaygamaPlatformService.cs": "platform",
 }
 CHECKS = {
     "reset_hook": r"RuntimeInitializeLoadType\.SubsystemRegistration",

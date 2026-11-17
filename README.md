@@ -1,6 +1,6 @@
 # Motor City
 
-Motor City is a browser-first open-world driving game for Yandex Games, built with Unity 6.6 and URP.
+Motor City is a browser-first open-world driving game for Playgama, built with Unity 6.6 and URP.
 
 This repository describes the current playable project. It is not a development roadmap.
 
@@ -11,7 +11,7 @@ This repository describes the current playable project. It is not a development 
 - production scene: `Assets/Scenes/Prototype.unity`;
 - `Prototype.unity` is the only enabled build scene;
 - runtime systems are assembled primarily by `MotorCityBootstrap`;
-- WebGL/Yandex Games is the main release target;
+- WebGL/Playgama is the main release target;
 - Git LFS is required for large source/runtime assets.
 
 The game currently includes:
@@ -189,3 +189,7 @@ Do not commit Unity's generated `Library`, build output, Asset Store download ca
 The native-game source/dependency audit and its verified cleanup are documented in [Docs/AUDIT-2026-10-04.md](Docs/AUDIT-2026-10-04.md). Source checks are repeatable with `pwsh -NoProfile -File Tools/check_cleanup.ps1` and `python Tools/audit_project.py --baseline 7bfc91e4`.
 
 For imported dependencies and missing/repeated components, use **Motor City → Audit → Write project and loaded scene report** in Unity. The report is written under `Temp/MotorCityAudit`; it does not modify project assets or scenes. Source checks do not replace a Unity compilation, Play Mode validation or Profiler measurements.
+
+## Playgama release
+
+See [Playgama publishing guide](Docs/PlaygamaRelease.md). The WebGL postprocessor installs the Bridge JS Core automatically; use the existing Desktop/Mobile Release profiles.

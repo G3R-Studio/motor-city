@@ -1,0 +1,18 @@
+{
+  "advertisement": {
+    "interstitial": {
+      "placements": [
+        {
+          "id": "before_activity"
+        }
+      ]
+    },
+    "rewarded": {
+      "placements": [
+        {
+          "id": "daily_bonus"
+        }
+      ]
+    }
+  }
+}

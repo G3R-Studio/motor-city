@@ -1,3 +1,6 @@
+#if UNITY_WEBGL && !UNITY_EDITOR
+using PlayerPrefs = MotorCity.Platform.MotorCityBridgePrefs;
+#endif
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -105,7 +108,7 @@ namespace MotorCity.Input
 
         public static bool CancelPressed =>
             KeyPressed(
-                Key.Escape) ||
+                Key.Backspace) ||
             VirtualPressed(
                 MotorCityInputAction.Cancel);
 

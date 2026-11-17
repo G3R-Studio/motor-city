@@ -49,7 +49,7 @@ namespace MotorCity.Gameplay
 
                 if (!MotorCityPlatform.SupportsAds)
                     return MotorCityLocalization.Text(
-                        "rewarded.yandex_only");
+                        "rewarded.platform_unavailable");
 
                 if (watchedToday >= DailyLimit())
                     return MotorCityLocalization.Text(

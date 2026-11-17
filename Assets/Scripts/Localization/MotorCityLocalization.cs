@@ -1214,7 +1214,7 @@ namespace MotorCity.Localization
                 { "rewarded.no_reward", E("Бонус не получен - прогресс не изменился", "No reward received - progress unchanged") },
                 { "rewarded.limit", E("Рекламные бонусы на сегодня закончились", "Rewarded bonuses are finished for today") },
                 { "rewarded.cooldown", E("Следующий добровольный бонус через {0} с", "Next optional bonus in {0} s") },
-                { "rewarded.yandex_only", E("Добровольный рекламный бонус доступен в Yandex Games", "Optional rewarded bonus is available in Yandex Games") },
+                { "rewarded.platform_unavailable", E("Рекламные бонусы недоступны на этой платформе", "Rewarded ads are unavailable on this platform") },
 
                 { "store.title", E("МАГАЗИН MOTOR CITY", "MOTOR CITY STORE") },
                 { "store.next_product", E("СЛЕДУЮЩИЙ ТОВАР ›", "NEXT PRODUCT ›") },
@@ -1243,7 +1243,7 @@ namespace MotorCity.Localization
                 { "store.selection_hint", E("ПОСТОЯННЫЙ НАБОР ПОДДЕРЖКИ", "PERMANENT SUPPORTER PACK") },
                 { "store.wallet", E("КРЕДИТЫ {0:N0} • {1:N0} РЕПУТАЦИЯ • УР. {2}", "{0:N0} CREDITS • {1:N0} REPUTATION • LVL {2}") },
                 { "store.already_owned", E("Этот косметический набор уже куплен", "This cosmetic pack is already owned") },
-                { "store.opening", E("Открываю безопасную покупку Yandex Games...", "Opening secure Yandex Games purchase...") },
+                { "store.opening", E("Открываю безопасную покупку...", "Opening secure purchase...") },
                 { "store.cancelled", E("Покупка отменена - прогресс не изменился", "Purchase cancelled - progress unchanged") },
                 { "store.unavailable", E("Покупки сейчас недоступны - прогресс не изменился", "Purchases are unavailable - progress unchanged") },
                 { "store.granted", E("ПОКУПКА ГОТОВА • {0}", "PURCHASE COMPLETE • {0}") },
