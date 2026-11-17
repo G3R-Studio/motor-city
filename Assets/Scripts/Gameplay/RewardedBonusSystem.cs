@@ -143,9 +143,8 @@ namespace MotorCity.Gameplay
             int serial =
                 requestSerial;
 
-            requestDeadlineRealtime =
-                Time.realtimeSinceStartup +
-                RequestWatchdogSeconds;
+            // The Bridge handles a missing start; never time out a video in progress.
+            requestDeadlineRealtime = 0f;
 
             StatusText = MotorCityLocalization.Text(
                 "rewarded.opening");
