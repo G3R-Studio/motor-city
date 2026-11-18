@@ -34,3 +34,11 @@
 Packed content: 218,31 MiB; Texture2D 89,79 MiB; Mesh 69,13 MiB; AudioClip 37,91 MiB. Tabler: 65 PNG, 28,06 MiB; Music: 16 OGG, 37,79 MiB; Intro: 7 PNG, 7,33 MiB; FCG: 97,07 MiB без CityVisual (11,03 MiB). Не складывать группы с типами объектов. Это несжатые сериализованные байты, не размер ZIP. Summary сообщает 0 B и нулевую длительность, поэтому фактический размер архива измеряем отдельно.
 
 Первый эксперимент: WebGL Tabler max 256, RGBA32, mipmaps off; исходники сохранены. Требуется Tools > Motor City > Build > Reimport Optimized UI Icons, повторная сборка, проверка прозрачности и читаемости всех иконок. Остальные ресурсы не менялись.
+
+## UI experiment — measurement 15:03:17
+
+Packed content 202.56 MiB; Tabler 65 icons 12.31 MiB (previous 28.06, reduction 15.75 MiB). Music unchanged at 37.79 MiB. User reports output folder 98.4 MB; ZIP-to-ZIP comparison not yet available. Visual verification pending. No new blocking error reported. Existing importer-version and collision warnings tracked separately.
+
+## Music experiment
+
+WebGL override: CompressedInMemory, quality 0.35, preserve sample rate and existing preload behavior. Applies only to Music OGG files, not engine or other effects. No source tracks removed or edited. Run Tools > Motor City > Build > Reimport Optimized Music, build to a fresh folder, compare packed AudioClip bytes and ZIP size. Verify all tracks, menu/game transitions, mute and ads in browser. Actual WebGL encoding and size savings must be measured; Unity may choose platform encoding. Runtime music loading intentionally unchanged to isolate the experiment.
