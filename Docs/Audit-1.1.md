@@ -84,3 +84,9 @@ Trial B: WebGL max size 1024 -> 512 for WinGlass-01.tga, WinGlass-03.tga, WinGla
 ## Texture trial B and recurring startup failure
 
 Data.br 50059 KiB (previous 50972), approximately 0.89 MiB saved. Build And Run first navigation again starts Unity without bridge state; supplied console has no initialization message and fails in PrefHas. Root cause not established. Previously re-opening the tab worked and generated index.html contained the gate. Isolate possible editor auto-run timing by using Build only and serving completed output via Tools/serve_webgl.py --directory PATH. Server checks entrypoint markers and bridge files before serving; no save fallback or blank progress writes. Retest fresh navigation and QA Tool. Do not advance asset experiments until startup is reliable.
+
+## Texture trial B verification and building mesh trial A
+
+Completed output served by Tools/serve_webgl.py starts successfully; QA Tool game_ready, local 1.22 s, initial download 55 MB. Mobile catalog warning remains. Build only + completed-output local server is the current test workflow; automatic Build And Run failure cause remains unconfirmed.
+
+Trial A: BB-001 through BB-012 FBX model imports, meshCompression Off -> Low. Source geometry, GUIDs, read/write, UV generation, material assignments and import options otherwise unchanged. Compression quantizes vertices and attributes, including collider meshes inside these FBXs; it can increase decode time and temporary memory. No FPS or network savings guaranteed. Compare data.br and packed report to 55 MB QA baseline, inspect visible buildings and collisions, check route validation warnings and cold startup. Revert if regressions. Unity import and build pending.
