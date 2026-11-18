@@ -29,7 +29,11 @@ namespace MotorCity.EditorTools
             string html = File.ReadAllText(path);
             const string marker = "motor-city-iframe-viewport-v1";
             if (html.Contains(marker))
+            {
+                if (!html.Contains("motor-city-safe-canvas-v2"))
+                    throw new BuildFailedException("Motor City: outdated viewport patch. Build into an empty folder.");
                 return;
+            }
 
             const string css = @"<style id=""motor-city-iframe-viewport-v1"">
 html, body {
@@ -59,6 +63,8 @@ html, body {
 #unity-canvas.unity-desktop,
 #unity-canvas.unity-mobile {
   display: block !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
   width: 100% !important;
   height: 100% !important;
   max-width: 100% !important;
@@ -75,8 +81,9 @@ html, body {
   function fitUnityCanvas() {
     var canvas = document.getElementById('unity-canvas');
     if (!canvas) return;
-    var width = Math.max(1, document.documentElement.clientWidth);
-    var height = Math.max(1, document.documentElement.clientHeight);
+    // motor-city-safe-canvas-v2: URP downsampling must not see a 1x1 target.
+    var width = Math.max(64, document.documentElement.clientWidth);
+    var height = Math.max(64, document.documentElement.clientHeight);
     if (canvas.style.width !== width + 'px' ||
         canvas.style.getPropertyPriority('width') !== 'important')
       canvas.style.setProperty('width', width + 'px', 'important');
