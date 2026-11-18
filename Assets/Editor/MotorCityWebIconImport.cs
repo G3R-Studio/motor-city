@@ -7,6 +7,8 @@ namespace MotorCity.EditorTools
     public sealed class MotorCityWebIconImport : AssetPostprocessor
     {
         private const string Prefix = "Assets/Resources/MotorCity/UI/Icons/Tabler/";
+        public override int GetPostprocessOrder() => 100;
+
         private void OnPreprocessTexture()
         {
             if (!assetPath.StartsWith(Prefix, System.StringComparison.Ordinal) ||
@@ -17,7 +19,7 @@ namespace MotorCity.EditorTools
             var settings = importer.GetPlatformTextureSettings("WebGL");
             settings.name = "WebGL";
             settings.overridden = true;
-            settings.maxTextureSize = 256;
+            settings.maxTextureSize = 128;
             settings.format = TextureImporterFormat.RGBA32;
             settings.textureCompression = TextureImporterCompression.Uncompressed;
             importer.SetPlatformTextureSettings(settings);
