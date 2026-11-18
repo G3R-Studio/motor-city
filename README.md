@@ -30,3 +30,5 @@ For release, select **Web - Desktop - Release**, disable Development Build, use 
 ## Documentation
 
 [Roadmap](Docs/Roadmap-1.1.md) · [Technical audit](Docs/Audit-1.1.md)
+
+Third-party notices: [font licenses](Docs/Licenses) and [asset license](Assets/ThirdParty/LICENSE).
