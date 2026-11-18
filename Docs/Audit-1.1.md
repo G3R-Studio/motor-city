@@ -116,3 +116,7 @@ User reports reduced smoothness with the combined 30 FPS/render-scale trial and 
 ## Batch G measurement baseline
 
 Add opt-in motorcity_metrics=on console sampling every 10 active seconds: average FPS, worst frame time, count above 50ms, Unity allocator allocated/reserved memory and screen size. Pause/unfocused periods reset windows. These counters may be unavailable in WebGL Release and are not total browser/GPU memory. No frame cap, no visual or traffic changes. Compare default parked culling to motorcity_parked_cull=off on same device. Compile and measurement pending.
+
+## Batch G measured parked-culling A/B
+
+Desktop browser, Medium, 1344x810, five ~10-second windows per run. Default parked culling on: mean interval FPS 69.42, worst frame 45 ms, 0 frames >50 ms, allocator used mean 283.32 MiB. Parked off: mean interval FPS 48.26, worst 71 ms, 2 frames >50 ms, allocator used mean 280.12 MiB. Reserved 413.2 MiB in both. Observed mean interval FPS gain 43.8%; route/viewpoint equivalence not independently verified, no mobile extrapolation. Keep parked culling enabled, no FPS cap. Build data.br 38269 KiB, QA 43 MB, local 1.19 s. Next investigate traffic and lighting via independent URL trials.
