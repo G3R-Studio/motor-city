@@ -84,3 +84,7 @@ Trial B: WebGL max size 1024 -> 512 for WinGlass-01.tga, WinGlass-03.tga, WinGla
 ## Texture trial B and recurring startup failure
 
 Data.br 50059 KiB (previous 50972), approximately 0.89 MiB saved. Build And Run first navigation again starts Unity without bridge state; supplied console has no initialization message and fails in PrefHas. Root cause not established. Previously re-opening the tab worked and generated index.html contained the gate. Isolate possible editor auto-run timing by using Build only and serving completed output via Tools/serve_webgl.py --directory PATH. Server checks entrypoint markers and bridge files before serving; no save fallback or blank progress writes. Retest fresh navigation and QA Tool. Do not advance asset experiments until startup is reliable.
+
+## Mesh trial result and UI texture trial
+
+Build-only local server verified texture trial B: data.br 50059 KiB, QA 55 MB, 1.22 s. Mesh Low trial BB-001–012: data.br 50088 KiB, QA 55 MB, 1.29 s; no benefit, reverted in 302bd99b. Tabler importer changes persisted separately. Handbrake WebGL max 256 RGBA32, mipmaps off: data.br 50036 KiB, QA 55 MB, 1.32 s; user pushed the change. Mobile warning remains. Next trial: Tabler WebGL max 128 instead of 256, explicit importer order after base importer. Reimport all icons, verify readability at desktop/mobile UI sizes, compare packed icon bytes and data.br against 50036 KiB. No Unity build or visual validation performed remotely.
