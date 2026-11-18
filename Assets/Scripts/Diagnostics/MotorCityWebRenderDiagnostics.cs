@@ -13,6 +13,12 @@ namespace MotorCity.Diagnostics
         private static void Install()
         {
             reports = 0;
+            if (System.Array.Exists(Application.absoluteURL.Split('?', '&', '#'), x => x == "motorcity_metrics=on"))
+            {
+                var host = new GameObject("Motor City Performance Metrics");
+                Object.DontDestroyOnLoad(host);
+                host.AddComponent<MotorCityPerformanceMetrics>();
+            }
             Application.logMessageReceived -= OnLog;
             Application.logMessageReceived += OnLog;
         }
@@ -42,4 +48,33 @@ namespace MotorCity.Diagnostics
         }
 #endif
     }
+#if UNITY_WEBGL && !UNITY_EDITOR
+    internal sealed class MotorCityPerformanceMetrics : MonoBehaviour
+    {
+        private float elapsed;
+        private int frames;
+        private float worst;
+        private int slowFrames;
+
+        private void Update()
+        {
+            if (!Application.isFocused || Time.timeScale == 0f)
+            {
+                elapsed = worst = 0f;
+                frames = slowFrames = 0;
+                return;
+            }
+            float dt = Time.unscaledDeltaTime;
+            elapsed += dt;
+            frames++;
+            worst = Mathf.Max(worst, dt);
+            if (dt > 0.05f) slowFrames++;
+            if (elapsed < 10f) return;
+            const float mib = 1048576f;
+            Debug.Log($"[MotorCity][Perf] preset={MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset} fps={frames / elapsed:F1} worstMs={worst * 1000f:F0} framesOver50ms={slowFrames}/{frames} unityAllocatedMiB={UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / mib:F1} unityReservedMiB={UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong() / mib:F1} screen={Screen.width}x{Screen.height}");
+            elapsed = worst = 0f;
+            frames = slowFrames = 0;
+        }
+    }
+#endif
 }
