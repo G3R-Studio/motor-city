@@ -100,3 +100,7 @@ Batch C: data.br 46223 KiB vs 50001 KiB, QA 51 MB vs 55 MB, local 1.36 s, game_r
 ## Batch D result
 
 Data.br 43572 KiB vs 46223 KiB, QA initial 49 MB vs 51 MB, local 1.29 s, game_ready. QA warning now describes conditional mobile catalog hiding based on crashes and play time rather than unconditional hiding. Actual mobile reliability and visual quality remain unverified. Next: inspect menu music dependencies and defer noncritical assets in a separate runtime batch; retain current build as baseline.
+
+## Batch E menu streaming result
+
+Commit 68599d56: menu OGG tracks moved to StreamingAssets; browser playback reused for menu and city. User build: data.br 38268 KiB vs 43572 KiB, wasm.br 6155 KiB, QA initial 43 MB, local 1.25 s, game_ready. Conditional mobile warning remains. Audio transitions, mute, ads and cross-browser behavior not yet explicitly verified. Garage texture changes were not committed. Preserve this baseline; next focus on mobile stability and runtime profiling.
