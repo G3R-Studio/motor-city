@@ -70,3 +70,7 @@ QA Tool: initial download 65 MB, local loading 2.85 s; warns game will be hidden
 ## Viewport regression and Brotli trial
 
 QA Tool retest: 1.37 s local, initial download 65 MB; neither SphereCollider nor RenderTextureDesc recurred in supplied log. Mobile catalog warning persists. Switch both release profiles from gzip to Brotli (fallback remains disabled), matching default ProjectSettings. Playgama platform-specific requirements explicitly permit Brotli for Facebook; verify actual QA and hosting Content-Encoding: br before release. Existing Tools/serve_webgl.py supports .br. Compare cold-cache size/time; preserve previous gzip output. No gameplay or texture changes in this trial. Mobile catalog cutoff remains unverified.
+
+## Compression correction
+
+Unity's WebGLCompressionFormat enum is Brotli=0, Gzip=1, Disabled=2. Previous trial accidentally selected gzip. Correct all three Web profiles and global settings. Uploaded index.html confirms the startup barrier is present; recurrent prefs failure remains unexplained. Add explicit initialized save-state check before starting Unity in newly generated HTML; do not substitute empty saves. Inspect browser Network/Console if it recurs. Clean build and browser test pending.

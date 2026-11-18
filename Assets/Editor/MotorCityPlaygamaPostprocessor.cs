@@ -41,7 +41,8 @@ namespace MotorCity.EditorTools
                 // Default template uses an inline engine startup block. Delay the whole
                 // block (including creation of the loader script), not just the WASM launch.
                 return match.Groups[1].Value +
-                    "\nwindow.motorCityBridgeReady.then(function () {\n" + body +
+                    "\nwindow.motorCityBridgeReady.then(function () {\n" +
+                    "if (!window.motorCityBridge || !window.motorCityBridge.initialized || !window.motorCityBridge.prefs) throw new Error('Motor City: Bridge save state unavailable');\n" + body +
                     "\n}).catch(window.motorCityBridgeStartupError);\n" + match.Groups[3].Value;
             });
             if (count != 1) throw new BuildFailedException("Playgama: expected exactly one Unity startup script, found " + count);
