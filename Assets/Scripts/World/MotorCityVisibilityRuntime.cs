@@ -69,6 +69,7 @@ namespace MotorCity.World
         private bool detailUrlChecked;
         private bool extraCullUrlChecked;
         private bool allowParkedCull = true;
+        private bool allowAllPresetParked;
         private bool allowVegetationCull = true;
         private MotorCityQualityPreset appliedPreset;
         private bool appliedBrowserMode;
@@ -173,7 +174,7 @@ namespace MotorCity.World
             bool high = MotorCityQualityRuntime.CurrentPreset ==
                 MotorCityQualityPreset.High;
             if (browserParked != null)
-                browserParked.enabled = high && allowParkedCull;
+                browserParked.enabled = (high || allowAllPresetParked) && allowParkedCull;
             if (browserVegetation != null)
                 browserVegetation.enabled = high && allowVegetationCull;
         }
@@ -328,6 +329,7 @@ namespace MotorCity.World
             {
                 extraCullUrlChecked = true;
                 string url = Application.absoluteURL;
+                allowAllPresetParked = !string.IsNullOrEmpty(url) && url.Contains("motorcity_parked_all=on");
                 allowParkedCull = !UrlOptedOut(url,
                     "motorcity_parked_cull");
                 allowVegetationCull = !UrlOptedOut(url,
@@ -345,7 +347,7 @@ namespace MotorCity.World
             // Do not silently apply untested thresholds on Low/Medium.
             bool highPreset = MotorCityQualityRuntime.CurrentPreset ==
                 MotorCityQualityPreset.High;
-            bool shouldParked = highPreset && allowParkedCull;
+            bool shouldParked = (highPreset || allowAllPresetParked) && allowParkedCull;
             bool shouldVegetation = highPreset && allowVegetationCull;
 
             if (browserParked != null)
@@ -377,7 +379,7 @@ namespace MotorCity.World
                 (browserDetails != null && browserDetails.ScanReady);
             bool parkedReady = !shouldParked ||
                 (browserParked != null && browserParked.ScanReady);
-            if (highPreset && detailsReady &&
+            if (detailsReady &&
                 Time.unscaledTime >= nextExtraCullCheck &&
                 ((shouldParked && browserParked == null) ||
                  (shouldVegetation && parkedReady &&
@@ -392,8 +394,8 @@ namespace MotorCity.World
                         browserParked = gameObject.AddComponent<
                             CityParkedVehicleCullingExperiment>();
                         browserParked.Initialize(city, targetCamera);
-                        Debug.Log("[MotorCity][Optimization] WebGL High " +
-                            "parked vehicles ON (390m hide / 335m restore).");
+                        Debug.Log("[MotorCity][Optimization] WebGL " +
+                            "parked vehicles ON (preset-specific distances).");
                     }
                     else if (shouldVegetation && parkedReady &&
                              browserVegetation == null)

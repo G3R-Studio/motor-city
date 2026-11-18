@@ -104,3 +104,7 @@ Data.br 43572 KiB vs 46223 KiB, QA initial 49 MB vs 51 MB, local 1.29 s, game_re
 ## Batch E menu streaming result
 
 Commit 68599d56: menu OGG tracks moved to StreamingAssets; browser playback reused for menu and city. User build: data.br 38268 KiB vs 43572 KiB, wasm.br 6155 KiB, QA initial 43 MB, local 1.25 s, game_ready. Conditional mobile warning remains. Audio transitions, mute, ads and cross-browser behavior not yet explicitly verified. Garage texture changes were not committed. Preserve this baseline; next focus on mobile stability and runtime profiling.
+
+## Batch F controlled runtime trial
+
+User confirms menu and city music work. Add opt-in WebGL A/B switches: motorcity_perf=on (30 FPS cap, Low/Medium render scale capped at 0.65), motorcity_parked_all=on (existing preset-specific parked renderer culling on Low/Medium). Baseline default behavior retained; compare on same build and device. No measured FPS or memory gain yet. Check visual pop-in, driving and mobile stability.

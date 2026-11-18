@@ -140,6 +140,19 @@ namespace MotorCity.Platform
                     break;
             }
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Trial only: compare on one build without changing saved preferences.
+            if (Application.absoluteURL.Contains("motorcity_perf=on"))
+            {
+                Application.targetFrameRate = 30;
+                if (preset != MotorCityQualityPreset.High)
+                {
+                    var urp = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+                    if (urp != null)
+                        urp.renderScale = Mathf.Min(urp.renderScale, 0.65f);
+                }
+            }
+#endif
             PresetChanged?.Invoke();
 
             if (!save)
