@@ -7,6 +7,8 @@ Then open http://localhost:8000/ in a browser.
 
 This is a local testing helper, NOT a production hosting configuration.
 """
+import argparse
+import os
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -48,8 +50,22 @@ class UnityWebGLHandler(SimpleHTTPRequestHandler):
 
 
 def main():
-    if not Path("index.html").is_file():
-        raise SystemExit("ERROR: Put serve_webgl.py next to index.html and open CMD in that folder.")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--directory", type=Path, default=Path.cwd())
+    args = parser.parse_args()
+    root = args.directory.resolve()
+    index = root / "index.html"
+    if not index.is_file():
+        raise SystemExit(f"ERROR: Missing {index}")
+    html = index.read_text(encoding="utf-8-sig")
+    for marker in ("motor-city-playgama-v1", "motorCityBridgeReady.then", "motor-city-bridge.js"):
+        if marker not in html:
+            raise SystemExit(f"ERROR: Incomplete Playgama startup patch: {marker}. Finish Build before serving.")
+    for name in ("motor-city-bridge.js", "playgama-bridge-config.json"):
+        if not (root / name).is_file():
+            raise SystemExit(f"ERROR: Missing {name}. Finish Build before serving.")
+    os.chdir(root)
+    print(f"Verified Playgama entrypoint: {index}")
     print("Motor City WebGL server: http://localhost:8000/")
     print("Keep this window open. Press Ctrl+C to stop.")
     try:

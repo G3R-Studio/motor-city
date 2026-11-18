@@ -25,7 +25,8 @@ namespace MotorCity.EditorTools
             if (html.Contains(marker))
             {
                 if (!html.Contains("window.motorCityBridgeReady.then(function () {") ||
-                    !html.Contains("src=\"motor-city-bridge.js\""))
+                    !html.Contains("src=\"motor-city-bridge.js\"") ||
+                    !html.Contains("Bridge save state unavailable"))
                     throw new BuildFailedException("Playgama: incomplete existing HTML patch. Build into an empty folder.");
                 return;
             }
