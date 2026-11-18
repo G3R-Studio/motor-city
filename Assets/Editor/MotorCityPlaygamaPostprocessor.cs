@@ -18,7 +18,17 @@ namespace MotorCity.EditorTools
             string path = Path.Combine(root, "index.html");
             string html = File.ReadAllText(path);
             const string marker = "motor-city-playgama-v1";
-            if (html.Contains(marker)) return;
+            // Incremental builds can reuse an already patched HTML page.
+            // Always refresh the bridge files; never silently accept a partial patch.
+            File.Copy("Assets/Editor/Playgama/motor-city-bridge.js.txt", Path.Combine(root, "motor-city-bridge.js"), true);
+            File.Copy("Assets/Editor/Playgama/playgama-bridge-config.json", Path.Combine(root, "playgama-bridge-config.json"), true);
+            if (html.Contains(marker))
+            {
+                if (!html.Contains("window.motorCityBridgeReady.then(function () {") ||
+                    !html.Contains("src=\"motor-city-bridge.js\""))
+                    throw new BuildFailedException("Playgama: incomplete existing HTML patch. Build into an empty folder.");
+                return;
+            }
             var head = Regex.Match(html, @"<head\b[^>]*>", RegexOptions.IgnoreCase);
             if (!head.Success) throw new BuildFailedException("Playgama: WebGL page has no head");
             var scripts = new Regex(@"(<script\b[^>]*>)([\s\S]*?)(</script\s*>)", RegexOptions.IgnoreCase);
@@ -38,8 +48,6 @@ namespace MotorCity.EditorTools
             html = html.Insert(head.Index + head.Length,
                 "\n<script id=\"" + marker + "\" src=\"https://bridge.playgama.com/v2/stable/playgama-bridge.js\"></script>\n" +
                 "<script src=\"motor-city-bridge.js\"></script>\n");
-            File.Copy("Assets/Editor/Playgama/motor-city-bridge.js.txt", Path.Combine(root, "motor-city-bridge.js"), true);
-            File.Copy("Assets/Editor/Playgama/playgama-bridge-config.json", Path.Combine(root, "playgama-bridge-config.json"), true);
             File.WriteAllText(path, html);
         }
     }
