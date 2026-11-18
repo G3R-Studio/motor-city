@@ -249,6 +249,9 @@ namespace MotorCity.Audio
 
         private void OnDestroy()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            if (instance == this) MotorCityMusicStop();
+#endif
             if (cityClips != null)
                 foreach (AudioClip clip in cityClips)
                     if (clip != null) Destroy(clip);
@@ -261,6 +264,10 @@ namespace MotorCity.Audio
 
         private void Update()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            UpdateWebMusic();
+            if (gameplayActive) return;
+#endif
             if (musicMuted ||
                 IsRuntimePaused ||
                 source == null)
@@ -392,6 +399,10 @@ namespace MotorCity.Audio
 
         private void RefreshPlayback()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            UpdateWebMusic();
+            if (gameplayActive) return;
+#endif
             if (source == null)
                 return;
 
@@ -517,6 +528,58 @@ namespace MotorCity.Audio
 
             return false;
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void MotorCityMusicTick(string url, string nextUrl, int active, int paused, float volume);
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern int MotorCityMusicState();
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void MotorCityMusicStop();
+
+        private string webTrack = "";
+        private string webNext = "";
+        private float webRetry;
+
+        private string WebUrl(int index) =>
+            Application.streamingAssetsPath.TrimEnd('/') + "/" + CityTrackPaths[index] + ".ogg";
+
+        private void UpdateWebMusic()
+        {
+            if (!gameplayActive)
+            {
+                if (webTrack != "")
+                {
+                    MotorCityMusicStop();
+                    webTrack = webNext = "";
+                }
+                return;
+            }
+
+            if (source != null && source.clip != null)
+            {
+                source.Stop();
+                source.clip = null;
+            }
+
+            bool paused = IsRuntimePaused || musicMuted || !MotorCityAudioGate.PlatformAudioEnabled;
+            if (!paused && Time.realtimeSinceStartup >= webRetry)
+            {
+                int state = MotorCityMusicState();
+                if (webTrack == "" || state == 2 || state == 3)
+                {
+                    int i = NextCityIndex();
+                    webTrack = WebUrl(i);
+                    cityOrderIndex++;
+                    lastCityTrackIndex = i;
+                    webNext = WebUrl(NextCityIndex());
+                    if (state == 3) webRetry = Time.realtimeSinceStartup + 3f;
+                }
+            }
+            MotorCityMusicTick(webTrack, webNext, 1, paused || Time.realtimeSinceStartup < webRetry ? 1 : 0,
+                musicVolume * 0.06f);
+        }
+#endif
 
         private int NextCityIndex()
         {
@@ -779,6 +842,10 @@ namespace MotorCity.Audio
 
         private void RefreshRuntimePause()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            UpdateWebMusic();
+            if (gameplayActive) return;
+#endif
             if (source == null)
                 return;
 
@@ -822,6 +889,9 @@ namespace MotorCity.Audio
             if (source == null)
                 return;
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            UpdateWebMusic();
+#endif
             source.volume =
                 musicMuted || !MotorCityAudioGate.PlatformAudioEnabled
                     ? 0f
