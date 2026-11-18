@@ -108,3 +108,7 @@ Commit 68599d56: menu OGG tracks moved to StreamingAssets; browser playback reus
 ## Batch F controlled runtime trial
 
 User confirms menu and city music work. Add opt-in WebGL A/B switches: motorcity_perf=on (30 FPS cap, Low/Medium render scale capped at 0.65), motorcity_parked_all=on (existing preset-specific parked renderer culling on Low/Medium). Baseline default behavior retained; compare on same build and device. No measured FPS or memory gain yet. Check visual pop-in, driving and mobile stability.
+
+## Batch F A/B result
+
+User reports reduced smoothness with the combined 30 FPS/render-scale trial and excellent behavior with parked-only URL switch. Remove FPS cap and experimental render-scale override; restore prior quality settings. Enable parked renderer culling by default on all presets, retaining motorcity_parked_cull=off opt-out. Vegetation policy unchanged. Low/Medium/High distances 220/290/390m. QA build before acceptance: data.br 38270 KiB, wasm.br 6148 KiB, 43 MB initial, 1.04 s local. User perception is qualitative, no measured FPS or mobile validation yet. Final default configuration requires build and regression test.

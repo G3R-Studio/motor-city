@@ -69,7 +69,6 @@ namespace MotorCity.World
         private bool detailUrlChecked;
         private bool extraCullUrlChecked;
         private bool allowParkedCull = true;
-        private bool allowAllPresetParked;
         private bool allowVegetationCull = true;
         private MotorCityQualityPreset appliedPreset;
         private bool appliedBrowserMode;
@@ -174,7 +173,7 @@ namespace MotorCity.World
             bool high = MotorCityQualityRuntime.CurrentPreset ==
                 MotorCityQualityPreset.High;
             if (browserParked != null)
-                browserParked.enabled = (high || allowAllPresetParked) && allowParkedCull;
+                browserParked.enabled = allowParkedCull;
             if (browserVegetation != null)
                 browserVegetation.enabled = high && allowVegetationCull;
         }
@@ -329,7 +328,6 @@ namespace MotorCity.World
             {
                 extraCullUrlChecked = true;
                 string url = Application.absoluteURL;
-                allowAllPresetParked = !string.IsNullOrEmpty(url) && url.Contains("motorcity_parked_all=on");
                 allowParkedCull = !UrlOptedOut(url,
                     "motorcity_parked_cull");
                 allowVegetationCull = !UrlOptedOut(url,
@@ -339,15 +337,14 @@ namespace MotorCity.World
                     (nextDetailCheck != float.PositiveInfinity) +
                     ", parked=" + allowParkedCull +
                     ", vegetation=" + allowVegetationCull +
-                    ". High uses the Editor-validated thresholds.");
+                    ". Parked culling uses preset-specific distances.");
             }
 
-            // Only High has been visually and automatically benchmarked
-            // with parked cars and BOTH Trees-01 vegetation categories.
-            // Do not silently apply untested thresholds on Low/Medium.
+            // Parked cars use preset-specific distances on all presets.
+            // The newer vegetation culler remains High-only.
             bool highPreset = MotorCityQualityRuntime.CurrentPreset ==
                 MotorCityQualityPreset.High;
-            bool shouldParked = (highPreset || allowAllPresetParked) && allowParkedCull;
+            bool shouldParked = allowParkedCull;
             bool shouldVegetation = highPreset && allowVegetationCull;
 
             if (browserParked != null)
