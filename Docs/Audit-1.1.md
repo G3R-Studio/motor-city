@@ -88,3 +88,7 @@ Data.br 50059 KiB (previous 50972), approximately 0.89 MiB saved. Build And Run 
 ## Mesh trial result and UI texture trial
 
 Build-only local server verified texture trial B: data.br 50059 KiB, QA 55 MB, 1.22 s. Mesh Low trial BB-001–012: data.br 50088 KiB, QA 55 MB, 1.29 s; no benefit, reverted in 302bd99b. Tabler importer changes persisted separately. Handbrake WebGL max 256 RGBA32, mipmaps off: data.br 50036 KiB, QA 55 MB, 1.32 s; user pushed the change. Mobile warning remains. Next trial: Tabler WebGL max 128 instead of 256, explicit importer order after base importer. Reimport all icons, verify readability at desktop/mobile UI sizes, compare packed icon bytes and data.br against 50036 KiB. No Unity build or visual validation performed remotely.
+
+## Batched texture trial C
+
+Tabler 128 trial: data.br 50001 KiB vs 50036 KiB, QA 55 MB, 1.31 s, game_ready; user pushed importer settings. Batch C: three night-window textures and Trees-01 WebGL 1024 -> 512; six intro slides 1536 -> 1024; preserve formats, alpha, mipmaps and GUIDs. Compare against 50001 KiB; inspect night windows, foliage and intro text. Main menu, roads, primary atlas and SDK unchanged. Unity build and visual QA pending.
