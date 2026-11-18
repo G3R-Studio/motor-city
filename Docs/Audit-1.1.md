@@ -42,3 +42,7 @@ Packed content 202.56 MiB; Tabler 65 icons 12.31 MiB (previous 28.06, reduction 
 ## Music experiment
 
 WebGL override: CompressedInMemory, quality 0.35, preserve sample rate and existing preload behavior. Applies only to Music OGG files, not engine or other effects. No source tracks removed or edited. Run Tools > Motor City > Build > Reimport Optimized Music, build to a fresh folder, compare packed AudioClip bytes and ZIP size. Verify all tracks, menu/game transitions, mute and ads in browser. Actual WebGL encoding and size savings must be measured; Unity may choose platform encoding. Runtime music loading intentionally unchanged to isolate the experiment.
+
+## Music experiment result and deferred loading
+
+15:10:07: music packed sizes and reported folder size 98.4 MB unchanged. Unity Web imports AudioClips as AAC; the override did not reduce measured size. Move the 14 city OGG files (preserving Git LFS blobs and GUIDs) to Assets/StreamingAssets/MotorCity/Music. Two menu tracks remain in Resources. City music downloads on demand via UnityWebRequest; the next track is prefetched, failed downloads retry with a delay and do not gate gameplay. No external hosting required. Total distribution size may differ from initial network payload. Verify OGG decode on Chrome/Firefox/Safari, 14 files in StreamingAssets, no city tracks in packed report, and no music downloads before gameplay. Compare .data.gz and cold-load network timing. Editor/runtime compilation and browser QA pending.

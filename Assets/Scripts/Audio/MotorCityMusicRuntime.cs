@@ -1,3 +1,5 @@
+using System.Collections;
+using UnityEngine.Networking;
 using MotorCity.Persistence;
 using UnityEngine;
 
@@ -48,6 +50,8 @@ namespace MotorCity.Audio
         private int menuOrderIndex;
         private int lastMenuTrackIndex = -1;
         private AudioClip[] cityClips;
+        private bool cityDownloadPending;
+        private float nextCityRetryTime;
         private int[] cityOrder;
         private int cityOrderIndex;
         private int lastCityTrackIndex = -1;
@@ -245,6 +249,9 @@ namespace MotorCity.Audio
 
         private void OnDestroy()
         {
+            if (cityClips != null)
+                foreach (AudioClip clip in cityClips)
+                    if (clip != null) Destroy(clip);
             if (instance == this)
             {
                 instance =
@@ -271,10 +278,12 @@ namespace MotorCity.Audio
                 return;
             }
 
-            if (gameplayActive &&
-                !source.isPlaying)
+            if (gameplayActive)
             {
-                PlayNextCityTrack();
+                if (!source.isPlaying || !IsCurrentCityClip())
+                    PlayNextCityTrack();
+                else if (!cityDownloadPending)
+                    PrefetchCityTrack();
             }
         }
 
@@ -350,27 +359,7 @@ namespace MotorCity.Audio
                 new AudioClip[
                     CityTrackPaths.Length];
 
-            for (int i = 0;
-                 i < CityTrackPaths.Length;
-                 i++)
-            {
-                cityClips[i] =
-                    Resources.Load<AudioClip>(
-                        CityTrackPaths[i]);
-
-#if !UNITY_WEBGL || UNITY_EDITOR
-                if (cityClips[i] != null &&
-                    cityClips[i].loadState ==
-                        AudioDataLoadState.Unloaded)
-                {
-                    // Decode/load the long OGG before gameplay. With
-                    // loadInBackground enabled in the importer this work
-                    // happens while the player is still in menu/intro,
-                    // instead of hitching on the first frame of a new song.
-                    cityClips[i].LoadAudioData();
-                }
-#endif
-            }
+            // City music lives in StreamingAssets, never in the initial Resources payload.
 
             cityOrder =
                 new int[
@@ -529,55 +518,97 @@ namespace MotorCity.Audio
             return false;
         }
 
+        private int NextCityIndex()
+        {
+            if (cityOrderIndex >= cityOrder.Length)
+                ShuffleCityOrder();
+            return cityOrder[cityOrderIndex];
+        }
+
+        private void PrefetchCityTrack()
+        {
+            if (!gameplayActive || musicMuted || IsRuntimePaused ||
+                cityDownloadPending || Time.realtimeSinceStartup < nextCityRetryTime)
+                return;
+
+            int index = NextCityIndex();
+            if (cityClips[index] == null)
+            {
+                cityDownloadPending = true;
+                StartCoroutine(DownloadCityTrack(index));
+            }
+        }
+
+        private IEnumerator DownloadCityTrack(int index)
+        {
+            string url = Application.streamingAssetsPath.TrimEnd('/') +
+                "/" + CityTrackPaths[index] + ".ogg";
+            if (!url.Contains("://") && !url.StartsWith("jar:"))
+                url = new System.Uri(System.IO.Path.GetFullPath(url)).AbsoluteUri;
+
+            using (UnityWebRequest request =
+                UnityWebRequestMultimedia.GetAudioClip(url, AudioType.OGGVORBIS))
+            {
+                request.timeout = 30;
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
+                    if (clip != null)
+                    {
+                        cityClips[index] = clip;
+                        cityDownloadPending = false;
+                        yield break;
+                    }
+                }
+
+                Debug.LogWarning("Motor City: music download failed: " +
+                    CityTrackPaths[index] + " (" + request.error + ")");
+            }
+
+            // Music is optional: failed downloads must never block driving.
+            cityDownloadPending = false;
+            nextCityRetryTime = Time.realtimeSinceStartup + 5f;
+            // Try another song instead of looping forever on one bad file.
+            if (cityOrderIndex < cityOrder.Length && cityOrder[cityOrderIndex] == index)
+                cityOrderIndex++;
+        }
+
         private void PlayNextCityTrack()
         {
-            if (source == null ||
-                cityClips == null ||
-                cityClips.Length == 0)
+            if (source == null || cityClips == null || cityOrder == null ||
+                !gameplayActive || musicMuted || IsRuntimePaused)
+                return;
+
+            if (!IsCurrentCityClip() && source.isPlaying)
+                source.Stop();
+
+            int index = NextCityIndex();
+            AudioClip clip = cityClips[index];
+            if (clip == null)
             {
+                PrefetchCityTrack();
                 return;
             }
 
-            int attempts =
-                cityClips.Length;
-
-            while (attempts-- > 0)
-            {
-                if (cityOrderIndex >=
-                    cityOrder.Length)
-                {
-                    ShuffleCityOrder();
-                }
-
-                int trackIndex =
-                    cityOrder[
-                        cityOrderIndex++];
-
-                AudioClip clip =
-                    cityClips[
-                        trackIndex];
-
-                if (clip == null)
-                    continue;
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-                if (!EnsureClipReadyForWeb(
-                        clip))
-                {
-                    continue;
-                }
-#endif
-
-                source.Stop();
-                source.loop = false;
-                source.clip =
-                    clip;
-
-                lastCityTrackIndex =
-                    trackIndex;
-
-                source.Play();
+            if (clip.loadState != AudioDataLoadState.Loaded)
                 return;
+
+            source.Stop();
+            source.loop = false;
+            source.clip = clip;
+            cityOrderIndex++;
+            lastCityTrackIndex = index;
+            source.Play();
+
+            // Retain only the active track and the next prefetched track.
+            for (int i = 0; i < cityClips.Length; i++)
+            {
+                if (i == index || cityClips[i] == null)
+                    continue;
+                Destroy(cityClips[i]);
+                cityClips[i] = null;
             }
         }
 
