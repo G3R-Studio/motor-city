@@ -74,3 +74,9 @@ QA Tool retest: 1.37 s local, initial download 65 MB; neither SphereCollider nor
 ## Compression correction
 
 Unity's WebGLCompressionFormat enum is Brotli=0, Gzip=1, Disabled=2. Previous trial accidentally selected gzip. Correct all three Web profiles and global settings. Uploaded index.html confirms the startup barrier is present; recurrent prefs failure remains unexplained. Add explicit initialized save-state check before starting Unity in newly generated HTML; do not substitute empty saves. Inspect browser Network/Console if it recurs. Clean build and browser test pending.
+
+## Brotli verified, city texture trial B
+
+Using the Unity API preflight, Desktop Release changed from Gzip to Brotli. Actual output: data.br 50972 KiB, wasm.br 6156 KiB, framework.js.br 67 KiB, loader.js 28 KiB; total approximately 55.9 MiB versus 63.3 MiB gzip. QA Tool local: game_ready, 1.61 s, initial download 56 MB; mobile-catalog size warning persists. Supplied log confirms .br download; no recurrence of prefs, missing SphereCollider or zero-width RenderTextureDesc in that run. Hosted production Brotli and mobile QA still pending.
+
+Trial B: WebGL max size 1024 -> 512 for WinGlass-01.tga, WinGlass-03.tga, WinGlass-04.tga, Wins-02.tga, Wins-02_N.tga, Grass-01.tga. Keep existing mipmaps, compression, alpha, texture type and source GUIDs. No changes to primary atlas, roads, trees, lighting, meshes or physics. Run Check and Set Brotli before building, retain prior 56 MB QA baseline, compare cold-start payload and window/grass visuals day and night. Obtain packed report if available; no predicted compressed savings claimed.
