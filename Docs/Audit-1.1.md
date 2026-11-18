@@ -120,3 +120,7 @@ Add opt-in motorcity_metrics=on console sampling every 10 active seconds: averag
 ## Batch G measured parked-culling A/B
 
 Desktop browser, Medium, 1344x810, five ~10-second windows per run. Default parked culling on: mean interval FPS 69.42, worst frame 45 ms, 0 frames >50 ms, allocator used mean 283.32 MiB. Parked off: mean interval FPS 48.26, worst 71 ms, 2 frames >50 ms, allocator used mean 280.12 MiB. Reserved 413.2 MiB in both. Observed mean interval FPS gain 43.8%; route/viewpoint equivalence not independently verified, no mobile extrapolation. Keep parked culling enabled, no FPS cap. Build data.br 38269 KiB, QA 43 MB, local 1.19 s. Next investigate traffic and lighting via independent URL trials.
+
+## Release candidate 1.1
+
+User confirms progress persistence test passed. Bridge storage is the sole WebGL writer; cross-browser cloud restoration not independently verified. Freeze optimization scope at 43 MB QA baseline. Remaining optimization, onboarding, ads/payments work deferred by owner. Set product version 1.1 in player settings and desktop release profile. Final clean output build, local QA and hosted publication pending; retain StreamingAssets and all bridge files.
