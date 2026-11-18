@@ -19,8 +19,6 @@ public static class MotorCityActivityMarkerBuilder
         OutputRoot +
         "/DriftMarker_Hologram.mat";
 
-    [MenuItem(
-        "Motor City/Markers/1 - Build Drift Marker VFX")]
     private static void BuildDriftMarker()
     {
         AssetDatabase.DeleteAsset(
@@ -35,8 +33,6 @@ public static class MotorCityActivityMarkerBuilder
             1.82f);
     }
 
-    [MenuItem(
-        "Motor City/Markers/2 - Build Delivery Marker VFX")]
     private static void BuildDeliveryMarker()
     {
         BuildMarker(
@@ -48,8 +44,6 @@ public static class MotorCityActivityMarkerBuilder
             1.68f);
     }
 
-    [MenuItem(
-        "Motor City/Markers/3 - Build Sprint Marker VFX")]
     private static void BuildSprintMarker()
     {
         BuildMarker(
@@ -61,8 +55,6 @@ public static class MotorCityActivityMarkerBuilder
             1.74f);
     }
 
-    [MenuItem(
-        "Motor City/Markers/4 - Build Circuit Marker VFX")]
     private static void BuildCircuitMarker()
     {
         BuildMarker(
@@ -74,8 +66,6 @@ public static class MotorCityActivityMarkerBuilder
             1.72f);
     }
 
-    [MenuItem(
-        "Motor City/Markers/5 - Build Discovery Marker VFX")]
     private static void BuildDiscoveryMarker()
     {
         BuildMarker(
@@ -87,8 +77,6 @@ public static class MotorCityActivityMarkerBuilder
             1.45f);
     }
 
-    [MenuItem(
-        "Motor City/Markers/6 - Build Underground Marker VFX")]
     private static void BuildUndergroundMarker()
     {
         BuildMarker(
@@ -100,8 +88,6 @@ public static class MotorCityActivityMarkerBuilder
             1.72f);
     }
 
-    [MenuItem(
-        "Motor City/Markers/7 - Build Profession Marker VFX")]
     private static void BuildProfessionMarker()
     {
         BuildMarker(
@@ -113,8 +99,6 @@ public static class MotorCityActivityMarkerBuilder
             1.58f);
     }
 
-    [MenuItem(
-        "Motor City/Markers/8 - Build Car Wash Marker VFX")]
     private static void BuildCarWashMarker()
     {
         BuildMarker(
@@ -126,8 +110,6 @@ public static class MotorCityActivityMarkerBuilder
             1.56f);
     }
 
-    [MenuItem(
-        "Motor City/Markers/9 - Build Tow Marker VFX")]
     private static void BuildTowMarker()
     {
         BuildMarker(
@@ -139,8 +121,6 @@ public static class MotorCityActivityMarkerBuilder
             1.58f);
     }
 
-    [MenuItem(
-        "Motor City/Markers/Build All Marker VFX")]
     private static void BuildAllMarkers()
     {
         BuildDriftMarker();
