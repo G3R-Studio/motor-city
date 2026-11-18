@@ -46,6 +46,8 @@ namespace MotorCity.Audio
 
         private AudioSource source;
         private AudioClip[] menuClips;
+        private bool menuDownloadPending;
+        private float nextMenuRetryTime;
         private int[] menuOrder;
         private int menuOrderIndex;
         private int lastMenuTrackIndex = -1;
@@ -252,6 +254,9 @@ namespace MotorCity.Audio
 #if UNITY_WEBGL && !UNITY_EDITOR
             if (instance == this) MotorCityMusicStop();
 #endif
+            if (menuClips != null)
+                foreach (AudioClip clip in menuClips)
+                    if (clip != null) Destroy(clip);
             if (cityClips != null)
                 foreach (AudioClip clip in cityClips)
                     if (clip != null) Destroy(clip);
@@ -266,7 +271,7 @@ namespace MotorCity.Audio
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             UpdateWebMusic();
-            if (gameplayActive) return;
+            return;
 #endif
             if (musicMuted ||
                 IsRuntimePaused ||
@@ -338,24 +343,6 @@ namespace MotorCity.Audio
                 new AudioClip[
                     MenuTrackPaths.Length];
 
-            for (int i = 0;
-                 i < MenuTrackPaths.Length;
-                 i++)
-            {
-                menuClips[i] =
-                    Resources.Load<AudioClip>(
-                        MenuTrackPaths[i]);
-
-#if !UNITY_WEBGL || UNITY_EDITOR
-                if (menuClips[i] != null &&
-                    menuClips[i].loadState ==
-                        AudioDataLoadState.Unloaded)
-                {
-                    menuClips[i].LoadAudioData();
-                }
-#endif
-            }
-
             menuOrder =
                 new int[
                     menuClips.Length];
@@ -401,7 +388,7 @@ namespace MotorCity.Audio
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             UpdateWebMusic();
-            if (gameplayActive) return;
+            return;
 #endif
             if (source == null)
                 return;
@@ -483,7 +470,15 @@ namespace MotorCity.Audio
                         trackIndex];
 
                 if (clip == null)
-                    continue;
+                {
+                    menuOrderIndex--;
+                    if (!menuDownloadPending && Time.realtimeSinceStartup >= nextMenuRetryTime)
+                    {
+                        menuDownloadPending = true;
+                        StartCoroutine(DownloadMenuTrack(trackIndex));
+                    }
+                    return;
+                }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
                 if (!EnsureClipReadyForWeb(
@@ -503,6 +498,26 @@ namespace MotorCity.Audio
 
                 source.Play();
                 return;
+            }
+        }
+
+        private IEnumerator DownloadMenuTrack(int index)
+        {
+            string url = Application.streamingAssetsPath.TrimEnd('/') + "/" + MenuTrackPaths[index] + ".ogg";
+            if (!url.Contains("://") && !url.StartsWith("jar:"))
+                url = new System.Uri(System.IO.Path.GetFullPath(url)).AbsoluteUri;
+            using (var request = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.OGGVORBIS))
+            {
+                request.timeout = 30;
+                yield return request.SendWebRequest();
+                if (request.result == UnityWebRequest.Result.Success)
+                    menuClips[index] = DownloadHandlerAudioClip.GetContent(request);
+            }
+            menuDownloadPending = false;
+            if (menuClips[index] == null)
+            {
+                nextMenuRetryTime = Time.realtimeSinceStartup + 5f;
+                menuOrderIndex++;
             }
         }
 
@@ -541,19 +556,29 @@ namespace MotorCity.Audio
         private string webNext = "";
         private float webRetry;
 
+        private bool webMenu;
         private string WebUrl(int index) =>
-            Application.streamingAssetsPath.TrimEnd('/') + "/" + CityTrackPaths[index] + ".ogg";
+            Application.streamingAssetsPath.TrimEnd('/') + "/" + (menuActive ? MenuTrackPaths[index] : CityTrackPaths[index]) + ".ogg";
+
+        private int NextWebIndex()
+        {
+            if (!menuActive) return NextCityIndex();
+            if (menuOrderIndex >= menuOrder.Length) ShuffleMenuOrder();
+            return menuOrder[menuOrderIndex];
+        }
 
         private void UpdateWebMusic()
         {
-            if (!gameplayActive)
+            if ((!gameplayActive && !menuActive) || webMenu != menuActive)
             {
                 if (webTrack != "")
                 {
                     MotorCityMusicStop();
                     webTrack = webNext = "";
                 }
-                return;
+                webMenu = menuActive;
+                webRetry = 0f;
+                if (!gameplayActive && !menuActive) return;
             }
 
             if (source != null && source.clip != null)
@@ -568,11 +593,11 @@ namespace MotorCity.Audio
                 int state = MotorCityMusicState();
                 if (webTrack == "" || state == 2 || state == 3)
                 {
-                    int i = NextCityIndex();
+                    int i = NextWebIndex();
                     webTrack = WebUrl(i);
-                    cityOrderIndex++;
-                    lastCityTrackIndex = i;
-                    webNext = WebUrl(NextCityIndex());
+                    if (menuActive) { menuOrderIndex++; lastMenuTrackIndex = i; }
+                    else { cityOrderIndex++; lastCityTrackIndex = i; }
+                    webNext = WebUrl(NextWebIndex());
                     if (state == 3) webRetry = Time.realtimeSinceStartup + 3f;
                 }
             }
@@ -844,7 +869,7 @@ namespace MotorCity.Audio
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             UpdateWebMusic();
-            if (gameplayActive) return;
+            return;
 #endif
             if (source == null)
                 return;
