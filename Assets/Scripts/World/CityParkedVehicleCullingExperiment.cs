@@ -37,9 +37,6 @@ namespace MotorCity.World
         private bool refresh = true;
         private bool scanAnnounced;
         private Vector3 anchor;
-        private int bodyMatches;
-        private int parkedMatches;
-        private int skippedScripted;
 
         public int VehicleCount => vehicles.Count;
         public int HiddenVehicles { get; private set; }
@@ -64,9 +61,6 @@ namespace MotorCity.World
             scanAnnounced = false;
             refresh = true;
             EligibleTriangleReferences = 0;
-            bodyMatches = 0;
-            parkedMatches = 0;
-            skippedScripted = 0;
             VisibilityHides = 0;
             VisibilityRestores = 0;
         }
@@ -197,7 +191,6 @@ namespace MotorCity.World
             if (!carBody)
                 return;
 
-            bodyMatches++;
             Transform vehicleRoot = renderer.transform.parent;
             if (vehicleRoot == null || vehicleRoot == cityRoot.transform ||
                 vehicleRoot.name.StartsWith("Park-", StringComparison.OrdinalIgnoreCase) ||
@@ -205,7 +198,6 @@ namespace MotorCity.World
                 !registeredRoots.Add(vehicleRoot))
                 return;
 
-            parkedMatches++;
 
             // Explicitly exclude all controlled/moving vehicles and prefab
             // decorations containing authored MonoBehaviour state.
@@ -213,7 +205,6 @@ namespace MotorCity.World
                 vehicleRoot.GetComponentInChildren<MonoBehaviour>(true) != null ||
                 vehicleRoot.GetComponentInParent<Rigidbody>() != null)
             {
-                skippedScripted++;
                 return;
             }
 
