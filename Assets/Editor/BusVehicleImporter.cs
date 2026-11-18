@@ -34,7 +34,6 @@ public static class BusVehicleImporter
         EditorApplication.delayCall += TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild Bus")]
     private static void RebuildFromMenu()
     {
         Build(true);

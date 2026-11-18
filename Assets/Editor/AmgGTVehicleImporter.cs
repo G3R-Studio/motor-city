@@ -33,7 +33,6 @@ public static class AmgGTVehicleImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild AmgGT")]
     private static void RebuildFromMenu()
     {
         Build(true);

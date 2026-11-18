@@ -26,7 +26,6 @@ public static class ArcadeStarterPaintImporter
         EditorApplication.delayCall += TryBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild Starter Paints")]
     private static void Rebuild()
     {
         Build();

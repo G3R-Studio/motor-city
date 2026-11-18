@@ -32,7 +32,6 @@ public static class Porsche996VehicleImporter
         EditorApplication.delayCall += TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild Porsche996")]
     private static void RebuildFromMenu()
     {
         Build(true);

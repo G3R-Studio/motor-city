@@ -34,7 +34,6 @@ public static class BeatallVehicleImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild Beatall")]
     private static void RebuildFromMenu()
     {
         // Explicit maintenance operation: update the source fingerprint too,

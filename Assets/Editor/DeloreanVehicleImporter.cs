@@ -33,7 +33,6 @@ public static class DeloreanVehicleImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild Delorean")]
     private static void RebuildFromMenu()
     {
         Build(true);

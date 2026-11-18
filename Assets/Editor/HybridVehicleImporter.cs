@@ -35,7 +35,6 @@ public static class HybridVehicleImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild Hybrid")]
     private static void RebuildFromMenu()
     {
         Build(true);

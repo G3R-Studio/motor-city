@@ -10,7 +10,6 @@ using UnityEngine.SceneManagement;
 // FBX embedded dependencies and source assets cannot be deleted by reachability alone.
 public static class MotorCityProjectAudit
 {
-    [MenuItem("Motor City/Audit/Write project and loaded scene report")]
     public static void WriteReport()
     {
         var report = new StringBuilder();

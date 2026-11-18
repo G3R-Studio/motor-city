@@ -32,13 +32,11 @@ public static class HaonByteVisualImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Pixie/Rebuild From HAON SD Bundle")]
     private static void RebuildFromMenu()
     {
         Build(true);
     }
 
-    [MenuItem("Motor City/Pixie/Locate HAON SD Bundle")]
     private static void LocateBundle()
     {
         string path =

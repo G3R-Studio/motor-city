@@ -35,7 +35,6 @@ public static class CamaroVehicleImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild Camaro")]
     private static void RebuildFromMenu()
     {
         Build(true);

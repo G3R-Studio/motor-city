@@ -31,7 +31,6 @@ public static class ToyotaAE86VehicleImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild ToyotaAE86")]
     private static void RebuildFromMenu()
     {
         Build(true);

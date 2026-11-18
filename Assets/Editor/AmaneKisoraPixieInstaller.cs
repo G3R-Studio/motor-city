@@ -57,8 +57,6 @@ namespace MotorCity.Editor
                 false);
         }
 
-        [MenuItem(
-            "Motor City/Pixie/Install Amane Kisora Exclusive")]
         public static void Install()
         {
             InstallInternal(

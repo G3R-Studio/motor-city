@@ -31,7 +31,6 @@ public static class Peugeot306VehicleImporter
             TryAutoBuild;
     }
 
-    [MenuItem("Motor City/Vehicles/Rebuild Peugeot306")]
     private static void RebuildFromMenu()
     {
         Build(true);
