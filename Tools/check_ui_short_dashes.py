@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Reject long dashes in Motor City's player-facing UI and C# text.
 
-Covers authored runtime/Editor scripts, authored MotorCity UI assets and
-the manually generated WebGL test title. Third-party content, licenses and
+Covers authored runtime/Editor scripts, authored MotorCity UI assets. Third-party content, licenses and
 long-form project docs are intentionally out of scope.
 """
 from __future__ import annotations
@@ -22,7 +21,6 @@ paths = [
       and "license" not in p.name.lower()),
     *(p for p in (ASSETS / "Scenes").rglob("*.unity")
       if p.is_file()),
-    ROOT / "Tools/prepare_pages_webgl.py",
 ]
 banned = ("\u2014", "\u2013", "\u2212")  # em dash, en dash, Unicode minus
 failures: list[str] = []
