@@ -38,7 +38,8 @@ namespace MotorCity.World
                 obj.transform.SetParent(transform, false);
                 obj.transform.localPosition = Vector3.zero;
                 obj.transform.localRotation = Quaternion.identity;
-                Collider collider = obj.GetComponent<Collider>();
+                // CreatePrimitive(Sphere) needs this native type in stripped Web builds.
+                SphereCollider collider = obj.GetComponent<SphereCollider>();
                 if (collider != null)
                     Destroy(collider);
                 Material material = new Material(shader);
