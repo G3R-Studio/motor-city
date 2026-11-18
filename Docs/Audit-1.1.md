@@ -92,3 +92,7 @@ Build-only local server verified texture trial B: data.br 50059 KiB, QA 55 MB, 1
 ## Batched texture trial C
 
 Tabler 128 trial: data.br 50001 KiB vs 50036 KiB, QA 55 MB, 1.31 s, game_ready; user pushed importer settings. Batch C: three night-window textures and Trees-01 WebGL 1024 -> 512; six intro slides 1536 -> 1024; preserve formats, alpha, mipmaps and GUIDs. Compare against 50001 KiB; inspect night windows, foliage and intro text. Main menu, roads, primary atlas and SDK unchanged. Unity build and visual QA pending.
+
+## Batch C result and batch D
+
+Batch C: data.br 46223 KiB vs 50001 KiB, QA 51 MB vs 55 MB, local 1.36 s, game_ready. Visual QA not explicitly confirmed. Mobile warning persists. Batch D: four FS013 panoramas and MainMenu WebGL max 1024; Vegetation, WinGlass-01-Night, WinGlass-05 and Volumetric3D max 512. Existing/default platform format and compression retained; new WebGL overrides where absent. Check sky gradient, menu, foliage alpha and streetlight/night appearance. Baseline 46223 KiB. Music deferral postponed to separate runtime trial. Unity verification pending.
