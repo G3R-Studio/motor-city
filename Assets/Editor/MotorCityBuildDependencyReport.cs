@@ -22,8 +22,7 @@ namespace MotorCity.EditorTools
             "Tools/Motor City/Build/Generate Dependency Report")]
         private static void GenerateFromMenu()
         {
-            WriteReport(
-                null);
+            WriteReport(BuildReport.GetLatestReport());
 
             Debug.Log(
                 "Motor City build dependency report written to " +
@@ -75,6 +74,16 @@ namespace MotorCity.EditorTools
                             dependency);
                     }
                 }
+            }
+
+            // Resources assets are eligible for inclusion even without scene references.
+            foreach (string path in AssetDatabase.GetAllAssetPaths())
+            {
+                if (!path.StartsWith("Assets/", StringComparison.Ordinal) ||
+                    !path.Contains("/Resources/") || AssetDatabase.IsValidFolder(path)) continue;
+                dependencies.Add(path);
+                foreach (string dependency in AssetDatabase.GetDependencies(path, true))
+                    dependencies.Add(dependency);
             }
 
             List<AssetSize> sizedAssets =
@@ -148,7 +157,7 @@ namespace MotorCity.EditorTools
             builder.AppendLine();
 
             builder.AppendLine(
-                "Unique scene dependencies: " +
+                "Unique scene and Resources dependencies: " +
                 dependencies.Count);
 
             long totalRawBytes =
@@ -240,6 +249,8 @@ namespace MotorCity.EditorTools
                 "PLAYER VEHICLES",
                 vehicleRoots);
 
+            AppendPackedContent(builder, report);
+
             Directory.CreateDirectory(
                 Path.GetDirectoryName(
                     ReportPath) ??
@@ -249,6 +260,40 @@ namespace MotorCity.EditorTools
                 ReportPath,
                 builder.ToString(),
                 Encoding.UTF8);
+        }
+
+        private static void AppendPackedContent(StringBuilder builder, BuildReport report)
+        {
+            builder.AppendLine("\nPACKED CONTENT (serialized bytes, not ZIP size)");
+            if (report == null || report.summary.result != BuildResult.Succeeded ||
+                report.packedAssets == null || report.packedAssets.Length == 0)
+            {
+                builder.AppendLine("No successful packed build report available. Build WebGL first.");
+                return;
+            }
+
+            var byPath = new Dictionary<string, ulong>(StringComparer.Ordinal);
+            var byType = new Dictionary<string, ulong>(StringComparer.Ordinal);
+            foreach (var package in report.packedAssets)
+            {
+                foreach (var item in package.contents)
+                {
+                    string path = string.IsNullOrEmpty(item.sourceAssetPath)
+                        ? "(generated/internal)" : item.sourceAssetPath;
+                    string type = item.type?.Name ?? "(unknown)";
+                    byPath.TryGetValue(path, out ulong pathBytes);
+                    byPath[path] = pathBytes + item.packedSize;
+                    byType.TryGetValue(type, out ulong typeBytes);
+                    byType[type] = typeBytes + item.packedSize;
+                }
+            }
+
+            builder.AppendLine("Source paths (largest first):");
+            foreach (var pair in byPath.OrderByDescending(x => x.Value))
+                builder.AppendLine(pair.Value + "\t" + pair.Key);
+            builder.AppendLine("\nBy object type:");
+            foreach (var pair in byType.OrderByDescending(x => x.Value))
+                builder.AppendLine(pair.Value + "\t" + pair.Key);
         }
 
         private static void AppendDependencySection(
