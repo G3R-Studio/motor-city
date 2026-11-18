@@ -174,12 +174,6 @@ namespace MotorCity.World
                     return;
 
                 announced = true;
-                Debug.Log("[MotorCity][Trees] Scan ready: " +
-                    candidates.Count + " pure Trees-01 renderers (" +
-                    WoodyCandidateCount + " trees/palms, " +
-                    GroundCoverCandidateCount + " ground plants), " +
-                    EligibleTriangleReferences + " triangle references. " +
-                    "Tree source geometry is unchanged.");
                 discovery = Array.Empty<MeshRenderer>();
                 RequestRefresh();
             }

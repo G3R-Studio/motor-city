@@ -121,14 +121,6 @@ namespace MotorCity.World
 
                 scanAnnounced = true;
                 discovery = Array.Empty<MeshRenderer>();
-                Debug.Log("[MotorCity][ParkedVehicles] Scan complete: " +
-                    VehicleCount + " static parked vehicle groups, " +
-                    EligibleTriangleReferences + " triangle references. " +
-                    "Body meshes=" + bodyMatches +
-                    ", under Park-*=" + parkedMatches +
-                    ", scripted/dynamic excluded=" + skippedScripted + ". " +
-                    "These are whole-city references, not camera-visible tris. " +
-                    "CarContainer/TrafficCar and colliders remain untouched.");
             }
 
             if (vehicles.Count == 0)

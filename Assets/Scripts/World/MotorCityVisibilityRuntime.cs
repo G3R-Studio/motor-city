@@ -332,12 +332,6 @@ namespace MotorCity.World
                     "motorcity_parked_cull");
                 allowVegetationCull = !UrlOptedOut(url,
                     "motorcity_vegetation_cull");
-                Debug.Log("[MotorCity][Optimization] WebGL culling " +
-                    "switches: details=" +
-                    (nextDetailCheck != float.PositiveInfinity) +
-                    ", parked=" + allowParkedCull +
-                    ", vegetation=" + allowVegetationCull +
-                    ". Parked culling uses preset-specific distances.");
             }
 
             // Parked cars use preset-specific distances on all presets.
@@ -391,8 +385,6 @@ namespace MotorCity.World
                         browserParked = gameObject.AddComponent<
                             CityParkedVehicleCullingExperiment>();
                         browserParked.Initialize(city, targetCamera);
-                        Debug.Log("[MotorCity][Optimization] WebGL " +
-                            "parked vehicles ON (preset-specific distances).");
                     }
                     else if (shouldVegetation && parkedReady &&
                              browserVegetation == null)
@@ -402,8 +394,6 @@ namespace MotorCity.World
                         browserVegetation.IncludeWoody = true;
                         browserVegetation.IncludeGroundCover = true;
                         browserVegetation.Initialize(city, targetCamera);
-                        Debug.Log("[MotorCity][Optimization] WebGL High " +
-                            "vegetation ON (500m, under 12px / 1080p).");
                     }
                 }
             }

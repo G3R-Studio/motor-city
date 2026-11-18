@@ -107,9 +107,6 @@ namespace MotorCity.World
             if (!scanAnnounced)
             {
                 scanAnnounced = true;
-                Debug.Log("[MotorCity][Optimization] Distant detail candidates: " +
-                    candidates.Count + " of " + discovery.Length +
-                    " city MeshRenderers. Browser opt-out: ?motorcity_detail_cull=off");
                 discovery = Array.Empty<MeshRenderer>();
             }
 

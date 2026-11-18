@@ -51,3 +51,8 @@ Desktop.ini
 # The production FCG source, workbench and runtime city are tracked elsewhere.
 /Assets/FCG/
 /Assets/FCG.meta
+
+# Local Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/

@@ -797,10 +797,6 @@ namespace MotorCity.World
                     directRoute[blockedLeg], after);
             if (connected && !HasSharpCheckpointReversal(alternative))
             {
-                Debug.Log("[MotorCity][Layout] Bypassed unreachable " +
-                    "return checkpoint " + skipped.ToString("F1") +
-                    " with " + (alternative.Length - directRoute.Length) +
-                    " verified asphalt detour waypoints.");
                 return alternative;
             }
 
@@ -889,9 +885,6 @@ namespace MotorCity.World
                     result.AddRange(stops);
             }
 
-            Debug.Log("[MotorCity][Layout] Checkpoint leg " + legIndex +
-                " now follows " + (stops.Count + 1) +
-                " physically validated asphalt segments.");
             return result.ToArray();
         }
 
