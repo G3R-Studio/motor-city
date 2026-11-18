@@ -25,6 +25,7 @@ crashlytics-build.properties
 .vscode/
 *.csproj
 *.sln
+*.slnx
 *.suo
 *.user
 *.userprefs
