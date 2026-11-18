@@ -54,3 +54,7 @@ Build folder 66.0 MB, StreamingAssets 33.2 MB, total 99.3 MB (user measurement).
 ## Browser music verification — 18.11.2026
 
 User confirmed city music works after the browser audio fix. Build folder before this fix: 66.0 MB; StreamingAssets: 33.2 MB. Full ad/pause regression and cross-browser QA remain pending. Next: inspect city texture imports and measure targeted reductions.
+
+## City texture trial A
+
+Eight existing WebGL overrides reduced from 1024 to 512: Wins_N.tga, WinGlass-01_N.tga, WinGlass-03_N.tga, WinGlass-04_N.tga, Grade1.psd, Grade2.psd, Metal.psd, Water.png. All other importer fields (including mipmaps, normal-map type, alpha, color space and automatic platform compression), GUIDs and source files retained. Main building atlas, roads, foliage and night/emission textures unchanged. Baseline packed size for these eight paths: about 10.67 MiB; theoretical reduction around 8 MiB if dimensions halve and format remains unchanged. Actual ZIP and network savings require a new build. Compare city closeups, railings, window normals, water, and day/night transitions on Desktop Release before accepting. Unity import/build and visual QA pending.
