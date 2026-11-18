@@ -1,8 +1,21 @@
-# Motor City
+# Motor City — 1.1
 
-Motor City is a browser-first open-world driving game for Playgama, built with Unity 6.6 and URP.
+Browser-first open-world driving game by G3R Studio, built with Unity and released on Playgama.
 
-This repository describes the current playable project. It is not a development roadmap.
+## What's new in 1.1
+
+- Playgama Bridge integration for startup, storage, audio/pause events and advertising.
+- Brotli WebGL compression and optimized UI, city, sky and intro textures.
+- Menu and city music streamed on demand from StreamingAssets.
+- Distance-based decorative renderer culling, including parked vehicles on all quality presets.
+- No artificial FPS cap.
+
+| Local QA metric | Earlier baseline | 1.1 candidate |
+|---|---:|---:|
+| Initial download | 65 MB (Gzip) | 43 MB |
+| Medium preset parked-car A/B | 48.3 FPS (off) | 69.4 FPS (on) |
+
+FPS measured in two short desktop runs at 1344 × 810; results vary by route and device. Initial download is not the full ZIP size. Progress persisted in the owner's reload test; cross-browser cloud restore and mobile stability remain unverified.
 
 ## Current project state
 
@@ -25,12 +38,12 @@ The game currently includes:
 - garage vehicle selection, upgrades, color/rim/neon customization and vehicle presentation camera;
 - navigator/minimap, HUD, pause, store, club and result interfaces;
 - first-session onboarding and story/front-end flow;
-- Yandex/WebGL platform integration code, saves, purchases, analytics and remote configuration;
+- Playgama WebGL integration and persistent progression;
 - baked Fantastic City Generator city with a tracked editable workbench;
 - dynamic day/night cycle, sky transitions, street lighting, headlights and rear-light emission;
 - runtime activity and garage markers;
 - Pixie companion visuals including Haon SD and supporter-only Amane Kisora variants;
-- Character canon: **Turbo** is the separate story/navigator assistant; **Pixie** is the flying companion owning XP, levels, skills and skins. See [Docs/CharacterCanon-Turbo-Pixie.md](Docs/CharacterCanon-Turbo-Pixie.md).
+- Character canon: **Turbo** is the separate story/navigator assistant; **Pixie** is the flying companion owning XP, levels, skills and skins.
 - developer/admin tools that remain excluded from normal release gameplay where appropriate.
 
 ## Runtime architecture
@@ -138,7 +151,7 @@ Motor City keeps persistent progression through the project save-service layer.
 
 Tracked gameplay state includes credits, reputation, selected vehicle, upgrades, mastery and other progression systems.
 
-The repository also contains Yandex/WebGL integration for platform readiness, cloud/save workflows, purchases, analytics and remote configuration.
+WebGL persistence uses Playgama Bridge Storage as the sole writer. Cloud synchronization depends on the hosting platform. The legacy secondary cloud writer is disabled for Playgama.
 
 ## Important repository paths
 
@@ -184,12 +197,17 @@ Generated Motor City prefabs can still reference source prefabs, meshes, materia
 
 Do not commit Unity's generated `Library`, build output, Asset Store download cache or downloaded `.unitypackage` archives.
 
-## Project audit and cleanup
+## WebGL release
 
-The native-game source/dependency audit and its verified cleanup are documented in [Docs/AUDIT-2026-10-04.md](Docs/AUDIT-2026-10-04.md). Source checks are repeatable with `pwsh -NoProfile -File Tools/check_cleanup.ps1` and `python Tools/audit_project.py --baseline 7bfc91e4`.
+1. Select **Web - Desktop - Release** in Unity Build Profiles.
+2. Run **Tools → Motor City → Build → Check and Set Brotli**; disable Development Build and Decompression Fallback.
+3. Use Build (not Build And Run) into a clean output directory.
+4. Run `python Tools/serve_webgl.py --directory "PATH_TO_BUILD"` and open http://localhost:8000/ in Playgama QA Tool.
+5. ZIP the entire output, keeping index.html at the root and preserving StreamingAssets and Bridge files.
 
-For imported dependencies and missing/repeated components, use **Motor City → Audit → Write project and loaded scene report** in Unity. The report is written under `Temp/MotorCityAudit`; it does not modify project assets or scenes. Source checks do not replace a Unity compilation, Play Mode validation or Profiler measurements.
+## Development and release records
 
-## Playgama release
+- [1.1 roadmap](Docs/Roadmap-1.1.md)
+- [1.1 audit](Docs/Audit-1.1.md)
 
-See [Playgama publishing guide](Docs/PlaygamaRelease.md). The WebGL postprocessor installs the Bridge JS Core automatically; use the existing Desktop/Mobile Release profiles.
+Keep editor tools, CI checks, source assets and third-party licenses. Assets not included in one build can still be needed by runtime loading, import tools or future builds.
