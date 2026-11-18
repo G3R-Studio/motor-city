@@ -96,3 +96,7 @@ Tabler 128 trial: data.br 50001 KiB vs 50036 KiB, QA 55 MB, 1.31 s, game_ready; 
 ## Batch C result and batch D
 
 Batch C: data.br 46223 KiB vs 50001 KiB, QA 51 MB vs 55 MB, local 1.36 s, game_ready. Visual QA not explicitly confirmed. Mobile warning persists. Batch D: four FS013 panoramas and MainMenu WebGL max 1024; Vegetation, WinGlass-01-Night, WinGlass-05 and Volumetric3D max 512. Existing/default platform format and compression retained; new WebGL overrides where absent. Check sky gradient, menu, foliage alpha and streetlight/night appearance. Baseline 46223 KiB. Music deferral postponed to separate runtime trial. Unity verification pending.
+
+## Batch D result
+
+Data.br 43572 KiB vs 46223 KiB, QA initial 49 MB vs 51 MB, local 1.29 s, game_ready. QA warning now describes conditional mobile catalog hiding based on crashes and play time rather than unconditional hiding. Actual mobile reliability and visual quality remain unverified. Next: inspect menu music dependencies and defer noncritical assets in a separate runtime batch; retain current build as baseline.
