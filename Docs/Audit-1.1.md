@@ -66,3 +66,7 @@ User verified startup after bridge refresh; Build folder 64.6 MB (previous 66.0 
 ## QA Tool verification and viewport guard
 
 QA Tool: initial download 65 MB, local loading 2.85 s; warns game will be hidden from mobile catalog due to high crash risk. Local timing is not a production cold-load benchmark. New browser log no longer contains missing SphereCollider; RenderDiagnostic shows screen=1x1, camera=1x1, renderScale=0.85 at zero-width RenderTextureDesc. Existing viewport script explicitly clamps to 1px. Raise canvas CSS and JS minimum dimensions to 64px while keeping actual viewport fit at normal sizes; no change to URP effects or quality. Clean output required if old viewport patch is present. Retest pause/resume, resize and QA Tool. Exact mobile size threshold requires verification; shrinking startup payload remains a priority.
+
+## Viewport regression and Brotli trial
+
+QA Tool retest: 1.37 s local, initial download 65 MB; neither SphereCollider nor RenderTextureDesc recurred in supplied log. Mobile catalog warning persists. Switch both release profiles from gzip to Brotli (fallback remains disabled), matching default ProjectSettings. Playgama platform-specific requirements explicitly permit Brotli for Facebook; verify actual QA and hosting Content-Encoding: br before release. Existing Tools/serve_webgl.py supports .br. Compare cold-cache size/time; preserve previous gzip output. No gameplay or texture changes in this trial. Mobile catalog cutoff remains unverified.
