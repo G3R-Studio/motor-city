@@ -1,4 +1,3 @@
-using MotorCity.Diagnostics;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -333,19 +332,6 @@ namespace MotorCity.World
                     cityRenderers);
             }
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-            // Development build detection is runtime-only in Unity 6.
-            // Keep the explicit audit define available for release diagnostics.
-            bool runMaterialDiagnostics = Debug.isDebugBuild;
-#if MOTORCITY_CITY_MATERIAL_AUDIT
-            runMaterialDiagnostics = true;
-#endif
-            if (runMaterialDiagnostics)
-            {
-                // Diagnostic only: never rewrite authored city materials.
-                MotorCityWebMaterialDiagnostics.Run(activeCity);
-            }
-#endif
 
             // Runtime treats the authored city as read-only.
             // Colliders, props, parked vehicles, traffic signals and all
