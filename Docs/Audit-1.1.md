@@ -50,3 +50,7 @@ WebGL override: CompressedInMemory, quality 0.35, preserve sample rate and exist
 ## Deferred music browser QA
 
 Build folder 66.0 MB, StreamingAssets 33.2 MB, total 99.3 MB (user measurement). WebGL console rejected Unity OGG streaming. Web player now uses browser HTMLAudioElement for city tracks only; Unity retains menu music and native/editor audio path. Verify playback, next track, mute, platform pause and ads on actual browsers. OGG browser support must be checked, especially Safari. Separate console issues: missing SphereCollider and zero-width RenderTextureDesc; investigate independently.
+
+## Browser music verification — 18.11.2026
+
+User confirmed city music works after the browser audio fix. Build folder before this fix: 66.0 MB; StreamingAssets: 33.2 MB. Full ad/pause regression and cross-browser QA remain pending. Next: inspect city texture imports and measure targeted reductions.
