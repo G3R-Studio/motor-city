@@ -110,10 +110,6 @@ namespace MotorCity.World
 
             initialized = true;
             RequestRefresh();
-            Debug.Log("[MotorCity][HLOD] Ready: " + cells.Length +
-                " cells. Source triangles=" + data.SourceTriangles +
-                "; proxy triangles=" + data.ProxyTriangles +
-                ". These are asset totals, not frame statistics.");
             return true;
         }
 

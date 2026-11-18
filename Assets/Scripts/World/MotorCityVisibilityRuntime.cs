@@ -294,7 +294,7 @@ namespace MotorCity.World
             }
 
             // Compare the same browser viewpoint with and without this
-            // experimental distant detail culler using a URL query.
+            // distant detail culler using a URL query.
             if (!detailUrlChecked)
             {
                 detailUrlChecked = true;
@@ -399,7 +399,7 @@ namespace MotorCity.World
             }
 
             // Preserve the existing, separate Low/Medium decorative
-            // foliage experiment. NEVER run it alongside the new High
+            // foliage culler. Never run it alongside the High
             // Trees-01 renderer culler: the former changes enabled,
             // while the new component uses forceRenderingOff.
             // The vegetation URL opt-out disables BOTH categories at
