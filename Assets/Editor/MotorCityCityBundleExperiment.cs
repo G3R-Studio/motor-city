@@ -640,6 +640,20 @@ namespace MotorCity.EditorTools
                     if (common.Length > 0)
                         map.Add(new AssetBundleBuild { assetBundleName = "motorcity-shared.bundle", assetNames = common });
                     log.AppendLine("Explicit shared asset paths: " + common.Length);
+                    // Audit remaining implicit cross-package dependencies, including
+                    // imported model containers whose main object is not a Mesh.
+                    var dependencyRows = new StringBuilder("AssetPath\tPackages\tExplicitShared\n");
+                    var groups = map.SelectMany(m => AssetDatabase.GetDependencies(m.assetNames, true)
+                        .Distinct(StringComparer.Ordinal).Select(path => new { Path = path, Package = m.assetBundleName }))
+                        .GroupBy(x => x.Path, StringComparer.Ordinal)
+                        .Where(g => g.Select(x => x.Package).Distinct().Count() > 1)
+                        .OrderBy(g => g.Key, StringComparer.Ordinal);
+                    var explicitShared = new HashSet<string>(common, StringComparer.Ordinal);
+                    foreach (var group in groups)
+                        dependencyRows.AppendLine(group.Key + "\t" +
+                            string.Join(",", group.Select(x => x.Package).Distinct().OrderBy(n => n)) +
+                            "\t" + explicitShared.Contains(group.Key));
+                    File.WriteAllText("Library/MotorCityBundleDependencies.tsv", dependencyRows.ToString(), Encoding.UTF8);
                 }
                 var manifest = BuildPipeline.BuildAssetBundles(bundles, map.ToArray(),
                     BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.StrictMode,
