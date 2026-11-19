@@ -31,6 +31,17 @@ namespace MotorCity.UI
         private Canvas canvas;
         private CanvasScaler frontEndScaler;
         private RectTransform mainMenuContent;
+        private MainMenuLayoutItem[] mainMenuLayoutItems;
+        private float appliedMainMenuScale = -1f;
+
+        private struct MainMenuLayoutItem
+        {
+            public RectTransform Rect;
+            public Vector2 Size;
+            public Vector2 Position;
+            public Text Label;
+            public int FontSize;
+        }
         private Vector2Int lastFrontEndScreenSize;
         private Camera frontEndCamera;
         private bool pregameDebugVisible;
@@ -322,6 +333,8 @@ namespace MotorCity.UI
             ApplyPlayerExperienceModalLayout(true);
             BuildLoadingScreen();
             ApplyGarageStyleToFrontEnd();
+            CaptureMainMenuLayout();
+            FitMainMenuContent();
             canvasObject.AddComponent<GarageCanvasRefresh>();
 
             aboutRoot.SetActive(false);
@@ -603,7 +616,6 @@ namespace MotorCity.UI
             StyleMainMenuSecondary(settingsButton);
             StyleMainMenuSecondary(experienceButton);
 
-            FitMainMenuContent();
             RefreshMainMenuText();
         }
 
@@ -2020,9 +2032,32 @@ namespace MotorCity.UI
                 NextIntro();
         }
 
+        private void CaptureMainMenuLayout()
+        {
+            if (mainMenuContent == null)
+                return;
+            RectTransform[] rects =
+                mainMenuContent.GetComponentsInChildren<RectTransform>(true);
+            mainMenuLayoutItems = new MainMenuLayoutItem[rects.Length];
+            for (int i = 0; i < rects.Length; i++)
+            {
+                RectTransform rect = rects[i];
+                Text label = rect.GetComponent<Text>();
+                mainMenuLayoutItems[i] = new MainMenuLayoutItem
+                {
+                    Rect = rect,
+                    Size = rect.sizeDelta,
+                    Position = rect.anchoredPosition,
+                    Label = label,
+                    FontSize = label != null ? label.fontSize : 0
+                };
+            }
+            appliedMainMenuScale = -1f;
+        }
+
         private void FitMainMenuContent()
         {
-            if (mainMenuContent == null || mainRoot == null)
+            if (mainMenuContent == null || mainRoot == null || mainMenuLayoutItems == null)
                 return;
 
             RectTransform viewport = mainRoot.GetComponent<RectTransform>();
@@ -2043,10 +2078,25 @@ namespace MotorCity.UI
             float left = aspect < 1.1f
                 ? (bounds.x - 680f * scale) * 0.5f
                 : margin;
-            Vector3 targetScale = new Vector3(scale, scale, 1f);
+            // Keep transforms at unit scale. Resize the actual rectangles
+            // and font point sizes so legacy Text rasterizes at the final
+            // Canvas resolution rather than enlarging existing glyphs.
+            if (!Mathf.Approximately(appliedMainMenuScale, scale))
+            {
+                foreach (MainMenuLayoutItem item in mainMenuLayoutItems)
+                {
+                    if (item.Rect == null)
+                        continue;
+                    item.Rect.sizeDelta = item.Size * scale;
+                    if (item.Rect != mainMenuContent)
+                        item.Rect.anchoredPosition = item.Position * scale;
+                    if (item.Label != null)
+                        item.Label.fontSize = Mathf.Max(1,
+                            Mathf.RoundToInt(item.FontSize * scale));
+                }
+                appliedMainMenuScale = scale;
+            }
             Vector2 targetPosition = new Vector2(left, 0f);
-            if (mainMenuContent.localScale != targetScale)
-                mainMenuContent.localScale = targetScale;
             if (mainMenuContent.anchoredPosition != targetPosition)
                 mainMenuContent.anchoredPosition = targetPosition;
         }
