@@ -38,8 +38,7 @@ namespace MotorCity.UI
                     0.014f,
                     0.78f);
 
-            backdrop.raycastTarget =
-                false;
+            backdrop.raycastTarget = true;
 
             RectTransform panel =
                 CreatePanel(
@@ -371,8 +370,8 @@ namespace MotorCity.UI
         private GameObject BuildClubTouchControls(
             Transform canvas)
         {
-            return BuildTouchModalRow(
-                canvas,
+            var row = BuildTouchModalRow(
+                clubOverlay.transform,
                 "Club Touch Controls",
                 "touch.modal.prev",
                 MotorCityInputAction.PreviousVehicle,
@@ -382,6 +381,10 @@ namespace MotorCity.UI
                 MotorCityInputAction.NextVehicle,
                 "touch.modal.close",
                 MotorCityInputAction.ToggleClub);
+            var rect = (RectTransform)row.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(.5f,.5f);
+            rect.anchoredPosition = new Vector2(0f,-264f);
+            return row;
         }
 
     }
