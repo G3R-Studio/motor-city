@@ -372,7 +372,8 @@ namespace MotorCity.Gameplay
             }
 
             if (!IsUnlocked(stored) ||
-                !HasVisual(stored))
+                !HasVisual(stored) ||
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(profiles[stored].ResourcePath) == null)
             {
                 stored = 0;
             }
@@ -515,7 +516,8 @@ namespace MotorCity.Gameplay
                 return false;
             }
 
-            if (!HasVisual(index))
+            if (!HasVisual(index) ||
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(profiles[index].ResourcePath) == null)
             {
                 status =
                     MotorCityLocalization.Format(
