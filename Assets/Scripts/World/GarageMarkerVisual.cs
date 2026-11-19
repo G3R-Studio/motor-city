@@ -50,7 +50,7 @@ namespace MotorCity.World
         private void BuildMarker()
         {
             GameObject prefab =
-                Resources.Load<GameObject>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                     GarageMarkerResourcePath);
 
             if (prefab == null)
