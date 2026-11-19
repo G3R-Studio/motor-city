@@ -5,6 +5,28 @@ using UnityEngine.UI;
 
 namespace MotorCity.UI
 {
+    internal sealed class GarageViewportFit : MonoBehaviour
+    {
+        private RectTransform viewport, panel;
+        public void Bind(RectTransform owner, RectTransform target)
+        {
+            viewport = owner;
+            panel = target;
+            Fit();
+        }
+        private void OnEnable() => Fit();
+        private void LateUpdate() => Fit();
+        private void Fit()
+        {
+            if (viewport == null || panel == null) return;
+            Vector2 size = viewport.rect.size;
+            if (size.x <= 0 || size.y <= 0) return;
+            float scale = Mathf.Min(size.x / 1920f, size.y / 1080f);
+            Vector3 next = new Vector3(scale, scale, 1f);
+            if (panel.localScale != next) panel.localScale = next;
+        }
+    }
+
     public sealed partial class PrototypeHud
     {
         private Text garageReferenceMasteryValue;
@@ -23,6 +45,7 @@ namespace MotorCity.UI
             RectTransform panel = GarageObject(overlay, "Garage Panel");
             panel.anchorMin = panel.anchorMax = panel.pivot = new Vector2(.5f, .5f);
             panel.sizeDelta = new Vector2(1920, 1080);
+            panel.gameObject.AddComponent<GarageViewportFit>().Bind(overlay, panel);
 
             RectTransform balance = GarageSurface(panel, "Garage Top Balance", 405, 16, 871, 78);
             RectTransform credits = GarageRect(balance, "Garage Credits Group", 36, 14, 170, 52);
