@@ -106,6 +106,7 @@ namespace MotorCity.Platform
             if (!SupportsAds || rewardedCallback != null || interstitialCallback != null)
             { completed?.Invoke(false); return; }
             rewardedCallback = completed ?? (_ => {});
+            MotorCity.Persistence.MotorCitySaveService.FlushNow();
             MotorCityPlatformRuntime.SetPlatformModalPaused(true);
             MotorCityBridgeAd(gameObject.name, placementId, 1);
         }
@@ -114,6 +115,7 @@ namespace MotorCity.Platform
             if (!SupportsInterstitial || rewardedCallback != null || interstitialCallback != null)
             { completed?.Invoke(); return; }
             interstitialCallback = completed ?? (() => {});
+            MotorCity.Persistence.MotorCitySaveService.FlushNow();
             MotorCityPlatformRuntime.SetPlatformModalPaused(true);
             MotorCityBridgeAd(gameObject.name, placementId, 0);
         }
@@ -125,6 +127,7 @@ namespace MotorCity.Platform
             rewardedCallback = null;
             MotorCityPlatformRuntime.SetPlatformModalPaused(false);
             callback(value == "1");
+            MotorCity.Persistence.MotorCitySaveService.FlushNow();
         }
         [Preserve]
         public void OnBridgeInterstitial(string ignored)
@@ -134,6 +137,7 @@ namespace MotorCity.Platform
             interstitialCallback = null;
             MotorCityPlatformRuntime.SetPlatformModalPaused(false);
             callback();
+            MotorCity.Persistence.MotorCitySaveService.FlushNow();
         }
 
         // Optional legacy capabilities are deliberately unavailable for the first
