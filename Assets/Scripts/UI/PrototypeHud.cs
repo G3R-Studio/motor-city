@@ -2102,8 +2102,8 @@ namespace MotorCity.UI
             canvas.overrideSorting =
                 false;
 
-            canvas.pixelPerfect =
-                false;
+            // Match the root overlay canvas; snap HUD glyph vertices to pixels.
+            canvas.pixelPerfect = true;
 
             return rect;
         }
