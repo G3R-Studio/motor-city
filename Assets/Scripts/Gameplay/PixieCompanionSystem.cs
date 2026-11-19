@@ -744,6 +744,9 @@ namespace MotorCity.Gameplay
                 }
 
                 AlignPixieFeetToRoof();
+                // Keep state-machine/animation events running; only skip offscreen bone writes.
+                if (externalAnimator != null)
+                    externalAnimator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
                 RefreshVisualSkin();
                 return;
             }
