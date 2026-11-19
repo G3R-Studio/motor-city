@@ -185,6 +185,18 @@ namespace MotorCity.World
             string marker = Resources.Load<TextAsset>(Marker).text.Trim();
             string[] files = marker.Contains("|") ? marker.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 : new[] { "motorcity-city.bundle|" + marker };
+            if (files.Any(line =>
+            {
+                var parts = line.Split('|');
+                return parts.Length != 2 || !parts[0].EndsWith(".bundle", StringComparison.Ordinal) ||
+                    parts[1].Length != 32 || parts[1].Any(c => !Uri.IsHexDigit(c));
+            }) || !files.Any(line => line.StartsWith("motorcity-city.bundle|", StringComparison.Ordinal)))
+            {
+                Failed = true;
+                running = false;
+                Debug.LogError("Motor City: invalid streaming package marker.");
+                yield break;
+            }
             files = files.Where(line => !line.StartsWith(SupporterName + "|", StringComparison.Ordinal)).ToArray();
             // Only a new or already migrated starter save can defer the fleet.
             // Old roster indices must be resolved by the existing migration.
