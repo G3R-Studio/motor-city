@@ -85,7 +85,7 @@ World/ — относительно Assets/Scripts/. Базовые URP наст
   - [x] P4.1 SSAO A/B и реализация по пресетам; WebGL checkpoint открыт.
   - [x] P4.2 HDR A/B — без выигрыша, rollout отклонён.
   - [x] P4.3 Дополнительные lights — закрыто по решению владельца, без A/B; Forward+/Forward не измерялся, отдельный пилот отложен.
-  - [ ] P4.4 Аудит шейдеров и материалов.
+  - [ ] P4.4 Аудит шейдеров и материалов — инструмент добавлен, отчёт ожидается.
   - [ ] P4.5 Прозрачность и overdraw.
 - [ ] P5/P6: HLOD, visibility, CPU/traffic/physics/UI; не выполнены.
 - [ ] Перед будущим WebGL checkpoint исключить локальные тестовые LOD-копии Assets/Resources/MotorCityLodPilot и Assets/Resources/MotorCityLodExpanded из сборки (проверить, что это только сгенерированные тестовые данные; не удалять оригиналы). Не коммитить эти папки как production assets.
@@ -244,6 +244,10 @@ Medium, SSAO OFF, scale .72, 1512×911, RTX2080, LOD/lamp OFF. ON: 341.577 FPS, 
 ### P4.3 — дополнительные источники света, 19.11.2026
 
 Владелец сообщил, что источники света включаются только ночью, и попросил закрыть этот пункт без дополнительных экспериментов. Изменений освещения или renderer mode нет, стоимость не измерялась. Forward+/Forward отдельно не проверен. Следующий шаг — P4.4 аудит шейдеров/материалов, затем overdraw. WebGL пока не пересобирать.
+
+### P4.4 — аудит шейдеров города, 19.11.2026
+
+`37dd6ab`: Tools > Motor City > Audit > City Shader Audit в Play Mode после загрузки MotorCity_FCGCity. Read-only, Library/MotorCityCityShaderAudit.txt: группировка shader, уникальные material instances, слоты и enabled slots, nonMesh/MPB, asset path, queue, surface/clip, свойства и карты, keywords. Слоты не равны draw calls, enabled не означает видимость камерой. Scope только runtime city root, не весь игровой мир. Отдельно учитывать FcgRuntimeGlassMaterialFactory и night emission; исключить стекло, листву, специальные материалы и динамические потребители перед пилотом Simple Lit. Отчёт и компиляция ожидаются; никаких asset/shader изменений, WebGL не пересобирать.
 
 ### Передача в новый чат — актуальная инструкция
 
