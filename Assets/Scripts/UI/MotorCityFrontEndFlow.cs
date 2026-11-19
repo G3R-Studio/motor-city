@@ -2939,7 +2939,7 @@ namespace MotorCity.UI
                 loadingRoot.SetActive(false);
 
             RefreshMainMenuText();
-            if (!MotorCityCityBundle.Failed) MotorCityCityBundle.Begin(this);
+            // Start the city download only inside the reported loading transition.
 
             // Return focus from a closed UX modal (or control chooser) to
             // Continue. Otherwise gamepad selection may remain invisible.
@@ -3067,7 +3067,7 @@ namespace MotorCity.UI
             }
 
             if (settingsLanguageText != null)
-                settingsLanguageText.text = IsRussian() ? "Русский" : "English";
+                settingsLanguageText.text = IsRussian() ? "Русский / English" : "English / Русский";
         }
 
         private void ChangeDrawDistance(int direction)
