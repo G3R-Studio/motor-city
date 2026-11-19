@@ -41,6 +41,9 @@ namespace MotorCity.World
         private bool scanAnnounced;
         private bool refresh = true;
         private Vector3 sweepPosition;
+        private float sweepFov;
+        private float projectionFactor;
+        private MotorCityQualityPreset sweepPreset;
 
         public int CandidateCount => candidates.Count;
         public int HiddenCount { get; private set; }
@@ -95,6 +98,16 @@ namespace MotorCity.World
                 return;
 
             Vector3 position = cameraToCull.transform.position;
+            float fov = cameraToCull.fieldOfView;
+            var preset = MotorCityQualityRuntime.CurrentPreset;
+            if (fov != sweepFov || preset != sweepPreset)
+            {
+                sweepFov = fov;
+                sweepPreset = preset;
+                projectionFactor = ReferencePixels / Mathf.Max(0.001f,
+                    Mathf.Tan(Mathf.Max(1f, fov) * Mathf.Deg2Rad * 0.5f));
+                RequestRefresh();
+            }
             if (discoveryIndex < discovery.Length)
             {
                 int end = Mathf.Min(discoveryIndex + DiscoveryBudget, discovery.Length);
@@ -244,10 +257,7 @@ namespace MotorCity.World
 
             float distance = Mathf.Max(0.1f,
                 Vector3.Distance(position, item.Center) - item.Radius);
-            float tanHalfFov = Mathf.Tan(
-                Mathf.Max(1f, cameraToCull.fieldOfView) * Mathf.Deg2Rad * 0.5f);
-            float pixels = item.Radius * ReferencePixels /
-                (Mathf.Max(0.001f, tanHalfFov) * distance);
+            float pixels = item.Radius * projectionFactor / distance;
 
             if (item.Hidden)
             {
