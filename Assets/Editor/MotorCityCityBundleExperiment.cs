@@ -22,6 +22,42 @@ namespace MotorCity.EditorTools
         private static bool Exists(string path) => File.Exists(path) || Directory.Exists(path);
         private const string Profile = "Assets/Settings/Build Profiles/Web - Desktop - Release.asset";
         private const string Report = "Library/MotorCityCityBundleExperiment.txt";
+        private static readonly string[] LocalPilotRoots =
+            { "Assets/Resources/MotorCityLodPilot", "Assets/Resources/MotorCityLodExpanded" };
+        private static string ParkedPilotRoot(string path) =>
+            "Assets/MotorCity_BuildExcluded_" + Path.GetFileName(path);
+
+        private static void RestorePilotRoots()
+        {
+            foreach (var path in LocalPilotRoots)
+            {
+                string parked = ParkedPilotRoot(path);
+                if (!Exists(parked)) continue;
+                if (Exists(path)) throw new InvalidOperationException("Both LOD pilot paths exist: " + path);
+                string error = AssetDatabase.MoveAsset(parked, path);
+                if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            }
+        }
+
+        private static void ParkPilotRoots()
+        {
+            foreach (var path in LocalPilotRoots)
+            {
+                if (Exists(ParkedPilotRoot(path)))
+                    throw new InvalidOperationException("Restore interrupted build first.");
+                if (!Exists(path)) continue;
+                if (!AssetDatabase.IsValidFolder(path))
+                    throw new InvalidOperationException("Unexpected LOD pilot asset: " + path);
+                // Only generated standalone mesh assets; no deletion or GUID change.
+                var files = AssetDatabase.GetAllAssetPaths().Where(p =>
+                    p.StartsWith(path + "/", StringComparison.Ordinal) && !AssetDatabase.IsValidFolder(p));
+                if (files.Any(p => !p.EndsWith(".asset", StringComparison.OrdinalIgnoreCase) ||
+                    !(AssetDatabase.LoadMainAssetAtPath(p) is Mesh)))
+                    throw new InvalidOperationException("Unexpected non-pilot asset in " + path);
+                string error = AssetDatabase.MoveAsset(path, ParkedPilotRoot(path));
+                if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            }
+        }
 
         [MenuItem("Tools/Motor City/Build/Measure City AssetBundle")]
         private static void Measure() => Run(false);
@@ -177,7 +213,7 @@ namespace MotorCity.EditorTools
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer)
                 throw new InvalidOperationException("Exit Play Mode and finish any current build.");
-            if (AssetDatabase.IsValidFolder(DistrictRoot) || File.Exists(MarkerPath) || File.Exists(TemporaryCity) || !File.Exists(City) || ExtraRoots.Any(n => Exists(TemporaryRoot(n)) || !Exists(EnvironmentRoot + n)))
+            if (LocalPilotRoots.Any(p => Exists(ParkedPilotRoot(p))) || AssetDatabase.IsValidFolder(DistrictRoot) || File.Exists(MarkerPath) || File.Exists(TemporaryCity) || !File.Exists(City) || ExtraRoots.Any(n => Exists(TemporaryRoot(n)) || !Exists(EnvironmentRoot + n)))
                 throw new InvalidOperationException("City path unexpected. Use Restore City After Experiment before building.");
             var profile = BuildProfile.GetActiveBuildProfile();
             if (profile == null || AssetDatabase.GetAssetPath(profile) != Profile ||
@@ -201,6 +237,7 @@ namespace MotorCity.EditorTools
             var originalGuids = ExtraRoots.ToDictionary(n => n, n => AssetDatabase.AssetPathToGUID(EnvironmentRoot + n));
             try
             {
+                ParkPilotRoots();
                 string baseline = Path.Combine(root, "Baseline");
                 long before = 0;
                 if (!split)
@@ -335,6 +372,7 @@ namespace MotorCity.EditorTools
         [MenuItem("Tools/Motor City/Build/Restore City After Experiment")]
         private static void Restore()
         {
+            RestorePilotRoots();
             if (AssetDatabase.IsValidFolder(DistrictRoot)) AssetDatabase.DeleteAsset(DistrictRoot);
             if (File.Exists(MarkerPath)) AssetDatabase.DeleteAsset(MarkerPath);
             foreach (string name in ExtraRoots.Reverse())
