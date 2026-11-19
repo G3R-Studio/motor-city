@@ -108,8 +108,8 @@ namespace MotorCity.UI
         private float introAutoTimer;
         private float introVisualTimer;
         private const float IntroAutoSeconds = 7f;
-        private const float LoadingDurationSeconds = 4.5f;
-        private const float GameplayReadySettleSeconds = 2.0f;
+        private const float LoadingDurationSeconds = 0.15f;
+        private const float GameplayReadySettleSeconds = 0.1f;
 
         private const int FrontEndButtonFontSize = 20;
         private const int FrontEndPrimaryButtonFontSize = 23;
@@ -1780,6 +1780,9 @@ namespace MotorCity.UI
             // camera handoff. Existing saves skip the cinematic on Continue.
             openingPresentationRequested =
                 !continuingExistingSave;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            openingPresentationRequested = false;
+#endif
 
             AudioListener.pause =
                 true;
@@ -1796,6 +1799,10 @@ namespace MotorCity.UI
                 return;
             }
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            CompleteIntro();
+            return;
+#endif
             introIndex =
                 0;
 
@@ -2300,6 +2307,7 @@ namespace MotorCity.UI
             string englishStatus,
             System.Action completedAction)
         {
+            ReportLoading(true);
             runtimeLoadingTransitionActive =
                 true;
 
@@ -2388,6 +2396,7 @@ namespace MotorCity.UI
 
             runtimeLoadingTransitionActive =
                 false;
+            ReportLoading(false);
 
             completedAction?.Invoke();
         }
@@ -2473,8 +2482,16 @@ namespace MotorCity.UI
             SetLoadingVisualProgress(Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(progress)));
         }
 
+        private static void ReportLoading(bool active)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlaygamaPlatformService.SetLoading(active);
+#endif
+        }
+
         private void StartLoadingTransition()
         {
+            ReportLoading(true);
             MotorCityMusicRuntime.SetMenuActive(
                 false);
 
@@ -2682,6 +2699,12 @@ namespace MotorCity.UI
 
         private void ShowControlChoiceAfterLoading()
         {
+            ReportLoading(false);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            ChooseControlScheme(MotorCityInput.PreferTouchPrompts && MotorCityInput.CurrentControlScheme == MotorCityControlScheme.Keyboard
+                ? MotorCityControlScheme.Wheel : MotorCityInput.CurrentControlScheme);
+            return;
+#endif
             // Keep gameplay paused until the player explicitly chooses the
             // control scheme. The control screen uses the main-menu artwork.
             Time.timeScale =
@@ -2889,6 +2912,7 @@ namespace MotorCity.UI
 
         private void ShowMainMenu()
         {
+            ReportLoading(false);
             playerExperienceReturnToPause = null;
             Time.timeScale = 0f;
             AudioListener.pause = true;
