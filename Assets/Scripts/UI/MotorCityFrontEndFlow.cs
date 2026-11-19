@@ -542,8 +542,8 @@ namespace MotorCity.UI
                 CreateText(
                     mainMenuContent,
                     IsRussian()
-                        ? "ТВОЙ ГОРОД. ТВОЯ МАШИНА. ТВОЙ ПУТЬ."
-                        : "YOUR CITY. YOUR CAR. YOUR ROAD.",
+                        ? "Твой город. твоя машина. твой путь."
+                        : "Your city. your car. your road.",
                     22,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
@@ -595,14 +595,14 @@ namespace MotorCity.UI
             // Keep callbacks intact while increasing readable labels and hit areas.
             Button aboutButton = CreateButton(
                 mainMenuContent,
-                IsRussian() ? "ОБ ИГРЕ" : "ABOUT",
+                IsRussian() ? "Об игре" : "About",
                 new Vector2(0f, -55f),
                 new Vector2(500f, 82f),
                 ShowAbout);
 
             Button settingsButton = CreateButton(
                 mainMenuContent,
-                IsRussian() ? "НАСТРОЙКИ" : "SETTINGS",
+                IsRussian() ? "Настройки" : "Settings",
                 new Vector2(0f, -151f),
                 new Vector2(500f, 82f),
                 ShowSettings);
@@ -1004,8 +1004,8 @@ namespace MotorCity.UI
                     controlChoiceRoot.transform,
                     "Control Choice Panel",
                     IsRussian()
-                        ? "КАКОЕ УПРАВЛЕНИЕ ВЫ ПРЕДПОЧИТАЕТЕ?"
-                        : "WHICH CONTROL STYLE DO YOU PREFER?",
+                        ? "Какое управление вы предпочитаете?"
+                        : "Which control style do you prefer?",
                     new Vector2(980f, 576f),
                     120f,
                     showCloseButton: false);
@@ -1035,8 +1035,8 @@ namespace MotorCity.UI
             CreateFrontEndLayoutButton(
                 controlChoiceKeyboardActions,
                 IsRussian()
-                    ? "УПРАВЛЕНИЕ С КЛАВИАТУРЫ"
-                    : "KEYBOARD CONTROLS",
+                    ? "Управление с клавиатуры"
+                    : "Keyboard controls",
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Keyboard),
                 540f,
@@ -1051,8 +1051,8 @@ namespace MotorCity.UI
             CreateFrontEndLayoutButton(
                 controlChoiceWheelActions,
                 IsRussian()
-                    ? "УПРАВЛЕНИЕ РУЛЕВЫМ КОЛЕСОМ"
-                    : "STEERING WHEEL",
+                    ? "Управление рулевым колесом"
+                    : "Steering wheel",
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Wheel),
                 540f,
@@ -1061,8 +1061,8 @@ namespace MotorCity.UI
             CreateFrontEndLayoutButton(
                 controlChoiceWheelActions,
                 IsRussian()
-                    ? "НАСТРОИТЬ"
-                    : "CUSTOMIZE",
+                    ? "Настроить"
+                    : "Customize",
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Wheel,
                     true),
@@ -1078,8 +1078,8 @@ namespace MotorCity.UI
             CreateFrontEndLayoutButton(
                 controlChoiceArrowsActions,
                 IsRussian()
-                    ? "УПРАВЛЕНИЕ СТРЕЛКАМИ"
-                    : "LEFT / RIGHT ARROWS",
+                    ? "Управление стрелками"
+                    : "Left / right arrows",
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Arrows),
                 540f,
@@ -1088,8 +1088,8 @@ namespace MotorCity.UI
             CreateFrontEndLayoutButton(
                 controlChoiceArrowsActions,
                 IsRussian()
-                    ? "НАСТРОИТЬ"
-                    : "CUSTOMIZE",
+                    ? "Настроить"
+                    : "Customize",
                 () => ChooseControlScheme(
                     MotorCityControlScheme.Arrows,
                     true),
@@ -1105,8 +1105,8 @@ namespace MotorCity.UI
             CreateFrontEndLayoutButton(
                 backRow,
                 IsRussian()
-                    ? "НАЗАД"
-                    : "BACK",
+                    ? "Назад"
+                    : "Back",
                 ShowMainMenu,
                 220f,
                 54f,
@@ -1125,7 +1125,7 @@ namespace MotorCity.UI
             Text heading =
                 CreateText(
                     panel,
-                    IsRussian() ? "ОБ ИГРЕ" : "ABOUT MOTOR CITY",
+                    IsRussian() ? "Об игре" : "About MOTOR CITY",
                     44,
                     FontStyle.Bold,
                     TextAnchor.MiddleCenter,
@@ -1164,7 +1164,7 @@ namespace MotorCity.UI
 
             CreateAboutSection(
                 panel,
-                IsRussian() ? "ГОРОД" : "CITY",
+                IsRussian() ? "Город" : "City",
                 IsRussian()
                     ? "Исследуй районы, выполняй доставки и городские работы, находи активности и новые маршруты."
                     : "Explore districts, make deliveries, take city jobs, find activities and new routes.",
@@ -1173,7 +1173,7 @@ namespace MotorCity.UI
 
             CreateAboutSection(
                 panel,
-                IsRussian() ? "МАШИНЫ" : "CARS",
+                IsRussian() ? "Машины" : "Cars",
                 IsRussian()
                     ? "Открывай транспорт за репутацию, меняй внешний вид и улучшай характеристики в гараже."
                     : "Unlock vehicles through reputation, customize their look, and improve performance in the garage.",
@@ -1182,7 +1182,7 @@ namespace MotorCity.UI
 
             CreateAboutSection(
                 panel,
-                IsRussian() ? "ЗАЕЗДЫ" : "RACING",
+                IsRussian() ? "Заезды" : "Racing",
                 IsRussian()
                     ? "Участвуй в спринтах, кольцевых гонках и дрифт-заездах."
                     : "Take part in sprints, circuit races and drift events.",
@@ -1191,7 +1191,7 @@ namespace MotorCity.UI
 
             CreateAboutSection(
                 panel,
-                IsRussian() ? "ПУТЬ НОВИЧКА" : "ROOKIE PATH",
+                IsRussian() ? "Путь новичка" : "Rookie path",
                 IsRussian()
                     ? "Дядя Витя и Турбо познакомят тебя с машиной и первым делом. Дальше история продолжится через жителей города."
                     : "Uncle Vitya and Turbo introduce you to the car and your first job. The story continues through people across the city.",
@@ -1200,7 +1200,7 @@ namespace MotorCity.UI
 
             CreateAboutSection(
                 panel,
-                IsRussian() ? "УПРАВЛЕНИЕ" : "CONTROLS",
+                IsRussian() ? "Управление" : "Controls",
                 IsRussian()
                     ? "Основные действия доступны кнопками HUD. На телефоне используются экранные элементы управления."
                     : "Core actions are available through HUD buttons. Mobile uses on-screen driving controls.",
@@ -1209,7 +1209,7 @@ namespace MotorCity.UI
 
             CreateButton(
                 panel,
-                IsRussian() ? "НАЗАД" : "BACK",
+                IsRussian() ? "Назад" : "Back",
                 new Vector2(56f, 46f),
                 new Vector2(260f, 58f),
                 ShowMainMenu,
@@ -1224,8 +1224,8 @@ namespace MotorCity.UI
                     settingsRoot.transform,
                     "Settings Panel",
                     IsRussian()
-                        ? "НАСТРОЙКИ"
-                        : "SETTINGS",
+                        ? "Настройки"
+                        : "Settings",
                     new Vector2(1180f, 764f),
                     showCloseButton: false,
                     showHeaderDivider: false,
@@ -1234,23 +1234,23 @@ namespace MotorCity.UI
             CreateFrontEndSettingsLayoutRow(
                 window.Content,
                 IsRussian()
-                    ? "ГРАФИКА"
-                    : "GRAPHICS",
+                    ? "Графика"
+                    : "Graphics",
                 out settingsQualityText,
                 () => ChangeQuality(-1),
                 () => ChangeQuality(1),
                 null);
 
             CreateFrontEndSettingsLayoutRow(window.Content,
-                IsRussian() ? "ДАЛЬНОСТЬ" : "DRAW DISTANCE",
+                IsRussian() ? "Дальность" : "Draw distance",
                 out settingsDrawDistanceText,
                 () => ChangeDrawDistance(-1), () => ChangeDrawDistance(1), null);
 
             CreateFrontEndSettingsLayoutRow(
                 window.Content,
                 IsRussian()
-                    ? "ЗВУК"
-                    : "AUDIO",
+                    ? "Звук"
+                    : "Audio",
                 out settingsAudioText,
                 null, null, ToggleAudio,
                 controls => settingsAudioSlider = MotorCityVolumeSlider.Create(controls, hud != null ? hud.FrontEndAudioVolume : frontEndAudioVolume, SetAudioSlider));
@@ -1258,8 +1258,8 @@ namespace MotorCity.UI
             CreateFrontEndSettingsLayoutRow(
                 window.Content,
                 IsRussian()
-                    ? "МУЗЫКА"
-                    : "MUSIC",
+                    ? "Музыка"
+                    : "Music",
                 out settingsMusicText,
                 null, null, ToggleMusic,
                 controls => settingsMusicSlider = MotorCityVolumeSlider.Create(controls, MotorCityMusicRuntime.Volume, v => { MotorCityMusicRuntime.SetVolume(v); RefreshSettingsText(); }));
@@ -1267,8 +1267,8 @@ namespace MotorCity.UI
             CreateFrontEndSettingsLayoutRow(
                 window.Content,
                 IsRussian()
-                    ? "ЯЗЫК"
-                    : "LANGUAGE",
+                    ? "Язык"
+                    : "Language",
                 out settingsLanguageText,
                 null,
                 null,
@@ -1286,8 +1286,8 @@ namespace MotorCity.UI
             CreateFrontEndLayoutButton(
                 actions,
                 IsRussian()
-                    ? "НАЗАД"
-                    : "BACK",
+                    ? "Назад"
+                    : "Back",
                 ShowMainMenu,
                 260f,
                 58f,
@@ -1431,7 +1431,7 @@ namespace MotorCity.UI
             Text prologue =
                 CreateText(
                     textGroupObject.transform,
-                    IsRussian() ? "ПРОЛОГ" : "PROLOGUE",
+                    IsRussian() ? "Пролог" : "Prologue",
                     13,
                     FontStyle.Bold,
                     TextAnchor.MiddleLeft,
@@ -1526,7 +1526,7 @@ namespace MotorCity.UI
 
             CreateButton(
                 introRoot.transform,
-                IsRussian() ? "ПРОПУСТИТЬ" : "SKIP",
+                IsRussian() ? "Пропустить" : "Skip",
                 new Vector2(-90f, 70f),
                 new Vector2(220f, 56f),
                 CompleteIntro,
@@ -1535,7 +1535,7 @@ namespace MotorCity.UI
 
             CreateButton(
                 introRoot.transform,
-                IsRussian() ? "ДАЛЬШЕ" : "NEXT",
+                IsRussian() ? "Дальше" : "Next",
                 new Vector2(-330f, 70f),
                 new Vector2(220f, 56f),
                 NextIntro,
@@ -1569,7 +1569,7 @@ namespace MotorCity.UI
             kicker.color = new Color(0.84f, 0.78f, 1f, 1f);
 
             loadingStatusText = CreateText(root,
-                IsRussian() ? "ГОТОВИМ ГОРОД..." : "PREPARING THE CITY...",
+                IsRussian() ? "Готовим город..." : "Preparing the city...",
                 26, FontStyle.Bold, TextAnchor.MiddleCenter,
                 new Vector2(0f, 28f), new Vector2(950f, 58f), center);
             loadingStatusText.color = cyan;
@@ -2488,7 +2488,7 @@ namespace MotorCity.UI
 
             loadingRoot.SetActive(true);
             if (loadingStatusText != null)
-                loadingStatusText.text = IsRussian() ? "ГОТОВИМ ГОРОД..." : "PREPARING THE CITY...";
+                loadingStatusText.text = IsRussian() ? "Готовим город..." : "Preparing the city...";
             ResetLoadingVisuals();
             RefreshLoadingTip();
 
@@ -2528,7 +2528,7 @@ namespace MotorCity.UI
             {
                 ShowMainMenu();
                 if (primaryButtonText != null)
-                    primaryButtonText.text = IsRussian() ? "ПОВТОРИТЬ ЗАГРУЗКУ" : "RETRY DOWNLOAD";
+                    primaryButtonText.text = IsRussian() ? "Повторить загрузку" : "Retry download";
                 return;
             }
 
@@ -2621,7 +2621,7 @@ namespace MotorCity.UI
             {
                 if (MotorCityCityBundle.Enabled && !MotorCityCityBundle.Ready)
                 {
-                    loadingStatusText.text = (IsRussian() ? "ЗАГРУЗКА ГОРОДА " : "DOWNLOADING CITY ") +
+                    loadingStatusText.text = (IsRussian() ? "Загрузка города " : "Downloading city ") +
                         Mathf.RoundToInt(MotorCityCityBundle.Progress * 100f) + "%";
                 }
                 else if (!gameplayReady &&
@@ -2629,22 +2629,22 @@ namespace MotorCity.UI
                 {
                     loadingStatusText.text =
                         IsRussian()
-                            ? "ПОЧТИ ГОТОВО..."
-                            : "ALMOST READY...";
+                            ? "Почти готово..."
+                            : "Almost ready...";
                 }
                 else if (progress < 0.34f)
                 {
                     loadingStatusText.text =
                         IsRussian()
-                            ? "ГОТОВИМ ГОРОД..."
-                            : "PREPARING THE CITY...";
+                            ? "Готовим город..."
+                            : "Preparing the city...";
                 }
                 else if (progress < 0.72f)
                 {
                     loadingStatusText.text =
                         IsRussian()
-                            ? "ЗАПУСКАЕМ МАРШРУТЫ..."
-                            : "STARTING THE ROUTES...";
+                            ? "Запускаем маршруты..."
+                            : "Starting the routes...";
                 }
                 else if (gameplayReady &&
                          loadingTimer - gameplayReadyAt <
@@ -2652,15 +2652,15 @@ namespace MotorCity.UI
                 {
                     loadingStatusText.text =
                         IsRussian()
-                            ? "ГОТОВИМ ГОРОД..."
-                            : "PREPARING THE CITY...";
+                            ? "Готовим город..."
+                            : "Preparing the city...";
                 }
                 else
                 {
                     loadingStatusText.text =
                         IsRussian()
-                            ? "ПОЕХАЛИ"
-                            : "LET'S DRIVE";
+                            ? "Поехали"
+                            : "Let's drive";
                 }
             }
 
@@ -2971,8 +2971,8 @@ namespace MotorCity.UI
 
             primaryButtonText.text =
                 hasExistingProgress
-                    ? (IsRussian() ? "ПРОДОЛЖИТЬ" : "CONTINUE")
-                    : (IsRussian() ? "НАЧАТЬ ИГРАТЬ" : "START GAME");
+                    ? (IsRussian() ? "Продолжить" : "Continue")
+                    : (IsRussian() ? "Начать играть" : "Start game");
         }
 
         private Slider settingsAudioSlider, settingsMusicSlider;
@@ -3010,9 +3010,9 @@ namespace MotorCity.UI
                 settingsQualityText.text =
                     MotorCityQualityRuntime.CurrentPreset switch
                     {
-                        MotorCityQualityPreset.Low => IsRussian() ? "НИЗКОЕ" : "LOW",
-                        MotorCityQualityPreset.High => IsRussian() ? "ВЫСОКОЕ" : "HIGH",
-                        _ => IsRussian() ? "СРЕДНЕЕ" : "MEDIUM"
+                        MotorCityQualityPreset.Low => MotorCityLocalization.Text("pause.quality_low"),
+                        MotorCityQualityPreset.High => MotorCityLocalization.Text("pause.quality_high"),
+                        _ => MotorCityLocalization.Text("pause.quality_medium")
                     };
             }
 
@@ -3030,7 +3030,7 @@ namespace MotorCity.UI
 
                 settingsAudioText.text =
                     muted
-                        ? (IsRussian() ? "ВЫКЛ" : "OFF")
+                        ? (IsRussian() ? "Выкл" : "Off")
                         : $"{Mathf.RoundToInt(volume * 100f)}%";
             }
 
@@ -3038,12 +3038,12 @@ namespace MotorCity.UI
             {
                 settingsMusicText.text =
                     MotorCityMusicRuntime.Muted
-                        ? (IsRussian() ? "ВЫКЛ" : "OFF")
+                        ? (IsRussian() ? "Выкл" : "Off")
                         : $"{Mathf.RoundToInt(MotorCityMusicRuntime.Volume * 100f)}%";
             }
 
             if (settingsLanguageText != null)
-                settingsLanguageText.text = IsRussian() ? "РУССКИЙ" : "ENGLISH";
+                settingsLanguageText.text = IsRussian() ? "Русский" : "English";
         }
 
         private void ChangeDrawDistance(int direction)
