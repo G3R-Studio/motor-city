@@ -1108,6 +1108,74 @@ namespace FCG
         }
 
         private int countC = 0;
+        internal GameObject PoolSource { get; set; }
+
+        internal bool CanReturnToPool()
+        {
+            // Do not reuse junction owners, crashed cars or cars with unknown lifecycle scripts.
+            return PoolSource != null && tSystem != null && myRigidbody != null &&
+                myReference != null && atualWayScript != null && currentNode > 1 &&
+                status == StatusCar.transitingNormally && !nodeSteerCarefully && !nodeSteerCarefully2 &&
+                GetComponentsInChildren<MonoBehaviour>(true).All(b => b == this) &&
+                GetComponentsInChildren<Rigidbody>(true).Length == 1 &&
+                GetComponentInChildren<Animator>(true) == null &&
+                GetComponentInChildren<ParticleSystem>(true) == null &&
+                GetComponentInChildren<AudioSource>(true) == null;
+        }
+
+        internal void ForgetPooledLeader(Transform leader)
+        {
+            if (behind != null && (behind == leader || behind.IsChildOf(leader)))
+            {
+                behind = null;
+                brake = 0f;
+                iRC = 4;
+            }
+        }
+
+        internal void SuspendForPool()
+        {
+            CancelInvoke();
+            StopAllCoroutines();
+            atualWayScript.UnSetNodeZero(0, transform);
+            atualWayScript.UnSetNodeZero(1, transform);
+            if (myOldWayScript != null)
+            {
+                myOldWayScript.UnSetNodeZero(0, transform);
+                myOldWayScript.UnSetNodeZero(1, transform);
+            }
+            myRigidbody.velocity = Vector3.zero;
+            myRigidbody.angularVelocity = Vector3.zero;
+            foreach (var w in wCollider)
+                if (w != null) { w.motorTorque = 0; w.brakeTorque = 0; w.steerAngle = 0; }
+            if (BreakLight) BreakLight.SetActive(false);
+            if (LightLeft) LightLeft.SetActive(false);
+            if (LightRight) LightRight.SetActive(false);
+            gameObject.SetActive(false);
+        }
+
+        internal void RestartAfterPool()
+        {
+            CancelInvoke();
+            countC = 0;
+            countTimeToSignal = 0f;
+            toSignal = toSignalLeft = toSignalRight = false;
+            wheelVisualPhase = false;
+            behind = null;
+            nodeSteerCarefully = nodeSteerCarefully2 = false;
+            myOldWay = null;
+            myOldWayScript = null;
+            myOldSideAtual = 0;
+            _avanceNode = relativeVector = Vector3.zero;
+            steer = speed = brake = brake2 = motorTorque = iRC = 0f;
+            timeStoped = Time.time;
+            myRigidbody.position = transform.position;
+            myRigidbody.rotation = transform.rotation;
+            myRigidbody.velocity = Vector3.zero;
+            myRigidbody.angularVelocity = Vector3.zero;
+            myRigidbody.WakeUp();
+            Init();
+        }
 
         void SelfDestructWhenAwayFromThePlayer()
         {
@@ -1128,7 +1196,7 @@ namespace FCG
                 if (countC >= 2)
                 {
                     tSystem.nVehicles--;
-                    Destroy(this.gameObject);
+                    if (!tSystem.TryReturnTraffic(this)) Destroy(this.gameObject);
                 }
 
             }
