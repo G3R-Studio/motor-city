@@ -296,7 +296,7 @@ namespace MotorCity.UI
             canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 5000;
-            canvas.pixelPerfect = true;
+            canvas.pixelPerfect = false;
 
             frontEndScaler =
                 canvasObject.GetComponent<CanvasScaler>();
