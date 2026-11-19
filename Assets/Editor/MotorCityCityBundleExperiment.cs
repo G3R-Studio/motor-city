@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace MotorCity.EditorTools
 {
-    // Size experiment only. The stripped player cannot enter the city.
+    // Standard WebGL split build and optional size diagnostics.
     public static class MotorCityCityBundleExperiment
     {
         private const string City = "Assets/Resources/MotorCity/Environment/CityVisual.prefab";
@@ -731,6 +731,12 @@ namespace MotorCity.EditorTools
                     log.AppendLine("Split test output: " + stripped);
                     log.AppendLine("Split data bytes: " + DataBytes(stripped));
                     log.AppendLine("Split wasm bytes: " + WasmBytes(stripped));
+                    long startupBytes = DataBytes(stripped) + WasmBytes(stripped);
+                    long streamBytes = expected.Sum(n => new FileInfo(Path.Combine(streaming, n)).Length);
+                    log.AppendLine("Startup DATA + WASM bytes: " + startupBytes);
+                    log.AppendLine("Startup DATA + WASM MiB: " + (startupBytes / 1048576.0).ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+                    log.AppendLine("All streamed bundle bytes: " + streamBytes);
+                    log.AppendLine("Startup target (10 MiB): " + (startupBytes <= 10L * 1048576L ? "MET" : "NOT MET"));
                     log.AppendLine("Bundle bytes: " + bundle);
                     Debug.Log("Motor City: complete Playgama district build: " + stripped);
                     return;
