@@ -9,7 +9,7 @@ namespace MotorCity.World
 {
     public static class MotorCityCityBundle
     {
-        [Serializable] public sealed class DistrictCatalog { public District[] districts; }
+        [Serializable] public sealed class DistrictCatalog { public District[] districts; public int rendererCount; }
         [Serializable] public sealed class District
         {
             public string file, hash;
@@ -19,6 +19,22 @@ namespace MotorCity.World
             public Bounds[] localBounds;
         }
         private static DistrictCatalog catalog;
+        private static bool warmFailed;
+        private static bool? enabledCache;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetState()
+        {
+            enabledCache = null;
+            catalog = null;
+            warmFailed = false;
+            Warm.Clear();
+            bundle = null;
+            prefab = null;
+            running = false;
+            Failed = false;
+            Progress = 0f;
+        }
         internal sealed class WarmDistrict
         {
             public AssetBundle Bundle;
@@ -29,6 +45,7 @@ namespace MotorCity.World
 
         private static IEnumerator WarmSpawnDistricts()
         {
+            warmFailed = false;
             if (catalog?.districts == null) yield break;
             var position = CityAssetRuntimeInstaller.PlayerSpawnPoint;
             float radius = MotorCityVisibilityRuntime.FarClipDistance + 160f;
@@ -41,9 +58,9 @@ namespace MotorCity.World
                 {
                     request.timeout = 120;
                     yield return request.SendWebRequest();
-                    if (request.result != UnityWebRequest.Result.Success) continue;
+                    if (request.result != UnityWebRequest.Result.Success) { warmFailed = true; yield break; }
                     var loaded = DownloadHandlerAssetBundle.GetContent(request);
-                    if (loaded == null) continue;
+                    if (loaded == null) { warmFailed = true; yield break; }
                     var assets = loaded.LoadAllAssetsAsync<Mesh>();
                     yield return assets;
                     var meshes = new Dictionary<string, Mesh>(StringComparer.Ordinal);
@@ -51,7 +68,7 @@ namespace MotorCity.World
                         if (asset is Mesh mesh) meshes[mesh.name] = mesh;
                     if (district.meshNames.All(meshes.ContainsKey))
                         Warm[district.file] = new WarmDistrict { Bundle = loaded, Meshes = meshes };
-                    else loaded.Unload(true);
+                    else { loaded.Unload(true); warmFailed = true; yield break; }
                 }
             }
         }
@@ -68,8 +85,16 @@ namespace MotorCity.World
         private static GameObject prefab;
         public static bool Failed { get; private set; }
         public static float Progress { get; private set; }
-        public static bool Enabled => Application.platform == RuntimePlatform.WebGLPlayer &&
-            Resources.Load<TextAsset>(Marker) != null;
+        public static bool Enabled
+        {
+            get
+            {
+                if (!enabledCache.HasValue)
+                    enabledCache = Application.platform == RuntimePlatform.WebGLPlayer &&
+                        Resources.Load<TextAsset>(Marker) != null;
+                return enabledCache.Value;
+            }
+        }
         public static bool Ready => prefab != null;
         public static GameObject Prefab => prefab;
 
@@ -117,11 +142,24 @@ namespace MotorCity.World
                     {
                         var metadata = bundle.LoadAsset<TextAsset>("MotorCity/DistrictCatalog");
                         catalog = metadata != null ? JsonUtility.FromJson<DistrictCatalog>(metadata.text) : null;
-                        yield return WarmSpawnDistricts();
-                        prefab = loadedPrefab;
-                        Progress = 1f;
-                        running = false;
-                        yield break;
+                        if (metadata != null && !ValidateCatalog(loadedPrefab))
+                            warmFailed = true;
+                        else
+                            yield return WarmSpawnDistricts();
+                        if (!warmFailed)
+                        {
+                            prefab = loadedPrefab;
+                            Progress = 1f;
+                            running = false;
+                            yield break;
+                        }
+                        // Never display Ready with missing initial district geometry.
+                        foreach (var warm in Warm.Values)
+                            if (warm.Bundle != null) warm.Bundle.Unload(true);
+                        Warm.Clear();
+                        catalog = null;
+                        Debug.LogWarning("Motor City: district preload failed; retrying city download.");
+
                     }
                     bundle.Unload(true);
                     bundle = null;
@@ -131,6 +169,26 @@ namespace MotorCity.World
             Failed = true;
             running = false;
             Debug.LogError("Motor City: city bundle unavailable. Return to menu and retry.");
+        }
+
+        private static bool ValidateCatalog(GameObject city)
+        {
+            if (catalog?.districts == null || catalog.districts.Length == 0) return false;
+            var renderers = city.GetComponentsInChildren<MeshRenderer>(true);
+            if (catalog.rendererCount != renderers.Length) return false;
+            var indices = new HashSet<int>();
+            foreach (var district in catalog.districts)
+            {
+                if (district == null || string.IsNullOrEmpty(district.file) ||
+                    district.meshNames == null || district.rendererIndices == null || district.localBounds == null ||
+                    district.rendererIndices.Length != district.meshNames.Length ||
+                    district.rendererIndices.Length != district.localBounds.Length) return false;
+                foreach (int index in district.rendererIndices)
+                    if (index < 0 || index >= renderers.Length || !indices.Add(index) ||
+                        !renderers[index].TryGetComponent<MeshFilter>(out var filter) || filter.sharedMesh != null)
+                        return false;
+            }
+            return true;
         }
 
         public static T Load<T>(string path) where T : UnityEngine.Object =>
