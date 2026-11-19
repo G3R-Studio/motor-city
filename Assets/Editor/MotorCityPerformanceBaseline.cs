@@ -22,6 +22,94 @@ namespace MotorCity.EditorTools
         private static double start, last;
         private static int lastFrame;
         private static string context;
+        [MenuItem("Tools/Motor City/Audit/City Spatial Audit")]
+        private static void SpatialAudit()
+        {
+            if (!CanBegin()) return;
+            var city = GameObject.Find("MotorCity_FCGCity");
+            var camera = Camera.main;
+            if (city == null || camera == null)
+            {
+                Debug.LogWarning("City Spatial Audit: load the city first.");
+                return;
+            }
+            var renderers = city.GetComponentsInChildren<MeshRenderer>(true);
+            var planes = GeometryUtility.CalculateFrustumPlanes(camera);
+            var report = new StringBuilder("MOTOR CITY SPATIAL AUDIT (read only)\n");
+            report.AppendLine($"camera={camera.transform.position} far={camera.farClipPlane} fogEnd={RenderSettings.fogEndDistance} renderers={renderers.Length}");
+            report.AppendLine("Bounds/frustum estimates only; no occlusion, no memory savings measured.");
+            foreach (int size in new[] { 64, 128, 256 })
+            {
+                var cells = new Dictionary<Vector2Int, SpatialCell>();
+                int protectedCount = 0, crossing = 0, missing = 0;
+                foreach (var renderer in renderers)
+                {
+                    var filter = renderer.GetComponent<MeshFilter>();
+                    var mesh = filter != null ? filter.sharedMesh : null;
+                    if (mesh == null) { missing++; continue; }
+                    var bounds = renderer.bounds;
+                    var key = SpatialKey(bounds.center, size);
+                    if (!cells.TryGetValue(key, out var cell))
+                        cells.Add(key, cell = new SpatialCell { Bounds = bounds });
+                    else cell.Bounds.Encapsulate(bounds);
+                    cell.Count++;
+                    cell.Meshes.Add(mesh);
+                    foreach (var material in renderer.sharedMaterials)
+                        if (material != null) cell.Materials.Add(material);
+                    bool enabled = renderer.enabled && renderer.gameObject.activeInHierarchy && !renderer.forceRenderingOff;
+                    if (enabled) cell.Enabled++;
+                    if (enabled && GeometryUtility.TestPlanesAABB(planes, bounds)) cell.InFrustum++;
+                    for (int i = 0; i < mesh.subMeshCount; i++)
+                        if (mesh.GetTopology(i) == MeshTopology.Triangles)
+                            cell.Triangles += (long)mesh.GetIndexCount(i) / 3;
+                    bool crosses = SpatialKey(bounds.min, size) != key || SpatialKey(bounds.max, size) != key;
+                    if (crosses) { crossing++; cell.Crossing++; }
+                    // Conservative warning flags, not a proof of streaming eligibility.
+                    bool guarded = crosses || renderer.isPartOfStaticBatch ||
+                        renderer.HasPropertyBlock() || renderer.GetComponentInParent<LODGroup>() != null ||
+                        renderer.GetComponentInParent<Rigidbody>() != null ||
+                        renderer.GetComponentInParent<Animator>() != null ||
+                        renderer.GetComponent<Collider>() != null ||
+                        renderer.GetComponent<MonoBehaviour>() != null;
+                    if (guarded) { protectedCount++; cell.Guarded++; }
+                }
+                var meshUses = new Dictionary<Mesh, int>();
+                var materialUses = new Dictionary<Material, int>();
+                foreach (var cell in cells.Values)
+                {
+                    foreach (var mesh in cell.Meshes)
+                        meshUses[mesh] = meshUses.TryGetValue(mesh, out int n) ? n + 1 : 1;
+                    foreach (var mat in cell.Materials)
+                        materialUses[mat] = materialUses.TryGetValue(mat, out int n) ? n + 1 : 1;
+                }
+                report.AppendLine($"GRID {size}m cells={cells.Count} crossing={crossing} guarded={protectedCount} missingMesh={missing} sharedMeshes={meshUses.Count(x => x.Value > 1)} uniqueMeshes={meshUses.Count} sharedMaterials={materialUses.Count(x => x.Value > 1)}");
+                foreach (var pair in cells.OrderByDescending(x => x.Value.Count))
+                {
+                    var cell = pair.Value;
+                    float distance = Mathf.Sqrt(cell.Bounds.SqrDistance(camera.transform.position));
+                    report.AppendLine($"CELL {pair.Key.x},{pair.Key.y} renderers={cell.Count} enabled={cell.Enabled} frustum={cell.InFrustum} triangles={cell.Triangles} crossing={cell.Crossing} guarded={cell.Guarded} meshes={cell.Meshes.Count} exclusiveWithinCity={cell.Meshes.Count(m => meshUses[m] == 1)} materials={cell.Materials.Count} distance={F(distance)} cellFrustum={GeometryUtility.TestPlanesAABB(planes, cell.Bounds)}");
+                }
+            }
+            const string path = "Library/MotorCityCitySpatialAudit.txt";
+            File.WriteAllText(path, report.ToString(), Encoding.UTF8);
+            Debug.Log("City Spatial Audit: " + path);
+        }
+
+        private sealed class SpatialCell
+        {
+            public Bounds Bounds;
+            public int Count, Enabled, InFrustum, Crossing, Guarded;
+            public long Triangles;
+            public readonly HashSet<Mesh> Meshes = new();
+            public readonly HashSet<Material> Materials = new();
+        }
+
+        private static Vector2Int SpatialKey(Vector3 position, int size) =>
+            new Vector2Int(Mathf.FloorToInt(position.x / size), Mathf.FloorToInt(position.z / size));
+
+        [MenuItem("Tools/Motor City/Audit/City Spatial Audit", true)]
+        private static bool CanSpatialAudit() => CanBegin();
+
         [MenuItem("Tools/Motor City/Audit/City Shader Audit")]
         private static void ShaderAudit()
         {
