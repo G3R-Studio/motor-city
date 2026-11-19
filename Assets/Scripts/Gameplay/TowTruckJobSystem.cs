@@ -576,7 +576,7 @@ namespace MotorCity.Gameplay
                         resourcePaths.Length];
 
                 prefab =
-                    Resources.Load<GameObject>(
+                    MotorCityCityBundle.Load<GameObject>(
                         path);
 
                 if (prefab != null)

@@ -154,7 +154,7 @@ namespace MotorCity.World
         // deterministic bootstrap order as before.
         public static void BeginPrefabPreload()
         {
-            if (activeCity != null || cityPrefabPreload != null)
+            if (MotorCityCityBundle.Enabled || activeCity != null || cityPrefabPreload != null)
                 return;
 
             using (BeginCityPreloadMarker.Auto())
@@ -165,6 +165,7 @@ namespace MotorCity.World
         }
 
         public static bool IsPrefabPreloadReady =>
+            MotorCityCityBundle.Enabled ? MotorCityCityBundle.Ready :
             cityPrefabPreload == null || cityPrefabPreload.isDone;
 
         private static Bounds cityBounds;
@@ -300,7 +301,8 @@ namespace MotorCity.World
                     // Normally completed by the loading-screen prefetch.
                     // Preserve synchronous loading for direct callers and
                     // older initialization flows that skip the front end.
-                    prefab = cityPrefabPreload != null &&
+                    prefab = MotorCityCityBundle.Enabled ? MotorCityCityBundle.Prefab :
+                             cityPrefabPreload != null &&
                              cityPrefabPreload.isDone
                         ? cityPrefabPreload.asset as GameObject
                         : Resources.Load<GameObject>(ResourcePath);

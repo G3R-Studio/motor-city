@@ -2429,6 +2429,7 @@ namespace MotorCity.UI
             // Start the costly authored city resource load while this screen
             // is visible, before the gameplay bootstrap runs. Never instantiate
             // or modify the city from the front end.
+            MotorCityCityBundle.Begin(this);
             CityAssetRuntimeInstaller.BeginPrefabPreload();
 
             SetLoadingVisualProgress(0f);
@@ -2457,6 +2458,14 @@ namespace MotorCity.UI
             loadingTimer +=
                 Time.unscaledDeltaTime;
 
+            if (MotorCityCityBundle.Enabled && MotorCityCityBundle.Failed && !loadRequestSent)
+            {
+                ShowMainMenu();
+                if (primaryButtonText != null)
+                    primaryButtonText.text = IsRussian() ? "ПОВТОРИТЬ ЗАГРУЗКУ" : "RETRY DOWNLOAD";
+                return;
+            }
+
             if (!loadRequestSent &&
                 loadingTimer >= 0.15f &&
                 CityAssetRuntimeInstaller.IsPrefabPreloadReady)
@@ -2475,8 +2484,8 @@ namespace MotorCity.UI
                     LoadingDurationSeconds *
                     0.90f);
 
-            float progress =
-                waitingProgress;
+            float progress = MotorCityCityBundle.Enabled && !gameplayReady
+                ? MotorCityCityBundle.Progress * 0.90f : waitingProgress;
 
             if (gameplayReady)
             {
@@ -2544,7 +2553,12 @@ namespace MotorCity.UI
 
             if (loadingStatusText != null)
             {
-                if (!gameplayReady &&
+                if (MotorCityCityBundle.Enabled && !MotorCityCityBundle.Ready)
+                {
+                    loadingStatusText.text = (IsRussian() ? "ЗАГРУЗКА ГОРОДА " : "DOWNLOADING CITY ") +
+                        Mathf.RoundToInt(MotorCityCityBundle.Progress * 100f) + "%";
+                }
+                else if (!gameplayReady &&
                     progress >= 0.88f)
                 {
                     loadingStatusText.text =
@@ -2835,6 +2849,7 @@ namespace MotorCity.UI
                 loadingRoot.SetActive(false);
 
             RefreshMainMenuText();
+            if (!MotorCityCityBundle.Failed) MotorCityCityBundle.Begin(this);
 
             // Return focus from a closed UX modal (or control chooser) to
             // Continue. Otherwise gamepad selection may remain invisible.

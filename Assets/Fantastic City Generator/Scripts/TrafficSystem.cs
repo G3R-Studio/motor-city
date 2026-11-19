@@ -515,7 +515,7 @@ namespace FCG
             // runtime city can recover even if old FCG prefab references were
             // invalidated by a Unity importer migration/reimport.
             GameObject[] runtime =
-                Resources
+                MotorCity.World.MotorCityCityBundle
                     .LoadAll<GameObject>(
                         RuntimeTrafficResourcePath)
                     .Where(
@@ -546,7 +546,7 @@ namespace FCG
             authoredTrafficPoolResolved = true;
 
             GameObject catalog =
-                Resources.Load<GameObject>(
+                MotorCity.World.MotorCityCityBundle.Load<GameObject>(
                     AuthoredTrafficCatalogPath);
 
             TrafficSystem reference =
