@@ -47,6 +47,74 @@ namespace FCG
         private GameObject[] authoredTrafficPool;
         private bool authoredTrafficPoolResolved;
         private bool repairedPartialTrafficRoster;
+        private readonly Dictionary<GameObject, Stack<TrafficCar>> trafficPool = new();
+        private Transform trafficPoolRoot;
+        private bool poolModeChecked, poolMode;
+        private int pooledCount;
+
+        private bool PoolEnabled()
+        {
+            if (!poolModeChecked)
+            {
+                poolModeChecked = true;
+                string url = Application.absoluteURL;
+                poolMode = Application.isPlaying && !string.IsNullOrEmpty(url) &&
+                    url.IndexOf("motorcity_traffic_pool=on", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+            return poolMode;
+        }
+
+        internal bool TryReturnTraffic(TrafficCar car)
+        {
+            if (!PoolEnabled() || car == null || car.tSystem != this ||
+                pooledCount >= 6 || !car.CanReturnToPool()) return false;
+            var source = car.PoolSource;
+            if (!trafficPool.TryGetValue(source, out var pool))
+                trafficPool.Add(source, pool = new Stack<TrafficCar>());
+            if (pool.Count >= 2) return false;
+            var parent = car.transform.parent;
+            if (parent == null || parent.name != "CarContainer") return false;
+            foreach (Transform child in parent)
+            {
+                var other = child.GetComponent<TrafficCar>();
+                if (other != null && other != car) other.ForgetPooledLeader(car.transform);
+            }
+            if (trafficPoolRoot == null)
+            {
+                var root = new GameObject("MotorCity_TrafficPool");
+                root.transform.SetParent(transform, false);
+                trafficPoolRoot = root.transform;
+            }
+            car.SuspendForPool();
+            car.transform.SetParent(trafficPoolRoot, true);
+            pool.Push(car);
+            pooledCount++;
+            return true;
+        }
+
+        private GameObject AcquireTraffic(GameObject source, Vector3 position, Quaternion rotation,
+            Transform parent, out bool reused)
+        {
+            reused = false;
+            if (PoolEnabled() && trafficPool.TryGetValue(source, out var pool))
+            {
+                while (pool.Count > 0)
+                {
+                    var car = pool.Pop();
+                    pooledCount--;
+                    if (car == null) continue;
+                    car.transform.SetParent(parent, true);
+                    car.transform.SetPositionAndRotation(position, rotation);
+                    reused = true;
+                    return car.gameObject;
+                }
+            }
+            var vehicle = (GameObject)Instantiate(source, position, rotation);
+            vehicle.transform.SetParent(parent);
+            if (PoolEnabled() && vehicle.TryGetComponent<TrafficCar>(out var spawned))
+                spawned.PoolSource = source;
+            return vehicle;
+        }
 
         [System.Serializable]
         public class WpData
@@ -415,8 +483,9 @@ namespace FCG
                     if (go)
                     {
 
-                        vehicle = (GameObject)Instantiate(spawnPool[Random.Range(0, spawnPool.Length)], wpDataSpawn[i].position + Vector3.up * 0.1f, wpDataSpawn[i].rotation);
-                        vehicle.transform.SetParent(CarContainer.transform);
+                        var source = spawnPool[Random.Range(0, spawnPool.Length)];
+                        vehicle = AcquireTraffic(source, wpDataSpawn[i].position + Vector3.up * 0.1f,
+                            wpDataSpawn[i].rotation, CarContainer.transform, out bool reused);
 
                         NormalizeTrafficVehicleScale(
                             vehicle);
@@ -431,6 +500,11 @@ namespace FCG
                             spawnedCar.distanceToSelfDestroy = around;
                             spawnedCar.player = player;
                             spawnedCar.tSystem = this;
+                            if (reused)
+                            {
+                                vehicle.SetActive(true);
+                                spawnedCar.RestartAfterPool();
+                            }
                             spawnedCar.ActivateSelfDestructWhenAwayFromThePlayer();
                         }
 
