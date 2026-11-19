@@ -1,7 +1,14 @@
 fileFormatVersion: 2
 guid: ede1c375660575a479d5c285ef2f976e
+AssetOrigin:
+  serializedVersion: 1
+  productId: 84992
+  packageName: Haon SD series Free Bundle
+  packageVersion: 2026.8
+  assetPath: Assets/Haons SD series Pack/Animation/Action Adventure(Adv)/VictoryPose_UTCStyleSpin.fbx
+  uploadId: 998854
 ModelImporter:
-  serializedVersion: 22200
+  serializedVersion: 24600
   internalIDToNameTable:
   - first:
       74: 1827226128182048838
@@ -15,6 +22,7 @@ ModelImporter:
     materialName: 0
     materialSearch: 1
     materialLocation: 1
+    searchTexturesGlobally: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -58,7 +66,7 @@ ModelImporter:
       keepOriginalPositionXZ: 1
       heightFromFeet: 0
       mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000u
       curves: []
       events: []
       transformMask:
@@ -237,7 +245,7 @@ ModelImporter:
       keepOriginalPositionXZ: 1
       heightFromFeet: 0
       mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000u
       curves: []
       events: []
       transformMask:
@@ -372,14 +380,16 @@ ModelImporter:
       maskType: 1
       maskSource: {fileID: 101100000, guid: 457fa94621a1e6f469ad75beb836d5fd, type: 2}
       additiveReferencePoseFrame: 0
-    isReadable: 0
+    isReadable: 1
   meshes:
     lODScreenPercentages: []
     globalScale: 1
-    meshCompression: 0
+    meshCompression: 1
     addColliders: 0
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
+    preBakeConvexCollisionMesh: 0
+    preBakeTriangleCollisionMesh: 0
     importPhysicalCameras: 1
     importVisibility: 1
     importBlendShapes: 1
@@ -398,6 +408,11 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    importUVs: -1
+    importVertexColors: 1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
@@ -417,6 +432,7 @@ ModelImporter:
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
+    calculateBlendshapeNormalsDeltaFromImportedNormals: 1
   referencedClips: []
   importAnimation: 1
   humanDescription:
@@ -1158,10 +1174,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 84992
-  packageName: Haon SD series Free Bundle
-  packageVersion: 2026.8
-  assetPath: Assets/Haons SD series Pack/Animation/Action Adventure(Adv)/VictoryPose_UTCStyleSpin.fbx
-  uploadId: 998854

@@ -1,7 +1,14 @@
 fileFormatVersion: 2
 guid: a5ef0863cbef51144b0d036586e669ba
+AssetOrigin:
+  serializedVersion: 1
+  productId: 84992
+  packageName: Haon SD series Free Bundle
+  packageVersion: 2026.8
+  assetPath: Assets/Haons SD series Pack/Mesh/CharacterParts/mesh_EyeLight1_L.fbx
+  uploadId: 998854
 ModelImporter:
-  serializedVersion: 24200
+  serializedVersion: 24600
   internalIDToNameTable: []
   externalObjects:
   - first:
@@ -19,6 +26,7 @@ ModelImporter:
     materialName: 0
     materialSearch: 1
     materialLocation: 1
+    searchTexturesGlobally: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -40,14 +48,16 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 0
+    isReadable: 1
   meshes:
     lODScreenPercentages: []
     globalScale: 1
-    meshCompression: 0
+    meshCompression: 1
     addColliders: 0
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
+    preBakeConvexCollisionMesh: 0
+    preBakeTriangleCollisionMesh: 0
     importPhysicalCameras: 1
     importVisibility: 1
     importBlendShapes: 1
@@ -69,6 +79,8 @@ ModelImporter:
     generateMeshLods: 0
     meshLodGenerationFlags: 0
     maximumMeshLod: -1
+    importUVs: -1
+    importVertexColors: 1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
@@ -88,6 +100,7 @@ ModelImporter:
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
+    calculateBlendshapeNormalsDeltaFromImportedNormals: 1
   referencedClips: []
   importAnimation: 1
   humanDescription:
@@ -118,10 +131,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 84992
-  packageName: Haon SD series Free Bundle
-  packageVersion: 2026.8
-  assetPath: Assets/Haons SD series Pack/Mesh/CharacterParts/mesh_EyeLight1_L.fbx
-  uploadId: 998854
