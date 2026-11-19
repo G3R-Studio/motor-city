@@ -603,7 +603,15 @@ namespace MotorCity.EditorTools
                 }};
                 if (split)
                 {
-                    string[] gameplayRoots = GameplayPaths.Select(GameplayParked).ToArray();
+                    string[] fleetRoots = GameplayPaths.Where(n => n == "PlayerCarVisual" ||
+                        (n.StartsWith("Vehicles/Player/", StringComparison.Ordinal) && n != "Vehicles/Player/Beatall"))
+                        .Select(GameplayParked).ToArray();
+                    string[] gameplayRoots = GameplayPaths.Select(GameplayParked).Except(fleetRoots).ToArray();
+                    map.Add(new AssetBundleBuild {
+                        assetBundleName = "motorcity-fleet.bundle",
+                        assetNames = fleetRoots,
+                        addressableNames = fleetRoots.Select(Address).ToArray()
+                    });
                     map.Add(new AssetBundleBuild {
                         assetBundleName = "motorcity-gameplay.bundle",
                         assetNames = gameplayRoots,
@@ -611,9 +619,10 @@ namespace MotorCity.EditorTools
                     });
                     // Assign shared imported assets explicitly once within this build.
                     // Keep scripts and package/builtin resources under Unity's normal handling.
-                    var common = AssetDatabase.GetDependencies(bundleRoots, true)
-                        .Intersect(AssetDatabase.GetDependencies(gameplayRoots, true), StringComparer.Ordinal)
-                        .Except(bundleRoots.Concat(gameplayRoots), StringComparer.Ordinal)
+                    var common = new[] { bundleRoots, gameplayRoots, fleetRoots }
+                        .SelectMany(rootsForPackage => AssetDatabase.GetDependencies(rootsForPackage, true).Distinct(StringComparer.Ordinal))
+                        .GroupBy(p => p, StringComparer.Ordinal).Where(g => g.Count() > 1).Select(g => g.Key)
+                        .Except(bundleRoots.Concat(gameplayRoots).Concat(fleetRoots), StringComparer.Ordinal)
                         .Where(p => p.StartsWith("Assets/", StringComparison.Ordinal) &&
                             !AssetDatabase.IsValidFolder(p) &&
                             (AssetDatabase.LoadMainAssetAtPath(p) is Texture ||
@@ -648,6 +657,11 @@ namespace MotorCity.EditorTools
                         ordered.Add(name);
                     }
                     foreach (string name in manifest.GetAllAssetBundles()) Visit(name);
+                    // The fleet may depend on resident packages, but no resident
+                    // package may depend on the fleet if its download is deferred.
+                    if (ordered.Where(n => n != "motorcity-fleet.bundle").Any(n =>
+                        manifest.GetAllDependencies(n).Contains("motorcity-fleet.bundle")))
+                        throw new InvalidOperationException("A startup bundle depends on the deferred fleet; cannot build safely.");
                     string FileName(string name) => Path.GetFileNameWithoutExtension(name) + "-" +
                         manifest.GetAssetBundleHash(name) + ".bundle";
                     File.WriteAllText(MarkerPath, string.Join("\n", ordered.Select(name =>
