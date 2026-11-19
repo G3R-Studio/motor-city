@@ -80,7 +80,7 @@ namespace MotorCity.World
         private bool TryCreateSprintVfx()
         {
             GameObject prefab =
-                Resources.Load<GameObject>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                     SprintVfxResourcePath);
 
             if (prefab == null)
