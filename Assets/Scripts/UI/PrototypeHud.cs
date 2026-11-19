@@ -59,7 +59,6 @@ namespace MotorCity.UI
         private bool pauseMenuOpen;
         private bool audioMuted;
         private float audioVolume = 1f;
-        private float pauseStoredTimeScale = 1f;
         private const string AudioMutedSaveKey =
             "MotorCity.Settings.AudioMuted";
         private const string AudioVolumeSaveKey =
