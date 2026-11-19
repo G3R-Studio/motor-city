@@ -29,6 +29,7 @@ namespace MotorCity.World
             catalog = null;
             warmFailed = false;
             Warm.Clear();
+            gameplayBundles.Clear();
             bundle = null;
             prefab = null;
             running = false;
@@ -216,6 +217,17 @@ namespace MotorCity.World
 
         // Gameplay visuals may be packed with the city or retained in Resources.
         // Native players and Editor use the same original resource addresses.
+        public static bool HasGameplayAsset(string path)
+        {
+            if (Enabled)
+            {
+                foreach (var other in gameplayBundles)
+                    if (other.Contains(path)) return true;
+                if (bundle != null && bundle.Contains(path)) return true;
+            }
+            return Resources.Load<GameObject>(path) != null;
+        }
+
         public static T LoadGameplay<T>(string path) where T : UnityEngine.Object
         {
             if (Enabled)
