@@ -1213,7 +1213,8 @@ namespace MotorCity.UI
                         ? "НАСТРОЙКИ"
                         : "SETTINGS",
                     new Vector2(1180f, 660f),
-                    showCloseButton: false);
+                    showCloseButton: false,
+                    showHeaderDivider: false);
 
             CreateFrontEndSettingsLayoutRow(
                 window.Content,

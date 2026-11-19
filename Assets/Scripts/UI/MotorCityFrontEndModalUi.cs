@@ -72,7 +72,8 @@ namespace MotorCity.UI
             string title,
             Vector2 size,
             float headerHeight = 108f,
-            bool showCloseButton = true)
+            bool showCloseButton = true,
+            bool showHeaderDivider = true)
         {
             RectTransform panel =
                 CreateFrontEndPanel(
@@ -84,10 +85,11 @@ namespace MotorCity.UI
             MotorCityUiSkin.ApplyModalSurface(
                 panel,
                 "Reference Menu Surface");
-            MotorCityUiSkin.AddModalHeaderDivider(
-                panel,
-                headerHeight,
-                FrontEndModalHorizontalPadding);
+            if (showHeaderDivider)
+                MotorCityUiSkin.AddModalHeaderDivider(
+                    panel,
+                    headerHeight,
+                    FrontEndModalHorizontalPadding);
 
             if (parent == playerExperienceRoot.transform)
                 playerExperienceModalPanels.Add(panel);
