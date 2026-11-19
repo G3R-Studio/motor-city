@@ -324,6 +324,12 @@
         "com.unity.ugui": "1.0.0"
       },
       "hash": "05a370f3a061350ba01983cc5a580882014eab11"
+    },
+    "com.unity.modules.screencapture": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
     }
   }
 }
