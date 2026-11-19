@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using MotorCity.Platform;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace MotorCity.World
 {
@@ -145,9 +147,61 @@ namespace MotorCity.World
             }
         }
 
+        private bool adaptiveChecked, adaptiveAllowed;
+        private float adaptiveElapsed, adaptiveSum;
+        private int adaptiveFrames;
+        private float adaptiveNextChange;
+
+        private static float PresetScale => MotorCityQualityRuntime.CurrentPreset switch
+        {
+            MotorCityQualityPreset.Low => .60f,
+            MotorCityQualityPreset.High => .85f,
+            _ => .72f
+        };
+
+        // Explicit opt-in only; keep normal presets unchanged and never cap FPS.
+        private void UpdateAdaptiveScale()
+        {
+            if (!adaptiveChecked)
+            {
+                adaptiveChecked = true;
+                adaptiveAllowed = Application.platform == RuntimePlatform.WebGLPlayer &&
+                    !string.IsNullOrEmpty(Application.absoluteURL) &&
+                    Application.absoluteURL.IndexOf("motorcity_adaptive=on", StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+            if (!adaptiveAllowed || targetCamera == null || Camera.main != targetCamera ||
+                Time.timeScale <= 0f || !Application.isFocused) return;
+            float dt = Time.unscaledDeltaTime;
+            if (dt <= 0f || dt > .25f)
+            {
+                adaptiveElapsed = adaptiveSum = 0f;
+                adaptiveFrames = 0;
+                return;
+            }
+            adaptiveElapsed += dt;
+            adaptiveSum += dt;
+            adaptiveFrames++;
+            if (adaptiveElapsed < 4f) return;
+            float fps = adaptiveFrames / adaptiveSum;
+            adaptiveElapsed = adaptiveSum = 0f;
+            adaptiveFrames = 0;
+            if (Time.unscaledTime < adaptiveNextChange) return;
+            var urp = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+            if (urp == null) return;
+            float high = PresetScale;
+            float low = Mathf.Max(.50f, high - .15f);
+            float current = urp.renderScale;
+            float desired = fps < 28f ? Mathf.Max(low, current - .05f) :
+                fps > 50f ? Mathf.Min(high, current + .05f) : current;
+            if (Mathf.Abs(desired - current) < .001f) return;
+            urp.renderScale = desired;
+            adaptiveNextChange = Time.unscaledTime + 12f;
+        }
+
         private void LateUpdate()
         {
             UpdateVisualCells();
+            UpdateAdaptiveScale();
         }
 
         private Camera targetCamera;
@@ -277,6 +331,8 @@ namespace MotorCity.World
         private void OnDisable()
         {
             WakeVisualCells();
+            if (adaptiveAllowed && GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset urp)
+                urp.renderScale = PresetScale;
             MotorCityQualityRuntime.PresetChanged -= ApplyDistances;
             MotorCityDrawDistanceSettings.Changed -= ApplyDistances;
             if (browserFoliage != null)
@@ -299,6 +355,9 @@ namespace MotorCity.World
             if (targetCamera != null)
                 targetCamera.farClipPlane = FarClipDistance;
 
+            adaptiveElapsed = adaptiveSum = 0f;
+            adaptiveFrames = 0;
+            adaptiveNextChange = Time.unscaledTime + 12f;
             appliedPreset = MotorCityQualityRuntime.CurrentPreset;
             appliedBrowserMode = BrowserProfileActive;
             if (browserDetails != null)
