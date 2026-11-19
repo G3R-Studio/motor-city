@@ -196,9 +196,13 @@ namespace MotorCity.Audio
                     10f) /
                 10f;
 
-            instance.musicVolume =
-                Mathf.Clamp01(
-                    stepped);
+            SetVolume(stepped);
+        }
+
+        public static void SetVolume(float value)
+        {
+            EnsureExists();
+            instance.musicVolume = Mathf.Clamp01(value);
 
             MotorCitySaveService.SetFloat(
                 VolumeKey,
