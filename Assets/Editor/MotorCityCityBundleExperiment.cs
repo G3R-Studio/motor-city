@@ -201,7 +201,53 @@ namespace MotorCity.EditorTools
             return catalog;
         }
 
-        // In a separate candidate, merge the exact distant geometry, not bounds boxes.
+        // Extract a real reduced triangle index buffer, not a native LOD
+        // whose selection depends on renderer/platform support.
+        private static Mesh SimplifyProxy(Mesh combined)
+        {
+            Mesh generated = UnityEngine.Object.Instantiate(combined);
+            Mesh reduced = null;
+            try
+            {
+                MeshLodUtility.GenerateMeshLods(generated, 2);
+                int original = (int)combined.GetIndexCount(0);
+                var ranges = generated.GetLods(0);
+                for (int level = 1; level < ranges.Length; level++)
+                {
+                    int count = (int)generated.GetIndexCount(0, level);
+                    if (count < original * .45f || count > original * .85f || count % 3 != 0) continue;
+                    int[] indices = generated.GetIndices(0, level, true);
+                    if (indices.Length != count || indices.Any(i => i < 0 || i >= generated.vertexCount)) continue;
+                    reduced = new Mesh { name = combined.name, indexFormat = generated.indexFormat };
+                    reduced.vertices = generated.vertices;
+                    var normals = generated.normals;
+                    if (normals.Length == generated.vertexCount) reduced.normals = normals;
+                    var tangents = generated.tangents;
+                    if (tangents.Length == generated.vertexCount) reduced.tangents = tangents;
+                    var colors = generated.colors;
+                    if (colors.Length == generated.vertexCount) reduced.colors = colors;
+                    var uv = new List<Vector4>();
+                    for (int channel = 0; channel < 8; channel++)
+                    {
+                        generated.GetUVs(channel, uv);
+                        if (uv.Count == generated.vertexCount) reduced.SetUVs(channel, uv);
+                    }
+                    reduced.SetIndices(indices, MeshTopology.Triangles, 0);
+                    reduced.bounds = combined.bounds;
+                    UnityEngine.Object.DestroyImmediate(combined);
+                    return reduced;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (reduced != null) UnityEngine.Object.DestroyImmediate(reduced);
+                Debug.LogWarning("HLOD reduction skipped: " + ex.Message);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(generated); }
+            return combined;
+        }
+
+        // In a separate candidate, merge distant geometry, not bounds boxes.
         // Only one opaque material, immutable transforms and no lightmap/LOD owners.
         // The authored prefab and all collider meshes remain intact.
         private static bool PrepareHlod()
@@ -268,6 +314,7 @@ namespace MotorCity.EditorTools
                         }
                         var proxy = new Mesh { name = "HLOD_" + cells.Count };
                         proxy.CombineMeshes(combine, true, true);
+                        proxy = SimplifyProxy(proxy);
                         AssetDatabase.CreateAsset(proxy, DistrictRoot + "/" + proxy.name + ".asset");
                         cells.Add(new CityHlodCell
                         {
