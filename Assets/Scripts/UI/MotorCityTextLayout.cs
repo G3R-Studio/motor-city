@@ -26,6 +26,11 @@ namespace MotorCity.UI
             }
 
             text.alignByGeometry = false;
+            // Dynamic font atlases should interpolate glyph coverage rather than
+            // sample nearest texels at fractional canvas scales.
+            var atlas = text.font != null ? text.font.material.mainTexture : null;
+            if (atlas != null) { atlas.filterMode = FilterMode.Bilinear; atlas.anisoLevel = 1; }
+            text.fontSize = Mathf.Max(15, text.fontSize);
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
 
             // Truncate discards entire wrapped lines before TextClip has a
