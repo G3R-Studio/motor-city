@@ -22,6 +22,51 @@ namespace MotorCity.EditorTools
         private static double start, last;
         private static int lastFrame;
         private static string context;
+        [MenuItem("Tools/Motor City/Audit/City Shader Audit")]
+        private static void ShaderAudit()
+        {
+            if (!CanBegin()) return;
+            var city = GameObject.Find("MotorCity_FCGCity");
+            if (city == null)
+            {
+                Debug.LogWarning("City Shader Audit: load the city first.");
+                return;
+            }
+            var usage = new Dictionary<Material, int[]>();
+            foreach (var renderer in city.GetComponentsInChildren<Renderer>(true))
+            {
+                foreach (var material in renderer.sharedMaterials)
+                {
+                    if (material == null) continue;
+                    if (!usage.TryGetValue(material, out var counts))
+                        usage.Add(material, counts = new int[4]);
+                    counts[0]++;
+                    if (renderer.enabled && renderer.gameObject.activeInHierarchy && !renderer.forceRenderingOff)
+                        counts[1]++;
+                    if (!(renderer is MeshRenderer)) counts[2]++;
+                    if (renderer.HasPropertyBlock()) counts[3]++;
+                }
+            }
+            var report = new StringBuilder("MOTOR CITY CITY SHADER AUDIT (read only)\n");
+            report.AppendLine("Counts are material slots, not draw calls or visible pixels.");
+            foreach (var group in usage.GroupBy(x => x.Key.shader != null ? x.Key.shader.name : "N/A").OrderByDescending(g => g.Sum(x => x.Value[0])))
+                report.AppendLine($"SHADER {group.Key} materials={group.Count()} slots={group.Sum(x => x.Value[0])} enabledSlots={group.Sum(x => x.Value[1])}");
+            foreach (var entry in usage.OrderByDescending(x => x.Value[0]))
+            {
+                var m = entry.Key;
+                var c = entry.Value;
+                string Float(string name) => m.HasProperty(name) ? F(m.GetFloat(name)) : "N/A";
+                string Tex(string name) => m.HasProperty(name) && m.GetTexture(name) != null ? m.GetTexture(name).name : "-";
+                report.AppendLine($"MAT {m.name} | path={AssetDatabase.GetAssetPath(m)} | shader={m.shader?.name} | slots={c[0]} enabled={c[1]} nonMesh={c[2]} propertyBlock={c[3]} queue={m.renderQueue} surface={Float("_Surface")} clip={Float("_AlphaClip")} metallic={Float("_Metallic")} smoothness={Float("_Smoothness")} workflow={Float("_WorkflowMode")} base={Tex("_BaseMap")} normal={Tex("_BumpMap")} metallicMap={Tex("_MetallicGlossMap")} specMap={Tex("_SpecGlossMap")} occlusion={Tex("_OcclusionMap")} emission={Tex("_EmissionMap")} keywords={string.Join(",", m.shaderKeywords)}");
+            }
+            const string path = "Library/MotorCityCityShaderAudit.txt";
+            File.WriteAllText(path, report.ToString(), Encoding.UTF8);
+            Debug.Log("City Shader Audit: " + path);
+        }
+
+        [MenuItem("Tools/Motor City/Audit/City Shader Audit", true)]
+        private static bool CanShaderAudit() => CanBegin();
+
         private static UniversalRenderPipelineAsset PilotPipeline()
         {
             var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
