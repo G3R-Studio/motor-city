@@ -19,6 +19,22 @@ namespace MotorCity.EditorTools
         private const string EnvironmentRoot = "Assets/Resources/MotorCity/Environment/";
         private static readonly string[] ExtraRoots = { "FCGMaterials", "FCGTrafficCars", "TrafficVehicleCatalog.prefab" };
         private static string TemporaryRoot(string name) => "Assets/MotorCity_CityBundleExperiment_" + name;
+        private static readonly string[] GameplayPaths = {
+            "Vehicles/Player/Beatall",
+            "Vehicles/Player/Peugeot306",
+            "Vehicles/Player/ToyotaAE86",
+            "Vehicles/Player/Hybrid",
+            "Vehicles/Player/Porsche996",
+            "Vehicles/Player/AmgGT",
+            "Vehicles/Player/Camaro",
+            "Vehicles/Player/Delorean",
+            "Vehicles/Player/Bus",
+            "Pixie/AmaneKisoraVisual",
+            "Byte/HaonByteVisual"
+        };
+        private static string GameplayOriginal(string name) => "Assets/Resources/MotorCity/" + name + ".prefab";
+        private static string GameplayParked(string name) => "Assets/MotorCity_GameplayStream_" + name.Replace('/', '_') + ".prefab";
+
         private static bool Exists(string path) => File.Exists(path) || Directory.Exists(path);
         private const string Profile = "Assets/Settings/Build Profiles/Web - Desktop - Release.asset";
         private const string Report = "Library/MotorCityCityBundleExperiment.txt";
@@ -404,6 +420,8 @@ namespace MotorCity.EditorTools
             if (path == HlodPath) return "MotorCity/Environment/HLOD/CityHlodData";
             if (path == DistrictCatalogPath) return "MotorCity/DistrictCatalog";
             if (path == TemporaryCity || path == DistrictCity) return "MotorCity/Environment/CityVisual";
+            foreach (string name in GameplayPaths)
+                if (path == GameplayParked(name)) return "MotorCity/" + name;
             foreach (string name in ExtraRoots)
             {
                 string root = TemporaryRoot(name);
@@ -441,6 +459,7 @@ namespace MotorCity.EditorTools
             // Recover interrupted builds automatically, but never overwrite an
             // original asset or delete a temporary folder with ambiguous ownership.
             var pairs = ExtraRoots.Select(n => (original: EnvironmentRoot + n, moved: TemporaryRoot(n)))
+                .Concat(GameplayPaths.Select(n => (original: GameplayOriginal(n), moved: GameplayParked(n))))
                 .Concat(LocalPilotRoots.Select(p => (original: p, moved: ParkedPilotRoot(p))))
                 .Append((original: City, moved: TemporaryCity)).ToArray();
             var conflicts = pairs.Where(p => Exists(p.original) && Exists(p.moved)).ToArray();
@@ -503,7 +522,15 @@ namespace MotorCity.EditorTools
                     log.AppendLine("Baseline wasm bytes: " + WasmBytes(baseline));
                 }
 
-                if (split) ParkIntroSlides(log);
+                if (split)
+                {
+                    ParkIntroSlides(log);
+                    foreach (string name in GameplayPaths)
+                    {
+                        MoveIntro(GameplayOriginal(name), GameplayParked(name));
+                        log.AppendLine("Streaming gameplay prefab: " + name);
+                    }
+                }
                 string error = AssetDatabase.MoveAsset(City, TemporaryCity);
                 if (!string.IsNullOrEmpty(error))
                     throw new InvalidOperationException(error);
@@ -539,6 +566,7 @@ namespace MotorCity.EditorTools
                     else
                         roots.Add(moved);
                 }
+                if (split) roots.AddRange(GameplayPaths.Select(GameplayParked));
                 string[] bundleRoots = roots.Distinct(StringComparer.Ordinal).ToArray();
                 log.AppendLine("Extended bundle roots: " + bundleRoots.Length);
                 string bundles = Path.Combine(root, "Bundles");
@@ -648,6 +676,9 @@ namespace MotorCity.EditorTools
         [MenuItem("Tools/Motor City/Build/Restore City After Experiment")]
         private static void Restore()
         {
+            foreach (string name in GameplayPaths.Reverse())
+                if (Exists(GameplayParked(name)))
+                    MoveIntro(GameplayParked(name), GameplayOriginal(name));
             RestoreIntroSlides();
             RestorePilotRoots();
             if (AssetDatabase.IsValidFolder(DistrictRoot)) AssetDatabase.DeleteAsset(DistrictRoot);
