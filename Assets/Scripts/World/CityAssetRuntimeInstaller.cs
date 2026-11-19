@@ -317,6 +317,7 @@ namespace MotorCity.World
                 {
                     activeCity = UnityEngine.Object.Instantiate(prefab);
                     activeCity.name = RuntimeCityName;
+                    MotorCityCityBundle.AttachDistricts(activeCity);
                 }
             }
 
