@@ -673,6 +673,8 @@ namespace MotorCity.Localization
                 { "garage.open_cancel", E("E - открыть гараж и отменить «{0}»", "E - open garage and cancel “{0}”") },
                 { "garage.stop_and_open", E("Гараж - остановись и нажми E", "Garage - stop and press E") },
                 { "garage.open_prompt", E("Гараж - нажми E", "Garage - press E") },
+                { "garage.fleet_loading", E("Загрузка автомобилей: {0}%", "Downloading vehicles: {0}%") },
+                { "garage.fleet_failed", E("Не удалось загрузить автомобили. Повторите вход в гараж.", "Vehicle download failed. Enter the garage again to retry.") },
                 { "garage.fleet_unavailable", E("Автопарк ещё не подготовлен", "Vehicle roster is not ready yet") },
                 { "garage.activity_name", E("Гараж", "Garage") },
                 { "garage.max_short", E("Макс", "Max") },
