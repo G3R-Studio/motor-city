@@ -1131,6 +1131,10 @@ namespace MotorCity.World
             return count;
         }
 
+        private static readonly RaycastHit[] roadHits = new RaycastHit[64];
+        private static readonly System.Collections.Generic.IComparer<RaycastHit> roadHitComparer =
+            System.Collections.Generic.Comparer<RaycastHit>.Create((a, b) => a.distance.CompareTo(b.distance));
+
         private static bool TryGetRoadHit(
             float x,
             float z,
@@ -1139,29 +1143,24 @@ namespace MotorCity.World
             point =
                 default;
 
-            RaycastHit[] hits =
-                Physics.RaycastAll(
-                    new Vector3(
-                        x,
-                        RayStartY(),
-                        z),
-                    Vector3.down,
-                    RayDistance(),
-                    Physics.DefaultRaycastLayers,
-                    QueryTriggerInteraction.Ignore);
-
-            if (hits == null ||
-                hits.Length == 0)
-                return false;
-
-            Array.Sort(
-                hits,
-                (a, b) =>
-                    a.distance.CompareTo(
-                        b.distance));
-
-            foreach (RaycastHit hit in hits)
+            Vector3 origin = new Vector3(x, RayStartY(), z);
+            float distance = RayDistance();
+            RaycastHit[] hits = roadHits;
+            int count = Physics.RaycastNonAlloc(origin, Vector3.down, hits, distance,
+                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            // NonAlloc can return an incomplete subset when saturated.
+            // Preserve the full road-surface search in dense geometry.
+            if (count == hits.Length)
             {
+                hits = Physics.RaycastAll(origin, Vector3.down, distance,
+                    Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+                count = hits.Length;
+            }
+            Array.Sort(hits, 0, count, roadHitComparer);
+
+            for (int i = 0; i < count; i++)
+            {
+                RaycastHit hit = hits[i];
                 if (!IsRoadSurface(
                         hit))
                     continue;
