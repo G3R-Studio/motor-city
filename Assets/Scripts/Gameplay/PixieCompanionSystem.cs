@@ -240,6 +240,7 @@ namespace MotorCity.Gameplay
             ResolveDailyTask();
             ApplyAbilities();
             BuildVisual();
+            RequestSupporterVisual();
 
             if (activityManager != null)
             {
@@ -1416,6 +1417,24 @@ namespace MotorCity.Gameplay
 #endif
 
             if (car != null)
+                RebuildVisual();
+            RequestSupporterVisual();
+        }
+
+        private bool supporterLoading;
+        private void RequestSupporterVisual()
+        {
+            if (!useSupporterPixieSkin || supporterLoading ||
+                MotorCity.World.MotorCityCityBundle.SupporterReady) return;
+            StartCoroutine(PrepareSupporterVisual());
+        }
+
+        private System.Collections.IEnumerator PrepareSupporterVisual()
+        {
+            supporterLoading = true;
+            yield return MotorCity.World.MotorCityCityBundle.LoadSupporter();
+            supporterLoading = false;
+            if (useSupporterPixieSkin && car != null && MotorCity.World.MotorCityCityBundle.SupporterReady)
                 RebuildVisual();
         }
 
