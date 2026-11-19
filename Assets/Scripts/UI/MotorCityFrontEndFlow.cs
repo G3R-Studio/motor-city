@@ -1226,7 +1226,8 @@ namespace MotorCity.UI
                         : "SETTINGS",
                     new Vector2(1180f, 660f),
                     showCloseButton: false,
-                    showHeaderDivider: false);
+                    showHeaderDivider: false,
+                    contentGlowPadding: 10);
 
             CreateFrontEndSettingsLayoutRow(
                 window.Content,

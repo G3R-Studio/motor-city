@@ -73,7 +73,8 @@ namespace MotorCity.UI
             Vector2 size,
             float headerHeight = 108f,
             bool showCloseButton = true,
-            bool showHeaderDivider = true)
+            bool showHeaderDivider = true,
+            int contentGlowPadding = 0)
         {
             RectTransform panel =
                 CreateFrontEndPanel(
@@ -172,7 +173,8 @@ namespace MotorCity.UI
 
             VerticalLayoutGroup layout =
                 content.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(0, 0, 4, 4);
+            layout.padding = new RectOffset(contentGlowPadding, contentGlowPadding,
+                Mathf.Max(4, contentGlowPadding), Mathf.Max(4, contentGlowPadding));
             layout.spacing = FrontEndModalRowSpacing;
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.childControlWidth = true;
