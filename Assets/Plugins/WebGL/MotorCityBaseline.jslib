@@ -4,6 +4,7 @@ mergeInto(LibraryManager.library, {
       request: 0, report: '',
       start: function() { this.report = ''; this.request = 1; console.log('Baseline armed: return focus to the game. Starts after at least 5 seconds.'); },
       stop: function() { this.request = 2; },
+      meshPilot: function() { this.request = 3; },
       save: function() {
         if (!this.report) return;
         var u = URL.createObjectURL(new Blob([this.report], {type:'text/plain'}));
