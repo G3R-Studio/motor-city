@@ -380,6 +380,7 @@ namespace MotorCity.EditorTools
             }
             if ((options.options & BuildOptions.AutoRunPlayer) != 0)
                 throw new InvalidOperationException("Use Build for the complete Playgama package, then serve the output over HTTP.");
+            MotorCityReleaseAudio.Prepare();
             Run(true, true, false, options.locationPathName);
         }
 
