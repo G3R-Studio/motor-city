@@ -56,9 +56,17 @@ namespace MotorCity.UI
             Vector3 targetScale =
                 baseScale * multiplier;
 
+            Vector3 current = transform.localScale;
+            if (current.Equals(targetScale)) return;
+            if ((current - targetScale).sqrMagnitude < 0.00000001f)
+            {
+                transform.localScale = targetScale;
+                return;
+            }
+
             transform.localScale =
                 Vector3.Lerp(
-                    transform.localScale,
+                    current,
                     targetScale,
                     1f - Mathf.Exp(
                         -responseSpeed *
