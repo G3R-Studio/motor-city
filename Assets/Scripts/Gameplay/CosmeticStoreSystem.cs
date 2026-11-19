@@ -47,6 +47,7 @@ namespace MotorCity.Gameplay
             if (purchaseRunning || !productCatalogResolved)
                 return;
             selectedProductIndex = (selectedProductIndex + 1) % Products.Length;
+            messageTimer = 0f;
             LoadSupporterProductInfo();
         }
 
@@ -55,6 +56,7 @@ namespace MotorCity.Gameplay
 
         private float messageTimer;
         private bool purchaseRunning;
+        private int rewardedRequestSerial;
         private string supporterPrice =
             string.Empty;
         private Texture2D currencyIconTexture;
@@ -205,11 +207,12 @@ namespace MotorCity.Gameplay
             var wallet = UnityEngine.Object.FindAnyObjectByType<PlayerWallet>();
             if (wallet == null) return;
             purchaseRunning = true;
+            int serial = ++rewardedRequestSerial;
             StatusText = MotorCityLocalization.Text("rewarded.opening");
             messageTimer = 4f;
             MotorCityPlatform.ShowRewarded("store_" + id, rewarded =>
             {
-                if (!purchaseRunning) return;
+                if (!purchaseRunning || serial != rewardedRequestSerial) return;
                 purchaseRunning = false;
                 if (!rewarded)
                     StatusText = MotorCityLocalization.Text("rewarded.no_reward");
