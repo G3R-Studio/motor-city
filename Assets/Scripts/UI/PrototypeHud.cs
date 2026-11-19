@@ -1981,7 +1981,7 @@ namespace MotorCity.UI
             canvas.renderMode =
                 RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
-            canvas.pixelPerfect = true;
+            canvas.pixelPerfect = false;
 
             canvasScaler =
                 canvasObject.AddComponent<CanvasScaler>();
@@ -2122,7 +2122,7 @@ namespace MotorCity.UI
                 false;
 
             // Match the root overlay canvas; snap HUD glyph vertices to pixels.
-            canvas.pixelPerfect = true;
+            canvas.pixelPerfect = false;
 
             return rect;
         }
@@ -2222,7 +2222,7 @@ namespace MotorCity.UI
                         : new Rect(0f, 0f, 1f, 1f);
                     image.enabled = true;
                     shade = modal.GetComponent<Image>();
-                    if (shade != null) { originalShade = shade.color; shade.color = Color.clear; }
+                    if (shade != null) { originalShade = shade.color; shade.color = new Color(0.005f, 0.008f, 0.014f, 0.18f); }
                 }
                 catch (System.Exception e)
                 {
