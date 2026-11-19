@@ -1388,14 +1388,14 @@ namespace MotorCity.UI
             shade.raycastTarget =
                 false;
 
-            // Small local backdrop only behind the story copy.
+            // One backdrop contains the story copy and slide progress.
             CreateDecorativeRect(
                 introRoot.transform,
                 "Intro Text Backdrop",
                 new Vector2(0f, 0f),
                 new Vector2(0f, 0f),
-                new Vector2(76f, 72f),
-                new Vector2(790f, 230f),
+                new Vector2(76f, 42f),
+                new Vector2(790f, 260f),
                 new Color(0.015f, 0.025f, 0.055f, 0.34f));
 
             GameObject textGroupObject =
