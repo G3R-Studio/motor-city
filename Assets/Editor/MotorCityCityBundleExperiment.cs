@@ -380,6 +380,8 @@ namespace MotorCity.EditorTools
             }
             if ((options.options & BuildOptions.AutoRunPlayer) != 0)
                 throw new InvalidOperationException("Use Build for the complete Playgama package, then serve the output over HTTP.");
+            if (PlayerSettings.WebGL.template != "APPLICATION:Default")
+                throw new InvalidOperationException("Motor City: select Default WebGL Template in the active release profile. Playgama's analysis window must not replace the Motor City integration.");
             MotorCityReleaseAudio.Prepare();
             Run(true, true, false, options.locationPathName);
         }
@@ -645,6 +647,31 @@ namespace MotorCity.EditorTools
                 inventory.AppendLine(row.Bytes + "\t" + row.Path);
             File.WriteAllText("Library/MotorCityPlayerPackedAssets.tsv", inventory.ToString(), Encoding.UTF8);
             Debug.Log("Motor City: player asset inventory: Library/MotorCityPlayerPackedAssets.tsv");
+            // Optional editor-only bridge to Playgama 2.4.4's report UI.
+            // Never depend on the package for the production build.
+            if (File.Exists(MarkerPath))
+            {
+                try
+                {
+                    var analyzer = AppDomain.CurrentDomain.GetAssemblies()
+                        .Select(a => a.GetType("Playgama.Editor.BuildAnalyzer", false))
+                        .FirstOrDefault(t => t != null);
+                    if (analyzer != null)
+                    {
+                        var method = analyzer.GetMethod("AnalyzeReport",
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static,
+                            null, new[] { typeof(BuildReport), typeof(TimeSpan), typeof(bool) }, null);
+                        if (method == null)
+                            Debug.LogWarning("Motor City: Playgama analyzer API changed; use the TSV report instead.");
+                        else
+                            method.Invoke(null, new object[] { report, report.summary.totalTime, true });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning("Motor City: optional Playgama report export failed: " + ex.Message);
+                }
+            }
             return report;
         }
 
