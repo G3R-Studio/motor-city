@@ -1890,8 +1890,11 @@ namespace MotorCity.UI
             navigatorIcon.color =
                 navigatorColor;
 
-            navigatorIcon.raycastTarget =
-                false;
+            navigatorIcon.raycastTarget = false;
+            CreateLocalizedTouchPulseButton(panel, "HUD Store", "touch.utility.store",
+                MotorCityInputAction.ToggleStore, new Vector2(0f, -27f), new Vector2(198f,44f));
+            CreateLocalizedTouchPulseButton(panel, "HUD Bonus", "touch.utility.bonus",
+                MotorCityInputAction.RewardedBonus, new Vector2(0f, -79f), new Vector2(198f,44f));
         }
 
         private void UpdateNavigator(
