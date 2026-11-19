@@ -67,6 +67,85 @@ namespace MotorCity.EditorTools
         [MenuItem("Tools/Motor City/Audit/City Shader Audit", true)]
         private static bool CanShaderAudit() => CanBegin();
 
+        private static readonly Dictionary<Renderer, Material[]> simpleLitOriginals = new();
+        private static readonly Dictionary<Material, Material> simpleLitCopies = new();
+        private static int simpleLitSlots;
+        private static readonly HashSet<string> simpleLitPaths = new()
+        {
+            "Assets/Resources/MotorCity/Environment/FCGMaterials/Metal_5dd313eb.mat",
+            "Assets/Resources/MotorCity/Environment/FCGMaterials/Tires_2fcd0fa9.mat",
+            "Assets/Resources/MotorCity/Environment/FCGMaterials/Grass-01_f9a48a42.mat"
+        };
+
+        [MenuItem("Tools/Motor City/Audit/Simple Lit Pilot ON")]
+        private static void SimpleLitOn()
+        {
+            if (!CanBegin() || simpleLitOriginals.Count != 0) return;
+            var city = GameObject.Find("MotorCity_FCGCity");
+            var shader = Shader.Find("Universal Render Pipeline/Simple Lit");
+            if (city == null || shader == null || !shader.isSupported)
+            {
+                Debug.LogWarning("Simple Lit pilot: city or supported shader unavailable.");
+                return;
+            }
+            foreach (var renderer in city.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                if (renderer.HasPropertyBlock() || renderer.isPartOfStaticBatch) continue;
+                var original = renderer.sharedMaterials;
+                var replacement = (Material[])original.Clone();
+                bool changed = false;
+                for (int i = 0; i < original.Length; i++)
+                {
+                    var m = original[i];
+                    if (m == null || m.shader == null || m.shader.name != "Universal Render Pipeline/Lit" ||
+                        !simpleLitPaths.Contains(AssetDatabase.GetAssetPath(m)) ||
+                        m.renderQueue != 2000 || m.shaderKeywords.Length != 0 ||
+                        m.GetFloat("_Metallic") != 0 || m.GetFloat("_Surface") != 0 ||
+                        m.GetFloat("_AlphaClip") != 0) continue;
+                    if (!simpleLitCopies.TryGetValue(m, out var copy))
+                    {
+                        copy = new Material(shader) { name = m.name + " (Simple Lit pilot)", hideFlags = HideFlags.HideAndDontSave };
+                        copy.SetTexture("_BaseMap", m.GetTexture("_BaseMap"));
+                        copy.SetTextureScale("_BaseMap", m.GetTextureScale("_BaseMap"));
+                        copy.SetTextureOffset("_BaseMap", m.GetTextureOffset("_BaseMap"));
+                        copy.SetColor("_BaseColor", m.GetColor("_BaseColor"));
+                        copy.SetFloat("_Smoothness", m.GetFloat("_Smoothness"));
+                        copy.SetColor("_SpecColor", new Color(.04f, .04f, .04f, 1f));
+                        copy.EnableKeyword("_SPECULAR_COLOR");
+                        copy.SetFloat("_Cull", m.GetFloat("_Cull"));
+                        copy.SetFloat("_ReceiveShadows", m.GetFloat("_ReceiveShadows"));
+                        if (m.GetFloat("_ReceiveShadows") == 0) copy.EnableKeyword("_RECEIVE_SHADOWS_OFF");
+                        copy.enableInstancing = m.enableInstancing;
+                        simpleLitCopies.Add(m, copy);
+                    }
+                    replacement[i] = copy;
+                    changed = true;
+                    simpleLitSlots++;
+                }
+                if (!changed) continue;
+                simpleLitOriginals.Add(renderer, original);
+                renderer.sharedMaterials = replacement;
+            }
+            Debug.Log($"Simple Lit pilot: {simpleLitCopies.Count} materials, {simpleLitSlots} slots, {simpleLitOriginals.Count} renderers.");
+        }
+
+        [MenuItem("Tools/Motor City/Audit/Simple Lit Pilot OFF")]
+        private static void SimpleLitOff()
+        {
+            if (CanBegin()) RestoreSimpleLit();
+        }
+
+        private static void RestoreSimpleLit()
+        {
+            foreach (var pair in simpleLitOriginals)
+                if (pair.Key != null) pair.Key.sharedMaterials = pair.Value;
+            simpleLitOriginals.Clear();
+            foreach (var copy in simpleLitCopies.Values)
+                if (copy != null) UnityEngine.Object.DestroyImmediate(copy);
+            simpleLitCopies.Clear();
+            simpleLitSlots = 0;
+        }
+
         private static UniversalRenderPipelineAsset PilotPipeline()
         {
             var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
@@ -123,11 +202,13 @@ namespace MotorCity.EditorTools
                 if (state == PlayModeStateChange.ExitingPlayMode)
                 {
                     if (running) Finish(false);
+                    RestoreSimpleLit();
                 }
             };
             AssemblyReloadEvents.beforeAssemblyReload += () =>
             {
                 if (running) Finish(false);
+                RestoreSimpleLit();
             };
         }
 
@@ -147,7 +228,7 @@ namespace MotorCity.EditorTools
             Add(ProfilerCategory.Memory, "Total Used Memory");
             Add(ProfilerCategory.Memory, "GC Used Memory");
             Add(ProfilerCategory.Memory, "GC Allocated In Frame");
-            context = $"hdr={(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.supportsHDR} cameraHDR={Camera.main?.allowHDR} ssao={SsaoState()} preset={MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset} renderScale={(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.renderScale} lampInstancingRenderers={MotorCityLampInstancingPilot.Count} lodPilot={MotorCity.Platform.MotorCityBuildingLodPilot.Enabled} lodRenderers={MotorCity.Platform.MotorCityBuildingLodPilot.RendererCount} Unity={Application.unityVersion} target={EditorUserBuildSettings.activeBuildTarget} screen={Screen.width}x{Screen.height} qualityIndex={QualitySettings.GetQualityLevel()} targetFPS={Application.targetFrameRate} vSync={QualitySettings.vSyncCount} GPU={SystemInfo.graphicsDeviceName}";
+            context = $"simpleLitSlots={simpleLitSlots} simpleLitMaterials={simpleLitCopies.Count} hdr={(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.supportsHDR} cameraHDR={Camera.main?.allowHDR} ssao={SsaoState()} preset={MotorCity.Platform.MotorCityQualityRuntime.CurrentPreset} renderScale={(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.renderScale} lampInstancingRenderers={MotorCityLampInstancingPilot.Count} lodPilot={MotorCity.Platform.MotorCityBuildingLodPilot.Enabled} lodRenderers={MotorCity.Platform.MotorCityBuildingLodPilot.RendererCount} Unity={Application.unityVersion} target={EditorUserBuildSettings.activeBuildTarget} screen={Screen.width}x{Screen.height} qualityIndex={QualitySettings.GetQualityLevel()} targetFPS={Application.targetFrameRate} vSync={QualitySettings.vSyncCount} GPU={SystemInfo.graphicsDeviceName}";
             start = last = EditorApplication.timeSinceStartup;
             lastFrame = Time.frameCount;
             running = true;
@@ -162,6 +243,7 @@ namespace MotorCity.EditorTools
         private static void Stop()
         {
             if (running) Finish(false);
+            RestoreSimpleLit();
         }
 
         private static void Add(ProfilerCategory category, string name)
