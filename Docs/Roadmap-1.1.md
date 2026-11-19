@@ -56,7 +56,7 @@ Motor City — открытый городской автомобильный с
 |---|---|
 | Assets/Settings/MotorCityURP.asset | Базовый URP: HDR on, MSAA 2x, scale .92, дополнительные lights, soft shadows, 2 каскада, SRP Batcher on, GPU Resident Drawer off |
 | Assets/Settings/MotorCityRenderer.asset | Renderer, SSAO feature active в asset; фактические проходы проверить |
-| Assets/Scripts/Platform/MotorCityQualityRuntime.cs | Runtime Low/Medium/High: scale .60/.72/.85, MSAA 1/1/2, дистанция теней 0/0/40, каскады 1, LOD bias .50/.70/.85, maxLOD 1/1/0; traffic budget 10/18/24, radius 105/125/140; FPS cap отсутствует |
+| Assets/Scripts/Platform/MotorCityQualityRuntime.cs | Runtime Low/Medium/High: scale .60/.72/.85, MSAA 1/1/2, дистанция теней 0/0/65, каскады 1/1/2, shadow atlas 256/256/2048, LOD bias .50/.70/.85, maxLOD 1/1/0; traffic budget 10/18/24, radius 105/125/140; FPS cap отсутствует |
 | World/MotorCityVisibilityRuntime.cs | Fog, дальность, подключение отсечения/HLOD |
 | World/CityDistanceDetailCuller.cs | Ограниченные бюджеты сканирования, screen-space + distance culling, защищённые объекты |
 | World/CityParkedVehicleCullingExperiment.cs | Припаркованные машины, активен для всех пресетов |
@@ -293,6 +293,10 @@ Audit COMPLETE: 21690 MeshRenderer, 2 missing meshes; 64m 364 cells/1900 crossin
 ### Невыполненные или отклонённые направления (не скрывать)
 
 Не реализованы: истинный occlusion culling за зданиями (runtime-instantiated city, отсутствуют совместимые baked occlusion data), explicit GPU instancing (предыдущий lamp A/B без выигрыша), AI/physics LOD с урезанием частоты принятия решений, упрощение MeshCollider, ASTC/mobile texture variant. Не внедрены глобальная дедупликация, новые изменения alpha/normal maps, массовое переключение Mesh Read/Write, новые пороги native LOD, дополнительные изменения MSAA/Forward+/теней. Причины — отсутствие доказанной безопасной замены или ранее отклонённый эксперимент; эти направления не выдавать за выполненные. Инвентаризация не была полным runtime dependency/GPU audit. Это не чек-лист ручных проверок и не обязательные блокеры выпуска. Продуктовые аналитика/монетизация не изменялись.
+
+### Коррекция качества теней High, 19.11.2026
+
+Владелец заметил плохое качество теней на High. `531000c`: только High — directional shadow atlas 512→2048, shadow distance 40→65 м, cascades 1→2 (существующий split 0.32), QualitySettings.shadows HardOnly→All. DayNightCycleController уже выбирает LightShadows.Soft для High, URP поддерживает soft shadows. Low/Medium, render scale, MSAA, освещение и настройки исходных ассетов не изменены. Это осознанное повышение качества с возможной дополнительной GPU-нагрузкой; результат и FPS не измерены.
 
 ### Передача в новый чат — актуальная инструкция
 
