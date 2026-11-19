@@ -85,7 +85,7 @@ World/ — относительно Assets/Scripts/. Базовые URP наст
   - [x] P4.1 SSAO A/B и реализация по пресетам; WebGL checkpoint открыт.
   - [x] P4.2 HDR A/B — без выигрыша, rollout отклонён.
   - [x] P4.3 Дополнительные lights — закрыто по решению владельца, без A/B; Forward+/Forward не измерялся, отдельный пилот отложен.
-  - [ ] P4.4 Аудит шейдеров и материалов — инструмент добавлен, отчёт ожидается.
+  - [ ] P4.4 Аудит шейдеров и материалов — аудит завершён; Simple Lit pilot подготовлен, A/B ожидается.
   - [ ] P4.5 Прозрачность и overdraw.
 - [ ] P5/P6: HLOD, visibility, CPU/traffic/physics/UI; не выполнены.
 - [ ] Перед будущим WebGL checkpoint исключить локальные тестовые LOD-копии Assets/Resources/MotorCityLodPilot и Assets/Resources/MotorCityLodExpanded из сборки (проверить, что это только сгенерированные тестовые данные; не удалять оригиналы). Не коммитить эти папки как production assets.
@@ -248,6 +248,10 @@ Medium, SSAO OFF, scale .72, 1512×911, RTX2080, LOD/lamp OFF. ON: 341.577 FPS, 
 ### P4.4 — аудит шейдеров города, 19.11.2026
 
 `37dd6ab`: Tools > Motor City > Audit > City Shader Audit в Play Mode после загрузки MotorCity_FCGCity. Read-only, Library/MotorCityCityShaderAudit.txt: группировка shader, уникальные material instances, слоты и enabled slots, nonMesh/MPB, asset path, queue, surface/clip, свойства и карты, keywords. Слоты не равны draw calls, enabled не означает видимость камерой. Scope только runtime city root, не весь игровой мир. Отдельно учитывать FcgRuntimeGlassMaterialFactory и night emission; исключить стекло, листву, специальные материалы и динамические потребители перед пилотом Simple Lit. Отчёт и компиляция ожидаются; никаких asset/shader изменений, WebGL не пересобирать.
+
+### P4.4 — результаты City Shader Audit и Simple Lit pilot, 19.11.2026
+
+Audit завершён: URP Lit 52 материала, 12920 slots / 6939 enabled; WebStreetLight 9548/219; TwoSidedFoliage 2002/1455; Simple Lit 98/98; Backdrop 1/1. Слоты не draw calls и не видимость. `c80a6a4`: Editor-only Simple Lit Pilot ON/OFF для трёх точных путей Metal_5dd313eb, Tires_2fcd0fa9, Grass-01_f9a48a42 (2046 enabled slots на момент аудита). Только MeshRenderer внутри runtime city, исключены static batch, MPB, keywords, metallic, alpha clip и nonopaque. Временные общие копии с base map/color/tiling, smoothness, cull, receive shadows и приблизительным specular; исходные материалы не изменяются, ссылки восстанавливаются на OFF/exit/reload. Возможны отличия освещения из-за иной BRDF, проверять результат визуально; общие материалы могут использоваться на разных объектах города, точные потребители не классифицированы. Baseline поля simpleLitSlots/simpleLitMaterials. Medium, SSAO OFF, HDR ON, LOD/lamp OFF, 1512×911, 60s OFF/ON после прогрева; визуал день/ночь. Компиляция и замер ожидаются. WebGL не пересобирать.
 
 ### Передача в новый чат — актуальная инструкция
 
