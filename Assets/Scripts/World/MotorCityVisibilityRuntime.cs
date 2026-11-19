@@ -32,7 +32,7 @@ namespace MotorCity.World
                 {
                     loaded = true;
                     current = (MotorCityDrawDistance)Mathf.Clamp(
-                        PlayerPrefs.GetInt(SaveKey, 0), 0, 3);
+                        PlayerPrefs.GetInt(SaveKey, (int)MotorCityDrawDistance.Medium), 0, 3);
                 }
                 return current;
             }
