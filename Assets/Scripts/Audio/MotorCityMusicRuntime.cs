@@ -573,6 +573,7 @@ namespace MotorCity.Audio
 
         private void UpdateWebMusic()
         {
+            if (!MotorCity.Platform.PlaygamaPlatformService.ReadyForMusic) return;
             if ((!gameplayActive && !menuActive) || webMenu != menuActive)
             {
                 if (webTrack != "")
