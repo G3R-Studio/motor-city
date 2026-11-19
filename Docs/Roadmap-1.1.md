@@ -364,3 +364,12 @@ Audit COMPLETE: 21690 MeshRenderer, 2 missing meshes; 64m 364 cells/1900 crossin
 
 
 - `d918228`, `25c0020`, `9576b2a`: Amane Kisora выделена в supporter bundle; загрузка при запросе supporter skin, две попытки, обычный Haon Byte до успешного скачивания, автоматическая перестройка визуала. Проверка отсутствия зависимости resident bundles от supporter. Геометрия гаража остаётся в городе. Отдельный прогресс/ручной retry для skin не реализован; компиляция, зависимости, переключение и размер не проверены в Unity. Packages не изменены.
+
+
+## Контрольная сборка
+
+- `7f92ba9`: автоматический повтор загрузки supporter skin; `1c84341`: кеш версий; `0860601`: отчёт межпакетных зависимостей; `b822f06`: startup DATA+WASM и суммарный размер пакетов; `9f1aab6`: валидация marker. Все изменения требуют проверки компилятором Unity.
+- Git pull, сохранить локальные Packages/manifest.json и packages-lock.json. Открыть Unity, дождаться импорта, проверить Console. Штатный Build профиля Web - Desktop - Release в пустую папку. Не Build And Run.
+- Собрать Library/MotorCityCityBundleExperiment.txt, Library/MotorCityPlayerPackedAssets.tsv, Library/MotorCityStreamOverlap.tsv, Library/MotorCityBundleDependencies.tsv. Сравнить DATA+WASM с исходными 19 570 145 байт. 10 MiB = 10 485 760 байт; 10 MB = 10 000 000 байт.
+- Проверить меню RU/EN, новую игру, старое сохранение с нестартерным авто, первый вход в гараж, смену машины, повторный вход, сохранение и перезагрузку, supporter skin, маркеры, портреты, окраску, звук двигателя и шин. Проверить районный стриминг и восстановление после сетевого сбоя. Проверить отсутствие розовых материалов и корректность теней, шрифтов, кириллицы, Playgama bridge и GameplayStart/Stop.
+- Ограничения: fleet скачивается целиком, не по машине; гараж является частью города, Haon Byte входит в обязательный gameplay bundle; Film Grain и TMP fallback не удалены. Manifest передаётся в BuildPlayer для защиты типов от stripping, это не доказательство сохранности всех shader variants. Отчёты выявляют потенциальные пересечения, не доказывают отсутствие дублей. Unity и контрольная сборка удалённо не выполнялись. Размер 10 MiB не подтверждён.
