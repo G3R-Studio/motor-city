@@ -94,7 +94,7 @@ namespace MotorCity.UI
                 label.font = asset;
                 label.raycastTarget = false;
                 label.richText = source.supportRichText;
-                label.overflowMode = TextOverflowModes.Truncate;
+                label.overflowMode = TextOverflowModes.Masking;
                 ready = true;
                 source.SetVerticesDirty();
             }
@@ -105,12 +105,15 @@ namespace MotorCity.UI
                 label.enabled = source.enabled;
                 source.SetVerticesDirty();
             }
-            var font = Resolve(source.font);
+            bool smallLabel = source.fontSize <= 24;
+            var font = Resolve(smallLabel ? MotorCityTypography.Regular : source.font);
             if (font != null && label.font != font) label.font = font;
             if (label.text != source.text) label.text = source.text;
             if (label.color != source.color) label.color = source.color;
-            if (label.fontSize != source.fontSize) label.fontSize = source.fontSize;
-            label.fontStyle = source.fontStyle switch
+            float size = source.fontSize;
+            if (!label.enableAutoSizing && label.fontSize != size) label.fontSize = size;
+            label.characterSpacing = smallLabel ? 1.5f : 0f;
+            label.fontStyle = (smallLabel ? FontStyle.Normal : source.fontStyle) switch
             {
                 FontStyle.Bold => FontStyles.Bold,
                 FontStyle.Italic => FontStyles.Italic,
@@ -129,7 +132,8 @@ namespace MotorCity.UI
                 TextAnchor.LowerRight => TextAlignmentOptions.BottomRight,
                 _ => TextAlignmentOptions.Center
             };
-            label.enableAutoSizing = source.resizeTextForBestFit;
+            if (label.enableAutoSizing != source.resizeTextForBestFit)
+                label.enableAutoSizing = source.resizeTextForBestFit;
             label.fontSizeMin = source.resizeTextMinSize;
             label.fontSizeMax = source.resizeTextMaxSize;
             label.textWrappingMode = source.horizontalOverflow == HorizontalWrapMode.Wrap
