@@ -202,7 +202,7 @@ namespace MotorCity.UI
                 Mathf.Clamp01(
                     MotorCitySaveService.GetFloat(
                         AudioVolumeKey,
-                        1f));
+                        0.10f));
 
             ApplyFrontEndAudioVolume();
 
