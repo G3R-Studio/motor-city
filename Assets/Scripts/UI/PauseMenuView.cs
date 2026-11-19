@@ -462,11 +462,7 @@ namespace MotorCity.UI
             pauseOverlay?.SetActive(
                 true);
 
-            touchControlsRoot?.SetActive(
-                false);
-
-            touchUtilityRoot?.SetActive(
-                false);
+            // Keep the driving HUD visible behind the modal backdrop.
 
             hudQuickMenuOpen =
                 false;
