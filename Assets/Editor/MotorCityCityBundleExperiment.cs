@@ -14,6 +14,10 @@ namespace MotorCity.EditorTools
     {
         private const string City = "Assets/Resources/MotorCity/Environment/CityVisual.prefab";
         private const string TemporaryCity = "Assets/MotorCity_CityBundleExperiment_CityVisual.prefab";
+        private const string EnvironmentRoot = "Assets/Resources/MotorCity/Environment/";
+        private static readonly string[] ExtraRoots = { "FCGMaterials", "FCGTrafficCars", "TrafficVehicleCatalog.prefab" };
+        private static string TemporaryRoot(string name) => "Assets/MotorCity_CityBundleExperiment_" + name;
+        private static bool Exists(string path) => File.Exists(path) || Directory.Exists(path);
         private const string Profile = "Assets/Settings/Build Profiles/Web - Desktop - Release.asset";
         private const string Report = "Library/MotorCityCityBundleExperiment.txt";
 
@@ -22,7 +26,7 @@ namespace MotorCity.EditorTools
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer)
                 throw new InvalidOperationException("Exit Play Mode and finish any current build.");
-            if (File.Exists(TemporaryCity) || !File.Exists(City))
+            if (File.Exists(TemporaryCity) || !File.Exists(City) || ExtraRoots.Any(n => Exists(TemporaryRoot(n)) || !Exists(EnvironmentRoot + n)))
                 throw new InvalidOperationException("City path unexpected. Use Restore City After Experiment before building.");
             var profile = BuildProfile.GetActiveBuildProfile();
             if (profile == null || AssetDatabase.GetAssetPath(profile) != Profile ||
@@ -31,7 +35,7 @@ namespace MotorCity.EditorTools
                 throw new InvalidOperationException("Activate Web - Desktop - Release first.");
 
             if (!EditorUtility.DisplayDialog("City bundle size experiment",
-                "Builds two diagnostic players and one city bundle. CityVisual is temporarily moved out of Resources and restored in finally. Do not publish the stripped player. Save your scenes first.",
+                "Builds two diagnostic players and one city bundle. CityVisual, FCGMaterials, FCGTrafficCars and the traffic catalog are temporarily moved out of Resources and restored in finally. No textures are deleted. Do not publish the stripped player. Save your scenes first.",
                 "Run experiment", "Cancel"))
                 return;
 
@@ -43,6 +47,7 @@ namespace MotorCity.EditorTools
             log.AppendLine("MOTOR CITY CITY BUNDLE SIZE EXPERIMENT — NOT FOR RELEASE");
             log.AppendLine("Output: " + root);
             string guid = AssetDatabase.AssetPathToGUID(City);
+            var originalGuids = ExtraRoots.ToDictionary(n => n, n => AssetDatabase.AssetPathToGUID(EnvironmentRoot + n));
             try
             {
                 string baseline = Path.Combine(root, "Baseline");
@@ -55,12 +60,37 @@ namespace MotorCity.EditorTools
                 if (!string.IsNullOrEmpty(error))
                     throw new InvalidOperationException(error);
 
+                foreach (string name in ExtraRoots)
+                {
+                    error = AssetDatabase.MoveAsset(EnvironmentRoot + name, TemporaryRoot(name));
+                    if (!string.IsNullOrEmpty(error))
+                        throw new InvalidOperationException(error);
+                    if (AssetDatabase.AssetPathToGUID(TemporaryRoot(name)) != originalGuids[name])
+                        throw new InvalidOperationException("Moved asset GUID mismatch: " + name);
+                }
+
+                // Preserve every original reference. Unity still includes assets
+                // referenced by the remaining Resources or scenes in the player.
+                var roots = new System.Collections.Generic.List<string> { TemporaryCity };
+                foreach (string name in ExtraRoots)
+                {
+                    string moved = TemporaryRoot(name);
+                    if (AssetDatabase.IsValidFolder(moved))
+                        roots.AddRange(AssetDatabase.GetAllAssetPaths().Where(path =>
+                            path.StartsWith(moved + "/", StringComparison.Ordinal) &&
+                            !AssetDatabase.IsValidFolder(path) &&
+                            AssetDatabase.LoadMainAssetAtPath(path) != null));
+                    else
+                        roots.Add(moved);
+                }
+                string[] bundleRoots = roots.Distinct(StringComparer.Ordinal).ToArray();
+                log.AppendLine("Extended bundle roots: " + bundleRoots.Length);
                 string bundles = Path.Combine(root, "Bundles");
                 Directory.CreateDirectory(bundles);
                 var map = new[] { new AssetBundleBuild {
                     assetBundleName = "motorcity-city.bundle",
-                    assetNames = new[] { TemporaryCity },
-                    addressableNames = new[] { "CityVisual" }
+                    assetNames = bundleRoots,
+                    addressableNames = bundleRoots.Select(path => path == TemporaryCity ? "CityVisual" : path).ToArray()
                 }};
                 var manifest = BuildPipeline.BuildAssetBundles(bundles, map,
                     BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.StrictMode,
@@ -83,7 +113,7 @@ namespace MotorCity.EditorTools
                 log.AppendLine("No-city data plus separate bundle bytes: " + (after + bundle));
 
                 var cityDependencies = new System.Collections.Generic.HashSet<string>(
-                    AssetDatabase.GetDependencies(TemporaryCity, true), StringComparer.Ordinal);
+                    AssetDatabase.GetDependencies(bundleRoots, true), StringComparer.Ordinal);
                 var retained = result.packedAssets.SelectMany(p => p.contents)
                     .Where(c => cityDependencies.Contains(c.sourceAssetPath))
                     .GroupBy(c => c.sourceAssetPath)
@@ -91,7 +121,7 @@ namespace MotorCity.EditorTools
                     .OrderByDescending(x => x.Bytes).ToArray();
                 log.AppendLine("City dependency paths still packed in player: " + retained.Length);
                 foreach (var item in retained)
-                    log.AppendLine(item.Bytes + "\t" + item.Path);
+                    log.AppendLine(item.Bytes + "\t" + item.Path + "\tGUID=" + AssetDatabase.AssetPathToGUID(item.Path));
             }
             catch (Exception ex)
             {
@@ -105,6 +135,10 @@ namespace MotorCity.EditorTools
                     Restore();
                     if (AssetDatabase.AssetPathToGUID(City) != guid)
                         throw new InvalidOperationException("Restored city GUID mismatch.");
+                    foreach (string name in ExtraRoots)
+                        if (AssetDatabase.AssetPathToGUID(EnvironmentRoot + name) != originalGuids[name])
+                            throw new InvalidOperationException("Restored GUID mismatch: " + name);
+                    log.AppendLine("City and extra roots restored; original root GUIDs verified.");
                     log.AppendLine("City restored: " + City);
                 }
                 finally
@@ -118,6 +152,17 @@ namespace MotorCity.EditorTools
         [MenuItem("Tools/Motor City/Build/Restore City After Experiment")]
         private static void Restore()
         {
+            foreach (string name in ExtraRoots.Reverse())
+            {
+                string moved = TemporaryRoot(name);
+                string original = EnvironmentRoot + name;
+                if (!Exists(moved)) continue;
+                if (Exists(original))
+                    throw new InvalidOperationException("Both paths exist; do not overwrite: " + name);
+                string moveError = AssetDatabase.MoveAsset(moved, original);
+                if (!string.IsNullOrEmpty(moveError))
+                    throw new InvalidOperationException("RESTORE FAILED: " + moveError);
+            }
             if (File.Exists(TemporaryCity))
             {
                 if (File.Exists(City))
