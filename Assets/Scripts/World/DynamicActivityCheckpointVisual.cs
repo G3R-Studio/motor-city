@@ -64,7 +64,7 @@ namespace MotorCity.World
             CheckpointBeaconStyle fallbackStyle)
         {
             GameObject prefab =
-                Resources.Load<GameObject>(
+                MotorCity.World.MotorCityCityBundle.LoadGameplay<GameObject>(
                     resourcePath);
 
             if (prefab != null)
